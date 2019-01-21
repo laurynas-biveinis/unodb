@@ -11,7 +11,7 @@ namespace {
 #endif
 }
 
-}
+} // namespace
 
 namespace unodb {
 
@@ -19,4 +19,4 @@ void db::insert(key_type k, value_type t)
 {
 }
 
-}
+} // namespace unodb

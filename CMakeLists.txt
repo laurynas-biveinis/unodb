@@ -11,6 +11,14 @@ if(NOT CLANG_TIDY_EXE)
 else()
   message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
   set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}" "-checks=*")
+  string(CONCAT CLANG_TIDY_DISABLED_FOR_TESTS
+    "-cert-err58-cpp,"
+    "-cppcoreguidelines-owning-memory,"
+    "-cppcoreguidelines-special-member-functions,"
+    "-fuchsia-statically-constructed-objects,"
+    "-hicpp-special-member-functions")
+  set(DO_CLANG_TIDY_TEST "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
+    "-checks=*,${CLANG_TIDY_DISABLED_FOR_TESTS}")
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -32,7 +40,7 @@ enable_testing()
 add_executable(test_unodb test_unodb.cpp)
 target_link_libraries(test_unodb PRIVATE unodb gtest_main)
 if(DO_CLANG_TIDY)
-  set_target_properties(test_unodb PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
+  set_target_properties(test_unodb PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY_TEST}")
 endif()
 add_test(test_unodb test_unodb)
 

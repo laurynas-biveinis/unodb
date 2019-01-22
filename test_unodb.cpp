@@ -8,4 +8,4 @@ TEST(UnoDB, insert) {
     test_db.insert(1, {});
 }
 
-}
+} // namespace

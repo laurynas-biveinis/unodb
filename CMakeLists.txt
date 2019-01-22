@@ -14,8 +14,10 @@ else()
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(GSL_INCLUDES "GSL/include")
 
 add_library(unodb art.cpp art.hpp)
+target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
 target_compile_features(unodb PUBLIC cxx_std_17)
 set_target_properties(unodb PROPERTIES CXX_EXTENSIONS OFF)
 set_target_properties(unodb PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)

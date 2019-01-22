@@ -4,11 +4,12 @@
 #include <cstddef>
 #include <cstdint>
 #include <vector>
+#include <gsl/span>
 
 namespace unodb {
 
 using key_type = uint64_t;
-using value_type = std::vector<std::byte>;
+using value_type = gsl::span<const std::byte>;
 
 class db {
 public:

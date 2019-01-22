@@ -21,6 +21,22 @@ else()
     "-checks=*,${CLANG_TIDY_DISABLED_FOR_TESTS}")
 endif()
 
+option(CPPCHECK_AGGRESSIVE "Enable inconclusive cppcheck checks")
+if(CPPCHECK_AGGRESSIVE)
+  set(CPPCHECK_AGGRESSIVE_OPT "--inconclusive")
+else()
+  set(CPPCHECK_AGGRESSIVE_OPT "")
+endif()
+
+find_program(CPPCHECK_EXE NAMES "cppcheck" DOC "Path to cppcheck executable")
+if(NOT CPPCHECK_EXE)
+  message(STATUS "cppcheck not found")
+else()
+  message(STATUS "cppcheck found: ${CPPCHECK_EXE}")
+  set(DO_CPPCHECK "${CPPCHECK_EXE}" "--enable=warning,style,performance,portability"
+    "${CPPCHECK_AGGRESSIVE_OPT}")
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(GSL_INCLUDES "GSL/include")
 
@@ -32,6 +48,9 @@ set_target_properties(unodb PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 if(DO_CLANG_TIDY)
   set_target_properties(unodb PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
 endif()
+if(CPPCHECK_EXE)
+  set_target_properties(unodb PROPERTIES CXX_CPPCHECK "${DO_CPPCHECK}")
+endif()
 
 add_subdirectory(googletest)
 
@@ -41,6 +60,9 @@ add_executable(test_unodb test_unodb.cpp)
 target_link_libraries(test_unodb PRIVATE unodb gtest_main)
 if(DO_CLANG_TIDY)
   set_target_properties(test_unodb PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY_TEST}")
+endif()
+if(CPPCHECK_EXE)
+  set_target_properties(test_unodb PROPERTIES CXX_CPPCHECK "${DO_CPPCHECK}")
 endif()
 add_test(test_unodb test_unodb)
 

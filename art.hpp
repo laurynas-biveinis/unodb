@@ -1,5 +1,6 @@
-#ifndef UNODB_ART_HPP
-#define UNODB_ART_HPP
+// Copyright 2019 Laurynas Biveinis
+#ifndef UNODB_ART_HPP_
+#define UNODB_ART_HPP_
 
 #include <cstddef>
 #include <cstdint>
@@ -17,6 +18,6 @@ public:
     void insert(key_type k, value_type t);
 };
 
-}
+} // namespace unodb
 
-#endif
+#endif // UNODB_ART_HPP_

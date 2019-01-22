@@ -1,3 +1,4 @@
+// Copyright 2019 Laurynas Biveinis
 #include "art.hpp"
 #include "gtest/gtest.h"
 

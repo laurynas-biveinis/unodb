@@ -45,6 +45,18 @@ else()
   set(DO_CPPLINT "${CPPLINT_EXE}")
 endif()
 
+option(IWYU "Enable include-what-you-use checking")
+if(IWYU)
+  find_program(IWYU_EXE NAMES "include-what-you-use"
+    DOC "Path to include-what-you-use executable")
+  if(NOT IWYU_EXE)
+    message(STATUS "include-what-you-use not found")
+  else()
+    message(STATUS "include-what-you-use found: ${IWYU_EXE}")
+    set(DO_IWYU "${IWYU_EXE}")
+  endif()
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(GSL_INCLUDES "GSL/include")
 
@@ -62,6 +74,9 @@ endif()
 if(CPPLINT_EXE)
   set_target_properties(unodb PROPERTIES CXX_CPPLINT "${DO_CPPLINT}")
 endif()
+if(IWYU_EXE)
+  set_target_properties(unodb PROPERTIES CXX_INCLUDE_WHAT_YOU_USE "${DO_IWYU}")
+endif()
 
 add_subdirectory(googletest)
 
@@ -77,6 +92,9 @@ if(CPPCHECK_EXE)
 endif()
 if(CPPLINT_EXE)
   set_target_properties(test_unodb PROPERTIES CXX_CPPLINT "${DO_CPPLINT}")
+endif()
+if(IWYU_EXE)
+  set_target_properties(test_unodb PROPERTIES CXX_INCLUDE_WHAT_YOU_USE "${DO_IWYU}")
 endif()
 add_test(test_unodb test_unodb)
 

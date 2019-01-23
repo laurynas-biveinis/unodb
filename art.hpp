@@ -2,9 +2,8 @@
 #ifndef UNODB_ART_HPP_
 #define UNODB_ART_HPP_
 
-#include <cstddef>
-#include <cstdint>
-#include <vector>
+#include <cstddef>  // for uint64_t
+#include <cstdint>  // IWYU pragma: keep
 #include <gsl/span>
 
 namespace unodb {

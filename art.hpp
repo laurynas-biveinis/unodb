@@ -12,11 +12,11 @@ using key_type = uint64_t;
 using value_type = gsl::span<const std::byte>;
 
 class db {
-public:
-    db() noexcept { }
-    void insert(key_type k, value_type t);
+ public:
+  db() noexcept {}
+  void insert(key_type k, value_type t);
 };
 
-} // namespace unodb
+}  // namespace unodb
 
-#endif // UNODB_ART_HPP_
+#endif  // UNODB_ART_HPP_

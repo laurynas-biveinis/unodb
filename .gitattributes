@@ -1,0 +1,7 @@
+# C++ headers and sources should be formatted
+*.hpp filter=formatsource
+*.cpp filter=formatsource
+
+# 3rd party code should not be formatted
+/GSL/** !filter
+/googletest/** !filter

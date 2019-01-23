@@ -1,0 +1,4 @@
+[filter "formatsource"]
+        clean = clang-format --style=file --assume-filename=%f
+[merge]
+        renormalize = true

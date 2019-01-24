@@ -16,7 +16,7 @@ set(CXX_WARNING_FLAGS
   "-Wcovered-switch-default" "-Wdate-time" "-Wdeprecated-implementations"
   "-Wdisabled-macro-expansion" "-Wdouble-promotion" "-Wduplicate-decl-specifier"
   "-Wduplicate-enum" "-Wduplicate-method-arg" "-Wduplicate-method-match"
-  "-Wfloat-equal" "-Wformat-pedantic" "-Wheader-hygiene"
+  "-Wfloat-equal" "-Wformat-pedantic" "-Wformat=2" "-Wheader-hygiene"
   "-Widiomatic-parentheses" "-Wimplicit-fallthrough" "-Wmain"
   "-Wmethod-signatures" "-Wmissing-noreturn" "-Wmissing-prototypes"
   "-Wmissing-variable-declarations" "-Wnewline-eof" "-Wnon-virtual-dtor"
@@ -129,4 +129,3 @@ if(IWYU_EXE)
   set_target_properties(test_unodb PROPERTIES CXX_INCLUDE_WHAT_YOU_USE "${DO_IWYU}")
 endif()
 add_test(test_unodb test_unodb)
-

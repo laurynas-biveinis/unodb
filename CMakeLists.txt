@@ -34,6 +34,12 @@ set(CXX_WARNING_FLAGS
   "-Wweak-template-vtables" "-Wweak-vtables" "-Wzero-as-null-pointer-constant"
   )
 
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+  SET(DEBUG "ON")
+endif()
+
+configure_file(config.hpp.in config.hpp)
+
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy"
   DOC "Path to clang-tidy executable")
 if(NOT CLANG_TIDY_EXE)
@@ -91,6 +97,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(GSL_INCLUDES "GSL/include")
 
 add_library(unodb art.cpp art.hpp)
+target_include_directories(unodb PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
 target_compile_features(unodb PUBLIC cxx_std_17)
 target_compile_options(unodb PRIVATE "${CXX_WARNING_FLAGS}")
@@ -114,6 +121,7 @@ add_subdirectory(googletest)
 enable_testing()
 
 add_executable(test_unodb test_unodb.cpp)
+target_include_directories(test_unodb PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_options(test_unodb PRIVATE "${CXX_WARNING_FLAGS}")
 target_link_libraries(test_unodb PRIVATE unodb gtest_main)
 if(DO_CLANG_TIDY)

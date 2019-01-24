@@ -47,6 +47,4 @@ International Conference on Data Engineering (ICDE 2013)(ICDE),
 Brisbane, QLD, 2013, pp. 38-49.
 doi:10.1109/ICDE.2013.6544812
 
-## Links
-
 [gc++style]: https://google.github.io/styleguide/cppguide.html "Google C++ Style Guide"

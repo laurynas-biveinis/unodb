@@ -4,6 +4,36 @@ project(unodb VERSION 0.1
   DESCRIPTION "unodb key-value store library"
   HOMEPAGE_URL "https://github.com/laurynas-biveinis/unodb" LANGUAGES CXX)
 
+set(CXX_WARNING_FLAGS
+  # Warning groups
+  "-Wall" "-Wextra" "-Wconversion" "-Wdeprecated" "-Wgnu" "-Wimplicit"
+  "-Wloop-analysis" "-Wpedantic" "-Wpragmas"  "-Wself-assign" "-Wshadow-all"
+  "-Wthread-safety"
+  # Individual warnings
+  "-Wabstract-vbase-init" "-Warray-bounds-pointer-arithmetic" "-Wassign-enum"
+  "-Wbad-function-cast" "-Wc++2a-compat" "-Wc++2a-extensions" "-Wcast-align"
+  "-Wcast-qual" "-Wclass-varargs" "-Wcomma" "-Wconditional-uninitialized"
+  "-Wcovered-switch-default" "-Wdate-time" "-Wdeprecated-implementations"
+  "-Wdisabled-macro-expansion" "-Wdouble-promotion" "-Wduplicate-decl-specifier"
+  "-Wduplicate-enum" "-Wduplicate-method-arg" "-Wduplicate-method-match"
+  "-Wfloat-equal" "-Wformat-pedantic" "-Wheader-hygiene"
+  "-Widiomatic-parentheses" "-Wimplicit-fallthrough" "-Wmain"
+  "-Wmethod-signatures" "-Wmissing-noreturn" "-Wmissing-prototypes"
+  "-Wmissing-variable-declarations" "-Wnewline-eof" "-Wnon-virtual-dtor"
+  "-Wnonportable-system-include-path" "-Wold-style-cast" "-Wover-aligned"
+  "-Wpacked" "-Wpadded" "-Wpointer-arith" "-Wprofile-instr-missing"
+  "-Wredundant-parens" "-Wreserved-id-macro" "-Wshift-sign-overflow"
+  "-Wstatic-in-inline" "-Wstrict-prototypes" "-Wsuper-class-method-mismatch"
+  "-Wswitch-enum" "-Wtautological-compare"
+  "-Wtautological-constant-in-range-compare" "-Wthread-safety-beta"
+  "-Wthread-safety-negative" "-Wthread-safety-verbose" "-Wundef"
+  "-Wundefined-func-template" "-Wundefined-reinterpret-cast"
+  "-Wunreachable-code-aggressive" "-Wunused-exception-parameter"
+  "-Wunused-macros" "-Wunused-member-function" "-Wunused-template"
+  "-Wused-but-marked-unused" "-Wvector-conversion" "-Wvla"
+  "-Wweak-template-vtables" "-Wweak-vtables" "-Wzero-as-null-pointer-constant"
+  )
+
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy"
   DOC "Path to clang-tidy executable")
 if(NOT CLANG_TIDY_EXE)
@@ -63,6 +93,7 @@ set(GSL_INCLUDES "GSL/include")
 add_library(unodb art.cpp art.hpp)
 target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
 target_compile_features(unodb PUBLIC cxx_std_17)
+target_compile_options(unodb PRIVATE "${CXX_WARNING_FLAGS}")
 set_target_properties(unodb PROPERTIES CXX_EXTENSIONS OFF)
 set_target_properties(unodb PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 if(DO_CLANG_TIDY)
@@ -83,6 +114,7 @@ add_subdirectory(googletest)
 enable_testing()
 
 add_executable(test_unodb test_unodb.cpp)
+target_compile_options(test_unodb PRIVATE "${CXX_WARNING_FLAGS}")
 target_link_libraries(test_unodb PRIVATE unodb gtest_main)
 if(DO_CLANG_TIDY)
   set_target_properties(test_unodb PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY_TEST}")

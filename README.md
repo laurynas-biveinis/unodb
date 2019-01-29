@@ -7,10 +7,11 @@ Trie. The licence is AGPLv3.
 
 ## Dependencies
 *   git
-*   a C++17 compiler, currently tested with clang 7.0
+*   a C++17 compiler, currently tested with clang 7.0 and GCC 8.0
 *   CMake, at least 3.10
 *   Guidelines Support Library for gsl::span, imported as a git
     submodule.
+*   Boost.Container library
 *   clang-format
 *   Google Test for tests, imported as a git submodule.
 *   (optional) clang-tidy
@@ -30,6 +31,9 @@ clang-tidy, cppcheck, and cpplint will be invoked automatically during
 build if found. Currently the diagnostic level for them as well as for
 compiler warnings is set very high, and can be relaxed, especially for
 clang-tidy, as need arises.
+
+To enable Address, Leak, and Undefined Behavior sanitizers, add
+-DSANITIZE=ON CMake option.
 
 To invoke include-what-you-use, add -DIWYU=ON CMake option.
 

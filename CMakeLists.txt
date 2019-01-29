@@ -78,7 +78,7 @@ if(NOT CPPLINT_EXE)
   message(STATUS "cpplint not found")
 else()
   message(STATUS "cpplint found: ${CPPLINT_EXE}")
-  set(DO_CPPLINT "${CPPLINT_EXE}")
+  set(DO_CPPLINT "${CPPLINT_EXE}" "--filter=-runtime/references")
 endif()
 
 option(IWYU "Enable include-what-you-use checking")

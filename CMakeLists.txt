@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
 
 project(unodb VERSION 0.1
   DESCRIPTION "unodb key-value store library"
@@ -167,8 +167,9 @@ add_library(unodb art.cpp art.hpp)
 target_include_directories(unodb PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
 target_include_directories(unodb SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
-target_link_libraries(unodb "${Boost_LIBRARIES}")
-target_link_options(unodb PUBLIC "${LD_FLAGS}")
+target_link_libraries(unodb PUBLIC "${Boost_LIBRARIES}")
+# Change to target_link_options on 3.13 minimum CMake version
+target_link_libraries(unodb PRIVATE "${LD_FLAGS}")
 target_compile_features(unodb PUBLIC cxx_std_17)
 target_compile_options(unodb PRIVATE "${CXX_FLAGS}")
 set_target_properties(unodb PROPERTIES CXX_EXTENSIONS OFF)

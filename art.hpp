@@ -20,17 +20,26 @@ using value_type = gsl::span<const std::byte>;
 
 class db {
  public:
-  db() noexcept : leaf_mem_pool(boost::container::pmr::new_delete_resource()) {}
   void insert(key_type k, value_type v);
 
  private:
-  using single_value_leaf = std::byte *;
+  using single_value_leaf = std::byte[];
 
-  [[nodiscard]] std::unique_ptr<single_value_leaf> make_single_value_leaf(
-      key_type k, value_type v);
+  struct leaf_mem_pool_deleter {
+    void operator()(single_value_leaf to_delete) noexcept {
+      uint64_t size;
+      memcpy(&size, to_delete + sizeof(key_type), sizeof(size));
+      boost::container::pmr::new_delete_resource()->deallocate(to_delete, size);
+    }
+  };
 
-  boost::container::pmr::memory_resource *leaf_mem_pool;
-  std::unique_ptr<single_value_leaf> root;
+  using leaf_node_unique_ptr =
+      std::unique_ptr<single_value_leaf, leaf_mem_pool_deleter>;
+
+  [[nodiscard]] leaf_node_unique_ptr make_single_value_leaf(key_type k,
+                                                            value_type v);
+
+  leaf_node_unique_ptr root;
 };
 
 }  // namespace unodb

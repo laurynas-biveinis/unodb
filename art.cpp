@@ -1,13 +1,6 @@
 // Copyright 2019 Laurynas Biveinis
 #include "art.hpp"
 
-#include <cstddef>
-#include <cstring>
-#include <memory>
-#include <utility>  // IWYU pragma: keep
-
-#include <boost/container/pmr/memory_resource.hpp>
-
 namespace {
 
 [[nodiscard]] auto make_binary_comparable(const uint64_t key) {
@@ -22,16 +15,16 @@ namespace {
 
 namespace unodb {
 
-std::unique_ptr<unodb::db::single_value_leaf> db::make_single_value_leaf(
-    key_type k, value_type v) {
+db::leaf_node_unique_ptr db::make_single_value_leaf(key_type k, value_type v) {
   static_assert(sizeof(decltype(v.size())) == 8);
   const auto leaf_size = sizeof(k) + 8 + static_cast<size_t>(v.size());
-  auto *const leaf_mem =
-      static_cast<single_value_leaf>(leaf_mem_pool->allocate(leaf_size));
+  auto *const leaf_mem = static_cast<std::byte *>(
+      boost::container::pmr::new_delete_resource()->allocate(leaf_size));
   memcpy(leaf_mem, &k, sizeof(k));
   memcpy(leaf_mem + sizeof(k), &leaf_size, 8);
-  memcpy(leaf_mem + sizeof(k) + 8, &v[0], static_cast<size_t>(v.size()));
-  return std::make_unique<single_value_leaf>(leaf_mem);
+  if (v.size() > 0)
+    memcpy(leaf_mem + sizeof(k) + 8, &v[0], static_cast<size_t>(v.size()));
+  return leaf_node_unique_ptr(leaf_mem);
 }
 
 void db::insert(key_type k, value_type v) {

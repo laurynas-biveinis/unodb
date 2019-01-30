@@ -4,11 +4,14 @@
 
 #include "global.hpp"  // IWYU pragma: keep
 
-#include <boost/container/pmr/global_resource.hpp>
 #include <cstddef>  // for uint64_t
 #include <cstdint>  // IWYU pragma: keep
-#include <gsl/span>
+#include <cstring>
 #include <memory>
+
+#include <boost/container/pmr/global_resource.hpp>
+#include <boost/container/pmr/memory_resource.hpp>
+#include <gsl/span>
 
 namespace unodb {
 

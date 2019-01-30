@@ -8,11 +8,11 @@ Trie. The licence is AGPLv3.
 ## Dependencies
 *   git
 *   a C++17 compiler, currently tested with clang 7.0 and GCC 8.0
-*   CMake, at least 3.10
+*   CMake, at least 3.12
 *   Guidelines Support Library for gsl::span, imported as a git
     submodule.
 *   Boost.Container library
-*   clang-format
+*   clang-format, at least 8.0
 *   Google Test for tests, imported as a git submodule.
 *   (optional) clang-tidy
 *   (optional) cppcheck

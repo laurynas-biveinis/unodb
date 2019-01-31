@@ -22,7 +22,7 @@ db::leaf_node_unique_ptr db::make_single_value_leaf(key_type k, value_type v) {
       boost::container::pmr::new_delete_resource()->allocate(leaf_size));
   memcpy(leaf_mem, &k, sizeof(k));
   memcpy(leaf_mem + sizeof(k), &leaf_size, 8);
-  if (v.size() > 0)
+  if (!v.empty())
     memcpy(leaf_mem + sizeof(k) + 8, &v[0], static_cast<size_t>(v.size()));
   return leaf_node_unique_ptr(leaf_mem);
 }

@@ -7,7 +7,10 @@
 #include <cstddef>  // for uint64_t
 #include <cstdint>  // IWYU pragma: keep
 #include <cstring>
+#include <limits>
 #include <memory>
+#include <optional>
+#include <vector>
 
 #include <boost/container/pmr/global_resource.hpp>
 #include <boost/container/pmr/memory_resource.hpp>
@@ -16,30 +19,98 @@
 namespace unodb {
 
 using key_type = uint64_t;
-using value_type = gsl::span<const std::byte>;
+using value_view = gsl::span<const std::byte>;
 
-class db {
+// Helper struct for leaf node-related data and (static) code. We
+// don't use a regular class because leaf nodes are of variable size
+// and we want to save one level of indirection - we want to be able
+// to point directly to the node in memory
+struct single_value_leaf {
  public:
-  void insert(key_type k, value_type v);
+  // Single value leaf node proper
+  using type = std::byte[];
 
- private:
-  using single_value_leaf = std::byte[];
+  // Non-owning pointer to somewhere middle of the node
+  // Use std::observer_ptr<std::byte> once it's available
+  using field_ptr = std::byte *;
 
-  struct leaf_mem_pool_deleter {
-    void operator()(single_value_leaf to_delete) noexcept {
-      uint64_t size;
-      memcpy(&size, to_delete + sizeof(key_type), sizeof(size));
-      boost::container::pmr::new_delete_resource()->deallocate(to_delete, size);
+  static const constexpr auto minimum_size = 8 + sizeof(key_type);
+
+  [[nodiscard]] static auto size(single_value_leaf::type leaf) noexcept {
+    uint64_t result;
+    memcpy(&result, leaf + sizeof(key_type), sizeof(result));
+    Ensures(result >= minimum_size);
+    return result;
+  }
+
+  struct deleter {
+    void operator()(single_value_leaf::type to_delete) noexcept {
+      const auto s = single_value_leaf::size(to_delete);
+      boost::container::pmr::new_delete_resource()->deallocate(to_delete, s);
     }
   };
 
-  using leaf_node_unique_ptr =
-      std::unique_ptr<single_value_leaf, leaf_mem_pool_deleter>;
+  using unique_ptr = std::unique_ptr<type, deleter>;
 
-  [[nodiscard]] leaf_node_unique_ptr make_single_value_leaf(key_type k,
-                                                            value_type v);
+  [[nodiscard]] static unique_ptr make(key_type k, value_view v);
 
-  leaf_node_unique_ptr root;
+  [[nodiscard]] static bool matches(single_value_leaf::type leaf,
+                                    key_type k) noexcept {
+    return !memcmp(leaf, &k, sizeof(k));
+  }
+
+  [[nodiscard]] static auto value_ptr(single_value_leaf::type leaf) noexcept {
+    return field_ptr(leaf + sizeof(key_type) + 8);
+  }
+
+  [[nodiscard]] static auto value_size(single_value_leaf::type leaf) noexcept {
+    return size(leaf) - sizeof(key_type) - 8;
+  }
+
+  [[nodiscard]] static auto value(single_value_leaf::type leaf) noexcept {
+    const auto s = value_size(leaf);
+    assert(s <= std::numeric_limits<value_view::index_type>::max());
+    return value_view(value_ptr(leaf), static_cast<value_view::index_type>(s));
+  }
+};
+
+class db {
+ public:
+  using get_result = std::optional<std::vector<std::byte>>;
+
+  [[nodiscard]] get_result get(key_type k) noexcept;
+
+  void insert(key_type k, value_view v);
+
+ private:
+  class root_node {
+   public:
+    root_node() = default;
+
+    [[nodiscard]] static root_node create_leaf(
+        single_value_leaf::unique_ptr new_root) {
+      return root_node(true, std::move(new_root));
+    }
+
+    [[nodiscard]] auto is_leaf() const noexcept { return leaf; }
+
+    [[nodiscard]] auto get_leaf() const noexcept {
+      Expects(is_leaf());
+      return root.get();
+    }
+
+    [[nodiscard]] auto operator!() const noexcept { return !root; }
+
+   private:
+    root_node(bool leaf_, single_value_leaf::unique_ptr root_) noexcept
+        : root(std::move(root_)), leaf(leaf_){};
+
+    single_value_leaf::unique_ptr root;
+
+    bool leaf{true};
+  };
+
+  root_node root;
 };
 
 }  // namespace unodb

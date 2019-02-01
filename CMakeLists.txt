@@ -113,6 +113,7 @@ else()
   set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}" "-checks=*,${CLANG_TIDY_DISABLED}")
   string(CONCAT CLANG_TIDY_DISABLED_FOR_TESTS
     "${CLANG_TIDY_DISABLED},"
+    "-build-include-order,"
     "-cert-err58-cpp,"
     "-cppcoreguidelines-owning-memory,"
     "-cppcoreguidelines-special-member-functions,"
@@ -144,7 +145,7 @@ if(NOT CPPLINT_EXE)
   message(STATUS "cpplint not found")
 else()
   message(STATUS "cpplint found: ${CPPLINT_EXE}")
-  set(DO_CPPLINT "${CPPLINT_EXE}" "--filter=-runtime/references")
+  set(DO_CPPLINT "${CPPLINT_EXE}" "--filter=-build/include_order,-runtime/references")
 endif()
 
 option(IWYU "Enable include-what-you-use checking")

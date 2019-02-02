@@ -48,10 +48,7 @@ struct single_value_leaf {
   }
 
   [[nodiscard]] static auto value(single_value_leaf::type leaf) noexcept {
-    const auto s = value_size(leaf);
-    assert(s <= std::numeric_limits<value_view::index_type>::max());
-    return value_view(&leaf[offset_value],
-                      static_cast<value_view::index_type>(s));
+    return value_view(&leaf[offset_value], value_size(leaf));
   }
 
  private:
@@ -59,7 +56,7 @@ struct single_value_leaf {
   // Use std::observer_ptr<std::byte> once it's available
   using field_ptr = std::byte *;
 
-  using value_size_type = uint64_t;
+  using value_size_type = uint32_t;
 
   static const constexpr auto offset_key = 0;
   static const constexpr auto offset_value_size = offset_key + sizeof(key_type);
@@ -68,7 +65,7 @@ struct single_value_leaf {
 
   static const constexpr auto minimum_size = offset_value;
 
-  [[nodiscard]] static uint64_t size(single_value_leaf::type leaf) noexcept {
+  [[nodiscard]] static size_t size(single_value_leaf::type leaf) noexcept {
     return value_size(leaf) + offset_value;
   }
 

@@ -38,4 +38,13 @@ TEST(UnoDB, single_node_tree_nonempty_value) {
   assert_result_eq(result, test_value_3);
 }
 
+TEST(UnoDB, too_long_value) {
+  std::byte fake_val{0x00};
+  unodb::value_view too_long{
+      &fake_val,
+      static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1U};
+  unodb::db test_db;
+  ASSERT_THROW(test_db.insert(1, too_long), std::length_error);
+}
+
 }  // namespace

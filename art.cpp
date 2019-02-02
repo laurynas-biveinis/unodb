@@ -1,6 +1,8 @@
 // Copyright 2019 Laurynas Biveinis
 #include "art.hpp"
 
+#include <stdexcept>
+
 namespace {
 
 [[nodiscard]] auto make_binary_comparable(const uint64_t key) {
@@ -18,7 +20,7 @@ namespace unodb {
 single_value_leaf::unique_ptr single_value_leaf::make(key_type k,
                                                       value_view v) {
   if (v.size() > std::numeric_limits<value_size_type>::max()) {
-    // TODO(laurynas): throw
+    throw std::length_error("Value length must fit in uint32_t");
   }
   const auto value_size = static_cast<value_size_type>(v.size());
   const auto leaf_size = static_cast<size_t>(offset_value) + value_size;

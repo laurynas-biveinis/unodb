@@ -60,21 +60,21 @@ struct single_value_leaf {
   using field_ptr = std::byte *;
 
   static const constexpr auto offset_key = 0;
-  static const constexpr auto offset_size = offset_key + sizeof(key_type);
-  static const constexpr auto offset_value = offset_size + sizeof(uint64_t);
+  static const constexpr auto offset_value_size = offset_key + sizeof(key_type);
+  static const constexpr auto offset_value =
+      offset_value_size + sizeof(uint64_t);
 
   static const constexpr auto minimum_size = offset_value;
 
   [[nodiscard]] static uint64_t size(single_value_leaf::type leaf) noexcept {
-    uint64_t result;
-    memcpy(&result, &leaf[offset_size], sizeof(result));
-    Ensures(result >= minimum_size);
-    return result;
+    return value_size(leaf) + offset_value;
   }
 
   [[nodiscard]] static uint64_t value_size(
       single_value_leaf::type leaf) noexcept {
-    return size(leaf) - sizeof(key_type) - 8;
+    uint64_t result;
+    memcpy(&result, &leaf[offset_value_size], sizeof(result));
+    return result;
   }
 };
 

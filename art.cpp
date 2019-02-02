@@ -18,12 +18,12 @@ namespace unodb {
 single_value_leaf::unique_ptr single_value_leaf::make(key_type k,
                                                       value_view v) {
   static_assert(sizeof(decltype(v.size())) == 8);
-  const auto leaf_size = sizeof(k) + 8 + static_cast<size_t>(v.size());
-  assert(leaf_size >= minimum_size);
+  const auto value_size = static_cast<uint64_t>(v.size());
+  const auto leaf_size = offset_value + value_size;
   auto *const leaf_mem = static_cast<std::byte *>(
       boost::container::pmr::new_delete_resource()->allocate(leaf_size));
   memcpy(&leaf_mem[offset_key], &k, sizeof(k));
-  memcpy(&leaf_mem[offset_size], &leaf_size, 8);
+  memcpy(&leaf_mem[offset_value_size], &value_size, 8);
   if (!v.empty())
     memcpy(&leaf_mem[offset_value], &v[0], static_cast<size_t>(v.size()));
   return single_value_leaf::unique_ptr(leaf_mem);

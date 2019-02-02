@@ -63,12 +63,13 @@ struct single_value_leaf {
   using field_ptr = std::byte *;
 
   static const constexpr auto offset_key = 0;
+  static const constexpr auto offset_size = offset_key + sizeof(key_type);
 
   static const constexpr auto minimum_size = 8 + sizeof(key_type);
 
   [[nodiscard]] static uint64_t size(single_value_leaf::type leaf) noexcept {
     uint64_t result;
-    memcpy(&result, leaf + sizeof(key_type), sizeof(result));
+    memcpy(&result, &leaf[offset_size], sizeof(result));
     Ensures(result >= minimum_size);
     return result;
   }

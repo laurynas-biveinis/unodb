@@ -21,6 +21,8 @@ namespace unodb {
 using key_type = uint64_t;
 using value_view = gsl::span<const std::byte>;
 
+enum class node_type : uint8_t { LEAF };
+
 // Helper struct for leaf node-related data and (static) code. We
 // don't use a regular class because leaf nodes are of variable size
 // and we want to save one level of indirection - we want to be able
@@ -42,6 +44,12 @@ struct single_value_leaf {
 
   [[nodiscard]] static unique_ptr make(key_type k, value_view v);
 
+  [[nodiscard]] static auto is_leaf(single_value_leaf::type leaf) {
+    // Could be "return true;" and the whole thing looks like
+    // single_value_leaf::is_leaf but bear with me
+    return leaf[offset_type] == std::byte{node_type::LEAF};
+  }
+
   [[nodiscard]] static bool matches(single_value_leaf::type leaf,
                                     key_type k) noexcept {
     return !memcmp(&leaf[offset_key], &k, sizeof(k));
@@ -58,7 +66,8 @@ struct single_value_leaf {
 
   using value_size_type = uint32_t;
 
-  static const constexpr auto offset_key = 0;
+  static const constexpr auto offset_type = 0;
+  static const constexpr auto offset_key = sizeof(node_type);
   static const constexpr auto offset_value_size = offset_key + sizeof(key_type);
   static const constexpr auto offset_value =
       offset_value_size + sizeof(value_size_type);
@@ -86,34 +95,7 @@ class db {
   void insert(key_type k, value_view v);
 
  private:
-  class root_node {
-   public:
-    root_node() = default;
-
-    [[nodiscard]] static root_node create_leaf(
-        single_value_leaf::unique_ptr new_root) {
-      return root_node(true, std::move(new_root));
-    }
-
-    [[nodiscard]] auto is_leaf() const noexcept { return leaf; }
-
-    [[nodiscard]] auto get_leaf() const noexcept {
-      Expects(is_leaf());
-      return root.get();
-    }
-
-    [[nodiscard]] auto operator!() const noexcept { return !root; }
-
-   private:
-    root_node(bool leaf_, single_value_leaf::unique_ptr root_) noexcept
-        : root(std::move(root_)), leaf(leaf_){};
-
-    single_value_leaf::unique_ptr root;
-
-    bool leaf{true};
-  };
-
-  root_node root;
+  single_value_leaf::unique_ptr root;
 };
 
 }  // namespace unodb

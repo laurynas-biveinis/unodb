@@ -26,6 +26,7 @@ single_value_leaf::unique_ptr single_value_leaf::make(key_type k,
   const auto leaf_size = static_cast<size_t>(offset_value) + value_size;
   auto *const leaf_mem = static_cast<std::byte *>(
       boost::container::pmr::new_delete_resource()->allocate(leaf_size));
+  leaf_mem[offset_type] = std::byte{node_type::LEAF};
   memcpy(&leaf_mem[offset_key], &k, sizeof(k));
   memcpy(&leaf_mem[offset_value_size], &value_size, sizeof(value_size_type));
   if (!v.empty())
@@ -36,10 +37,9 @@ single_value_leaf::unique_ptr single_value_leaf::make(key_type k,
 db::get_result db::get(key_type k) noexcept {
   if (!root) return get_result{};
   const auto bin_comparable_key = make_binary_comparable(k);
-  if (root.is_leaf()) {
-    const auto &root_leaf = root.get_leaf();
-    if (single_value_leaf::matches(root_leaf, bin_comparable_key)) {
-      const auto value_view = single_value_leaf::value(root_leaf);
+  if (single_value_leaf::is_leaf(root.get())) {
+    if (single_value_leaf::matches(root.get(), bin_comparable_key)) {
+      const auto value_view = single_value_leaf::value(root.get());
       return get_result{std::in_place, value_view.cbegin(), value_view.cend()};
     } else {
       return get_result{};
@@ -52,7 +52,7 @@ db::get_result db::get(key_type k) noexcept {
 void db::insert(key_type k, value_view v) {
   const auto bin_comparable_key = make_binary_comparable(k);
   auto leaf_node = single_value_leaf::make(bin_comparable_key, v);
-  if (!root) root = root_node::create_leaf(std::move(leaf_node));
+  if (!root) root = std::move(leaf_node);
 }
 
 }  // namespace unodb

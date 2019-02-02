@@ -26,22 +26,9 @@ using value_view = gsl::span<const std::byte>;
 // and we want to save one level of indirection - we want to be able
 // to point directly to the node in memory
 struct single_value_leaf {
- public:
+ private:
   // Single value leaf node proper
   using type = std::byte[];
-
-  // Non-owning pointer to somewhere middle of the node
-  // Use std::observer_ptr<std::byte> once it's available
-  using field_ptr = std::byte *;
-
-  static const constexpr auto minimum_size = 8 + sizeof(key_type);
-
-  [[nodiscard]] static auto size(single_value_leaf::type leaf) noexcept {
-    uint64_t result;
-    memcpy(&result, leaf + sizeof(key_type), sizeof(result));
-    Ensures(result >= minimum_size);
-    return result;
-  }
 
   struct deleter {
     void operator()(single_value_leaf::type to_delete) noexcept {
@@ -50,6 +37,7 @@ struct single_value_leaf {
     }
   };
 
+ public:
   using unique_ptr = std::unique_ptr<type, deleter>;
 
   [[nodiscard]] static unique_ptr make(key_type k, value_view v);
@@ -57,10 +45,6 @@ struct single_value_leaf {
   [[nodiscard]] static bool matches(single_value_leaf::type leaf,
                                     key_type k) noexcept {
     return !memcmp(leaf, &k, sizeof(k));
-  }
-
-  [[nodiscard]] static auto value_ptr(single_value_leaf::type leaf) noexcept {
-    return field_ptr(leaf + sizeof(key_type) + 8);
   }
 
   [[nodiscard]] static auto value_size(single_value_leaf::type leaf) noexcept {
@@ -71,6 +55,25 @@ struct single_value_leaf {
     const auto s = value_size(leaf);
     assert(s <= std::numeric_limits<value_view::index_type>::max());
     return value_view(value_ptr(leaf), static_cast<value_view::index_type>(s));
+  }
+
+ private:
+  // Non-owning pointer to somewhere middle of the node
+  // Use std::observer_ptr<std::byte> once it's available
+  using field_ptr = std::byte *;
+
+  static const constexpr auto minimum_size = 8 + sizeof(key_type);
+
+  [[nodiscard]] static uint64_t size(single_value_leaf::type leaf) noexcept {
+    uint64_t result;
+    memcpy(&result, leaf + sizeof(key_type), sizeof(result));
+    Ensures(result >= minimum_size);
+    return result;
+  }
+
+  [[nodiscard]] static field_ptr value_ptr(
+      single_value_leaf::type leaf) noexcept {
+    return field_ptr(leaf + sizeof(key_type) + 8);
   }
 };
 

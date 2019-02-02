@@ -47,10 +47,6 @@ struct single_value_leaf {
     return !memcmp(&leaf[offset_key], &k, sizeof(k));
   }
 
-  [[nodiscard]] static auto value_size(single_value_leaf::type leaf) noexcept {
-    return size(leaf) - sizeof(key_type) - 8;
-  }
-
   [[nodiscard]] static auto value(single_value_leaf::type leaf) noexcept {
     const auto s = value_size(leaf);
     assert(s <= std::numeric_limits<value_view::index_type>::max());
@@ -74,6 +70,11 @@ struct single_value_leaf {
     memcpy(&result, &leaf[offset_size], sizeof(result));
     Ensures(result >= minimum_size);
     return result;
+  }
+
+  [[nodiscard]] static uint64_t value_size(
+      single_value_leaf::type leaf) noexcept {
+    return size(leaf) - sizeof(key_type) - 8;
   }
 };
 

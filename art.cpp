@@ -25,7 +25,7 @@ single_value_leaf::unique_ptr single_value_leaf::make(key_type k,
   memcpy(&leaf_mem[offset_key], &k, sizeof(k));
   memcpy(&leaf_mem[offset_size], &leaf_size, 8);
   if (!v.empty())
-    memcpy(value_ptr(leaf_mem), &v[0], static_cast<size_t>(v.size()));
+    memcpy(&leaf_mem[offset_value], &v[0], static_cast<size_t>(v.size()));
   return single_value_leaf::unique_ptr(leaf_mem);
 }
 

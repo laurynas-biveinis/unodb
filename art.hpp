@@ -44,7 +44,7 @@ struct single_value_leaf {
 
   [[nodiscard]] static bool matches(single_value_leaf::type leaf,
                                     key_type k) noexcept {
-    return !memcmp(leaf, &k, sizeof(k));
+    return !memcmp(&leaf[offset_key], &k, sizeof(k));
   }
 
   [[nodiscard]] static auto value_size(single_value_leaf::type leaf) noexcept {
@@ -61,6 +61,8 @@ struct single_value_leaf {
   // Non-owning pointer to somewhere middle of the node
   // Use std::observer_ptr<std::byte> once it's available
   using field_ptr = std::byte *;
+
+  static const constexpr auto offset_key = 0;
 
   static const constexpr auto minimum_size = 8 + sizeof(key_type);
 

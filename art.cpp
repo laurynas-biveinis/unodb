@@ -22,7 +22,7 @@ single_value_leaf::unique_ptr single_value_leaf::make(key_type k,
   assert(leaf_size >= minimum_size);
   auto *const leaf_mem = static_cast<std::byte *>(
       boost::container::pmr::new_delete_resource()->allocate(leaf_size));
-  memcpy(leaf_mem, &k, sizeof(k));
+  memcpy(&leaf_mem[offset_key], &k, sizeof(k));
   memcpy(leaf_mem + sizeof(k), &leaf_size, 8);
   if (!v.empty())
     memcpy(value_ptr(leaf_mem), &v[0], static_cast<size_t>(v.size()));

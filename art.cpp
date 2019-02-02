@@ -18,7 +18,7 @@ namespace unodb {
 single_value_leaf::unique_ptr single_value_leaf::make(key_type k,
                                                       value_view v) {
   static_assert(sizeof(decltype(v.size())) == 8);
-  const auto value_size = static_cast<uint64_t>(v.size());
+  const auto value_size = static_cast<value_size_type>(v.size());
   const auto leaf_size = offset_value + value_size;
   auto *const leaf_mem = static_cast<std::byte *>(
       boost::container::pmr::new_delete_resource()->allocate(leaf_size));

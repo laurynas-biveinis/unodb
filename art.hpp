@@ -59,10 +59,12 @@ struct single_value_leaf {
   // Use std::observer_ptr<std::byte> once it's available
   using field_ptr = std::byte *;
 
+  using value_size_type = uint64_t;
+
   static const constexpr auto offset_key = 0;
   static const constexpr auto offset_value_size = offset_key + sizeof(key_type);
   static const constexpr auto offset_value =
-      offset_value_size + sizeof(uint64_t);
+      offset_value_size + sizeof(value_size_type);
 
   static const constexpr auto minimum_size = offset_value;
 
@@ -70,9 +72,9 @@ struct single_value_leaf {
     return value_size(leaf) + offset_value;
   }
 
-  [[nodiscard]] static uint64_t value_size(
+  [[nodiscard]] static value_size_type value_size(
       single_value_leaf::type leaf) noexcept {
-    uint64_t result;
+    value_size_type result;
     memcpy(&result, &leaf[offset_value_size], sizeof(result));
     return result;
   }

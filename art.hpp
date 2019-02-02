@@ -64,6 +64,7 @@ struct single_value_leaf {
 
   static const constexpr auto offset_key = 0;
   static const constexpr auto offset_size = offset_key + sizeof(key_type);
+  static const constexpr auto offset_value = offset_size + sizeof(uint64_t);
 
   static const constexpr auto minimum_size = 8 + sizeof(key_type);
 
@@ -76,7 +77,7 @@ struct single_value_leaf {
 
   [[nodiscard]] static field_ptr value_ptr(
       single_value_leaf::type leaf) noexcept {
-    return field_ptr(leaf + sizeof(key_type) + 8);
+    return field_ptr{&leaf[offset_value]};
   }
 };
 

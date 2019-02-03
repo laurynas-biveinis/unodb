@@ -60,10 +60,12 @@ endif()
 
 list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-O1" "-g")
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
-if(NOT IPO_SUPPORTED)
-  message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
+if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
+  if(NOT IPO_SUPPORTED)
+    message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
+  endif()
 endif()
 
 option(SANITIZE "Enable all Sanitizer runtime checks")

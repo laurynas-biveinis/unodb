@@ -10,6 +10,8 @@
 
 namespace {
 
+const constexpr auto test_value_2 =
+    std::array<std::byte, 2>{std::byte{0x00}, std::byte{0x02}};
 const constexpr auto test_value_3 =
     std::array<std::byte, 3>{std::byte{0x03}, std::byte{0x00}, std::byte{0x01}};
 
@@ -45,6 +47,18 @@ TEST(UnoDB, too_long_value) {
       static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1U};
   unodb::db test_db;
   ASSERT_THROW(test_db.insert(1, too_long), std::length_error);
+}
+
+TEST(UnoDB, expand_leaf_to_node4) {
+  unodb::db test_db;
+  test_db.insert(0, unodb::value_view{test_value_2});
+  test_db.insert(1, unodb::value_view{test_value_3});
+  auto result = test_db.get(0);
+  assert_result_eq(result, test_value_2);
+  result = test_db.get(1);
+  assert_result_eq(result, test_value_3);
+  result = test_db.get(2);
+  ASSERT_TRUE(!result);
 }
 
 }  // namespace

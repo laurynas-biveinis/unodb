@@ -24,7 +24,7 @@ using key_type = uint64_t;
 
 // Internal ART key in binary-comparable format
 template <typename Key_type>
-struct art_key {
+struct art_key final {
   art_key() noexcept = default;
 
   explicit art_key(Key_type key_) noexcept : key(key_) {}
@@ -53,12 +53,15 @@ struct art_key {
 
 using art_key_type = art_key<key_type>;
 
+// Value type for public API. Values are passed as non-owning pointers to
+// memory with associated length (gsl::span). The memory is copied upon
+// insertion.
 using value_view = gsl::span<const std::byte>;
 
 enum class node_type : uint8_t { LEAF, I4 };
 
 // A common prefix shared by all node types
-struct node_header {
+struct node_header final {
   explicit node_header(node_type type_) : m_type{type_} {}
 
   [[nodiscard]] auto type() const noexcept { return m_type; }
@@ -104,7 +107,7 @@ union node_ptr {
 // don't use a regular class because leaf nodes are of variable size, C++ does
 // not support flexible array members, and we want to save one level of
 // (heap) indirection.
-struct single_value_leaf {
+struct single_value_leaf final {
   static_assert(sizeof(single_value_leaf_unique_ptr) == sizeof(void *));
 
   using view_ptr = const std::byte *;
@@ -163,7 +166,7 @@ inline boost::container::pmr::memory_resource *get_internal_node_4_pool() {
   return &node_4_pool;
 }
 
-class internal_node_4 {
+class internal_node_4 final {
  public:
   static_assert(sizeof(internal_node_4_unique_ptr) ==
                 sizeof(internal_node_4 *));
@@ -203,7 +206,7 @@ inline void internal_node_4_deleter::operator()(
   get_internal_node_4_pool()->deallocate(to_delete, sizeof(*to_delete));
 }
 
-class db {
+class db final {
  public:
   using get_result = std::optional<std::vector<std::byte>>;
 

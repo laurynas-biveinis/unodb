@@ -100,54 +100,6 @@ union node_ptr {
   ~node_ptr() {}
 };
 
-// Helper struct for leaf node-related data and (static) code. We
-// don't use a regular class because leaf nodes are of variable size, C++ does
-// not support flexible array members, and we want to save one level of
-// (heap) indirection.
-struct single_value_leaf final {
-  using view_ptr = const std::byte *;
-  // TODO(laurynas): rename to create
-  [[nodiscard]] static single_value_leaf_unique_ptr make(art_key_type k,
-                                                         value_view v);
-
-  [[nodiscard]] static auto key(single_value_leaf_type leaf) noexcept {
-    return art_key_type::create(&leaf[offset_key]);
-  }
-
-  [[nodiscard]] static bool matches(single_value_leaf_type leaf,
-                                    art_key_type k) noexcept {
-    return k == leaf + offset_key;
-  }
-
-  [[nodiscard]] static auto value(single_value_leaf_type leaf) noexcept {
-    return value_view(&leaf[offset_value], value_size(leaf));
-  }
-
-  [[nodiscard]] static std::size_t size(single_value_leaf_type leaf) noexcept {
-    return value_size(leaf) + offset_value;
-  }
-
- private:
-  using value_size_type = uint32_t;
-
-  static const constexpr auto offset_header = 0;
-  static const constexpr auto offset_key = sizeof(node_header);
-  static const constexpr auto offset_value_size =
-      offset_key + sizeof(art_key_type);
-
-  static const constexpr auto offset_value =
-      offset_value_size + sizeof(value_size_type);
-
-  static const constexpr auto minimum_size = offset_value;
-
-  [[nodiscard]] static value_size_type value_size(
-      single_value_leaf_type leaf) noexcept {
-    value_size_type result;
-    memcpy(&result, &leaf[offset_value_size], sizeof(result));
-    return result;
-  }
-};
-
 class internal_node_4 final {
  public:
   static const constexpr auto key_prefix_capacity = 8;

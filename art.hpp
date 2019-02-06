@@ -19,6 +19,9 @@
 
 namespace unodb {
 
+// Key type for public API
+using key_type = uint64_t;
+
 // Internal ART key in binary-comparable format
 template <typename Key_type>
 struct art_key {
@@ -48,14 +51,7 @@ struct art_key {
   Key_type key;
 };
 
-// TODO(laurynas): this is in interface, hence should be key_type
-using raw_key_type = uint64_t;
-
-// TODO(laurynas): this is in implementation
-using key_type = art_key<raw_key_type>;
-
-static_assert(std::is_trivial<key_type>::value);
-static_assert(sizeof(key_type) == sizeof(raw_key_type));
+using art_key_type = art_key<key_type>;
 
 using value_view = gsl::span<const std::byte>;
 
@@ -113,15 +109,15 @@ struct single_value_leaf {
 
   using view_ptr = const std::byte *;
   // TODO(laurynas): rename to create
-  [[nodiscard]] static single_value_leaf_unique_ptr make(key_type k,
+  [[nodiscard]] static single_value_leaf_unique_ptr make(art_key_type k,
                                                          value_view v);
 
   [[nodiscard]] static auto key(single_value_leaf_type leaf) noexcept {
-    return key_type::create(&leaf[offset_key]);
+    return art_key_type::create(&leaf[offset_key]);
   }
 
   [[nodiscard]] static bool matches(single_value_leaf_type leaf,
-                                    key_type k) noexcept {
+                                    art_key_type k) noexcept {
     return k == leaf + offset_key;
   }
 
@@ -138,7 +134,8 @@ struct single_value_leaf {
 
   static const constexpr auto offset_header = 0;
   static const constexpr auto offset_key = sizeof(node_header);
-  static const constexpr auto offset_value_size = offset_key + sizeof(key_type);
+  static const constexpr auto offset_value_size =
+      offset_key + sizeof(art_key_type);
 
   static const constexpr auto offset_value =
       offset_value_size + sizeof(value_size_type);
@@ -210,18 +207,20 @@ class db {
  public:
   using get_result = std::optional<std::vector<std::byte>>;
 
-  [[nodiscard]] get_result get(raw_key_type k) noexcept;
+  [[nodiscard]] get_result get(key_type k) noexcept;
 
-  void insert(raw_key_type k, value_view v);
+  void insert(key_type k, value_view v);
 
  private:
-  [[nodiscard]] db::get_result get_from_subtree(const node_ptr node, key_type k,
+  [[nodiscard]] db::get_result get_from_subtree(const node_ptr node,
+                                                art_key_type k,
                                                 unsigned depth) const noexcept;
 
-  void insert_node(key_type k, single_value_leaf_unique_ptr node,
+  void insert_node(art_key_type k, single_value_leaf_unique_ptr node,
                    unsigned depth);  // TODO(laurynas) alias "unsigned"
 
-  [[nodiscard]] bool key_prefix_matches(key_type k, const internal_node_4 &node,
+  [[nodiscard]] bool key_prefix_matches(art_key_type k,
+                                        const internal_node_4 &node,
                                         unsigned depth) const noexcept;
 
   node_ptr root;

@@ -3,6 +3,10 @@
 
 #include <stdexcept>
 
+// Internal key type must be POD and have no overhead over API key type
+static_assert(std::is_trivial<unodb::art_key_type>::value);
+static_assert(sizeof(unodb::art_key_type) == sizeof(unodb::key_type));
+
 namespace {
 
 // TODO(laurynas): useless. Always have Raw_key as-is, and
@@ -32,7 +36,8 @@ inline auto type(const unodb::node_ptr node) noexcept {
 
 namespace unodb {
 
-single_value_leaf_unique_ptr single_value_leaf::make(key_type k, value_view v) {
+single_value_leaf_unique_ptr single_value_leaf::make(art_key_type k,
+                                                     value_view v) {
   if (v.size() > std::numeric_limits<value_size_type>::max()) {
     throw std::length_error("Value length must fit in uint32_t");
   }
@@ -73,11 +78,11 @@ const node_ptr internal_node_4::find_child(std::byte key_byte) const noexcept {
   return node_ptr{};
 }
 
-db::get_result db::get(raw_key_type k) noexcept {
+db::get_result db::get(key_type k) noexcept {
   return get_from_subtree(root, art_key{make_binary_comparable(k)}, 0);
 }
 
-db::get_result db::get_from_subtree(const node_ptr node, key_type k,
+db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
                                     unsigned depth) const noexcept {
   if (!node.header) return get_result{};
   if (type(node) == node_type::LEAF) {
@@ -95,13 +100,13 @@ db::get_result db::get_from_subtree(const node_ptr node, key_type k,
   return get_from_subtree(child, k, depth + 1);
 }
 
-void db::insert(raw_key_type k, value_view v) {
+void db::insert(key_type k, value_view v) {
   const auto bin_comparable_key = art_key{make_binary_comparable(k)};
   auto leaf_node = single_value_leaf::make(bin_comparable_key, v);
   insert_node(bin_comparable_key, std::move(leaf_node), 0);
 }
 
-void db::insert_node(key_type k, single_value_leaf_unique_ptr node,
+void db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
                      unsigned depth) {
   if (!root.header) {
     root.leaf = std::move(node);
@@ -124,7 +129,7 @@ void db::insert_node(key_type k, single_value_leaf_unique_ptr node,
   assert(0);
 }
 
-bool db::key_prefix_matches(key_type k, const internal_node_4 &node,
+bool db::key_prefix_matches(art_key_type k, const internal_node_4 &node,
                             unsigned depth) const noexcept {
   unsigned key_i = depth;
   uint8_t prefix_i = 0;

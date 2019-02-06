@@ -93,9 +93,6 @@ union node_ptr {
   single_value_leaf_unique_ptr leaf;
   internal_node_4_unique_ptr i4;
 
-  static_assert(sizeof(leaf) == sizeof(header));
-  static_assert(sizeof(i4) == sizeof(header));
-
   node_ptr() : header{nullptr} {};
 
   node_ptr(const node_ptr &other) noexcept : header{other.header} {}
@@ -108,8 +105,6 @@ union node_ptr {
 // not support flexible array members, and we want to save one level of
 // (heap) indirection.
 struct single_value_leaf final {
-  static_assert(sizeof(single_value_leaf_unique_ptr) == sizeof(void *));
-
   using view_ptr = const std::byte *;
   // TODO(laurynas): rename to create
   [[nodiscard]] static single_value_leaf_unique_ptr make(art_key_type k,
@@ -155,9 +150,6 @@ struct single_value_leaf final {
 
 class internal_node_4 final {
  public:
-  static_assert(sizeof(internal_node_4_unique_ptr) ==
-                sizeof(internal_node_4 *));
-
   static const constexpr auto key_prefix_capacity = 8;
 
   internal_node_4() : header{node_type::I4} {}

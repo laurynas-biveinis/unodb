@@ -3,9 +3,24 @@
 
 #include <stdexcept>
 
-// Internal key type must be POD and have no overhead over API key type
-static_assert(std::is_trivial<unodb::art_key_type>::value);
-static_assert(sizeof(unodb::art_key_type) == sizeof(unodb::key_type));
+// ART implementation properties that we can enforce at compile time
+static_assert(std::is_trivial<unodb::art_key_type>::value,
+              "Internal key type must be POD, i.e. memcpy'able");
+static_assert(sizeof(unodb::art_key_type) == sizeof(unodb::key_type),
+              "Internal key type must be no larger than API key type");
+
+static_assert(sizeof(unodb::node_ptr::leaf) == sizeof(unodb::node_ptr::header),
+              "node_ptr fields must be of equal size to a raw pointer");
+static_assert(sizeof(unodb::node_ptr::i4) == sizeof(unodb::node_ptr::header),
+              "node_ptr fields must be of equal size to a raw pointer");
+static_assert(sizeof(unodb::node_ptr) == sizeof(void *),
+              "node_ptr union must be of equal size to a raw pointer");
+
+static_assert(sizeof(unodb::single_value_leaf_unique_ptr) == sizeof(void *),
+              "Single leaf unique_ptr must have no overhead over raw pointer");
+static_assert(sizeof(unodb::internal_node_4_unique_ptr) ==
+                  sizeof(unodb::internal_node_4 *),
+              "Node4 unique_ptr must have no overhead over raw pointer");
 
 namespace {
 

@@ -94,6 +94,8 @@ class db final {
  public:
   using get_result = std::optional<std::vector<std::byte>>;
 
+  using tree_depth_type = unsigned;
+
   [[nodiscard]] get_result get(key_type k) noexcept;
 
   void insert(key_type k, value_view v);
@@ -101,14 +103,15 @@ class db final {
  private:
   [[nodiscard]] db::get_result get_from_subtree(const node_ptr node,
                                                 art_key_type k,
-                                                unsigned depth) const noexcept;
+                                                tree_depth_type depth) const
+      noexcept;
 
   void insert_node(art_key_type k, single_value_leaf_unique_ptr node,
-                   unsigned depth);  // TODO(laurynas) alias "unsigned"
+                   tree_depth_type depth);
 
   [[nodiscard]] bool key_prefix_matches(art_key_type k,
                                         const internal_node_4 &node,
-                                        unsigned depth) const noexcept;
+                                        tree_depth_type depth) const noexcept;
 
   node_ptr root;
 };

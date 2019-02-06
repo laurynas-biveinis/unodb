@@ -159,7 +159,7 @@ class internal_node_4 final {
 
   void add_two_to_empty(single_value_leaf_unique_ptr &&child1,
                         single_value_leaf_unique_ptr &&child2,
-                        unsigned depth) noexcept;
+                        db::tree_depth_type depth) noexcept;
 
   [[nodiscard]] const node_ptr find_child(std::byte key_byte) const noexcept;
 
@@ -194,7 +194,7 @@ internal_node_4_unique_ptr internal_node_4::create() {
 
 void internal_node_4::add_two_to_empty(single_value_leaf_unique_ptr &&child1,
                                        single_value_leaf_unique_ptr &&child2,
-                                       unsigned depth) noexcept {
+                                       db::tree_depth_type depth) noexcept {
   Expects(children_count == 0);
   const auto key1_byte = single_value_leaf::key(child1.get())[depth];
   keys[0] = key1_byte;
@@ -216,7 +216,7 @@ db::get_result db::get(key_type k) noexcept {
 }
 
 db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
-                                    unsigned depth) const noexcept {
+                                    tree_depth_type depth) const noexcept {
   if (!node.header) return {};
   if (type(node) == node_type::LEAF) {
     if (single_value_leaf::matches(node.leaf.get(), k)) {
@@ -240,7 +240,7 @@ void db::insert(key_type k, value_view v) {
 }
 
 void db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
-                     unsigned depth) {
+                     tree_depth_type depth) {
   if (!root.header) {
     root.leaf = std::move(node);
     return;
@@ -248,8 +248,8 @@ void db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
   if (type(root) == node_type::LEAF) {
     auto new_node = internal_node_4::create();
     const auto existing_key = single_value_leaf::key(root.leaf.get());
-    unsigned i;
-    for (i = depth; k[i] == existing_key[i]; i++) {
+    tree_depth_type i;
+    for (i = depth; k[i] == existing_key[i]; ++i) {
       assert(i - depth < internal_node_4::key_prefix_capacity);
       new_node->key_prefix[i - depth] = k[i];
     }
@@ -263,13 +263,13 @@ void db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
 }
 
 bool db::key_prefix_matches(art_key_type k, const internal_node_4 &node,
-                            unsigned depth) const noexcept {
-  unsigned key_i = depth;
+                            tree_depth_type depth) const noexcept {
+  tree_depth_type key_i = depth;
   uint8_t prefix_i = 0;
   while (prefix_i < node.key_prefix_len) {
     if (k[key_i] != node.key_prefix[prefix_i]) return false;
-    key_i++;
-    prefix_i++;
+    ++key_i;
+    ++prefix_i;
   }
   return true;
 }

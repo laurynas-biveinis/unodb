@@ -153,19 +153,6 @@ struct single_value_leaf final {
   }
 };
 
-inline void single_value_leaf_deleter::operator()(
-    single_value_leaf_type to_delete) const noexcept {
-  const auto s = single_value_leaf::size(to_delete);
-  // TODO(laurynas): hide new_delete_resource() call, here and in creator
-  boost::container::pmr::new_delete_resource()->deallocate(to_delete, s);
-}
-
-inline boost::container::pmr::memory_resource *get_internal_node_4_pool() {
-  // TODO(laurynas) pool options
-  static boost::container::pmr::unsynchronized_pool_resource node_4_pool;
-  return &node_4_pool;
-}
-
 class internal_node_4 final {
  public:
   static_assert(sizeof(internal_node_4_unique_ptr) ==
@@ -200,11 +187,6 @@ class internal_node_4 final {
   std::array<std::byte, capacity> keys;
   std::array<node_ptr, capacity> children;
 };
-
-inline void internal_node_4_deleter::operator()(
-    internal_node_4 *to_delete) const noexcept {
-  get_internal_node_4_pool()->deallocate(to_delete, sizeof(*to_delete));
-}
 
 class db final {
  public:

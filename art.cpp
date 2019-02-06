@@ -32,9 +32,22 @@ inline auto type(const unodb::node_ptr node) noexcept {
   return node.header->type();
 }
 
+inline boost::container::pmr::memory_resource *get_internal_node_4_pool() {
+  // TODO(laurynas) pool options
+  static boost::container::pmr::unsynchronized_pool_resource node_4_pool;
+  return &node_4_pool;
+}
+
 }  // namespace
 
 namespace unodb {
+
+void single_value_leaf_deleter::operator()(
+    single_value_leaf_type to_delete) const noexcept {
+  const auto s = single_value_leaf::size(to_delete);
+  // TODO(laurynas): hide new_delete_resource() call, here and in creator
+  boost::container::pmr::new_delete_resource()->deallocate(to_delete, s);
+}
 
 single_value_leaf_unique_ptr single_value_leaf::make(art_key_type k,
                                                      value_view v) {
@@ -51,6 +64,11 @@ single_value_leaf_unique_ptr single_value_leaf::make(art_key_type k,
   if (!v.empty())
     memcpy(&leaf_mem[offset_value], &v[0], static_cast<std::size_t>(v.size()));
   return single_value_leaf_unique_ptr(leaf_mem);
+}
+
+void internal_node_4_deleter::operator()(internal_node_4 *to_delete) const
+    noexcept {
+  get_internal_node_4_pool()->deallocate(to_delete, sizeof(*to_delete));
 }
 
 internal_node_4_unique_ptr internal_node_4::create() {

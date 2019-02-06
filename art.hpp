@@ -58,8 +58,6 @@ using art_key_type = art_key<key_type>;
 // insertion.
 using value_view = gsl::span<const std::byte>;
 
-enum class node_type : uint8_t { LEAF, I4 };
-
 struct node_header;
 
 using single_value_leaf_type = std::byte[];

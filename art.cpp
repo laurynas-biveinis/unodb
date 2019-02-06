@@ -47,6 +47,8 @@ template <typename Key>
 
 namespace unodb {
 
+enum class node_type : uint8_t { LEAF, I4 };
+
 // A common prefix shared by all node types
 struct node_header final {
   explicit node_header(node_type type_) : m_type{type_} {}

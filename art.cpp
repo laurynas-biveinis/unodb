@@ -129,6 +129,38 @@ single_value_leaf_unique_ptr single_value_leaf::make(art_key_type k,
   return single_value_leaf_unique_ptr{leaf_mem};
 }
 
+class internal_node_4 final {
+ public:
+  static const constexpr auto key_prefix_capacity = 8;
+
+  internal_node_4() : header{node_type::I4} {}
+
+  [[nodiscard]] static internal_node_4_unique_ptr create();
+
+  void add_two_to_empty(single_value_leaf_unique_ptr &&child1,
+                        single_value_leaf_unique_ptr &&child2,
+                        unsigned depth) noexcept;
+
+  [[nodiscard]] const node_ptr find_child(std::byte key_byte) const noexcept;
+
+ private:
+  static const constexpr auto capacity = 4;
+
+  node_header header;
+
+  uint8_t children_count{0};
+
+ public:
+  // TODO(laurynas) privatize
+  // TODO(laurynas) alias uint8_t
+  uint8_t key_prefix_len{0};
+  std::array<std::byte, key_prefix_capacity> key_prefix;
+
+ private:
+  std::array<std::byte, capacity> keys;
+  std::array<node_ptr, capacity> children;
+};
+
 void internal_node_4_deleter::operator()(internal_node_4 *to_delete) const
     noexcept {
   get_internal_node_4_pool()->deallocate(to_delete, sizeof(*to_delete));

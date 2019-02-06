@@ -19,6 +19,7 @@
 
 namespace unodb {
 
+// Internal ART key in binary-comparable format
 template <typename Key_type>
 struct art_key {
   art_key() noexcept = default;
@@ -41,7 +42,6 @@ struct art_key {
 
   [[nodiscard]] std::byte operator[](std::size_t index) const noexcept {
     Expects(index < sizeof(*this));
-    // TODO(laurynas): absl::bit_cast?
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }
 

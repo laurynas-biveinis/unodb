@@ -25,9 +25,12 @@ using key_type = uint64_t;
 // Internal ART key in binary-comparable format
 template <typename Key_type>
 struct art_key final {
+  [[nodiscard]] static Key_type make_binary_comparable(Key_type key) noexcept;
+
   art_key() noexcept = default;
 
-  explicit art_key(Key_type key_) noexcept : key{key_} {}
+  explicit art_key(Key_type key_) noexcept
+      : key{make_binary_comparable(key_)} {}
 
   static art_key create(const std::byte from[]) noexcept {
     struct art_key result;

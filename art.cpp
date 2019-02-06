@@ -22,30 +22,16 @@ static_assert(sizeof(unodb::internal_node_4_unique_ptr) ==
                   sizeof(unodb::internal_node_4 *),
               "Node4 unique_ptr must have no overhead over raw pointer");
 
-namespace {
-
-// TODO(laurynas): useless. Always have Raw_key as-is, and
-// always have Key in binary-comparable format.
-template <typename Raw_key>
-[[nodiscard]] Raw_key make_binary_comparable(Raw_key key) noexcept;
+namespace unodb {
 
 template <>
-[[nodiscard]] uint64_t make_binary_comparable(uint64_t key) noexcept {
+uint64_t art_key<uint64_t>::make_binary_comparable(uint64_t key) noexcept {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   return __builtin_bswap64(key);
 #else
 #error Needs implementing
 #endif
 }
-
-template <typename Key>
-[[nodiscard]] Key make_binary_comparable(Key key) noexcept {
-  return {make_binary_comparable(key.key)};
-}
-
-}  // namespace
-
-namespace unodb {
 
 enum class node_type : uint8_t { LEAF, I4 };
 
@@ -212,7 +198,7 @@ const node_ptr internal_node_4::find_child(std::byte key_byte) const noexcept {
 }
 
 db::get_result db::get(key_type k) noexcept {
-  return get_from_subtree(root, art_key{make_binary_comparable(k)}, 0);
+  return get_from_subtree(root, art_key{k}, 0);
 }
 
 db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
@@ -234,7 +220,7 @@ db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
 }
 
 void db::insert(key_type k, value_view v) {
-  const auto bin_comparable_key = art_key{make_binary_comparable(k)};
+  const auto bin_comparable_key = art_key{k};
   auto leaf_node = single_value_leaf::make(bin_comparable_key, v);
   insert_node(bin_comparable_key, std::move(leaf_node), 0);
 }

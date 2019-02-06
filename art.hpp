@@ -60,15 +60,7 @@ using value_view = gsl::span<const std::byte>;
 
 enum class node_type : uint8_t { LEAF, I4 };
 
-// A common prefix shared by all node types
-struct node_header final {
-  explicit node_header(node_type type_) : m_type{type_} {}
-
-  [[nodiscard]] auto type() const noexcept { return m_type; }
-
- private:
-  const node_type m_type;
-};
+struct node_header;
 
 using single_value_leaf_type = std::byte[];
 

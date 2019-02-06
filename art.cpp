@@ -43,6 +43,24 @@ template <typename Key>
   return {make_binary_comparable(key.key)};
 }
 
+}  // namespace
+
+namespace unodb {
+
+// A common prefix shared by all node types
+struct node_header final {
+  explicit node_header(node_type type_) : m_type{type_} {}
+
+  [[nodiscard]] auto type() const noexcept { return m_type; }
+
+ private:
+  const node_type m_type;
+};
+
+}  // namespace unodb
+
+namespace {
+
 inline auto type(const unodb::node_ptr node) noexcept {
   return node.header->type();
 }

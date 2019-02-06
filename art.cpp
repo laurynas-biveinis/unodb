@@ -40,7 +40,7 @@ template <>
 
 template <typename Key>
 [[nodiscard]] Key make_binary_comparable(Key key) noexcept {
-  return Key{make_binary_comparable(key.key)};
+  return {make_binary_comparable(key.key)};
 }
 
 inline auto type(const unodb::node_ptr node) noexcept {
@@ -78,7 +78,7 @@ single_value_leaf_unique_ptr single_value_leaf::make(art_key_type k,
   memcpy(&leaf_mem[offset_value_size], &value_size, sizeof(value_size_type));
   if (!v.empty())
     memcpy(&leaf_mem[offset_value], &v[0], static_cast<std::size_t>(v.size()));
-  return single_value_leaf_unique_ptr(leaf_mem);
+  return single_value_leaf_unique_ptr{leaf_mem};
 }
 
 void internal_node_4_deleter::operator()(internal_node_4 *to_delete) const
@@ -96,11 +96,11 @@ void internal_node_4::add_two_to_empty(single_value_leaf_unique_ptr &&child1,
                                        single_value_leaf_unique_ptr &&child2,
                                        unsigned depth) noexcept {
   Expects(children_count == 0);
-  const auto key1 = single_value_leaf::key(child1.get())[depth];
-  keys[0] = key1;
+  const auto key1_byte = single_value_leaf::key(child1.get())[depth];
+  keys[0] = key1_byte;
   children[0].leaf = std::move(child1);
-  const auto key2 = single_value_leaf::key(child2.get())[depth];
-  keys[1] = key2;
+  const auto key2_byte = single_value_leaf::key(child2.get())[depth];
+  keys[1] = key2_byte;
   children[1].leaf = std::move(child2);
   children_count = 2;
 }
@@ -108,7 +108,7 @@ void internal_node_4::add_two_to_empty(single_value_leaf_unique_ptr &&child1,
 const node_ptr internal_node_4::find_child(std::byte key_byte) const noexcept {
   for (unsigned i = 0; i < children_count; i++)
     if (keys[i] == key_byte) return children[i];
-  return node_ptr{};
+  return {};
 }
 
 db::get_result db::get(key_type k) noexcept {
@@ -117,17 +117,17 @@ db::get_result db::get(key_type k) noexcept {
 
 db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
                                     unsigned depth) const noexcept {
-  if (!node.header) return get_result{};
+  if (!node.header) return {};
   if (type(node) == node_type::LEAF) {
     if (single_value_leaf::matches(node.leaf.get(), k)) {
       const auto value_view = single_value_leaf::value(node.leaf.get());
       return get_result{std::in_place, value_view.cbegin(), value_view.cend()};
     } else {
-      return get_result{};
+      return {};
     }
   }
   assert(type(node) == node_type::I4);
-  if (!key_prefix_matches(k, *node.i4, depth)) return get_result{};
+  if (!key_prefix_matches(k, *node.i4, depth)) return {};
   depth += node.i4->key_prefix_len;
   const auto child = node.i4->find_child(k[depth]);
   return get_from_subtree(child, k, depth + 1);

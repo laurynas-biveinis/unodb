@@ -27,7 +27,7 @@ template <typename Key_type>
 struct art_key final {
   art_key() noexcept = default;
 
-  explicit art_key(Key_type key_) noexcept : key(key_) {}
+  explicit art_key(Key_type key_) noexcept : key{key_} {}
 
   static art_key create(const std::byte from[]) noexcept {
     struct art_key result;

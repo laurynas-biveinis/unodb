@@ -43,7 +43,8 @@ struct art_key final {
     return !memcmp(&key, key2, sizeof(*this));
   }
 
-  [[nodiscard]] std::byte operator[](std::size_t index) const noexcept {
+  [[nodiscard]] __attribute__((pure)) std::byte operator[](
+      std::size_t index) const noexcept {
     Expects(index < sizeof(*this));
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }
@@ -83,7 +84,7 @@ union node_ptr {
   single_value_leaf_unique_ptr leaf;
   internal_node_4_unique_ptr i4;
 
-  node_ptr() : header{nullptr} {};
+  node_ptr() noexcept : header{nullptr} {}
 
   node_ptr(const node_ptr &other) noexcept : header{other.header} {}
 

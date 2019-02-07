@@ -35,7 +35,8 @@ static_assert(sizeof(unodb::internal_node_4_unique_ptr) ==
 namespace unodb {
 
 template <>
-uint64_t art_key<uint64_t>::make_binary_comparable(uint64_t key) noexcept {
+__attribute__((const)) uint64_t art_key<uint64_t>::make_binary_comparable(
+    uint64_t key) noexcept {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   return __builtin_bswap64(key);
 #else
@@ -211,9 +212,9 @@ const node_ptr internal_node_4::find_child(std::byte key_byte) const noexcept {
 
 namespace {
 
-auto key_prefix_matches(unodb::art_key_type k,
-                        const unodb::internal_node_4 &node,
-                        unodb::db::tree_depth_type depth) noexcept {
+__attribute__((pure)) auto key_prefix_matches(
+    unodb::art_key_type k, const unodb::internal_node_4 &node,
+    unodb::db::tree_depth_type depth) noexcept {
   unodb::db::tree_depth_type key_i = depth;
   uint8_t prefix_i = 0;
   while (prefix_i < node.key_prefix_len) {
@@ -237,8 +238,8 @@ db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
   if (!node.header) return {};
   if (type(node) == node_type::LEAF) {
     if (single_value_leaf::matches(node.leaf.get(), k)) {
-      const auto value_view = single_value_leaf::value(node.leaf.get());
-      return get_result{std::in_place, value_view.cbegin(), value_view.cend()};
+      const auto value = single_value_leaf::value(node.leaf.get());
+      return get_result{std::in_place, value.cbegin(), value.cend()};
     } else {
       return {};
     }

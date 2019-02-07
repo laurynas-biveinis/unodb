@@ -207,6 +207,27 @@ const node_ptr internal_node_4::find_child(std::byte key_byte) const noexcept {
   return {};
 }
 
+}  // namespace unodb
+
+namespace {
+
+auto key_prefix_matches(unodb::art_key_type k,
+                        const unodb::internal_node_4 &node,
+                        unodb::db::tree_depth_type depth) noexcept {
+  unodb::db::tree_depth_type key_i = depth;
+  uint8_t prefix_i = 0;
+  while (prefix_i < node.key_prefix_len) {
+    if (k[key_i] != node.key_prefix[prefix_i]) return false;
+    ++key_i;
+    ++prefix_i;
+  }
+  return true;
+}
+
+}  // namespace
+
+namespace unodb {
+
 db::get_result db::get(key_type k) noexcept {
   return get_from_subtree(root, art_key{k}, 0);
 }
@@ -256,18 +277,6 @@ void db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
     return;
   }
   assert(0);
-}
-
-bool db::key_prefix_matches(art_key_type k, const internal_node_4 &node,
-                            tree_depth_type depth) const noexcept {
-  tree_depth_type key_i = depth;
-  uint8_t prefix_i = 0;
-  while (prefix_i < node.key_prefix_len) {
-    if (k[key_i] != node.key_prefix[prefix_i]) return false;
-    ++key_i;
-    ++prefix_i;
-  }
-  return true;
 }
 
 }  // namespace unodb

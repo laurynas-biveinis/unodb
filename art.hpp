@@ -109,10 +109,6 @@ class db final {
   void insert_node(art_key_type k, single_value_leaf_unique_ptr node,
                    tree_depth_type depth);
 
-  [[nodiscard]] bool key_prefix_matches(art_key_type k,
-                                        const internal_node_4 &node,
-                                        tree_depth_type depth) const noexcept;
-
   node_ptr root{};
 };
 

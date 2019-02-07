@@ -113,7 +113,7 @@ class db final {
                                         const internal_node_4 &node,
                                         tree_depth_type depth) const noexcept;
 
-  node_ptr root;
+  node_ptr root{};
 };
 
 }  // namespace unodb

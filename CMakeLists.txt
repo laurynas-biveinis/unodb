@@ -139,6 +139,7 @@ if(NOT CPPCHECK_EXE)
 else()
   message(STATUS "cppcheck found: ${CPPCHECK_EXE}")
   set(DO_CPPCHECK "${CPPCHECK_EXE}" "--enable=warning,style,performance,portability"
+    "--suppress=noConstructor" "--suppress=syntaxError"
     "${CPPCHECK_AGGRESSIVE_OPT}")
 endif()
 

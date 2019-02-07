@@ -12,9 +12,6 @@
 #include <optional>
 #include <vector>
 
-#include <boost/container/pmr/global_resource.hpp>
-#include <boost/container/pmr/memory_resource.hpp>
-#include <boost/container/pmr/unsynchronized_pool_resource.hpp>
 #include <gsl/span>
 
 namespace unodb {

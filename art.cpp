@@ -3,6 +3,10 @@
 
 #include <stdexcept>
 
+#include <boost/container/pmr/global_resource.hpp>
+#include <boost/container/pmr/memory_resource.hpp>
+#include <boost/container/pmr/unsynchronized_pool_resource.hpp>
+
 // ART implementation properties that we can enforce at compile time
 static_assert(std::is_trivial<unodb::art_key_type>::value,
               "Internal key type must be POD, i.e. memcpy'able");

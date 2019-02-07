@@ -1,11 +1,17 @@
 // Copyright 2019 Laurynas Biveinis
 #include "art.hpp"
 
+#include <array>
+#include <cassert>
+#include <limits>
 #include <stdexcept>
+#include <utility>
 
 #include <boost/container/pmr/global_resource.hpp>
 #include <boost/container/pmr/memory_resource.hpp>
 #include <boost/container/pmr/unsynchronized_pool_resource.hpp>
+
+#include <gsl/gsl_util>
 
 // ART implementation properties that we can enforce at compile time
 static_assert(std::is_trivial<unodb::art_key_type>::value,

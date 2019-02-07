@@ -7,11 +7,11 @@
 #include <cstddef>  // for uint64_t
 #include <cstdint>  // IWYU pragma: keep
 #include <cstring>
-#include <limits>
 #include <memory>
 #include <optional>
 #include <vector>
 
+#include <gsl/gsl_assert>
 #include <gsl/span>
 
 namespace unodb {

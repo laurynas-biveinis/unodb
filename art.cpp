@@ -150,7 +150,7 @@ class internal_node_4 final {
  public:
   static const constexpr auto key_prefix_capacity = 8;
 
-  internal_node_4() : header{node_type::I4} {}
+  internal_node_4() noexcept {}
 
   [[nodiscard]] static internal_node_4_unique_ptr create();
 
@@ -163,7 +163,7 @@ class internal_node_4 final {
  private:
   static const constexpr auto capacity = 4;
 
-  node_header header;
+  node_header header{node_type::I4};
 
   uint8_t children_count{0};
 
@@ -235,14 +235,13 @@ db::get_result db::get(key_type k) noexcept {
 
 db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
                                     tree_depth_type depth) const noexcept {
-  if (!node.header) return {};
+  if (node.header == nullptr) return {};
   if (type(node) == node_type::LEAF) {
     if (single_value_leaf::matches(node.leaf.get(), k)) {
       const auto value = single_value_leaf::value(node.leaf.get());
       return get_result{std::in_place, value.cbegin(), value.cend()};
-    } else {
-      return {};
     }
+    return {};
   }
   assert(type(node) == node_type::I4);
   if (!key_prefix_matches(k, *node.i4, depth)) return {};
@@ -259,7 +258,7 @@ void db::insert(key_type k, value_view v) {
 
 void db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
                      tree_depth_type depth) {
-  if (!root.header) {
+  if (root.header == nullptr) {
     root.leaf = std::move(node);
     return;
   }

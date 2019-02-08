@@ -195,17 +195,17 @@ void internal_node_4::add_two_to_empty(single_value_leaf_unique_ptr &&child1,
   Expects(children_count == 0);
   const auto key1_byte = single_value_leaf::key(child1.get())[depth];
   keys[0] = key1_byte;
-  children[0].leaf = std::move(child1);
+  new (&children[0].leaf) single_value_leaf_unique_ptr{std::move(child1)};
   const auto key2_byte = single_value_leaf::key(child2.get())[depth];
   keys[1] = key2_byte;
-  children[1].leaf = std::move(child2);
+  new (&children[1].leaf) single_value_leaf_unique_ptr{std::move(child2)};
   children_count = 2;
 }
 
 const node_ptr internal_node_4::find_child(std::byte key_byte) const noexcept {
   for (unsigned i = 0; i < children_count; i++)
     if (keys[i] == key_byte) return children[i];
-  return {};
+  return node_ptr{nullptr};
 }
 
 }  // namespace unodb

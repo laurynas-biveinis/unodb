@@ -84,7 +84,10 @@ union node_ptr {
   single_value_leaf_unique_ptr leaf;
   internal_node_4_unique_ptr i4;
 
-  node_ptr() noexcept : header{nullptr} {}
+  node_ptr() noexcept {}
+  explicit node_ptr(std::nullptr_t nullp) noexcept : header{nullp} {}
+  explicit node_ptr(single_value_leaf_unique_ptr &&leaf_) noexcept
+      : leaf{std::move(leaf_)} {}
 
   node_ptr(const node_ptr &other) noexcept : header{other.header} {}
 
@@ -110,7 +113,7 @@ class db final {
   void insert_node(art_key_type k, single_value_leaf_unique_ptr node,
                    tree_depth_type depth);
 
-  node_ptr root{};
+  node_ptr root{nullptr};
 };
 
 }  // namespace unodb

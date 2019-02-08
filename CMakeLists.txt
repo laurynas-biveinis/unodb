@@ -105,6 +105,7 @@ else()
   message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
   string(CONCAT CLANG_TIDY_DISABLED
     "-fuchsia-default-arguments,"
+    "-cppcoreguidelines-pro-bounds-array-to-pointer-decay,"
     "-cppcoreguidelines-pro-bounds-constant-array-index,"
     # Because leaf nodes are std::byte arrays
     "-cppcoreguidelines-pro-bounds-pointer-arithmetic,"
@@ -115,6 +116,7 @@ else()
     "-google-runtime-references,"
     "-hicpp-braces-around-statements,"
     "-hicpp-member-init,"
+    "-hicpp-no-array-decay,"
     "-hicpp-use-equals-default,"
     "-llvm-include-order,"
     "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang

@@ -105,22 +105,31 @@ else()
   message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
   string(CONCAT CLANG_TIDY_DISABLED
     "-fuchsia-default-arguments,"
+    "-cppcoreguidelines-pro-bounds-constant-array-index,"
     # Because leaf nodes are std::byte arrays
     "-cppcoreguidelines-pro-bounds-pointer-arithmetic,"
+    "-cppcoreguidelines-pro-type-member-init,"
+    "-cppcoreguidelines-pro-type-union-access,"
+    "-fuchsia-overloaded-operator,"
     "-google-readability-braces-around-statements,"
     "-google-runtime-references,"
     "-hicpp-braces-around-statements,"
+    "-hicpp-member-init,"
+    "-hicpp-use-equals-default,"
     "-llvm-include-order,"
+    "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang
     "-readability-braces-around-statements")
   set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}" "-checks=*,${CLANG_TIDY_DISABLED}")
   string(CONCAT CLANG_TIDY_DISABLED_FOR_TESTS
     "${CLANG_TIDY_DISABLED},"
     "-build-include-order,"
     "-cert-err58-cpp,"
+    "-cppcoreguidelines-avoid-goto,"
     "-cppcoreguidelines-owning-memory,"
     "-cppcoreguidelines-special-member-functions,"
     "-fuchsia-statically-constructed-objects,"
     "-google-runtime-references,"
+    "-hicpp-avoid-goto,"
     "-hicpp-special-member-functions")
   set(DO_CLANG_TIDY_TEST "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
     "-checks=*,${CLANG_TIDY_DISABLED_FOR_TESTS}")

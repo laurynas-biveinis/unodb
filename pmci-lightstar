@@ -1,0 +1,62 @@
+#!/bin/bash
+# Poor man's CI, to be run on my laptop
+# To be replaced with rich man's CI when the time comes
+
+readonly WORKDIR=$1
+
+mkdir $WORKDIR
+pushd $WORKDIR
+
+cmake ../unodb -DCMAKE_BUILD_TYPE=Debug -DSANITIZE=ON
+make -j4
+make test
+rm -rf *
+
+cmake ../unodb -DCMAKE_BUILD_TYPE=Debug
+make -j4
+make test
+rm -rf *
+
+cmake ../unodb -DCMAKE_BUILD_TYPE=Release
+make -j4
+make test
+rm -rf *
+
+cmake ../unodb -DCMAKE_PREFIX_PATH=/usr/local/opt/llvm -DCMAKE_C_COMPILER=/usr/local/opt/llvm/bin/clang -DCMAKE_CXX_COMPILER=/usr/local/opt/llvm/bin/clang++ -DCMAKE_BUILD_TYPE=Release
+make -j4
+make test
+rm -rf *
+
+cmake ../unodb -DCMAKE_PREFIX_PATH=/usr/local/opt/llvm -DCMAKE_C_COMPILER=/usr/local/opt/llvm/bin/clang -DCMAKE_CXX_COMPILER=/usr/local/opt/llvm/bin/clang++ -DCMAKE_BUILD_TYPE=Debug
+make -j4
+make test
+rm -rf *
+
+cmake ../unodb/ -DCMAKE_CXX_COMPILER=/usr/local/opt/gcc/bin/g++-8 -DCMAKE_BUILD_TYPE=Debug
+make -j4
+make test
+rm -rf *
+
+cmake ../unodb/ -DCMAKE_CXX_COMPILER=/usr/local/opt/gcc/bin/g++-8 -DCMAKE_BUILD_TYPE=Release
+make -j4
+make test
+rm -rf *
+
+cmake ../unodb/ -DCMAKE_BUILD_TYPE=Release -DCPPCHECK_AGGRESSIVE=ON
+make -j4
+rm -rf *
+
+cmake ../unodb/ -DCMAKE_BUILD_TYPE=Debug -DCPPCHECK_AGGRESSIVE=ON
+make -j4
+rm -rf *
+
+cmake ../unodb/ -DCMAKE_BUILD_TYPE=Release -DIWYU=ON
+make -j4
+rm -rf *
+
+cmake ../unodb/ -DCMAKE_BUILD_TYPE=Debug -DIWYU=ON
+make -j4
+rm -rf *
+
+popd
+rm -rf $WORKDIR

@@ -163,7 +163,27 @@ class internal_node_4 final {
                         single_value_leaf_unique_ptr &&child2,
                         db::tree_depth_type depth) noexcept;
 
+  void set_key_prefix(art_key_type k1, art_key_type k2,
+                      db::tree_depth_type depth) noexcept {
+    db::tree_depth_type i;
+    for (i = depth; k1[i] == k2[i]; ++i) {
+      assert(i - depth < key_prefix_capacity);
+      key_prefix[i - depth] = k1[i];
+    }
+    key_prefix_len = gsl::narrow_cast<uint8_t>(i - depth);
+  }
+
   [[nodiscard]] const node_ptr find_child(std::byte key_byte) const noexcept;
+
+  // TODO(laurynas) alias uint8_t
+  [[nodiscard]] uint8_t get_key_prefix_len() const noexcept {
+    return key_prefix_len;
+  }
+
+  [[nodiscard]] std::byte key_prefix_byte(uint8_t i) const noexcept {
+    Expects(i < key_prefix_len);
+    return key_prefix[i];
+  }
 
  private:
   static const constexpr auto capacity = 4;
@@ -172,13 +192,10 @@ class internal_node_4 final {
 
   uint8_t children_count{0};
 
- public:
-  // TODO(laurynas) privatize
-  // TODO(laurynas) alias uint8_t
+ private:
   uint8_t key_prefix_len{0};
   std::array<std::byte, key_prefix_capacity> key_prefix;
 
- private:
   std::array<std::byte, capacity> keys;
   std::array<node_ptr, capacity> children;
 };
@@ -233,8 +250,8 @@ __attribute__((pure)) auto key_prefix_matches(
     unodb::db::tree_depth_type depth) noexcept {
   unodb::db::tree_depth_type key_i = depth;
   uint8_t prefix_i = 0;
-  while (prefix_i < node.key_prefix_len) {
-    if (k[key_i] != node.key_prefix[prefix_i]) return false;
+  while (prefix_i < node.get_key_prefix_len()) {
+    if (k[key_i] != node.key_prefix_byte(prefix_i)) return false;
     ++key_i;
     ++prefix_i;
   }
@@ -261,7 +278,7 @@ db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
   }
   assert(type(node) == node_type::I4);
   if (!key_prefix_matches(k, *node.i4, depth)) return {};
-  depth += node.i4->key_prefix_len;
+  depth += node.i4->get_key_prefix_len();
   const auto child = node.i4->find_child(k[depth]);
   return get_from_subtree(child, k, depth + 1);
 }
@@ -281,13 +298,8 @@ void db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
   if (type(root) == node_type::LEAF) {
     auto new_node = internal_node_4::create();
     const auto existing_key = single_value_leaf::key(root.leaf.get());
-    tree_depth_type i;
-    for (i = depth; k[i] == existing_key[i]; ++i) {
-      assert(i - depth < internal_node_4::key_prefix_capacity);
-      new_node->key_prefix[i - depth] = k[i];
-    }
-    new_node->key_prefix_len = gsl::narrow_cast<uint8_t>(i - depth);
-    depth += new_node->key_prefix_len;
+    new_node->set_key_prefix(existing_key, k, depth);
+    depth += new_node->get_key_prefix_len();
     new_node->add_two_to_empty(std::move(node), std::move(root.leaf), depth);
     root.i4 = std::move(new_node);
     return;

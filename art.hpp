@@ -29,7 +29,7 @@ struct art_key final {
   explicit art_key(Key_type key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
-  static art_key create(const std::byte from[]) noexcept {
+  [[nodiscard]] static art_key create(const std::byte from[]) noexcept {
     struct art_key result;
     memcpy(&result, from, sizeof(result));
     return result;

@@ -60,14 +60,14 @@ struct node_header final {
 
 namespace {
 
-inline auto type(const unodb::node_ptr node) noexcept {
+[[nodiscard]] inline auto type(const unodb::node_ptr node) noexcept {
   return node.header->type();
 }
 
 [[nodiscard]] inline boost::container::pmr::pool_options
 get_node_4_pool_options();
 
-inline boost::container::pmr::memory_resource *get_internal_node_4_pool() {
+[[nodiscard]] inline auto *get_internal_node_4_pool() {
   static boost::container::pmr::unsynchronized_pool_resource node_4_pool{
       get_node_4_pool_options()};
   return &node_4_pool;
@@ -91,7 +91,7 @@ struct single_value_leaf final {
     return art_key_type::create(&leaf[offset_key]);
   }
 
-  [[nodiscard]] static bool matches(single_value_leaf_type leaf,
+  [[nodiscard]] static auto matches(single_value_leaf_type leaf,
                                     art_key_type k) noexcept {
     return k == leaf + offset_key;
   }

@@ -227,7 +227,7 @@ void internal_node_4::add_two_to_empty(single_value_leaf_unique_ptr &&child1,
 }
 
 const node_ptr internal_node_4::find_child(std::byte key_byte) const noexcept {
-  for (unsigned i = 0; i < children_count; i++)
+  for (uint_fast8_t i = 0; i < children_count; i++)
     if (keys[i] == key_byte) return children[i];
   return node_ptr{nullptr};
 }
@@ -251,7 +251,7 @@ __attribute__((pure)) auto key_prefix_matches(
     unodb::art_key_type k, const unodb::internal_node_4 &node,
     unodb::db::tree_depth_type depth) noexcept {
   unodb::db::tree_depth_type key_i = depth;
-  key_prefix_size_type prefix_i = 0;
+  uint_fast8_t prefix_i = 0;
   while (prefix_i < node.get_key_prefix_len()) {
     if (k[key_i] != node.key_prefix_byte(prefix_i)) return false;
     ++key_i;

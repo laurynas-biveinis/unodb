@@ -67,6 +67,10 @@ namespace {
 [[nodiscard]] inline boost::container::pmr::pool_options
 get_node_4_pool_options();
 
+[[nodiscard]] inline auto *get_leaf_node_pool() {
+  return boost::container::pmr::new_delete_resource();
+}
+
 [[nodiscard]] inline auto *get_internal_node_4_pool() {
   static boost::container::pmr::unsynchronized_pool_resource node_4_pool{
       get_node_4_pool_options()};
@@ -127,8 +131,7 @@ struct single_value_leaf final {
 void single_value_leaf_deleter::operator()(
     single_value_leaf_type to_delete) const noexcept {
   const auto s = single_value_leaf::size(to_delete);
-  // TODO(laurynas): hide new_delete_resource() call, here and in creator
-  boost::container::pmr::new_delete_resource()->deallocate(to_delete, s);
+  get_leaf_node_pool()->deallocate(to_delete, s);
 }
 
 single_value_leaf_unique_ptr single_value_leaf::create(art_key_type k,
@@ -138,8 +141,8 @@ single_value_leaf_unique_ptr single_value_leaf::create(art_key_type k,
   }
   const auto value_size = static_cast<value_size_type>(v.size());
   const auto leaf_size = static_cast<std::size_t>(offset_value) + value_size;
-  auto *const leaf_mem = static_cast<std::byte *>(
-      boost::container::pmr::new_delete_resource()->allocate(leaf_size));
+  auto *const leaf_mem =
+      static_cast<std::byte *>(get_leaf_node_pool()->allocate(leaf_size));
   new (leaf_mem) node_header{node_type::LEAF};
   k.copy_to(&leaf_mem[offset_key]);
   memcpy(&leaf_mem[offset_value_size], &value_size, sizeof(value_size_type));

@@ -64,9 +64,12 @@ inline auto type(const unodb::node_ptr node) noexcept {
   return node.header->type();
 }
 
+[[nodiscard]] inline boost::container::pmr::pool_options
+get_node_4_pool_options();
+
 inline boost::container::pmr::memory_resource *get_internal_node_4_pool() {
-  // TODO(laurynas) pool options
-  static boost::container::pmr::unsynchronized_pool_resource node_4_pool;
+  static boost::container::pmr::unsynchronized_pool_resource node_4_pool{
+      get_node_4_pool_options()};
   return &node_4_pool;
 }
 
@@ -211,6 +214,17 @@ const node_ptr internal_node_4::find_child(std::byte key_byte) const noexcept {
 }  // namespace unodb
 
 namespace {
+
+// For Node4 pool, approximate requesting ~2MB blocks from backing storage
+// (when ported to Linux, ask for 2MB huge pages directly)
+boost::container::pmr::pool_options get_node_4_pool_options() {
+  struct boost::container::pmr::pool_options node_4_pool_options;
+  node_4_pool_options.max_blocks_per_chunk =
+      2 * 1024 * 1024 / sizeof(unodb::internal_node_4);
+  node_4_pool_options.largest_required_pool_block =
+      sizeof(unodb::internal_node_4);
+  return node_4_pool_options;
+}
 
 __attribute__((pure)) auto key_prefix_matches(
     unodb::art_key_type k, const unodb::internal_node_4 &node,

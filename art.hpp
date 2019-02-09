@@ -43,6 +43,10 @@ struct art_key final {
     return !memcmp(&key, key2, sizeof(*this));
   }
 
+  [[nodiscard]] bool operator==(art_key<Key_type> key2) const noexcept {
+    return !memcmp(&key, &key2.key, sizeof(*this));
+  }
+
   [[nodiscard]] __attribute__((pure)) std::byte operator[](
       std::size_t index) const noexcept {
     Expects(index < sizeof(*this));
@@ -102,7 +106,7 @@ class db final {
 
   [[nodiscard]] get_result get(key_type k) noexcept;
 
-  void insert(key_type k, value_view v);
+  [[nodiscard]] bool insert(key_type k, value_view v);
 
  private:
   [[nodiscard]] db::get_result get_from_subtree(const node_ptr node,
@@ -110,8 +114,9 @@ class db final {
                                                 tree_depth_type depth) const
       noexcept;
 
-  void insert_node(art_key_type k, single_value_leaf_unique_ptr node,
-                   tree_depth_type depth);
+  [[nodiscard]] bool insert_node(art_key_type k,
+                                 single_value_leaf_unique_ptr node,
+                                 tree_depth_type depth);
 
   node_ptr root{nullptr};
 };

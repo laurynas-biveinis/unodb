@@ -285,28 +285,30 @@ db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
   return get_from_subtree(child, k, depth + 1);
 }
 
-void db::insert(key_type k, value_view v) {
+bool db::insert(key_type k, value_view v) {
   const auto bin_comparable_key = art_key{k};
   auto leaf_node = single_value_leaf::create(bin_comparable_key, v);
-  insert_node(bin_comparable_key, std::move(leaf_node), 0);
+  return insert_node(bin_comparable_key, std::move(leaf_node), 0);
 }
 
-void db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
+bool db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
                      tree_depth_type depth) {
   if (root.header == nullptr) {
     root.leaf = std::move(node);
-    return;
+    return true;
   }
   if (type(root) == node_type::LEAF) {
-    auto new_node = internal_node_4::create();
     const auto existing_key = single_value_leaf::key(root.leaf.get());
+    if (BOOST_UNLIKELY(k == existing_key)) return false;
+    auto new_node = internal_node_4::create();
     new_node->set_key_prefix(existing_key, k, depth);
     depth += new_node->get_key_prefix_len();
     new_node->add_two_to_empty(std::move(node), std::move(root.leaf), depth);
     root.i4 = std::move(new_node);
-    return;
+    return true;
   }
   assert(0);
+  throw std::logic_error("Not implemented yet");
 }
 
 }  // namespace unodb

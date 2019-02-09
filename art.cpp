@@ -60,6 +60,8 @@ struct node_header final {
 
 namespace {
 
+using key_prefix_size_type = uint8_t;
+
 [[nodiscard]] inline auto type(const unodb::node_ptr node) noexcept {
   return node.header->type();
 }
@@ -153,7 +155,7 @@ single_value_leaf_unique_ptr single_value_leaf::create(art_key_type k,
 
 class internal_node_4 final {
  public:
-  static const constexpr auto key_prefix_capacity = 8;
+  static const constexpr key_prefix_size_type key_prefix_capacity = 8;
 
   internal_node_4() noexcept {}
 
@@ -170,17 +172,17 @@ class internal_node_4 final {
       assert(i - depth < key_prefix_capacity);
       key_prefix[i - depth] = k1[i];
     }
-    key_prefix_len = gsl::narrow_cast<uint8_t>(i - depth);
+    key_prefix_len = gsl::narrow_cast<key_prefix_size_type>(i - depth);
   }
 
   [[nodiscard]] const node_ptr find_child(std::byte key_byte) const noexcept;
 
-  // TODO(laurynas) alias uint8_t
-  [[nodiscard]] uint8_t get_key_prefix_len() const noexcept {
+  [[nodiscard]] key_prefix_size_type get_key_prefix_len() const noexcept {
     return key_prefix_len;
   }
 
-  [[nodiscard]] std::byte key_prefix_byte(uint8_t i) const noexcept {
+  [[nodiscard]] std::byte key_prefix_byte(key_prefix_size_type i) const
+      noexcept {
     Expects(i < key_prefix_len);
     return key_prefix[i];
   }
@@ -193,7 +195,7 @@ class internal_node_4 final {
   uint8_t children_count{0};
 
  private:
-  uint8_t key_prefix_len{0};
+  key_prefix_size_type key_prefix_len{0};
   std::array<std::byte, key_prefix_capacity> key_prefix;
 
   std::array<std::byte, capacity> keys;
@@ -249,7 +251,7 @@ __attribute__((pure)) auto key_prefix_matches(
     unodb::art_key_type k, const unodb::internal_node_4 &node,
     unodb::db::tree_depth_type depth) noexcept {
   unodb::db::tree_depth_type key_i = depth;
-  uint8_t prefix_i = 0;
+  key_prefix_size_type prefix_i = 0;
   while (prefix_i < node.get_key_prefix_len()) {
     if (k[key_i] != node.key_prefix_byte(prefix_i)) return false;
     ++key_i;

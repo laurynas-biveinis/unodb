@@ -89,13 +89,15 @@ union node_ptr {
   internal_node_4_unique_ptr i4;
 
   node_ptr() noexcept {}
-  explicit node_ptr(std::nullptr_t nullp) noexcept : header{nullp} {}
+  explicit node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
   explicit node_ptr(single_value_leaf_unique_ptr &&leaf_) noexcept
       : leaf{std::move(leaf_)} {}
 
   node_ptr(const node_ptr &other) noexcept : header{other.header} {}
 
   ~node_ptr() {}
+
+  auto operator!=(std::nullptr_t) const noexcept { return header != nullptr; }
 };
 
 class db final {

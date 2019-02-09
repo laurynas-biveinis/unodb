@@ -165,6 +165,16 @@ class internal_node_4 final {
                         single_value_leaf_unique_ptr &&child2,
                         db::tree_depth_type depth) noexcept;
 
+  void add(single_value_leaf_unique_ptr &&child,
+           db::tree_depth_type depth) noexcept {
+    Expects(!is_full());
+    const auto key_byte = single_value_leaf::key(child.get())[depth];
+    keys[children_count] = key_byte;
+    new (&children[children_count].leaf)
+        single_value_leaf_unique_ptr{std::move(child)};
+    ++children_count;
+  }
+
   void set_key_prefix(art_key_type k1, art_key_type k2,
                       db::tree_depth_type depth) noexcept {
     db::tree_depth_type i;
@@ -176,6 +186,10 @@ class internal_node_4 final {
   }
 
   [[nodiscard]] const node_ptr find_child(std::byte key_byte) const noexcept;
+
+  [[nodiscard]] bool is_full() const noexcept {
+    return children_count == capacity;
+  }
 
   [[nodiscard]] key_prefix_size_type get_key_prefix_len() const noexcept {
     return key_prefix_len;
@@ -194,7 +208,6 @@ class internal_node_4 final {
 
   uint8_t children_count{0};
 
- private:
   key_prefix_size_type key_prefix_len{0};
   std::array<std::byte, key_prefix_capacity> key_prefix;
 
@@ -307,8 +320,24 @@ bool db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
     root.i4 = std::move(new_node);
     return true;
   }
-  assert(0);
-  throw std::logic_error("Not implemented yet");
+  assert(type(root) == node_type::I4);
+  if (!key_prefix_matches(k, *root.i4, depth)) {
+    assert(0);
+    throw std::logic_error("Not implemented yet");
+  }
+  depth += root.i4->get_key_prefix_len();
+  const auto child = root.i4->find_child(k[depth]);
+  if (child != nullptr) {
+    assert(0);
+    throw std::logic_error("Not implemented yet");
+  } else {
+    if (BOOST_UNLIKELY(root.i4->is_full())) {
+      assert(0);
+      throw std::logic_error("Not implemented yet");
+    }
+    root.i4->add(std::move(node), depth);
+    return true;
+  }
 }
 
 }  // namespace unodb

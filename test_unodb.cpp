@@ -70,4 +70,24 @@ TEST(UnoDB, duplicate_key) {
   ASSERT_FALSE(test_db.insert(0, unodb::value_view{test_value_4}));
 }
 
+TEST(UnoDB, insert_to_full_node4) {
+  unodb::db test_db;
+  ASSERT_TRUE(test_db.insert(2, unodb::value_view{test_value_2}));
+  ASSERT_TRUE(test_db.insert(4, unodb::value_view{test_value_4}));
+  ASSERT_TRUE(test_db.insert(0, unodb::value_view{test_value_1}));
+  ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_3}));
+  auto result = test_db.get(3);
+  assert_result_eq(result, test_value_3);
+  result = test_db.get(0);
+  assert_result_eq(result, test_value_1);
+  result = test_db.get(4);
+  assert_result_eq(result, test_value_4);
+  result = test_db.get(2);
+  assert_result_eq(result, test_value_2);
+  result = test_db.get(1);
+  ASSERT_FALSE(result);
+  result = test_db.get(5);
+  ASSERT_FALSE(result);
+}
+
 }  // namespace

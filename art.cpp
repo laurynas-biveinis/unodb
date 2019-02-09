@@ -83,9 +83,8 @@ namespace unodb {
 // (heap) indirection.
 struct single_value_leaf final {
   using view_ptr = const std::byte *;
-  // TODO(laurynas): rename to create
-  [[nodiscard]] static single_value_leaf_unique_ptr make(art_key_type k,
-                                                         value_view v);
+  [[nodiscard]] static single_value_leaf_unique_ptr create(art_key_type k,
+                                                           value_view v);
 
   [[nodiscard]] static auto key(single_value_leaf_type leaf) noexcept {
     return art_key_type::create(&leaf[offset_key]);
@@ -132,8 +131,8 @@ void single_value_leaf_deleter::operator()(
   boost::container::pmr::new_delete_resource()->deallocate(to_delete, s);
 }
 
-single_value_leaf_unique_ptr single_value_leaf::make(art_key_type k,
-                                                     value_view v) {
+single_value_leaf_unique_ptr single_value_leaf::create(art_key_type k,
+                                                       value_view v) {
   if (v.size() > std::numeric_limits<value_size_type>::max()) {
     throw std::length_error("Value length must fit in uint32_t");
   }
@@ -266,7 +265,7 @@ db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
 
 void db::insert(key_type k, value_view v) {
   const auto bin_comparable_key = art_key{k};
-  auto leaf_node = single_value_leaf::make(bin_comparable_key, v);
+  auto leaf_node = single_value_leaf::create(bin_comparable_key, v);
   insert_node(bin_comparable_key, std::move(leaf_node), 0);
 }
 

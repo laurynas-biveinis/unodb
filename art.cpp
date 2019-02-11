@@ -162,9 +162,9 @@ class internal_node_4 final {
   [[nodiscard]] static internal_node_4_unique_ptr create();
 
   // TODO(laurynas): merge with constructor
-  void add_two_to_empty(single_value_leaf_unique_ptr &&child1,
-                        single_value_leaf_unique_ptr &&child2,
-                        db::tree_depth_type depth) noexcept;
+  void add_two_to_empty(std::byte key1, single_value_leaf_unique_ptr &&child1,
+                        std::byte key2,
+                        single_value_leaf_unique_ptr &&child2) noexcept;
 
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
@@ -229,15 +229,13 @@ internal_node_4_unique_ptr internal_node_4::create() {
   return internal_node_4_unique_ptr{new (node_mem) internal_node_4};
 }
 
-void internal_node_4::add_two_to_empty(single_value_leaf_unique_ptr &&child1,
-                                       single_value_leaf_unique_ptr &&child2,
-                                       db::tree_depth_type depth) noexcept {
+void internal_node_4::add_two_to_empty(
+    std::byte key1, single_value_leaf_unique_ptr &&child1, std::byte key2,
+    single_value_leaf_unique_ptr &&child2) noexcept {
   Expects(children_count == 0);
-  const auto key1_byte = single_value_leaf::key(child1.get())[depth];
-  keys[0] = key1_byte;
+  keys[0] = key1;
   new (&children[0].leaf) single_value_leaf_unique_ptr{std::move(child1)};
-  const auto key2_byte = single_value_leaf::key(child2.get())[depth];
-  keys[1] = key2_byte;
+  keys[1] = key2;
   new (&children[1].leaf) single_value_leaf_unique_ptr{std::move(child2)};
   children_count = 2;
 }
@@ -320,7 +318,9 @@ bool db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
     auto new_node = internal_node_4::create();
     new_node->set_key_prefix(existing_key, k, depth);
     depth += new_node->get_key_prefix_len();
-    new_node->add_two_to_empty(std::move(node), std::move(root.leaf), depth);
+    new_node->add_two_to_empty(k[depth], std::move(node),
+                               single_value_leaf::key(root.leaf.get())[depth],
+                               std::move(root.leaf));
     root.i4 = std::move(new_node);
     return true;
   }

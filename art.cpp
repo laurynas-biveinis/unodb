@@ -161,6 +161,7 @@ class internal_node_4 final {
 
   [[nodiscard]] static internal_node_4_unique_ptr create();
 
+  // TODO(laurynas): merge with constructor
   void add_two_to_empty(single_value_leaf_unique_ptr &&child1,
                         single_value_leaf_unique_ptr &&child2,
                         db::tree_depth_type depth) noexcept;
@@ -175,8 +176,10 @@ class internal_node_4 final {
     ++children_count;
   }
 
+  // TODO(laurynas): merge with constructor
   void set_key_prefix(art_key_type k1, art_key_type k2,
                       db::tree_depth_type depth) noexcept {
+    Expects(key_prefix_len == 0);
     db::tree_depth_type i;
     for (i = depth; k1[i] == k2[i]; ++i) {
       assert(i - depth < key_prefix_capacity);

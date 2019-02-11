@@ -263,17 +263,17 @@ boost::container::pmr::pool_options get_node_4_pool_options() {
   return node_4_pool_options;
 }
 
-__attribute__((pure)) auto key_prefix_matches(
+[[nodiscard]] __attribute__((pure)) auto get_shared_prefix_len(
     unodb::art_key_type k, const unodb::internal_node_4 &node,
     unodb::db::tree_depth_type depth) noexcept {
   unodb::db::tree_depth_type key_i = depth;
-  uint_fast8_t prefix_i = 0;
-  while (prefix_i < node.get_key_prefix_len()) {
-    if (k[key_i] != node.key_prefix_byte(prefix_i)) return false;
+  uint_fast8_t shared_prefix_len = 0;
+  while (shared_prefix_len < node.get_key_prefix_len()) {
+    if (k[key_i] != node.key_prefix_byte(shared_prefix_len)) break;
     ++key_i;
-    ++prefix_i;
+    ++shared_prefix_len;
   }
-  return true;
+  return shared_prefix_len;
 }
 
 }  // namespace
@@ -295,7 +295,8 @@ db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
     return {};
   }
   assert(type(node) == node_type::I4);
-  if (!key_prefix_matches(k, *node.i4, depth)) return {};
+  if (get_shared_prefix_len(k, *node.i4, depth) < node.i4->get_key_prefix_len())
+    return {};
   depth += node.i4->get_key_prefix_len();
   const auto child = node.i4->find_child(k[depth]);
   return get_from_subtree(child, k, depth + 1);
@@ -324,7 +325,8 @@ bool db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
     return true;
   }
   assert(type(root) == node_type::I4);
-  if (!key_prefix_matches(k, *root.i4, depth)) {
+  const auto shared_prefix_len = get_shared_prefix_len(k, *root.i4, depth);
+  if (shared_prefix_len < root.i4->get_key_prefix_len()) {
     assert(0);
     throw std::logic_error("Not implemented yet");
   }

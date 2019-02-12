@@ -1,6 +1,7 @@
 // Copyright 2019 Laurynas Biveinis
 #include "art.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <limits>
@@ -194,6 +195,27 @@ class internal_node_4 final {
     key_prefix_len = gsl::narrow_cast<key_prefix_size_type>(i - depth);
   }
 
+  // TODO(laurynas): merge with constructor
+  // TODO(laurynas): get rid of uint_fast8_t
+  void set_key_prefix(const internal_node_4 &source_node,
+                      uint_fast8_t len) noexcept {
+    Expects(key_prefix_len == 0);
+    Expects(len < source_node.key_prefix_len);
+    std::copy(source_node.key_prefix.cbegin(),
+              source_node.key_prefix.cbegin() + len, key_prefix.begin());
+    key_prefix_len = len;
+  }
+
+  void cut_prefix(uint_fast8_t cut_len) noexcept {
+    Expects(cut_len > 0);
+    Expects(cut_len <= key_prefix_len);
+    std::copy_backward(key_prefix.cbegin() + cut_len,
+                       key_prefix.cbegin() + key_prefix_len,
+                       key_prefix.begin());
+    key_prefix_len =
+        static_cast<key_prefix_size_type>(key_prefix_len - cut_len);
+  }
+
   [[nodiscard]] const node_ptr find_child(std::byte key_byte) const noexcept;
 
   [[nodiscard]] bool is_full() const noexcept {
@@ -342,8 +364,15 @@ bool db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
   assert(type(root) == node_type::I4);
   const auto shared_prefix_len = get_shared_prefix_len(k, *root.i4, depth);
   if (shared_prefix_len < root.i4->get_key_prefix_len()) {
-    assert(0);
-    throw std::logic_error("Not implemented yet");
+    auto new_node = internal_node_4::create();
+    new_node->set_key_prefix(*root.i4, shared_prefix_len);
+    const auto old_node_key_byte = root.i4->key_prefix_byte(shared_prefix_len);
+    root.i4.get()->cut_prefix(static_cast<uint_fast8_t>(shared_prefix_len + 1));
+    new_node->add_two_to_empty(k[depth + shared_prefix_len],
+                               node_ptr{std::move(node)}, old_node_key_byte,
+                               std::move(root));
+    root.i4 = std::move(new_node);
+    return true;
   }
   depth += root.i4->get_key_prefix_len();
   const auto child = root.i4->find_child(k[depth]);

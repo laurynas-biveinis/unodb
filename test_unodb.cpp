@@ -90,4 +90,17 @@ TEST(UnoDB, insert_to_full_node4) {
   ASSERT_FALSE(result);
 }
 
+TEST(UNODB, two_node4) {
+  unodb::db test_db;
+  ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_1}));
+  ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_3}));
+  // Insert a value that does not share full prefix with the current Node4
+  ASSERT_TRUE(test_db.insert(0xFF01, unodb::value_view{test_value_4}));
+  assert_result_eq(test_db.get(1), test_value_1);
+  assert_result_eq(test_db.get(3), test_value_3);
+  assert_result_eq(test_db.get(0xFF01), test_value_4);
+  ASSERT_FALSE(test_db.get(0xFF00));
+  ASSERT_FALSE(test_db.get(2));
+}
+
 }  // namespace

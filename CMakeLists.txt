@@ -110,6 +110,7 @@ else()
     # Because leaf nodes are std::byte arrays
     "-cppcoreguidelines-pro-bounds-pointer-arithmetic,"
     "-cppcoreguidelines-pro-type-member-init,"
+    "-cppcoreguidelines-pro-type-reinterpret-cast,"
     "-cppcoreguidelines-pro-type-union-access,"
     "-fuchsia-overloaded-operator,"
     "-google-readability-braces-around-statements,"

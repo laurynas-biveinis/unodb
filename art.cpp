@@ -199,6 +199,7 @@ class internal_node_4 final {
   // TODO(laurynas): get rid of uint_fast8_t
   void set_key_prefix(const internal_node_4 &source_node,
                       uint_fast8_t len) noexcept {
+    assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
     Expects(key_prefix_len == 0);
     Expects(len < source_node.key_prefix_len);
     std::copy(source_node.key_prefix.cbegin(),
@@ -207,6 +208,7 @@ class internal_node_4 final {
   }
 
   void cut_prefix(uint_fast8_t cut_len) noexcept {
+    assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
     Expects(cut_len > 0);
     Expects(cut_len <= key_prefix_len);
     std::copy_backward(key_prefix.cbegin() + cut_len,

@@ -93,19 +93,23 @@ struct single_value_leaf final {
                                                            value_view v);
 
   [[nodiscard]] static auto key(single_value_leaf_type leaf) noexcept {
+    assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
     return art_key_type::create(&leaf[offset_key]);
   }
 
   [[nodiscard]] static auto matches(single_value_leaf_type leaf,
                                     art_key_type k) noexcept {
+    assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
     return k == leaf + offset_key;
   }
 
   [[nodiscard]] static auto value(single_value_leaf_type leaf) noexcept {
+    assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
     return value_view(&leaf[offset_value], value_size(leaf));
   }
 
   [[nodiscard]] static std::size_t size(single_value_leaf_type leaf) noexcept {
+    assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
     return value_size(leaf) + offset_value;
   }
 
@@ -124,6 +128,7 @@ struct single_value_leaf final {
 
   [[nodiscard]] static value_size_type value_size(
       single_value_leaf_type leaf) noexcept {
+    assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
     value_size_type result;
     memcpy(&result, &leaf[offset_value_size], sizeof(result));
     return result;
@@ -162,12 +167,12 @@ class internal_node_4 final {
   [[nodiscard]] static internal_node_4_unique_ptr create();
 
   // TODO(laurynas): merge with constructor
-  void add_two_to_empty(std::byte key1, single_value_leaf_unique_ptr &&child1,
-                        std::byte key2,
-                        single_value_leaf_unique_ptr &&child2) noexcept;
+  void add_two_to_empty(std::byte key1, node_ptr &&child1, std::byte key2,
+                        node_ptr &&child2) noexcept;
 
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
+    assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
     Expects(!is_full());
     const auto key_byte = single_value_leaf::key(child.get())[depth];
     keys[children_count] = key_byte;
@@ -179,6 +184,7 @@ class internal_node_4 final {
   // TODO(laurynas): merge with constructor
   void set_key_prefix(art_key_type k1, art_key_type k2,
                       db::tree_depth_type depth) noexcept {
+    assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
     Expects(key_prefix_len == 0);
     db::tree_depth_type i;
     for (i = depth; k1[i] == k2[i]; ++i) {
@@ -191,15 +197,21 @@ class internal_node_4 final {
   [[nodiscard]] const node_ptr find_child(std::byte key_byte) const noexcept;
 
   [[nodiscard]] bool is_full() const noexcept {
+    assert(reinterpret_cast<const node_header *>(this)->type() ==
+           node_type::I4);
     return children_count == capacity;
   }
 
   [[nodiscard]] key_prefix_size_type get_key_prefix_len() const noexcept {
+    assert(reinterpret_cast<const node_header *>(this)->type() ==
+           node_type::I4);
     return key_prefix_len;
   }
 
   [[nodiscard]] std::byte key_prefix_byte(key_prefix_size_type i) const
       noexcept {
+    assert(reinterpret_cast<const node_header *>(this)->type() ==
+           node_type::I4);
     Expects(i < key_prefix_len);
     return key_prefix[i];
   }
@@ -220,6 +232,7 @@ class internal_node_4 final {
 
 void internal_node_4_deleter::operator()(internal_node_4 *to_delete) const
     noexcept {
+  assert(reinterpret_cast<node_header *>(to_delete)->type() == node_type::I4);
   get_internal_node_4_pool()->deallocate(to_delete, sizeof(*to_delete));
 }
 
@@ -229,18 +242,20 @@ internal_node_4_unique_ptr internal_node_4::create() {
   return internal_node_4_unique_ptr{new (node_mem) internal_node_4};
 }
 
-void internal_node_4::add_two_to_empty(
-    std::byte key1, single_value_leaf_unique_ptr &&child1, std::byte key2,
-    single_value_leaf_unique_ptr &&child2) noexcept {
+void internal_node_4::add_two_to_empty(std::byte key1, node_ptr &&child1,
+                                       std::byte key2,
+                                       node_ptr &&child2) noexcept {
+  assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
   Expects(children_count == 0);
   keys[0] = key1;
-  new (&children[0].leaf) single_value_leaf_unique_ptr{std::move(child1)};
+  new (&children[0].leaf) node_ptr{std::move(child1)};
   keys[1] = key2;
-  new (&children[1].leaf) single_value_leaf_unique_ptr{std::move(child2)};
+  new (&children[1].leaf) node_ptr{std::move(child2)};
   children_count = 2;
 }
 
 const node_ptr internal_node_4::find_child(std::byte key_byte) const noexcept {
+  assert(reinterpret_cast<const node_header *>(this)->type() == node_type::I4);
   for (uint_fast8_t i = 0; i < children_count; i++)
     if (keys[i] == key_byte) return children[i];
   return node_ptr{nullptr};
@@ -318,9 +333,9 @@ bool db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
     auto new_node = internal_node_4::create();
     new_node->set_key_prefix(existing_key, k, depth);
     depth += new_node->get_key_prefix_len();
-    new_node->add_two_to_empty(k[depth], std::move(node),
+    new_node->add_two_to_empty(k[depth], node_ptr{std::move(node)},
                                single_value_leaf::key(root.leaf.get())[depth],
-                               std::move(root.leaf));
+                               std::move(root));
     root.i4 = std::move(new_node);
     return true;
   }

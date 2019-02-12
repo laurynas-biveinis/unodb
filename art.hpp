@@ -89,9 +89,12 @@ union node_ptr {
   internal_node_4_unique_ptr i4;
 
   node_ptr() noexcept {}
+  explicit node_ptr(node_ptr &&other) noexcept : leaf{std::move(other.leaf)} {}
   explicit node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
   explicit node_ptr(single_value_leaf_unique_ptr &&leaf_) noexcept
       : leaf{std::move(leaf_)} {}
+  explicit node_ptr(internal_node_4_unique_ptr &&node) noexcept
+      : i4{std::move(node)} {}
 
   node_ptr(const node_ptr &other) noexcept : header{other.header} {}
 

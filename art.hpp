@@ -76,25 +76,17 @@ using single_value_leaf_unique_ptr =
 
 class internal_node_4;
 
-struct internal_node_4_deleter {
-  void operator()(internal_node_4 *to_delete) const noexcept;
-};
-
-using internal_node_4_unique_ptr =
-    std::unique_ptr<internal_node_4, internal_node_4_deleter>;
-
 union node_ptr {
   node_header *header;
   single_value_leaf_unique_ptr leaf;
-  internal_node_4_unique_ptr i4;
+  std::unique_ptr<internal_node_4> i4;
 
   node_ptr() noexcept {}
   explicit node_ptr(node_ptr &&other) noexcept : leaf{std::move(other.leaf)} {}
   explicit node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
   explicit node_ptr(single_value_leaf_unique_ptr &&leaf_) noexcept
       : leaf{std::move(leaf_)} {}
-  explicit node_ptr(internal_node_4_unique_ptr &&node) noexcept
-      : i4{std::move(node)} {}
+  explicit node_ptr(std::unique_ptr<internal_node_4> &&node) noexcept;
 
   node_ptr(const node_ptr &other) noexcept : header{other.header} {}
 

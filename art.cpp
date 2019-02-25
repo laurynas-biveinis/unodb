@@ -168,19 +168,23 @@ class internal_node_4 final {
     get_internal_node_4_pool()->deallocate(to_delete, sizeof(internal_node_4));
   }
 
+  // Create a new node with two given child nodes
   [[nodiscard]] static std::unique_ptr<internal_node_4> create(
-      art_key_type k1, art_key_type k2, db::tree_depth_type depth) {
-    return std::make_unique<internal_node_4>(k1, k2, depth);
+      art_key_type k1, art_key_type k2, db::tree_depth_type depth,
+      node_ptr &&child1, node_ptr &&child2) {
+    return std::make_unique<internal_node_4>(k1, k2, depth, std::move(child1),
+                                             std::move(child2));
   }
 
+  // Create a new node, split the key prefix of an existing node, and make the
+  // new node contain that existing node and a given new node which caused this
+  // key prefix split
   [[nodiscard]] static std::unique_ptr<internal_node_4> create(
-      const internal_node_4 &source_node, uint_fast8_t len) {
-    return std::make_unique<internal_node_4>(source_node, len);
+      node_ptr &&source_node, uint_fast8_t len, db::tree_depth_type depth,
+      node_ptr &&new_child) {
+    return std::make_unique<internal_node_4>(std::move(source_node), len, depth,
+                                             std::move(new_child));
   }
-
-  // TODO(laurynas): merge with constructor
-  void add_two_to_empty(std::byte key1, node_ptr &&child1, std::byte key2,
-                        node_ptr &&child2) noexcept;
 
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
@@ -193,12 +197,13 @@ class internal_node_4 final {
     ++children_count;
   }
 
-  internal_node_4(art_key_type k1, art_key_type k2,
-                  db::tree_depth_type depth) noexcept;
+  internal_node_4(art_key_type k1, art_key_type k2, db::tree_depth_type depth,
+                  node_ptr &&child1, node_ptr &&child2) noexcept;
 
   // TODO(laurynas): get rid of uint_fast8_t
-  internal_node_4(const internal_node_4 &source_node,
-                  uint_fast8_t len) noexcept;
+  internal_node_4(node_ptr &&source_node, uint_fast8_t len,
+                  db::tree_depth_type depth,
+                  /*std::byte key1, */ node_ptr &&child1) noexcept;
 
   void cut_prefix(uint_fast8_t cut_len) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
@@ -238,43 +243,56 @@ class internal_node_4 final {
 
   node_header header{node_type::I4};
 
-  uint8_t children_count{0};
+  uint8_t children_count{2};
 
   key_prefix_size_type key_prefix_len;
   std::array<std::byte, key_prefix_capacity> key_prefix;
 
   std::array<std::byte, capacity> keys;
   std::array<node_ptr, capacity> children;
+
+  void add_two_to_empty(std::byte key1, node_ptr &&child1, std::byte key2,
+                        node_ptr &&child2) noexcept;
 };
 
 internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
-                                 db::tree_depth_type depth) noexcept {
+                                 db::tree_depth_type depth, node_ptr &&child1,
+                                 node_ptr &&child2) noexcept {
   db::tree_depth_type i;
   for (i = depth; k1[i] == k2[i]; ++i) {
     assert(i - depth < key_prefix_capacity);
     key_prefix[i - depth] = k1[i];
   }
   key_prefix_len = gsl::narrow_cast<key_prefix_size_type>(i - depth);
+  const auto next_level_depth = depth + get_key_prefix_len();
+  add_two_to_empty(k1[next_level_depth], std::move(child1),
+                   k2[next_level_depth], std::move(child2));
 }
 
-internal_node_4::internal_node_4(const internal_node_4 &source_node,
-                                 uint_fast8_t len) noexcept
+internal_node_4::internal_node_4(node_ptr &&source_node, uint_fast8_t len,
+                                 db::tree_depth_type depth,
+                                 node_ptr &&child1) noexcept
     : key_prefix_len{len} {
-  Expects(len < source_node.key_prefix_len);
-  std::copy(source_node.key_prefix.cbegin(),
-            source_node.key_prefix.cbegin() + len, key_prefix.begin());
+  Expects(type(source_node) == node_type::I4);
+  Expects(type(child1) == node_type::LEAF);
+  Expects(len < source_node.i4->key_prefix_len);
+  std::copy(source_node.i4->key_prefix.cbegin(),
+            source_node.i4->key_prefix.cbegin() + len, key_prefix.begin());
+  const auto source_node_key_byte = source_node.i4->key_prefix_byte(len);
+  source_node.i4->cut_prefix(gsl::narrow_cast<uint_fast8_t>(len + 1));
+  const auto new_key_byte =
+      single_value_leaf::key(child1.leaf.get())[depth + len];
+  add_two_to_empty(new_key_byte, std::move(child1), source_node_key_byte,
+                   std::move(source_node));
 }
 
 void internal_node_4::add_two_to_empty(std::byte key1, node_ptr &&child1,
                                        std::byte key2,
                                        node_ptr &&child2) noexcept {
-  assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
-  Expects(children_count == 0);
   keys[0] = key1;
   new (&children[0].leaf) node_ptr{std::move(child1)};
   keys[1] = key2;
   new (&children[1].leaf) node_ptr{std::move(child2)};
-  children_count = 2;
 }
 
 const node_ptr internal_node_4::find_child(std::byte key_byte) const noexcept {
@@ -356,23 +374,16 @@ bool db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
   if (type(root) == node_type::LEAF) {
     const auto existing_key = single_value_leaf::key(root.leaf.get());
     if (BOOST_UNLIKELY(k == existing_key)) return false;
-    auto new_node = internal_node_4::create(existing_key, k, depth);
-    depth += new_node->get_key_prefix_len();
-    new_node->add_two_to_empty(k[depth], node_ptr{std::move(node)},
-                               single_value_leaf::key(root.leaf.get())[depth],
-                               std::move(root));
+    auto new_node = internal_node_4::create(
+        k, existing_key, depth, node_ptr{std::move(node)}, std::move(root));
     root.i4 = std::move(new_node);
     return true;
   }
   assert(type(root) == node_type::I4);
   const auto shared_prefix_len = get_shared_prefix_len(k, *root.i4, depth);
   if (shared_prefix_len < root.i4->get_key_prefix_len()) {
-    auto new_node = internal_node_4::create(*root.i4, shared_prefix_len);
-    const auto old_node_key_byte = root.i4->key_prefix_byte(shared_prefix_len);
-    root.i4->cut_prefix(gsl::narrow_cast<uint_fast8_t>(shared_prefix_len + 1));
-    new_node->add_two_to_empty(k[depth + shared_prefix_len],
-                               node_ptr{std::move(node)}, old_node_key_byte,
-                               std::move(root));
+    auto new_node = internal_node_4::create(std::move(root), shared_prefix_len,
+                                            depth, node_ptr{std::move(node)});
     root.i4 = std::move(new_node);
     return true;
   }

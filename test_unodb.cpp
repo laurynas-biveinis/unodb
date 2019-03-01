@@ -18,12 +18,16 @@ const constexpr auto test_value_3 =
 const constexpr auto test_value_4 = std::array<std::byte, 4>{
     std::byte{0x04}, std::byte{0x01}, std::byte{0x00}, std::byte{0x02}};
 
-auto assert_result_eq(unodb::db::get_result result,
-                      unodb::value_view expected) noexcept {
+auto assert_result_eq(unodb::db::get_result result, unodb::value_view expected,
+                      int caller_line) noexcept {
+  testing::ScopedTrace trace(__FILE__, caller_line, "");
   ASSERT_TRUE(result);
   ASSERT_TRUE(std::equal(result->cbegin(), result->cend(), expected.cbegin(),
                          expected.cend()));
 }
+
+#define ASSERT_RESULT_EQ(result, expected) \
+  assert_result_eq(result, expected, __LINE__)
 
 TEST(UnoDB, single_node_tree_empty_value) {
   unodb::db test_db;
@@ -40,7 +44,7 @@ TEST(UnoDB, single_node_tree_nonempty_value) {
   unodb::db test_db;
   ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_3}));
   const auto result = test_db.get(1);
-  assert_result_eq(result, test_value_3);
+  ASSERT_RESULT_EQ(result, test_value_3);
 }
 
 TEST(UnoDB, too_long_value) {
@@ -57,9 +61,9 @@ TEST(UnoDB, expand_leaf_to_node4) {
   ASSERT_TRUE(test_db.insert(0, unodb::value_view{test_value_2}));
   ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_3}));
   auto result = test_db.get(0);
-  assert_result_eq(result, test_value_2);
+  ASSERT_RESULT_EQ(result, test_value_2);
   result = test_db.get(1);
-  assert_result_eq(result, test_value_3);
+  ASSERT_RESULT_EQ(result, test_value_3);
   result = test_db.get(2);
   ASSERT_FALSE(result);
 }
@@ -77,28 +81,29 @@ TEST(UnoDB, insert_to_full_node4) {
   ASSERT_TRUE(test_db.insert(0, unodb::value_view{test_value_1}));
   ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_3}));
   auto result = test_db.get(3);
-  assert_result_eq(result, test_value_3);
+  ASSERT_RESULT_EQ(result, test_value_3);
   result = test_db.get(0);
-  assert_result_eq(result, test_value_1);
+  ASSERT_RESULT_EQ(result, test_value_1);
   result = test_db.get(4);
-  assert_result_eq(result, test_value_4);
+  ASSERT_RESULT_EQ(result, test_value_4);
   result = test_db.get(2);
-  assert_result_eq(result, test_value_2);
+  ASSERT_RESULT_EQ(result, test_value_2);
   result = test_db.get(1);
   ASSERT_FALSE(result);
   result = test_db.get(5);
   ASSERT_FALSE(result);
 }
 
-TEST(UNODB, two_node4) {
+TEST(UnoDB, two_node4) {
   unodb::db test_db;
   ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_1}));
   ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_3}));
   // Insert a value that does not share full prefix with the current Node4
   ASSERT_TRUE(test_db.insert(0xFF01, unodb::value_view{test_value_4}));
-  assert_result_eq(test_db.get(1), test_value_1);
-  assert_result_eq(test_db.get(3), test_value_3);
-  assert_result_eq(test_db.get(0xFF01), test_value_4);
+
+  ASSERT_RESULT_EQ(test_db.get(1), test_value_1);
+  ASSERT_RESULT_EQ(test_db.get(3), test_value_3);
+  ASSERT_RESULT_EQ(test_db.get(0xFF01), test_value_4);
   ASSERT_FALSE(test_db.get(0xFF00));
   ASSERT_FALSE(test_db.get(2));
 }

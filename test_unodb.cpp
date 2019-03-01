@@ -119,4 +119,23 @@ TEST(UnoDB, two_node4) {
   ASSERT_FALSE(test_db.get(2));
 }
 
+TEST(UnoDB, db_insert_node_recursion) {
+  unodb::db test_db;
+  ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_1}));
+  ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_3}));
+  // Insert a value that does not share full prefix with the current Node4
+  ASSERT_TRUE(test_db.insert(0xFF0001, unodb::value_view{test_value_4}));
+  // Then insert a value that shares full prefix with the above node and will
+  // ask for a recursive insertion there
+  ASSERT_TRUE(test_db.insert(0xFF0101, unodb::value_view{test_value_2}));
+
+  ASSERT_RESULT_EQ(test_db.get(1), test_value_1);
+  ASSERT_RESULT_EQ(test_db.get(3), test_value_3);
+  ASSERT_RESULT_EQ(test_db.get(0xFF0001), test_value_4);
+  ASSERT_RESULT_EQ(test_db.get(0xFF0101), test_value_2);
+  ASSERT_FALSE(test_db.get(0xFF0100));
+  ASSERT_FALSE(test_db.get(0xFF0000));
+  ASSERT_FALSE(test_db.get(2));
+}
+
 }  // namespace

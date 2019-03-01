@@ -6,6 +6,11 @@
 #include <cassert>
 #include <limits>
 #include <stdexcept>
+#ifndef NDEBUG
+#include <iomanip>
+#include <iostream>
+#include <string>
+#endif
 #include <utility>
 
 #include <boost/container/pmr/global_resource.hpp>
@@ -77,6 +82,22 @@ get_node_4_pool_options();
   return &node_4_pool;
 }
 
+#ifndef NDEBUG
+
+void dump_byte(std::ostream &os, std::byte byte) noexcept {
+  os << ' ' << std::hex << std::setfill('0') << std::setw(2)
+     << static_cast<unsigned>(byte) << std::dec;
+}
+
+void dump_key(std::ostream &os, unodb::art_key_type key) noexcept {
+  for (size_t i = 0; i < sizeof(key); i++) dump_byte(os, key[i]);
+}
+
+void dump_node(std::ostream &os, const unodb::node_ptr &node,
+               unsigned indent) noexcept;
+
+#endif
+
 }  // namespace
 
 namespace unodb {
@@ -110,6 +131,10 @@ struct single_value_leaf final {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
     return value_size(leaf) + offset_value;
   }
+
+#ifndef NDEBUG
+  static void dump(std::ostream &os, single_value_leaf_type leaf) noexcept;
+#endif
 
  private:
   using value_size_type = uint32_t;
@@ -155,6 +180,17 @@ single_value_leaf_unique_ptr single_value_leaf::create(art_key_type k,
     memcpy(&leaf_mem[offset_value], &v[0], static_cast<std::size_t>(v.size()));
   return single_value_leaf_unique_ptr{leaf_mem};
 }
+
+#ifndef NDEBUG
+
+void single_value_leaf::dump(std::ostream &os,
+                             single_value_leaf_type leaf) noexcept {
+  os << "key:";
+  dump_key(os, key(leaf));
+  os << ", value size: " << value_size(leaf) << '\n';
+}
+
+#endif
 
 class internal_node_4 final {
  public:
@@ -207,14 +243,14 @@ class internal_node_4 final {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
     Expects(cut_len > 0);
     Expects(cut_len <= key_prefix_len);
-    std::copy_backward(key_prefix.cbegin() + cut_len,
-                       key_prefix.cbegin() + key_prefix_len,
-                       key_prefix.begin());
+    std::copy(key_prefix.cbegin() + cut_len, key_prefix.cend(),
+              key_prefix.begin());
     key_prefix_len =
         gsl::narrow_cast<key_prefix_size_type>(key_prefix_len - cut_len);
+    assert(key_prefix_len <= key_prefix_capacity);
   }
 
-  [[nodiscard]] const node_ptr find_child(std::byte key_byte) const noexcept;
+  [[nodiscard]] node_ptr *find_child(std::byte key_byte) noexcept;
 
   [[nodiscard]] bool is_full() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() ==
@@ -235,6 +271,10 @@ class internal_node_4 final {
     Expects(i < key_prefix_len);
     return key_prefix[i];
   }
+
+#ifndef NDEBUG
+  void dump(std::ostream &os, unsigned indent) const noexcept;
+#endif
 
  private:
   static const constexpr auto capacity = 4;
@@ -262,6 +302,7 @@ internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
     key_prefix[i - depth] = k1[i];
   }
   key_prefix_len = gsl::narrow_cast<key_prefix_size_type>(i - depth);
+  assert(key_prefix_len <= key_prefix_capacity);
   const auto next_level_depth = depth + get_key_prefix_len();
   add_two_to_empty(k1[next_level_depth], std::move(child1),
                    k2[next_level_depth], std::move(child2));
@@ -274,6 +315,7 @@ internal_node_4::internal_node_4(node_ptr &&source_node, unsigned len,
   Expects(type(source_node) == node_type::I4);
   Expects(type(child1) == node_type::LEAF);
   Expects(len < source_node.i4->key_prefix_len);
+  assert(key_prefix_len <= key_prefix_capacity);
   std::copy(source_node.i4->key_prefix.cbegin(),
             source_node.i4->key_prefix.cbegin() + len, key_prefix.begin());
   const auto source_node_key_byte = source_node.i4->key_prefix_byte(
@@ -294,11 +336,27 @@ void internal_node_4::add_two_to_empty(std::byte key1, node_ptr &&child1,
   new (&children[1].leaf) node_ptr{std::move(child2)};
 }
 
-const node_ptr internal_node_4::find_child(std::byte key_byte) const noexcept {
+#ifndef NDEBUG
+
+void internal_node_4::dump(std::ostream &os, unsigned indent) const noexcept {
+  os << "# children = " << static_cast<unsigned>(children_count);
+  os << ", key prefix len = " << static_cast<unsigned>(key_prefix_len);
+  os << ", key prefix =";
+  for (size_t i = 0; i < key_prefix_len; i++) dump_byte(os, key_prefix[i]);
+  os << ", key bytes =";
+  for (size_t i = 0; i < children_count; i++) dump_byte(os, keys[i]);
+  os << ", children:\n";
+  for (size_t i = 0; i < children_count; i++)
+    dump_node(os, children[i], indent + 2);
+}
+
+#endif
+
+node_ptr *internal_node_4::find_child(std::byte key_byte) noexcept {
   assert(reinterpret_cast<const node_header *>(this)->type() == node_type::I4);
   for (unsigned i = 0; i < children_count; i++)
-    if (keys[i] == key_byte) return children[i];
-  return node_ptr{nullptr};
+    if (keys[i] == key_byte) return &children[i];
+  return nullptr;
 }
 
 }  // namespace unodb
@@ -339,12 +397,12 @@ node_ptr::node_ptr(std::unique_ptr<internal_node_4> &&node) noexcept
     : i4{std::move(node)} {}
 
 db::get_result db::get(key_type k) noexcept {
+  if (root.header == nullptr) return {};
   return get_from_subtree(root, art_key{k}, 0);
 }
 
 db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
                                     tree_depth_type depth) const noexcept {
-  if (node.header == nullptr) return {};
   if (type(node) == node_type::LEAF) {
     if (single_value_leaf::matches(node.leaf.get(), k)) {
       const auto value = single_value_leaf::value(node.leaf.get());
@@ -357,50 +415,85 @@ db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
     return {};
   depth += node.i4->get_key_prefix_len();
   const auto child = node.i4->find_child(k[depth]);
-  return get_from_subtree(child, k, depth + 1);
+  if (child == nullptr) return {};
+  return get_from_subtree(*child, k, depth + 1);
 }
 
 bool db::insert(key_type k, value_view v) {
   const auto bin_comparable_key = art_key{k};
-  auto leaf_node = single_value_leaf::create(bin_comparable_key, v);
-  return insert_node(bin_comparable_key, std::move(leaf_node), 0);
+  auto leaf = single_value_leaf::create(bin_comparable_key, v);
+  if (BOOST_UNLIKELY(root.header == nullptr)) {
+    root.leaf = std::move(leaf);
+    return true;
+  }
+  return insert_leaf(bin_comparable_key, &root, std::move(leaf), 0);
 }
 
-bool db::insert_node(art_key_type k, single_value_leaf_unique_ptr node,
-                     tree_depth_type depth) {
-  if (root.header == nullptr) {
-    root.leaf = std::move(node);
-    return true;
-  }
-  if (type(root) == node_type::LEAF) {
-    const auto existing_key = single_value_leaf::key(root.leaf.get());
+bool db::insert_leaf(art_key_type k, node_ptr *node,
+                     single_value_leaf_unique_ptr leaf, tree_depth_type depth) {
+  if (type(*node) == node_type::LEAF) {
+    const auto existing_key = single_value_leaf::key(node->leaf.get());
     if (BOOST_UNLIKELY(k == existing_key)) return false;
     auto new_node = internal_node_4::create(
-        k, existing_key, depth, node_ptr{std::move(node)}, std::move(root));
-    root.i4 = std::move(new_node);
+        k, existing_key, depth, node_ptr{std::move(leaf)}, std::move(*node));
+    node->i4 = std::move(new_node);
     return true;
   }
-  assert(type(root) == node_type::I4);
-  const auto shared_prefix_len = get_shared_prefix_len(k, *root.i4, depth);
-  if (shared_prefix_len < root.i4->get_key_prefix_len()) {
-    auto new_node = internal_node_4::create(std::move(root), shared_prefix_len,
-                                            depth, node_ptr{std::move(node)});
-    root.i4 = std::move(new_node);
+  assert(type(*node) == node_type::I4);
+  const auto shared_prefix_len = get_shared_prefix_len(k, *node->i4, depth);
+  if (shared_prefix_len < node->i4->get_key_prefix_len()) {
+    auto new_node = internal_node_4::create(std::move(*node), shared_prefix_len,
+                                            depth, node_ptr{std::move(leaf)});
+    node->i4 = std::move(new_node);
     return true;
   }
-  depth += root.i4->get_key_prefix_len();
-  const auto child = root.i4->find_child(k[depth]);
-  if (child != nullptr) {
+  depth += node->i4->get_key_prefix_len();
+  auto child = node->i4->find_child(k[depth]);
+  if (child != nullptr)
+    return insert_leaf(k, child, std::move(leaf), depth + 1);
+  if (BOOST_UNLIKELY(node->i4->is_full())) {
     assert(0);
     throw std::logic_error("Not implemented yet");
-  } else {
-    if (BOOST_UNLIKELY(root.i4->is_full())) {
-      assert(0);
-      throw std::logic_error("Not implemented yet");
-    }
-    root.i4->add(std::move(node), depth);
-    return true;
+  }
+  node->i4->add(std::move(leaf), depth);
+  return true;
+}
+
+#ifndef NDEBUG
+
+}  // namespace unodb
+
+namespace {
+
+void dump_node(std::ostream &os, const unodb::node_ptr &node,
+               unsigned indent) noexcept {
+  os << std::string(indent, ' ') << "node at: " << &node;
+  if (node.header == nullptr) {
+    os << ", <null>\n";
+    return;
+  }
+  os << ", type = ";
+  switch (type(node)) {
+    case unodb::node_type::LEAF:
+      os << "LEAF, ";
+      unodb::single_value_leaf::dump(os, node.leaf.get());
+      break;
+    case unodb::node_type::I4:
+      os << "I4, ";
+      node.i4->dump(os, indent);
+      break;
   }
 }
+
+}  // namespace
+
+namespace unodb {
+
+void db::dump(std::ostream &os) const noexcept {
+  os << "db dump:\n";
+  dump_node(os, root, 0);
+}
+
+#endif
 
 }  // namespace unodb

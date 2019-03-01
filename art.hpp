@@ -105,14 +105,18 @@ class db final {
 
   [[nodiscard]] bool insert(key_type k, value_view v);
 
+#ifndef NDEBUG
+  void dump(std::ostream &os) const noexcept;
+#endif
+
  private:
   [[nodiscard]] db::get_result get_from_subtree(const node_ptr node,
                                                 art_key_type k,
                                                 tree_depth_type depth) const
       noexcept;
 
-  [[nodiscard]] bool insert_node(art_key_type k,
-                                 single_value_leaf_unique_ptr node,
+  [[nodiscard]] bool insert_leaf(art_key_type k, node_ptr *node,
+                                 single_value_leaf_unique_ptr leaf,
                                  tree_depth_type depth);
 
   node_ptr root{nullptr};

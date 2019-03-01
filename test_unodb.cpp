@@ -18,6 +18,13 @@ const constexpr auto test_value_3 =
 const constexpr auto test_value_4 = std::array<std::byte, 4>{
     std::byte{0x04}, std::byte{0x01}, std::byte{0x00}, std::byte{0x02}};
 
+// warning: 'ScopedTrace' was marked unused but was used
+// [-Wused-but-marked-unused]
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wused-but-marked-unused"
+#endif
+
 auto assert_result_eq(unodb::db::get_result result, unodb::value_view expected,
                       int caller_line) noexcept {
   testing::ScopedTrace trace(__FILE__, caller_line, "");
@@ -25,6 +32,10 @@ auto assert_result_eq(unodb::db::get_result result, unodb::value_view expected,
   ASSERT_TRUE(std::equal(result->cbegin(), result->cend(), expected.cbegin(),
                          expected.cend()));
 }
+
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 #define ASSERT_RESULT_EQ(result, expected) \
   assert_result_eq(result, expected, __LINE__)

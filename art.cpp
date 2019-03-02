@@ -250,7 +250,8 @@ class internal_node_4 final {
     assert(key_prefix_len <= key_prefix_capacity);
   }
 
-  [[nodiscard]] node_ptr *find_child(std::byte key_byte) noexcept;
+  [[nodiscard]] __attribute__((pure)) node_ptr *find_child(
+      std::byte key_byte) noexcept;
 
   [[nodiscard]] bool is_full() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() ==

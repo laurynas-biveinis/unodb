@@ -10,13 +10,16 @@
 
 namespace {
 
-const constexpr auto test_value_1 = std::array<std::byte, 1>{std::byte{0x00}};
-const constexpr auto test_value_2 =
+constexpr auto test_value_1 = std::array<std::byte, 1>{std::byte{0x00}};
+constexpr auto test_value_2 =
     std::array<std::byte, 2>{std::byte{0x00}, std::byte{0x02}};
-const constexpr auto test_value_3 =
+constexpr auto test_value_3 =
     std::array<std::byte, 3>{std::byte{0x03}, std::byte{0x00}, std::byte{0x01}};
-const constexpr auto test_value_4 = std::array<std::byte, 4>{
+constexpr auto test_value_4 = std::array<std::byte, 4>{
     std::byte{0x04}, std::byte{0x01}, std::byte{0x00}, std::byte{0x02}};
+constexpr auto test_value_5 =
+    std::array<std::byte, 5>{std::byte{0x05}, std::byte{0xF4}, std::byte{0xFF},
+                             std::byte{0x00}, std::byte{0x01}};
 
 // warning: 'ScopedTrace' was marked unused but was used
 // [-Wused-but-marked-unused]
@@ -136,6 +139,89 @@ TEST(UnoDB, db_insert_node_recursion) {
   ASSERT_FALSE(test_db.get(0xFF0100));
   ASSERT_FALSE(test_db.get(0xFF0000));
   ASSERT_FALSE(test_db.get(2));
+}
+
+TEST(UnoDB, node16) {
+  unodb::db test_db;
+
+  ASSERT_TRUE(test_db.insert(5, unodb::value_view{test_value_5}));
+  ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_3}));
+  ASSERT_TRUE(test_db.insert(4, unodb::value_view{test_value_4}));
+  ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_1}));
+  ASSERT_TRUE(test_db.insert(2, unodb::value_view{test_value_2}));
+
+  ASSERT_RESULT_EQ(test_db.get(5), test_value_5);
+  ASSERT_RESULT_EQ(test_db.get(3), test_value_3);
+  ASSERT_RESULT_EQ(test_db.get(4), test_value_4);
+  ASSERT_RESULT_EQ(test_db.get(1), test_value_1);
+  ASSERT_RESULT_EQ(test_db.get(2), test_value_2);
+
+  ASSERT_FALSE(test_db.get(6));
+  ASSERT_FALSE(test_db.get(0x0100));
+  ASSERT_FALSE(test_db.get(0xFFFFFFFFFFFFFFFFULL));
+}
+
+TEST(UnoDB, full_node16) {
+  unodb::db test_db;
+
+  ASSERT_TRUE(test_db.insert(7, unodb::value_view{test_value_1}));
+  ASSERT_TRUE(test_db.insert(6, unodb::value_view{test_value_2}));
+  ASSERT_TRUE(test_db.insert(5, unodb::value_view{test_value_3}));
+  ASSERT_TRUE(test_db.insert(4, unodb::value_view{test_value_4}));
+  ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_5}));
+  ASSERT_TRUE(test_db.insert(2, unodb::value_view{test_value_1}));
+  ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_2}));
+  ASSERT_TRUE(test_db.insert(0, unodb::value_view{test_value_3}));
+  ASSERT_TRUE(test_db.insert(8, unodb::value_view{test_value_4}));
+  ASSERT_TRUE(test_db.insert(9, unodb::value_view{test_value_5}));
+  ASSERT_TRUE(test_db.insert(10, unodb::value_view{test_value_1}));
+  ASSERT_TRUE(test_db.insert(11, unodb::value_view{test_value_2}));
+  ASSERT_TRUE(test_db.insert(12, unodb::value_view{test_value_3}));
+  ASSERT_TRUE(test_db.insert(13, unodb::value_view{test_value_4}));
+  ASSERT_TRUE(test_db.insert(14, unodb::value_view{test_value_5}));
+  ASSERT_TRUE(test_db.insert(15, unodb::value_view{test_value_1}));
+
+  ASSERT_FALSE(test_db.get(16));
+
+  ASSERT_RESULT_EQ(test_db.get(7), test_value_1);
+  ASSERT_RESULT_EQ(test_db.get(6), test_value_2);
+  ASSERT_RESULT_EQ(test_db.get(5), test_value_3);
+  ASSERT_RESULT_EQ(test_db.get(4), test_value_4);
+  ASSERT_RESULT_EQ(test_db.get(3), test_value_5);
+  ASSERT_RESULT_EQ(test_db.get(2), test_value_1);
+  ASSERT_RESULT_EQ(test_db.get(1), test_value_2);
+  ASSERT_RESULT_EQ(test_db.get(0), test_value_3);
+  ASSERT_RESULT_EQ(test_db.get(8), test_value_4);
+  ASSERT_RESULT_EQ(test_db.get(9), test_value_5);
+  ASSERT_RESULT_EQ(test_db.get(10), test_value_1);
+  ASSERT_RESULT_EQ(test_db.get(11), test_value_2);
+  ASSERT_RESULT_EQ(test_db.get(12), test_value_3);
+  ASSERT_RESULT_EQ(test_db.get(13), test_value_4);
+  ASSERT_RESULT_EQ(test_db.get(14), test_value_5);
+  ASSERT_RESULT_EQ(test_db.get(15), test_value_1);
+}
+
+TEST(UnoDB, node16_key_prefix_split) {
+  unodb::db test_db;
+
+  ASSERT_TRUE(test_db.insert(20, unodb::value_view{test_value_2}));
+  ASSERT_TRUE(test_db.insert(10, unodb::value_view{test_value_1}));
+  ASSERT_TRUE(test_db.insert(30, unodb::value_view{test_value_3}));
+  ASSERT_TRUE(test_db.insert(40, unodb::value_view{test_value_4}));
+  ASSERT_TRUE(test_db.insert(50, unodb::value_view{test_value_5}));
+
+  // Insert a value that does share full prefix with the current Node16
+  ASSERT_TRUE(test_db.insert(0x1020, unodb::value_view{test_value_1}));
+
+  ASSERT_RESULT_EQ(test_db.get(20), test_value_2);
+  ASSERT_RESULT_EQ(test_db.get(10), test_value_1);
+  ASSERT_RESULT_EQ(test_db.get(30), test_value_3);
+  ASSERT_RESULT_EQ(test_db.get(40), test_value_4);
+  ASSERT_RESULT_EQ(test_db.get(50), test_value_5);
+  ASSERT_RESULT_EQ(test_db.get(0x1020), test_value_1);
+
+  ASSERT_FALSE(test_db.get(9));
+  ASSERT_FALSE(test_db.get(0x10FF));
 }
 
 }  // namespace

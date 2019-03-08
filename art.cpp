@@ -1,6 +1,7 @@
 // Copyright 2019 Laurynas Biveinis
 #include "art.hpp"
 
+#include <emmintrin.h>
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -27,7 +28,8 @@ static_assert(sizeof(unodb::art_key_type) == sizeof(unodb::key_type),
 
 static_assert(sizeof(unodb::node_ptr::leaf) == sizeof(unodb::node_ptr::header),
               "node_ptr fields must be of equal size to a raw pointer");
-static_assert(sizeof(unodb::node_ptr::i4) == sizeof(unodb::node_ptr::header),
+static_assert(sizeof(unodb::node_ptr::internal) ==
+                  sizeof(unodb::node_ptr::header),
               "node_ptr fields must be of equal size to a raw pointer");
 static_assert(sizeof(unodb::node_ptr) == sizeof(void *),
               "node_ptr union must be of equal size to a raw pointer");
@@ -47,7 +49,7 @@ __attribute__((const)) uint64_t art_key<uint64_t>::make_binary_comparable(
 #endif
 }
 
-enum class node_type : uint8_t { LEAF, I4 };
+enum class node_type : uint8_t { LEAF, I4, I16 };
 
 // A common prefix shared by all node types
 struct node_header final {
@@ -72,6 +74,9 @@ using key_prefix_size_type = uint8_t;
 [[nodiscard]] inline boost::container::pmr::pool_options
 get_node_4_pool_options();
 
+[[nodiscard]] inline boost::container::pmr::pool_options
+get_node_16_pool_options();
+
 [[nodiscard]] inline auto *get_leaf_node_pool() {
   return boost::container::pmr::new_delete_resource();
 }
@@ -80,6 +85,12 @@ get_node_4_pool_options();
   static boost::container::pmr::unsynchronized_pool_resource node_4_pool{
       get_node_4_pool_options()};
   return &node_4_pool;
+}
+
+[[nodiscard]] inline auto *get_internal_node_16_pool() {
+  static boost::container::pmr::unsynchronized_pool_resource node_16_pool{
+      get_node_16_pool_options()};
+  return &node_16_pool;
 }
 
 #ifndef NDEBUG
@@ -98,6 +109,11 @@ void dump_node(std::ostream &os, const unodb::node_ptr &node,
 
 #endif
 
+inline __attribute__((noreturn)) void cannot_happen() {
+  assert(0);
+  __builtin_unreachable();
+}
+
 }  // namespace
 
 namespace unodb {
@@ -108,6 +124,7 @@ namespace unodb {
 // (heap) indirection.
 struct single_value_leaf final {
   using view_ptr = const std::byte *;
+
   [[nodiscard]] static single_value_leaf_unique_ptr create(art_key_type k,
                                                            value_view v);
 
@@ -139,6 +156,7 @@ struct single_value_leaf final {
  private:
   using value_size_type = uint32_t;
 
+  // TODO(laurynas): almost always const constexpr -> constexpr
   static const constexpr auto offset_header = 0;
   static const constexpr auto offset_key = sizeof(node_header);
   static const constexpr auto offset_value_size =
@@ -185,21 +203,117 @@ single_value_leaf_unique_ptr single_value_leaf::create(art_key_type k,
 
 void single_value_leaf::dump(std::ostream &os,
                              single_value_leaf_type leaf) noexcept {
-  os << "key:";
+  os << "LEAF: key:";
   dump_key(os, key(leaf));
   os << ", value size: " << value_size(leaf) << '\n';
 }
 
 #endif
 
-class internal_node_4 final {
+class internal_node {
  public:
-  static const constexpr key_prefix_size_type key_prefix_capacity = 8;
+  static constexpr key_prefix_size_type key_prefix_capacity = 8;
 
-  [[nodiscard]] static void *operator new(std::size_t size) {
-    return get_internal_node_4_pool()->allocate(size);
+  void add(single_value_leaf_unique_ptr &&child,
+           db::tree_depth_type depth) noexcept;
+
+  // TODO(laurynas): return something else than a pointer
+  [[nodiscard]] __attribute__((pure)) node_ptr *find_child(
+      std::byte key_byte) noexcept;
+
+  void cut_prefix(unsigned cut_len) noexcept {
+    assert(reinterpret_cast<node_header *>(this)->type() != node_type::LEAF);
+    Expects(cut_len > 0);
+    Expects(cut_len <= key_prefix_len);
+    std::copy(key_prefix.cbegin() + cut_len, key_prefix.cend(),
+              key_prefix.begin());
+    key_prefix_len =
+        gsl::narrow_cast<key_prefix_size_type>(key_prefix_len - cut_len);
+    Ensures(key_prefix_len <= key_prefix_capacity);
   }
 
+  [[nodiscard]] key_prefix_size_type get_key_prefix_len() const noexcept {
+    assert(reinterpret_cast<const node_header *>(this)->type() !=
+           node_type::LEAF);
+    return key_prefix_len;
+  }
+
+  [[nodiscard]] std::byte key_prefix_byte(key_prefix_size_type i) const
+      noexcept {
+    assert(reinterpret_cast<const node_header *>(this)->type() !=
+           node_type::LEAF);
+    Expects(i < key_prefix_len);
+    return key_prefix[i];
+  }
+
+  [[nodiscard]] bool is_full() const noexcept;
+
+#ifndef NDEBUG
+  void dump(std::ostream &os, unsigned indent) const noexcept;
+#endif
+
+ protected:
+  using key_prefix_type = std::array<std::byte, key_prefix_capacity>;
+
+  // TODO(laurynas): key_prefix_len not initialized here. helper function to
+  // call from the constructor initializer list does not work, because it
+  // should initialize key_prefix too. Factor out a key_prefix class?
+  internal_node(node_type type, uint8_t children_count_) noexcept
+      : header(type), children_count(children_count_) {}
+
+  internal_node(node_type type, uint8_t children_count_,
+                key_prefix_size_type key_prefix_len_,
+                const key_prefix_type &key_prefix_) noexcept
+      : header(type),
+        children_count(children_count_),
+        key_prefix_len(key_prefix_len_) {
+    Expects(key_prefix_len_ <= key_prefix_capacity);
+    std::copy(key_prefix_.cbegin(), key_prefix_.cbegin() + key_prefix_len,
+              key_prefix.begin());
+  }
+
+  const node_header header;
+
+  uint8_t children_count;
+
+  key_prefix_size_type key_prefix_len;
+  key_prefix_type key_prefix;
+
+  // TODO(laurynas): better way?
+  friend class internal_node_4;
+  friend class internal_node_16;
+};
+
+using node_pool_getter_type =
+    boost::container::pmr::unsynchronized_pool_resource *(*)();
+
+template <uint8_t Capacity, node_pool_getter_type Node_pool_getter>
+class internal_node_template : public internal_node {
+ public:
+  [[nodiscard]] static void *operator new(std::size_t size) {
+    return Node_pool_getter()->allocate(size);
+  }
+
+  // Should never be called directly
+  static void operator delete(void *to_delete __attribute__((unused))) {
+    cannot_happen();
+  }
+
+  [[nodiscard]] bool is_full() const noexcept {
+    assert(reinterpret_cast<const node_header *>(this)->type() !=
+           node_type::LEAF);
+    return children_count == capacity;
+  }
+
+ protected:
+  using internal_node::internal_node;
+
+  static constexpr auto capacity = Capacity;
+};
+
+class internal_node_4 final
+    : public internal_node_template<4, get_internal_node_4_pool> {
+ public:
   static void operator delete(void *to_delete) {
     get_internal_node_4_pool()->deallocate(to_delete, sizeof(internal_node_4));
   }
@@ -222,81 +336,66 @@ class internal_node_4 final {
                                              std::move(new_child));
   }
 
-  void add(single_value_leaf_unique_ptr &&child,
-           db::tree_depth_type depth) noexcept {
-    assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
-    Expects(!is_full());
-    const auto key_byte = single_value_leaf::key(child.get())[depth];
-    keys[children_count] = key_byte;
-    new (&children[children_count].leaf)
-        single_value_leaf_unique_ptr{std::move(child)};
-    ++children_count;
-  }
-
   internal_node_4(art_key_type k1, art_key_type k2, db::tree_depth_type depth,
                   node_ptr &&child1, node_ptr &&child2) noexcept;
 
   internal_node_4(node_ptr &&source_node, unsigned len,
                   db::tree_depth_type depth, node_ptr &&child1) noexcept;
 
-  void cut_prefix(unsigned cut_len) noexcept {
-    assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
-    Expects(cut_len > 0);
-    Expects(cut_len <= key_prefix_len);
-    std::copy(key_prefix.cbegin() + cut_len, key_prefix.cend(),
-              key_prefix.begin());
-    key_prefix_len =
-        gsl::narrow_cast<key_prefix_size_type>(key_prefix_len - cut_len);
-    assert(key_prefix_len <= key_prefix_capacity);
+  auto __attribute__((pure)) insert_position(std::byte key_byte) const
+      noexcept {
+    return static_cast<size_t>(std::lower_bound(keys.begin(),
+                                                keys.begin() + children_count,
+                                                key_byte) -
+                               keys.begin());
   }
 
+  void add(single_value_leaf_unique_ptr &&child,
+           db::tree_depth_type depth) noexcept {
+    assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
+    Expects(!is_full());
+    const auto key_byte = single_value_leaf::key(child.get())[depth];
+    // TODO(laurynas): sorting networks would be more efficient
+    const auto insert_pos_index = insert_position(key_byte);
+    if (insert_pos_index != children_count) {
+      std::copy_backward(keys.begin() + insert_pos_index,
+                         keys.begin() + children_count,
+                         keys.begin() + children_count + 1);
+      // TODO(laurynas): does it compile to memcpy/memmove?
+      std::move_backward(children.begin() + insert_pos_index,
+                         children.begin() + children_count,
+                         children.begin() + children_count + 1);
+    }
+    keys[insert_pos_index] = key_byte;
+    new (&children[insert_pos_index].leaf)
+        single_value_leaf_unique_ptr{std::move(child)};
+    ++children_count;
+    Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+  }
+
+  // TODO(laurynas): return something else than a pointer
   [[nodiscard]] __attribute__((pure)) node_ptr *find_child(
       std::byte key_byte) noexcept;
-
-  [[nodiscard]] bool is_full() const noexcept {
-    assert(reinterpret_cast<const node_header *>(this)->type() ==
-           node_type::I4);
-    return children_count == capacity;
-  }
-
-  [[nodiscard]] key_prefix_size_type get_key_prefix_len() const noexcept {
-    assert(reinterpret_cast<const node_header *>(this)->type() ==
-           node_type::I4);
-    return key_prefix_len;
-  }
-
-  [[nodiscard]] std::byte key_prefix_byte(key_prefix_size_type i) const
-      noexcept {
-    assert(reinterpret_cast<const node_header *>(this)->type() ==
-           node_type::I4);
-    Expects(i < key_prefix_len);
-    return key_prefix[i];
-  }
 
 #ifndef NDEBUG
   void dump(std::ostream &os, unsigned indent) const noexcept;
 #endif
 
  private:
-  static const constexpr auto capacity = 4;
-
-  node_header header{node_type::I4};
-
-  uint8_t children_count{2};
-
-  key_prefix_size_type key_prefix_len;
-  std::array<std::byte, key_prefix_capacity> key_prefix;
-
-  std::array<std::byte, capacity> keys;
-  std::array<node_ptr, capacity> children;
+  // TODO(laurynas): a better way?
+  friend class internal_node_16;
 
   void add_two_to_empty(std::byte key1, node_ptr &&child1, std::byte key2,
                         node_ptr &&child2) noexcept;
+
+  std::array<std::byte, capacity> keys;
+  std::array<node_ptr, capacity> children;
 };
 
 internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
                                  db::tree_depth_type depth, node_ptr &&child1,
-                                 node_ptr &&child2) noexcept {
+                                 node_ptr &&child2) noexcept
+    : internal_node_template<4, get_internal_node_4_pool>(node_type::I4, 2) {
   db::tree_depth_type i;
   for (i = depth; k1[i] == k2[i]; ++i) {
     assert(i - depth < key_prefix_capacity);
@@ -312,16 +411,15 @@ internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
 internal_node_4::internal_node_4(node_ptr &&source_node, unsigned len,
                                  db::tree_depth_type depth,
                                  node_ptr &&child1) noexcept
-    : key_prefix_len{gsl::narrow_cast<key_prefix_size_type>(len)} {
-  Expects(type(source_node) == node_type::I4);
+    : internal_node_template<4, get_internal_node_4_pool>(
+          node_type::I4, 2, gsl::narrow_cast<key_prefix_size_type>(len),
+          source_node.internal->key_prefix) {
+  Expects(type(source_node) != node_type::LEAF);
   Expects(type(child1) == node_type::LEAF);
-  Expects(len < source_node.i4->key_prefix_len);
-  assert(key_prefix_len <= key_prefix_capacity);
-  std::copy(source_node.i4->key_prefix.cbegin(),
-            source_node.i4->key_prefix.cbegin() + len, key_prefix.begin());
-  const auto source_node_key_byte = source_node.i4->key_prefix_byte(
+  Expects(len < source_node.internal->get_key_prefix_len());
+  const auto source_node_key_byte = source_node.internal->key_prefix_byte(
       gsl::narrow_cast<key_prefix_size_type>(len));
-  source_node.i4->cut_prefix(len + 1);
+  source_node.internal->cut_prefix(len + 1);
   const auto new_key_byte =
       single_value_leaf::key(child1.leaf.get())[depth + len];
   add_two_to_empty(new_key_byte, std::move(child1), source_node_key_byte,
@@ -331,19 +429,18 @@ internal_node_4::internal_node_4(node_ptr &&source_node, unsigned len,
 void internal_node_4::add_two_to_empty(std::byte key1, node_ptr &&child1,
                                        std::byte key2,
                                        node_ptr &&child2) noexcept {
-  keys[0] = key1;
-  new (&children[0].leaf) node_ptr{std::move(child1)};
-  keys[1] = key2;
-  new (&children[1].leaf) node_ptr{std::move(child2)};
+  const size_t key1_i = key1 < key2 ? 0 : 1;
+  const size_t key2_i = key1_i == 0 ? 1 : 0;
+  keys[key1_i] = key1;
+  new (&children[key1_i].leaf) node_ptr{std::move(child1)};
+  keys[key2_i] = key2;
+  new (&children[key2_i].leaf) node_ptr{std::move(child2)};
+  Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 }
 
 #ifndef NDEBUG
 
 void internal_node_4::dump(std::ostream &os, unsigned indent) const noexcept {
-  os << "# children = " << static_cast<unsigned>(children_count);
-  os << ", key prefix len = " << static_cast<unsigned>(key_prefix_len);
-  os << ", key prefix =";
-  for (size_t i = 0; i < key_prefix_len; i++) dump_byte(os, key_prefix[i]);
   os << ", key bytes =";
   for (size_t i = 0; i < children_count; i++) dump_byte(os, keys[i]);
   os << ", children:\n";
@@ -360,14 +457,176 @@ node_ptr *internal_node_4::find_child(std::byte key_byte) noexcept {
   return nullptr;
 }
 
+class internal_node_16 final
+    : public internal_node_template<16, get_internal_node_16_pool> {
+ public:
+  static void operator delete(void *to_delete) {
+    get_internal_node_16_pool()->deallocate(to_delete,
+                                            sizeof(internal_node_16));
+  }
+
+  [[nodiscard]] static std::unique_ptr<internal_node_16> create(
+      std::unique_ptr<internal_node> &&node,
+      single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
+    return std::make_unique<internal_node_16>(std::move(node), std::move(child),
+                                              depth);
+  }
+
+  internal_node_16(std::unique_ptr<internal_node> &&node,
+                   single_value_leaf_unique_ptr &&child,
+                   db::tree_depth_type depth) noexcept;
+
+  void add(single_value_leaf_unique_ptr &&child,
+           db::tree_depth_type depth) noexcept {
+    assert(reinterpret_cast<node_header *>(this)->type() == node_type::I16);
+    Expects(!is_full());
+    const auto key_byte = single_value_leaf::key(child.get())[depth];
+    keys[children_count] = key_byte;
+    new (&children[children_count].leaf)
+        single_value_leaf_unique_ptr{std::move(child)};
+    ++children_count;
+  }
+
+  // TODO(laurynas): return something else than a pointer
+  [[nodiscard]] __attribute__((pure)) node_ptr *find_child(
+      std::byte key_byte) noexcept;
+
+#ifndef NDEBUG
+  void dump(std::ostream &os, unsigned indent) const noexcept;
+#endif
+
+ private:
+  alignas(__m128i) std::array<std::byte, capacity> keys;
+  std::array<node_ptr, capacity> children;
+};
+
+internal_node_16::internal_node_16(std::unique_ptr<internal_node> &&node,
+                                   single_value_leaf_unique_ptr &&child,
+                                   db::tree_depth_type depth) noexcept
+    : internal_node_template<16, get_internal_node_16_pool>(
+          node_type::I16, 5, node->get_key_prefix_len(), node->key_prefix) {
+  Expects(node->header.type() == node_type::I4);
+  const auto node4{std::unique_ptr<internal_node_4>(
+      static_cast<internal_node_4 *>(node.release()))};
+  const auto key_byte = single_value_leaf::key(child.get())[depth];
+  const auto insert_pos_index = node4->insert_position(key_byte);
+  std::copy(node4->keys.cbegin(), node4->keys.cbegin() + insert_pos_index,
+            keys.begin());
+  keys[insert_pos_index] = key_byte;
+  std::copy(node4->keys.cbegin() + insert_pos_index, node4->keys.cend(),
+            keys.begin() + insert_pos_index + 1);
+  std::move(node4->children.begin(), node4->children.begin() + insert_pos_index,
+            children.begin());
+  new (&children[insert_pos_index].leaf)
+      single_value_leaf_unique_ptr{std::move(child)};
+  std::move(node4->children.begin() + insert_pos_index, node4->children.end(),
+            children.begin() + insert_pos_index + 1);
+}
+
+node_ptr *internal_node_16::find_child(std::byte key_byte) noexcept {
+  assert(reinterpret_cast<const node_header *>(this)->type() == node_type::I16);
+  const auto replicated_search_key = _mm_set1_epi8(static_cast<char>(key_byte));
+  // TODO(laurynas): the keys field is alignas(__m128i) but that does not
+  // silence GCC -Wcast-align warning. Try a union.
+  const auto matching_key_positions = _mm_cmpeq_epi8(
+      replicated_search_key, *reinterpret_cast<__m128i *>(&keys));
+  const auto mask = (1U << children_count) - 1;
+  const auto bit_field =
+      static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
+  if (bit_field != 0)
+    return &children[static_cast<unsigned>(__builtin_ctz(bit_field))];
+  return nullptr;
+}
+
+#ifndef NDEBUG
+
+void internal_node_16::dump(std::ostream &os, unsigned indent) const noexcept {
+  os << ", key bytes =";
+  for (size_t i = 0; i < children_count; i++) dump_byte(os, keys[i]);
+  os << ", children:\n";
+  for (size_t i = 0; i < children_count; i++)
+    dump_node(os, children[i], indent + 2);
+}
+
+#endif
+
+inline bool internal_node::is_full() const noexcept {
+  switch (header.type()) {
+    case node_type::I4:
+      return static_cast<const internal_node_4 *>(this)->is_full();
+    case node_type::I16:
+      return static_cast<const internal_node_16 *>(this)->is_full();
+    case node_type::LEAF:
+      cannot_happen();
+  }
+  cannot_happen();
+}
+
+inline void internal_node::add(single_value_leaf_unique_ptr &&child,
+                               db::tree_depth_type depth) noexcept {
+  switch (header.type()) {
+    case node_type::I4:
+      static_cast<internal_node_4 *>(this)->add(std::move(child), depth);
+      break;
+    case node_type::I16:
+      static_cast<internal_node_16 *>(this)->add(std::move(child), depth);
+      break;
+    case node_type::LEAF:
+      cannot_happen();
+  }
+}
+
+// TODO(laurynas): return something else than a pointer
+inline node_ptr *internal_node::find_child(std::byte key_byte) noexcept {
+  switch (header.type()) {
+    case node_type::I4:
+      return static_cast<internal_node_4 *>(this)->find_child(key_byte);
+    case node_type::I16:
+      return static_cast<internal_node_16 *>(this)->find_child(key_byte);
+    case node_type::LEAF:
+      cannot_happen();
+  }
+  cannot_happen();
+}
+
+#ifndef NDEBUG
+
+void internal_node::dump(std::ostream &os, unsigned indent) const noexcept {
+  switch (header.type()) {
+    case node_type::I4:
+      os << "I4: ";
+      break;
+    case node_type::I16:
+      os << "I16: ";
+      break;
+    case node_type::LEAF:
+      cannot_happen();
+  }
+  os << "# children = " << static_cast<unsigned>(children_count);
+  os << ", key prefix len = " << static_cast<unsigned>(key_prefix_len);
+  os << ", key prefix =";
+  for (size_t i = 0; i < key_prefix_len; i++) dump_byte(os, key_prefix[i]);
+  switch (header.type()) {
+    case node_type::I4:
+      static_cast<const internal_node_4 *>(this)->dump(os, indent);
+      break;
+    case node_type::I16:
+      static_cast<const internal_node_16 *>(this)->dump(os, indent);
+      break;
+    case node_type::LEAF:
+      cannot_happen();
+  }
+}
+
+#endif
 }  // namespace unodb
 
 namespace {
 
-// For Node4 pool, approximate requesting ~2MB blocks from backing storage
-// (when ported to Linux, ask for 2MB huge pages directly)
+// For Node4 and Node16 pools, approximate requesting ~2MB blocks from backing
+// storage (when ported to Linux, ask for 2MB huge pages directly)
 boost::container::pmr::pool_options get_node_4_pool_options() {
-  struct boost::container::pmr::pool_options node_4_pool_options;
+  boost::container::pmr::pool_options node_4_pool_options;
   node_4_pool_options.max_blocks_per_chunk =
       2 * 1024 * 1024 / sizeof(unodb::internal_node_4);
   node_4_pool_options.largest_required_pool_block =
@@ -375,8 +634,17 @@ boost::container::pmr::pool_options get_node_4_pool_options() {
   return node_4_pool_options;
 }
 
+boost::container::pmr::pool_options get_node_16_pool_options() {
+  boost::container::pmr::pool_options node_16_pool_options;
+  node_16_pool_options.max_blocks_per_chunk =
+      2 * 1024 * 1024 / sizeof(unodb::internal_node_16);
+  node_16_pool_options.largest_required_pool_block =
+      sizeof(unodb::internal_node_16);
+  return node_16_pool_options;
+}
+
 [[nodiscard]] __attribute__((pure)) auto get_shared_prefix_len(
-    unodb::art_key_type k, const unodb::internal_node_4 &node,
+    unodb::art_key_type k, const unodb::internal_node &node,
     unodb::db::tree_depth_type depth) noexcept {
   unodb::db::tree_depth_type key_i = depth;
   unsigned shared_prefix_len = 0;
@@ -394,8 +662,8 @@ boost::container::pmr::pool_options get_node_4_pool_options() {
 
 namespace unodb {
 
-node_ptr::node_ptr(std::unique_ptr<internal_node_4> &&node) noexcept
-    : i4{std::move(node)} {}
+node_ptr::node_ptr(std::unique_ptr<internal_node> &&node) noexcept
+    : internal{std::move(node)} {}
 
 db::get_result db::get(key_type k) noexcept {
   if (root.header == nullptr) return {};
@@ -411,11 +679,12 @@ db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
     }
     return {};
   }
-  assert(type(node) == node_type::I4);
-  if (get_shared_prefix_len(k, *node.i4, depth) < node.i4->get_key_prefix_len())
+  assert(type(node) != node_type::LEAF);
+  if (get_shared_prefix_len(k, *node.internal, depth) <
+      node.internal->get_key_prefix_len())
     return {};
-  depth += node.i4->get_key_prefix_len();
-  const auto child = node.i4->find_child(k[depth]);
+  depth += node.internal->get_key_prefix_len();
+  const auto child = node.internal->find_child(k[depth]);
   if (child == nullptr) return {};
   return get_from_subtree(*child, k, depth + 1);
 }
@@ -437,26 +706,33 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
     if (BOOST_UNLIKELY(k == existing_key)) return false;
     auto new_node = internal_node_4::create(
         k, existing_key, depth, node_ptr{std::move(leaf)}, std::move(*node));
-    node->i4 = std::move(new_node);
+    node->internal = std::move(new_node);
     return true;
   }
-  assert(type(*node) == node_type::I4);
-  const auto shared_prefix_len = get_shared_prefix_len(k, *node->i4, depth);
-  if (shared_prefix_len < node->i4->get_key_prefix_len()) {
+  assert(type(*node) != node_type::LEAF);
+  const auto shared_prefix_len =
+      get_shared_prefix_len(k, *node->internal, depth);
+  if (shared_prefix_len < node->internal->get_key_prefix_len()) {
     auto new_node = internal_node_4::create(std::move(*node), shared_prefix_len,
                                             depth, node_ptr{std::move(leaf)});
-    node->i4 = std::move(new_node);
+    node->internal = std::move(new_node);
     return true;
   }
-  depth += node->i4->get_key_prefix_len();
-  auto child = node->i4->find_child(k[depth]);
+  depth += node->internal->get_key_prefix_len();
+  auto child = node->internal->find_child(k[depth]);
   if (child != nullptr)
     return insert_leaf(k, child, std::move(leaf), depth + 1);
-  if (BOOST_UNLIKELY(node->i4->is_full())) {
-    assert(0);
-    throw std::logic_error("Not implemented yet");
+  if (BOOST_UNLIKELY(node->internal->is_full())) {
+    if (type(*node) == node_type::I4) {
+      auto larger_node = internal_node_16::create(std::move(node->internal),
+                                                  std::move(leaf), depth);
+      node->internal = std::move(larger_node);
+    } else {
+      cannot_happen();
+    }
+  } else {
+    node->internal->add(std::move(leaf), depth);
   }
-  node->i4->add(std::move(leaf), depth);
   return true;
 }
 
@@ -476,12 +752,11 @@ void dump_node(std::ostream &os, const unodb::node_ptr &node,
   os << ", type = ";
   switch (type(node)) {
     case unodb::node_type::LEAF:
-      os << "LEAF, ";
       unodb::single_value_leaf::dump(os, node.leaf.get());
       break;
     case unodb::node_type::I4:
-      os << "I4, ";
-      node.i4->dump(os, indent);
+    case unodb::node_type::I16:
+      node.internal->dump(os, indent);
       break;
   }
 }

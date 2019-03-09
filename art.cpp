@@ -285,6 +285,42 @@ class internal_node {
               key_prefix.begin());
   }
 
+  template <typename Keys_type>
+  static auto __attribute__((pure))
+  get_sorted_key_array_insert_position(const Keys_type &keys,
+                                       uint8_t children_count,
+                                       std::byte key_byte) noexcept {
+    Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    return static_cast<size_t>(std::lower_bound(keys.begin(),
+                                                keys.begin() + children_count,
+                                                key_byte) -
+                               keys.begin());
+  }
+
+  template <typename Keys_type, typename Children_type>
+  static void insert_into_sorted_key_children_arrays(
+      Keys_type &keys, Children_type &children, uint8_t &children_count,
+      std::byte key_byte, single_value_leaf_unique_ptr &&child) {
+    // TODO(laurynas): for Node4, sorting networks would be more efficient
+    const auto insert_pos_index =
+        get_sorted_key_array_insert_position(keys, children_count, key_byte);
+    if (insert_pos_index != children_count) {
+      Expects(keys[insert_pos_index] != key_byte);
+      std::copy_backward(keys.begin() + insert_pos_index,
+                         keys.begin() + children_count,
+                         keys.begin() + children_count + 1);
+      // TODO(laurynas): does it compile to memcpy/memmove?
+      std::move_backward(children.begin() + insert_pos_index,
+                         children.begin() + children_count,
+                         children.begin() + children_count + 1);
+    }
+    keys[insert_pos_index] = key_byte;
+    new (&children[insert_pos_index].leaf)
+        single_value_leaf_unique_ptr{std::move(child)};
+    ++children_count;
+    Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+  }
+
   const node_header header;
 
   uint8_t children_count;
@@ -359,36 +395,13 @@ class internal_node_4 final
   internal_node_4(node_ptr &&source_node, unsigned len,
                   db::tree_depth_type depth, node_ptr &&child1) noexcept;
 
-  auto __attribute__((pure)) insert_position(std::byte key_byte) const
-      noexcept {
-    return static_cast<size_t>(std::lower_bound(keys.begin(),
-                                                keys.begin() + children_count,
-                                                key_byte) -
-                               keys.begin());
-  }
-
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
     Expects(!is_full());
     const auto key_byte = single_value_leaf::key(child.get())[depth];
-    // TODO(laurynas): sorting networks would be more efficient
-    const auto insert_pos_index = insert_position(key_byte);
-    if (insert_pos_index != children_count) {
-      Expects(keys[insert_pos_index] != key_byte);
-      std::copy_backward(keys.begin() + insert_pos_index,
-                         keys.begin() + children_count,
-                         keys.begin() + children_count + 1);
-      // TODO(laurynas): does it compile to memcpy/memmove?
-      std::move_backward(children.begin() + insert_pos_index,
-                         children.begin() + children_count,
-                         children.begin() + children_count + 1);
-    }
-    keys[insert_pos_index] = key_byte;
-    new (&children[insert_pos_index].leaf)
-        single_value_leaf_unique_ptr{std::move(child)};
-    ++children_count;
-    Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    insert_into_sorted_key_children_arrays(keys, children, children_count,
+                                           key_byte, std::move(child));
   }
 
   [[nodiscard]] __attribute__((pure)) node_ptr *find_child(
@@ -492,12 +505,8 @@ class internal_node_16 final
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I16);
     Expects(!is_full());
     const auto key_byte = single_value_leaf::key(child.get())[depth];
-    // TODO(laurynas): not sorted - buggy
-    // TODO(laurynas): assert that key bytes are unique
-    keys[children_count] = key_byte;
-    new (&children[children_count].leaf)
-        single_value_leaf_unique_ptr{std::move(child)};
-    ++children_count;
+    insert_into_sorted_key_children_arrays(keys, children, children_count,
+                                           key_byte, std::move(child));
   }
 
   [[nodiscard]] __attribute__((pure)) node_ptr *find_child(
@@ -525,7 +534,8 @@ internal_node_16::internal_node_16(std::unique_ptr<internal_node> &&node,
   const auto node4{std::unique_ptr<internal_node_4>(
       static_cast<internal_node_4 *>(node.release()))};
   const auto key_byte = single_value_leaf::key(child.get())[depth];
-  const auto insert_pos_index = node4->insert_position(key_byte);
+  const auto insert_pos_index = get_sorted_key_array_insert_position(
+      node4->keys, node4->children_count, key_byte);
   std::copy(node4->keys.cbegin(), node4->keys.cbegin() + insert_pos_index,
             keys.begin());
   keys[insert_pos_index] = key_byte;

@@ -221,6 +221,21 @@ TEST(UnoDB, node16_key_prefix_split) {
   verifier.check_absent_keys({9, 0x10FF});
 }
 
+TEST(UnoDB, node16_key_insert_order_descending) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert(5, test_values[0]);
+  verifier.insert(4, test_values[1]);
+  verifier.insert(3, test_values[2]);
+  verifier.insert(2, test_values[3]);
+  verifier.insert(1, test_values[4]);
+  verifier.insert(0, test_values[0]);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({6});
+}
+
 TEST(UnoDB, node48) {
   unodb::db test_db;
   tree_verifier verifier{test_db};

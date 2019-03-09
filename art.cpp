@@ -253,11 +253,17 @@ class internal_node {
  protected:
   using key_prefix_type = std::array<std::byte, key_prefix_capacity>;
 
-  // TODO(laurynas): key_prefix_len not initialized here. helper function to
-  // call from the constructor initializer list does not work, because it
-  // should initialize key_prefix too. Factor out a key_prefix class?
-  internal_node(node_type type, uint8_t children_count_) noexcept
-      : header(type), children_count(children_count_) {}
+  internal_node(node_type type, uint8_t children_count_, art_key_type k1,
+                art_key_type k2, db::tree_depth_type depth) noexcept
+      : header(type), children_count(children_count_) {
+    db::tree_depth_type i;
+    for (i = depth; k1[i] == k2[i]; ++i) {
+      assert(i - depth < key_prefix_capacity);
+      key_prefix[i - depth] = k1[i];
+    }
+    key_prefix_len = gsl::narrow_cast<key_prefix_size_type>(i - depth);
+    assert(key_prefix_len <= key_prefix_capacity);
+  }
 
   internal_node(node_type type, uint8_t children_count_,
                 key_prefix_size_type key_prefix_len_,
@@ -392,14 +398,8 @@ class internal_node_4 final
 internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
                                  db::tree_depth_type depth, node_ptr &&child1,
                                  node_ptr &&child2) noexcept
-    : internal_node_template<4, get_internal_node_4_pool>(node_type::I4, 2) {
-  db::tree_depth_type i;
-  for (i = depth; k1[i] == k2[i]; ++i) {
-    assert(i - depth < key_prefix_capacity);
-    key_prefix[i - depth] = k1[i];
-  }
-  key_prefix_len = gsl::narrow_cast<key_prefix_size_type>(i - depth);
-  assert(key_prefix_len <= key_prefix_capacity);
+    : internal_node_template<4, get_internal_node_4_pool>(node_type::I4, 2, k1,
+                                                          k2, depth) {
   const auto next_level_depth = depth + get_key_prefix_len();
   add_two_to_empty(k1[next_level_depth], std::move(child1),
                    k2[next_level_depth], std::move(child2));

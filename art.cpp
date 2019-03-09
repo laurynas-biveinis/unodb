@@ -530,7 +530,7 @@ internal_node_16::internal_node_16(std::unique_ptr<internal_node> &&node,
     : internal_node_template<16, get_internal_node_16_pool>(
           node_type::I16, 5, node->get_key_prefix_len(), node->key_prefix) {
   Expects(node->header.type() == node_type::I4);
-  // TODO(laurynas): assert existing node is full
+  Expects(node->is_full());
   const auto node4{std::unique_ptr<internal_node_4>(
       static_cast<internal_node_4 *>(node.release()))};
   const auto key_byte = single_value_leaf::key(child.get())[depth];
@@ -628,7 +628,7 @@ internal_node_48::internal_node_48(std::unique_ptr<internal_node> &&node,
     : internal_node_template<48, get_internal_node_48_pool>(
           node_type::I48, 17, node->get_key_prefix_len(), node->key_prefix) {
   Expects(node->header.type() == node_type::I16);
-  // TODO(laurynas): assert existing node is full
+  Expects(node->is_full());
   const auto node16{std::unique_ptr<internal_node_16>(
       static_cast<internal_node_16 *>(node.release()))};
   memset(&child_indexes[0], empty_child,

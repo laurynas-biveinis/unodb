@@ -375,6 +375,7 @@ class internal_node_4 final
     // TODO(laurynas): sorting networks would be more efficient
     const auto insert_pos_index = insert_position(key_byte);
     if (insert_pos_index != children_count) {
+      Expects(keys[insert_pos_index] != key_byte);
       std::copy_backward(keys.begin() + insert_pos_index,
                          keys.begin() + children_count,
                          keys.begin() + children_count + 1);
@@ -383,7 +384,6 @@ class internal_node_4 final
                          children.begin() + children_count,
                          children.begin() + children_count + 1);
     }
-    // TODO(laurynas): assert that key bytes are unique
     keys[insert_pos_index] = key_byte;
     new (&children[insert_pos_index].leaf)
         single_value_leaf_unique_ptr{std::move(child)};

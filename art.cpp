@@ -371,7 +371,6 @@ class internal_node_4 final
     Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
   }
 
-  // TODO(laurynas): return something else than a pointer
   [[nodiscard]] __attribute__((pure)) node_ptr *find_child(
       std::byte key_byte) noexcept;
 
@@ -485,7 +484,6 @@ class internal_node_16 final
     ++children_count;
   }
 
-  // TODO(laurynas): return something else than a pointer
   [[nodiscard]] __attribute__((pure)) node_ptr *find_child(
       std::byte key_byte) noexcept;
 
@@ -574,7 +572,6 @@ inline void internal_node::add(single_value_leaf_unique_ptr &&child,
   }
 }
 
-// TODO(laurynas): return something else than a pointer
 inline node_ptr *internal_node::find_child(std::byte key_byte) noexcept {
   switch (header.type()) {
     case node_type::I4:

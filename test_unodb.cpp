@@ -3,6 +3,7 @@
 #include "global.hpp"
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "gtest/gtest.h"  // IWYU pragma: keep
 
@@ -43,22 +44,60 @@ auto assert_result_eq(unodb::db::get_result result, unodb::value_view expected,
 #define ASSERT_RESULT_EQ(result, expected) \
   assert_result_eq(result, expected, __LINE__)
 
+class tree_verifier final {
+ public:
+  explicit tree_verifier(unodb::db &test_db_) : test_db(test_db_) {}
+
+  void insert(unodb::key_type k, unodb::value_view v);
+
+  void check_present_values() const;
+
+  void check_absent_keys(
+      std::initializer_list<unodb::key_type> absent_keys) const;
+
+ private:
+  unodb::db &test_db;
+
+  std::unordered_map<unodb::key_type, unodb::value_view> values;
+};
+
+void tree_verifier::insert(unodb::key_type k, unodb::value_view v) {
+  const auto insert_result = values.emplace(k, v);
+  assert(insert_result.second);
+  ASSERT_TRUE(test_db.insert(k, v));
+}
+
+void tree_verifier::check_present_values() const {
+  for (const auto &[key, value] : values) {
+    ASSERT_RESULT_EQ(test_db.get(key), value);
+  }
+}
+
+void tree_verifier::check_absent_keys(
+    std::initializer_list<unodb::key_type> absent_keys) const {
+  for (const auto &absent_key : absent_keys) {
+    assert(values.find(absent_key) == values.cend());
+    ASSERT_FALSE(test_db.get(absent_key));
+  }
+}
+
 TEST(UnoDB, single_node_tree_empty_value) {
   unodb::db test_db;
-  auto result = test_db.get(1);
-  ASSERT_FALSE(result);
-  ASSERT_TRUE(test_db.insert(1, {}));
-  result = test_db.get(0);
-  ASSERT_FALSE(result);
-  result = test_db.get(1);
-  ASSERT_TRUE(result);
+  tree_verifier verifier(test_db);
+  verifier.check_absent_keys({1});
+  verifier.insert(1, {});
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0});
 }
 
 TEST(UnoDB, single_node_tree_nonempty_value) {
   unodb::db test_db;
-  ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_3}));
-  const auto result = test_db.get(1);
-  ASSERT_RESULT_EQ(result, test_value_3);
+  tree_verifier verifier(test_db);
+  verifier.insert(1, unodb::value_view{test_value_3});
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 2});
 }
 
 TEST(UnoDB, too_long_value) {
@@ -66,162 +105,131 @@ TEST(UnoDB, too_long_value) {
   unodb::value_view too_long{
       &fake_val,
       static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1U};
+
   unodb::db test_db;
+  tree_verifier verifier(test_db);
+
   ASSERT_THROW((void)test_db.insert(1, too_long), std::length_error);
+
+  verifier.check_absent_keys({1});
 }
 
 TEST(UnoDB, expand_leaf_to_node4) {
   unodb::db test_db;
-  ASSERT_TRUE(test_db.insert(0, unodb::value_view{test_value_2}));
-  ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_3}));
-  auto result = test_db.get(0);
-  ASSERT_RESULT_EQ(result, test_value_2);
-  result = test_db.get(1);
-  ASSERT_RESULT_EQ(result, test_value_3);
-  result = test_db.get(2);
-  ASSERT_FALSE(result);
+  tree_verifier verifier(test_db);
+
+  verifier.insert(0, unodb::value_view{test_value_2});
+  verifier.insert(1, unodb::value_view{test_value_3});
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({2});
 }
 
 TEST(UnoDB, duplicate_key) {
   unodb::db test_db;
-  ASSERT_TRUE(test_db.insert(0, unodb::value_view{test_value_1}));
+  tree_verifier verifier{test_db};
+
+  verifier.insert(0, unodb::value_view{test_value_1});
   ASSERT_FALSE(test_db.insert(0, unodb::value_view{test_value_4}));
+  verifier.check_present_values();
 }
 
 TEST(UnoDB, insert_to_full_node4) {
   unodb::db test_db;
-  ASSERT_TRUE(test_db.insert(2, unodb::value_view{test_value_2}));
-  ASSERT_TRUE(test_db.insert(4, unodb::value_view{test_value_4}));
-  ASSERT_TRUE(test_db.insert(0, unodb::value_view{test_value_1}));
-  ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_3}));
-  auto result = test_db.get(3);
-  ASSERT_RESULT_EQ(result, test_value_3);
-  result = test_db.get(0);
-  ASSERT_RESULT_EQ(result, test_value_1);
-  result = test_db.get(4);
-  ASSERT_RESULT_EQ(result, test_value_4);
-  result = test_db.get(2);
-  ASSERT_RESULT_EQ(result, test_value_2);
-  result = test_db.get(1);
-  ASSERT_FALSE(result);
-  result = test_db.get(5);
-  ASSERT_FALSE(result);
+  tree_verifier verifier{test_db};
+
+  verifier.insert(2, unodb::value_view{test_value_2});
+  verifier.insert(4, unodb::value_view{test_value_4});
+  verifier.insert(0, unodb::value_view{test_value_1});
+  verifier.insert(3, unodb::value_view{test_value_3});
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({1, 5});
 }
 
 TEST(UnoDB, two_node4) {
   unodb::db test_db;
-  ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_1}));
-  ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_3}));
-  // Insert a value that does not share full prefix with the current Node4
-  ASSERT_TRUE(test_db.insert(0xFF01, unodb::value_view{test_value_4}));
+  tree_verifier verifier{test_db};
 
-  ASSERT_RESULT_EQ(test_db.get(1), test_value_1);
-  ASSERT_RESULT_EQ(test_db.get(3), test_value_3);
-  ASSERT_RESULT_EQ(test_db.get(0xFF01), test_value_4);
-  ASSERT_FALSE(test_db.get(0xFF00));
-  ASSERT_FALSE(test_db.get(2));
+  verifier.insert(1, unodb::value_view{test_value_1});
+  verifier.insert(3, unodb::value_view{test_value_3});
+  // Insert a value that does not share full prefix with the current Node4
+  verifier.insert(0xFF01, unodb::value_view{test_value_4});
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0xFF00, 2});
 }
 
 TEST(UnoDB, db_insert_node_recursion) {
   unodb::db test_db;
-  ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_1}));
-  ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_3}));
+  tree_verifier verifier{test_db};
+
+  verifier.insert(1, unodb::value_view{test_value_1});
+  verifier.insert(3, unodb::value_view{test_value_3});
   // Insert a value that does not share full prefix with the current Node4
-  ASSERT_TRUE(test_db.insert(0xFF0001, unodb::value_view{test_value_4}));
+  verifier.insert(0xFF0001, unodb::value_view{test_value_4});
   // Then insert a value that shares full prefix with the above node and will
   // ask for a recursive insertion there
-  ASSERT_TRUE(test_db.insert(0xFF0101, unodb::value_view{test_value_2}));
+  verifier.insert(0xFF0101, unodb::value_view{test_value_2});
 
-  ASSERT_RESULT_EQ(test_db.get(1), test_value_1);
-  ASSERT_RESULT_EQ(test_db.get(3), test_value_3);
-  ASSERT_RESULT_EQ(test_db.get(0xFF0001), test_value_4);
-  ASSERT_RESULT_EQ(test_db.get(0xFF0101), test_value_2);
-  ASSERT_FALSE(test_db.get(0xFF0100));
-  ASSERT_FALSE(test_db.get(0xFF0000));
-  ASSERT_FALSE(test_db.get(2));
+  verifier.check_present_values();
+  verifier.check_absent_keys({0xFF0100, 0xFF0000, 2});
 }
 
 TEST(UnoDB, node16) {
   unodb::db test_db;
+  tree_verifier verifier{test_db};
 
-  ASSERT_TRUE(test_db.insert(5, unodb::value_view{test_value_5}));
-  ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_3}));
-  ASSERT_TRUE(test_db.insert(4, unodb::value_view{test_value_4}));
-  ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_1}));
-  ASSERT_TRUE(test_db.insert(2, unodb::value_view{test_value_2}));
+  verifier.insert(5, unodb::value_view{test_value_5});
+  verifier.insert(3, unodb::value_view{test_value_3});
+  verifier.insert(4, unodb::value_view{test_value_4});
+  verifier.insert(1, unodb::value_view{test_value_1});
+  verifier.insert(2, unodb::value_view{test_value_2});
 
-  ASSERT_RESULT_EQ(test_db.get(5), test_value_5);
-  ASSERT_RESULT_EQ(test_db.get(3), test_value_3);
-  ASSERT_RESULT_EQ(test_db.get(4), test_value_4);
-  ASSERT_RESULT_EQ(test_db.get(1), test_value_1);
-  ASSERT_RESULT_EQ(test_db.get(2), test_value_2);
-
-  ASSERT_FALSE(test_db.get(6));
-  ASSERT_FALSE(test_db.get(0x0100));
-  ASSERT_FALSE(test_db.get(0xFFFFFFFFFFFFFFFFULL));
+  verifier.check_present_values();
+  verifier.check_absent_keys({6, 0x0100, 0xFFFFFFFFFFFFFFFFULL});
 }
 
 TEST(UnoDB, full_node16) {
   unodb::db test_db;
+  tree_verifier verifier{test_db};
 
-  ASSERT_TRUE(test_db.insert(7, unodb::value_view{test_value_1}));
-  ASSERT_TRUE(test_db.insert(6, unodb::value_view{test_value_2}));
-  ASSERT_TRUE(test_db.insert(5, unodb::value_view{test_value_3}));
-  ASSERT_TRUE(test_db.insert(4, unodb::value_view{test_value_4}));
-  ASSERT_TRUE(test_db.insert(3, unodb::value_view{test_value_5}));
-  ASSERT_TRUE(test_db.insert(2, unodb::value_view{test_value_1}));
-  ASSERT_TRUE(test_db.insert(1, unodb::value_view{test_value_2}));
-  ASSERT_TRUE(test_db.insert(0, unodb::value_view{test_value_3}));
-  ASSERT_TRUE(test_db.insert(8, unodb::value_view{test_value_4}));
-  ASSERT_TRUE(test_db.insert(9, unodb::value_view{test_value_5}));
-  ASSERT_TRUE(test_db.insert(10, unodb::value_view{test_value_1}));
-  ASSERT_TRUE(test_db.insert(11, unodb::value_view{test_value_2}));
-  ASSERT_TRUE(test_db.insert(12, unodb::value_view{test_value_3}));
-  ASSERT_TRUE(test_db.insert(13, unodb::value_view{test_value_4}));
-  ASSERT_TRUE(test_db.insert(14, unodb::value_view{test_value_5}));
-  ASSERT_TRUE(test_db.insert(15, unodb::value_view{test_value_1}));
+  verifier.insert(7, unodb::value_view{test_value_1});
+  verifier.insert(6, unodb::value_view{test_value_2});
+  verifier.insert(5, unodb::value_view{test_value_3});
+  verifier.insert(4, unodb::value_view{test_value_4});
+  verifier.insert(3, unodb::value_view{test_value_5});
+  verifier.insert(2, unodb::value_view{test_value_1});
+  verifier.insert(1, unodb::value_view{test_value_2});
+  verifier.insert(0, unodb::value_view{test_value_3});
+  verifier.insert(8, unodb::value_view{test_value_4});
+  verifier.insert(9, unodb::value_view{test_value_5});
+  verifier.insert(10, unodb::value_view{test_value_1});
+  verifier.insert(11, unodb::value_view{test_value_2});
+  verifier.insert(12, unodb::value_view{test_value_3});
+  verifier.insert(13, unodb::value_view{test_value_4});
+  verifier.insert(14, unodb::value_view{test_value_5});
+  verifier.insert(15, unodb::value_view{test_value_1});
 
-  ASSERT_FALSE(test_db.get(16));
-
-  ASSERT_RESULT_EQ(test_db.get(7), test_value_1);
-  ASSERT_RESULT_EQ(test_db.get(6), test_value_2);
-  ASSERT_RESULT_EQ(test_db.get(5), test_value_3);
-  ASSERT_RESULT_EQ(test_db.get(4), test_value_4);
-  ASSERT_RESULT_EQ(test_db.get(3), test_value_5);
-  ASSERT_RESULT_EQ(test_db.get(2), test_value_1);
-  ASSERT_RESULT_EQ(test_db.get(1), test_value_2);
-  ASSERT_RESULT_EQ(test_db.get(0), test_value_3);
-  ASSERT_RESULT_EQ(test_db.get(8), test_value_4);
-  ASSERT_RESULT_EQ(test_db.get(9), test_value_5);
-  ASSERT_RESULT_EQ(test_db.get(10), test_value_1);
-  ASSERT_RESULT_EQ(test_db.get(11), test_value_2);
-  ASSERT_RESULT_EQ(test_db.get(12), test_value_3);
-  ASSERT_RESULT_EQ(test_db.get(13), test_value_4);
-  ASSERT_RESULT_EQ(test_db.get(14), test_value_5);
-  ASSERT_RESULT_EQ(test_db.get(15), test_value_1);
+  verifier.check_absent_keys({16});
+  verifier.check_present_values();
 }
 
 TEST(UnoDB, node16_key_prefix_split) {
   unodb::db test_db;
+  tree_verifier verifier{test_db};
 
-  ASSERT_TRUE(test_db.insert(20, unodb::value_view{test_value_2}));
-  ASSERT_TRUE(test_db.insert(10, unodb::value_view{test_value_1}));
-  ASSERT_TRUE(test_db.insert(30, unodb::value_view{test_value_3}));
-  ASSERT_TRUE(test_db.insert(40, unodb::value_view{test_value_4}));
-  ASSERT_TRUE(test_db.insert(50, unodb::value_view{test_value_5}));
+  verifier.insert(20, unodb::value_view{test_value_2});
+  verifier.insert(10, unodb::value_view{test_value_1});
+  verifier.insert(30, unodb::value_view{test_value_3});
+  verifier.insert(40, unodb::value_view{test_value_4});
+  verifier.insert(50, unodb::value_view{test_value_5});
 
   // Insert a value that does share full prefix with the current Node16
-  ASSERT_TRUE(test_db.insert(0x1020, unodb::value_view{test_value_1}));
+  verifier.insert(0x1020, unodb::value_view{test_value_1});
 
-  ASSERT_RESULT_EQ(test_db.get(20), test_value_2);
-  ASSERT_RESULT_EQ(test_db.get(10), test_value_1);
-  ASSERT_RESULT_EQ(test_db.get(30), test_value_3);
-  ASSERT_RESULT_EQ(test_db.get(40), test_value_4);
-  ASSERT_RESULT_EQ(test_db.get(50), test_value_5);
-  ASSERT_RESULT_EQ(test_db.get(0x1020), test_value_1);
-
-  ASSERT_FALSE(test_db.get(9));
-  ASSERT_FALSE(test_db.get(0x10FF));
+  verifier.check_present_values();
+  verifier.check_absent_keys({9, 0x10FF});
 }
 
 }  // namespace

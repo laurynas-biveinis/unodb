@@ -156,16 +156,14 @@ struct single_value_leaf final {
  private:
   using value_size_type = uint32_t;
 
-  // TODO(laurynas): almost always const constexpr -> constexpr
-  static const constexpr auto offset_header = 0;
-  static const constexpr auto offset_key = sizeof(node_header);
-  static const constexpr auto offset_value_size =
-      offset_key + sizeof(art_key_type);
+  static constexpr auto offset_header = 0;
+  static constexpr auto offset_key = sizeof(node_header);
+  static constexpr auto offset_value_size = offset_key + sizeof(art_key_type);
 
-  static const constexpr auto offset_value =
+  static constexpr auto offset_value =
       offset_value_size + sizeof(value_size_type);
 
-  static const constexpr auto minimum_size = offset_value;
+  static constexpr auto minimum_size = offset_value;
 
   [[nodiscard]] static value_size_type value_size(
       single_value_leaf_type leaf) noexcept {

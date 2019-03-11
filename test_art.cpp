@@ -59,10 +59,10 @@ class tree_verifier final {
 
   void insert_key_range(unodb::key_type start_key, size_t count);
 
-  void check_present_values() const;
+  void check_present_values() const noexcept;
 
   void check_absent_keys(
-      std::initializer_list<unodb::key_type> absent_keys) const;
+      std::initializer_list<unodb::key_type> absent_keys) const noexcept;
 
  private:
   unodb::db &test_db;
@@ -82,22 +82,21 @@ void tree_verifier::insert_key_range(unodb::key_type start_key, size_t count) {
   }
 }
 
-void tree_verifier::check_present_values() const {
+void tree_verifier::check_present_values() const noexcept {
   for (const auto &[key, value] : values) {
     ASSERT_VALUE_FOR_KEY(key, value);
   }
 }
 
 void tree_verifier::check_absent_keys(
-    std::initializer_list<unodb::key_type> absent_keys) const {
+    std::initializer_list<unodb::key_type> absent_keys) const noexcept {
   for (const auto &absent_key : absent_keys) {
     ASSERT_TRUE(values.find(absent_key) == values.cend());
     ASSERT_FALSE(test_db.get(absent_key));
   }
 }
 
-// TODO(laurynas): s/UnoDB/ART
-TEST(UnoDB, single_node_tree_empty_value) {
+TEST(ART, single_node_tree_empty_value) {
   unodb::db test_db;
   tree_verifier verifier(test_db);
   verifier.check_absent_keys({1});
@@ -107,7 +106,7 @@ TEST(UnoDB, single_node_tree_empty_value) {
   verifier.check_absent_keys({0});
 }
 
-TEST(UnoDB, single_node_tree_nonempty_value) {
+TEST(ART, single_node_tree_nonempty_value) {
   unodb::db test_db;
   tree_verifier verifier(test_db);
   verifier.insert(1, test_values[2]);
@@ -116,7 +115,7 @@ TEST(UnoDB, single_node_tree_nonempty_value) {
   verifier.check_absent_keys({0, 2});
 }
 
-TEST(UnoDB, too_long_value) {
+TEST(ART, too_long_value) {
   std::byte fake_val{0x00};
   unodb::value_view too_long{
       &fake_val,
@@ -130,7 +129,7 @@ TEST(UnoDB, too_long_value) {
   verifier.check_absent_keys({1});
 }
 
-TEST(UnoDB, expand_leaf_to_node4) {
+TEST(ART, expand_leaf_to_node4) {
   unodb::db test_db;
   tree_verifier verifier(test_db);
 
@@ -141,7 +140,7 @@ TEST(UnoDB, expand_leaf_to_node4) {
   verifier.check_absent_keys({2});
 }
 
-TEST(UnoDB, duplicate_key) {
+TEST(ART, duplicate_key) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -150,7 +149,7 @@ TEST(UnoDB, duplicate_key) {
   verifier.check_present_values();
 }
 
-TEST(UnoDB, insert_to_full_node4) {
+TEST(ART, insert_to_full_node4) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -160,7 +159,7 @@ TEST(UnoDB, insert_to_full_node4) {
   verifier.check_absent_keys({5, 4});
 }
 
-TEST(UnoDB, two_node4) {
+TEST(ART, two_node4) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -173,7 +172,7 @@ TEST(UnoDB, two_node4) {
   verifier.check_absent_keys({0xFF00, 2});
 }
 
-TEST(UnoDB, db_insert_node_recursion) {
+TEST(ART, db_insert_node_recursion) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -189,7 +188,7 @@ TEST(UnoDB, db_insert_node_recursion) {
   verifier.check_absent_keys({0xFF0100, 0xFF0000, 2});
 }
 
-TEST(UnoDB, node16) {
+TEST(ART, node16) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -199,7 +198,7 @@ TEST(UnoDB, node16) {
   verifier.check_absent_keys({6, 0x0100, 0xFFFFFFFFFFFFFFFFULL});
 }
 
-TEST(UnoDB, full_node16) {
+TEST(ART, full_node16) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -209,7 +208,7 @@ TEST(UnoDB, full_node16) {
   verifier.check_present_values();
 }
 
-TEST(UnoDB, node16_key_prefix_split) {
+TEST(ART, node16_key_prefix_split) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -222,7 +221,7 @@ TEST(UnoDB, node16_key_prefix_split) {
   verifier.check_absent_keys({9, 0x10FF});
 }
 
-TEST(UnoDB, node16_key_insert_order_descending) {
+TEST(ART, node16_key_insert_order_descending) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -237,7 +236,7 @@ TEST(UnoDB, node16_key_insert_order_descending) {
   verifier.check_absent_keys({6});
 }
 
-TEST(UnoDB, node48) {
+TEST(ART, node48) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -247,7 +246,7 @@ TEST(UnoDB, node48) {
   verifier.check_absent_keys({17});
 }
 
-TEST(UnoDB, full_node48) {
+TEST(ART, full_node48) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -257,7 +256,7 @@ TEST(UnoDB, full_node48) {
   verifier.check_absent_keys({49});
 }
 
-TEST(UnoDB, node48_key_prefix_split) {
+TEST(ART, node48_key_prefix_split) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -270,7 +269,7 @@ TEST(UnoDB, node48_key_prefix_split) {
   verifier.check_absent_keys({9, 27, 0x100019, 0x100100, 0x110000});
 }
 
-TEST(UnoDB, node256) {
+TEST(ART, node256) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -280,7 +279,7 @@ TEST(UnoDB, node256) {
   verifier.check_absent_keys({50});
 }
 
-TEST(UnoDB, full_node256) {
+TEST(ART, full_node256) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
@@ -290,7 +289,7 @@ TEST(UnoDB, full_node256) {
   verifier.check_absent_keys({256});
 }
 
-TEST(UnoDB, node256_key_prefix_split) {
+TEST(ART, node256_key_prefix_split) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 

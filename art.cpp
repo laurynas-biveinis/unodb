@@ -49,7 +49,7 @@ __attribute__((const)) uint64_t art_key<uint64_t>::make_binary_comparable(
 #endif
 }
 
-enum class node_type : uint8_t { LEAF, I4, I16, I48 };
+enum class node_type : uint8_t { LEAF, I4, I16, I48, I256 };
 
 // A common prefix shared by all node types
 struct node_header final {
@@ -80,6 +80,9 @@ get_node_16_pool_options();
 [[nodiscard]] inline boost::container::pmr::pool_options
 get_node_48_pool_options();
 
+[[nodiscard]] inline boost::container::pmr::pool_options
+get_node_256_pool_options();
+
 [[nodiscard]] inline auto *get_leaf_node_pool() {
   return boost::container::pmr::new_delete_resource();
 }
@@ -100,6 +103,12 @@ get_node_48_pool_options();
   static boost::container::pmr::unsynchronized_pool_resource node_48_pool{
       get_node_48_pool_options()};
   return &node_48_pool;
+}
+
+[[nodiscard]] inline auto *get_internal_node_256_pool() {
+  static boost::container::pmr::unsynchronized_pool_resource node_256_pool{
+      get_node_256_pool_options()};
+  return &node_256_pool;
 }
 
 #ifndef NDEBUG
@@ -328,16 +337,17 @@ class internal_node {
   key_prefix_size_type key_prefix_len;
   key_prefix_type key_prefix;
 
-  // TODO(laurynas): better way?
+  // TODO(laurynas): a better way?
   friend class internal_node_4;
   friend class internal_node_16;
   friend class internal_node_48;
+  friend class internal_node_256;
 };
 
 using node_pool_getter_type =
     boost::container::pmr::unsynchronized_pool_resource *(*)();
 
-template <uint8_t Capacity, node_pool_getter_type Node_pool_getter>
+template <unsigned Capacity, node_pool_getter_type Node_pool_getter>
 class internal_node_template : public internal_node {
  public:
   [[nodiscard]] static void *operator new(std::size_t size) {
@@ -620,6 +630,9 @@ class internal_node_48 final
   std::array<node_ptr, capacity> children;
 
   static constexpr decltype(child_indexes)::size_type empty_child = 0xFF;
+
+  // TODO(laurynas): a better way?
+  friend class internal_node_256;
 };
 
 internal_node_48::internal_node_48(std::unique_ptr<internal_node> &&node,
@@ -641,8 +654,10 @@ internal_node_48::internal_node_48(std::unique_ptr<internal_node> &&node,
     children[i] = std::move(node16->children[i]);
   }
   const auto key_byte = single_value_leaf::key(child.get())[depth];
+  // TODO(laurynas) assert it's empty_child
   child_indexes[static_cast<decltype(child_indexes)::size_type>(key_byte)] = i;
   new (&children[i].leaf) single_value_leaf_unique_ptr{std::move(child)};
+  // TODO(laurynas): assert keys are sorted
 }
 
 node_ptr *internal_node_48::find_child(std::byte key_byte) noexcept {
@@ -675,6 +690,93 @@ void internal_node_48::dump(std::ostream &os, unsigned indent) const noexcept {
 
 #endif
 
+class internal_node_256 final
+    : public internal_node_template<256, get_internal_node_256_pool> {
+ public:
+  static void operator delete(void *to_delete) {
+    get_internal_node_256_pool()->deallocate(to_delete,
+                                             sizeof(internal_node_256));
+  }
+
+  [[nodiscard]] static std::unique_ptr<internal_node_256> create(
+      std::unique_ptr<internal_node> &&node,
+      single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
+    return std::make_unique<internal_node_256>(std::move(node),
+                                               std::move(child), depth);
+  }
+
+  internal_node_256(std::unique_ptr<internal_node> &&node,
+                    single_value_leaf_unique_ptr &&child,
+                    db::tree_depth_type depth) noexcept;
+
+  void add(single_value_leaf_unique_ptr &&child,
+           db::tree_depth_type depth) noexcept {
+    assert(reinterpret_cast<node_header *>(this)->type() == node_type::I256);
+    Expects(!is_full());
+    const auto key_byte =
+        static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
+    Expects(children[key_byte] == nullptr);
+    new (&children[key_byte].leaf)
+        single_value_leaf_unique_ptr{std::move(child)};
+    ++children_count;
+  }
+
+  [[nodiscard]] __attribute__((pure)) node_ptr *find_child(
+      std::byte key_byte) noexcept;
+
+#ifndef NDEBUG
+  void dump(std::ostream &os, unsigned indent) const noexcept;
+#endif
+
+ private:
+  std::array<node_ptr, capacity> children;
+};
+
+internal_node_256::internal_node_256(std::unique_ptr<internal_node> &&node,
+                                     single_value_leaf_unique_ptr &&child,
+                                     db::tree_depth_type depth) noexcept
+    : internal_node_template<256, get_internal_node_256_pool>(
+          node_type::I256, 49, node->get_key_prefix_len(), node->key_prefix) {
+  Expects(node->header.type() == node_type::I48);
+  Expects(node->is_full());
+  const auto node48{std::unique_ptr<internal_node_48>(
+      static_cast<internal_node_48 *>(node.release()))};
+  for (unsigned i = 0; i < 256; i++) {
+    // TODO(laurynas): don't move-assign but construct in place?
+    if (node48->child_indexes[i] != internal_node_48::empty_child)
+      children[i] = std::move(node48->children[node48->child_indexes[i]]);
+    else
+      new (&children[i]) node_ptr{nullptr};
+  }
+  const uint8_t key_byte =
+      static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
+  assert(children[key_byte] == nullptr);
+  new (&children[key_byte].leaf) single_value_leaf_unique_ptr{std::move(child)};
+}
+
+node_ptr *internal_node_256::find_child(std::byte key_byte) noexcept {
+  assert(reinterpret_cast<const node_header *>(this)->type() ==
+         node_type::I256);
+  if (children[static_cast<uint8_t>(key_byte)] != nullptr)
+    return &children[static_cast<uint8_t>(key_byte)];
+  return nullptr;
+}
+
+#ifndef NDEBUG
+
+void internal_node_256::dump(std::ostream &os, unsigned indent) const noexcept {
+  os << ", key bytes & children:\n";
+  for (size_t i = 0; i < children_count; i++) {
+    if (children[i] != nullptr) {
+      os << " ";
+      dump_byte(os, gsl::narrow_cast<std::byte>(i));
+      dump_node(os, children[i], indent + 2);
+    }
+  }
+}
+
+#endif
+
 inline bool internal_node::is_full() const noexcept {
   switch (header.type()) {
     case node_type::I4:
@@ -683,6 +785,8 @@ inline bool internal_node::is_full() const noexcept {
       return static_cast<const internal_node_16 *>(this)->is_full();
     case node_type::I48:
       return static_cast<const internal_node_48 *>(this)->is_full();
+    case node_type::I256:
+      return static_cast<const internal_node_256 *>(this)->is_full();
     case node_type::LEAF:
       cannot_happen();
   }
@@ -701,6 +805,9 @@ inline void internal_node::add(single_value_leaf_unique_ptr &&child,
     case node_type::I48:
       static_cast<internal_node_48 *>(this)->add(std::move(child), depth);
       break;
+    case node_type::I256:
+      static_cast<internal_node_256 *>(this)->add(std::move(child), depth);
+      break;
     case node_type::LEAF:
       cannot_happen();
   }
@@ -714,6 +821,8 @@ inline node_ptr *internal_node::find_child(std::byte key_byte) noexcept {
       return static_cast<internal_node_16 *>(this)->find_child(key_byte);
     case node_type::I48:
       return static_cast<internal_node_48 *>(this)->find_child(key_byte);
+    case node_type::I256:
+      return static_cast<internal_node_256 *>(this)->find_child(key_byte);
     case node_type::LEAF:
       cannot_happen();
   }
@@ -733,6 +842,9 @@ void internal_node::dump(std::ostream &os, unsigned indent) const noexcept {
     case node_type::I48:
       os << "I48: ";
       break;
+    case node_type::I256:
+      os << "I256: ";
+      break;
     case node_type::LEAF:
       cannot_happen();
   }
@@ -750,6 +862,9 @@ void internal_node::dump(std::ostream &os, unsigned indent) const noexcept {
     case node_type::I48:
       static_cast<const internal_node_48 *>(this)->dump(os, indent);
       break;
+    case node_type::I256:
+      static_cast<const internal_node_256 *>(this)->dump(os, indent);
+      break;
     case node_type::LEAF:
       cannot_happen();
   }
@@ -762,7 +877,6 @@ namespace {
 
 // For internal node pools, approximate requesting ~2MB blocks from backing
 // storage (when ported to Linux, ask for 2MB huge pages directly)
-// TODO(laurynas): templatize on internal node type
 boost::container::pmr::pool_options get_node_4_pool_options() {
   boost::container::pmr::pool_options node_4_pool_options;
   node_4_pool_options.max_blocks_per_chunk =
@@ -788,6 +902,15 @@ boost::container::pmr::pool_options get_node_48_pool_options() {
   node_48_pool_options.largest_required_pool_block =
       sizeof(unodb::internal_node_48);
   return node_48_pool_options;
+}
+
+boost::container::pmr::pool_options get_node_256_pool_options() {
+  boost::container::pmr::pool_options node_256_pool_options;
+  node_256_pool_options.max_blocks_per_chunk =
+      2 * 1024 * 1024 / sizeof(unodb::internal_node_256);
+  node_256_pool_options.largest_required_pool_block =
+      sizeof(unodb::internal_node_256);
+  return node_256_pool_options;
 }
 
 [[nodiscard]] __attribute__((pure)) auto get_shared_prefix_len(
@@ -879,7 +1002,10 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
                                                   std::move(leaf), depth);
       node->internal = std::move(larger_node);
     } else {
-      assert(0);
+      assert(type(*node) == node_type::I48);
+      auto larger_node = internal_node_256::create(std::move(node->internal),
+                                                   std::move(leaf), depth);
+      node->internal = std::move(larger_node);
     }
   } else {
     node->internal->add(std::move(leaf), depth);
@@ -893,6 +1019,7 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
 
 namespace {
 
+// TODO(laurynas): indent is not really used
 void dump_node(std::ostream &os, const unodb::node_ptr &node,
                unsigned indent) noexcept {
   os << std::string(indent, ' ') << "node at: " << &node;
@@ -908,6 +1035,7 @@ void dump_node(std::ostream &os, const unodb::node_ptr &node,
     case unodb::node_type::I4:
     case unodb::node_type::I16:
     case unodb::node_type::I48:
+    case unodb::node_type::I256:
       node.internal->dump(os, indent);
       break;
   }

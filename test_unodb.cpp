@@ -96,6 +96,7 @@ void tree_verifier::check_absent_keys(
   }
 }
 
+// TODO(laurynas): s/UnoDB/ART
 TEST(UnoDB, single_node_tree_empty_value) {
   unodb::db test_db;
   tree_verifier verifier(test_db);
@@ -262,11 +263,44 @@ TEST(UnoDB, node48_key_prefix_split) {
 
   verifier.insert_key_range(10, 17);
 
-  // Insert a value that does share full prefix with the current Node16
+  // Insert a value that does share full prefix with the current Node48
   verifier.insert(0x100020, test_values[0]);
 
   verifier.check_present_values();
   verifier.check_absent_keys({9, 27, 0x100019, 0x100100, 0x110000});
+}
+
+TEST(UnoDB, node256) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 49);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({50});
+}
+
+TEST(UnoDB, full_node256) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(0, 256);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({256});
+}
+
+TEST(UnoDB, node256_key_prefix_split) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(20, 49);
+
+  // Insert a value that does share full prefix with the current Node256
+  verifier.insert(0x100020, test_values[0]);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({19, 69, 0x100019, 0x100100, 0x110000});
 }
 
 }  // namespace

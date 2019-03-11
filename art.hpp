@@ -97,6 +97,7 @@ union node_ptr {
     return *this;
   }
 
+  auto operator==(std::nullptr_t) const noexcept { return header == nullptr; }
   auto operator!=(std::nullptr_t) const noexcept { return header != nullptr; }
 };
 

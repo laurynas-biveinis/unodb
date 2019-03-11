@@ -76,6 +76,13 @@ using single_value_leaf_unique_ptr =
 
 class internal_node;
 
+enum class node_type : uint8_t;
+
+// A pointer to some kind of node. It can be accessed either as a node header,
+// to query the right node type, a leaf, or as one of the internal nodes. This
+// depends on all types being of standard layout and node_header being at the
+// same location in node_header and all node types. This is checked by static
+// asserts in the implementation file.
 union node_ptr {
   node_header *header;
   single_value_leaf_unique_ptr leaf;
@@ -86,9 +93,9 @@ union node_ptr {
   explicit node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
   explicit node_ptr(single_value_leaf_unique_ptr &&leaf_) noexcept
       : leaf{std::move(leaf_)} {}
+  // Cannot be implemented here or "sizeof applied to incomplete type
+  // internal_node" with some compilers
   explicit node_ptr(std::unique_ptr<internal_node> &&node) noexcept;
-
-  node_ptr(const node_ptr &other) noexcept : header{other.header} {}
 
   ~node_ptr() {}
 
@@ -99,6 +106,8 @@ union node_ptr {
 
   auto operator==(std::nullptr_t) const noexcept { return header == nullptr; }
   auto operator!=(std::nullptr_t) const noexcept { return header != nullptr; }
+
+  [[nodiscard]] __attribute__((pure)) node_type type() const noexcept;
 };
 
 class db final {
@@ -116,8 +125,7 @@ class db final {
 #endif
 
  private:
-  [[nodiscard]] db::get_result get_from_subtree(const node_ptr node,
-                                                art_key_type k,
+  [[nodiscard]] db::get_result get_from_subtree(node_ptr &node, art_key_type k,
                                                 tree_depth_type depth) const
       noexcept;
 

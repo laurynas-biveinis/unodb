@@ -61,15 +61,15 @@ struct node_header final {
   const node_type m_type;
 };
 
+static_assert(std::is_standard_layout<unodb::node_header>::value);
+
+node_type node_ptr::type() const noexcept { return header->type(); }
+
 }  // namespace unodb
 
 namespace {
 
 using key_prefix_size_type = uint8_t;
-
-[[nodiscard]] inline auto type(const unodb::node_ptr node) noexcept {
-  return node.header->type();
-}
 
 [[nodiscard]] inline boost::container::pmr::pool_options
 get_node_4_pool_options();
@@ -132,6 +132,22 @@ inline __attribute__((noreturn)) void cannot_happen() {
   __builtin_unreachable();
 }
 
+// TODO(laurynas): noexceptify properly
+template <typename BidirectionalInputIterator,
+          typename BidirectionalOutputIterator>
+BidirectionalOutputIterator uninitialized_move_backward_noexcept(
+    BidirectionalInputIterator source_first,
+    BidirectionalInputIterator source_last,
+    BidirectionalOutputIterator dest_last) noexcept {
+  using value_type =
+      typename std::iterator_traits<BidirectionalOutputIterator>::value_type;
+  while (source_last != source_first) {
+    new (std::addressof(*(--dest_last)))
+        value_type{std::move(*(--source_last))};
+  }
+  return dest_last;
+}
+
 }  // namespace
 
 namespace unodb {
@@ -191,6 +207,10 @@ struct single_value_leaf final {
     return result;
   }
 };
+
+static_assert(std::is_standard_layout<unodb::single_value_leaf>::value,
+              "single_value_leaf must be standard layout type to support "
+              "aliasing through node_header");
 
 void single_value_leaf_deleter::operator()(
     single_value_leaf_type to_delete) const noexcept {
@@ -315,13 +335,14 @@ class internal_node {
         get_sorted_key_array_insert_position(keys, children_count, key_byte);
     if (insert_pos_index != children_count) {
       Expects(keys[insert_pos_index] != key_byte);
+      // TODO(laurynas): does it compile to memcpy?
       std::copy_backward(keys.begin() + insert_pos_index,
                          keys.begin() + children_count,
                          keys.begin() + children_count + 1);
-      // TODO(laurynas): does it compile to memcpy/memmove?
-      std::move_backward(children.begin() + insert_pos_index,
-                         children.begin() + children_count,
-                         children.begin() + children_count + 1);
+      uninitialized_move_backward_noexcept(
+          children.begin() + insert_pos_index,
+          children.begin() + children_count,
+          children.begin() + children_count + 1);
     }
     keys[insert_pos_index] = key_byte;
     new (&children[insert_pos_index].leaf)
@@ -448,8 +469,8 @@ internal_node_4::internal_node_4(node_ptr &&source_node, unsigned len,
     : internal_node_template<4, get_internal_node_4_pool>{
           node_type::I4, 2, gsl::narrow_cast<key_prefix_size_type>(len),
           source_node.internal->key_prefix} {
-  Expects(type(source_node) != node_type::LEAF);
-  Expects(type(child1) == node_type::LEAF);
+  Expects(source_node.type() != node_type::LEAF);
+  Expects(child1.type() == node_type::LEAF);
   Expects(len < source_node.internal->get_key_prefix_len());
   const auto source_node_key_byte = source_node.internal->key_prefix_byte(
       gsl::narrow_cast<key_prefix_size_type>(len));
@@ -551,12 +572,14 @@ internal_node_16::internal_node_16(std::unique_ptr<internal_node> &&node,
   keys[insert_pos_index] = key_byte;
   std::copy(node4->keys.cbegin() + insert_pos_index, node4->keys.cend(),
             keys.begin() + insert_pos_index + 1);
-  std::move(node4->children.begin(), node4->children.begin() + insert_pos_index,
-            children.begin());
+  std::uninitialized_move(node4->children.begin(),
+                          node4->children.begin() + insert_pos_index,
+                          children.begin());
   new (&children[insert_pos_index].leaf)
       single_value_leaf_unique_ptr{std::move(child)};
-  std::move(node4->children.begin() + insert_pos_index, node4->children.end(),
-            children.begin() + insert_pos_index + 1);
+  std::uninitialized_move(node4->children.begin() + insert_pos_index,
+                          node4->children.end(),
+                          children.begin() + insert_pos_index + 1);
 }
 
 node_ptr *internal_node_16::find_child(std::byte key_byte) noexcept {
@@ -651,7 +674,8 @@ internal_node_48::internal_node_48(std::unique_ptr<internal_node> &&node,
     const auto existing_key_byte = node16->keys[i];
     child_indexes[static_cast<decltype(child_indexes)::size_type>(
         existing_key_byte)] = i;
-    children[i] = std::move(node16->children[i]);
+    new (&children[i].leaf)
+        single_value_leaf_unique_ptr{std::move(node16->children[i].leaf)};
   }
   const auto key_byte = single_value_leaf::key(child.get())[depth];
   // TODO(laurynas) assert it's empty_child
@@ -742,11 +766,12 @@ internal_node_256::internal_node_256(std::unique_ptr<internal_node> &&node,
   const auto node48{std::unique_ptr<internal_node_48>{
       static_cast<internal_node_48 *>(node.release())}};
   for (unsigned i = 0; i < 256; i++) {
-    // TODO(laurynas): don't move-assign but construct in place?
-    if (node48->child_indexes[i] != internal_node_48::empty_child)
-      children[i] = std::move(node48->children[node48->child_indexes[i]]);
-    else
+    if (node48->child_indexes[i] != internal_node_48::empty_child) {
+      new (&children[i].leaf) single_value_leaf_unique_ptr{
+          std::move(node48->children[node48->child_indexes[i]].leaf)};
+    } else {
       new (&children[i]) node_ptr{nullptr};
+    }
   }
   const uint8_t key_byte =
       static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
@@ -940,16 +965,16 @@ db::get_result db::get(key_type k) noexcept {
   return get_from_subtree(root, art_key{k}, 0);
 }
 
-db::get_result db::get_from_subtree(const node_ptr node, art_key_type k,
+db::get_result db::get_from_subtree(node_ptr &node, art_key_type k,
                                     tree_depth_type depth) const noexcept {
-  if (type(node) == node_type::LEAF) {
+  if (node.type() == node_type::LEAF) {
     if (single_value_leaf::matches(node.leaf.get(), k)) {
       const auto value = single_value_leaf::value(node.leaf.get());
       return get_result{std::in_place, value.cbegin(), value.cend()};
     }
     return {};
   }
-  assert(type(node) != node_type::LEAF);
+  assert(node.type() != node_type::LEAF);
   if (get_shared_prefix_len(k, *node.internal, depth) <
       node.internal->get_key_prefix_len())
     return {};
@@ -971,7 +996,7 @@ bool db::insert(key_type k, value_view v) {
 
 bool db::insert_leaf(art_key_type k, node_ptr *node,
                      single_value_leaf_unique_ptr leaf, tree_depth_type depth) {
-  if (type(*node) == node_type::LEAF) {
+  if (node->type() == node_type::LEAF) {
     const auto existing_key = single_value_leaf::key(node->leaf.get());
     if (BOOST_UNLIKELY(k == existing_key)) return false;
     auto new_node = internal_node_4::create(
@@ -979,7 +1004,7 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
     node->internal = std::move(new_node);
     return true;
   }
-  assert(type(*node) != node_type::LEAF);
+  assert(node->type() != node_type::LEAF);
   const auto shared_prefix_len =
       get_shared_prefix_len(k, *node->internal, depth);
   if (shared_prefix_len < node->internal->get_key_prefix_len()) {
@@ -993,16 +1018,16 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
   if (child != nullptr)
     return insert_leaf(k, child, std::move(leaf), depth + 1);
   if (BOOST_UNLIKELY(node->internal->is_full())) {
-    if (type(*node) == node_type::I4) {
+    if (node->type() == node_type::I4) {
       auto larger_node = internal_node_16::create(std::move(node->internal),
                                                   std::move(leaf), depth);
       node->internal = std::move(larger_node);
-    } else if (type(*node) == node_type::I16) {
+    } else if (node->type() == node_type::I16) {
       auto larger_node = internal_node_48::create(std::move(node->internal),
                                                   std::move(leaf), depth);
       node->internal = std::move(larger_node);
     } else {
-      assert(type(*node) == node_type::I48);
+      assert(node->type() == node_type::I48);
       auto larger_node = internal_node_256::create(std::move(node->internal),
                                                    std::move(leaf), depth);
       node->internal = std::move(larger_node);
@@ -1028,7 +1053,7 @@ void dump_node(std::ostream &os, const unodb::node_ptr &node,
     return;
   }
   os << ", type = ";
-  switch (type(node)) {
+  switch (node.type()) {
     case unodb::node_type::LEAF:
       unodb::single_value_leaf::dump(os, node.leaf.get());
       break;

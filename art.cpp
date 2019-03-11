@@ -159,7 +159,7 @@ struct single_value_leaf final {
 
   [[nodiscard]] static auto value(single_value_leaf_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
-    return value_view(&leaf[offset_value], value_size(leaf));
+    return value_view{&leaf[offset_value], value_size(leaf)};
   }
 
   [[nodiscard]] static std::size_t size(single_value_leaf_type leaf) noexcept {
@@ -286,9 +286,9 @@ class internal_node {
   internal_node(node_type type, uint8_t children_count_,
                 key_prefix_size_type key_prefix_len_,
                 const key_prefix_type &key_prefix_) noexcept
-      : header(type),
-        children_count(children_count_),
-        key_prefix_len(key_prefix_len_) {
+      : header{type},
+        children_count{children_count_},
+        key_prefix_len{key_prefix_len_} {
     Expects(key_prefix_len_ <= key_prefix_capacity);
     std::copy(key_prefix_.cbegin(), key_prefix_.cbegin() + key_prefix_len,
               key_prefix.begin());
@@ -435,8 +435,8 @@ class internal_node_4 final
 internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
                                  db::tree_depth_type depth, node_ptr &&child1,
                                  node_ptr &&child2) noexcept
-    : internal_node_template<4, get_internal_node_4_pool>(node_type::I4, 2, k1,
-                                                          k2, depth) {
+    : internal_node_template<4, get_internal_node_4_pool>{node_type::I4, 2, k1,
+                                                          k2, depth} {
   const auto next_level_depth = depth + get_key_prefix_len();
   add_two_to_empty(k1[next_level_depth], std::move(child1),
                    k2[next_level_depth], std::move(child2));
@@ -445,9 +445,9 @@ internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
 internal_node_4::internal_node_4(node_ptr &&source_node, unsigned len,
                                  db::tree_depth_type depth,
                                  node_ptr &&child1) noexcept
-    : internal_node_template<4, get_internal_node_4_pool>(
+    : internal_node_template<4, get_internal_node_4_pool>{
           node_type::I4, 2, gsl::narrow_cast<key_prefix_size_type>(len),
-          source_node.internal->key_prefix) {
+          source_node.internal->key_prefix} {
   Expects(type(source_node) != node_type::LEAF);
   Expects(type(child1) == node_type::LEAF);
   Expects(len < source_node.internal->get_key_prefix_len());
@@ -537,12 +537,12 @@ class internal_node_16 final
 internal_node_16::internal_node_16(std::unique_ptr<internal_node> &&node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
-    : internal_node_template<16, get_internal_node_16_pool>(
-          node_type::I16, 5, node->get_key_prefix_len(), node->key_prefix) {
+    : internal_node_template<16, get_internal_node_16_pool>{
+          node_type::I16, 5, node->get_key_prefix_len(), node->key_prefix} {
   Expects(node->header.type() == node_type::I4);
   Expects(node->is_full());
-  const auto node4{std::unique_ptr<internal_node_4>(
-      static_cast<internal_node_4 *>(node.release()))};
+  const auto node4{std::unique_ptr<internal_node_4>{
+      static_cast<internal_node_4 *>(node.release())}};
   const auto key_byte = single_value_leaf::key(child.get())[depth];
   const auto insert_pos_index = get_sorted_key_array_insert_position(
       node4->keys, node4->children_count, key_byte);
@@ -638,12 +638,12 @@ class internal_node_48 final
 internal_node_48::internal_node_48(std::unique_ptr<internal_node> &&node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
-    : internal_node_template<48, get_internal_node_48_pool>(
-          node_type::I48, 17, node->get_key_prefix_len(), node->key_prefix) {
+    : internal_node_template<48, get_internal_node_48_pool>{
+          node_type::I48, 17, node->get_key_prefix_len(), node->key_prefix} {
   Expects(node->header.type() == node_type::I16);
   Expects(node->is_full());
-  const auto node16{std::unique_ptr<internal_node_16>(
-      static_cast<internal_node_16 *>(node.release()))};
+  const auto node16{std::unique_ptr<internal_node_16>{
+      static_cast<internal_node_16 *>(node.release())}};
   memset(&child_indexes[0], empty_child,
          child_indexes.size() * sizeof(child_indexes[0]));
   uint8_t i;
@@ -735,12 +735,12 @@ class internal_node_256 final
 internal_node_256::internal_node_256(std::unique_ptr<internal_node> &&node,
                                      single_value_leaf_unique_ptr &&child,
                                      db::tree_depth_type depth) noexcept
-    : internal_node_template<256, get_internal_node_256_pool>(
-          node_type::I256, 49, node->get_key_prefix_len(), node->key_prefix) {
+    : internal_node_template<256, get_internal_node_256_pool>{
+          node_type::I256, 49, node->get_key_prefix_len(), node->key_prefix} {
   Expects(node->header.type() == node_type::I48);
   Expects(node->is_full());
-  const auto node48{std::unique_ptr<internal_node_48>(
-      static_cast<internal_node_48 *>(node.release()))};
+  const auto node48{std::unique_ptr<internal_node_48>{
+      static_cast<internal_node_48 *>(node.release())}};
   for (unsigned i = 0; i < 256; i++) {
     // TODO(laurynas): don't move-assign but construct in place?
     if (node48->child_indexes[i] != internal_node_48::empty_child)

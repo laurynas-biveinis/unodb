@@ -98,7 +98,7 @@ void tree_verifier::check_absent_keys(
 
 TEST(ART, single_node_tree_empty_value) {
   unodb::db test_db;
-  tree_verifier verifier(test_db);
+  tree_verifier verifier{test_db};
   verifier.check_absent_keys({1});
   verifier.insert(1, {});
 
@@ -108,7 +108,7 @@ TEST(ART, single_node_tree_empty_value) {
 
 TEST(ART, single_node_tree_nonempty_value) {
   unodb::db test_db;
-  tree_verifier verifier(test_db);
+  tree_verifier verifier{test_db};
   verifier.insert(1, test_values[2]);
 
   verifier.check_present_values();
@@ -122,7 +122,7 @@ TEST(ART, too_long_value) {
       static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1U};
 
   unodb::db test_db;
-  tree_verifier verifier(test_db);
+  tree_verifier verifier{test_db};
 
   ASSERT_THROW((void)test_db.insert(1, too_long), std::length_error);
 
@@ -131,7 +131,7 @@ TEST(ART, too_long_value) {
 
 TEST(ART, expand_leaf_to_node4) {
   unodb::db test_db;
-  tree_verifier verifier(test_db);
+  tree_verifier verifier{test_db};
 
   verifier.insert(0, test_values[1]);
   verifier.insert(1, test_values[2]);

@@ -132,20 +132,29 @@ inline __attribute__((noreturn)) void cannot_happen() {
   __builtin_unreachable();
 }
 
-// TODO(laurynas): noexceptify properly
-template <typename BidirectionalInputIterator,
-          typename BidirectionalOutputIterator>
-BidirectionalOutputIterator uninitialized_move_backward_noexcept(
-    BidirectionalInputIterator source_first,
-    BidirectionalInputIterator source_last,
-    BidirectionalOutputIterator dest_last) noexcept {
-  using value_type =
-      typename std::iterator_traits<BidirectionalOutputIterator>::value_type;
+template <typename BidirInIter, typename BidirOutIter>
+BidirOutIter uninitialized_move_backward_impl(
+    BidirInIter source_first, BidirInIter source_last, BidirOutIter dest_last,
+    std::true_type is_move_ctor_noexcept __attribute__((unused))) noexcept {
+  using value_type = typename std::iterator_traits<BidirOutIter>::value_type;
   while (source_last != source_first) {
     new (std::addressof(*(--dest_last)))
         value_type{std::move(*(--source_last))};
   }
   return dest_last;
+}
+
+template <typename BidirInIter, typename BidirOutIter>
+BidirOutIter uninitialized_move_backward(
+    BidirInIter source_first, BidirInIter source_last,
+    BidirOutIter dest_last) noexcept(std::
+                                         is_nothrow_move_constructible<
+                                             typename std::iterator_traits<
+                                                 BidirOutIter>::value_type>()) {
+  return uninitialized_move_backward_impl(
+      source_first, source_last, dest_last,
+      std::is_nothrow_move_constructible<
+          typename std::iterator_traits<BidirOutIter>::value_type>());
 }
 
 }  // namespace
@@ -339,10 +348,9 @@ class internal_node {
       std::copy_backward(keys.begin() + insert_pos_index,
                          keys.begin() + children_count,
                          keys.begin() + children_count + 1);
-      uninitialized_move_backward_noexcept(
-          children.begin() + insert_pos_index,
-          children.begin() + children_count,
-          children.begin() + children_count + 1);
+      uninitialized_move_backward(children.begin() + insert_pos_index,
+                                  children.begin() + children_count,
+                                  children.begin() + children_count + 1);
     }
     keys[insert_pos_index] = key_byte;
     new (&children[insert_pos_index].leaf)

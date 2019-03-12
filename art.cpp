@@ -968,13 +968,13 @@ namespace unodb {
 node_ptr::node_ptr(std::unique_ptr<internal_node> &&node) noexcept
     : internal{std::move(node)} {}
 
-db::get_result db::get(key_type k) noexcept {
+db::get_result db::get(key_type k) const noexcept {
   if (root.header == nullptr) return {};
   return get_from_subtree(root, art_key{k}, 0);
 }
 
-db::get_result db::get_from_subtree(node_ptr &node, art_key_type k,
-                                    tree_depth_type depth) const noexcept {
+db::get_result db::get_from_subtree(const node_ptr &node, art_key_type k,
+                                    tree_depth_type depth) noexcept {
   if (node.type() == node_type::LEAF) {
     if (single_value_leaf::matches(node.leaf.get(), k)) {
       const auto value = single_value_leaf::value(node.leaf.get());

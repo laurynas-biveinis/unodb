@@ -116,7 +116,7 @@ class db final {
 
   using tree_depth_type = unsigned;
 
-  [[nodiscard]] get_result get(key_type k) noexcept;
+  [[nodiscard]] get_result get(key_type k) const noexcept;
 
   [[nodiscard]] bool insert(key_type k, value_view v);
 
@@ -125,13 +125,12 @@ class db final {
 #endif
 
  private:
-  [[nodiscard]] db::get_result get_from_subtree(node_ptr &node, art_key_type k,
-                                                tree_depth_type depth) const
-      noexcept;
+  [[nodiscard]] static db::get_result get_from_subtree(
+      const node_ptr &node, art_key_type k, tree_depth_type depth) noexcept;
 
-  [[nodiscard]] bool insert_leaf(art_key_type k, node_ptr *node,
-                                 single_value_leaf_unique_ptr leaf,
-                                 tree_depth_type depth);
+  [[nodiscard]] static bool insert_leaf(art_key_type k, node_ptr *node,
+                                        single_value_leaf_unique_ptr leaf,
+                                        tree_depth_type depth);
 
   node_ptr root{nullptr};
 };

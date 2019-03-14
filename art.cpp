@@ -71,44 +71,19 @@ namespace {
 
 using key_prefix_size_type = uint8_t;
 
+template <typename InternalNode>
 [[nodiscard]] inline boost::container::pmr::pool_options
-get_node_4_pool_options();
-
-[[nodiscard]] inline boost::container::pmr::pool_options
-get_node_16_pool_options();
-
-[[nodiscard]] inline boost::container::pmr::pool_options
-get_node_48_pool_options();
-
-[[nodiscard]] inline boost::container::pmr::pool_options
-get_node_256_pool_options();
+get_internal_node_pool_options();
 
 [[nodiscard]] inline auto *get_leaf_node_pool() {
   return boost::container::pmr::new_delete_resource();
 }
 
-[[nodiscard]] inline auto *get_internal_node_4_pool() {
-  static boost::container::pmr::unsynchronized_pool_resource node_4_pool{
-      get_node_4_pool_options()};
-  return &node_4_pool;
-}
-
-[[nodiscard]] inline auto *get_internal_node_16_pool() {
-  static boost::container::pmr::unsynchronized_pool_resource node_16_pool{
-      get_node_16_pool_options()};
-  return &node_16_pool;
-}
-
-[[nodiscard]] inline auto *get_internal_node_48_pool() {
-  static boost::container::pmr::unsynchronized_pool_resource node_48_pool{
-      get_node_48_pool_options()};
-  return &node_48_pool;
-}
-
-[[nodiscard]] inline auto *get_internal_node_256_pool() {
-  static boost::container::pmr::unsynchronized_pool_resource node_256_pool{
-      get_node_256_pool_options()};
-  return &node_256_pool;
+template <typename InternalNode>
+[[nodiscard]] inline auto *get_internal_node_pool() {
+  static boost::container::pmr::unsynchronized_pool_resource internal_node_pool{
+      get_internal_node_pool_options<InternalNode>()};
+  return &internal_node_pool;
 }
 
 #ifndef NDEBUG
@@ -367,19 +342,15 @@ class internal_node {
   friend class internal_node_256;
 };
 
-using node_pool_getter_type =
-    boost::container::pmr::unsynchronized_pool_resource *(*)();
-
-template <unsigned Capacity, node_pool_getter_type Node_pool_getter>
+template <unsigned Capacity, typename Derived>
 class internal_node_template : public internal_node {
  public:
   [[nodiscard]] static void *operator new(std::size_t size) {
-    return Node_pool_getter()->allocate(size);
+    return get_internal_node_pool<Derived>()->allocate(size);
   }
 
-  // Should never be called directly
-  static void operator delete(void *to_delete __attribute__((unused))) {
-    cannot_happen();
+  static void operator delete(void *to_delete) {
+    get_internal_node_pool<Derived>()->deallocate(to_delete, sizeof(Derived));
   }
 
   [[nodiscard]] bool is_full() const noexcept {
@@ -398,12 +369,8 @@ class internal_node_template : public internal_node {
 };
 
 class internal_node_4 final
-    : public internal_node_template<4, get_internal_node_4_pool> {
+    : public internal_node_template<4, internal_node_4> {
  public:
-  static void operator delete(void *to_delete) {
-    get_internal_node_4_pool()->deallocate(to_delete, sizeof(internal_node_4));
-  }
-
   // Create a new node with two given child nodes
   [[nodiscard]] static std::unique_ptr<internal_node_4> create(
       art_key_type k1, art_key_type k2, db::tree_depth_type depth,
@@ -458,8 +425,8 @@ class internal_node_4 final
 internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
                                  db::tree_depth_type depth, node_ptr &&child1,
                                  node_ptr &&child2) noexcept
-    : internal_node_template<4, get_internal_node_4_pool>{node_type::I4, 2, k1,
-                                                          k2, depth} {
+    : internal_node_template<4, internal_node_4>{node_type::I4, 2, k1, k2,
+                                                 depth} {
   const auto next_level_depth = depth + get_key_prefix_len();
   add_two_to_empty(k1[next_level_depth], std::move(child1),
                    k2[next_level_depth], std::move(child2));
@@ -468,7 +435,7 @@ internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
 internal_node_4::internal_node_4(node_ptr &&source_node, unsigned len,
                                  db::tree_depth_type depth,
                                  node_ptr &&child1) noexcept
-    : internal_node_template<4, get_internal_node_4_pool>{
+    : internal_node_template<4, internal_node_4>{
           node_type::I4, 2, gsl::narrow_cast<key_prefix_size_type>(len),
           source_node.internal->key_prefix} {
   Expects(source_node.type() != node_type::LEAF);
@@ -515,13 +482,8 @@ node_ptr *internal_node_4::find_child(std::byte key_byte) noexcept {
 }
 
 class internal_node_16 final
-    : public internal_node_template<16, get_internal_node_16_pool> {
+    : public internal_node_template<16, internal_node_16> {
  public:
-  static void operator delete(void *to_delete) {
-    get_internal_node_16_pool()->deallocate(to_delete,
-                                            sizeof(internal_node_16));
-  }
-
   [[nodiscard]] static std::unique_ptr<internal_node_16> create(
       std::unique_ptr<internal_node> &&node,
       single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
@@ -560,7 +522,7 @@ class internal_node_16 final
 internal_node_16::internal_node_16(std::unique_ptr<internal_node> &&node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
-    : internal_node_template<16, get_internal_node_16_pool>{
+    : internal_node_template<16, internal_node_16>{
           node_type::I16, 5, node->get_key_prefix_len(), node->key_prefix} {
   Expects(node->header.type() == node_type::I4);
   Expects(node->is_full());
@@ -612,13 +574,8 @@ void internal_node_16::dump(std::ostream &os, unsigned indent) const noexcept {
 #endif
 
 class internal_node_48 final
-    : public internal_node_template<48, get_internal_node_48_pool> {
+    : public internal_node_template<48, internal_node_48> {
  public:
-  static void operator delete(void *to_delete) {
-    get_internal_node_48_pool()->deallocate(to_delete,
-                                            sizeof(internal_node_48));
-  }
-
   [[nodiscard]] static std::unique_ptr<internal_node_48> create(
       std::unique_ptr<internal_node> &&node,
       single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
@@ -663,7 +620,7 @@ class internal_node_48 final
 internal_node_48::internal_node_48(std::unique_ptr<internal_node> &&node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
-    : internal_node_template<48, get_internal_node_48_pool>{
+    : internal_node_template<48, internal_node_48>{
           node_type::I48, 17, node->get_key_prefix_len(), node->key_prefix} {
   Expects(node->header.type() == node_type::I16);
   Expects(node->is_full());
@@ -717,13 +674,8 @@ void internal_node_48::dump(std::ostream &os, unsigned indent) const noexcept {
 #endif
 
 class internal_node_256 final
-    : public internal_node_template<256, get_internal_node_256_pool> {
+    : public internal_node_template<256, internal_node_256> {
  public:
-  static void operator delete(void *to_delete) {
-    get_internal_node_256_pool()->deallocate(to_delete,
-                                             sizeof(internal_node_256));
-  }
-
   [[nodiscard]] static std::unique_ptr<internal_node_256> create(
       std::unique_ptr<internal_node> &&node,
       single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
@@ -761,7 +713,7 @@ class internal_node_256 final
 internal_node_256::internal_node_256(std::unique_ptr<internal_node> &&node,
                                      single_value_leaf_unique_ptr &&child,
                                      db::tree_depth_type depth) noexcept
-    : internal_node_template<256, get_internal_node_256_pool>{
+    : internal_node_template<256, internal_node_256>{
           node_type::I256, 49, node->get_key_prefix_len(), node->key_prefix} {
   Expects(node->header.type() == node_type::I48);
   Expects(node->is_full());
@@ -904,40 +856,14 @@ namespace {
 
 // For internal node pools, approximate requesting ~2MB blocks from backing
 // storage (when ported to Linux, ask for 2MB huge pages directly)
-boost::container::pmr::pool_options get_node_4_pool_options() {
-  boost::container::pmr::pool_options node_4_pool_options;
-  node_4_pool_options.max_blocks_per_chunk =
-      2 * 1024 * 1024 / sizeof(unodb::internal_node_4);
-  node_4_pool_options.largest_required_pool_block =
-      sizeof(unodb::internal_node_4);
-  return node_4_pool_options;
-}
-
-boost::container::pmr::pool_options get_node_16_pool_options() {
-  boost::container::pmr::pool_options node_16_pool_options;
-  node_16_pool_options.max_blocks_per_chunk =
-      2 * 1024 * 1024 / sizeof(unodb::internal_node_16);
-  node_16_pool_options.largest_required_pool_block =
-      sizeof(unodb::internal_node_16);
-  return node_16_pool_options;
-}
-
-boost::container::pmr::pool_options get_node_48_pool_options() {
-  boost::container::pmr::pool_options node_48_pool_options;
-  node_48_pool_options.max_blocks_per_chunk =
-      2 * 1024 * 1024 / sizeof(unodb::internal_node_48);
-  node_48_pool_options.largest_required_pool_block =
-      sizeof(unodb::internal_node_48);
-  return node_48_pool_options;
-}
-
-boost::container::pmr::pool_options get_node_256_pool_options() {
-  boost::container::pmr::pool_options node_256_pool_options;
-  node_256_pool_options.max_blocks_per_chunk =
-      2 * 1024 * 1024 / sizeof(unodb::internal_node_256);
-  node_256_pool_options.largest_required_pool_block =
-      sizeof(unodb::internal_node_256);
-  return node_256_pool_options;
+template <typename InternalNode>
+[[nodiscard]] inline boost::container::pmr::pool_options
+get_internal_node_pool_options() {
+  boost::container::pmr::pool_options internal_node_pool_options;
+  internal_node_pool_options.max_blocks_per_chunk =
+      2 * 1024 * 1024 / sizeof(InternalNode);
+  internal_node_pool_options.largest_required_pool_block = sizeof(InternalNode);
+  return internal_node_pool_options;
 }
 
 [[nodiscard]] __attribute__((pure)) auto get_shared_prefix_len(

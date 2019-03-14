@@ -122,7 +122,8 @@ else()
     "-hicpp-use-equals-default,"
     "-llvm-include-order,"
     "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang
-    "-readability-braces-around-statements")
+    "-readability-braces-around-statements,"
+    "-readability-else-after-return") # Until clang-tidy learns about constexpr if
   set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}" "-checks=*,${CLANG_TIDY_DISABLED}")
   string(CONCAT CLANG_TIDY_DISABLED_FOR_TESTS
     "${CLANG_TIDY_DISABLED},"

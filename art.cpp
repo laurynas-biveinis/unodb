@@ -133,28 +133,22 @@ inline __attribute__((noreturn)) void cannot_happen() {
 }
 
 template <typename BidirInIter, typename BidirOutIter>
-BidirOutIter uninitialized_move_backward_impl(
-    BidirInIter source_first, BidirInIter source_last, BidirOutIter dest_last,
-    std::true_type is_move_ctor_noexcept __attribute__((unused))) noexcept {
-  using value_type = typename std::iterator_traits<BidirOutIter>::value_type;
-  while (source_last != source_first) {
-    new (std::addressof(*(--dest_last)))
-        value_type{std::move(*(--source_last))};
-  }
-  return dest_last;
-}
-
-template <typename BidirInIter, typename BidirOutIter>
 BidirOutIter uninitialized_move_backward(
     BidirInIter source_first, BidirInIter source_last,
     BidirOutIter dest_last) noexcept(std::
                                          is_nothrow_move_constructible<
                                              typename std::iterator_traits<
                                                  BidirOutIter>::value_type>()) {
-  return uninitialized_move_backward_impl(
-      source_first, source_last, dest_last,
-      std::is_nothrow_move_constructible<
-          typename std::iterator_traits<BidirOutIter>::value_type>());
+  using value_type = typename std::iterator_traits<BidirOutIter>::value_type;
+  if constexpr (std::is_nothrow_move_constructible<value_type>()) {
+    while (source_last != source_first) {
+      new (std::addressof(*(--dest_last)))
+          value_type{std::move(*(--source_last))};
+    }
+    return dest_last;
+  } else {
+    static_assert(std::is_nothrow_move_constructible<value_type>());
+  }
 }
 
 }  // namespace

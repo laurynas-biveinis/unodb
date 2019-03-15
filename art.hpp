@@ -47,6 +47,10 @@ struct art_key final {
     return !memcmp(&key, &key2.key, sizeof(*this));
   }
 
+  [[nodiscard]] bool operator!=(art_key<Key_type> key2) const noexcept {
+    return memcmp(&key, &key2.key, sizeof(*this));
+  }
+
   [[nodiscard]] __attribute__((pure)) std::byte operator[](
       std::size_t index) const noexcept {
     Expects(index < sizeof(*this));

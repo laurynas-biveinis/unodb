@@ -287,6 +287,7 @@ class internal_node {
       : header{type},
         children_count{children_count_},
         key_prefix_len{key_prefix_len_} {
+    Expects(type != node_type::LEAF);
     Expects(key_prefix_len_ <= key_prefix_capacity);
     std::copy(key_prefix_.cbegin(), key_prefix_.cbegin() + key_prefix_len,
               key_prefix.begin());

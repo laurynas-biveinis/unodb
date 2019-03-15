@@ -240,7 +240,7 @@ class internal_node {
               key_prefix.begin());
     key_prefix_len =
         gsl::narrow_cast<key_prefix_size_type>(key_prefix_len - cut_len);
-    Ensures(key_prefix_len <= key_prefix_capacity);
+    assert(key_prefix_len <= key_prefix_capacity);
   }
 
   [[nodiscard]] key_prefix_size_type get_key_prefix_len() const noexcept {
@@ -294,7 +294,7 @@ class internal_node {
   get_sorted_key_array_insert_position(const Keys_type &keys,
                                        uint8_t children_count,
                                        std::byte key_byte) noexcept {
-    Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
     return static_cast<size_t>(std::lower_bound(keys.begin(),
                                                 keys.begin() + children_count,
                                                 key_byte) -
@@ -309,7 +309,7 @@ class internal_node {
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(keys, children_count, key_byte);
     if (insert_pos_index != children_count) {
-      Expects(keys[insert_pos_index] != key_byte);
+      assert(keys[insert_pos_index] != key_byte);
       // TODO(laurynas): does it compile to memcpy?
       std::copy_backward(keys.begin() + insert_pos_index,
                          keys.begin() + children_count,
@@ -322,7 +322,7 @@ class internal_node {
     new (&children[insert_pos_index].leaf)
         single_value_leaf_unique_ptr{std::move(child)};
     ++children_count;
-    Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
   }
 
   const node_header header;
@@ -456,7 +456,7 @@ void internal_node_4::add_two_to_empty(std::byte key1, node_ptr &&child1,
   new (&children[key1_i].leaf) node_ptr{std::move(child1)};
   keys[key2_i] = key2;
   new (&children[key2_i].leaf) node_ptr{std::move(child2)};
-  Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+  assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 }
 
 #ifndef NDEBUG
@@ -590,7 +590,7 @@ class internal_node_48 final
     Expects(!is_full());
     const auto key_byte =
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
-    Expects(child_indexes[key_byte] == empty_child);
+    assert(child_indexes[key_byte] == empty_child);
     child_indexes[key_byte] = children_count;
     new (&children[children_count].leaf)
         single_value_leaf_unique_ptr{std::move(child)};
@@ -690,7 +690,7 @@ class internal_node_256 final
     Expects(!is_full());
     const auto key_byte =
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
-    Expects(children[key_byte] == nullptr);
+    assert(children[key_byte] == nullptr);
     new (&children[key_byte].leaf)
         single_value_leaf_unique_ptr{std::move(child)};
     ++children_count;

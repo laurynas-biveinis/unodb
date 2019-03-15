@@ -229,7 +229,6 @@ class internal_node {
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept;
 
-  // TODO(laurynas): return something else than a pointer
   [[nodiscard]] __attribute__((pure)) node_ptr *find_child(
       std::byte key_byte) noexcept;
 

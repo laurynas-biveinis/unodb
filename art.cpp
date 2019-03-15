@@ -268,7 +268,7 @@ class internal_node {
 
   internal_node(node_type type, uint8_t children_count_, art_key_type k1,
                 art_key_type k2, db::tree_depth_type depth) noexcept
-      : header(type), children_count(children_count_) {
+      : header{type}, children_count{children_count_} {
     db::tree_depth_type i;
     for (i = depth; k1[i] == k2[i]; ++i) {
       assert(i - depth < key_prefix_capacity);

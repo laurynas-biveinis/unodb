@@ -121,7 +121,7 @@ class db final {
   [[nodiscard]] bool insert(key_type k, value_view v);
 
 #ifndef NDEBUG
-  void dump(std::ostream &os) const noexcept;
+  void dump(std::ostream &os) const;
 #endif
 
  private:

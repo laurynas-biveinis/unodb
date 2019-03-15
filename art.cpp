@@ -274,8 +274,8 @@ class internal_node {
       assert(i - depth < key_prefix_capacity);
       key_prefix[i - depth] = k1[i];
     }
+    assert(i - depth <= key_prefix_capacity);
     key_prefix_len = gsl::narrow_cast<key_prefix_size_type>(i - depth);
-    assert(key_prefix_len <= key_prefix_capacity);
   }
 
   internal_node(node_type type, uint8_t children_count_,

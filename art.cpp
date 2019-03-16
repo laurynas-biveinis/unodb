@@ -302,9 +302,9 @@ class internal_node {
     Expects(std::adjacent_find(keys.cbegin(), keys.cbegin() + children_count) >=
             keys.cbegin() + children_count);
     const auto result = static_cast<size_t>(
-        std::lower_bound(keys.begin(), keys.begin() + children_count,
+        std::lower_bound(keys.cbegin(), keys.cbegin() + children_count,
                          key_byte) -
-        keys.begin());
+        keys.cbegin());
     Ensures(result == children_count || keys[result] != key_byte);
     return result;
   }
@@ -319,8 +319,8 @@ class internal_node {
     if (insert_pos_index != children_count) {
       assert(keys[insert_pos_index] != key_byte);
       // TODO(laurynas): does it compile to memcpy?
-      std::copy_backward(keys.begin() + insert_pos_index,
-                         keys.begin() + children_count,
+      std::copy_backward(keys.cbegin() + insert_pos_index,
+                         keys.cbegin() + children_count,
                          keys.begin() + children_count + 1);
       uninitialized_move_backward(children.begin() + insert_pos_index,
                                   children.begin() + children_count,

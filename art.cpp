@@ -298,11 +298,15 @@ class internal_node {
   get_sorted_key_array_insert_position(const Keys_type &keys,
                                        uint8_t children_count,
                                        std::byte key_byte) noexcept {
-    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
-    return static_cast<size_t>(std::lower_bound(keys.begin(),
-                                                keys.begin() + children_count,
-                                                key_byte) -
-                               keys.begin());
+    Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    Expects(std::adjacent_find(keys.cbegin(), keys.cbegin() + children_count) >=
+            keys.cbegin() + children_count);
+    const auto result = static_cast<size_t>(
+        std::lower_bound(keys.begin(), keys.begin() + children_count,
+                         key_byte) -
+        keys.begin());
+    Ensures(result == children_count || keys[result] != key_byte);
+    return result;
   }
 
   template <typename Keys_type, typename Children_type>

@@ -562,8 +562,8 @@ class internal_node_16 final
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I16);
     Expects(!is_full());
     const auto key_byte = single_value_leaf::key(child.get())[depth];
-    insert_into_sorted_key_children_arrays(keys, children, children_count,
-                                           key_byte, std::move(child));
+    insert_into_sorted_key_children_arrays(
+        keys.byte_array, children, children_count, key_byte, std::move(child));
   }
 
   [[nodiscard]] __attribute__((pure)) node_ptr *find_child(
@@ -574,7 +574,10 @@ class internal_node_16 final
 #endif
 
  private:
-  alignas(__m128i) std::array<std::byte, capacity> keys;
+  union {
+    std::array<std::byte, capacity> byte_array;
+    __m128i sse;
+  } keys;
   std::array<node_ptr, capacity> children;
 
   // TODO(laurynas): better way?
@@ -591,10 +594,10 @@ internal_node_16::internal_node_16(std::unique_ptr<internal_node_4> &&node,
   const auto insert_pos_index = get_sorted_key_array_insert_position(
       node->keys, node->children_count, key_byte);
   std::copy(node->keys.cbegin(), node->keys.cbegin() + insert_pos_index,
-            keys.begin());
-  keys[insert_pos_index] = key_byte;
+            keys.byte_array.begin());
+  keys.byte_array[insert_pos_index] = key_byte;
   std::copy(node->keys.cbegin() + insert_pos_index, node->keys.cend(),
-            keys.begin() + insert_pos_index + 1);
+            keys.byte_array.begin() + insert_pos_index + 1);
   std::uninitialized_move(node->children.begin(),
                           node->children.begin() + insert_pos_index,
                           children.begin());
@@ -608,10 +611,8 @@ internal_node_16::internal_node_16(std::unique_ptr<internal_node_4> &&node,
 node_ptr *internal_node_16::find_child(std::byte key_byte) noexcept {
   assert(reinterpret_cast<const node_header *>(this)->type() == node_type::I16);
   const auto replicated_search_key = _mm_set1_epi8(static_cast<char>(key_byte));
-  // TODO(laurynas): the keys field is alignas(__m128i) but that does not
-  // silence GCC -Wcast-align warning. Try a union.
-  const auto matching_key_positions = _mm_cmpeq_epi8(
-      replicated_search_key, *reinterpret_cast<__m128i *>(&keys));
+  const auto matching_key_positions =
+      _mm_cmpeq_epi8(replicated_search_key, keys.sse);
   const auto mask = (1U << children_count) - 1;
   const auto bit_field =
       static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
@@ -624,7 +625,7 @@ node_ptr *internal_node_16::find_child(std::byte key_byte) noexcept {
 
 void internal_node_16::dump(std::ostream &os, unsigned indent) const {
   os << ", key bytes =";
-  for (size_t i = 0; i < children_count; i++) dump_byte(os, keys[i]);
+  for (size_t i = 0; i < children_count; i++) dump_byte(os, keys.byte_array[i]);
   os << ", children:\n";
   for (size_t i = 0; i < children_count; i++)
     dump_node(os, children[i], indent + 2);
@@ -689,7 +690,7 @@ internal_node_48::internal_node_48(std::unique_ptr<internal_node> &&node,
          child_indexes.size() * sizeof(child_indexes[0]));
   uint8_t i;
   for (i = 0; i < node16->capacity; i++) {
-    const auto existing_key_byte = node16->keys[i];
+    const auto existing_key_byte = node16->keys.byte_array[i];
     child_indexes[static_cast<decltype(child_indexes)::size_type>(
         existing_key_byte)] = i;
     new (&children[i].leaf)

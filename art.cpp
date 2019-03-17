@@ -650,7 +650,7 @@ class internal_node_48 final
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I48);
-    Expects(!is_full());
+    assert(!is_full());
     const auto key_byte =
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
     assert(child_indexes[key_byte] == empty_child);
@@ -671,7 +671,7 @@ class internal_node_48 final
   std::array<uint8_t, 256> child_indexes;
   std::array<node_ptr, capacity> children;
 
-  static constexpr decltype(child_indexes)::size_type empty_child = 0xFF;
+  static constexpr uint8_t empty_child = 0xFF;
 
   // TODO(laurynas): a better way?
   friend class internal_node_256;
@@ -688,16 +688,15 @@ internal_node_48::internal_node_48(std::unique_ptr<internal_node_16> &&node,
   uint8_t i;
   for (i = 0; i < node->capacity; i++) {
     const auto existing_key_byte = node->keys.byte_array[i];
-    child_indexes[static_cast<decltype(child_indexes)::size_type>(
-        existing_key_byte)] = i;
+    child_indexes[static_cast<uint8_t>(existing_key_byte)] = i;
     new (&children[i].leaf)
         single_value_leaf_unique_ptr{std::move(node->children[i].leaf)};
   }
-  const auto key_byte = single_value_leaf::key(child.get())[depth];
-  // TODO(laurynas) assert it's empty_child
-  child_indexes[static_cast<decltype(child_indexes)::size_type>(key_byte)] = i;
+  const auto key_byte =
+      static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
+  assert(child_indexes[key_byte] == empty_child);
+  child_indexes[key_byte] = i;
   new (&children[i].leaf) single_value_leaf_unique_ptr{std::move(child)};
-  // TODO(laurynas): assert keys are sorted
 }
 
 node_ptr *internal_node_48::find_child(std::byte key_byte) noexcept {

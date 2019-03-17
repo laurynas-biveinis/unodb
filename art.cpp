@@ -923,7 +923,7 @@ node_ptr::node_ptr(std::unique_ptr<internal_node> &&node) noexcept
     : internal{std::move(node)} {}
 
 db::get_result db::get(key_type k) const noexcept {
-  if (root.header == nullptr) return {};
+  if (BOOST_UNLIKELY(root.header == nullptr)) return {};
   return get_from_subtree(root, art_key{k}, 0);
 }
 

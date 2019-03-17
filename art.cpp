@@ -425,9 +425,6 @@ class internal_node_template : public internal_node {
   using internal_node::internal_node;
 
   static constexpr auto capacity = Capacity;
-
-  // TODO(laurynas): better way?
-  friend class internal_node_48;
 };
 
 class internal_node_4 final
@@ -460,7 +457,7 @@ class internal_node_4 final
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
-    Expects(!is_full());
+    assert(!is_full());
     const auto key_byte = single_value_leaf::key(child.get())[depth];
     insert_into_sorted_key_children_arrays(keys, children, children_count,
                                            key_byte, std::move(child));
@@ -516,6 +513,7 @@ internal_node_4::internal_node_4(node_ptr &&source_node, unsigned len,
 void internal_node_4::add_two_to_empty(std::byte key1, node_ptr &&child1,
                                        std::byte key2,
                                        node_ptr &&child2) noexcept {
+  Expects(key1 != key2);
   const size_t key1_i = key1 < key2 ? 0 : 1;
   const size_t key2_i = key1_i == 0 ? 1 : 0;
   keys[key1_i] = key1;

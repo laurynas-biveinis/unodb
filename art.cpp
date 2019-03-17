@@ -95,7 +95,7 @@ void dump_key(std::ostream &os, unodb::art_key_type key) {
   for (size_t i = 0; i < sizeof(key); i++) dump_byte(os, key[i]);
 }
 
-void dump_node(std::ostream &os, const unodb::node_ptr &node, unsigned indent);
+void dump_node(std::ostream &os, const unodb::node_ptr &node);
 
 #endif
 
@@ -323,7 +323,7 @@ class internal_node {
   [[nodiscard]] bool is_full() const noexcept;
 
 #ifndef NDEBUG
-  void dump(std::ostream &os, unsigned indent) const;
+  void dump(std::ostream &os) const;
 #endif
 
  protected:
@@ -469,7 +469,7 @@ class internal_node_4 final
       std::byte key_byte) noexcept;
 
 #ifndef NDEBUG
-  void dump(std::ostream &os, unsigned indent) const;
+  void dump(std::ostream &os) const;
 #endif
 
  private:
@@ -526,12 +526,11 @@ void internal_node_4::add_two_to_empty(
 
 #ifndef NDEBUG
 
-void internal_node_4::dump(std::ostream &os, unsigned indent) const {
+void internal_node_4::dump(std::ostream &os) const {
   os << ", key bytes =";
   for (size_t i = 0; i < children_count; i++) dump_byte(os, keys[i]);
   os << ", children:\n";
-  for (size_t i = 0; i < children_count; i++)
-    dump_node(os, children[i], indent + 2);
+  for (size_t i = 0; i < children_count; i++) dump_node(os, children[i]);
 }
 
 #endif
@@ -570,7 +569,7 @@ class internal_node_16 final
       std::byte key_byte) noexcept;
 
 #ifndef NDEBUG
-  void dump(std::ostream &os, unsigned indent) const;
+  void dump(std::ostream &os) const;
 #endif
 
  private:
@@ -623,12 +622,11 @@ node_ptr *internal_node_16::find_child(std::byte key_byte) noexcept {
 
 #ifndef NDEBUG
 
-void internal_node_16::dump(std::ostream &os, unsigned indent) const {
+void internal_node_16::dump(std::ostream &os) const {
   os << ", key bytes =";
   for (size_t i = 0; i < children_count; i++) dump_byte(os, keys.byte_array[i]);
   os << ", children:\n";
-  for (size_t i = 0; i < children_count; i++)
-    dump_node(os, children[i], indent + 2);
+  for (size_t i = 0; i < children_count; i++) dump_node(os, children[i]);
 }
 
 #endif
@@ -664,7 +662,7 @@ class internal_node_48 final
       std::byte key_byte) noexcept;
 
 #ifndef NDEBUG
-  void dump(std::ostream &os, unsigned indent) const;
+  void dump(std::ostream &os) const;
 #endif
 
  private:
@@ -707,7 +705,7 @@ node_ptr *internal_node_48::find_child(std::byte key_byte) noexcept {
 
 #ifndef NDEBUG
 
-void internal_node_48::dump(std::ostream &os, unsigned indent) const {
+void internal_node_48::dump(std::ostream &os) const {
   os << ", key bytes & child indexes\n";
   for (size_t i = 0; i < children_count; i++) {
     if (child_indexes[i] != empty_child) {
@@ -721,7 +719,7 @@ void internal_node_48::dump(std::ostream &os, unsigned indent) const {
   for (size_t i = 0; i < children_count; i++) {
     if (child_indexes[i] != 0) {
       os << " " << i << ": ";
-      dump_node(os, children[child_indexes[i]], indent + 2);
+      dump_node(os, children[child_indexes[i]]);
     }
   }
 }
@@ -757,7 +755,7 @@ class internal_node_256 final
       std::byte key_byte) noexcept;
 
 #ifndef NDEBUG
-  void dump(std::ostream &os, unsigned indent) const;
+  void dump(std::ostream &os) const;
 #endif
 
  private:
@@ -794,13 +792,13 @@ node_ptr *internal_node_256::find_child(std::byte key_byte) noexcept {
 
 #ifndef NDEBUG
 
-void internal_node_256::dump(std::ostream &os, unsigned indent) const {
+void internal_node_256::dump(std::ostream &os) const {
   os << ", key bytes & children:\n";
   for (size_t i = 0; i < children_count; i++) {
     if (children[i] != nullptr) {
       os << " ";
       dump_byte(os, gsl::narrow_cast<std::byte>(i));
-      dump_node(os, children[i], indent + 2);
+      dump_node(os, children[i]);
     }
   }
 }
@@ -861,7 +859,7 @@ inline node_ptr *internal_node::find_child(std::byte key_byte) noexcept {
 
 #ifndef NDEBUG
 
-void internal_node::dump(std::ostream &os, unsigned indent) const {
+void internal_node::dump(std::ostream &os) const {
   switch (header.type()) {
     case node_type::I4:
       os << "I4: ";
@@ -882,16 +880,16 @@ void internal_node::dump(std::ostream &os, unsigned indent) const {
   key_prefix.dump(os);
   switch (header.type()) {
     case node_type::I4:
-      static_cast<const internal_node_4 *>(this)->dump(os, indent);
+      static_cast<const internal_node_4 *>(this)->dump(os);
       break;
     case node_type::I16:
-      static_cast<const internal_node_16 *>(this)->dump(os, indent);
+      static_cast<const internal_node_16 *>(this)->dump(os);
       break;
     case node_type::I48:
-      static_cast<const internal_node_48 *>(this)->dump(os, indent);
+      static_cast<const internal_node_48 *>(this)->dump(os);
       break;
     case node_type::I256:
-      static_cast<const internal_node_256 *>(this)->dump(os, indent);
+      static_cast<const internal_node_256 *>(this)->dump(os);
       break;
     case node_type::LEAF:
       cannot_happen();
@@ -1012,9 +1010,8 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
 
 namespace {
 
-// TODO(laurynas): indent is not really used
-void dump_node(std::ostream &os, const unodb::node_ptr &node, unsigned indent) {
-  os << std::string(indent, ' ') << "node at: " << &node;
+void dump_node(std::ostream &os, const unodb::node_ptr &node) {
+  os << "node at: " << &node;
   if (node.header == nullptr) {
     os << ", <null>\n";
     return;
@@ -1028,7 +1025,7 @@ void dump_node(std::ostream &os, const unodb::node_ptr &node, unsigned indent) {
     case unodb::node_type::I16:
     case unodb::node_type::I48:
     case unodb::node_type::I256:
-      node.internal->dump(os, indent);
+      node.internal->dump(os);
       break;
   }
 }
@@ -1039,7 +1036,7 @@ namespace unodb {
 
 void db::dump(std::ostream &os) const {
   os << "db dump:\n";
-  dump_node(os, root, 0);
+  dump_node(os, root);
 }
 
 #endif

@@ -637,13 +637,13 @@ class internal_node_48 final
     : public internal_node_template<48, internal_node_48> {
  public:
   [[nodiscard]] static std::unique_ptr<internal_node_48> create(
-      std::unique_ptr<internal_node> &&node,
+      std::unique_ptr<internal_node_16> &&node,
       single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
     return std::make_unique<internal_node_48>(std::move(node), std::move(child),
                                               depth);
   }
 
-  internal_node_48(std::unique_ptr<internal_node> &&node,
+  internal_node_48(std::unique_ptr<internal_node_16> &&node,
                    single_value_leaf_unique_ptr &&child,
                    db::tree_depth_type depth) noexcept;
 
@@ -677,24 +677,21 @@ class internal_node_48 final
   friend class internal_node_256;
 };
 
-internal_node_48::internal_node_48(std::unique_ptr<internal_node> &&node,
+internal_node_48::internal_node_48(std::unique_ptr<internal_node_16> &&node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
     : internal_node_template<48, internal_node_48>{
           node_type::I48, internal_node_16::capacity + 1, node->key_prefix} {
-  Expects(node->header.type() == node_type::I16);
   Expects(node->is_full());
-  const auto node16{std::unique_ptr<internal_node_16>{
-      static_cast<internal_node_16 *>(node.release())}};
   memset(&child_indexes[0], empty_child,
          child_indexes.size() * sizeof(child_indexes[0]));
   uint8_t i;
-  for (i = 0; i < node16->capacity; i++) {
-    const auto existing_key_byte = node16->keys.byte_array[i];
+  for (i = 0; i < node->capacity; i++) {
+    const auto existing_key_byte = node->keys.byte_array[i];
     child_indexes[static_cast<decltype(child_indexes)::size_type>(
         existing_key_byte)] = i;
     new (&children[i].leaf)
-        single_value_leaf_unique_ptr{std::move(node16->children[i].leaf)};
+        single_value_leaf_unique_ptr{std::move(node->children[i].leaf)};
   }
   const auto key_byte = single_value_leaf::key(child.get())[depth];
   // TODO(laurynas) assert it's empty_child
@@ -996,8 +993,10 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
           std::move(leaf), depth);
       node->internal = std::move(larger_node);
     } else if (node->type() == node_type::I16) {
-      auto larger_node = internal_node_48::create(std::move(node->internal),
-                                                  std::move(leaf), depth);
+      auto larger_node = internal_node_48::create(
+          std::unique_ptr<internal_node_16>(
+              static_cast<internal_node_16 *>(node->internal.release())),
+          std::move(leaf), depth);
       node->internal = std::move(larger_node);
     } else {
       assert(node->type() == node_type::I48);

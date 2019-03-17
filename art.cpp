@@ -547,13 +547,13 @@ class internal_node_16 final
     : public internal_node_template<16, internal_node_16> {
  public:
   [[nodiscard]] static std::unique_ptr<internal_node_16> create(
-      std::unique_ptr<internal_node> &&node,
+      std::unique_ptr<internal_node_4> &&node,
       single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
     return std::make_unique<internal_node_16>(std::move(node), std::move(child),
                                               depth);
   }
 
-  internal_node_16(std::unique_ptr<internal_node> &&node,
+  internal_node_16(std::unique_ptr<internal_node_4> &&node,
                    single_value_leaf_unique_ptr &&child,
                    db::tree_depth_type depth) noexcept;
 
@@ -581,30 +581,27 @@ class internal_node_16 final
   friend class internal_node_48;
 };
 
-internal_node_16::internal_node_16(std::unique_ptr<internal_node> &&node,
+internal_node_16::internal_node_16(std::unique_ptr<internal_node_4> &&node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
     : internal_node_template<16, internal_node_16>{node_type::I16, 5,
                                                    node->key_prefix} {
-  Expects(node->header.type() == node_type::I4);
   Expects(node->is_full());
-  const auto node4{std::unique_ptr<internal_node_4>{
-      static_cast<internal_node_4 *>(node.release())}};
   const auto key_byte = single_value_leaf::key(child.get())[depth];
   const auto insert_pos_index = get_sorted_key_array_insert_position(
-      node4->keys, node4->children_count, key_byte);
-  std::copy(node4->keys.cbegin(), node4->keys.cbegin() + insert_pos_index,
+      node->keys, node->children_count, key_byte);
+  std::copy(node->keys.cbegin(), node->keys.cbegin() + insert_pos_index,
             keys.begin());
   keys[insert_pos_index] = key_byte;
-  std::copy(node4->keys.cbegin() + insert_pos_index, node4->keys.cend(),
+  std::copy(node->keys.cbegin() + insert_pos_index, node->keys.cend(),
             keys.begin() + insert_pos_index + 1);
-  std::uninitialized_move(node4->children.begin(),
-                          node4->children.begin() + insert_pos_index,
+  std::uninitialized_move(node->children.begin(),
+                          node->children.begin() + insert_pos_index,
                           children.begin());
   new (&children[insert_pos_index].leaf)
       single_value_leaf_unique_ptr{std::move(child)};
-  std::uninitialized_move(node4->children.begin() + insert_pos_index,
-                          node4->children.end(),
+  std::uninitialized_move(node->children.begin() + insert_pos_index,
+                          node->children.end(),
                           children.begin() + insert_pos_index + 1);
 }
 
@@ -992,8 +989,10 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
     return insert_leaf(k, child, std::move(leaf), depth + 1);
   if (BOOST_UNLIKELY(node->internal->is_full())) {
     if (node->type() == node_type::I4) {
-      auto larger_node = internal_node_16::create(std::move(node->internal),
-                                                  std::move(leaf), depth);
+      auto larger_node = internal_node_16::create(
+          std::unique_ptr<internal_node_4>(
+              static_cast<internal_node_4 *>(node->internal.release())),
+          std::move(leaf), depth);
       node->internal = std::move(larger_node);
     } else if (node->type() == node_type::I16) {
       auto larger_node = internal_node_48::create(std::move(node->internal),

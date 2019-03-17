@@ -584,8 +584,8 @@ class internal_node_16 final
 internal_node_16::internal_node_16(std::unique_ptr<internal_node_4> &&node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
-    : internal_node_template<16, internal_node_16>{node_type::I16, 5,
-                                                   node->key_prefix} {
+    : internal_node_template<16, internal_node_16>{
+          node_type::I16, internal_node_4::capacity + 1, node->key_prefix} {
   Expects(node->is_full());
   const auto key_byte = single_value_leaf::key(child.get())[depth];
   const auto insert_pos_index = get_sorted_key_array_insert_position(
@@ -679,8 +679,8 @@ class internal_node_48 final
 internal_node_48::internal_node_48(std::unique_ptr<internal_node> &&node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
-    : internal_node_template<48, internal_node_48>{node_type::I48, 17,
-                                                   node->key_prefix} {
+    : internal_node_template<48, internal_node_48>{
+          node_type::I48, internal_node_16::capacity + 1, node->key_prefix} {
   Expects(node->header.type() == node_type::I16);
   Expects(node->is_full());
   const auto node16{std::unique_ptr<internal_node_16>{
@@ -772,8 +772,8 @@ class internal_node_256 final
 internal_node_256::internal_node_256(std::unique_ptr<internal_node> &&node,
                                      single_value_leaf_unique_ptr &&child,
                                      db::tree_depth_type depth) noexcept
-    : internal_node_template<256, internal_node_256>{node_type::I256, 49,
-                                                     node->key_prefix} {
+    : internal_node_template<256, internal_node_256>{
+          node_type::I256, internal_node_48::capacity + 1, node->key_prefix} {
   Expects(node->header.type() == node_type::I48);
   Expects(node->is_full());
   const auto node48{std::unique_ptr<internal_node_48>{

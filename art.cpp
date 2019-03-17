@@ -385,7 +385,7 @@ class internal_node {
                                   children.begin() + children_count + 1);
     }
     keys[insert_pos_index] = key_byte;
-    new (&children[insert_pos_index].leaf)
+    new (&children[insert_pos_index])
         single_value_leaf_unique_ptr{std::move(child)};
     ++children_count;
     assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
@@ -518,9 +518,9 @@ void internal_node_4::add_two_to_empty(
   const size_t key1_i = key1 < key2 ? 0 : 1;
   const size_t key2_i = key1_i == 0 ? 1 : 0;
   keys[key1_i] = key1;
-  new (&children[key1_i].leaf) node_ptr{std::move(child1)};
+  new (&children[key1_i]) node_ptr{std::move(child1)};
   keys[key2_i] = key2;
-  new (&children[key2_i].leaf) node_ptr{std::move(child2)};
+  new (&children[key2_i]) single_value_leaf_unique_ptr{std::move(child2)};
   assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 }
 
@@ -601,7 +601,7 @@ internal_node_16::internal_node_16(std::unique_ptr<internal_node_4> &&node,
   std::uninitialized_move(node->children.begin(),
                           node->children.begin() + insert_pos_index,
                           children.begin());
-  new (&children[insert_pos_index].leaf)
+  new (&children[insert_pos_index])
       single_value_leaf_unique_ptr{std::move(child)};
   std::uninitialized_move(node->children.begin() + insert_pos_index,
                           node->children.end(),
@@ -655,7 +655,7 @@ class internal_node_48 final
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
     assert(child_indexes[key_byte] == empty_child);
     child_indexes[key_byte] = children_count;
-    new (&children[children_count].leaf)
+    new (&children[children_count])
         single_value_leaf_unique_ptr{std::move(child)};
     ++children_count;
   }
@@ -689,14 +689,13 @@ internal_node_48::internal_node_48(std::unique_ptr<internal_node_16> &&node,
   for (i = 0; i < node->capacity; i++) {
     const auto existing_key_byte = node->keys.byte_array[i];
     child_indexes[static_cast<uint8_t>(existing_key_byte)] = i;
-    new (&children[i].leaf)
-        single_value_leaf_unique_ptr{std::move(node->children[i].leaf)};
+    new (&children[i]) node_ptr{std::move(node->children[i])};
   }
   const auto key_byte =
       static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
   assert(child_indexes[key_byte] == empty_child);
   child_indexes[key_byte] = i;
-  new (&children[i].leaf) single_value_leaf_unique_ptr{std::move(child)};
+  new (&children[i]) node_ptr{std::move(child)};
 }
 
 node_ptr *internal_node_48::find_child(std::byte key_byte) noexcept {
@@ -746,12 +745,11 @@ class internal_node_256 final
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I256);
-    Expects(!is_full());
+    assert(!is_full());
     const auto key_byte =
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
     assert(children[key_byte] == nullptr);
-    new (&children[key_byte].leaf)
-        single_value_leaf_unique_ptr{std::move(child)};
+    new (&children[key_byte]) single_value_leaf_unique_ptr{std::move(child)};
     ++children_count;
   }
 
@@ -774,8 +772,8 @@ internal_node_256::internal_node_256(std::unique_ptr<internal_node_48> &&node,
   Expects(node->is_full());
   for (unsigned i = 0; i < 256; i++) {
     if (node->child_indexes[i] != internal_node_48::empty_child) {
-      new (&children[i].leaf) single_value_leaf_unique_ptr{
-          std::move(node->children[node->child_indexes[i]].leaf)};
+      new (&children[i])
+          node_ptr{std::move(node->children[node->child_indexes[i]])};
     } else {
       new (&children[i]) node_ptr{nullptr};
     }
@@ -783,7 +781,7 @@ internal_node_256::internal_node_256(std::unique_ptr<internal_node_48> &&node,
   const uint8_t key_byte =
       static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
   assert(children[key_byte] == nullptr);
-  new (&children[key_byte].leaf) single_value_leaf_unique_ptr{std::move(child)};
+  new (&children[key_byte]) single_value_leaf_unique_ptr{std::move(child)};
 }
 
 node_ptr *internal_node_256::find_child(std::byte key_byte) noexcept {

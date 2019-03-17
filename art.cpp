@@ -733,13 +733,13 @@ class internal_node_256 final
     : public internal_node_template<256, internal_node_256> {
  public:
   [[nodiscard]] static std::unique_ptr<internal_node_256> create(
-      std::unique_ptr<internal_node> &&node,
+      std::unique_ptr<internal_node_48> &&node,
       single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
     return std::make_unique<internal_node_256>(std::move(node),
                                                std::move(child), depth);
   }
 
-  internal_node_256(std::unique_ptr<internal_node> &&node,
+  internal_node_256(std::unique_ptr<internal_node_48> &&node,
                     single_value_leaf_unique_ptr &&child,
                     db::tree_depth_type depth) noexcept;
 
@@ -766,19 +766,16 @@ class internal_node_256 final
   std::array<node_ptr, capacity> children;
 };
 
-internal_node_256::internal_node_256(std::unique_ptr<internal_node> &&node,
+internal_node_256::internal_node_256(std::unique_ptr<internal_node_48> &&node,
                                      single_value_leaf_unique_ptr &&child,
                                      db::tree_depth_type depth) noexcept
     : internal_node_template<256, internal_node_256>{
           node_type::I256, internal_node_48::capacity + 1, node->key_prefix} {
-  Expects(node->header.type() == node_type::I48);
   Expects(node->is_full());
-  const auto node48{std::unique_ptr<internal_node_48>{
-      static_cast<internal_node_48 *>(node.release())}};
   for (unsigned i = 0; i < 256; i++) {
-    if (node48->child_indexes[i] != internal_node_48::empty_child) {
+    if (node->child_indexes[i] != internal_node_48::empty_child) {
       new (&children[i].leaf) single_value_leaf_unique_ptr{
-          std::move(node48->children[node48->child_indexes[i]].leaf)};
+          std::move(node->children[node->child_indexes[i]].leaf)};
     } else {
       new (&children[i]) node_ptr{nullptr};
     }
@@ -999,8 +996,10 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
       node->internal = std::move(larger_node);
     } else {
       assert(node->type() == node_type::I48);
-      auto larger_node = internal_node_256::create(std::move(node->internal),
-                                                   std::move(leaf), depth);
+      auto larger_node = internal_node_256::create(
+          std::unique_ptr<internal_node_48>(
+              static_cast<internal_node_48 *>(node->internal.release())),
+          std::move(leaf), depth);
       node->internal = std::move(larger_node);
     }
   } else {

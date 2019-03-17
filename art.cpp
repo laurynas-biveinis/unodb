@@ -514,6 +514,7 @@ void internal_node_4::add_two_to_empty(
     std::byte key1, node_ptr &&child1, std::byte key2,
     single_value_leaf_unique_ptr &&child2) noexcept {
   Expects(key1 != key2);
+  assert(children_count == 2);
   const size_t key1_i = key1 < key2 ? 0 : 1;
   const size_t key2_i = key1_i == 0 ? 1 : 0;
   keys[key1_i] = key1;

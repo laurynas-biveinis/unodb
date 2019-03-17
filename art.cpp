@@ -371,12 +371,10 @@ class internal_node {
   static void insert_into_sorted_key_children_arrays(
       Keys_type &keys, Children_type &children, uint8_t &children_count,
       std::byte key_byte, single_value_leaf_unique_ptr &&child) {
-    // TODO(laurynas): for Node4, sorting networks would be more efficient
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(keys, children_count, key_byte);
     if (insert_pos_index != children_count) {
       assert(keys[insert_pos_index] != key_byte);
-      // TODO(laurynas): does it compile to memcpy?
       std::copy_backward(keys.cbegin() + insert_pos_index,
                          keys.cbegin() + children_count,
                          keys.begin() + children_count + 1);
@@ -396,7 +394,6 @@ class internal_node {
 
   uint8_t children_count;
 
-  // TODO(laurynas): a better way?
   friend class internal_node_4;
   friend class internal_node_16;
   friend class internal_node_48;
@@ -473,7 +470,6 @@ class internal_node_4 final
 #endif
 
  private:
-  // TODO(laurynas): a better way?
   friend class internal_node_16;
 
   void add_two_to_empty(std::byte key1, node_ptr &&child1, std::byte key2,
@@ -579,7 +575,6 @@ class internal_node_16 final
   } keys;
   std::array<node_ptr, capacity> children;
 
-  // TODO(laurynas): better way?
   friend class internal_node_48;
 };
 
@@ -671,7 +666,6 @@ class internal_node_48 final
 
   static constexpr uint8_t empty_child = 0xFF;
 
-  // TODO(laurynas): a better way?
   friend class internal_node_256;
 };
 

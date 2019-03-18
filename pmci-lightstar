@@ -66,5 +66,9 @@ cmake ../unodb -DCMAKE_BUILD_TYPE=Debug
 /usr/local/opt/llvm/bin/scan-build make -j4
 rm -rf *
 
+pushd ../unodb
+../FlintPlusPlus/flint/flint++
+popd
+
 popd
 rm -rf $WORKDIR

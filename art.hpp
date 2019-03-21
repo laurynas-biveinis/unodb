@@ -104,9 +104,12 @@ union node_ptr {
   ~node_ptr() {}
 
   node_ptr &operator=(node_ptr &&other) noexcept {
+    // TODO(laurynas): does this actually destruct leaf/internal?
     header = std::move(other.header);
     return *this;
   }
+
+  node_ptr &operator=(std::nullptr_t) noexcept;
 
   auto operator==(std::nullptr_t) const noexcept { return header == nullptr; }
   auto operator!=(std::nullptr_t) const noexcept { return header != nullptr; }
@@ -123,6 +126,8 @@ class db final {
   [[nodiscard]] get_result get(key_type k) const noexcept;
 
   [[nodiscard]] bool insert(key_type k, value_view v);
+
+  [[nodiscard]] bool remove(key_type k);
 
 #ifndef NDEBUG
   void dump(std::ostream &os) const;

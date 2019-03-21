@@ -63,6 +63,18 @@ struct node_header final {
 
 static_assert(std::is_standard_layout<unodb::node_header>::value);
 
+node_ptr &node_ptr::operator=(std::nullptr_t) noexcept {
+  // TODO(laurynas): does this actually destruct leaf/internal?
+  if (header == nullptr) return *this;
+  if (type() == node_type::LEAF) {
+    leaf = nullptr;
+  } else {
+    assert(type() != node_type::LEAF);
+    internal = nullptr;
+  }
+  return *this;
+}
+
 node_type node_ptr::type() const noexcept { return header->type(); }
 
 }  // namespace unodb
@@ -996,6 +1008,20 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
     node->internal->add(std::move(leaf), depth);
   }
   return true;
+}
+
+bool db::remove(key_type k) {
+  const auto bin_comparable_key = art_key{k};
+  if (BOOST_UNLIKELY(root.header == nullptr)) return false;
+  if (root.type() == node_type::LEAF) {
+    if (single_value_leaf::matches(root.leaf.get(), bin_comparable_key)) {
+      root = nullptr;
+      return true;
+    }
+    return false;
+  }
+  assert(0);
+  throw std::logic_error("Not implemented");
 }
 
 #ifndef NDEBUG

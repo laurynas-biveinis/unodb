@@ -59,6 +59,10 @@ class tree_verifier final {
 
   void insert_key_range(unodb::key_type start_key, size_t count);
 
+  void remove(unodb::key_type k);
+
+  void attempt_remove_missing(unodb::key_type k);
+
   void check_present_values() const noexcept;
 
   void check_absent_keys(
@@ -80,6 +84,18 @@ void tree_verifier::insert_key_range(unodb::key_type start_key, size_t count) {
   for (unodb::key_type key = start_key; key < start_key + count; key++) {
     insert(key, test_values[key % test_values.size()]);
   }
+}
+
+void tree_verifier::remove(unodb::key_type k) {
+  const auto remove_result = values.erase(k);
+  ASSERT_EQ(remove_result, 1);
+  ASSERT_TRUE(test_db.remove(k));
+}
+
+void tree_verifier::attempt_remove_missing(unodb::key_type k) {
+  const auto remove_result = values.erase(k);
+  ASSERT_EQ(remove_result, 0);
+  ASSERT_FALSE(test_db.remove(k));
 }
 
 void tree_verifier::check_present_values() const noexcept {
@@ -300,6 +316,26 @@ TEST(ART, node256_key_prefix_split) {
 
   verifier.check_present_values();
   verifier.check_absent_keys({19, 69, 0x100019, 0x100100, 0x110000});
+}
+
+TEST(ART, try_delete_from_empty) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.attempt_remove_missing(1);
+
+  verifier.check_absent_keys({1});
+}
+
+TEST(ART, single_node_tree_delete) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert(1, test_values[0]);
+  verifier.remove(1);
+  verifier.check_absent_keys({1});
+  verifier.attempt_remove_missing(1);
+  verifier.check_absent_keys({1});
 }
 
 }  // namespace

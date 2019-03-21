@@ -105,6 +105,9 @@ else()
   message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
   string(CONCAT CLANG_TIDY_DISABLED
     "-fuchsia-default-arguments,"
+    "-cppcoreguidelines-avoid-magic-numbers,"
+    "-cppcoreguidelines-macro-usage," # Until it respects __LINE__ in macro definition
+    "-cppcoreguidelines-non-private-member-variables-in-classes,"
     "-cppcoreguidelines-pro-bounds-array-to-pointer-decay,"
     "-cppcoreguidelines-pro-bounds-constant-array-index,"
     # Because leaf nodes are std::byte arrays
@@ -121,9 +124,11 @@ else()
     "-hicpp-no-array-decay,"
     "-hicpp-use-equals-default,"
     "-llvm-include-order,"
+    "-misc-non-private-member-variables-in-classes,"
     "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang
     "-readability-braces-around-statements,"
-    "-readability-else-after-return") # Until clang-tidy learns about constexpr if
+    "-readability-else-after-return," # Until clang-tidy learns about constexpr if
+    "-readability-magic-numbers")
   set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}" "-checks=*,${CLANG_TIDY_DISABLED}")
   string(CONCAT CLANG_TIDY_DISABLED_FOR_TESTS
     "${CLANG_TIDY_DISABLED},"

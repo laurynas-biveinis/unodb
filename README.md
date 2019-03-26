@@ -11,7 +11,10 @@ Trie. The licence is AGPLv3.
 *   CMake, at least 3.12
 *   Guidelines Support Library for gsl::span, imported as a git
     submodule.
-*   Boost.Container library
+*   Boost.Container library. Version 1.69 gives UBSan errors
+    (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80963,
+    https://bugs.llvm.org/show_bug.cgi?id=39191). Currently it is
+    being tested with 1.60.
 *   clang-format, at least 8.0
 *   Google Test for tests, imported as a git submodule.
 *   (optional) clang-tidy

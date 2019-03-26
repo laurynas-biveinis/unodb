@@ -136,11 +136,13 @@ else()
     "-cert-err58-cpp,"
     "-cppcoreguidelines-avoid-goto,"
     "-cppcoreguidelines-owning-memory,"
+    "-cppcoreguidelines-pro-type-vararg," # GTest uses varargs
     "-cppcoreguidelines-special-member-functions,"
     "-fuchsia-statically-constructed-objects,"
     "-google-runtime-references,"
     "-hicpp-avoid-goto,"
-    "-hicpp-special-member-functions")
+    "-hicpp-special-member-functions,"
+    "-hicpp-vararg") # GTest uses varargs
   set(DO_CLANG_TIDY_TEST "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
     "-checks=*,${CLANG_TIDY_DISABLED_FOR_TESTS}")
 endif()

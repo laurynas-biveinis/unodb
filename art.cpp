@@ -1013,6 +1013,7 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
 bool db::remove(key_type k) {
   const auto bin_comparable_key = art_key{k};
   if (BOOST_UNLIKELY(root.header == nullptr)) return false;
+  tree_depth_type depth = 0;
   if (root.type() == node_type::LEAF) {
     if (single_value_leaf::matches(root.leaf.get(), bin_comparable_key)) {
       root = nullptr;
@@ -1020,6 +1021,9 @@ bool db::remove(key_type k) {
     }
     return false;
   }
+  assert(root.type() != node_type::LEAF);
+  auto child = root.internal->find_child(bin_comparable_key[depth]);
+  if (child == nullptr) return false;
   assert(0);
   throw std::logic_error("Not implemented");
 }

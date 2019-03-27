@@ -338,4 +338,14 @@ TEST(ART, single_node_tree_delete) {
   verifier.check_absent_keys({1});
 }
 
+TEST(ART, node4_attempt_delete_absent) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 4);
+  verifier.attempt_remove_missing(0);
+  verifier.attempt_remove_missing(6);
+  verifier.check_absent_keys({0, 6});
+}
+
 }  // namespace

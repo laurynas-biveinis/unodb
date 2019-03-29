@@ -334,6 +334,8 @@ class internal_node {
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept;
 
+  void remove(uint8_t child_index) noexcept;
+
   [[nodiscard]] __attribute__((pure)) find_result_type
   find_child(std::byte key_byte) noexcept;
 
@@ -477,6 +479,18 @@ class internal_node_4 final
     const auto key_byte = single_value_leaf::key(child.get())[depth];
     insert_into_sorted_key_children_arrays(keys, children, children_count,
                                            key_byte, std::move(child));
+  }
+
+  void remove(uint8_t child_index) noexcept {
+    Expects(child_index < children_count);
+    assert(children_count > 2);
+    std::copy(keys.cbegin() + child_index + 1, keys.cbegin() + children_count,
+              keys.begin() + child_index);
+    std::uninitialized_move(children.begin() + child_index + 1,
+                            children.begin() + children_count,
+                            children.begin() + child_index);
+    --children_count;
+    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
   }
 
   [[nodiscard]] __attribute__((pure)) find_result_type
@@ -860,6 +874,21 @@ inline void internal_node::add(single_value_leaf_unique_ptr &&child,
   }
 }
 
+inline void internal_node::remove(uint8_t child_index) noexcept {
+  switch (header.type()) {
+    case node_type::I4:
+      static_cast<internal_node_4 *>(this)->remove(child_index);
+      break;
+    case node_type::I16:
+    case node_type::I48:
+    case node_type::I256:
+      assert(0);
+      throw std::logic_error("Not implemented yet");
+    case node_type::LEAF:
+      cannot_happen();
+  }
+}
+
 inline internal_node::find_result_type
 internal_node::find_child(std::byte key_byte) noexcept {
   switch (header.type()) {
@@ -1036,8 +1065,21 @@ bool db::remove(key_type k) {
     return false;
   }
   assert(root.type() != node_type::LEAF);
-  auto child = root.internal->find_child(bin_comparable_key[depth]);
-  if (child.second == nullptr) return false;
+  const auto shared_prefix_len =
+      root.internal->key_prefix.get_shared_length(bin_comparable_key, depth);
+  if (shared_prefix_len < root.internal->key_prefix.length())
+    return false;
+  depth += root.internal->key_prefix.length();
+  auto[child_i, child_ptr] =
+      root.internal->find_child(bin_comparable_key[depth]);
+  if (child_ptr == nullptr) return false;
+  if (child_ptr->type() == node_type::LEAF) {
+    if (single_value_leaf::matches(child_ptr->leaf.get(), bin_comparable_key)) {
+      root.internal->remove(child_i);
+      return true;
+    }
+    assert(0);
+  }
   assert(0);
   throw std::logic_error("Not implemented");
 }

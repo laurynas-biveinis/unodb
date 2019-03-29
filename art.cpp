@@ -587,7 +587,7 @@ class internal_node_16 final
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I16);
-    Expects(!is_full());
+    assert(!is_full());
     const auto key_byte = single_value_leaf::key(child.get())[depth];
     insert_into_sorted_key_children_arrays(
         keys.byte_array, children, children_count, key_byte, std::move(child));

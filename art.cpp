@@ -1061,6 +1061,7 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
   auto child = node->internal->find_child(k[depth]).second;
   if (child != nullptr)
     return insert_leaf(k, child, std::move(leaf), depth + 1);
+  // TODO(laurynas): invert if
   if (BOOST_UNLIKELY(node->internal->is_full())) {
     if (node->type() == node_type::I4) {
       auto larger_node = internal_node_16::create(

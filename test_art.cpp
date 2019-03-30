@@ -379,4 +379,14 @@ TEST(ART, node4_full_delete_end_n_middle) {
   verifier.check_absent_keys({2, 4, 0, 5});
 }
 
+TEST(ART, node4_shrink_to_single_leaf) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 2);
+  verifier.remove(1);
+  verifier.check_present_values();
+  verifier.check_absent_keys({1});
+}
+
 }  // namespace

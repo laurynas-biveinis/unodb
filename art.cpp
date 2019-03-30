@@ -486,7 +486,7 @@ class internal_node_4 final
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I4);
-    assert(!is_full());
+    Expects(!is_full());
     const auto key_byte = single_value_leaf::key(child.get())[depth];
     insert_into_sorted_key_children_arrays(keys, children, children_count,
                                            key_byte, std::move(child));
@@ -494,7 +494,8 @@ class internal_node_4 final
 
   void remove(uint8_t child_index) noexcept {
     Expects(child_index < children_count);
-    assert(children_count > 2);
+    Expects(!is_min_size());
+    // TODO(laurynas): unique_ptr does not get destructed, does it
     std::copy(keys.cbegin() + child_index + 1, keys.cbegin() + children_count,
               keys.begin() + child_index);
     std::uninitialized_move(children.begin() + child_index + 1,
@@ -606,7 +607,7 @@ class internal_node_16 final
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I16);
-    assert(!is_full());
+    Expects(!is_full());
     const auto key_byte = single_value_leaf::key(child.get())[depth];
     insert_into_sorted_key_children_arrays(
         keys.byte_array, children, children_count, key_byte, std::move(child));
@@ -698,7 +699,7 @@ class internal_node_48 final
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I48);
-    assert(!is_full());
+    Expects(!is_full());
     const auto key_byte =
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
     assert(child_indexes[key_byte] == empty_child);
@@ -793,7 +794,7 @@ class internal_node_256 final
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I256);
-    assert(!is_full());
+    Expects(!is_full());
     const auto key_byte =
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
     assert(children[key_byte] == nullptr);

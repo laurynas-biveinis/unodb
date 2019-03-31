@@ -281,6 +281,16 @@ class key_prefix_type final {
     length_ = gsl::narrow_cast<size_type>(length_ - cut_len);
   }
 
+  void prepend(const key_prefix_type &prefix1, std::byte prefix2) noexcept {
+    Expects(length() + prefix1.length() < capacity);
+    std::copy_backward(data_.cbegin(), data_.cbegin() + length(),
+                       data_.begin() + length() + prefix1.length() + 1);
+    std::copy(prefix1.data_.cbegin(), prefix1.data_.cbegin() + prefix1.length(),
+              data_.begin());
+    data_[prefix1.length()] = prefix2;
+    length_ = gsl::narrow_cast<size_type>(length_ + prefix1.length() + 1);
+  }
+
   [[nodiscard]] size_type length() const noexcept { return length_; }
 
   [[nodiscard]] const auto &data() const noexcept { return data_; }
@@ -505,11 +515,15 @@ class internal_node_4 final
     assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
   }
 
-  node_ptr&& leave_last_leaf(uint8_t child_to_delete) noexcept {
+  node_ptr&& leave_last_child(uint8_t child_to_delete) noexcept {
     Expects(is_min_size());
     Expects(child_to_delete == 0 || child_to_delete == 1);
     const uint8_t child_to_leave = (child_to_delete == 0) ? 1 : 0;
     children[child_to_delete] = nullptr;
+    if (children[child_to_leave].type() != node_type::LEAF) {
+      children[child_to_leave].internal
+          ->key_prefix.prepend(key_prefix, keys[child_to_leave]);
+    }
     return std::move(children[child_to_leave]);
   }
 
@@ -1122,7 +1136,7 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
           *node = std::move(
               std::unique_ptr<internal_node_4>(
                   static_cast<internal_node_4 *>(node->internal.release()))
-              ->leave_last_leaf(child_i));
+              ->leave_last_child(child_i));
         } else {
           assert(0);
           throw std::logic_error("Not implemented");

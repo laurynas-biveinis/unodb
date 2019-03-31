@@ -402,4 +402,17 @@ TEST(ART, node4_delete_lower_node) {
   verifier.check_absent_keys({0, 2, 0xFF01});
 }
 
+TEST(ART, node4_delete_key_prefix_merge) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(0x8001, 2);
+  // Insert a value that does not share full prefix with the current Node4
+  verifier.insert(0x90AA, test_values[3]);
+  // And delete it
+  verifier.remove(0x90AA);
+  verifier.check_present_values();
+  verifier.check_absent_keys({0x90AA, 0x8003});
+}
+
 }  // namespace

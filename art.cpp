@@ -1093,7 +1093,6 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
 bool db::remove(key_type k) {
   const auto bin_comparable_key = art_key{k};
   if (BOOST_UNLIKELY(root.header == nullptr)) return false;
-  tree_depth_type depth = 0;
   if (root.type() == node_type::LEAF) {
     if (single_value_leaf::matches(root.leaf.get(), bin_comparable_key)) {
       root = nullptr;
@@ -1101,24 +1100,28 @@ bool db::remove(key_type k) {
     }
     return false;
   }
-  assert(root.type() != node_type::LEAF);
+  return remove_from_subtree(bin_comparable_key, 0, &root);
+}
+
+bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
+                             node_ptr *node) {
+  assert(node->type() != node_type::LEAF);
   const auto shared_prefix_len =
-      root.internal->key_prefix.get_shared_length(bin_comparable_key, depth);
-  if (shared_prefix_len < root.internal->key_prefix.length())
+      node->internal->key_prefix.get_shared_length(k, depth);
+  if (shared_prefix_len < node->internal->key_prefix.length())
     return false;
-  depth += root.internal->key_prefix.length();
-  auto[child_i, child_ptr] =
-      root.internal->find_child(bin_comparable_key[depth]);
+  depth += node->internal->key_prefix.length();
+  auto[child_i, child_ptr] = node->internal->find_child(k[depth]);
   if (child_ptr == nullptr) return false;
   if (child_ptr->type() == node_type::LEAF) {
-    if (single_value_leaf::matches(child_ptr->leaf.get(), bin_comparable_key)) {
-      if (BOOST_LIKELY(!root.internal->is_min_size())) {
-        root.internal->remove(child_i);
+    if (single_value_leaf::matches(child_ptr->leaf.get(), k)) {
+      if (BOOST_LIKELY(!node->internal->is_min_size())) {
+        node->internal->remove(child_i);
       } else {
-        if (root.type() == node_type::I4) {
-          root = std::move(
+        if (node->type() == node_type::I4) {
+          *node = std::move(
               std::unique_ptr<internal_node_4>(
-                  static_cast<internal_node_4 *>(root.internal.release()))
+                  static_cast<internal_node_4 *>(node->internal.release()))
               ->leave_last_leaf(child_i));
         } else {
           assert(0);
@@ -1129,8 +1132,7 @@ bool db::remove(key_type k) {
     }
     assert(0);
   }
-  assert(0);
-  throw std::logic_error("Not implemented");
+  return remove_from_subtree(k, depth + 1, child_ptr);
 }
 
 #ifndef NDEBUG

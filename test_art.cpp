@@ -389,4 +389,17 @@ TEST(ART, node4_shrink_to_single_leaf) {
   verifier.check_absent_keys({1});
 }
 
+TEST(ART, node4_delete_lower_node) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(0, 2);
+  // Insert a value that does not share full prefix with the current Node4
+  verifier.insert(0xFF00, test_values[3]);
+  // Make the lower Node4 shrink to a single value leaf
+  verifier.remove(0);
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 2, 0xFF01});
+}
+
 }  // namespace

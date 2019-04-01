@@ -415,4 +415,17 @@ TEST(ART, node4_delete_key_prefix_merge) {
   verifier.check_absent_keys({0x90AA, 0x8003});
 }
 
+TEST(ART, node16_delete_beginning_middle_end) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 16);
+  verifier.remove(5);
+  verifier.remove(1);
+  verifier.remove(16);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 1, 5, 16, 17});
+}
+
 }  // namespace

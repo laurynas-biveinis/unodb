@@ -402,6 +402,7 @@ class internal_node {
   static void insert_into_sorted_key_children_arrays(
       Keys_type &keys, Children_type &children, uint8_t &children_count,
       std::byte key_byte, single_value_leaf_unique_ptr &&child) {
+    Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(keys, children_count, key_byte);
     if (insert_pos_index != children_count) {
@@ -417,7 +418,27 @@ class internal_node {
     new (&children[insert_pos_index])
         single_value_leaf_unique_ptr{std::move(child)};
     ++children_count;
-    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+  }
+
+  // TODO(laurynas): Foo_Bar here, FooBar at internal_node_template
+  template <typename Keys_type, typename Children_type>
+  static void remove_from_sorted_key_children_arrays(
+      Keys_type &keys, Children_type &children, uint8_t &children_count,
+      uint8_t child_to_remove) noexcept {
+    Expects(child_to_remove < children_count);
+    Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+
+    // TODO(laurynas): unique_ptr does not get destructed, does it
+    std::copy(keys.cbegin() + child_to_remove + 1,
+              keys.cbegin() + children_count,
+              keys.begin() + child_to_remove);
+    std::uninitialized_move(children.begin() + child_to_remove + 1,
+                            children.begin() + children_count,
+                            children.begin() + child_to_remove);
+    --children_count;
+
+    Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
   }
 
   const node_header header;
@@ -503,16 +524,9 @@ class internal_node_4 final
   }
 
   void remove(uint8_t child_index) noexcept {
-    Expects(child_index < children_count);
     Expects(!is_min_size());
-    // TODO(laurynas): unique_ptr does not get destructed, does it
-    std::copy(keys.cbegin() + child_index + 1, keys.cbegin() + children_count,
-              keys.begin() + child_index);
-    std::uninitialized_move(children.begin() + child_index + 1,
-                            children.begin() + children_count,
-                            children.begin() + child_index);
-    --children_count;
-    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    remove_from_sorted_key_children_arrays(keys, children, children_count,
+                                           child_index);
   }
 
   node_ptr&& leave_last_child(uint8_t child_to_delete) noexcept {
@@ -625,6 +639,12 @@ class internal_node_16 final
     const auto key_byte = single_value_leaf::key(child.get())[depth];
     insert_into_sorted_key_children_arrays(
         keys.byte_array, children, children_count, key_byte, std::move(child));
+  }
+
+  void remove(uint8_t child_index) noexcept {
+    Expects(!is_min_size());
+    remove_from_sorted_key_children_arrays(keys.byte_array, children,
+                                           children_count, child_index);
   }
 
   [[nodiscard]] __attribute__((pure)) find_result_type
@@ -930,6 +950,8 @@ inline void internal_node::remove(uint8_t child_index) noexcept {
       static_cast<internal_node_4 *>(this)->remove(child_index);
       break;
     case node_type::I16:
+      static_cast<internal_node_16 *>(this)->remove(child_index);
+      break;
     case node_type::I48:
     case node_type::I256:
       assert(0);

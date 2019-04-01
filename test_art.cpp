@@ -428,4 +428,37 @@ TEST(ART, node16_delete_beginning_middle_end) {
   verifier.check_absent_keys({0, 1, 5, 16, 17});
 }
 
+TEST(ART, node16_shrink_to_node4_delete_middle) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 5);
+  verifier.remove(2);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 2, 6});
+}
+
+TEST(ART, node16_shrink_to_node4_delete_beginning) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 5);
+  verifier.remove(1);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 1, 6});
+}
+
+TEST(ART, node16_shrink_to_node4_delete_end) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 5);
+  verifier.remove(5);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 5, 6});
+}
+
 }  // namespace

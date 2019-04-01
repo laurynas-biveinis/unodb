@@ -485,6 +485,8 @@ class internal_node_template : public internal_node {
   static_assert(min_size <= capacity);
 };
 
+class internal_node_16;
+
 class internal_node_4 final
     : public internal_node_template<2, 4, internal_node_4> {
  public:
@@ -506,6 +508,13 @@ class internal_node_4 final
                                              std::move(child1));
   }
 
+  [[nodiscard]] static std::unique_ptr<internal_node_4> create(
+      std::unique_ptr<internal_node_16> &&source_node,
+      uint8_t child_to_remove) {
+    return std::make_unique<internal_node_4>(std::move(source_node),
+                                              child_to_remove);
+  }
+
   internal_node_4(art_key_type k1, art_key_type k2, db::tree_depth_type depth,
                   node_ptr &&child1,
                   single_value_leaf_unique_ptr &&child2) noexcept;
@@ -513,6 +522,9 @@ class internal_node_4 final
   internal_node_4(node_ptr &&source_node, unsigned len,
                   db::tree_depth_type depth,
                   single_value_leaf_unique_ptr &&child1) noexcept;
+
+  internal_node_4(std::unique_ptr<internal_node_16> &&source_node,
+                  uint8_t child_to_remove) noexcept;
 
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
@@ -661,8 +673,31 @@ class internal_node_16 final
   } keys;
   std::array<node_ptr, capacity> children;
 
+  friend class internal_node_4;
   friend class internal_node_48;
 };
+
+internal_node_4::internal_node_4(
+    std::unique_ptr<internal_node_16> &&source_node, uint8_t child_to_remove)
+    noexcept : internal_node_template<2, 4, internal_node_4>{
+  node_type::I4, 4, source_node->key_prefix} {
+  Expects(source_node->is_min_size());
+  std::copy(source_node->keys.byte_array.cbegin(),
+            source_node->keys.byte_array.cbegin() + child_to_remove,
+            keys.begin());
+  std::copy(source_node->keys.byte_array.cbegin() + child_to_remove + 1,
+            source_node->keys.byte_array.cbegin() + source_node->children_count,
+            keys.begin() + child_to_remove);
+  std::uninitialized_move(source_node->children.begin(),
+                          source_node->children.begin() + child_to_remove,
+                          children.begin());
+  std::uninitialized_move(source_node->children.begin() + child_to_remove + 1,
+                          source_node->children.begin() +
+                          source_node->children_count,
+                          children.begin() + child_to_remove);
+  assert(is_full());
+  assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+}
 
 internal_node_16::internal_node_16(std::unique_ptr<internal_node_4> &&node,
                                    single_value_leaf_unique_ptr &&child,
@@ -1155,10 +1190,17 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
         node->internal->remove(child_i);
       } else {
         if (node->type() == node_type::I4) {
+          // TODO(laurynas) as below
           *node = std::move(
               std::unique_ptr<internal_node_4>(
                   static_cast<internal_node_4 *>(node->internal.release()))
               ->leave_last_child(child_i));
+        } else if (node->type() == node_type::I16) {
+          auto smaller_node = internal_node_4::create(
+              std::unique_ptr<internal_node_16>(
+                  static_cast<internal_node_16 *>(node->internal.release())),
+              child_i);
+          node->internal = std::move(smaller_node);
         } else {
           assert(0);
           throw std::logic_error("Not implemented");

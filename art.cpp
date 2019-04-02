@@ -630,6 +630,8 @@ internal_node::find_result_type internal_node_4::find_child(std::byte key_byte)
   return std::make_pair(0xFF, nullptr);
 }
 
+class internal_node_48;
+
 class internal_node_16 final
     : public internal_node_template<5, 16, internal_node_16> {
  public:
@@ -640,9 +642,19 @@ class internal_node_16 final
                                               depth);
   }
 
+  [[nodiscard]] static std::unique_ptr<internal_node_16> create(
+      std::unique_ptr<internal_node_48> &&source_node,
+      uint8_t child_to_remove) {
+    return std::make_unique<internal_node_16>(std::move(source_node),
+                                              child_to_remove);
+  }
+
   internal_node_16(std::unique_ptr<internal_node_4> &&node,
                    single_value_leaf_unique_ptr &&child,
                    db::tree_depth_type depth) noexcept;
+
+  internal_node_16(std::unique_ptr<internal_node_48> &&source_node,
+                   uint8_t child_to_remove) noexcept;
 
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
@@ -799,8 +811,30 @@ class internal_node_48 final
 
   static constexpr uint8_t empty_child = 0xFF;
 
+  friend class internal_node_16;
   friend class internal_node_256;
 };
+
+internal_node_16::internal_node_16(
+    std::unique_ptr<internal_node_48> &&source_node, uint8_t child_to_remove)
+    noexcept : internal_node_template<5, 16, internal_node_16>{
+  node_type::I16, 16, source_node->key_prefix} {
+  Expects(source_node->is_min_size());
+  uint8_t next_child = 0;
+  for (unsigned i = 0; i < 256; i++) {
+    const auto source_child_i = source_node->child_indexes[i];
+    if (i == child_to_remove) continue;
+    if (source_child_i != internal_node_48::empty_child) {
+      keys.byte_array[next_child] = gsl::narrow_cast<std::byte>(i);
+      children[next_child] = std::move(source_node->children[source_child_i]);
+      ++next_child;
+      if (next_child == children_count) break;
+    }
+  }
+  assert(std::is_sorted(keys.byte_array.cbegin(),
+                        keys.byte_array.cbegin() + children_count));
+}
+
 
 internal_node_48::internal_node_48(std::unique_ptr<internal_node_16> &&node,
                                    single_value_leaf_unique_ptr &&child,
@@ -1204,6 +1238,12 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
           auto smaller_node = internal_node_4::create(
               std::unique_ptr<internal_node_16>(
                   static_cast<internal_node_16 *>(node->internal.release())),
+              child_i);
+          node->internal = std::move(smaller_node);
+        } else if (node->type() == node_type::I48) {
+          auto smaller_node = internal_node_16::create(
+              std::unique_ptr<internal_node_48>(
+                  static_cast<internal_node_48 *>(node->internal.release())),
               child_i);
           node->internal = std::move(smaller_node);
         } else {

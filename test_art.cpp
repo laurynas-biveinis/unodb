@@ -461,4 +461,19 @@ TEST(ART, node16_shrink_to_node4_delete_end) {
   verifier.check_absent_keys({0, 5, 6});
 }
 
+TEST(ART, node16_key_prefix_merge) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(10, 5);
+  // Insert a value that does share full prefix with the current Node16
+  verifier.insert(0x1020, test_values[0]);
+  // And delete it, so that upper level Node4 key prefix gets merged with
+  // Node16 one
+  verifier.remove(0x1020);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({9, 16, 0x1020});
+}
+
 }  // namespace

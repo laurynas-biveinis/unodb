@@ -829,17 +829,12 @@ internal_node::find_result_type internal_node_48::find_child(std::byte key_byte)
 
 void internal_node_48::dump(std::ostream &os) const {
   os << ", key bytes & child indexes\n";
-  for (uint8_t i = 0; i < children_count; i++)
+  for (unsigned i = 0; i < 256; i++)
     if (child_indexes[i] != empty_child) {
       os << " ";
       dump_byte(os, gsl::narrow_cast<std::byte>(i));
       os << ", child index = " << static_cast<unsigned>(child_indexes[i])
-         << '\n';
-    }
-  os << "children:\n";
-  for (uint8_t i = 0; i < children_count; i++)
-    if (child_indexes[i] != 0) {
-      os << " " << i << ": ";
+         << ": ";
       dump_node(os, children[child_indexes[i]]);
     }
 }

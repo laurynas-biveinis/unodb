@@ -778,6 +778,14 @@ class internal_node_48 final
     ++children_count;
   }
 
+  void remove(uint8_t child_index) noexcept {
+    assert(reinterpret_cast<node_header *>(this)->type() == node_type::I48);
+    Expects(!is_min_size());
+    children[child_indexes[child_index]].~node_ptr();
+    child_indexes[child_index] = empty_child;
+    --children_count;
+  }
+
   [[nodiscard]] __attribute__((pure)) find_result_type
   find_child(std::byte key_byte) noexcept;
 
@@ -983,6 +991,8 @@ inline void internal_node::remove(uint8_t child_index) noexcept {
       static_cast<internal_node_16 *>(this)->remove(child_index);
       break;
     case node_type::I48:
+      static_cast<internal_node_48 *>(this)->remove(child_index);
+      break;
     case node_type::I256:
       assert(0);
       throw std::logic_error("Not implemented yet");

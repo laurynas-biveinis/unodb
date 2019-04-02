@@ -476,4 +476,17 @@ TEST(ART, node16_key_prefix_merge) {
   verifier.check_absent_keys({9, 16, 0x1020});
 }
 
+TEST(ART, node48_delete_beginning_middle_end) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 48);
+  verifier.remove(30);
+  verifier.remove(48);
+  verifier.remove(1);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 1, 30, 48, 49});
+}
+
 }  // namespace

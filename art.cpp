@@ -961,10 +961,11 @@ internal_node_256::find_child(std::byte key_byte) noexcept {
 
 void internal_node_256::dump(std::ostream &os) const {
   os << ", key bytes & children:\n";
-  for (size_t i = 0; i < children_count; i++) {
+  for (size_t i = 0; i < 256; i++) {
     if (children[i] != nullptr) {
-      os << " ";
+      os << ' ';
       dump_byte(os, gsl::narrow_cast<std::byte>(i));
+      os << ' ';
       dump_node(os, children[i]);
     }
   }

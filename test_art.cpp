@@ -537,4 +537,17 @@ TEST(ART, node48_key_prefix_merge) {
   verifier.check_absent_keys({9, 0x2010, 28});
 }
 
+TEST(ART, node256_delete_beginning_middle_end) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 256);
+  verifier.remove(180);
+  verifier.remove(1);
+  verifier.remove(256);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 1, 180, 256});
+}
+
 }  // namespace

@@ -1303,7 +1303,7 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
       }
       return true;
     }
-    assert(0);
+    return false;
   }
   return remove_from_subtree(k, depth + 1, child_ptr);
 }

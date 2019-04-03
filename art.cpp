@@ -823,7 +823,10 @@ internal_node_16::internal_node_16(
   uint8_t next_child = 0;
   for (unsigned i = 0; i < 256; i++) {
     const auto source_child_i = source_node->child_indexes[i];
-    if (i == child_to_remove) continue;
+    if (i == child_to_remove) {
+      assert(source_child_i != internal_node_48::empty_child);
+      continue;
+    }
     if (source_child_i != internal_node_48::empty_child) {
       keys.byte_array[next_child] = gsl::narrow_cast<std::byte>(i);
       children[next_child] = std::move(source_node->children[source_child_i]);

@@ -550,4 +550,52 @@ TEST(ART, node256_delete_beginning_middle_end) {
   verifier.check_absent_keys({0, 1, 180, 256});
 }
 
+TEST(ART, node256_shrink_to_node48_delete_middle) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 49);
+  verifier.remove(25);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 25, 50});
+}
+
+TEST(ART, node256_shrink_to_node48_delete_beginning) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 49);
+  verifier.remove(1);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 1, 50});
+}
+
+TEST(ART, node256_shrink_to_node48_delete_end) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(1, 49);
+  verifier.remove(49);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 49, 50});
+}
+
+TEST(ART, node256_key_prefix_merge) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(10, 49);
+  // Insert a value that does not share full prefix with the current Node256
+  verifier.insert(0x2010, test_values[1]);
+  // And delete it, so that upper level Node4 key prefix gets merged with
+  // Node256 one
+  verifier.remove(0x2010);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({9, 0x2010, 60});
+}
+
 }  // namespace

@@ -763,6 +763,8 @@ void internal_node_16::dump(std::ostream &os) const {
 
 #endif
 
+class internal_node_256;
+
 class internal_node_48 final
     : public internal_node_template<17, 48, internal_node_48> {
  public:
@@ -773,9 +775,19 @@ class internal_node_48 final
                                               depth);
   }
 
+  [[nodiscard]] static std::unique_ptr<internal_node_48> create(
+      std::unique_ptr<internal_node_256> &&source_node,
+      uint8_t child_to_remove) {
+    return std::make_unique<internal_node_48>(std::move(source_node),
+                                              child_to_remove);
+  }
+
   internal_node_48(std::unique_ptr<internal_node_16> &&node,
                    single_value_leaf_unique_ptr &&child,
                    db::tree_depth_type depth) noexcept;
+
+  internal_node_48(std::unique_ptr<internal_node_256> &&source_node,
+                   uint8_t child_to_remove) noexcept;
 
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
@@ -928,7 +940,29 @@ class internal_node_256 final
 
  private:
   std::array<node_ptr, capacity> children;
+
+  friend class internal_node_48;
 };
+
+internal_node_48::internal_node_48(
+    std::unique_ptr<internal_node_256> &&source_node, uint8_t child_to_remove)
+    noexcept : internal_node_template<17, 48, internal_node_48>{
+  node_type::I48, 48, source_node->key_prefix} {
+  Expects(source_node->is_min_size());
+  uint8_t next_child = 0;
+  for (unsigned i = 0; i < 256; i++) {
+    if (i == child_to_remove) {
+      assert(source_node->children[i] != nullptr);
+      continue;
+    }
+    if (source_node->children[i] != nullptr) {
+      child_indexes[i] = gsl::narrow_cast<uint8_t>(next_child);
+      new (&children[next_child]) node_ptr{std::move(source_node->children[i])};
+      ++next_child;
+      if (next_child == children_count) break;
+    }
+  }
+}
 
 internal_node_256::internal_node_256(std::unique_ptr<internal_node_48> &&node,
                                      single_value_leaf_unique_ptr &&child,
@@ -1259,8 +1293,12 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
               child_i);
           node->internal = std::move(smaller_node);
         } else {
-          assert(0);
-          throw std::logic_error("Not implemented");
+          assert(node->type() == node_type::I256);
+          auto smaller_node = internal_node_48::create(
+              std::unique_ptr<internal_node_256>(
+                  static_cast<internal_node_256 *>(node->internal.release())),
+              child_i);
+          node->internal = std::move(smaller_node);
         }
       }
       return true;

@@ -420,7 +420,6 @@ class internal_node {
     Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
   }
 
-  // TODO(laurynas): Foo_Bar here, FooBar at internal_node_template
   template <typename KeysType, typename ChildrenType>
   static void remove_from_sorted_key_children_arrays(
       KeysType &keys, ChildrenType &children, uint8_t &children_count,

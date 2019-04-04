@@ -1218,30 +1218,30 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node,
   auto child = node->internal->find_child(k[depth]).second;
   if (child != nullptr)
     return insert_to_subtree(k, child, std::move(leaf), depth + 1);
-  // TODO(laurynas): invert if
-  if (BOOST_UNLIKELY(node->internal->is_full())) {
-    if (node->type() == node_type::I4) {
-      auto larger_node = internal_node_16::create(
-          std::unique_ptr<internal_node_4>(
-              static_cast<internal_node_4 *>(node->internal.release())),
-          std::move(leaf), depth);
-      node->internal = std::move(larger_node);
-    } else if (node->type() == node_type::I16) {
-      auto larger_node = internal_node_48::create(
-          std::unique_ptr<internal_node_16>(
-              static_cast<internal_node_16 *>(node->internal.release())),
-          std::move(leaf), depth);
-      node->internal = std::move(larger_node);
-    } else {
-      assert(node->type() == node_type::I48);
-      auto larger_node = internal_node_256::create(
-          std::unique_ptr<internal_node_48>(
-              static_cast<internal_node_48 *>(node->internal.release())),
-          std::move(leaf), depth);
-      node->internal = std::move(larger_node);
-    }
-  } else {
+  if (BOOST_LIKELY(!node->internal->is_full())) {
     node->internal->add(std::move(leaf), depth);
+    return true;
+  }
+  assert(node->internal->is_full());
+  if (node->type() == node_type::I4) {
+    auto larger_node = internal_node_16::create(
+        std::unique_ptr<internal_node_4>(
+            static_cast<internal_node_4 *>(node->internal.release())),
+        std::move(leaf), depth);
+    node->internal = std::move(larger_node);
+  } else if (node->type() == node_type::I16) {
+    auto larger_node = internal_node_48::create(
+        std::unique_ptr<internal_node_16>(
+            static_cast<internal_node_16 *>(node->internal.release())),
+        std::move(leaf), depth);
+    node->internal = std::move(larger_node);
+  } else {
+    assert(node->type() == node_type::I48);
+    auto larger_node = internal_node_256::create(
+        std::unique_ptr<internal_node_48>(
+            static_cast<internal_node_48 *>(node->internal.release())),
+        std::move(leaf), depth);
+    node->internal = std::move(larger_node);
   }
   return true;
 }

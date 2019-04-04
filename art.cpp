@@ -345,8 +345,8 @@ class internal_node {
 
   void remove(uint8_t child_index) noexcept;
 
-  [[nodiscard]] __attribute__((pure)) find_result_type
-  find_child(std::byte key_byte) noexcept;
+  [[nodiscard]] __attribute__((pure)) find_result_type find_child(
+      std::byte key_byte) noexcept;
 
   [[nodiscard]] bool is_full() const noexcept;
 
@@ -430,8 +430,7 @@ class internal_node {
 
     // TODO(laurynas): unique_ptr does not get destructed, does it
     std::copy(keys.cbegin() + child_to_remove + 1,
-              keys.cbegin() + children_count,
-              keys.begin() + child_to_remove);
+              keys.cbegin() + children_count, keys.begin() + child_to_remove);
     std::uninitialized_move(children.begin() + child_to_remove + 1,
                             children.begin() + children_count,
                             children.begin() + child_to_remove);
@@ -511,7 +510,7 @@ class internal_node_4 final
       std::unique_ptr<internal_node_16> &&source_node,
       uint8_t child_to_remove) {
     return std::make_unique<internal_node_4>(std::move(source_node),
-                                              child_to_remove);
+                                             child_to_remove);
   }
 
   internal_node_4(art_key_type k1, art_key_type k2, db::tree_depth_type depth,
@@ -540,20 +539,20 @@ class internal_node_4 final
                                            child_index);
   }
 
-  node_ptr&& leave_last_child(uint8_t child_to_delete) noexcept {
+  node_ptr &&leave_last_child(uint8_t child_to_delete) noexcept {
     Expects(is_min_size());
     Expects(child_to_delete == 0 || child_to_delete == 1);
     const uint8_t child_to_leave = (child_to_delete == 0) ? 1 : 0;
     children[child_to_delete] = nullptr;
     if (children[child_to_leave].type() != node_type::LEAF) {
-      children[child_to_leave].internal
-          ->key_prefix.prepend(key_prefix, keys[child_to_leave]);
+      children[child_to_leave].internal->key_prefix.prepend(
+          key_prefix, keys[child_to_leave]);
     }
     return std::move(children[child_to_leave]);
   }
 
-  [[nodiscard]] __attribute__((pure)) find_result_type
-  find_child(std::byte key_byte) noexcept;
+  [[nodiscard]] __attribute__((pure)) find_result_type find_child(
+      std::byte key_byte) noexcept;
 
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
@@ -573,7 +572,7 @@ internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
                                  db::tree_depth_type depth, node_ptr &&child1,
                                  single_value_leaf_unique_ptr &&child2) noexcept
     : internal_node_template<2, 4, internal_node_4>{node_type::I4, 2, k1, k2,
-                                                 depth} {
+                                                    depth} {
   const auto next_level_depth = depth + key_prefix.length();
   add_two_to_empty(k1[next_level_depth], std::move(child1),
                    k2[next_level_depth], std::move(child2));
@@ -621,8 +620,8 @@ void internal_node_4::dump(std::ostream &os) const {
 
 #endif
 
-internal_node::find_result_type internal_node_4::find_child(std::byte key_byte)
-    noexcept {
+internal_node::find_result_type internal_node_4::find_child(
+    std::byte key_byte) noexcept {
   assert(reinterpret_cast<const node_header *>(this)->type() == node_type::I4);
   for (unsigned i = 0; i < children_count; i++)
     if (keys[i] == key_byte) return std::make_pair(i, &children[i]);
@@ -670,8 +669,8 @@ class internal_node_16 final
                                            children_count, child_index);
   }
 
-  [[nodiscard]] __attribute__((pure)) find_result_type
-  find_child(std::byte key_byte) noexcept;
+  [[nodiscard]] __attribute__((pure)) find_result_type find_child(
+      std::byte key_byte) noexcept;
 
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
@@ -689,9 +688,10 @@ class internal_node_16 final
 };
 
 internal_node_4::internal_node_4(
-    std::unique_ptr<internal_node_16> &&source_node, uint8_t child_to_remove)
-    noexcept : internal_node_template<2, 4, internal_node_4>{
-  node_type::I4, 4, source_node->key_prefix} {
+    std::unique_ptr<internal_node_16> &&source_node,
+    uint8_t child_to_remove) noexcept
+    : internal_node_template<2, 4, internal_node_4>{node_type::I4, 4,
+                                                    source_node->key_prefix} {
   Expects(source_node->is_min_size());
   std::copy(source_node->keys.byte_array.cbegin(),
             source_node->keys.byte_array.cbegin() + child_to_remove,
@@ -702,10 +702,10 @@ internal_node_4::internal_node_4(
   std::uninitialized_move(source_node->children.begin(),
                           source_node->children.begin() + child_to_remove,
                           children.begin());
-  std::uninitialized_move(source_node->children.begin() + child_to_remove + 1,
-                          source_node->children.begin() +
-                          source_node->children_count,
-                          children.begin() + child_to_remove);
+  std::uninitialized_move(
+      source_node->children.begin() + child_to_remove + 1,
+      source_node->children.begin() + source_node->children_count,
+      children.begin() + child_to_remove);
   assert(is_full());
   assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 }
@@ -734,8 +734,8 @@ internal_node_16::internal_node_16(std::unique_ptr<internal_node_4> &&node,
                           children.begin() + insert_pos_index + 1);
 }
 
-internal_node::find_result_type
-internal_node_16::find_child(std::byte key_byte) noexcept {
+internal_node::find_result_type internal_node_16::find_child(
+    std::byte key_byte) noexcept {
   assert(reinterpret_cast<const node_header *>(this)->type() == node_type::I16);
   const auto replicated_search_key = _mm_set1_epi8(static_cast<char>(key_byte));
   const auto matching_key_positions =
@@ -809,8 +809,8 @@ class internal_node_48 final
     --children_count;
   }
 
-  [[nodiscard]] __attribute__((pure)) find_result_type
-  find_child(std::byte key_byte) noexcept;
+  [[nodiscard]] __attribute__((pure)) find_result_type find_child(
+      std::byte key_byte) noexcept;
 
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
@@ -827,9 +827,10 @@ class internal_node_48 final
 };
 
 internal_node_16::internal_node_16(
-    std::unique_ptr<internal_node_48> &&source_node, uint8_t child_to_remove)
-    noexcept : internal_node_template<5, 16, internal_node_16>{
-  node_type::I16, 16, source_node->key_prefix} {
+    std::unique_ptr<internal_node_48> &&source_node,
+    uint8_t child_to_remove) noexcept
+    : internal_node_template<5, 16, internal_node_16>{node_type::I16, 16,
+                                                      source_node->key_prefix} {
   Expects(source_node->is_min_size());
   uint8_t next_child = 0;
   for (unsigned i = 0; i < 256; i++) {
@@ -848,7 +849,6 @@ internal_node_16::internal_node_16(
   assert(std::is_sorted(keys.byte_array.cbegin(),
                         keys.byte_array.cbegin() + children_count));
 }
-
 
 internal_node_48::internal_node_48(std::unique_ptr<internal_node_16> &&node,
                                    single_value_leaf_unique_ptr &&child,
@@ -871,13 +871,13 @@ internal_node_48::internal_node_48(std::unique_ptr<internal_node_16> &&node,
   new (&children[i]) node_ptr{std::move(child)};
 }
 
-internal_node::find_result_type internal_node_48::find_child(std::byte key_byte)
-    noexcept {
+internal_node::find_result_type internal_node_48::find_child(
+    std::byte key_byte) noexcept {
   assert(reinterpret_cast<const node_header *>(this)->type() == node_type::I48);
   if (child_indexes[static_cast<uint8_t>(key_byte)] != empty_child)
-    return std::make_pair(static_cast<uint8_t>(key_byte),
-                          &children[child_indexes[
-                              static_cast<uint8_t>(key_byte)]]);
+    return std::make_pair(
+        static_cast<uint8_t>(key_byte),
+        &children[child_indexes[static_cast<uint8_t>(key_byte)]]);
   return std::make_pair(0xFF, nullptr);
 }
 
@@ -930,8 +930,8 @@ class internal_node_256 final
     --children_count;
   }
 
-  [[nodiscard]] __attribute__((pure)) find_result_type
-  find_child(std::byte key_byte) noexcept;
+  [[nodiscard]] __attribute__((pure)) find_result_type find_child(
+      std::byte key_byte) noexcept;
 
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
@@ -944,9 +944,10 @@ class internal_node_256 final
 };
 
 internal_node_48::internal_node_48(
-    std::unique_ptr<internal_node_256> &&source_node, uint8_t child_to_remove)
-    noexcept : internal_node_template<17, 48, internal_node_48>{
-  node_type::I48, 48, source_node->key_prefix} {
+    std::unique_ptr<internal_node_256> &&source_node,
+    uint8_t child_to_remove) noexcept
+    : internal_node_template<17, 48, internal_node_48>{
+          node_type::I48, 48, source_node->key_prefix} {
   Expects(source_node->is_min_size());
   uint8_t next_child = 0;
   for (unsigned i = 0; i < 256; i++) {
@@ -983,8 +984,8 @@ internal_node_256::internal_node_256(std::unique_ptr<internal_node_48> &&node,
   new (&children[key_byte]) single_value_leaf_unique_ptr{std::move(child)};
 }
 
-internal_node::find_result_type
-internal_node_256::find_child(std::byte key_byte) noexcept {
+internal_node::find_result_type internal_node_256::find_child(
+    std::byte key_byte) noexcept {
   assert(reinterpret_cast<const node_header *>(this)->type() ==
          node_type::I256);
   const auto key_int_byte = static_cast<uint8_t>(key_byte);
@@ -1075,13 +1076,13 @@ inline void internal_node::remove(uint8_t child_index) noexcept {
     case node_type::I256:
       static_cast<internal_node_256 *>(this)->remove(child_index);
       break;
-  case node_type::LEAF:
+    case node_type::LEAF:
       cannot_happen();
   }
 }
 
-inline internal_node::find_result_type
-internal_node::find_child(std::byte key_byte) noexcept {
+inline internal_node::find_result_type internal_node::find_child(
+    std::byte key_byte) noexcept {
   switch (header.type()) {
     case node_type::I4:
       return static_cast<internal_node_4 *>(this)->find_child(key_byte);
@@ -1264,10 +1265,9 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
   assert(node->type() != node_type::LEAF);
   const auto shared_prefix_len =
       node->internal->key_prefix.get_shared_length(k, depth);
-  if (shared_prefix_len < node->internal->key_prefix.length())
-    return false;
+  if (shared_prefix_len < node->internal->key_prefix.length()) return false;
   depth += node->internal->key_prefix.length();
-  auto[child_i, child_ptr] = node->internal->find_child(k[depth]);
+  auto [child_i, child_ptr] = node->internal->find_child(k[depth]);
   if (child_ptr == nullptr) return false;
   if (child_ptr->type() == node_type::LEAF) {
     if (single_value_leaf::matches(child_ptr->leaf.get(), k)) {
@@ -1279,7 +1279,7 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
           *node = std::move(
               std::unique_ptr<internal_node_4>(
                   static_cast<internal_node_4 *>(node->internal.release()))
-              ->leave_last_child(child_i));
+                  ->leave_last_child(child_i));
         } else if (node->type() == node_type::I16) {
           auto smaller_node = internal_node_4::create(
               std::unique_ptr<internal_node_16>(

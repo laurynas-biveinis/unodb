@@ -1290,7 +1290,6 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
   }
 
   if (node->type() == node_type::I4) {
-    // TODO(laurynas) as below
     *node =
         std::move(std::unique_ptr<internal_node_4>(
                       static_cast<internal_node_4 *>(node->internal.release()))

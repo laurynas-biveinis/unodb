@@ -169,7 +169,12 @@ if(NOT CPPLINT_EXE)
   message(STATUS "cpplint not found")
 else()
   message(STATUS "cpplint found: ${CPPLINT_EXE}")
-  set(DO_CPPLINT "${CPPLINT_EXE}" "--filter=-build/include_order,-runtime/references")
+  string(CONCAT CPPLINT_DISABLED_TESTS "--filter="
+    "-build/include_order,"
+    "-runtime/references,"
+    "-whitespace/braces") # Does not understand C++17 structured bindings and we use
+                          # clang-format anyway
+  set(DO_CPPLINT "${CPPLINT_EXE}" "${CPPLINT_DISABLED_TESTS}")
 endif()
 
 option(IWYU "Enable include-what-you-use checking")

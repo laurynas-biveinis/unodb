@@ -381,9 +381,9 @@ class internal_node {
     Expects(type != node_type::LEAF);
   }
 
-  template <typename Keys_type>
+  template <typename KeysType>
   static auto __attribute__((pure))
-  get_sorted_key_array_insert_position(const Keys_type &keys,
+  get_sorted_key_array_insert_position(const KeysType &keys,
                                        uint8_t children_count,
                                        std::byte key_byte) noexcept {
     Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
@@ -397,9 +397,9 @@ class internal_node {
     return result;
   }
 
-  template <typename Keys_type, typename Children_type>
+  template <typename KeysType, typename ChildrenType>
   static void insert_into_sorted_key_children_arrays(
-      Keys_type &keys, Children_type &children, uint8_t &children_count,
+      KeysType &keys, ChildrenType &children, uint8_t &children_count,
       std::byte key_byte, single_value_leaf_unique_ptr &&child) {
     Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
     const auto insert_pos_index =
@@ -421,9 +421,9 @@ class internal_node {
   }
 
   // TODO(laurynas): Foo_Bar here, FooBar at internal_node_template
-  template <typename Keys_type, typename Children_type>
+  template <typename KeysType, typename ChildrenType>
   static void remove_from_sorted_key_children_arrays(
-      Keys_type &keys, Children_type &children, uint8_t &children_count,
+      KeysType &keys, ChildrenType &children, uint8_t &children_count,
       uint8_t child_to_remove) noexcept {
     Expects(child_to_remove < children_count);
     Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));

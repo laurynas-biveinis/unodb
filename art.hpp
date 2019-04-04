@@ -20,13 +20,13 @@ namespace unodb {
 using key_type = uint64_t;
 
 // Internal ART key in binary-comparable format
-template <typename Key_type>
+template <typename KeyType>
 struct art_key final {
-  [[nodiscard]] static Key_type make_binary_comparable(Key_type key) noexcept;
+  [[nodiscard]] static KeyType make_binary_comparable(KeyType key) noexcept;
 
   art_key() noexcept = default;
 
-  explicit art_key(Key_type key_) noexcept
+  explicit art_key(KeyType key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
   [[nodiscard]] static art_key create(const std::byte from[]) noexcept {
@@ -43,11 +43,11 @@ struct art_key final {
     return !memcmp(&key, key2, sizeof(*this));
   }
 
-  [[nodiscard]] bool operator==(art_key<Key_type> key2) const noexcept {
+  [[nodiscard]] bool operator==(art_key<KeyType> key2) const noexcept {
     return !memcmp(&key, &key2.key, sizeof(*this));
   }
 
-  [[nodiscard]] bool operator!=(art_key<Key_type> key2) const noexcept {
+  [[nodiscard]] bool operator!=(art_key<KeyType> key2) const noexcept {
     return memcmp(&key, &key2.key, sizeof(*this));
   }
 
@@ -57,7 +57,7 @@ struct art_key final {
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }
 
-  Key_type key;
+  KeyType key;
 };
 
 using art_key_type = art_key<key_type>;

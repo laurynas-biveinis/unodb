@@ -1191,11 +1191,12 @@ bool db::insert(key_type k, value_view v) {
     root.leaf = std::move(leaf);
     return true;
   }
-  return insert_leaf(bin_comparable_key, &root, std::move(leaf), 0);
+  return insert_to_subtree(bin_comparable_key, &root, std::move(leaf), 0);
 }
 
-bool db::insert_leaf(art_key_type k, node_ptr *node,
-                     single_value_leaf_unique_ptr leaf, tree_depth_type depth) {
+bool db::insert_to_subtree(art_key_type k, node_ptr *node,
+                           single_value_leaf_unique_ptr leaf,
+                           tree_depth_type depth) {
   if (node->type() == node_type::LEAF) {
     const auto existing_key = single_value_leaf::key(node->leaf.get());
     if (BOOST_UNLIKELY(k == existing_key)) return false;
@@ -1216,7 +1217,7 @@ bool db::insert_leaf(art_key_type k, node_ptr *node,
   depth += node->internal->key_prefix.length();
   auto child = node->internal->find_child(k[depth]).second;
   if (child != nullptr)
-    return insert_leaf(k, child, std::move(leaf), depth + 1);
+    return insert_to_subtree(k, child, std::move(leaf), depth + 1);
   // TODO(laurynas): invert if
   if (BOOST_UNLIKELY(node->internal->is_full())) {
     if (node->type() == node_type::I4) {

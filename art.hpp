@@ -137,10 +137,9 @@ class db final {
   [[nodiscard]] static db::get_result get_from_subtree(
       const node_ptr &node, art_key_type k, tree_depth_type depth) noexcept;
 
-  // TODO(laurynas): rename to insert_to_subtree
-  [[nodiscard]] static bool insert_leaf(art_key_type k, node_ptr *node,
-                                        single_value_leaf_unique_ptr leaf,
-                                        tree_depth_type depth);
+  [[nodiscard]] static bool
+  insert_to_subtree(art_key_type k, node_ptr *node,
+                    single_value_leaf_unique_ptr leaf, tree_depth_type depth);
 
   [[nodiscard]] static bool remove_from_subtree(art_key_type k,
                                                 tree_depth_type depth,

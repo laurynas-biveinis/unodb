@@ -58,7 +58,7 @@ else()
     "-Wsign-promo")
 endif()
 
-list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-O1" "-g")
+list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g")
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   include(CheckIPOSupported)
@@ -66,6 +66,8 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   if(NOT IPO_SUPPORTED)
     message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
   endif()
+else()
+  list(APPEND CXX_FLAGS "-O3")
 endif()
 
 option(SANITIZE "Enable all Sanitizer runtime checks")

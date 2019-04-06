@@ -506,6 +506,14 @@ class internal_node {
 template <unsigned MinSize, unsigned Capacity, node_type NodeType,
           typename LargerDerived, typename Derived>
 class internal_node_template : public internal_node {
+  static_assert(NodeType != node_type::LEAF,
+                "internal_node_template must be instantiated with a non-leaf "
+                "node type");
+  static_assert(!std::is_same_v<Derived, LargerDerived>,
+                "Node type and next larger node type cannot be identical");
+  static_assert(MinSize < Capacity,
+                "Node capacity must be larger than minimum size");
+
  public:
   [[nodiscard]] static std::unique_ptr<Derived> create(
       std::unique_ptr<LargerDerived> &&source_node, uint8_t child_to_remove) {
@@ -548,8 +556,6 @@ class internal_node_template : public internal_node {
   static constexpr auto min_size = MinSize;
   static constexpr auto capacity = Capacity;
   static constexpr auto static_node_type = NodeType;
-
-  static_assert(min_size <= capacity);
 };
 
 class internal_node_16;

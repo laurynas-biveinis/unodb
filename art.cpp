@@ -507,6 +507,7 @@ template <unsigned MinSize, unsigned Capacity, typename Derived>
 class internal_node_template : public internal_node {
  public:
   [[nodiscard]] static void *operator new(std::size_t size) {
+    assert(size == sizeof(Derived));
     return get_internal_node_pool<Derived>()->allocate(size);
   }
 

@@ -31,16 +31,16 @@ static_assert(sizeof(unodb::node_ptr::internal) ==
                   sizeof(unodb::node_ptr::header),
               "node_ptr fields must be of equal size to a raw pointer");
 static_assert(sizeof(unodb::node_ptr::node_4) ==
-              sizeof(unodb::node_ptr::header),
+                  sizeof(unodb::node_ptr::header),
               "node_ptr fields must be of equal size to a raw pointer");
 static_assert(sizeof(unodb::node_ptr::node_16) ==
-              sizeof(unodb::node_ptr::header),
+                  sizeof(unodb::node_ptr::header),
               "node_ptr fields must be of equal size to a raw pointer");
 static_assert(sizeof(unodb::node_ptr::node_48) ==
-              sizeof(unodb::node_ptr::header),
+                  sizeof(unodb::node_ptr::header),
               "node_ptr fields must be of equal size to a raw pointer");
 static_assert(sizeof(unodb::node_ptr::node_256) ==
-              sizeof(unodb::node_ptr::header),
+                  sizeof(unodb::node_ptr::header),
               "node_ptr fields must be of equal size to a raw pointer");
 static_assert(sizeof(unodb::node_ptr) == sizeof(void *),
               "node_ptr union must be of equal size to a raw pointer");

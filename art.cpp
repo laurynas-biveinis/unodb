@@ -562,11 +562,13 @@ class internal_node_template : public internal_node {
 // larger node type for the largest node type.
 class fake_internal_node {};
 
-class internal_node_4 final
-    : public internal_node_template<2, 4, node_type::I4, internal_node_16,
-                                    internal_node_4> {
+using internal_node_4_template =
+    internal_node_template<2, 4, node_type::I4, internal_node_16,
+                           internal_node_4>;
+
+class internal_node_4 final : public internal_node_4_template {
  public:
-  using internal_node_template::create;
+  using internal_node_4_template::create;
 
   // Create a new node with two given child nodes
   [[nodiscard]] static std::unique_ptr<internal_node_4> create(
@@ -646,8 +648,7 @@ class internal_node_4 final
 internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
                                  db::tree_depth_type depth, node_ptr &&child1,
                                  single_value_leaf_unique_ptr &&child2) noexcept
-    : internal_node_template<2, 4, node_type::I4, internal_node_16,
-                             internal_node_4>{2, k1, k2, depth} {
+    : internal_node_4_template{2, k1, k2, depth} {
   const auto next_level_depth = depth + key_prefix.length();
   add_two_to_empty(k1[next_level_depth], std::move(child1),
                    k2[next_level_depth], std::move(child2));
@@ -656,8 +657,7 @@ internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
 internal_node_4::internal_node_4(node_ptr &&source_node, unsigned len,
                                  db::tree_depth_type depth,
                                  single_value_leaf_unique_ptr &&child1) noexcept
-    : internal_node_template<2, 4, node_type::I4, internal_node_16,
-                             internal_node_4>{
+    : internal_node_4_template{
           2, gsl::narrow_cast<key_prefix_type::size_type>(len),
           source_node.internal->key_prefix.data()} {
   Expects(source_node.type() != node_type::LEAF);
@@ -707,9 +707,11 @@ internal_node::find_result_type internal_node_4::find_child(
   return std::make_pair(0xFF, nullptr);
 }
 
-class internal_node_16 final
-    : public internal_node_template<5, 16, node_type::I16, internal_node_48,
-                                    internal_node_16> {
+using internal_node_16_template =
+    internal_node_template<5, 16, node_type::I16, internal_node_48,
+                           internal_node_16>;
+
+class internal_node_16 final : public internal_node_16_template {
  public:
   using internal_node_template::create;
 
@@ -764,8 +766,7 @@ class internal_node_16 final
 internal_node_4::internal_node_4(
     std::unique_ptr<internal_node_16> &&source_node,
     uint8_t child_to_remove) noexcept
-    : internal_node_template<2, 4, node_type::I4, internal_node_16,
-                             internal_node_4>{4, source_node->key_prefix} {
+    : internal_node_4_template{4, source_node->key_prefix} {
   Expects(source_node->is_min_size());
   std::copy(source_node->keys.byte_array.cbegin(),
             source_node->keys.byte_array.cbegin() + child_to_remove,
@@ -787,9 +788,8 @@ internal_node_4::internal_node_4(
 internal_node_16::internal_node_16(std::unique_ptr<internal_node_4> &&node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
-    : internal_node_template<5, 16, node_type::I16, internal_node_48,
-                             internal_node_16>{internal_node_4::capacity + 1,
-                                               node->key_prefix} {
+    : internal_node_16_template{internal_node_4::capacity + 1,
+                                node->key_prefix} {
   Expects(node->is_full());
   const auto key_byte = single_value_leaf::key(child.get())[depth];
   const auto insert_pos_index = get_sorted_key_array_insert_position(
@@ -841,9 +841,11 @@ void internal_node_16::dump(std::ostream &os) const {
 
 #endif
 
-class internal_node_48 final
-    : public internal_node_template<17, 48, node_type::I48, internal_node_256,
-                                    internal_node_48> {
+using internal_node_48_template =
+    internal_node_template<17, 48, node_type::I48, internal_node_256,
+                           internal_node_48>;
+
+class internal_node_48 final : public internal_node_48_template {
  public:
   using internal_node_template::create;
 
@@ -902,8 +904,7 @@ class internal_node_48 final
 internal_node_16::internal_node_16(
     std::unique_ptr<internal_node_48> &&source_node,
     uint8_t child_to_remove) noexcept
-    : internal_node_template<5, 16, node_type::I16, internal_node_48,
-                             internal_node_16>{16, source_node->key_prefix} {
+    : internal_node_16_template{16, source_node->key_prefix} {
   Expects(source_node->is_min_size());
   uint8_t next_child = 0;
   for (unsigned i = 0; i < 256; i++) {
@@ -926,9 +927,8 @@ internal_node_16::internal_node_16(
 internal_node_48::internal_node_48(std::unique_ptr<internal_node_16> &&node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
-    : internal_node_template<17, 48, node_type::I48, internal_node_256,
-                             internal_node_48>{internal_node_16::capacity + 1,
-                                               node->key_prefix} {
+    : internal_node_48_template{internal_node_16::capacity + 1,
+                                node->key_prefix} {
   Expects(node->is_full());
   memset(&child_indexes[0], empty_child,
          child_indexes.size() * sizeof(child_indexes[0]));
@@ -975,9 +975,11 @@ void internal_node_48::dump(std::ostream &os) const {
 
 #endif
 
-class internal_node_256 final
-    : public internal_node_template<49, 256, node_type::I256,
-                                    fake_internal_node, internal_node_256> {
+using internal_node_256_template =
+    internal_node_template<49, 256, node_type::I256, fake_internal_node,
+                           internal_node_256>;
+
+class internal_node_256 final : public internal_node_256_template {
  public:
   [[nodiscard]] static std::unique_ptr<internal_node_256> create(
       std::unique_ptr<internal_node_48> &&node,
@@ -1025,8 +1027,7 @@ class internal_node_256 final
 internal_node_48::internal_node_48(
     std::unique_ptr<internal_node_256> &&source_node,
     uint8_t child_to_remove) noexcept
-    : internal_node_template<17, 48, node_type::I48, internal_node_256,
-                             internal_node_48>{48, source_node->key_prefix} {
+    : internal_node_48_template{48, source_node->key_prefix} {
   Expects(source_node->is_min_size());
   uint8_t next_child = 0;
   for (unsigned i = 0; i < 256; i++) {
@@ -1046,9 +1047,8 @@ internal_node_48::internal_node_48(
 internal_node_256::internal_node_256(std::unique_ptr<internal_node_48> &&node,
                                      single_value_leaf_unique_ptr &&child,
                                      db::tree_depth_type depth) noexcept
-    : internal_node_template<49, 256, node_type::I256, fake_internal_node,
-                             internal_node_256>{internal_node_48::capacity + 1,
-                                                node->key_prefix} {
+    : internal_node_256_template{internal_node_48::capacity + 1,
+                                 node->key_prefix} {
   Expects(node->is_full());
   for (unsigned i = 0; i < 256; i++) {
     if (node->child_indexes[i] != internal_node_48::empty_child) {

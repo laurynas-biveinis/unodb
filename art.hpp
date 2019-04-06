@@ -78,6 +78,10 @@ using single_value_leaf_unique_ptr =
     std::unique_ptr<single_value_leaf_type, single_value_leaf_deleter>;
 
 class internal_node;
+class internal_node_4;
+class internal_node_16;
+class internal_node_48;
+class internal_node_256;
 
 enum class node_type : uint8_t;
 
@@ -90,23 +94,21 @@ union node_ptr {
   node_header *header;
   single_value_leaf_unique_ptr leaf;
   std::unique_ptr<internal_node> internal;
+  std::unique_ptr<internal_node_4> node_4;
+  std::unique_ptr<internal_node_16> node_16;
+  std::unique_ptr<internal_node_48> node_48;
+  std::unique_ptr<internal_node_256> node_256;
 
   node_ptr() noexcept {}
   explicit node_ptr(node_ptr &&other) noexcept : leaf{std::move(other.leaf)} {}
   explicit node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
   explicit node_ptr(single_value_leaf_unique_ptr &&leaf_) noexcept
       : leaf{std::move(leaf_)} {}
-  // Cannot be implemented here or "sizeof applied to incomplete type
-  // internal_node" with some compilers
   explicit node_ptr(std::unique_ptr<internal_node> &&node) noexcept;
 
-  ~node_ptr() {}
+  ~node_ptr();
 
-  node_ptr &operator=(node_ptr &&other) noexcept {
-    // TODO(laurynas): does this actually destruct leaf/internal?
-    header = std::move(other.header);
-    return *this;
-  }
+  node_ptr &operator=(node_ptr &&other) noexcept;
 
   node_ptr &operator=(std::nullptr_t) noexcept;
 

@@ -30,53 +30,23 @@ static_assert(sizeof(unodb::node_ptr::leaf) == sizeof(unodb::node_ptr::header),
 static_assert(sizeof(unodb::node_ptr::internal) ==
                   sizeof(unodb::node_ptr::header),
               "node_ptr fields must be of equal size to a raw pointer");
+static_assert(sizeof(unodb::node_ptr::node_4) ==
+              sizeof(unodb::node_ptr::header),
+              "node_ptr fields must be of equal size to a raw pointer");
+static_assert(sizeof(unodb::node_ptr::node_16) ==
+              sizeof(unodb::node_ptr::header),
+              "node_ptr fields must be of equal size to a raw pointer");
+static_assert(sizeof(unodb::node_ptr::node_48) ==
+              sizeof(unodb::node_ptr::header),
+              "node_ptr fields must be of equal size to a raw pointer");
+static_assert(sizeof(unodb::node_ptr::node_256) ==
+              sizeof(unodb::node_ptr::header),
+              "node_ptr fields must be of equal size to a raw pointer");
 static_assert(sizeof(unodb::node_ptr) == sizeof(void *),
               "node_ptr union must be of equal size to a raw pointer");
 
 static_assert(sizeof(unodb::single_value_leaf_unique_ptr) == sizeof(void *),
               "Single leaf unique_ptr must have no overhead over raw pointer");
-
-namespace unodb {
-
-template <>
-__attribute__((const)) uint64_t art_key<uint64_t>::make_binary_comparable(
-    uint64_t key) noexcept {
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-  return __builtin_bswap64(key);
-#else
-#error Needs implementing
-#endif
-}
-
-enum class node_type : uint8_t { LEAF, I4, I16, I48, I256 };
-
-// A common prefix shared by all node types
-struct node_header final {
-  explicit node_header(node_type type_) : m_type{type_} {}
-
-  [[nodiscard]] auto type() const noexcept { return m_type; }
-
- private:
-  const node_type m_type;
-};
-
-static_assert(std::is_standard_layout<unodb::node_header>::value);
-
-node_ptr &node_ptr::operator=(std::nullptr_t) noexcept {
-  // TODO(laurynas): does this actually destruct leaf/internal?
-  if (header == nullptr) return *this;
-  if (type() == node_type::LEAF) {
-    leaf = nullptr;
-  } else {
-    assert(type() != node_type::LEAF);
-    internal = nullptr;
-  }
-  return *this;
-}
-
-node_type node_ptr::type() const noexcept { return header->type(); }
-
-}  // namespace unodb
 
 namespace {
 
@@ -115,28 +85,111 @@ inline __attribute__((noreturn)) void cannot_happen() {
   __builtin_unreachable();
 }
 
-template <typename BidirInIter, typename BidirOutIter>
-BidirOutIter uninitialized_move_backward(
-    BidirInIter source_first, BidirInIter source_last,
-    BidirOutIter dest_last) noexcept(std::
-                                         is_nothrow_move_constructible<
-                                             typename std::iterator_traits<
-                                                 BidirOutIter>::value_type>()) {
-  using value_type = typename std::iterator_traits<BidirOutIter>::value_type;
-  if constexpr (std::is_nothrow_move_constructible<value_type>()) {
-    while (source_last != source_first) {
-      new (std::addressof(*(--dest_last)))
-          value_type{std::move(*(--source_last))};
-    }
-    return dest_last;
-  } else {
-    static_assert(std::is_nothrow_move_constructible<value_type>());
-  }
-}
-
 }  // namespace
 
 namespace unodb {
+
+template <>
+__attribute__((const)) uint64_t art_key<uint64_t>::make_binary_comparable(
+    uint64_t key) noexcept {
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+  return __builtin_bswap64(key);
+#else
+#error Needs implementing
+#endif
+}
+
+enum class node_type : uint8_t { LEAF, I4, I16, I48, I256 };
+
+// A common prefix shared by all node types
+struct node_header final {
+  explicit node_header(node_type type_) : m_type{type_} {}
+
+  [[nodiscard]] auto type() const noexcept { return m_type; }
+
+ private:
+  const node_type m_type;
+};
+
+static_assert(std::is_standard_layout<unodb::node_header>::value);
+
+node_ptr::~node_ptr() {
+  if (header == nullptr) return;
+  // While all the unique_ptr union fields look the same in memory, we must
+  // invoke destructor of the right type, because the deleters are different
+  switch (type()) {
+    case node_type::LEAF:
+      leaf.~single_value_leaf_unique_ptr();
+      return;
+    case node_type::I4:
+      node_4.~unique_ptr<internal_node_4>();
+      return;
+    case node_type::I16:
+      node_16.~unique_ptr<internal_node_16>();
+      return;
+    case node_type::I48:
+      node_48.~unique_ptr<internal_node_48>();
+      return;
+    case node_type::I256:
+      node_256.~unique_ptr<internal_node_256>();
+      return;
+  }
+  cannot_happen();
+}
+
+node_ptr &node_ptr::operator=(node_ptr &&other) noexcept {
+  // We rely on all the unique_ptr and header pointers being of the same size,
+  // thus we can access any field of other, but we must access the right
+  // member of this union, so that the right unique_ptr deleter is invoked.
+  if (header == nullptr) {
+    leaf = std::move(other.leaf);
+    return *this;
+  }
+  switch (type()) {
+    case node_type::LEAF:
+      leaf = std::move(other.leaf);
+      return *this;
+    case node_type::I4:
+      node_4 = std::move(other.node_4);
+      return *this;
+    case node_type::I16:
+      node_16 = std::move(other.node_16);
+      return *this;
+    case node_type::I48:
+      node_48 = std::move(other.node_48);
+      return *this;
+    case node_type::I256:
+      node_256 = std::move(other.node_256);
+      return *this;
+  }
+  cannot_happen();
+}
+
+node_ptr &node_ptr::operator=(std::nullptr_t) noexcept {
+  if (header == nullptr) return *this;
+  // While all the unique_ptr union fields look the same in memory, we must
+  // invoke reset method of the right type, because the deleters are different
+  switch (type()) {
+    case node_type::LEAF:
+      leaf.reset(nullptr);
+      return *this;
+    case node_type::I4:
+      node_4.reset(nullptr);
+      return *this;
+    case node_type::I16:
+      node_16.reset(nullptr);
+      return *this;
+    case node_type::I48:
+      node_48.reset(nullptr);
+      return *this;
+    case node_type::I256:
+      node_256.reset(nullptr);
+      return *this;
+  }
+  cannot_happen();
+}
+
+node_type node_ptr::type() const noexcept { return header->type(); }
 
 // Helper struct for leaf node-related data and (static) code. We
 // don't use a regular class because leaf nodes are of variable size, C++ does
@@ -409,9 +462,9 @@ class internal_node {
       std::copy_backward(keys.cbegin() + insert_pos_index,
                          keys.cbegin() + children_count,
                          keys.begin() + children_count + 1);
-      uninitialized_move_backward(children.begin() + insert_pos_index,
-                                  children.begin() + children_count,
-                                  children.begin() + children_count + 1);
+      std::move_backward(children.begin() + insert_pos_index,
+                         children.begin() + children_count,
+                         children.begin() + children_count + 1);
     }
     keys[insert_pos_index] = key_byte;
     new (&children[insert_pos_index])
@@ -427,12 +480,11 @@ class internal_node {
     Expects(child_to_remove < children_count);
     Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 
-    // TODO(laurynas): unique_ptr does not get destructed, does it
     std::copy(keys.cbegin() + child_to_remove + 1,
               keys.cbegin() + children_count, keys.begin() + child_to_remove);
-    std::uninitialized_move(children.begin() + child_to_remove + 1,
-                            children.begin() + children_count,
-                            children.begin() + child_to_remove);
+    std::move(children.begin() + child_to_remove + 1,
+              children.begin() + children_count,
+              children.begin() + child_to_remove);
     --children_count;
 
     Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
@@ -605,6 +657,9 @@ void internal_node_4::add_two_to_empty(
   new (&children[key1_i]) node_ptr{std::move(child1)};
   keys[key2_i] = key2;
   new (&children[key2_i]) single_value_leaf_unique_ptr{std::move(child2)};
+  // Initialize elements past children_count for proper std::array destruction.
+  new (&children[2]) node_ptr{nullptr};
+  new (&children[3]) node_ptr{nullptr};
   assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 }
 
@@ -731,6 +786,10 @@ internal_node_16::internal_node_16(std::unique_ptr<internal_node_4> &&node,
   std::uninitialized_move(node->children.begin() + insert_pos_index,
                           node->children.end(),
                           children.begin() + insert_pos_index + 1);
+  // Initialize elements past children_count for proper std::array destruction.
+  for (uint8_t i = children_count; i < capacity; i++) {
+    new (&children[i]) node_ptr{nullptr};
+  }
 }
 
 internal_node::find_result_type internal_node_16::find_child(
@@ -803,7 +862,7 @@ class internal_node_48 final
   void remove(uint8_t child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == node_type::I48);
     Expects(!is_min_size());
-    children[child_indexes[child_index]].~node_ptr();
+    children[child_indexes[child_index]] = nullptr;
     child_indexes[child_index] = empty_child;
     --children_count;
   }
@@ -868,6 +927,10 @@ internal_node_48::internal_node_48(std::unique_ptr<internal_node_16> &&node,
   assert(child_indexes[key_byte] == empty_child);
   child_indexes[key_byte] = i;
   new (&children[i]) node_ptr{std::move(child)};
+  // Initialize elements past children_count for proper std::array destruction.
+  for (i = children_count; i < capacity; i++) {
+    new (&children[i]) node_ptr{nullptr};
+  }
 }
 
 internal_node::find_result_type internal_node_48::find_child(

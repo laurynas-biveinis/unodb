@@ -347,7 +347,8 @@ class key_prefix_type final {
 
   [[nodiscard]] const auto &data() const noexcept { return data_; }
 
-  [[nodiscard]] std::byte operator[](std::size_t i) const noexcept {
+  [[nodiscard]] __attribute__((pure)) std::byte operator[](std::size_t i) const
+      noexcept {
     Expects(i < length_);
     return data_[i];
   }

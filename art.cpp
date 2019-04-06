@@ -540,14 +540,13 @@ class internal_node_template : public internal_node {
   }
 
  protected:
-  internal_node_template(uint8_t children_count_, art_key_type k1,
-                         art_key_type k2, db::tree_depth_type depth) noexcept
-      : internal_node{NodeType, children_count_, k1, k2, depth} {}
+  internal_node_template(art_key_type k1, art_key_type k2,
+                         db::tree_depth_type depth) noexcept
+      : internal_node{NodeType, MinSize, k1, k2, depth} {}
 
-  internal_node_template(uint8_t children_count_,
-                         key_prefix_type::size_type key_prefix_len,
+  internal_node_template(key_prefix_type::size_type key_prefix_len,
                          const key_prefix_type::data_type &key_prefix_) noexcept
-      : internal_node{NodeType, children_count_, key_prefix_len, key_prefix_} {}
+      : internal_node{NodeType, MinSize, key_prefix_len, key_prefix_} {}
 
   internal_node_template(uint8_t children_count_,
                          const key_prefix_type &key_prefix_) noexcept
@@ -648,7 +647,7 @@ class internal_node_4 final : public internal_node_4_template {
 internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
                                  db::tree_depth_type depth, node_ptr &&child1,
                                  single_value_leaf_unique_ptr &&child2) noexcept
-    : internal_node_4_template{2, k1, k2, depth} {
+    : internal_node_4_template{k1, k2, depth} {
   const auto next_level_depth = depth + key_prefix.length();
   add_two_to_empty(k1[next_level_depth], std::move(child1),
                    k2[next_level_depth], std::move(child2));
@@ -658,7 +657,7 @@ internal_node_4::internal_node_4(node_ptr &&source_node, unsigned len,
                                  db::tree_depth_type depth,
                                  single_value_leaf_unique_ptr &&child1) noexcept
     : internal_node_4_template{
-          2, gsl::narrow_cast<key_prefix_type::size_type>(len),
+          gsl::narrow_cast<key_prefix_type::size_type>(len),
           source_node.internal->key_prefix.data()} {
   Expects(source_node.type() != node_type::LEAF);
   Expects(len < source_node.internal->key_prefix.length());

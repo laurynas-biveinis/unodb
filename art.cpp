@@ -558,8 +558,6 @@ class internal_node_template : public internal_node {
   static constexpr auto static_node_type = NodeType;
 };
 
-class internal_node_16;
-
 // A class used as a sentinel for internal_node_template template args: the
 // larger node type for the largest node type.
 class fake_internal_node {};
@@ -709,8 +707,6 @@ internal_node::find_result_type internal_node_4::find_child(
   return std::make_pair(0xFF, nullptr);
 }
 
-class internal_node_48;
-
 class internal_node_16 final
     : public internal_node_template<5, 16, node_type::I16, internal_node_48,
                                     internal_node_16> {
@@ -844,8 +840,6 @@ void internal_node_16::dump(std::ostream &os) const {
 }
 
 #endif
-
-class internal_node_256;
 
 class internal_node_48 final
     : public internal_node_template<17, 48, node_type::I48, internal_node_256,

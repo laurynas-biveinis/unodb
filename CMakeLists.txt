@@ -66,7 +66,6 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   if(NOT IPO_SUPPORTED)
     message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
   endif()
-else()
   list(APPEND CXX_FLAGS "-O3")
 endif()
 

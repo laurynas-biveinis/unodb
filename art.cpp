@@ -634,7 +634,6 @@ class internal_node_4 final : public internal_node_4_template {
 
   void remove(uint8_t child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
-    Expects(!is_min_size());
     remove_from_sorted_key_children_arrays(keys, children, children_count,
                                            child_index);
   }
@@ -754,7 +753,6 @@ class internal_node_16 final : public internal_node_16_template {
 
   void remove(uint8_t child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
-    Expects(!is_min_size());
     remove_from_sorted_key_children_arrays(keys.byte_array, children,
                                            children_count, child_index);
   }
@@ -878,7 +876,6 @@ class internal_node_48 final : public internal_node_48_template {
 
   void remove(uint8_t child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
-    Expects(!is_min_size());
     children[child_indexes[child_index]] = nullptr;
     child_indexes[child_index] = empty_child;
     --children_count;
@@ -995,7 +992,6 @@ class internal_node_256 final : public internal_node_256_template {
 
   void remove(uint8_t child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
-    Expects(!is_min_size());
     Expects(children[child_index] != nullptr);
     children[child_index] = nullptr;
     --children_count;
@@ -1130,6 +1126,7 @@ inline void internal_node::add(single_value_leaf_unique_ptr &&child,
 }
 
 inline void internal_node::remove(uint8_t child_index) noexcept {
+  Expects(!is_min_size());
   switch (header.type()) {
     case node_type::I4:
       static_cast<internal_node_4 *>(this)->remove(child_index);

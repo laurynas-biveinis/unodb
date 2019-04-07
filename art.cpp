@@ -113,6 +113,9 @@ struct node_header final {
 
 static_assert(std::is_standard_layout<unodb::node_header>::value);
 
+node_ptr::node_ptr(std::unique_ptr<internal_node> &&node) noexcept
+    : internal{std::move(node)} {}
+
 node_ptr::~node_ptr() {
   if (header == nullptr) return;
   // While all the unique_ptr union fields look the same in memory, we must
@@ -1221,9 +1224,6 @@ get_internal_node_pool_options() {
 }  // namespace
 
 namespace unodb {
-
-node_ptr::node_ptr(std::unique_ptr<internal_node> &&node) noexcept
-    : internal{std::move(node)} {}
 
 db::get_result db::get(key_type k) const noexcept {
   if (BOOST_UNLIKELY(root.header == nullptr)) return {};

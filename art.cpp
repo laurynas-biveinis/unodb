@@ -1296,23 +1296,20 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node,
   assert(node->internal->is_full());
   if (node->type() == node_type::I4) {
     auto larger_node = internal_node_16::create(
-        std::unique_ptr<internal_node_4>(
-            static_cast<internal_node_4 *>(node->internal.release())),
+        std::unique_ptr<internal_node_4>(node->node_4.release()),
         std::move(leaf), depth);
-    node->internal = std::move(larger_node);
+    node->node_16 = std::move(larger_node);
   } else if (node->type() == node_type::I16) {
     auto larger_node = internal_node_48::create(
-        std::unique_ptr<internal_node_16>(
-            static_cast<internal_node_16 *>(node->internal.release())),
+        std::unique_ptr<internal_node_16>(node->node_16.release()),
         std::move(leaf), depth);
-    node->internal = std::move(larger_node);
+    node->node_48 = std::move(larger_node);
   } else {
     assert(node->type() == node_type::I48);
     auto larger_node = internal_node_256::create(
-        std::unique_ptr<internal_node_48>(
-            static_cast<internal_node_48 *>(node->internal.release())),
+        std::unique_ptr<internal_node_48>(node->node_48.release()),
         std::move(leaf), depth);
-    node->internal = std::move(larger_node);
+    node->node_256 = std::move(larger_node);
   }
   return true;
 }
@@ -1361,23 +1358,17 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
                       ->leave_last_child(child_i));
   } else if (node->type() == node_type::I16) {
     auto smaller_node = internal_node_4::create(
-        std::unique_ptr<internal_node_16>(
-            static_cast<internal_node_16 *>(node->internal.release())),
-        child_i);
-    node->internal = std::move(smaller_node);
+        std::unique_ptr<internal_node_16>(node->node_16.release()), child_i);
+    node->node_4 = std::move(smaller_node);
   } else if (node->type() == node_type::I48) {
     auto smaller_node = internal_node_16::create(
-        std::unique_ptr<internal_node_48>(
-            static_cast<internal_node_48 *>(node->internal.release())),
-        child_i);
-    node->internal = std::move(smaller_node);
+        std::unique_ptr<internal_node_48>(node->node_48.release()), child_i);
+    node->node_16 = std::move(smaller_node);
   } else {
     assert(node->type() == node_type::I256);
     auto smaller_node = internal_node_48::create(
-        std::unique_ptr<internal_node_256>(
-            static_cast<internal_node_256 *>(node->internal.release())),
-        child_i);
-    node->internal = std::move(smaller_node);
+        std::unique_ptr<internal_node_256>(node->node_256.release()), child_i);
+    node->node_48 = std::move(smaller_node);
   }
   return true;
 }

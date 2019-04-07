@@ -496,6 +496,8 @@ class internal_node {
 
   uint8_t children_count;
 
+  template <unsigned, unsigned, node_type, typename, typename>
+  friend class internal_node_template;
   friend class internal_node_4;
   friend class internal_node_16;
   friend class internal_node_48;
@@ -551,6 +553,12 @@ class internal_node_template : public internal_node {
   internal_node_template(uint8_t children_count_,
                          const key_prefix_type &key_prefix_) noexcept
       : internal_node{NodeType, children_count_, key_prefix_} {}
+
+  explicit internal_node_template(const LargerDerived &source_node) noexcept
+      : internal_node{NodeType, Capacity, source_node.key_prefix} {
+    Expects(source_node.is_min_size());
+    assert(is_full());
+  }
 
   static constexpr auto min_size = MinSize;
   static constexpr auto capacity = Capacity;
@@ -765,8 +773,7 @@ class internal_node_16 final : public internal_node_16_template {
 internal_node_4::internal_node_4(
     std::unique_ptr<internal_node_16> &&source_node,
     uint8_t child_to_remove) noexcept
-    : internal_node_4_template{4, source_node->key_prefix} {
-  Expects(source_node->is_min_size());
+    : internal_node_4_template{*source_node} {
   std::copy(source_node->keys.byte_array.cbegin(),
             source_node->keys.byte_array.cbegin() + child_to_remove,
             keys.begin());
@@ -780,7 +787,6 @@ internal_node_4::internal_node_4(
       source_node->children.begin() + child_to_remove + 1,
       source_node->children.begin() + source_node->children_count,
       children.begin() + child_to_remove);
-  assert(is_full());
   assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 }
 
@@ -903,8 +909,7 @@ class internal_node_48 final : public internal_node_48_template {
 internal_node_16::internal_node_16(
     std::unique_ptr<internal_node_48> &&source_node,
     uint8_t child_to_remove) noexcept
-    : internal_node_16_template{16, source_node->key_prefix} {
-  Expects(source_node->is_min_size());
+    : internal_node_16_template{*source_node} {
   uint8_t next_child = 0;
   for (unsigned i = 0; i < 256; i++) {
     const auto source_child_i = source_node->child_indexes[i];
@@ -1026,8 +1031,7 @@ class internal_node_256 final : public internal_node_256_template {
 internal_node_48::internal_node_48(
     std::unique_ptr<internal_node_256> &&source_node,
     uint8_t child_to_remove) noexcept
-    : internal_node_48_template{48, source_node->key_prefix} {
-  Expects(source_node->is_min_size());
+    : internal_node_48_template{*source_node} {
   uint8_t next_child = 0;
   for (unsigned i = 0; i < 256; i++) {
     if (i == child_to_remove) {

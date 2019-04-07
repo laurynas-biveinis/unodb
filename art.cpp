@@ -627,7 +627,6 @@ class internal_node_4 final : public internal_node_4_template {
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
-    Expects(!is_full());
     const auto key_byte = single_value_leaf::key(child.get())[depth];
     insert_into_sorted_key_children_arrays(keys, children, children_count,
                                            key_byte, std::move(child));
@@ -748,7 +747,6 @@ class internal_node_16 final : public internal_node_16_template {
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
-    Expects(!is_full());
     const auto key_byte = single_value_leaf::key(child.get())[depth];
     insert_into_sorted_key_children_arrays(
         keys.byte_array, children, children_count, key_byte, std::move(child));
@@ -869,7 +867,6 @@ class internal_node_48 final : public internal_node_48_template {
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
-    Expects(!is_full());
     const auto key_byte =
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
     assert(child_indexes[key_byte] == empty_child);
@@ -1113,6 +1110,7 @@ inline bool internal_node::is_min_size() const noexcept {
 
 inline void internal_node::add(single_value_leaf_unique_ptr &&child,
                                db::tree_depth_type depth) noexcept {
+  Expects(!is_full());
   switch (header.type()) {
     case node_type::I4:
       static_cast<internal_node_4 *>(this)->add(std::move(child), depth);

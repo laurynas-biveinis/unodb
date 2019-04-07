@@ -527,6 +527,13 @@ class internal_node_template : public internal_node {
     return std::make_unique<Derived>(std::move(source_node), child_to_remove);
   }
 
+  [[nodiscard]] static std::unique_ptr<Derived> create(
+      std::unique_ptr<SmallerDerived> &&source_node,
+      single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
+    return std::make_unique<Derived>(std::move(source_node), std::move(child),
+                                     depth);
+  }
+
   [[nodiscard]] static void *operator new(std::size_t size) {
     assert(size == sizeof(Derived));
     return get_internal_node_pool<Derived>()->allocate(size);
@@ -731,15 +738,6 @@ using internal_node_16_template =
 
 class internal_node_16 final : public internal_node_16_template {
  public:
-  using internal_node_template::create;
-
-  [[nodiscard]] static std::unique_ptr<internal_node_16> create(
-      std::unique_ptr<internal_node_4> &&node,
-      single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
-    return std::make_unique<internal_node_16>(std::move(node), std::move(child),
-                                              depth);
-  }
-
   internal_node_16(std::unique_ptr<internal_node_4> &&node,
                    single_value_leaf_unique_ptr &&child,
                    db::tree_depth_type depth) noexcept;
@@ -861,15 +859,6 @@ using internal_node_48_template =
 
 class internal_node_48 final : public internal_node_48_template {
  public:
-  using internal_node_template::create;
-
-  [[nodiscard]] static std::unique_ptr<internal_node_48> create(
-      std::unique_ptr<internal_node_16> &&node,
-      single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
-    return std::make_unique<internal_node_48>(std::move(node), std::move(child),
-                                              depth);
-  }
-
   internal_node_48(std::unique_ptr<internal_node_16> &&node,
                    single_value_leaf_unique_ptr &&child,
                    db::tree_depth_type depth) noexcept;
@@ -992,13 +981,6 @@ using internal_node_256_template =
 
 class internal_node_256 final : public internal_node_256_template {
  public:
-  [[nodiscard]] static std::unique_ptr<internal_node_256> create(
-      std::unique_ptr<internal_node_48> &&node,
-      single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
-    return std::make_unique<internal_node_256>(std::move(node),
-                                               std::move(child), depth);
-  }
-
   internal_node_256(std::unique_ptr<internal_node_48> &&node,
                     single_value_leaf_unique_ptr &&child,
                     db::tree_depth_type depth) noexcept;

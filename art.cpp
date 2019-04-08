@@ -913,10 +913,12 @@ internal_node_16::internal_node_16(
     const auto source_child_i = source_node->child_indexes[i];
     if (i == child_to_remove) {
       assert(source_child_i != internal_node_48::empty_child);
+      assert(source_node->children[source_child_i] != nullptr);
       continue;
     }
     if (source_child_i != internal_node_48::empty_child) {
       keys.byte_array[next_child] = gsl::narrow_cast<std::byte>(i);
+      assert(source_node->children[source_child_i] != nullptr);
       children[next_child] = std::move(source_node->children[source_child_i]);
       ++next_child;
       if (next_child == children_count) break;
@@ -952,10 +954,11 @@ internal_node_48::internal_node_48(std::unique_ptr<internal_node_16> &&node,
 internal_node::find_result_type internal_node_48::find_child(
     std::byte key_byte) noexcept {
   assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
-  if (child_indexes[static_cast<uint8_t>(key_byte)] != empty_child)
-    return std::make_pair(
-        static_cast<uint8_t>(key_byte),
-        &children[child_indexes[static_cast<uint8_t>(key_byte)]]);
+  if (child_indexes[static_cast<uint8_t>(key_byte)] != empty_child) {
+    const auto child_i = child_indexes[static_cast<uint8_t>(key_byte)];
+    assert(children[child_i] != nullptr);
+    return std::make_pair(static_cast<uint8_t>(key_byte), &children[child_i]);
+  }
   return std::make_pair(0xFF, nullptr);
 }
 
@@ -1024,14 +1027,18 @@ internal_node_48::internal_node_48(
   for (unsigned i = 0; i < 256; i++) {
     if (i == child_to_remove) {
       assert(source_node->children[i] != nullptr);
+      child_indexes[i] = empty_child;
       continue;
     }
-    if (source_node->children[i] != nullptr) {
-      child_indexes[i] = gsl::narrow_cast<uint8_t>(next_child);
-      new (&children[next_child]) node_ptr{std::move(source_node->children[i])};
-      ++next_child;
-      if (next_child == children_count) break;
+    if (source_node->children[i] == nullptr) {
+      child_indexes[i] = empty_child;
+      continue;
     }
+    assert(source_node->children[i] != nullptr);
+    child_indexes[i] = gsl::narrow_cast<uint8_t>(next_child);
+    new (&children[next_child]) node_ptr{std::move(source_node->children[i])};
+    ++next_child;
+    if (next_child == children_count) break;
   }
 }
 

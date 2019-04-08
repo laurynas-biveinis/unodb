@@ -124,6 +124,9 @@ class db final {
 
   using tree_depth_type = unsigned;
 
+  explicit db(std::size_t memory_limit_ = 0) noexcept
+      : memory_limit{memory_limit_} {}
+
   [[nodiscard]] get_result get(key_type k) const noexcept;
 
   [[nodiscard]] bool insert(key_type k, value_view v);
@@ -134,19 +137,30 @@ class db final {
   void dump(std::ostream &os) const;
 #endif
 
+  [[nodiscard]] std::size_t get_current_memory_use() const noexcept {
+    return current_memory_use;
+  }
+
  private:
   [[nodiscard]] static db::get_result get_from_subtree(
       const node_ptr &node, art_key_type k, tree_depth_type depth) noexcept;
 
-  [[nodiscard]] static bool insert_to_subtree(art_key_type k, node_ptr *node,
-                                              single_value_leaf_unique_ptr leaf,
-                                              tree_depth_type depth);
+  [[nodiscard]] bool insert_to_subtree(art_key_type k, node_ptr *node,
+                                       single_value_leaf_unique_ptr leaf,
+                                       tree_depth_type depth);
 
-  [[nodiscard]] static bool remove_from_subtree(art_key_type k,
-                                                tree_depth_type depth,
-                                                node_ptr *node);
+  [[nodiscard]] bool remove_from_subtree(art_key_type k, tree_depth_type depth,
+                                         node_ptr *node);
+
+  void increase_memory_use(std::size_t delta);
+  void decrease_memory_use(std::size_t delta) noexcept;
 
   node_ptr root{nullptr};
+
+  std::size_t current_memory_use{0};
+  const std::size_t memory_limit;
+
+  friend struct single_value_leaf;
 };
 
 }  // namespace unodb

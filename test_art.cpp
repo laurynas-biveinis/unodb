@@ -61,6 +61,8 @@ class tree_verifier final {
 
   void remove(unodb::key_type k);
 
+  void test_insert_until_memory_limit();
+
   void attempt_remove_missing_keys(
       std::initializer_list<unodb::key_type> absent_keys) noexcept;
 
@@ -78,13 +80,32 @@ class tree_verifier final {
 void tree_verifier::insert(unodb::key_type k, unodb::value_view v) {
   const auto insert_result = values.emplace(k, v);
   ASSERT_TRUE(insert_result.second);
-  ASSERT_TRUE(test_db.insert(k, v));
+  try {
+    ASSERT_TRUE(test_db.insert(k, v));
+  } catch (const std::bad_alloc &) {
+    const auto values_remove_result = values.erase(k);
+    ASSERT_EQ(values_remove_result, 1);
+    throw;
+  }
 }
 
 void tree_verifier::insert_key_range(unodb::key_type start_key, size_t count) {
   for (unodb::key_type key = start_key; key < start_key + count; key++) {
     insert(key, test_values[key % test_values.size()]);
   }
+}
+
+void tree_verifier::test_insert_until_memory_limit() {
+  ASSERT_THROW(insert_key_range(1, 100000), std::bad_alloc);
+  check_present_values();
+  check_absent_keys({0, values.size() + 1});
+  while (!values.empty()) {
+    const auto [key, value] = *values.cbegin();
+    remove(key);
+    check_absent_keys({key});
+    check_present_values();
+  }
+  ASSERT_EQ(test_db.get_current_memory_use(), 0);
 }
 
 void tree_verifier::remove(unodb::key_type k) {
@@ -618,6 +639,44 @@ TEST(ART, missing_key_matching_internal_node_path) {
   verifier.insert(0x0100, test_values[0]);
   verifier.insert(0x0200, test_values[1]);
   verifier.attempt_remove_missing_keys({0x0101, 0x0202});
+}
+
+TEST(ART, memory_limit_below_minimum) {
+  unodb::db test_db{1};
+  tree_verifier verifier{test_db};
+  verifier.test_insert_until_memory_limit();
+}
+
+// It was one leaf at the time of writing the test, this is not
+// guaranteed later
+TEST(ART, memory_limit_one_leaf) {
+  unodb::db test_db{20};
+  tree_verifier verifier{test_db};
+  verifier.test_insert_until_memory_limit();
+}
+
+TEST(ART, memory_limit_one_node4) {
+  unodb::db test_db{80};
+  tree_verifier verifier{test_db};
+  verifier.test_insert_until_memory_limit();
+}
+
+TEST(ART, memory_limit_one_node16) {
+  unodb::db test_db{320};
+  tree_verifier verifier{test_db};
+  verifier.test_insert_until_memory_limit();
+}
+
+TEST(ART, memory_limit_one_node48) {
+  unodb::db test_db{1024};
+  tree_verifier verifier{test_db};
+  verifier.test_insert_until_memory_limit();
+}
+
+TEST(ART, memory_limit_one_node256) {
+  unodb::db test_db{4096};
+  tree_verifier verifier{test_db};
+  verifier.test_insert_until_memory_limit();
 }
 
 }  // namespace

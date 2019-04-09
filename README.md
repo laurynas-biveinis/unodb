@@ -17,6 +17,7 @@ Trie. The licence is AGPLv3.
     being tested with 1.60.
 *   clang-format, at least 8.0
 *   Google Test for tests, imported as a git submodule.
+*   (optional) lcov
 *   (optional) clang-tidy
 *   (optional) cppcheck
 *   (optional) cpplint
@@ -42,6 +43,9 @@ To invoke include-what-you-use, add -DIWYU=ON CMake option.
 
 To enable inconclusive cppcheck diagnostics, add
 -DCPPCHECK_AGGRESSIVE=ON CMake option.
+
+To generate coverage reports using lcov, add -DCOVERAGE=ON CMake
+option.
 
 Google Test is used for testing. There will be no unit tests for each
 private implementation class.

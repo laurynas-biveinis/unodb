@@ -60,13 +60,21 @@ endif()
 
 list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g")
 
+option(COVERAGE "Enable code coverage reporting")
+if(COVERAGE)
+  list(APPEND CXX_FLAGS "--coverage")
+  list(APPEND INTERFACE_LD_FLAGS "--coverage")
+endif()
+
 if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   include(CheckIPOSupported)
   check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
   if(NOT IPO_SUPPORTED)
     message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
   endif()
-  list(APPEND CXX_FLAGS "-O3")
+  if(NOT COVERAGE)
+    list(APPEND CXX_FLAGS "-O3")
+  endif()
 endif()
 
 option(SANITIZE "Enable all Sanitizer runtime checks")
@@ -200,6 +208,7 @@ target_include_directories(unodb SYSTEM PRIVATE "${Boost_INCLUDE_DIRS}")
 target_link_libraries(unodb PRIVATE "${Boost_LIBRARIES}")
 # Change to target_link_options on 3.13 minimum CMake version
 target_link_libraries(unodb PRIVATE "${LD_FLAGS}")
+target_link_libraries(unodb INTERFACE "${INTERFACE_LD_FLAGS}")
 target_compile_features(unodb PUBLIC cxx_std_17)
 target_compile_options(unodb PRIVATE "${CXX_FLAGS}")
 set_target_properties(unodb PROPERTIES CXX_EXTENSIONS OFF)
@@ -228,6 +237,7 @@ target_include_directories(test_art PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_options(test_art PRIVATE "${CXX_FLAGS}")
 target_link_libraries(test_art PRIVATE unodb gtest_main)
 target_link_libraries(test_art PRIVATE "${LD_FLAGS}")
+target_link_libraries(test_art INTERFACE "${INTERFACE_LD_FLAGS}")
 if(IPO_SUPPORTED)
   set_target_properties(test_art PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
@@ -247,4 +257,16 @@ add_test(test_art test_art)
 if(SANITIZE)
   set_tests_properties(test_art PROPERTIES ENVIRONMENT "${ASAN_OPTIONS}")
   set_tests_properties(test_art PROPERTIES ENVIRONMENT "${UBSAN_OPTIONS}")
+endif()
+
+if(COVERAGE)
+  add_custom_target(coverage
+    make test
+    COMMAND lcov --capture --directory . --output-file coverage.info
+    COMMAND lcov --remove coverage.info '/usr/*' --output-file coverage.info
+    COMMAND lcov --remove coverage.info '/Library/Developer/*' --output-file coverage.info
+    COMMAND lcov --remove coverage.info '*/unodb/googletest/*' --output-file coverage.info
+    COMMAND lcov --remove coverage.info '*/unodb/GSL/*' --output-file coverage.info
+    COMMAND lcov --list coverage.info
+    DEPENDS test_art)
 endif()

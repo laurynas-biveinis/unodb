@@ -679,4 +679,13 @@ TEST(ART, memory_limit_one_node256) {
   verifier.test_insert_until_memory_limit();
 }
 
+TEST(ART, memory_accounting_duplicate_key_insert) {
+  unodb::db test_db{2048};
+  tree_verifier verifier{test_db};
+  verifier.insert(0, test_values[0]);
+  ASSERT_FALSE(test_db.insert(0, test_values[1]));
+  verifier.remove(0);
+  ASSERT_EQ(test_db.get_current_memory_use(), 0);
+}
+
 }  // namespace

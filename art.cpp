@@ -874,9 +874,12 @@ class internal_node_48 final : public internal_node_48_template {
     const auto key_byte =
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
     assert(child_indexes[key_byte] == empty_child);
-    child_indexes[key_byte] = children_count;
-    new (&children[children_count])
-        single_value_leaf_unique_ptr{std::move(child)};
+    uint8_t i;
+    for (i = 0; i < capacity; i++)
+      if (children[i] == nullptr) break;
+    assert(children[i] == nullptr);
+    child_indexes[key_byte] = i;
+    new (&children[i]) single_value_leaf_unique_ptr{std::move(child)};
     ++children_count;
   }
 

@@ -688,4 +688,30 @@ TEST(ART, memory_accounting_duplicate_key_insert) {
   ASSERT_EQ(test_db.get_current_memory_use(), 0);
 }
 
+TEST(ART, node48_insert_into_deleted_slot) {
+  unodb::db test_db;
+  tree_verifier verifier{test_db};
+  verifier.insert(16865361447928765957ULL, test_values[0]);
+  verifier.insert(7551546784238320931ULL, test_values[1]);
+  verifier.insert(10913915230368519832ULL, test_values[2]);
+  verifier.insert(3754602112003529886ULL, test_values[3]);
+  verifier.insert(15202487832924025715ULL, test_values[4]);
+  verifier.insert(501264303707694295ULL, test_values[0]);
+  verifier.insert(9228847637821057196ULL, test_values[1]);
+  verifier.insert(4772373217231458680ULL, test_values[2]);
+  verifier.insert(10396278540561456315ULL, test_values[3]);
+  verifier.insert(16646085826334346534ULL, test_values[4]);
+  verifier.insert(3854084731240466350ULL, test_values[0]);
+  verifier.insert(12957550352669724359ULL, test_values[1]);
+  verifier.insert(6583227679421302512ULL, test_values[2]);
+  verifier.insert(6829398721825682578ULL, test_values[3]);
+  verifier.insert(11455392605080430684ULL, test_values[4]);
+  verifier.insert(10176313584012002900ULL, test_values[0]);
+  verifier.insert(13700634388772836888ULL, test_values[1]);
+  verifier.insert(17872125209760305988ULL, test_values[2]);
+  verifier.remove(6583227679421302512ULL);
+  verifier.insert(0, test_values[0]);
+  verifier.check_present_values();
+}
+
 }  // namespace

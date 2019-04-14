@@ -922,7 +922,8 @@ internal_node_16::internal_node_16(
     if (source_child_i != internal_node_48::empty_child) {
       keys.byte_array[next_child] = gsl::narrow_cast<std::byte>(i);
       assert(source_node->children[source_child_i] != nullptr);
-      children[next_child] = std::move(source_node->children[source_child_i]);
+      new (&children[next_child])
+          node_ptr{std::move(source_node->children[source_child_i])};
       ++next_child;
       if (next_child == children_count) break;
     }

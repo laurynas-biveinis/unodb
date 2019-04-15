@@ -24,4 +24,15 @@
 #define _GLIBCXX_SANITIZE_VECTOR 1
 #endif
 
+#define DO_PRAGMA(x) _Pragma(#x)
+
+#ifdef __clang__
+#define DISABLE_CLANG_WARNING(x) \
+  _Pragma("GCC diagnostic push") DO_PRAGMA(GCC diagnostic ignored x)
+#define RESTORE_CLANG_WARNINGS() _Pragma("GCC diagnostic pop")
+#else
+#define DISABLE_CLANG_WARNING(x)
+#define RESTORE_CLANG_WARNINGS()
+#endif
+
 #endif  // UNODB_GLOBAL_HPP_

@@ -29,10 +29,7 @@ constexpr std::array<unodb::value_view, 5> test_values = {
 
 // warning: 'ScopedTrace' was marked unused but was used
 // [-Wused-but-marked-unused]
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wused-but-marked-unused"
-#endif
+DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
 
 auto assert_result_eq(unodb::key_type key, unodb::db::get_result result,
                       unodb::value_view expected, int caller_line) noexcept {
@@ -44,9 +41,7 @@ auto assert_result_eq(unodb::key_type key, unodb::db::get_result result,
                          expected.cend()));
 }
 
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+RESTORE_CLANG_WARNINGS();
 
 #define ASSERT_VALUE_FOR_KEY(key, expected) \
   assert_result_eq(key, test_db.get(key), expected, __LINE__)

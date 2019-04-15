@@ -1272,10 +1272,9 @@ bool db::insert(key_type k, value_view v) {
     return true;
   }
   try {
-    const auto result = insert_to_subtree(bin_comparable_key, &root,
-                                          std::move(leaf), 0);
-    if (!result)
-      decrease_memory_use(leaf_size);
+    const auto result =
+        insert_to_subtree(bin_comparable_key, &root, std::move(leaf), 0);
+    if (!result) decrease_memory_use(leaf_size);
     return result;
   } catch (const std::bad_alloc &) {
     decrease_memory_use(leaf_size);

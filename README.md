@@ -12,9 +12,8 @@ Trie. The licence is AGPLv3.
 *   Guidelines Support Library for gsl::span, imported as a git
     submodule.
 *   Boost.Container library. Version 1.69 gives UBSan errors
-    (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80963,
-    https://bugs.llvm.org/show_bug.cgi?id=39191). Currently it is
-    being tested with 1.60.
+    ([bug report 1][boostub1], [bug report 2][boostub2]). Currently it
+    is being tested with 1.60.
 *   clang-format, at least 8.0
 *   Google Test for tests, imported as a git submodule.
 *   (optional) lcov
@@ -22,6 +21,7 @@ Trie. The licence is AGPLv3.
 *   (optional) cppcheck
 *   (optional) cpplint
 *   (optional) include-what-you-use
+*   (optional) [DeepState][deepstate] for fuzzing
 
 ## Development
 
@@ -47,8 +47,9 @@ To enable inconclusive cppcheck diagnostics, add
 To generate coverage reports using lcov, add -DCOVERAGE=ON CMake
 option.
 
-Google Test is used for testing. There will be no unit tests for each
-private implementation class.
+Google Test and DeepState are used for testing. There will be no unit
+tests for each private implementation class. For DeepState, both
+LLVM libfuzzer and built-in fuzzer are supported.
 
 ## Literature
 
@@ -58,4 +59,10 @@ International Conference on Data Engineering (ICDE 2013)(ICDE),
 Brisbane, QLD, 2013, pp. 38-49.
 doi:10.1109/ICDE.2013.6544812
 
+[boostub1]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80963
+
+[boostub2]: https://bugs.llvm.org/show_bug.cgi?id=39191
+
 [gc++style]: https://google.github.io/styleguide/cppguide.html "Google C++ Style Guide"
+
+[deepstate]: https://github.com/trailofbits/deepstate "DeepState on GitHub"

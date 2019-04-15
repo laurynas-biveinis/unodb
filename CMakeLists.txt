@@ -106,6 +106,43 @@ configure_file(config.hpp.in config.hpp)
 
 find_package(Boost REQUIRED COMPONENTS container)
 
+find_path(DEEPSTATE_HPP_PATH deepstate/DeepState.hpp)
+if(NOT DEEPSTATE_HPP_PATH)
+  message(STATUS "DeepState header not found, not building its fuzz tests")
+else()
+  message(STATUS "DeepState header found in ${DEEPSTATE_HPP_PATH}")
+endif()
+
+find_library(DEEPSTATE_LIB_PATH deepstate)
+if(NOT DEEPSTATE_LIB_PATH)
+  message(STATUS "DeepState library not found, not building its fuzz tests")
+else()
+  message(STATUS "DeepState library found in ${DEEPSTATE_LIB_PATH}")
+endif()
+
+include(CheckCxxCompilerFlag)
+
+SET(CMAKE_REQUIRED_LINK_OPTIONS "-fsanitize=fuzzer")
+check_cxx_compiler_flag("-fsanitize=fuzzer" COMPILER_UNDERSTANDS_FSANITIZE_FUZZER)
+
+if(COMPILER_UNDERSTANDS_FSANITIZE_FUZZER)
+  find_library(DEEPSTATE_LF_LIB_PATH deepstate_LF)
+  if(NOT DEEPSTATE_LF_LIB_PATH)
+    message(STATUS "libfuzzer-enabled DeepState not found, not building its fuzz tests")
+  else()
+    message(STATUS "libfuzzer-enabled DeepState found in ${DEEPSTATE_LF_LIB_PATH}")
+  endif()
+endif()
+
+if(DEEPSTATE_HPP_PATH)
+  if(DEEPSTATE_LIB_PATH)
+    SET(DEEPSTATE_OK TRUE)
+  endif()
+  if(DEEPSTATE_LF_LIB_PATH)
+    SET(DEEPSTATE_LF_OK TRUE)
+  endif()
+endif()
+
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy"
   DOC "Path to clang-tidy executable")
 if(NOT CLANG_TIDY_EXE)
@@ -138,7 +175,8 @@ else()
     "-readability-braces-around-statements,"
     "-readability-else-after-return," # Until clang-tidy learns about constexpr if
     "-readability-magic-numbers")
-  set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}" "-checks=*,${CLANG_TIDY_DISABLED}")
+  set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
+    "-checks=*,${CLANG_TIDY_DISABLED}")
   string(CONCAT CLANG_TIDY_DISABLED_FOR_TESTS
     "${CLANG_TIDY_DISABLED},"
     "-build-include-order,"
@@ -154,6 +192,13 @@ else()
     "-hicpp-vararg") # GTest uses varargs
   set(DO_CLANG_TIDY_TEST "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
     "-checks=*,${CLANG_TIDY_DISABLED_FOR_TESTS}")
+  string(CONCAT CLANG_TIDY_DISABLED_FOR_DEEPSTATE
+    "${CLANG_TIDY_DISABLED},"
+    "-cert-err58-cpp,"
+    "-fuchsia-statically-constructed-objects,"
+    "-readability-implicit-bool-conversion") # DeepState_Bool returning int
+  set(DO_CLANG_TIDY_DEEPSTATE "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
+    "-checks=*,${CLANG_TIDY_DISABLED_FOR_DEEPSTATE}")
 endif()
 
 option(CPPCHECK_AGGRESSIVE "Enable inconclusive cppcheck checks")
@@ -242,11 +287,43 @@ target_link_libraries(test_art PRIVATE unodb gtest_main)
 if(DO_CLANG_TIDY)
   set_target_properties(test_art PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY_TEST}")
 endif()
-add_test(test_art test_art)
+add_test(NAME test_art COMMAND test_art)
 if(SANITIZE)
   set_tests_properties(test_art PROPERTIES ENVIRONMENT "${ASAN_OPTIONS}")
   set_tests_properties(test_art PROPERTIES ENVIRONMENT "${UBSAN_OPTIONS}")
 endif()
+
+function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
+  common_target_properties(${TARGET})
+  target_include_directories(${TARGET} SYSTEM PRIVATE "${DEEPSTATE_HPP_PATH}")
+  target_link_libraries(${TARGET} PRIVATE unodb)
+  if(DO_CLANG_TIDY)
+    set_target_properties(${TARGET} PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY_DEEPSTATE}")
+  endif()
+  if(SANITIZE)
+    set_tests_properties(${TARGET} PROPERTIES ENVIRONMENT "${ASAN_OPTIONS}")
+    set_tests_properties(${TARGET} PROPERTIES ENVIRONMENT "${UBSAN_OPTIONS}")
+  endif()
+endfunction()
+
+if(DEEPSTATE_OK)
+  add_executable(test_art_fuzz_deepstate test_art_fuzz_deepstate.cpp)
+  add_test(NAME test_art_fuzz_deepstate COMMAND test_art_fuzz_deepstate)
+  common_deepstate_target_properties(test_art_fuzz_deepstate)
+  target_link_libraries(test_art_fuzz_deepstate PRIVATE "${DEEPSTATE_LIB_PATH}")
+endif()
+
+if(DEEPSTATE_LF_OK)
+  add_executable(test_art_fuzz_deepstate_lf test_art_fuzz_deepstate.cpp)
+  add_test(NAME test_art_fuzz_deepstate_lf COMMAND test_art_fuzz_deepstate_lf -runs=1)
+  common_deepstate_target_properties(test_art_fuzz_deepstate_lf)
+  set_target_properties(test_art_fuzz_deepstate_lf PROPERTIES COMPILE_DEFINITIONS "LIBFUZZER")
+  target_compile_options(test_art_fuzz_deepstate_lf PRIVATE "-fsanitize=fuzzer")
+  target_link_libraries(test_art_fuzz_deepstate_lf PRIVATE "${DEEPSTATE_LF_LIB_PATH}")
+  target_link_libraries(test_art_fuzz_deepstate_lf PRIVATE "-fsanitize=fuzzer")
+endif()
+
+# TODO(laurynas): add custom targets for 1min/20min/8h fuzzer runs
 
 if(COVERAGE)
   add_custom_target(coverage

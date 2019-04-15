@@ -55,6 +55,7 @@ class tree_verifier final {
  public:
   explicit tree_verifier(unodb::db &test_db_) : test_db(test_db_) {}
 
+  // TODO(laurynas): replace v with index into test_values array
   void insert(unodb::key_type k, unodb::value_view v);
 
   void insert_key_range(unodb::key_type start_key, size_t count);

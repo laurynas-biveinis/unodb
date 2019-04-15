@@ -41,7 +41,7 @@ auto assert_result_eq(unodb::key_type key, unodb::db::get_result result,
                          expected.cend()));
 }
 
-RESTORE_CLANG_WARNINGS();
+RESTORE_CLANG_WARNINGS()
 
 #define ASSERT_VALUE_FOR_KEY(key, expected) \
   assert_result_eq(key, test_db.get(key), expected, __LINE__)

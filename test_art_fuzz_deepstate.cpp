@@ -68,7 +68,7 @@ unodb::key_type get_key(unodb::key_type max_key_value,
 // warning: function 'DeepState_Run_ART_DeepState_fuzz' could be declared with
 // attribute 'noreturn' [-Wmissing-noreturn]
 // We consider this to be a TEST macro internal implementation detail
-DISABLE_CLANG_WARNING("-Wmissing-noreturn");
+DISABLE_CLANG_WARNING("-Wmissing-noreturn")
 
 TEST(ART, DeepState_fuzz) {
   const auto mem_limit =
@@ -178,4 +178,4 @@ TEST(ART, DeepState_fuzz) {
   ASSERT(test_db.get_current_memory_use() == 0);
 }
 
-RESTORE_CLANG_WARNINGS();
+RESTORE_CLANG_WARNINGS()

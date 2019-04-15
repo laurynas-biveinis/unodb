@@ -79,6 +79,7 @@ class tree_verifier final {
 };
 
 void tree_verifier::insert(unodb::key_type k, unodb::value_view v) {
+  // TODO(laurynas): insert into test_db first, removing try/catch block
   const auto insert_result = values.emplace(k, v);
   ASSERT_TRUE(insert_result.second);
   try {

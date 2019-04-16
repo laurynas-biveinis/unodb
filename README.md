@@ -37,14 +37,14 @@ compiler warnings is set very high, and can be relaxed, especially for
 clang-tidy, as need arises.
 
 To enable Address, Leak, and Undefined Behavior sanitizers, add
--DSANITIZE=ON CMake option.
+`-DSANITIZE=ON` CMake option.
 
-To invoke include-what-you-use, add -DIWYU=ON CMake option.
+To invoke include-what-you-use, add `-DIWYU=ON` CMake option.
 
 To enable inconclusive cppcheck diagnostics, add
--DCPPCHECK_AGGRESSIVE=ON CMake option.
+`-DCPPCHECK_AGGRESSIVE=ON` CMake option.
 
-To generate coverage reports using lcov, add -DCOVERAGE=ON CMake
+To generate coverage reports using lcov, add `-DCOVERAGE=ON` CMake
 option.
 
 Google Test and DeepState are used for testing. There will be no unit

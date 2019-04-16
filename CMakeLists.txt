@@ -337,9 +337,19 @@ if(DEEPSTATE_LF_OK)
   target_compile_options(test_art_fuzz_deepstate_lf PRIVATE "-fsanitize=fuzzer")
   target_link_libraries(test_art_fuzz_deepstate_lf PRIVATE "${DEEPSTATE_LF_LIB_PATH}")
   target_link_libraries(test_art_fuzz_deepstate_lf PRIVATE "-fsanitize=fuzzer")
-endif()
 
-# TODO(laurynas): add custom targets for 1min/20min/8h fuzzer runs
+  add_custom_target(deepstate_lf_1m
+    ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
+    COMMAND test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1 -detect_leaks=0  -max_total_time=60)
+
+  add_custom_target(deepstate_lf_20m
+    ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
+    COMMAND test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1 -detect_leaks=0  -max_total_time=1200)
+
+  add_custom_target(deepstate_lf_8h
+    ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
+    COMMAND test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1 -detect_leaks=0  -max_total_time=28800)
+endif()
 
 if(COVERAGE)
   add_custom_target(coverage

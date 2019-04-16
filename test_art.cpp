@@ -73,16 +73,9 @@ class tree_verifier final {
 };
 
 void tree_verifier::insert(unodb::key_type k, unodb::value_view v) {
-  // TODO(laurynas): insert into test_db first, removing try/catch block
+  ASSERT_TRUE(test_db.insert(k, v));
   const auto insert_result = values.emplace(k, v);
   ASSERT_TRUE(insert_result.second);
-  try {
-    ASSERT_TRUE(test_db.insert(k, v));
-  } catch (const std::bad_alloc &) {
-    const auto values_remove_result = values.erase(k);
-    ASSERT_EQ(values_remove_result, 1);
-    throw;
-  }
 }
 
 void tree_verifier::insert_key_range(unodb::key_type start_key, size_t count) {

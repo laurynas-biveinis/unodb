@@ -315,6 +315,18 @@ if(DEEPSTATE_OK)
   add_test(NAME test_art_fuzz_deepstate COMMAND test_art_fuzz_deepstate)
   common_deepstate_target_properties(test_art_fuzz_deepstate)
   target_link_libraries(test_art_fuzz_deepstate PRIVATE "${DEEPSTATE_LIB_PATH}")
+
+  add_custom_target(deepstate_1m
+    ${CMAKE_COMMAND} -E make_directory deepstate_fails
+    COMMAND test_art_fuzz_deepstate --fuzz --timeout 60 --output_test_dir deepstate_fails)
+
+  add_custom_target(deepstate_20m
+    ${CMAKE_COMMAND} -E make_directory deepstate_fails
+    COMMAND test_art_fuzz_deepstate --fuzz --timeout 1200 --output_test_dir deepstate_fails)
+
+  add_custom_target(deepstate_8h
+    ${CMAKE_COMMAND} -E make_directory deepstate_fails
+    COMMAND test_art_fuzz_deepstate --fuzz --timeout 28800 --output_test_dir deepstate_fails)
 endif()
 
 if(DEEPSTATE_LF_OK)

@@ -44,8 +44,8 @@ To invoke include-what-you-use, add `-DIWYU=ON` CMake option.
 To enable inconclusive cppcheck diagnostics, add
 `-DCPPCHECK_AGGRESSIVE=ON` CMake option.
 
-To generate coverage reports using lcov, add `-DCOVERAGE=ON` CMake
-option.
+To generate coverage reports on tests, fuzzers excluded, using lcov,
+add `-DCOVERAGE=ON` CMake option.
 
 Google Test and DeepState are used for testing. There will be no unit
 tests for each private implementation class. For DeepState, both

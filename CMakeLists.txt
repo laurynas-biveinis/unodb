@@ -331,7 +331,7 @@ endif()
 
 if(COVERAGE)
   add_custom_target(coverage
-    make test
+    ctest -R test_art$$
     COMMAND lcov --capture --directory . --output-file coverage.info
     COMMAND lcov --remove coverage.info '/usr/*' --output-file coverage.info
     COMMAND lcov --remove coverage.info '/Library/Developer/*' --output-file coverage.info
@@ -340,3 +340,5 @@ if(COVERAGE)
     COMMAND lcov --list coverage.info
     DEPENDS test_art)
 endif()
+
+# TODO(laurynas): add target for fuzz test coverage

@@ -285,6 +285,23 @@ add_subdirectory(googletest)
 
 enable_testing()
 
+function(ADD_COVERAGE_TARGET)
+  set(fn_options "")
+  set(fn_one_value_args TARGET DEPENDENCY)
+  set(fn_multi_value_args "")
+  cmake_parse_arguments(ARG "${fn_options}" "${fn_one_value_args}" "${fn_multi_value_args}"
+    ${ARGN})
+  set(COV_DATA "coverage-${TARGET}.info")
+  add_custom_target(${ARG_TARGET}
+    COMMAND lcov --capture --directory . --output-file ${COV_DATA}
+    COMMAND lcov --remove ${COV_DATA} '/usr/*' --output-file ${COV_DATA}
+    COMMAND lcov --remove ${COV_DATA} '/Library/Developer/*' --output-file ${COV_DATA}
+    COMMAND lcov --remove ${COV_DATA} '*/unodb/googletest/*' --output-file ${COV_DATA}
+    COMMAND lcov --remove ${COV_DATA} '*/unodb/GSL/*' --output-file ${COV_DATA}
+    COMMAND lcov --list ${COV_DATA}
+    DEPENDS ${ARG_DEPENDENCY})
+endfunction()
+
 add_executable(test_art test_art.cpp)
 common_target_properties(test_art)
 target_link_libraries(test_art PRIVATE unodb gtest_main)
@@ -295,6 +312,11 @@ add_test(NAME test_art COMMAND test_art)
 if(SANITIZE)
   set_tests_properties(test_art PROPERTIES ENVIRONMENT "${ASAN_OPTIONS}")
   set_tests_properties(test_art PROPERTIES ENVIRONMENT "${UBSAN_OPTIONS}")
+endif()
+
+if(COVERAGE)
+  add_custom_target(test_art_for_coverage ctest -R test_art$$)
+  add_coverage_target(TARGET coverage DEPENDENCY test_art_for_coverage)
 endif()
 
 function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
@@ -327,6 +349,10 @@ if(DEEPSTATE_OK)
   add_custom_target(deepstate_8h
     ${CMAKE_COMMAND} -E make_directory deepstate_fails
     COMMAND test_art_fuzz_deepstate --fuzz --timeout 28800 --output_test_dir deepstate_fails)
+
+  if(COVERAGE)
+    add_coverage_target(TARGET coverage_deepstate DEPENDENCY deepstate_1m)
+  endif()
 endif()
 
 if(DEEPSTATE_LF_OK)
@@ -349,18 +375,8 @@ if(DEEPSTATE_LF_OK)
   add_custom_target(deepstate_lf_8h
     ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
     COMMAND test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1 -detect_leaks=0  -max_total_time=28800)
-endif()
 
-if(COVERAGE)
-  add_custom_target(coverage
-    ctest -R test_art$$
-    COMMAND lcov --capture --directory . --output-file coverage.info
-    COMMAND lcov --remove coverage.info '/usr/*' --output-file coverage.info
-    COMMAND lcov --remove coverage.info '/Library/Developer/*' --output-file coverage.info
-    COMMAND lcov --remove coverage.info '*/unodb/googletest/*' --output-file coverage.info
-    COMMAND lcov --remove coverage.info '*/unodb/GSL/*' --output-file coverage.info
-    COMMAND lcov --list coverage.info
-    DEPENDS test_art)
+  if(COVERAGE)
+    add_coverage_target(TARGET coverage_deepstate_lf DEPENDENCY deepstate_lf_1m)
+  endif()
 endif()
-
-# TODO(laurynas): add target for fuzz test coverage

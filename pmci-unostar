@@ -14,6 +14,7 @@ rm -rf *
 cmake ../unodb -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_BUILD_TYPE=Debug
 make -j4
 make test
+valgrind ./test_art
 rm -rf *
 
 # TODO(laurynas): Release config failing!
@@ -26,11 +27,13 @@ rm -rf *
 cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Debug
 make -j4
 make test
+valgrind ./test_art
 rm -rf *
 
 cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Release
 make -j4
 make test
+valgrind ./test_art
 rm -rf *
 
 cmake ../unodb -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_BUILD_TYPE=Release -DCPPCHECK_AGGRESSIVE=ON
@@ -72,8 +75,6 @@ make -j4 coverage
 rm -rf *
 
 # TODO(laurynas): flint++
-
-# TODO(laurynas): Add Valgrind
 
 popd
 rm -rf $WORKDIR

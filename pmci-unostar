@@ -1,0 +1,79 @@
+#!/bin/bash
+# Poor man's CI, to be run in Linux VM on my laptop
+
+readonly WORKDIR=$1
+
+mkdir $WORKDIR
+pushd $WORKDIR
+
+cmake ../unodb -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_BUILD_TYPE=Debug -DSANITIZE=ON
+make -j4
+make test
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_BUILD_TYPE=Debug
+make -j4
+make test
+rm -rf *
+
+# TODO(laurynas): Release config failing!
+
+cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Debug -DSANITIZE=ON
+make -j4
+make test
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Debug
+make -j4
+make test
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Release
+make -j4
+make test
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_BUILD_TYPE=Release -DCPPCHECK_AGGRESSIVE=ON
+make -j4
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_BUILD_TYPE=Debug -DCPPCHECK_AGGRESSIVE=ON
+make -j4
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Debug -DIWYU=ON
+make -j4
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Release -DIWYU=ON
+make -j4
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Debug -DIWYU=ON
+make -j4
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Release
+scan-build-8 make -j4
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Debug
+scan-build-8 make -j4
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_BUILD_TYPE=Release -DCOVERAGE=ON
+make -j4 coverage
+# HTML reports not saved ATM
+rm -rf *
+
+cmake ../unodb -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON
+make -j4 coverage
+# HTML reports not saved ATM
+rm -rf *
+
+# TODO(laurynas): flint++
+
+# TODO(laurynas): Add Valgrind
+
+popd
+rm -rf $WORKDIR

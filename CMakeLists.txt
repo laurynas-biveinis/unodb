@@ -124,7 +124,7 @@ else()
   message(STATUS "DeepState library found in ${DEEPSTATE_LIB_PATH}")
 endif()
 
-include(CheckCxxCompilerFlag)
+include(CheckCXXCompilerFlag)
 
 SET(CMAKE_REQUIRED_LINK_OPTIONS "-fsanitize=fuzzer")
 check_cxx_compiler_flag("-fsanitize=fuzzer" COMPILER_UNDERSTANDS_FSANITIZE_FUZZER)

@@ -243,13 +243,18 @@ endif()
 
 option(IWYU "Enable include-what-you-use checking")
 if(IWYU)
-  find_program(IWYU_EXE NAMES "include-what-you-use"
-    DOC "Path to include-what-you-use executable")
-  if(NOT IWYU_EXE)
-    message(STATUS "include-what-you-use not found")
+  if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+      AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    message(STATUS "Not using include-what-you-use due to non-clang compiler being used")
   else()
-    message(STATUS "include-what-you-use found: ${IWYU_EXE}")
-    set(DO_IWYU "${IWYU_EXE}")
+    find_program(IWYU_EXE NAMES "include-what-you-use"
+      DOC "Path to include-what-you-use executable")
+    if(NOT IWYU_EXE)
+      message(STATUS "include-what-you-use not found")
+    else()
+      message(STATUS "include-what-you-use found: ${IWYU_EXE}")
+      set(DO_IWYU "${IWYU_EXE}")
+    endif()
   endif()
 endif()
 

@@ -147,62 +147,68 @@ if(DEEPSTATE_HPP_PATH)
   endif()
 endif()
 
-find_program(CLANG_TIDY_EXE NAMES "clang-tidy"
-  DOC "Path to clang-tidy executable")
-if(NOT CLANG_TIDY_EXE)
-  message(STATUS "clang-tidy not found")
+if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+    AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  message(STATUS "Not using clang-tidy due to non-clang compiler being used")
 else()
-  message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-  string(CONCAT CLANG_TIDY_DISABLED
-    "-fuchsia-default-arguments,"
-    "-cppcoreguidelines-avoid-magic-numbers,"
-    "-cppcoreguidelines-macro-usage," # Until it respects __LINE__ in macro definition
-    "-cppcoreguidelines-non-private-member-variables-in-classes,"
-    "-cppcoreguidelines-pro-bounds-array-to-pointer-decay,"
-    "-cppcoreguidelines-pro-bounds-constant-array-index,"
-    # Because leaf nodes are std::byte arrays
-    "-cppcoreguidelines-pro-bounds-pointer-arithmetic,"
-    "-cppcoreguidelines-pro-type-member-init,"
-    "-cppcoreguidelines-pro-type-reinterpret-cast,"
-    "-cppcoreguidelines-pro-type-static-cast-downcast,"
-    "-cppcoreguidelines-pro-type-union-access,"
-    "-fuchsia-overloaded-operator,"
-    "-google-readability-braces-around-statements,"
-    "-google-runtime-references,"
-    "-hicpp-braces-around-statements,"
-    "-hicpp-member-init,"
-    "-hicpp-no-array-decay,"
-    "-hicpp-use-equals-default,"
-    "-llvm-include-order,"
-    "-misc-non-private-member-variables-in-classes,"
-    "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang
-    "-readability-braces-around-statements,"
-    "-readability-else-after-return," # Until clang-tidy learns about constexpr if
-    "-readability-magic-numbers")
-  set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
-    "-checks=*,${CLANG_TIDY_DISABLED}")
-  string(CONCAT CLANG_TIDY_DISABLED_FOR_TESTS
-    "${CLANG_TIDY_DISABLED},"
-    "-build-include-order,"
-    "-cert-err58-cpp,"
-    "-cppcoreguidelines-avoid-goto,"
-    "-cppcoreguidelines-owning-memory,"
-    "-cppcoreguidelines-pro-type-vararg," # GTest uses varargs
-    "-cppcoreguidelines-special-member-functions,"
-    "-fuchsia-statically-constructed-objects,"
-    "-google-runtime-references,"
-    "-hicpp-avoid-goto,"
-    "-hicpp-special-member-functions,"
-    "-hicpp-vararg") # GTest uses varargs
-  set(DO_CLANG_TIDY_TEST "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
-    "-checks=*,${CLANG_TIDY_DISABLED_FOR_TESTS}")
-  string(CONCAT CLANG_TIDY_DISABLED_FOR_DEEPSTATE
-    "${CLANG_TIDY_DISABLED},"
-    "-cert-err58-cpp,"
-    "-fuchsia-statically-constructed-objects,"
-    "-readability-implicit-bool-conversion") # DeepState_Bool returning int
-  set(DO_CLANG_TIDY_DEEPSTATE "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
-    "-checks=*,${CLANG_TIDY_DISABLED_FOR_DEEPSTATE}")
+  find_program(CLANG_TIDY_EXE NAMES "clang-tidy"
+    DOC "Path to clang-tidy executable")
+  if(NOT CLANG_TIDY_EXE)
+    message(STATUS "clang-tidy not found")
+  else()
+    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+    string(CONCAT CLANG_TIDY_DISABLED
+      "-fuchsia-default-arguments,"
+      "-clang-diagnostic-error,"
+      "-cppcoreguidelines-avoid-magic-numbers,"
+      "-cppcoreguidelines-macro-usage," # Until it respects __LINE__ in macro definition
+      "-cppcoreguidelines-non-private-member-variables-in-classes,"
+      "-cppcoreguidelines-pro-bounds-array-to-pointer-decay,"
+      "-cppcoreguidelines-pro-bounds-constant-array-index,"
+      # Because leaf nodes are std::byte arrays
+      "-cppcoreguidelines-pro-bounds-pointer-arithmetic,"
+      "-cppcoreguidelines-pro-type-member-init,"
+      "-cppcoreguidelines-pro-type-reinterpret-cast,"
+      "-cppcoreguidelines-pro-type-static-cast-downcast,"
+      "-cppcoreguidelines-pro-type-union-access,"
+      "-fuchsia-overloaded-operator,"
+      "-google-readability-braces-around-statements,"
+      "-google-runtime-references,"
+      "-hicpp-braces-around-statements,"
+      "-hicpp-member-init,"
+      "-hicpp-no-array-decay,"
+      "-hicpp-use-equals-default,"
+      "-llvm-include-order,"
+      "-misc-non-private-member-variables-in-classes,"
+      "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang
+      "-readability-braces-around-statements,"
+      "-readability-else-after-return," # Until clang-tidy learns about constexpr if
+      "-readability-magic-numbers")
+    set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
+      "-checks=*,${CLANG_TIDY_DISABLED}")
+    string(CONCAT CLANG_TIDY_DISABLED_FOR_TESTS
+      "${CLANG_TIDY_DISABLED},"
+      "-build-include-order,"
+      "-cert-err58-cpp,"
+      "-cppcoreguidelines-avoid-goto,"
+      "-cppcoreguidelines-owning-memory,"
+      "-cppcoreguidelines-pro-type-vararg," # GTest uses varargs
+      "-cppcoreguidelines-special-member-functions,"
+      "-fuchsia-statically-constructed-objects,"
+      "-google-runtime-references,"
+      "-hicpp-avoid-goto,"
+      "-hicpp-special-member-functions,"
+      "-hicpp-vararg") # GTest uses varargs
+    set(DO_CLANG_TIDY_TEST "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
+      "-checks=*,${CLANG_TIDY_DISABLED_FOR_TESTS}")
+    string(CONCAT CLANG_TIDY_DISABLED_FOR_DEEPSTATE
+      "${CLANG_TIDY_DISABLED},"
+      "-cert-err58-cpp,"
+      "-fuchsia-statically-constructed-objects,"
+      "-readability-implicit-bool-conversion") # DeepState_Bool returning int
+    set(DO_CLANG_TIDY_DEEPSTATE "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
+      "-checks=*,${CLANG_TIDY_DISABLED_FOR_DEEPSTATE}")
+  endif()
 endif()
 
 option(CPPCHECK_AGGRESSIVE "Enable inconclusive cppcheck checks")

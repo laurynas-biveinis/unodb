@@ -302,7 +302,7 @@ function(ADD_COVERAGE_TARGET)
   set(fn_multi_value_args "")
   cmake_parse_arguments(ARG "${fn_options}" "${fn_one_value_args}" "${fn_multi_value_args}"
     ${ARGN})
-  set(COV_DATA "coverage-${TARGET}.info")
+  set(COV_DATA "coverage-${ARG_TARGET}.info")
   add_custom_target(${ARG_TARGET}
     COMMAND lcov --capture --directory . --output-file ${COV_DATA}
     COMMAND lcov --remove ${COV_DATA} '/usr/*' --output-file ${COV_DATA}

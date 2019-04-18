@@ -210,8 +210,8 @@ struct single_value_leaf final {
     return art_key_type::create(&leaf[offset_key]);
   }
 
-  [[nodiscard]] static auto matches(single_value_leaf_type leaf,
-                                    art_key_type k) noexcept {
+  [[nodiscard]] __attribute__((pure)) static auto matches(
+      single_value_leaf_type leaf, art_key_type k) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
     return k == leaf + offset_key;
   }
@@ -221,7 +221,8 @@ struct single_value_leaf final {
     return value_view{&leaf[offset_value], value_size(leaf)};
   }
 
-  [[nodiscard]] static std::size_t size(single_value_leaf_type leaf) noexcept {
+  [[nodiscard]] __attribute__((pure)) static std::size_t size(
+      single_value_leaf_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
     return value_size(leaf) + offset_value;
   }
@@ -242,7 +243,7 @@ struct single_value_leaf final {
 
   static constexpr auto minimum_size = offset_value;
 
-  [[nodiscard]] static value_size_type value_size(
+  [[nodiscard]] __attribute__((pure)) static value_size_type value_size(
       single_value_leaf_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
     value_size_type result;
@@ -408,9 +409,9 @@ class internal_node {
   [[nodiscard]] __attribute__((pure)) find_result_type find_child(
       std::byte key_byte) noexcept;
 
-  [[nodiscard]] bool is_full() const noexcept;
+  [[nodiscard]] __attribute__((pure)) bool is_full() const noexcept;
 
-  [[nodiscard]] bool is_min_size() const noexcept;
+  [[nodiscard]] __attribute__((pure)) bool is_min_size() const noexcept;
 
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
@@ -549,12 +550,12 @@ class internal_node_template : public internal_node {
     get_internal_node_pool<Derived>()->deallocate(to_delete, sizeof(Derived));
   }
 
-  [[nodiscard]] bool is_full() const noexcept {
+  [[nodiscard]] __attribute__((pure)) bool is_full() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
     return children_count == capacity;
   }
 
-  [[nodiscard]] bool is_min_size() const noexcept {
+  [[nodiscard]] __attribute__((pure)) bool is_min_size() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
     return children_count == min_size;
   }

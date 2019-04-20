@@ -127,12 +127,18 @@ else()
   message(STATUS "DeepState library found in ${DEEPSTATE_LIB_PATH}")
 endif()
 
-include(CheckCXXCompilerFlag)
+include(CheckCXXSourceCompiles)
 
-SET(CMAKE_REQUIRED_LINK_OPTIONS "-fsanitize=fuzzer")
-check_cxx_compiler_flag("-fsanitize=fuzzer" COMPILER_UNDERSTANDS_FSANITIZE_FUZZER)
+set(CMAKE_REQUIRED_FLAGS "-fsanitize=fuzzer")
+set(CMAKE_REQUIRED_LINK_OPTIONS "-fsanitize=fuzzer")
+check_cxx_source_compiles(
+  "#include <cstddef>
+   #include <cstdint>
+   extern \"C\" int LLVMFuzzerTestOneInput(const uint8_t *, size_t) {
+     return 0;
+   }" LIBFUZZER_OK)
 
-if(COMPILER_UNDERSTANDS_FSANITIZE_FUZZER)
+if(LIBFUZZER_OK)
   find_library(DEEPSTATE_LF_LIB_PATH deepstate_LF)
   if(NOT DEEPSTATE_LF_LIB_PATH)
     message(STATUS "libfuzzer-enabled DeepState not found, not building its fuzz tests")

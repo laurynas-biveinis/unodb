@@ -21,7 +21,8 @@ Trie. The licence is AGPLv3.
 *   (optional) cppcheck
 *   (optional) cpplint
 *   (optional) include-what-you-use
-*   (optional) [DeepState][deepstate] for fuzzing
+*   (optional) [DeepState][deepstate] for fuzzing, currently working
+    on macOS only
 
 ## Development
 

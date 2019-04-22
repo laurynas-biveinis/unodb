@@ -316,6 +316,7 @@ function(ADD_COVERAGE_TARGET)
     COMMAND lcov --capture --directory . --output-file ${COV_DATA}
     COMMAND lcov --remove ${COV_DATA} '/usr/*' --output-file ${COV_DATA}
     COMMAND lcov --remove ${COV_DATA} '/Library/Developer/*' --output-file ${COV_DATA}
+    COMMAND lcov --remove ${COV_DATA} '/Applications/Xcode.app/*' --output-file ${COV_DATA}
     COMMAND lcov --remove ${COV_DATA} '*/unodb/googletest/*' --output-file ${COV_DATA}
     COMMAND lcov --remove ${COV_DATA} '*/unodb/GSL/*' --output-file ${COV_DATA}
     COMMAND lcov --list ${COV_DATA}

@@ -40,7 +40,8 @@ clang-tidy, as need arises.
 To enable Address, Leak, and Undefined Behavior sanitizers, add
 `-DSANITIZE=ON` CMake option.
 
-To invoke include-what-you-use, add `-DIWYU=ON` CMake option.
+To invoke include-what-you-use, add `-DIWYU=ON` CMake option. It will
+take effect if CMake configures to build project with clang.
 
 To enable inconclusive cppcheck diagnostics, add
 `-DCPPCHECK_AGGRESSIVE=ON` CMake option.

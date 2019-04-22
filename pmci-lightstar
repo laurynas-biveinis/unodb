@@ -50,14 +50,6 @@ cmake ../unodb/ -DCMAKE_BUILD_TYPE=Debug -DCPPCHECK_AGGRESSIVE=ON
 make -j4
 rm -rf *
 
-cmake ../unodb/ -DCMAKE_BUILD_TYPE=Release -DIWYU=ON
-make -j4
-rm -rf *
-
-cmake ../unodb/ -DCMAKE_BUILD_TYPE=Debug -DIWYU=ON
-make -j4
-rm -rf *
-
 cmake ../unodb -DCMAKE_BUILD_TYPE=Release
 /usr/local/opt/llvm/bin/scan-build make -j4
 rm -rf *

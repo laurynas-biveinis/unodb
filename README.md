@@ -23,6 +23,8 @@ Trie. The licence is AGPLv3.
 *   (optional) include-what-you-use
 *   (optional) [DeepState][deepstate] for fuzzing, currently working
     on macOS only
+*   (optional) Google Benchmark for microbenchmarks. Will not be
+    enabled if compiling with GCC under macOS.
 
 ## Development
 

@@ -32,12 +32,12 @@ make -j4
 make test
 rm -rf *
 
-cmake ../unodb/ -DCMAKE_CXX_COMPILER=/usr/local/opt/gcc/bin/g++-8 -DCMAKE_BUILD_TYPE=Debug
+cmake ../unodb/ -DCMAKE_CXX_COMPILER=/usr/local/opt/gcc/bin/g++-8 -DCMAKE_C_COMPILER=/usr/local/opt/gcc/bin/gcc-8 -DCMAKE_BUILD_TYPE=Debug
 make -j4
 make test
 rm -rf *
 
-cmake ../unodb/ -DCMAKE_CXX_COMPILER=/usr/local/opt/gcc/bin/g++-8 -DCMAKE_BUILD_TYPE=Release
+cmake ../unodb/ -DCMAKE_CXX_COMPILER=/usr/local/opt/gcc/bin/g++-8 -DCMAKE_C_COMPILER=/usr/local/opt/gcc/bin/gcc-8 -DCMAKE_BUILD_TYPE=Release
 make -j4
 make test
 rm -rf *

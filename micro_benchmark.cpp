@@ -182,6 +182,8 @@ void dense_insert_value_lengths(benchmark::State &state) {
 
 }  // namespace
 
+// TODO(laurynas): only dense Node256 trees have reasonable coverage, need
+// to handle sparse Node4/Node16/Node48 trees too
 BENCHMARK(dense_insert_mem_check)
     ->Range(100, 50000000)
     ->Unit(benchmark::kMicrosecond);

@@ -120,7 +120,7 @@ union node_ptr {
 
 class db final {
  public:
-  using get_result = std::optional<std::vector<std::byte>>;
+  using get_result = std::optional<value_view>;
 
   using tree_depth_type = unsigned;
 

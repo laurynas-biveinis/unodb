@@ -1250,7 +1250,7 @@ db::get_result db::get_from_subtree(const node_ptr &node, art_key_type k,
   if (node.type() == node_type::LEAF) {
     if (single_value_leaf::matches(node.leaf.get(), k)) {
       const auto value = single_value_leaf::value(node.leaf.get());
-      return get_result{std::in_place, value.cbegin(), value.cend()};
+      return value;
     }
     return {};
   }

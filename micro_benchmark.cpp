@@ -102,23 +102,26 @@ void sparse_insert_mem_check_dups_allowed(benchmark::State &state) {
       benchmark::Counter(static_cast<double>(test_db.get_current_memory_use()));
 }
 
+constexpr auto full_scan_multiplier = 50;
+
 void dense_full_scan(benchmark::State &state) {
   unodb::db test_db;
   for (unodb::key_type i = 0; i < static_cast<unodb::key_type>(state.range(0));
        i++)
     (void)test_db.insert(i, unodb::value_view{value100});
   for (auto _ : state)
-    for (unodb::key_type i = 0;
-         i < static_cast<unodb::key_type>(state.range(0)); i++) {
-      benchmark::DoNotOptimize(test_db.get(i));
+    for (auto i = 0; i < full_scan_multiplier; i++)
+      for (unodb::key_type j = 0;
+           j < static_cast<unodb::key_type>(state.range(0)); j++) {
+        benchmark::DoNotOptimize(test_db.get(j));
     }
-  state.SetItemsProcessed(state.range(0));
+  state.SetItemsProcessed(state.range(0) * full_scan_multiplier);
 }
 
 void dense_tree_sparse_deletes_args(benchmark::internal::Benchmark *b) {
-  for (auto i = 1000; i <= 10000000; i *= 8)
-    for (auto j = 300; j <= 10000000; j *= 8) {
-      if (j * 10 > i) break;
+  for (auto i = 1000; i <= 5000000; i *= 8)
+    for (auto j = 800; j <= 5000000; j *= 8) {
+      if (j > i) break;
       b->Args({i, j});
     }
 }
@@ -138,6 +141,8 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
   state.SetItemsProcessed(state.range(1));
 }
 
+constexpr auto dense_tree_increasing_keys_delete_insert_pairs = 1000000;
+
 void dense_tree_increasing_keys(benchmark::State &state) {
   unodb::db test_db;
   unodb::key_type key_to_insert;
@@ -147,23 +152,23 @@ void dense_tree_increasing_keys(benchmark::State &state) {
     (void)test_db.insert(key_to_insert, unodb::value_view{value100});
   unodb::key_type key_to_delete = 0;
   for (auto _ : state) {
-    for (auto i = 0; i < state.range(1); ++i) {
+    for (auto i = 0; i < dense_tree_increasing_keys_delete_insert_pairs; ++i) {
       benchmark::DoNotOptimize(test_db.remove(key_to_delete++));
       benchmark::DoNotOptimize(
           test_db.insert(key_to_insert++, unodb::value_view{value100}));
     }
   }
-  state.SetItemsProcessed(state.range(1));
+  state.SetItemsProcessed(dense_tree_increasing_keys_delete_insert_pairs * 2);
 }
 
-void dense_insert_different_value_sizes_args(
+void dense_insert_value_lengths_args(
     benchmark::internal::Benchmark *b) {
   for (auto i = 100; i <= 1000000; i *= 8)
     for (auto j = 0; j < static_cast<int64_t>(values.size()); j++)
       b->Args({i, j});
 }
 
-void dense_insert_different_value_sizes(benchmark::State &state) {
+void dense_insert_value_lengths(benchmark::State &state) {
   unodb::db test_db{1000ULL * 1000 * 1000 * 1000};
   for (auto _ : state)
     for (unodb::key_type i = 0;
@@ -178,10 +183,10 @@ void dense_insert_different_value_sizes(benchmark::State &state) {
 }  // namespace
 
 BENCHMARK(dense_insert_mem_check)
-    ->Range(100, 100000000)
+    ->Range(100, 50000000)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(dense_insert_no_mem_check)
-    ->Range(100, 100000000)
+    ->Range(100, 50000000)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(sparse_insert_mem_check_dups_allowed)
     ->Range(100, 10000000)
@@ -190,19 +195,18 @@ BENCHMARK(sparse_insert_no_mem_check_dups_allowed)
     ->Range(100, 10000000)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(dense_full_scan)
-    ->Range(100, 100000000)
+    ->Range(100, 50000000)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(dense_tree_sparse_deletes)
-    ->ArgNames({"tree size", "delete count"})
+    ->ArgNames({"", "deletes"})
     ->Apply(dense_tree_sparse_deletes_args)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(dense_tree_increasing_keys)
-    ->ArgNames({"tree size", "delete+insert pair count"})
-    ->Ranges({{100, 100000000}, {100, 100000}})
-    ->Unit(benchmark::kMicrosecond);
-BENCHMARK(dense_insert_different_value_sizes)
-    ->ArgNames({"tree size", "value size log10"})
-    ->Apply(dense_insert_different_value_sizes_args)
+    ->Range(100, 50000000)
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(dense_insert_value_lengths)
+    ->ArgNames({"", "value len log10"})
+    ->Apply(dense_insert_value_lengths_args)
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();

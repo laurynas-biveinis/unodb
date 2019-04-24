@@ -2,8 +2,7 @@
 
 ## Introduction
 
-Unodb is an key-value store library. The main-memory component is ART
-Trie. The licence is AGPLv3.
+Unodb is a adaptive radix tree implementation, done as my playground for various C++ tools and ideas.
 
 ## Dependencies
 *   git

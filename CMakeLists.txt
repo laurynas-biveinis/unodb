@@ -66,6 +66,7 @@ if(COVERAGE)
   list(APPEND INTERFACE_LD_FLAGS "--coverage")
 endif()
 
+# TODO(laurynas): print effective build type
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
   list(APPEND CXX_FLAGS "-Og")
 else()
@@ -113,6 +114,7 @@ configure_file(config.hpp.in config.hpp)
 
 find_package(Boost REQUIRED COMPONENTS container)
 
+# TODO(laurynas): convert benchmark dependency to a git submodule
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
   message(STATUS "Not looking for Google benchmark library due to compiling with GCC on macOS")
 else()
@@ -124,6 +126,7 @@ else()
   endif()
 endif()
 
+# TODO(laurynas): convert DeepState dependency to a git submodule
 find_path(DEEPSTATE_HPP_PATH deepstate/DeepState.hpp)
 if(NOT DEEPSTATE_HPP_PATH)
   message(STATUS "DeepState header not found, not building its fuzz tests")

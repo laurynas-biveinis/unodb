@@ -6,7 +6,7 @@ Unodb is a adaptive radix tree implementation, done as my playground for various
 
 ## Dependencies
 *   git
-*   a C++17 compiler, currently tested with clang 7.0 and GCC 8.0
+*   a C++17 compiler, currently tested with clang 7.0, 8.0 and GCC 8.0
 *   CMake, at least 3.12
 *   Guidelines Support Library for gsl::span, imported as a git
     submodule.

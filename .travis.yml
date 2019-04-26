@@ -1,0 +1,115 @@
+language: cpp
+
+dist: xenial
+
+env:
+  global:
+    - SANITIZE=OFF
+    - SCAN_BUILD=
+
+matrix:
+  include:
+    - &linux-base
+      name: "Xenial GCC 8 Release"
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-xenial-8
+            - sourceline: 'ppa:mhier/libboost-latest'
+          packages:
+            - g++-8
+            - boost1.68
+            - valgrind
+            - clang-8
+            - clang-tools-8
+            - cppcheck
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release
+      compiler: gcc
+    - <<: *linux-base
+      name: "Xenial GCC 8 Release with sanitizers"
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release SANITIZE=ON
+    - <<: *linux-base
+      name: "Xenial GCC 8 Debug"
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug
+    - <<: *linux-base
+      name: "Xenial GCC 8 Debug with sanitizers"
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug SANITIZE=ON
+    - <<: *linux-base
+      name: "Xenial clang 8 Release"
+      compiler: clang
+      env:
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release
+    - <<: *linux-base
+      name: "Xenial clang 8 Release with sanitizers"
+      compiler: clang
+      env:
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release SANITIZE=ON
+    - <<: *linux-base
+      name: "Xenial clang 8 Debug"
+      compiler: clang
+      env:
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug
+    - <<: *linux-base
+      name: "Xenial clang 8 Debug with sanitizers"
+      compiler: clang
+      env:
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug SANITIZE=ON
+    - <<: *linux-base
+      name: "Xenial clang 8 static analysis Release"
+      compiler: clang
+      env:
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release SCAN_BUILD=scan-build-8
+    - <<: *linux-base
+      name: "Xenial clang 8 static analysis Debug"
+      compiler: clang
+      env:
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug SCAN_BUILD=scan-build-8
+    - &macos-base
+      name: "macOS XCode 10.2 Release"
+      os: osx
+      osx_image: xcode10.2
+      addons:
+        homebrew:
+          packages:
+            - cmake
+      compiler: clang
+      env:
+        - BUILD_TYPE=Release
+    - <<: *macos-base
+      name: "macOS XCode 10.2 Release with sanitizers"
+      env:
+        - BUILD_TYPE=Release SANITIZE=ON
+    - <<: *macos-base
+      name: "macOS XCode 10.2 Debug"
+      env:
+        - BUILD_TYPE=Debug
+    - <<: *macos-base
+      name: "macOS XCode 10.2 Debug with sanitizers"
+      env:
+        - BUILD_TYPE=Debug SANITIZE=ON
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+
+install:
+  - pip install --user $USER cpplint
+
+script:
+  - mkdir build
+  - cd build
+  - EXTRA_CMAKE_OPTIONS=""
+  - if [[ "$CC" == "gcc-8" && "$SANITIZE" == "ON" ]]; then
+      EXTRA_CMAKE_OPTIONS+="-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold";
+    fi
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE=${SANITIZE} ${EXTRA_CMAKE_OPTIONS}
+  - ${SCAN_BUILD} make -j3
+  - make test
+  - if [[ "$SANITIZE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
+      valgrind ./test_art;
+    fi

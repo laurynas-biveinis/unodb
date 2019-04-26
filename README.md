@@ -1,5 +1,7 @@
 # unodb
 
+[![Build Status](https://travis-ci.org/laurynas-biveinis/unodb.svg?branch=master)](https://travis-ci.org/laurynas-biveinis/unodb)
+
 ## Introduction
 
 Unodb is a adaptive radix tree implementation, done as my playground for various C++ tools and ideas.
@@ -12,7 +14,7 @@ Unodb is a adaptive radix tree implementation, done as my playground for various
     submodule.
 *   Boost.Container library. Version 1.69 gives UBSan errors
     ([bug report 1][boostub1], [bug report 2][boostub2]). Currently it
-    is being tested with 1.60.
+    is being tested with 1.60, 1.68, & 1.69 (w/o sanitizers).
 *   clang-format, at least 8.0
 *   Google Test for tests, imported as a git submodule.
 *   (optional) lcov

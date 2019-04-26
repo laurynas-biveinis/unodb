@@ -7,55 +7,12 @@ readonly WORKDIR=$1
 mkdir $WORKDIR
 pushd $WORKDIR
 
-cmake ../unodb -DCMAKE_BUILD_TYPE=Debug -DSANITIZE=ON
-make -j4
-make test
-rm -rf *
-
-cmake ../unodb -DCMAKE_BUILD_TYPE=Debug
-make -j4
-make test
-rm -rf *
-
-cmake ../unodb -DCMAKE_BUILD_TYPE=Release
-make -j4
-make test
-rm -rf *
-
-cmake ../unodb -DCMAKE_PREFIX_PATH=/usr/local/opt/llvm -DCMAKE_C_COMPILER=/usr/local/opt/llvm/bin/clang -DCMAKE_CXX_COMPILER=/usr/local/opt/llvm/bin/clang++ -DCMAKE_BUILD_TYPE=Release
-make -j4
-make test
-rm -rf *
-
-cmake ../unodb -DCMAKE_PREFIX_PATH=/usr/local/opt/llvm -DCMAKE_C_COMPILER=/usr/local/opt/llvm/bin/clang -DCMAKE_CXX_COMPILER=/usr/local/opt/llvm/bin/clang++ -DCMAKE_BUILD_TYPE=Debug
-make -j4
-make test
-rm -rf *
-
-cmake ../unodb/ -DCMAKE_CXX_COMPILER=/usr/local/opt/gcc/bin/g++-8 -DCMAKE_C_COMPILER=/usr/local/opt/gcc/bin/gcc-8 -DCMAKE_BUILD_TYPE=Debug
-make -j4
-make test
-rm -rf *
-
-cmake ../unodb/ -DCMAKE_CXX_COMPILER=/usr/local/opt/gcc/bin/g++-8 -DCMAKE_C_COMPILER=/usr/local/opt/gcc/bin/gcc-8 -DCMAKE_BUILD_TYPE=Release
-make -j4
-make test
-rm -rf *
-
 cmake ../unodb/ -DCMAKE_BUILD_TYPE=Release -DCPPCHECK_AGGRESSIVE=ON
 make -j4
 rm -rf *
 
 cmake ../unodb/ -DCMAKE_BUILD_TYPE=Debug -DCPPCHECK_AGGRESSIVE=ON
 make -j4
-rm -rf *
-
-cmake ../unodb -DCMAKE_BUILD_TYPE=Release
-/usr/local/opt/llvm/bin/scan-build make -j4
-rm -rf *
-
-cmake ../unodb -DCMAKE_BUILD_TYPE=Debug
-/usr/local/opt/llvm/bin/scan-build make -j4
 rm -rf *
 
 cmake ../unodb -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON

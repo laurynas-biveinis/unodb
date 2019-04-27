@@ -6,6 +6,7 @@ env:
   global:
     - SANITIZE=OFF
     - SCAN_BUILD=
+    - COVERAGE=OFF
 
 matrix:
   include:
@@ -19,12 +20,14 @@ matrix:
             - llvm-toolchain-xenial-8
             - sourceline: 'ppa:mhier/libboost-latest'
           packages:
+            - g++-7
             - g++-8
             - boost1.68
             - valgrind
             - clang-8
             - clang-tools-8
             - cppcheck
+            - lcov
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release
       compiler: gcc
@@ -93,6 +96,16 @@ matrix:
       name: "macOS XCode 10.2 Debug with sanitizers"
       env:
         - BUILD_TYPE=Debug SANITIZE=ON
+    - <<: *linux-base
+      name: "Xenial Debug coverage"
+      env:
+        # Current lcov version does not understand coverage data
+        # produced by GCC 8 nor clang
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Debug COVERAGE=ON
+    - <<: *linux-base
+      name: "Xenial Release coverage"
+      env:
+        - MATRIX_EVAL="GCC=gcc-7 && CXX=g++-7" BUILD_TYPE=Release COVERAGE=ON
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -105,11 +118,19 @@ script:
   - cd build
   - EXTRA_CMAKE_OPTIONS=""
   - if [[ "$CC" == "gcc-8" && "$SANITIZE" == "ON" ]]; then
-      EXTRA_CMAKE_OPTIONS+="-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold";
+      EXTRA_CMAKE_OPTIONS+="-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold ";
     fi
-  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE=${SANITIZE} ${EXTRA_CMAKE_OPTIONS}
-  - ${SCAN_BUILD} make -j3
-  - make test
-  - if [[ "$SANITIZE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
+  - if [[ "$CC" == "gcc-7" && "$COVERAGE" == "ON" ]]; then
+      EXTRA_CMAKE_OPTIONS+="-DGCOV_PATH=/usr/bin/gcov-7 ";
+    fi
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE=${SANITIZE} -DCOVERAGE=${COVERAGE} ${EXTRA_CMAKE_OPTIONS}
+  - make -j3
+  - if [[ "$COVERAGE" == "OFF" ]]; then
+      ${SCAN_BUILD} make -j3 test;
+    else
+      make -j3 coverage;
+      bash <(curl -s https://codecov.io/bash) -f coverage-coverage.info || echo "Codecov did not collect coverage reports";
+    fi
+  - if [[ "$SANITIZE" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
       valgrind ./test_art;
     fi

@@ -352,6 +352,7 @@ endif()
 if(COVERAGE)
   add_custom_target(test_art_for_coverage ctest -R test_art$$
     DEPENDS test_art)
+  add_dependencies(test_art_for_coverage test_art)
   add_coverage_target(TARGET coverage DEPENDENCY test_art_for_coverage)
 endif()
 

@@ -41,21 +41,25 @@ else()
     "-Wdouble-promotion" "-Wformat-overflow=2" "-Wformat=2" "-Wformat-signedness"
     "-Wformat-truncation=2" "-Wnull-dereference" "-Wimplicit-fallthrough=5"
     "-Wmissing-include-dirs" "-Wswitch-enum" "-Wunused-const-variable=2"
-    "-Wuninitialized" "-Wstringop-truncation" "-Wsuggest-attribute=pure"
-    "-Wsuggest-attribute=const" "-Wsuggest-attribute=noreturn"
-    "-Wsuggest-attribute=format" "-Wsuggest-attribute=cold"
-    "-Wsuggest-attribute=malloc" "-Wsuggest-final-types"
+    "-Wuninitialized" "-Wsuggest-attribute=pure" "-Wsuggest-attribute=const"
+    "-Wsuggest-attribute=noreturn" "-Wsuggest-attribute=format" "-Wsuggest-final-types"
     "-Wsuggest-final-methods" "-Wsuggest-override" "-Wduplicated-branches"
     "-Wduplicated-cond" "-Wtrampolines" "-Wfloat-equal" "-Wshadow=global"
     "-Wunsafe-loop-optimizations" "-Wplacement-new=2" "-Wundef" "-Wunused-macros"
-    "-Wcast-qual" "-Wcast-align=strict" "-Wcatch-value=3"
-    "-Wzero-as-null-pointer-constant" "-Wuseless-cast" "-Wextra-semi"
-    "-Wsign-conversion" "-Wlogical-op" "-Wmissing-declarations" "-Wpacked"
-    "-Wredundant-decls" "-Winvalid-pch" "-Wvector-operation-performance" "-Wvla"
+    "-Wcast-qual" "-Wzero-as-null-pointer-constant" "-Wuseless-cast" "-Wsign-conversion"
+    "-Wlogical-op" "-Wmissing-declarations" "-Wpacked" "-Wredundant-decls"
+    "-Winvalid-pch" "-Wvector-operation-performance" "-Wvla"
     # C++-specific warnings
     "-Wabi-tag" "-Wctor-dtor-privacy" "-Wnoexcept" "-Wnon-virtual-dtor"
     "-Wstrict-null-sentinel" "-Wold-style-cast" "-Woverloaded-virtual"
     "-Wsign-promo")
+  if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 8)
+    list(APPEND CXX_WARNING_FLAGS "-Wstringop-truncation" "-Wsuggest-attribute=cold"
+      "-Wsuggest-attribute=malloc" "-Wcast-align=strict" "-Wcatch-value=3"
+      "-Wextra-semi")
+  else()
+    list(APPEND CXX_WARNING_FLAGS "-Wcast-align")
+  endif()
 endif()
 
 list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g")

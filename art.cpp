@@ -1266,6 +1266,8 @@ db::get_result db::get_from_subtree(const node_ptr &node, art_key_type k,
 
 bool db::insert(key_type k, value_view v) {
   const auto bin_comparable_key = art_key{k};
+  // TODO(laurynas): postpone creating a node until we know the key does
+  // not exist
   auto leaf = single_value_leaf::create(bin_comparable_key, v, *this);
   const auto leaf_size = single_value_leaf::size(leaf.get());
   if (BOOST_UNLIKELY(root.header == nullptr)) {
@@ -1433,6 +1435,7 @@ void db::decrease_memory_use(std::size_t delta) noexcept {
 
 namespace {
 
+// TODO(laurynas): add tests for dump_node, by writing to ostrstream
 void dump_node(std::ostream &os, const unodb::node_ptr &node) {
   os << "node at: " << &node;
   if (node.header == nullptr) {

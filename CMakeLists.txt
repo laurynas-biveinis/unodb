@@ -68,6 +68,16 @@ option(COVERAGE "Enable code coverage reporting")
 if(COVERAGE)
   list(APPEND CXX_FLAGS "--coverage")
   list(APPEND INTERFACE_LD_FLAGS "--coverage")
+  option(GCOV_PATH "gcov tool location to be used by lcov")
+  if(GCOV_PATH)
+    set(LCOV_GCOV_ARG "--gcov-tool" "${GCOV_PATH}")
+    message(STATUS "Code coverage reporting enabled with gcov at ${GCOV_PATH}")
+  else()
+    set(LCOV_GCOV_ARG "")
+    message(STATUS "Code coverage reporting enabled with default gcov path")
+  endif()
+else()
+  message(STATUS "Code coverage reporting not enabled")
 endif()
 
 # TODO(laurynas): print effective build type
@@ -331,13 +341,13 @@ function(ADD_COVERAGE_TARGET)
     ${ARGN})
   set(COV_DATA "coverage-${ARG_TARGET}.info")
   add_custom_target(${ARG_TARGET}
-    COMMAND lcov --capture --directory . --output-file ${COV_DATA}
-    COMMAND lcov --remove ${COV_DATA} '/usr/*' --output-file ${COV_DATA}
-    COMMAND lcov --remove ${COV_DATA} '/Library/Developer/*' --output-file ${COV_DATA}
-    COMMAND lcov --remove ${COV_DATA} '/Applications/Xcode.app/*' --output-file ${COV_DATA}
-    COMMAND lcov --remove ${COV_DATA} '*/unodb/googletest/*' --output-file ${COV_DATA}
-    COMMAND lcov --remove ${COV_DATA} '*/unodb/GSL/*' --output-file ${COV_DATA}
-    COMMAND lcov --list ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --capture --directory . --output-file ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '/usr/*' --output-file ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '/Library/Developer/*' --output-file ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '/Applications/Xcode.app/*' --output-file ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '*/unodb/googletest/*' --output-file ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '*/unodb/GSL/*' --output-file ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --list ${COV_DATA}
     DEPENDS ${ARG_DEPENDENCY})
 endfunction()
 

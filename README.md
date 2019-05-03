@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/laurynas-biveinis/unodb.svg?branch=master)](https://travis-ci.org/laurynas-biveinis/unodb)
 
+[![codecov](https://codecov.io/gh/laurynas-biveinis/unodb/branch/master/graph/badge.svg)](https://codecov.io/gh/laurynas-biveinis/unodb)
+
 ## Introduction
 
 Unodb is a adaptive radix tree implementation, done as my playground for various C++ tools and ideas.

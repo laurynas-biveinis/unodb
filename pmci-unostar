@@ -22,17 +22,5 @@ cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE
 make -j4
 rm -rf *
 
-cmake ../unodb -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_BUILD_TYPE=Release -DCOVERAGE=ON
-make -j4 coverage
-# HTML reports not saved ATM
-rm -rf *
-
-cmake ../unodb -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON
-make -j4 coverage
-# HTML reports not saved ATM
-rm -rf *
-
-# TODO(laurynas): flint++
-
 popd
 rm -rf $WORKDIR

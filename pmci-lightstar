@@ -15,16 +15,6 @@ cmake ../unodb/ -DCMAKE_BUILD_TYPE=Debug -DCPPCHECK_AGGRESSIVE=ON
 make -j4
 rm -rf *
 
-cmake ../unodb -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON
-make -j4 coverage
-# HTML reports not saved ATM
-rm -rf *
-
-cmake ../unodb -DCMAKE_BUILD_TYPE=Release -DCOVERAGE=ON
-make -j4 coverage
-# HTML reports not saved ATM
-rm -rf *
-
 pushd ../unodb
 ../FlintPlusPlus/flint/flint++
 popd

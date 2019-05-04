@@ -45,8 +45,8 @@ else()
     "-Wsuggest-attribute=noreturn" "-Wsuggest-attribute=format" "-Wsuggest-final-types"
     "-Wsuggest-final-methods" "-Wsuggest-override" "-Wduplicated-branches"
     "-Wduplicated-cond" "-Wtrampolines" "-Wfloat-equal" "-Wshadow=global"
-    "-Wunsafe-loop-optimizations" "-Wplacement-new=2" "-Wundef" "-Wunused-macros"
-    "-Wcast-qual" "-Wzero-as-null-pointer-constant" "-Wuseless-cast" "-Wsign-conversion"
+    "-Wplacement-new=2" "-Wundef" "-Wunused-macros" "-Wcast-qual"
+    "-Wzero-as-null-pointer-constant" "-Wuseless-cast" "-Wsign-conversion"
     "-Wlogical-op" "-Wmissing-declarations" "-Wpacked" "-Wredundant-decls"
     "-Winvalid-pch" "-Wvector-operation-performance" "-Wvla"
     # C++-specific warnings
@@ -54,11 +54,15 @@ else()
     "-Wstrict-null-sentinel" "-Wold-style-cast" "-Woverloaded-virtual"
     "-Wsign-promo")
   if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 8)
+    # Do not enable -Wunsafe-loop-optimizations on GCC 7 due to it diagnosing C++11
+    # range for loops
     list(APPEND CXX_WARNING_FLAGS "-Wstringop-truncation" "-Wsuggest-attribute=cold"
       "-Wsuggest-attribute=malloc" "-Wcast-align=strict" "-Wcatch-value=3"
-      "-Wextra-semi")
+      "-Wextra-semi" "-Wunsafe-loop-optimizations")
   else()
-    list(APPEND CXX_WARNING_FLAGS "-Wcast-align")
+    # For GCC 7, disable -Wunused-variable to avoid warnings for unused elements of
+    # structured bindings
+    list(APPEND CXX_WARNING_FLAGS "-Wcast-align" "-Wno-unused-variable")
   endif()
 endif()
 

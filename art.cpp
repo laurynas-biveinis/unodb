@@ -1435,7 +1435,6 @@ void db::decrease_memory_use(std::size_t delta) noexcept {
 
 namespace {
 
-// TODO(laurynas): add tests for dump_node, by writing to ostrstream
 void dump_node(std::ostream &os, const unodb::node_ptr &node) {
   os << "node at: " << &node;
   if (node.header == nullptr) {

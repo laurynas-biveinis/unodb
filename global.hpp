@@ -6,14 +6,24 @@
 
 #ifdef DEBUG
 #ifndef __clang__
+
+#ifndef _GLIBCXX_DEBUG
 #define _GLIBCXX_DEBUG
+#endif
+
+#ifndef _GLIBCXX_DEBUG_PEDANTIC
 #define _GLIBCXX_DEBUG_PEDANTIC
 #endif
-#else
+
+#endif  // #ifndef __clang__
+
+#else  // #ifdef DEBUG
+
 #ifndef NDEBUG
 #define NDEBUG
 #endif
-#endif
+
+#endif  // #ifdef DEBUG
 
 #if defined(__has_feature) && !defined(__clang__)
 #if __has_feature(address_sanitizer)

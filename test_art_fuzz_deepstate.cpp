@@ -1,5 +1,8 @@
 // Copyright 2019 Laurynas Biveinis
 
+#ifndef NDEBUG
+#include <sstream>
+#endif
 #include <unordered_map>
 
 #include <deepstate/DeepState.hpp>
@@ -61,6 +64,17 @@ unodb::key_type get_key(unodb::key_type max_key_value,
     return keys[existing_key_i];
   }
   return DeepState_UInt64InRange(0, max_key_value);
+}
+
+void dump_tree(const unodb::db &tree) {
+#ifndef NDEBUG
+  // Dump the tree to a string. Do not attempt to check the dump format, only
+  // that dumping does not crash
+  std::stringstream dump_sink;
+  tree.dump(dump_sink);
+#else
+  (void)tree;
+#endif
 }
 
 }  // namespace
@@ -125,6 +139,7 @@ TEST(ART, DeepState_fuzz) {
             }
           } catch (const std::bad_alloc &) {
           }
+          dump_tree(test_db);
           LOG(TRACE) << "Current mem use: "
                      << static_cast<uint64_t>(test_db.get_current_memory_use());
         },
@@ -160,6 +175,7 @@ TEST(ART, DeepState_fuzz) {
             ASSERT(oracle_delete_result == 0)
                 << "If delete failed, oracle delete must fail too";
           }
+          dump_tree(test_db);
           LOG(TRACE) << "Current mem use: "
                      << static_cast<uint64_t>(test_db.get_current_memory_use());
         });

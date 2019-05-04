@@ -116,6 +116,12 @@ void tree_verifier::check_present_values() const noexcept {
   for (const auto &[key, value] : values) {
     ASSERT_VALUE_FOR_KEY(key, value);
   }
+#ifndef NDEBUG
+  // Dump the tree to a string. Do not attempt to check the dump format, only
+  // that dumping does not crash
+  std::stringstream dump_sink;
+  test_db.dump(dump_sink);
+#endif
 }
 
 void tree_verifier::check_absent_keys(

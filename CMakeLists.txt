@@ -84,7 +84,6 @@ else()
   message(STATUS "Code coverage reporting not enabled")
 endif()
 
-# TODO(laurynas): print effective build type
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
   list(APPEND CXX_FLAGS "-Og")
 else()

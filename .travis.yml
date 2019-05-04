@@ -97,15 +97,27 @@ matrix:
       env:
         - BUILD_TYPE=Debug SANITIZE=ON
     - <<: *linux-base
+      name: "Xenial GCC 7 Release"
+      compiler: gcc
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Release
+    - <<: *linux-base
+      name: "Xenial GCC 7 Debug"
+      compiler: gcc
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Debug
+    - <<: *linux-base
       name: "Xenial Debug coverage"
+      compiler: gcc
       env:
         # Current lcov version does not understand coverage data
         # produced by GCC 8 nor clang
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Debug COVERAGE=ON
     - <<: *linux-base
       name: "Xenial Release coverage"
+      compiler: gcc
       env:
-        - MATRIX_EVAL="GCC=gcc-7 && CXX=g++-7" BUILD_TYPE=Release COVERAGE=ON
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Release COVERAGE=ON
 
 before_install:
   - eval "${MATRIX_EVAL}"

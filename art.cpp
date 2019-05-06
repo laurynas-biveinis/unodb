@@ -1266,31 +1266,22 @@ db::get_result db::get_from_subtree(const node_ptr &node, art_key_type k,
 
 bool db::insert(key_type k, value_view v) {
   const auto bin_comparable_key = art_key{k};
-  // TODO(laurynas): postpone creating a node until we know the key does
-  // not exist
-  auto leaf = single_value_leaf::create(bin_comparable_key, v, *this);
-  const auto leaf_size = single_value_leaf::size(leaf.get());
   if (BOOST_UNLIKELY(root.header == nullptr)) {
+    auto leaf = single_value_leaf::create(bin_comparable_key, v, *this);
     root.leaf = std::move(leaf);
     return true;
   }
-  try {
-    const auto result =
-        insert_to_subtree(bin_comparable_key, &root, std::move(leaf), 0);
-    if (!result) decrease_memory_use(leaf_size);
-    return result;
-  } catch (const std::bad_alloc &) {
-    decrease_memory_use(leaf_size);
-    throw;
-  }
+  return insert_to_subtree(bin_comparable_key, &root, v, 0);
 }
 
 bool db::insert_to_subtree(art_key_type k, node_ptr *node,
-                           single_value_leaf_unique_ptr leaf,
-                           tree_depth_type depth) {
+                           value_view v, tree_depth_type depth) {
   if (node->type() == node_type::LEAF) {
     const auto existing_key = single_value_leaf::key(node->leaf.get());
     if (BOOST_UNLIKELY(k == existing_key)) return false;
+    auto leaf = single_value_leaf::create(k, v, *this);
+    // TODO(laurynas): if internal_node_4::create throws bad_alloc, mem
+    // accounting desyncs
     increase_memory_use(sizeof(internal_node_4));
     auto new_node = internal_node_4::create(existing_key, k, depth,
                                             std::move(*node), std::move(leaf));
@@ -1303,6 +1294,7 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node,
   const auto shared_prefix_len =
       node->internal->key_prefix.get_shared_length(k, depth);
   if (shared_prefix_len < node->internal->key_prefix.length()) {
+    auto leaf = single_value_leaf::create(k, v, *this);
     increase_memory_use(sizeof(internal_node_4));
     auto new_node = internal_node_4::create(std::move(*node), shared_prefix_len,
                                             depth, std::move(leaf));
@@ -1314,7 +1306,9 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node,
   auto child = node->internal->find_child(k[depth]).second;
 
   if (child != nullptr)
-    return insert_to_subtree(k, child, std::move(leaf), depth + 1);
+    return insert_to_subtree(k, child, v, depth + 1);
+
+  auto leaf = single_value_leaf::create(k, v, *this);
 
   if (BOOST_LIKELY(!node->internal->is_full())) {
     node->internal->add(std::move(leaf), depth);

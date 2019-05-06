@@ -180,6 +180,18 @@ void dense_insert_value_lengths(benchmark::State &state) {
       benchmark::Counter(static_cast<double>(test_db.get_current_memory_use()));
 }
 
+void dense_insert_dup_attempts(benchmark::State &state) {
+  unodb::db test_db;
+  for (unodb::key_type i = 0; i < static_cast<unodb::key_type>(state.range(0));
+       i++)
+    (void)test_db.insert(i, unodb::value_view{value100});
+  for (auto _ : state)
+    for (unodb::key_type i = 0;
+         i < static_cast<unodb::key_type>(state.range(0)); ++i)
+      benchmark::DoNotOptimize(test_db.insert(i, unodb::value_view{value100}));
+  state.SetItemsProcessed(state.range(0));
+}
+
 }  // namespace
 
 // TODO(laurynas): only dense Node256 trees have reasonable coverage, need
@@ -209,6 +221,9 @@ BENCHMARK(dense_tree_increasing_keys)
 BENCHMARK(dense_insert_value_lengths)
     ->ArgNames({"", "value len log10"})
     ->Apply(dense_insert_value_lengths_args)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK(dense_insert_dup_attempts)
+    ->Range(100, 50000000)
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();

@@ -1,148 +1,34 @@
 language: cpp
 
+os: linux
+
 dist: xenial
+
+compiler: gcc
 
 env:
   global:
-    - SANITIZE=OFF
-    - SCAN_BUILD=
-    - COVERAGE=OFF
-
-matrix:
-  include:
-    - &linux-base
-      name: "Xenial GCC 8 Release"
-      os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-xenial-8
-            - sourceline: 'ppa:mhier/libboost-latest'
-          packages:
-            - g++-7
-            - g++-8
-            - boost1.68
-            - valgrind
-            - clang-8
-            - clang-tools-8
-            - cppcheck
-            - lcov
-      env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release
-      compiler: gcc
-    - <<: *linux-base
-      name: "Xenial GCC 8 Release with sanitizers"
-      env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release SANITIZE=ON
-    - <<: *linux-base
-      name: "Xenial GCC 8 Debug"
-      env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug
-    - <<: *linux-base
-      name: "Xenial GCC 8 Debug with sanitizers"
-      env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug SANITIZE=ON
-    - <<: *linux-base
-      name: "Xenial clang 8 Release"
-      compiler: clang
-      env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release
-    - <<: *linux-base
-      name: "Xenial clang 8 Release with sanitizers"
-      compiler: clang
-      env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release SANITIZE=ON
-    - <<: *linux-base
-      name: "Xenial clang 8 Debug"
-      compiler: clang
-      env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug
-    - <<: *linux-base
-      name: "Xenial clang 8 Debug with sanitizers"
-      compiler: clang
-      env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug SANITIZE=ON
-    - <<: *linux-base
-      name: "Xenial clang 8 static analysis Release"
-      compiler: clang
-      env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release SCAN_BUILD=scan-build-8
-    - <<: *linux-base
-      name: "Xenial clang 8 static analysis Debug"
-      compiler: clang
-      env:
-        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug SCAN_BUILD=scan-build-8
-    - &macos-base
-      name: "macOS XCode 10.2 Release"
-      os: osx
-      osx_image: xcode10.2
-      addons:
-        homebrew:
-          packages:
-            - cmake
-      compiler: clang
-      env:
-        - BUILD_TYPE=Release
-    - <<: *macos-base
-      name: "macOS XCode 10.2 Release with sanitizers"
-      env:
-        - BUILD_TYPE=Release SANITIZE=ON
-    - <<: *macos-base
-      name: "macOS XCode 10.2 Debug"
-      env:
-        - BUILD_TYPE=Debug
-    - <<: *macos-base
-      name: "macOS XCode 10.2 Debug with sanitizers"
-      env:
-        - BUILD_TYPE=Debug SANITIZE=ON
-    - <<: *linux-base
-      name: "Xenial GCC 7 Release"
-      compiler: gcc
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Release
-    - <<: *linux-base
-      name: "Xenial GCC 7 Debug"
-      compiler: gcc
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Debug
-    - <<: *linux-base
-      name: "Xenial Debug coverage"
-      compiler: gcc
-      env:
-        # Current lcov version does not understand coverage data
-        # produced by GCC 8 nor clang
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Debug COVERAGE=ON
-    - <<: *linux-base
-      name: "Xenial Release coverage"
-      compiler: gcc
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Release COVERAGE=ON
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "QmJfEvXCo+SG6xl1PjmwWsfnub5C+Wr0T3+2tlCixgThUFFIO3+N4jLi+pyHWlfnbubfB6+8zfpc4aOBQcj0aYPH4AUUBfZLAsEj+v/c5HrdgFri8ibYan1x1P3zYBaTonYFnF8Nmo8Zqq2yGWLHrDSHOGIOV27YRuiRC/iTez8XVY/iH0sVxRStyCQJumoKtdjb68F2XYzuktxpogxzIQKAFKMgxPsf9I8lNjJr0pDxjglXW9bLuEguhLGmQvilSOLwAvPeKRnODzw9i8ShLQwH9XU8/9ZzdC4UaXDkaoA94tQg8+wSpecz3TJ+sCClH/uribtEMaGf7AYT7gALoZg0GsrME3H6QTiRts/aoyv7ZAGbk9Mdj2V4p+YxNm3jnTlLNWlSg55EQitlFs9lnAku//VtQjnc1h/8I6CM7Lpk1Vp13jTRsTvcC0LzpFvBBULJebCuqkkZ2tVBY6v5xVHTAZNFZTMY5+Ff3dM3yzNWfvJqxMmseupeWxD+a0lYYk/wDoItei6f3P8mLsaxA1bSkJK+cyOcLLWlLZkqR51LOEStOF5+9EqeuCzGVs5A4ONyknWU9hW2xr1AuI4pEBIekZ/G9ScrHIDNPWuu61CWsrx0Awc4ouISqTxP+eIC3N9EjHGqfV0ZwXwqOq1XAB8TNvy7mkwiQF9KSadgOzY="
 
 before_install:
-  - eval "${MATRIX_EVAL}"
+  - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
-install:
-  - pip install --user $USER cpplint
-
-script:
-  - mkdir build
-  - cd build
-  - EXTRA_CMAKE_OPTIONS=""
-  - if [[ "$CC" == "gcc-8" && "$SANITIZE" == "ON" ]]; then
-      EXTRA_CMAKE_OPTIONS+="-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold ";
-    fi
-  - if [[ "$CC" == "gcc-7" && "$COVERAGE" == "ON" ]]; then
-      EXTRA_CMAKE_OPTIONS+="-DGCOV_PATH=/usr/bin/gcov-7 ";
-    fi
-  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE=${SANITIZE} -DCOVERAGE=${COVERAGE} ${EXTRA_CMAKE_OPTIONS}
-  - make -j3
-  - if [[ "$COVERAGE" == "OFF" ]]; then
-      ${SCAN_BUILD} make -j3 test;
-    else
-      make -j3 coverage;
-      bash <(curl -s https://codecov.io/bash) -f coverage-coverage.info || echo "Codecov did not collect coverage reports";
-    fi
-  - if [[ "$SANITIZE" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
-      valgrind ./test_art;
-    fi
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - sourceline: 'ppa:mhier/libboost-latest'
+    packages:
+      - g++-8
+      - boost1.68
+  coverity_scan:
+    project:
+      name: "laurynas-biveinis/unodb"
+      description: "Adaptive Radix Tree in C++"
+    notification_email: laurynas.biveinis@gmail.com
+    build_command_prepend: "cmake . -DCMAKE_BUILD_TYPE=Debug
+  -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8"
+    build_command: "make -j3"
+    branch_pattern: coverity_scan

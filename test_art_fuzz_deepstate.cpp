@@ -132,12 +132,14 @@ TEST(ART, DeepState_fuzz) {
                   << "If insert suceeded, oracle insert must succeed";
               keys.emplace_back(key);
             } else {
+              // TODO(laurynas): assert memory use did not change
               LOG(TRACE) << "Tried to insert duplicate key " << key;
               ASSERT(oracle.find(key) != oracle.cend())
                   << "If insert returned failure, oracle must contain that "
                      "value";
             }
           } catch (const std::bad_alloc &) {
+            // TODO(laurynas): assert memory use did not change
           }
           dump_tree(test_db);
           LOG(TRACE) << "Current mem use: "
@@ -166,12 +168,14 @@ TEST(ART, DeepState_fuzz) {
         [&] {
           const auto key = get_key(max_key_value, keys);
           LOG(TRACE) << "Deleting key " << key;
+          // TODO(laurynas): may throw std::bad_alloc?
           const auto delete_result = test_db.remove(key);
           const auto oracle_delete_result = oracle.erase(key);
           if (delete_result) {
             ASSERT(oracle_delete_result == 1)
                 << "If delete succeeded, oracle delete must succeed too";
           } else {
+            // TODO(laurynas): assert memory use did not change
             ASSERT(oracle_delete_result == 0)
                 << "If delete failed, oracle delete must fail too";
           }

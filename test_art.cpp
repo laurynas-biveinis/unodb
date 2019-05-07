@@ -107,6 +107,7 @@ void tree_verifier::attempt_remove_missing_keys(
     std::initializer_list<unodb::key_type> absent_keys) noexcept {
   for (const auto &absent_key : absent_keys) {
     const auto remove_result = values.erase(absent_key);
+    // TODO(laurynas): assert that memory use did not change
     ASSERT_EQ(remove_result, 0);
     ASSERT_FALSE(test_db.remove(absent_key));
   }
@@ -181,6 +182,7 @@ TEST(ART, duplicate_key) {
   tree_verifier verifier{test_db};
 
   verifier.insert(0, test_values[0]);
+  // TODO(laurynas): assert that memory use did not change
   ASSERT_FALSE(test_db.insert(0, test_values[3]));
   verifier.check_present_values();
 }
@@ -342,6 +344,7 @@ TEST(ART, try_delete_from_empty) {
   unodb::db test_db;
   tree_verifier verifier{test_db};
 
+  // TODO(laurynas): check memory use
   verifier.attempt_remove_missing_keys({1});
 
   verifier.check_absent_keys({1});
@@ -363,6 +366,7 @@ TEST(ART, node4_attempt_delete_absent) {
   tree_verifier verifier{test_db};
 
   verifier.insert_key_range(1, 4);
+  // TODO(laurynas): check memory use
   verifier.attempt_remove_missing_keys({0, 6, 0xFF000001});
   verifier.check_absent_keys({0, 6, 0xFF00000});
 }

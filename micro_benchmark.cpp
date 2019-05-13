@@ -114,7 +114,7 @@ void dense_full_scan(benchmark::State &state) {
       for (unodb::key_type j = 0;
            j < static_cast<unodb::key_type>(state.range(0)); j++) {
         benchmark::DoNotOptimize(test_db.get(j));
-    }
+      }
   state.SetItemsProcessed(state.range(0) * full_scan_multiplier);
 }
 
@@ -161,8 +161,7 @@ void dense_tree_increasing_keys(benchmark::State &state) {
   state.SetItemsProcessed(dense_tree_increasing_keys_delete_insert_pairs * 2);
 }
 
-void dense_insert_value_lengths_args(
-    benchmark::internal::Benchmark *b) {
+void dense_insert_value_lengths_args(benchmark::internal::Benchmark *b) {
   for (auto i = 100; i <= 1000000; i *= 8)
     for (auto j = 0; j < static_cast<int64_t>(values.size()); j++)
       b->Args({i, j});
@@ -208,9 +207,7 @@ BENCHMARK(sparse_insert_mem_check_dups_allowed)
 BENCHMARK(sparse_insert_no_mem_check_dups_allowed)
     ->Range(100, 10000000)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(dense_full_scan)
-    ->Range(100, 50000000)
-    ->Unit(benchmark::kMicrosecond);
+BENCHMARK(dense_full_scan)->Range(100, 50000000)->Unit(benchmark::kMicrosecond);
 BENCHMARK(dense_tree_sparse_deletes)
     ->ArgNames({"", "deletes"})
     ->Apply(dense_tree_sparse_deletes_args)

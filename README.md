@@ -13,9 +13,10 @@ Unodb is a adaptive radix tree implementation, done as my playground for various
 *   CMake, at least 3.12
 *   Guidelines Support Library for gsl::span, imported as a git
     submodule.
-*   Boost.Container library. Version 1.69 gives UBSan errors
-    ([bug report 1][boostub1], [bug report 2][boostub2]). Currently it
-    is being tested with 1.60, 1.68, & 1.69 (w/o sanitizers).
+*   Unless GCC version 9 is used, Boost.Container library. Version
+    1.69 gives UBSan errors ([bug report 1][boostub1], [bug report
+    2][boostub2]). Currently it is being tested with 1.60, 1.68, &
+    1.69 (w/o sanitizers).
 *   clang-format, at least 8.0
 *   Google Test for tests, imported as a git submodule.
 *   (optional) lcov
@@ -42,7 +43,9 @@ compiler warnings is set very high, and can be relaxed, especially for
 clang-tidy, as need arises.
 
 To enable Address, Leak, and Undefined Behavior sanitizers, add
-`-DSANITIZE=ON` CMake option.
+`-DSANITIZE=ON` CMake option. Using this with GCC 9, where std::pmr
+from libstdc++ is used instead of boost::pmr, will result in UBSan
+false positives due to [this][libstdc++ub].
 
 To invoke include-what-you-use, add `-DIWYU=ON` CMake option. It will
 take effect if CMake configures to build project with clang.
@@ -68,6 +71,8 @@ doi:10.1109/ICDE.2013.6544812
 [boostub1]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80963
 
 [boostub2]: https://bugs.llvm.org/show_bug.cgi?id=39191
+
+[libstdc++ub]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90442
 
 [gc++style]: https://google.github.io/styleguide/cppguide.html "Google C++ Style Guide"
 

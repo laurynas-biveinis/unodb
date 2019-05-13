@@ -13,9 +13,25 @@
 #endif
 #include <utility>
 
+#if defined(__GNUG__) && !defined(__clang__) && __GNUC__ >= 9
+#include <memory_resource>
+
+using pmr_pool_options = std::pmr::pool_options;
+const auto &pmr_new_delete_resource = std::pmr::new_delete_resource;
+using pmr_unsynchronized_pool_resource = std::pmr::unsynchronized_pool_resource;
+
+#else
 #include <boost/container/pmr/global_resource.hpp>
 #include <boost/container/pmr/memory_resource.hpp>
 #include <boost/container/pmr/unsynchronized_pool_resource.hpp>
+
+using pmr_pool_options = boost::container::pmr::pool_options;
+using auto &pmr_new_delete_resource =
+    boost::container::pmr::new_delete_resource;
+using pmr_unsynchronized_pool_resource =
+    boost::container::pmr::unsynchronized_pool_resource;
+
+#endif
 
 #include <gsl/gsl_util>
 
@@ -51,16 +67,15 @@ static_assert(sizeof(unodb::single_value_leaf_unique_ptr) == sizeof(void *),
 namespace {
 
 template <typename InternalNode>
-[[nodiscard]] inline boost::container::pmr::pool_options
-get_internal_node_pool_options();
+[[nodiscard]] inline pmr_pool_options get_internal_node_pool_options();
 
 [[nodiscard]] inline auto *get_leaf_node_pool() {
-  return boost::container::pmr::new_delete_resource();
+  return pmr_new_delete_resource();
 }
 
 template <typename InternalNode>
 [[nodiscard]] inline auto *get_internal_node_pool() {
-  static boost::container::pmr::unsynchronized_pool_resource internal_node_pool{
+  static pmr_unsynchronized_pool_resource internal_node_pool{
       get_internal_node_pool_options<InternalNode>()};
   return &internal_node_pool;
 }
@@ -1227,9 +1242,8 @@ namespace {
 // For internal node pools, approximate requesting ~2MB blocks from backing
 // storage (when ported to Linux, ask for 2MB huge pages directly)
 template <typename InternalNode>
-[[nodiscard]] inline boost::container::pmr::pool_options
-get_internal_node_pool_options() {
-  boost::container::pmr::pool_options internal_node_pool_options;
+[[nodiscard]] inline pmr_pool_options get_internal_node_pool_options() {
+  pmr_pool_options internal_node_pool_options;
   internal_node_pool_options.max_blocks_per_chunk =
       2 * 1024 * 1024 / sizeof(InternalNode);
   internal_node_pool_options.largest_required_pool_block = sizeof(InternalNode);
@@ -1241,7 +1255,7 @@ get_internal_node_pool_options() {
 namespace unodb {
 
 db::get_result db::get(key_type k) const noexcept {
-  if (BOOST_UNLIKELY(root.header == nullptr)) return {};
+  if (unlikely(root.header == nullptr)) return {};
   return get_from_subtree(root, art_key{k}, 0);
 }
 
@@ -1266,7 +1280,7 @@ db::get_result db::get_from_subtree(const node_ptr &node, art_key_type k,
 
 bool db::insert(key_type k, value_view v) {
   const auto bin_comparable_key = art_key{k};
-  if (BOOST_UNLIKELY(root.header == nullptr)) {
+  if (unlikely(root.header == nullptr)) {
     auto leaf = single_value_leaf::create(bin_comparable_key, v, *this);
     root.leaf = std::move(leaf);
     return true;
@@ -1274,11 +1288,11 @@ bool db::insert(key_type k, value_view v) {
   return insert_to_subtree(bin_comparable_key, &root, v, 0);
 }
 
-bool db::insert_to_subtree(art_key_type k, node_ptr *node,
-                           value_view v, tree_depth_type depth) {
+bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view v,
+                           tree_depth_type depth) {
   if (node->type() == node_type::LEAF) {
     const auto existing_key = single_value_leaf::key(node->leaf.get());
-    if (BOOST_UNLIKELY(k == existing_key)) return false;
+    if (unlikely(k == existing_key)) return false;
     auto leaf = single_value_leaf::create(k, v, *this);
     // TODO(laurynas): if internal_node_4::create throws bad_alloc, mem
     // accounting desyncs
@@ -1305,12 +1319,11 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node,
 
   auto child = node->internal->find_child(k[depth]).second;
 
-  if (child != nullptr)
-    return insert_to_subtree(k, child, v, depth + 1);
+  if (child != nullptr) return insert_to_subtree(k, child, v, depth + 1);
 
   auto leaf = single_value_leaf::create(k, v, *this);
 
-  if (BOOST_LIKELY(!node->internal->is_full())) {
+  if (likely(!node->internal->is_full())) {
     node->internal->add(std::move(leaf), depth);
     return true;
   }
@@ -1341,7 +1354,7 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node,
 
 bool db::remove(key_type k) {
   const auto bin_comparable_key = art_key{k};
-  if (BOOST_UNLIKELY(root.header == nullptr)) return false;
+  if (unlikely(root.header == nullptr)) return false;
   if (root.type() == node_type::LEAF) {
     if (single_value_leaf::matches(root.leaf.get(), bin_comparable_key)) {
       const auto leaf_size = single_value_leaf::size(root.leaf.get());
@@ -1375,7 +1388,7 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
 
   const auto child_node_size = single_value_leaf::size(child_ptr->leaf.get());
 
-  if (BOOST_LIKELY(!node->internal->is_min_size())) {
+  if (likely(!node->internal->is_min_size())) {
     node->internal->remove(child_i);
     decrease_memory_use(child_node_size);
     return true;
@@ -1410,12 +1423,16 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
   return true;
 }
 
+DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
+
 void db::increase_memory_use(std::size_t delta) {
   if (memory_limit == 0 || delta == 0) return;
   assert(current_memory_use <= memory_limit);
   if (current_memory_use + delta > memory_limit) throw std::bad_alloc{};
   current_memory_use += delta;
 }
+
+RESTORE_GCC_WARNINGS()
 
 void db::decrease_memory_use(std::size_t delta) noexcept {
   if (memory_limit == 0 || delta == 0) return;

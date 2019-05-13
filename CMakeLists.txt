@@ -129,9 +129,14 @@ endif()
 
 configure_file(config.hpp.in config.hpp)
 
-find_package(Boost REQUIRED COMPONENTS container)
+if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS_EQUAL 8)
+  find_package(Boost REQUIRED COMPONENTS container)
+else()
+  message(STATUS "Using GCC 9+, using std::pmr instead of boost::pmr")
+endif()
 
 # TODO(laurynas): convert benchmark dependency to a git submodule
+# TODO(laurynas): GCC 9?
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
   message(STATUS "Not looking for Google benchmark library due to compiling with GCC on macOS")
 else()

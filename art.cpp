@@ -17,7 +17,7 @@
 #include <memory_resource>
 
 using pmr_pool_options = std::pmr::pool_options;
-const auto &pmr_new_delete_resource = std::pmr::new_delete_resource;
+static const auto &pmr_new_delete_resource = std::pmr::new_delete_resource;
 using pmr_unsynchronized_pool_resource = std::pmr::unsynchronized_pool_resource;
 
 #else
@@ -26,7 +26,7 @@ using pmr_unsynchronized_pool_resource = std::pmr::unsynchronized_pool_resource;
 #include <boost/container/pmr/unsynchronized_pool_resource.hpp>
 
 using pmr_pool_options = boost::container::pmr::pool_options;
-using auto &pmr_new_delete_resource =
+static const auto &pmr_new_delete_resource =
     boost::container::pmr::new_delete_resource;
 using pmr_unsynchronized_pool_resource =
     boost::container::pmr::unsynchronized_pool_resource;

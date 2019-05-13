@@ -129,12 +129,13 @@ endif()
 
 configure_file(config.hpp.in config.hpp)
 
-if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS_EQUAL 8)
-  find_package(Boost REQUIRED COMPONENTS container)
-  SET(USE_BOOST TRUE)
-else()
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
+    "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 9)
   message(STATUS "Using GCC 9+, using std::pmr instead of boost::pmr")
   SET(USE_BOOST FALSE)
+else()
+  find_package(Boost REQUIRED COMPONENTS container)
+  SET(USE_BOOST TRUE)
 endif()
 
 # TODO(laurynas): convert benchmark dependency to a git submodule

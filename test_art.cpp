@@ -76,8 +76,7 @@ void tree_verifier::insert(unodb::key_type k, unodb::value_view v) {
   const auto mem_use_before = test_db.get_current_memory_use();
   try {
     ASSERT_TRUE(test_db.insert(k, v));
-  }
-  catch (const std::bad_alloc &) {
+  } catch (const std::bad_alloc &) {
     const auto mem_use_after = test_db.get_current_memory_use();
     ASSERT_EQ(mem_use_before, mem_use_after);
     throw;

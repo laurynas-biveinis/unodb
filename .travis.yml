@@ -18,8 +18,10 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-xenial-8
+            # TODO(laurynas): add llvm-toolchain-xenial-9 once available
             - sourceline: 'ppa:mhier/libboost-latest'
           packages:
+            # TODO(laurynas): install only what's needed for each job
             - g++-7
             - g++-8
             - boost1.68

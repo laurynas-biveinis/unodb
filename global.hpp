@@ -35,4 +35,16 @@
 #define RESTORE_CLANG_WARNINGS()
 #endif
 
+#if defined(__GNUG__) && !defined(__clang__)
+#define DISABLE_GCC_WARNING(x) \
+  _Pragma("GCC diagnostic push") DO_PRAGMA(GCC diagnostic ignored x)
+#define RESTORE_GCC_WARNINGS() _Pragma("GCC diagnostic pop")
+#else
+#define DISABLE_GCC_WARNING(x)
+#define RESTORE_GCC_WARNINGS()
+#endif
+
+#define likely(x) __builtin_expect(x, 1)
+#define unlikely(x) __builtin_expect(x, 0)
+
 #endif  // UNODB_GLOBAL_HPP_

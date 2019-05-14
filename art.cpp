@@ -986,14 +986,19 @@ internal_node::find_result_type internal_node_48::find_child(
 
 void internal_node_48::dump(std::ostream &os) const {
   os << ", key bytes & child indexes\n";
+  unsigned actual_children_count = 0;
   for (unsigned i = 0; i < 256; i++)
     if (child_indexes[i] != empty_child) {
+      ++actual_children_count;
       os << " ";
       dump_byte(os, gsl::narrow_cast<std::byte>(i));
       os << ", child index = " << static_cast<unsigned>(child_indexes[i])
          << ": ";
+      assert(children[child_indexes[i]] != nullptr);
       dump_node(os, children[child_indexes[i]]);
+      assert(actual_children_count <= children_count);
     }
+  assert(actual_children_count == children_count);
 }
 
 #endif
@@ -1093,14 +1098,19 @@ internal_node::find_result_type internal_node_256::find_child(
 
 void internal_node_256::dump(std::ostream &os) const {
   os << ", key bytes & children:\n";
+  uint8_t actual_children_count = 0;
   for (size_t i = 0; i < 256; i++) {
     if (children[i] != nullptr) {
+      ++actual_children_count;
       os << ' ';
       dump_byte(os, gsl::narrow_cast<std::byte>(i));
       os << ' ';
       dump_node(os, children[i]);
+      // Full node with 256 children will have children_count == 0
+      assert(actual_children_count <= children_count || children_count == 0);
     }
   }
+  assert(actual_children_count == children_count);
 }
 
 #endif
@@ -1140,6 +1150,7 @@ inline bool internal_node::is_min_size() const noexcept {
 inline void internal_node::add(single_value_leaf_unique_ptr &&child,
                                db::tree_depth_type depth) noexcept {
   Expects(!is_full());
+  Expects(child.get() != nullptr);
   switch (header.type()) {
     case node_type::I4:
       static_cast<internal_node_4 *>(this)->add(std::move(child), depth);
@@ -1214,7 +1225,8 @@ void internal_node::dump(std::ostream &os) const {
     case node_type::LEAF:
       cannot_happen();
   }
-  os << "# children = " << static_cast<unsigned>(children_count);
+  os << "# children = " << (children_count == 0 ? 256 :
+                            static_cast<unsigned>(children_count));
   key_prefix.dump(os);
   switch (header.type()) {
     case node_type::I4:

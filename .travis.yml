@@ -69,6 +69,8 @@ matrix:
       name: "Xenial clang 8 static analysis Release"
       compiler: clang
       env:
+        # TODO(laurynas): scan_build not passed to main build below,
+        # valgrind called needlessly
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release SCAN_BUILD=scan-build-8
     - <<: *linux-base
       name: "Xenial clang 8 static analysis Debug"
@@ -146,5 +148,5 @@ script:
       bash <(curl -s https://codecov.io/bash) -f coverage-coverage.info || echo "Codecov did not collect coverage reports";
     fi
   - if [[ "$SANITIZE" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
-      valgrind ./test_art;
+      valgrind --error-exitcode=1 ./test_art;
     fi

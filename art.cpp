@@ -50,6 +50,15 @@ using pmr_unsynchronized_pool_resource =
 
 #endif
 
+#if !defined(NDEBUG) && defined(VALGRIND_CLIENT_REQUESTS)
+#include <valgrind/valgrind.h>
+#include <valgrind/memcheck.h>
+#else
+#define VALGRIND_MALLOCLIKE_BLOCK(addr, sizeB, rzB, is_zeroed)
+#define VALGRIND_FREELIKE_BLOCK(addr, rzB)
+#define VALGRIND_MAKE_MEM_UNDEFINED(_qzz_addr, _qzz_len)
+#endif
+
 // ART implementation properties that we can enforce at compile time
 static_assert(std::is_trivial<unodb::art_key_type>::value,
               "Internal key type must be POD, i.e. memcpy'able");
@@ -85,6 +94,8 @@ template <typename InternalNode>
 [[nodiscard]] inline pmr_pool_options get_internal_node_pool_options();
 
 [[nodiscard]] inline auto *get_leaf_node_pool() {
+  // If at some point something else is used which no longer maps to new/delete
+  // directly, annotate the allocations with ASAN/VALGRIND macros.
   return pmr_new_delete_resource();
 }
 
@@ -289,7 +300,6 @@ static_assert(std::is_standard_layout<unodb::single_value_leaf>::value,
 void single_value_leaf_deleter::operator()(
     single_value_leaf_type to_delete) const noexcept {
   const auto s = single_value_leaf::size(to_delete);
-  ASAN_POISON_MEMORY_REGION(to_delete, s);
   get_leaf_node_pool()->deallocate(to_delete, s);
 }
 
@@ -304,7 +314,6 @@ single_value_leaf_unique_ptr single_value_leaf::create(art_key_type k,
   db_instance.increase_memory_use(leaf_size);
   auto *const leaf_mem =
       static_cast<std::byte *>(get_leaf_node_pool()->allocate(leaf_size));
-  ASAN_UNPOISON_MEMORY_REGION(leaf_mem, leaf_size);
   new (leaf_mem) node_header{node_type::LEAF};
   k.copy_to(&leaf_mem[offset_key]);
   memcpy(&leaf_mem[offset_value_size], &value_size, sizeof(value_size_type));
@@ -576,12 +585,15 @@ class internal_node_template : public internal_node {
   [[nodiscard]] static void *operator new(std::size_t size) {
     assert(size == sizeof(Derived));
     void *result = get_internal_node_pool<Derived>()->allocate(size);
+    VALGRIND_MALLOCLIKE_BLOCK(result, size, 0, 0);
     ASAN_UNPOISON_MEMORY_REGION(result, size);
     return result;
   }
 
   static void operator delete(void *to_delete) {
     ASAN_POISON_MEMORY_REGION(to_delete, sizeof(Derived));
+    VALGRIND_FREELIKE_BLOCK(to_delete, 0);
+    VALGRIND_MAKE_MEM_UNDEFINED(to_delete, sizeof(Derived));
     get_internal_node_pool<Derived>()->deallocate(to_delete, sizeof(Derived));
   }
 

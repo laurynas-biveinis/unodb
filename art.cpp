@@ -35,6 +35,21 @@ using pmr_unsynchronized_pool_resource =
 
 #include <gsl/gsl_util>
 
+#if defined(__SANITIZE_ADDRESS__)
+#include <sanitizer/asan_interface.h>
+#elif defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#include <sanitizer/asan_interface.h>
+#endif
+#endif
+
+#ifndef ASAN_POISON_MEMORY_REGION
+
+#define ASAN_POISON_MEMORY_REGION(a, s)
+#define ASAN_UNPOISON_MEMORY_REGION(a, s)
+
+#endif
+
 // ART implementation properties that we can enforce at compile time
 static_assert(std::is_trivial<unodb::art_key_type>::value,
               "Internal key type must be POD, i.e. memcpy'able");
@@ -274,6 +289,7 @@ static_assert(std::is_standard_layout<unodb::single_value_leaf>::value,
 void single_value_leaf_deleter::operator()(
     single_value_leaf_type to_delete) const noexcept {
   const auto s = single_value_leaf::size(to_delete);
+  ASAN_POISON_MEMORY_REGION(to_delete, s);
   get_leaf_node_pool()->deallocate(to_delete, s);
 }
 
@@ -288,6 +304,7 @@ single_value_leaf_unique_ptr single_value_leaf::create(art_key_type k,
   db_instance.increase_memory_use(leaf_size);
   auto *const leaf_mem =
       static_cast<std::byte *>(get_leaf_node_pool()->allocate(leaf_size));
+  ASAN_UNPOISON_MEMORY_REGION(leaf_mem, leaf_size);
   new (leaf_mem) node_header{node_type::LEAF};
   k.copy_to(&leaf_mem[offset_key]);
   memcpy(&leaf_mem[offset_value_size], &value_size, sizeof(value_size_type));
@@ -558,10 +575,13 @@ class internal_node_template : public internal_node {
 
   [[nodiscard]] static void *operator new(std::size_t size) {
     assert(size == sizeof(Derived));
-    return get_internal_node_pool<Derived>()->allocate(size);
+    void *result = get_internal_node_pool<Derived>()->allocate(size);
+    ASAN_UNPOISON_MEMORY_REGION(result, size);
+    return result;
   }
 
   static void operator delete(void *to_delete) {
+    ASAN_POISON_MEMORY_REGION(to_delete, sizeof(Derived));
     get_internal_node_pool<Derived>()->deallocate(to_delete, sizeof(Derived));
   }
 

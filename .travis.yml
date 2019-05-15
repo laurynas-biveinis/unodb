@@ -69,8 +69,6 @@ matrix:
       name: "Xenial clang 8 static analysis Release"
       compiler: clang
       env:
-        # TODO(laurynas): scan_build not passed to main build below,
-        # valgrind called needlessly
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release SCAN_BUILD=scan-build-8
     - <<: *linux-base
       name: "Xenial clang 8 static analysis Debug"
@@ -140,9 +138,12 @@ script:
       EXTRA_CMAKE_OPTIONS+="-DGCOV_PATH=/usr/bin/gcov-7 ";
     fi
   - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE=${SANITIZE} -DCOVERAGE=${COVERAGE} ${EXTRA_CMAKE_OPTIONS}
-  - make -j3
+  - ${SCAN_BUILD} make -j3
+  - if [[ ! -z "${SCAN_BUILD}" ]]; then
+      travis_terminate 0;
+    fi
   - if [[ "$COVERAGE" == "OFF" ]]; then
-      ${SCAN_BUILD} make -j3 test;
+      make -j3 test;
     else
       make -j3 coverage;
       bash <(curl -s https://codecov.io/bash) -f coverage-coverage.info || echo "Codecov did not collect coverage reports";

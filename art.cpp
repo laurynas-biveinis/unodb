@@ -51,8 +51,8 @@ using pmr_unsynchronized_pool_resource =
 #endif
 
 #if !defined(NDEBUG) && defined(VALGRIND_CLIENT_REQUESTS)
-#include <valgrind/valgrind.h>
 #include <valgrind/memcheck.h>
+#include <valgrind/valgrind.h>
 #else
 #define VALGRIND_MALLOCLIKE_BLOCK(addr, sizeB, rzB, is_zeroed)
 #define VALGRIND_FREELIKE_BLOCK(addr, rzB)
@@ -1257,8 +1257,8 @@ void internal_node::dump(std::ostream &os) const {
     case node_type::LEAF:
       cannot_happen();
   }
-  os << "# children = " << (children_count == 0 ? 256 :
-                            static_cast<unsigned>(children_count));
+  os << "# children = "
+     << (children_count == 0 ? 256 : static_cast<unsigned>(children_count));
   key_prefix.dump(os);
   switch (header.type()) {
     case node_type::I4:

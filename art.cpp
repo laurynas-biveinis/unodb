@@ -1471,7 +1471,9 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
   return true;
 }
 
+#if defined(__GNUC__) && (__GNUC__ > 9)
 DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
+#endif
 
 void db::increase_memory_use(std::size_t delta) {
   if (memory_limit == 0 || delta == 0) return;
@@ -1480,7 +1482,9 @@ void db::increase_memory_use(std::size_t delta) {
   current_memory_use += delta;
 }
 
+#if defined(__GNUC__) && (__GNUC__ > 9)
 RESTORE_GCC_WARNINGS()
+#endif
 
 void db::decrease_memory_use(std::size_t delta) noexcept {
   if (memory_limit == 0 || delta == 0) return;

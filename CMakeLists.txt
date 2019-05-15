@@ -7,6 +7,7 @@ project(unodb VERSION 0.1
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
     OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   set(CXX_WARNING_FLAGS
+    "-Werror"
     # Warning groups
     "-Wall" "-Wextra" "-Wconversion" "-Wdeprecated" "-Wgnu" "-Wimplicit"
     "-Wloop-analysis" "-Wpedantic" "-Wpragmas"  "-Wself-assign" "-Wshadow-all"
@@ -35,6 +36,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
     "-Wweak-template-vtables" "-Wweak-vtables" "-Wzero-as-null-pointer-constant")
 else()
   set(CXX_WARNING_FLAGS
+    "-Werror"
     # Warning groups
     "-Wall" "-Wextra" "-Wpedantic" "-Wunused" "-Wparentheses" "-Wconversion"
     # Individual warnings
@@ -227,6 +229,9 @@ else()
       "-cppcoreguidelines-pro-bounds-constant-array-index,"
       # Because leaf nodes are std::byte arrays
       "-cppcoreguidelines-pro-bounds-pointer-arithmetic,"
+      # Because VALGRIND_MALLOCLIKE_BLOCK expands to C-style cast, and we have
+      # -Wold-style-cast anyway
+      "-cppcoreguidelines-pro-type-cstyle-cast,"
       "-cppcoreguidelines-pro-type-member-init,"
       "-cppcoreguidelines-pro-type-reinterpret-cast,"
       "-cppcoreguidelines-pro-type-static-cast-downcast,"
@@ -237,6 +242,7 @@ else()
       "-hicpp-braces-around-statements,"
       "-hicpp-member-init,"
       "-hicpp-no-array-decay,"
+      "-hicpp-no-assembler," # Valgrind client requests
       "-hicpp-use-equals-default,"
       "-llvm-include-order,"
       "-misc-non-private-member-variables-in-classes,"
@@ -244,8 +250,9 @@ else()
       "-readability-braces-around-statements,"
       "-readability-else-after-return," # Until clang-tidy learns about constexpr if
       "-readability-magic-numbers")
-    set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
-      "-checks=*,${CLANG_TIDY_DISABLED}")
+    set(DO_CLANG_TIDY_COMMON "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
+      "-warnings-as-errors=*")
+    set(DO_CLANG_TIDY ${DO_CLANG_TIDY_COMMON} "-checks=*,${CLANG_TIDY_DISABLED}")
     string(CONCAT CLANG_TIDY_DISABLED_FOR_TESTS
       "${CLANG_TIDY_DISABLED},"
       "-build-include-order,"
@@ -259,14 +266,14 @@ else()
       "-hicpp-avoid-goto,"
       "-hicpp-special-member-functions,"
       "-hicpp-vararg") # GTest uses varargs
-    set(DO_CLANG_TIDY_TEST "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
+    set(DO_CLANG_TIDY_TEST ${DO_CLANG_TIDY_COMMON}
       "-checks=*,${CLANG_TIDY_DISABLED_FOR_TESTS}")
     string(CONCAT CLANG_TIDY_DISABLED_FOR_DEEPSTATE
       "${CLANG_TIDY_DISABLED},"
       "-cert-err58-cpp,"
       "-fuchsia-statically-constructed-objects,"
       "-readability-implicit-bool-conversion") # DeepState_Bool returning int
-    set(DO_CLANG_TIDY_DEEPSTATE "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
+    set(DO_CLANG_TIDY_DEEPSTATE ${DO_CLANG_TIDY_COMMON}
       "-checks=*,${CLANG_TIDY_DISABLED_FOR_DEEPSTATE}")
   endif()
 endif()
@@ -285,6 +292,7 @@ else()
   message(STATUS "cppcheck found: ${CPPCHECK_EXE}")
   set(DO_CPPCHECK "${CPPCHECK_EXE}" "--enable=warning,style,performance,portability"
     "--suppress=noConstructor" "--suppress=syntaxError" "--suppress=unreadVariable"
+    "--error-exitcode=2"
     "${CPPCHECK_AGGRESSIVE_OPT}")
 endif()
 

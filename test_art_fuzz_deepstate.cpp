@@ -123,23 +123,27 @@ TEST(ART, DeepState_fuzz) {
         [&] {
           const auto key = DeepState_UInt64InRange(0, max_key_value);
           const auto value = get_value(max_value_length, values);
+          const auto mem_use_before = test_db.get_current_memory_use();
           try {
             const auto insert_result = test_db.insert(key, value);
+            const auto mem_use_after = test_db.get_current_memory_use();
             if (insert_result) {
               LOG(TRACE) << "Inserted key " << key;
+              ASSERT(mem_use_after > mem_use_before || mem_limit == 0);
               const auto oracle_insert_result = oracle.emplace(key, value);
               ASSERT(oracle_insert_result.second)
                   << "If insert suceeded, oracle insert must succeed";
               keys.emplace_back(key);
             } else {
-              // TODO(laurynas): assert memory use did not change
               LOG(TRACE) << "Tried to insert duplicate key " << key;
+              ASSERT(mem_use_after == mem_use_before);
               ASSERT(oracle.find(key) != oracle.cend())
                   << "If insert returned failure, oracle must contain that "
                      "value";
             }
           } catch (const std::bad_alloc &) {
-            // TODO(laurynas): assert memory use did not change
+            const auto mem_use_after = test_db.get_current_memory_use();
+            ASSERT(mem_use_after == mem_use_before);
           }
           dump_tree(test_db);
           LOG(TRACE) << "Current mem use: "
@@ -168,14 +172,17 @@ TEST(ART, DeepState_fuzz) {
         [&] {
           const auto key = get_key(max_key_value, keys);
           LOG(TRACE) << "Deleting key " << key;
+          const auto mem_use_before = test_db.get_current_memory_use();
           // TODO(laurynas): may throw std::bad_alloc?
           const auto delete_result = test_db.remove(key);
+          const auto mem_use_after = test_db.get_current_memory_use();
           const auto oracle_delete_result = oracle.erase(key);
           if (delete_result) {
+            ASSERT(mem_use_after < mem_use_before || mem_limit == 0);
             ASSERT(oracle_delete_result == 1)
                 << "If delete succeeded, oracle delete must succeed too";
           } else {
-            // TODO(laurynas): assert memory use did not change
+            ASSERT(mem_use_after == mem_use_before);
             ASSERT(oracle_delete_result == 0)
                 << "If delete failed, oracle delete must fail too";
           }
@@ -185,6 +192,7 @@ TEST(ART, DeepState_fuzz) {
         });
   }
 
+  auto prev_mem_use = test_db.get_current_memory_use();
   while (!oracle.empty()) {
     const auto [key, value] = *oracle.cbegin();
     LOG(TRACE) << "Shutdown: deleting key " << key;
@@ -192,10 +200,12 @@ TEST(ART, DeepState_fuzz) {
     ASSERT(oracle_remove_result == 1);
     const auto db_remove_result = test_db.remove(key);
     ASSERT(db_remove_result);
-    LOG(TRACE) << "Current mem use: "
-               << static_cast<uint64_t>(test_db.get_current_memory_use());
+    const auto current_mem_use = test_db.get_current_memory_use();
+    LOG(TRACE) << "Current mem use: " << static_cast<uint64_t>(current_mem_use);
+    ASSERT(current_mem_use < prev_mem_use || mem_limit == 0);
+    prev_mem_use = current_mem_use;
   }
-  ASSERT(test_db.get_current_memory_use() == 0);
+  ASSERT(prev_mem_use == 0);
 }
 
 RESTORE_CLANG_WARNINGS()

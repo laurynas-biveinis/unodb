@@ -1081,22 +1081,26 @@ internal_node_48::internal_node_48(
     uint8_t child_to_remove) noexcept
     : internal_node_48_template{*source_node} {
   uint8_t next_child = 0;
-  for (unsigned i = 0; i < 256; i++) {
-    if (i == child_to_remove) {
-      assert(source_node->children[i] != nullptr);
-      child_indexes[i] = empty_child;
+  unsigned child_i = 0;
+  for (; child_i < 256; child_i++) {
+    if (child_i == child_to_remove) {
+      assert(source_node->children[child_i] != nullptr);
+      child_indexes[child_i] = empty_child;
       continue;
     }
-    if (source_node->children[i] == nullptr) {
-      child_indexes[i] = empty_child;
+    if (source_node->children[child_i] == nullptr) {
+      child_indexes[child_i] = empty_child;
       continue;
     }
-    assert(source_node->children[i] != nullptr);
-    child_indexes[i] = gsl::narrow_cast<uint8_t>(next_child);
-    new (&children[next_child]) node_ptr{std::move(source_node->children[i])};
+    assert(source_node->children[child_i] != nullptr);
+    child_indexes[child_i] = next_child;
+    new (&children[next_child])
+        node_ptr{std::move(source_node->children[child_i])};
     ++next_child;
     if (next_child == children_count) break;
   }
+  ++child_i;
+  for (; child_i < 256; child_i++) child_indexes[child_i] = empty_child;
 }
 
 internal_node_256::internal_node_256(std::unique_ptr<internal_node_48> &&node,

@@ -724,4 +724,23 @@ TEST(ART, node48_insert_into_deleted_slot) {
   verifier.check_present_values();
 }
 
+TEST(ART, memory_accounting_growing_node_exception) {
+  unodb::db test_db{1024};
+  tree_verifier verifier{test_db};
+
+  verifier.insert_key_range(0, 4);
+
+  std::array<std::byte, 900> large_value;
+  const unodb::value_view large_value_view{large_value};
+
+  const auto mem_use_before = test_db.get_current_memory_use();
+  ASSERT_THROW(verifier.insert(10, large_value_view), std::bad_alloc);
+  const auto mem_use_after = test_db.get_current_memory_use();
+
+  ASSERT_EQ(mem_use_before, mem_use_after);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({10});
+}
+
 }  // namespace

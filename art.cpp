@@ -1377,27 +1377,34 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view v,
   }
 
   assert(node->internal->is_full());
-  if (node->type() == node_type::I4) {
-    increase_memory_use(sizeof(internal_node_16) - sizeof(internal_node_4));
-    auto larger_node = internal_node_16::create(
-        std::unique_ptr<internal_node_4>(node->node_4.release()),
-        std::move(leaf), depth);
-    node->node_16 = std::move(larger_node);
-  } else if (node->type() == node_type::I16) {
-    increase_memory_use(sizeof(internal_node_48) - sizeof(internal_node_16));
-    auto larger_node = internal_node_48::create(
-        std::unique_ptr<internal_node_16>(node->node_16.release()),
-        std::move(leaf), depth);
-    node->node_48 = std::move(larger_node);
-  } else {
-    assert(node->type() == node_type::I48);
-    increase_memory_use(sizeof(internal_node_256) - sizeof(internal_node_48));
-    auto larger_node = internal_node_256::create(
-        std::unique_ptr<internal_node_48>(node->node_48.release()),
-        std::move(leaf), depth);
-    node->node_256 = std::move(larger_node);
+
+  try {
+    if (node->type() == node_type::I4) {
+      increase_memory_use(sizeof(internal_node_16) - sizeof(internal_node_4));
+      auto larger_node = internal_node_16::create(
+          std::unique_ptr<internal_node_4>(node->node_4.release()),
+          std::move(leaf), depth);
+      node->node_16 = std::move(larger_node);
+    } else if (node->type() == node_type::I16) {
+      increase_memory_use(sizeof(internal_node_48) - sizeof(internal_node_16));
+      auto larger_node = internal_node_48::create(
+          std::unique_ptr<internal_node_16>(node->node_16.release()),
+          std::move(leaf), depth);
+      node->node_48 = std::move(larger_node);
+    } else {
+      assert(node->type() == node_type::I48);
+      increase_memory_use(sizeof(internal_node_256) - sizeof(internal_node_48));
+      auto larger_node = internal_node_256::create(
+          std::unique_ptr<internal_node_48>(node->node_48.release()),
+          std::move(leaf), depth);
+      node->node_256 = std::move(larger_node);
+    }
+    return true;
+  } catch (const std::bad_alloc &) {
+    const auto leaf_size = single_value_leaf::size(leaf.get());
+    decrease_memory_use(leaf_size);
+    throw;
   }
-  return true;
 }
 
 bool db::remove(key_type k) {

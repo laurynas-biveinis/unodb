@@ -1311,6 +1311,11 @@ class leaf_creator_with_scope_cleanup {
         db_instance{db_instance_},
         exceptions_at_ctor{std::uncaught_exceptions()} {}
 
+  leaf_creator_with_scope_cleanup(const leaf_creator_with_scope_cleanup &) =
+      delete;
+  leaf_creator_with_scope_cleanup &operator=(
+      const leaf_creator_with_scope_cleanup &) = delete;
+
   ~leaf_creator_with_scope_cleanup() noexcept {
 #ifndef NDEBUG
     Expects(get_called);

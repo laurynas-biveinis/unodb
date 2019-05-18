@@ -1312,14 +1312,16 @@ class leaf_creator_with_scope_cleanup {
         exceptions_at_ctor{std::uncaught_exceptions()} {}
 
   ~leaf_creator_with_scope_cleanup() noexcept {
+#ifndef NDEBUG
     Expects(get_called);
+#endif
     if (likely(exceptions_at_ctor == std::uncaught_exceptions())) return;
     db_instance.decrease_memory_use(leaf_size);
   }
 
   unodb::single_value_leaf_unique_ptr &&get() noexcept {
-    Expects(!get_called);
 #ifndef NDEBUG
+    Expects(!get_called);
     get_called = true;
 #endif
     return std::move(leaf);

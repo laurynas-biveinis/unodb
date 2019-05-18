@@ -1313,8 +1313,12 @@ class leaf_creator_with_scope_cleanup {
 
   leaf_creator_with_scope_cleanup(const leaf_creator_with_scope_cleanup &) =
       delete;
+  leaf_creator_with_scope_cleanup(leaf_creator_with_scope_cleanup &&) = delete;
+
   leaf_creator_with_scope_cleanup &operator=(
       const leaf_creator_with_scope_cleanup &) = delete;
+  leaf_creator_with_scope_cleanup &operator=(
+      leaf_creator_with_scope_cleanup &&) = delete;
 
   ~leaf_creator_with_scope_cleanup() noexcept {
 #ifndef NDEBUG

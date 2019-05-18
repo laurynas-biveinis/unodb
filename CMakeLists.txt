@@ -153,7 +153,6 @@ else()
 endif()
 
 # TODO(laurynas): convert benchmark dependency to a git submodule
-# TODO(laurynas): GCC 9?
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
   message(STATUS "Not looking for Google benchmark library due to compiling with GCC on macOS")
 else()

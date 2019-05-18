@@ -173,7 +173,6 @@ TEST(ART, DeepState_fuzz) {
           const auto key = get_key(max_key_value, keys);
           LOG(TRACE) << "Deleting key " << key;
           const auto mem_use_before = test_db.get_current_memory_use();
-          // TODO(laurynas): may throw std::bad_alloc?
           const auto delete_result = test_db.remove(key);
           const auto mem_use_after = test_db.get_current_memory_use();
           const auto oracle_delete_result = oracle.erase(key);

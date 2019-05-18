@@ -1302,6 +1302,39 @@ template <typename InternalNode>
 
 namespace unodb {
 
+class leaf_creator_with_scope_cleanup {
+ public:
+  leaf_creator_with_scope_cleanup(unodb::art_key_type k, unodb::value_view v,
+                                  unodb::db &db_instance_)
+      : leaf{unodb::single_value_leaf::create(k, v, db_instance_)},
+        leaf_size{unodb::single_value_leaf::size(leaf.get())},
+        db_instance{db_instance_},
+        exceptions_at_ctor{std::uncaught_exceptions()} {}
+
+  ~leaf_creator_with_scope_cleanup() noexcept {
+    Expects(get_called);
+    if (likely(exceptions_at_ctor == std::uncaught_exceptions())) return;
+    db_instance.decrease_memory_use(leaf_size);
+  }
+
+  unodb::single_value_leaf_unique_ptr &&get() noexcept {
+    Expects(!get_called);
+#ifndef NDEBUG
+    get_called = true;
+#endif
+    return std::move(leaf);
+  }
+
+ private:
+  unodb::single_value_leaf_unique_ptr leaf;
+  const std::size_t leaf_size;
+  unodb::db &db_instance;
+  const int exceptions_at_ctor;
+#ifndef NDEBUG
+  bool get_called{false};
+#endif
+};
+
 db::get_result db::get(key_type k) const noexcept {
   if (unlikely(root.header == nullptr)) return {};
   return get_from_subtree(root, art_key{k}, 0);
@@ -1341,9 +1374,8 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view v,
   if (node->type() == node_type::LEAF) {
     const auto existing_key = single_value_leaf::key(node->leaf.get());
     if (unlikely(k == existing_key)) return false;
-    auto leaf = single_value_leaf::create(k, v, *this);
-    // TODO(laurynas): if internal_node_4::create throws bad_alloc, mem
-    // accounting desyncs
+    leaf_creator_with_scope_cleanup leaf_creator{k, v, *this};
+    auto leaf = leaf_creator.get();
     increase_memory_use(sizeof(internal_node_4));
     auto new_node = internal_node_4::create(existing_key, k, depth,
                                             std::move(*node), std::move(leaf));
@@ -1356,7 +1388,8 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view v,
   const auto shared_prefix_len =
       node->internal->key_prefix.get_shared_length(k, depth);
   if (shared_prefix_len < node->internal->key_prefix.length()) {
-    auto leaf = single_value_leaf::create(k, v, *this);
+    leaf_creator_with_scope_cleanup leaf_creator{k, v, *this};
+    auto leaf = leaf_creator.get();
     increase_memory_use(sizeof(internal_node_4));
     auto new_node = internal_node_4::create(std::move(*node), shared_prefix_len,
                                             depth, std::move(leaf));
@@ -1369,7 +1402,8 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view v,
 
   if (child != nullptr) return insert_to_subtree(k, child, v, depth + 1);
 
-  auto leaf = single_value_leaf::create(k, v, *this);
+  leaf_creator_with_scope_cleanup leaf_creator{k, v, *this};
+  auto leaf = leaf_creator.get();
 
   if (likely(!node->internal->is_full())) {
     node->internal->add(std::move(leaf), depth);
@@ -1378,33 +1412,27 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view v,
 
   assert(node->internal->is_full());
 
-  try {
-    if (node->type() == node_type::I4) {
-      increase_memory_use(sizeof(internal_node_16) - sizeof(internal_node_4));
-      auto larger_node = internal_node_16::create(
-          std::unique_ptr<internal_node_4>(node->node_4.release()),
-          std::move(leaf), depth);
-      node->node_16 = std::move(larger_node);
-    } else if (node->type() == node_type::I16) {
-      increase_memory_use(sizeof(internal_node_48) - sizeof(internal_node_16));
-      auto larger_node = internal_node_48::create(
-          std::unique_ptr<internal_node_16>(node->node_16.release()),
-          std::move(leaf), depth);
-      node->node_48 = std::move(larger_node);
-    } else {
-      assert(node->type() == node_type::I48);
-      increase_memory_use(sizeof(internal_node_256) - sizeof(internal_node_48));
-      auto larger_node = internal_node_256::create(
-          std::unique_ptr<internal_node_48>(node->node_48.release()),
-          std::move(leaf), depth);
-      node->node_256 = std::move(larger_node);
-    }
-    return true;
-  } catch (const std::bad_alloc &) {
-    const auto leaf_size = single_value_leaf::size(leaf.get());
-    decrease_memory_use(leaf_size);
-    throw;
+  if (node->type() == node_type::I4) {
+    increase_memory_use(sizeof(internal_node_16) - sizeof(internal_node_4));
+    auto larger_node = internal_node_16::create(
+        std::unique_ptr<internal_node_4>(node->node_4.release()),
+        std::move(leaf), depth);
+    node->node_16 = std::move(larger_node);
+  } else if (node->type() == node_type::I16) {
+    increase_memory_use(sizeof(internal_node_48) - sizeof(internal_node_16));
+    auto larger_node = internal_node_48::create(
+        std::unique_ptr<internal_node_16>(node->node_16.release()),
+        std::move(leaf), depth);
+    node->node_48 = std::move(larger_node);
+  } else {
+    assert(node->type() == node_type::I48);
+    increase_memory_use(sizeof(internal_node_256) - sizeof(internal_node_48));
+    auto larger_node = internal_node_256::create(
+        std::unique_ptr<internal_node_48>(node->node_48.release()),
+        std::move(leaf), depth);
+    node->node_256 = std::move(larger_node);
   }
+  return true;
 }
 
 bool db::remove(key_type k) {

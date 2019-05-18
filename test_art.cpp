@@ -733,14 +733,38 @@ TEST(ART, memory_accounting_growing_node_exception) {
   std::array<std::byte, 900> large_value;
   const unodb::value_view large_value_view{large_value};
 
-  const auto mem_use_before = test_db.get_current_memory_use();
+  // The leaf node will be created first and will take memory use almost to the
+  // limit, then Node16 allocation will go over the limit
   ASSERT_THROW(verifier.insert(10, large_value_view), std::bad_alloc);
-  const auto mem_use_after = test_db.get_current_memory_use();
-
-  ASSERT_EQ(mem_use_before, mem_use_after);
 
   verifier.check_present_values();
   verifier.check_absent_keys({10});
+}
+
+TEST(ART, memory_accounting_leaf_to_node4_exception) {
+  unodb::db test_db{50};
+  tree_verifier verifier{test_db};
+
+  verifier.insert(0, test_values[0]);
+
+  ASSERT_THROW(verifier.insert(1, test_values[1]), std::bad_alloc);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({1});
+}
+
+TEST(ART, memory_accounting_prefix_split_exception) {
+  unodb::db test_db{140};
+  tree_verifier verifier{test_db};
+
+  verifier.insert(1, test_values[0]);
+  verifier.insert(3, test_values[2]);
+
+  // Insert a value that does not share full prefix with the current Node4
+  ASSERT_THROW(verifier.insert(0xFF01, test_values[3]), std::bad_alloc);
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0xFF01});
 }
 
 }  // namespace

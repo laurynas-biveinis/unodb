@@ -160,6 +160,7 @@ class db final {
   const std::size_t memory_limit;
 
   friend struct single_value_leaf;
+  friend class leaf_creator_with_scope_cleanup;
 };
 
 }  // namespace unodb

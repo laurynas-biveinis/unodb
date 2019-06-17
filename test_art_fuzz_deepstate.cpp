@@ -59,7 +59,7 @@ unodb::key_type get_key(unodb::key_type max_key_value,
   if (use_existing_key) {
     ASSERT(!keys.empty());
     ASSERT(keys.size() <= std::numeric_limits<uint32_t>::max());
-    const auto existing_key_i = static_cast<size_t>(
+    const auto existing_key_i = static_cast<std::size_t>(
         DeepState_UIntInRange(0, static_cast<uint32_t>(keys.size()) - 1));
     return keys[existing_key_i];
   }

@@ -114,7 +114,7 @@ void dump_byte(std::ostream &os, std::byte byte) {
 }
 
 void dump_key(std::ostream &os, unodb::art_key_type key) {
-  for (size_t i = 0; i < sizeof(key); i++) dump_byte(os, key[i]);
+  for (std::size_t i = 0; i < sizeof(key); i++) dump_byte(os, key[i]);
 }
 
 void dump_node(std::ostream &os, const unodb::node_ptr &node);
@@ -430,7 +430,7 @@ static_assert(std::is_standard_layout<key_prefix_type>::value);
 void key_prefix_type::dump(std::ostream &os) const {
   os << ", key prefix len = " << static_cast<unsigned>(length_);
   os << ", key prefix =";
-  for (size_t i = 0; i < length_; i++) dump_byte(os, data_[i]);
+  for (std::size_t i = 0; i < length_; i++) dump_byte(os, data_[i]);
 }
 
 #endif
@@ -1135,7 +1135,7 @@ internal_node::find_result_type internal_node_256::find_child(
 void internal_node_256::dump(std::ostream &os) const {
   os << ", key bytes & children:\n";
   uint8_t actual_children_count = 0;
-  for (size_t i = 0; i < 256; i++) {
+  for (std::size_t i = 0; i < 256; i++) {
     if (children[i] != nullptr) {
       ++actual_children_count;
       os << ' ';

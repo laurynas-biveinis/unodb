@@ -116,7 +116,7 @@ else()
   endif()
 endif()
 
-option(SANITIZE "Enable all Sanitizer runtime checks")
+option(SANITIZE "Enable AddressSanitizer and UndefinedBehaviorSanitizer runtime checks")
 if(SANITIZE)
   set(GCC_EXTRA_SANITIZE_FLAGS "-fsanitize=pointer-compare"
     "-fsanitize=pointer-subtract" "-fsanitize=leak"
@@ -186,7 +186,7 @@ set(CMAKE_REQUIRED_LINK_OPTIONS "-fsanitize=fuzzer")
 check_cxx_source_compiles(
   "#include <cstddef>
    #include <cstdint>
-   extern \"C\" int LLVMFuzzerTestOneInput(const uint8_t *, size_t) {
+   extern \"C\" int LLVMFuzzerTestOneInput(const uint8_t *, std::size_t) {
      return 0;
    }" LIBFUZZER_OK)
 

@@ -277,11 +277,14 @@ else()
   endif()
 endif()
 
-option(CPPCHECK_AGGRESSIVE "Enable inconclusive cppcheck checks")
+option(CPPCHECK_AGGRESSIVE "Enable inconclusive and false positive cppcheck checks")
 if(CPPCHECK_AGGRESSIVE)
-  set(CPPCHECK_AGGRESSIVE_OPT "--inconclusive")
+  set(CPPCHECK_CHECKS "--inconclusive")
 else()
-  set(CPPCHECK_AGGRESSIVE_OPT "")
+  set(CPPCHECK_CHECKS
+    "--suppress=unreadVariable" # False positive: on key2_i
+    "--suppress=syntaxError" # False positive on test_art.cpp:148
+    "--suppress=ignoredReturnValue") # False positive on ctors with std::move arg
 endif()
 
 find_program(CPPCHECK_EXE NAMES "cppcheck" DOC "Path to cppcheck executable")
@@ -290,9 +293,8 @@ if(NOT CPPCHECK_EXE)
 else()
   message(STATUS "cppcheck found: ${CPPCHECK_EXE}")
   set(DO_CPPCHECK "${CPPCHECK_EXE}" "--enable=warning,style,performance,portability"
-    "--suppress=noConstructor" "--suppress=syntaxError" "--suppress=unreadVariable"
-    "--error-exitcode=2"
-    "${CPPCHECK_AGGRESSIVE_OPT}")
+    "--error-exitcode=2")
+  list(APPEND DO_CPPCHECK "${CPPCHECK_CHECKS}")
 endif()
 
 find_program(CPPLINT_EXE NAMES "cpplint" DOC "Path to cpplint executable")

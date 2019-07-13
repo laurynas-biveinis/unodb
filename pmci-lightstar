@@ -8,11 +8,11 @@ mkdir $WORKDIR
 pushd $WORKDIR
 
 cmake ../unodb/ -DCMAKE_BUILD_TYPE=Release -DCPPCHECK_AGGRESSIVE=ON
-make -j4
+make -j4 -k
 rm -rf *
 
 cmake ../unodb/ -DCMAKE_BUILD_TYPE=Debug -DCPPCHECK_AGGRESSIVE=ON
-make -j4
+make -j4 -k
 rm -rf *
 
 pushd ../unodb

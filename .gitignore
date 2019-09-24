@@ -1,5 +1,6 @@
 # Prerequisites
 *.d
+compile_commands.json
 
 # Compiled Object files
 *.slo
@@ -30,3 +31,6 @@
 *.exe
 *.out
 *.app
+
+# clangd
+.clangd

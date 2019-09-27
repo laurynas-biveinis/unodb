@@ -1,3 +1,5 @@
+<!--- -*- gfm -*- -->
+
 # unodb
 
 [![Build
@@ -72,6 +74,7 @@ doi:10.1109/ICDE.2013.6544812
 
 [libstdc++ub]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90442
 
-[gc++style]: https://google.github.io/styleguide/cppguide.html "Google C++ Style Guide"
+[gc++style]: https://google.github.io/styleguide/cppguide.html
+"Google C++ Style Guide"
 
 [deepstate]: https://github.com/trailofbits/deepstate "DeepState on GitHub"

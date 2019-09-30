@@ -112,8 +112,12 @@ union node_ptr {
 
   node_ptr &operator=(std::nullptr_t) noexcept;
 
-  auto operator==(std::nullptr_t) const noexcept { return header == nullptr; }
-  auto operator!=(std::nullptr_t) const noexcept { return header != nullptr; }
+  [[nodiscard]] auto operator==(std::nullptr_t) const noexcept {
+    return header == nullptr;
+  }
+  [[nodiscard]] auto operator!=(std::nullptr_t) const noexcept {
+    return header != nullptr;
+  }
 
   [[nodiscard]] __attribute__((pure)) node_type type() const noexcept;
 };

@@ -131,8 +131,18 @@ if(SANITIZE)
   endif()
   string(CONCAT ASAN_OPTIONS "ASAN_OPTIONS="
     "check_initialization_order=true:detect_stack_use_after_return=true:"
-    "alloc_dealloc_mismatch=true:strict_string_checks=true:"
-    "detect_invalid_pointer_pairs=2")
+    "alloc_dealloc_mismatch=true:strict_string_checks=true")
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
+      "${CMAKE_CXX_COMPILER_VERSION}" VERSION_EQUAL 9)
+    # ERROR: AddressSanitizer: invalid-pointer-pair: 0x7fffe8404697
+    # 0x000000000000
+    # #0 0x55d21abf7a40 in std::__cxx11::basic_stringbuf<char,
+    # std::char_traits<char>, std::allocator<char> >::str() const
+    # /usr/include/c++/8/sstream:173
+    string(APPEND ASAN_OPTIONS ":detect_invalid_pointer_pairs=1")
+  else()
+    string(APPEND ASAN_OPTIONS ":detect_invalid_pointer_pairs=2")
+  endif()
   if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     string(APPEND ASAN_OPTIONS ":detect_leaks=1")
   endif()

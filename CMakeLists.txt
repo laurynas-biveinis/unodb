@@ -130,9 +130,12 @@ if(SANITIZE)
     list(APPEND LD_FLAGS "${GCC_EXTRA_SANITIZE_FLAGS}")
   endif()
   string(CONCAT ASAN_OPTIONS "ASAN_OPTIONS="
-    "detect_leaks=1:check_initialization_order=true:"
-    "detect_stack_use_after_return=true:alloc_dealloc_mismatch=true:"
-    "strict_string_checks=true:detect_invalid_pointer_pairs=2")
+    "check_initialization_order=true:detect_stack_use_after_return=true:"
+    "alloc_dealloc_mismatch=true:strict_string_checks=true:"
+    "detect_invalid_pointer_pairs=2")
+  if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    string(APPEND ASAN_OPTIONS ":detect_leaks=1")
+  endif()
   string(CONCAT UBSAN_OPTIONS "UBSAN_OPTIONS="
     "print_stacktrace=1")
 endif()

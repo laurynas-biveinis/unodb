@@ -143,7 +143,7 @@ script:
       travis_terminate 0;
     fi
   - if [[ "$COVERAGE" == "OFF" ]]; then
-      make -j3 test;
+      ctest -j3 -V;
     else
       make -j3 coverage;
       bash <(curl -s https://codecov.io/bash) -f coverage-coverage.info || echo "Codecov did not collect coverage reports";

@@ -90,6 +90,14 @@ static_assert(sizeof(unodb::single_value_leaf_unique_ptr) == sizeof(void *),
 
 namespace {
 
+void poison_block(void *to_delete, std::size_t size) {
+  (void)to_delete;
+  (void)size;
+  ASAN_POISON_MEMORY_REGION(to_delete, size);
+  VALGRIND_FREELIKE_BLOCK(to_delete, 0);
+  VALGRIND_MAKE_MEM_UNDEFINED(to_delete, size);
+}
+
 template <typename InternalNode>
 [[nodiscard]] inline pmr_pool_options get_internal_node_pool_options();
 
@@ -609,9 +617,7 @@ class internal_node_template : public internal_node {
   }
 
   static void operator delete(void *to_delete) {
-    ASAN_POISON_MEMORY_REGION(to_delete, sizeof(Derived));
-    VALGRIND_FREELIKE_BLOCK(to_delete, 0);
-    VALGRIND_MAKE_MEM_UNDEFINED(to_delete, sizeof(Derived));
+    poison_block(to_delete, sizeof(Derived));
     get_internal_node_pool<Derived>()->deallocate(to_delete, sizeof(Derived));
   }
 

@@ -268,7 +268,7 @@ else()
       "-misc-non-private-member-variables-in-classes,"
       "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang
       "-readability-braces-around-statements,"
-      "-readability-else-after-return," # Until clang-tidy learns about constexpr if
+      "-readability-named-parameter,"
       "-readability-magic-numbers")
     set(DO_CLANG_TIDY_COMMON "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
       "-warnings-as-errors=*")

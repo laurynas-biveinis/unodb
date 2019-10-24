@@ -479,6 +479,17 @@ class internal_node {
   void dump(std::ostream &os) const;
 #endif
 
+  // internal_node must not be allocated directly on heap
+  [[nodiscard]] static void *operator new(std::size_t) {
+    cannot_happen();
+  }
+
+  DISABLE_CLANG_WARNING("-Wmissing-noreturn")
+  static void operator delete(void *) {
+    cannot_happen();
+  }
+  RESTORE_CLANG_WARNINGS()
+
  protected:
   internal_node(node_type type, uint8_t children_count_, art_key_type k1,
                 art_key_type k2, db::tree_depth_type depth) noexcept

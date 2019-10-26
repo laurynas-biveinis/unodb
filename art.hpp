@@ -68,10 +68,11 @@ using value_view = gsl::span<const std::byte>;
 
 struct node_header;
 
-using single_value_leaf_type = std::byte[];
+using single_value_leaf_type = std::byte;
+using single_value_leaf_ptr_type = single_value_leaf_type *;
 
 struct single_value_leaf_deleter {
-  void operator()(single_value_leaf_type to_delete) const noexcept;
+  void operator()(single_value_leaf_ptr_type to_delete) const noexcept;
 };
 
 using single_value_leaf_unique_ptr =
@@ -92,29 +93,25 @@ enum class node_type : uint8_t;
 // asserts in the implementation file.
 union node_ptr {
   node_header *header;
-  single_value_leaf_unique_ptr leaf;
-  std::unique_ptr<internal_node> internal;
-  std::unique_ptr<internal_node_4> node_4;
-  std::unique_ptr<internal_node_16> node_16;
-  std::unique_ptr<internal_node_48> node_48;
-  std::unique_ptr<internal_node_256> node_256;
+  single_value_leaf_ptr_type leaf;
+  internal_node *internal;
+  internal_node_4 *node_4;
+  internal_node_16 *node_16;
+  internal_node_48 *node_48;
+  internal_node_256 *node_256;
 
   node_ptr() noexcept {}
-  explicit node_ptr(node_ptr &&other) noexcept : leaf{std::move(other.leaf)} {}
-  explicit node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
-  explicit node_ptr(single_value_leaf_unique_ptr &&leaf_) noexcept
-      : leaf{std::move(leaf_)} {}
-  explicit node_ptr(std::unique_ptr<internal_node> &&node) noexcept;
-
-  ~node_ptr();
-
-  node_ptr &operator=(node_ptr &&other) noexcept;
-
-  node_ptr &operator=(std::nullptr_t) noexcept;
+  node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
+  node_ptr(single_value_leaf_ptr_type leaf_) noexcept : leaf{leaf_} {}
+  node_ptr(internal_node_4 *node_4_) noexcept : node_4{node_4_} {}
+  node_ptr(internal_node_16 *node_16_) noexcept : node_16{node_16_} {}
+  node_ptr(internal_node_48 *node_48_) noexcept : node_48{node_48_} {}
+  node_ptr(internal_node_256 *node_256_) noexcept : node_256{node_256_} {}
 
   [[nodiscard]] auto operator==(std::nullptr_t) const noexcept {
     return header == nullptr;
   }
+
   [[nodiscard]] auto operator!=(std::nullptr_t) const noexcept {
     return header != nullptr;
   }
@@ -132,6 +129,8 @@ class db final {
   explicit db(std::size_t memory_limit_ = 0) noexcept
       : memory_limit{memory_limit_} {}
 
+  ~db() noexcept;
+
   [[nodiscard]] get_result get(key_type k) const noexcept;
 
   [[nodiscard]] bool insert(key_type k, value_view v);
@@ -148,7 +147,7 @@ class db final {
 
  private:
   [[nodiscard]] static db::get_result get_from_subtree(
-      const node_ptr &node, art_key_type k, tree_depth_type depth) noexcept;
+      node_ptr node, art_key_type k, tree_depth_type depth) noexcept;
 
   [[nodiscard]] bool insert_to_subtree(art_key_type k, node_ptr *node,
                                        value_view v, tree_depth_type depth);

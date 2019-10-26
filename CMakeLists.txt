@@ -251,6 +251,7 @@ else()
       "-cppcoreguidelines-pro-bounds-pointer-arithmetic,"
       # Because VALGRIND_MALLOCLIKE_BLOCK expands to C-style cast, and we have
       # -Wold-style-cast anyway
+      "-cppcoreguidelines-pro-type-const-cast,"
       "-cppcoreguidelines-pro-type-cstyle-cast,"
       "-cppcoreguidelines-pro-type-member-init,"
       "-cppcoreguidelines-pro-type-reinterpret-cast,"
@@ -305,7 +306,9 @@ else()
   set(CPPCHECK_CHECKS
     "--suppress=unreadVariable" # False positive: on key2_i
     "--suppress=syntaxError" # False positive on test_art.cpp:148
-    "--suppress=ignoredReturnValue") # False positive on ctors with std::move arg
+    "--suppress=ignoredReturnValue" # False positive on ctors with std::move arg
+    # False positive on pointer unions being passed by value
+    "--suppress=passedByValue")
 endif()
 
 find_program(CPPCHECK_EXE NAMES "cppcheck" DOC "Path to cppcheck executable")

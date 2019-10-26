@@ -65,21 +65,7 @@ static_assert(std::is_trivial<unodb::art_key_type>::value,
 static_assert(sizeof(unodb::art_key_type) == sizeof(unodb::key_type),
               "Internal key type must be no larger than API key type");
 
-static_assert(sizeof(unodb::node_ptr::leaf) == sizeof(unodb::node_ptr::header),
-              "node_ptr fields must be of equal size to a raw pointer");
-static_assert(sizeof(unodb::node_ptr::internal) ==
-                  sizeof(unodb::node_ptr::header),
-              "node_ptr fields must be of equal size to a raw pointer");
-static_assert(sizeof(unodb::node_ptr::node_4) ==
-                  sizeof(unodb::node_ptr::header),
-              "node_ptr fields must be of equal size to a raw pointer");
-static_assert(sizeof(unodb::node_ptr::node_16) ==
-                  sizeof(unodb::node_ptr::header),
-              "node_ptr fields must be of equal size to a raw pointer");
-static_assert(sizeof(unodb::node_ptr::node_48) ==
-                  sizeof(unodb::node_ptr::header),
-              "node_ptr fields must be of equal size to a raw pointer");
-static_assert(sizeof(unodb::node_ptr::node_256) ==
+static_assert(sizeof(unodb::single_value_leaf_ptr_type) ==
                   sizeof(unodb::node_ptr::header),
               "node_ptr fields must be of equal size to a raw pointer");
 static_assert(sizeof(unodb::node_ptr) == sizeof(void *),
@@ -138,6 +124,9 @@ inline __attribute__((noreturn)) void cannot_happen() {
 
 namespace unodb {
 
+static_assert(sizeof(unodb::single_value_leaf_unique_ptr) == sizeof(void *),
+              "Single leaf unique_ptr must have no overhead over raw pointer");
+
 template <>
 __attribute__((const)) uint64_t art_key<uint64_t>::make_binary_comparable(
     uint64_t key) noexcept {
@@ -162,88 +151,6 @@ struct node_header final {
 
 static_assert(std::is_standard_layout<unodb::node_header>::value);
 
-node_ptr::node_ptr(std::unique_ptr<internal_node> &&node) noexcept
-    : internal{std::move(node)} {}
-
-node_ptr::~node_ptr() {
-  if (header == nullptr) return;
-
-  // While all the unique_ptr union fields look the same in memory, we must
-  // invoke destructor of the right type, because the deleters are different
-  switch (type()) {
-    case node_type::LEAF:
-      leaf.~single_value_leaf_unique_ptr();
-      return;
-    case node_type::I4:
-      node_4.~unique_ptr<internal_node_4>();
-      return;
-    case node_type::I16:
-      node_16.~unique_ptr<internal_node_16>();
-      return;
-    case node_type::I48:
-      node_48.~unique_ptr<internal_node_48>();
-      return;
-    case node_type::I256:
-      node_256.~unique_ptr<internal_node_256>();
-      return;
-  }
-  cannot_happen();
-}
-
-node_ptr &node_ptr::operator=(node_ptr &&other) noexcept {
-  // We rely on all the unique_ptr and header pointers being of the same size,
-  // thus we can access any field of other, but we must access the right
-  // member of this union, so that the right unique_ptr deleter is invoked.
-  if (header == nullptr) {
-    leaf = std::move(other.leaf);
-    return *this;
-  }
-
-  switch (type()) {
-    case node_type::LEAF:
-      leaf = std::move(other.leaf);
-      return *this;
-    case node_type::I4:
-      node_4 = std::move(other.node_4);
-      return *this;
-    case node_type::I16:
-      node_16 = std::move(other.node_16);
-      return *this;
-    case node_type::I48:
-      node_48 = std::move(other.node_48);
-      return *this;
-    case node_type::I256:
-      node_256 = std::move(other.node_256);
-      return *this;
-  }
-  cannot_happen();
-}
-
-node_ptr &node_ptr::operator=(std::nullptr_t) noexcept {
-  if (header == nullptr) return *this;
-
-  // While all the unique_ptr union fields look the same in memory, we must
-  // invoke reset method of the right type, because the deleters are different
-  switch (type()) {
-    case node_type::LEAF:
-      leaf.reset(nullptr);
-      return *this;
-    case node_type::I4:
-      node_4.reset(nullptr);
-      return *this;
-    case node_type::I16:
-      node_16.reset(nullptr);
-      return *this;
-    case node_type::I48:
-      node_48.reset(nullptr);
-      return *this;
-    case node_type::I256:
-      node_256.reset(nullptr);
-      return *this;
-  }
-  cannot_happen();
-}
-
 node_type node_ptr::type() const noexcept { return header->type(); }
 
 // Helper struct for leaf node-related data and (static) code. We
@@ -251,40 +158,38 @@ node_type node_ptr::type() const noexcept { return header->type(); }
 // not support flexible array members, and we want to save one level of
 // (heap) indirection.
 struct single_value_leaf final {
-  using view_ptr = const std::byte *;
-
   [[nodiscard]] static single_value_leaf_unique_ptr create(art_key_type k,
                                                            value_view v,
                                                            db &db_instance);
 
-  [[nodiscard]] static auto key(single_value_leaf_type leaf) noexcept {
+  [[nodiscard]] static auto key(single_value_leaf_ptr_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
     return art_key_type::create(&leaf[offset_key]);
   }
 
   [[nodiscard]] __attribute__((pure)) static auto matches(
-      single_value_leaf_type leaf, art_key_type k) noexcept {
+      single_value_leaf_ptr_type leaf, art_key_type k) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
     return k == leaf + offset_key;
   }
 
-  [[nodiscard]] static auto value(single_value_leaf_type leaf) noexcept {
+  [[nodiscard]] static auto value(single_value_leaf_ptr_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
     return value_view{&leaf[offset_value], value_size(leaf)};
   }
 
   [[nodiscard]] __attribute__((pure)) static std::size_t size(
-      single_value_leaf_type leaf) noexcept {
+      single_value_leaf_ptr_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
     return value_size(leaf) + offset_value;
   }
 
 #ifndef NDEBUG
-  static void dump(std::ostream &os, single_value_leaf_type leaf);
+  static void dump(std::ostream &os, single_value_leaf_ptr_type leaf);
 #endif
 
  private:
@@ -300,7 +205,7 @@ struct single_value_leaf final {
   static constexpr auto minimum_size = offset_value;
 
   [[nodiscard]] __attribute__((pure)) static value_size_type value_size(
-      single_value_leaf_type leaf) noexcept {
+      single_value_leaf_ptr_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
     value_size_type result;
@@ -314,7 +219,7 @@ static_assert(std::is_standard_layout<unodb::single_value_leaf>::value,
               "aliasing through node_header");
 
 void single_value_leaf_deleter::operator()(
-    single_value_leaf_type to_delete) const noexcept {
+    single_value_leaf_ptr_type to_delete) const noexcept {
   const auto s = single_value_leaf::size(to_delete);
   get_leaf_node_pool()->deallocate(to_delete, s);
 }
@@ -340,7 +245,8 @@ single_value_leaf_unique_ptr single_value_leaf::create(art_key_type k,
 
 #ifndef NDEBUG
 
-void single_value_leaf::dump(std::ostream &os, single_value_leaf_type leaf) {
+void single_value_leaf::dump(std::ostream &os,
+                             single_value_leaf_ptr_type leaf) {
   os << "LEAF: key:";
   dump_key(os, key(leaf));
   os << ", value size: " << value_size(leaf) << '\n';
@@ -456,6 +362,55 @@ void key_prefix_type::dump(std::ostream &os) const {
 
 #endif
 
+union delete_node_ptr_at_scope_exit {
+  node_header *header;
+  single_value_leaf_unique_ptr leaf;
+  std::unique_ptr<internal_node> internal;
+  std::unique_ptr<internal_node_4> node_4;
+  std::unique_ptr<internal_node_16> node_16;
+  std::unique_ptr<internal_node_48> node_48;
+  std::unique_ptr<internal_node_256> node_256;
+
+  explicit delete_node_ptr_at_scope_exit(node_ptr node_ptr_) noexcept
+      : header(node_ptr_.header) {}
+
+  ~delete_node_ptr_at_scope_exit() {
+    if (header == nullptr) return;
+
+    // While all the unique_ptr union fields look the same in memory, we must
+    // invoke destructor of the right type, because the deleters are different
+    switch (header->type()) {
+      case node_type::LEAF:
+        leaf.~single_value_leaf_unique_ptr();
+        return;
+      case node_type::I4:
+        node_4.~unique_ptr<internal_node_4>();
+        return;
+      case node_type::I16:
+        node_16.~unique_ptr<internal_node_16>();
+        return;
+      case node_type::I48:
+        node_48.~unique_ptr<internal_node_48>();
+        return;
+      case node_type::I256:
+        node_256.~unique_ptr<internal_node_256>();
+        return;
+    }
+    cannot_happen();
+  }
+
+  delete_node_ptr_at_scope_exit(const delete_node_ptr_at_scope_exit &) = delete;
+  delete_node_ptr_at_scope_exit(delete_node_ptr_at_scope_exit &&) = delete;
+  delete_node_ptr_at_scope_exit &operator=(
+      const delete_node_ptr_at_scope_exit &) = delete;
+  delete_node_ptr_at_scope_exit &operator=(delete_node_ptr_at_scope_exit &&) =
+      delete;
+};
+
+static_assert(sizeof(delete_node_ptr_at_scope_exit) == sizeof(void *),
+              "delete_node_ptr_at_scope_exit union must be of equal size to a "
+              "raw pointer");
+
 class internal_node {
  public:
   // The first element is the child index in the node, the 2nd is pointer
@@ -475,19 +430,17 @@ class internal_node {
 
   [[nodiscard]] __attribute__((pure)) bool is_min_size() const noexcept;
 
+  void delete_subtree() noexcept;
+
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
 #endif
 
   // internal_node must not be allocated directly on heap
-  [[nodiscard]] static void *operator new(std::size_t) {
-    cannot_happen();
-  }
+  [[nodiscard]] static void *operator new(std::size_t) { cannot_happen(); }
 
   DISABLE_CLANG_WARNING("-Wmissing-noreturn")
-  static void operator delete(void *) {
-    cannot_happen();
-  }
+  static void operator delete(void *) { cannot_happen(); }
   RESTORE_CLANG_WARNINGS()
 
  protected:
@@ -551,8 +504,7 @@ class internal_node {
                          children.begin() + children_count + 1);
     }
     keys[insert_pos_index] = key_byte;
-    new (&children[insert_pos_index])
-        single_value_leaf_unique_ptr{std::move(child)};
+    children[insert_pos_index] = child.release();
     ++children_count;
 
     Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
@@ -567,6 +519,10 @@ class internal_node {
 
     std::copy(keys.cbegin() + child_to_remove + 1,
               keys.cbegin() + children_count, keys.begin() + child_to_remove);
+
+    delete_node_ptr_at_scope_exit delete_on_scope_exit{
+        children[child_to_remove]};
+
     std::move(children.begin() + child_to_remove + 1,
               children.begin() + children_count,
               children.begin() + child_to_remove);
@@ -589,6 +545,27 @@ class internal_node {
   friend class db;
 };
 
+}  // namespace unodb
+
+namespace {
+
+void delete_subtree(unodb::node_ptr node) noexcept {
+  if (node.header == nullptr) return;
+
+  unodb::delete_node_ptr_at_scope_exit delete_on_scope_exit(node);
+
+  if (node.type() != unodb::node_type::LEAF)
+    delete_on_scope_exit.internal->delete_subtree();
+}
+
+}  // namespace
+
+namespace unodb {
+
+// Some of the methods in internal_node_template and its descendants take raw
+// pointers instead of unique_ptrs. These are pointers taken from existing
+// nodes, and we don't want to move-from them until newly created nodes are put
+// into their place.
 template <unsigned MinSize, unsigned Capacity, node_type NodeType,
           typename SmallerDerived, typename LargerDerived, typename Derived>
 class internal_node_template : public internal_node {
@@ -612,10 +589,9 @@ class internal_node_template : public internal_node {
   }
 
   [[nodiscard]] static std::unique_ptr<Derived> create(
-      std::unique_ptr<SmallerDerived> &&source_node,
-      single_value_leaf_unique_ptr &&child, db::tree_depth_type depth) {
-    return std::make_unique<Derived>(std::move(source_node), std::move(child),
-                                     depth);
+      const SmallerDerived &source_node, single_value_leaf_unique_ptr &&child,
+      db::tree_depth_type depth) {
+    return std::make_unique<Derived>(source_node, std::move(child), depth);
   }
 
   [[nodiscard]] static void *operator new(std::size_t size) {
@@ -690,27 +666,26 @@ class internal_node_4 final : public internal_node_4_template {
   // Create a new node with two given child nodes
   [[nodiscard]] static std::unique_ptr<internal_node_4> create(
       art_key_type k1, art_key_type k2, db::tree_depth_type depth,
-      node_ptr &&child1, single_value_leaf_unique_ptr &&child2) {
-    return std::make_unique<internal_node_4>(k1, k2, depth, std::move(child1),
+      node_ptr child1, single_value_leaf_unique_ptr &&child2) {
+    return std::make_unique<internal_node_4>(k1, k2, depth, child1,
                                              std::move(child2));
   }
 
   // Create a new node, split the key prefix of an existing node, and make the
   // new node contain that existing node and a given new node which caused this
-  // key prefix split
+  // key prefix split.
   [[nodiscard]] static std::unique_ptr<internal_node_4> create(
-      node_ptr &&source_node, unsigned len, db::tree_depth_type depth,
+      node_ptr source_node, unsigned len, db::tree_depth_type depth,
       single_value_leaf_unique_ptr &&child1) {
-    return std::make_unique<internal_node_4>(std::move(source_node), len, depth,
+    return std::make_unique<internal_node_4>(source_node, len, depth,
                                              std::move(child1));
   }
 
   internal_node_4(art_key_type k1, art_key_type k2, db::tree_depth_type depth,
-                  node_ptr &&child1,
+                  node_ptr child1,
                   single_value_leaf_unique_ptr &&child2) noexcept;
 
-  internal_node_4(node_ptr &&source_node, unsigned len,
-                  db::tree_depth_type depth,
+  internal_node_4(node_ptr source_node, unsigned len, db::tree_depth_type depth,
                   single_value_leaf_unique_ptr &&child1) noexcept;
 
   internal_node_4(std::unique_ptr<internal_node_16> &&source_node,
@@ -732,22 +707,25 @@ class internal_node_4 final : public internal_node_4_template {
                                            child_index);
   }
 
-  node_ptr &&leave_last_child(uint8_t child_to_delete) noexcept {
+  node_ptr leave_last_child(uint8_t child_to_delete) noexcept {
     Expects(is_min_size());
     Expects(child_to_delete == 0 || child_to_delete == 1);
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     const uint8_t child_to_leave = (child_to_delete == 0) ? 1 : 0;
-    children[child_to_delete] = nullptr;
+    delete_node_ptr_at_scope_exit child_to_delete_deleter{
+        children[child_to_delete]};
     if (children[child_to_leave].type() != node_type::LEAF) {
       children[child_to_leave].internal->key_prefix.prepend(
           key_prefix, keys[child_to_leave]);
     }
-    return std::move(children[child_to_leave]);
+    return children[child_to_leave];
   }
 
   [[nodiscard]] __attribute__((pure)) find_result_type find_child(
       std::byte key_byte) noexcept;
+
+  void delete_subtree() noexcept;
 
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
@@ -756,7 +734,7 @@ class internal_node_4 final : public internal_node_4_template {
  private:
   friend class internal_node_16;
 
-  void add_two_to_empty(std::byte key1, node_ptr &&child1, std::byte key2,
+  void add_two_to_empty(std::byte key1, node_ptr child1, std::byte key2,
                         single_value_leaf_unique_ptr &&child2) noexcept;
 
   std::array<std::byte, capacity> keys;
@@ -764,15 +742,15 @@ class internal_node_4 final : public internal_node_4_template {
 };
 
 internal_node_4::internal_node_4(art_key_type k1, art_key_type k2,
-                                 db::tree_depth_type depth, node_ptr &&child1,
+                                 db::tree_depth_type depth, node_ptr child1,
                                  single_value_leaf_unique_ptr &&child2) noexcept
     : internal_node_4_template{k1, k2, depth} {
   const auto next_level_depth = depth + key_prefix.length();
-  add_two_to_empty(k1[next_level_depth], std::move(child1),
-                   k2[next_level_depth], std::move(child2));
+  add_two_to_empty(k1[next_level_depth], child1, k2[next_level_depth],
+                   std::move(child2));
 }
 
-internal_node_4::internal_node_4(node_ptr &&source_node, unsigned len,
+internal_node_4::internal_node_4(node_ptr source_node, unsigned len,
                                  db::tree_depth_type depth,
                                  single_value_leaf_unique_ptr &&child1) noexcept
     : internal_node_4_template{
@@ -786,12 +764,12 @@ internal_node_4::internal_node_4(node_ptr &&source_node, unsigned len,
           ->key_prefix[gsl::narrow_cast<key_prefix_type::size_type>(len)];
   source_node.internal->key_prefix.cut(len + 1);
   const auto new_key_byte = single_value_leaf::key(child1.get())[depth + len];
-  add_two_to_empty(source_node_key_byte, std::move(source_node), new_key_byte,
+  add_two_to_empty(source_node_key_byte, source_node, new_key_byte,
                    std::move(child1));
 }
 
 void internal_node_4::add_two_to_empty(
-    std::byte key1, node_ptr &&child1, std::byte key2,
+    std::byte key1, node_ptr child1, std::byte key2,
     single_value_leaf_unique_ptr &&child2) noexcept {
   Expects(key1 != key2);
   assert(children_count == 2);
@@ -799,14 +777,15 @@ void internal_node_4::add_two_to_empty(
   const uint8_t key1_i = key1 < key2 ? 0 : 1;
   const uint8_t key2_i = key1_i == 0 ? 1 : 0;
   keys[key1_i] = key1;
-  new (&children[key1_i]) node_ptr{std::move(child1)};
+  children[key1_i] = child1;
   keys[key2_i] = key2;
-  new (&children[key2_i]) single_value_leaf_unique_ptr{std::move(child2)};
-  // Initialize elements past children_count for proper std::array destruction.
-  new (&children[2]) node_ptr{nullptr};
-  new (&children[3]) node_ptr{nullptr};
+  children[key2_i] = child2.release();
 
   assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+}
+
+void internal_node_4::delete_subtree() noexcept {
+  for (uint8_t i = 0; i < children_count; ++i) ::delete_subtree(children[i]);
 }
 
 #ifndef NDEBUG
@@ -835,7 +814,7 @@ using internal_node_16_template =
 
 class internal_node_16 final : public internal_node_16_template {
  public:
-  internal_node_16(std::unique_ptr<internal_node_4> &&node,
+  internal_node_16(const internal_node_4 &node,
                    single_value_leaf_unique_ptr &&child,
                    db::tree_depth_type depth) noexcept;
 
@@ -860,6 +839,8 @@ class internal_node_16 final : public internal_node_16_template {
 
   [[nodiscard]] __attribute__((pure)) find_result_type find_child(
       std::byte key_byte) noexcept;
+
+  void delete_subtree() noexcept;
 
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
@@ -889,6 +870,8 @@ internal_node_4::internal_node_4(
   std::uninitialized_move(source_node->children.begin(),
                           source_node->children.begin() + child_to_remove,
                           children.begin());
+  delete_node_ptr_at_scope_exit delete_on_scope_exit{
+      source_node->children[child_to_remove]};
   std::uninitialized_move(
       source_node->children.begin() + child_to_remove + 1,
       source_node->children.begin() + source_node->children_count,
@@ -897,31 +880,25 @@ internal_node_4::internal_node_4(
   assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 }
 
-internal_node_16::internal_node_16(std::unique_ptr<internal_node_4> &&node,
+internal_node_16::internal_node_16(const internal_node_4 &node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
-    : internal_node_16_template{*node} {
+    : internal_node_16_template{node} {
   const auto key_byte = single_value_leaf::key(child.get())[depth];
   const auto insert_pos_index = get_sorted_key_array_insert_position(
-      node->keys, node->children_count, key_byte);
-  std::copy(node->keys.cbegin(), node->keys.cbegin() + insert_pos_index,
+      node.keys, node.children_count, key_byte);
+  std::copy(node.keys.cbegin(), node.keys.cbegin() + insert_pos_index,
             keys.byte_array.begin());
   keys.byte_array[insert_pos_index] = key_byte;
-  std::copy(node->keys.cbegin() + insert_pos_index, node->keys.cend(),
+  std::copy(node.keys.cbegin() + insert_pos_index, node.keys.cend(),
             keys.byte_array.begin() + insert_pos_index + 1);
-  std::uninitialized_move(node->children.begin(),
-                          node->children.begin() + insert_pos_index,
+  std::uninitialized_move(node.children.begin(),
+                          node.children.begin() + insert_pos_index,
                           children.begin());
-  new (&children[insert_pos_index])
-      single_value_leaf_unique_ptr{std::move(child)};
-  std::uninitialized_move(node->children.begin() + insert_pos_index,
-                          node->children.end(),
+  children[insert_pos_index] = child.release();
+  std::uninitialized_move(node.children.begin() + insert_pos_index,
+                          node.children.end(),
                           children.begin() + insert_pos_index + 1);
-
-  // Initialize elements past children_count for proper std::array destruction.
-  for (uint8_t i = children_count; i < capacity; i++) {
-    new (&children[i]) node_ptr{nullptr};
-  }
 }
 
 internal_node::find_result_type internal_node_16::find_child(
@@ -939,6 +916,10 @@ internal_node::find_result_type internal_node_16::find_child(
     return std::make_pair(i, &children[i]);
   }
   return std::make_pair(0xFF, nullptr);
+}
+
+void internal_node_16::delete_subtree() noexcept {
+  for (uint8_t i = 0; i < children_count; ++i) ::delete_subtree(children[i]);
 }
 
 #ifndef NDEBUG
@@ -959,7 +940,7 @@ using internal_node_48_template =
 
 class internal_node_48 final : public internal_node_48_template {
  public:
-  internal_node_48(std::unique_ptr<internal_node_16> &&node,
+  internal_node_48(const internal_node_16 &node,
                    single_value_leaf_unique_ptr &&child,
                    db::tree_depth_type depth) noexcept;
 
@@ -978,13 +959,14 @@ class internal_node_48 final : public internal_node_48_template {
       if (children[i] == nullptr) break;
     assert(children[i] == nullptr);
     child_indexes[key_byte] = i;
-    new (&children[i]) single_value_leaf_unique_ptr{std::move(child)};
+    children[i] = child.release();
     ++children_count;
   }
 
   void remove(uint8_t child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
+    remove_child_pointer(child_index);
     children[child_indexes[child_index]] = nullptr;
     child_indexes[child_index] = empty_child;
     --children_count;
@@ -993,11 +975,21 @@ class internal_node_48 final : public internal_node_48_template {
   [[nodiscard]] __attribute__((pure)) find_result_type find_child(
       std::byte key_byte) noexcept;
 
+  void delete_subtree() noexcept;
+
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
 #endif
 
  private:
+  void remove_child_pointer(uint8_t child_index) noexcept {
+    Expects(child_indexes[child_index] != empty_child);
+    Expects(children[child_indexes[child_index]] != nullptr);
+
+    delete_node_ptr_at_scope_exit delete_on_scope_exit{
+        children[child_indexes[child_index]]};
+  }
+
   std::array<uint8_t, 256> child_indexes;
   std::array<node_ptr, capacity> children;
 
@@ -1015,17 +1007,20 @@ internal_node_16::internal_node_16(
   for (unsigned i = 0; i < 256; i++) {
     const auto source_child_i = source_node->child_indexes[i];
     if (i == child_to_remove) {
-      assert(source_child_i != internal_node_48::empty_child);
-      assert(source_node->children[source_child_i] != nullptr);
+      source_node->remove_child_pointer(gsl::narrow_cast<uint8_t>(i));
       continue;
     }
     if (source_child_i != internal_node_48::empty_child) {
       keys.byte_array[next_child] = gsl::narrow_cast<std::byte>(i);
       assert(source_node->children[source_child_i] != nullptr);
-      new (&children[next_child])
-          node_ptr{std::move(source_node->children[source_child_i])};
+      children[next_child] = source_node->children[source_child_i];
       ++next_child;
-      if (next_child == children_count) break;
+      if (next_child == children_count) {
+        if (i < child_to_remove) {
+          source_node->remove_child_pointer(child_to_remove);
+        }
+        break;
+      }
     }
   }
 
@@ -1033,27 +1028,26 @@ internal_node_16::internal_node_16(
                         keys.byte_array.cbegin() + children_count));
 }
 
-internal_node_48::internal_node_48(std::unique_ptr<internal_node_16> &&node,
+internal_node_48::internal_node_48(const internal_node_16 &node,
                                    single_value_leaf_unique_ptr &&child,
                                    db::tree_depth_type depth) noexcept
-    : internal_node_48_template{*node} {
+    : internal_node_48_template{node} {
   memset(&child_indexes[0], empty_child,
          child_indexes.size() * sizeof(child_indexes[0]));
   uint8_t i;
-  for (i = 0; i < node->capacity; i++) {
-    const auto existing_key_byte = node->keys.byte_array[i];
+  for (i = 0; i < internal_node_16::capacity; ++i) {
+    const auto existing_key_byte = node.keys.byte_array[i];
     child_indexes[static_cast<uint8_t>(existing_key_byte)] = i;
-    new (&children[i]) node_ptr{std::move(node->children[i])};
+    children[i] = node.children[i];
   }
 
   const auto key_byte =
       static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
   assert(child_indexes[key_byte] == empty_child);
   child_indexes[key_byte] = i;
-  new (&children[i]) node_ptr{std::move(child)};
-  // Initialize elements past children_count for proper std::array destruction.
+  children[i] = child.release();
   for (i = children_count; i < capacity; i++) {
-    new (&children[i]) node_ptr{nullptr};
+    children[i] = nullptr;
   }
 }
 
@@ -1067,6 +1061,18 @@ internal_node::find_result_type internal_node_48::find_child(
     return std::make_pair(static_cast<uint8_t>(key_byte), &children[child_i]);
   }
   return std::make_pair(0xFF, nullptr);
+}
+
+void internal_node_48::delete_subtree() noexcept {
+  unsigned actual_children_count = 0;
+  for (unsigned i = 0; i < capacity; ++i) {
+    if (children[i] != nullptr) {
+      ++actual_children_count;
+      ::delete_subtree(children[i]);
+      assert(actual_children_count <= children_count);
+    }
+  }
+  assert(actual_children_count == children_count);
 }
 
 #ifndef NDEBUG
@@ -1097,7 +1103,7 @@ using internal_node_256_template =
 
 class internal_node_256 final : public internal_node_256_template {
  public:
-  internal_node_256(std::unique_ptr<internal_node_48> &&node,
+  internal_node_256(const internal_node_48 &node,
                     single_value_leaf_unique_ptr &&child,
                     db::tree_depth_type depth) noexcept;
 
@@ -1109,7 +1115,7 @@ class internal_node_256 final : public internal_node_256_template {
     const auto key_byte =
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
     assert(children[key_byte] == nullptr);
-    new (&children[key_byte]) single_value_leaf_unique_ptr{std::move(child)};
+    children[key_byte] = child.release();
     ++children_count;
   }
 
@@ -1117,12 +1123,21 @@ class internal_node_256 final : public internal_node_256_template {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
     Expects(children[child_index] != nullptr);
 
+    delete_node_ptr_at_scope_exit delete_on_scope_exit{children[child_index]};
     children[child_index] = nullptr;
     --children_count;
   }
 
   [[nodiscard]] __attribute__((pure)) find_result_type find_child(
       std::byte key_byte) noexcept;
+
+  template <typename Function>
+  void for_each_child(Function func) noexcept(noexcept(func(0, nullptr)));
+
+  template <typename Function>
+  void for_each_child(Function func) const noexcept(noexcept(func(0, nullptr)));
+
+  void delete_subtree() noexcept;
 
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
@@ -1141,44 +1156,49 @@ internal_node_48::internal_node_48(
   uint8_t next_child = 0;
   unsigned child_i = 0;
   for (; child_i < 256; child_i++) {
+    auto child_ptr = source_node->children[child_i];
     if (child_i == child_to_remove) {
-      assert(source_node->children[child_i] != nullptr);
+      assert(child_ptr != nullptr);
+      delete_node_ptr_at_scope_exit delete_on_scope_exit{child_ptr};
       child_indexes[child_i] = empty_child;
       continue;
     }
-    if (source_node->children[child_i] == nullptr) {
+    if (child_ptr == nullptr) {
       child_indexes[child_i] = empty_child;
       continue;
     }
-    assert(source_node->children[child_i] != nullptr);
+    assert(child_ptr != nullptr);
     child_indexes[child_i] = next_child;
-    new (&children[next_child])
-        node_ptr{std::move(source_node->children[child_i])};
+    children[next_child] = source_node->children[child_i];
     ++next_child;
-    if (next_child == children_count) break;
+    if (next_child == children_count) {
+      if (child_i < child_to_remove) {
+        auto child_to_remove_ptr = source_node->children[child_to_remove];
+        assert(child_to_remove_ptr != nullptr);
+        delete_node_ptr_at_scope_exit delete_on_scope_exit{child_to_remove_ptr};
+      }
+      break;
+    }
   }
 
   ++child_i;
   for (; child_i < 256; child_i++) child_indexes[child_i] = empty_child;
 }
 
-internal_node_256::internal_node_256(std::unique_ptr<internal_node_48> &&node,
+internal_node_256::internal_node_256(const internal_node_48 &node,
                                      single_value_leaf_unique_ptr &&child,
                                      db::tree_depth_type depth) noexcept
-    : internal_node_256_template{*node} {
+    : internal_node_256_template{node} {
   for (unsigned i = 0; i < 256; i++) {
-    if (node->child_indexes[i] != internal_node_48::empty_child) {
-      new (&children[i])
-          node_ptr{std::move(node->children[node->child_indexes[i]])};
-    } else {
-      new (&children[i]) node_ptr{nullptr};
-    }
+    children[i] = node.child_indexes[i] == internal_node_48::empty_child
+                      ? nullptr
+                      : node.children[node.child_indexes[i]];
   }
 
   const uint8_t key_byte =
       static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
   assert(children[key_byte] == nullptr);
-  new (&children[key_byte]) single_value_leaf_unique_ptr{std::move(child)};
+  children[key_byte] = child.release();
 }
 
 internal_node::find_result_type internal_node_256::find_child(
@@ -1191,24 +1211,42 @@ internal_node::find_result_type internal_node_256::find_child(
   return std::make_pair(0xFF, nullptr);
 }
 
+template <typename Function>
+void internal_node_256::for_each_child(Function func) noexcept(
+    noexcept(func(0, nullptr))) {
+  uint8_t actual_children_count = 0;
+  for (unsigned i = 0; i < 256; ++i) {
+    auto child_ptr = children[i];
+    if (child_ptr != nullptr) {
+      ++actual_children_count;
+      func(i, child_ptr);
+      assert(actual_children_count <= children_count || children_count == 0);
+    }
+  }
+  assert(actual_children_count == children_count);
+}
+
+template <typename Function>
+void internal_node_256::for_each_child(Function func) const
+    noexcept(noexcept(func(0, nullptr))) {
+  const_cast<internal_node_256 *>(this)->for_each_child(func);
+}
+
+void internal_node_256::delete_subtree() noexcept {
+  for_each_child(
+      [](unsigned, node_ptr child) noexcept { ::delete_subtree(child); });
+}
+
 #ifndef NDEBUG
 
 void internal_node_256::dump(std::ostream &os) const {
   os << ", key bytes & children:\n";
-  uint8_t actual_children_count = 0;
-  for (std::size_t i = 0; i < 256; i++) {
-    if (children[i] != nullptr) {
-      ++actual_children_count;
-      os << ' ';
-      dump_byte(os, gsl::narrow_cast<std::byte>(i));
-      os << ' ';
-      dump_node(os, children[i]);
-      // Full node with 256 children will have children_count == 0
-      assert(actual_children_count <= children_count || children_count == 0);
-    }
-  }
-
-  assert(actual_children_count == children_count);
+  for_each_child([&](unsigned i, node_ptr child) noexcept {
+    os << ' ';
+    dump_byte(os, gsl::narrow_cast<std::byte>(i));
+    os << ' ';
+    dump_node(os, child);
+  });
 }
 
 #endif
@@ -1300,6 +1338,22 @@ inline internal_node::find_result_type internal_node::find_child(
       return static_cast<internal_node_48 *>(this)->find_child(key_byte);
     case node_type::I256:
       return static_cast<internal_node_256 *>(this)->find_child(key_byte);
+    case node_type::LEAF:
+      cannot_happen();
+  }
+  cannot_happen();
+}
+
+void internal_node::delete_subtree() noexcept {
+  switch (header.type()) {
+    case node_type::I4:
+      return static_cast<internal_node_4 *>(this)->delete_subtree();
+    case node_type::I16:
+      return static_cast<internal_node_16 *>(this)->delete_subtree();
+    case node_type::I48:
+      return static_cast<internal_node_48 *>(this)->delete_subtree();
+    case node_type::I256:
+      return static_cast<internal_node_256 *>(this)->delete_subtree();
     case node_type::LEAF:
       cannot_happen();
   }
@@ -1410,16 +1464,18 @@ class leaf_creator_with_scope_cleanup {
 #endif
 };
 
+db::~db() noexcept { ::delete_subtree(root); }
+
 db::get_result db::get(key_type k) const noexcept {
   if (unlikely(root.header == nullptr)) return {};
   return get_from_subtree(root, art_key{k}, 0);
 }
 
-db::get_result db::get_from_subtree(const node_ptr &node, art_key_type k,
+db::get_result db::get_from_subtree(node_ptr node, art_key_type k,
                                     tree_depth_type depth) noexcept {
   if (node.type() == node_type::LEAF) {
-    if (single_value_leaf::matches(node.leaf.get(), k)) {
-      const auto value = single_value_leaf::value(node.leaf.get());
+    if (single_value_leaf::matches(node.leaf, k)) {
+      const auto value = single_value_leaf::value(node.leaf);
       return value;
     }
     return {};
@@ -1438,7 +1494,7 @@ bool db::insert(key_type k, value_view v) {
   const auto bin_comparable_key = art_key{k};
   if (unlikely(root.header == nullptr)) {
     auto leaf = single_value_leaf::create(bin_comparable_key, v, *this);
-    root.leaf = std::move(leaf);
+    root = leaf.release();
     return true;
   }
   return insert_to_subtree(bin_comparable_key, &root, v, 0);
@@ -1447,14 +1503,14 @@ bool db::insert(key_type k, value_view v) {
 bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view v,
                            tree_depth_type depth) {
   if (node->type() == node_type::LEAF) {
-    const auto existing_key = single_value_leaf::key(node->leaf.get());
+    const auto existing_key = single_value_leaf::key(node->leaf);
     if (unlikely(k == existing_key)) return false;
     leaf_creator_with_scope_cleanup leaf_creator{k, v, *this};
     auto leaf = leaf_creator.get();
     increase_memory_use(sizeof(internal_node_4));
-    auto new_node = internal_node_4::create(existing_key, k, depth,
-                                            std::move(*node), std::move(leaf));
-    node->internal = std::move(new_node);
+    auto new_node =
+        internal_node_4::create(existing_key, k, depth, *node, std::move(leaf));
+    *node = new_node.release();
     return true;
   }
 
@@ -1466,9 +1522,9 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view v,
     leaf_creator_with_scope_cleanup leaf_creator{k, v, *this};
     auto leaf = leaf_creator.get();
     increase_memory_use(sizeof(internal_node_4));
-    auto new_node = internal_node_4::create(std::move(*node), shared_prefix_len,
-                                            depth, std::move(leaf));
-    node->internal = std::move(new_node);
+    auto new_node = internal_node_4::create(*node, shared_prefix_len, depth,
+                                            std::move(leaf));
+    *node = new_node.release();
     return true;
   }
   depth += node->internal->key_prefix.length();
@@ -1489,33 +1545,31 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view v,
 
   if (node->type() == node_type::I4) {
     increase_memory_use(sizeof(internal_node_16) - sizeof(internal_node_4));
-    auto larger_node = internal_node_16::create(
-        std::unique_ptr<internal_node_4>(node->node_4.release()),
-        std::move(leaf), depth);
-    node->node_16 = std::move(larger_node);
+    auto larger_node =
+        internal_node_16::create(*node->node_4, std::move(leaf), depth);
+    *node = larger_node.release();
   } else if (node->type() == node_type::I16) {
     increase_memory_use(sizeof(internal_node_48) - sizeof(internal_node_16));
-    auto larger_node = internal_node_48::create(
-        std::unique_ptr<internal_node_16>(node->node_16.release()),
-        std::move(leaf), depth);
-    node->node_48 = std::move(larger_node);
+    auto larger_node =
+        internal_node_48::create(*node->node_16, std::move(leaf), depth);
+    *node = larger_node.release();
   } else {
     assert(node->type() == node_type::I48);
     increase_memory_use(sizeof(internal_node_256) - sizeof(internal_node_48));
-    auto larger_node = internal_node_256::create(
-        std::unique_ptr<internal_node_48>(node->node_48.release()),
-        std::move(leaf), depth);
-    node->node_256 = std::move(larger_node);
+    auto larger_node =
+        internal_node_256::create(*node->node_48, std::move(leaf), depth);
+    *node = larger_node.release();
   }
   return true;
 }
 
 bool db::remove(key_type k) {
   const auto bin_comparable_key = art_key{k};
-  if (unlikely(root.header == nullptr)) return false;
+  if (unlikely(root == nullptr)) return false;
   if (root.type() == node_type::LEAF) {
-    if (single_value_leaf::matches(root.leaf.get(), bin_comparable_key)) {
-      const auto leaf_size = single_value_leaf::size(root.leaf.get());
+    if (single_value_leaf::matches(root.leaf, bin_comparable_key)) {
+      const auto leaf_size = single_value_leaf::size(root.leaf);
+      single_value_leaf_unique_ptr root_leaf_deleter{root.leaf};
       root = nullptr;
       decrease_memory_use(leaf_size);
       return true;
@@ -1542,9 +1596,9 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
   if (child_ptr->type() != node_type::LEAF)
     return remove_from_subtree(k, depth + 1, child_ptr);
 
-  if (!single_value_leaf::matches(child_ptr->leaf.get(), k)) return false;
+  if (!single_value_leaf::matches(child_ptr->leaf, k)) return false;
 
-  const auto child_node_size = single_value_leaf::size(child_ptr->leaf.get());
+  const auto child_node_size = single_value_leaf::size(child_ptr->leaf);
 
   if (likely(!node->internal->is_min_size())) {
     node->internal->remove(child_i);
@@ -1552,29 +1606,32 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
     return true;
   }
 
+  assert(node->internal->is_min_size());
+
   if (node->type() == node_type::I4) {
-    *node =
-        std::move(std::unique_ptr<internal_node_4>(
-                      static_cast<internal_node_4 *>(node->internal.release()))
-                      ->leave_last_child(child_i));
+    std::unique_ptr<internal_node_4> current_node{node->node_4};
+    *node = current_node->leave_last_child(child_i);
     decrease_memory_use(child_node_size + sizeof(internal_node_4));
   } else if (node->type() == node_type::I16) {
-    auto smaller_node = internal_node_4::create(
-        std::unique_ptr<internal_node_16>(node->node_16.release()), child_i);
-    node->node_4 = std::move(smaller_node);
+    std::unique_ptr<internal_node_16> current_node{node->node_16};
+    std::unique_ptr<internal_node_4> new_node{
+        internal_node_4::create(std::move(current_node), child_i)};
+    *node = new_node.release();
     decrease_memory_use(sizeof(internal_node_16) - sizeof(internal_node_4) +
                         child_node_size);
   } else if (node->type() == node_type::I48) {
-    auto smaller_node = internal_node_16::create(
-        std::unique_ptr<internal_node_48>(node->node_48.release()), child_i);
-    node->node_16 = std::move(smaller_node);
+    std::unique_ptr<internal_node_48> current_node{node->node_48};
+    std::unique_ptr<internal_node_16> new_node{
+        internal_node_16::create(std::move(current_node), child_i)};
+    *node = new_node.release();
     decrease_memory_use(sizeof(internal_node_48) - sizeof(internal_node_16) +
                         child_node_size);
   } else {
     assert(node->type() == node_type::I256);
-    auto smaller_node = internal_node_48::create(
-        std::unique_ptr<internal_node_256>(node->node_256.release()), child_i);
-    node->node_48 = std::move(smaller_node);
+    std::unique_ptr<internal_node_256> current_node{node->node_256};
+    std::unique_ptr<internal_node_48> new_node{
+        internal_node_48::create(std::move(current_node), child_i)};
+    *node = new_node.release();
     decrease_memory_use(sizeof(internal_node_256) - sizeof(internal_node_48) +
                         child_node_size);
   }
@@ -1617,7 +1674,7 @@ void dump_node(std::ostream &os, const unodb::node_ptr &node) {
   os << ", type = ";
   switch (node.type()) {
     case unodb::node_type::LEAF:
-      unodb::single_value_leaf::dump(os, node.leaf.get());
+      unodb::single_value_leaf::dump(os, node.leaf);
       break;
     case unodb::node_type::I4:
     case unodb::node_type::I16:

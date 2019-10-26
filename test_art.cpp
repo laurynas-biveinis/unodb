@@ -48,8 +48,8 @@ RESTORE_CLANG_WARNINGS()
 
 class tree_verifier final {
  public:
-  explicit tree_verifier(std::size_t memory_limit = 0) noexcept :
-      test_db{memory_limit} { }
+  explicit tree_verifier(std::size_t memory_limit = 0) noexcept
+      : test_db{memory_limit} {}
 
   void insert(unodb::key_type k, unodb::value_view v);
 

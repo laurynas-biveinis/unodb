@@ -358,9 +358,10 @@ static_assert(std::is_standard_layout<key_prefix_type>::value);
 #ifndef NDEBUG
 
 void key_prefix_type::dump(std::ostream &os) const {
-  os << ", key prefix len = " << static_cast<unsigned>(length_);
+  const auto len = length();
+  os << ", key prefix len = " << static_cast<unsigned>(len);
   os << ", key prefix =";
-  for (std::size_t i = 0; i < length_; i++) dump_byte(os, data_[i]);
+  for (std::size_t i = 0; i < len; ++i) dump_byte(os, data_[i]);
 }
 
 #endif

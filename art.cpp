@@ -282,7 +282,7 @@ class key_prefix_type final {
   }
 
   key_prefix_type(const key_prefix_type &other) noexcept
-      : length_{other.length_} {
+      : length_{other.length()} {
     std::copy(other.data_.cbegin(), other.data_.cbegin() + length_,
               data_.begin());
   }
@@ -303,10 +303,10 @@ class key_prefix_type final {
 
   void cut(unsigned cut_len) noexcept {
     Expects(cut_len > 0);
-    Expects(cut_len <= length_);
+    Expects(cut_len <= length());
 
     std::copy(data_.cbegin() + cut_len, data_.cend(), data_.begin());
-    length_ = gsl::narrow_cast<size_type>(length_ - cut_len);
+    length_ = gsl::narrow_cast<size_type>(length() - cut_len);
   }
 
   void prepend(const key_prefix_type &prefix1, std::byte prefix2) noexcept {
@@ -317,22 +317,22 @@ class key_prefix_type final {
     std::copy(prefix1.data_.cbegin(), prefix1.data_.cbegin() + prefix1.length(),
               data_.begin());
     data_[prefix1.length()] = prefix2;
-    length_ = gsl::narrow_cast<size_type>(length_ + prefix1.length() + 1);
+    length_ = gsl::narrow_cast<size_type>(length() + prefix1.length() + 1);
   }
 
   [[nodiscard]] size_type length() const noexcept { return length_; }
 
   [[nodiscard]] const auto &data() const noexcept { return data_; }
 
-  [[nodiscard]] __attribute__((pure)) std::byte operator[](std::size_t i) const
-      noexcept {
-    Expects(i < length_);
+  [[nodiscard]] std::byte operator[](std::size_t i) const noexcept {
+    Expects(i < length());
 
     return data_[i];
   }
 
-  [[nodiscard]] __attribute__((pure)) auto get_shared_length(
-      unodb::art_key_type k, unodb::db::tree_depth_type depth) const noexcept {
+  [[nodiscard]] auto get_shared_length(unodb::art_key_type k,
+                                       unodb::db::tree_depth_type depth) const
+      noexcept {
     unodb::db::tree_depth_type key_i = depth;
     unsigned shared_length = 0;
     while (shared_length < length()) {

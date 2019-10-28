@@ -1,17 +1,20 @@
 // Copyright 2019 Laurynas Biveinis
 #include "art.hpp"
 
-#include <emmintrin.h>
 #include <algorithm>
 #include <array>
 #include <cassert>
+#ifdef __x86_64
+#include <emmintrin.h>
+#endif
 #include <limits>
 #include <stdexcept>
+#include <utility>
+
 #ifndef NDEBUG
 #include <iomanip>
 #include <iostream>
 #endif
-#include <utility>
 
 #if defined(__GNUG__) && !defined(__clang__) && __GNUC__ >= 9
 #include <memory_resource>
@@ -905,6 +908,7 @@ internal_node::find_result_type internal_node_16::find_child(
     std::byte key_byte) noexcept {
   assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
+#if defined(__x86_64)
   const auto replicated_search_key = _mm_set1_epi8(static_cast<char>(key_byte));
   const auto matching_key_positions =
       _mm_cmpeq_epi8(replicated_search_key, keys.sse);
@@ -916,6 +920,9 @@ internal_node::find_result_type internal_node_16::find_child(
     return std::make_pair(i, &children[i]);
   }
   return std::make_pair(0xFF, nullptr);
+#else
+#error Needs porting
+#endif
 }
 
 void internal_node_16::delete_subtree() noexcept {

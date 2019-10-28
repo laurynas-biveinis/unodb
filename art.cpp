@@ -171,8 +171,8 @@ struct single_value_leaf final {
     return art_key_type::create(&leaf[offset_key]);
   }
 
-  [[nodiscard]] __attribute__((pure)) static auto matches(
-      single_value_leaf_ptr_type leaf, art_key_type k) noexcept {
+  [[nodiscard]] static auto matches(single_value_leaf_ptr_type leaf,
+                                    art_key_type k) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
     return k == leaf + offset_key;
@@ -184,7 +184,7 @@ struct single_value_leaf final {
     return value_view{&leaf[offset_value], value_size(leaf)};
   }
 
-  [[nodiscard]] __attribute__((pure)) static std::size_t size(
+  [[nodiscard]] static std::size_t size(
       single_value_leaf_ptr_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
@@ -207,7 +207,7 @@ struct single_value_leaf final {
 
   static constexpr auto minimum_size = offset_value;
 
-  [[nodiscard]] __attribute__((pure)) static value_size_type value_size(
+  [[nodiscard]] static value_size_type value_size(
       single_value_leaf_ptr_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
@@ -427,12 +427,11 @@ class internal_node {
 
   void remove(uint8_t child_index) noexcept;
 
-  [[nodiscard]] __attribute__((pure)) find_result_type find_child(
-      std::byte key_byte) noexcept;
+  [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
 
-  [[nodiscard]] __attribute__((pure)) bool is_full() const noexcept;
+  [[nodiscard]] bool is_full() const noexcept;
 
-  [[nodiscard]] __attribute__((pure)) bool is_min_size() const noexcept;
+  [[nodiscard]] bool is_min_size() const noexcept;
 
   void delete_subtree() noexcept;
 
@@ -473,10 +472,9 @@ class internal_node {
   }
 
   template <typename KeysType>
-  static auto __attribute__((pure))
-  get_sorted_key_array_insert_position(const KeysType &keys,
-                                       uint8_t children_count,
-                                       std::byte key_byte) noexcept {
+  static auto get_sorted_key_array_insert_position(
+      const KeysType &keys, uint8_t children_count,
+      std::byte key_byte) noexcept {
     Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
     Expects(std::adjacent_find(keys.cbegin(), keys.cbegin() + children_count) >=
             keys.cbegin() + children_count);
@@ -612,13 +610,13 @@ class internal_node_template : public internal_node {
     get_internal_node_pool<Derived>()->deallocate(to_delete, sizeof(Derived));
   }
 
-  [[nodiscard]] __attribute__((pure)) bool is_full() const noexcept {
+  [[nodiscard]] bool is_full() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
 
     return children_count == capacity;
   }
 
-  [[nodiscard]] __attribute__((pure)) bool is_min_size() const noexcept {
+  [[nodiscard]] bool is_min_size() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
 
     return children_count == min_size;
@@ -726,8 +724,7 @@ class internal_node_4 final : public internal_node_4_template {
     return children[child_to_leave];
   }
 
-  [[nodiscard]] __attribute__((pure)) find_result_type find_child(
-      std::byte key_byte) noexcept;
+  [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
 
   void delete_subtree() noexcept;
 
@@ -841,8 +838,7 @@ class internal_node_16 final : public internal_node_16_template {
                                            children_count, child_index);
   }
 
-  [[nodiscard]] __attribute__((pure)) find_result_type find_child(
-      std::byte key_byte) noexcept;
+  [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
 
   void delete_subtree() noexcept;
 
@@ -980,8 +976,7 @@ class internal_node_48 final : public internal_node_48_template {
     --children_count;
   }
 
-  [[nodiscard]] __attribute__((pure)) find_result_type find_child(
-      std::byte key_byte) noexcept;
+  [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
 
   void delete_subtree() noexcept;
 
@@ -1136,8 +1131,7 @@ class internal_node_256 final : public internal_node_256_template {
     --children_count;
   }
 
-  [[nodiscard]] __attribute__((pure)) find_result_type find_child(
-      std::byte key_byte) noexcept;
+  [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
 
   template <typename Function>
   void for_each_child(Function func) noexcept(noexcept(func(0, nullptr)));

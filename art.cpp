@@ -330,6 +330,7 @@ class key_prefix_type final {
     return data_[i];
   }
 
+  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] auto get_shared_length(unodb::art_key_type k,
                                        unodb::db::tree_depth_type depth) const
       noexcept {
@@ -343,6 +344,7 @@ class key_prefix_type final {
     }
     return shared_length;
   }
+  RESTORE_GCC_WARNINGS()
 
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
@@ -471,6 +473,7 @@ class internal_node {
     Expects(type != node_type::LEAF);
   }
 
+  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   template <typename KeysType>
   static auto get_sorted_key_array_insert_position(
       const KeysType &keys, uint8_t children_count,
@@ -487,6 +490,7 @@ class internal_node {
     Ensures(result == children_count || keys[result] != key_byte);
     return result;
   }
+  RESTORE_GCC_WARNINGS()
 
   template <typename KeysType, typename ChildrenType>
   static void insert_into_sorted_key_children_arrays(

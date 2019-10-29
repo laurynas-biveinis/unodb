@@ -171,12 +171,14 @@ struct single_value_leaf final {
     return art_key_type::create(&leaf[offset_key]);
   }
 
+  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] static auto matches(single_value_leaf_ptr_type leaf,
                                     art_key_type k) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
     return k == leaf + offset_key;
   }
+  RESTORE_GCC_WARNINGS()
 
   [[nodiscard]] static auto value(single_value_leaf_ptr_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
@@ -184,12 +186,14 @@ struct single_value_leaf final {
     return value_view{&leaf[offset_value], value_size(leaf)};
   }
 
-  [[nodiscard]] static std::size_t size(
-      single_value_leaf_ptr_type leaf) noexcept {
+  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
+  [[nodiscard]] static std::size_t
+      size(single_value_leaf_ptr_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
     return value_size(leaf) + offset_value;
   }
+  RESTORE_GCC_WARNINGS()
 
 #ifndef NDEBUG
   static void dump(std::ostream &os, single_value_leaf_ptr_type leaf);
@@ -207,14 +211,16 @@ struct single_value_leaf final {
 
   static constexpr auto minimum_size = offset_value;
 
-  [[nodiscard]] static value_size_type value_size(
-      single_value_leaf_ptr_type leaf) noexcept {
+  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
+  [[nodiscard]] static value_size_type
+      value_size(single_value_leaf_ptr_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
     value_size_type result;
     memcpy(&result, &leaf[offset_value_size], sizeof(result));
     return result;
   }
+  RESTORE_GCC_WARNINGS()
 };
 
 static_assert(std::is_standard_layout<unodb::single_value_leaf>::value,
@@ -614,6 +620,7 @@ class internal_node_template : public internal_node {
     get_internal_node_pool<Derived>()->deallocate(to_delete, sizeof(Derived));
   }
 
+  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] bool is_full() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
 
@@ -625,6 +632,7 @@ class internal_node_template : public internal_node {
 
     return children_count == min_size;
   }
+  RESTORE_GCC_WARNINGS()
 
  protected:
   internal_node_template(art_key_type k1, art_key_type k2,
@@ -1257,6 +1265,7 @@ void internal_node_256::dump(std::ostream &os) const {
 
 #endif
 
+DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 inline bool internal_node::is_full() const noexcept {
   switch (header.type()) {
     case node_type::I4:
@@ -1288,6 +1297,7 @@ inline bool internal_node::is_min_size() const noexcept {
   }
   cannot_happen();
 }
+RESTORE_GCC_WARNINGS()
 
 inline void internal_node::add(single_value_leaf_unique_ptr &&child,
                                db::tree_depth_type depth) noexcept {

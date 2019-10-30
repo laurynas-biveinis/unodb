@@ -13,7 +13,6 @@
 #ifndef NDEBUG
 #define NDEBUG
 #endif
-#define GSL_UNENFORCED_ON_CONTRACT_VIOLATION
 #endif
 
 #if defined(__has_feature) && !defined(__clang__)

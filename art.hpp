@@ -11,7 +11,6 @@
 #include <optional>
 #include <vector>
 
-#include <gsl/gsl_assert>
 #include <gsl/span>
 
 namespace unodb {
@@ -52,7 +51,7 @@ struct art_key final {
 
   [[nodiscard]] __attribute__((pure)) std::byte operator[](
       std::size_t index) const noexcept {
-    Expects(index < sizeof(*this));
+    assert(index < sizeof(*this));
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }
 

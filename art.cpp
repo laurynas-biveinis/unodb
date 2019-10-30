@@ -275,8 +275,8 @@ class key_prefix_type final {
 
   key_prefix_type(art_key_type k1, art_key_type k2,
                   db::tree_depth_type depth) noexcept {
-    Expects(k1 != k2);
-    Expects(depth < sizeof(art_key_type));
+    assert(k1 != k2);
+    assert(depth < sizeof(art_key_type));
 
     db::tree_depth_type i;
     for (i = depth; k1[i] == k2[i]; ++i) {
@@ -295,7 +295,7 @@ class key_prefix_type final {
 
   key_prefix_type(const data_type &other, size_type other_len) noexcept
       : length_{other_len} {
-    Expects(other_len <= capacity);
+    assert(other_len <= capacity);
 
     std::copy(other.cbegin(), other.cbegin() + other_len, data_.begin());
   }
@@ -308,15 +308,15 @@ class key_prefix_type final {
   key_prefix_type &operator=(key_prefix_type &&) = delete;
 
   void cut(unsigned cut_len) noexcept {
-    Expects(cut_len > 0);
-    Expects(cut_len <= length());
+    assert(cut_len > 0);
+    assert(cut_len <= length());
 
     std::copy(data_.cbegin() + cut_len, data_.cend(), data_.begin());
     length_ = gsl::narrow_cast<size_type>(length() - cut_len);
   }
 
   void prepend(const key_prefix_type &prefix1, std::byte prefix2) noexcept {
-    Expects(length() + prefix1.length() < capacity);
+    assert(length() + prefix1.length() < capacity);
 
     std::copy_backward(data_.cbegin(), data_.cbegin() + length(),
                        data_.begin() + length() + prefix1.length() + 1);
@@ -331,7 +331,7 @@ class key_prefix_type final {
   [[nodiscard]] const auto &data() const noexcept { return data_; }
 
   [[nodiscard]] std::byte operator[](std::size_t i) const noexcept {
-    Expects(i < length());
+    assert(i < length());
 
     return data_[i];
   }
@@ -460,8 +460,8 @@ class internal_node {
       : header{type},
         key_prefix{k1, k2, depth},
         children_count{children_count_} {
-    Expects(type != node_type::LEAF);
-    Expects(k1 != k2);
+    assert(type != node_type::LEAF);
+    assert(k1 != k2);
   }
 
   internal_node(node_type type, uint8_t children_count_,
@@ -470,13 +470,13 @@ class internal_node {
       : header{type},
         key_prefix{key_prefix_, key_prefix_len_},
         children_count{children_count_} {
-    Expects(type != node_type::LEAF);
+    assert(type != node_type::LEAF);
   }
 
   internal_node(node_type type, uint8_t children_count_,
                 const key_prefix_type &key_prefix_) noexcept
       : header{type}, key_prefix{key_prefix_}, children_count{children_count_} {
-    Expects(type != node_type::LEAF);
+    assert(type != node_type::LEAF);
   }
 
   DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
@@ -484,16 +484,16 @@ class internal_node {
   static auto get_sorted_key_array_insert_position(
       const KeysType &keys, uint8_t children_count,
       std::byte key_byte) noexcept {
-    Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
-    Expects(std::adjacent_find(keys.cbegin(), keys.cbegin() + children_count) >=
-            keys.cbegin() + children_count);
+    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    assert(std::adjacent_find(keys.cbegin(), keys.cbegin() + children_count) >=
+           keys.cbegin() + children_count);
 
     const auto result = static_cast<uint8_t>(
         std::lower_bound(keys.cbegin(), keys.cbegin() + children_count,
                          key_byte) -
         keys.cbegin());
 
-    Ensures(result == children_count || keys[result] != key_byte);
+    assert(result == children_count || keys[result] != key_byte);
     return result;
   }
   RESTORE_GCC_WARNINGS()
@@ -502,7 +502,7 @@ class internal_node {
   static void insert_into_sorted_key_children_arrays(
       KeysType &keys, ChildrenType &children, uint8_t &children_count,
       std::byte key_byte, single_value_leaf_unique_ptr &&child) {
-    Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(keys, children_count, key_byte);
@@ -519,15 +519,15 @@ class internal_node {
     children[insert_pos_index] = child.release();
     ++children_count;
 
-    Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
   }
 
   template <typename KeysType, typename ChildrenType>
   static void remove_from_sorted_key_children_arrays(
       KeysType &keys, ChildrenType &children, uint8_t &children_count,
       uint8_t child_to_remove) noexcept {
-    Expects(child_to_remove < children_count);
-    Expects(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    assert(child_to_remove < children_count);
+    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 
     std::copy(keys.cbegin() + child_to_remove + 1,
               keys.cbegin() + children_count, keys.begin() + child_to_remove);
@@ -540,7 +540,7 @@ class internal_node {
               children.begin() + child_to_remove);
     --children_count;
 
-    Ensures(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
   }
 
   const node_header header;
@@ -649,13 +649,13 @@ class internal_node_template : public internal_node {
 
   explicit internal_node_template(const SmallerDerived &source_node) noexcept
       : internal_node{NodeType, MinSize, source_node.key_prefix} {
-    Expects(source_node.is_full());
+    assert(source_node.is_full());
     assert(is_min_size());
   }
 
   explicit internal_node_template(const LargerDerived &source_node) noexcept
       : internal_node{NodeType, Capacity, source_node.key_prefix} {
-    Expects(source_node.is_min_size());
+    assert(source_node.is_min_size());
     assert(is_full());
   }
 
@@ -722,8 +722,8 @@ class internal_node_4 final : public internal_node_4_template {
   }
 
   node_ptr leave_last_child(uint8_t child_to_delete) noexcept {
-    Expects(is_min_size());
-    Expects(child_to_delete == 0 || child_to_delete == 1);
+    assert(is_min_size());
+    assert(child_to_delete == 0 || child_to_delete == 1);
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     const auto child_to_delete_ptr = children[child_to_delete];
@@ -770,8 +770,8 @@ internal_node_4::internal_node_4(node_ptr source_node, unsigned len,
     : internal_node_4_template{
           gsl::narrow_cast<key_prefix_type::size_type>(len),
           source_node.internal->key_prefix.data()} {
-  Expects(source_node.type() != node_type::LEAF);
-  Expects(len < source_node.internal->key_prefix.length());
+  assert(source_node.type() != node_type::LEAF);
+  assert(len < source_node.internal->key_prefix.length());
 
   const auto source_node_key_byte =
       source_node.internal
@@ -785,7 +785,7 @@ internal_node_4::internal_node_4(node_ptr source_node, unsigned len,
 void internal_node_4::add_two_to_empty(
     std::byte key1, node_ptr child1, std::byte key2,
     single_value_leaf_unique_ptr &&child2) noexcept {
-  Expects(key1 != key2);
+  assert(key1 != key2);
   assert(children_count == 2);
 
   const uint8_t key1_i = key1 < key2 ? 0 : 1;
@@ -1008,8 +1008,8 @@ class internal_node_48 final : public internal_node_48_template {
   void direct_remove_child_pointer(uint8_t children_i) noexcept {
     const auto child_ptr = children[children_i];
 
-    Expects(children_i != empty_child);
-    Expects(child_ptr != nullptr);
+    assert(children_i != empty_child);
+    assert(child_ptr != nullptr);
 
     delete_node_ptr_at_scope_exit delete_on_scope_exit{child_ptr};
   }
@@ -1136,7 +1136,7 @@ class internal_node_256 final : public internal_node_256_template {
   void add(single_value_leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
-    Expects(!is_full());
+    assert(!is_full());
 
     const auto key_byte =
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
@@ -1149,7 +1149,7 @@ class internal_node_256 final : public internal_node_256_template {
     const auto child_ptr = children[child_index];
 
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
-    Expects(child_ptr != nullptr);
+    assert(child_ptr != nullptr);
 
     delete_node_ptr_at_scope_exit delete_on_scope_exit{child_ptr};
 
@@ -1316,8 +1316,8 @@ RESTORE_GCC_WARNINGS()
 
 inline void internal_node::add(single_value_leaf_unique_ptr &&child,
                                db::tree_depth_type depth) noexcept {
-  Expects(!is_full());
-  Expects(child.get() != nullptr);
+  assert(!is_full());
+  assert(child.get() != nullptr);
 
   switch (header.type()) {
     case node_type::I4:
@@ -1338,7 +1338,7 @@ inline void internal_node::add(single_value_leaf_unique_ptr &&child,
 }
 
 inline void internal_node::remove(uint8_t child_index) noexcept {
-  Expects(!is_min_size());
+  assert(!is_min_size());
 
   switch (header.type()) {
     case node_type::I4:
@@ -1470,18 +1470,18 @@ class leaf_creator_with_scope_cleanup {
       leaf_creator_with_scope_cleanup &&) = delete;
 
   ~leaf_creator_with_scope_cleanup() noexcept {
-#ifndef NDEBUG
-    Expects(get_called);
-#endif
+    assert(get_called);
+
     if (likely(exceptions_at_ctor == std::uncaught_exceptions())) return;
     db_instance.decrease_memory_use(leaf_size);
   }
 
   unodb::single_value_leaf_unique_ptr &&get() noexcept {
 #ifndef NDEBUG
-    Expects(!get_called);
+    assert(!get_called);
     get_called = true;
 #endif
+
     return std::move(leaf);
   }
 

@@ -4,6 +4,7 @@
 
 #include "global.hpp"  // IWYU pragma: keep
 
+#include <cassert>
 #include <cstddef>  // for uint64_t
 #include <cstdint>  // IWYU pragma: keep
 #include <cstring>

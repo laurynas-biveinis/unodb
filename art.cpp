@@ -884,8 +884,10 @@ internal_node_4::internal_node_4(
             keys.begin() + child_to_remove);
   std::copy(source_node->children.begin(),
             source_node->children.begin() + child_to_remove, children.begin());
+
   delete_node_ptr_at_scope_exit delete_on_scope_exit{
       source_node->children[child_to_remove]};
+
   std::copy(source_node->children.begin() + child_to_remove + 1,
             source_node->children.begin() + source_node_children_count,
             children.begin() + child_to_remove);
@@ -905,13 +907,11 @@ internal_node_16::internal_node_16(const internal_node_4 &node,
   keys.byte_array[insert_pos_index] = key_byte;
   std::copy(node.keys.cbegin() + insert_pos_index, node.keys.cend(),
             keys.byte_array.begin() + insert_pos_index + 1);
-  std::uninitialized_move(node.children.begin(),
-                          node.children.begin() + insert_pos_index,
-                          children.begin());
+  std::copy(node.children.begin(), node.children.begin() + insert_pos_index,
+            children.begin());
   children[insert_pos_index] = child.release();
-  std::uninitialized_move(node.children.begin() + insert_pos_index,
-                          node.children.end(),
-                          children.begin() + insert_pos_index + 1);
+  std::copy(node.children.begin() + insert_pos_index, node.children.end(),
+            children.begin() + insert_pos_index + 1);
 }
 
 internal_node::find_result_type internal_node_16::find_child(
@@ -1152,6 +1152,7 @@ class internal_node_256 final : public internal_node_256_template {
     Expects(child_ptr != nullptr);
 
     delete_node_ptr_at_scope_exit delete_on_scope_exit{child_ptr};
+
     children[child_index] = nullptr;
     --children_count;
   }

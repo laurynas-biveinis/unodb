@@ -511,7 +511,7 @@ class internal_node {
       std::copy_backward(keys.cbegin() + insert_pos_index,
                          keys.cbegin() + children_count,
                          keys.begin() + children_count + 1);
-      std::move_backward(children.begin() + insert_pos_index,
+      std::copy_backward(children.begin() + insert_pos_index,
                          children.begin() + children_count,
                          children.begin() + children_count + 1);
     }
@@ -535,7 +535,7 @@ class internal_node {
     delete_node_ptr_at_scope_exit delete_on_scope_exit{
         children[child_to_remove]};
 
-    std::move(children.begin() + child_to_remove + 1,
+    std::copy(children.begin() + child_to_remove + 1,
               children.begin() + children_count,
               children.begin() + child_to_remove);
     --children_count;
@@ -726,14 +726,15 @@ class internal_node_4 final : public internal_node_4_template {
     Expects(child_to_delete == 0 || child_to_delete == 1);
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
+    const auto child_to_delete_ptr = children[child_to_delete];
     const uint8_t child_to_leave = (child_to_delete == 0) ? 1 : 0;
-    delete_node_ptr_at_scope_exit child_to_delete_deleter{
-        children[child_to_delete]};
-    if (children[child_to_leave].type() != node_type::LEAF) {
-      children[child_to_leave].internal->key_prefix.prepend(
-          key_prefix, keys[child_to_leave]);
+    const auto child_to_leave_ptr = children[child_to_leave];
+    delete_node_ptr_at_scope_exit child_to_delete_deleter{child_to_delete_ptr};
+    if (child_to_leave_ptr.type() != node_type::LEAF) {
+      child_to_leave_ptr.internal->key_prefix.prepend(key_prefix,
+                                                      keys[child_to_leave]);
     }
-    return children[child_to_leave];
+    return child_to_leave_ptr;
   }
 
   [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
@@ -816,7 +817,7 @@ internal_node::find_result_type internal_node_4::find_child(
     std::byte key_byte) noexcept {
   assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
-  for (unsigned i = 0; i < children_count; i++)
+  for (unsigned i = 0; i < children_count; ++i)
     if (keys[i] == key_byte) return std::make_pair(i, &children[i]);
   return std::make_pair(0xFF, nullptr);
 }
@@ -873,21 +874,21 @@ internal_node_4::internal_node_4(
     std::unique_ptr<internal_node_16> &&source_node,
     uint8_t child_to_remove) noexcept
     : internal_node_4_template{*source_node} {
+  const auto source_node_children_count = source_node->children_count;
+
   std::copy(source_node->keys.byte_array.cbegin(),
             source_node->keys.byte_array.cbegin() + child_to_remove,
             keys.begin());
   std::copy(source_node->keys.byte_array.cbegin() + child_to_remove + 1,
-            source_node->keys.byte_array.cbegin() + source_node->children_count,
+            source_node->keys.byte_array.cbegin() + source_node_children_count,
             keys.begin() + child_to_remove);
-  std::uninitialized_move(source_node->children.begin(),
-                          source_node->children.begin() + child_to_remove,
-                          children.begin());
+  std::copy(source_node->children.begin(),
+            source_node->children.begin() + child_to_remove, children.begin());
   delete_node_ptr_at_scope_exit delete_on_scope_exit{
       source_node->children[child_to_remove]};
-  std::uninitialized_move(
-      source_node->children.begin() + child_to_remove + 1,
-      source_node->children.begin() + source_node->children_count,
-      children.begin() + child_to_remove);
+  std::copy(source_node->children.begin() + child_to_remove + 1,
+            source_node->children.begin() + source_node_children_count,
+            children.begin() + child_to_remove);
 
   assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 }
@@ -971,9 +972,12 @@ class internal_node_48 final : public internal_node_48_template {
         static_cast<uint8_t>(single_value_leaf::key(child.get())[depth]);
     assert(child_indexes[key_byte] == empty_child);
     uint8_t i;
-    for (i = 0; i < capacity; i++)
-      if (children[i] == nullptr) break;
-    assert(children[i] == nullptr);
+    node_ptr child_ptr;
+    for (i = 0; i < capacity; ++i) {
+      child_ptr = children[i];
+      if (child_ptr == nullptr) break;
+    }
+    assert(child_ptr == nullptr);
     child_indexes[key_byte] = i;
     children[i] = child.release();
     ++children_count;
@@ -998,11 +1002,16 @@ class internal_node_48 final : public internal_node_48_template {
 
  private:
   void remove_child_pointer(uint8_t child_index) noexcept {
-    Expects(child_indexes[child_index] != empty_child);
-    Expects(children[child_indexes[child_index]] != nullptr);
+    direct_remove_child_pointer(child_indexes[child_index]);
+  }
 
-    delete_node_ptr_at_scope_exit delete_on_scope_exit{
-        children[child_indexes[child_index]]};
+  void direct_remove_child_pointer(uint8_t children_i) noexcept {
+    const auto child_ptr = children[children_i];
+
+    Expects(children_i != empty_child);
+    Expects(child_ptr != nullptr);
+
+    delete_node_ptr_at_scope_exit delete_on_scope_exit{child_ptr};
   }
 
   std::array<uint8_t, 256> child_indexes;
@@ -1022,13 +1031,14 @@ internal_node_16::internal_node_16(
   for (unsigned i = 0; i < 256; i++) {
     const auto source_child_i = source_node->child_indexes[i];
     if (i == child_to_remove) {
-      source_node->remove_child_pointer(gsl::narrow_cast<uint8_t>(i));
+      source_node->direct_remove_child_pointer(source_child_i);
       continue;
     }
     if (source_child_i != internal_node_48::empty_child) {
       keys.byte_array[next_child] = gsl::narrow_cast<std::byte>(i);
-      assert(source_node->children[source_child_i] != nullptr);
-      children[next_child] = source_node->children[source_child_i];
+      const auto source_child_ptr = source_node->children[source_child_i];
+      assert(source_child_ptr != nullptr);
+      children[next_child] = source_child_ptr;
       ++next_child;
       if (next_child == children_count) {
         if (i < child_to_remove) {
@@ -1081,9 +1091,10 @@ internal_node::find_result_type internal_node_48::find_child(
 void internal_node_48::delete_subtree() noexcept {
   unsigned actual_children_count = 0;
   for (unsigned i = 0; i < capacity; ++i) {
-    if (children[i] != nullptr) {
+    const auto child = children[i];
+    if (child != nullptr) {
       ++actual_children_count;
-      ::delete_subtree(children[i]);
+      ::delete_subtree(child);
       assert(actual_children_count <= children_count);
     }
   }
@@ -1135,10 +1146,12 @@ class internal_node_256 final : public internal_node_256_template {
   }
 
   void remove(uint8_t child_index) noexcept {
-    assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
-    Expects(children[child_index] != nullptr);
+    const auto child_ptr = children[child_index];
 
-    delete_node_ptr_at_scope_exit delete_on_scope_exit{children[child_index]};
+    assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
+    Expects(child_ptr != nullptr);
+
+    delete_node_ptr_at_scope_exit delete_on_scope_exit{child_ptr};
     children[child_index] = nullptr;
     --children_count;
   }
@@ -1170,7 +1183,7 @@ internal_node_48::internal_node_48(
   uint8_t next_child = 0;
   unsigned child_i = 0;
   for (; child_i < 256; child_i++) {
-    auto child_ptr = source_node->children[child_i];
+    const auto child_ptr = source_node->children[child_i];
     if (child_i == child_to_remove) {
       assert(child_ptr != nullptr);
       delete_node_ptr_at_scope_exit delete_on_scope_exit{child_ptr};
@@ -1187,7 +1200,7 @@ internal_node_48::internal_node_48(
     ++next_child;
     if (next_child == children_count) {
       if (child_i < child_to_remove) {
-        auto child_to_remove_ptr = source_node->children[child_to_remove];
+        const auto child_to_remove_ptr = source_node->children[child_to_remove];
         assert(child_to_remove_ptr != nullptr);
         delete_node_ptr_at_scope_exit delete_on_scope_exit{child_to_remove_ptr};
       }
@@ -1204,9 +1217,10 @@ internal_node_256::internal_node_256(const internal_node_48 &node,
                                      db::tree_depth_type depth) noexcept
     : internal_node_256_template{node} {
   for (unsigned i = 0; i < 256; i++) {
-    children[i] = node.child_indexes[i] == internal_node_48::empty_child
+    const auto children_i = node.child_indexes[i];
+    children[i] = children_i == internal_node_48::empty_child
                       ? nullptr
-                      : node.children[node.child_indexes[i]];
+                      : node.children[children_i];
   }
 
   const uint8_t key_byte =
@@ -1230,7 +1244,7 @@ void internal_node_256::for_each_child(Function func) noexcept(
     noexcept(func(0, nullptr))) {
   uint8_t actual_children_count = 0;
   for (unsigned i = 0; i < 256; ++i) {
-    auto child_ptr = children[i];
+    const auto child_ptr = children[i];
     if (child_ptr != nullptr) {
       ++actual_children_count;
       func(i, child_ptr);
@@ -1545,19 +1559,21 @@ bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view v,
   }
   depth += node->internal->key_prefix.length();
 
-  auto child = node->internal->find_child(k[depth]).second;
+  const auto child = node->internal->find_child(k[depth]).second;
 
   if (child != nullptr) return insert_to_subtree(k, child, v, depth + 1);
 
   leaf_creator_with_scope_cleanup leaf_creator{k, v, *this};
   auto leaf = leaf_creator.get();
 
-  if (likely(!node->internal->is_full())) {
+  const auto node_is_full = node->internal->is_full();
+
+  if (likely(!node_is_full)) {
     node->internal->add(std::move(leaf), depth);
     return true;
   }
 
-  assert(node->internal->is_full());
+  assert(node_is_full);
 
   if (node->type() == node_type::I4) {
     increase_memory_use(sizeof(internal_node_16) - sizeof(internal_node_4));
@@ -1605,7 +1621,7 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
 
   depth += node->internal->key_prefix.length();
 
-  auto [child_i, child_ptr] = node->internal->find_child(k[depth]);
+  const auto [child_i, child_ptr] = node->internal->find_child(k[depth]);
 
   if (child_ptr == nullptr) return false;
 
@@ -1614,15 +1630,16 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
 
   if (!single_value_leaf::matches(child_ptr->leaf, k)) return false;
 
+  const auto is_node_min_size = node->internal->is_min_size();
   const auto child_node_size = single_value_leaf::size(child_ptr->leaf);
 
-  if (likely(!node->internal->is_min_size())) {
+  if (likely(!is_node_min_size)) {
     node->internal->remove(child_i);
     decrease_memory_use(child_node_size);
     return true;
   }
 
-  assert(node->internal->is_min_size());
+  assert(is_node_min_size);
 
   if (node->type() == node_type::I4) {
     std::unique_ptr<internal_node_4> current_node{node->node_4};

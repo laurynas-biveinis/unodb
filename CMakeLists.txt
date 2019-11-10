@@ -169,6 +169,14 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
   message(STATUS "Using GCC 9+, using std::pmr instead of boost::pmr")
   SET(USE_BOOST FALSE)
 else()
+  # Workaround https://github.com/boostorg/boost_install/issues/13: Homebrew
+  # Boost 1.71 installs single-thread and MT build to the same prefix, resulting
+  # in -
+  # CMake Warning at /usr/local/lib/cmake/boost_container-1.71.0/libboost_container-variant-shared.cmake:59 (message):
+  # Target Boost::container already has an imported location
+  # '/usr/local/lib/libboost_container-mt.dylib', which will be overwritten
+  # with '/usr/local/lib/libboost_container.dylib'
+  set(Boost_NO_BOOST_CMAKE ON)
   find_package(Boost REQUIRED COMPONENTS container)
   SET(USE_BOOST TRUE)
 endif()

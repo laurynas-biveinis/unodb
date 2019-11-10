@@ -18,9 +18,9 @@ C++ tools and ideas.
   9.0.
 * CMake, at least 3.12
 * Guidelines Support Library for gsl::span, imported as a git submodule.
-* Unless GCC version 9 is used, Boost.Container library. Version 1.69 gives
-  UBSan errors ([bug report 1][boostub1],  [bug report 2][boostub2]). Currently
-  it is being tested with 1.60, 1.68, & 1.69 (w/o sanitizers).
+* Unless GCC version 9 is used, Boost.Container library. Currently 1.70 and 1.71
+  are being tested. Version 1.69 gives UBSan errors ([bug report 1][boostub1],
+  [bug report 2][boostub2]).
 * clang-format, at least 8.0
 * Google Test for tests, imported as a git submodule.
 * (optional) lcov

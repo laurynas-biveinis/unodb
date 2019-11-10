@@ -24,7 +24,7 @@ matrix:
             # TODO(laurynas): install only what's needed for each job
             - g++-7
             - g++-8
-            - boost1.68
+            - boost1.70
             - valgrind
             - clang-8
             - clang-tools-8

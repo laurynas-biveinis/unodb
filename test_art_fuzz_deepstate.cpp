@@ -111,6 +111,7 @@ TEST(ART, DeepState_fuzz) {
     LOG(TRACE) << "Not limiting value length (" << max_value_length << ")";
 
   unodb::db test_db{mem_limit};
+  ASSERT(test_db.empty());
 
   std::vector<unodb::key_type> keys;
   values_type values;
@@ -129,6 +130,7 @@ TEST(ART, DeepState_fuzz) {
             const auto mem_use_after = test_db.get_current_memory_use();
             if (insert_result) {
               LOG(TRACE) << "Inserted key " << key;
+              ASSERT(!test_db.empty());
               ASSERT(mem_use_after > mem_use_before || mem_limit == 0);
               const auto oracle_insert_result = oracle.emplace(key, value);
               ASSERT(oracle_insert_result.second)
@@ -156,6 +158,7 @@ TEST(ART, DeepState_fuzz) {
           const auto search_result = test_db.get(key);
           const auto oracle_search_result = oracle.find(key);
           if (search_result) {
+            ASSERT(!test_db.empty());
             ASSERT(oracle_search_result != oracle.cend())
                 << "If search returned a value, oracle must contain that value";
             ASSERT(std::equal(search_result->cbegin(), search_result->cend(),
@@ -205,6 +208,7 @@ TEST(ART, DeepState_fuzz) {
     prev_mem_use = current_mem_use;
   }
   ASSERT(prev_mem_use == 0);
+  ASSERT(test_db.empty());
 }
 
 RESTORE_CLANG_WARNINGS()

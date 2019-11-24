@@ -34,6 +34,12 @@ The API implemented by `db` class:
   successful (i.e. the key was not already present).
 * `bool remove(key_type k)`, returning whether delete was successful (i.e. the
   key was found in the tree).
+* `std::size_t get_current_memory_use()`, returning current memory use by
+  internal nodes in bytes, only accounted if memory limit was specified in
+  constructor, otherwise always zero.
+* `bool empty()`, returning whether the tree is empty.
+* `void dump(std::ostream &)`, only available if `NDEBUG` is not defined,
+  dumping the tree representation into output stream.
 
 The class is unsychronized, to be using in single-thread context or with
 external synchronization.

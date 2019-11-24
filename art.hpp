@@ -5,7 +5,7 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <cassert>
-#include <cstddef>  // for uint64_t
+#include <cstddef>  // for uint8_t
 #include <cstdint>  // IWYU pragma: keep
 #include <cstring>
 #include <memory>
@@ -14,10 +14,9 @@
 
 #include <gsl/span>
 
-namespace unodb {
+#include "art_key_value.hpp"
 
-// Key type for public API
-using key_type = uint64_t;
+namespace unodb {
 
 // Internal ART key in binary-comparable format
 template <typename KeyType>
@@ -60,11 +59,6 @@ struct art_key final {
 };
 
 using art_key_type = art_key<key_type>;
-
-// Value type for public API. Values are passed as non-owning pointers to
-// memory with associated length (gsl::span). The memory is copied upon
-// insertion.
-using value_view = gsl::span<const std::byte>;
 
 struct node_header;
 
@@ -141,7 +135,9 @@ class db final {
   void dump(std::ostream &os) const;
 #endif
 
-  [[nodiscard]] std::size_t get_current_memory_use() const noexcept {
+  [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
+
+  [[nodiscard]] auto get_current_memory_use() const noexcept {
     return current_memory_use;
   }
 

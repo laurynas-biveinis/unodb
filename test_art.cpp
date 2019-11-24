@@ -49,7 +49,9 @@ RESTORE_CLANG_WARNINGS()
 class tree_verifier final {
  public:
   explicit tree_verifier(std::size_t memory_limit = 0) noexcept
-      : test_db{memory_limit} {}
+      : test_db{memory_limit} {
+    assert_empty();
+  }
 
   void insert(unodb::key_type k, unodb::value_view v);
 
@@ -66,6 +68,11 @@ class tree_verifier final {
 
   void check_absent_keys(
       std::initializer_list<unodb::key_type> absent_keys) const noexcept;
+
+  void assert_empty() const noexcept {
+    ASSERT_TRUE(test_db.empty());
+    ASSERT_EQ(test_db.get_current_memory_use(), 0);
+  }
 
   unodb::db &get_db() noexcept { return test_db; }
 
@@ -84,6 +91,7 @@ void tree_verifier::insert(unodb::key_type k, unodb::value_view v) {
     ASSERT_EQ(mem_use_before, mem_use_after);
     throw;
   }
+  ASSERT_FALSE(test_db.empty());
   const auto mem_use_after = test_db.get_current_memory_use();
   ASSERT_TRUE(mem_use_before < mem_use_after);
   const auto insert_result = values.emplace(k, v);
@@ -110,6 +118,7 @@ void tree_verifier::test_insert_until_memory_limit() {
 }
 
 void tree_verifier::remove(unodb::key_type k) {
+  ASSERT_FALSE(test_db.empty());
   const auto remove_result = values.erase(k);
   ASSERT_EQ(remove_result, 1);
   const auto mem_use_before = test_db.get_current_memory_use();
@@ -342,7 +351,7 @@ TEST(ART, try_delete_from_empty) {
   tree_verifier verifier{10240};
 
   verifier.attempt_remove_missing_keys({1});
-
+  verifier.assert_empty();
   verifier.check_absent_keys({1});
 }
 
@@ -351,6 +360,7 @@ TEST(ART, single_node_tree_delete) {
 
   verifier.insert(1, test_values[0]);
   verifier.remove(1);
+  verifier.assert_empty();
   verifier.check_absent_keys({1});
   verifier.attempt_remove_missing_keys({1});
   verifier.check_absent_keys({1});

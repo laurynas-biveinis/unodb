@@ -382,7 +382,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   endif()
 endfunction()
 
-add_library(unodb art.cpp art.hpp global.hpp)
+add_library(unodb art.cpp art.hpp art_key_value.hpp global.hpp)
 common_target_properties(unodb)
 target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
 if(USE_BOOST)

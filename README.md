@@ -11,6 +11,33 @@ Status](https://travis-ci.org/laurynas-biveinis/unodb.svg?branch=master)](https:
 Unodb is a adaptive radix tree implementation, done as my playground for various
 C++ tools and ideas.
 
+## Usage
+
+All the declarations live in the `unodb` namespace, which is omitted in the
+following.
+
+The only currently supported key type is `uint64_t`. However, adding new key
+types should be relatively easy by instantiating `art_key` type with the desired
+key type and specializing `art_key::make_binary_comparable` in accordance with
+the ART paper.
+
+Values are treated opaquely. They are passed as non-owning objects of
+`value_view` type, which is `gsl::span<std::byte>`, and insertion copies them
+internally. The same applies for `get`: a non-owning `value_view` is returned.
+
+The API implemented by `db` class:
+
+* constructor, with optional memory limit parameter, exceeding which will throw
+  `std::bad_alloc`.
+* `get(key_type k)`, returning `std::optional<value_view>`.
+* `bool insert(key_type k, value_view v)`, returning whether insert was
+  successful (i.e. the key was not already present).
+* `bool remove(key_type k)`, returning whether delete was successful (i.e. the
+  key was found in the tree).
+
+The class is unsychronized, to be using in single-thread context or with
+external synchronization.
+
 ## Dependencies
 
 * git

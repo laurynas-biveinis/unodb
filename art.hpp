@@ -12,8 +12,6 @@
 #include <optional>
 #include <vector>
 
-#include <gsl/span>
-
 #include "art_key_value.hpp"
 
 namespace unodb {

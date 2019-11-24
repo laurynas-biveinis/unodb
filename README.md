@@ -24,8 +24,9 @@ the ART paper.
 Values are treated opaquely. They are passed as non-owning objects of
 `value_view` type, which is `gsl::span<std::byte>`, and insertion copies them
 internally. The same applies for `get`: a non-owning `value_view` is returned.
+How long would it remain valid depends on the ART concurrency flavor.
 
-The API implemented by `db` class:
+All ART classes implement the same API:
 
 * constructor, with optional memory limit parameter, exceeding which will throw
   `std::bad_alloc`.
@@ -41,8 +42,11 @@ The API implemented by `db` class:
 * `void dump(std::ostream &)`, only available if `NDEBUG` is not defined,
   dumping the tree representation into output stream.
 
-The class is unsychronized, to be using in single-thread context or with
-external synchronization.
+The are two ART classes available:
+
+* `db`: unsychronized ART tree, to be used in single-thread context or with
+  external synchronization.
+* `mutex_db`: single global mutex-synchronized ART tree.
 
 ## Dependencies
 
@@ -79,7 +83,10 @@ is set very high, and can be relaxed, especially for clang-tidy, as need arises.
 To enable Address, Leak, and Undefined Behavior sanitizers, add `-DSANITIZE=ON`
 CMake option. Using this with GCC 9, where std::pmr from libstdc++ is used
 instead of boost::pmr, will result in UBSan false positives due to
-[this][libstdc++ub].
+[this][libstdc++ub]. This option is incompatible with `-DSANITIZE_THREAD=ON`.
+
+To enable Thread and Undefined Behavior sanitizers, add `-DSANITIZE_THREAD=ON`
+CMake option. It is incompatible with `-DSANITIZE=ON` option.
 
 To invoke include-what-you-use, add `-DIWYU=ON` CMake option. It will take
 effect if CMake configures to build project with clang.

@@ -112,23 +112,33 @@ else()
   if(NOT COVERAGE)
     list(APPEND CXX_FLAGS "-O3")
   else()
-    list(APPEND CXX_FLAGS "-Og")
+    list(APPEND CXX_FLAGS "-O0")
   endif()
 endif()
 
-option(SANITIZE "Enable AddressSanitizer and UndefinedBehaviorSanitizer runtime checks")
-if(SANITIZE)
-  set(GCC_EXTRA_SANITIZE_FLAGS "-fsanitize=pointer-compare"
-    "-fsanitize=pointer-subtract" "-fsanitize=leak"
-    "-fsanitize-address-use-after-scope")
-  list(APPEND CXX_FLAGS
-    "-fno-omit-frame-pointer" "-fno-optimize-sibling-calls" "-fsanitize=address"
-    "-fsanitize=undefined")
-  set(LD_FLAGS "-fsanitize=address" "-fsanitize=undefined")
+macro(ADD_TO_GNU_CXX_LD_FLAGS)
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    list(APPEND CXX_FLAGS "${GCC_EXTRA_SANITIZE_FLAGS}")
-    list(APPEND LD_FLAGS "${GCC_EXTRA_SANITIZE_FLAGS}")
+    list(APPEND CXX_FLAGS ${ARGV})
+    list(APPEND LD_FLAGS ${ARGV})
   endif()
+endmacro()
+
+macro(SET_COMMON_SANITIZER_FLAGS)
+  list(APPEND CXX_FLAGS "-fsanitize=undefined" "-fno-omit-frame-pointer"
+    "-fno-optimize-sibling-calls")
+  set(LD_FLAGS "-fsanitize=undefined")
+  string(CONCAT UBSAN_OPTIONS "UBSAN_OPTIONS="
+    "print_stacktrace=1")
+endmacro()
+
+option(SANITIZE
+  "Enable AddressSanitizer and UndefinedBehaviorSanitizer runtime checks")
+if(SANITIZE)
+  set_common_sanitizer_flags()
+  list(APPEND CXX_FLAGS "-fsanitize=address")
+  list(APPEND LD_FLAGS "-fsanitize=address")
+  add_to_gnu_cxx_ld_flags("-fsanitize=leak" "-fsanitize-address-use-after-scope"
+    "-fsanitize=pointer-compare" "-fsanitize=pointer-subtract")
   string(CONCAT ASAN_OPTIONS "ASAN_OPTIONS="
     "check_initialization_order=true:detect_stack_use_after_return=true:"
     "alloc_dealloc_mismatch=true:strict_string_checks=true")
@@ -151,23 +161,37 @@ if(SANITIZE)
     "print_stacktrace=1")
 endif()
 
+option(SANITIZE_THREAD
+  "Enable ThreadSanitizer and UndefinedBehaviorSanitizer runtime checks")
+if(SANITIZE_THREAD)
+  set_common_sanitizer_flags()
+  list(APPEND CXX_FLAGS "-fsanitize=thread")
+  list(APPEND LD_FLAGS "-fsanitize=thread")
+endif()
+
 function(SET_SANITIZER_TARGET_PROPERTIES TARGET)
   if(SANITIZE)
     set_tests_properties(${TARGET} PROPERTIES ENVIRONMENT "${ASAN_OPTIONS}")
+  endif()
+  if(SANITIZE OR SANITIZE_THREAD)
     set_property(TEST ${TARGET} APPEND PROPERTY ENVIRONMENT "${UBSAN_OPTIONS}")
   endif()
 endfunction()
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-  SET(DEBUG "ON")
+  set(DEBUG "ON")
 endif()
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+
 configure_file(config.hpp.in config.hpp)
+
+find_package(Threads REQUIRED)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
     "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 9)
   message(STATUS "Using GCC 9+, using std::pmr instead of boost::pmr")
-  SET(USE_BOOST FALSE)
+  set(USE_BOOST FALSE)
 else()
   # Workaround https://github.com/boostorg/boost_install/issues/13: Homebrew
   # Boost 1.71 installs single-thread and MT build to the same prefix, resulting
@@ -178,7 +202,7 @@ else()
   # with '/usr/local/lib/libboost_container.dylib'
   set(Boost_NO_BOOST_CMAKE ON)
   find_package(Boost REQUIRED COMPONENTS container)
-  SET(USE_BOOST TRUE)
+  set(USE_BOOST TRUE)
 endif()
 
 # TODO(laurynas): convert benchmark dependency to a git submodule
@@ -230,10 +254,10 @@ endif()
 
 if(DEEPSTATE_HPP_PATH)
   if(DEEPSTATE_LIB_PATH)
-    SET(DEEPSTATE_OK TRUE)
+    set(DEEPSTATE_OK TRUE)
   endif()
   if(DEEPSTATE_LF_LIB_PATH)
-    SET(DEEPSTATE_LF_OK TRUE)
+    set(DEEPSTATE_LF_OK TRUE)
   endif()
 endif()
 
@@ -316,7 +340,9 @@ else()
     "--suppress=syntaxError" # False positive on test_art.cpp:148
     "--suppress=ignoredReturnValue" # False positive on ctors with std::move arg
     # False positive on pointer unions being passed by value
-    "--suppress=passedByValue")
+    "--suppress=passedByValue"
+    # False positive on benchmark::State arg
+    "--suppress=constParameter")
 endif()
 
 find_program(CPPCHECK_EXE NAMES "cppcheck" DOC "Path to cppcheck executable")
@@ -335,6 +361,7 @@ if(NOT CPPLINT_EXE)
 else()
   message(STATUS "cpplint found: ${CPPLINT_EXE}")
   string(CONCAT CPPLINT_DISABLED_TESTS "--filter="
+    "-build/c++11," # <thread> is an unapproved C++11 header
     "-build/include_order,"
     "-runtime/references,"
     "-whitespace/braces") # Does not understand C++17 structured bindings and we use
@@ -382,7 +409,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   endif()
 endfunction()
 
-add_library(unodb art.cpp art.hpp art_key_value.hpp global.hpp)
+add_library(unodb art.cpp art.hpp art_key_value.hpp global.hpp mutex_art.hpp)
 common_target_properties(unodb)
 target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
 if(USE_BOOST)
@@ -394,6 +421,7 @@ set_target_properties(unodb PROPERTIES CXX_EXTENSIONS OFF)
 if(DO_CLANG_TIDY)
   set_target_properties(unodb PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
 endif()
+target_link_libraries(unodb PUBLIC Threads::Threads)
 
 add_subdirectory(googletest)
 
@@ -417,20 +445,32 @@ function(ADD_COVERAGE_TARGET)
     DEPENDS ${ARG_DEPENDENCY})
 endfunction()
 
-add_executable(test_art test_art.cpp)
-common_target_properties(test_art)
-target_link_libraries(test_art PRIVATE unodb gtest_main)
+add_library(test_utils STATIC test_utils.hpp test_utils.cpp)
+common_target_properties(test_utils)
+target_link_libraries(test_utils PRIVATE unodb gtest_main)
 if(DO_CLANG_TIDY)
-  set_target_properties(test_art PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY_TEST}")
+  set_target_properties(test_utils PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY_TEST}")
 endif()
-add_test(NAME test_art COMMAND test_art)
-set_sanitizer_target_properties(test_art)
+
+function(ADD_TEST_TARGET TARGET)
+  add_executable("${TARGET}" "${TARGET}.cpp")
+  common_target_properties("${TARGET}")
+  target_link_libraries("${TARGET}" PRIVATE unodb gtest_main test_utils)
+  if(DO_CLANG_TIDY)
+    set_target_properties("${TARGET}" PROPERTIES CXX_LANG_TIDY
+      "${DO_CLANG_TIDY_TEST}")
+  endif()
+  add_test(NAME "${TARGET}" COMMAND "${TARGET}")
+  set_sanitizer_target_properties("${TARGET}")
+endfunction()
+
+add_test_target(test_art)
+add_test_target(test_art_mutex_concurrency)
 
 if(COVERAGE)
-  add_custom_target(test_art_for_coverage ctest -R test_art$$
-    DEPENDS test_art)
-  add_dependencies(test_art_for_coverage test_art)
-  add_coverage_target(TARGET coverage DEPENDENCY test_art_for_coverage)
+  add_custom_target(tests_for_coverage ctest -E test_art_fuzz_deepstate
+    DEPENDS test_art test_art_mutex_concurrency)
+  add_coverage_target(TARGET coverage DEPENDENCY tests_for_coverage)
 endif()
 
 function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
@@ -492,10 +532,16 @@ if(DEEPSTATE_LF_OK)
   endif()
 endif()
 
+function(ADD_BENCHMARK_TARGET TARGET)
+  add_executable("${TARGET}" "${TARGET}.cpp")
+  common_target_properties("${TARGET}")
+  target_include_directories("${TARGET}" SYSTEM PRIVATE
+    "${benchmark_INCLUDE_DIRS}")
+  target_link_libraries("${TARGET}" PRIVATE benchmark::benchmark_main)
+  target_link_libraries("${TARGET}" PRIVATE unodb)
+endfunction()
+
 if(benchmark_FOUND)
-  add_executable(micro_benchmark micro_benchmark.cpp)
-  common_target_properties(micro_benchmark)
-  target_include_directories(micro_benchmark SYSTEM PRIVATE "${benchmark_INCLUDE_DIRS}")
-  target_link_libraries(micro_benchmark PRIVATE benchmark::benchmark_main)
-  target_link_libraries(micro_benchmark PRIVATE unodb)
+  add_benchmark_target(micro_benchmark)
+  add_benchmark_target(micro_benchmark_mutex)
 endif()

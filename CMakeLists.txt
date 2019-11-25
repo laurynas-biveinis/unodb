@@ -325,7 +325,7 @@ if(NOT CPPCHECK_EXE)
 else()
   message(STATUS "cppcheck found: ${CPPCHECK_EXE}")
   set(DO_CPPCHECK "${CPPCHECK_EXE}" "--enable=warning,style,performance,portability"
-    "--error-exitcode=2")
+    "--error-exitcode=2" "-D__x86_64")
   list(APPEND DO_CPPCHECK "${CPPCHECK_CHECKS}")
 endif()
 

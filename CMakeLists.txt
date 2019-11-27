@@ -457,7 +457,7 @@ function(ADD_TEST_TARGET TARGET)
   common_target_properties("${TARGET}")
   target_link_libraries("${TARGET}" PRIVATE unodb gtest_main test_utils)
   if(DO_CLANG_TIDY)
-    set_target_properties("${TARGET}" PROPERTIES CXX_LANG_TIDY
+    set_target_properties("${TARGET}" PROPERTIES CXX_CLANG_TIDY
       "${DO_CLANG_TIDY_TEST}")
   endif()
   add_test(NAME "${TARGET}" COMMAND "${TARGET}")

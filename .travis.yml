@@ -5,6 +5,7 @@ dist: bionic
 env:
   global:
     - SANITIZE=OFF
+    - SANITIZE_THREAD=OFF
     - SCAN_BUILD=
     - COVERAGE=OFF
 
@@ -34,37 +35,55 @@ matrix:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release
       compiler: gcc
     - <<: *linux-base
-      name: "Bionic GCC 8 Release with sanitizers"
+      name: "Bionic GCC 8 Release with ASan/UBSan"
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release SANITIZE=ON
+    - <<: *linux-base
+      name: "Bionic GCC 8 Release with TSan/UBSan"
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release SANITIZE_THREAD=ON
     - <<: *linux-base
       name: "Bionic GCC 8 Debug"
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug
     - <<: *linux-base
-      name: "Bionic GCC 8 Debug with sanitizers"
+      name: "Bionic GCC 8 Debug with ASan/UBSan"
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug SANITIZE=ON
+    - <<: *linux-base
+      name: "Bionic GCC 8 Debug with TSan/UBSan"
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug SANITIZE_THREAD=ON
     - <<: *linux-base
       name: "Bionic clang 8 Release"
       compiler: clang
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release
     - <<: *linux-base
-      name: "Bionic clang 8 Release with sanitizers"
+      name: "Bionic clang 8 Release with ASan/UBSan"
       compiler: clang
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release SANITIZE=ON
+    - <<: *linux-base
+      name: "Bionic clang 8 Release with TSan/UBSan"
+      compiler: clang
+      env:
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release SANITIZE_THREAD=ON
     - <<: *linux-base
       name: "Bionic clang 8 Debug"
       compiler: clang
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug
     - <<: *linux-base
-      name: "Bionic clang 8 Debug with sanitizers"
+      name: "Bionic clang 8 Debug with ASan/UBSan"
       compiler: clang
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug SANITIZE=ON
+    - <<: *linux-base
+      name: "Bionic clang 8 Debug with TSan/UBSan"
+      compiler: clang
+      env:
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug SANITIZE_THREAD=ON
     - <<: *linux-base
       name: "Bionic clang 8 static analysis Release"
       compiler: clang
@@ -87,17 +106,25 @@ matrix:
       env:
         - BUILD_TYPE=Release
     - <<: *macos-base
-      name: "macOS XCode 11.0 Release with sanitizers"
+      name: "macOS XCode 11.0 Release with ASan/UBSan"
       env:
         - BUILD_TYPE=Release SANITIZE=ON
+    - <<: *macos-base
+      name: "macOS XCode 11.0 Release with TSan/UBSan"
+      env:
+        - BUILD_TYPE=Release SANITIZE_THREAD=ON
     - <<: *macos-base
       name: "macOS XCode 11.0 Debug"
       env:
         - BUILD_TYPE=Debug
     - <<: *macos-base
-      name: "macOS XCode 11.0 Debug with sanitizers"
+      name: "macOS XCode 11.0 Debug with ASan/UBSan"
       env:
         - BUILD_TYPE=Debug SANITIZE=ON
+    - <<: *macos-base
+      name: "macOS XCode 11.0 Debug with TSan/UBSan"
+      env:
+        - BUILD_TYPE=Debug SANITIZE_THREAD=ON
     - <<: *linux-base
       name: "Bionic GCC 7 Release"
       compiler: gcc
@@ -134,7 +161,7 @@ script:
   - if [[ "$CC" == "gcc-7" && "$COVERAGE" == "ON" ]]; then
       EXTRA_CMAKE_OPTIONS+="-DGCOV_PATH=/usr/bin/gcov-7 ";
     fi
-  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE=${SANITIZE} -DCOVERAGE=${COVERAGE} ${EXTRA_CMAKE_OPTIONS}
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE=${SANITIZE} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DCOVERAGE=${COVERAGE} ${EXTRA_CMAKE_OPTIONS}
   - ${SCAN_BUILD} make -j3
   - if [[ ! -z "${SCAN_BUILD}" ]]; then
       travis_terminate 0;
@@ -145,6 +172,7 @@ script:
       make -j3 coverage;
       bash <(curl -s https://codecov.io/bash) -f coverage-coverage.info || echo "Codecov did not collect coverage reports";
     fi
-  - if [[ "$SANITIZE" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
+  - if [[ "$SANITIZE" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
       valgrind --error-exitcode=1 ./test_art;
+      valgrind --error-exitcode=1 ./test_art_mutex_concurrency;
     fi

@@ -2,23 +2,16 @@
 
 #include "global.hpp"
 
-#include "art.hpp"
+#include <limits>
+#include <random>
+#include <vector>
 
 #include <benchmark/benchmark.h>
-#include <random>
+
+#include "art.hpp"
+#include "micro_benchmark.hpp"
 
 namespace {
-
-constexpr auto value1 = std::array<std::byte, 1>{};
-constexpr auto value10 = std::array<std::byte, 10>{};
-constexpr auto value100 = std::array<std::byte, 100>{};
-constexpr auto value1000 = std::array<std::byte, 1000>{};
-constexpr auto value10000 = std::array<std::byte, 10000>{};
-
-constexpr std::array<unodb::value_view, 5> values = {
-    unodb::value_view{value1}, unodb::value_view{value10},
-    unodb::value_view{value100}, unodb::value_view{value1000},
-    unodb::value_view{value10000}};
 
 class batched_random_key_source {
  public:

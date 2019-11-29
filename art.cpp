@@ -127,9 +127,6 @@ inline __attribute__((noreturn)) void cannot_happen() {
 
 namespace unodb {
 
-static_assert(sizeof(unodb::single_value_leaf_unique_ptr) == sizeof(void *),
-              "Single leaf unique_ptr must have no overhead over raw pointer");
-
 template <>
 __attribute__((const)) uint64_t art_key<uint64_t>::make_binary_comparable(
     uint64_t key) noexcept {

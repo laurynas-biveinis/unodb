@@ -159,7 +159,7 @@ node_type node_ptr::type() const noexcept { return header->type(); }
 // (heap) indirection.
 struct single_value_leaf final {
   [[nodiscard]] static single_value_leaf_unique_ptr create(art_key_type k,
-                                                           value_view v,
+                                                           value_view_type v,
                                                            db &db_instance);
 
   [[nodiscard]] static auto key(single_value_leaf_ptr_type leaf) noexcept {
@@ -180,7 +180,7 @@ struct single_value_leaf final {
   [[nodiscard]] static auto value(single_value_leaf_ptr_type leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
-    return value_view{&leaf[offset_value], value_size(leaf)};
+    return value_view_type{&leaf[offset_value], value_size(leaf)};
   }
 
   DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
@@ -231,7 +231,7 @@ void single_value_leaf_deleter::operator()(
 }
 
 single_value_leaf_unique_ptr single_value_leaf::create(art_key_type k,
-                                                       value_view v,
+                                                       value_view_type v,
                                                        db &db_instance) {
   if (v.size() > std::numeric_limits<value_size_type>::max()) {
     throw std::length_error("Value length must fit in uint32_t");
@@ -1450,7 +1450,8 @@ namespace unodb {
 
 class leaf_creator_with_scope_cleanup {
  public:
-  leaf_creator_with_scope_cleanup(unodb::art_key_type k, unodb::value_view v,
+  leaf_creator_with_scope_cleanup(unodb::art_key_type k,
+                                  unodb::value_view_type v,
                                   unodb::db &db_instance_)
       : leaf{unodb::single_value_leaf::create(k, v, db_instance_)},
         leaf_size{unodb::single_value_leaf::size(leaf.get())},
@@ -1494,13 +1495,13 @@ class leaf_creator_with_scope_cleanup {
 
 db::~db() noexcept { ::delete_subtree(root); }
 
-db::get_result db::get(key_type k) const noexcept {
+get_result_type db::get(key_type k) const noexcept {
   if (unlikely(root.header == nullptr)) return {};
   return get_from_subtree(root, art_key{k}, 0);
 }
 
-db::get_result db::get_from_subtree(node_ptr node, art_key_type k,
-                                    tree_depth_type depth) noexcept {
+get_result_type db::get_from_subtree(node_ptr node, art_key_type k,
+                                     tree_depth_type depth) noexcept {
   if (node.type() == node_type::LEAF) {
     if (single_value_leaf::matches(node.leaf, k)) {
       const auto value = single_value_leaf::value(node.leaf);
@@ -1518,7 +1519,7 @@ db::get_result db::get_from_subtree(node_ptr node, art_key_type k,
   return get_from_subtree(*child, k, depth + 1);
 }
 
-bool db::insert(key_type k, value_view v) {
+bool db::insert(key_type k, value_view_type v) {
   const auto bin_comparable_key = art_key{k};
   if (unlikely(root.header == nullptr)) {
     auto leaf = single_value_leaf::create(bin_comparable_key, v, *this);
@@ -1528,7 +1529,7 @@ bool db::insert(key_type k, value_view v) {
   return insert_to_subtree(bin_comparable_key, &root, v, 0);
 }
 
-bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view v,
+bool db::insert_to_subtree(art_key_type k, node_ptr *node, value_view_type v,
                            tree_depth_type depth) {
   if (node->type() == node_type::LEAF) {
     const auto existing_key = single_value_leaf::key(node->leaf);

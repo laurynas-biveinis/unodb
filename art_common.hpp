@@ -1,10 +1,11 @@
 // Copyright 2019 Laurynas Biveinis
-#ifndef UNODB_ART_KEY_VALUE_HPP_
-#define UNODB_ART_KEY_VALUE_HPP_
+#ifndef UNODB_ART_COMMON_HPP_
+#define UNODB_ART_COMMON_HPP_
 
 #include "global.hpp"
 
 #include <cstdint>
+#include <optional>
 
 #include <gsl/span>
 
@@ -16,8 +17,11 @@ using key_type = uint64_t;
 // Value type for public API. Values are passed as non-owning pointers to
 // memory with associated length (gsl::span). The memory is copied upon
 // insertion.
-using value_view = gsl::span<const std::byte>;
+using value_view_type = gsl::span<const std::byte>;
+
+// Search result type. If value is not present, it was not found
+using get_result_type = std::optional<value_view_type>;
 
 }  // namespace unodb
 
-#endif  // UNODB_ART_KEY_VALUE_HPP_
+#endif  // UNODB_ART_COMMON_HPP_

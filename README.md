@@ -22,16 +22,17 @@ key type and specializing `art_key::make_binary_comparable` in accordance with
 the ART paper.
 
 Values are treated opaquely. They are passed as non-owning objects of
-`value_view` type, which is `gsl::span<std::byte>`, and insertion copies them
-internally. The same applies for `get`: a non-owning `value_view` is returned.
-How long would it remain valid depends on the ART concurrency flavor.
+`value_view_type`, which is `gsl::span<std::byte>`, and insertion copies them
+internally. The same applies for `get`: a non-owning `value_view_type` object is
+returned. How long would it remain valid depends on the ART concurrency flavor.
 
 All ART classes implement the same API:
 
 * constructor, with optional memory limit parameter, exceeding which will throw
   `std::bad_alloc`.
-* `get(key_type k)`, returning `std::optional<value_view>`.
-* `bool insert(key_type k, value_view v)`, returning whether insert was
+* `get(key_type k)`, returning `get_result_type`, which is
+  `std::optional<value_view_type>`.
+* `bool insert(key_type k, value_view_type v)`, returning whether insert was
   successful (i.e. the key was not already present).
 * `bool remove(key_type k)`, returning whether delete was successful (i.e. the
   key was found in the tree).

@@ -26,13 +26,14 @@ constexpr auto test_value_5 =
     std::array<std::byte, 5>{std::byte{0x05}, std::byte{0xF4}, std::byte{0xFF},
                              std::byte{0x00}, std::byte{0x01}};
 
-constexpr std::array<unodb::value_view, 5> test_values = {
-    unodb::value_view{test_value_1}, unodb::value_view{test_value_2},
-    unodb::value_view{test_value_3}, unodb::value_view{test_value_4},
-    unodb::value_view{test_value_5}};
+constexpr std::array<unodb::value_view_type, 5> test_values = {
+    unodb::value_view_type{test_value_1}, unodb::value_view_type{test_value_2},
+    unodb::value_view_type{test_value_3}, unodb::value_view_type{test_value_4},
+    unodb::value_view_type{test_value_5}};
 
-void assert_result_eq(unodb::key_type key, unodb::db::get_result result,
-                      unodb::value_view expected, int caller_line) noexcept;
+void assert_result_eq(unodb::key_type key, unodb::get_result_type result,
+                      unodb::value_view_type expected,
+                      int caller_line) noexcept;
 
 #define ASSERT_VALUE_FOR_KEY(key, expected) \
   assert_result_eq(key, test_db.get(key), expected, __LINE__)
@@ -45,7 +46,7 @@ class tree_verifier final {
     assert_empty();
   }
 
-  void insert(unodb::key_type k, unodb::value_view v,
+  void insert(unodb::key_type k, unodb::value_view_type v,
               bool bypass_verifier = false) {
     const auto mem_use_before = test_db.get_current_memory_use();
     try {
@@ -72,7 +73,7 @@ class tree_verifier final {
     }
   }
 
-  void try_insert(unodb::key_type k, unodb::value_view v) {
+  void try_insert(unodb::key_type k, unodb::value_view_type v) {
     (void)test_db.insert(k, v);
   }
 
@@ -162,7 +163,7 @@ class tree_verifier final {
  private:
   Db test_db;
 
-  std::unordered_map<unodb::key_type, unodb::value_view> values;
+  std::unordered_map<unodb::key_type, unodb::value_view_type> values;
 
   const bool memory_size_tracked;
 };

@@ -21,7 +21,7 @@ using dynamic_value_type = std::vector<std::byte>;
 
 using values_type = std::vector<dynamic_value_type>;
 
-dynamic_value_type make_random_value(dynamic_value_type::size_type length) {
+auto make_random_value(dynamic_value_type::size_type length) {
   dynamic_value_type result{length};
   for (dynamic_value_type::size_type i = 0; i < length; i++) {
     // Ideally we would take random bytes from DeepState, but we'd end up
@@ -32,8 +32,7 @@ dynamic_value_type make_random_value(dynamic_value_type::size_type length) {
   return result;
 }
 
-unodb::value_view get_value(dynamic_value_type::size_type max_length,
-                            values_type &values) {
+auto get_value(dynamic_value_type::size_type max_length, values_type &values) {
   const auto make_new_value = values.empty() || DeepState_Bool();
   ASSERT(max_length <= std::numeric_limits<uint32_t>::max());
   if (make_new_value) {
@@ -43,14 +42,14 @@ unodb::value_view get_value(dynamic_value_type::size_type max_length,
     LOG(TRACE) << "Making a new value of length "
                << static_cast<uint64_t>(new_value_len);
     const auto &inserted_value = values.emplace_back(std::move(new_value));
-    return unodb::value_view{inserted_value};
+    return unodb::value_view_type{inserted_value};
   }
   LOG(TRACE) << "Reusing an existing value";
   ASSERT(values.size() <= std::numeric_limits<uint32_t>::max());
   const auto existing_value_i = static_cast<values_type::size_type>(
       DeepState_UIntInRange(0, static_cast<uint32_t>(values.size() - 1)));
   const auto &existing_value = values[existing_value_i];
-  return unodb::value_view{existing_value};
+  return unodb::value_view_type{existing_value};
 }
 
 unodb::key_type get_key(unodb::key_type max_key_value,
@@ -115,7 +114,7 @@ TEST(ART, DeepState_fuzz) {
 
   std::vector<unodb::key_type> keys;
   values_type values;
-  std::unordered_map<unodb::key_type, unodb::value_view> oracle;
+  std::unordered_map<unodb::key_type, unodb::value_view_type> oracle;
 
   for (auto i = 0; i < test_length; i++) {
     LOG(TRACE) << "Iteration " << i;

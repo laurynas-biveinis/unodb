@@ -31,7 +31,7 @@ TEST(ART, single_node_tree_nonempty_value) {
 
 TEST(ART, too_long_value) {
   std::byte fake_val{0x00};
-  unodb::value_view too_long{
+  unodb::value_view_type too_long{
       &fake_val,
       static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1U};
 
@@ -547,7 +547,7 @@ TEST(ART, memory_accounting_growing_node_exception) {
   verifier.insert_key_range(0, 4);
 
   std::array<std::byte, 900> large_value;
-  const unodb::value_view large_value_view{large_value};
+  const unodb::value_view_type large_value_view{large_value};
 
   // The leaf node will be created first and will take memory use almost to the
   // limit, then Node16 allocation will go over the limit

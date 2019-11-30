@@ -9,10 +9,9 @@
 #include <cstdint>  // IWYU pragma: keep
 #include <cstring>
 #include <memory>
-#include <optional>
 #include <vector>
 
-#include "art_key_value.hpp"
+#include "art_common.hpp"
 
 namespace unodb {
 
@@ -113,9 +112,6 @@ union node_ptr {
 
 class db final {
  public:
-  // If value is not present, it was not found
-  using get_result = std::optional<value_view>;
-
   using tree_depth_type = unsigned;
 
   explicit db(std::size_t memory_limit_ = 0) noexcept
@@ -123,9 +119,9 @@ class db final {
 
   ~db() noexcept;
 
-  [[nodiscard]] get_result get(key_type k) const noexcept;
+  [[nodiscard]] get_result_type get(key_type k) const noexcept;
 
-  [[nodiscard]] bool insert(key_type k, value_view v);
+  [[nodiscard]] bool insert(key_type k, value_view_type v);
 
   [[nodiscard]] bool remove(key_type k);
 
@@ -140,11 +136,12 @@ class db final {
   }
 
  private:
-  [[nodiscard]] static db::get_result get_from_subtree(
+  [[nodiscard]] static get_result_type get_from_subtree(
       node_ptr node, art_key_type k, tree_depth_type depth) noexcept;
 
   [[nodiscard]] bool insert_to_subtree(art_key_type k, node_ptr *node,
-                                       value_view v, tree_depth_type depth);
+                                       value_view_type v,
+                                       tree_depth_type depth);
 
   [[nodiscard]] bool remove_from_subtree(art_key_type k, tree_depth_type depth,
                                          node_ptr *node);

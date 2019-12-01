@@ -234,6 +234,7 @@ static_assert(std::is_standard_layout<unodb::single_value_leaf>::value,
 void single_value_leaf_deleter::operator()(
     single_value_leaf_ptr_type to_delete) const noexcept {
   const auto s = single_value_leaf::size(to_delete);
+  poison_block(to_delete, s);
   get_leaf_node_pool()->deallocate(to_delete, s);
 }
 

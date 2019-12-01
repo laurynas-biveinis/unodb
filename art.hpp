@@ -62,13 +62,6 @@ struct node_header;
 using single_value_leaf_type = std::byte;
 using single_value_leaf_ptr_type = single_value_leaf_type *;
 
-struct single_value_leaf_deleter {
-  void operator()(single_value_leaf_ptr_type to_delete) const noexcept;
-};
-
-using single_value_leaf_unique_ptr =
-    std::unique_ptr<single_value_leaf_type, single_value_leaf_deleter>;
-
 class internal_node;
 class internal_node_4;
 class internal_node_16;

@@ -74,9 +74,6 @@ static_assert(sizeof(unodb::single_value_leaf_ptr_type) ==
 static_assert(sizeof(unodb::node_ptr) == sizeof(void *),
               "node_ptr union must be of equal size to a raw pointer");
 
-static_assert(sizeof(unodb::single_value_leaf_unique_ptr) == sizeof(void *),
-              "Single leaf unique_ptr must have no overhead over raw pointer");
-
 namespace {
 
 void poison_block(void *to_delete, std::size_t size) {
@@ -152,6 +149,16 @@ struct node_header final {
 static_assert(std::is_standard_layout<unodb::node_header>::value);
 
 node_type node_ptr::type() const noexcept { return header->type(); }
+
+struct single_value_leaf_deleter {
+  void operator()(single_value_leaf_ptr_type to_delete) const noexcept;
+};
+
+using single_value_leaf_unique_ptr =
+    std::unique_ptr<single_value_leaf_type, single_value_leaf_deleter>;
+
+static_assert(sizeof(unodb::single_value_leaf_unique_ptr) == sizeof(void *),
+              "Single leaf unique_ptr must have no overhead over raw pointer");
 
 // Helper struct for leaf node-related data and (static) code. We
 // don't use a regular class because leaf nodes are of variable size, C++ does

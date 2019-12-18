@@ -57,7 +57,7 @@ struct art_key final {
 
 using art_key_type = art_key<key_type>;
 
-struct node_header;
+struct header;
 
 // This corresponds to the "single value leaf" type in the ART paper. Since we
 // have only one kind of leaf nodes, we call them simply "leaf" nodes. Should we
@@ -76,11 +76,11 @@ enum class node_type : uint8_t;
 
 // A pointer to some kind of node. It can be accessed either as a node header,
 // to query the right node type, a leaf, or as one of the internal nodes. This
-// depends on all types being of standard layout and node_header being at the
-// same location in node_header and all node types. This is checked by static
-// asserts in the implementation file.
+// depends on all types being of standard layout and header being at the same
+// location in header and all node types. This is checked by static asserts in
+// the implementation file.
 union node_ptr {
-  node_header *header;
+  header *header;
   leaf_ptr_type leaf;
   internal_node *internal;
   internal_node_4 *node_4;

@@ -59,8 +59,12 @@ using art_key_type = art_key<key_type>;
 
 struct node_header;
 
-using single_value_leaf_type = std::byte;
-using single_value_leaf_ptr_type = single_value_leaf_type *;
+// This corresponds to the "single value leaf" type in the ART paper. Since we
+// have only one kind of leaf nodes, we call them simply "leaf" nodes. Should we
+// ever implement other kinds, rename this and related types to
+// single_value_leaf.
+using leaf_type = std::byte;
+using leaf_ptr_type = leaf_type *;
 
 class internal_node;
 class internal_node_4;
@@ -77,7 +81,7 @@ enum class node_type : uint8_t;
 // asserts in the implementation file.
 union node_ptr {
   node_header *header;
-  single_value_leaf_ptr_type leaf;
+  leaf_ptr_type leaf;
   internal_node *internal;
   internal_node_4 *node_4;
   internal_node_16 *node_16;
@@ -86,7 +90,7 @@ union node_ptr {
 
   node_ptr() noexcept {}
   node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
-  node_ptr(single_value_leaf_ptr_type leaf_) noexcept : leaf{leaf_} {}
+  node_ptr(leaf_ptr_type leaf_) noexcept : leaf{leaf_} {}
   node_ptr(internal_node_4 *node_4_) noexcept : node_4{node_4_} {}
   node_ptr(internal_node_16 *node_16_) noexcept : node_16{node_16_} {}
   node_ptr(internal_node_48 *node_48_) noexcept : node_48{node_48_} {}
@@ -147,7 +151,7 @@ class db final {
   std::size_t current_memory_use{0};
   const std::size_t memory_limit;
 
-  friend struct single_value_leaf;
+  friend struct leaf;
   friend class leaf_creator_with_scope_cleanup;
 };
 

@@ -17,7 +17,7 @@ class batched_random_key_source {
  public:
   batched_random_key_source() : random_keys(random_batch_size) { refill(); }
 
-  unodb::key_type get(benchmark::State &state) {
+  auto get(benchmark::State &state) {
     if (random_key_ptr == random_keys.cend()) {
       state.PauseTiming();
       refill();

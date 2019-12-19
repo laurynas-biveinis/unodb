@@ -24,7 +24,7 @@ struct art_key final {
 
   explicit art_key(KeyType key_) noexcept : key{make_binary_comparable(key_)} {}
 
-  [[nodiscard]] static art_key create(const std::byte from[]) noexcept {
+  [[nodiscard]] static auto create(const std::byte from[]) noexcept {
     struct art_key result;
     memcpy(&result, from, sizeof(result));
     return result;
@@ -46,8 +46,8 @@ struct art_key final {
     return memcmp(&key, &key2.key, sizeof(*this));
   }
 
-  [[nodiscard]] __attribute__((pure)) std::byte operator[](
-      std::size_t index) const noexcept {
+  [[nodiscard]] __attribute__((pure)) auto operator[](std::size_t index) const
+      noexcept {
     assert(index < sizeof(*this));
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }

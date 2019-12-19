@@ -68,7 +68,7 @@ class tree_verifier final {
 
   void insert_key_range(unodb::key_type start_key, size_t count,
                         bool bypass_verifier = false) {
-    for (unodb::key_type key = start_key; key < start_key + count; ++key) {
+    for (auto key = start_key; key < start_key + count; ++key) {
       insert(key, test_values[key % test_values.size()], bypass_verifier);
     }
   }
@@ -79,7 +79,7 @@ class tree_verifier final {
 
   void preinsert_key_range_to_verifier_only(unodb::key_type start_key,
                                             std::size_t count) {
-    for (unodb::key_type key = start_key; key < start_key + count; ++key) {
+    for (auto key = start_key; key < start_key + count; ++key) {
       const auto insert_result =
           values.emplace(key, test_values[key % test_values.size()]);
       ASSERT_TRUE(insert_result.second);
@@ -88,7 +88,7 @@ class tree_verifier final {
 
   void insert_preinserted_key_range(unodb::key_type start_key,
                                     std::size_t count) {
-    for (unodb::key_type key = start_key; key < start_key + count; ++key) {
+    for (auto key = start_key; key < start_key + count; ++key) {
       ASSERT_TRUE(test_db.insert(key, test_values[key % test_values.size()]));
     }
   }

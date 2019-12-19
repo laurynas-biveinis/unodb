@@ -163,6 +163,29 @@ static_assert(sizeof(unodb::leaf_unique_ptr) == sizeof(void *),
 // not support flexible array members, and we want to save one level of
 // (heap) indirection.
 struct leaf final {
+ private:
+  using value_size_type = uint32_t;
+
+  static constexpr auto offset_header = 0;
+  static constexpr auto offset_key = sizeof(node_header);
+  static constexpr auto offset_value_size = offset_key + sizeof(art_key_type);
+
+  static constexpr auto offset_value =
+      offset_value_size + sizeof(value_size_type);
+
+  static constexpr auto minimum_size = offset_value;
+
+  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
+  [[nodiscard]] static auto value_size(leaf_ptr_type leaf) noexcept {
+    assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
+
+    value_size_type result;
+    memcpy(&result, &leaf[offset_value_size], sizeof(result));
+    return result;
+  }
+  RESTORE_GCC_WARNINGS()
+
+ public:
   [[nodiscard]] static leaf_unique_ptr create(art_key_type k, value_view_type v,
                                               db &db_instance);
 
@@ -179,6 +202,13 @@ struct leaf final {
 
     return k == leaf + offset_key;
   }
+
+  [[nodiscard]] static std::size_t size(leaf_ptr_type leaf) noexcept {
+    assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
+
+    return value_size(leaf) + offset_value;
+  }
+
   RESTORE_GCC_WARNINGS()
 
   [[nodiscard]] static auto value(leaf_ptr_type leaf) noexcept {
@@ -187,39 +217,9 @@ struct leaf final {
     return value_view_type{&leaf[offset_value], value_size(leaf)};
   }
 
-  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-  [[nodiscard]] static std::size_t size(leaf_ptr_type leaf) noexcept {
-    assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
-
-    return value_size(leaf) + offset_value;
-  }
-  RESTORE_GCC_WARNINGS()
-
 #ifndef NDEBUG
   static void dump(std::ostream &os, leaf_ptr_type leaf);
 #endif
-
- private:
-  using value_size_type = uint32_t;
-
-  static constexpr auto offset_header = 0;
-  static constexpr auto offset_key = sizeof(node_header);
-  static constexpr auto offset_value_size = offset_key + sizeof(art_key_type);
-
-  static constexpr auto offset_value =
-      offset_value_size + sizeof(value_size_type);
-
-  static constexpr auto minimum_size = offset_value;
-
-  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-  [[nodiscard]] static value_size_type value_size(leaf_ptr_type leaf) noexcept {
-    assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
-
-    value_size_type result;
-    memcpy(&result, &leaf[offset_value_size], sizeof(result));
-    return result;
-  }
-  RESTORE_GCC_WARNINGS()
 };
 
 static_assert(std::is_standard_layout<unodb::leaf>::value,
@@ -268,6 +268,13 @@ class key_prefix_type final {
 
  public:
   using data_type = std::array<std::byte, capacity>;
+
+ private:
+  size_type length_;
+  data_type data_;
+
+ public:
+  [[nodiscard]] auto length() const noexcept { return length_; }
 
   key_prefix_type(art_key_type k1, art_key_type k2,
                   db::tree_depth_type depth) noexcept {
@@ -322,11 +329,9 @@ class key_prefix_type final {
     length_ = gsl::narrow_cast<size_type>(length() + prefix1.length() + 1);
   }
 
-  [[nodiscard]] size_type length() const noexcept { return length_; }
-
   [[nodiscard]] const auto &data() const noexcept { return data_; }
 
-  [[nodiscard]] std::byte operator[](std::size_t i) const noexcept {
+  [[nodiscard]] auto operator[](std::size_t i) const noexcept {
     assert(i < length());
 
     return data_[i];
@@ -336,7 +341,7 @@ class key_prefix_type final {
   [[nodiscard]] auto get_shared_length(unodb::art_key_type k,
                                        unodb::db::tree_depth_type depth) const
       noexcept {
-    unodb::db::tree_depth_type key_i = depth;
+    auto key_i = depth;
     unsigned shared_length = 0;
     while (shared_length < length()) {
       if (k[key_i] != data_[(gsl::narrow_cast<size_type>(shared_length))])
@@ -351,10 +356,6 @@ class key_prefix_type final {
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
 #endif
-
- private:
-  size_type length_;
-  data_type data_;
 };
 
 static_assert(std::is_standard_layout<key_prefix_type>::value);
@@ -592,21 +593,21 @@ class internal_node_template : public internal_node {
                 "Node capacity must be larger than minimum size");
 
  public:
-  [[nodiscard]] static std::unique_ptr<Derived> create(
-      std::unique_ptr<LargerDerived> &&source_node, uint8_t child_to_remove) {
+  [[nodiscard]] static auto create(std::unique_ptr<LargerDerived> &&source_node,
+                                   uint8_t child_to_remove) {
     return std::make_unique<Derived>(std::move(source_node), child_to_remove);
   }
 
-  [[nodiscard]] static std::unique_ptr<Derived> create(
-      const SmallerDerived &source_node, leaf_unique_ptr &&child,
-      db::tree_depth_type depth) {
+  [[nodiscard]] static auto create(const SmallerDerived &source_node,
+                                   leaf_unique_ptr &&child,
+                                   db::tree_depth_type depth) {
     return std::make_unique<Derived>(source_node, std::move(child), depth);
   }
 
   [[nodiscard]] static void *operator new(std::size_t size) {
     assert(size == sizeof(Derived));
 
-    void *result = get_internal_node_pool<Derived>()->allocate(size);
+    auto *const result = get_internal_node_pool<Derived>()->allocate(size);
     VALGRIND_MALLOCLIKE_BLOCK(result, size, 0, 0);
     ASAN_UNPOISON_MEMORY_REGION(result, size);
     return result;
@@ -618,13 +619,13 @@ class internal_node_template : public internal_node {
   }
 
   DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-  [[nodiscard]] bool is_full() const noexcept {
+  [[nodiscard]] auto is_full() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
 
     return children_count == capacity;
   }
 
-  [[nodiscard]] bool is_min_size() const noexcept {
+  [[nodiscard]] auto is_min_size() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
 
     return children_count == min_size;
@@ -675,9 +676,9 @@ class internal_node_4 final : public internal_node_4_template {
   using internal_node_4_template::create;
 
   // Create a new node with two given child nodes
-  [[nodiscard]] static std::unique_ptr<internal_node_4> create(
-      art_key_type k1, art_key_type k2, db::tree_depth_type depth,
-      node_ptr child1, leaf_unique_ptr &&child2) {
+  [[nodiscard]] static auto create(art_key_type k1, art_key_type k2,
+                                   db::tree_depth_type depth, node_ptr child1,
+                                   leaf_unique_ptr &&child2) {
     return std::make_unique<internal_node_4>(k1, k2, depth, child1,
                                              std::move(child2));
   }
@@ -685,9 +686,9 @@ class internal_node_4 final : public internal_node_4_template {
   // Create a new node, split the key prefix of an existing node, and make the
   // new node contain that existing node and a given new node which caused this
   // key prefix split.
-  [[nodiscard]] static std::unique_ptr<internal_node_4> create(
-      node_ptr source_node, unsigned len, db::tree_depth_type depth,
-      leaf_unique_ptr &&child1) {
+  [[nodiscard]] static auto create(node_ptr source_node, unsigned len,
+                                   db::tree_depth_type depth,
+                                   leaf_unique_ptr &&child1) {
     return std::make_unique<internal_node_4>(source_node, len, depth,
                                              std::move(child1));
   }
@@ -716,7 +717,7 @@ class internal_node_4 final : public internal_node_4_template {
                                            child_index);
   }
 
-  node_ptr leave_last_child(uint8_t child_to_delete) noexcept {
+  auto leave_last_child(uint8_t child_to_delete) noexcept {
     assert(is_min_size());
     assert(child_to_delete == 0 || child_to_delete == 1);
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
@@ -1210,7 +1211,7 @@ internal_node_256::internal_node_256(const internal_node_48 &node,
                       : node.children[children_i];
   }
 
-  const uint8_t key_byte = static_cast<uint8_t>(leaf::key(child.get())[depth]);
+  const auto key_byte = static_cast<uint8_t>(leaf::key(child.get())[depth]);
   assert(children[key_byte] == nullptr);
   children[key_byte] = child.release();
 }
@@ -1462,7 +1463,7 @@ class leaf_creator_with_scope_cleanup {
     db_instance.decrease_memory_use(leaf_size);
   }
 
-  unodb::leaf_unique_ptr &&get() noexcept {
+  auto &&get() noexcept {
 #ifndef NDEBUG
     assert(!get_called);
     get_called = true;
@@ -1634,23 +1635,20 @@ bool db::remove_from_subtree(art_key_type k, tree_depth_type depth,
     decrease_memory_use(child_node_size + sizeof(internal_node_4));
   } else if (node->type() == node_type::I16) {
     std::unique_ptr<internal_node_16> current_node{node->node_16};
-    std::unique_ptr<internal_node_4> new_node{
-        internal_node_4::create(std::move(current_node), child_i)};
+    auto new_node{internal_node_4::create(std::move(current_node), child_i)};
     *node = new_node.release();
     decrease_memory_use(sizeof(internal_node_16) - sizeof(internal_node_4) +
                         child_node_size);
   } else if (node->type() == node_type::I48) {
     std::unique_ptr<internal_node_48> current_node{node->node_48};
-    std::unique_ptr<internal_node_16> new_node{
-        internal_node_16::create(std::move(current_node), child_i)};
+    auto new_node{internal_node_16::create(std::move(current_node), child_i)};
     *node = new_node.release();
     decrease_memory_use(sizeof(internal_node_48) - sizeof(internal_node_16) +
                         child_node_size);
   } else {
     assert(node->type() == node_type::I256);
     std::unique_ptr<internal_node_256> current_node{node->node_256};
-    std::unique_ptr<internal_node_48> new_node{
-        internal_node_48::create(std::move(current_node), child_i)};
+    auto new_node{internal_node_48::create(std::move(current_node), child_i)};
     *node = new_node.release();
     decrease_memory_use(sizeof(internal_node_256) - sizeof(internal_node_48) +
                         child_node_size);

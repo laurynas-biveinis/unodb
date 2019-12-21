@@ -372,13 +372,13 @@ void key_prefix_type::dump(std::ostream &os) const {
 #endif
 
 union delete_node_ptr_at_scope_exit {
-  node_header *header;
-  leaf_unique_ptr leaf;
-  std::unique_ptr<internal_node> internal;
-  std::unique_ptr<internal_node_4> node_4;
-  std::unique_ptr<internal_node_16> node_16;
-  std::unique_ptr<internal_node_48> node_48;
-  std::unique_ptr<internal_node_256> node_256;
+  const node_header *header;
+  const leaf_unique_ptr leaf;
+  const std::unique_ptr<internal_node> internal;
+  const std::unique_ptr<internal_node_4> node_4;
+  const std::unique_ptr<internal_node_16> node_16;
+  const std::unique_ptr<internal_node_48> node_48;
+  const std::unique_ptr<internal_node_256> node_256;
 
   explicit delete_node_ptr_at_scope_exit(node_ptr node_ptr_) noexcept
       : header(node_ptr_.header) {}
@@ -410,10 +410,8 @@ union delete_node_ptr_at_scope_exit {
 
   delete_node_ptr_at_scope_exit(const delete_node_ptr_at_scope_exit &) = delete;
   delete_node_ptr_at_scope_exit(delete_node_ptr_at_scope_exit &&) = delete;
-  delete_node_ptr_at_scope_exit &operator=(
-      const delete_node_ptr_at_scope_exit &) = delete;
-  delete_node_ptr_at_scope_exit &operator=(delete_node_ptr_at_scope_exit &&) =
-      delete;
+  auto &operator=(const delete_node_ptr_at_scope_exit &) = delete;
+  auto &operator=(delete_node_ptr_at_scope_exit &&) = delete;
 };
 
 static_assert(sizeof(delete_node_ptr_at_scope_exit) == sizeof(void *),

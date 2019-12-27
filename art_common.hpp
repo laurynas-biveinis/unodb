@@ -12,7 +12,7 @@
 namespace unodb {
 
 // Key type for public API
-using key = uint64_t;
+using key = std::uint64_t;
 
 // Value type for public API. Values are passed as non-owning pointers to
 // memory with associated length (gsl::span). The memory is copied upon

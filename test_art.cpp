@@ -33,7 +33,8 @@ TEST(ART, too_long_value) {
   std::byte fake_val{0x00};
   unodb::value_view too_long{
       &fake_val,
-      static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1U};
+      static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max()) +
+          1U};
 
   tree_verifier<unodb::db> verifier;
 

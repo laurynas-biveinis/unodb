@@ -16,10 +16,10 @@ C++ tools and ideas.
 All the declarations live in the `unodb` namespace, which is omitted in the
 following.
 
-The only currently supported key type is `uint64_t`, aliased as `key`. However,
-adding new key types should be relatively easy by instantiating `art_key` type
-with the desired key type and specializing `art_key::make_binary_comparable` in
-accordance with the ART paper.
+The only currently supported key type is `std::uint64_t`, aliased as `key`.
+However, adding new key types should be relatively easy by instantiating
+`art_key` type with the desired key type and specializing
+`art_key::make_binary_comparable` in accordance with the ART paper.
 
 Values are treated opaquely. They are passed as non-owning objects of
 `value_view`, which is `gsl::span<std::byte>`, and insertion copies them

@@ -34,20 +34,20 @@ auto make_random_value(dynamic_value::size_type length) {
 
 auto get_value(dynamic_value::size_type max_length, values_type &values) {
   const auto make_new_value = values.empty() || DeepState_Bool();
-  ASSERT(max_length <= std::numeric_limits<uint32_t>::max());
+  ASSERT(max_length <= std::numeric_limits<std::uint32_t>::max());
   if (make_new_value) {
     const auto new_value_len = static_cast<dynamic_value::size_type>(
-        DeepState_UIntInRange(0, static_cast<uint32_t>(max_length)));
+        DeepState_UIntInRange(0, static_cast<std::uint32_t>(max_length)));
     auto new_value = make_random_value(new_value_len);
     LOG(TRACE) << "Making a new value of length "
-               << static_cast<uint64_t>(new_value_len);
+               << static_cast<std::uint64_t>(new_value_len);
     const auto &inserted_value = values.emplace_back(std::move(new_value));
     return unodb::value_view{inserted_value};
   }
   LOG(TRACE) << "Reusing an existing value";
-  ASSERT(values.size() <= std::numeric_limits<uint32_t>::max());
+  ASSERT(values.size() <= std::numeric_limits<std::uint32_t>::max());
   const auto existing_value_i = static_cast<values_type::size_type>(
-      DeepState_UIntInRange(0, static_cast<uint32_t>(values.size() - 1)));
+      DeepState_UIntInRange(0, static_cast<std::uint32_t>(values.size() - 1)));
   const auto &existing_value = values[existing_value_i];
   return unodb::value_view{existing_value};
 }
@@ -57,9 +57,9 @@ unodb::key get_key(unodb::key max_key_value,
   const auto use_existing_key = !keys.empty() && DeepState_Bool();
   if (use_existing_key) {
     ASSERT(!keys.empty());
-    ASSERT(keys.size() <= std::numeric_limits<uint32_t>::max());
+    ASSERT(keys.size() <= std::numeric_limits<std::uint32_t>::max());
     const auto existing_key_i = static_cast<std::size_t>(
-        DeepState_UIntInRange(0, static_cast<uint32_t>(keys.size()) - 1));
+        DeepState_UIntInRange(0, static_cast<std::uint32_t>(keys.size()) - 1));
     return keys[existing_key_i];
   }
   return DeepState_UInt64InRange(0, max_key_value);
@@ -86,7 +86,7 @@ DISABLE_CLANG_WARNING("-Wmissing-noreturn")
 TEST(ART, DeepState_fuzz) {
   const auto mem_limit =
       static_cast<std::size_t>(DeepState_IntInRange(0, maximum_art_mem));
-  LOG(TRACE) << "ART memory limit is " << static_cast<uint64_t>(mem_limit);
+  LOG(TRACE) << "ART memory limit is " << static_cast<std::uint64_t>(mem_limit);
 
   const auto limit_max_key = DeepState_Bool();
   const auto max_key_value =
@@ -95,11 +95,11 @@ TEST(ART, DeepState_fuzz) {
           : std::numeric_limits<unodb::key>::max();
   if (limit_max_key)
     LOG(TRACE) << "Limiting maximum key value to "
-               << static_cast<uint64_t>(max_key_value);
+               << static_cast<std::uint64_t>(max_key_value);
   else
     LOG(TRACE) << "Not limiting maximum key value (" << max_key_value << ")";
 
-  static_assert(maximum_value_len <= std::numeric_limits<uint32_t>::max());
+  static_assert(maximum_value_len <= std::numeric_limits<std::uint32_t>::max());
   const auto limit_value_length = DeepState_Bool();
   const auto max_value_length =
       limit_value_length ? DeepState_UIntInRange(0, maximum_value_len)

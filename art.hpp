@@ -27,24 +27,24 @@ struct basic_art_key final {
 
   [[nodiscard]] static auto create(const std::byte from[]) noexcept {
     struct basic_art_key result;
-    memcpy(&result, from, sizeof(result));
+    std::memcpy(&result, from, sizeof(result));
     return result;
   }
 
   void copy_to(std::byte to[]) const noexcept {
-    memcpy(to, &key, sizeof(*this));
+    std::memcpy(to, &key, sizeof(*this));
   }
 
   [[nodiscard]] bool operator==(const std::byte key2[]) const noexcept {
-    return !memcmp(&key, key2, sizeof(*this));
+    return !std::memcmp(&key, key2, sizeof(*this));
   }
 
   [[nodiscard]] bool operator==(basic_art_key<KeyType> key2) const noexcept {
-    return !memcmp(&key, &key2.key, sizeof(*this));
+    return !std::memcmp(&key, &key2.key, sizeof(*this));
   }
 
   [[nodiscard]] bool operator!=(basic_art_key<KeyType> key2) const noexcept {
-    return memcmp(&key, &key2.key, sizeof(*this));
+    return std::memcmp(&key, &key2.key, sizeof(*this));
   }
 
   [[nodiscard]] __attribute__((pure)) auto operator[](std::size_t index) const
@@ -73,7 +73,7 @@ class internal_node_16;
 class internal_node_48;
 class internal_node_256;
 
-enum class node_type : uint8_t;
+enum class node_type : std::uint8_t;
 
 // A pointer to some kind of node. It can be accessed either as a node header,
 // to query the right node type, a leaf, or as one of the internal nodes. This

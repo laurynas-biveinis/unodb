@@ -638,13 +638,13 @@ class basic_internal_node : public internal_node {
   }
 
   explicit basic_internal_node(const SmallerDerived &source_node) noexcept
-      : internal_node{NodeType, MinSize, source_node.key_prefix} {
+      : internal_node{NodeType, MinSize, source_node.node_key_prefix} {
     assert(source_node.is_full());
     assert(is_min_size());
   }
 
   explicit basic_internal_node(const LargerDerived &source_node) noexcept
-      : internal_node{NodeType, Capacity, source_node.key_prefix} {
+      : internal_node{NodeType, Capacity, source_node.node_key_prefix} {
     assert(source_node.is_min_size());
     assert(is_full());
   }
@@ -719,8 +719,8 @@ class internal_node_4 final : public basic_internal_node_4 {
     const auto child_to_leave_ptr = children[child_to_leave];
     delete_node_ptr_at_scope_exit child_to_delete_deleter{child_to_delete_ptr};
     if (child_to_leave_ptr.type() != node_type::LEAF) {
-      child_to_leave_ptr.internal->key_prefix.prepend(key_prefix,
-                                                      keys[child_to_leave]);
+      child_to_leave_ptr.internal->node_key_prefix.prepend(
+          node_key_prefix, keys[child_to_leave]);
     }
     return child_to_leave_ptr;
   }
@@ -747,7 +747,7 @@ internal_node_4::internal_node_4(art_key k1, art_key k2,
                                  db::tree_depth_type depth, node_ptr child1,
                                  leaf_unique_ptr &&child2) noexcept
     : basic_internal_node_4{k1, k2, depth} {
-  const auto next_level_depth = depth + key_prefix.length();
+  const auto next_level_depth = depth + node_key_prefix.length();
   add_two_to_empty(k1[next_level_depth], child1, k2[next_level_depth],
                    std::move(child2));
 }
@@ -756,14 +756,14 @@ internal_node_4::internal_node_4(node_ptr source_node, unsigned len,
                                  db::tree_depth_type depth,
                                  leaf_unique_ptr &&child1) noexcept
     : basic_internal_node_4{gsl::narrow_cast<key_prefix::size_type>(len),
-                            source_node.internal->key_prefix.data()} {
+                            source_node.internal->node_key_prefix.data()} {
   assert(source_node.type() != node_type::LEAF);
-  assert(len < source_node.internal->key_prefix.length());
+  assert(len < source_node.internal->node_key_prefix.length());
 
   const auto source_node_key_byte =
       source_node.internal
-          ->key_prefix[gsl::narrow_cast<key_prefix::size_type>(len)];
-  source_node.internal->key_prefix.cut(len + 1);
+          ->node_key_prefix[gsl::narrow_cast<key_prefix::size_type>(len)];
+  source_node.internal->node_key_prefix.cut(len + 1);
   const auto new_key_byte = leaf::key(child1.get())[depth + len];
   add_two_to_empty(source_node_key_byte, source_node, new_key_byte,
                    std::move(child1));
@@ -1389,7 +1389,7 @@ void internal_node::dump(std::ostream &os) const {
   }
   os << "# children = "
      << (children_count == 0 ? 256 : static_cast<unsigned>(children_count));
-  key_prefix.dump(os);
+  node_key_prefix.dump(os);
   switch (header.type()) {
     case node_type::I4:
       static_cast<const internal_node_4 *>(this)->dump(os);
@@ -1489,10 +1489,10 @@ get_result db::get_from_subtree(node_ptr node, art_key k,
     return {};
   }
   assert(node.type() != node_type::LEAF);
-  if (node.internal->key_prefix.get_shared_length(k, depth) <
-      node.internal->key_prefix.length())
+  if (node.internal->node_key_prefix.get_shared_length(k, depth) <
+      node.internal->node_key_prefix.length())
     return {};
-  depth += node.internal->key_prefix.length();
+  depth += node.internal->node_key_prefix.length();
   const auto child = node.internal->find_child(k[depth]).second;
   if (child == nullptr) return {};
   return get_from_subtree(*child, k, depth + 1);
@@ -1525,8 +1525,8 @@ bool db::insert_to_subtree(art_key k, node_ptr *node, value_view v,
   assert(node->type() != node_type::LEAF);
 
   const auto shared_prefix_len =
-      node->internal->key_prefix.get_shared_length(k, depth);
-  if (shared_prefix_len < node->internal->key_prefix.length()) {
+      node->internal->node_key_prefix.get_shared_length(k, depth);
+  if (shared_prefix_len < node->internal->node_key_prefix.length()) {
     leaf_creator_with_scope_cleanup leaf_creator{k, v, *this};
     auto leaf = leaf_creator.get();
     increase_memory_use(sizeof(internal_node_4));
@@ -1535,7 +1535,7 @@ bool db::insert_to_subtree(art_key k, node_ptr *node, value_view v,
     *node = new_node.release();
     return true;
   }
-  depth += node->internal->key_prefix.length();
+  depth += node->internal->node_key_prefix.length();
 
   const auto child = node->internal->find_child(k[depth]).second;
 
@@ -1593,10 +1593,11 @@ bool db::remove_from_subtree(art_key k, tree_depth_type depth, node_ptr *node) {
   assert(node->type() != node_type::LEAF);
 
   const auto shared_prefix_len =
-      node->internal->key_prefix.get_shared_length(k, depth);
-  if (shared_prefix_len < node->internal->key_prefix.length()) return false;
+      node->internal->node_key_prefix.get_shared_length(k, depth);
+  if (shared_prefix_len < node->internal->node_key_prefix.length())
+    return false;
 
-  depth += node->internal->key_prefix.length();
+  depth += node->internal->node_key_prefix.length();
 
   const auto [child_i, child_ptr] = node->internal->find_child(k[depth]);
 

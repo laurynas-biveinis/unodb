@@ -125,9 +125,9 @@ namespace unodb {
 
 template <>
 __attribute__((const)) uint64_t basic_art_key<uint64_t>::make_binary_comparable(
-    uint64_t key) noexcept {
+    uint64_t k) noexcept {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-  return __builtin_bswap64(key);
+  return __builtin_bswap64(k);
 #else
 #error Needs implementing
 #endif
@@ -448,7 +448,7 @@ class internal_node {
   internal_node(node_type type, uint8_t children_count_, art_key k1, art_key k2,
                 db::tree_depth_type depth) noexcept
       : header{type},
-        key_prefix{k1, k2, depth},
+        node_key_prefix{k1, k2, depth},
         children_count{children_count_} {
     assert(type != node_type::LEAF);
     assert(k1 != k2);
@@ -458,14 +458,16 @@ class internal_node {
                 key_prefix::size_type key_prefix_len_,
                 const key_prefix::data_type &key_prefix_) noexcept
       : header{type},
-        key_prefix{key_prefix_, key_prefix_len_},
+        node_key_prefix{key_prefix_, key_prefix_len_},
         children_count{children_count_} {
     assert(type != node_type::LEAF);
   }
 
   internal_node(node_type type, uint8_t children_count_,
                 const key_prefix &key_prefix_) noexcept
-      : header{type}, key_prefix{key_prefix_}, children_count{children_count_} {
+      : header{type},
+        node_key_prefix{key_prefix_},
+        children_count{children_count_} {
     assert(type != node_type::LEAF);
   }
 
@@ -536,7 +538,7 @@ class internal_node {
   }
 
   const node_header header;
-  key_prefix key_prefix;
+  key_prefix node_key_prefix;
 
   uint8_t children_count;
 

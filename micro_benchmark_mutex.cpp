@@ -17,8 +17,8 @@ constexpr auto parallel_get_tree_size = 10000000;
 void parallel_get(benchmark::State &state) {
   if (state.thread_index == 0) {
     test_db = std::make_unique<unodb::mutex_db>();
-    for (unodb::key_type i = 0;
-         i < static_cast<unodb::key_type>(parallel_get_tree_size); ++i) {
+    for (unodb::key i = 0; i < static_cast<unodb::key>(parallel_get_tree_size);
+         ++i) {
       (void)test_db->insert(i, values[i % values.size()]);
     }
   }
@@ -26,8 +26,8 @@ void parallel_get(benchmark::State &state) {
   const auto length = parallel_get_tree_size / state.threads;
   const auto start = state.thread_index * length;
   for (auto _ : state) {
-    for (unodb::key_type i = static_cast<unodb::key_type>(start);
-         i < static_cast<unodb::key_type>(start + length); ++i) {
+    for (unodb::key i = static_cast<unodb::key>(start);
+         i < static_cast<unodb::key>(start + length); ++i) {
       benchmark::DoNotOptimize(test_db->get(i));
     }
   }
@@ -47,8 +47,8 @@ void parallel_insert_disjoint_ranges(benchmark::State &state) {
   const auto length = parallel_insert_tree_size / state.threads;
   const auto start = state.thread_index * length;
   for (auto _ : state) {
-    for (unodb::key_type i = static_cast<unodb::key_type>(start);
-         i < static_cast<unodb::key_type>(start + length); ++i) {
+    for (unodb::key i = static_cast<unodb::key>(start);
+         i < static_cast<unodb::key>(start + length); ++i) {
       benchmark::DoNotOptimize(test_db->insert(i, values[i % values.size()]));
     }
   }
@@ -63,8 +63,8 @@ constexpr auto parallel_delete_tree_size = 10000000;
 void parallel_delete_disjoint_ranges(benchmark::State &state) {
   if (state.thread_index == 0) {
     test_db = std::make_unique<unodb::mutex_db>();
-    for (unodb::key_type i = 0;
-         i < static_cast<unodb::key_type>(parallel_get_tree_size); ++i) {
+    for (unodb::key i = 0; i < static_cast<unodb::key>(parallel_get_tree_size);
+         ++i) {
       (void)test_db->insert(i, values[i % values.size()]);
     }
   }
@@ -72,8 +72,8 @@ void parallel_delete_disjoint_ranges(benchmark::State &state) {
   const auto length = parallel_delete_tree_size / state.threads;
   const auto start = state.thread_index * length;
   for (auto _ : state) {
-    for (unodb::key_type i = static_cast<unodb::key_type>(start);
-         i < static_cast<unodb::key_type>(start + length); ++i) {
+    for (unodb::key i = static_cast<unodb::key>(start);
+         i < static_cast<unodb::key>(start + length); ++i) {
       benchmark::DoNotOptimize(test_db->remove(i));
     }
   }

@@ -35,22 +35,20 @@ class batched_random_key_source {
 
   static constexpr auto random_batch_size = 10000;
 
-  std::vector<unodb::key_type> random_keys;
-  std::vector<unodb::key_type>::const_iterator random_key_ptr;
+  std::vector<unodb::key> random_keys;
+  std::vector<unodb::key>::const_iterator random_key_ptr;
 
   std::random_device rd;
   std::default_random_engine gen{rd()};
-  std::uniform_int_distribution<unodb::key_type> random_key_dist{
-      0ULL, std::numeric_limits<unodb::key_type>::max()};
+  std::uniform_int_distribution<unodb::key> random_key_dist{
+      0ULL, std::numeric_limits<unodb::key>::max()};
 };
 
 void dense_insert_no_mem_check(benchmark::State &state) {
   unodb::db test_db;
   for (auto _ : state)
-    for (unodb::key_type i = 0;
-         i < static_cast<unodb::key_type>(state.range(0)); ++i)
-      benchmark::DoNotOptimize(
-          test_db.insert(i, unodb::value_view_type{value100}));
+    for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
+      benchmark::DoNotOptimize(test_db.insert(i, unodb::value_view{value100}));
   state.SetItemsProcessed(state.range(0));
   // TODO(laurynas): add node size / enlarge / shrink stats
 }
@@ -58,10 +56,8 @@ void dense_insert_no_mem_check(benchmark::State &state) {
 void dense_insert_mem_check(benchmark::State &state) {
   unodb::db test_db{1000ULL * 1000 * 1000 * 1000};
   for (auto _ : state)
-    for (unodb::key_type i = 0;
-         i < static_cast<unodb::key_type>(state.range(0)); ++i)
-      benchmark::DoNotOptimize(
-          test_db.insert(i, unodb::value_view_type{value100}));
+    for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
+      benchmark::DoNotOptimize(test_db.insert(i, unodb::value_view{value100}));
   state.SetItemsProcessed(state.range(0));
   // state.SetLabel might be a better logical fit but the automatic k/M/G
   // suffix is too nice
@@ -78,7 +74,7 @@ void sparse_insert_no_mem_check_dups_allowed(benchmark::State &state) {
     for (auto i = 0; i < state.range(0); ++i) {
       const auto random_key = random_keys.get(state);
       benchmark::DoNotOptimize(
-          test_db.insert(random_key, unodb::value_view_type{value100}));
+          test_db.insert(random_key, unodb::value_view{value100}));
     }
   state.SetItemsProcessed(state.range(0));
 }
@@ -90,7 +86,7 @@ void sparse_insert_mem_check_dups_allowed(benchmark::State &state) {
     for (auto i = 0; i < state.range(0); ++i) {
       const auto random_key = random_keys.get(state);
       benchmark::DoNotOptimize(
-          test_db.insert(random_key, unodb::value_view_type{value100}));
+          test_db.insert(random_key, unodb::value_view{value100}));
     }
   state.SetItemsProcessed(state.range(0));
   state.counters["Size(k=1000)"] =
@@ -101,13 +97,11 @@ constexpr auto full_scan_multiplier = 50;
 
 void dense_full_scan(benchmark::State &state) {
   unodb::db test_db;
-  for (unodb::key_type i = 0; i < static_cast<unodb::key_type>(state.range(0));
-       i++)
-    (void)test_db.insert(i, unodb::value_view_type{value100});
+  for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); i++)
+    (void)test_db.insert(i, unodb::value_view{value100});
   for (auto _ : state)
     for (auto i = 0; i < full_scan_multiplier; i++)
-      for (unodb::key_type j = 0;
-           j < static_cast<unodb::key_type>(state.range(0)); j++) {
+      for (unodb::key j = 0; j < static_cast<unodb::key>(state.range(0)); j++) {
         benchmark::DoNotOptimize(test_db.get(j));
       }
   state.SetItemsProcessed(state.range(0) * full_scan_multiplier);
@@ -123,9 +117,8 @@ void dense_tree_sparse_deletes_args(benchmark::internal::Benchmark *b) {
 
 void dense_tree_sparse_deletes(benchmark::State &state) {
   unodb::db test_db;
-  for (unodb::key_type i = 0; i < static_cast<unodb::key_type>(state.range(0));
-       i++)
-    (void)test_db.insert(i, unodb::value_view_type{value100});
+  for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); i++)
+    (void)test_db.insert(i, unodb::value_view{value100});
   batched_random_key_source random_keys;
   for (auto _ : state) {
     for (auto j = 0; j < state.range(1); ++j) {
@@ -140,17 +133,16 @@ constexpr auto dense_tree_increasing_keys_delete_insert_pairs = 1000000;
 
 void dense_tree_increasing_keys(benchmark::State &state) {
   unodb::db test_db;
-  unodb::key_type key_to_insert;
+  unodb::key key_to_insert;
   for (key_to_insert = 0;
-       key_to_insert < static_cast<unodb::key_type>(state.range(0));
-       key_to_insert++)
-    (void)test_db.insert(key_to_insert, unodb::value_view_type{value100});
-  unodb::key_type key_to_delete = 0;
+       key_to_insert < static_cast<unodb::key>(state.range(0)); key_to_insert++)
+    (void)test_db.insert(key_to_insert, unodb::value_view{value100});
+  unodb::key key_to_delete = 0;
   for (auto _ : state) {
     for (auto i = 0; i < dense_tree_increasing_keys_delete_insert_pairs; ++i) {
       benchmark::DoNotOptimize(test_db.remove(key_to_delete++));
       benchmark::DoNotOptimize(
-          test_db.insert(key_to_insert++, unodb::value_view_type{value100}));
+          test_db.insert(key_to_insert++, unodb::value_view{value100}));
     }
   }
   state.SetItemsProcessed(dense_tree_increasing_keys_delete_insert_pairs * 2);
@@ -165,8 +157,7 @@ void dense_insert_value_lengths_args(benchmark::internal::Benchmark *b) {
 void dense_insert_value_lengths(benchmark::State &state) {
   unodb::db test_db{1000ULL * 1000 * 1000 * 1000};
   for (auto _ : state)
-    for (unodb::key_type i = 0;
-         i < static_cast<unodb::key_type>(state.range(0)); ++i)
+    for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
       benchmark::DoNotOptimize(test_db.insert(
           i, values[static_cast<decltype(values)::size_type>(state.range(1))]));
   state.SetItemsProcessed(state.range(0));
@@ -176,14 +167,11 @@ void dense_insert_value_lengths(benchmark::State &state) {
 
 void dense_insert_dup_attempts(benchmark::State &state) {
   unodb::db test_db;
-  for (unodb::key_type i = 0; i < static_cast<unodb::key_type>(state.range(0));
-       i++)
-    (void)test_db.insert(i, unodb::value_view_type{value100});
+  for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); i++)
+    (void)test_db.insert(i, unodb::value_view{value100});
   for (auto _ : state)
-    for (unodb::key_type i = 0;
-         i < static_cast<unodb::key_type>(state.range(0)); ++i)
-      benchmark::DoNotOptimize(
-          test_db.insert(i, unodb::value_view_type{value100}));
+    for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
+      benchmark::DoNotOptimize(test_db.insert(i, unodb::value_view{value100}));
   state.SetItemsProcessed(state.range(0));
 }
 

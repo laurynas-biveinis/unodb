@@ -14,9 +14,8 @@
 // [-Wused-but-marked-unused]
 DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
 
-void assert_result_eq(unodb::key_type key, unodb::get_result_type result,
-                      unodb::value_view_type expected,
-                      int caller_line) noexcept {
+void assert_result_eq(unodb::key key, unodb::get_result result,
+                      unodb::value_view expected, int caller_line) noexcept {
   std::ostringstream msg;
   msg << "key = " << static_cast<unsigned>(key);
   testing::ScopedTrace trace(__FILE__, caller_line, msg.str());

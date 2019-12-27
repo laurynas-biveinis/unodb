@@ -17,13 +17,13 @@ constexpr auto maximum_value_len = 1024 * 1024;      // 1MB
 // DeepState API.
 constexpr auto test_length = 480;
 
-using dynamic_value_type = std::vector<std::byte>;
+using dynamic_value = std::vector<std::byte>;
 
-using values_type = std::vector<dynamic_value_type>;
+using values_type = std::vector<dynamic_value>;
 
-auto make_random_value(dynamic_value_type::size_type length) {
-  dynamic_value_type result{length};
-  for (dynamic_value_type::size_type i = 0; i < length; i++) {
+auto make_random_value(dynamic_value::size_type length) {
+  dynamic_value result{length};
+  for (dynamic_value::size_type i = 0; i < length; i++) {
     // Ideally we would take random bytes from DeepState, but we'd end up
     // exhausting their default source len too soon. Do something deterministic
     // that has embedded zero bytes to shake out any C string API use
@@ -32,28 +32,28 @@ auto make_random_value(dynamic_value_type::size_type length) {
   return result;
 }
 
-auto get_value(dynamic_value_type::size_type max_length, values_type &values) {
+auto get_value(dynamic_value::size_type max_length, values_type &values) {
   const auto make_new_value = values.empty() || DeepState_Bool();
   ASSERT(max_length <= std::numeric_limits<uint32_t>::max());
   if (make_new_value) {
-    const auto new_value_len = static_cast<dynamic_value_type::size_type>(
+    const auto new_value_len = static_cast<dynamic_value::size_type>(
         DeepState_UIntInRange(0, static_cast<uint32_t>(max_length)));
     auto new_value = make_random_value(new_value_len);
     LOG(TRACE) << "Making a new value of length "
                << static_cast<uint64_t>(new_value_len);
     const auto &inserted_value = values.emplace_back(std::move(new_value));
-    return unodb::value_view_type{inserted_value};
+    return unodb::value_view{inserted_value};
   }
   LOG(TRACE) << "Reusing an existing value";
   ASSERT(values.size() <= std::numeric_limits<uint32_t>::max());
   const auto existing_value_i = static_cast<values_type::size_type>(
       DeepState_UIntInRange(0, static_cast<uint32_t>(values.size() - 1)));
   const auto &existing_value = values[existing_value_i];
-  return unodb::value_view_type{existing_value};
+  return unodb::value_view{existing_value};
 }
 
-unodb::key_type get_key(unodb::key_type max_key_value,
-                        const std::vector<unodb::key_type> &keys) {
+unodb::key get_key(unodb::key max_key_value,
+                   const std::vector<unodb::key> &keys) {
   const auto use_existing_key = !keys.empty() && DeepState_Bool();
   if (use_existing_key) {
     ASSERT(!keys.empty());
@@ -90,9 +90,9 @@ TEST(ART, DeepState_fuzz) {
 
   const auto limit_max_key = DeepState_Bool();
   const auto max_key_value =
-      limit_max_key ? DeepState_UInt64InRange(
-                          0, std::numeric_limits<unodb::key_type>::max())
-                    : std::numeric_limits<unodb::key_type>::max();
+      limit_max_key
+          ? DeepState_UInt64InRange(0, std::numeric_limits<unodb::key>::max())
+          : std::numeric_limits<unodb::key>::max();
   if (limit_max_key)
     LOG(TRACE) << "Limiting maximum key value to "
                << static_cast<uint64_t>(max_key_value);
@@ -112,9 +112,9 @@ TEST(ART, DeepState_fuzz) {
   unodb::db test_db{mem_limit};
   ASSERT(test_db.empty());
 
-  std::vector<unodb::key_type> keys;
+  std::vector<unodb::key> keys;
   values_type values;
-  std::unordered_map<unodb::key_type, unodb::value_view_type> oracle;
+  std::unordered_map<unodb::key, unodb::value_view> oracle;
 
   for (auto i = 0; i < test_length; i++) {
     LOG(TRACE) << "Iteration " << i;

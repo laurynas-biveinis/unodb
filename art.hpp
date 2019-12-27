@@ -17,15 +17,16 @@ namespace unodb {
 
 // Internal ART key in binary-comparable format
 template <typename KeyType>
-struct art_key final {
+struct basic_art_key final {
   [[nodiscard]] static KeyType make_binary_comparable(KeyType key) noexcept;
 
-  art_key() noexcept = default;
+  basic_art_key() noexcept = default;
 
-  explicit art_key(KeyType key_) noexcept : key{make_binary_comparable(key_)} {}
+  explicit basic_art_key(KeyType key_) noexcept
+      : key{make_binary_comparable(key_)} {}
 
   [[nodiscard]] static auto create(const std::byte from[]) noexcept {
-    struct art_key result;
+    struct basic_art_key result;
     memcpy(&result, from, sizeof(result));
     return result;
   }
@@ -38,11 +39,11 @@ struct art_key final {
     return !memcmp(&key, key2, sizeof(*this));
   }
 
-  [[nodiscard]] bool operator==(art_key<KeyType> key2) const noexcept {
+  [[nodiscard]] bool operator==(basic_art_key<KeyType> key2) const noexcept {
     return !memcmp(&key, &key2.key, sizeof(*this));
   }
 
-  [[nodiscard]] bool operator!=(art_key<KeyType> key2) const noexcept {
+  [[nodiscard]] bool operator!=(basic_art_key<KeyType> key2) const noexcept {
     return memcmp(&key, &key2.key, sizeof(*this));
   }
 
@@ -55,7 +56,7 @@ struct art_key final {
   KeyType key;
 };
 
-using art_key_type = art_key<key_type>;
+using art_key = basic_art_key<key>;
 
 struct node_header;
 
@@ -63,8 +64,8 @@ struct node_header;
 // have only one kind of leaf nodes, we call them simply "leaf" nodes. Should we
 // ever implement other kinds, rename this and related types to
 // single_value_leaf.
-using leaf_type = std::byte;
-using leaf_ptr_type = leaf_type *;
+using raw_leaf = std::byte;
+using raw_leaf_ptr = raw_leaf *;
 
 class internal_node;
 class internal_node_4;
@@ -81,7 +82,7 @@ enum class node_type : uint8_t;
 // asserts in the implementation file.
 union node_ptr {
   node_header *header;
-  leaf_ptr_type leaf;
+  raw_leaf_ptr leaf;
   internal_node *internal;
   internal_node_4 *node_4;
   internal_node_16 *node_16;
@@ -90,7 +91,7 @@ union node_ptr {
 
   node_ptr() noexcept {}
   node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
-  node_ptr(leaf_ptr_type leaf_) noexcept : leaf{leaf_} {}
+  node_ptr(raw_leaf_ptr leaf_) noexcept : leaf{leaf_} {}
   node_ptr(internal_node_4 *node_4_) noexcept : node_4{node_4_} {}
   node_ptr(internal_node_16 *node_16_) noexcept : node_16{node_16_} {}
   node_ptr(internal_node_48 *node_48_) noexcept : node_48{node_48_} {}
@@ -116,11 +117,11 @@ class db final {
 
   ~db() noexcept;
 
-  [[nodiscard]] get_result_type get(key_type k) const noexcept;
+  [[nodiscard]] get_result get(key k) const noexcept;
 
-  [[nodiscard]] bool insert(key_type k, value_view_type v);
+  [[nodiscard]] bool insert(key k, value_view v);
 
-  [[nodiscard]] bool remove(key_type k);
+  [[nodiscard]] bool remove(key k);
 
 #ifndef NDEBUG
   void dump(std::ostream &os) const;
@@ -133,14 +134,13 @@ class db final {
   }
 
  private:
-  [[nodiscard]] static get_result_type get_from_subtree(
-      node_ptr node, art_key_type k, tree_depth_type depth) noexcept;
+  [[nodiscard]] static get_result get_from_subtree(
+      node_ptr node, art_key k, tree_depth_type depth) noexcept;
 
-  [[nodiscard]] bool insert_to_subtree(art_key_type k, node_ptr *node,
-                                       value_view_type v,
+  [[nodiscard]] bool insert_to_subtree(art_key k, node_ptr *node, value_view v,
                                        tree_depth_type depth);
 
-  [[nodiscard]] bool remove_from_subtree(art_key_type k, tree_depth_type depth,
+  [[nodiscard]] bool remove_from_subtree(art_key k, tree_depth_type depth,
                                          node_ptr *node);
 
   void increase_memory_use(std::size_t delta);

@@ -13,7 +13,7 @@
 namespace {
 
 void parallel_insert_thread(tree_verifier<unodb::mutex_db> *verifier,
-                            unodb::key_type start_key, std::size_t count) {
+                            unodb::key start_key, std::size_t count) {
   verifier->insert_preinserted_key_range(start_key, count);
 }
 
@@ -24,7 +24,7 @@ TEST(ART_mutex_concurrency, parallel_insert_one_tree) {
   tree_verifier<unodb::mutex_db> verifier;
   verifier.preinsert_key_range_to_verifier_only(0, total_keys);
   std::array<std::thread, num_of_threads> threads;
-  unodb::key_type i = 0;
+  unodb::key i = 0;
   for (std::size_t j = 0; j < num_of_threads; ++j) {
     threads[j] = std::thread{parallel_insert_thread, &verifier, i,
                              total_keys / num_of_threads /*, (j == 0)*/};
@@ -37,7 +37,7 @@ TEST(ART_mutex_concurrency, parallel_insert_one_tree) {
 }
 
 void parallel_remove_thread(tree_verifier<unodb::mutex_db> *verifier,
-                            unodb::key_type start_key, std::size_t count) {
+                            unodb::key start_key, std::size_t count) {
   for (std::size_t i = 0; i < count; ++i) {
     verifier->remove(start_key + i, true);
   }
@@ -49,7 +49,7 @@ TEST(ART_mutex_concurrency, parallel_tear_down_one_tree) {
 
   tree_verifier<unodb::mutex_db> verifier;
   verifier.insert_key_range(0, total_keys);
-  unodb::key_type i = 0;
+  unodb::key i = 0;
   std::array<std::thread, num_of_threads> threads;
   for (std::size_t j = 0; j < num_of_threads; ++j) {
     threads[j] = std::thread{parallel_remove_thread, &verifier, i,
@@ -64,7 +64,7 @@ TEST(ART_mutex_concurrency, parallel_tear_down_one_tree) {
 
 void key_range_op_thread(tree_verifier<unodb::mutex_db> *verifier,
                          std::size_t thread_i, unsigned op_count) {
-  unodb::key_type key = thread_i / 3 * 3;
+  unodb::key key = thread_i / 3 * 3;
   for (unsigned i = 0; i < op_count; ++i) {
     switch (thread_i % 3) {
       case 0: /* insert */
@@ -145,7 +145,7 @@ void random_op_thread(tree_verifier<unodb::mutex_db> *verifier,
                       std::size_t thread_i, unsigned op_count) {
   std::random_device rd;
   std::mt19937 gen{rd()};
-  std::geometric_distribution<unodb::key_type> key_generator{0.5};
+  std::geometric_distribution<unodb::key> key_generator{0.5};
   for (unsigned i = 0; i < op_count; ++i) {
     const auto key{key_generator(gen)};
     switch (thread_i % 3) {

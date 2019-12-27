@@ -16,25 +16,24 @@ C++ tools and ideas.
 All the declarations live in the `unodb` namespace, which is omitted in the
 following.
 
-The only currently supported key type is `uint64_t`. However, adding new key
-types should be relatively easy by instantiating `art_key` type with the desired
-key type and specializing `art_key::make_binary_comparable` in accordance with
-the ART paper.
+The only currently supported key type is `uint64_t`, aliased as `key`. However,
+adding new key types should be relatively easy by instantiating `art_key` type
+with the desired key type and specializing `art_key::make_binary_comparable` in
+accordance with the ART paper.
 
 Values are treated opaquely. They are passed as non-owning objects of
-`value_view_type`, which is `gsl::span<std::byte>`, and insertion copies them
-internally. The same applies for `get`: a non-owning `value_view_type` object is
+`value_view`, which is `gsl::span<std::byte>`, and insertion copies them
+internally. The same applies for `get`: a non-owning `value_view` object is
 returned. How long would it remain valid depends on the ART concurrency flavor.
 
 All ART classes implement the same API:
 
 * constructor, with optional memory limit parameter, exceeding which will throw
   `std::bad_alloc`.
-* `get(key_type k)`, returning `get_result_type`, which is
-  `std::optional<value_view_type>`.
-* `bool insert(key_type k, value_view_type v)`, returning whether insert was
+* `get(key k)`, returning `get_result`, which is `std::optional<value_view>`.
+* `bool insert(key k, value_view v)`, returning whether insert was
   successful (i.e. the key was not already present).
-* `bool remove(key_type k)`, returning whether delete was successful (i.e. the
+* `bool remove(key k)`, returning whether delete was successful (i.e. the
   key was found in the tree).
 * `std::size_t get_current_memory_use()`, returning current memory use by
   internal nodes in bytes, only accounted if memory limit was specified in

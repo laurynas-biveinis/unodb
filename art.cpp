@@ -83,7 +83,7 @@ void poison_block(void *to_delete, std::size_t size) {
   VALGRIND_MAKE_MEM_UNDEFINED(to_delete, size);
 }
 
-template <typename InternalNode>
+template <class InternalNode>
 [[nodiscard]] inline pmr_pool_options get_internal_node_pool_options();
 
 [[nodiscard]] inline auto *get_leaf_node_pool() {
@@ -92,7 +92,7 @@ template <typename InternalNode>
   return pmr_new_delete_resource();
 }
 
-template <typename InternalNode>
+template <class InternalNode>
 [[nodiscard]] inline auto *get_internal_node_pool() {
   static pmr_unsynchronized_pool_resource internal_node_pool{
       get_internal_node_pool_options<InternalNode>()};
@@ -542,7 +542,7 @@ class internal_node {
 
   uint8_t children_count;
 
-  template <unsigned, unsigned, node_type, typename, typename, typename>
+  template <unsigned, unsigned, node_type, class, class, class>
   friend class basic_internal_node;
   friend class internal_node_4;
   friend class internal_node_16;
@@ -569,7 +569,7 @@ void delete_subtree(unodb::node_ptr node) noexcept {
 namespace unodb {
 
 template <unsigned MinSize, unsigned Capacity, node_type NodeType,
-          typename SmallerDerived, typename LargerDerived, typename Derived>
+          class SmallerDerived, class LargerDerived, class Derived>
 class basic_internal_node : public internal_node {
   static_assert(NodeType != node_type::LEAF,
                 "basic_internal_node must be instantiated with a non-leaf "
@@ -1415,7 +1415,7 @@ namespace {
 
 // For internal node pools, approximate requesting ~2MB blocks from backing
 // storage (when ported to Linux, ask for 2MB huge pages directly)
-template <typename InternalNode>
+template <class InternalNode>
 [[nodiscard]] inline pmr_pool_options get_internal_node_pool_options() {
   pmr_pool_options internal_node_pool_options;
   internal_node_pool_options.max_blocks_per_chunk =

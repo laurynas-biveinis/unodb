@@ -15,6 +15,11 @@
 
 namespace unodb {
 
+namespace detail {
+
+struct leaf;
+class leaf_creator_with_scope_cleanup;
+
 // Internal ART key in binary-comparable format
 template <typename KeyType>
 struct basic_art_key final {
@@ -108,6 +113,8 @@ union node_ptr {
   [[nodiscard]] __attribute__((pure)) node_type type() const noexcept;
 };
 
+}  // namespace detail
+
 class db final {
  public:
   using tree_depth_type = unsigned;
@@ -135,24 +142,26 @@ class db final {
 
  private:
   [[nodiscard]] static get_result get_from_subtree(
-      node_ptr node, art_key k, tree_depth_type depth) noexcept;
+      detail::node_ptr node, detail::art_key k, tree_depth_type depth) noexcept;
 
-  [[nodiscard]] bool insert_to_subtree(art_key k, node_ptr *node, value_view v,
+  [[nodiscard]] bool insert_to_subtree(detail::art_key k,
+                                       detail::node_ptr *node, value_view v,
                                        tree_depth_type depth);
 
-  [[nodiscard]] bool remove_from_subtree(art_key k, tree_depth_type depth,
-                                         node_ptr *node);
+  [[nodiscard]] bool remove_from_subtree(detail::art_key k,
+                                         tree_depth_type depth,
+                                         detail::node_ptr *node);
 
   void increase_memory_use(std::size_t delta);
   void decrease_memory_use(std::size_t delta) noexcept;
 
-  node_ptr root{nullptr};
+  detail::node_ptr root{nullptr};
 
   std::size_t current_memory_use{0};
   const std::size_t memory_limit;
 
-  friend struct leaf;
-  friend class leaf_creator_with_scope_cleanup;
+  friend struct detail::leaf;
+  friend class detail::leaf_creator_with_scope_cleanup;
 };
 
 }  // namespace unodb

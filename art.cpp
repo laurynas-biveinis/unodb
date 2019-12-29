@@ -249,33 +249,6 @@ void key_prefix::dump(std::ostream &os) const {
 
 #endif
 
-union delete_node_ptr_at_scope_exit {
-  const unodb::detail::node_header *header;
-  const leaf_unique_ptr leaf;
-  const std::unique_ptr<unodb::detail::internal_node> internal;
-  const std::unique_ptr<unodb::detail::internal_node_4> node_4;
-  const std::unique_ptr<unodb::detail::internal_node_16> node_16;
-  const std::unique_ptr<unodb::detail::internal_node_48> node_48;
-  const std::unique_ptr<unodb::detail::internal_node_256> node_256;
-
-  explicit delete_node_ptr_at_scope_exit(
-      unodb::detail::node_ptr node_ptr_) noexcept
-      : header(node_ptr_.header) {}
-
-  ~delete_node_ptr_at_scope_exit();
-
-  delete_node_ptr_at_scope_exit(const delete_node_ptr_at_scope_exit &) = delete;
-  delete_node_ptr_at_scope_exit(delete_node_ptr_at_scope_exit &&) = delete;
-  auto &operator=(const delete_node_ptr_at_scope_exit &) = delete;
-  auto &operator=(delete_node_ptr_at_scope_exit &&) = delete;
-};
-
-static_assert(sizeof(delete_node_ptr_at_scope_exit) == sizeof(void *),
-              "delete_node_ptr_at_scope_exit union must be of equal size to a "
-              "raw pointer");
-
-void delete_subtree(unodb::detail::node_ptr node) noexcept;
-
 // A class used as a sentinel for basic_internal_node template args: the
 // larger node type for the largest node type and the smaller node type for
 // the smallest node type.
@@ -283,9 +256,7 @@ class fake_internal_node {};
 
 }  // namespace
 
-namespace unodb {
-
-namespace detail {
+namespace unodb::detail {
 
 template <>
 __attribute__((const)) std::uint64_t
@@ -408,6 +379,62 @@ void leaf::dump(std::ostream &os, raw_leaf_ptr leaf) {
 }
 
 #endif
+
+}  // namespace unodb::detail
+
+namespace {
+
+union delete_node_ptr_at_scope_exit {
+  const unodb::detail::node_header *header;
+  const leaf_unique_ptr leaf;
+  const std::unique_ptr<unodb::detail::internal_node> internal;
+  const std::unique_ptr<unodb::detail::internal_node_4> node_4;
+  const std::unique_ptr<unodb::detail::internal_node_16> node_16;
+  const std::unique_ptr<unodb::detail::internal_node_48> node_48;
+  const std::unique_ptr<unodb::detail::internal_node_256> node_256;
+
+  explicit delete_node_ptr_at_scope_exit(
+      unodb::detail::node_ptr node_ptr_) noexcept
+      : header(node_ptr_.header) {}
+
+  ~delete_node_ptr_at_scope_exit() {
+    if (header == nullptr) return;
+
+    // While all the unique_ptr union fields look the same in memory, we must
+    // invoke destructor of the right type, because the deleters are different
+    switch (header->type()) {
+      case unodb::detail::node_type::LEAF:
+        leaf.~leaf_unique_ptr();
+        return;
+      case unodb::detail::node_type::I4:
+        node_4.~unique_ptr<unodb::detail::internal_node_4>();
+        return;
+      case unodb::detail::node_type::I16:
+        node_16.~unique_ptr<unodb::detail::internal_node_16>();
+        return;
+      case unodb::detail::node_type::I48:
+        node_48.~unique_ptr<unodb::detail::internal_node_48>();
+        return;
+      case unodb::detail::node_type::I256:
+        node_256.~unique_ptr<unodb::detail::internal_node_256>();
+        return;
+    }
+    cannot_happen();
+  }
+
+  delete_node_ptr_at_scope_exit(const delete_node_ptr_at_scope_exit &) = delete;
+  delete_node_ptr_at_scope_exit(delete_node_ptr_at_scope_exit &&) = delete;
+  auto &operator=(const delete_node_ptr_at_scope_exit &) = delete;
+  auto &operator=(delete_node_ptr_at_scope_exit &&) = delete;
+};
+
+static_assert(sizeof(delete_node_ptr_at_scope_exit) == sizeof(void *),
+              "delete_node_ptr_at_scope_exit union must be of equal size to a "
+              "raw pointer");
+
+}  // namespace
+
+namespace unodb::detail {
 
 class internal_node {
  public:
@@ -543,6 +570,25 @@ class internal_node {
   friend class internal_node_256;
   friend class unodb::db;
 };
+
+}  // namespace unodb::detail
+
+namespace {
+
+void delete_subtree(unodb::detail::node_ptr node) noexcept {
+  if (node.header == nullptr) return;
+
+  delete_node_ptr_at_scope_exit delete_on_scope_exit(node);
+
+  if (node.type() != unodb::detail::node_type::LEAF)
+    delete_on_scope_exit.internal->delete_subtree();
+}
+
+}  // namespace
+
+namespace unodb {
+
+namespace detail {
 
 template <unsigned MinSize, unsigned Capacity, node_type NodeType,
           class SmallerDerived, class LargerDerived, class Derived>
@@ -1642,40 +1688,6 @@ void leaf_deleter::operator()(unodb::detail::raw_leaf_ptr to_delete) const
     noexcept {
   const auto s = unodb::detail::leaf::size(to_delete);
   get_leaf_node_pool()->deallocate(to_delete, s);
-}
-
-delete_node_ptr_at_scope_exit::~delete_node_ptr_at_scope_exit() {
-  if (header == nullptr) return;
-
-  // While all the unique_ptr union fields look the same in memory, we must
-  // invoke destructor of the right type, because the deleters are different
-  switch (header->type()) {
-    case unodb::detail::node_type::LEAF:
-      leaf.~leaf_unique_ptr();
-      return;
-    case unodb::detail::node_type::I4:
-      node_4.~unique_ptr<unodb::detail::internal_node_4>();
-      return;
-    case unodb::detail::node_type::I16:
-      node_16.~unique_ptr<unodb::detail::internal_node_16>();
-      return;
-    case unodb::detail::node_type::I48:
-      node_48.~unique_ptr<unodb::detail::internal_node_48>();
-      return;
-    case unodb::detail::node_type::I256:
-      node_256.~unique_ptr<unodb::detail::internal_node_256>();
-      return;
-  }
-  cannot_happen();
-}
-
-void delete_subtree(unodb::detail::node_ptr node) noexcept {
-  if (node.header == nullptr) return;
-
-  delete_node_ptr_at_scope_exit delete_on_scope_exit(node);
-
-  if (node.type() != unodb::detail::node_type::LEAF)
-    delete_on_scope_exit.internal->delete_subtree();
 }
 
 void dump_node(std::ostream &os, const unodb::detail::node_ptr &node) {

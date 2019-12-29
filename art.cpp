@@ -179,6 +179,8 @@ class key_prefix final {
   key_prefix &operator=(const key_prefix &) = delete;
   key_prefix &operator=(key_prefix &&) = delete;
 
+  __attribute__((unused)) ~key_prefix() = default;
+
   void cut(unsigned cut_len) noexcept {
     assert(cut_len > 0);
     assert(cut_len <= length());

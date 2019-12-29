@@ -131,15 +131,6 @@ inline __attribute__((noreturn)) void cannot_happen() {
   __builtin_unreachable();
 }
 
-struct leaf_deleter {
-  void operator()(unodb::detail::raw_leaf_ptr to_delete) const noexcept;
-};
-
-using leaf_unique_ptr = std::unique_ptr<unodb::detail::raw_leaf, leaf_deleter>;
-
-static_assert(sizeof(leaf_unique_ptr) == sizeof(void *),
-              "Single leaf unique_ptr must have no overhead over raw pointer");
-
 class key_prefix final {
  public:
   using size_type = std::uint8_t;
@@ -284,6 +275,17 @@ static_assert(std::is_standard_layout<node_header>::value);
 
 node_type node_ptr::type() const noexcept { return header->type(); }
 
+// leaf_deleter and leaf_unique_ptr could be in anonymous namespace but then
+// cyclical dependency with struct leaf happens
+struct leaf_deleter {
+  void operator()(unodb::detail::raw_leaf_ptr to_delete) const noexcept;
+};
+
+using leaf_unique_ptr = std::unique_ptr<unodb::detail::raw_leaf, leaf_deleter>;
+
+static_assert(sizeof(leaf_unique_ptr) == sizeof(void *),
+              "Single leaf unique_ptr must have no overhead over raw pointer");
+
 // Helper struct for leaf node-related data and (static) code. We
 // don't use a regular class because leaf nodes are of variable size, C++ does
 // not support flexible array members, and we want to save one level of
@@ -380,13 +382,19 @@ void leaf::dump(std::ostream &os, raw_leaf_ptr leaf) {
 
 #endif
 
+void leaf_deleter::operator()(unodb::detail::raw_leaf_ptr to_delete) const
+    noexcept {
+  const auto s = unodb::detail::leaf::size(to_delete);
+  get_leaf_node_pool()->deallocate(to_delete, s);
+}
+
 }  // namespace unodb::detail
 
 namespace {
 
 union delete_node_ptr_at_scope_exit {
   const unodb::detail::node_header *header;
-  const leaf_unique_ptr leaf;
+  const unodb::detail::leaf_unique_ptr leaf;
   const std::unique_ptr<unodb::detail::internal_node> internal;
   const std::unique_ptr<unodb::detail::internal_node_4> node_4;
   const std::unique_ptr<unodb::detail::internal_node_16> node_16;
@@ -404,6 +412,7 @@ union delete_node_ptr_at_scope_exit {
     // invoke destructor of the right type, because the deleters are different
     switch (header->type()) {
       case unodb::detail::node_type::LEAF:
+        using unodb::detail::leaf_unique_ptr;
         leaf.~leaf_unique_ptr();
         return;
       case unodb::detail::node_type::I4:
@@ -1586,7 +1595,7 @@ bool db::remove(key k) {
   if (root.type() == detail::node_type::LEAF) {
     if (detail::leaf::matches(root.leaf, bin_comparable_key)) {
       const auto leaf_size = detail::leaf::size(root.leaf);
-      leaf_unique_ptr root_leaf_deleter{root.leaf};
+      detail::leaf_unique_ptr root_leaf_deleter{root.leaf};
       root = nullptr;
       decrease_memory_use(leaf_size);
       return true;
@@ -1683,12 +1692,6 @@ void db::decrease_memory_use(std::size_t delta) noexcept {
 }  // namespace unodb
 
 namespace {
-
-void leaf_deleter::operator()(unodb::detail::raw_leaf_ptr to_delete) const
-    noexcept {
-  const auto s = unodb::detail::leaf::size(to_delete);
-  get_leaf_node_pool()->deallocate(to_delete, s);
-}
 
 void dump_node(std::ostream &os, const unodb::detail::node_ptr &node) {
   os << "node at: " << &node;

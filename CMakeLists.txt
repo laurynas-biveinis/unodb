@@ -99,7 +99,9 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
   else()
     message(STATUS "valgrind.h not found, disabling Valgrind client requests")
   endif()
-  list(APPEND CXX_FLAGS "-Og")
+  # TODO(laurynas): switch to -Og once it actually works in the oldest
+  # supported compilers
+  list(APPEND CXX_FLAGS "-O0")
 else()
   if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
       "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 9)

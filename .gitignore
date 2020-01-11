@@ -34,3 +34,6 @@ compile_commands.json
 
 # clangd
 .clangd
+
+# cmake-build.el build dirs
+build.*

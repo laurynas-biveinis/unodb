@@ -72,11 +72,11 @@ struct node_header;
 using raw_leaf = std::byte;
 using raw_leaf_ptr = raw_leaf *;
 
-class internal_node;
-class internal_node_4;
-class internal_node_16;
-class internal_node_48;
-class internal_node_256;
+class inode;
+class inode_4;
+class inode_16;
+class inode_48;
+class inode_256;
 
 enum class node_type : std::uint8_t;
 
@@ -88,19 +88,19 @@ enum class node_type : std::uint8_t;
 union node_ptr {
   node_header *header;
   raw_leaf_ptr leaf;
-  internal_node *internal;
-  internal_node_4 *node_4;
-  internal_node_16 *node_16;
-  internal_node_48 *node_48;
-  internal_node_256 *node_256;
+  inode *internal;
+  inode_4 *node_4;
+  inode_16 *node_16;
+  inode_48 *node_48;
+  inode_256 *node_256;
 
   node_ptr() noexcept {}
   node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
   node_ptr(raw_leaf_ptr leaf_) noexcept : leaf{leaf_} {}
-  node_ptr(internal_node_4 *node_4_) noexcept : node_4{node_4_} {}
-  node_ptr(internal_node_16 *node_16_) noexcept : node_16{node_16_} {}
-  node_ptr(internal_node_48 *node_48_) noexcept : node_48{node_48_} {}
-  node_ptr(internal_node_256 *node_256_) noexcept : node_256{node_256_} {}
+  node_ptr(inode_4 *node_4_) noexcept : node_4{node_4_} {}
+  node_ptr(inode_16 *node_16_) noexcept : node_16{node_16_} {}
+  node_ptr(inode_48 *node_48_) noexcept : node_48{node_48_} {}
+  node_ptr(inode_256 *node_256_) noexcept : node_256{node_256_} {}
 
   [[nodiscard]] auto operator==(std::nullptr_t) const noexcept {
     return header == nullptr;

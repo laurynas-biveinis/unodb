@@ -469,7 +469,7 @@ TEST(ART, missing_key_with_present_prefix) {
   verifier.attempt_remove_missing_keys({0x000002, 0x010100, 0x010002});
 }
 
-TEST(ART, missing_key_matching_internal_node_path) {
+TEST(ART, missing_key_matching_inode_path) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert(0x0100, test_values[0]);

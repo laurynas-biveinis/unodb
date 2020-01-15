@@ -64,14 +64,11 @@ using pmr_unsynchronized_pool_resource =
 
 // ART implementation properties that we can enforce at compile time
 static_assert(std::is_trivially_copyable_v<unodb::detail::art_key>);
-static_assert(sizeof(unodb::detail::art_key) == sizeof(unodb::key),
-              "Internal key type must be no larger than API key type");
+static_assert(sizeof(unodb::detail::art_key) == sizeof(unodb::key));
 
 static_assert(sizeof(unodb::detail::raw_leaf_ptr) ==
-                  sizeof(unodb::detail::node_ptr::header),
-              "node_ptr fields must be of equal size to a raw pointer");
-static_assert(sizeof(unodb::detail::node_ptr) == sizeof(void *),
-              "node_ptr union must be of equal size to a raw pointer");
+              sizeof(unodb::detail::node_ptr::header));
+static_assert(sizeof(unodb::detail::node_ptr) == sizeof(void *));
 
 namespace {
 
@@ -228,7 +225,7 @@ class key_prefix final {
 #endif
 };
 
-static_assert(std::is_standard_layout<key_prefix>::value);
+static_assert(std::is_standard_layout_v<key_prefix>);
 
 #ifndef NDEBUG
 
@@ -272,7 +269,7 @@ struct node_header final {
   const node_type m_type;
 };
 
-static_assert(std::is_standard_layout<node_header>::value);
+static_assert(std::is_standard_layout_v<node_header>);
 
 node_type node_ptr::type() const noexcept { return header->type(); }
 
@@ -350,7 +347,7 @@ struct leaf final {
 #endif
 };
 
-static_assert(std::is_standard_layout<leaf>::value,
+static_assert(std::is_standard_layout_v<leaf>,
               "leaf must be standard layout type to support aliasing through "
               "node_header");
 
@@ -438,9 +435,7 @@ union delete_node_ptr_at_scope_exit {
   auto &operator=(delete_node_ptr_at_scope_exit &&) = delete;
 };
 
-static_assert(sizeof(delete_node_ptr_at_scope_exit) == sizeof(void *),
-              "delete_node_ptr_at_scope_exit union must be of equal size to a "
-              "raw pointer");
+static_assert(sizeof(delete_node_ptr_at_scope_exit) == sizeof(void *));
 
 }  // namespace
 
@@ -603,17 +598,11 @@ namespace detail {
 template <unsigned MinSize, unsigned Capacity, node_type NodeType,
           class SmallerDerived, class LargerDerived, class Derived>
 class basic_inode : public inode {
-  static_assert(NodeType != node_type::LEAF,
-                "basic_inode must be instantiated with a non-leaf node type");
-  static_assert(!std::is_same_v<Derived, LargerDerived>,
-                "Node type and next larger node type cannot be identical");
-  static_assert(!std::is_same_v<SmallerDerived, Derived>,
-                "Node type and next smaller node type cannot be identical");
-  static_assert(!std::is_same_v<SmallerDerived, LargerDerived>,
-                "Next smaller node type and next larger node type cannot be "
-                "identical");
-  static_assert(MinSize < Capacity,
-                "Node capacity must be larger than minimum size");
+  static_assert(NodeType != node_type::LEAF);
+  static_assert(!std::is_same_v<Derived, LargerDerived>);
+  static_assert(!std::is_same_v<SmallerDerived, Derived>);
+  static_assert(!std::is_same_v<SmallerDerived, LargerDerived>);
+  static_assert(MinSize < Capacity);
 
  public:
   [[nodiscard]] static auto create(std::unique_ptr<LargerDerived> &&source_node,

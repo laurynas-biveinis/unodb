@@ -63,8 +63,7 @@ using pmr_unsynchronized_pool_resource =
 #endif
 
 // ART implementation properties that we can enforce at compile time
-static_assert(std::is_trivial<unodb::detail::art_key>::value,
-              "Internal key type must be POD, i.e. memcpy'able");
+static_assert(std::is_trivially_copyable_v<unodb::detail::art_key>);
 static_assert(sizeof(unodb::detail::art_key) == sizeof(unodb::key),
               "Internal key type must be no larger than API key type");
 

@@ -16,51 +16,9 @@
 #include <iostream>
 #endif
 
-#if defined(__GNUG__) && !defined(__clang__) && __GNUC__ >= 9
-#include <memory_resource>
-
-using pmr_pool_options = std::pmr::pool_options;
-static const auto &pmr_new_delete_resource = std::pmr::new_delete_resource;
-using pmr_unsynchronized_pool_resource = std::pmr::unsynchronized_pool_resource;
-
-#else
-#include <boost/container/pmr/global_resource.hpp>
-#include <boost/container/pmr/memory_resource.hpp>
-#include <boost/container/pmr/unsynchronized_pool_resource.hpp>
-
-using pmr_pool_options = boost::container::pmr::pool_options;
-static const auto &pmr_new_delete_resource =
-    boost::container::pmr::new_delete_resource;
-using pmr_unsynchronized_pool_resource =
-    boost::container::pmr::unsynchronized_pool_resource;
-
-#endif
-
 #include <gsl/gsl_util>
 
-#if defined(__SANITIZE_ADDRESS__)
-#include <sanitizer/asan_interface.h>
-#elif defined(__has_feature)
-#if __has_feature(address_sanitizer)
-#include <sanitizer/asan_interface.h>
-#endif
-#endif
-
-#ifndef ASAN_POISON_MEMORY_REGION
-
-#define ASAN_POISON_MEMORY_REGION(a, s)
-#define ASAN_UNPOISON_MEMORY_REGION(a, s)
-
-#endif
-
-#if !defined(NDEBUG) && defined(VALGRIND_CLIENT_REQUESTS)
-#include <valgrind/memcheck.h>
-#include <valgrind/valgrind.h>
-#else
-#define VALGRIND_MALLOCLIKE_BLOCK(addr, sizeB, rzB, is_zeroed)
-#define VALGRIND_FREELIKE_BLOCK(addr, rzB)
-#define VALGRIND_MAKE_MEM_UNDEFINED(_qzz_addr, _qzz_len)
-#endif
+#include "heap.hpp"
 
 // ART implementation properties that we can enforce at compile time
 static_assert(std::is_trivially_copyable_v<unodb::detail::art_key>);
@@ -72,28 +30,18 @@ static_assert(sizeof(unodb::detail::node_ptr) == sizeof(void *));
 
 namespace {
 
-void poison_block(void *to_delete, std::size_t size) {
-  (void)to_delete;
-  (void)size;
-  ASAN_POISON_MEMORY_REGION(to_delete, size);
-  VALGRIND_FREELIKE_BLOCK(to_delete, 0);
-  VALGRIND_MAKE_MEM_UNDEFINED(to_delete, size);
-}
-
 template <class InternalNode>
-[[nodiscard]] inline pmr_pool_options get_inode_pool_options();
+[[nodiscard]] inline unodb::detail::pmr_pool_options get_inode_pool_options();
 
-[[nodiscard]] inline auto *get_leaf_node_pool() {
-  // If at some point something else is used which no longer maps to new/delete
-  // directly, annotate the allocations with ASAN/VALGRIND macros.
-  return pmr_new_delete_resource();
+[[nodiscard]] inline auto &get_leaf_node_pool() {
+  return *unodb::detail::pmr_new_delete_resource();
 }
 
 // For internal node pools, approximate requesting ~2MB blocks from backing
 // storage (when ported to Linux, ask for 2MB huge pages directly)
 template <class InternalNode>
-[[nodiscard]] inline pmr_pool_options get_inode_pool_options() {
-  pmr_pool_options inode_pool_options;
+[[nodiscard]] inline unodb::detail::pmr_pool_options get_inode_pool_options() {
+  unodb::detail::pmr_pool_options inode_pool_options;
   inode_pool_options.max_blocks_per_chunk =
       2 * 1024 * 1024 / sizeof(InternalNode);
   inode_pool_options.largest_required_pool_block = sizeof(InternalNode);
@@ -101,10 +49,10 @@ template <class InternalNode>
 }
 
 template <class InternalNode>
-[[nodiscard]] inline auto *get_inode_pool() {
-  static pmr_unsynchronized_pool_resource inode_pool{
+[[nodiscard]] inline auto &get_inode_pool() {
+  static unodb::detail::pmr_unsynchronized_pool_resource inode_pool{
       get_inode_pool_options<InternalNode>()};
-  return &inode_pool;
+  return inode_pool;
 }
 
 #ifndef NDEBUG
@@ -359,7 +307,7 @@ leaf_unique_ptr leaf::create(art_key k, value_view v, db &db_instance) {
   const auto leaf_size = static_cast<std::size_t>(offset_value) + value_size;
   db_instance.increase_memory_use(leaf_size);
   auto *const leaf_mem =
-      static_cast<std::byte *>(get_leaf_node_pool()->allocate(leaf_size));
+      static_cast<std::byte *>(pmr_allocate(get_leaf_node_pool(), leaf_size));
   new (leaf_mem) node_header{node_type::LEAF};
   k.copy_to(&leaf_mem[offset_key]);
   std::memcpy(&leaf_mem[offset_value_size], &value_size,
@@ -383,7 +331,7 @@ void leaf::dump(std::ostream &os, raw_leaf_ptr leaf) {
 void leaf_deleter::operator()(unodb::detail::raw_leaf_ptr to_delete) const
     noexcept {
   const auto s = unodb::detail::leaf::size(to_delete);
-  get_leaf_node_pool()->deallocate(to_delete, s);
+  pmr_deallocate(get_leaf_node_pool(), to_delete, s);
 }
 
 }  // namespace unodb::detail
@@ -619,15 +567,11 @@ class basic_inode : public inode {
   [[nodiscard]] static void *operator new(std::size_t size) {
     assert(size == sizeof(Derived));
 
-    auto *const result = get_inode_pool<Derived>()->allocate(size);
-    VALGRIND_MALLOCLIKE_BLOCK(result, size, 0, 0);
-    ASAN_UNPOISON_MEMORY_REGION(result, size);
-    return result;
+    return pmr_allocate(get_inode_pool<Derived>(), size);
   }
 
   static void operator delete(void *to_delete) {
-    poison_block(to_delete, sizeof(Derived));
-    get_inode_pool<Derived>()->deallocate(to_delete, sizeof(Derived));
+    pmr_deallocate(get_inode_pool<Derived>(), to_delete, sizeof(Derived));
   }
 
   DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")

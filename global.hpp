@@ -1,4 +1,4 @@
-// Copyright 2019 Laurynas Biveinis
+// Copyright 2019-2020 Laurynas Biveinis
 #ifndef UNODB_GLOBAL_HPP_
 #define UNODB_GLOBAL_HPP_
 
@@ -45,5 +45,9 @@
 
 #define likely(x) __builtin_expect(x, 1)
 #define unlikely(x) __builtin_expect(x, 0)
+
+#if defined(__GNUG__) && !defined(__clang__) && __GNUC__ >= 9
+#define USE_STD_PMR
+#endif
 
 #endif  // UNODB_GLOBAL_HPP_

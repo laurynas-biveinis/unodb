@@ -537,7 +537,7 @@ if(DEEPSTATE_LF_OK)
 endif()
 
 function(ADD_BENCHMARK_TARGET TARGET)
-  add_executable("${TARGET}" "${TARGET}.cpp")
+  add_executable("${TARGET}" "${TARGET}.cpp" micro_benchmark.hpp)
   common_target_properties("${TARGET}")
   target_include_directories("${TARGET}" SYSTEM PRIVATE
     "${benchmark_INCLUDE_DIRS}")

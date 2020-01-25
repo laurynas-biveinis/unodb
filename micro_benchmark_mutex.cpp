@@ -1,4 +1,4 @@
-// Copyright 2019 Laurynas Biveinis
+// Copyright 2019-2020 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -27,7 +27,8 @@ void parallel_get(benchmark::State &state) {
   test_db = std::make_unique<unodb::mutex_db>();
   for (unodb::key i = 0; i < static_cast<unodb::key>(parallel_get_tree_size);
        ++i) {
-    (void)test_db->insert(i, values[i % values.size()]);
+    (void)test_db->insert(
+        i, unodb::benchmark::values[i % unodb::benchmark::values.size()]);
   }
 
   const std::size_t num_of_threads = static_cast<std::size_t>(state.range());
@@ -54,7 +55,8 @@ constexpr auto parallel_insert_tree_size = 7000000;
 
 void parallel_insert_worker(unodb::key start, unodb::key length) {
   for (unodb::key i = start; i < start + length; ++i) {
-    benchmark::DoNotOptimize(test_db->insert(i, values[i % values.size()]));
+    benchmark::DoNotOptimize(test_db->insert(
+        i, unodb::benchmark::values[i % unodb::benchmark::values.size()]));
   }
 }
 
@@ -81,7 +83,7 @@ void parallel_insert_disjoint_ranges(benchmark::State &state) {
   test_db.reset(nullptr);
 }
 
-constexpr auto parallel_delete_tree_size = 10000000;
+constexpr auto parallel_delete_tree_size = 7000000;
 
 void parallel_delete_worker(unodb::key start, unodb::key length) {
   for (unodb::key i = start; i < start + length; ++i) {
@@ -93,7 +95,8 @@ void parallel_delete_disjoint_ranges(benchmark::State &state) {
   test_db = std::make_unique<unodb::mutex_db>();
   for (unodb::key i = 0; i < static_cast<unodb::key>(parallel_delete_tree_size);
        ++i) {
-    (void)test_db->insert(i, values[i % values.size()]);
+    (void)test_db->insert(
+        i, unodb::benchmark::values[i % unodb::benchmark::values.size()]);
   }
 
   const std::size_t num_of_threads = static_cast<std::size_t>(state.range());

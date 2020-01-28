@@ -1,2 +1,2 @@
-g((c++-mode . ((c-tab-always-indent t)
-               (c-file-style . "Google"))))
+((c++-mode . ((c-tab-always-indent t)
+              (c-file-style . "Google"))))

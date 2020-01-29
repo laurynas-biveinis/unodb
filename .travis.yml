@@ -163,7 +163,7 @@ script:
     fi
   - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE=${SANITIZE} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DCOVERAGE=${COVERAGE} ${EXTRA_CMAKE_OPTIONS}
   - if [[ ! -z "${SCAN_BUILD}" ]]; then
-      ${SCAN_BUILD} --status-bugs -stats make -j3;
+      ${SCAN_BUILD} --status-bugs -stats -analyze-headers --force-analyze-debug-code make -j3;
       travis_terminate 0;
     else
       make -j3;

@@ -95,9 +95,9 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug SCAN_BUILD=scan-build-8
     - &macos-base
-      name: "macOS XCode 11.0 Release"
+      name: "macOS XCode 11.3 Release"
       os: osx
-      osx_image: xcode11
+      osx_image: xcode11.3
       addons:
         homebrew:
           packages:
@@ -106,23 +106,23 @@ matrix:
       env:
         - BUILD_TYPE=Release
     - <<: *macos-base
-      name: "macOS XCode 11.0 Release with ASan/UBSan"
+      name: "macOS XCode 11.3 Release with ASan/UBSan"
       env:
         - BUILD_TYPE=Release SANITIZE=ON
     - <<: *macos-base
-      name: "macOS XCode 11.0 Release with TSan/UBSan"
+      name: "macOS XCode 11.3 Release with TSan/UBSan"
       env:
         - BUILD_TYPE=Release SANITIZE_THREAD=ON
     - <<: *macos-base
-      name: "macOS XCode 11.0 Debug"
+      name: "macOS XCode 11.3 Debug"
       env:
         - BUILD_TYPE=Debug
     - <<: *macos-base
-      name: "macOS XCode 11.0 Debug with ASan/UBSan"
+      name: "macOS XCode 11.3 Debug with ASan/UBSan"
       env:
         - BUILD_TYPE=Debug SANITIZE=ON
     - <<: *macos-base
-      name: "macOS XCode 11.0 Debug with TSan/UBSan"
+      name: "macOS XCode 11.3 Debug with TSan/UBSan"
       env:
         - BUILD_TYPE=Debug SANITIZE_THREAD=ON
     - <<: *linux-base

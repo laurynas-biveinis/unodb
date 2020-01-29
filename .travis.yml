@@ -2,6 +2,75 @@ language: cpp
 
 dist: bionic
 
+# Setup anchors to be used by the jobs as needed. The Travis CI linter gives
+# '[warn] on root: unknown key "os_setups"', could not find a way
+# to fix it.
+os_setups:
+  gcc7_compilation_only_setup: &gcc7_compilation_only
+    os: linux
+    compiler: gcc
+    addons:
+      apt:
+        sources: &bionic_base_sources
+          sourceline: 'ppa:mhier/libboost-latest'
+        packages: &bionic_compilation_packages
+          - boost1.70
+          - cppcheck
+  gcc7_setup: &gcc7
+    os: linux
+    compiler: gcc
+    addons:
+      apt:
+        sources:
+          - *bionic_base_sources
+        packages: &bionic_base_packages
+          - *bionic_compilation_packages
+          - valgrind
+  gcc8_setup: &gcc8
+    os: linux
+    compiler: gcc
+    addons:
+      apt:
+        sources:
+          - *bionic_base_sources
+          - ubuntu-toolchain-r-test
+        packages:
+          - *bionic_base_packages
+          - g++-8
+  clang8_setup: &clang8
+    os: linux
+    compiler: clang
+    addons:
+      apt:
+        sources:
+          - *bionic_base_sources
+          - llvm-toolchain-bionic-8
+        packages:
+          - *bionic_base_packages
+          - clang-8
+          - clang-tidy-8
+          - clang-tools-8
+  coverage_setup: &coverage
+    # Current lcov version does not understand coverage data produced by GCC 8
+    # nor by clang 8, hence GCC 7
+    os: linux
+    compiler: gcc
+    addons:
+      apt:
+        sources:
+          - *bionic_base_sources
+        packages:
+          - *bionic_compilation_packages
+          - lcov
+  macos_setup: &macos
+    os: osx
+    osx_image: xcode11.3
+    compiler: clang
+    addons:
+      homebrew:
+        packages:
+          - cmake
+
 env:
   global:
     - SANITIZE=OFF
@@ -11,140 +80,96 @@ env:
 
 matrix:
   include:
-    - &linux-base
-      name: "Bionic GCC 8 Release"
-      os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-bionic-8
-            # TODO(laurynas): add llvm-toolchain-bionic-9 once available
-            - sourceline: 'ppa:mhier/libboost-latest'
-          packages:
-            # TODO(laurynas): install only what's needed for each job
-            - g++-7
-            - g++-8
-            - boost1.70
-            - valgrind
-            - clang-8
-            - clang-tools-8
-            - cppcheck
-            - lcov
+    - name: "Bionic GCC 8 Release"
+      <<: *gcc8
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release
-      compiler: gcc
-    - <<: *linux-base
-      name: "Bionic GCC 8 Release with ASan/UBSan"
+    - name: "Bionic GCC 8 Release with ASan/UBSan"
+      <<: *gcc8
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release SANITIZE=ON
-    - <<: *linux-base
-      name: "Bionic GCC 8 Release with TSan/UBSan"
+    - name: "Bionic GCC 8 Release with TSan/UBSan"
+      <<: *gcc8
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release SANITIZE_THREAD=ON
-    - <<: *linux-base
-      name: "Bionic GCC 8 Debug"
+    - name: "Bionic GCC 8 Debug"
+      <<: *gcc8
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug
-    - <<: *linux-base
-      name: "Bionic GCC 8 Debug with ASan/UBSan"
+    - name: "Bionic GCC 8 Debug with ASan/UBSan"
+      <<: *gcc8
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug SANITIZE=ON
-    - <<: *linux-base
-      name: "Bionic GCC 8 Debug with TSan/UBSan"
-      env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - <<: *linux-base
-      name: "Bionic clang 8 Release"
-      compiler: clang
+    - name: "Bionic clang 8 Release"
+      <<: *clang8
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release
-    - <<: *linux-base
-      name: "Bionic clang 8 Release with ASan/UBSan"
-      compiler: clang
+    - name: "Bionic clang 8 Release with ASan/UBSan"
+      <<: *clang8
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release SANITIZE=ON
-    - <<: *linux-base
-      name: "Bionic clang 8 Release with TSan/UBSan"
-      compiler: clang
+    - name: "Bionic clang 8 Release with TSan/UBSan"
+      <<: *clang8
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release SANITIZE_THREAD=ON
-    - <<: *linux-base
-      name: "Bionic clang 8 Debug"
-      compiler: clang
+    - name: "Bionic clang 8 Debug"
+      <<: *clang8
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug
-    - <<: *linux-base
-      name: "Bionic clang 8 Debug with ASan/UBSan"
-      compiler: clang
+    - name: "Bionic clang 8 Debug with ASan/UBSan"
+      <<: *clang8
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug SANITIZE=ON
-    - <<: *linux-base
-      name: "Bionic clang 8 Debug with TSan/UBSan"
-      compiler: clang
+    - name: "Bionic clang 8 Debug with TSan/UBSan"
+      <<: *clang8
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - <<: *linux-base
-      name: "Bionic clang 8 static analysis Release"
-      compiler: clang
+    - name: "Bionic clang 8 static analysis Release"
+      <<: *clang8
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Release SCAN_BUILD=scan-build-8
-    - <<: *linux-base
-      name: "Bionic clang 8 static analysis Debug"
-      compiler: clang
+    - name: "Bionic clang 8 static analysis Debug"
+      <<: *clang8
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8" BUILD_TYPE=Debug SCAN_BUILD=scan-build-8
-    - &macos-base
-      name: "macOS XCode 11.3 Release"
-      os: osx
-      osx_image: xcode11.3
-      addons:
-        homebrew:
-          packages:
-            - cmake
-      compiler: clang
+    - name: "macOS XCode 11.3 Release"
+      <<: *macos
       env:
         - BUILD_TYPE=Release
-    - <<: *macos-base
-      name: "macOS XCode 11.3 Release with ASan/UBSan"
+    - name: "macOS XCode 11.3 Release with ASan/UBSan"
+      <<: *macos
       env:
         - BUILD_TYPE=Release SANITIZE=ON
-    - <<: *macos-base
-      name: "macOS XCode 11.3 Release with TSan/UBSan"
+    - name: "macOS XCode 11.3 Release with TSan/UBSan"
+      <<: *macos
       env:
         - BUILD_TYPE=Release SANITIZE_THREAD=ON
-    - <<: *macos-base
-      name: "macOS XCode 11.3 Debug"
+    - name: "macOS XCode 11.3 Debug"
+      <<: *macos
       env:
         - BUILD_TYPE=Debug
-    - <<: *macos-base
-      name: "macOS XCode 11.3 Debug with ASan/UBSan"
+    - name: "macOS XCode 11.3 Debug with ASan/UBSan"
+      <<: *macos
       env:
         - BUILD_TYPE=Debug SANITIZE=ON
-    - <<: *macos-base
-      name: "macOS XCode 11.3 Debug with TSan/UBSan"
+    - name: "macOS XCode 11.3 Debug with TSan/UBSan"
+      <<: *macos
       env:
         - BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - <<: *linux-base
-      name: "Bionic GCC 7 Release"
-      compiler: gcc
+    - name: "Bionic GCC 7 Release"
+      <<: *gcc7
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Release
-    - <<: *linux-base
-      name: "Bionic GCC 7 Debug"
-      compiler: gcc
+    - name: "Bionic GCC 7 Debug"
+      <<: *gcc7
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Debug
-    - <<: *linux-base
-      name: "Bionic Debug coverage"
-      compiler: gcc
+    - name: "Bionic Debug coverage"
+      <<: *coverage
       env:
-        # Current lcov version does not understand coverage data
-        # produced by GCC 8 nor clang
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Debug COVERAGE=ON
-    - <<: *linux-base
-      name: "Bionic Release coverage"
-      compiler: gcc
+    - name: "Bionic Release coverage"
+      <<: *coverage
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Release COVERAGE=ON
 
@@ -158,6 +183,10 @@ script:
   - mkdir build
   - cd build
   - EXTRA_CMAKE_OPTIONS=""
+  - sudo rm -rf /usr/local/clang-7.0.0
+  - if [[ "$CC" == "clang-8" ]]; then
+      sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-8 50;
+    fi
   - if [[ "$CC" == "gcc-7" && "$COVERAGE" == "ON" ]]; then
       EXTRA_CMAKE_OPTIONS+="-DGCOV_PATH=/usr/bin/gcov-7 ";
     fi

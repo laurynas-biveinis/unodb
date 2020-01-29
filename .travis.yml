@@ -162,9 +162,11 @@ script:
       EXTRA_CMAKE_OPTIONS+="-DGCOV_PATH=/usr/bin/gcov-7 ";
     fi
   - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE=${SANITIZE} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DCOVERAGE=${COVERAGE} ${EXTRA_CMAKE_OPTIONS}
-  - ${SCAN_BUILD} make -j3
   - if [[ ! -z "${SCAN_BUILD}" ]]; then
+      ${SCAN_BUILD} --status-bugs -stats make -j3;
       travis_terminate 0;
+    else
+      make -j3;
     fi
   - if [[ "$COVERAGE" == "OFF" ]]; then
       ctest -j3 -V;

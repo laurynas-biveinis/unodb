@@ -126,12 +126,16 @@ macro(ADD_TO_GNU_CXX_LD_FLAGS)
   endif()
 endmacro()
 
+macro(SET_UBSAN_OPTIONS)
+  string(CONCAT UBSAN_OPTIONS "UBSAN_OPTIONS="
+    "print_stacktrace=1:abort_on_error=1")
+endmacro()
+
 macro(SET_COMMON_SANITIZER_FLAGS)
   list(APPEND CXX_FLAGS "-fsanitize=undefined" "-fno-omit-frame-pointer"
     "-fno-optimize-sibling-calls")
   set(LD_FLAGS "-fsanitize=undefined")
-  string(CONCAT UBSAN_OPTIONS "UBSAN_OPTIONS="
-    "print_stacktrace=1")
+  set_ubsan_options()
 endmacro()
 
 option(SANITIZE
@@ -160,8 +164,7 @@ if(SANITIZE)
   if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     string(APPEND ASAN_OPTIONS ":detect_leaks=1")
   endif()
-  string(CONCAT UBSAN_OPTIONS "UBSAN_OPTIONS="
-    "print_stacktrace=1")
+  set_ubsan_options()
 endif()
 
 option(SANITIZE_THREAD

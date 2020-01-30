@@ -17,7 +17,7 @@ void parallel_insert_thread(tree_verifier<unodb::mutex_db> *verifier,
   verifier->insert_preinserted_key_range(start_key, count);
 }
 
-TEST(ART_mutex_concurrency, parallel_insert_one_tree) {
+TEST(ARTMutexConcurrency, ParallelInsertOneTree) {
   constexpr auto num_of_threads = 4;
   constexpr auto total_keys = 1024;
 
@@ -43,7 +43,7 @@ void parallel_remove_thread(tree_verifier<unodb::mutex_db> *verifier,
   }
 }
 
-TEST(ART_mutex_concurrency, parallel_tear_down_one_tree) {
+TEST(ARTMutexConcurrency, ParallelTearDownOneTree) {
   constexpr auto num_of_threads = 8;
   constexpr auto total_keys = 2048;
 
@@ -81,7 +81,7 @@ void key_range_op_thread(tree_verifier<unodb::mutex_db> *verifier,
   }
 }
 
-TEST(ART_mutex_concurrency, node4_parallel_ops) {
+TEST(ARTMutexConcurrency, Node4ParallelOps) {
   constexpr auto num_of_threads = 9;
   constexpr auto op_count = 6;
 
@@ -96,7 +96,7 @@ TEST(ART_mutex_concurrency, node4_parallel_ops) {
   }
 }
 
-TEST(ART_mutex_concurrency, node16_parallel_ops) {
+TEST(ARTMutexConcurrency, Node16ParallelOps) {
   constexpr auto num_of_threads = 9;
   constexpr auto op_count = 12;
 
@@ -111,7 +111,7 @@ TEST(ART_mutex_concurrency, node16_parallel_ops) {
   }
 }
 
-TEST(ART_mutex_concurrency, node48_parallel_ops) {
+TEST(ARTMutexConcurrency, Node48ParallelOps) {
   constexpr auto num_of_threads = 9;
   constexpr auto op_count = 32;
 
@@ -126,7 +126,7 @@ TEST(ART_mutex_concurrency, node48_parallel_ops) {
   }
 }
 
-TEST(ART_mutex_concurrency, node256_parallel_ops) {
+TEST(ARTMutexConcurrency, Node256ParallelOps) {
   constexpr auto num_of_threads = 9;
   constexpr auto op_count = 208;
 
@@ -162,7 +162,7 @@ void random_op_thread(tree_verifier<unodb::mutex_db> *verifier,
   }
 }
 
-TEST(ART_mutex_concurrency, parallel_random_insert_delete_get) {
+TEST(ARTMutexConcurrency, ParallelRandomInsertDeleteGet) {
   constexpr auto num_of_threads = 4 * 3;
   constexpr auto initial_keys = 2048;
   constexpr auto ops_per_thread = 10000;

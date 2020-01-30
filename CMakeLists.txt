@@ -339,20 +339,21 @@ if(CPPCHECK_AGGRESSIVE)
   set(CPPCHECK_CHECKS "--inconclusive")
 else()
   set(CPPCHECK_CHECKS
-    "--suppress=unreadVariable" # False positive: on key2_i
-    "--suppress=syntaxError" # False positive on test_art.cpp:148
-    "--suppress=ignoredReturnValue" # False positive on ctors with std::move arg
+    # False positive on Google Test TEST macro and compilers are much better
+    # for syntax checking anyway
+    "--suppress=syntaxError"
     # False positive on pointer unions being passed by value
-    "--suppress=passedByValue"
-    # False positive on benchmark::State arg
-    "--suppress=constParameter")
+    "--suppress=passedByValue")
 endif()
 
 find_program(CPPCHECK_EXE NAMES "cppcheck" DOC "Path to cppcheck executable")
 if(NOT CPPCHECK_EXE)
   message(STATUS "cppcheck not found")
 else()
-  message(STATUS "cppcheck found: ${CPPCHECK_EXE}")
+  execute_process(COMMAND "${CPPCHECK_EXE}" "--version" OUTPUT_VARIABLE
+    CPPCHECK_VERSION_OUTPUT)
+  message(STATUS
+    "cppcheck found: ${CPPCHECK_EXE}, --version: ${CPPCHECK_VERSION_OUTPUT}")
   set(DO_CPPCHECK "${CPPCHECK_EXE}" "--enable=warning,style,performance,portability"
     "--error-exitcode=2" "-D__x86_64")
   list(APPEND DO_CPPCHECK "${CPPCHECK_CHECKS}")

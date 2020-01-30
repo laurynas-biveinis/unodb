@@ -15,7 +15,6 @@ os_setups:
           sourceline: 'ppa:mhier/libboost-latest'
         packages: &bionic_compilation_packages
           - boost1.70
-          - cppcheck
   gcc7_setup: &gcc7
     os: linux
     compiler: gcc
@@ -70,6 +69,8 @@ os_setups:
       homebrew:
         packages:
           - cmake
+          - cppcheck
+        update: true
 
 env:
   global:

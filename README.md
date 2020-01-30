@@ -51,8 +51,8 @@ The are two ART classes available:
 ## Dependencies
 
 * git
-* a C++17 compiler, currently tested with clang 7.0, 8.0 and GCC 7.0, 8.0, &
-  9.0.
+* a C++17 compiler, currently tested with clang 9.0, XCode clang 11.0.0 and GCC
+  7.0, 8.0, & 9.0.
 * CMake, at least 3.12
 * Guidelines Support Library for gsl::span, imported as a git submodule.
 * Unless GCC version 9 is used, Boost.Container library. Currently 1.70 and 1.71

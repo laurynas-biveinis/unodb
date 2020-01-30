@@ -25,6 +25,7 @@ static_assert(std::is_trivially_copyable_v<unodb::detail::art_key>);
 static_assert(sizeof(unodb::detail::art_key) == sizeof(unodb::key));
 
 static_assert(sizeof(unodb::detail::raw_leaf_ptr) ==
+              // NOLINTNEXTLINE(bugprone-sizeof-expression)
               sizeof(unodb::detail::node_ptr::header));
 static_assert(sizeof(unodb::detail::node_ptr) == sizeof(void *));
 

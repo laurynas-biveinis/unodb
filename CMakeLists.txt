@@ -292,6 +292,7 @@ else()
       "-cppcoreguidelines-pro-type-reinterpret-cast,"
       "-cppcoreguidelines-pro-type-static-cast-downcast,"
       "-cppcoreguidelines-pro-type-union-access,"
+      "-fuchsia-default-arguments-calls,"
       "-fuchsia-overloaded-operator,"
       "-google-readability-braces-around-statements,"
       "-google-runtime-references,"
@@ -303,6 +304,7 @@ else()
       "-llvm-include-order,"
       "-misc-non-private-member-variables-in-classes,"
       "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang
+      "-modernize-use-trailing-return-type,"
       "-readability-braces-around-statements,"
       "-readability-named-parameter,"
       "-readability-magic-numbers")
@@ -367,6 +369,7 @@ else()
   string(CONCAT CPPLINT_DISABLED_TESTS "--filter="
     "-build/c++11," # <thread> is an unapproved C++11 header
     "-build/include_order,"
+    "-readability/nolint," # clang-tidy owns NOLINT
     "-runtime/references,"
     "-whitespace/braces") # Does not understand C++17 structured bindings and we use
                           # clang-format anyway

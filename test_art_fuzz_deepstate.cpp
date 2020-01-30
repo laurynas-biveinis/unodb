@@ -83,7 +83,7 @@ void dump_tree(const unodb::db &tree) {
 // We consider this to be a TEST macro internal implementation detail
 DISABLE_CLANG_WARNING("-Wmissing-noreturn")
 
-TEST(ART, DeepState_fuzz) {
+TEST(ART, DeepStateFuzz) {
   const auto mem_limit =
       static_cast<std::size_t>(DeepState_IntInRange(0, maximum_art_mem));
   LOG(TRACE) << "ART memory limit is " << static_cast<std::uint64_t>(mem_limit);

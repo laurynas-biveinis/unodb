@@ -12,7 +12,7 @@
 
 namespace {
 
-TEST(ART, single_node_tree_empty_value) {
+TEST(ART, SingleNodeTreeEmptyValue) {
   tree_verifier<unodb::db> verifier{1024};
   verifier.check_absent_keys({1});
   verifier.insert(1, {});
@@ -21,7 +21,7 @@ TEST(ART, single_node_tree_empty_value) {
   verifier.check_absent_keys({0});
 }
 
-TEST(ART, single_node_tree_nonempty_value) {
+TEST(ART, SingleNodeTreeNonemptyValue) {
   tree_verifier<unodb::db> verifier{1024};
   verifier.insert(1, test_values[2]);
 
@@ -29,7 +29,7 @@ TEST(ART, single_node_tree_nonempty_value) {
   verifier.check_absent_keys({0, 2});
 }
 
-TEST(ART, too_long_value) {
+TEST(ART, TooLongValue) {
   std::byte fake_val{0x00};
   unodb::value_view too_long{
       &fake_val,
@@ -43,7 +43,7 @@ TEST(ART, too_long_value) {
   verifier.check_absent_keys({1});
 }
 
-TEST(ART, expand_leaf_to_node4) {
+TEST(ART, ExpandLeafToNode4) {
   tree_verifier<unodb::db> verifier{1024};
 
   verifier.insert(0, test_values[1]);
@@ -53,7 +53,7 @@ TEST(ART, expand_leaf_to_node4) {
   verifier.check_absent_keys({2});
 }
 
-TEST(ART, duplicate_key) {
+TEST(ART, DuplicateKey) {
   tree_verifier<unodb::db> verifier{1024};
 
   verifier.insert(0, test_values[0]);
@@ -63,7 +63,7 @@ TEST(ART, duplicate_key) {
   verifier.check_present_values();
 }
 
-TEST(ART, insert_to_full_node4) {
+TEST(ART, InsertToFullNode4) {
   tree_verifier<unodb::db> verifier{1024};
 
   verifier.insert_key_range(0, 4);
@@ -72,7 +72,7 @@ TEST(ART, insert_to_full_node4) {
   verifier.check_absent_keys({5, 4});
 }
 
-TEST(ART, two_node4) {
+TEST(ART, TwoNode4) {
   tree_verifier<unodb::db> verifier{2048};
 
   verifier.insert(1, test_values[0]);
@@ -84,7 +84,7 @@ TEST(ART, two_node4) {
   verifier.check_absent_keys({0xFF00, 2});
 }
 
-TEST(ART, db_insert_node_recursion) {
+TEST(ART, DbInsertNodeRecursion) {
   tree_verifier<unodb::db> verifier{2048};
 
   verifier.insert(1, test_values[0]);
@@ -99,7 +99,7 @@ TEST(ART, db_insert_node_recursion) {
   verifier.check_absent_keys({0xFF0100, 0xFF0000, 2});
 }
 
-TEST(ART, node16) {
+TEST(ART, Node16) {
   tree_verifier<unodb::db> verifier{2048};
 
   verifier.insert_key_range(0, 5);
@@ -108,7 +108,7 @@ TEST(ART, node16) {
   verifier.check_absent_keys({6, 0x0100, 0xFFFFFFFFFFFFFFFFULL});
 }
 
-TEST(ART, full_node16) {
+TEST(ART, FullNode16) {
   tree_verifier<unodb::db> verifier{4096};
 
   verifier.insert_key_range(0, 16);
@@ -117,7 +117,7 @@ TEST(ART, full_node16) {
   verifier.check_present_values();
 }
 
-TEST(ART, node16_key_prefix_split) {
+TEST(ART, Node16KeyPrefixSplit) {
   tree_verifier<unodb::db> verifier{4096};
 
   verifier.insert_key_range(10, 5);
@@ -129,7 +129,7 @@ TEST(ART, node16_key_prefix_split) {
   verifier.check_absent_keys({9, 0x10FF});
 }
 
-TEST(ART, node16_key_insert_order_descending) {
+TEST(ART, Node16KeyInsertOrderDescending) {
   tree_verifier<unodb::db> verifier{4096};
 
   verifier.insert(5, test_values[0]);
@@ -143,7 +143,7 @@ TEST(ART, node16_key_insert_order_descending) {
   verifier.check_absent_keys({6});
 }
 
-TEST(ART, node48) {
+TEST(ART, Node48) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert_key_range(0, 17);
@@ -152,7 +152,7 @@ TEST(ART, node48) {
   verifier.check_absent_keys({17});
 }
 
-TEST(ART, full_node48) {
+TEST(ART, FullNode48) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert_key_range(0, 48);
@@ -161,7 +161,7 @@ TEST(ART, full_node48) {
   verifier.check_absent_keys({49});
 }
 
-TEST(ART, node48_key_prefix_split) {
+TEST(ART, Node48KeyPrefixSplit) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert_key_range(10, 17);
@@ -173,7 +173,7 @@ TEST(ART, node48_key_prefix_split) {
   verifier.check_absent_keys({9, 27, 0x100019, 0x100100, 0x110000});
 }
 
-TEST(ART, node256) {
+TEST(ART, Node256) {
   tree_verifier<unodb::db> verifier{20480};
 
   verifier.insert_key_range(1, 49);
@@ -182,7 +182,7 @@ TEST(ART, node256) {
   verifier.check_absent_keys({50});
 }
 
-TEST(ART, full_node256) {
+TEST(ART, FullNode256) {
   tree_verifier<unodb::db> verifier{20480};
 
   verifier.insert_key_range(0, 256);
@@ -191,7 +191,7 @@ TEST(ART, full_node256) {
   verifier.check_absent_keys({256});
 }
 
-TEST(ART, node256_key_prefix_split) {
+TEST(ART, Node256KeyPrefixSplit) {
   tree_verifier<unodb::db> verifier{20480};
 
   verifier.insert_key_range(20, 49);
@@ -203,7 +203,7 @@ TEST(ART, node256_key_prefix_split) {
   verifier.check_absent_keys({19, 69, 0x100019, 0x100100, 0x110000});
 }
 
-TEST(ART, try_delete_from_empty) {
+TEST(ART, TryDeleteFromEmpty) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.attempt_remove_missing_keys({1});
@@ -211,7 +211,7 @@ TEST(ART, try_delete_from_empty) {
   verifier.check_absent_keys({1});
 }
 
-TEST(ART, single_node_tree_delete) {
+TEST(ART, SingleNodeTreeDelete) {
   tree_verifier<unodb::db> verifier{1024};
 
   verifier.insert(1, test_values[0]);
@@ -222,7 +222,7 @@ TEST(ART, single_node_tree_delete) {
   verifier.check_absent_keys({1});
 }
 
-TEST(ART, node4_attempt_delete_absent) {
+TEST(ART, Node4AttemptDeleteAbsent) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert_key_range(1, 4);
@@ -230,7 +230,7 @@ TEST(ART, node4_attempt_delete_absent) {
   verifier.check_absent_keys({0, 6, 0xFF00000});
 }
 
-TEST(ART, node4_full_delete_middle_n_beginning) {
+TEST(ART, Node4FullDeleteMiddleAndBeginning) {
   tree_verifier<unodb::db> verifier{2048};
 
   verifier.insert_key_range(1, 4);
@@ -244,7 +244,7 @@ TEST(ART, node4_full_delete_middle_n_beginning) {
   verifier.check_absent_keys({1, 0, 2, 5});
 }
 
-TEST(ART, node4_full_delete_end_n_middle) {
+TEST(ART, Node4FullDeleteEndAndMiddle) {
   tree_verifier<unodb::db> verifier{2048};
 
   verifier.insert_key_range(1, 4);
@@ -258,7 +258,7 @@ TEST(ART, node4_full_delete_end_n_middle) {
   verifier.check_absent_keys({2, 4, 0, 5});
 }
 
-TEST(ART, node4_shrink_to_single_leaf) {
+TEST(ART, Node4ShrinkToSingleLeaf) {
   tree_verifier<unodb::db> verifier{2048};
 
   verifier.insert_key_range(1, 2);
@@ -267,7 +267,7 @@ TEST(ART, node4_shrink_to_single_leaf) {
   verifier.check_absent_keys({1});
 }
 
-TEST(ART, node4_delete_lower_node) {
+TEST(ART, Node4DeleteLowerNode) {
   tree_verifier<unodb::db> verifier{2048};
 
   verifier.insert_key_range(0, 2);
@@ -279,7 +279,7 @@ TEST(ART, node4_delete_lower_node) {
   verifier.check_absent_keys({0, 2, 0xFF01});
 }
 
-TEST(ART, node4_delete_key_prefix_merge) {
+TEST(ART, Node4DeleteKeyPrefixMerge) {
   tree_verifier<unodb::db> verifier{2048};
 
   verifier.insert_key_range(0x8001, 2);
@@ -291,7 +291,7 @@ TEST(ART, node4_delete_key_prefix_merge) {
   verifier.check_absent_keys({0x90AA, 0x8003});
 }
 
-TEST(ART, node16_delete_beginning_middle_end) {
+TEST(ART, Node16DeleteBeginningMiddleEnd) {
   tree_verifier<unodb::db> verifier{4096};
 
   verifier.insert_key_range(1, 16);
@@ -303,7 +303,7 @@ TEST(ART, node16_delete_beginning_middle_end) {
   verifier.check_absent_keys({0, 1, 5, 16, 17});
 }
 
-TEST(ART, node16_shrink_to_node4_delete_middle) {
+TEST(ART, Node16ShrinkToNode4DeleteMiddle) {
   tree_verifier<unodb::db> verifier{4096};
 
   verifier.insert_key_range(1, 5);
@@ -313,7 +313,7 @@ TEST(ART, node16_shrink_to_node4_delete_middle) {
   verifier.check_absent_keys({0, 2, 6});
 }
 
-TEST(ART, node16_shrink_to_node4_delete_beginning) {
+TEST(ART, Node16ShrinkToNode4DeleteBeginning) {
   tree_verifier<unodb::db> verifier{4096};
 
   verifier.insert_key_range(1, 5);
@@ -323,7 +323,7 @@ TEST(ART, node16_shrink_to_node4_delete_beginning) {
   verifier.check_absent_keys({0, 1, 6});
 }
 
-TEST(ART, node16_shrink_to_node4_delete_end) {
+TEST(ART, Node16ShrinkToNode4DeleteEnd) {
   tree_verifier<unodb::db> verifier{4096};
 
   verifier.insert_key_range(1, 5);
@@ -333,7 +333,7 @@ TEST(ART, node16_shrink_to_node4_delete_end) {
   verifier.check_absent_keys({0, 5, 6});
 }
 
-TEST(ART, node16_key_prefix_merge) {
+TEST(ART, Node16KeyPrefixMerge) {
   tree_verifier<unodb::db> verifier{4096};
 
   verifier.insert_key_range(10, 5);
@@ -347,7 +347,7 @@ TEST(ART, node16_key_prefix_merge) {
   verifier.check_absent_keys({9, 16, 0x1020});
 }
 
-TEST(ART, node48_delete_beginning_middle_end) {
+TEST(ART, Node48DeleteBeginningMiddleEnd) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert_key_range(1, 48);
@@ -359,7 +359,7 @@ TEST(ART, node48_delete_beginning_middle_end) {
   verifier.check_absent_keys({0, 1, 30, 48, 49});
 }
 
-TEST(ART, node48_shrink_to_node16_delete_middle) {
+TEST(ART, Node48ShrinkToNode16DeleteMiddle) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert_key_range(0x80, 17);
@@ -369,7 +369,7 @@ TEST(ART, node48_shrink_to_node16_delete_middle) {
   verifier.check_absent_keys({0x7F, 0x85, 0x91});
 }
 
-TEST(ART, node48_shrink_to_node16_delete_beginning) {
+TEST(ART, Node48ShrinkToNode16DeleteBeginning) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert_key_range(1, 17);
@@ -379,7 +379,7 @@ TEST(ART, node48_shrink_to_node16_delete_beginning) {
   verifier.check_absent_keys({0, 1, 18});
 }
 
-TEST(ART, node48_shrink_to_node16_delete_end) {
+TEST(ART, Node48ShrinkToNode16DeleteEnd) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert_key_range(1, 17);
@@ -389,7 +389,7 @@ TEST(ART, node48_shrink_to_node16_delete_end) {
   verifier.check_absent_keys({0, 17, 18});
 }
 
-TEST(ART, node48_key_prefix_merge) {
+TEST(ART, Node48KeyPrefixMerge) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert_key_range(10, 17);
@@ -403,7 +403,7 @@ TEST(ART, node48_key_prefix_merge) {
   verifier.check_absent_keys({9, 0x2010, 28});
 }
 
-TEST(ART, node256_delete_beginning_middle_end) {
+TEST(ART, Node256DeleteBeginningMiddleEnd) {
   tree_verifier<unodb::db> verifier{20480};
 
   verifier.insert_key_range(1, 256);
@@ -415,7 +415,7 @@ TEST(ART, node256_delete_beginning_middle_end) {
   verifier.check_absent_keys({0, 1, 180, 256});
 }
 
-TEST(ART, node256_shrink_to_node48_delete_middle) {
+TEST(ART, Node256ShrinkToNode48DeleteMiddle) {
   tree_verifier<unodb::db> verifier{20480};
 
   verifier.insert_key_range(1, 49);
@@ -425,7 +425,7 @@ TEST(ART, node256_shrink_to_node48_delete_middle) {
   verifier.check_absent_keys({0, 25, 50});
 }
 
-TEST(ART, node256_shrink_to_node48_delete_beginning) {
+TEST(ART, Node256ShrinkToNode48DeleteBeginning) {
   tree_verifier<unodb::db> verifier{20480};
 
   verifier.insert_key_range(1, 49);
@@ -435,7 +435,7 @@ TEST(ART, node256_shrink_to_node48_delete_beginning) {
   verifier.check_absent_keys({0, 1, 50});
 }
 
-TEST(ART, node256_shrink_to_node48_delete_end) {
+TEST(ART, Node256ShrinkToNode48DeleteEnd) {
   tree_verifier<unodb::db> verifier{20480};
 
   verifier.insert_key_range(1, 49);
@@ -445,7 +445,7 @@ TEST(ART, node256_shrink_to_node48_delete_end) {
   verifier.check_absent_keys({0, 49, 50});
 }
 
-TEST(ART, node256_key_prefix_merge) {
+TEST(ART, Node256KeyPrefixMerge) {
   tree_verifier<unodb::db> verifier{20480};
 
   verifier.insert_key_range(10, 49);
@@ -459,7 +459,7 @@ TEST(ART, node256_key_prefix_merge) {
   verifier.check_absent_keys({9, 0x2010, 60});
 }
 
-TEST(ART, missing_key_with_present_prefix) {
+TEST(ART, MissingKeyWithPresentPrefix) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert(0x010000, test_values[0]);
@@ -469,7 +469,7 @@ TEST(ART, missing_key_with_present_prefix) {
   verifier.attempt_remove_missing_keys({0x000002, 0x010100, 0x010002});
 }
 
-TEST(ART, missing_key_matching_inode_path) {
+TEST(ART, MissingKeyMatchingInodePath) {
   tree_verifier<unodb::db> verifier{10240};
 
   verifier.insert(0x0100, test_values[0]);
@@ -477,39 +477,39 @@ TEST(ART, missing_key_matching_inode_path) {
   verifier.attempt_remove_missing_keys({0x0101, 0x0202});
 }
 
-TEST(ART, memory_limit_below_minimum) {
+TEST(ART, MemoryLimitBelowMinimum) {
   tree_verifier<unodb::db> verifier{1};
   verifier.test_insert_until_memory_limit();
 }
 
 // It was one leaf at the time of writing the test, this is not
 // guaranteed later
-TEST(ART, memory_limit_one_leaf) {
+TEST(ART, MemoryLimitOneLeaf) {
   tree_verifier<unodb::db> verifier{20};
   verifier.test_insert_until_memory_limit();
 }
 
-TEST(ART, memory_limit_one_node4) {
+TEST(ART, MemoryLimitOneNode4) {
   tree_verifier<unodb::db> verifier{80};
   verifier.test_insert_until_memory_limit();
 }
 
-TEST(ART, memory_limit_one_node16) {
+TEST(ART, MemoryLimitOneNode16) {
   tree_verifier<unodb::db> verifier{320};
   verifier.test_insert_until_memory_limit();
 }
 
-TEST(ART, memory_limit_one_node48) {
+TEST(ART, MemoryLimitOneNode48) {
   tree_verifier<unodb::db> verifier{1024};
   verifier.test_insert_until_memory_limit();
 }
 
-TEST(ART, memory_limit_one_node256) {
+TEST(ART, MemoryLimitOneNode256) {
   tree_verifier<unodb::db> verifier{4096};
   verifier.test_insert_until_memory_limit();
 }
 
-TEST(ART, memory_accounting_duplicate_key_insert) {
+TEST(ART, MemoryAccountingDuplicateKeyInsert) {
   tree_verifier<unodb::db> verifier{2048};
   verifier.insert(0, test_values[0]);
   ASSERT_FALSE(verifier.get_db().insert(0, test_values[1]));
@@ -517,7 +517,7 @@ TEST(ART, memory_accounting_duplicate_key_insert) {
   ASSERT_EQ(verifier.get_db().get_current_memory_use(), 0);
 }
 
-TEST(ART, node48_insert_into_deleted_slot) {
+TEST(ART, Node48InsertIntoDeletedSlot) {
   tree_verifier<unodb::db> verifier{4096};
   verifier.insert(16865361447928765957ULL, test_values[0]);
   verifier.insert(7551546784238320931ULL, test_values[1]);
@@ -542,7 +542,7 @@ TEST(ART, node48_insert_into_deleted_slot) {
   verifier.check_present_values();
 }
 
-TEST(ART, memory_accounting_growing_node_exception) {
+TEST(ART, MemoryAccountingGrowingNodeException) {
   tree_verifier<unodb::db> verifier{1024};
 
   verifier.insert_key_range(0, 4);
@@ -558,7 +558,7 @@ TEST(ART, memory_accounting_growing_node_exception) {
   verifier.check_absent_keys({10});
 }
 
-TEST(ART, memory_accounting_leaf_to_node4_exception) {
+TEST(ART, MemoryAccountingLeafToNode4Exception) {
   tree_verifier<unodb::db> verifier{50};
 
   verifier.insert(0, test_values[0]);
@@ -569,7 +569,7 @@ TEST(ART, memory_accounting_leaf_to_node4_exception) {
   verifier.check_absent_keys({1});
 }
 
-TEST(ART, memory_accounting_prefix_split_exception) {
+TEST(ART, MemoryAccountingPrefixSplitException) {
   tree_verifier<unodb::db> verifier{140};
 
   verifier.insert(1, test_values[0]);

@@ -134,6 +134,17 @@ endmacro()
 macro(SET_COMMON_SANITIZER_FLAGS)
   list(APPEND CXX_FLAGS "-fsanitize=undefined" "-fno-omit-frame-pointer"
     "-fno-optimize-sibling-calls")
+  # Boost library 1.72 on macOS from Homebrew produces the following error:
+  # SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /Users/laurynas/unodb/unodb/heap.hpp:83:8 in 
+  # /usr/local/include/boost/container/pmr/memory_resource.hpp:49:20: runtime error: member call on address 0x000105abd0b
+  # 0 which does not point to an object of type 'boost::container::pmr::memory_resource'
+  # 0x000105abd0b0: note: object is of type 'boost::container::pmr::new_delete_resource_imp'
+  # It looks like it's because new_delete_resource_imp is not exported as a
+  # visible symbol in the library?
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"
+      AND CMAKE_BUILD_TYPE MATCHES "Release")
+    list(APPEND CXX_FLAGS "-fno-sanitize=vptr")
+  endif()
   set(LD_FLAGS "-fsanitize=undefined")
   set_ubsan_options()
 endmacro()

@@ -559,10 +559,11 @@ class basic_inode : public inode {
     return std::make_unique<Derived>(std::move(source_node), child_to_remove);
   }
 
-  [[nodiscard]] static auto create(const SmallerDerived &source_node,
-                                   leaf_unique_ptr &&child,
-                                   db::tree_depth_type depth) {
-    return std::make_unique<Derived>(source_node, std::move(child), depth);
+  [[nodiscard]] static auto create(
+      std::unique_ptr<SmallerDerived> &&source_node, leaf_unique_ptr &&child,
+      db::tree_depth_type depth) {
+    return std::make_unique<Derived>(std::move(source_node), std::move(child),
+                                     depth);
   }
 
   [[nodiscard]] static void *operator new(std::size_t size) {
@@ -768,7 +769,7 @@ using basic_inode_16 =
 
 class inode_16 final : public basic_inode_16 {
  public:
-  inode_16(const inode_4 &node, leaf_unique_ptr &&child,
+  inode_16(std::unique_ptr<inode_4> &&source_node, leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept;
 
   inode_16(std::unique_ptr<inode_48> &&source_node,
@@ -832,21 +833,24 @@ inode_4::inode_4(std::unique_ptr<inode_16> &&source_node,
   assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 }
 
-inode_16::inode_16(const inode_4 &node, leaf_unique_ptr &&child,
-                   db::tree_depth_type depth) noexcept
-    : basic_inode_16{node} {
+inode_16::inode_16(std::unique_ptr<inode_4> &&source_node,
+                   leaf_unique_ptr &&child, db::tree_depth_type depth) noexcept
+    : basic_inode_16{*source_node} {
   const auto key_byte = leaf::key(child.get())[depth];
   const auto insert_pos_index = get_sorted_key_array_insert_position(
-      node.keys, node.children_count, key_byte);
-  std::copy(node.keys.cbegin(), node.keys.cbegin() + insert_pos_index,
+      source_node->keys, source_node->children_count, key_byte);
+  std::copy(source_node->keys.cbegin(),
+            source_node->keys.cbegin() + insert_pos_index,
             keys.byte_array.begin());
   keys.byte_array[insert_pos_index] = key_byte;
-  std::copy(node.keys.cbegin() + insert_pos_index, node.keys.cend(),
+  std::copy(source_node->keys.cbegin() + insert_pos_index,
+            source_node->keys.cend(),
             keys.byte_array.begin() + insert_pos_index + 1);
-  std::copy(node.children.begin(), node.children.begin() + insert_pos_index,
-            children.begin());
+  std::copy(source_node->children.begin(),
+            source_node->children.begin() + insert_pos_index, children.begin());
   children[insert_pos_index] = child.release();
-  std::copy(node.children.begin() + insert_pos_index, node.children.end(),
+  std::copy(source_node->children.begin() + insert_pos_index,
+            source_node->children.end(),
             children.begin() + insert_pos_index + 1);
 }
 
@@ -892,7 +896,7 @@ using basic_inode_48 =
 
 class inode_48 final : public basic_inode_48 {
  public:
-  inode_48(const inode_16 &node, leaf_unique_ptr &&child,
+  inode_48(std::unique_ptr<inode_16> &&source_node, leaf_unique_ptr &&child,
            db::tree_depth_type depth) noexcept;
 
   inode_48(std::unique_ptr<inode_256> &&source_node,
@@ -984,16 +988,16 @@ inode_16::inode_16(std::unique_ptr<inode_48> &&source_node,
                         keys.byte_array.cbegin() + children_count));
 }
 
-inode_48::inode_48(const inode_16 &node, leaf_unique_ptr &&child,
-                   db::tree_depth_type depth) noexcept
-    : basic_inode_48{node} {
+inode_48::inode_48(std::unique_ptr<inode_16> &&source_node,
+                   leaf_unique_ptr &&child, db::tree_depth_type depth) noexcept
+    : basic_inode_48{*source_node} {
   std::memset(&child_indexes[0], empty_child,
               child_indexes.size() * sizeof(child_indexes[0]));
   std::uint8_t i;
   for (i = 0; i < inode_16::capacity; ++i) {
-    const auto existing_key_byte = node.keys.byte_array[i];
+    const auto existing_key_byte = source_node->keys.byte_array[i];
     child_indexes[static_cast<std::uint8_t>(existing_key_byte)] = i;
-    children[i] = node.children[i];
+    children[i] = source_node->children[i];
   }
 
   const auto key_byte =
@@ -1058,7 +1062,7 @@ using basic_inode_256 =
 
 class inode_256 final : public basic_inode_256 {
  public:
-  inode_256(const inode_48 &node, leaf_unique_ptr &&child,
+  inode_256(std::unique_ptr<inode_48> &&source_node, leaf_unique_ptr &&child,
             db::tree_depth_type depth) noexcept;
 
   void add(leaf_unique_ptr &&child, db::tree_depth_type depth) noexcept {
@@ -1139,14 +1143,15 @@ inode_48::inode_48(std::unique_ptr<inode_256> &&source_node,
   for (; child_i < 256; child_i++) child_indexes[child_i] = empty_child;
 }
 
-inode_256::inode_256(const inode_48 &node, leaf_unique_ptr &&child,
+inode_256::inode_256(std::unique_ptr<inode_48> &&source_node,
+                     leaf_unique_ptr &&child,
                      db::tree_depth_type depth) noexcept
-    : basic_inode_256{node} {
+    : basic_inode_256{*source_node} {
   for (unsigned i = 0; i < 256; i++) {
-    const auto children_i = node.child_indexes[i];
+    const auto children_i = source_node->child_indexes[i];
     children[i] = children_i == inode_48::empty_child
                       ? nullptr
-                      : node.children[children_i];
+                      : source_node->children[children_i];
   }
 
   const auto key_byte = static_cast<uint8_t>(leaf::key(child.get())[depth]);
@@ -1482,19 +1487,24 @@ bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
 
   if (node->type() == detail::node_type::I4) {
     increase_memory_use(sizeof(detail::inode_16) - sizeof(detail::inode_4));
-    auto larger_node =
-        detail::inode_16::create(*node->node_4, std::move(leaf), depth);
+    std::unique_ptr<detail::inode_4> current_node{node->node_4};
+    auto larger_node = detail::inode_16::create(std::move(current_node),
+                                                std::move(leaf), depth);
     *node = larger_node.release();
+
   } else if (node->type() == detail::node_type::I16) {
+    std::unique_ptr<detail::inode_16> current_node{node->node_16};
     increase_memory_use(sizeof(detail::inode_48) - sizeof(detail::inode_16));
-    auto larger_node =
-        detail::inode_48::create(*node->node_16, std::move(leaf), depth);
+    auto larger_node = detail::inode_48::create(std::move(current_node),
+                                                std::move(leaf), depth);
     *node = larger_node.release();
+
   } else {
     assert(node->type() == detail::node_type::I48);
+    std::unique_ptr<detail::inode_48> current_node{node->node_48};
     increase_memory_use(sizeof(detail::inode_256) - sizeof(detail::inode_48));
-    auto larger_node =
-        detail::inode_256::create(*node->node_48, std::move(leaf), depth);
+    auto larger_node = detail::inode_256::create(std::move(current_node),
+                                                 std::move(leaf), depth);
     *node = larger_node.release();
   }
   return true;

@@ -101,6 +101,10 @@ matrix:
       <<: *gcc8
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug SANITIZE=ON
+    - name: "Bionic GCC 8 Debug with TSan/UBSan"
+      <<: *gcc8
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug SANITIZE_THREAD=ON
     - name: "Bionic clang 9 Release"
       <<: *clang9
       env:

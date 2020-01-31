@@ -128,7 +128,7 @@ endmacro()
 
 macro(SET_UBSAN_OPTIONS)
   string(CONCAT UBSAN_OPTIONS "UBSAN_OPTIONS="
-    "print_stacktrace=1:abort_on_error=1")
+    "print_stacktrace=1:halt_on_error=1:abort_on_error=1")
 endmacro()
 
 macro(SET_COMMON_SANITIZER_FLAGS)

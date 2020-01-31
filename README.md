@@ -52,13 +52,13 @@ The are two ART classes available:
 
 * git
 * a C++17 compiler, currently tested with clang 9.0, XCode clang 11.0.0 and GCC
-  7.0, 8.0, & 9.0.
+  7.0 & 9.0.
 * CMake, at least 3.12
 * Guidelines Support Library for gsl::span, imported as a git submodule.
 * Unless GCC version 9 is used, Boost.Container library. Currently 1.70 and 1.71
   are being tested. Version 1.69 gives UBSan errors ([bug report 1][boostub1],
   [bug report 2][boostub2]).
-* clang-format, at least 8.0
+* clang-format 9.0
 * Google Test for tests, imported as a git submodule.
 * (optional) lcov
 * (optional) clang-tidy

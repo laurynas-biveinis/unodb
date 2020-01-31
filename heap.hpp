@@ -61,7 +61,7 @@ using pmr_unsynchronized_pool_resource =
 [[nodiscard]] inline auto *pmr_allocate(pmr_pool &pool, std::size_t size) {
   auto *const result = pool.allocate(size);
 
-#ifdef VALGRIND_CLIENT_REQUESTS
+#if defined(VALGRIND_CLIENT_REQUESTS) && !defined(USE_STD_PMR)
   if (!pool.is_equal(*pmr_new_delete_resource())) {
     VALGRIND_MALLOCLIKE_BLOCK(result, size, 0, 0);
   }
@@ -73,7 +73,7 @@ using pmr_unsynchronized_pool_resource =
 
 inline void pmr_deallocate(pmr_pool &pool, void *pointer, std::size_t size) {
   ASAN_POISON_MEMORY_REGION(pointer, size);
-#ifdef VALGRIND_CLIENT_REQUESTS
+#if defined(VALGRIND_CLIENT_REQUESTS) && !defined(USE_STD_PMR)
   if (!pool.is_equal(*pmr_new_delete_resource())) {
     VALGRIND_FREELIKE_BLOCK(pointer, 0);
     VALGRIND_MAKE_MEM_UNDEFINED(pointer, size);

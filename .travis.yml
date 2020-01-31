@@ -25,17 +25,18 @@ os_setups:
         packages: &bionic_base_packages
           - *bionic_compilation_packages
           - valgrind
-  gcc8_setup: &gcc8
+  gcc9_setup: &gcc9
     os: linux
     compiler: gcc
     addons:
       apt:
         sources:
           - *bionic_base_sources
-          - ubuntu-toolchain-r-test
+          - sourceline: 'ppa:ubuntu-toolchain-r/test'
         packages:
           - *bionic_base_packages
-          - g++-8
+          - g++-9
+          - libasan5-dbg
   clang9_setup: &clang9
     os: linux
     compiler: clang
@@ -81,30 +82,30 @@ env:
 
 matrix:
   include:
-    - name: "Bionic GCC 8 Release"
-      <<: *gcc8
+    - name: "Bionic GCC 9 Release"
+      <<: *gcc9
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release
-    - name: "Bionic GCC 8 Release with ASan/UBSan"
-      <<: *gcc8
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Release
+    - name: "Bionic GCC 9 Release with ASan/UBSan"
+      <<: *gcc9
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release SANITIZE=ON
-    - name: "Bionic GCC 8 Release with TSan/UBSan"
-      <<: *gcc8
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Release SANITIZE=ON
+    - name: "Bionic GCC 9 Release with TSan/UBSan"
+      <<: *gcc9
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release SANITIZE_THREAD=ON
-    - name: "Bionic GCC 8 Debug"
-      <<: *gcc8
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Release SANITIZE_THREAD=ON
+    - name: "Bionic GCC 9 Debug"
+      <<: *gcc9
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug
-    - name: "Bionic GCC 8 Debug with ASan/UBSan"
-      <<: *gcc8
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Debug
+    - name: "Bionic GCC 9 Debug with ASan/UBSan"
+      <<: *gcc9
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug SANITIZE=ON
-    - name: "Bionic GCC 8 Debug with TSan/UBSan"
-      <<: *gcc8
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Debug SANITIZE=ON
+    - name: "Bionic GCC 9 Debug with TSan/UBSan"
+      <<: *gcc9
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug SANITIZE_THREAD=ON
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Debug SANITIZE_THREAD=ON
     - name: "Bionic clang 9 Release"
       <<: *clang9
       env:

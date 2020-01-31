@@ -161,8 +161,7 @@ if(SANITIZE)
     "check_initialization_order=true:detect_stack_use_after_return=true:"
     "alloc_dealloc_mismatch=true:strict_string_checks=true")
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
-      "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 8 AND
-      "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 9)
+      "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 8)
     # ERROR: AddressSanitizer: invalid-pointer-pair: 0x7fffe8404697
     # 0x000000000000
     # #0 0x55d21abf7a40 in std::__cxx11::basic_stringbuf<char,

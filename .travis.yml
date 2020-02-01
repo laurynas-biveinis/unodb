@@ -22,7 +22,7 @@ os_setups:
       apt:
         sources:
           - *boost_apt_source
-        packages: &bionic_base_packages
+        packages:
           - *boost_apt_package
           - valgrind
   gcc9_setup: &gcc9
@@ -45,7 +45,7 @@ os_setups:
           - *boost_apt_source
           - llvm-toolchain-bionic-9
         packages:
-          - *bionic_base_packages
+          - *boost_apt_package
           - clang-9
           - clang-tidy-9
           - clang-tools-9

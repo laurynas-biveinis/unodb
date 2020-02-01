@@ -62,6 +62,9 @@ else()
     list(APPEND CXX_WARNING_FLAGS "-Wstringop-truncation" "-Wsuggest-attribute=cold"
       "-Wsuggest-attribute=malloc" "-Wcast-align=strict" "-Wcatch-value=3"
       "-Wextra-semi" "-Wunsafe-loop-optimizations")
+    if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 9)
+      list(APPEND CXX_WARNING_FLAGS "-Wattribute-alias=2" "-Warray-bounds=2")
+    endif()
   else()
     # For GCC 7, disable -Wunused-variable to avoid warnings for unused elements of
     # structured bindings

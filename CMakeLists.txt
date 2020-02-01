@@ -10,16 +10,17 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
   set(CXX_WARNING_FLAGS
     "-Werror"
     # Warning groups
-    "-Wall" "-Wextra" "-Wconversion" "-Wdeprecated" "-Wgnu" "-Wimplicit"
-    "-Wloop-analysis" "-Wpedantic" "-Wpragmas"  "-Wself-assign" "-Wshadow-all"
-    "-Wthread-safety"
+    "-Wall" "-Wextra" "-Wconversion" "-Wdelete-non-virtual-dtor" "-Wdeprecated"
+    "-Wgnu" "-Wimplicit" "-Wloop-analysis" "-Wpedantic" "-Wpragmas"
+    "-Wself-assign" "-Wshadow-all"
     # Individual warnings
     "-Wabstract-vbase-init" "-Warray-bounds-pointer-arithmetic" "-Wassign-enum"
-    "-Wbad-function-cast" "-Wc++2a-compat" "-Wc++2a-extensions" "-Wcast-align"
-    "-Wcast-qual" "-Wclass-varargs" "-Wcomma" "-Wconditional-uninitialized"
-    "-Wcovered-switch-default" "-Wdate-time" "-Wdeprecated-implementations"
-    "-Wdisabled-macro-expansion" "-Wdouble-promotion" "-Wduplicate-decl-specifier"
-    "-Wduplicate-enum" "-Wduplicate-method-arg" "-Wduplicate-method-match"
+    "-Watomic-implicit-seq-cst" "-Wbad-function-cast" "-Wc++2a-compat"
+    "-Wc++2a-extensions" "-Wcast-align" "-Wcast-qual" "-Wclass-varargs"
+    "-Wcomma" "-Wconditional-uninitialized" "-Wcovered-switch-default"
+    "-Wdate-time" "-Wdeprecated-implementations" "-Wdisabled-macro-expansion"
+    "-Wdouble-promotion" "-Wduplicate-decl-specifier" "-Wduplicate-enum"
+    "-Wduplicate-method-arg" "-Wduplicate-method-match" "-Wextra-semi-stmt"
     "-Wfloat-equal" "-Wformat-pedantic" "-Wformat=2" "-Wheader-hygiene"
     "-Widiomatic-parentheses" "-Wimplicit-fallthrough" "-Wmain"
     "-Wmethod-signatures" "-Wmissing-noreturn" "-Wmissing-prototypes"
@@ -29,7 +30,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
     "-Wreserved-id-macro" "-Wshift-sign-overflow" "-Wstatic-in-inline"
     "-Wstrict-prototypes" "-Wsuper-class-method-mismatch" "-Wswitch-enum"
     "-Wtautological-compare" "-Wtautological-constant-in-range-compare"
-    "-Wthread-safety-beta" "-Wthread-safety-negative" "-Wthread-safety-verbose"
     "-Wundef" "-Wundefined-func-template" "-Wundefined-reinterpret-cast"
     "-Wunreachable-code-aggressive" "-Wunused-exception-parameter"
     "-Wunused-macros" "-Wunused-member-function" "-Wunused-template"
@@ -384,8 +384,9 @@ else()
     "-build/include_order,"
     "-readability/nolint," # clang-tidy owns NOLINT
     "-runtime/references,"
-    "-whitespace/braces") # Does not understand C++17 structured bindings and we use
-                          # clang-format anyway
+    # Does not understand C++17 structured bindings and we use clang-format
+    # anyway
+    "-whitespace/braces")
   set(DO_CPPLINT "${CPPLINT_EXE}" "${CPPLINT_DISABLED_TESTS}")
 endif()
 

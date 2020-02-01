@@ -11,9 +11,9 @@ os_setups:
     compiler: gcc
     addons:
       apt:
-        sources: &bionic_base_sources
+        sources: &boost_apt_source
           sourceline: 'ppa:mhier/libboost-latest'
-        packages: &bionic_compilation_packages
+        packages: &boost_apt_package
           - boost1.70
   gcc7_setup: &gcc7
     os: linux
@@ -21,9 +21,9 @@ os_setups:
     addons:
       apt:
         sources:
-          - *bionic_base_sources
+          - *boost_apt_source
         packages: &bionic_base_packages
-          - *bionic_compilation_packages
+          - *boost_apt_package
           - valgrind
   gcc9_setup: &gcc9
     os: linux
@@ -31,10 +31,8 @@ os_setups:
     addons:
       apt:
         sources:
-          - *bionic_base_sources
           - sourceline: 'ppa:ubuntu-toolchain-r/test'
         packages:
-          - *bionic_base_packages
           - g++-9
           - libasan5-dbg
   clang9_setup: &clang9
@@ -43,7 +41,7 @@ os_setups:
     addons:
       apt:
         sources:
-          - *bionic_base_sources
+          - *boost_apt_source
           - llvm-toolchain-bionic-9
         packages:
           - *bionic_base_packages
@@ -58,9 +56,9 @@ os_setups:
     addons:
       apt:
         sources:
-          - *bionic_base_sources
+          - *boost_apt_source
         packages:
-          - *bionic_compilation_packages
+          - *boost_apt_package
           - lcov
   macos_setup: &macos
     os: osx

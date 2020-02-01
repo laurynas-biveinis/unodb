@@ -6,25 +6,6 @@ dist: bionic
 # '[warn] on root: unknown key "os_setups"', could not find a way
 # to fix it.
 os_setups:
-  gcc7_compilation_only_setup: &gcc7_compilation_only
-    os: linux
-    compiler: gcc
-    addons:
-      apt:
-        sources: &boost_apt_source
-          sourceline: 'ppa:mhier/libboost-latest'
-        packages: &boost_apt_package
-          - boost1.70
-  gcc7_setup: &gcc7
-    os: linux
-    compiler: gcc
-    addons:
-      apt:
-        sources:
-          - *boost_apt_source
-        packages:
-          - *boost_apt_package
-          - valgrind
   gcc9_setup: &gcc9
     os: linux
     compiler: gcc
@@ -42,26 +23,14 @@ os_setups:
     addons:
       apt:
         sources:
-          - *boost_apt_source
+          - sourceline: 'ppa:mhier/libboost-latest'
           - llvm-toolchain-bionic-9
         packages:
-          - *boost_apt_package
+          - boost1.70
           - clang-9
           - clang-tidy-9
           - clang-tools-9
           - valgrind
-  coverage_setup: &coverage
-    # Current lcov version does not understand coverage data produced by GCC 8
-    # nor by clang 8, hence GCC 7
-    os: linux
-    compiler: gcc
-    addons:
-      apt:
-        sources:
-          - *boost_apt_source
-        packages:
-          - *boost_apt_package
-          - lcov
   macos_setup: &macos
     os: osx
     osx_image: xcode11.3
@@ -71,6 +40,17 @@ os_setups:
         packages:
           - cmake
           - cppcheck
+        update: true
+  coverage_setup: &coverage
+    os: osx
+    osx_image: xcode11.3
+    compiler: gcc
+    addons:
+      homebrew:
+        packages:
+          - cmake
+          - gcc
+          - cpanm
         update: true
 
 env:
@@ -162,22 +142,14 @@ matrix:
       <<: *macos
       env:
         - BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - name: "Bionic GCC 7 Release"
-      <<: *gcc7
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Release
-    - name: "Bionic GCC 7 Debug"
-      <<: *gcc7
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Debug
-    - name: "Bionic Debug coverage"
+    - name: "macOS Debug coverage"
       <<: *coverage
       env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Debug COVERAGE=ON
-    - name: "Bionic Release coverage"
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Debug COVERAGE=ON
+    - name: "macOS Release coverage"
       <<: *coverage
       env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7" BUILD_TYPE=Release COVERAGE=ON
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Release COVERAGE=ON
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -193,8 +165,10 @@ script:
   - if [[ "$CC" == "clang-9" ]]; then
       sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-9 50;
     fi
-  - if [[ "$CC" == "gcc-7" && "$COVERAGE" == "ON" ]]; then
-      EXTRA_CMAKE_OPTIONS+="-DGCOV_PATH=/usr/bin/gcov-7 ";
+  - if [[ "$CC" == "gcc-9" && "$COVERAGE" == "ON" ]]; then
+      sudo cpanm install JSON;
+      brew install lcov --HEAD;
+      EXTRA_CMAKE_OPTIONS+="-DGCOV_PATH=/usr/local/bin/gcov-9 ";
     fi
   - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE=${SANITIZE} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DCOVERAGE=${COVERAGE} ${EXTRA_CMAKE_OPTIONS}
   - if [[ ! -z "${SCAN_BUILD}" ]]; then

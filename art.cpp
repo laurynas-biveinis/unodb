@@ -250,7 +250,6 @@ struct leaf final {
 
   static constexpr auto minimum_size = offset_value;
 
-  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] static auto value_size(raw_leaf_ptr leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
@@ -258,7 +257,6 @@ struct leaf final {
     std::memcpy(&result, &leaf[offset_value_size], sizeof(result));
     return result;
   }
-  RESTORE_GCC_WARNINGS()
 
  public:
   [[nodiscard]] static leaf_unique_ptr create(art_key k, value_view v,
@@ -270,7 +268,6 @@ struct leaf final {
     return art_key::create(&leaf[offset_key]);
   }
 
-  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] static auto matches(raw_leaf_ptr leaf, art_key k) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
 
@@ -282,8 +279,6 @@ struct leaf final {
 
     return value_size(leaf) + offset_value;
   }
-
-  RESTORE_GCC_WARNINGS()
 
   [[nodiscard]] static auto value(raw_leaf_ptr leaf) noexcept {
     assert(reinterpret_cast<node_header *>(leaf)->type() == node_type::LEAF);
@@ -576,7 +571,6 @@ class basic_inode : public inode {
     pmr_deallocate(get_inode_pool<Derived>(), to_delete, sizeof(Derived));
   }
 
-  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] auto is_full() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
 
@@ -588,7 +582,6 @@ class basic_inode : public inode {
 
     return children_count == min_size;
   }
-  RESTORE_GCC_WARNINGS()
 
  protected:
   basic_inode(art_key k1, art_key k2, db::tree_depth_type depth) noexcept
@@ -1208,7 +1201,6 @@ void inode_256::dump(std::ostream &os) const {
 
 #endif
 
-DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 inline bool inode::is_full() const noexcept {
   switch (header.type()) {
     case node_type::I4:
@@ -1240,7 +1232,6 @@ inline bool inode::is_min_size() const noexcept {
   }
   cannot_happen();
 }
-RESTORE_GCC_WARNINGS()
 
 inline void inode::add(leaf_unique_ptr &&child,
                        db::tree_depth_type depth) noexcept {
@@ -1584,20 +1575,14 @@ bool db::remove_from_subtree(detail::art_key k, tree_depth_type depth,
   return true;
 }
 
-#if defined(__GNUC__) && (__GNUC__ >= 9)
 DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
-#endif
-
 void db::increase_memory_use(std::size_t delta) {
   if (memory_limit == 0 || delta == 0) return;
   assert(current_memory_use <= memory_limit);
   if (current_memory_use + delta > memory_limit) throw std::bad_alloc{};
   current_memory_use += delta;
 }
-
-#if defined(__GNUC__) && (__GNUC__ >= 9)
 RESTORE_GCC_WARNINGS()
-#endif
 
 void db::decrease_memory_use(std::size_t delta) noexcept {
   if (memory_limit == 0 || delta == 0) return;

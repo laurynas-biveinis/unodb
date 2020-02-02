@@ -41,35 +41,24 @@ else()
     # Warning groups
     "-Wall" "-Wextra" "-Wpedantic" "-Wunused" "-Wparentheses" "-Wconversion"
     # Individual warnings
-    "-Wdouble-promotion" "-Wformat-overflow=2" "-Wformat=2" "-Wformat-signedness"
-    "-Wformat-truncation=2" "-Wnull-dereference" "-Wimplicit-fallthrough=5"
-    "-Wmissing-include-dirs" "-Wswitch-enum" "-Wunused-const-variable=2"
-    "-Wuninitialized" "-Wsuggest-attribute=pure" "-Wsuggest-attribute=const"
-    "-Wsuggest-attribute=noreturn" "-Wsuggest-attribute=format" "-Wsuggest-final-types"
-    "-Wsuggest-final-methods" "-Wsuggest-override" "-Wduplicated-branches"
-    "-Wduplicated-cond" "-Wtrampolines" "-Wfloat-equal" "-Wshadow=global"
-    "-Wplacement-new=2" "-Wundef" "-Wunused-macros" "-Wcast-qual"
-    "-Wzero-as-null-pointer-constant" "-Wuseless-cast" "-Wsign-conversion"
-    "-Wlogical-op" "-Wmissing-declarations" "-Wpacked" "-Wredundant-decls"
-    "-Winvalid-pch" "-Wvector-operation-performance" "-Wvla"
-    # C++-specific warnings
-    "-Wabi-tag" "-Wctor-dtor-privacy" "-Wnoexcept" "-Wnon-virtual-dtor"
-    "-Wstrict-null-sentinel" "-Wold-style-cast" "-Woverloaded-virtual"
-    "-Wsign-promo")
-  if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 8)
-    # Do not enable -Wunsafe-loop-optimizations on GCC 7 due to it diagnosing C++11
-    # range for loops
-    list(APPEND CXX_WARNING_FLAGS "-Wstringop-truncation" "-Wsuggest-attribute=cold"
-      "-Wsuggest-attribute=malloc" "-Wcast-align=strict" "-Wcatch-value=3"
-      "-Wextra-semi" "-Wunsafe-loop-optimizations")
-    if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 9)
-      list(APPEND CXX_WARNING_FLAGS "-Wattribute-alias=2" "-Warray-bounds=2")
-    endif()
-  else()
-    # For GCC 7, disable -Wunused-variable to avoid warnings for unused elements of
-    # structured bindings
-    list(APPEND CXX_WARNING_FLAGS "-Wcast-align" "-Wno-unused-variable")
-  endif()
+    "-Wabi-tag" "-Wcast-align=strict" "-Wcast-qual" "-Wcatch-value=3"
+    "-Wctor-dtor-privacy" "-Wdouble-promotion" "-Wduplicated-branches"
+    "-Wduplicated-cond" "-Wextra-semi" "-Wfloat-equal" "-Wformat-overflow=2"
+    "-Wformat-signedness" "-Wformat-truncation=2" "-Wformat=2"
+    "-Wimplicit-fallthrough=5" "-Winvalid-pch" "-Wlogical-op"
+    "-Wmissing-declarations" "-Wmissing-include-dirs" "-Wnoexcept"
+    "-Wnon-virtual-dtor" "-Wnull-dereference" "-Wold-style-cast"
+    "-Woverloaded-virtual" "-Wpacked" "-Wplacement-new=2" "-Wredundant-decls"
+    "-Wshadow=global" "-Wsign-conversion" "-Wsign-promo"
+    "-Wstrict-null-sentinel" "-Wstringop-truncation" "-Wsuggest-attribute=cold"
+    "-Wsuggest-attribute=const" "-Wsuggest-attribute=format"
+    "-Wsuggest-attribute=malloc" "-Wsuggest-attribute=noreturn"
+    "-Wsuggest-attribute=pure" "-Wsuggest-final-methods" "-Wsuggest-final-types"
+    "-Wsuggest-override" "-Wswitch-enum" "-Wtrampolines" "-Wundef"
+    "-Wuninitialized" "-Wunsafe-loop-optimizations" "-Wunused-const-variable=2"
+    "-Wunused-macros" "-Wuseless-cast" "-Wvector-operation-performance"
+    "-Wvla" "-Wzero-as-null-pointer-constant" "-Wattribute-alias=2"
+    "-Warray-bounds=2")
 endif()
 
 list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g")
@@ -207,9 +196,8 @@ configure_file(config.hpp.in config.hpp)
 
 find_package(Threads REQUIRED)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
-    "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 9)
-  message(STATUS "Using GCC 9+, using std::pmr instead of boost::pmr")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  message(STATUS "Using GCC, using std::pmr instead of boost::pmr")
   set(USE_BOOST FALSE)
 else()
   # Workaround https://github.com/boostorg/boost_install/issues/13: Homebrew

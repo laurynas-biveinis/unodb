@@ -46,7 +46,7 @@
 #define likely(x) __builtin_expect(x, 1)
 #define unlikely(x) __builtin_expect(x, 0)
 
-#if defined(__GNUG__) && !defined(__clang__) && __GNUC__ >= 9
+#if defined(__GNUG__) && !defined(__clang__)
 #define USE_STD_PMR
 #endif
 

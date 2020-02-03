@@ -97,11 +97,11 @@ class key_prefix final {
   [[nodiscard]] auto length() const noexcept { return length_; }
 
   key_prefix(unodb::detail::art_key k1, unodb::detail::art_key k2,
-             unodb::db::tree_depth_type depth) noexcept {
+             unodb::detail::tree_depth depth) noexcept {
     assert(k1 != k2);
     assert(depth < sizeof(unodb::detail::art_key));
 
-    unodb::db::tree_depth_type i;
+    unodb::detail::tree_depth i;
     for (i = depth; k1[i] == k2[i]; ++i) {
       assert(i - depth < capacity);
       data_[i - depth] = k1[i];
@@ -158,7 +158,7 @@ class key_prefix final {
 
   DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] auto get_shared_length(unodb::detail::art_key k,
-                                       unodb::db::tree_depth_type depth) const
+                                       unodb::detail::tree_depth depth) const
       noexcept {
     auto key_i = depth;
     unsigned shared_length = 0;
@@ -395,7 +395,7 @@ class inode {
   // is undefined
   using find_result_type = std::pair<std::uint8_t, node_ptr *>;
 
-  void add(leaf_unique_ptr &&child, db::tree_depth_type depth) noexcept;
+  void add(leaf_unique_ptr &&child, tree_depth depth) noexcept;
 
   void remove(std::uint8_t child_index) noexcept;
 
@@ -420,7 +420,7 @@ class inode {
 
  protected:
   inode(node_type type, std::uint8_t children_count_, art_key k1, art_key k2,
-        db::tree_depth_type depth) noexcept
+        tree_depth depth) noexcept
       : header{type},
         node_key_prefix{k1, k2, depth},
         children_count{children_count_} {
@@ -559,7 +559,7 @@ class basic_inode : public inode {
 
   [[nodiscard]] static auto create(
       std::unique_ptr<SmallerDerived> &&source_node, leaf_unique_ptr &&child,
-      db::tree_depth_type depth) {
+      tree_depth depth) {
     return std::make_unique<Derived>(std::move(source_node), std::move(child),
                                      depth);
   }
@@ -587,7 +587,7 @@ class basic_inode : public inode {
   }
 
  protected:
-  basic_inode(art_key k1, art_key k2, db::tree_depth_type depth) noexcept
+  basic_inode(art_key k1, art_key k2, tree_depth depth) noexcept
       : inode{NodeType, MinSize, k1, k2, depth} {
     assert(is_min_size());
   }
@@ -623,9 +623,8 @@ class inode_4 final : public basic_inode_4 {
   using basic_inode_4::create;
 
   // Create a new node with two given child nodes
-  [[nodiscard]] static auto create(art_key k1, art_key k2,
-                                   db::tree_depth_type depth, node_ptr child1,
-                                   leaf_unique_ptr &&child2) {
+  [[nodiscard]] static auto create(art_key k1, art_key k2, tree_depth depth,
+                                   node_ptr child1, leaf_unique_ptr &&child2) {
     return std::make_unique<inode_4>(k1, k2, depth, child1, std::move(child2));
   }
 
@@ -633,22 +632,21 @@ class inode_4 final : public basic_inode_4 {
   // new node contain that existing node and a given new node which caused this
   // key prefix split.
   [[nodiscard]] static auto create(node_ptr source_node, unsigned len,
-                                   db::tree_depth_type depth,
-                                   leaf_unique_ptr &&child1) {
+                                   tree_depth depth, leaf_unique_ptr &&child1) {
     return std::make_unique<inode_4>(source_node, len, depth,
                                      std::move(child1));
   }
 
-  inode_4(art_key k1, art_key k2, db::tree_depth_type depth, node_ptr child1,
+  inode_4(art_key k1, art_key k2, tree_depth depth, node_ptr child1,
           leaf_unique_ptr &&child2) noexcept;
 
-  inode_4(node_ptr source_node, unsigned len, db::tree_depth_type depth,
+  inode_4(node_ptr source_node, unsigned len, tree_depth depth,
           leaf_unique_ptr &&child1) noexcept;
 
   inode_4(std::unique_ptr<inode_16> &&source_node,
           std::uint8_t child_to_remove) noexcept;
 
-  void add(leaf_unique_ptr &&child, db::tree_depth_type depth) noexcept {
+  void add(leaf_unique_ptr &&child, tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     const auto key_byte = leaf::key(child.get())[depth];
@@ -697,15 +695,15 @@ class inode_4 final : public basic_inode_4 {
   std::array<node_ptr, capacity> children;
 };
 
-inode_4::inode_4(art_key k1, art_key k2, db::tree_depth_type depth,
-                 node_ptr child1, leaf_unique_ptr &&child2) noexcept
+inode_4::inode_4(art_key k1, art_key k2, tree_depth depth, node_ptr child1,
+                 leaf_unique_ptr &&child2) noexcept
     : basic_inode_4{k1, k2, depth} {
   const auto next_level_depth = depth + node_key_prefix.length();
   add_two_to_empty(k1[next_level_depth], child1, k2[next_level_depth],
                    std::move(child2));
 }
 
-inode_4::inode_4(node_ptr source_node, unsigned len, db::tree_depth_type depth,
+inode_4::inode_4(node_ptr source_node, unsigned len, tree_depth depth,
                  leaf_unique_ptr &&child1) noexcept
     : basic_inode_4{gsl::narrow_cast<key_prefix::size_type>(len),
                     source_node.internal->node_key_prefix.data()} {
@@ -766,12 +764,12 @@ using basic_inode_16 =
 class inode_16 final : public basic_inode_16 {
  public:
   inode_16(std::unique_ptr<inode_4> &&source_node, leaf_unique_ptr &&child,
-           db::tree_depth_type depth) noexcept;
+           tree_depth depth) noexcept;
 
   inode_16(std::unique_ptr<inode_48> &&source_node,
            uint8_t child_to_remove) noexcept;
 
-  void add(leaf_unique_ptr &&child, db::tree_depth_type depth) noexcept {
+  void add(leaf_unique_ptr &&child, tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     const auto key_byte = leaf::key(child.get())[depth];
@@ -830,7 +828,7 @@ inode_4::inode_4(std::unique_ptr<inode_16> &&source_node,
 }
 
 inode_16::inode_16(std::unique_ptr<inode_4> &&source_node,
-                   leaf_unique_ptr &&child, db::tree_depth_type depth) noexcept
+                   leaf_unique_ptr &&child, tree_depth depth) noexcept
     : basic_inode_16{*source_node} {
   const auto key_byte = leaf::key(child.get())[depth];
   const auto insert_pos_index = get_sorted_key_array_insert_position(
@@ -893,12 +891,12 @@ using basic_inode_48 =
 class inode_48 final : public basic_inode_48 {
  public:
   inode_48(std::unique_ptr<inode_16> &&source_node, leaf_unique_ptr &&child,
-           db::tree_depth_type depth) noexcept;
+           tree_depth depth) noexcept;
 
   inode_48(std::unique_ptr<inode_256> &&source_node,
            uint8_t child_to_remove) noexcept;
 
-  void add(leaf_unique_ptr &&child, db::tree_depth_type depth) noexcept {
+  void add(leaf_unique_ptr &&child, tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     const auto key_byte = static_cast<uint8_t>(leaf::key(child.get())[depth]);
@@ -985,7 +983,7 @@ inode_16::inode_16(std::unique_ptr<inode_48> &&source_node,
 }
 
 inode_48::inode_48(std::unique_ptr<inode_16> &&source_node,
-                   leaf_unique_ptr &&child, db::tree_depth_type depth) noexcept
+                   leaf_unique_ptr &&child, tree_depth depth) noexcept
     : basic_inode_48{*source_node} {
   std::memset(&child_indexes[0], empty_child,
               child_indexes.size() * sizeof(child_indexes[0]));
@@ -1059,9 +1057,9 @@ using basic_inode_256 =
 class inode_256 final : public basic_inode_256 {
  public:
   inode_256(std::unique_ptr<inode_48> &&source_node, leaf_unique_ptr &&child,
-            db::tree_depth_type depth) noexcept;
+            tree_depth depth) noexcept;
 
-  void add(leaf_unique_ptr &&child, db::tree_depth_type depth) noexcept {
+  void add(leaf_unique_ptr &&child, tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
     assert(!is_full());
 
@@ -1140,8 +1138,7 @@ inode_48::inode_48(std::unique_ptr<inode_256> &&source_node,
 }
 
 inode_256::inode_256(std::unique_ptr<inode_48> &&source_node,
-                     leaf_unique_ptr &&child,
-                     db::tree_depth_type depth) noexcept
+                     leaf_unique_ptr &&child, tree_depth depth) noexcept
     : basic_inode_256{*source_node} {
   for (unsigned i = 0; i < 256; i++) {
     const auto children_i = source_node->child_indexes[i];
@@ -1236,8 +1233,7 @@ inline bool inode::is_min_size() const noexcept {
   cannot_happen();
 }
 
-inline void inode::add(leaf_unique_ptr &&child,
-                       db::tree_depth_type depth) noexcept {
+inline void inode::add(leaf_unique_ptr &&child, tree_depth depth) noexcept {
   assert(!is_full());
   assert(child.get() != nullptr);
 
@@ -1406,7 +1402,7 @@ get_result db::get(key k) const noexcept {
 }
 
 get_result db::get_from_subtree(detail::node_ptr node, detail::art_key k,
-                                tree_depth_type depth) noexcept {
+                                detail::tree_depth depth) noexcept {
   if (node.type() == detail::node_type::LEAF) {
     if (detail::leaf::matches(node.leaf, k)) {
       const auto value = detail::leaf::value(node.leaf);
@@ -1435,7 +1431,7 @@ bool db::insert(key k, value_view v) {
 }
 
 bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
-                           value_view v, tree_depth_type depth) {
+                           value_view v, detail::tree_depth depth) {
   if (node->type() == detail::node_type::LEAF) {
     const auto existing_key = detail::leaf::key(node->leaf);
     if (unlikely(k == existing_key)) return false;
@@ -1520,7 +1516,7 @@ bool db::remove(key k) {
   return remove_from_subtree(bin_comparable_key, 0, &root);
 }
 
-bool db::remove_from_subtree(detail::art_key k, tree_depth_type depth,
+bool db::remove_from_subtree(detail::art_key k, detail::tree_depth depth,
                              detail::node_ptr *node) {
   assert(node->type() != detail::node_type::LEAF);
 

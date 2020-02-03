@@ -80,6 +80,8 @@ class inode_256;
 
 enum class node_type : std::uint8_t;
 
+using tree_depth = unsigned;
+
 // A pointer to some kind of node. It can be accessed either as a node header,
 // to query the right node type, a leaf, or as one of the internal nodes. This
 // depends on all types being of standard layout and node_header being at the
@@ -117,8 +119,6 @@ union node_ptr {
 
 class db final {
  public:
-  using tree_depth_type = unsigned;
-
   explicit db(std::size_t memory_limit_ = 0) noexcept
       : memory_limit{memory_limit_} {}
 
@@ -142,14 +142,15 @@ class db final {
 
  private:
   [[nodiscard]] static get_result get_from_subtree(
-      detail::node_ptr node, detail::art_key k, tree_depth_type depth) noexcept;
+      detail::node_ptr node, detail::art_key k,
+      detail::tree_depth depth) noexcept;
 
   [[nodiscard]] bool insert_to_subtree(detail::art_key k,
                                        detail::node_ptr *node, value_view v,
-                                       tree_depth_type depth);
+                                       detail::tree_depth depth);
 
   [[nodiscard]] bool remove_from_subtree(detail::art_key k,
-                                         tree_depth_type depth,
+                                         detail::tree_depth depth,
                                          detail::node_ptr *node);
 
   void increase_memory_use(std::size_t delta);

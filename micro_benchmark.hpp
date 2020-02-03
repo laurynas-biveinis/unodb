@@ -2,6 +2,8 @@
 #ifndef MICRO_BENCHMARK_HPP_
 #define MICRO_BENCHMARK_HPP_
 
+#include "global.hpp"
+
 #include <array>
 #include <cstddef>
 

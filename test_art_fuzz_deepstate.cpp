@@ -1,4 +1,6 @@
-// Copyright 2019 Laurynas Biveinis
+// Copyright 2019-2020 Laurynas Biveinis
+
+#include "global.hpp"
 
 #ifndef NDEBUG
 #include <sstream>

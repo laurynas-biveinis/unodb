@@ -1,4 +1,7 @@
 // Copyright 2019-2020 Laurynas Biveinis
+
+#include "global.hpp"
+
 #include "art.hpp"
 
 #include <algorithm>

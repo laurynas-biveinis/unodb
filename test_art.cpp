@@ -5,15 +5,45 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include "gtest/gtest.h"  // IWYU pragma: keep
+#include <gtest/gtest.h>  // IWYU pragma: keep
 
 #include "art.hpp"
+#include "mutex_art.hpp"
 #include "test_utils.hpp"
 
 namespace {
 
-TEST(ART, SingleNodeTreeEmptyValue) {
-  tree_verifier<unodb::db> verifier{1024};
+template <class Db>
+class ART : public ::testing::Test {
+ public:
+  using Test::Test;
+};
+
+using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db>;
+
+// Because Google thinks
+// error: must specify at least one argument for '...' parameter of variadic
+// macro
+//       [-Werror,-Wgnu-zero-variadic-macro-arguments]
+// TYPED_TEST_CASE(ARTCorrectnessTest, ARTTypes);
+//                                             ^
+// is not a bug: https://github.com/google/googletest/issues/2271
+DISABLE_CLANG_WARNING("-Wgnu-zero-variadic-macro-arguments")
+
+TYPED_TEST_CASE(ART, ARTTypes);
+
+RESTORE_CLANG_WARNINGS()
+
+// Because Google thinks
+// error: 'void {anonymous}::ARTCorrectnessTest_single_node_tree_empty_value_
+// Test<gtest_TypeParam_>::TestBody() [with gtest_TypeParam_ = unodb::db]'
+// can be marked override [-Werror=suggest-override] is not a bug:
+// https://github.com/google/googletest/issues/1063
+
+DISABLE_GCC_WARNING("-Wsuggest-override")
+
+TYPED_TEST(ART, SingleNodeTreeEmptyValue) {
+  tree_verifier<TypeParam> verifier{1024};
   verifier.check_absent_keys({1});
   verifier.insert(1, {});
 
@@ -21,30 +51,30 @@ TEST(ART, SingleNodeTreeEmptyValue) {
   verifier.check_absent_keys({0});
 }
 
-TEST(ART, SingleNodeTreeNonemptyValue) {
-  tree_verifier<unodb::db> verifier{1024};
+TYPED_TEST(ART, SingleNodeTreeNonemptyValue) {
+  tree_verifier<TypeParam> verifier{1024};
   verifier.insert(1, test_values[2]);
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 2});
 }
 
-TEST(ART, TooLongValue) {
+TYPED_TEST(ART, TooLongValue) {
   std::byte fake_val{0x00};
   unodb::value_view too_long{
       &fake_val,
       static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max()) +
           1U};
 
-  tree_verifier<unodb::db> verifier;
+  tree_verifier<TypeParam> verifier;
 
   ASSERT_THROW((void)verifier.get_db().insert(1, too_long), std::length_error);
 
   verifier.check_absent_keys({1});
 }
 
-TEST(ART, ExpandLeafToNode4) {
-  tree_verifier<unodb::db> verifier{1024};
+TYPED_TEST(ART, ExpandLeafToNode4) {
+  tree_verifier<TypeParam> verifier{1024};
 
   verifier.insert(0, test_values[1]);
   verifier.insert(1, test_values[2]);
@@ -53,8 +83,8 @@ TEST(ART, ExpandLeafToNode4) {
   verifier.check_absent_keys({2});
 }
 
-TEST(ART, DuplicateKey) {
-  tree_verifier<unodb::db> verifier{1024};
+TYPED_TEST(ART, DuplicateKey) {
+  tree_verifier<TypeParam> verifier{1024};
 
   verifier.insert(0, test_values[0]);
   const auto mem_use_before = verifier.get_db().get_current_memory_use();
@@ -63,8 +93,8 @@ TEST(ART, DuplicateKey) {
   verifier.check_present_values();
 }
 
-TEST(ART, InsertToFullNode4) {
-  tree_verifier<unodb::db> verifier{1024};
+TYPED_TEST(ART, InsertToFullNode4) {
+  tree_verifier<TypeParam> verifier{1024};
 
   verifier.insert_key_range(0, 4);
 
@@ -72,8 +102,8 @@ TEST(ART, InsertToFullNode4) {
   verifier.check_absent_keys({5, 4});
 }
 
-TEST(ART, TwoNode4) {
-  tree_verifier<unodb::db> verifier{2048};
+TYPED_TEST(ART, TwoNode4) {
+  tree_verifier<TypeParam> verifier{2048};
 
   verifier.insert(1, test_values[0]);
   verifier.insert(3, test_values[2]);
@@ -84,8 +114,8 @@ TEST(ART, TwoNode4) {
   verifier.check_absent_keys({0xFF00, 2});
 }
 
-TEST(ART, DbInsertNodeRecursion) {
-  tree_verifier<unodb::db> verifier{2048};
+TYPED_TEST(ART, DbInsertNodeRecursion) {
+  tree_verifier<TypeParam> verifier{2048};
 
   verifier.insert(1, test_values[0]);
   verifier.insert(3, test_values[2]);
@@ -99,8 +129,8 @@ TEST(ART, DbInsertNodeRecursion) {
   verifier.check_absent_keys({0xFF0100, 0xFF0000, 2});
 }
 
-TEST(ART, Node16) {
-  tree_verifier<unodb::db> verifier{2048};
+TYPED_TEST(ART, Node16) {
+  tree_verifier<TypeParam> verifier{2048};
 
   verifier.insert_key_range(0, 5);
 
@@ -108,8 +138,8 @@ TEST(ART, Node16) {
   verifier.check_absent_keys({6, 0x0100, 0xFFFFFFFFFFFFFFFFULL});
 }
 
-TEST(ART, FullNode16) {
-  tree_verifier<unodb::db> verifier{4096};
+TYPED_TEST(ART, FullNode16) {
+  tree_verifier<TypeParam> verifier{4096};
 
   verifier.insert_key_range(0, 16);
 
@@ -117,8 +147,8 @@ TEST(ART, FullNode16) {
   verifier.check_present_values();
 }
 
-TEST(ART, Node16KeyPrefixSplit) {
-  tree_verifier<unodb::db> verifier{4096};
+TYPED_TEST(ART, Node16KeyPrefixSplit) {
+  tree_verifier<TypeParam> verifier{4096};
 
   verifier.insert_key_range(10, 5);
 
@@ -129,8 +159,8 @@ TEST(ART, Node16KeyPrefixSplit) {
   verifier.check_absent_keys({9, 0x10FF});
 }
 
-TEST(ART, Node16KeyInsertOrderDescending) {
-  tree_verifier<unodb::db> verifier{4096};
+TYPED_TEST(ART, Node16KeyInsertOrderDescending) {
+  tree_verifier<TypeParam> verifier{4096};
 
   verifier.insert(5, test_values[0]);
   verifier.insert(4, test_values[1]);
@@ -143,8 +173,8 @@ TEST(ART, Node16KeyInsertOrderDescending) {
   verifier.check_absent_keys({6});
 }
 
-TEST(ART, Node48) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, Node48) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.insert_key_range(0, 17);
 
@@ -152,8 +182,8 @@ TEST(ART, Node48) {
   verifier.check_absent_keys({17});
 }
 
-TEST(ART, FullNode48) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, FullNode48) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.insert_key_range(0, 48);
 
@@ -161,8 +191,8 @@ TEST(ART, FullNode48) {
   verifier.check_absent_keys({49});
 }
 
-TEST(ART, Node48KeyPrefixSplit) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, Node48KeyPrefixSplit) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.insert_key_range(10, 17);
 
@@ -173,8 +203,8 @@ TEST(ART, Node48KeyPrefixSplit) {
   verifier.check_absent_keys({9, 27, 0x100019, 0x100100, 0x110000});
 }
 
-TEST(ART, Node256) {
-  tree_verifier<unodb::db> verifier{20480};
+TYPED_TEST(ART, Node256) {
+  tree_verifier<TypeParam> verifier{20480};
 
   verifier.insert_key_range(1, 49);
 
@@ -182,8 +212,8 @@ TEST(ART, Node256) {
   verifier.check_absent_keys({50});
 }
 
-TEST(ART, FullNode256) {
-  tree_verifier<unodb::db> verifier{20480};
+TYPED_TEST(ART, FullNode256) {
+  tree_verifier<TypeParam> verifier{20480};
 
   verifier.insert_key_range(0, 256);
 
@@ -191,8 +221,8 @@ TEST(ART, FullNode256) {
   verifier.check_absent_keys({256});
 }
 
-TEST(ART, Node256KeyPrefixSplit) {
-  tree_verifier<unodb::db> verifier{20480};
+TYPED_TEST(ART, Node256KeyPrefixSplit) {
+  tree_verifier<TypeParam> verifier{20480};
 
   verifier.insert_key_range(20, 49);
 
@@ -203,16 +233,16 @@ TEST(ART, Node256KeyPrefixSplit) {
   verifier.check_absent_keys({19, 69, 0x100019, 0x100100, 0x110000});
 }
 
-TEST(ART, TryDeleteFromEmpty) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, TryDeleteFromEmpty) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.attempt_remove_missing_keys({1});
   verifier.assert_empty();
   verifier.check_absent_keys({1});
 }
 
-TEST(ART, SingleNodeTreeDelete) {
-  tree_verifier<unodb::db> verifier{1024};
+TYPED_TEST(ART, SingleNodeTreeDelete) {
+  tree_verifier<TypeParam> verifier{1024};
 
   verifier.insert(1, test_values[0]);
   verifier.remove(1);
@@ -222,16 +252,16 @@ TEST(ART, SingleNodeTreeDelete) {
   verifier.check_absent_keys({1});
 }
 
-TEST(ART, Node4AttemptDeleteAbsent) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, Node4AttemptDeleteAbsent) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.insert_key_range(1, 4);
   verifier.attempt_remove_missing_keys({0, 6, 0xFF000001});
   verifier.check_absent_keys({0, 6, 0xFF00000});
 }
 
-TEST(ART, Node4FullDeleteMiddleAndBeginning) {
-  tree_verifier<unodb::db> verifier{2048};
+TYPED_TEST(ART, Node4FullDeleteMiddleAndBeginning) {
+  tree_verifier<TypeParam> verifier{2048};
 
   verifier.insert_key_range(1, 4);
   // Delete from Node4 middle
@@ -244,8 +274,8 @@ TEST(ART, Node4FullDeleteMiddleAndBeginning) {
   verifier.check_absent_keys({1, 0, 2, 5});
 }
 
-TEST(ART, Node4FullDeleteEndAndMiddle) {
-  tree_verifier<unodb::db> verifier{2048};
+TYPED_TEST(ART, Node4FullDeleteEndAndMiddle) {
+  tree_verifier<TypeParam> verifier{2048};
 
   verifier.insert_key_range(1, 4);
   // Delete from Node4 end
@@ -258,8 +288,8 @@ TEST(ART, Node4FullDeleteEndAndMiddle) {
   verifier.check_absent_keys({2, 4, 0, 5});
 }
 
-TEST(ART, Node4ShrinkToSingleLeaf) {
-  tree_verifier<unodb::db> verifier{2048};
+TYPED_TEST(ART, Node4ShrinkToSingleLeaf) {
+  tree_verifier<TypeParam> verifier{2048};
 
   verifier.insert_key_range(1, 2);
   verifier.remove(1);
@@ -267,8 +297,8 @@ TEST(ART, Node4ShrinkToSingleLeaf) {
   verifier.check_absent_keys({1});
 }
 
-TEST(ART, Node4DeleteLowerNode) {
-  tree_verifier<unodb::db> verifier{2048};
+TYPED_TEST(ART, Node4DeleteLowerNode) {
+  tree_verifier<TypeParam> verifier{2048};
 
   verifier.insert_key_range(0, 2);
   // Insert a value that does not share full prefix with the current Node4
@@ -279,8 +309,8 @@ TEST(ART, Node4DeleteLowerNode) {
   verifier.check_absent_keys({0, 2, 0xFF01});
 }
 
-TEST(ART, Node4DeleteKeyPrefixMerge) {
-  tree_verifier<unodb::db> verifier{2048};
+TYPED_TEST(ART, Node4DeleteKeyPrefixMerge) {
+  tree_verifier<TypeParam> verifier{2048};
 
   verifier.insert_key_range(0x8001, 2);
   // Insert a value that does not share full prefix with the current Node4
@@ -291,8 +321,8 @@ TEST(ART, Node4DeleteKeyPrefixMerge) {
   verifier.check_absent_keys({0x90AA, 0x8003});
 }
 
-TEST(ART, Node16DeleteBeginningMiddleEnd) {
-  tree_verifier<unodb::db> verifier{4096};
+TYPED_TEST(ART, Node16DeleteBeginningMiddleEnd) {
+  tree_verifier<TypeParam> verifier{4096};
 
   verifier.insert_key_range(1, 16);
   verifier.remove(5);
@@ -303,8 +333,8 @@ TEST(ART, Node16DeleteBeginningMiddleEnd) {
   verifier.check_absent_keys({0, 1, 5, 16, 17});
 }
 
-TEST(ART, Node16ShrinkToNode4DeleteMiddle) {
-  tree_verifier<unodb::db> verifier{4096};
+TYPED_TEST(ART, Node16ShrinkToNode4DeleteMiddle) {
+  tree_verifier<TypeParam> verifier{4096};
 
   verifier.insert_key_range(1, 5);
   verifier.remove(2);
@@ -313,8 +343,8 @@ TEST(ART, Node16ShrinkToNode4DeleteMiddle) {
   verifier.check_absent_keys({0, 2, 6});
 }
 
-TEST(ART, Node16ShrinkToNode4DeleteBeginning) {
-  tree_verifier<unodb::db> verifier{4096};
+TYPED_TEST(ART, Node16ShrinkToNode4DeleteBeginning) {
+  tree_verifier<TypeParam> verifier{4096};
 
   verifier.insert_key_range(1, 5);
   verifier.remove(1);
@@ -323,8 +353,8 @@ TEST(ART, Node16ShrinkToNode4DeleteBeginning) {
   verifier.check_absent_keys({0, 1, 6});
 }
 
-TEST(ART, Node16ShrinkToNode4DeleteEnd) {
-  tree_verifier<unodb::db> verifier{4096};
+TYPED_TEST(ART, Node16ShrinkToNode4DeleteEnd) {
+  tree_verifier<TypeParam> verifier{4096};
 
   verifier.insert_key_range(1, 5);
   verifier.remove(5);
@@ -333,8 +363,8 @@ TEST(ART, Node16ShrinkToNode4DeleteEnd) {
   verifier.check_absent_keys({0, 5, 6});
 }
 
-TEST(ART, Node16KeyPrefixMerge) {
-  tree_verifier<unodb::db> verifier{4096};
+TYPED_TEST(ART, Node16KeyPrefixMerge) {
+  tree_verifier<TypeParam> verifier{4096};
 
   verifier.insert_key_range(10, 5);
   // Insert a value that does share full prefix with the current Node16
@@ -347,8 +377,8 @@ TEST(ART, Node16KeyPrefixMerge) {
   verifier.check_absent_keys({9, 16, 0x1020});
 }
 
-TEST(ART, Node48DeleteBeginningMiddleEnd) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, Node48DeleteBeginningMiddleEnd) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.insert_key_range(1, 48);
   verifier.remove(30);
@@ -359,8 +389,8 @@ TEST(ART, Node48DeleteBeginningMiddleEnd) {
   verifier.check_absent_keys({0, 1, 30, 48, 49});
 }
 
-TEST(ART, Node48ShrinkToNode16DeleteMiddle) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, Node48ShrinkToNode16DeleteMiddle) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.insert_key_range(0x80, 17);
   verifier.remove(0x85);
@@ -369,8 +399,8 @@ TEST(ART, Node48ShrinkToNode16DeleteMiddle) {
   verifier.check_absent_keys({0x7F, 0x85, 0x91});
 }
 
-TEST(ART, Node48ShrinkToNode16DeleteBeginning) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, Node48ShrinkToNode16DeleteBeginning) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.insert_key_range(1, 17);
   verifier.remove(1);
@@ -379,8 +409,8 @@ TEST(ART, Node48ShrinkToNode16DeleteBeginning) {
   verifier.check_absent_keys({0, 1, 18});
 }
 
-TEST(ART, Node48ShrinkToNode16DeleteEnd) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, Node48ShrinkToNode16DeleteEnd) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.insert_key_range(1, 17);
   verifier.remove(17);
@@ -389,8 +419,8 @@ TEST(ART, Node48ShrinkToNode16DeleteEnd) {
   verifier.check_absent_keys({0, 17, 18});
 }
 
-TEST(ART, Node48KeyPrefixMerge) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, Node48KeyPrefixMerge) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.insert_key_range(10, 17);
   // Insert a value that does not share full prefix with the current Node48
@@ -403,8 +433,8 @@ TEST(ART, Node48KeyPrefixMerge) {
   verifier.check_absent_keys({9, 0x2010, 28});
 }
 
-TEST(ART, Node256DeleteBeginningMiddleEnd) {
-  tree_verifier<unodb::db> verifier{20480};
+TYPED_TEST(ART, Node256DeleteBeginningMiddleEnd) {
+  tree_verifier<TypeParam> verifier{20480};
 
   verifier.insert_key_range(1, 256);
   verifier.remove(180);
@@ -415,8 +445,8 @@ TEST(ART, Node256DeleteBeginningMiddleEnd) {
   verifier.check_absent_keys({0, 1, 180, 256});
 }
 
-TEST(ART, Node256ShrinkToNode48DeleteMiddle) {
-  tree_verifier<unodb::db> verifier{20480};
+TYPED_TEST(ART, Node256ShrinkToNode48DeleteMiddle) {
+  tree_verifier<TypeParam> verifier{20480};
 
   verifier.insert_key_range(1, 49);
   verifier.remove(25);
@@ -425,8 +455,8 @@ TEST(ART, Node256ShrinkToNode48DeleteMiddle) {
   verifier.check_absent_keys({0, 25, 50});
 }
 
-TEST(ART, Node256ShrinkToNode48DeleteBeginning) {
-  tree_verifier<unodb::db> verifier{20480};
+TYPED_TEST(ART, Node256ShrinkToNode48DeleteBeginning) {
+  tree_verifier<TypeParam> verifier{20480};
 
   verifier.insert_key_range(1, 49);
   verifier.remove(1);
@@ -435,8 +465,8 @@ TEST(ART, Node256ShrinkToNode48DeleteBeginning) {
   verifier.check_absent_keys({0, 1, 50});
 }
 
-TEST(ART, Node256ShrinkToNode48DeleteEnd) {
-  tree_verifier<unodb::db> verifier{20480};
+TYPED_TEST(ART, Node256ShrinkToNode48DeleteEnd) {
+  tree_verifier<TypeParam> verifier{20480};
 
   verifier.insert_key_range(1, 49);
   verifier.remove(49);
@@ -445,8 +475,8 @@ TEST(ART, Node256ShrinkToNode48DeleteEnd) {
   verifier.check_absent_keys({0, 49, 50});
 }
 
-TEST(ART, Node256KeyPrefixMerge) {
-  tree_verifier<unodb::db> verifier{20480};
+TYPED_TEST(ART, Node256KeyPrefixMerge) {
+  tree_verifier<TypeParam> verifier{20480};
 
   verifier.insert_key_range(10, 49);
   // Insert a value that does not share full prefix with the current Node256
@@ -459,8 +489,8 @@ TEST(ART, Node256KeyPrefixMerge) {
   verifier.check_absent_keys({9, 0x2010, 60});
 }
 
-TEST(ART, MissingKeyWithPresentPrefix) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, MissingKeyWithPresentPrefix) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.insert(0x010000, test_values[0]);
   verifier.insert(0x000001, test_values[1]);
@@ -469,56 +499,56 @@ TEST(ART, MissingKeyWithPresentPrefix) {
   verifier.attempt_remove_missing_keys({0x000002, 0x010100, 0x010002});
 }
 
-TEST(ART, MissingKeyMatchingInodePath) {
-  tree_verifier<unodb::db> verifier{10240};
+TYPED_TEST(ART, MissingKeyMatchingInodePath) {
+  tree_verifier<TypeParam> verifier{10240};
 
   verifier.insert(0x0100, test_values[0]);
   verifier.insert(0x0200, test_values[1]);
   verifier.attempt_remove_missing_keys({0x0101, 0x0202});
 }
 
-TEST(ART, MemoryLimitBelowMinimum) {
-  tree_verifier<unodb::db> verifier{1};
+TYPED_TEST(ART, MemoryLimitBelowMinimum) {
+  tree_verifier<TypeParam> verifier{1};
   verifier.test_insert_until_memory_limit();
 }
 
 // It was one leaf at the time of writing the test, this is not
 // guaranteed later
-TEST(ART, MemoryLimitOneLeaf) {
-  tree_verifier<unodb::db> verifier{20};
+TYPED_TEST(ART, MemoryLimitOneLeaf) {
+  tree_verifier<TypeParam> verifier{20};
   verifier.test_insert_until_memory_limit();
 }
 
-TEST(ART, MemoryLimitOneNode4) {
-  tree_verifier<unodb::db> verifier{80};
+TYPED_TEST(ART, MemoryLimitOneNode4) {
+  tree_verifier<TypeParam> verifier{80};
   verifier.test_insert_until_memory_limit();
 }
 
-TEST(ART, MemoryLimitOneNode16) {
-  tree_verifier<unodb::db> verifier{320};
+TYPED_TEST(ART, MemoryLimitOneNode16) {
+  tree_verifier<TypeParam> verifier{320};
   verifier.test_insert_until_memory_limit();
 }
 
-TEST(ART, MemoryLimitOneNode48) {
-  tree_verifier<unodb::db> verifier{1024};
+TYPED_TEST(ART, MemoryLimitOneNode48) {
+  tree_verifier<TypeParam> verifier{1024};
   verifier.test_insert_until_memory_limit();
 }
 
-TEST(ART, MemoryLimitOneNode256) {
-  tree_verifier<unodb::db> verifier{4096};
+TYPED_TEST(ART, MemoryLimitOneNode256) {
+  tree_verifier<TypeParam> verifier{4096};
   verifier.test_insert_until_memory_limit();
 }
 
-TEST(ART, MemoryAccountingDuplicateKeyInsert) {
-  tree_verifier<unodb::db> verifier{2048};
+TYPED_TEST(ART, MemoryAccountingDuplicateKeyInsert) {
+  tree_verifier<TypeParam> verifier{2048};
   verifier.insert(0, test_values[0]);
   ASSERT_FALSE(verifier.get_db().insert(0, test_values[1]));
   verifier.remove(0);
   ASSERT_EQ(verifier.get_db().get_current_memory_use(), 0);
 }
 
-TEST(ART, Node48InsertIntoDeletedSlot) {
-  tree_verifier<unodb::db> verifier{4096};
+TYPED_TEST(ART, Node48InsertIntoDeletedSlot) {
+  tree_verifier<TypeParam> verifier{4096};
   verifier.insert(16865361447928765957ULL, test_values[0]);
   verifier.insert(7551546784238320931ULL, test_values[1]);
   verifier.insert(10913915230368519832ULL, test_values[2]);
@@ -542,8 +572,8 @@ TEST(ART, Node48InsertIntoDeletedSlot) {
   verifier.check_present_values();
 }
 
-TEST(ART, MemoryAccountingGrowingNodeException) {
-  tree_verifier<unodb::db> verifier{1024};
+TYPED_TEST(ART, MemoryAccountingGrowingNodeException) {
+  tree_verifier<TypeParam> verifier{1024};
 
   verifier.insert_key_range(0, 4);
 
@@ -558,8 +588,8 @@ TEST(ART, MemoryAccountingGrowingNodeException) {
   verifier.check_absent_keys({10});
 }
 
-TEST(ART, MemoryAccountingLeafToNode4Exception) {
-  tree_verifier<unodb::db> verifier{50};
+TYPED_TEST(ART, MemoryAccountingLeafToNode4Exception) {
+  tree_verifier<TypeParam> verifier{50};
 
   verifier.insert(0, test_values[0]);
 
@@ -569,8 +599,8 @@ TEST(ART, MemoryAccountingLeafToNode4Exception) {
   verifier.check_absent_keys({1});
 }
 
-TEST(ART, MemoryAccountingPrefixSplitException) {
-  tree_verifier<unodb::db> verifier{140};
+TYPED_TEST(ART, MemoryAccountingPrefixSplitException) {
+  tree_verifier<TypeParam> verifier{140};
 
   verifier.insert(1, test_values[0]);
   verifier.insert(3, test_values[2]);
@@ -581,5 +611,7 @@ TEST(ART, MemoryAccountingPrefixSplitException) {
   verifier.check_present_values();
   verifier.check_absent_keys({0xFF01});
 }
+
+RESTORE_GCC_WARNINGS()
 
 }  // namespace

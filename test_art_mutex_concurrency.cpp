@@ -5,7 +5,7 @@
 #include <random>
 #include <thread>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include "mutex_art.hpp"
 #include "test_utils.hpp"

@@ -150,7 +150,8 @@ TEST(ART, DeepStateFuzz) {
           }
           dump_tree(test_db);
           LOG(TRACE) << "Current mem use: "
-                     << static_cast<uint64_t>(test_db.get_current_memory_use());
+                     << static_cast<std::uint64_t>(
+                            test_db.get_current_memory_use());
         },
         // Query
         [&] {
@@ -191,7 +192,8 @@ TEST(ART, DeepStateFuzz) {
           }
           dump_tree(test_db);
           LOG(TRACE) << "Current mem use: "
-                     << static_cast<uint64_t>(test_db.get_current_memory_use());
+                     << static_cast<std::uint64_t>(
+                            test_db.get_current_memory_use());
         });
   }
 
@@ -204,7 +206,8 @@ TEST(ART, DeepStateFuzz) {
     const auto db_remove_result = test_db.remove(key);
     ASSERT(db_remove_result);
     const auto current_mem_use = test_db.get_current_memory_use();
-    LOG(TRACE) << "Current mem use: " << static_cast<uint64_t>(current_mem_use);
+    LOG(TRACE) << "Current mem use: "
+               << static_cast<std::uint64_t>(current_mem_use);
     ASSERT(current_mem_use < prev_mem_use || mem_limit == 0);
     prev_mem_use = current_mem_use;
   }

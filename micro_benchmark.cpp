@@ -103,7 +103,7 @@ void dense_full_scan(benchmark::State &state) {
     (void)test_db.insert(i, unodb::value_view{unodb::benchmark::value100});
   for (auto _ : state)
     for (auto i = 0; i < full_scan_multiplier; i++)
-      for (unodb::key j = 0; j < static_cast<unodb::key>(state.range(0)); j++) {
+      for (unodb::key j = 0; j < static_cast<unodb::key>(state.range(0)); ++j) {
         benchmark::DoNotOptimize(test_db.get(j));
       }
   state.SetItemsProcessed(state.range(0) * full_scan_multiplier);
@@ -154,7 +154,7 @@ void dense_tree_increasing_keys(benchmark::State &state) {
 void dense_insert_value_lengths_args(benchmark::internal::Benchmark *b) {
   for (auto i = 100; i <= 1000000; i *= 8)
     for (auto j = 0; j < static_cast<int64_t>(unodb::benchmark::values.size());
-         j++)
+         ++j)
       b->Args({i, j});
 }
 

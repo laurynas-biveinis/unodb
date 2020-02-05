@@ -5,7 +5,7 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <cassert>
-#include <cstddef>  // for uint8_t
+#include <cstddef>  // for std::uint8_t
 #include <cstdint>  // IWYU pragma: keep
 #include <cstring>
 #include <memory>
@@ -73,6 +73,7 @@ using raw_leaf = std::byte;
 using raw_leaf_ptr = raw_leaf *;
 
 class inode;
+
 class inode_4;
 class inode_16;
 class inode_48;

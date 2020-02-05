@@ -58,8 +58,9 @@ using pmr_unsynchronized_pool_resource =
 
 #endif
 
-[[nodiscard]] inline auto *pmr_allocate(pmr_pool &pool, std::size_t size) {
-  auto *const result = pool.allocate(size);
+[[nodiscard]] inline auto *pmr_allocate(pmr_pool &pool, std::size_t size,
+                                        std::size_t alignment) {
+  auto *const result = pool.allocate(size, alignment);
 
 #if defined(VALGRIND_CLIENT_REQUESTS) && !defined(USE_STD_PMR)
   if (!pool.is_equal(*pmr_new_delete_resource())) {

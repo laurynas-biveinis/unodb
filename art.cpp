@@ -305,8 +305,8 @@ leaf_unique_ptr leaf::create(art_key k, value_view v, db &db_instance) {
   const auto value_size = static_cast<value_size_type>(v.size());
   const auto leaf_size = static_cast<std::size_t>(offset_value) + value_size;
   db_instance.increase_memory_use(leaf_size);
-  auto *const leaf_mem =
-      static_cast<std::byte *>(pmr_allocate(get_leaf_node_pool(), leaf_size));
+  auto *const leaf_mem = static_cast<std::byte *>(
+      pmr_allocate(get_leaf_node_pool(), leaf_size, alignof(node_header)));
   new (leaf_mem) node_header{node_type::LEAF};
   k.copy_to(&leaf_mem[offset_key]);
   std::memcpy(&leaf_mem[offset_value_size], &value_size,
@@ -567,7 +567,7 @@ class basic_inode : public inode {
   [[nodiscard]] static void *operator new(std::size_t size) {
     assert(size == sizeof(Derived));
 
-    return pmr_allocate(get_inode_pool<Derived>(), size);
+    return pmr_allocate(get_inode_pool<Derived>(), size, alignof(Derived));
   }
 
   static void operator delete(void *to_delete) {

@@ -18,7 +18,7 @@ namespace unodb {
 namespace detail {
 
 struct leaf;
-class leaf_creator_with_scope_cleanup;
+class raii_leaf_creator;
 
 // Internal ART key in binary-comparable format
 template <typename KeyType>
@@ -162,7 +162,7 @@ class db final {
   const std::size_t memory_limit;
 
   friend struct detail::leaf;
-  friend class detail::leaf_creator_with_scope_cleanup;
+  friend class detail::raii_leaf_creator;
 };
 
 }  // namespace unodb

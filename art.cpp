@@ -1350,23 +1350,21 @@ void inode::dump(std::ostream &os) const {
 
 #endif
 
-class leaf_creator_with_scope_cleanup {
+class raii_leaf_creator {
  public:
-  leaf_creator_with_scope_cleanup(art_key k, unodb::value_view v,
-                                  unodb::db &db_instance_)
+  raii_leaf_creator(art_key k, unodb::value_view v, unodb::db &db_instance_)
       : leaf{leaf::create(k, v, db_instance_)},
         leaf_size{leaf::size(leaf.get())},
         db_instance{db_instance_},
         exceptions_at_ctor{std::uncaught_exceptions()} {}
 
-  leaf_creator_with_scope_cleanup(const leaf_creator_with_scope_cleanup &) =
-      delete;
-  leaf_creator_with_scope_cleanup(leaf_creator_with_scope_cleanup &&) = delete;
+  raii_leaf_creator(const raii_leaf_creator &) = delete;
+  raii_leaf_creator(raii_leaf_creator &&) = delete;
 
-  auto &operator=(const leaf_creator_with_scope_cleanup &) = delete;
-  auto &operator=(leaf_creator_with_scope_cleanup &&) = delete;
+  auto &operator=(const raii_leaf_creator &) = delete;
+  auto &operator=(raii_leaf_creator &&) = delete;
 
-  ~leaf_creator_with_scope_cleanup() noexcept {
+  ~raii_leaf_creator() noexcept {
     assert(get_called);
 
     if (likely(exceptions_at_ctor == std::uncaught_exceptions())) return;
@@ -1435,7 +1433,7 @@ bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
   if (node->type() == detail::node_type::LEAF) {
     const auto existing_key = detail::leaf::key(node->leaf);
     if (unlikely(k == existing_key)) return false;
-    detail::leaf_creator_with_scope_cleanup leaf_creator{k, v, *this};
+    detail::raii_leaf_creator leaf_creator{k, v, *this};
     auto leaf = leaf_creator.get();
     increase_memory_use(sizeof(detail::inode_4));
     auto new_node =
@@ -1449,7 +1447,7 @@ bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
   const auto shared_prefix_len =
       node->internal->node_key_prefix.get_shared_length(k, depth);
   if (shared_prefix_len < node->internal->node_key_prefix.length()) {
-    detail::leaf_creator_with_scope_cleanup leaf_creator{k, v, *this};
+    detail::raii_leaf_creator leaf_creator{k, v, *this};
     auto leaf = leaf_creator.get();
     increase_memory_use(sizeof(detail::inode_4));
     auto new_node = detail::inode_4::create(*node, shared_prefix_len, depth,
@@ -1463,7 +1461,7 @@ bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
 
   if (child != nullptr) return insert_to_subtree(k, child, v, depth + 1);
 
-  detail::leaf_creator_with_scope_cleanup leaf_creator{k, v, *this};
+  detail::raii_leaf_creator leaf_creator{k, v, *this};
   auto leaf = leaf_creator.get();
 
   const auto node_is_full = node->internal->is_full();

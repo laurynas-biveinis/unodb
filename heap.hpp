@@ -72,7 +72,8 @@ using pmr_unsynchronized_pool_resource =
   return result;
 }
 
-inline void pmr_deallocate(pmr_pool &pool, void *pointer, std::size_t size) {
+inline void pmr_deallocate(pmr_pool &pool, void *pointer, std::size_t size,
+                           std::size_t alignment) {
   ASAN_POISON_MEMORY_REGION(pointer, size);
 #if defined(VALGRIND_CLIENT_REQUESTS) && !defined(USE_STD_PMR)
   if (!pool.is_equal(*pmr_new_delete_resource())) {
@@ -81,7 +82,7 @@ inline void pmr_deallocate(pmr_pool &pool, void *pointer, std::size_t size) {
   }
 #endif
 
-  pool.deallocate(pointer, size);
+  pool.deallocate(pointer, size, alignment);
 }
 
 }  // namespace unodb::detail

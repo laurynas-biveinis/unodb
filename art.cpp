@@ -330,7 +330,7 @@ void leaf::dump(std::ostream &os, raw_leaf_ptr leaf) {
 void leaf_deleter::operator()(unodb::detail::raw_leaf_ptr to_delete) const
     noexcept {
   const auto s = unodb::detail::leaf::size(to_delete);
-  pmr_deallocate(get_leaf_node_pool(), to_delete, s);
+  pmr_deallocate(get_leaf_node_pool(), to_delete, s, alignof(node_header));
 }
 
 }  // namespace unodb::detail
@@ -571,7 +571,8 @@ class basic_inode : public inode {
   }
 
   static void operator delete(void *to_delete) {
-    pmr_deallocate(get_inode_pool<Derived>(), to_delete, sizeof(Derived));
+    pmr_deallocate(get_inode_pool<Derived>(), to_delete, sizeof(Derived),
+                   alignof(Derived));
   }
 
   [[nodiscard]] auto is_full() const noexcept {

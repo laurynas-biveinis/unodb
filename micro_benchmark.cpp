@@ -28,7 +28,7 @@ class batched_random_key_source {
 
  private:
   void refill() {
-    for (decltype(random_keys)::size_type i = 0; i < random_keys.size(); i++)
+    for (decltype(random_keys)::size_type i = 0; i < random_keys.size(); ++i)
       random_keys[i] = random_key_dist(gen);
     random_key_ptr = random_keys.cbegin();
   }
@@ -99,10 +99,10 @@ constexpr auto full_scan_multiplier = 50;
 
 void dense_full_scan(benchmark::State &state) {
   unodb::db test_db;
-  for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); i++)
+  for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
     (void)test_db.insert(i, unodb::value_view{unodb::benchmark::value100});
   for (auto _ : state)
-    for (auto i = 0; i < full_scan_multiplier; i++)
+    for (auto i = 0; i < full_scan_multiplier; ++i)
       for (unodb::key j = 0; j < static_cast<unodb::key>(state.range(0)); ++j) {
         benchmark::DoNotOptimize(test_db.get(j));
       }
@@ -119,7 +119,7 @@ void dense_tree_sparse_deletes_args(benchmark::internal::Benchmark *b) {
 
 void dense_tree_sparse_deletes(benchmark::State &state) {
   unodb::db test_db;
-  for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); i++)
+  for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
     (void)test_db.insert(i, unodb::value_view{unodb::benchmark::value100});
   batched_random_key_source random_keys;
   for (auto _ : state) {
@@ -172,7 +172,7 @@ void dense_insert_value_lengths(benchmark::State &state) {
 
 void dense_insert_dup_attempts(benchmark::State &state) {
   unodb::db test_db;
-  for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); i++)
+  for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
     (void)test_db.insert(i, unodb::value_view{unodb::benchmark::value100});
   for (auto _ : state)
     for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)

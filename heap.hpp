@@ -60,7 +60,9 @@ using pmr_unsynchronized_pool_resource =
 
 [[nodiscard]] inline auto *pmr_allocate(pmr_pool &pool, std::size_t size,
                                         std::size_t alignment) {
-  auto *const result = pool.allocate(size, alignment);
+  auto *const result = pool.allocate(
+      size, std::max(alignment, static_cast<std::size_t>(
+                                    __STDCPP_DEFAULT_NEW_ALIGNMENT__)));
 
 #if defined(VALGRIND_CLIENT_REQUESTS) && !defined(USE_STD_PMR)
   if (!pool.is_equal(*pmr_new_delete_resource())) {
@@ -82,7 +84,9 @@ inline void pmr_deallocate(pmr_pool &pool, void *pointer, std::size_t size,
   }
 #endif
 
-  pool.deallocate(pointer, size, alignment);
+  pool.deallocate(pointer, size,
+                  std::max(alignment, static_cast<std::size_t>(
+                                          __STDCPP_DEFAULT_NEW_ALIGNMENT__)));
 }
 
 }  // namespace unodb::detail

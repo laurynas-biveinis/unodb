@@ -573,13 +573,15 @@ class basic_inode : public inode {
 
     return pmr_allocate(
         get_inode_pool<Derived>(), size,
-        std::max(alignof(Derived), __STDCPP_DEFAULT_NEW_ALIGNMENT__));
+        std::max(alignof(Derived),
+                 static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__)));
   }
 
   static void operator delete(void *to_delete) {
     pmr_deallocate(
         get_inode_pool<Derived>(), to_delete, sizeof(Derived),
-        std::max(alignof(Derived), __STDCPP_DEFAULT_NEW_ALIGNMENT__));
+        std::max(alignof(Derived),
+                 static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__)));
   }
 
   [[nodiscard]] auto is_full() const noexcept {

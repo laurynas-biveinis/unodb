@@ -60,7 +60,8 @@ using pmr_unsynchronized_pool_resource =
 
 template <typename T>
 constexpr std::size_t alignment_for_new() noexcept {
-  return std::max(alignof(T), __STDCPP_DEFAULT_NEW_ALIGNMENT__);
+  return std::max(alignof(T),
+                  static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
 }
 
 [[nodiscard]] inline auto *pmr_allocate(

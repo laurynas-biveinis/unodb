@@ -306,9 +306,8 @@ leaf_unique_ptr leaf::create(art_key k, value_view v, db &db_instance) {
   const auto leaf_size = static_cast<std::size_t>(offset_value) + value_size;
   db_instance.increase_memory_use(leaf_size);
 
-  static_assert(alignof(node_header) <= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
-  auto *const leaf_mem =
-      static_cast<std::byte *>(pmr_allocate(get_leaf_node_pool(), leaf_size));
+  auto *const leaf_mem = static_cast<std::byte *>(pmr_allocate(
+      get_leaf_node_pool(), leaf_size, alignment_for_new<node_header>()));
   new (leaf_mem) node_header{node_type::LEAF};
   k.copy_to(&leaf_mem[offset_key]);
   std::memcpy(&leaf_mem[offset_value_size], &value_size,
@@ -333,8 +332,8 @@ void leaf_deleter::operator()(unodb::detail::raw_leaf_ptr to_delete) const
     noexcept {
   const auto s = unodb::detail::leaf::size(to_delete);
 
-  static_assert(alignof(node_header) <= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
-  pmr_deallocate(get_leaf_node_pool(), to_delete, s);
+  pmr_deallocate(get_leaf_node_pool(), to_delete, s,
+                 alignment_for_new<node_header>());
 }
 
 }  // namespace unodb::detail
@@ -571,17 +570,13 @@ class basic_inode : public inode {
   [[nodiscard]] static void *operator new(std::size_t size) {
     assert(size == sizeof(Derived));
 
-    return pmr_allocate(
-        get_inode_pool<Derived>(), size,
-        std::max(alignof(Derived),
-                 static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__)));
+    return pmr_allocate(get_inode_pool<Derived>(), size,
+                        alignment_for_new<Derived>());
   }
 
   static void operator delete(void *to_delete) {
-    pmr_deallocate(
-        get_inode_pool<Derived>(), to_delete, sizeof(Derived),
-        std::max(alignof(Derived),
-                 static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__)));
+    pmr_deallocate(get_inode_pool<Derived>(), to_delete, sizeof(Derived),
+                   alignment_for_new<Derived>());
   }
 
   [[nodiscard]] auto is_full() const noexcept {

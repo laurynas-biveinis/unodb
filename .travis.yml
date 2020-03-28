@@ -1,4 +1,4 @@
-language: cpp
+language: generic
 
 dist: bionic
 
@@ -121,27 +121,27 @@ matrix:
     - name: "macOS XCode 11.3 Release"
       <<: *macos
       env:
-        - BUILD_TYPE=Release
+        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release
     - name: "macOS XCode 11.3 Release with ASan/UBSan"
       <<: *macos
       env:
-        - BUILD_TYPE=Release SANITIZE=ON
+        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release SANITIZE=ON
     - name: "macOS XCode 11.3 Release with TSan/UBSan"
       <<: *macos
       env:
-        - BUILD_TYPE=Release SANITIZE_THREAD=ON
+        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release SANITIZE_THREAD=ON
     - name: "macOS XCode 11.3 Debug"
       <<: *macos
       env:
-        - BUILD_TYPE=Debug
+        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug
     - name: "macOS XCode 11.3 Debug with ASan/UBSan"
       <<: *macos
       env:
-        - BUILD_TYPE=Debug SANITIZE=ON
+        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug SANITIZE=ON
     - name: "macOS XCode 11.3 Debug with TSan/UBSan"
       <<: *macos
       env:
-        - BUILD_TYPE=Debug SANITIZE_THREAD=ON
+        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug SANITIZE_THREAD=ON
     - name: "macOS Debug coverage"
       <<: *coverage
       env:
@@ -155,6 +155,7 @@ before_install:
   - eval "${MATRIX_EVAL}"
 
 install:
+  - sudo easy_install pip
   - pip install --user $USER cpplint
 
 script:

@@ -1418,7 +1418,7 @@ get_result db::get_from_subtree(detail::node_ptr node, detail::art_key k,
       node.internal->node_key_prefix.length())
     return {};
   depth += node.internal->node_key_prefix.length();
-  const auto child = node.internal->find_child(k[depth]).second;
+  auto *const child = node.internal->find_child(k[depth]).second;
   if (child == nullptr) return {};
   return get_from_subtree(*child, k, depth + 1);
 }
@@ -1462,7 +1462,7 @@ bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
   }
   depth += node->internal->node_key_prefix.length();
 
-  const auto child = node->internal->find_child(k[depth]).second;
+  auto *const child = node->internal->find_child(k[depth]).second;
 
   if (child != nullptr) return insert_to_subtree(k, child, v, depth + 1);
 

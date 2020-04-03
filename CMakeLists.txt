@@ -11,8 +11,8 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
     "-Werror"
     # Warning groups
     "-Wall" "-Wextra" "-Wconversion" "-Wdelete-non-virtual-dtor" "-Wdeprecated"
-    "-Wgnu" "-Wimplicit" "-Wloop-analysis" "-Wpedantic" "-Wpragmas"
-    "-Wself-assign" "-Wshadow-all"
+    "-Wgnu" "-Wimplicit" "-Wloop-analysis" "-Wparentheses" "-Wpedantic"
+    "-Wpragmas" "-Wself-assign" "-Wshadow-all"
     # Individual warnings
     "-Wabstract-vbase-init" "-Warray-bounds-pointer-arithmetic" "-Wassign-enum"
     "-Watomic-implicit-seq-cst" "-Wbad-function-cast" "-Wc++2a-compat"
@@ -282,6 +282,7 @@ else()
       "-fuchsia-default-arguments,"
       "-clang-diagnostic-error,"
       "-cppcoreguidelines-avoid-magic-numbers,"
+      "-cppcoreguidelines-init-variables,"
       "-cppcoreguidelines-macro-usage," # Until it respects __LINE__ in macro definition
       "-cppcoreguidelines-non-private-member-variables-in-classes,"
       "-cppcoreguidelines-pro-bounds-array-to-pointer-decay,"

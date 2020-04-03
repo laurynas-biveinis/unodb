@@ -17,19 +17,21 @@ os_setups:
           - g++-9
           - libasan5-dbg
           - valgrind
-  clang9_setup: &clang9
+  clang10_setup: &clang10
     os: linux
     compiler: clang
     addons:
       apt:
         sources:
           - sourceline: 'ppa:mhier/libboost-latest'
-          - llvm-toolchain-bionic-9
+          - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
         packages:
           - boost1.70
-          - clang-9
-          - clang-tidy-9
-          - clang-tools-9
+          - clang-10
+          - clang-tidy-10
+          - clang-tools-10
+          - llvm-10-dev
           - valgrind
   macos_setup: &macos
     os: osx
@@ -86,38 +88,38 @@ matrix:
       <<: *gcc9
       env:
         - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - name: "Bionic clang 9 Release"
-      <<: *clang9
+    - name: "Bionic clang 10 Release"
+      <<: *clang10
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9" BUILD_TYPE=Release
-    - name: "Bionic clang 9 Release with ASan/UBSan"
-      <<: *clang9
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release
+    - name: "Bionic clang 10 Release with ASan/UBSan"
+      <<: *clang10
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9" BUILD_TYPE=Release SANITIZE=ON
-    - name: "Bionic clang 9 Release with TSan/UBSan"
-      <<: *clang9
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release SANITIZE=ON
+    - name: "Bionic clang 10 Release with TSan/UBSan"
+      <<: *clang10
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9" BUILD_TYPE=Release SANITIZE_THREAD=ON
-    - name: "Bionic clang 9 Debug"
-      <<: *clang9
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release SANITIZE_THREAD=ON
+    - name: "Bionic clang 10 Debug"
+      <<: *clang10
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9" BUILD_TYPE=Debug
-    - name: "Bionic clang 9 Debug with ASan/UBSan"
-      <<: *clang9
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug
+    - name: "Bionic clang 10 Debug with ASan/UBSan"
+      <<: *clang10
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9" BUILD_TYPE=Debug SANITIZE=ON
-    - name: "Bionic clang 9 Debug with TSan/UBSan"
-      <<: *clang9
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug SANITIZE=ON
+    - name: "Bionic clang 10 Debug with TSan/UBSan"
+      <<: *clang10
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9" BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - name: "Bionic clang 9 static analysis Release"
-      <<: *clang9
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug SANITIZE_THREAD=ON
+    - name: "Bionic clang 10 static analysis Release"
+      <<: *clang10
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9" BUILD_TYPE=Release SCAN_BUILD=scan-build-9
-    - name: "Bionic clang 9 static analysis Debug"
-      <<: *clang9
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release SCAN_BUILD=scan-build-10
+    - name: "Bionic clang 10 static analysis Debug"
+      <<: *clang10
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9" BUILD_TYPE=Debug SCAN_BUILD=scan-build-9
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug SCAN_BUILD=scan-build-9
     - name: "macOS XCode 11.3 Release"
       <<: *macos
       env:
@@ -163,8 +165,8 @@ script:
   - cd build
   - EXTRA_CMAKE_OPTIONS=""
   - sudo rm -rf /usr/local/clang-7.0.0
-  - if [[ "$CC" == "clang-9" ]]; then
-      sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-9 50;
+  - if [[ "$CC" == "clang-10" ]]; then
+      sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 50;
     fi
   - if [[ "$CC" == "gcc-9" && "$COVERAGE" == "ON" ]]; then
       sudo cpanm install JSON;

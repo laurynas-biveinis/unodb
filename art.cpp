@@ -84,7 +84,10 @@ class key_prefix final {
   using size_type = std::uint8_t;
 
  private:
-  static constexpr size_type capacity = 7;
+  // A key prefix can be up to 8 bytes long, or if the key length is 8 bytes or
+  // less, key length minus one.
+  static constexpr size_type capacity =
+      std::min<std::size_t>(8, sizeof(unodb::detail::art_key) - 1);
 
  public:
   using data_type = std::array<std::byte, capacity>;

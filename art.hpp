@@ -81,7 +81,37 @@ class inode_256;
 
 enum class node_type : std::uint8_t;
 
-using tree_depth = unsigned;
+class tree_depth final {
+ public:
+  using value_type = unsigned;
+
+  explicit tree_depth(value_type value_ = 0) noexcept : value{value_} {
+    assert(value <= art_key::size);
+  }
+
+  tree_depth(const tree_depth &other) noexcept : value{other.value} {
+    assert(value <= art_key::size);
+  }
+
+  [[nodiscard]] operator value_type() const noexcept {
+    assert(value <= art_key::size);
+    return value;
+  }
+
+  tree_depth &operator++() noexcept {
+    ++value;
+    assert(value <= art_key::size);
+    return *this;
+  }
+
+  void operator+=(value_type delta) noexcept {
+    value += delta;
+    assert(value <= art_key::size);
+  }
+
+ private:
+  value_type value;
+};
 
 // A pointer to some kind of node. It can be accessed either as a node header,
 // to query the right node type, a leaf, or as one of the internal nodes. This

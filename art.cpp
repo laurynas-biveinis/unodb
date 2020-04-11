@@ -84,7 +84,7 @@ class key_prefix final {
   using size_type = std::uint8_t;
 
  private:
-  static constexpr size_type capacity = 8;
+  static constexpr size_type capacity = 7;
 
  public:
   using data_type = std::array<std::byte, capacity>;
@@ -94,7 +94,10 @@ class key_prefix final {
   data_type data_;
 
  public:
-  [[nodiscard]] auto length() const noexcept { return length_; }
+  [[nodiscard]] auto length() const noexcept {
+    assert(length_ <= capacity);
+    return length_;
+  }
 
   key_prefix(unodb::detail::art_key k1, unodb::detail::art_key k2,
              unodb::detail::tree_depth depth) noexcept {

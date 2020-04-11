@@ -105,10 +105,9 @@ class key_prefix final {
   key_prefix(unodb::detail::art_key k1, unodb::detail::art_key k2,
              unodb::detail::tree_depth depth) noexcept {
     assert(k1 != k2);
-    assert(depth < sizeof(unodb::detail::art_key));
 
-    unodb::detail::tree_depth i;
-    for (i = depth; k1[i] == k2[i]; ++i) {
+    auto i{depth};
+    for (; k1[i] == k2[i]; ++i) {
       assert(i - depth < capacity);
       data_[i - depth] = k1[i];
     }
@@ -166,7 +165,7 @@ class key_prefix final {
   [[nodiscard]] auto get_shared_length(unodb::detail::art_key k,
                                        unodb::detail::tree_depth depth) const
       noexcept {
-    auto key_i = depth;
+    auto key_i{depth};
     unsigned shared_length = 0;
     while (shared_length < length()) {
       if (k[key_i] != data_[(gsl::narrow_cast<size_type>(shared_length))])
@@ -174,6 +173,7 @@ class key_prefix final {
       ++key_i;
       ++shared_length;
     }
+    assert(shared_length <= length());
     return shared_length;
   }
   RESTORE_GCC_WARNINGS()
@@ -709,7 +709,8 @@ class inode_4 final : public basic_inode_4 {
 inode_4::inode_4(art_key k1, art_key k2, tree_depth depth, node_ptr child1,
                  leaf_unique_ptr &&child2) noexcept
     : basic_inode_4{k1, k2, depth} {
-  const auto next_level_depth = depth + node_key_prefix.length();
+  const auto next_level_depth =
+      static_cast<tree_depth>(depth + node_key_prefix.length());
   add_two_to_empty(k1[next_level_depth], child1, k2[next_level_depth],
                    std::move(child2));
 }
@@ -720,6 +721,7 @@ inode_4::inode_4(node_ptr source_node, unsigned len, tree_depth depth,
                     source_node.internal->node_key_prefix.data()} {
   assert(source_node.type() != node_type::LEAF);
   assert(len < source_node.internal->node_key_prefix.length());
+  assert(depth + len <= art_key::size);
 
   const auto source_node_key_byte =
       source_node.internal
@@ -1407,7 +1409,7 @@ db::~db() noexcept { ::delete_subtree(root); }
 
 get_result db::get(key k) const noexcept {
   if (unlikely(root.header == nullptr)) return {};
-  return get_from_subtree(root, detail::art_key{k}, 0);
+  return get_from_subtree(root, detail::art_key{k}, detail::tree_depth{});
 }
 
 get_result db::get_from_subtree(detail::node_ptr node, detail::art_key k,
@@ -1426,7 +1428,8 @@ get_result db::get_from_subtree(detail::node_ptr node, detail::art_key k,
   depth += node.internal->node_key_prefix.length();
   auto *const child = node.internal->find_child(k[depth]).second;
   if (child == nullptr) return {};
-  return get_from_subtree(*child, k, depth + 1);
+
+  return get_from_subtree(*child, k, ++depth);
 }
 
 bool db::insert(key k, value_view v) {
@@ -1436,7 +1439,7 @@ bool db::insert(key k, value_view v) {
     root = leaf.release();
     return true;
   }
-  return insert_to_subtree(bin_comparable_key, &root, v, 0);
+  return insert_to_subtree(bin_comparable_key, &root, v, detail::tree_depth{});
 }
 
 bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
@@ -1466,11 +1469,13 @@ bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
     *node = new_node.release();
     return true;
   }
+
+  assert(shared_prefix_len == node->internal->node_key_prefix.length());
   depth += node->internal->node_key_prefix.length();
 
   auto *const child = node->internal->find_child(k[depth]).second;
 
-  if (child != nullptr) return insert_to_subtree(k, child, v, depth + 1);
+  if (child != nullptr) return insert_to_subtree(k, child, v, ++depth);
 
   detail::raii_leaf_creator leaf_creator{k, v, *this};
   auto leaf = leaf_creator.get();
@@ -1522,7 +1527,7 @@ bool db::remove(key k) {
     }
     return false;
   }
-  return remove_from_subtree(bin_comparable_key, 0, &root);
+  return remove_from_subtree(bin_comparable_key, detail::tree_depth{}, &root);
 }
 
 bool db::remove_from_subtree(detail::art_key k, detail::tree_depth depth,
@@ -1534,6 +1539,7 @@ bool db::remove_from_subtree(detail::art_key k, detail::tree_depth depth,
   if (shared_prefix_len < node->internal->node_key_prefix.length())
     return false;
 
+  assert(shared_prefix_len == node->internal->node_key_prefix.length());
   depth += node->internal->node_key_prefix.length();
 
   const auto [child_i, child_ptr] = node->internal->find_child(k[depth]);
@@ -1541,7 +1547,7 @@ bool db::remove_from_subtree(detail::art_key k, detail::tree_depth depth,
   if (child_ptr == nullptr) return false;
 
   if (child_ptr->type() != detail::node_type::LEAF)
-    return remove_from_subtree(k, depth + 1, child_ptr);
+    return remove_from_subtree(k, ++depth, child_ptr);
 
   if (!detail::leaf::matches(child_ptr->leaf, k)) return false;
 

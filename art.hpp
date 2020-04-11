@@ -32,33 +32,33 @@ struct basic_art_key final {
 
   [[nodiscard]] static auto create(const std::byte from[]) noexcept {
     struct basic_art_key result;
-    std::memcpy(&result, from, sizeof(result));
+    std::memcpy(&result, from, size);
     return result;
   }
 
-  void copy_to(std::byte to[]) const noexcept {
-    std::memcpy(to, &key, sizeof(*this));
-  }
+  void copy_to(std::byte to[]) const noexcept { std::memcpy(to, &key, size); }
 
   [[nodiscard]] bool operator==(const std::byte key2[]) const noexcept {
-    return !std::memcmp(&key, key2, sizeof(*this));
+    return !std::memcmp(&key, key2, size);
   }
 
   [[nodiscard]] bool operator==(basic_art_key<KeyType> key2) const noexcept {
-    return !std::memcmp(&key, &key2.key, sizeof(*this));
+    return !std::memcmp(&key, &key2.key, size);
   }
 
   [[nodiscard]] bool operator!=(basic_art_key<KeyType> key2) const noexcept {
-    return std::memcmp(&key, &key2.key, sizeof(*this));
+    return std::memcmp(&key, &key2.key, size);
   }
 
   [[nodiscard]] __attribute__((pure)) auto operator[](std::size_t index) const
       noexcept {
-    assert(index < sizeof(*this));
+    assert(index < size);
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }
 
   KeyType key;
+
+  static constexpr auto size = sizeof(KeyType);
 };
 
 using art_key = basic_art_key<key>;

@@ -1,4 +1,4 @@
-// Copyright 2019 Laurynas Biveinis
+// Copyright 2019-2020 Laurynas Biveinis
 #ifndef UNODB_ART_HPP_
 #define UNODB_ART_HPP_
 
@@ -157,9 +157,7 @@ class db final {
 
   [[nodiscard]] bool remove(key k);
 
-#ifndef NDEBUG
   void dump(std::ostream &os) const;
-#endif
 
   [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
 

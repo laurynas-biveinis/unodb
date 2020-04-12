@@ -2,9 +2,7 @@
 
 #include "global.hpp"
 
-#ifndef NDEBUG
 #include <sstream>
-#endif
 #include <unordered_map>
 
 #include <deepstate/DeepState.hpp>
@@ -68,14 +66,10 @@ unodb::key get_key(unodb::key max_key_value,
 }
 
 void dump_tree(const unodb::db &tree) {
-#ifndef NDEBUG
   // Dump the tree to a string. Do not attempt to check the dump format, only
   // that dumping does not crash
   std::stringstream dump_sink;
   tree.dump(dump_sink);
-#else
-  (void)tree;
-#endif
 }
 
 }  // namespace

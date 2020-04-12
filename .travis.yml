@@ -169,8 +169,9 @@ script:
       sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 50;
     fi
   - if [[ "$CC" == "gcc-9" && "$COVERAGE" == "ON" ]]; then
+      set -e;
       sudo cpanm install JSON;
-      brew install lcov --HEAD;
+      brew install lcov;
       EXTRA_CMAKE_OPTIONS+="-DGCOV_PATH=/usr/local/bin/gcov-9 ";
     fi
   - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE=${SANITIZE} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DCOVERAGE=${COVERAGE} ${EXTRA_CMAKE_OPTIONS}
@@ -183,6 +184,7 @@ script:
   - if [[ "$COVERAGE" == "OFF" ]]; then
       ctest -j3 -V;
     else
+      set -e;
       make -j3 coverage;
       bash <(curl -s https://codecov.io/bash) -f coverage-coverage.info || echo "Codecov did not collect coverage reports";
     fi

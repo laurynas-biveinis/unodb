@@ -39,8 +39,8 @@ All ART classes implement the same API:
   internal nodes in bytes, only accounted if memory limit was specified in
   constructor, otherwise always zero.
 * `bool empty()`, returning whether the tree is empty.
-* `void dump(std::ostream &)`, only available if `NDEBUG` is not defined,
-  dumping the tree representation into output stream.
+* `void dump(std::ostream &)`, dumping the tree representation into output
+  stream.
 
 The are two ART classes available:
 

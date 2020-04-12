@@ -1,4 +1,4 @@
-// Copyright 2019 Laurynas Biveinis
+// Copyright 2019-2020 Laurynas Biveinis
 #ifndef UNODB_TEST_UTILS_HPP_
 #define UNODB_TEST_UTILS_HPP_
 
@@ -31,11 +31,30 @@ constexpr std::array<unodb::value_view, 5> test_values = {
     unodb::value_view{test_value_3}, unodb::value_view{test_value_4},
     unodb::value_view{test_value_5}};
 
-void assert_result_eq(unodb::key key, unodb::get_result result,
-                      unodb::value_view expected, int caller_line) noexcept;
+// warning: 'ScopedTrace' was marked unused but was used
+// [-Wused-but-marked-unused]
+DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
 
-#define ASSERT_VALUE_FOR_KEY(key, expected) \
-  assert_result_eq(key, test_db.get(key), expected, __LINE__)
+template <class Db>
+void assert_result_eq(Db &db, unodb::key key, unodb::value_view expected,
+                      int caller_line) noexcept {
+  std::ostringstream msg;
+  msg << "key = " << static_cast<unsigned>(key);
+  testing::ScopedTrace trace(__FILE__, caller_line, msg.str());
+  const auto result = db.get(key);
+  if (!result) {
+    std::cerr << "db.get did not find key: " << key << '\n';
+    db.dump(std::cerr);
+    FAIL();
+  }
+  ASSERT_TRUE(std::equal(result->cbegin(), result->cend(), expected.cbegin(),
+                         expected.cend()));
+}
+
+RESTORE_CLANG_WARNINGS()
+
+#define ASSERT_VALUE_FOR_KEY(test_db, key, expected) \
+  assert_result_eq(test_db, key, expected, __LINE__)
 
 template <class Db>
 class tree_verifier final {
@@ -97,7 +116,11 @@ class tree_verifier final {
     }
     const auto mem_use_before =
         memory_size_tracked ? test_db.get_current_memory_use() : 1;
-    ASSERT_TRUE(test_db.remove(k));
+    if (!test_db.remove(k)) {
+      std::cerr << "test_db.remove failed for key " << k << '\n';
+      test_db.dump(std::cerr);
+      FAIL();
+    }
     const auto mem_use_after = test_db.get_current_memory_use();
     ASSERT_TRUE(mem_use_after < mem_use_before);
   }
@@ -132,14 +155,12 @@ class tree_verifier final {
 
   void check_present_values() const noexcept {
     for (const auto &[key, value] : values) {
-      ASSERT_VALUE_FOR_KEY(key, value);
+      ASSERT_VALUE_FOR_KEY(test_db, key, value);
     }
-#ifndef NDEBUG
     // Dump the tree to a string. Do not attempt to check the dump format, only
     // that dumping does not crash
     std::stringstream dump_sink;
     test_db.dump(dump_sink);
-#endif
   }
 
   void check_absent_keys(std::initializer_list<unodb::key> absent_keys) const

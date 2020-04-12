@@ -1,4 +1,4 @@
-// Copyright 2019 Laurynas Biveinis
+// Copyright 2019-2020 Laurynas Biveinis
 #ifndef UNODB_MUTEX_ART_HPP_
 #define UNODB_MUTEX_ART_HPP_
 
@@ -30,12 +30,10 @@ class mutex_db final {
     return db_.remove(k);
   }
 
-#ifndef NDEBUG
   void dump(std::ostream &os) const {
     const std::lock_guard guard{mutex};
     db_.dump(os);
   }
-#endif
 
   [[nodiscard]] auto empty() const noexcept {
     const std::lock_guard guard{mutex};

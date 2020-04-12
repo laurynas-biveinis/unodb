@@ -10,14 +10,11 @@
 #ifdef __x86_64
 #include <emmintrin.h>
 #endif
+#include <iomanip>
+#include <iostream>
 #include <limits>
 #include <stdexcept>
 #include <utility>
-
-#ifndef NDEBUG
-#include <iomanip>
-#include <iostream>
-#endif
 
 #include <gsl/gsl_util>
 
@@ -59,8 +56,6 @@ template <class InternalNode>
   return inode_pool;
 }
 
-#ifndef NDEBUG
-
 void dump_byte(std::ostream &os, std::byte byte) {
   os << ' ' << std::hex << std::setfill('0') << std::setw(2)
      << static_cast<unsigned>(byte) << std::dec;
@@ -71,8 +66,6 @@ void dump_key(std::ostream &os, unodb::detail::art_key key) {
 }
 
 void dump_node(std::ostream &os, const unodb::detail::node_ptr &node);
-
-#endif
 
 inline __attribute__((noreturn)) void cannot_happen() {
   assert(0);
@@ -178,14 +171,10 @@ class key_prefix final {
   }
   RESTORE_GCC_WARNINGS()
 
-#ifndef NDEBUG
   void dump(std::ostream &os) const;
-#endif
 };
 
 static_assert(std::is_standard_layout_v<key_prefix>);
-
-#ifndef NDEBUG
 
 void key_prefix::dump(std::ostream &os) const {
   const auto len = length();
@@ -193,8 +182,6 @@ void key_prefix::dump(std::ostream &os) const {
   os << ", key prefix =";
   for (std::size_t i = 0; i < len; ++i) dump_byte(os, data_[i]);
 }
-
-#endif
 
 // A class used as a sentinel for basic_inode template args: the
 // larger node type for the largest node type and the smaller node type for
@@ -295,9 +282,7 @@ struct leaf final {
     return value_view{&leaf[offset_value], value_size(leaf)};
   }
 
-#ifndef NDEBUG
   static void dump(std::ostream &os, raw_leaf_ptr leaf);
-#endif
 };
 
 static_assert(std::is_standard_layout_v<leaf>,
@@ -324,15 +309,11 @@ leaf_unique_ptr leaf::create(art_key k, value_view v, db &db_instance) {
   return leaf_unique_ptr{leaf_mem};
 }
 
-#ifndef NDEBUG
-
 void leaf::dump(std::ostream &os, raw_leaf_ptr leaf) {
   os << "LEAF: key:";
   dump_key(os, key(leaf));
   os << ", value size: " << value_size(leaf) << '\n';
 }
-
-#endif
 
 void leaf_deleter::operator()(unodb::detail::raw_leaf_ptr to_delete) const
     noexcept {
@@ -416,9 +397,7 @@ class inode {
 
   void delete_subtree() noexcept;
 
-#ifndef NDEBUG
   void dump(std::ostream &os) const;
-#endif
 
   // inode must not be allocated directly on heap
   [[nodiscard]] static void *operator new(std::size_t) { cannot_happen(); }
@@ -692,9 +671,7 @@ class inode_4 final : public basic_inode_4 {
 
   void delete_subtree() noexcept;
 
-#ifndef NDEBUG
   void dump(std::ostream &os) const;
-#endif
 
  private:
   friend class inode_16;
@@ -752,16 +729,12 @@ void inode_4::delete_subtree() noexcept {
     ::delete_subtree(children[i]);
 }
 
-#ifndef NDEBUG
-
 void inode_4::dump(std::ostream &os) const {
   os << ", key bytes =";
   for (std::uint8_t i = 0; i < children_count; ++i) dump_byte(os, keys[i]);
   os << ", children:\n";
   for (std::uint8_t i = 0; i < children_count; ++i) dump_node(os, children[i]);
 }
-
-#endif
 
 inode::find_result_type inode_4::find_child(std::byte key_byte) noexcept {
   assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
@@ -801,9 +774,7 @@ class inode_16 final : public basic_inode_16 {
 
   void delete_subtree() noexcept;
 
-#ifndef NDEBUG
   void dump(std::ostream &os) const;
-#endif
 
  private:
   union {
@@ -886,8 +857,6 @@ void inode_16::delete_subtree() noexcept {
     ::delete_subtree(children[i]);
 }
 
-#ifndef NDEBUG
-
 void inode_16::dump(std::ostream &os) const {
   os << ", key bytes =";
   for (std::uint8_t i = 0; i < children_count; ++i)
@@ -895,8 +864,6 @@ void inode_16::dump(std::ostream &os) const {
   os << ", children:\n";
   for (std::uint8_t i = 0; i < children_count; ++i) dump_node(os, children[i]);
 }
-
-#endif
 
 using basic_inode_48 =
     basic_inode<17, 48, node_type::I48, inode_16, inode_256, inode_48>;
@@ -939,9 +906,7 @@ class inode_48 final : public basic_inode_48 {
 
   void delete_subtree() noexcept;
 
-#ifndef NDEBUG
   void dump(std::ostream &os) const;
-#endif
 
  private:
   void remove_child_pointer(std::uint8_t child_index) noexcept {
@@ -1042,8 +1007,6 @@ void inode_48::delete_subtree() noexcept {
   assert(actual_children_count == children_count);
 }
 
-#ifndef NDEBUG
-
 void inode_48::dump(std::ostream &os) const {
   os << ", key bytes & child indexes\n";
   unsigned actual_children_count = 0;
@@ -1061,8 +1024,6 @@ void inode_48::dump(std::ostream &os) const {
 
   assert(actual_children_count == children_count);
 }
-
-#endif
 
 using basic_inode_256 =
     basic_inode<49, 256, node_type::I256, inode_48, fake_inode, inode_256>;
@@ -1105,9 +1066,7 @@ class inode_256 final : public basic_inode_256 {
 
   void delete_subtree() noexcept;
 
-#ifndef NDEBUG
   void dump(std::ostream &os) const;
-#endif
 
  private:
   std::array<node_ptr, capacity> children;
@@ -1200,8 +1159,6 @@ void inode_256::delete_subtree() noexcept {
       [](unsigned, node_ptr child) noexcept { ::delete_subtree(child); });
 }
 
-#ifndef NDEBUG
-
 void inode_256::dump(std::ostream &os) const {
   os << ", key bytes & children:\n";
   for_each_child([&](unsigned i, node_ptr child) noexcept {
@@ -1211,8 +1168,6 @@ void inode_256::dump(std::ostream &os) const {
     dump_node(os, child);
   });
 }
-
-#endif
 
 inline bool inode::is_full() const noexcept {
   switch (header.type()) {
@@ -1321,8 +1276,6 @@ void inode::delete_subtree() noexcept {
   cannot_happen();
 }
 
-#ifndef NDEBUG
-
 void inode::dump(std::ostream &os) const {
   switch (header.type()) {
     case node_type::I4:
@@ -1360,8 +1313,6 @@ void inode::dump(std::ostream &os) const {
       cannot_happen();
   }
 }
-
-#endif
 
 class raii_leaf_creator {
  public:
@@ -1604,8 +1555,6 @@ void db::decrease_memory_use(std::size_t delta) noexcept {
   current_memory_use -= delta;
 }
 
-#ifndef NDEBUG
-
 }  // namespace unodb
 
 namespace {
@@ -1644,7 +1593,5 @@ void db::dump(std::ostream &os) const {
   }
   dump_node(os, root);
 }
-
-#endif
 
 }  // namespace unodb

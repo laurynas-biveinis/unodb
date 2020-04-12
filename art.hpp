@@ -89,10 +89,6 @@ class tree_depth final {
     assert(value <= art_key::size);
   }
 
-  tree_depth(const tree_depth &other) noexcept : value{other.value} {
-    assert(value <= art_key::size);
-  }
-
   [[nodiscard]] operator value_type() const noexcept {
     assert(value <= art_key::size);
     return value;

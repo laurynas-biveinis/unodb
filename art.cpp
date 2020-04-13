@@ -1372,7 +1372,10 @@ get_result db::get_from_subtree(detail::node_ptr node, detail::art_key k,
     }
     return {};
   }
+
   assert(node.type() != detail::node_type::LEAF);
+  assert(depth < detail::art_key::size);
+
   if (node.internal->node_key_prefix.get_shared_length(k, depth) <
       node.internal->node_key_prefix.length())
     return {};
@@ -1408,6 +1411,7 @@ bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
   }
 
   assert(node->type() != detail::node_type::LEAF);
+  assert(depth < detail::art_key::size);
 
   const auto shared_prefix_len =
       node->internal->node_key_prefix.get_shared_length(k, depth);
@@ -1484,6 +1488,7 @@ bool db::remove(key k) {
 bool db::remove_from_subtree(detail::art_key k, detail::tree_depth depth,
                              detail::node_ptr *node) {
   assert(node->type() != detail::node_type::LEAF);
+  assert(depth < detail::art_key::size);
 
   const auto shared_prefix_len =
       node->internal->node_key_prefix.get_shared_length(k, depth);

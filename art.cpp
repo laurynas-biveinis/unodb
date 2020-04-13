@@ -99,6 +99,12 @@ class key_prefix final {
              unodb::detail::tree_depth depth) noexcept {
     assert(k1 != k2);
 
+#ifndef NDEBUG
+    for (std::size_t j = 0; j < depth; ++j) {
+      assert(k1[j] == k2[j]);
+    }
+#endif
+
     auto i{depth};
     for (; k1[i] == k2[i]; ++i) {
       assert(i - depth < capacity);

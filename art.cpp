@@ -1413,6 +1413,9 @@ bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
     detail::raii_leaf_creator leaf_creator{k, v, *this};
     auto leaf = leaf_creator.get();
     increase_memory_use(sizeof(detail::inode_4));
+    // TODO(laurynas): try to pass leaf node type instead of generic node below.
+    // This way it would be apparent that its key prefix does not need updating
+    // as leaves don't have any.
     auto new_node =
         detail::inode_4::create(existing_key, k, depth, *node, std::move(leaf));
     *node = new_node.release();

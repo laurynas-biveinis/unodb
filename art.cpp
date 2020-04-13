@@ -185,8 +185,11 @@ static_assert(std::is_standard_layout_v<key_prefix>);
 void key_prefix::dump(std::ostream &os) const {
   const auto len = length();
   os << ", key prefix len = " << static_cast<unsigned>(len);
-  os << ", key prefix =";
-  for (std::size_t i = 0; i < len; ++i) dump_byte(os, data_[i]);
+  if (len > 0) {
+    os << ", key prefix =";
+    for (std::size_t i = 0; i < len; ++i) dump_byte(os, data_[i]);
+  } else
+    os << ' ';
 }
 
 // A class used as a sentinel for basic_inode template args: the

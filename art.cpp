@@ -188,8 +188,9 @@ void key_prefix::dump(std::ostream &os) const {
   if (len > 0) {
     os << ", key prefix =";
     for (std::size_t i = 0; i < len; ++i) dump_byte(os, data_[i]);
-  } else
+  } else {
     os << ' ';
+  }
 }
 
 // A class used as a sentinel for basic_inode template args: the

@@ -32,6 +32,7 @@ os_setups:
           - clang-tidy-10
           - clang-tools-10
           - llvm-10-dev
+          - lld
           - valgrind
   macos_setup: &macos
     os: osx
@@ -167,6 +168,7 @@ script:
   - sudo rm -rf /usr/local/clang-7.0.0
   - if [[ "$CC" == "clang-10" ]]; then
       sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 50;
+      sudo update-alternatives --install /usr/bin/ld ld /usr/bin/lld 50;
     fi
   - if [[ "$CC" == "gcc-9" && "$COVERAGE" == "ON" ]]; then
       set -e;
@@ -183,6 +185,9 @@ script:
     fi
   - if [[ "$COVERAGE" == "OFF" ]]; then
       ctest -j3 -V;
+      echo "Benchmark runs (for benchmark correctness, not performance!)";
+      ./micro_benchmark --benchmark_filter='.*262144|.*51200';
+      ./micro_benchmark_mutex --benchmark_filter='/4/70000/';
     else
       set -e;
       make -j3 coverage;
@@ -191,4 +196,6 @@ script:
   - if [[ "$SANITIZE" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
       valgrind --error-exitcode=1 --leak-check=full ./test_art;
       valgrind --error-exitcode=1 --leak-check=full ./test_art_mutex_concurrency;
+      valgrind --error-exitcode=1 --leak-check=full ./micro_benchmark --benchmark_filter='.*262144|.*51200';
+      valgrind --error-exitcode=1 --leak-check=full ./micro_benchmark_mutex --benchmark_filter='/4/70000/';
     fi

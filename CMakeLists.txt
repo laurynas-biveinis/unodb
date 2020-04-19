@@ -100,7 +100,9 @@ else()
       "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 9)
     include(CheckIPOSupported)
     check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
-    if(NOT IPO_SUPPORTED)
+    if(IPO_SUPPORTED)
+      message(STATUS "IPO/LTO supported")
+    else()
       message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
     endif()
   endif()
@@ -212,17 +214,30 @@ else()
   set(USE_BOOST TRUE)
 endif()
 
-# TODO(laurynas): convert benchmark dependency to a git submodule
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-  message(STATUS "Not looking for Google benchmark library due to compiling with GCC on macOS")
+add_subdirectory(googletest)
+
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark tests"
+  FORCE)
+set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL
+  "Suppressing Google Benchmark installation" FORCE)
+if(IPO_SUPPORTED AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  set(BENCHMARK_ENABLE_LTO ON CACHE BOOL "Enabling LTO for Google Benchmark"
+    FORCE)
+  message(STATUS "Enabling LTO for Google Benchmark")
 else()
-  find_package(benchmark)
-  if(benchmark_FOUND)
-    message(STATUS "Google benchmark library found, building microbenchmarks")
-  else()
-    message(STATUS "Google benchmark library not found, not building microbenchmarks")
-  endif()
+  message(STATUS "Disabling LTO for Google Benchmark")
 endif()
+add_subdirectory(benchmark)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
+    AND CMAKE_BUILD_TYPE MATCHES "Debug")
+  target_compile_definitions(benchmark PUBLIC _GLIBCXX_DEBUG
+    _GLIBCXX_DEBUG_PEDANTIC)
+endif()
+# Add benchmark_include_dirs by target_include_directories(... SYSTEM ...)
+# before target_link_libraries so that benchmark headers are included through
+# -isystem not -I, resulting in build-breaking diagnostics.
+get_target_property(benchmark_include_dirs benchmark::benchmark
+  INTERFACE_INCLUDE_DIRECTORIES)
 
 # TODO(laurynas): convert DeepState dependency to a git submodule
 find_path(DEEPSTATE_HPP_PATH deepstate/DeepState.hpp)
@@ -437,8 +452,6 @@ if(DO_CLANG_TIDY)
 endif()
 target_link_libraries(unodb PUBLIC Threads::Threads)
 
-add_subdirectory(googletest)
-
 enable_testing()
 
 function(ADD_COVERAGE_TARGET)
@@ -549,13 +562,10 @@ endif()
 function(ADD_BENCHMARK_TARGET TARGET)
   add_executable("${TARGET}" "${TARGET}.cpp" micro_benchmark.hpp)
   common_target_properties("${TARGET}")
-  target_include_directories("${TARGET}" SYSTEM PRIVATE
-    "${benchmark_INCLUDE_DIRS}")
-  target_link_libraries("${TARGET}" PRIVATE benchmark::benchmark_main)
+  target_include_directories("${TARGET}" SYSTEM PRIVATE ${benchmark_include_dirs})
+  target_link_libraries("${TARGET}" PRIVATE benchmark::benchmark)
   target_link_libraries("${TARGET}" PRIVATE unodb)
 endfunction()
 
-if(benchmark_FOUND)
-  add_benchmark_target(micro_benchmark)
-  add_benchmark_target(micro_benchmark_mutex)
-endif()
+add_benchmark_target(micro_benchmark)
+add_benchmark_target(micro_benchmark_mutex)

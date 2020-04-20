@@ -119,23 +119,29 @@ constexpr auto small_tree_size = 70000;
 // Do not swap on my 16GB RAM laptop
 constexpr auto large_tree_size = 7000000;
 
+static void ranges(benchmark::internal::Benchmark *b, int max_concurrency) {
+  for (auto i = 1; i <= max_concurrency; i *= 2) b->Args({i, small_tree_size});
+  for (auto i = 1; i <= max_concurrency; i *= 2) b->Args({i, large_tree_size});
+}
+
+static void ranges16(benchmark::internal::Benchmark *b) { ranges(b, 16); }
+
+static void ranges32(benchmark::internal::Benchmark *b) { ranges(b, 32); }
+
 }  // namespace
 
 BENCHMARK(parallel_get)
-    ->RangeMultiplier(2)
-    ->Ranges({{1, 16}, {small_tree_size, large_tree_size}})
+    ->Apply(ranges16)
     ->Unit(benchmark::kMillisecond)
     ->MeasureProcessCPUTime()
     ->UseRealTime();
 BENCHMARK(parallel_insert_disjoint_ranges)
-    ->RangeMultiplier(2)
-    ->Ranges({{1, 32}, {small_tree_size, large_tree_size}})
+    ->Apply(ranges32)
     ->Unit(benchmark::kMillisecond)
     ->MeasureProcessCPUTime()
     ->UseRealTime();
 BENCHMARK(parallel_delete_disjoint_ranges)
-    ->RangeMultiplier(2)
-    ->Ranges({{1, 32}, {small_tree_size, large_tree_size}})
+    ->Apply(ranges32)
     ->Unit(benchmark::kMillisecond)
     ->MeasureProcessCPUTime()
     ->UseRealTime();

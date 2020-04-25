@@ -113,21 +113,22 @@ else()
   endif()
 endif()
 
-macro(ADD_TO_GNU_CXX_LD_FLAGS)
+macro(ADD_TO_SANITIZER_FLAGS)
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    list(APPEND CXX_FLAGS ${ARGV})
-    list(APPEND LD_FLAGS ${ARGV})
+    list(APPEND SANITIZER_CXX_FLAGS ${ARGV})
+    list(APPEND SANITIZER_LD_FLAGS ${ARGV})
   endif()
 endmacro()
 
-macro(SET_UBSAN_OPTIONS)
-  string(CONCAT UBSAN_OPTIONS "UBSAN_OPTIONS="
+macro(SET_UBSAN_ENV)
+  string(CONCAT UBSAN_ENV "UBSAN_ENV="
     "print_stacktrace=1:halt_on_error=1:abort_on_error=1")
+  string(CONCAT SANITIZER_ENV "${ASAN_ENV}" " " "${UBSAN_ENV}")
 endmacro()
 
 macro(SET_COMMON_SANITIZER_FLAGS)
-  list(APPEND CXX_FLAGS "-fsanitize=undefined" "-fno-omit-frame-pointer"
-    "-fno-optimize-sibling-calls")
+  list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=undefined"
+    "-fno-omit-frame-pointer" "-fno-optimize-sibling-calls")
   # Boost library 1.72 on macOS from Homebrew produces the following error:
   # SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /Users/laurynas/unodb/unodb/heap.hpp:83:8 in 
   # /usr/local/include/boost/container/pmr/memory_resource.hpp:49:20: runtime error: member call on address 0x000105abd0b
@@ -137,21 +138,21 @@ macro(SET_COMMON_SANITIZER_FLAGS)
   # visible symbol in the library?
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"
       AND CMAKE_BUILD_TYPE MATCHES "Release")
-    list(APPEND CXX_FLAGS "-fno-sanitize=vptr")
+    list(APPEND SANITIZER_CXX_FLAGS "-fno-sanitize=vptr")
   endif()
-  set(LD_FLAGS "-fsanitize=undefined")
-  set_ubsan_options()
+  set(SANITIZER_LD_FLAGS "-fsanitize=undefined")
+  set_ubsan_env()
 endmacro()
 
 option(SANITIZE
   "Enable AddressSanitizer and UndefinedBehaviorSanitizer runtime checks")
 if(SANITIZE)
   set_common_sanitizer_flags()
-  list(APPEND CXX_FLAGS "-fsanitize=address")
-  list(APPEND LD_FLAGS "-fsanitize=address")
-  add_to_gnu_cxx_ld_flags("-fsanitize=leak" "-fsanitize-address-use-after-scope"
+  list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=address")
+  list(APPEND SANITIZER_LD_FLAGS "-fsanitize=address")
+  add_to_sanitizer_flags("-fsanitize=leak" "-fsanitize-address-use-after-scope"
     "-fsanitize=pointer-compare" "-fsanitize=pointer-subtract")
-  string(CONCAT ASAN_OPTIONS "ASAN_OPTIONS="
+  string(CONCAT ASAN_ENV "ASAN_ENV="
     "check_initialization_order=true:detect_stack_use_after_return=true:"
     "alloc_dealloc_mismatch=true:strict_string_checks=true")
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
@@ -161,32 +162,23 @@ if(SANITIZE)
     # #0 0x55d21abf7a40 in std::__cxx11::basic_stringbuf<char,
     # std::char_traits<char>, std::allocator<char> >::str() const
     # /usr/include/c++/8/sstream:173
-    string(APPEND ASAN_OPTIONS ":detect_invalid_pointer_pairs=1")
+    string(APPEND ASAN_ENV ":detect_invalid_pointer_pairs=1")
   else()
-    string(APPEND ASAN_OPTIONS ":detect_invalid_pointer_pairs=2")
+    string(APPEND ASAN_ENV ":detect_invalid_pointer_pairs=2")
   endif()
   if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    string(APPEND ASAN_OPTIONS ":detect_leaks=1")
+    string(APPEND ASAN_ENV ":detect_leaks=1")
   endif()
-  set_ubsan_options()
+  set_ubsan_env()
 endif()
 
 option(SANITIZE_THREAD
   "Enable ThreadSanitizer and UndefinedBehaviorSanitizer runtime checks")
 if(SANITIZE_THREAD)
   set_common_sanitizer_flags()
-  list(APPEND CXX_FLAGS "-fsanitize=thread")
-  list(APPEND LD_FLAGS "-fsanitize=thread")
+  list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=thread")
+  list(APPEND SANITIZER_LD_FLAGS "-fsanitize=thread")
 endif()
-
-function(SET_SANITIZER_TARGET_PROPERTIES TARGET)
-  if(SANITIZE)
-    set_tests_properties(${TARGET} PROPERTIES ENVIRONMENT "${ASAN_OPTIONS}")
-  endif()
-  if(SANITIZE OR SANITIZE_THREAD)
-    set_property(TEST ${TARGET} APPEND PROPERTY ENVIRONMENT "${UBSAN_OPTIONS}")
-  endif()
-endfunction()
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
   set(DEBUG "ON")
@@ -214,6 +206,12 @@ else()
   set(USE_BOOST TRUE)
 endif()
 
+string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
+string(APPEND CMAKE_CXX_FLAGS ${CXX_FLAGS_FOR_SUBDIR_STR})
+string(REPLACE ";" " " LD_FLAGS_FOR_SUBDIR_STR "${SANITIZER_LD_FLAGS}")
+string(APPEND CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
+string(APPEND CMAKE_MODULE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
+string(APPEND CMAKE_SHARED_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
 add_subdirectory(googletest)
 
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark tests"
@@ -420,10 +418,12 @@ set(GSL_INCLUDES "GSL/include")
 function(COMMON_TARGET_PROPERTIES TARGET)
   target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
   target_compile_options(${TARGET} PRIVATE "${CXX_FLAGS}")
+  target_compile_options(${TARGET} PRIVATE "${SANITIZER_CXX_FLAGS}")
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
   # Change to target_link_options on 3.13 minimum CMake version
   target_link_libraries(${TARGET} PRIVATE "${LD_FLAGS}")
+  target_link_libraries(${TARGET} PRIVATE "${SANITIZER_LD_FLAGS}")
   target_link_libraries(${TARGET} INTERFACE "${INTERFACE_LD_FLAGS}")
   if(IPO_SUPPORTED)
     set_target_properties(${TARGET} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
@@ -488,7 +488,12 @@ function(ADD_TEST_TARGET TARGET)
       "${DO_CLANG_TIDY_TEST}")
   endif()
   add_test(NAME "${TARGET}" COMMAND "${TARGET}")
-  set_sanitizer_target_properties("${TARGET}")
+  if(SANITIZE)
+    set_tests_properties(${TARGET} PROPERTIES ENVIRONMENT "${ASAN_ENV}")
+  endif()
+  if(SANITIZE OR SANITIZE_THREAD)
+    set_property(TEST ${TARGET} APPEND PROPERTY ENVIRONMENT "${UBSAN_ENV}")
+  endif()
 endfunction()
 
 add_test_target(test_art)
@@ -507,7 +512,6 @@ function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
   if(DO_CLANG_TIDY)
     set_target_properties(${TARGET} PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY_DEEPSTATE}")
   endif()
-  set_sanitizer_target_properties(${TARGET})
 endfunction()
 
 if(DEEPSTATE_OK)
@@ -544,15 +548,21 @@ if(DEEPSTATE_LF_OK)
 
   add_custom_target(deepstate_lf_1m
     ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
-    COMMAND test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1 -detect_leaks=0  -max_total_time=60)
+    COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+    ./test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1
+    -detect_leaks=0  -max_total_time=60)
 
   add_custom_target(deepstate_lf_20m
     ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
-    COMMAND test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1 -detect_leaks=0  -max_total_time=1200)
+    COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+    ./test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1
+    -detect_leaks=0  -max_total_time=1200)
 
   add_custom_target(deepstate_lf_8h
     ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
-    COMMAND test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1 -detect_leaks=0  -max_total_time=28800)
+    COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+    ./test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1
+    -detect_leaks=0  -max_total_time=28800)
 
   if(COVERAGE)
     add_coverage_target(TARGET coverage_deepstate_lf DEPENDENCY deepstate_lf_1m)
@@ -568,4 +578,29 @@ function(ADD_BENCHMARK_TARGET TARGET)
 endfunction()
 
 add_benchmark_target(micro_benchmark)
+set(micro_benchmark_quick_arg "--benchmark_filter='.*262144|.*51200'")
 add_benchmark_target(micro_benchmark_mutex)
+set(micro_benchmark_mutex_quick_arg "--benchmark_filter='/4/70000/'")
+
+add_custom_target(benchmarks
+  env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_mutex
+  DEPENDS micro_benchmark micro_benchmark_mutex)
+
+add_custom_target(quick_benchmarks
+  env ${ASAN_ENV} ${UBSAN_ENV}
+  ./micro_benchmark ${micro_benchmark_quick_arg}
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+  ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg}
+  DEPENDS micro_benchmark micro_benchmark_mutex)
+
+add_custom_target(valgrind
+  valgrind --error-exitcode=1 --leak-check=full ./test_art;
+  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  ./test_art_mutex_concurrency;
+  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  ./micro_benchmark ${micro_benchmark_quick_arg};
+  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg};
+  DEPENDS test_art test_art_mutex_concurrency micro_benchmark
+  micro_benchmark_mutex)

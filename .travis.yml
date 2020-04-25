@@ -186,16 +186,12 @@ script:
   - if [[ "$COVERAGE" == "OFF" ]]; then
       ctest -j3 -V;
       echo "Benchmark runs (for benchmark correctness, not performance!)";
-      ./micro_benchmark --benchmark_filter='.*262144|.*51200';
-      ./micro_benchmark_mutex --benchmark_filter='/4/70000/';
+      make quick_benchmarks;
     else
       set -e;
       make -j3 coverage;
       bash <(curl -s https://codecov.io/bash) -f coverage-coverage.info || echo "Codecov did not collect coverage reports";
     fi
   - if [[ "$SANITIZE" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
-      valgrind --error-exitcode=1 --leak-check=full ./test_art;
-      valgrind --error-exitcode=1 --leak-check=full ./test_art_mutex_concurrency;
-      valgrind --error-exitcode=1 --leak-check=full ./micro_benchmark --benchmark_filter='.*262144|.*51200';
-      valgrind --error-exitcode=1 --leak-check=full ./micro_benchmark_mutex --benchmark_filter='/4/70000/';
+      make valgrind;
     fi

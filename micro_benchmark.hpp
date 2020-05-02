@@ -5,7 +5,13 @@
 #include "global.hpp"
 
 #include <array>
+#include <cassert>
 #include <cstddef>
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
+#include <benchmark/benchmark.h>
 
 #include "art_common.hpp"
 
@@ -21,6 +27,54 @@ constexpr std::array<unodb::value_view, 5> values = {
     unodb::value_view{value1}, unodb::value_view{value10},
     unodb::value_view{value100}, unodb::value_view{value1000},
     unodb::value_view{value10000}};
+
+template <class Db>
+void insert_key(Db &db, unodb::key k, unodb::value_view v) {
+  const auto result USED_IN_DEBUG = db.insert(k, v);
+#ifndef NDEBUG
+  if (!result) {
+    std::cerr << "Failed to insert key " << k << '\n';
+    std::cerr << "Current tree:";
+    db.dump(std::cerr);
+    assert(result);
+  }
+#endif
+  ::benchmark::ClobberMemory();
+}
+
+template <class Db>
+void insert_key_ignore_dups(Db &db, unodb::key k, unodb::value_view v) {
+  (void)db.insert(k, v);
+  ::benchmark::ClobberMemory();
+}
+
+template <class Db>
+void get_existing_key(const Db &db, unodb::key k) {
+  const auto result = db.get(k);
+  assert(result);
+  ::benchmark::DoNotOptimize(result);
+}
+
+template <class Db>
+void delete_key(Db &db, unodb::key k) {
+  const auto result USED_IN_DEBUG = db.remove(k);
+  assert(result);
+  ::benchmark::ClobberMemory();
+}
+
+template <class Db>
+void delete_key_if_exists(Db &db, unodb::key k) {
+  (void)db.remove(k);
+  ::benchmark::ClobberMemory();
+}
+
+template <class Db>
+void destroy_tree(Db &db, ::benchmark::State &state) noexcept {
+  state.PauseTiming();
+  db.clear();
+  ::benchmark::ClobberMemory();
+  state.ResumeTiming();
+}
 
 }  // namespace unodb::benchmark
 

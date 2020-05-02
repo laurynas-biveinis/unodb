@@ -56,6 +56,12 @@
 #define likely(x) __builtin_expect(x, 1)
 #define unlikely(x) __builtin_expect(x, 0)
 
+#ifdef NDEBUG
+#define USED_IN_DEBUG __attribute__((unused))
+#else
+#define USED_IN_DEBUG
+#endif
+
 #if defined(__GNUG__) && !defined(__clang__)
 #define USE_STD_PMR
 #endif

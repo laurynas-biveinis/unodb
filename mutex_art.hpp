@@ -30,6 +30,11 @@ class mutex_db final {
     return db_.remove(k);
   }
 
+  void clear() {
+    const std::lock_guard guard{mutex};
+    db_.clear();
+  }
+
   void dump(std::ostream &os) const {
     const std::lock_guard guard{mutex};
     db_.dump(os);

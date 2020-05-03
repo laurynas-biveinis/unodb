@@ -35,6 +35,7 @@ All ART classes implement the same API:
   successful (i.e. the key was not already present).
 * `bool remove(key k)`, returning whether delete was successful (i.e. the
   key was found in the tree).
+* `clear`, making the tree empty.
 * `std::size_t get_current_memory_use()`, returning current memory use by
   internal nodes in bytes, only accounted if memory limit was specified in
   constructor, otherwise always zero.

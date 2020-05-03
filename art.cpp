@@ -1558,6 +1558,12 @@ bool db::remove_from_subtree(detail::art_key k, detail::tree_depth depth,
   return true;
 }
 
+void db::clear() {
+  ::delete_subtree(root);
+  root = nullptr;
+  current_memory_use = 0;
+}
+
 DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 void db::increase_memory_use(std::size_t delta) {
   if (memory_limit == 0 || delta == 0) return;

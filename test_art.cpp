@@ -612,6 +612,32 @@ TYPED_TEST(ART, MemoryAccountingPrefixSplitException) {
   verifier.check_absent_keys({0xFF01});
 }
 
+TYPED_TEST(ART, ClearOnEmpty) {
+  tree_verifier<TypeParam> verifier;
+
+  verifier.clear();
+}
+
+TYPED_TEST(ART, Clear) {
+  tree_verifier<TypeParam> verifier;
+
+  verifier.insert(1, test_values[0]);
+
+  verifier.clear();
+
+  verifier.check_absent_keys({1});
+}
+
+TYPED_TEST(ART, ClearWithMemLimit) {
+  tree_verifier<TypeParam> verifier{13};
+
+  verifier.insert(0, empty_test_value);
+
+  verifier.clear();
+
+  verifier.check_absent_keys({0});
+}
+
 RESTORE_GCC_WARNINGS()
 
 }  // namespace

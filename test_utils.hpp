@@ -25,11 +25,12 @@ constexpr auto test_value_4 = std::array<std::byte, 4>{
 constexpr auto test_value_5 =
     std::array<std::byte, 5>{std::byte{0x05}, std::byte{0xF4}, std::byte{0xFF},
                              std::byte{0x00}, std::byte{0x01}};
+constexpr auto empty_test_value = std::array<std::byte, 0>{};
 
-constexpr std::array<unodb::value_view, 5> test_values = {
+constexpr std::array<unodb::value_view, 6> test_values = {
     unodb::value_view{test_value_1}, unodb::value_view{test_value_2},
     unodb::value_view{test_value_3}, unodb::value_view{test_value_4},
-    unodb::value_view{test_value_5}};
+    unodb::value_view{test_value_5}, unodb::value_view{empty_test_value}};
 
 // warning: 'ScopedTrace' was marked unused but was used
 // [-Wused-but-marked-unused]
@@ -174,6 +175,13 @@ class tree_verifier final {
   void assert_empty() const noexcept {
     ASSERT_TRUE(test_db.empty());
     ASSERT_EQ(test_db.get_current_memory_use(), 0);
+  }
+
+  void clear() noexcept {
+    test_db.clear();
+    assert_empty();
+
+    values.clear();
   }
 
   Db &get_db() noexcept { return test_db; }

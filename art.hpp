@@ -157,6 +157,8 @@ class db final {
 
   [[nodiscard]] bool remove(key k);
 
+  void clear();
+
   void dump(std::ostream &os) const;
 
   [[nodiscard]] auto empty() const noexcept { return root == nullptr; }

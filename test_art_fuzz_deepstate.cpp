@@ -169,6 +169,16 @@ TEST(ART, DeepStateFuzz) {
         },
         // Delete
         [&] {
+          // Delete everything with 0.1% probability
+          const auto clear = (DeepState_UIntInRange(0, 999) == 0);
+          if (clear) {
+            LOG(TRACE) << "Clearing the tree";
+            test_db.clear();
+            oracle.clear();
+            ASSERT(test_db.get_current_memory_use() == 0);
+            ASSERT(test_db.empty());
+            return;
+          }
           const auto key = get_key(max_key_value, keys);
           LOG(TRACE) << "Deleting key " << key;
           const auto mem_use_before = test_db.get_current_memory_use();

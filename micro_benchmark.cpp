@@ -39,7 +39,7 @@ class batched_random_key_source {
   std::vector<unodb::key>::const_iterator random_key_ptr;
 
   std::random_device rd;
-  std::default_random_engine gen{rd()};
+  std::mt19937 gen{rd()};
   std::uniform_int_distribution<unodb::key> random_key_dist{
       0ULL, std::numeric_limits<unodb::key>::max()};
 };

@@ -121,8 +121,8 @@ void parallel_delete_disjoint_ranges(benchmark::State &state) {
 
 // Something small for Travis CI quick checks
 constexpr auto small_tree_size = 70000;
-// Do not swap on my 16GB RAM laptop
-constexpr auto large_tree_size = 7000000;
+// Do not OOM on a 16GB Linux test server
+constexpr auto large_tree_size = 5000000;
 
 static void ranges(benchmark::internal::Benchmark *b, int max_concurrency) {
   for (auto i = 1; i <= max_concurrency; i *= 2) b->Args({i, small_tree_size});

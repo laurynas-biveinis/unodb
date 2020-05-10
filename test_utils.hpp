@@ -164,8 +164,8 @@ class tree_verifier final {
     test_db.dump(dump_sink);
   }
 
-  void check_absent_keys(std::initializer_list<unodb::key> absent_keys) const
-      noexcept {
+  void check_absent_keys(
+      std::initializer_list<unodb::key> absent_keys) const noexcept {
     for (const auto &absent_key : absent_keys) {
       ASSERT_TRUE(values.find(absent_key) == values.cend());
       ASSERT_FALSE(test_db.get(absent_key));

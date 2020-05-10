@@ -50,8 +50,8 @@ struct basic_art_key final {
     return std::memcmp(&key, &key2.key, size);
   }
 
-  [[nodiscard]] __attribute__((pure)) auto operator[](std::size_t index) const
-      noexcept {
+  [[nodiscard]] __attribute__((pure)) auto operator[](
+      std::size_t index) const noexcept {
     assert(index < size);
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }

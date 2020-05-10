@@ -161,9 +161,9 @@ class key_prefix final {
   }
 
   DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-  [[nodiscard]] auto get_shared_length(unodb::detail::art_key k,
-                                       unodb::detail::tree_depth depth) const
-      noexcept {
+  [[nodiscard]] auto get_shared_length(
+      unodb::detail::art_key k,
+      unodb::detail::tree_depth depth) const noexcept {
     auto key_i{depth};
     unsigned shared_length = 0;
     while (shared_length < length()) {
@@ -325,8 +325,8 @@ void leaf::dump(std::ostream &os, raw_leaf_ptr leaf) {
   os << ", value size: " << value_size(leaf) << '\n';
 }
 
-void leaf_deleter::operator()(unodb::detail::raw_leaf_ptr to_delete) const
-    noexcept {
+void leaf_deleter::operator()(
+    unodb::detail::raw_leaf_ptr to_delete) const noexcept {
   const auto s = unodb::detail::leaf::size(to_delete);
 
   pmr_deallocate(get_leaf_node_pool(), to_delete, s,

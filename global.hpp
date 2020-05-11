@@ -62,8 +62,4 @@
 #define USED_IN_DEBUG
 #endif
 
-#if defined(__GNUG__) && !defined(__clang__)
-#define USE_STD_PMR
-#endif
-
 #endif  // UNODB_GLOBAL_HPP_

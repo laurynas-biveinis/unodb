@@ -13,12 +13,11 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <stdexcept>
 #include <utility>
 
 #include <gsl/gsl_util>
-
-#include "heap.hpp"
 
 // ART implementation properties that we can enforce at compile time
 static_assert(std::is_trivially_copyable_v<unodb::detail::art_key>);
@@ -30,31 +29,6 @@ static_assert(sizeof(unodb::detail::raw_leaf_ptr) ==
 static_assert(sizeof(unodb::detail::node_ptr) == sizeof(void *));
 
 namespace {
-
-template <class InternalNode>
-[[nodiscard]] inline unodb::detail::pmr_pool_options get_inode_pool_options();
-
-[[nodiscard]] inline auto &get_leaf_node_pool() {
-  return *unodb::detail::pmr_new_delete_resource();
-}
-
-// For internal node pools, approximate requesting ~2MB blocks from backing
-// storage (when ported to Linux, ask for 2MB huge pages directly)
-template <class InternalNode>
-[[nodiscard]] inline unodb::detail::pmr_pool_options get_inode_pool_options() {
-  unodb::detail::pmr_pool_options inode_pool_options;
-  inode_pool_options.max_blocks_per_chunk =
-      2 * 1024 * 1024 / sizeof(InternalNode);
-  inode_pool_options.largest_required_pool_block = sizeof(InternalNode);
-  return inode_pool_options;
-}
-
-template <class InternalNode>
-[[nodiscard]] inline auto &get_inode_pool() {
-  static unodb::detail::pmr_unsynchronized_pool_resource inode_pool{
-      get_inode_pool_options<InternalNode>()};
-  return inode_pool;
-}
 
 void dump_byte(std::ostream &os, std::byte byte) {
   os << ' ' << std::hex << std::setfill('0') << std::setw(2)
@@ -228,16 +202,10 @@ static_assert(std::is_standard_layout_v<node_header>);
 
 node_type node_ptr::type() const noexcept { return header->type(); }
 
-// leaf_deleter and leaf_unique_ptr could be in anonymous namespace but then
-// cyclical dependency with struct leaf happens
-struct leaf_deleter {
-  void operator()(unodb::detail::raw_leaf_ptr to_delete) const noexcept;
-};
+// leaf_unique_ptr could be in anonymous namespace but then cyclical dependency
+// with struct leaf happens
 
-using leaf_unique_ptr = std::unique_ptr<unodb::detail::raw_leaf, leaf_deleter>;
-
-static_assert(sizeof(leaf_unique_ptr) == sizeof(void *),
-              "Single leaf unique_ptr must have no overhead over raw pointer");
+using leaf_unique_ptr = std::unique_ptr<unodb::detail::raw_leaf[]>;
 
 // Helper struct for leaf node-related data and (static) code. We
 // don't use a regular class because leaf nodes are of variable size, C++ does
@@ -307,30 +275,22 @@ leaf_unique_ptr leaf::create(art_key k, value_view v, db &db_instance) {
   const auto leaf_size = static_cast<std::size_t>(offset_value) + value_size;
   db_instance.increase_memory_use(leaf_size);
 
-  auto *const leaf_mem = static_cast<std::byte *>(pmr_allocate(
-      get_leaf_node_pool(), leaf_size, alignment_for_new<node_header>()));
-  new (leaf_mem) node_header{node_type::LEAF};
-  k.copy_to(&leaf_mem[offset_key]);
-  std::memcpy(&leaf_mem[offset_value_size], &value_size,
+  assert(leaf_size > 0);  // Mainly to help out clang static analyzer
+  auto leaf_mem = std::make_unique<raw_leaf[]>(leaf_size);
+  new (leaf_mem.get()) node_header{node_type::LEAF};
+  k.copy_to(&(leaf_mem.get()[offset_key]));
+  std::memcpy(&(leaf_mem.get()[offset_value_size]), &value_size,
               sizeof(value_size_type));
   if (!v.empty())
-    std::memcpy(&leaf_mem[offset_value], &v[0],
+    std::memcpy(&(leaf_mem.get()[offset_value]), &v[0],
                 static_cast<std::size_t>(v.size()));
-  return leaf_unique_ptr{leaf_mem};
+  return leaf_mem;
 }
 
 void leaf::dump(std::ostream &os, raw_leaf_ptr leaf) {
   os << "LEAF: key:";
   dump_key(os, key(leaf));
   os << ", value size: " << value_size(leaf) << '\n';
-}
-
-void leaf_deleter::operator()(
-    unodb::detail::raw_leaf_ptr to_delete) const noexcept {
-  const auto s = unodb::detail::leaf::size(to_delete);
-
-  pmr_deallocate(get_leaf_node_pool(), to_delete, s,
-                 alignment_for_new<node_header>());
 }
 
 }  // namespace unodb::detail
@@ -408,13 +368,6 @@ class inode {
   void delete_subtree() noexcept;
 
   void dump(std::ostream &os) const;
-
-  // inode must not be allocated directly on heap
-  [[nodiscard]] static void *operator new(std::size_t) { cannot_happen(); }
-
-  DISABLE_CLANG_WARNING("-Wmissing-noreturn")
-  static void operator delete(void *) { cannot_happen(); }
-  RESTORE_CLANG_WARNINGS()
 
  protected:
   inode(node_type type, std::uint8_t children_count_, art_key k1, art_key k2,
@@ -560,18 +513,6 @@ class basic_inode : public inode {
       tree_depth depth) {
     return std::make_unique<Derived>(std::move(source_node), std::move(child),
                                      depth);
-  }
-
-  [[nodiscard]] static void *operator new(std::size_t size) {
-    assert(size == sizeof(Derived));
-
-    return pmr_allocate(get_inode_pool<Derived>(), size,
-                        alignment_for_new<Derived>());
-  }
-
-  static void operator delete(void *to_delete) {
-    pmr_deallocate(get_inode_pool<Derived>(), to_delete, sizeof(Derived),
-                   alignment_for_new<Derived>());
   }
 
   [[nodiscard]] auto is_full() const noexcept {
@@ -1161,6 +1102,9 @@ void inode_256::for_each_child(Function func) noexcept(
 template <typename Function>
 void inode_256::for_each_child(Function func) const
     noexcept(noexcept(func(0, nullptr))) {
+  // const and non-const versions of for_each_child are implemented through each
+  // other, necessitating to use const_cast
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   const_cast<inode_256 *>(this)->for_each_child(func);
 }
 

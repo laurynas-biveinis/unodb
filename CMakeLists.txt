@@ -80,18 +80,6 @@ else()
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
-  find_path(VALGRIND_H_PATH valgrind.h PATH_SUFFIXES valgrind)
-  if(VALGRIND_H_PATH)
-    find_path(MEMCHECK_H_PATH memcheck.h PATH_SUFFIXES valgrind)
-    if(MEMCHECK_H_PATH)
-      message(STATUS "valgrind.h & memcheck.h found, enabling Valgrind client requests")
-      add_compile_definitions(VALGRIND_CLIENT_REQUESTS)
-    else()
-      message(STATUS "valgrind.h found but memcheck.h not found, disabling Valgrind client requests")
-    endif()
-  else()
-    message(STATUS "valgrind.h not found, disabling Valgrind client requests")
-  endif()
   # TODO(laurynas): switch to -Og once it actually works in the oldest
   # supported compilers
   list(APPEND CXX_FLAGS "-O0")
@@ -129,17 +117,6 @@ endmacro()
 macro(SET_COMMON_SANITIZER_FLAGS)
   list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=undefined"
     "-fno-omit-frame-pointer" "-fno-optimize-sibling-calls")
-  # Boost library 1.72 on macOS from Homebrew produces the following error:
-  # SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /Users/laurynas/unodb/unodb/heap.hpp:83:8 in 
-  # /usr/local/include/boost/container/pmr/memory_resource.hpp:49:20: runtime error: member call on address 0x000105abd0b
-  # 0 which does not point to an object of type 'boost::container::pmr::memory_resource'
-  # 0x000105abd0b0: note: object is of type 'boost::container::pmr::new_delete_resource_imp'
-  # It looks like it's because new_delete_resource_imp is not exported as a
-  # visible symbol in the library?
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"
-      AND CMAKE_BUILD_TYPE MATCHES "Release")
-    list(APPEND SANITIZER_CXX_FLAGS "-fno-sanitize=vptr")
-  endif()
   set(SANITIZER_LD_FLAGS "-fsanitize=undefined")
   set_ubsan_env()
 endmacro()
@@ -189,22 +166,6 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 configure_file(config.hpp.in config.hpp)
 
 find_package(Threads REQUIRED)
-
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  message(STATUS "Using GCC, using std::pmr instead of boost::pmr")
-  set(USE_BOOST FALSE)
-else()
-  # Workaround https://github.com/boostorg/boost_install/issues/13: Homebrew
-  # Boost 1.71 installs single-thread and MT build to the same prefix, resulting
-  # in -
-  # CMake Warning at /usr/local/lib/cmake/boost_container-1.71.0/libboost_container-variant-shared.cmake:59 (message):
-  # Target Boost::container already has an imported location
-  # '/usr/local/lib/libboost_container-mt.dylib', which will be overwritten
-  # with '/usr/local/lib/libboost_container.dylib'
-  set(Boost_NO_BOOST_CMAKE ON)
-  find_package(Boost REQUIRED COMPONENTS container)
-  set(USE_BOOST TRUE)
-endif()
 
 string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
 string(APPEND CMAKE_CXX_FLAGS ${CXX_FLAGS_FOR_SUBDIR_STR})
@@ -294,6 +255,8 @@ else()
     string(CONCAT CLANG_TIDY_DISABLED
       "-fuchsia-default-arguments,"
       "-clang-diagnostic-error,"
+      # Because leaf nodes are std::byte arrays
+      "-cppcoreguidelines-avoid-c-arrays,"
       "-cppcoreguidelines-avoid-magic-numbers,"
       "-cppcoreguidelines-init-variables,"
       "-cppcoreguidelines-macro-usage," # Until it respects __LINE__ in macro definition
@@ -302,9 +265,6 @@ else()
       "-cppcoreguidelines-pro-bounds-constant-array-index,"
       # Because leaf nodes are std::byte arrays
       "-cppcoreguidelines-pro-bounds-pointer-arithmetic,"
-      # Because VALGRIND_MALLOCLIKE_BLOCK expands to C-style cast, and we have
-      # -Wold-style-cast anyway
-      "-cppcoreguidelines-pro-type-const-cast,"
       "-cppcoreguidelines-pro-type-cstyle-cast,"
       "-cppcoreguidelines-pro-type-member-init,"
       "-cppcoreguidelines-pro-type-reinterpret-cast,"
@@ -314,13 +274,16 @@ else()
       "-fuchsia-overloaded-operator,"
       "-google-readability-braces-around-statements,"
       "-google-runtime-references,"
+      # Because leaf nodes are std::byte arrays
+      "-hicpp-avoid-c-arrays,"
       "-hicpp-braces-around-statements,"
       "-hicpp-member-init,"
       "-hicpp-no-array-decay,"
-      "-hicpp-no-assembler," # Valgrind client requests
       "-hicpp-use-equals-default,"
       "-llvm-include-order,"
       "-misc-non-private-member-variables-in-classes,"
+      # Because leaf nodes are std::byte arrays
+      "-modernize-avoid-c-arrays,"
       "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang
       "-modernize-use-trailing-return-type,"
       "-readability-braces-around-statements,"
@@ -439,14 +402,9 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   endif()
 endfunction()
 
-add_library(unodb art.cpp art.hpp art_common.hpp global.hpp mutex_art.hpp
-  heap.hpp)
+add_library(unodb art.cpp art.hpp art_common.hpp global.hpp mutex_art.hpp)
 common_target_properties(unodb)
 target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
-if(USE_BOOST)
-  target_include_directories(unodb SYSTEM PRIVATE "${Boost_INCLUDE_DIRS}")
-  target_link_libraries(unodb PRIVATE "${Boost_LIBRARIES}")
-endif()
 if(DO_CLANG_TIDY)
   set_target_properties(unodb PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
 endif()

@@ -55,8 +55,6 @@ The are two ART classes available:
 * a C++17 compiler, currently tested with clang 9.0, XCode clang 11.0.0 and GCC 9.0.
 * CMake, at least 3.12
 * Guidelines Support Library for gsl::span, imported as a git submodule.
-* If clang is used, Boost.Container library. Currently 1.70 and 1.72
-  are being tested.
 * clang-format 9.0
 * Google Test for tests, imported as a git submodule.
 * (optional) lcov
@@ -80,9 +78,7 @@ found. Currently the diagnostic level for them as well as for compiler warnings
 is set very high, and can be relaxed, especially for clang-tidy, as need arises.
 
 To enable Address, Leak, and Undefined Behavior sanitizers, add `-DSANITIZE=ON`
-CMake option. Using this with GCC 9, where std::pmr from libstdc++ is used
-instead of boost::pmr, will result in UBSan false positives due to
-[this][libstdc++ub]. This option is incompatible with `-DSANITIZE_THREAD=ON`.
+CMake option. This option is incompatible with `-DSANITIZE_THREAD=ON`.
 
 To enable Thread and Undefined Behavior sanitizers, add `-DSANITIZE_THREAD=ON`
 CMake option. It is incompatible with `-DSANITIZE=ON` option.
@@ -106,10 +102,6 @@ built-in fuzzer are supported.
 indexing for main-memory databases," 2013 29th IEEE International Conference on
 Data Engineering (ICDE 2013)(ICDE), Brisbane, QLD, 2013, pp. 38-49.
 doi:10.1109/ICDE.2013.6544812
-
-[boostub1]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80963
-
-[boostub2]: https://bugs.llvm.org/show_bug.cgi?id=39191
 
 [libstdc++ub]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90442
 

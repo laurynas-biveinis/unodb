@@ -61,7 +61,7 @@ else()
     "-Warray-bounds=2")
 endif()
 
-list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g")
+list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g" "-march=native")
 
 option(COVERAGE "Enable code coverage reporting")
 if(COVERAGE)

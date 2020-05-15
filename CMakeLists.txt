@@ -1,5 +1,5 @@
 # Copyright 2019-2020 Laurynas Biveinis
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.12)
 
 project(unodb VERSION 0.1
   DESCRIPTION "unodb key-value store library"
@@ -61,7 +61,7 @@ else()
     "-Warray-bounds=2")
 endif()
 
-list(PREPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g" "-march=native")
+list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g")
 
 option(COVERAGE "Enable code coverage reporting")
 if(COVERAGE)

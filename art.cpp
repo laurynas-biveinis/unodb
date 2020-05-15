@@ -384,6 +384,19 @@ union delete_node_ptr_at_scope_exit {
 
 static_assert(sizeof(delete_node_ptr_at_scope_exit) == sizeof(void *));
 
+inline void prefetch_range(const void *start_addr, std::size_t len) {
+#if defined(__x86_64)
+  static constexpr auto l1_stride = 64;
+#else
+#error Needs porting
+#endif
+  auto addr = reinterpret_cast<std::uintptr_t>(start_addr);
+  while (addr < reinterpret_cast<std::uintptr_t>(start_addr) + len) {
+    __builtin_prefetch(reinterpret_cast<const void *>(addr));
+    addr += l1_stride;
+  }
+}
+
 }  // namespace
 
 namespace unodb::detail {
@@ -649,6 +662,9 @@ class inode_4 final : public basic_inode_4 {
   void add(leaf_unique_ptr &&child, tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
+    static constexpr auto prefetch_size = capacity * sizeof(children[0]);
+    prefetch_range(&children[0], prefetch_size);
+
     const auto key_byte = leaf::key(child.get())[depth];
     insert_into_sorted_key_children_arrays(keys, children, children_count,
                                            key_byte, std::move(child));
@@ -767,6 +783,9 @@ class inode_16 final : public basic_inode_16 {
 
   void add(leaf_unique_ptr &&child, tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
+
+    static constexpr auto prefetch_size = capacity * sizeof(children[0]);
+    prefetch_range(&children[0], prefetch_size);
 
     const auto key_byte = leaf::key(child.get())[depth];
     insert_into_sorted_key_children_arrays(

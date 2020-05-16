@@ -13,7 +13,7 @@
 
 namespace {
 
-class batched_random_key_source {
+class batched_random_key_source final {
  public:
   batched_random_key_source() : random_keys(random_batch_size) { refill(); }
 
@@ -57,6 +57,7 @@ void dense_insert_no_mem_check(benchmark::State &state) {
 
     unodb::benchmark::destroy_tree(test_db, state);
   }
+
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(0));
   // TODO(laurynas): add node size / enlarge / shrink stats
@@ -77,6 +78,7 @@ void dense_insert_mem_check(benchmark::State &state) {
 
     unodb::benchmark::destroy_tree(test_db, state);
   }
+
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(0));
   // state.SetLabel might be a better logical fit but the automatic k/M/G
@@ -88,11 +90,12 @@ void dense_insert_mem_check(benchmark::State &state) {
 }
 
 void sparse_insert_no_mem_check_dups_allowed(benchmark::State &state) {
+  batched_random_key_source random_keys;
+
   for (auto _ : state) {
     state.PauseTiming();
     unodb::db test_db;
     benchmark::ClobberMemory();
-    batched_random_key_source random_keys;
     state.ResumeTiming();
 
     for (auto i = 0; i < state.range(0); ++i) {
@@ -103,16 +106,18 @@ void sparse_insert_no_mem_check_dups_allowed(benchmark::State &state) {
 
     unodb::benchmark::destroy_tree(test_db, state);
   }
+
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(0));
 }
 
 void sparse_insert_mem_check_dups_allowed(benchmark::State &state) {
+  batched_random_key_source random_keys;
+
   for (auto _ : state) {
     state.PauseTiming();
     unodb::db test_db{1000ULL * 1000 * 1000 * 1000};
     benchmark::ClobberMemory();
-    batched_random_key_source random_keys;
     state.ResumeTiming();
 
     for (auto i = 0; i < state.range(0); ++i) {
@@ -123,6 +128,7 @@ void sparse_insert_mem_check_dups_allowed(benchmark::State &state) {
 
     unodb::benchmark::destroy_tree(test_db, state);
   }
+
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(0));
 }
@@ -155,6 +161,7 @@ void dense_tree_sparse_deletes_args(benchmark::internal::Benchmark *b) {
 
 void dense_tree_sparse_deletes(benchmark::State &state) {
   batched_random_key_source random_keys;
+
   for (auto _ : state) {
     state.PauseTiming();
     unodb::db test_db;
@@ -168,6 +175,7 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
       unodb::benchmark::delete_key_if_exists(test_db, random_key);
     }
   }
+
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(1));
 }
@@ -198,6 +206,7 @@ void dense_tree_increasing_keys(benchmark::State &state) {
 
     unodb::benchmark::destroy_tree(test_db, state);
   }
+
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           dense_tree_increasing_keys_delete_insert_pairs * 2);
 }
@@ -226,6 +235,7 @@ void dense_insert_value_lengths(benchmark::State &state) {
 
     unodb::benchmark::destroy_tree(test_db, state);
   }
+
   // TODO(laurynas): use value lengths with SetBytesProcessed instead?
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(0));
@@ -249,6 +259,7 @@ void dense_insert_dup_attempts(benchmark::State &state) {
 
     unodb::benchmark::destroy_tree(test_db, state);
   }
+
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(0));
 }

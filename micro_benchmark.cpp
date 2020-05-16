@@ -61,6 +61,7 @@ void dense_insert_no_mem_check(benchmark::State &state) {
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(0));
   // TODO(laurynas): add node size / enlarge / shrink stats
+  unodb::benchmark::reset_heap();
 }
 
 void dense_insert_mem_check(benchmark::State &state) {
@@ -87,6 +88,7 @@ void dense_insert_mem_check(benchmark::State &state) {
   // benchmark::Counter::OneK::kIs1024 and drop "(k=1000)"
   state.counters["Size(k=1000)"] =
       benchmark::Counter(static_cast<double>(tree_size));
+  unodb::benchmark::reset_heap();
 }
 
 void sparse_insert_no_mem_check_dups_allowed(benchmark::State &state) {
@@ -109,6 +111,7 @@ void sparse_insert_no_mem_check_dups_allowed(benchmark::State &state) {
 
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(0));
+  unodb::benchmark::reset_heap();
 }
 
 void sparse_insert_mem_check_dups_allowed(benchmark::State &state) {
@@ -131,6 +134,7 @@ void sparse_insert_mem_check_dups_allowed(benchmark::State &state) {
 
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(0));
+  unodb::benchmark::reset_heap();
 }
 
 constexpr auto full_scan_multiplier = 50;
@@ -149,6 +153,7 @@ void dense_full_scan(benchmark::State &state) {
 
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(0) * full_scan_multiplier);
+  unodb::benchmark::reset_heap();
 }
 
 void dense_tree_sparse_deletes_args(benchmark::internal::Benchmark *b) {
@@ -178,6 +183,7 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
 
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(1));
+  unodb::benchmark::reset_heap();
 }
 
 constexpr auto dense_tree_increasing_keys_delete_insert_pairs = 1000000;
@@ -209,6 +215,7 @@ void dense_tree_increasing_keys(benchmark::State &state) {
 
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           dense_tree_increasing_keys_delete_insert_pairs * 2);
+  unodb::benchmark::reset_heap();
 }
 
 void dense_insert_value_lengths_args(benchmark::internal::Benchmark *b) {
@@ -241,6 +248,7 @@ void dense_insert_value_lengths(benchmark::State &state) {
                           state.range(0));
   state.counters["Size(k=1000)"] =
       benchmark::Counter(static_cast<double>(tree_size));
+  unodb::benchmark::reset_heap();
 }
 
 void dense_insert_dup_attempts(benchmark::State &state) {
@@ -262,6 +270,7 @@ void dense_insert_dup_attempts(benchmark::State &state) {
 
   state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
                           state.range(0));
+  unodb::benchmark::reset_heap();
 }
 
 }  // namespace

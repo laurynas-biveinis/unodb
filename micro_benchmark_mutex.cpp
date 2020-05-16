@@ -45,6 +45,7 @@ void parallel_get(benchmark::State &state) {
   }
 
   test_db.reset(nullptr);
+  unodb::benchmark::reset_heap();
 }
 
 void parallel_insert_worker(unodb::key start, unodb::key length) {
@@ -80,6 +81,7 @@ void parallel_insert_disjoint_ranges(benchmark::State &state) {
   }
 
   test_db.reset(nullptr);
+  unodb::benchmark::reset_heap();
 }
 
 void parallel_delete_worker(unodb::key start, unodb::key length) {
@@ -117,6 +119,7 @@ void parallel_delete_disjoint_ranges(benchmark::State &state) {
   }
 
   test_db.reset(nullptr);
+  unodb::benchmark::reset_heap();
 }
 
 // Something small for Travis CI quick checks

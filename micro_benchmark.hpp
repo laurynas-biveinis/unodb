@@ -10,6 +10,9 @@
 #ifndef NDEBUG
 #include <iostream>
 #endif
+#ifdef __linux__
+#include <malloc.h>
+#endif
 
 #include <benchmark/benchmark.h>
 
@@ -74,6 +77,12 @@ void destroy_tree(Db &db, ::benchmark::State &state) noexcept {
   db.clear();
   ::benchmark::ClobberMemory();
   state.ResumeTiming();
+}
+
+inline void reset_heap() {
+#ifdef __linux__
+  malloc_trim(0);
+#endif
 }
 
 }  // namespace unodb::benchmark

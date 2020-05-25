@@ -6,8 +6,10 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <initializer_list>
 #include <new>
+#include <optional>
 #include <unordered_map>
 
 #include <gtest/gtest.h>
@@ -60,24 +62,50 @@ RESTORE_CLANG_WARNINGS()
 template <class Db>
 class tree_verifier final {
  public:
-  explicit tree_verifier(std::size_t memory_limit = 0) noexcept
-      : test_db{memory_limit}, memory_size_tracked(memory_limit != 0) {
+  explicit tree_verifier(std::size_t memory_limit = 0,
+                         bool parallel_test_ = false) noexcept
+      : test_db{memory_limit},
+        memory_size_tracked{memory_limit != 0},
+        parallel_test{parallel_test_} {
     assert_empty();
+    assert_increasing_nodes(0, 0, 0, 0);
+    assert_shrinking_nodes(0, 0, 0, 0);
+    assert_key_prefix_splits(0);
   }
 
   void insert(unodb::key k, unodb::value_view v, bool bypass_verifier = false) {
-    const auto mem_use_before = test_db.get_current_memory_use();
+    const auto mem_use_before =
+        parallel_test ? 0 : test_db.get_current_memory_use();
+    const auto leaf_count_before = parallel_test ? 0 : test_db.get_leaf_count();
+
     try {
       ASSERT_TRUE(test_db.insert(k, v));
     } catch (const std::bad_alloc &) {
-      const auto mem_use_after = test_db.get_current_memory_use();
-      ASSERT_EQ(mem_use_before, mem_use_after);
+      if (!parallel_test) {
+        const auto mem_use_after = test_db.get_current_memory_use();
+        ASSERT_EQ(mem_use_before, mem_use_after);
+
+        const auto leaf_count_after = test_db.get_leaf_count();
+        ASSERT_EQ(leaf_count_before, leaf_count_after);
+      }
       throw;
     }
+
     ASSERT_FALSE(test_db.empty());
+
     const auto mem_use_after =
         memory_size_tracked ? test_db.get_current_memory_use() : 1;
-    ASSERT_TRUE(mem_use_before < mem_use_after);
+    if (parallel_test)
+      ASSERT_TRUE(mem_use_after > 0);
+    else
+      ASSERT_TRUE(mem_use_before < mem_use_after);
+
+    const auto leaf_count_after = test_db.get_leaf_count();
+    if (parallel_test)
+      ASSERT_TRUE(leaf_count_after > 0);
+    else
+      ASSERT_EQ(leaf_count_after, leaf_count_before + 1);
+
     if (!bypass_verifier) {
       const auto insert_result = values.emplace(k, v);
       ASSERT_TRUE(insert_result.second);
@@ -115,23 +143,41 @@ class tree_verifier final {
       const auto remove_result = values.erase(k);
       ASSERT_EQ(remove_result, 1);
     }
+    const auto leaf_count_before = test_db.get_leaf_count();
     const auto mem_use_before =
         memory_size_tracked ? test_db.get_current_memory_use() : 1;
+    ASSERT_TRUE(leaf_count_before > 0);
+    ASSERT_TRUE(mem_use_before > 0);
+
     if (!test_db.remove(k)) {
       std::cerr << "test_db.remove failed for key " << k << '\n';
       test_db.dump(std::cerr);
       FAIL();
     }
-    const auto mem_use_after = test_db.get_current_memory_use();
-    ASSERT_TRUE(mem_use_after < mem_use_before);
+
+    if (!parallel_test) {
+      const auto mem_use_after = test_db.get_current_memory_use();
+      ASSERT_TRUE(mem_use_after < mem_use_before);
+
+      const auto leaf_count_after = test_db.get_leaf_count();
+      ASSERT_EQ(leaf_count_before - 1, leaf_count_after);
+    }
   }
 
   void try_remove(unodb::key k) { (void)test_db.remove(k); }
 
-  void test_insert_until_memory_limit() {
+  void test_insert_until_memory_limit(
+      std::optional<std::uint64_t> leaf_count,
+      std::optional<std::uint64_t> inode4_count,
+      std::optional<std::uint64_t> inode16_count,
+      std::optional<std::uint64_t> inode48_count,
+      std::optional<std::uint64_t> inode256_count) {
     ASSERT_THROW(insert_key_range(1, 100000), std::bad_alloc);
     check_present_values();
     check_absent_keys({0, values.size() + 1});
+    assert_node_counts(leaf_count, inode4_count, inode16_count, inode48_count,
+                       inode256_count);
+
     while (!values.empty()) {
       const auto [key, value] = *values.cbegin();
       remove(key);
@@ -143,12 +189,16 @@ class tree_verifier final {
 
   void attempt_remove_missing_keys(
       std::initializer_list<unodb::key> absent_keys) noexcept {
-    const auto mem_use_before = test_db.get_current_memory_use();
+    const auto mem_use_before =
+        parallel_test ? 0 : test_db.get_current_memory_use();
+
     for (const auto &absent_key : absent_keys) {
       const auto remove_result = values.erase(absent_key);
       ASSERT_EQ(remove_result, 0);
       ASSERT_FALSE(test_db.remove(absent_key));
-      ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
+      if (!parallel_test) {
+        ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
+      }
     }
   }
 
@@ -174,7 +224,63 @@ class tree_verifier final {
 
   void assert_empty() const noexcept {
     ASSERT_TRUE(test_db.empty());
+
     ASSERT_EQ(test_db.get_current_memory_use(), 0);
+
+    assert_node_counts(0, 0, 0, 0, 0);
+  }
+
+  void assert_node_counts(
+      std::optional<std::uint64_t> leaf_count,
+      std::optional<std::uint64_t> inode4_count,
+      std::optional<std::uint64_t> inode16_count,
+      std::optional<std::uint64_t> inode48_count,
+      std::optional<std::uint64_t> inode256_count) const noexcept {
+    if (leaf_count.has_value()) {
+      ASSERT_EQ(test_db.get_leaf_count(), *leaf_count);
+    }
+    if (inode4_count.has_value() &&
+        test_db.get_inode4_count() != *inode4_count) {
+      std::cerr << "inode4 count mismatch! Expected: " << *inode4_count
+                << ", actual: " << test_db.get_inode4_count() << '\n';
+      test_db.dump(std::cerr);
+      FAIL();
+    }
+    if (inode16_count.has_value()) {
+      ASSERT_EQ(test_db.get_inode16_count(), *inode16_count);
+    }
+    if (inode48_count.has_value()) {
+      ASSERT_EQ(test_db.get_inode48_count(), *inode48_count);
+    }
+    if (inode256_count.has_value()) {
+      ASSERT_EQ(test_db.get_inode256_count(), *inode256_count);
+    }
+  }
+
+  void assert_increasing_nodes(
+      std::uint64_t created_inode4_count, std::uint64_t inode4_to_inode16_count,
+      std::uint64_t inode16_to_inode48_count,
+      std::uint64_t inode48_to_inode256_count) const noexcept {
+    ASSERT_EQ(test_db.get_created_inode4_count(), created_inode4_count);
+    ASSERT_EQ(test_db.get_inode4_to_inode16_count(), inode4_to_inode16_count);
+    ASSERT_EQ(test_db.get_inode16_to_inode48_count(), inode16_to_inode48_count);
+    ASSERT_EQ(test_db.get_inode48_to_inode256_count(),
+              inode48_to_inode256_count);
+  }
+
+  void assert_shrinking_nodes(std::uint64_t deleted_inode4_count,
+                              std::uint64_t inode16_to_inode4_count,
+                              std::uint64_t inode48_to_inode16_count,
+                              std::uint64_t inode256_to_inode48_count) {
+    ASSERT_EQ(test_db.get_deleted_inode4_count(), deleted_inode4_count);
+    ASSERT_EQ(test_db.get_inode16_to_inode4_count(), inode16_to_inode4_count);
+    ASSERT_EQ(test_db.get_inode48_to_inode16_count(), inode48_to_inode16_count);
+    ASSERT_EQ(test_db.get_inode256_to_inode48_count(),
+              inode256_to_inode48_count);
+  }
+
+  void assert_key_prefix_splits(std::uint64_t splits) const noexcept {
+    ASSERT_EQ(test_db.get_key_prefix_splits(), splits);
   }
 
   void clear() noexcept {
@@ -192,6 +298,7 @@ class tree_verifier final {
   std::unordered_map<unodb::key, unodb::value_view> values;
 
   const bool memory_size_tracked;
+  const bool parallel_test;
 };
 
 extern template class tree_verifier<unodb::db>;

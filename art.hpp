@@ -146,26 +146,86 @@ union node_ptr {
 
 class db final {
  public:
+  // Creation and destruction
   explicit db(std::size_t memory_limit_ = 0) noexcept
       : memory_limit{memory_limit_} {}
 
   ~db() noexcept;
 
+  // Querying
   [[nodiscard]] get_result get(key k) const noexcept;
 
+  [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
+
+  // Modifying
   [[nodiscard]] bool insert(key k, value_view v);
 
   [[nodiscard]] bool remove(key k);
 
   void clear();
 
-  void dump(std::ostream &os) const;
+  // Stats
 
-  [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
-
+  // Return current memory use by tree nodes in bytes, only accounted if memory
+  // limit was specified in the constructor, otherwise always zero.
   [[nodiscard]] auto get_current_memory_use() const noexcept {
     return current_memory_use;
   }
+
+  [[nodiscard]] auto get_leaf_count() const noexcept { return leaf_count; }
+
+  [[nodiscard]] auto get_inode4_count() const noexcept { return inode4_count; }
+
+  [[nodiscard]] auto get_inode16_count() const noexcept {
+    return inode16_count;
+  }
+
+  [[nodiscard]] auto get_inode48_count() const noexcept {
+    return inode48_count;
+  }
+
+  [[nodiscard]] auto get_inode256_count() const noexcept {
+    return inode256_count;
+  }
+
+  [[nodiscard]] auto get_created_inode4_count() const noexcept {
+    return created_inode4_count;
+  }
+
+  [[nodiscard]] auto get_inode4_to_inode16_count() const noexcept {
+    return inode4_to_inode16_count;
+  }
+
+  [[nodiscard]] auto get_inode16_to_inode48_count() const noexcept {
+    return inode16_to_inode48_count;
+  }
+
+  [[nodiscard]] auto get_inode48_to_inode256_count() const noexcept {
+    return inode48_to_inode256_count;
+  }
+
+  [[nodiscard]] auto get_deleted_inode4_count() const noexcept {
+    return deleted_inode4_count;
+  }
+
+  [[nodiscard]] auto get_inode16_to_inode4_count() const noexcept {
+    return inode16_to_inode4_count;
+  }
+
+  [[nodiscard]] auto get_inode48_to_inode16_count() const noexcept {
+    return inode48_to_inode16_count;
+  }
+
+  [[nodiscard]] auto get_inode256_to_inode48_count() const noexcept {
+    return inode256_to_inode48_count;
+  }
+
+  [[nodiscard]] auto get_key_prefix_splits() const noexcept {
+    return key_prefix_splits;
+  }
+
+  // Debugging
+  void dump(std::ostream &os) const;
 
  private:
   [[nodiscard]] static get_result get_from_subtree(
@@ -187,6 +247,24 @@ class db final {
 
   std::size_t current_memory_use{0};
   const std::size_t memory_limit;
+
+  std::uint64_t leaf_count{0};
+  std::uint64_t inode4_count{0};
+  std::uint64_t inode16_count{0};
+  std::uint64_t inode48_count{0};
+  std::uint64_t inode256_count{0};
+
+  std::uint64_t created_inode4_count{0};
+  std::uint64_t inode4_to_inode16_count{0};
+  std::uint64_t inode16_to_inode48_count{0};
+  std::uint64_t inode48_to_inode256_count{0};
+
+  std::uint64_t deleted_inode4_count{0};
+  std::uint64_t inode16_to_inode4_count{0};
+  std::uint64_t inode48_to_inode16_count{0};
+  std::uint64_t inode256_to_inode48_count{0};
+
+  std::uint64_t key_prefix_splits{0};
 
   friend struct detail::leaf;
   friend class detail::raii_leaf_creator;

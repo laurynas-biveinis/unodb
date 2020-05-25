@@ -76,6 +76,7 @@ void parallel_insert_disjoint_ranges(benchmark::State &state) {
       threads[i].join();
     }
 
+    state.PauseTiming();
     unodb::benchmark::destroy_tree(*test_db, state);
   }
 
@@ -113,6 +114,7 @@ void parallel_delete_disjoint_ranges(benchmark::State &state) {
       threads[i].join();
     }
 
+    state.PauseTiming();
     unodb::benchmark::destroy_tree(*test_db, state);
   }
 
@@ -121,8 +123,7 @@ void parallel_delete_disjoint_ranges(benchmark::State &state) {
 
 // Something small for Travis CI quick checks
 constexpr auto small_tree_size = 70000;
-// Do not OOM on a 16GB Linux test server
-constexpr auto large_tree_size = 5000000;
+constexpr auto large_tree_size = 3000000;
 
 static void ranges(benchmark::internal::Benchmark *b, int max_concurrency) {
   for (auto i = 1; i <= max_concurrency; i *= 2) b->Args({i, small_tree_size});

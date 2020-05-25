@@ -306,6 +306,7 @@ leaf_unique_ptr leaf::create(art_key k, value_view v, db &db_instance) {
   const auto value_size = static_cast<value_size_type>(v.size());
   const auto leaf_size = static_cast<std::size_t>(offset_value) + value_size;
   db_instance.increase_memory_use(leaf_size);
+  ++db_instance.leaf_count;
 
   auto *const leaf_mem = static_cast<std::byte *>(pmr_allocate(
       get_leaf_node_pool(), leaf_size, alignment_for_new<node_header>()));
@@ -1343,6 +1344,9 @@ class raii_leaf_creator {
 
     if (likely(exceptions_at_ctor == std::uncaught_exceptions())) return;
     db_instance.decrease_memory_use(leaf_size);
+
+    assert(db_instance.leaf_count > 0);
+    --db_instance.leaf_count;
   }
 
   auto &&get() noexcept {
@@ -1420,6 +1424,9 @@ bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
     auto new_node =
         detail::inode_4::create(existing_key, k, depth, *node, std::move(leaf));
     *node = new_node.release();
+    ++inode4_count;
+    ++created_inode4_count;
+    assert(created_inode4_count >= inode4_count);
     return true;
   }
 
@@ -1435,6 +1442,11 @@ bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
     auto new_node = detail::inode_4::create(*node, shared_prefix_len, depth,
                                             std::move(leaf));
     *node = new_node.release();
+    ++inode4_count;
+    ++created_inode4_count;
+    ++key_prefix_splits;
+    assert(created_inode4_count >= inode4_count);
+    assert(created_inode4_count > key_prefix_splits);
     return true;
   }
 
@@ -1458,26 +1470,47 @@ bool db::insert_to_subtree(detail::art_key k, detail::node_ptr *node,
   assert(node_is_full);
 
   if (node->type() == detail::node_type::I4) {
+    assert(inode4_count > 0);
+
     increase_memory_use(sizeof(detail::inode_16) - sizeof(detail::inode_4));
     std::unique_ptr<detail::inode_4> current_node{node->node_4};
     auto larger_node = detail::inode_16::create(std::move(current_node),
                                                 std::move(leaf), depth);
     *node = larger_node.release();
 
+    --inode4_count;
+    ++inode16_count;
+    ++inode4_to_inode16_count;
+    assert(inode4_to_inode16_count >= inode16_count);
+
   } else if (node->type() == detail::node_type::I16) {
+    assert(inode16_count > 0);
+
     std::unique_ptr<detail::inode_16> current_node{node->node_16};
     increase_memory_use(sizeof(detail::inode_48) - sizeof(detail::inode_16));
     auto larger_node = detail::inode_48::create(std::move(current_node),
                                                 std::move(leaf), depth);
     *node = larger_node.release();
 
+    --inode16_count;
+    ++inode48_count;
+    ++inode16_to_inode48_count;
+    assert(inode16_to_inode48_count >= inode48_count);
+
   } else {
+    assert(inode48_count > 0);
+
     assert(node->type() == detail::node_type::I48);
     std::unique_ptr<detail::inode_48> current_node{node->node_48};
     increase_memory_use(sizeof(detail::inode_256) - sizeof(detail::inode_48));
     auto larger_node = detail::inode_256::create(std::move(current_node),
                                                  std::move(leaf), depth);
     *node = larger_node.release();
+
+    --inode48_count;
+    ++inode256_count;
+    ++inode48_to_inode256_count;
+    assert(inode48_to_inode256_count >= inode256_count);
   }
   return true;
 }
@@ -1491,6 +1524,8 @@ bool db::remove(key k) {
       detail::leaf_unique_ptr root_leaf_deleter{root.leaf};
       root = nullptr;
       decrease_memory_use(leaf_size);
+      assert(leaf_count > 0);
+      --leaf_count;
       return true;
     }
     return false;
@@ -1520,12 +1555,15 @@ bool db::remove_from_subtree(detail::art_key k, detail::tree_depth depth,
 
   if (!detail::leaf::matches(child_ptr->leaf, k)) return false;
 
+  assert(leaf_count > 0);
+
   const auto is_node_min_size = node->internal->is_min_size();
   const auto child_node_size = detail::leaf::size(child_ptr->leaf);
 
   if (likely(!is_node_min_size)) {
     node->internal->remove(child_i);
     decrease_memory_use(child_node_size);
+    --leaf_count;
     return true;
   }
 
@@ -1535,18 +1573,38 @@ bool db::remove_from_subtree(detail::art_key k, detail::tree_depth depth,
     std::unique_ptr<detail::inode_4> current_node{node->node_4};
     *node = current_node->leave_last_child(child_i);
     decrease_memory_use(child_node_size + sizeof(detail::inode_4));
+
+    assert(inode4_count > 0);
+    --inode4_count;
+    ++deleted_inode4_count;
+    assert(deleted_inode4_count <= created_inode4_count);
+
   } else if (node->type() == detail::node_type::I16) {
     std::unique_ptr<detail::inode_16> current_node{node->node_16};
     auto new_node{detail::inode_4::create(std::move(current_node), child_i)};
     *node = new_node.release();
     decrease_memory_use(sizeof(detail::inode_16) - sizeof(detail::inode_4) +
                         child_node_size);
+
+    assert(inode16_count > 0);
+    --inode16_count;
+    ++inode4_count;
+    ++inode16_to_inode4_count;
+    assert(inode16_to_inode4_count <= inode4_to_inode16_count);
+
   } else if (node->type() == detail::node_type::I48) {
     std::unique_ptr<detail::inode_48> current_node{node->node_48};
     auto new_node{detail::inode_16::create(std::move(current_node), child_i)};
     *node = new_node.release();
     decrease_memory_use(sizeof(detail::inode_48) - sizeof(detail::inode_16) +
                         child_node_size);
+
+    assert(inode48_count > 0);
+    --inode48_count;
+    ++inode16_count;
+    ++inode48_to_inode16_count;
+    assert(inode48_to_inode16_count <= inode16_to_inode48_count);
+
   } else {
     assert(node->type() == detail::node_type::I256);
     std::unique_ptr<detail::inode_256> current_node{node->node_256};
@@ -1554,7 +1612,15 @@ bool db::remove_from_subtree(detail::art_key k, detail::tree_depth depth,
     *node = new_node.release();
     decrease_memory_use(sizeof(detail::inode_256) - sizeof(detail::inode_48) +
                         child_node_size);
+
+    assert(inode256_count > 0);
+    --inode256_count;
+    ++inode48_count;
+    ++inode256_to_inode48_count;
+    assert(inode256_to_inode48_count <= inode48_to_inode256_count);
   }
+
+  --leaf_count;
   return true;
 }
 
@@ -1562,6 +1628,12 @@ void db::clear() {
   ::delete_subtree(root);
   root = nullptr;
   current_memory_use = 0;
+
+  leaf_count = 0;
+  inode4_count = 0;
+  inode16_count = 0;
+  inode48_count = 0;
+  inode256_count = 0;
 }
 
 DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")

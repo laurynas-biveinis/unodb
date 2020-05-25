@@ -70,7 +70,7 @@ void delete_key_if_exists(Db &db, unodb::key k) {
 
 template <class Db>
 void destroy_tree(Db &db, ::benchmark::State &state) noexcept {
-  state.PauseTiming();
+  // Timer must be stopped on entry
   db.clear();
   ::benchmark::ClobberMemory();
   state.ResumeTiming();

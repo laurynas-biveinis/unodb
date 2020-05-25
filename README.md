@@ -36,12 +36,12 @@ All ART classes implement the same API:
 * `bool remove(key k)`, returning whether delete was successful (i.e. the
   key was found in the tree).
 * `clear`, making the tree empty.
-* `std::size_t get_current_memory_use()`, returning current memory use by
-  internal nodes in bytes, only accounted if memory limit was specified in
-  constructor, otherwise always zero.
 * `bool empty()`, returning whether the tree is empty.
 * `void dump(std::ostream &)`, dumping the tree representation into output
   stream.
+* Several getters for assorted tree info, such as current memory use, and
+  counters of various internal tree  operations (i.e. number of times Node4 grew
+  to Node16, key prefix was split, etc - check the source code).
 
 The are two ART classes available:
 

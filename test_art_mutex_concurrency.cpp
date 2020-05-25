@@ -21,7 +21,7 @@ TEST(ARTMutexConcurrency, ParallelInsertOneTree) {
   constexpr auto num_of_threads = 4;
   constexpr auto total_keys = 1024;
 
-  tree_verifier<unodb::mutex_db> verifier;
+  tree_verifier<unodb::mutex_db> verifier{0, true};
   verifier.preinsert_key_range_to_verifier_only(0, total_keys);
   std::array<std::thread, num_of_threads> threads;
   unodb::key i = 0;
@@ -47,7 +47,7 @@ TEST(ARTMutexConcurrency, ParallelTearDownOneTree) {
   constexpr auto num_of_threads = 8;
   constexpr auto total_keys = 2048;
 
-  tree_verifier<unodb::mutex_db> verifier;
+  tree_verifier<unodb::mutex_db> verifier{0, true};
   verifier.insert_key_range(0, total_keys);
   unodb::key i = 0;
   std::array<std::thread, num_of_threads> threads;
@@ -85,7 +85,7 @@ TEST(ARTMutexConcurrency, Node4ParallelOps) {
   constexpr auto num_of_threads = 9;
   constexpr auto op_count = 6;
 
-  tree_verifier<unodb::mutex_db> verifier;
+  tree_verifier<unodb::mutex_db> verifier{0, true};
   verifier.insert_key_range(0, 3, true);
   std::array<std::thread, num_of_threads> threads;
   for (std::size_t i = 0; i < num_of_threads; ++i) {
@@ -100,7 +100,7 @@ TEST(ARTMutexConcurrency, Node16ParallelOps) {
   constexpr auto num_of_threads = 9;
   constexpr auto op_count = 12;
 
-  tree_verifier<unodb::mutex_db> verifier;
+  tree_verifier<unodb::mutex_db> verifier{0, true};
   verifier.insert_key_range(0, 10, true);
   std::array<std::thread, num_of_threads> threads;
   for (std::size_t i = 0; i < num_of_threads; ++i) {
@@ -115,7 +115,7 @@ TEST(ARTMutexConcurrency, Node48ParallelOps) {
   constexpr auto num_of_threads = 9;
   constexpr auto op_count = 32;
 
-  tree_verifier<unodb::mutex_db> verifier;
+  tree_verifier<unodb::mutex_db> verifier{0, true};
   verifier.insert_key_range(0, 32, true);
   std::array<std::thread, num_of_threads> threads;
   for (std::size_t i = 0; i < num_of_threads; ++i) {
@@ -130,7 +130,7 @@ TEST(ARTMutexConcurrency, Node256ParallelOps) {
   constexpr auto num_of_threads = 9;
   constexpr auto op_count = 208;
 
-  tree_verifier<unodb::mutex_db> verifier;
+  tree_verifier<unodb::mutex_db> verifier{0, true};
   verifier.insert_key_range(0, 152, true);
   std::array<std::thread, num_of_threads> threads;
   for (std::size_t i = 0; i < num_of_threads; ++i) {
@@ -167,7 +167,7 @@ TEST(ARTMutexConcurrency, ParallelRandomInsertDeleteGet) {
   constexpr auto initial_keys = 2048;
   constexpr auto ops_per_thread = 10000;
 
-  tree_verifier<unodb::mutex_db> verifier;
+  tree_verifier<unodb::mutex_db> verifier{0, true};
   verifier.insert_key_range(0, initial_keys, true);
   std::array<std::thread, num_of_threads> threads;
   for (std::size_t i = 0; i < num_of_threads; ++i) {

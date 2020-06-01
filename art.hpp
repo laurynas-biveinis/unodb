@@ -158,6 +158,7 @@ class db final {
   [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
 
   // Modifying
+  // Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
   [[nodiscard]] bool insert(key k, value_view v);
 
   [[nodiscard]] bool remove(key k);

@@ -1330,8 +1330,9 @@ class raii_leaf_creator {
   raii_leaf_creator(art_key k, unodb::value_view v, unodb::db &db_instance_)
       : leaf{leaf::create(k, v, db_instance_)},
         leaf_size{leaf::size(leaf.get())},
-        db_instance{db_instance_},
-        exceptions_at_ctor{std::uncaught_exceptions()} {}
+        db_instance{db_instance_} {
+    assert(std::uncaught_exceptions() == 0);
+  }
 
   raii_leaf_creator(const raii_leaf_creator &) = delete;
   raii_leaf_creator(raii_leaf_creator &&) = delete;
@@ -1342,7 +1343,7 @@ class raii_leaf_creator {
   ~raii_leaf_creator() noexcept {
     assert(get_called);
 
-    if (likely(exceptions_at_ctor == std::uncaught_exceptions())) return;
+    if (likely(std::uncaught_exceptions() == 0)) return;
     db_instance.decrease_memory_use(leaf_size);
 
     assert(db_instance.leaf_count > 0);
@@ -1362,7 +1363,6 @@ class raii_leaf_creator {
   leaf_unique_ptr leaf;
   const std::size_t leaf_size;
   unodb::db &db_instance;
-  const int exceptions_at_ctor;
 #ifndef NDEBUG
   bool get_called{false};
 #endif

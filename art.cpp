@@ -32,16 +32,18 @@ static_assert(sizeof(unodb::detail::node_ptr) == sizeof(void *));
 namespace {
 
 template <class InternalNode>
-[[nodiscard]] inline unodb::detail::pmr_pool_options get_inode_pool_options();
+[[nodiscard]] inline unodb::detail::pmr_pool_options
+get_inode_pool_options() noexcept;
 
-[[nodiscard]] inline auto &get_leaf_node_pool() {
+[[nodiscard]] inline auto &get_leaf_node_pool() noexcept {
   return *unodb::detail::pmr_new_delete_resource();
 }
 
 // For internal node pools, approximate requesting ~2MB blocks from backing
 // storage (when ported to Linux, ask for 2MB huge pages directly)
 template <class InternalNode>
-[[nodiscard]] inline unodb::detail::pmr_pool_options get_inode_pool_options() {
+[[nodiscard]] inline unodb::detail::pmr_pool_options
+get_inode_pool_options() noexcept {
   unodb::detail::pmr_pool_options inode_pool_options;
   inode_pool_options.max_blocks_per_chunk =
       2 * 1024 * 1024 / sizeof(InternalNode);
@@ -56,16 +58,19 @@ template <class InternalNode>
   return inode_pool;
 }
 
-void dump_byte(std::ostream &os, std::byte byte) {
+__attribute__((cold, noinline)) void dump_byte(std::ostream &os,
+                                               std::byte byte) {
   os << ' ' << std::hex << std::setfill('0') << std::setw(2)
      << static_cast<unsigned>(byte) << std::dec;
 }
 
-void dump_key(std::ostream &os, unodb::detail::art_key key) {
+__attribute__((cold, noinline)) void dump_key(std::ostream &os,
+                                              unodb::detail::art_key key) {
   for (std::size_t i = 0; i < sizeof(key); i++) dump_byte(os, key[i]);
 }
 
-void dump_node(std::ostream &os, const unodb::detail::node_ptr &node);
+__attribute__((cold, noinline)) void dump_node(
+    std::ostream &os, const unodb::detail::node_ptr &node);
 
 inline __attribute__((noreturn)) void cannot_happen() {
   assert(0);
@@ -182,7 +187,7 @@ class key_prefix final {
 
 static_assert(std::is_standard_layout_v<key_prefix>);
 
-void key_prefix::dump(std::ostream &os) const {
+__attribute__((cold, noinline)) void key_prefix::dump(std::ostream &os) const {
   const auto len = length();
   os << ", key prefix len = " << static_cast<unsigned>(len);
   if (len > 0) {
@@ -292,7 +297,8 @@ struct leaf final {
     return value_view{&leaf[offset_value], value_size(leaf)};
   }
 
-  static void dump(std::ostream &os, raw_leaf_ptr leaf);
+  __attribute__((cold, noinline)) static void dump(std::ostream &os,
+                                                   raw_leaf_ptr leaf);
 };
 
 static_assert(std::is_standard_layout_v<leaf>,
@@ -300,7 +306,7 @@ static_assert(std::is_standard_layout_v<leaf>,
               "node_header");
 
 leaf_unique_ptr leaf::create(art_key k, value_view v, db &db_instance) {
-  if (v.size() > std::numeric_limits<value_size_type>::max()) {
+  if (unlikely(v.size() > std::numeric_limits<value_size_type>::max())) {
     throw std::length_error("Value length must fit in uint32_t");
   }
   const auto value_size = static_cast<value_size_type>(v.size());
@@ -408,13 +414,18 @@ class inode {
 
   void delete_subtree() noexcept;
 
-  void dump(std::ostream &os) const;
+  __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
   // inode must not be allocated directly on heap
-  [[nodiscard]] static void *operator new(std::size_t) { cannot_happen(); }
+  [[nodiscard]] __attribute((cold, noinline)) static void *operator new(
+      std::size_t) {
+    cannot_happen();
+  }
 
   DISABLE_CLANG_WARNING("-Wmissing-noreturn")
-  static void operator delete(void *) { cannot_happen(); }
+  __attribute__((cold, noinline)) static void operator delete(void *) {
+    cannot_happen();
+  }
   RESTORE_CLANG_WARNINGS()
 
  protected:
@@ -682,7 +693,7 @@ class inode_4 final : public basic_inode_4 {
 
   void delete_subtree() noexcept;
 
-  void dump(std::ostream &os) const;
+  __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
   friend class inode_16;
@@ -785,7 +796,7 @@ class inode_16 final : public basic_inode_16 {
 
   void delete_subtree() noexcept;
 
-  void dump(std::ostream &os) const;
+  __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
   union {
@@ -917,7 +928,7 @@ class inode_48 final : public basic_inode_48 {
 
   void delete_subtree() noexcept;
 
-  void dump(std::ostream &os) const;
+  __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
   void remove_child_pointer(std::uint8_t child_index) noexcept {
@@ -1077,7 +1088,7 @@ class inode_256 final : public basic_inode_256 {
 
   void delete_subtree() noexcept;
 
-  void dump(std::ostream &os) const;
+  __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
   std::array<node_ptr, capacity> children;

@@ -226,7 +226,7 @@ class db final {
   }
 
   // Debugging
-  void dump(std::ostream &os) const;
+  __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
   [[nodiscard]] static get_result get_from_subtree(

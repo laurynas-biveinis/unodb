@@ -234,12 +234,12 @@ class db final {
       detail::tree_depth depth) noexcept;
 
   [[nodiscard]] bool insert_to_subtree(detail::art_key k,
-                                       detail::node_ptr *node, value_view v,
+                                       detail::node_ptr &node, value_view v,
                                        detail::tree_depth depth);
 
   [[nodiscard]] bool remove_from_subtree(detail::art_key k,
                                          detail::tree_depth depth,
-                                         detail::node_ptr *node);
+                                         detail::node_ptr &node);
 
   void increase_memory_use(std::size_t delta);
   void decrease_memory_use(std::size_t delta) noexcept;

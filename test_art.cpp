@@ -657,7 +657,7 @@ TYPED_TEST(ART, MemoryLimitOneLeaf) {
 }
 
 TYPED_TEST(ART, MemoryLimitOneNode4) {
-  tree_verifier<TypeParam> verifier{80};
+  tree_verifier<TypeParam> verifier{90};
   verifier.test_insert_until_memory_limit(std::nullopt, 1, 0, 0, 0);
 }
 

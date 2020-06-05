@@ -109,12 +109,15 @@ class tree_depth final {
   value_type value;
 };
 
+inline constexpr auto node_type_mask = 0b111;
+
 // A pointer to some kind of node. It can be accessed either as a node header,
 // to query the right node type, a leaf, or as one of the internal nodes. This
 // depends on all types being of standard layout and node_header being at the
 // same location in node_header and all node types. This is checked by static
 // asserts in the implementation file.
 union node_ptr {
+  std::uintptr_t pointer_value;
   node_header *header;
   raw_leaf_ptr leaf;
   inode *internal;
@@ -123,23 +126,22 @@ union node_ptr {
   inode_48 *node_48;
   inode_256 *node_256;
 
+  static constexpr std::uintptr_t sentinel_ptr = node_type_mask;
+
   node_ptr() noexcept {}
-  node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
+  node_ptr(std::uintptr_t pointer_value_) noexcept
+      : pointer_value{pointer_value_} {}
   node_ptr(raw_leaf_ptr leaf_) noexcept : leaf{leaf_} {}
   node_ptr(inode_4 *node_4_) noexcept : node_4{node_4_} {}
   node_ptr(inode_16 *node_16_) noexcept : node_16{node_16_} {}
   node_ptr(inode_48 *node_48_) noexcept : node_48{node_48_} {}
   node_ptr(inode_256 *node_256_) noexcept : node_256{node_256_} {}
 
-  [[nodiscard]] auto operator==(std::nullptr_t) const noexcept {
-    return header == nullptr;
-  }
-
-  [[nodiscard]] auto operator!=(std::nullptr_t) const noexcept {
-    return header != nullptr;
-  }
-
   [[nodiscard]] __attribute__((pure)) node_type type() const noexcept;
+
+  [[nodiscard]] bool is_sentinel() const noexcept {
+    return pointer_value & node_type_mask;
+  }
 };
 
 }  // namespace detail
@@ -155,7 +157,7 @@ class db final {
   // Querying
   [[nodiscard]] get_result get(key k) const noexcept;
 
-  [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
+  [[nodiscard]] auto empty() const noexcept { return root.is_sentinel(); }
 
   // Modifying
   // Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
@@ -244,7 +246,7 @@ class db final {
   void increase_memory_use(std::size_t delta);
   void decrease_memory_use(std::size_t delta) noexcept;
 
-  detail::node_ptr root{nullptr};
+  detail::node_ptr root{detail::node_ptr::sentinel_ptr};
 
   std::size_t current_memory_use{0};
   const std::size_t memory_limit;

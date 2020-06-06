@@ -546,6 +546,7 @@ void delete_subtree(unodb::detail::node_ptr node) noexcept {
     delete_on_scope_exit.internal->delete_subtree();
 }
 
+#if !defined(__x86_64)
 // From public domain
 // https://graphics.stanford.edu/~seander/bithacks.html
 inline std::uint32_t has_zero_byte(std::uint32_t v) noexcept {
@@ -555,6 +556,7 @@ inline std::uint32_t has_zero_byte(std::uint32_t v) noexcept {
 inline std::uint32_t contains_byte(std::uint32_t v, std::byte b) noexcept {
   return has_zero_byte(v ^ (~0U / 255 * static_cast<std::uint8_t>(b)));
 }
+#endif
 
 }  // namespace
 
@@ -778,6 +780,21 @@ void inode_4::dump(std::ostream &os) const {
 inode::find_result_type inode_4::find_child(std::byte key_byte) noexcept {
   assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
+#if defined(__x86_64)
+  const auto replicated_search_key = _mm_set1_epi8(static_cast<char>(key_byte));
+  const auto keys_in_sse_reg =
+      _mm_cvtsi32_si128(static_cast<std::int32_t>(keys.integer));
+  const auto matching_key_positions =
+      _mm_cmpeq_epi8(replicated_search_key, keys_in_sse_reg);
+  const auto mask = (1U << children_count) - 1;
+  const auto bit_field =
+      static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
+  if (bit_field != 0) {
+    const auto i = static_cast<unsigned>(__builtin_ctz(bit_field));
+    return std::make_pair(i, &children[i]);
+  }
+  return std::make_pair(0xFF, nullptr);
+#else
   // Bit twiddling:
   // contains_byte:     __builtin_ffs:   for key index:
   //    0x80000000               0x20                3
@@ -796,6 +813,7 @@ inode::find_result_type inode_4::find_child(std::byte key_byte) noexcept {
     return std::make_pair(0xFF, nullptr);
 
   return std::make_pair(result - 1, &children[result - 1]);
+#endif
 }
 
 using basic_inode_16 =

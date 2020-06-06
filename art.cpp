@@ -656,6 +656,8 @@ class basic_inode {
     std::copy(children.begin() + child_to_remove + 1,
               children.begin() + children_count,
               children.begin() + child_to_remove);
+    children[static_cast<typename ChildrenType::size_type>(children_count) -
+             1] = node_ptr::sentinel_ptr;
     --children_count;
 
     assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
@@ -818,6 +820,8 @@ void inode_4::add_two_to_empty(std::byte key1, node_ptr child1, std::byte key2,
 
   fields.c.children[key1_i] = child1;
   fields.c.children[key2_i] = child2.release();
+  fields.c.children[2] = node_ptr::sentinel_ptr;
+  fields.c.children[3] = node_ptr::sentinel_ptr;
 
   assert(std::is_sorted(
       keys.byte_array.cbegin(),
@@ -853,7 +857,7 @@ inode::find_result_type inode_4::find_child(std::byte key_byte) noexcept {
       _mm_cvtsi32_si128(static_cast<std::int32_t>(keys.integer));
   const auto matching_key_positions =
       _mm_cmpeq_epi8(replicated_search_key, keys_in_sse_reg);
-  const auto mask = (1U << fields.header.node4_children_count()) - 1;
+  static constexpr auto mask = (1U << capacity) - 1;
   const auto bit_field =
       static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
   const auto i =

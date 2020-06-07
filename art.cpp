@@ -1434,154 +1434,166 @@ class raii_leaf_creator {
 
 db::~db() noexcept { ::delete_subtree(root); }
 
-get_result db::get(key k) const noexcept {
+get_result db::get(key search_key) const noexcept {
   if (unlikely(root.header == nullptr)) return {};
-  return get_from_subtree(root, detail::art_key{k}, detail::tree_depth{});
-}
 
-get_result db::get_from_subtree(detail::node_ptr node, detail::art_key k,
-                                detail::tree_depth depth) noexcept {
-  if (node.type() == detail::node_type::LEAF) {
-    if (detail::leaf::matches(node.leaf, k)) {
-      const auto value = detail::leaf::value(node.leaf);
-      return value;
+  detail::node_ptr node{root};
+  detail::art_key k{search_key};
+  detail::tree_depth depth{};
+
+  while (true) {
+    if (node.type() == detail::node_type::LEAF) {
+      if (detail::leaf::matches(node.leaf, k)) {
+        const auto value = detail::leaf::value(node.leaf);
+        return value;
+      }
+      return {};
     }
-    return {};
+
+    assert(node.type() != detail::node_type::LEAF);
+    assert(depth < detail::art_key::size);
+
+    if (node.internal->node_key_prefix.get_shared_length(k, depth) <
+        node.internal->node_key_prefix.length())
+      return {};
+    depth += node.internal->node_key_prefix.length();
+    auto *const child = node.internal->find_child(k[depth]).second;
+    if (child == nullptr) return {};
+
+    node = *child;
+    ++depth;
   }
-
-  assert(node.type() != detail::node_type::LEAF);
-  assert(depth < detail::art_key::size);
-
-  if (node.internal->node_key_prefix.get_shared_length(k, depth) <
-      node.internal->node_key_prefix.length())
-    return {};
-  depth += node.internal->node_key_prefix.length();
-  auto *const child = node.internal->find_child(k[depth]).second;
-  if (child == nullptr) return {};
-
-  return get_from_subtree(*child, k, ++depth);
 }
 
-bool db::insert(key k, value_view v) {
-  const auto bin_comparable_key = detail::art_key{k};
+bool db::insert(key insert_key, value_view v) {
+  const auto k = detail::art_key{insert_key};
+
   if (unlikely(root.header == nullptr)) {
-    auto leaf = detail::leaf::create(bin_comparable_key, v, *this);
+    auto leaf = detail::leaf::create(k, v, *this);
     root = leaf.release();
     return true;
   }
-  return insert_to_subtree(bin_comparable_key, root, v, detail::tree_depth{});
+
+  detail::node_ptr *node = &root;
+  detail::tree_depth depth{};
+
+  while (true) {
+    if (node->type() == detail::node_type::LEAF) {
+      const auto existing_key = detail::leaf::key(node->leaf);
+      if (unlikely(k == existing_key)) return false;
+      detail::raii_leaf_creator leaf_creator{k, v, *this};
+      auto leaf = leaf_creator.get();
+      increase_memory_use(sizeof(detail::inode_4));
+      // TODO(laurynas): try to pass leaf node type instead of generic node
+      // below. This way it would be apparent that its key prefix does not need
+      // updating as leaves don't have any.
+      auto new_node = detail::inode_4::create(existing_key, k, depth, *node,
+                                              std::move(leaf));
+      *node = new_node.release();
+      ++inode4_count;
+      ++created_inode4_count;
+      assert(created_inode4_count >= inode4_count);
+      return true;
+    }
+
+    assert(node->type() != detail::node_type::LEAF);
+    assert(depth < detail::art_key::size);
+
+    const auto shared_prefix_len =
+        node->internal->node_key_prefix.get_shared_length(k, depth);
+    if (shared_prefix_len < node->internal->node_key_prefix.length()) {
+      detail::raii_leaf_creator leaf_creator{k, v, *this};
+      auto leaf = leaf_creator.get();
+      increase_memory_use(sizeof(detail::inode_4));
+      auto new_node = detail::inode_4::create(*node, shared_prefix_len, depth,
+                                              std::move(leaf));
+      *node = new_node.release();
+      ++inode4_count;
+      ++created_inode4_count;
+      ++key_prefix_splits;
+      assert(created_inode4_count >= inode4_count);
+      assert(created_inode4_count > key_prefix_splits);
+      return true;
+    }
+
+    assert(shared_prefix_len == node->internal->node_key_prefix.length());
+    depth += node->internal->node_key_prefix.length();
+
+    auto *const child = node->internal->find_child(k[depth]).second;
+
+    if (child == nullptr) {
+      detail::raii_leaf_creator leaf_creator{k, v, *this};
+      auto leaf = leaf_creator.get();
+
+      const auto node_is_full = node->internal->is_full();
+
+      if (likely(!node_is_full)) {
+        node->internal->add(std::move(leaf), depth);
+        return true;
+      }
+
+      assert(node_is_full);
+
+      if (node->type() == detail::node_type::I4) {
+        assert(inode4_count > 0);
+
+        increase_memory_use(sizeof(detail::inode_16) - sizeof(detail::inode_4));
+        std::unique_ptr<detail::inode_4> current_node{node->node_4};
+        auto larger_node = detail::inode_16::create(std::move(current_node),
+                                                    std::move(leaf), depth);
+        *node = larger_node.release();
+
+        --inode4_count;
+        ++inode16_count;
+        ++inode4_to_inode16_count;
+        assert(inode4_to_inode16_count >= inode16_count);
+
+      } else if (node->type() == detail::node_type::I16) {
+        assert(inode16_count > 0);
+
+        std::unique_ptr<detail::inode_16> current_node{node->node_16};
+        increase_memory_use(sizeof(detail::inode_48) -
+                            sizeof(detail::inode_16));
+        auto larger_node = detail::inode_48::create(std::move(current_node),
+                                                    std::move(leaf), depth);
+        *node = larger_node.release();
+
+        --inode16_count;
+        ++inode48_count;
+        ++inode16_to_inode48_count;
+        assert(inode16_to_inode48_count >= inode48_count);
+
+      } else {
+        assert(inode48_count > 0);
+
+        assert(node->type() == detail::node_type::I48);
+        std::unique_ptr<detail::inode_48> current_node{node->node_48};
+        increase_memory_use(sizeof(detail::inode_256) -
+                            sizeof(detail::inode_48));
+        auto larger_node = detail::inode_256::create(std::move(current_node),
+                                                     std::move(leaf), depth);
+        *node = larger_node.release();
+
+        --inode48_count;
+        ++inode256_count;
+        ++inode48_to_inode256_count;
+        assert(inode48_to_inode256_count >= inode256_count);
+      }
+      return true;
+    }
+
+    node = child;
+    ++depth;
+  }
 }
 
-bool db::insert_to_subtree(detail::art_key k, detail::node_ptr &node,
-                           value_view v, detail::tree_depth depth) {
-  if (node.type() == detail::node_type::LEAF) {
-    const auto existing_key = detail::leaf::key(node.leaf);
-    if (unlikely(k == existing_key)) return false;
-    detail::raii_leaf_creator leaf_creator{k, v, *this};
-    auto leaf = leaf_creator.get();
-    increase_memory_use(sizeof(detail::inode_4));
-    // TODO(laurynas): try to pass leaf node type instead of generic node below.
-    // This way it would be apparent that its key prefix does not need updating
-    // as leaves don't have any.
-    auto new_node =
-        detail::inode_4::create(existing_key, k, depth, node, std::move(leaf));
-    node = new_node.release();
-    ++inode4_count;
-    ++created_inode4_count;
-    assert(created_inode4_count >= inode4_count);
-    return true;
-  }
+bool db::remove(key remove_key) {
+  const auto k = detail::art_key{remove_key};
 
-  assert(node.type() != detail::node_type::LEAF);
-  assert(depth < detail::art_key::size);
-
-  const auto shared_prefix_len =
-      node.internal->node_key_prefix.get_shared_length(k, depth);
-  if (shared_prefix_len < node.internal->node_key_prefix.length()) {
-    detail::raii_leaf_creator leaf_creator{k, v, *this};
-    auto leaf = leaf_creator.get();
-    increase_memory_use(sizeof(detail::inode_4));
-    auto new_node = detail::inode_4::create(node, shared_prefix_len, depth,
-                                            std::move(leaf));
-    node = new_node.release();
-    ++inode4_count;
-    ++created_inode4_count;
-    ++key_prefix_splits;
-    assert(created_inode4_count >= inode4_count);
-    assert(created_inode4_count > key_prefix_splits);
-    return true;
-  }
-
-  assert(shared_prefix_len == node.internal->node_key_prefix.length());
-  depth += node.internal->node_key_prefix.length();
-
-  auto *const child = node.internal->find_child(k[depth]).second;
-
-  if (child != nullptr) return insert_to_subtree(k, *child, v, ++depth);
-
-  detail::raii_leaf_creator leaf_creator{k, v, *this};
-  auto leaf = leaf_creator.get();
-
-  const auto node_is_full = node.internal->is_full();
-
-  if (likely(!node_is_full)) {
-    node.internal->add(std::move(leaf), depth);
-    return true;
-  }
-
-  assert(node_is_full);
-
-  if (node.type() == detail::node_type::I4) {
-    assert(inode4_count > 0);
-
-    increase_memory_use(sizeof(detail::inode_16) - sizeof(detail::inode_4));
-    std::unique_ptr<detail::inode_4> current_node{node.node_4};
-    auto larger_node = detail::inode_16::create(std::move(current_node),
-                                                std::move(leaf), depth);
-    node = larger_node.release();
-
-    --inode4_count;
-    ++inode16_count;
-    ++inode4_to_inode16_count;
-    assert(inode4_to_inode16_count >= inode16_count);
-
-  } else if (node.type() == detail::node_type::I16) {
-    assert(inode16_count > 0);
-
-    std::unique_ptr<detail::inode_16> current_node{node.node_16};
-    increase_memory_use(sizeof(detail::inode_48) - sizeof(detail::inode_16));
-    auto larger_node = detail::inode_48::create(std::move(current_node),
-                                                std::move(leaf), depth);
-    node = larger_node.release();
-
-    --inode16_count;
-    ++inode48_count;
-    ++inode16_to_inode48_count;
-    assert(inode16_to_inode48_count >= inode48_count);
-
-  } else {
-    assert(inode48_count > 0);
-
-    assert(node.type() == detail::node_type::I48);
-    std::unique_ptr<detail::inode_48> current_node{node.node_48};
-    increase_memory_use(sizeof(detail::inode_256) - sizeof(detail::inode_48));
-    auto larger_node = detail::inode_256::create(std::move(current_node),
-                                                 std::move(leaf), depth);
-    node = larger_node.release();
-
-    --inode48_count;
-    ++inode256_count;
-    ++inode48_to_inode256_count;
-    assert(inode48_to_inode256_count >= inode256_count);
-  }
-  return true;
-}
-
-bool db::remove(key k) {
-  const auto bin_comparable_key = detail::art_key{k};
   if (unlikely(root == nullptr)) return false;
+
   if (root.type() == detail::node_type::LEAF) {
-    if (detail::leaf::matches(root.leaf, bin_comparable_key)) {
+    if (detail::leaf::matches(root.leaf, k)) {
       const auto leaf_size = detail::leaf::size(root.leaf);
       detail::leaf_unique_ptr root_leaf_deleter{root.leaf};
       root = nullptr;
@@ -1592,97 +1604,104 @@ bool db::remove(key k) {
     }
     return false;
   }
-  return remove_from_subtree(bin_comparable_key, detail::tree_depth{}, root);
-}
 
-bool db::remove_from_subtree(detail::art_key k, detail::tree_depth depth,
-                             detail::node_ptr &node) {
-  assert(node.type() != detail::node_type::LEAF);
-  assert(depth < detail::art_key::size);
+  detail::node_ptr *node = &root;
+  detail::tree_depth depth{};
 
-  const auto shared_prefix_len =
-      node.internal->node_key_prefix.get_shared_length(k, depth);
-  if (shared_prefix_len < node.internal->node_key_prefix.length()) return false;
+  while (true) {
+    assert(node->type() != detail::node_type::LEAF);
+    assert(depth < detail::art_key::size);
 
-  assert(shared_prefix_len == node.internal->node_key_prefix.length());
-  depth += node.internal->node_key_prefix.length();
+    const auto shared_prefix_len =
+        node->internal->node_key_prefix.get_shared_length(k, depth);
+    if (shared_prefix_len < node->internal->node_key_prefix.length())
+      return false;
 
-  const auto [child_i, child_ptr] = node.internal->find_child(k[depth]);
+    assert(shared_prefix_len == node->internal->node_key_prefix.length());
+    depth += node->internal->node_key_prefix.length();
 
-  if (child_ptr == nullptr) return false;
+    const auto [child_i, child_ptr] = node->internal->find_child(k[depth]);
 
-  if (child_ptr->type() != detail::node_type::LEAF)
-    return remove_from_subtree(k, ++depth, *child_ptr);
+    if (child_ptr == nullptr) return false;
 
-  if (!detail::leaf::matches(child_ptr->leaf, k)) return false;
+    if (child_ptr->type() == detail::node_type::LEAF) {
+      if (!detail::leaf::matches(child_ptr->leaf, k)) return false;
 
-  assert(leaf_count > 0);
+      assert(leaf_count > 0);
 
-  const auto is_node_min_size = node.internal->is_min_size();
-  const auto child_node_size = detail::leaf::size(child_ptr->leaf);
+      const auto is_node_min_size = node->internal->is_min_size();
+      const auto child_node_size = detail::leaf::size(child_ptr->leaf);
 
-  if (likely(!is_node_min_size)) {
-    node.internal->remove(child_i);
-    decrease_memory_use(child_node_size);
-    --leaf_count;
-    return true;
+      if (likely(!is_node_min_size)) {
+        node->internal->remove(child_i);
+        decrease_memory_use(child_node_size);
+        --leaf_count;
+        return true;
+      }
+
+      assert(is_node_min_size);
+
+      if (node->type() == detail::node_type::I4) {
+        std::unique_ptr<detail::inode_4> current_node{node->node_4};
+        *node = current_node->leave_last_child(child_i);
+        decrease_memory_use(child_node_size + sizeof(detail::inode_4));
+
+        assert(inode4_count > 0);
+        --inode4_count;
+        ++deleted_inode4_count;
+        assert(deleted_inode4_count <= created_inode4_count);
+
+      } else if (node->type() == detail::node_type::I16) {
+        std::unique_ptr<detail::inode_16> current_node{node->node_16};
+        auto new_node{
+            detail::inode_4::create(std::move(current_node), child_i)};
+        *node = new_node.release();
+        decrease_memory_use(sizeof(detail::inode_16) - sizeof(detail::inode_4) +
+                            child_node_size);
+
+        assert(inode16_count > 0);
+        --inode16_count;
+        ++inode4_count;
+        ++inode16_to_inode4_count;
+        assert(inode16_to_inode4_count <= inode4_to_inode16_count);
+
+      } else if (node->type() == detail::node_type::I48) {
+        std::unique_ptr<detail::inode_48> current_node{node->node_48};
+        auto new_node{
+            detail::inode_16::create(std::move(current_node), child_i)};
+        *node = new_node.release();
+        decrease_memory_use(sizeof(detail::inode_48) -
+                            sizeof(detail::inode_16) + child_node_size);
+
+        assert(inode48_count > 0);
+        --inode48_count;
+        ++inode16_count;
+        ++inode48_to_inode16_count;
+        assert(inode48_to_inode16_count <= inode16_to_inode48_count);
+
+      } else {
+        assert(node->type() == detail::node_type::I256);
+        std::unique_ptr<detail::inode_256> current_node{node->node_256};
+        auto new_node{
+            detail::inode_48::create(std::move(current_node), child_i)};
+        *node = new_node.release();
+        decrease_memory_use(sizeof(detail::inode_256) -
+                            sizeof(detail::inode_48) + child_node_size);
+
+        assert(inode256_count > 0);
+        --inode256_count;
+        ++inode48_count;
+        ++inode256_to_inode48_count;
+        assert(inode256_to_inode48_count <= inode48_to_inode256_count);
+      }
+
+      --leaf_count;
+      return true;
+    }
+
+    node = child_ptr;
+    ++depth;
   }
-
-  assert(is_node_min_size);
-
-  if (node.type() == detail::node_type::I4) {
-    std::unique_ptr<detail::inode_4> current_node{node.node_4};
-    node = current_node->leave_last_child(child_i);
-    decrease_memory_use(child_node_size + sizeof(detail::inode_4));
-
-    assert(inode4_count > 0);
-    --inode4_count;
-    ++deleted_inode4_count;
-    assert(deleted_inode4_count <= created_inode4_count);
-
-  } else if (node.type() == detail::node_type::I16) {
-    std::unique_ptr<detail::inode_16> current_node{node.node_16};
-    auto new_node{detail::inode_4::create(std::move(current_node), child_i)};
-    node = new_node.release();
-    decrease_memory_use(sizeof(detail::inode_16) - sizeof(detail::inode_4) +
-                        child_node_size);
-
-    assert(inode16_count > 0);
-    --inode16_count;
-    ++inode4_count;
-    ++inode16_to_inode4_count;
-    assert(inode16_to_inode4_count <= inode4_to_inode16_count);
-
-  } else if (node.type() == detail::node_type::I48) {
-    std::unique_ptr<detail::inode_48> current_node{node.node_48};
-    auto new_node{detail::inode_16::create(std::move(current_node), child_i)};
-    node = new_node.release();
-    decrease_memory_use(sizeof(detail::inode_48) - sizeof(detail::inode_16) +
-                        child_node_size);
-
-    assert(inode48_count > 0);
-    --inode48_count;
-    ++inode16_count;
-    ++inode48_to_inode16_count;
-    assert(inode48_to_inode16_count <= inode16_to_inode48_count);
-
-  } else {
-    assert(node.type() == detail::node_type::I256);
-    std::unique_ptr<detail::inode_256> current_node{node.node_256};
-    auto new_node{detail::inode_48::create(std::move(current_node), child_i)};
-    node = new_node.release();
-    decrease_memory_use(sizeof(detail::inode_256) - sizeof(detail::inode_48) +
-                        child_node_size);
-
-    assert(inode256_count > 0);
-    --inode256_count;
-    ++inode48_count;
-    ++inode256_to_inode48_count;
-    assert(inode256_to_inode48_count <= inode48_to_inode256_count);
-  }
-
-  --leaf_count;
-  return true;
 }
 
 void db::clear() {

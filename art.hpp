@@ -153,15 +153,15 @@ class db final {
   ~db() noexcept;
 
   // Querying
-  [[nodiscard]] get_result get(key k) const noexcept;
+  [[nodiscard]] get_result get(key search_key) const noexcept;
 
   [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
 
   // Modifying
   // Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
-  [[nodiscard]] bool insert(key k, value_view v);
+  [[nodiscard]] bool insert(key insert_key, value_view v);
 
-  [[nodiscard]] bool remove(key k);
+  [[nodiscard]] bool remove(key remove_key);
 
   void clear();
 
@@ -229,18 +229,6 @@ class db final {
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
-  [[nodiscard]] static get_result get_from_subtree(
-      detail::node_ptr node, detail::art_key k,
-      detail::tree_depth depth) noexcept;
-
-  [[nodiscard]] bool insert_to_subtree(detail::art_key k,
-                                       detail::node_ptr &node, value_view v,
-                                       detail::tree_depth depth);
-
-  [[nodiscard]] bool remove_from_subtree(detail::art_key k,
-                                         detail::tree_depth depth,
-                                         detail::node_ptr &node);
-
   void increase_memory_use(std::size_t delta);
   void decrease_memory_use(std::size_t delta) noexcept;
 

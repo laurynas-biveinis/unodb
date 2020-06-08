@@ -77,6 +77,20 @@ inline __attribute__((noreturn)) void cannot_happen() {
   __builtin_unreachable();
 }
 
+// On GCC up to and including version 10, __builtin_ffs compiles to BSF/CMOVE
+// pair if TZCNT is not available. CMOVE is only required if arg is zero, which
+// we know not to be. Only GCC 11 gets the hint by "if (arg == 0)
+// __builtin_unreachable()"
+unsigned ffs_nonzero(std::uint64_t arg) {
+  std::int64_t result;
+#if defined(__x86_64)
+  __asm__("bsfq %1, %0" : "=r"(result) : "rm"(arg) : "cc");
+  return gsl::narrow_cast<unsigned>(result + 1);
+#else
+  return static_cast<unsigned>(__builtin_ffsl(static_cast<std::int64_t>(arg)));
+#endif
+}
+
 class key_prefix final {
  public:
   using size_type = std::uint8_t;
@@ -169,16 +183,21 @@ class key_prefix final {
   [[nodiscard]] auto get_shared_length(
       unodb::detail::art_key k,
       unodb::detail::tree_depth depth) const noexcept {
-    auto key_i{depth};
-    unsigned shared_length = 0;
-    while (shared_length < length()) {
-      if (k[key_i] != data_[(gsl::narrow_cast<size_type>(shared_length))])
-        break;
-      ++key_i;
-      ++shared_length;
-    }
-    assert(shared_length <= length());
-    return shared_length;
+    static_assert(capacity == 7);
+    const auto prefix_word = static_cast<std::uint64_t>(data_[0]) |
+                             (static_cast<std::uint64_t>(data_[1]) << 8U) |
+                             (static_cast<std::uint64_t>(data_[2]) << 16U) |
+                             (static_cast<std::uint64_t>(data_[3]) << 24U) |
+                             (static_cast<std::uint64_t>(data_[4]) << 32U) |
+                             (static_cast<std::uint64_t>(data_[5]) << 40U) |
+                             (static_cast<std::uint64_t>(data_[6]) << 48U);
+
+    const auto shifted_key = static_cast<std::uint64_t>(k) >> (depth * 8);
+    const auto key_diff = shifted_key ^ prefix_word;
+    const auto clamped_with_length =
+        key_diff | (1ULL << static_cast<unsigned>((length() * 8)));
+    const auto result = (ffs_nonzero(clamped_with_length) - 1) >> 3U;
+    return result;
   }
   RESTORE_GCC_WARNINGS()
 

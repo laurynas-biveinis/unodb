@@ -302,14 +302,12 @@ class inode {
 
   DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] auto get_shared_key_prefix_length(
-      unodb::detail::art_key k,
-      unodb::detail::tree_depth depth) const noexcept {
+      unodb::detail::art_key shifted_key) const noexcept {
     static_assert(key_prefix_capacity == 7);
 
     const auto prefix_word =
         (static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0]) >> 8U;
-    const auto shifted_key = static_cast<std::uint64_t>(k) >> (depth * 8);
-    const auto key_diff = shifted_key ^ prefix_word;
+    const auto key_diff = static_cast<std::uint64_t>(shifted_key) ^ prefix_word;
     const auto clamped_with_length =
         key_diff | (1ULL << static_cast<unsigned>((key_prefix_length() * 8)));
     const auto result = (ffs_nonzero(clamped_with_length) - 1) >> 3U;
@@ -1465,8 +1463,8 @@ get_result db::get(key search_key) const noexcept {
   if (unlikely(root.header == nullptr)) return {};
 
   detail::node_ptr node{root};
-  detail::art_key k{search_key};
-  detail::tree_depth depth{};
+  const detail::art_key k{search_key};
+  detail::art_key remaining_key{k};
 
   while (true) {
     if (node.type() == detail::node_type::LEAF) {
@@ -1478,17 +1476,16 @@ get_result db::get(key search_key) const noexcept {
     }
 
     assert(node.type() != detail::node_type::LEAF);
-    assert(depth < detail::art_key::size);
 
-    if (node.internal->get_shared_key_prefix_length(k, depth) <
+    if (node.internal->get_shared_key_prefix_length(remaining_key) <
         node.internal->key_prefix_length())
       return {};
-    depth += node.internal->key_prefix_length();
-    auto *const child = node.internal->find_child(k[depth]).second;
+    remaining_key.shift_right(node.internal->key_prefix_length());
+    auto *const child = node.internal->find_child(remaining_key[0]).second;
     if (child == nullptr) return {};
 
     node = *child;
-    ++depth;
+    remaining_key.shift_right(1);
   }
 }
 
@@ -1503,6 +1500,7 @@ bool db::insert(key insert_key, value_view v) {
 
   detail::node_ptr *node = &root;
   detail::tree_depth depth{};
+  detail::art_key remaining_key{k};
 
   while (true) {
     if (node->type() == detail::node_type::LEAF) {
@@ -1527,7 +1525,7 @@ bool db::insert(key insert_key, value_view v) {
     assert(depth < detail::art_key::size);
 
     const auto shared_prefix_len =
-        node->internal->get_shared_key_prefix_length(k, depth);
+        node->internal->get_shared_key_prefix_length(remaining_key);
     if (shared_prefix_len < node->internal->key_prefix_length()) {
       detail::raii_leaf_creator leaf_creator{k, v, *this};
       auto leaf = leaf_creator.get();
@@ -1545,8 +1543,9 @@ bool db::insert(key insert_key, value_view v) {
 
     assert(shared_prefix_len == node->internal->key_prefix_length());
     depth += node->internal->key_prefix_length();
+    remaining_key.shift_right(node->internal->key_prefix_length());
 
-    auto *const child = node->internal->find_child(k[depth]).second;
+    auto *const child = node->internal->find_child(remaining_key[0]).second;
 
     if (child == nullptr) {
       detail::raii_leaf_creator leaf_creator{k, v, *this};
@@ -1611,6 +1610,7 @@ bool db::insert(key insert_key, value_view v) {
 
     node = child;
     ++depth;
+    remaining_key.shift_right(1);
   }
 }
 
@@ -1634,19 +1634,22 @@ bool db::remove(key remove_key) {
 
   detail::node_ptr *node = &root;
   detail::tree_depth depth{};
+  detail::art_key remaining_key{k};
 
   while (true) {
     assert(node->type() != detail::node_type::LEAF);
     assert(depth < detail::art_key::size);
 
     const auto shared_prefix_len =
-        node->internal->get_shared_key_prefix_length(k, depth);
+        node->internal->get_shared_key_prefix_length(remaining_key);
     if (shared_prefix_len < node->internal->key_prefix_length()) return false;
 
     assert(shared_prefix_len == node->internal->key_prefix_length());
     depth += node->internal->key_prefix_length();
+    remaining_key.shift_right(node->internal->key_prefix_length());
 
-    const auto [child_i, child_ptr] = node->internal->find_child(k[depth]);
+    const auto [child_i, child_ptr] =
+        node->internal->find_child(remaining_key[0]);
 
     if (child_ptr == nullptr) return false;
 
@@ -1727,6 +1730,7 @@ bool db::remove(key remove_key) {
 
     node = child_ptr;
     ++depth;
+    remaining_key.shift_right(1);
   }
 }
 

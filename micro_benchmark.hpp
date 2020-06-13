@@ -147,6 +147,11 @@ void get_existing_key(const Db &db, unodb::key k) {
 }
 
 template <class Db>
+void get_key(const Db &db, unodb::key k) {
+  static_cast<void>(db.get(k));
+}
+
+template <class Db>
 void delete_key(Db &db, unodb::key k) {
   const auto result USED_IN_DEBUG = db.remove(k);
   assert(result);

@@ -56,6 +56,8 @@ struct basic_art_key final {
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }
 
+  [[nodiscard]] explicit operator KeyType() const noexcept { return key; }
+
   KeyType key;
 
   static constexpr auto size = sizeof(KeyType);

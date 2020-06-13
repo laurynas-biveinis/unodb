@@ -83,9 +83,11 @@ void unpredictable_get_shared_length(benchmark::State &state) {
 
   std::random_device rd;
   std::mt19937 gen{rd()};
-  std::shuffle(search_keys.begin(), search_keys.end(), gen);
 
   for (auto _ : state) {
+    state.PauseTiming();
+    std::shuffle(search_keys.begin(), search_keys.end(), gen);
+    state.ResumeTiming();
     for (const auto k : search_keys) {
       unodb::benchmark::get_key(db, k);
     }

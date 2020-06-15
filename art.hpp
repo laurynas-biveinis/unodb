@@ -58,6 +58,10 @@ struct basic_art_key final {
 
   [[nodiscard]] explicit operator KeyType() const noexcept { return key; }
 
+  void shift_right(const std::size_t num_bytes) noexcept {
+    key >>= (num_bytes * 8);
+  }
+
   KeyType key;
 
   static constexpr auto size = sizeof(KeyType);

@@ -9,6 +9,7 @@
 #include <cassert>
 #ifdef __x86_64
 #include <emmintrin.h>
+#include <smmintrin.h>
 #endif
 #include <iomanip>
 #include <iostream>
@@ -302,9 +303,27 @@ class inode {
 
   DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] auto get_shared_key_prefix_length(
-      unodb::detail::art_key shifted_key) const noexcept {
+#if defined(__x86_64)
+      __m128i shifted_key)
+#else
+      unodb::detail::art_key shifted_key)
+#endif
+      const noexcept {
     static_assert(key_prefix_capacity == 7);
 
+#if defined(__x86_64)
+    const auto prefix_and_type_in_sse = _mm_cvtsi64_si128(
+        static_cast<std::int64_t>(f.words[1]) << 32U | f.words[0]);
+    const auto prefix_in_sse = _mm_bsrli_si128(prefix_and_type_in_sse, 1);
+    const auto key_diff = ~(_mm_cmpeq_epi8(prefix_in_sse, shifted_key));
+    const auto length_clamp = _mm_cvtsi64_si128(
+        1LL << static_cast<unsigned>((key_prefix_length() * 8 + 7)));
+    const auto clamped_diff = _mm_or_si128(key_diff, length_clamp);
+    const auto diff_mask =
+        static_cast<unsigned>(_mm_movemask_epi8(clamped_diff));
+    const auto result = ffs_nonzero(diff_mask) - 1;
+    return result;
+#else
     const auto prefix_word =
         (static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0]) >> 8U;
     const auto key_diff = static_cast<std::uint64_t>(shifted_key) ^ prefix_word;
@@ -312,6 +331,7 @@ class inode {
         key_diff | (1ULL << static_cast<unsigned>((key_prefix_length() * 8)));
     const auto result = (ffs_nonzero(clamped_with_length) - 1) >> 3U;
     return result;
+#endif
   }
   RESTORE_GCC_WARNINGS()
 
@@ -1464,7 +1484,12 @@ get_result db::get(key search_key) const noexcept {
 
   detail::node_ptr node{root};
   const detail::art_key k{search_key};
+#if defined(__x86_64)
+  __m128i remaining_key = _mm_cvtsi64_si128(
+      static_cast<std::int64_t>(static_cast<std::uint64_t>(k)));
+#else
   detail::art_key remaining_key{k};
+#endif
 
   while (true) {
     if (node.type() == detail::node_type::LEAF) {
@@ -1480,12 +1505,25 @@ get_result db::get(key search_key) const noexcept {
     if (node.internal->get_shared_key_prefix_length(remaining_key) <
         node.internal->key_prefix_length())
       return {};
+#if defined(__x86_64)
+    remaining_key = _mm_srl_epi64(
+        remaining_key,
+        _mm_cvtsi64_si128(node.internal->key_prefix_length() * 8));
+    const auto next_key_byte =
+        static_cast<std::byte>(_mm_extract_epi8(remaining_key, 0));
+#else
     remaining_key.shift_right(node.internal->key_prefix_length());
-    auto *const child = node.internal->find_child(remaining_key[0]).second;
+    const auto next_key_byte = remaining_key[0];
+#endif
+    auto *const child = node.internal->find_child(next_key_byte).second;
     if (child == nullptr) return {};
 
     node = *child;
+#if defined(__x86_64)
+    remaining_key = _mm_bsrli_si128(remaining_key, 1);
+#else
     remaining_key.shift_right(1);
+#endif
   }
 }
 
@@ -1500,7 +1538,12 @@ bool db::insert(key insert_key, value_view v) {
 
   detail::node_ptr *node = &root;
   detail::tree_depth depth{};
+#if defined(__x86_64)
+  __m128i remaining_key = _mm_cvtsi64_si128(
+      static_cast<std::int64_t>(static_cast<std::uint64_t>(k)));
+#else
   detail::art_key remaining_key{k};
+#endif
 
   while (true) {
     if (node->type() == detail::node_type::LEAF) {
@@ -1543,9 +1586,18 @@ bool db::insert(key insert_key, value_view v) {
 
     assert(shared_prefix_len == node->internal->key_prefix_length());
     depth += node->internal->key_prefix_length();
+#if defined(__x86_64)
+    remaining_key = _mm_srl_epi64(
+        remaining_key,
+        _mm_cvtsi64_si128(node->internal->key_prefix_length() * 8));
+    const auto next_key_byte =
+        static_cast<std::byte>(_mm_extract_epi8(remaining_key, 0));
+#else
     remaining_key.shift_right(node->internal->key_prefix_length());
+    const auto next_key_byte = remaining_key[0];
+#endif
 
-    auto *const child = node->internal->find_child(remaining_key[0]).second;
+    auto *const child = node->internal->find_child(next_key_byte).second;
 
     if (child == nullptr) {
       detail::raii_leaf_creator leaf_creator{k, v, *this};
@@ -1610,7 +1662,11 @@ bool db::insert(key insert_key, value_view v) {
 
     node = child;
     ++depth;
+#if defined(__x86_64)
+    remaining_key = _mm_bsrli_si128(remaining_key, 1);
+#else
     remaining_key.shift_right(1);
+#endif
   }
 }
 
@@ -1634,7 +1690,12 @@ bool db::remove(key remove_key) {
 
   detail::node_ptr *node = &root;
   detail::tree_depth depth{};
+#if defined(__x86_64)
+  __m128i remaining_key = _mm_cvtsi64_si128(
+      static_cast<std::int64_t>(static_cast<std::uint64_t>(k)));
+#else
   detail::art_key remaining_key{k};
+#endif
 
   while (true) {
     assert(node->type() != detail::node_type::LEAF);
@@ -1646,10 +1707,18 @@ bool db::remove(key remove_key) {
 
     assert(shared_prefix_len == node->internal->key_prefix_length());
     depth += node->internal->key_prefix_length();
+#if defined(__x86_64)
+    remaining_key = _mm_srl_epi64(
+        remaining_key,
+        _mm_cvtsi64_si128(node->internal->key_prefix_length() * 8));
+    const auto next_key_byte =
+        static_cast<std::byte>(_mm_extract_epi8(remaining_key, 0));
+#else
     remaining_key.shift_right(node->internal->key_prefix_length());
+    const auto next_key_byte = remaining_key[0];
+#endif
 
-    const auto [child_i, child_ptr] =
-        node->internal->find_child(remaining_key[0]);
+    const auto [child_i, child_ptr] = node->internal->find_child(next_key_byte);
 
     if (child_ptr == nullptr) return false;
 
@@ -1730,7 +1799,11 @@ bool db::remove(key remove_key) {
 
     node = child_ptr;
     ++depth;
+#if defined(__x86_64)
+    remaining_key = _mm_bsrli_si128(remaining_key, 1);
+#else
     remaining_key.shift_right(1);
+#endif
   }
 }
 

@@ -669,22 +669,38 @@ class inode_4 final : public basic_inode_4 {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + f.f.children_count));
+    assert(f.f.children_count == 2 || f.f.children_count == 3);
 
-    const auto key_byte = leaf::key(child.get())[depth];
+    const auto key_byte =
+        static_cast<std::uint8_t>(leaf::key(child.get())[depth]);
 
-    const auto insert_pos_index = get_sorted_key_array_insert_position(
-        keys.byte_array, f.f.children_count, static_cast<std::byte>(key_byte));
+    const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
+    const auto second_lt = (((keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
+    const auto third_lt = ((f.f.children_count == 3) &&
+                           ((keys.integer >> 16U) & 0xFFU) < key_byte)
+                              ? 1
+                              : 0;
+    const auto insert_pos_index =
+        static_cast<unsigned>(first_lt + second_lt + third_lt);
 
-    if (insert_pos_index != f.f.children_count) {
-      for (decltype(keys.byte_array)::size_type i = f.f.children_count;
-           i > insert_pos_index; --i)
-        keys.byte_array[i] = keys.byte_array[i - 1];
-      std::copy_backward(children.begin() + insert_pos_index,
-                         children.begin() + f.f.children_count,
-                         children.begin() + f.f.children_count + 1);
+    assert(static_cast<std::uint8_t>(keys.byte_array[insert_pos_index]) !=
+               key_byte ||
+           insert_pos_index == f.f.children_count);
+
+    keys.integer =
+        static_cast<std::uint32_t>(keys.integer &
+                                   ((1ULL << (insert_pos_index * 8)) - 1)) |
+        static_cast<std::uint32_t>(key_byte) << (insert_pos_index * 8) |
+        static_cast<std::uint32_t>(
+            (keys.integer << 8U) &
+            ~((1ULL << ((insert_pos_index + 1) * 8)) - 1));
+
+    for (decltype(children)::size_type i = f.f.children_count;
+         i > insert_pos_index; --i) {
+      children[i] = children[i - 1];
     }
-    keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = child.release();
+
     ++f.f.children_count;
 
     assert(std::is_sorted(keys.byte_array.cbegin(),

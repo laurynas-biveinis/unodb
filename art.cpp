@@ -1518,6 +1518,13 @@ get_result db::get(key search_key) const noexcept {
       return {};
     }
 
+    // sizeof(Node4) == 48, but it is only 8-bytes-aligned, thus a node can be
+    // split across two 64B cache lines. Prefetching &children[0] of Node4 seems
+    // to show the best trade-off between avoiding a cache miss later and
+    // prefetching unneeded data.
+    __builtin_prefetch(reinterpret_cast<const void *>(
+        reinterpret_cast<std::uintptr_t>(node.header) + 16));
+
     assert(node.type() != detail::node_type::LEAF);
 
     if (node.internal->get_shared_key_prefix_length(remaining_key) <

@@ -682,12 +682,18 @@ class inode_4 final : public basic_inode_4 {
     const auto insert_pos_index =
         static_cast<unsigned>(first_lt + second_lt + third_lt);
 
+    keys.integer =
+        static_cast<std::uint32_t>(keys.integer &
+                                   ((1ULL << (insert_pos_index * 8U)) - 1)) |
+        static_cast<std::uint32_t>(key_byte) << (insert_pos_index * 8U) |
+        static_cast<std::uint32_t>(
+            (keys.integer << 8U) &
+            ~((1ULL << ((insert_pos_index + 1U) * 8U)) - 1));
+
     for (decltype(keys.byte_array)::size_type i = f.f.children_count;
          i > insert_pos_index; --i) {
-      keys.byte_array[i] = keys.byte_array[i - 1];
       children[i] = children[i - 1];
     }
-    keys.byte_array[insert_pos_index] = static_cast<std::byte>(key_byte);
     children[insert_pos_index] = child.release();
 
     ++f.f.children_count;

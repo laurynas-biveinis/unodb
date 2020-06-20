@@ -435,31 +435,6 @@ class inode {
   RESTORE_GCC_WARNINGS()
 
   template <typename KeysType, typename ChildrenType>
-  static void insert_into_sorted_key_children_arrays(
-      KeysType &__restrict__ keys, ChildrenType &__restrict__ children,
-      std::uint8_t &__restrict__ children_count, std::byte key_byte,
-      leaf_unique_ptr &&__restrict__ child) {
-    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
-
-    const auto insert_pos_index =
-        get_sorted_key_array_insert_position(keys, children_count, key_byte);
-    if (insert_pos_index != children_count) {
-      assert(keys[insert_pos_index] != key_byte);
-      std::copy_backward(keys.cbegin() + insert_pos_index,
-                         keys.cbegin() + children_count,
-                         keys.begin() + children_count + 1);
-      std::copy_backward(children.begin() + insert_pos_index,
-                         children.begin() + children_count,
-                         children.begin() + children_count + 1);
-    }
-    keys[insert_pos_index] = key_byte;
-    children[insert_pos_index] = child.release();
-    ++children_count;
-
-    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
-  }
-
-  template <typename KeysType, typename ChildrenType>
   static void remove_from_sorted_key_children_arrays(
       KeysType &keys, ChildrenType &children, std::uint8_t &children_count,
       std::uint8_t child_to_remove) noexcept {
@@ -692,11 +667,28 @@ class inode_4 final : public basic_inode_4 {
 
   void add(leaf_unique_ptr &&__restrict__ child, tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
+    assert(std::is_sorted(keys.byte_array.cbegin(),
+                          keys.byte_array.cbegin() + f.f.children_count));
 
     const auto key_byte = leaf::key(child.get())[depth];
-    insert_into_sorted_key_children_arrays(keys.byte_array, children,
-                                           f.f.children_count, key_byte,
-                                           std::move(child));
+
+    const auto insert_pos_index = get_sorted_key_array_insert_position(
+        keys.byte_array, f.f.children_count, static_cast<std::byte>(key_byte));
+
+    if (insert_pos_index != f.f.children_count) {
+      for (decltype(keys.byte_array)::size_type i = f.f.children_count;
+           i > insert_pos_index; --i)
+        keys.byte_array[i] = keys.byte_array[i - 1];
+      std::copy_backward(children.begin() + insert_pos_index,
+                         children.begin() + f.f.children_count,
+                         children.begin() + f.f.children_count + 1);
+    }
+    keys.byte_array[insert_pos_index] = key_byte;
+    children[insert_pos_index] = child.release();
+    ++f.f.children_count;
+
+    assert(std::is_sorted(keys.byte_array.cbegin(),
+                          keys.byte_array.cbegin() + f.f.children_count));
   }
 
   void remove(std::uint8_t child_index) noexcept {
@@ -853,9 +845,7 @@ class inode_16 final : public basic_inode_16 {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     const auto key_byte = leaf::key(child.get())[depth];
-    insert_into_sorted_key_children_arrays(keys.byte_array, children,
-                                           f.f.children_count, key_byte,
-                                           std::move(child));
+    insert_into_sorted_key_children_arrays(key_byte, std::move(child));
   }
 
   void remove(std::uint8_t child_index) noexcept {
@@ -872,6 +862,30 @@ class inode_16 final : public basic_inode_16 {
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
+  void insert_into_sorted_key_children_arrays(
+      std::byte key_byte, leaf_unique_ptr &&__restrict__ child) {
+    assert(std::is_sorted(keys.byte_array.cbegin(),
+                          keys.byte_array.cbegin() + f.f.children_count));
+
+    const auto insert_pos_index = get_sorted_key_array_insert_position(
+        keys.byte_array, f.f.children_count, key_byte);
+    if (insert_pos_index != f.f.children_count) {
+      assert(keys.byte_array[insert_pos_index] != key_byte);
+      std::copy_backward(keys.byte_array.cbegin() + insert_pos_index,
+                         keys.byte_array.cbegin() + f.f.children_count,
+                         keys.byte_array.begin() + f.f.children_count + 1);
+      std::copy_backward(children.begin() + insert_pos_index,
+                         children.begin() + f.f.children_count,
+                         children.begin() + f.f.children_count + 1);
+    }
+    keys.byte_array[insert_pos_index] = key_byte;
+    children[insert_pos_index] = child.release();
+    ++f.f.children_count;
+
+    assert(std::is_sorted(keys.byte_array.cbegin(),
+                          keys.byte_array.cbegin() + f.f.children_count));
+  }
+
   union {
     std::array<std::byte, capacity> byte_array;
     __m128i sse;

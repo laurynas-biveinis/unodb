@@ -443,15 +443,14 @@ class inode {
 
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(keys, children_count, key_byte);
-    if (insert_pos_index != children_count) {
-      assert(keys[insert_pos_index] != key_byte);
-      std::copy_backward(keys.cbegin() + insert_pos_index,
-                         keys.cbegin() + children_count,
-                         keys.begin() + children_count + 1);
-      std::copy_backward(children.begin() + insert_pos_index,
-                         children.begin() + children_count,
-                         children.begin() + children_count + 1);
-    }
+    assert(keys[insert_pos_index] != key_byte ||
+           insert_pos_index == children_count);
+    std::copy_backward(keys.cbegin() + insert_pos_index,
+                       keys.cbegin() + children_count,
+                       keys.begin() + children_count + 1);
+    std::copy_backward(children.begin() + insert_pos_index,
+                       children.begin() + children_count,
+                       children.begin() + children_count + 1);
     keys[insert_pos_index] = key_byte;
     children[insert_pos_index] = child.release();
     ++children_count;

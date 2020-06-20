@@ -436,8 +436,9 @@ class inode {
 
   template <typename KeysType, typename ChildrenType>
   static void insert_into_sorted_key_children_arrays(
-      KeysType &keys, ChildrenType &children, std::uint8_t &children_count,
-      std::byte key_byte, leaf_unique_ptr &&child) {
+      KeysType &__restrict__ keys, ChildrenType &__restrict__ children,
+      std::uint8_t &__restrict__ children_count, std::byte key_byte,
+      leaf_unique_ptr &&__restrict__ child) {
     assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
 
     const auto insert_pos_index =
@@ -689,7 +690,7 @@ class inode_4 final : public basic_inode_4 {
   inode_4(std::unique_ptr<inode_16> &&source_node,
           std::uint8_t child_to_remove) noexcept;
 
-  void add(leaf_unique_ptr &&child, tree_depth depth) noexcept {
+  void add(leaf_unique_ptr &&__restrict__ child, tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     const auto key_byte = leaf::key(child.get())[depth];

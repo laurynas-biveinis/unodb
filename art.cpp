@@ -682,16 +682,14 @@ class inode_4 final : public basic_inode_4 {
     const auto insert_pos_index =
         static_cast<unsigned>(first_lt + second_lt + third_lt);
 
-    if (insert_pos_index != f.f.children_count) {
-      for (decltype(keys.byte_array)::size_type i = f.f.children_count;
-           i > insert_pos_index; --i)
-        keys.byte_array[i] = keys.byte_array[i - 1];
-      std::copy_backward(children.begin() + insert_pos_index,
-                         children.begin() + f.f.children_count,
-                         children.begin() + f.f.children_count + 1);
+    for (decltype(keys.byte_array)::size_type i = f.f.children_count;
+         i > insert_pos_index; --i) {
+      keys.byte_array[i] = keys.byte_array[i - 1];
+      children[i] = children[i - 1];
     }
     keys.byte_array[insert_pos_index] = static_cast<std::byte>(key_byte);
     children[insert_pos_index] = child.release();
+
     ++f.f.children_count;
 
     assert(std::is_sorted(keys.byte_array.cbegin(),

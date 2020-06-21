@@ -669,25 +669,26 @@ class inode_4 final : public basic_inode_4 {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + f.f.children_count));
+    assert(f.f.children_count == 2 || f.f.children_count == 3);
 
-    const auto key_byte =
-        static_cast<std::uint8_t>(leaf::key(child.get())[depth]);
+    const auto key_byte = leaf::key(child.get())[depth];
 
-    const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
-    const auto second_lt = (((keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
-    const auto third_lt = ((f.f.children_count == 3) &&
-                           ((keys.integer >> 16U) & 0xFFU) < key_byte)
-                              ? 1
-                              : 0;
+    const auto first_lt = (keys.byte_array[0] < key_byte) ? 1 : 0;
+    const auto second_lt = (keys.byte_array[1] < key_byte) ? 1 : 0;
+    const auto third_lt =
+        ((f.f.children_count == 3) && (keys.byte_array[2] < key_byte)) ? 1 : 0;
     const auto insert_pos_index =
         static_cast<unsigned>(first_lt + second_lt + third_lt);
+
+    assert(keys.byte_array[insert_pos_index] != key_byte ||
+           insert_pos_index == f.f.children_count);
 
     for (decltype(keys.byte_array)::size_type i = f.f.children_count;
          i > insert_pos_index; --i) {
       keys.byte_array[i] = keys.byte_array[i - 1];
       children[i] = children[i - 1];
     }
-    keys.byte_array[insert_pos_index] = static_cast<std::byte>(key_byte);
+    keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = child.release();
 
     ++f.f.children_count;

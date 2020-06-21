@@ -580,7 +580,7 @@ endfunction()
 add_benchmark_target(micro_benchmark_key_prefix)
 set(micro_benchmark_key_prefix_quick_arg "") # Benchmark is quick as-is
 add_benchmark_target(micro_benchmark_node4)
-set(micro_benchmark_node4_quick_arg "--benchmark_filter='/100'")
+set(micro_benchmark_node4_quick_arg "--benchmark_filter='/100|/16'")
 add_benchmark_target(micro_benchmark)
 set(micro_benchmark_quick_arg "--benchmark_filter='.*262144|.*51200'")
 add_benchmark_target(micro_benchmark_mutex)

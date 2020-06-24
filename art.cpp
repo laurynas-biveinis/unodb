@@ -463,27 +463,6 @@ class inode {
       std::uint8_t children_count;
 
       // cppcheck-suppress uninitMemberVar
-      inode_fields(node_type type, art_key k1, art_key k2, tree_depth depth,
-                   std::uint8_t children_count_) noexcept
-          : header{type}, children_count{children_count_} {
-        assert(k1 != k2);
-
-#ifndef NDEBUG
-        for (std::size_t j = 0; j < depth; ++j) {
-          assert(k1[j] == k2[j]);
-        }
-#endif
-
-        auto i{depth};
-        for (; k1[i] == k2[i]; ++i) {
-          assert(i - depth < key_prefix_capacity);
-          key_prefix_data[i - depth] = k1[i];
-        }
-        assert(i - depth <= key_prefix_capacity);
-        key_prefix_length = gsl::narrow_cast<key_prefix_size_type>(i - depth);
-      }
-
-      // cppcheck-suppress uninitMemberVar
       inode_fields(node_type type, std::uint8_t children_count_,
                    key_prefix_size_type key_prefix_len,
                    const key_prefix_data_type &key_prefix) noexcept
@@ -499,9 +478,23 @@ class inode {
     static_assert(sizeof(inode_fields) == 10);
     std::array<std::uint32_t, 2> words;
 
-    inode_union(node_type type, art_key k1, art_key k2, tree_depth depth,
-                std::uint8_t children_count) noexcept
-        : f{type, k1, k2, depth, children_count} {}
+    inode_union(node_type type, art_key k1, art_key shifted_k2,
+                tree_depth depth, std::uint8_t children_count) noexcept {
+      k1.shift_right(depth);
+
+      const auto k1_word = static_cast<std::uint64_t>(k1);
+
+      const auto key_diff_with_clamp =
+          (k1_word ^ static_cast<std::uint64_t>(shifted_k2)) | 1ULL << 56U;
+
+      words[0] = gsl::narrow_cast<std::uint32_t>(
+          static_cast<std::uint32_t>(type) | (k1_word & 0xFFFFFFFULL) << 8U);
+      words[1] = gsl::narrow_cast<std::uint32_t>(k1_word >> 24U);
+
+      f.key_prefix_length = gsl::narrow_cast<std::uint8_t>(
+          (ffs_nonzero(key_diff_with_clamp) - 1) >> 3U);
+      f.children_count = children_count;
+    }
 
     inode_union(node_type type, std::uint8_t children_count,
                 key_prefix_size_type key_prefix_len,
@@ -642,9 +635,11 @@ class inode_4 final : public basic_inode_4 {
   using basic_inode_4::create;
 
   // Create a new node with two given child nodes
-  [[nodiscard]] static auto create(art_key k1, art_key k2, tree_depth depth,
-                                   node_ptr child1, leaf_unique_ptr &&child2) {
-    return std::make_unique<inode_4>(k1, k2, depth, child1, std::move(child2));
+  [[nodiscard]] static auto create(art_key k1, art_key shifted_k2,
+                                   tree_depth depth, node_ptr child1,
+                                   leaf_unique_ptr &&child2) {
+    return std::make_unique<inode_4>(k1, shifted_k2, depth, child1,
+                                     std::move(child2));
   }
 
   // Create a new node, split the key prefix of an existing node, and make the
@@ -656,7 +651,7 @@ class inode_4 final : public basic_inode_4 {
                                      std::move(child1));
   }
 
-  inode_4(art_key k1, art_key k2, tree_depth depth, node_ptr child1,
+  inode_4(art_key k1, art_key shifted_k2, tree_depth depth, node_ptr child1,
           leaf_unique_ptr &&child2) noexcept;
 
   inode_4(node_ptr source_node, unsigned len, tree_depth depth,
@@ -741,13 +736,13 @@ class inode_4 final : public basic_inode_4 {
   std::array<node_ptr, capacity> children;
 };
 
-inode_4::inode_4(art_key k1, art_key k2, tree_depth depth, node_ptr child1,
-                 leaf_unique_ptr &&child2) noexcept
-    : basic_inode_4{k1, k2, depth} {
-  const auto next_level_depth =
-      static_cast<tree_depth>(depth + key_prefix_length());
-  add_two_to_empty(k1[next_level_depth], child1, k2[next_level_depth],
-                   std::move(child2));
+inode_4::inode_4(art_key k1, art_key shifted_k2, tree_depth depth,
+                 node_ptr child1, leaf_unique_ptr &&child2) noexcept
+    : basic_inode_4{k1, shifted_k2, depth} {
+  const auto k2_next_byte_depth = key_prefix_length();
+  const auto k1_next_byte_depth = k2_next_byte_depth + depth;
+  add_two_to_empty(k1[k1_next_byte_depth], child1,
+                   shifted_k2[k2_next_byte_depth], std::move(child2));
 }
 
 inode_4::inode_4(node_ptr source_node, unsigned len, tree_depth depth,
@@ -1535,8 +1530,8 @@ bool db::insert(key insert_key, value_view v) {
       // TODO(laurynas): try to pass leaf node type instead of generic node
       // below. This way it would be apparent that its key prefix does not need
       // updating as leaves don't have any.
-      auto new_node = detail::inode_4::create(existing_key, k, depth, *node,
-                                              std::move(leaf));
+      auto new_node = detail::inode_4::create(existing_key, remaining_key,
+                                              depth, *node, std::move(leaf));
       *node = new_node.release();
       ++inode4_count;
       ++created_inode4_count;

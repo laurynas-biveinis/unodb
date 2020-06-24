@@ -293,18 +293,13 @@ class inode {
   // key_prefix fields and methods
   using key_prefix_size_type = std::uint8_t;
 
-  // A key prefix can be up to 8 bytes long, or if the key length is 8 bytes or
-  // less, key length minus one.
-  static constexpr key_prefix_size_type key_prefix_capacity =
-      std::min<std::size_t>(8, sizeof(unodb::detail::art_key) - 1);
+  static constexpr key_prefix_size_type key_prefix_capacity = 7;
 
   using key_prefix_data_type = std::array<std::byte, key_prefix_capacity>;
 
   DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] auto get_shared_key_prefix_length(
       unodb::detail::art_key shifted_key) const noexcept {
-    static_assert(key_prefix_capacity == 7);
-
     const auto prefix_word =
         (static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0]) >> 8U;
     const auto key_diff = static_cast<std::uint64_t>(shifted_key) ^ prefix_word;
@@ -411,8 +406,8 @@ class inode {
 
   inode(node_type type, std::uint8_t children_count,
         key_prefix_size_type key_prefix_len,
-        const key_prefix_data_type &key_prefix) noexcept
-      : f{type, children_count, key_prefix_len, key_prefix} {
+        const inode &key_prefix_source_node) noexcept
+      : f{type, children_count, key_prefix_len, key_prefix_source_node} {
     assert(type != node_type::LEAF);
   }
 
@@ -468,19 +463,6 @@ class inode {
       key_prefix_data_type key_prefix_data;
       key_prefix_size_type key_prefix_length;
       std::uint8_t children_count;
-
-      // cppcheck-suppress uninitMemberVar
-      inode_fields(node_type type, std::uint8_t children_count_,
-                   key_prefix_size_type key_prefix_len,
-                   const key_prefix_data_type &key_prefix) noexcept
-          : header{type},
-            key_prefix_length{key_prefix_len},
-            children_count{children_count_} {
-        assert(key_prefix_len <= key_prefix_capacity);
-
-        std::copy(key_prefix.cbegin(), key_prefix.cbegin() + key_prefix_len,
-                  key_prefix_data.begin());
-      }
     } f;
     static_assert(sizeof(inode_fields) == 10);
     std::array<std::uint32_t, 2> words;
@@ -505,13 +487,19 @@ class inode {
 
     inode_union(node_type type, std::uint8_t children_count,
                 key_prefix_size_type key_prefix_len,
-                const key_prefix_data_type &key_prefix) noexcept
-        : f{type, children_count, key_prefix_len, key_prefix} {}
+                const inode &key_prefix_source_node) noexcept {
+      assert(key_prefix_len <= key_prefix_capacity);
+
+      words[0] = (key_prefix_source_node.f.words[0] & 0xFFFFFF00U) |
+                 static_cast<std::uint8_t>(type);
+      words[1] = key_prefix_source_node.f.words[1];
+      f.key_prefix_length = key_prefix_len;
+      f.children_count = children_count;
+    }
 
     inode_union(node_type type, std::uint8_t children_count,
                 const inode &other) noexcept
-        : f{type, children_count, other.key_prefix_length(),
-            other.key_prefix_data()} {}
+        : inode_union{type, children_count, other.key_prefix_length(), other} {}
   } f;
 
   static_assert(sizeof(inode_union) == 12);
@@ -612,8 +600,8 @@ class basic_inode : public inode {
   }
 
   basic_inode(key_prefix_size_type key_prefix_len,
-              const key_prefix_data_type &key_prefix) noexcept
-      : inode{NodeType, MinSize, key_prefix_len, key_prefix} {
+              const inode &key_prefix_source_node) noexcept
+      : inode{NodeType, MinSize, key_prefix_len, key_prefix_source_node} {
     assert(is_min_size());
   }
 
@@ -755,7 +743,7 @@ inode_4::inode_4(art_key k1, art_key shifted_k2, tree_depth depth,
 inode_4::inode_4(node_ptr source_node, unsigned len, tree_depth depth,
                  leaf_unique_ptr &&child1) noexcept
     : basic_inode_4{gsl::narrow_cast<key_prefix_size_type>(len),
-                    source_node.internal->key_prefix_data()} {
+                    *source_node.internal} {
   assert(source_node.type() != node_type::LEAF);
   assert(len < source_node.internal->key_prefix_length());
   assert(depth + len <= art_key::size);

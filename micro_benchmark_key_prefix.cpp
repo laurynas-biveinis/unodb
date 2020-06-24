@@ -162,61 +162,151 @@ void insert_keys(unodb::db &test_db, const std::vector<unodb::key> &keys) {
   }
 }
 
-void unpredictable_leaf_key_prefix_split(benchmark::State &state) {
-  static constexpr auto stride_len = 7;
-  static constexpr auto num_strides = 36;
-  static constexpr auto num_top_bytes = stride_len * num_strides;
-  static_assert(num_top_bytes < 256);
-
-  std::vector<unodb::key> prepare_insert_keys{};
-  prepare_insert_keys.reserve(num_top_bytes);
-  std::vector<unodb::key> benchmark_insert_keys{};
-  benchmark_insert_keys.reserve(num_top_bytes);
-  for (std::uint8_t top_byte = 0x00; top_byte < num_top_bytes; ++top_byte) {
-    const auto first_key = static_cast<std::uint64_t>(top_byte) << 56U;
-
-    // Quadratic but debug build only
-    assert(std::find(prepare_insert_keys.cbegin(), prepare_insert_keys.cend(),
-                     first_key) == prepare_insert_keys.cend());
-    assert(std::find(benchmark_insert_keys.cbegin(),
-                     benchmark_insert_keys.cend(),
-                     first_key) == benchmark_insert_keys.cend());
-    prepare_insert_keys.push_back(first_key);
-
-    const auto second_key = first_key | (1ULL << (top_byte % 7 * 8));
-    // Quadratic but debug build only
-    assert(std::find(prepare_insert_keys.cbegin(), prepare_insert_keys.cend(),
-                     second_key) == prepare_insert_keys.cend());
-    assert(std::find(benchmark_insert_keys.cbegin(),
-                     benchmark_insert_keys.cend(),
-                     second_key) == benchmark_insert_keys.cend());
-    benchmark_insert_keys.push_back(second_key);
-  }
-
+void do_insert_benchmark(benchmark::State &state,
+                         const std::vector<unodb::key> &prepare_keys,
+                         std::vector<unodb::key> &benchmark_keys) {
   std::random_device rd;
   std::mt19937 gen{rd()};
 
   for (auto _ : state) {
     state.PauseTiming();
     unodb::db test_db;
-    insert_keys(test_db, prepare_insert_keys);
-    std::shuffle(benchmark_insert_keys.begin(), benchmark_insert_keys.end(),
-                 gen);
+    insert_keys(test_db, prepare_keys);
+    std::shuffle(benchmark_keys.begin(), benchmark_keys.end(), gen);
     state.ResumeTiming();
 
-    insert_keys(test_db, benchmark_insert_keys);
+    insert_keys(test_db, benchmark_keys);
 
     state.PauseTiming();
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(
-      state.iterations() * benchmark_insert_keys.size()));
+  state.SetItemsProcessed(
+      static_cast<std::int64_t>(state.iterations() * benchmark_keys.size()));
+}
+
+void unpredictable_leaf_key_prefix_split(benchmark::State &state) {
+  static constexpr auto stride_len = 7;
+  static constexpr auto num_strides = 36;
+  static constexpr auto num_top_bytes = stride_len * num_strides;
+  static_assert(num_top_bytes < 256);
+
+  std::vector<unodb::key> prepare_keys{};
+  prepare_keys.reserve(num_top_bytes);
+  std::vector<unodb::key> benchmark_keys{};
+  benchmark_keys.reserve(num_top_bytes);
+  for (std::uint8_t top_byte = 0x00; top_byte < num_top_bytes; ++top_byte) {
+    const auto first_key = static_cast<std::uint64_t>(top_byte) << 56U;
+
+    // Quadratic but debug build only
+    assert(std::find(prepare_keys.cbegin(), prepare_keys.cend(), first_key) ==
+           prepare_keys.cend());
+    assert(std::find(benchmark_keys.cbegin(), benchmark_keys.cend(),
+                     first_key) == benchmark_keys.cend());
+    prepare_keys.push_back(first_key);
+
+    const auto second_key = first_key | (1ULL << (top_byte % stride_len * 8));
+    // Quadratic but debug build only
+    assert(std::find(prepare_keys.cbegin(), prepare_keys.cend(), second_key) ==
+           prepare_keys.cend());
+    assert(std::find(benchmark_keys.cbegin(), benchmark_keys.cend(),
+                     second_key) == benchmark_keys.cend());
+    benchmark_keys.push_back(second_key);
+  }
+
+  do_insert_benchmark(state, prepare_keys, benchmark_keys);
+}
+
+/*
+
+Exercise inode::cut_key_prefix with unpredictable cut length:
+
+before:
+
+I256 root keys:
+0x00
+  I4 0x0 0x0 0x0 0x0 0x0 0x0 - prefix, keys:
+                             0x0
+                           L 0x0
+                             0x1
+                           L 0x1
+...
+0xFF
+  I4 0x0 0x0 0x0 0x0 0x0 0x0 - prefix, keys:
+                             0x0
+                           L 0x0
+                             0x1
+                           L 0x1
+
+after:
+
+I256 root keys:
+0x00
+  I4 0x0 0x0 0x0 0x0 0x0 - prefix, keys:
+                         0x0
+                         I4 keys:
+                             0x0
+                           L 0x0
+                             0x1
+                           L 0x1
+                         0x1
+                           L 0x0
+...
+0x05
+  I4 - empty prefix, keys:
+     0x0
+     I4  0x0 0x0 0x0 0x0 0x0 - prefix, keys:
+                             0x0
+                           L 0x0
+                             0x1
+                           L 0x1
+...repeated 42 times until 0xFC
+
+Keys to be inserted in preparation:
+0x0000000000000000
+0x0000000000000001
+...
+0xFF00000000000000
+0xFF00000000000001
+
+In benchmark:
+0x0000000000000100
+0x0100000000010000
+...
+0x0501000000000000
+... and repeated
+
+
+*/
+
+void unpredictable_cut_key_prefix(benchmark::State &state) {
+  static constexpr auto stride_len = 6;
+  static constexpr auto num_strides = 42;
+  static constexpr auto num_top_bytes = stride_len * num_strides;
+  static_assert(num_top_bytes < 256);
+
+  std::vector<unodb::key> prepare_keys{};
+  prepare_keys.reserve(num_top_bytes * 2);
+  std::vector<unodb::key> benchmark_keys{};
+  benchmark_keys.reserve(num_top_bytes);
+  for (std::uint8_t top_byte = 0x00; top_byte < num_top_bytes; ++top_byte) {
+    const auto first_key = static_cast<std::uint64_t>(top_byte) << 56U;
+    prepare_keys.push_back(first_key);
+    const auto second_key = first_key | 1U;
+    prepare_keys.push_back(second_key);
+
+    const auto third_key =
+        first_key | (1ULL << ((top_byte % stride_len + 1) * 8));
+    benchmark_keys.push_back(third_key);
+  }
+
+  do_insert_benchmark(state, prepare_keys, benchmark_keys);
 }
 
 }  // namespace
 
 BENCHMARK(unpredictable_get_shared_length)->Unit(benchmark::kMicrosecond);
 BENCHMARK(unpredictable_leaf_key_prefix_split)->Unit(benchmark::kMicrosecond);
+BENCHMARK(unpredictable_cut_key_prefix)->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();

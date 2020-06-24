@@ -324,8 +324,15 @@ class inode {
     assert(cut_len > 0);
     assert(cut_len <= key_prefix_length());
 
-    std::copy(f.f.key_prefix_data.cbegin() + cut_len,
-              f.f.key_prefix_data.cend(), f.f.key_prefix_data.begin());
+    const auto type = static_cast<std::uint8_t>(f.f.header.type());
+    const auto prefix_word =
+        static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0];
+    const auto cut_prefix_word =
+        ((prefix_word >> (cut_len * 8)) & 0xFFFFFFFFFFFFFF00ULL) | type;
+    f.words[0] =
+        gsl::narrow_cast<std::uint32_t>(cut_prefix_word & 0xFFFFFFFFULL);
+    f.words[1] = gsl::narrow_cast<std::uint32_t>(cut_prefix_word >> 32U);
+
     f.f.key_prefix_length =
         gsl::narrow_cast<key_prefix_size_type>(key_prefix_length() - cut_len);
   }

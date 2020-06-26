@@ -231,7 +231,7 @@ I256 root keys:
                              0x1
                            L 0x1
 ...
-0xFF
+0xFC
   I4 0x0 0x0 0x0 0x0 0x0 0x0 - prefix, keys:
                              0x0
                            L 0x0
@@ -260,14 +260,16 @@ I256 root keys:
                            L 0x0
                              0x1
                            L 0x1
-...repeated 42 times until 0xFC
+     0x1
+   L 0x1 0x0 0x0 0x0 0x0 0x0 0x0
+...repeated 42 times until 0xFB
 
 Keys to be inserted in preparation:
 0x0000000000000000
 0x0000000000000001
 ...
-0xFF00000000000000
-0xFF00000000000001
+0xFB00000000000000
+0xFB00000000000001
 
 In benchmark:
 0x0000000000000100
@@ -303,10 +305,126 @@ void unpredictable_cut_key_prefix(benchmark::State &state) {
   do_insert_benchmark(state, prepare_keys, benchmark_keys);
 }
 
+/*
+
+Exercise inode::prepend_key_prefix with unpredictable prepend length:
+
+before (same tree as cut_key_prefix "after" one):
+
+I256 root keys:
+0x00
+  I4 0x0 0x0 0x0 0x0 0x0 - prefix, keys:
+                         0x0
+                         I4 keys:
+                             0x0
+                           L 0x0
+                             0x1
+                           L 0x1
+                         0x1
+                           L 0x0
+...
+0x05
+  I4 - empty prefix, keys:
+     0x0
+     I4  0x0 0x0 0x0 0x0 0x0 - prefix, keys:
+                             0x0
+                           L 0x0
+                             0x1
+                           L 0x1
+     0x1
+   L 0x1 0x0 0x0 0x0 0x0 0x0 0x0
+...repeated 42 times until 0xFB
+
+after (same tree as cut_key_prefix "before" one):
+
+I256 root keys:
+0x00
+  I4 0x0 0x0 0x0 0x0 0x0 0x0 - prefix, keys:
+                             0x0
+                           L 0x0
+                             0x1
+                           L 0x1
+...
+0xFB
+  I4 0x0 0x0 0x0 0x0 0x0 0x0 - prefix, keys:
+                             0x0
+                           L 0x0
+                             0x1
+                           L 0x1
+
+Keys to be inserted in preparation:
+
+0x0000000000000000
+0x0000000000000001
+0x0000000000000100
+0x0100000000000000
+0x0100000000000001
+0x0100000000010000
+...
+0x0500000000000000
+0x0500000000000001
+0x0501000000000000
+... and repeated
+
+Keys to be removed in benchmark:
+
+0x0000000000000100
+0x0100000000010000
+...
+0x0501000000000000
+... and repeated
+
+*/
+
+void unpredictable_prepend_key_prefix(benchmark::State &state) {
+  static constexpr auto stride_len = 6;
+  static constexpr auto num_strides = 42;
+  static constexpr auto num_top_bytes = stride_len * num_strides;
+  static_assert(num_top_bytes < 256);
+
+  std::vector<unodb::key> prepare_keys{};
+  prepare_keys.reserve(num_top_bytes * 3);
+  std::vector<unodb::key> benchmark_keys{};
+  benchmark_keys.reserve(num_top_bytes);
+  for (std::uint8_t top_byte = 0x00; top_byte < num_top_bytes; ++top_byte) {
+    const auto first_key = static_cast<std::uint64_t>(top_byte) << 56U;
+    prepare_keys.push_back(first_key);
+    const auto second_key = first_key | 1U;
+    prepare_keys.push_back(second_key);
+    const auto third_key =
+        first_key | (1ULL << ((top_byte % stride_len + 1) * 8));
+    prepare_keys.push_back(third_key);
+
+    benchmark_keys.push_back(third_key);
+  }
+
+  std::random_device rd;
+  std::mt19937 gen{rd()};
+
+  for (auto _ : state) {
+    state.PauseTiming();
+    unodb::db test_db;
+    insert_keys(test_db, prepare_keys);
+    std::shuffle(benchmark_keys.begin(), benchmark_keys.end(), gen);
+    state.ResumeTiming();
+
+    for (const auto k : benchmark_keys) {
+      unodb::benchmark::delete_key(test_db, k);
+    }
+
+    state.PauseTiming();
+    unodb::benchmark::destroy_tree(test_db, state);
+  }
+
+  state.SetItemsProcessed(
+      static_cast<std::int64_t>(state.iterations() * benchmark_keys.size()));
+}
+
 }  // namespace
 
 BENCHMARK(unpredictable_get_shared_length)->Unit(benchmark::kMicrosecond);
 BENCHMARK(unpredictable_leaf_key_prefix_split)->Unit(benchmark::kMicrosecond);
 BENCHMARK(unpredictable_cut_key_prefix)->Unit(benchmark::kMicrosecond);
+BENCHMARK(unpredictable_prepend_key_prefix)->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();

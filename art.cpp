@@ -289,23 +289,22 @@ static_assert(sizeof(delete_node_ptr_at_scope_exit) == sizeof(void *));
 namespace unodb::detail {
 
 class inode {
- public:
   // key_prefix fields and methods
+ public:
   using key_prefix_size_type = std::uint8_t;
 
+ private:
   static constexpr key_prefix_size_type key_prefix_capacity = 7;
 
+ public:
   using key_prefix_data_type = std::array<std::byte, key_prefix_capacity>;
 
   DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] auto get_shared_key_prefix_length(
       unodb::detail::art_key shifted_key) const noexcept {
     const auto prefix_word = header_as_uint64() >> 8U;
-    const auto key_diff = static_cast<std::uint64_t>(shifted_key) ^ prefix_word;
-    const auto clamped_with_length =
-        key_diff | (1ULL << static_cast<unsigned>((key_prefix_length() * 8)));
-    const auto result = (ffs_nonzero(clamped_with_length) - 1) >> 3U;
-    return result;
+    return shared_len(static_cast<std::uint64_t>(shifted_key), prefix_word,
+                      key_prefix_length());
   }
   RESTORE_GCC_WARNINGS()
 
@@ -321,10 +320,8 @@ class inode {
     const auto type = static_cast<std::uint8_t>(f.f.header.type());
     const auto prefix_word = header_as_uint64();
     const auto cut_prefix_word =
-        ((prefix_word >> (cut_len * 8)) & 0xFFFFFFFFFFFFFF00ULL) | type;
-    f.words[0] =
-        gsl::narrow_cast<std::uint32_t>(cut_prefix_word & 0xFFFFFFFFULL);
-    f.words[1] = gsl::narrow_cast<std::uint32_t>(cut_prefix_word >> 32U);
+        ((prefix_word >> (cut_len * 8)) & key_bytes_mask) | type;
+    set_header(cut_prefix_word);
 
     f.f.key_prefix_length =
         gsl::narrow_cast<key_prefix_size_type>(key_prefix_length() - cut_len);
@@ -335,18 +332,16 @@ class inode {
            key_prefix_capacity);
 
     const auto type = static_cast<std::uint8_t>(f.f.header.type());
-    const auto prefix_word = header_as_uint64() & 0xFFFFFFFF'FFFFFF00;
-    const auto shifted_prefix_word = prefix_word
-                                     << (prefix1.key_prefix_length() + 1U) * 8U;
+    const auto prefix_word = header_as_uint64() & key_bytes_mask;
+    const auto trailing_prefix_shift = (prefix1.key_prefix_length() + 1U) * 8U;
+    const auto shifted_prefix_word = prefix_word << trailing_prefix_shift;
     const auto shifted_prefix2 = static_cast<std::uint64_t>(prefix2)
-                                 << (prefix1.key_prefix_length() + 1U) * 8U;
-    const auto prefix1_mask =
-        ((1ULL << (prefix1.key_prefix_length() + 1U) * 8U) - 1) ^ 0xFFU;
+                                 << trailing_prefix_shift;
+    const auto prefix1_mask = ((1ULL << trailing_prefix_shift) - 1) ^ 0xFFU;
     const auto masked_prefix1 = prefix1.header_as_uint64() & prefix1_mask;
     const auto prefix_result =
         shifted_prefix_word | shifted_prefix2 | masked_prefix1 | type;
-    f.words[0] = gsl::narrow_cast<std::uint32_t>(prefix_result & 0xFFFFFFFFULL);
-    f.words[1] = gsl::narrow_cast<std::uint32_t>(prefix_result >> 32U);
+    set_header(prefix_result);
 
     f.f.key_prefix_length = gsl::narrow_cast<key_prefix_size_type>(
         key_prefix_length() + prefix1.key_prefix_length() + 1);
@@ -461,9 +456,24 @@ class inode {
   }
 
  private:
+  static constexpr auto key_bytes_mask = 0xFFFFFFFF'FFFFFF00ULL;
+
   [[nodiscard]] __attribute__((const)) std::uint64_t header_as_uint64()
       const noexcept {
     return static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0];
+  }
+
+  [[nodiscard]] static __attribute__((pure)) std::uint8_t shared_len(
+      std::uint64_t k1, std::uint64_t k2,
+      std::uint8_t clamp_byte_pos) noexcept {
+    const auto diff = k1 ^ k2;
+    const auto clamped = diff | (1ULL << (clamp_byte_pos * 8U));
+    return gsl::narrow_cast<std::uint8_t>((ffs_nonzero(clamped) - 1) >> 3U);
+  }
+
+  void set_header(std::uint64_t word) noexcept {
+    f.words[0] = gsl::narrow_cast<std::uint32_t>(word & 0xFFFFFFFFULL);
+    f.words[1] = gsl::narrow_cast<std::uint32_t>(word >> 32U);
   }
 
   union inode_union {
@@ -482,15 +492,12 @@ class inode {
 
       const auto k1_word = static_cast<std::uint64_t>(k1);
 
-      const auto key_diff_with_clamp =
-          (k1_word ^ static_cast<std::uint64_t>(shifted_k2)) | 1ULL << 56U;
-
       words[0] = gsl::narrow_cast<std::uint32_t>(
           static_cast<std::uint32_t>(type) | (k1_word & 0xFFFFFFFULL) << 8U);
       words[1] = gsl::narrow_cast<std::uint32_t>(k1_word >> 24U);
 
-      f.key_prefix_length = gsl::narrow_cast<std::uint8_t>(
-          (ffs_nonzero(key_diff_with_clamp) - 1) >> 3U);
+      f.key_prefix_length = shared_len(
+          k1_word, static_cast<std::uint64_t>(shifted_k2), key_prefix_capacity);
       f.children_count = children_count;
     }
 

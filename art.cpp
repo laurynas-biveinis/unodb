@@ -336,15 +336,25 @@ class inode {
     assert(key_prefix_length() + prefix1.key_prefix_length() <
            key_prefix_capacity);
 
-    std::copy_backward(f.f.key_prefix_data.cbegin(),
-                       f.f.key_prefix_data.cbegin() + key_prefix_length(),
-                       f.f.key_prefix_data.begin() + key_prefix_length() +
-                           prefix1.key_prefix_length() + 1);
-    std::copy(
-        prefix1.f.f.key_prefix_data.cbegin(),
-        prefix1.f.f.key_prefix_data.cbegin() + prefix1.key_prefix_length(),
-        f.f.key_prefix_data.begin());
-    f.f.key_prefix_data[prefix1.key_prefix_length()] = prefix2;
+    const auto type = static_cast<std::uint8_t>(f.f.header.type());
+    const auto prefix_word =
+        (static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0]) &
+        0xFFFFFFFF'FFFFFF00;
+    const auto shifted_prefix_word = prefix_word
+                                     << (prefix1.key_prefix_length() + 1U) * 8U;
+    const auto shifted_prefix2 = static_cast<std::uint64_t>(prefix2)
+                                 << (prefix1.key_prefix_length() + 1U) * 8U;
+    const auto prefix1_mask =
+        ((1ULL << (prefix1.key_prefix_length() + 1U) * 8U) - 1) ^ 0xFFU;
+    const auto masked_prefix1 =
+        (static_cast<std::uint64_t>(prefix1.f.words[1]) << 32U |
+         prefix1.f.words[0]) &
+        prefix1_mask;
+    const auto prefix_result =
+        shifted_prefix_word | shifted_prefix2 | masked_prefix1 | type;
+    f.words[0] = gsl::narrow_cast<std::uint32_t>(prefix_result & 0xFFFFFFFFULL);
+    f.words[1] = gsl::narrow_cast<std::uint32_t>(prefix_result >> 32U);
+
     f.f.key_prefix_length = gsl::narrow_cast<key_prefix_size_type>(
         key_prefix_length() + prefix1.key_prefix_length() + 1);
   }

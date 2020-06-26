@@ -300,8 +300,7 @@ class inode {
   DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] auto get_shared_key_prefix_length(
       unodb::detail::art_key shifted_key) const noexcept {
-    const auto prefix_word =
-        (static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0]) >> 8U;
+    const auto prefix_word = header_as_uint64() >> 8U;
     const auto key_diff = static_cast<std::uint64_t>(shifted_key) ^ prefix_word;
     const auto clamped_with_length =
         key_diff | (1ULL << static_cast<unsigned>((key_prefix_length() * 8)));
@@ -320,8 +319,7 @@ class inode {
     assert(cut_len <= key_prefix_length());
 
     const auto type = static_cast<std::uint8_t>(f.f.header.type());
-    const auto prefix_word =
-        static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0];
+    const auto prefix_word = header_as_uint64();
     const auto cut_prefix_word =
         ((prefix_word >> (cut_len * 8)) & 0xFFFFFFFFFFFFFF00ULL) | type;
     f.words[0] =
@@ -337,19 +335,14 @@ class inode {
            key_prefix_capacity);
 
     const auto type = static_cast<std::uint8_t>(f.f.header.type());
-    const auto prefix_word =
-        (static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0]) &
-        0xFFFFFFFF'FFFFFF00;
+    const auto prefix_word = header_as_uint64() & 0xFFFFFFFF'FFFFFF00;
     const auto shifted_prefix_word = prefix_word
                                      << (prefix1.key_prefix_length() + 1U) * 8U;
     const auto shifted_prefix2 = static_cast<std::uint64_t>(prefix2)
                                  << (prefix1.key_prefix_length() + 1U) * 8U;
     const auto prefix1_mask =
         ((1ULL << (prefix1.key_prefix_length() + 1U) * 8U) - 1) ^ 0xFFU;
-    const auto masked_prefix1 =
-        (static_cast<std::uint64_t>(prefix1.f.words[1]) << 32U |
-         prefix1.f.words[0]) &
-        prefix1_mask;
+    const auto masked_prefix1 = prefix1.header_as_uint64() & prefix1_mask;
     const auto prefix_result =
         shifted_prefix_word | shifted_prefix2 | masked_prefix1 | type;
     f.words[0] = gsl::narrow_cast<std::uint32_t>(prefix_result & 0xFFFFFFFFULL);
@@ -465,6 +458,12 @@ class inode {
     --children_count;
 
     assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
+  }
+
+ private:
+  [[nodiscard]] __attribute__((const)) std::uint64_t header_as_uint64()
+      const noexcept {
+    return static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0];
   }
 
   union inode_union {

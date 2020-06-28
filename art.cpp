@@ -81,7 +81,7 @@ inline __attribute__((noreturn)) void cannot_happen() {
 // pair if TZCNT is not available. CMOVE is only required if arg is zero, which
 // we know not to be. Only GCC 11 gets the hint by "if (arg == 0)
 // __builtin_unreachable()"
-unsigned ffs_nonzero(std::uint64_t arg) {
+__attribute__((const)) unsigned ffs_nonzero(std::uint64_t arg) {
   std::int64_t result;
 #if defined(__x86_64)
   __asm__("bsfq %1, %0" : "=r"(result) : "rm"(arg) : "cc");
@@ -299,14 +299,12 @@ class inode {
  public:
   using key_prefix_data_type = std::array<std::byte, key_prefix_capacity>;
 
-  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-  [[nodiscard]] auto get_shared_key_prefix_length(
+  [[nodiscard]] __attribute__((pure)) auto get_shared_key_prefix_length(
       unodb::detail::art_key shifted_key) const noexcept {
     const auto prefix_word = header_as_uint64() >> 8U;
     return shared_len(static_cast<std::uint64_t>(shifted_key), prefix_word,
                       key_prefix_length());
   }
-  RESTORE_GCC_WARNINGS()
 
   [[nodiscard]] key_prefix_size_type key_prefix_length() const noexcept {
     assert(f.f.key_prefix_length <= key_prefix_capacity);
@@ -527,11 +525,13 @@ void delete_subtree(unodb::detail::node_ptr node) noexcept {
 #if !defined(__x86_64)
 // From public domain
 // https://graphics.stanford.edu/~seander/bithacks.html
-inline std::uint32_t has_zero_byte(std::uint32_t v) noexcept {
+inline constexpr __attribute__((const)) std::uint32_t has_zero_byte(
+    std::uint32_t v) noexcept {
   return ((v - 0x01010101UL) & ~v & 0x80808080UL);
 }
 
-inline std::uint32_t contains_byte(std::uint32_t v, std::byte b) noexcept {
+inline constexpr __attribute__((const)) std::uint32_t contains_byte(
+    std::uint32_t v, std::byte b) noexcept {
   return has_zero_byte(v ^ (~0U / 255 * static_cast<std::uint8_t>(b)));
 }
 #endif
@@ -694,6 +694,7 @@ class inode_4 final : public basic_inode_4 {
 
     for (decltype(keys.byte_array)::size_type i = child_index;
          i < static_cast<unsigned>(f.f.children_count - 1); ++i) {
+      // TODO(laurynas): see the AVX2 TODO at add method
       keys.byte_array[i] = keys.byte_array[i + 1];
       children[i] = children[i + 1];
     }

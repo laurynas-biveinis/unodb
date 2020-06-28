@@ -692,9 +692,12 @@ class inode_4 final : public basic_inode_4 {
 
     delete_node_ptr_at_scope_exit delete_on_scope_exit{children[child_index]};
 
+    const auto lower_bitmask = (1U << (child_index * 8U)) - 1;
+    keys.integer = (keys.integer & lower_bitmask) |
+                   ((keys.integer >> 8U) & ~lower_bitmask);
+
     for (decltype(keys.byte_array)::size_type i = child_index;
          i < static_cast<unsigned>(f.f.children_count - 1); ++i) {
-      keys.byte_array[i] = keys.byte_array[i + 1];
       children[i] = children[i + 1];
     }
 

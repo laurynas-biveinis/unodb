@@ -1518,6 +1518,9 @@ get_result db::get(key search_key) const noexcept {
       return {};
     }
 
+    __builtin_prefetch(reinterpret_cast<const void *>(
+        reinterpret_cast<std::uintptr_t>(node.header) + 24));
+
     assert(node.type() != detail::node_type::LEAF);
 
     if (node.internal->get_shared_key_prefix_length(remaining_key) <

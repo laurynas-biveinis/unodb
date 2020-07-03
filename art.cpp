@@ -364,11 +364,11 @@ class inode {
   // The first element is the child index in the node, the 2nd is pointer
   // to the child. If not present, the pointer is nullptr, and the index
   // is undefined
-  using find_result_type = std::pair<std::uint8_t, node_ptr *>;
+  using find_result_type = std::pair<unsigned, node_ptr *>;
 
   void add(leaf_unique_ptr &&child, tree_depth depth) noexcept;
 
-  void remove(std::uint8_t child_index) noexcept;
+  void remove(unsigned child_index) noexcept;
 
   [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
 
@@ -685,7 +685,7 @@ class inode_4 final : public basic_inode_4 {
                           keys.byte_array.cbegin() + f.f.children_count));
   }
 
-  void remove(std::uint8_t child_index) noexcept {
+  void remove(unsigned child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
     assert(child_index < f.f.children_count);
     assert(std::is_sorted(keys.byte_array.cbegin(),
@@ -706,13 +706,14 @@ class inode_4 final : public basic_inode_4 {
                           keys.byte_array.cbegin() + f.f.children_count));
   }
 
-  auto leave_last_child(std::uint8_t child_to_delete) noexcept {
+  auto leave_last_child(unsigned child_to_delete) noexcept {
     assert(is_min_size());
     assert(child_to_delete == 0 || child_to_delete == 1);
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     const auto child_to_delete_ptr = children[child_to_delete];
-    const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1 : 0;
+    const auto child_to_leave =
+        static_cast<unsigned>((child_to_delete == 0) ? 1 : 0);
     const auto child_to_leave_ptr = children[child_to_leave];
     delete_node_ptr_at_scope_exit child_to_delete_deleter{child_to_delete_ptr};
     if (child_to_leave_ptr.type() != node_type::LEAF) {
@@ -770,8 +771,8 @@ void inode_4::add_two_to_empty(std::byte key1, node_ptr child1, std::byte key2,
   assert(key1 != key2);
   assert(f.f.children_count == 2);
 
-  const std::uint8_t key1_i = key1 < key2 ? 0 : 1;
-  const std::uint8_t key2_i = key1_i == 0 ? 1 : 0;
+  const auto key1_i = static_cast<unsigned>(key1 < key2 ? 0 : 1);
+  const auto key2_i = static_cast<unsigned>(key1_i == 0 ? 1 : 0);
   keys.byte_array[key1_i] = key1;
   children[key1_i] = child1;
   keys.byte_array[key2_i] = key2;
@@ -854,7 +855,7 @@ class inode_16 final : public basic_inode_16 {
     insert_into_sorted_key_children_arrays(key_byte, std::move(child));
   }
 
-  void remove(std::uint8_t child_index) noexcept {
+  void remove(unsigned child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     remove_from_sorted_key_children_arrays(child_index);
@@ -892,7 +893,7 @@ class inode_16 final : public basic_inode_16 {
   }
 
   void remove_from_sorted_key_children_arrays(
-      std::uint8_t child_to_remove) noexcept {
+      unsigned child_to_remove) noexcept {
     assert(child_to_remove < f.f.children_count);
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + f.f.children_count));
@@ -1032,7 +1033,7 @@ class inode_48 final : public basic_inode_48 {
     ++f.f.children_count;
   }
 
-  void remove(std::uint8_t child_index) noexcept {
+  void remove(unsigned child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     remove_child_pointer(child_index);
@@ -1048,7 +1049,7 @@ class inode_48 final : public basic_inode_48 {
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
-  void remove_child_pointer(std::uint8_t child_index) noexcept {
+  void remove_child_pointer(unsigned child_index) noexcept {
     direct_remove_child_pointer(child_indexes[child_index]);
   }
 
@@ -1184,7 +1185,7 @@ class inode_256 final : public basic_inode_256 {
     ++f.f.children_count;
   }
 
-  void remove(std::uint8_t child_index) noexcept {
+  void remove(unsigned child_index) noexcept {
     const auto child_ptr = children[child_index];
 
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
@@ -1365,7 +1366,7 @@ inline void inode::add(leaf_unique_ptr &&child, tree_depth depth) noexcept {
   }
 }
 
-inline void inode::remove(std::uint8_t child_index) noexcept {
+inline void inode::remove(unsigned child_index) noexcept {
   assert(!is_min_size());
 
   switch (f.f.header.type()) {

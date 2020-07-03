@@ -306,7 +306,7 @@ class inode {
                       key_prefix_length());
   }
 
-  [[nodiscard]] key_prefix_size_type key_prefix_length() const noexcept {
+  [[nodiscard]] unsigned key_prefix_length() const noexcept {
     assert(f.f.key_prefix_length <= key_prefix_capacity);
     return f.f.key_prefix_length;
   }
@@ -400,8 +400,7 @@ class inode {
     assert(k1 != k2);
   }
 
-  inode(node_type type, std::uint8_t children_count,
-        key_prefix_size_type key_prefix_len,
+  inode(node_type type, std::uint8_t children_count, unsigned key_prefix_len,
         const inode &key_prefix_source_node) noexcept
       : f{type, children_count, key_prefix_len, key_prefix_source_node} {
     assert(type != node_type::LEAF);
@@ -440,12 +439,13 @@ class inode {
     return static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0];
   }
 
-  [[nodiscard]] static __attribute__((pure)) std::uint8_t shared_len(
-      std::uint64_t k1, std::uint64_t k2,
-      std::uint8_t clamp_byte_pos) noexcept {
+  [[nodiscard]] static __attribute__((pure)) unsigned shared_len(
+      std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept {
+    assert(clamp_byte_pos < 8);
+
     const auto diff = k1 ^ k2;
     const auto clamped = diff | (1ULL << (clamp_byte_pos * 8U));
-    return gsl::narrow_cast<std::uint8_t>((ffs_nonzero(clamped) - 1) >> 3U);
+    return (ffs_nonzero(clamped) - 1) >> 3U;
   }
 
   void set_header(std::uint64_t word) noexcept {
@@ -473,20 +473,22 @@ class inode {
           static_cast<std::uint32_t>(type) | (k1_word & 0xFFFFFFFULL) << 8U);
       words[1] = gsl::narrow_cast<std::uint32_t>(k1_word >> 24U);
 
-      f.key_prefix_length = shared_len(
-          k1_word, static_cast<std::uint64_t>(shifted_k2), key_prefix_capacity);
+      f.key_prefix_length = gsl::narrow_cast<key_prefix_size_type>(
+          shared_len(k1_word, static_cast<std::uint64_t>(shifted_k2),
+                     key_prefix_capacity));
       f.children_count = children_count;
     }
 
     inode_union(node_type type, std::uint8_t children_count,
-                key_prefix_size_type key_prefix_len,
+                unsigned key_prefix_len,
                 const inode &key_prefix_source_node) noexcept {
       assert(key_prefix_len <= key_prefix_capacity);
 
       words[0] = (key_prefix_source_node.f.words[0] & 0xFFFFFF00U) |
                  static_cast<std::uint8_t>(type);
       words[1] = key_prefix_source_node.f.words[1];
-      f.key_prefix_length = key_prefix_len;
+      f.key_prefix_length =
+          gsl::narrow_cast<key_prefix_size_type>(key_prefix_len);
       f.children_count = children_count;
     }
 
@@ -594,7 +596,7 @@ class basic_inode : public inode {
     assert(is_min_size());
   }
 
-  basic_inode(key_prefix_size_type key_prefix_len,
+  basic_inode(unsigned key_prefix_len,
               const inode &key_prefix_source_node) noexcept
       : inode{NodeType, MinSize, key_prefix_len, key_prefix_source_node} {
     assert(is_min_size());
@@ -751,15 +753,13 @@ inode_4::inode_4(art_key k1, art_key shifted_k2, tree_depth depth,
 
 inode_4::inode_4(node_ptr source_node, unsigned len, tree_depth depth,
                  leaf_unique_ptr &&child1) noexcept
-    : basic_inode_4{gsl::narrow_cast<key_prefix_size_type>(len),
-                    *source_node.internal} {
+    : basic_inode_4{len, *source_node.internal} {
   assert(source_node.type() != node_type::LEAF);
   assert(len < source_node.internal->key_prefix_length());
   assert(depth + len <= art_key::size);
 
   const auto source_node_key_byte =
-      source_node.internal
-          ->key_prefix_data()[gsl::narrow_cast<key_prefix_size_type>(len)];
+      source_node.internal->key_prefix_data()[len];
   source_node.internal->cut_key_prefix(len + 1);
   const auto new_key_byte = leaf::key(child1.get())[depth + len];
   add_two_to_empty(source_node_key_byte, source_node, new_key_byte,

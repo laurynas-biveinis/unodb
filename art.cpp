@@ -798,7 +798,8 @@ void inode_4::dump(std::ostream &os) const {
     dump_node(os, children[i]);
 }
 
-inode::find_result_type inode_4::find_child(std::byte key_byte) noexcept {
+__attribute__((pure)) inode::find_result_type inode_4::find_child(
+    std::byte key_byte) noexcept {
   assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
 #if defined(__x86_64)
@@ -970,7 +971,8 @@ inode_16::inode_16(std::unique_ptr<inode_4> &&source_node,
             children.begin() + insert_pos_index + 1);
 }
 
-inode::find_result_type inode_16::find_child(std::byte key_byte) noexcept {
+__attribute__((pure)) inode::find_result_type inode_16::find_child(
+    std::byte key_byte) noexcept {
   assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
 #if defined(__x86_64)
@@ -1121,7 +1123,8 @@ inode_48::inode_48(std::unique_ptr<inode_16> &&source_node,
   }
 }
 
-inode::find_result_type inode_48::find_child(std::byte key_byte) noexcept {
+__attribute__((pure)) inode::find_result_type inode_48::find_child(
+    std::byte key_byte) noexcept {
   assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
   if (child_indexes[static_cast<std::uint8_t>(key_byte)] != empty_child) {
@@ -1263,7 +1266,8 @@ inode_256::inode_256(std::unique_ptr<inode_48> &&source_node,
   children[key_byte] = child.release();
 }
 
-inode::find_result_type inode_256::find_child(std::byte key_byte) noexcept {
+__attribute__((pure)) inode::find_result_type inode_256::find_child(
+    std::byte key_byte) noexcept {
   assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
   const auto key_int_byte = static_cast<uint8_t>(key_byte);

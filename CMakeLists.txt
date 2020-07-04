@@ -58,7 +58,7 @@ else()
     "-Wuninitialized" "-Wunsafe-loop-optimizations" "-Wunused-const-variable=2"
     "-Wunused-macros" "-Wuseless-cast" "-Wvector-operation-performance"
     "-Wvla" "-Wzero-as-null-pointer-constant" "-Wattribute-alias=2"
-    "-Warray-bounds=2")
+    "-Warray-bounds=2" "-Wredundant-tags")
 endif()
 
 list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g")

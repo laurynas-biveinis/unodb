@@ -368,7 +368,7 @@ class inode {
 
   void add(leaf_unique_ptr &&child, tree_depth depth) noexcept;
 
-  void remove(std::uint8_t child_index) noexcept;
+  void remove(unsigned child_index) noexcept;
 
   [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
 
@@ -686,7 +686,7 @@ class inode_4 final : public basic_inode_4 {
                           keys.byte_array.cbegin() + f.f.children_count));
   }
 
-  void remove(std::uint8_t child_index) noexcept {
+  void remove(unsigned child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
     assert(child_index < f.f.children_count);
     assert(std::is_sorted(keys.byte_array.cbegin(),
@@ -856,7 +856,7 @@ class inode_16 final : public basic_inode_16 {
     insert_into_sorted_key_children_arrays(key_byte, std::move(child));
   }
 
-  void remove(std::uint8_t child_index) noexcept {
+  void remove(unsigned child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     remove_from_sorted_key_children_arrays(child_index);
@@ -894,7 +894,7 @@ class inode_16 final : public basic_inode_16 {
   }
 
   void remove_from_sorted_key_children_arrays(
-      std::uint8_t child_to_remove) noexcept {
+      unsigned child_to_remove) noexcept {
     assert(child_to_remove < f.f.children_count);
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + f.f.children_count));
@@ -1034,7 +1034,7 @@ class inode_48 final : public basic_inode_48 {
     ++f.f.children_count;
   }
 
-  void remove(std::uint8_t child_index) noexcept {
+  void remove(unsigned child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     remove_child_pointer(child_index);
@@ -1050,7 +1050,7 @@ class inode_48 final : public basic_inode_48 {
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
-  void remove_child_pointer(std::uint8_t child_index) noexcept {
+  void remove_child_pointer(unsigned child_index) noexcept {
     direct_remove_child_pointer(child_indexes[child_index]);
   }
 
@@ -1186,7 +1186,7 @@ class inode_256 final : public basic_inode_256 {
     ++f.f.children_count;
   }
 
-  void remove(std::uint8_t child_index) noexcept {
+  void remove(unsigned child_index) noexcept {
     const auto child_ptr = children[child_index];
 
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
@@ -1367,7 +1367,7 @@ inline void inode::add(leaf_unique_ptr &&child, tree_depth depth) noexcept {
   }
 }
 
-inline void inode::remove(std::uint8_t child_index) noexcept {
+inline void inode::remove(unsigned child_index) noexcept {
   assert(!is_min_size());
 
   switch (f.f.header.type()) {

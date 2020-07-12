@@ -785,17 +785,16 @@ void inode_4::add_two_to_empty(std::byte key1, node_ptr child1, std::byte key2,
 }
 
 void inode_4::delete_subtree() noexcept {
-  for (std::uint8_t i = 0; i < f.f.children_count; ++i)
+  for (unsigned i = 0; i < f.f.children_count; ++i)
     ::delete_subtree(children[i]);
 }
 
 void inode_4::dump(std::ostream &os) const {
   os << ", key bytes =";
-  for (std::uint8_t i = 0; i < f.f.children_count; ++i)
+  for (unsigned i = 0; i < f.f.children_count; ++i)
     dump_byte(os, keys.byte_array[i]);
   os << ", children:\n";
-  for (std::uint8_t i = 0; i < f.f.children_count; ++i)
-    dump_node(os, children[i]);
+  for (unsigned i = 0; i < f.f.children_count; ++i) dump_node(os, children[i]);
 }
 
 __attribute__((pure)) inode::find_result_type inode_4::find_child(

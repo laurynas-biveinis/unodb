@@ -364,7 +364,7 @@ class inode {
   // The first element is the child index in the node, the 2nd is pointer
   // to the child. If not present, the pointer is nullptr, and the index
   // is undefined
-  using find_result_type = std::pair<std::uint8_t, node_ptr *>;
+  using find_result_type = std::pair<unsigned, node_ptr *>;
 
   void add(leaf_unique_ptr &&child, tree_depth depth) noexcept;
 
@@ -1709,7 +1709,7 @@ bool db::remove(key remove_key) {
       const auto child_node_size = detail::leaf::size(child_ptr->leaf);
 
       if (likely(!is_node_min_size)) {
-        node->internal->remove(child_i);
+        node->internal->remove(gsl::narrow_cast<std::uint8_t>(child_i));
         decrease_memory_use(child_node_size);
         --leaf_count;
         return true;
@@ -1719,7 +1719,8 @@ bool db::remove(key remove_key) {
 
       if (node->type() == detail::node_type::I4) {
         std::unique_ptr<detail::inode_4> current_node{node->node_4};
-        *node = current_node->leave_last_child(child_i);
+        *node = current_node->leave_last_child(
+            gsl::narrow_cast<std::uint8_t>(child_i));
         decrease_memory_use(child_node_size + sizeof(detail::inode_4));
 
         assert(inode4_count > 0);
@@ -1729,8 +1730,8 @@ bool db::remove(key remove_key) {
 
       } else if (node->type() == detail::node_type::I16) {
         std::unique_ptr<detail::inode_16> current_node{node->node_16};
-        auto new_node{
-            detail::inode_4::create(std::move(current_node), child_i)};
+        auto new_node{detail::inode_4::create(
+            std::move(current_node), gsl::narrow_cast<std::uint8_t>(child_i))};
         *node = new_node.release();
         decrease_memory_use(sizeof(detail::inode_16) - sizeof(detail::inode_4) +
                             child_node_size);
@@ -1743,8 +1744,8 @@ bool db::remove(key remove_key) {
 
       } else if (node->type() == detail::node_type::I48) {
         std::unique_ptr<detail::inode_48> current_node{node->node_48};
-        auto new_node{
-            detail::inode_16::create(std::move(current_node), child_i)};
+        auto new_node{detail::inode_16::create(
+            std::move(current_node), gsl::narrow_cast<std::uint8_t>(child_i))};
         *node = new_node.release();
         decrease_memory_use(sizeof(detail::inode_48) -
                             sizeof(detail::inode_16) + child_node_size);
@@ -1758,8 +1759,8 @@ bool db::remove(key remove_key) {
       } else {
         assert(node->type() == detail::node_type::I256);
         std::unique_ptr<detail::inode_256> current_node{node->node_256};
-        auto new_node{
-            detail::inode_48::create(std::move(current_node), child_i)};
+        auto new_node{detail::inode_48::create(
+            std::move(current_node), gsl::narrow_cast<std::uint8_t>(child_i))};
         *node = new_node.release();
         decrease_memory_use(sizeof(detail::inode_256) -
                             sizeof(detail::inode_48) + child_node_size);

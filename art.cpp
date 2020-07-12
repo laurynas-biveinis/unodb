@@ -393,21 +393,20 @@ class inode {
   RESTORE_CLANG_WARNINGS()
 
  protected:
-  inode(node_type type, std::uint8_t children_count, art_key k1, art_key k2,
+  inode(node_type type, unsigned children_count, art_key k1, art_key k2,
         tree_depth depth) noexcept
       : f{type, k1, k2, depth, children_count} {
     assert(type != node_type::LEAF);
     assert(k1 != k2);
   }
 
-  inode(node_type type, std::uint8_t children_count, unsigned key_prefix_len,
+  inode(node_type type, unsigned children_count, unsigned key_prefix_len,
         const inode &key_prefix_source_node) noexcept
       : f{type, children_count, key_prefix_len, key_prefix_source_node} {
     assert(type != node_type::LEAF);
   }
 
-  inode(node_type type, std::uint8_t children_count,
-        const inode &other) noexcept
+  inode(node_type type, unsigned children_count, const inode &other) noexcept
       : f{type, children_count, other} {
     assert(type != node_type::LEAF);
   }
@@ -464,7 +463,7 @@ class inode {
     std::array<std::uint32_t, 2> words;
 
     inode_union(node_type type, art_key k1, art_key shifted_k2,
-                tree_depth depth, std::uint8_t children_count) noexcept {
+                tree_depth depth, unsigned children_count) noexcept {
       k1.shift_right(depth);
 
       const auto k1_word = static_cast<std::uint64_t>(k1);
@@ -476,10 +475,10 @@ class inode {
       f.key_prefix_length = gsl::narrow_cast<key_prefix_size_type>(
           shared_len(k1_word, static_cast<std::uint64_t>(shifted_k2),
                      key_prefix_capacity));
-      f.children_count = children_count;
+      f.children_count = gsl::narrow_cast<std::uint8_t>(children_count);
     }
 
-    inode_union(node_type type, std::uint8_t children_count,
+    inode_union(node_type type, unsigned children_count,
                 unsigned key_prefix_len,
                 const inode &key_prefix_source_node) noexcept {
       assert(key_prefix_len <= key_prefix_capacity);
@@ -489,10 +488,10 @@ class inode {
       words[1] = key_prefix_source_node.f.words[1];
       f.key_prefix_length =
           gsl::narrow_cast<key_prefix_size_type>(key_prefix_len);
-      f.children_count = children_count;
+      f.children_count = gsl::narrow_cast<std::uint8_t>(children_count);
     }
 
-    inode_union(node_type type, std::uint8_t children_count,
+    inode_union(node_type type, unsigned children_count,
                 const inode &other) noexcept
         : inode_union{type, children_count, other.key_prefix_length(), other} {}
   } f;
@@ -555,7 +554,7 @@ class basic_inode : public inode {
 
  public:
   [[nodiscard]] static auto create(std::unique_ptr<LargerDerived> &&source_node,
-                                   std::uint8_t child_to_remove) {
+                                   unsigned child_to_remove) {
     return std::make_unique<Derived>(std::move(source_node), child_to_remove);
   }
 

@@ -770,8 +770,8 @@ void inode_4::add_two_to_empty(std::byte key1, node_ptr child1, std::byte key2,
   assert(key1 != key2);
   assert(f.f.children_count == 2);
 
-  const std::uint8_t key1_i = key1 < key2 ? 0 : 1;
-  const std::uint8_t key2_i = key1_i == 0 ? 1 : 0;
+  const auto key1_i = static_cast<unsigned>(key1 < key2 ? 0 : 1);
+  const auto key2_i = static_cast<unsigned>(key1_i == 0 ? 1 : 0);
   keys.byte_array[key1_i] = key1;
   children[key1_i] = child1;
   keys.byte_array[key2_i] = key2;

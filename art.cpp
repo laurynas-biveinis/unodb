@@ -10,6 +10,7 @@
 #ifdef __x86_64
 #include <emmintrin.h>
 #endif
+#include <exception>
 #include <iomanip>
 #include <iostream>
 #include <limits>

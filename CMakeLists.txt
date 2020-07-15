@@ -212,7 +212,7 @@ string(REPLACE ";" " " LD_FLAGS_FOR_SUBDIR_STR "${SANITIZER_LD_FLAGS}")
 string(APPEND CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
 string(APPEND CMAKE_MODULE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
 string(APPEND CMAKE_SHARED_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
-add_subdirectory(googletest)
+add_subdirectory(3rd_party/googletest)
 
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark tests"
   FORCE)
@@ -225,7 +225,7 @@ if(IPO_SUPPORTED AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 else()
   message(STATUS "Disabling LTO for Google Benchmark")
 endif()
-add_subdirectory(benchmark)
+add_subdirectory(3rd_party/benchmark)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
     AND CMAKE_BUILD_TYPE MATCHES "Debug")
   target_compile_definitions(benchmark PUBLIC _GLIBCXX_DEBUG
@@ -413,7 +413,7 @@ if(IWYU)
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(GSL_INCLUDES "GSL/include")
+set(GSL_INCLUDES "3rd_party/GSL/include")
 
 function(COMMON_TARGET_PROPERTIES TARGET)
   target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
@@ -458,16 +458,22 @@ function(ADD_COVERAGE_TARGET)
   set(fn_options "")
   set(fn_one_value_args TARGET DEPENDENCY)
   set(fn_multi_value_args "")
-  cmake_parse_arguments(ARG "${fn_options}" "${fn_one_value_args}" "${fn_multi_value_args}"
-    ${ARGN})
+  cmake_parse_arguments(ARG "${fn_options}" "${fn_one_value_args}"
+    "${fn_multi_value_args}" ${ARGN})
   set(COV_DATA "coverage-${ARG_TARGET}.info")
   add_custom_target(${ARG_TARGET}
-    COMMAND lcov ${LCOV_GCOV_ARG} --capture --directory . --output-file ${COV_DATA}
-    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '/usr/*' --output-file ${COV_DATA}
-    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '/Library/Developer/*' --output-file ${COV_DATA}
-    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '/Applications/Xcode.app/*' --output-file ${COV_DATA}
-    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '*/unodb/googletest/*' --output-file ${COV_DATA}
-    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '*/unodb/GSL/*' --output-file ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --capture --directory . --output-file
+    ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '/usr/*' --output-file
+    ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '/Library/Developer/*'
+    --output-file ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA}
+    '/Applications/Xcode.app/*' --output-file ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA}
+    '*/unodb/3rd_party/googletest/*' --output-file ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '*/unodb/3rd_party/GSL/*'
+    --output-file ${COV_DATA}
     COMMAND lcov ${LCOV_GCOV_ARG} --list ${COV_DATA}
     DEPENDS ${ARG_DEPENDENCY})
 endfunction()

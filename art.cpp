@@ -1477,10 +1477,8 @@ class raii_leaf_creator {
     assert(get_called);
 
     if (likely(std::uncaught_exceptions() == 0)) return;
-    db_instance.decrease_memory_use(leaf_size);
 
-    assert(db_instance.leaf_count > 0);
-    --db_instance.leaf_count;
+    exception_being_thrown();
   }
 
   auto &&get() noexcept {
@@ -1493,6 +1491,15 @@ class raii_leaf_creator {
   }
 
  private:
+  __attribute__((cold, noinline)) void exception_being_thrown(void) noexcept {
+    assert(std::uncaught_exceptions() > 0);
+
+    db_instance.decrease_memory_use(leaf_size);
+
+    assert(db_instance.leaf_count > 0);
+    --db_instance.leaf_count;
+  }
+
   leaf_unique_ptr leaf;
   const std::size_t leaf_size;
   unodb::db &db_instance;

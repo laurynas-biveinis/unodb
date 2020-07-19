@@ -398,7 +398,6 @@ class inode {
         tree_depth depth) noexcept
       : f{type, k1, k2, depth, children_count} {
     assert(type != node_type::LEAF);
-    assert(k1 != k2);
   }
 
   inode(node_type type, unsigned children_count, unsigned key_prefix_len,

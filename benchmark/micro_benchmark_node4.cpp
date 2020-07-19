@@ -22,7 +22,9 @@ constexpr auto sparse_node4_key_zero_bits = 0xFEFEFEFE'FEFEFEFEULL;
 // constexpr auto sparse_single_node4_mask = 0x1;
 constexpr auto dense_single_node4_mask = 0x3;
 
-inline auto next_node4_key(unodb::key k, std::uint64_t key_zero_bits) {
+constexpr inline auto next_node4_key(unodb::key k,
+                                     std::uint64_t key_zero_bits) noexcept {
+  assert((k & key_zero_bits) == 0);
   const auto result = ((k | key_zero_bits) + 1) & ~key_zero_bits;
   assert(result > k);
   return result;

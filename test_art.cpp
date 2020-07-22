@@ -44,7 +44,7 @@ RESTORE_CLANG_WARNINGS()
 DISABLE_GCC_WARNING("-Wsuggest-override")
 
 TYPED_TEST(ART, SingleNodeTreeEmptyValue) {
-  tree_verifier<TypeParam> verifier{1024};
+  tree_verifier<TypeParam> verifier;
   verifier.check_absent_keys({1});
   verifier.insert(1, {});
   verifier.assert_node_counts(1, 0, 0, 0, 0);
@@ -55,7 +55,7 @@ TYPED_TEST(ART, SingleNodeTreeEmptyValue) {
 }
 
 TYPED_TEST(ART, SingleNodeTreeNonemptyValue) {
-  tree_verifier<TypeParam> verifier{1024};
+  tree_verifier<TypeParam> verifier;
   verifier.insert(1, test_values[2]);
   verifier.assert_node_counts(1, 0, 0, 0, 0);
   verifier.assert_increasing_nodes(0, 0, 0, 0);
@@ -81,7 +81,7 @@ TYPED_TEST(ART, TooLongValue) {
 }
 
 TYPED_TEST(ART, ExpandLeafToNode4) {
-  tree_verifier<TypeParam> verifier{1024};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert(0, test_values[1]);
   verifier.assert_node_counts(1, 0, 0, 0, 0);
@@ -96,7 +96,7 @@ TYPED_TEST(ART, ExpandLeafToNode4) {
 }
 
 TYPED_TEST(ART, DuplicateKey) {
-  tree_verifier<TypeParam> verifier{1024};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert(0, test_values[0]);
   verifier.assert_node_counts(1, 0, 0, 0, 0);
@@ -111,7 +111,7 @@ TYPED_TEST(ART, DuplicateKey) {
 }
 
 TYPED_TEST(ART, InsertToFullNode4) {
-  tree_verifier<TypeParam> verifier{1024};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 4);
   verifier.assert_node_counts(4, 1, 0, 0, 0);
@@ -122,7 +122,7 @@ TYPED_TEST(ART, InsertToFullNode4) {
 }
 
 TYPED_TEST(ART, TwoNode4) {
-  tree_verifier<TypeParam> verifier{2048};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, test_values[0]);
   verifier.insert(3, test_values[2]);
@@ -139,7 +139,7 @@ TYPED_TEST(ART, TwoNode4) {
 }
 
 TYPED_TEST(ART, DbInsertNodeRecursion) {
-  tree_verifier<TypeParam> verifier{2048};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, test_values[0]);
   verifier.insert(3, test_values[2]);
@@ -160,7 +160,7 @@ TYPED_TEST(ART, DbInsertNodeRecursion) {
 }
 
 TYPED_TEST(ART, Node16) {
-  tree_verifier<TypeParam> verifier{2048};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 5);
   verifier.assert_node_counts(5, 0, 1, 0, 0);
@@ -171,7 +171,7 @@ TYPED_TEST(ART, Node16) {
 }
 
 TYPED_TEST(ART, FullNode16) {
-  tree_verifier<TypeParam> verifier{4096};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 16);
   verifier.assert_node_counts(16, 0, 1, 0, 0);
@@ -182,7 +182,7 @@ TYPED_TEST(ART, FullNode16) {
 }
 
 TYPED_TEST(ART, Node16KeyPrefixSplit) {
-  tree_verifier<TypeParam> verifier{4096};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 5);
 
@@ -197,7 +197,7 @@ TYPED_TEST(ART, Node16KeyPrefixSplit) {
 }
 
 TYPED_TEST(ART, Node16KeyInsertOrderDescending) {
-  tree_verifier<TypeParam> verifier{4096};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert(5, test_values[0]);
   verifier.insert(4, test_values[1]);
@@ -212,7 +212,7 @@ TYPED_TEST(ART, Node16KeyInsertOrderDescending) {
 }
 
 TYPED_TEST(ART, Node48) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 17);
   verifier.assert_node_counts(17, 0, 0, 1, 0);
@@ -223,7 +223,7 @@ TYPED_TEST(ART, Node48) {
 }
 
 TYPED_TEST(ART, FullNode48) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 48);
   verifier.assert_node_counts(48, 0, 0, 1, 0);
@@ -234,7 +234,7 @@ TYPED_TEST(ART, FullNode48) {
 }
 
 TYPED_TEST(ART, Node48KeyPrefixSplit) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 17);
   verifier.assert_node_counts(17, 0, 0, 1, 0);
@@ -252,7 +252,7 @@ TYPED_TEST(ART, Node48KeyPrefixSplit) {
 }
 
 TYPED_TEST(ART, Node256) {
-  tree_verifier<TypeParam> verifier{20480};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
   verifier.assert_node_counts(49, 0, 0, 0, 1);
@@ -263,7 +263,7 @@ TYPED_TEST(ART, Node256) {
 }
 
 TYPED_TEST(ART, FullNode256) {
-  tree_verifier<TypeParam> verifier{20480};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 256);
   verifier.assert_node_counts(256, 0, 0, 0, 1);
@@ -274,7 +274,7 @@ TYPED_TEST(ART, FullNode256) {
 }
 
 TYPED_TEST(ART, Node256KeyPrefixSplit) {
-  tree_verifier<TypeParam> verifier{20480};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(20, 49);
   verifier.assert_node_counts(49, 0, 0, 0, 1);
@@ -292,7 +292,7 @@ TYPED_TEST(ART, Node256KeyPrefixSplit) {
 }
 
 TYPED_TEST(ART, TryDeleteFromEmpty) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.attempt_remove_missing_keys({1});
   verifier.assert_empty();
@@ -300,7 +300,7 @@ TYPED_TEST(ART, TryDeleteFromEmpty) {
 }
 
 TYPED_TEST(ART, SingleNodeTreeDelete) {
-  tree_verifier<TypeParam> verifier{1024};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, test_values[0]);
   verifier.remove(1);
@@ -311,7 +311,7 @@ TYPED_TEST(ART, SingleNodeTreeDelete) {
 }
 
 TYPED_TEST(ART, Node4AttemptDeleteAbsent) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 4);
   verifier.attempt_remove_missing_keys({0, 6, 0xFF000001});
@@ -321,7 +321,7 @@ TYPED_TEST(ART, Node4AttemptDeleteAbsent) {
 }
 
 TYPED_TEST(ART, Node4FullDeleteMiddleAndBeginning) {
-  tree_verifier<TypeParam> verifier{2048};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 4);
   // Delete from Node4 middle
@@ -337,7 +337,7 @@ TYPED_TEST(ART, Node4FullDeleteMiddleAndBeginning) {
 }
 
 TYPED_TEST(ART, Node4FullDeleteEndAndMiddle) {
-  tree_verifier<TypeParam> verifier{2048};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 4);
   // Delete from Node4 end
@@ -353,7 +353,7 @@ TYPED_TEST(ART, Node4FullDeleteEndAndMiddle) {
 }
 
 TYPED_TEST(ART, Node4ShrinkToSingleLeaf) {
-  tree_verifier<TypeParam> verifier{2048};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 2);
   verifier.assert_shrinking_nodes(0, 0, 0, 0);
@@ -367,7 +367,7 @@ TYPED_TEST(ART, Node4ShrinkToSingleLeaf) {
 }
 
 TYPED_TEST(ART, Node4DeleteLowerNode) {
-  tree_verifier<TypeParam> verifier{2048};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 2);
   // Insert a value that does not share full prefix with the current Node4
@@ -386,7 +386,7 @@ TYPED_TEST(ART, Node4DeleteLowerNode) {
 }
 
 TYPED_TEST(ART, Node4DeleteKeyPrefixMerge) {
-  tree_verifier<TypeParam> verifier{2048};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0x8001, 2);
   // Insert a value that does not share full prefix with the current Node4
@@ -407,7 +407,7 @@ TYPED_TEST(ART, Node4DeleteKeyPrefixMerge) {
 }
 
 TYPED_TEST(ART, Node16DeleteBeginningMiddleEnd) {
-  tree_verifier<TypeParam> verifier{4096};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 16);
   verifier.remove(5);
@@ -421,7 +421,7 @@ TYPED_TEST(ART, Node16DeleteBeginningMiddleEnd) {
 }
 
 TYPED_TEST(ART, Node16ShrinkToNode4DeleteMiddle) {
-  tree_verifier<TypeParam> verifier{4096};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
   verifier.assert_node_counts(5, 0, 1, 0, 0);
@@ -435,7 +435,7 @@ TYPED_TEST(ART, Node16ShrinkToNode4DeleteMiddle) {
 }
 
 TYPED_TEST(ART, Node16ShrinkToNode4DeleteBeginning) {
-  tree_verifier<TypeParam> verifier{4096};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
   verifier.assert_node_counts(5, 0, 1, 0, 0);
@@ -449,7 +449,7 @@ TYPED_TEST(ART, Node16ShrinkToNode4DeleteBeginning) {
 }
 
 TYPED_TEST(ART, Node16ShrinkToNode4DeleteEnd) {
-  tree_verifier<TypeParam> verifier{4096};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
   verifier.assert_node_counts(5, 0, 1, 0, 0);
@@ -463,7 +463,7 @@ TYPED_TEST(ART, Node16ShrinkToNode4DeleteEnd) {
 }
 
 TYPED_TEST(ART, Node16KeyPrefixMerge) {
-  tree_verifier<TypeParam> verifier{4096};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 5);
   // Insert a value that does not share full prefix with the current Node16
@@ -482,7 +482,7 @@ TYPED_TEST(ART, Node16KeyPrefixMerge) {
 }
 
 TYPED_TEST(ART, Node48DeleteBeginningMiddleEnd) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 48);
   verifier.remove(30);
@@ -496,7 +496,7 @@ TYPED_TEST(ART, Node48DeleteBeginningMiddleEnd) {
 }
 
 TYPED_TEST(ART, Node48ShrinkToNode16DeleteMiddle) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0x80, 17);
   verifier.assert_node_counts(17, 0, 0, 1, 0);
@@ -510,7 +510,7 @@ TYPED_TEST(ART, Node48ShrinkToNode16DeleteMiddle) {
 }
 
 TYPED_TEST(ART, Node48ShrinkToNode16DeleteBeginning) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 17);
   verifier.assert_node_counts(17, 0, 0, 1, 0);
@@ -524,7 +524,7 @@ TYPED_TEST(ART, Node48ShrinkToNode16DeleteBeginning) {
 }
 
 TYPED_TEST(ART, Node48ShrinkToNode16DeleteEnd) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 17);
   verifier.assert_node_counts(17, 0, 0, 1, 0);
@@ -538,7 +538,7 @@ TYPED_TEST(ART, Node48ShrinkToNode16DeleteEnd) {
 }
 
 TYPED_TEST(ART, Node48KeyPrefixMerge) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 17);
   // Insert a value that does not share full prefix with the current Node48
@@ -556,7 +556,7 @@ TYPED_TEST(ART, Node48KeyPrefixMerge) {
 }
 
 TYPED_TEST(ART, Node256DeleteBeginningMiddleEnd) {
-  tree_verifier<TypeParam> verifier{20480};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 256);
   verifier.remove(180);
@@ -569,7 +569,7 @@ TYPED_TEST(ART, Node256DeleteBeginningMiddleEnd) {
 }
 
 TYPED_TEST(ART, Node256ShrinkToNode48DeleteMiddle) {
-  tree_verifier<TypeParam> verifier{20480};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
   verifier.assert_node_counts(49, 0, 0, 0, 1);
@@ -583,7 +583,7 @@ TYPED_TEST(ART, Node256ShrinkToNode48DeleteMiddle) {
 }
 
 TYPED_TEST(ART, Node256ShrinkToNode48DeleteBeginning) {
-  tree_verifier<TypeParam> verifier{20480};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
   verifier.assert_node_counts(49, 0, 0, 0, 1);
@@ -597,7 +597,7 @@ TYPED_TEST(ART, Node256ShrinkToNode48DeleteBeginning) {
 }
 
 TYPED_TEST(ART, Node256ShrinkToNode48DeleteEnd) {
-  tree_verifier<TypeParam> verifier{20480};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
   verifier.assert_node_counts(49, 0, 0, 0, 1);
@@ -611,7 +611,7 @@ TYPED_TEST(ART, Node256ShrinkToNode48DeleteEnd) {
 }
 
 TYPED_TEST(ART, Node256KeyPrefixMerge) {
-  tree_verifier<TypeParam> verifier{20480};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 49);
   // Insert a value that does not share full prefix with the current Node256
@@ -629,7 +629,7 @@ TYPED_TEST(ART, Node256KeyPrefixMerge) {
 }
 
 TYPED_TEST(ART, MissingKeyWithPresentPrefix) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert(0x010000, test_values[0]);
   verifier.insert(0x000001, test_values[1]);
@@ -639,47 +639,15 @@ TYPED_TEST(ART, MissingKeyWithPresentPrefix) {
 }
 
 TYPED_TEST(ART, MissingKeyMatchingInodePath) {
-  tree_verifier<TypeParam> verifier{10240};
+  tree_verifier<TypeParam> verifier;
 
   verifier.insert(0x0100, test_values[0]);
   verifier.insert(0x0200, test_values[1]);
   verifier.attempt_remove_missing_keys({0x0101, 0x0202});
 }
 
-TYPED_TEST(ART, MemoryLimitBelowMinimum) {
-  tree_verifier<TypeParam> verifier{1};
-  verifier.test_insert_until_memory_limit(0, 0, 0, 0, 0);
-}
-
-TYPED_TEST(ART, MemoryLimitOneLeaf) {
-  tree_verifier<TypeParam> verifier{16};
-  verifier.test_insert_until_memory_limit(1, 0, 0, 0, 0);
-}
-
-TYPED_TEST(ART, MemoryLimitOneNode4) {
-  tree_verifier<TypeParam> verifier{80};
-  verifier.test_insert_until_memory_limit(std::nullopt, 1, 0, 0, 0);
-}
-
-TYPED_TEST(ART, MemoryLimitOneNode16) {
-  tree_verifier<TypeParam> verifier{320};
-  verifier.test_insert_until_memory_limit(std::nullopt, std::nullopt, 1, 0, 0);
-}
-
-TYPED_TEST(ART, MemoryLimitOneNode48) {
-  tree_verifier<TypeParam> verifier{1024};
-  verifier.test_insert_until_memory_limit(std::nullopt, std::nullopt,
-                                          std::nullopt, 1, 0);
-}
-
-TYPED_TEST(ART, MemoryLimitOneNode256) {
-  tree_verifier<TypeParam> verifier{4096};
-  verifier.test_insert_until_memory_limit(std::nullopt, std::nullopt,
-                                          std::nullopt, std::nullopt, 1);
-}
-
 TYPED_TEST(ART, MemoryAccountingDuplicateKeyInsert) {
-  tree_verifier<TypeParam> verifier{2048};
+  tree_verifier<TypeParam> verifier;
   verifier.insert(0, test_values[0]);
   ASSERT_FALSE(verifier.get_db().insert(0, test_values[1]));
   verifier.remove(0);
@@ -687,7 +655,7 @@ TYPED_TEST(ART, MemoryAccountingDuplicateKeyInsert) {
 }
 
 TYPED_TEST(ART, Node48InsertIntoDeletedSlot) {
-  tree_verifier<TypeParam> verifier{4096};
+  tree_verifier<TypeParam> verifier;
   verifier.insert(16865361447928765957ULL, test_values[0]);
   verifier.insert(7551546784238320931ULL, test_values[1]);
   verifier.insert(10913915230368519832ULL, test_values[2]);
@@ -712,55 +680,6 @@ TYPED_TEST(ART, Node48InsertIntoDeletedSlot) {
   verifier.assert_node_counts(18, 0, 0, 1, 0);
 }
 
-TYPED_TEST(ART, MemoryAccountingGrowingNodeException) {
-  tree_verifier<TypeParam> verifier{1024};
-
-  verifier.insert_key_range(0, 4);
-  verifier.assert_node_counts(4, 1, 0, 0, 0);
-
-  std::array<std::byte, 900> large_value;
-  const unodb::value_view large_value_view{large_value};
-
-  // The leaf node will be created first and will take memory use almost to the
-  // limit, then Node16 allocation will go over the limit
-  ASSERT_THROW(verifier.insert(10, large_value_view), std::bad_alloc);
-
-  verifier.check_present_values();
-  verifier.check_absent_keys({10});
-  verifier.assert_node_counts(4, 1, 0, 0, 0);
-}
-
-TYPED_TEST(ART, MemoryAccountingLeafToNode4Exception) {
-  tree_verifier<TypeParam> verifier{50};
-
-  verifier.insert(0, test_values[0]);
-  verifier.assert_node_counts(1, 0, 0, 0, 0);
-
-  ASSERT_THROW(verifier.insert(1, test_values[1]), std::bad_alloc);
-  verifier.assert_node_counts(1, 0, 0, 0, 0);
-  verifier.assert_increasing_nodes(0, 0, 0, 0);
-
-  verifier.check_present_values();
-  verifier.check_absent_keys({1});
-}
-
-TYPED_TEST(ART, MemoryAccountingPrefixSplitException) {
-  tree_verifier<TypeParam> verifier{140};
-
-  verifier.insert(1, test_values[0]);
-  verifier.insert(3, test_values[2]);
-  verifier.assert_node_counts(2, 1, 0, 0, 0);
-
-  // Try to insert a value that does not share full prefix with the current
-  // Node4
-  ASSERT_THROW(verifier.insert(0xFF01, test_values[3]), std::bad_alloc);
-  verifier.assert_node_counts(2, 1, 0, 0, 0);
-  verifier.assert_increasing_nodes(1, 0, 0, 0);
-
-  verifier.check_present_values();
-  verifier.check_absent_keys({0xFF01});
-}
-
 TYPED_TEST(ART, ClearOnEmpty) {
   tree_verifier<TypeParam> verifier;
 
@@ -777,18 +696,6 @@ TYPED_TEST(ART, Clear) {
   verifier.clear();
 
   verifier.check_absent_keys({1});
-  verifier.assert_node_counts(0, 0, 0, 0, 0);
-}
-
-TYPED_TEST(ART, ClearWithMemLimit) {
-  tree_verifier<TypeParam> verifier{13};
-
-  verifier.insert(0, empty_test_value);
-  verifier.assert_node_counts(1, 0, 0, 0, 0);
-
-  verifier.clear();
-
-  verifier.check_absent_keys({0});
   verifier.assert_node_counts(0, 0, 0, 0, 0);
 }
 

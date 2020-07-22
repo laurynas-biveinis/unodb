@@ -153,8 +153,7 @@ union node_ptr {
 class db final {
  public:
   // Creation and destruction
-  explicit db(std::size_t memory_limit_ = 0) noexcept
-      : memory_limit{memory_limit_} {}
+  db() noexcept {}
 
   ~db() noexcept;
 
@@ -173,8 +172,7 @@ class db final {
 
   // Stats
 
-  // Return current memory use by tree nodes in bytes, only accounted if memory
-  // limit was specified in the constructor, otherwise always zero.
+  // Return current memory use by tree nodes in bytes.
   [[nodiscard]] auto get_current_memory_use() const noexcept {
     return current_memory_use;
   }
@@ -235,13 +233,18 @@ class db final {
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
-  void increase_memory_use(std::size_t delta);
-  void decrease_memory_use(std::size_t delta) noexcept;
+  void increase_memory_use(std::size_t delta) noexcept {
+    current_memory_use += delta;
+  }
+
+  void decrease_memory_use(std::size_t delta) noexcept {
+    assert(delta <= current_memory_use);
+    current_memory_use -= delta;
+  }
 
   detail::node_ptr root{nullptr};
 
   std::size_t current_memory_use{0};
-  const std::size_t memory_limit;
 
   std::uint64_t leaf_count{0};
   std::uint64_t inode4_count{0};

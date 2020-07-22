@@ -1791,21 +1791,6 @@ void db::clear() {
   inode256_count = 0;
 }
 
-DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
-void db::increase_memory_use(std::size_t delta) {
-  if (memory_limit == 0 || delta == 0) return;
-  assert(current_memory_use <= memory_limit);
-  if (current_memory_use + delta > memory_limit) throw std::bad_alloc{};
-  current_memory_use += delta;
-}
-RESTORE_GCC_WARNINGS()
-
-void db::decrease_memory_use(std::size_t delta) noexcept {
-  if (memory_limit == 0 || delta == 0) return;
-  assert(delta <= current_memory_use);
-  current_memory_use -= delta;
-}
-
 }  // namespace unodb
 
 namespace {
@@ -1835,13 +1820,7 @@ void dump_node(std::ostream &os, const unodb::detail::node_ptr &node) {
 namespace unodb {
 
 void db::dump(std::ostream &os) const {
-  os << "db dump ";
-  if (memory_limit == 0) {
-    os << "(no memory limit):\n";
-  } else {
-    os << "memory limit = " << memory_limit
-       << ", currently used = " << get_current_memory_use() << '\n';
-  }
+  os << "db dump, current memory use = " << get_current_memory_use() << '\n';
   dump_node(os, root);
 }
 

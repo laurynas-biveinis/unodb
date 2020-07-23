@@ -13,8 +13,7 @@ namespace unodb {
 class mutex_db final {
  public:
   // Creation and destruction
-  explicit mutex_db(std::size_t memory_limit = 0) noexcept
-      : db_{memory_limit} {}
+  mutex_db() noexcept : db_{} {}
 
   // Querying
   [[nodiscard]] auto get(key k) const noexcept {

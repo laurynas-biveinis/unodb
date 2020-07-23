@@ -62,11 +62,8 @@ RESTORE_CLANG_WARNINGS()
 template <class Db>
 class tree_verifier final {
  public:
-  explicit tree_verifier(std::size_t memory_limit = 0,
-                         bool parallel_test_ = false) noexcept
-      : test_db{memory_limit},
-        memory_size_tracked{memory_limit != 0},
-        parallel_test{parallel_test_} {
+  explicit tree_verifier(bool parallel_test_ = false) noexcept
+      : test_db{}, parallel_test{parallel_test_} {
     assert_empty();
     assert_increasing_nodes(0, 0, 0, 0);
     assert_shrinking_nodes(0, 0, 0, 0);
@@ -93,8 +90,7 @@ class tree_verifier final {
 
     ASSERT_FALSE(test_db.empty());
 
-    const auto mem_use_after =
-        memory_size_tracked ? test_db.get_current_memory_use() : 1;
+    const auto mem_use_after = test_db.get_current_memory_use();
     if (parallel_test)
       ASSERT_TRUE(mem_use_after > 0);
     else
@@ -144,8 +140,7 @@ class tree_verifier final {
       ASSERT_EQ(remove_result, 1);
     }
     const auto leaf_count_before = test_db.get_leaf_count();
-    const auto mem_use_before =
-        memory_size_tracked ? test_db.get_current_memory_use() : 1;
+    const auto mem_use_before = test_db.get_current_memory_use();
     ASSERT_TRUE(leaf_count_before > 0);
     ASSERT_TRUE(mem_use_before > 0);
 
@@ -165,27 +160,6 @@ class tree_verifier final {
   }
 
   void try_remove(unodb::key k) { (void)test_db.remove(k); }
-
-  void test_insert_until_memory_limit(
-      std::optional<std::uint64_t> leaf_count,
-      std::optional<std::uint64_t> inode4_count,
-      std::optional<std::uint64_t> inode16_count,
-      std::optional<std::uint64_t> inode48_count,
-      std::optional<std::uint64_t> inode256_count) {
-    ASSERT_THROW(insert_key_range(1, 100000), std::bad_alloc);
-    check_present_values();
-    check_absent_keys({0, values.size() + 1});
-    assert_node_counts(leaf_count, inode4_count, inode16_count, inode48_count,
-                       inode256_count);
-
-    while (!values.empty()) {
-      const auto [key, value] = *values.cbegin();
-      remove(key);
-      check_absent_keys({key});
-      check_present_values();
-    }
-    ASSERT_EQ(test_db.get_current_memory_use(), 0);
-  }
 
   void attempt_remove_missing_keys(
       std::initializer_list<unodb::key> absent_keys) noexcept {
@@ -297,7 +271,6 @@ class tree_verifier final {
 
   std::unordered_map<unodb::key, unodb::value_view> values;
 
-  const bool memory_size_tracked;
   const bool parallel_test;
 };
 

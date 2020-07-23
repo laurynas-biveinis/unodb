@@ -82,7 +82,7 @@ void node4_sequential_insert(benchmark::State &state,
 
   for (auto _ : state) {
     state.PauseTiming();
-    unodb::db test_db{1000ULL * 1000 * 1000 * 1000};
+    unodb::db test_db;
     benchmark::ClobberMemory();
     state.ResumeTiming();
 

@@ -11,8 +11,9 @@
 
 namespace {
 
-void dense_insert_no_mem_check(benchmark::State &state) {
+void dense_insert(benchmark::State &state) {
   unodb::benchmark::growing_tree_node_stats<unodb::db> growing_tree_stats;
+  std::size_t tree_size = 0;
 
   for (auto _ : state) {
     state.PauseTiming();
@@ -26,40 +27,20 @@ void dense_insert_no_mem_check(benchmark::State &state) {
 
     state.PauseTiming();
     growing_tree_stats.get(test_db);
-    unodb::benchmark::destroy_tree(test_db, state);
-  }
-
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
-  growing_tree_stats.publish(state);
-}
-
-void dense_insert_mem_check(benchmark::State &state) {
-  std::size_t tree_size = 0;
-
-  for (auto _ : state) {
-    state.PauseTiming();
-    unodb::db test_db{1000ULL * 1000 * 1000 * 1000};
-    benchmark::ClobberMemory();
-    state.ResumeTiming();
-
-    for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
-      unodb::benchmark::insert_key(
-          test_db, i, unodb::value_view{unodb::benchmark::value100});
-
-    state.PauseTiming();
     tree_size = test_db.get_current_memory_use();
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           state.range(0));
+  growing_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
-void sparse_insert_no_mem_check_dups_allowed(benchmark::State &state) {
+void sparse_insert_dups_allowed(benchmark::State &state) {
   unodb::benchmark::batched_prng random_keys;
   unodb::benchmark::growing_tree_node_stats<unodb::db> growing_tree_stats;
+  std::size_t tree_size = 0;
 
   for (auto _ : state) {
     state.PauseTiming();
@@ -75,44 +56,20 @@ void sparse_insert_no_mem_check_dups_allowed(benchmark::State &state) {
 
     state.PauseTiming();
     growing_tree_stats.get(test_db);
+    tree_size = test_db.get_current_memory_use();
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           state.range(0));
   growing_tree_stats.publish(state);
-}
-
-void sparse_insert_mem_check_dups_allowed(benchmark::State &state) {
-  unodb::benchmark::batched_prng random_keys;
-  std::size_t tree_size = 0;
-
-  for (auto _ : state) {
-    state.PauseTiming();
-    unodb::db test_db{1000ULL * 1000 * 1000 * 1000};
-    benchmark::ClobberMemory();
-    state.ResumeTiming();
-
-    for (auto i = 0; i < state.range(0); ++i) {
-      const auto random_key = random_keys.get(state);
-      unodb::benchmark::insert_key_ignore_dups(
-          test_db, random_key, unodb::value_view{unodb::benchmark::value100});
-    }
-
-    state.PauseTiming();
-    tree_size = test_db.get_current_memory_use();
-    unodb::benchmark::destroy_tree(test_db, state);
-  }
-
   unodb::benchmark::set_size_counter(state, "size", tree_size);
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
 }
 
 constexpr auto full_scan_multiplier = 50;
 
 void dense_full_scan(benchmark::State &state) {
-  unodb::db test_db{1000ULL * 1000 * 1000 * 1000};
+  unodb::db test_db;
   const auto key_limit = static_cast<unodb::key>(state.range(0));
 
   for (unodb::key i = 0; i < key_limit; ++i)
@@ -148,7 +105,7 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
     state.PauseTiming();
     unodb::benchmark::batched_prng random_keys{
         static_cast<std::uint64_t>(state.range(0) - 1)};
-    unodb::db test_db{1000ULL * 1000 * 1000 * 1000};
+    unodb::db test_db;
     for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
       unodb::benchmark::insert_key(
           test_db, i, unodb::value_view{unodb::benchmark::value100});
@@ -216,7 +173,7 @@ void dense_insert_value_lengths(benchmark::State &state) {
   std::size_t tree_size = 0;
   for (auto _ : state) {
     state.PauseTiming();
-    unodb::db test_db{1000ULL * 1000 * 1000 * 1000};
+    unodb::db test_db;
     benchmark::ClobberMemory();
     state.ResumeTiming();
 
@@ -263,16 +220,8 @@ void dense_insert_dup_attempts(benchmark::State &state) {
 
 // TODO(laurynas): only dense Node256 trees have reasonable coverage, need
 // to handle sparse Node16/Node48 trees too
-BENCHMARK(dense_insert_mem_check)
-    ->Range(100, 30000000)
-    ->Unit(benchmark::kMicrosecond);
-BENCHMARK(dense_insert_no_mem_check)
-    ->Range(100, 30000000)
-    ->Unit(benchmark::kMicrosecond);
-BENCHMARK(sparse_insert_mem_check_dups_allowed)
-    ->Range(100, 10000000)
-    ->Unit(benchmark::kMicrosecond);
-BENCHMARK(sparse_insert_no_mem_check_dups_allowed)
+BENCHMARK(dense_insert)->Range(100, 30000000)->Unit(benchmark::kMicrosecond);
+BENCHMARK(sparse_insert_dups_allowed)
     ->Range(100, 10000000)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(dense_full_scan)->Range(100, 20000000)->Unit(benchmark::kMicrosecond);

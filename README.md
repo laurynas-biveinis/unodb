@@ -28,8 +28,7 @@ returned. How long would it remain valid depends on the ART concurrency flavor.
 
 All ART classes implement the same API:
 
-* constructor, with optional memory limit parameter, exceeding which will throw
-  `std::bad_alloc`.
+* constructor.
 * `get(key k)`, returning `get_result`, which is `std::optional<value_view>`.
 * `bool insert(key k, value_view v)`, returning whether insert was
   successful (i.e. the key was not already present).

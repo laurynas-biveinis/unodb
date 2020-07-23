@@ -11,8 +11,7 @@
 
 namespace {
 
-constexpr auto maximum_art_mem = 1024 * 1024 * 128;  // 128MB
-constexpr auto maximum_value_len = 1024 * 1024;      // 1MB
+constexpr auto maximum_value_len = 1024 * 1024;  // 1MB
 // Close to the longest test run that fits into 8192 random bytes provided by
 // DeepState API.
 constexpr auto test_length = 480;
@@ -80,10 +79,6 @@ void dump_tree(const unodb::db &tree) {
 DISABLE_CLANG_WARNING("-Wmissing-noreturn")
 
 TEST(ART, DeepStateFuzz) {
-  const auto mem_limit =
-      static_cast<std::size_t>(DeepState_IntInRange(0, maximum_art_mem));
-  LOG(TRACE) << "ART memory limit is " << static_cast<std::uint64_t>(mem_limit);
-
   const auto limit_max_key = DeepState_Bool();
   const auto max_key_value =
       limit_max_key
@@ -105,7 +100,7 @@ TEST(ART, DeepStateFuzz) {
   else
     LOG(TRACE) << "Not limiting value length (" << max_value_length << ")";
 
-  unodb::db test_db{mem_limit};
+  unodb::db test_db;
   ASSERT(test_db.empty());
 
   std::vector<unodb::key> keys;
@@ -126,7 +121,7 @@ TEST(ART, DeepStateFuzz) {
             if (insert_result) {
               LOG(TRACE) << "Inserted key " << key;
               ASSERT(!test_db.empty());
-              ASSERT(mem_use_after > mem_use_before || mem_limit == 0);
+              ASSERT(mem_use_after > mem_use_before);
               const auto oracle_insert_result = oracle.emplace(key, value);
               ASSERT(oracle_insert_result.second)
                   << "If insert suceeded, oracle insert must succeed";
@@ -186,7 +181,7 @@ TEST(ART, DeepStateFuzz) {
           const auto mem_use_after = test_db.get_current_memory_use();
           const auto oracle_delete_result = oracle.erase(key);
           if (delete_result) {
-            ASSERT(mem_use_after < mem_use_before || mem_limit == 0);
+            ASSERT(mem_use_after < mem_use_before);
             ASSERT(oracle_delete_result == 1)
                 << "If delete succeeded, oracle delete must succeed too";
           } else {
@@ -212,7 +207,7 @@ TEST(ART, DeepStateFuzz) {
     const auto current_mem_use = test_db.get_current_memory_use();
     LOG(TRACE) << "Current mem use: "
                << static_cast<std::uint64_t>(current_mem_use);
-    ASSERT(current_mem_use < prev_mem_use || mem_limit == 0);
+    ASSERT(current_mem_use < prev_mem_use);
     prev_mem_use = current_mem_use;
   }
   ASSERT(prev_mem_use == 0);

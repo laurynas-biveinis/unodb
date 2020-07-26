@@ -22,6 +22,8 @@
 
 namespace unodb::benchmark {
 
+// Values
+
 constexpr auto value1 = std::array<std::byte, 1>{};
 constexpr auto value10 = std::array<std::byte, 10>{};
 constexpr auto value100 = std::array<std::byte, 100>{};
@@ -32,6 +34,24 @@ inline constexpr std::array<unodb::value_view, 5> values = {
     unodb::value_view{value1}, unodb::value_view{value10},
     unodb::value_view{value100}, unodb::value_view{value1000},
     unodb::value_view{value10000}};
+
+// Key manipulation
+
+constexpr inline auto dense_node4_key_zero_bits = 0xFCFCFCFC'FCFCFCFCULL;
+
+constexpr inline auto next_key(unodb::key k,
+                               std::uint64_t key_zero_bits) noexcept {
+  assert((k & key_zero_bits) == 0);
+
+  const auto result = ((k | key_zero_bits) + 1) & ~key_zero_bits;
+
+  assert(result > k);
+  assert((result & key_zero_bits) == 0);
+
+  return result;
+}
+
+// PRNG
 
 class batched_prng final {
   using result_type = std::uint64_t;
@@ -67,6 +87,8 @@ class batched_prng final {
   std::mt19937 gen{rd()};
   std::uniform_int_distribution<result_type> random_key_dist;
 };
+
+// Stats
 
 template <class Db>
 class growing_tree_node_stats final {
@@ -119,12 +141,37 @@ inline void set_size_counter(::benchmark::State &state,
       ::benchmark::Counter::OneK::kIs1024);
 }
 
+// Asserts
+
+template <class Db>
+void assert_node4_only_tree(const Db &test_db USED_IN_DEBUG) noexcept {
+  assert(test_db.get_inode16_count() == 0);
+  assert(test_db.get_inode48_count() == 0);
+  assert(test_db.get_inode256_count() == 0);
+}
+
+// In a mostly-Node16 tree a few Node4 are allowed on the rightmost tree edge
+template <class Db>
+void assert_mostly_node16_tree(const Db &test_db USED_IN_DEBUG) noexcept {
+#ifndef NDEBUG
+  if (test_db.get_inode4_count() > 8) {
+    std::cerr << "Too many I4 nodes found in mostly-I16 tree:";
+    test_db.dump(std::cerr);
+    assert(test_db.get_inode4_count() <= 8);
+  }
+  assert(test_db.get_inode48_count() == 0);
+  assert(test_db.get_inode256_count() == 0);
+#endif
+}
+
+// Insertion
+
 template <class Db>
 void insert_key(Db &db, unodb::key k, unodb::value_view v) {
   const auto result USED_IN_DEBUG = db.insert(k, v);
 #ifndef NDEBUG
   if (!result) {
-    std::cerr << "Failed to insert key " << k << '\n';
+    std::cerr << "Failed to insert key 0x" << std::hex << k << std::dec << '\n';
     std::cerr << "Current tree:";
     db.dump(std::cerr);
     assert(result);
@@ -140,6 +187,21 @@ void insert_key_ignore_dups(Db &db, unodb::key k, unodb::value_view v) {
 }
 
 template <class Db>
+unodb::key insert_sequentially(Db &db, std::uint64_t number_of_keys,
+                               std::uint64_t key_zero_bits) {
+  unodb::key k = 0;
+  for (decltype(number_of_keys) i = 0; i < number_of_keys; ++i) {
+    unodb::benchmark::insert_key(db, k,
+                                 unodb::value_view{unodb::benchmark::value100});
+    k = next_key(k, key_zero_bits);
+  }
+  assert_node4_only_tree(db);
+  return k;
+}
+
+// Gets
+
+template <class Db>
 void get_existing_key(const Db &db, unodb::key k) {
   const auto result = db.get(k);
   assert(result);
@@ -150,6 +212,8 @@ template <class Db>
 void get_key(const Db &db, unodb::key k) {
   static_cast<void>(db.get(k));
 }
+
+// Deletes
 
 template <class Db>
 void delete_key(Db &db, unodb::key k) {
@@ -163,6 +227,8 @@ void delete_key_if_exists(Db &db, unodb::key k) {
   (void)db.remove(k);
   ::benchmark::ClobberMemory();
 }
+
+// Teardown
 
 template <class Db>
 void destroy_tree(Db &db, ::benchmark::State &state) noexcept {

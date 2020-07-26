@@ -411,25 +411,6 @@ class inode {
     assert(type != node_type::LEAF);
   }
 
-  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-  template <typename KeysType>
-  static auto get_sorted_key_array_insert_position(
-      const KeysType &keys, uint8_t children_count,
-      std::byte key_byte) noexcept {
-    assert(std::is_sorted(keys.cbegin(), keys.cbegin() + children_count));
-    assert(std::adjacent_find(keys.cbegin(), keys.cbegin() + children_count) >=
-           keys.cbegin() + children_count);
-
-    const auto result = static_cast<uint8_t>(
-        std::lower_bound(keys.cbegin(), keys.cbegin() + children_count,
-                         key_byte) -
-        keys.cbegin());
-
-    assert(result == children_count || keys[result] != key_byte);
-    return result;
-  }
-  RESTORE_GCC_WARNINGS()
-
  private:
   static constexpr auto key_bytes_mask = 0xFFFFFFFF'FFFFFF00ULL;
 
@@ -867,13 +848,31 @@ class inode_16 final : public basic_inode_16 {
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
+  __attribute__((pure)) auto get_sorted_key_array_insert_position(
+      std::byte key_byte) noexcept {
+    assert(std::is_sorted(keys.byte_array.cbegin(),
+                          keys.byte_array.cbegin() + f.f.children_count));
+    assert(std::adjacent_find(keys.byte_array.cbegin(),
+                              keys.byte_array.cbegin() + f.f.children_count) >=
+           keys.byte_array.cbegin() + f.f.children_count);
+
+    const auto result = static_cast<std::uint8_t>(
+        std::lower_bound(keys.byte_array.cbegin(),
+                         keys.byte_array.cbegin() + f.f.children_count,
+                         key_byte) -
+        keys.byte_array.cbegin());
+
+    assert(result == f.f.children_count || keys.byte_array[result] != key_byte);
+    return result;
+  }
+
   void insert_into_sorted_key_children_arrays(
       std::byte key_byte, leaf_unique_ptr &&__restrict__ child) {
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + f.f.children_count));
 
-    const auto insert_pos_index = get_sorted_key_array_insert_position(
-        keys.byte_array, f.f.children_count, key_byte);
+    const auto insert_pos_index =
+        get_sorted_key_array_insert_position(key_byte);
     if (insert_pos_index != f.f.children_count) {
       assert(keys.byte_array[insert_pos_index] != key_byte);
       std::copy_backward(keys.byte_array.cbegin() + insert_pos_index,
@@ -951,13 +950,24 @@ inode_4::inode_4(std::unique_ptr<inode_16> &&source_node,
 inode_16::inode_16(std::unique_ptr<inode_4> &&source_node,
                    leaf_unique_ptr &&child, tree_depth depth) noexcept
     : basic_inode_16{*source_node} {
-  const auto key_byte = leaf::key(child.get())[depth];
-  const auto insert_pos_index = get_sorted_key_array_insert_position(
-      source_node->keys.byte_array, source_node->f.f.children_count, key_byte);
+  const auto key_byte =
+      static_cast<std::uint8_t>(leaf::key(child.get())[depth]);
+
+  const auto first_lt =
+      ((source_node->keys.integer & 0xFFU) < key_byte) ? 1 : 0;
+  const auto second_lt =
+      (((source_node->keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
+  const auto third_lt =
+      (((source_node->keys.integer >> 16U) & 0xFFU) < key_byte) ? 1 : 0;
+  const auto fourth_lt =
+      (((source_node->keys.integer >> 24U) & 0xFFU) < key_byte) ? 1 : 0;
+  const auto insert_pos_index =
+      static_cast<unsigned>(first_lt + second_lt + third_lt + fourth_lt);
+
   std::copy(source_node->keys.byte_array.cbegin(),
             source_node->keys.byte_array.cbegin() + insert_pos_index,
             keys.byte_array.begin());
-  keys.byte_array[insert_pos_index] = key_byte;
+  keys.byte_array[insert_pos_index] = static_cast<std::byte>(key_byte);
   std::copy(source_node->keys.byte_array.cbegin() + insert_pos_index,
             source_node->keys.byte_array.cend(),
             keys.byte_array.begin() + insert_pos_index + 1);

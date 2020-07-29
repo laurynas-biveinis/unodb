@@ -357,8 +357,6 @@ class inode {
       os << ", key prefix =";
       for (std::size_t i = 0; i < len; ++i)
         dump_byte(os, f.f.key_prefix_data[i]);
-    } else {
-      os << ' ';
     }
   }
 

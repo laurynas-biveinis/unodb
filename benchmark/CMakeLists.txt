@@ -12,7 +12,7 @@ endfunction()
 add_benchmark_target(micro_benchmark_key_prefix)
 set(micro_benchmark_key_prefix_quick_arg "") # Benchmark is quick as-is
 add_benchmark_target(micro_benchmark_node4)
-set(micro_benchmark_node4_quick_arg "--benchmark_filter='/100|/16'")
+set(micro_benchmark_node4_quick_arg "--benchmark_filter='/16|/20|/100'")
 add_benchmark_target(micro_benchmark_node16)
 set(micro_benchmark_node16_quick_arg "--benchmark_filter='/20'")
 add_benchmark_target(micro_benchmark)

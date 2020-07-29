@@ -208,6 +208,70 @@ void full_node4_random_deletes(benchmark::State &state) {
                           state.range(0));
 }
 
+// Benchmark shrinking Node16 to Node4: insert to minimal Node16 first:
+// 0x0000000000000000 to ...004
+// 0x0000000000000100 to ...104
+// 0x0000000000000200 to ...204
+// 0x0000000000000300 to ...304
+// 0x0000000000000404 (note that no 0x0400..0x403, these would create sparse but
+// not minimal Node16 tree).
+//
+// Then remove the minimal Node16 over dense Node4 key subset, see
+// number_to_minimal_node16_over_node4_key.
+
+class shrinking_tree_node_stats final {
+ public:
+  void get(const unodb::db &test_db) noexcept {
+    inode16_to_inode4_count = test_db.get_inode16_to_inode4_count();
+  }
+
+  void publish(::benchmark::State &state) const noexcept {
+    state.counters["16v"] = static_cast<double>(inode16_to_inode4_count);
+  }
+
+ private:
+  std::uint64_t inode16_to_inode4_count{0};
+};
+
+void shrink_node16_to_node4(benchmark::State &state) {
+  shrinking_tree_node_stats shrinking_tree_stats;
+  std::size_t tree_size = 0;
+  std::uint64_t removed_key_count{0};
+
+  const auto node4_insert_count = static_cast<std::uint64_t>(state.range(0));
+
+  for (auto _ : state) {
+    state.PauseTiming();
+    unodb::db test_db;
+    unodb::key key_limit = unodb::benchmark::insert_sequentially(
+        test_db, node4_insert_count,
+        unodb::benchmark::dense_node4_key_zero_bits);
+    const auto n4_to_n16_keys_inserted =
+        unodb::benchmark::grow_dense_node4_to_minimal_node16(test_db,
+                                                             key_limit);
+    tree_size = test_db.get_current_memory_use();
+    state.ResumeTiming();
+
+    for (removed_key_count = 0; removed_key_count < n4_to_n16_keys_inserted;
+         ++removed_key_count) {
+      const auto remove_key =
+          unodb::benchmark::number_to_minimal_node16_over_node4_key(
+              removed_key_count);
+      unodb::benchmark::delete_key(test_db, remove_key);
+    }
+
+    state.PauseTiming();
+    unodb::benchmark::assert_node4_only_tree(test_db);
+    shrinking_tree_stats.get(test_db);
+    unodb::benchmark::destroy_tree(test_db, state);
+  }
+
+  state.SetItemsProcessed(
+      static_cast<std::int64_t>(state.iterations() * removed_key_count));
+  shrinking_tree_stats.publish(state);
+  unodb::benchmark::set_size_counter(state, "size", tree_size);
+}
+
 }  // namespace
 
 // A maximum Node4-only tree can hold 65K values
@@ -229,6 +293,9 @@ BENCHMARK(full_node4_sequential_delete)
     ->Range(100, 65535)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(full_node4_random_deletes)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK(shrink_node16_to_node4)
     ->Range(100, 65535)
     ->Unit(benchmark::kMicrosecond);
 

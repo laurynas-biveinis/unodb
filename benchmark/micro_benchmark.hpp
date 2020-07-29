@@ -51,6 +51,18 @@ constexpr inline auto next_key(unodb::key k,
   return result;
 }
 
+// Minimal Node16 tree keys over dense Node4 keys: "base-5" values that vary
+// each byte from 0 to 5 with the last byte being a constant 0x04.
+inline constexpr auto number_to_minimal_node16_over_node4_key(
+    std::uint64_t i) noexcept {
+  assert(i / (5 * 5 * 5 * 5 * 5 * 5) < 5);
+  return 4ULL | ((i % 5) << 8) | ((i / 5 % 5) << 16) |
+         ((i / (5 * 5) % 5) << 24) | ((i / (5 * 5 * 5) % 5) << 32) |
+         ((i / (5 * 5 * 5 * 5) % 5) << 40) |
+         ((i / (5 * 5 * 5 * 5 * 5) % 5) << 48) |
+         ((i / (5 * 5 * 5 * 5 * 5 * 5) % 5) << 56);
+}
+
 // PRNG
 
 class batched_prng final {
@@ -145,9 +157,16 @@ inline void set_size_counter(::benchmark::State &state,
 
 template <class Db>
 void assert_node4_only_tree(const Db &test_db USED_IN_DEBUG) noexcept {
+#ifndef NDEBUG
+  if (test_db.get_inode16_count() > 0) {
+    std::cerr << "I16 node found in I4-only tree:\n";
+    test_db.dump(std::cerr);
+    assert(test_db.get_inode16_count() == 0);
+  }
   assert(test_db.get_inode16_count() == 0);
   assert(test_db.get_inode48_count() == 0);
   assert(test_db.get_inode256_count() == 0);
+#endif
 }
 
 // In a mostly-Node16 tree a few Node4 are allowed on the rightmost tree edge
@@ -155,7 +174,7 @@ template <class Db>
 void assert_mostly_node16_tree(const Db &test_db USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   if (test_db.get_inode4_count() > 8) {
-    std::cerr << "Too many I4 nodes found in mostly-I16 tree:";
+    std::cerr << "Too many I4 nodes found in mostly-I16 tree:\n";
     test_db.dump(std::cerr);
     assert(test_db.get_inode4_count() <= 8);
   }
@@ -197,6 +216,24 @@ unodb::key insert_sequentially(Db &db, std::uint64_t number_of_keys,
   }
   assert_node4_only_tree(db);
   return k;
+}
+
+template <class Db>
+auto grow_dense_node4_to_minimal_node16(Db &db, unodb::key key_limit) {
+  unodb::benchmark::assert_node4_only_tree(db);
+
+  std::uint64_t i = 0;
+  while (true) {
+    unodb::key key =
+        unodb::benchmark::number_to_minimal_node16_over_node4_key(i);
+    unodb::benchmark::insert_key(db, key,
+                                 unodb::value_view{unodb::benchmark::value100});
+    if (key > key_limit) break;
+    ++i;
+  }
+
+  unodb::benchmark::assert_mostly_node16_tree(db);
+  return i;
 }
 
 // Gets

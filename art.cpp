@@ -923,13 +923,11 @@ class inode_16 final : public basic_inode_16 {
 inode_4::inode_4(std::unique_ptr<inode_16> &&source_node,
                  uint8_t child_to_remove) noexcept
     : basic_inode_4{*source_node} {
-  const auto source_node_children_count = source_node->f.f.children_count;
-
   std::copy(source_node->keys.byte_array.cbegin(),
             source_node->keys.byte_array.cbegin() + child_to_remove,
             keys.byte_array.begin());
   std::copy(source_node->keys.byte_array.cbegin() + child_to_remove + 1,
-            source_node->keys.byte_array.cbegin() + source_node_children_count,
+            source_node->keys.byte_array.cbegin() + inode_16::min_size,
             keys.byte_array.begin() + child_to_remove);
   std::copy(source_node->children.begin(),
             source_node->children.begin() + child_to_remove, children.begin());
@@ -938,7 +936,7 @@ inode_4::inode_4(std::unique_ptr<inode_16> &&source_node,
       source_node->children[child_to_remove]};
 
   std::copy(source_node->children.begin() + child_to_remove + 1,
-            source_node->children.begin() + source_node_children_count,
+            source_node->children.begin() + inode_16::min_size,
             children.begin() + child_to_remove);
 
   assert(std::is_sorted(keys.byte_array.cbegin(),

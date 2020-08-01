@@ -233,7 +233,7 @@ class shrinking_tree_node_stats final {
   std::uint64_t inode16_to_inode4_count{0};
 };
 
-void shrink_node16_to_node4(benchmark::State &state) {
+void shrink_node16_to_node4_sequentially(benchmark::State &state) {
   shrinking_tree_node_stats shrinking_tree_stats;
   std::size_t tree_size = 0;
   std::uint64_t removed_key_count{0};
@@ -295,7 +295,7 @@ BENCHMARK(full_node4_sequential_delete)
 BENCHMARK(full_node4_random_deletes)
     ->Range(100, 65535)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(shrink_node16_to_node4)
+BENCHMARK(shrink_node16_to_node4_sequentially)
     ->Range(100, 65535)
     ->Unit(benchmark::kMicrosecond);
 

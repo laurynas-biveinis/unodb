@@ -30,7 +30,7 @@ namespace {
 // 0x0000000000010104
 // ...
 
-void grow_node4_to_node16(benchmark::State &state) {
+void grow_node4_to_node16_sequentially(benchmark::State &state) {
   unodb::benchmark::growing_tree_node_stats<unodb::db> growing_tree_stats;
   std::size_t tree_size = 0;
 
@@ -61,7 +61,7 @@ void grow_node4_to_node16(benchmark::State &state) {
 
 }  // namespace
 
-BENCHMARK(grow_node4_to_node16)
+BENCHMARK(grow_node4_to_node16_sequentially)
     ->Range(20, 16383)
     ->Unit(benchmark::kMicrosecond);
 

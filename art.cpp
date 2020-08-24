@@ -73,11 +73,6 @@ __attribute__((cold, noinline)) void dump_key(std::ostream &os,
 __attribute__((cold, noinline)) void dump_node(
     std::ostream &os, const unodb::detail::node_ptr &node);
 
-inline __attribute__((noreturn)) void cannot_happen() {
-  assert(0);
-  __builtin_unreachable();
-}
-
 // On GCC up to and including version 10, __builtin_ffs compiles to BSF/CMOVE
 // pair if TZCNT is not available. CMOVE is only required if arg is zero, which
 // we know not to be. Only GCC 11 gets the hint by "if (arg == 0)

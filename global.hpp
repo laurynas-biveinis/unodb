@@ -33,6 +33,8 @@
 #define _GLIBCXX_SANITIZE_VECTOR 1
 #endif
 
+#include <cassert>
+
 #define DO_PRAGMA(x) _Pragma(#x)
 
 #ifdef __clang__
@@ -55,6 +57,11 @@
 
 #define likely(x) __builtin_expect(x, 1)
 #define unlikely(x) __builtin_expect(x, 0)
+
+inline __attribute__((noreturn)) void cannot_happen() {
+  assert(0);
+  __builtin_unreachable();
+}
 
 #ifdef NDEBUG
 #define USED_IN_DEBUG __attribute__((unused))

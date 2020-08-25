@@ -955,19 +955,20 @@ inode_16::inode_16(std::unique_ptr<inode_4> &&source_node,
   const auto insert_pos_index =
       static_cast<unsigned>(first_lt + second_lt + third_lt + fourth_lt);
 
-  std::copy(source_node->keys.byte_array.cbegin(),
-            source_node->keys.byte_array.cbegin() + insert_pos_index,
-            keys.byte_array.begin());
-  keys.byte_array[insert_pos_index] = static_cast<std::byte>(key_byte);
-  std::copy(source_node->keys.byte_array.cbegin() + insert_pos_index,
-            source_node->keys.byte_array.cend(),
-            keys.byte_array.begin() + insert_pos_index + 1);
-  std::copy(source_node->children.begin(),
-            source_node->children.begin() + insert_pos_index, children.begin());
-  children[insert_pos_index] = child.release();
-  std::copy(source_node->children.begin() + insert_pos_index,
-            source_node->children.end(),
-            children.begin() + insert_pos_index + 1);
+  unsigned i = 0;
+  for (; i < insert_pos_index; ++i) {
+    keys.byte_array[i] = source_node->keys.byte_array[i];
+    children[i] = source_node->children[i];
+  }
+
+  keys.byte_array[i] = static_cast<std::byte>(key_byte);
+  children[i] = child.release();
+  ++i;
+
+  for (; i <= inode_4::capacity; ++i) {
+    keys.byte_array[i] = source_node->keys.byte_array[i - 1];
+    children[i] = source_node->children[i - 1];
+  }
 }
 
 __attribute__((pure)) inode::find_result_type inode_16::find_child(

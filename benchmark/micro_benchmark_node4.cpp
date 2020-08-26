@@ -6,12 +6,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <random>
+#include <vector>
 
 #include <benchmark/benchmark.h>
 
 #include "art.hpp"
 #include "art_common.hpp"
-#include "micro_benchmark.hpp"
+#include "micro_benchmark_utils.hpp"
 
 namespace {
 
@@ -97,10 +98,7 @@ void node4_random_insert(benchmark::State &state, std::uint64_t key_zero_bits) {
     benchmark::ClobberMemory();
     state.ResumeTiming();
 
-    for (const auto k : keys) {
-      unodb::benchmark::insert_key(
-          test_db, k, unodb::value_view{unodb::benchmark::value100});
-    }
+    unodb::benchmark::insert_keys(test_db, keys);
 
     state.PauseTiming();
     unodb::benchmark::assert_node4_only_tree(test_db);
@@ -197,9 +195,7 @@ void full_node4_random_deletes(benchmark::State &state) {
         test_db, number_of_keys, unodb::benchmark::dense_node4_key_zero_bits);
     state.ResumeTiming();
 
-    for (const auto k : keys) {
-      unodb::benchmark::delete_key(test_db, k);
-    }
+    unodb::benchmark::delete_keys(test_db, keys);
 
     assert(test_db.empty());
   }
@@ -272,6 +268,41 @@ void shrink_node16_to_node4_sequentially(benchmark::State &state) {
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
+void shrink_node16_to_node4_randomly(benchmark::State &state) {
+  shrinking_tree_node_stats shrinking_tree_stats;
+  std::size_t tree_size{0};
+  std::uint64_t removed_key_count{0};
+
+  const auto node4_insert_count = static_cast<unsigned>(state.range(0));
+
+  for (auto _ : state) {
+    state.PauseTiming();
+    unodb::db test_db;
+    const auto key_limit = unodb::benchmark::make_node4_tree_with_gaps(
+        test_db, node4_insert_count);
+    const auto node16_keys =
+        unodb::benchmark::generate_random_minimal_node16_over_dense_node4_keys(
+            key_limit);
+    unodb::benchmark::insert_keys(test_db, node16_keys);
+    unodb::benchmark::assert_mostly_node16_tree(test_db);
+    tree_size = test_db.get_current_memory_use();
+    state.ResumeTiming();
+
+    unodb::benchmark::delete_keys(test_db, node16_keys);
+
+    state.PauseTiming();
+    unodb::benchmark::assert_node4_only_tree(test_db);
+    removed_key_count = node16_keys.size();
+    shrinking_tree_stats.get(test_db);
+    unodb::benchmark::destroy_tree(test_db, state);
+  }
+
+  state.SetItemsProcessed(
+      static_cast<std::int64_t>(state.iterations() * removed_key_count));
+  shrinking_tree_stats.publish(state);
+  unodb::benchmark::set_size_counter(state, "size", tree_size);
+}
+
 }  // namespace
 
 // A maximum Node4-only tree can hold 65K values
@@ -296,6 +327,9 @@ BENCHMARK(full_node4_random_deletes)
     ->Range(100, 65535)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(shrink_node16_to_node4_sequentially)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK(shrink_node16_to_node4_randomly)
     ->Range(100, 65535)
     ->Unit(benchmark::kMicrosecond);
 

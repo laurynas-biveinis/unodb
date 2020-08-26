@@ -10,7 +10,7 @@
 
 #include "art.hpp"
 #include "art_common.hpp"
-#include "micro_benchmark.hpp"
+#include "micro_benchmark_utils.hpp"
 
 namespace {
 

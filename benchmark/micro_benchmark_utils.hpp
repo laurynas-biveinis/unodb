@@ -63,6 +63,31 @@ inline constexpr auto number_to_minimal_node16_over_node4_key(
          ((i / (5 * 5 * 5 * 5 * 5 * 5) % 5) << 56);
 }
 
+// Dense Node4 tree keys with 1, 3, 5, & 7 as the different key byte values so
+// that a new byte could be inserted later at any position:
+// 0x0101010101010101 to ...107
+// 0x0101010101010301 to ...307
+// 0x0101010101010501 to ...507
+// 0x0101010101010701 to ...707
+// 0x0101010101030101 to ...107
+// 0x0101010101030301 to ...307
+inline constexpr auto number_to_dense_node4_with_gaps_key(
+    std::uint64_t i) noexcept {
+  assert(i / (4 * 4 * 4 * 4 * 4 * 4 * 4) < 4);
+  return (i % 4 * 2 + 1) | ((i / 4 % 4 * 2 + 1) << 8) |
+         ((i / (4 * 4) % 4 * 2 + 1) << 16) |
+         ((i / (4 * 4 * 4) % 4 * 2 + 1) << 24) |
+         ((i / (4 * 4 * 4 * 4) % 4 * 2 + 1) << 32) |
+         ((i / (4 * 4 * 4 * 4 * 4) % 4 * 2 + 1) << 40) |
+         ((i / (4 * 4 * 4 * 4 * 4 * 4) % 4 * 2 + 1) << 48) |
+         ((i / (4 * 4 * 4 * 4 * 4 * 4 * 4) % 4 * 2 + 1) << 56);
+}
+
+// Key vectors
+
+std::vector<unodb::key> generate_random_minimal_node16_over_dense_node4_keys(
+    unodb::key key_limit) noexcept;
+
 // PRNG
 
 class batched_prng final {
@@ -210,8 +235,7 @@ unodb::key insert_sequentially(Db &db, std::uint64_t number_of_keys,
                                std::uint64_t key_zero_bits) {
   unodb::key k = 0;
   for (decltype(number_of_keys) i = 0; i < number_of_keys; ++i) {
-    unodb::benchmark::insert_key(db, k,
-                                 unodb::value_view{unodb::benchmark::value100});
+    insert_key(db, k, unodb::value_view{value100});
     k = next_key(k, key_zero_bits);
   }
   assert_node4_only_tree(db);
@@ -219,21 +243,38 @@ unodb::key insert_sequentially(Db &db, std::uint64_t number_of_keys,
 }
 
 template <class Db>
+void insert_keys(Db &db, const std::vector<unodb::key> &keys) {
+  for (const auto k : keys) {
+    insert_key(db, k, unodb::value_view{value100});
+  }
+}
+
+template <class Db>
 auto grow_dense_node4_to_minimal_node16(Db &db, unodb::key key_limit) {
-  unodb::benchmark::assert_node4_only_tree(db);
+  assert_node4_only_tree(db);
 
   std::uint64_t i = 0;
   while (true) {
-    unodb::key key =
-        unodb::benchmark::number_to_minimal_node16_over_node4_key(i);
-    unodb::benchmark::insert_key(db, key,
-                                 unodb::value_view{unodb::benchmark::value100});
+    unodb::key key = number_to_minimal_node16_over_node4_key(i);
+    insert_key(db, key, unodb::value_view{value100});
     if (key > key_limit) break;
     ++i;
   }
 
-  unodb::benchmark::assert_mostly_node16_tree(db);
+  assert_mostly_node16_tree(db);
   return i;
+}
+
+template <class Db>
+auto make_node4_tree_with_gaps(Db &db, unsigned number_of_keys) {
+  unodb::key k{0};
+  for (unsigned i = 0; i < number_of_keys; ++i) {
+    k = number_to_dense_node4_with_gaps_key(i);
+    insert_key(db, k, unodb::value_view{value100});
+  }
+
+  assert_node4_only_tree(db);
+  return k;
 }
 
 // Gets
@@ -263,6 +304,11 @@ template <class Db>
 void delete_key_if_exists(Db &db, unodb::key k) {
   (void)db.remove(k);
   ::benchmark::ClobberMemory();
+}
+
+template <class Db>
+void delete_keys(Db &db, const std::vector<unodb::key> &keys) {
+  for (const auto k : keys) delete_key(db, k);
 }
 
 // Teardown

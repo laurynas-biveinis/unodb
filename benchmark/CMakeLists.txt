@@ -1,12 +1,22 @@
 # Copyright 2020 Laurynas Biveinis
 
+add_library(micro_benchmark_utils STATIC micro_benchmark_utils.cpp
+  micro_benchmark_utils.hpp)
+common_target_properties(micro_benchmark_utils)
+target_include_directories(micro_benchmark_utils PUBLIC ".")
+target_link_libraries(micro_benchmark_utils PUBLIC unodb)
+target_link_libraries(micro_benchmark_utils PUBLIC benchmark::benchmark)
+target_include_directories(micro_benchmark_utils SYSTEM PUBLIC
+  ${benchmark_include_dirs})
+if(DO_CLANG_TIDY)
+   set_target_properties(micro_benchmark_utils PROPERTIES CXX_CLANG_TIDY
+     "${DO_CLANG_TIDY}")
+endif()
+
 function(ADD_BENCHMARK_TARGET TARGET)
-  add_executable("${TARGET}" "${TARGET}.cpp" micro_benchmark.hpp)
+  add_executable("${TARGET}" "${TARGET}.cpp")
   common_target_properties("${TARGET}")
-  target_include_directories("${TARGET}" SYSTEM PRIVATE
-    ${benchmark_include_dirs})
-  target_link_libraries("${TARGET}" PRIVATE benchmark::benchmark)
-  target_link_libraries("${TARGET}" PRIVATE unodb)
+  target_link_libraries("${TARGET}" PRIVATE micro_benchmark_utils)
 endfunction()
 
 add_benchmark_target(micro_benchmark_key_prefix)

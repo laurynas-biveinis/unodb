@@ -8,10 +8,7 @@ target_link_libraries(micro_benchmark_utils PUBLIC unodb)
 target_link_libraries(micro_benchmark_utils PUBLIC benchmark::benchmark)
 target_include_directories(micro_benchmark_utils SYSTEM PUBLIC
   ${benchmark_include_dirs})
-if(DO_CLANG_TIDY)
-   set_target_properties(micro_benchmark_utils PROPERTIES CXX_CLANG_TIDY
-     "${DO_CLANG_TIDY}")
-endif()
+set_clang_tidy_options(micro_benchmark_utils "${DO_CLANG_TIDY}")
 
 function(ADD_BENCHMARK_TARGET TARGET)
   add_executable("${TARGET}" "${TARGET}.cpp")

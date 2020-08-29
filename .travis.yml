@@ -1,6 +1,6 @@
 language: generic
 
-dist: bionic
+dist: focal
 
 # Setup anchors to be used by the jobs as needed. The Travis CI linter gives
 # '[warn] on root: unknown key "os_setups"', could not find a way
@@ -11,11 +11,9 @@ os_setups:
     compiler: gcc
     addons:
       apt:
-        sources:
-          - sourceline: 'ppa:ubuntu-toolchain-r/test'
         packages:
+          - python3-pip
           - g++-10
-          - libasan5-dbg
           - valgrind
   clang10_setup: &clang10
     os: linux
@@ -24,9 +22,8 @@ os_setups:
       apt:
         sources:
           - sourceline: 'ppa:mhier/libboost-latest'
-          - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main'
-            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
         packages:
+          - python3-pip
           - boost1.73
           - clang-10
           - clang-tidy-10
@@ -65,59 +62,59 @@ env:
 
 matrix:
   include:
-    - name: "Bionic GCC 10 Release"
+    - name: "Focal GCC 10 Release"
       <<: *gcc10
       env:
         - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Release
-    - name: "Bionic GCC 10 Release with ASan/UBSan"
+    - name: "Focal GCC 10 Release with ASan/UBSan"
       <<: *gcc10
       env:
         - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Release SANITIZE=ON
-    - name: "Bionic GCC 10 Release with TSan/UBSan"
+    - name: "Focal GCC 10 Release with TSan/UBSan"
       <<: *gcc10
       env:
         - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Release SANITIZE_THREAD=ON
-    - name: "Bionic GCC 10 Debug"
+    - name: "Focal GCC 10 Debug"
       <<: *gcc10
       env:
         - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Debug
-    - name: "Bionic GCC 10 Debug with ASan/UBSan"
+    - name: "Focal GCC 10 Debug with ASan/UBSan"
       <<: *gcc10
       env:
         - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Debug SANITIZE=ON
-    - name: "Bionic GCC 10 Debug with TSan/UBSan"
+    - name: "Focal GCC 10 Debug with TSan/UBSan"
       <<: *gcc10
       env:
         - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - name: "Bionic clang 10 Release"
+    - name: "Focal clang 10 Release"
       <<: *clang10
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release
-    - name: "Bionic clang 10 Release with ASan/UBSan"
+    - name: "Focal clang 10 Release with ASan/UBSan"
       <<: *clang10
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release SANITIZE=ON
-    - name: "Bionic clang 10 Release with TSan/UBSan"
+    - name: "Focal clang 10 Release with TSan/UBSan"
       <<: *clang10
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release SANITIZE_THREAD=ON
-    - name: "Bionic clang 10 Debug"
+    - name: "Focal clang 10 Debug"
       <<: *clang10
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug
-    - name: "Bionic clang 10 Debug with ASan/UBSan"
+    - name: "Focal clang 10 Debug with ASan/UBSan"
       <<: *clang10
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug SANITIZE=ON
-    - name: "Bionic clang 10 Debug with TSan/UBSan"
+    - name: "Focal clang 10 Debug with TSan/UBSan"
       <<: *clang10
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - name: "Bionic clang 10 static analysis Release"
+    - name: "Focal clang 10 static analysis Release"
       <<: *clang10
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release SCAN_BUILD=scan-build-10
-    - name: "Bionic clang 10 static analysis Debug"
+    - name: "Focal clang 10 static analysis Debug"
       <<: *clang10
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug SCAN_BUILD=scan-build-10
@@ -158,8 +155,9 @@ before_install:
   - eval "${MATRIX_EVAL}"
 
 install:
-  - sudo easy_install pip
-  - pip install --user $USER cpplint
+  - pip3 install --user $USER cpplint
+
+#      sudo update-alternatives --install /usr/bin/ld ld /usr/bin/lld 50;
 
 script:
   - mkdir build
@@ -168,7 +166,6 @@ script:
   - sudo rm -rf /usr/local/clang-7.0.0
   - if [[ "$CC" == "clang-10" ]]; then
       sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 50;
-      sudo update-alternatives --install /usr/bin/ld ld /usr/bin/lld 50;
     fi
   - if [[ "$CC" == "gcc-10" && "$COVERAGE" == "ON" ]]; then
       set -e;
@@ -181,7 +178,7 @@ script:
       ${SCAN_BUILD} --status-bugs -stats -analyze-headers --force-analyze-debug-code make -j3;
       travis_terminate 0;
     else
-      make -j3;
+      make -j3 VERBOSE=1;
     fi
   - if [[ "$COVERAGE" == "OFF" ]]; then
       ctest -j3 -V;

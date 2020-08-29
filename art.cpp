@@ -918,21 +918,27 @@ class inode_16 final : public basic_inode_16 {
 inode_4::inode_4(std::unique_ptr<inode_16> &&source_node,
                  uint8_t child_to_remove) noexcept
     : basic_inode_4{*source_node} {
-  std::copy(source_node->keys.byte_array.cbegin(),
-            source_node->keys.byte_array.cbegin() + child_to_remove,
-            keys.byte_array.begin());
-  std::copy(source_node->keys.byte_array.cbegin() + child_to_remove + 1,
-            source_node->keys.byte_array.cbegin() + inode_16::min_size,
-            keys.byte_array.begin() + child_to_remove);
-  std::copy(source_node->children.begin(),
-            source_node->children.begin() + child_to_remove, children.begin());
+  const auto *source_keys_itr = source_node->keys.byte_array.cbegin();
+  auto *keys_itr = keys.byte_array.begin();
+  const auto *source_children_itr = source_node->children.cbegin();
+  auto *children_itr = children.begin();
 
-  delete_node_ptr_at_scope_exit delete_on_scope_exit{
-      source_node->children[child_to_remove]};
+  while (source_keys_itr !=
+         source_node->keys.byte_array.cbegin() + child_to_remove) {
+    *keys_itr++ = *source_keys_itr++;
+    *children_itr++ = *source_children_itr++;
+  }
 
-  std::copy(source_node->children.begin() + child_to_remove + 1,
-            source_node->children.begin() + inode_16::min_size,
-            children.begin() + child_to_remove);
+  delete_node_ptr_at_scope_exit delete_on_scope_exit{*source_children_itr};
+
+  ++source_keys_itr;
+  ++source_children_itr;
+
+  while (source_keys_itr !=
+         source_node->keys.byte_array.cbegin() + inode_16::min_size) {
+    *keys_itr++ = *source_keys_itr++;
+    *children_itr++ = *source_children_itr++;
+  }
 
   assert(std::is_sorted(keys.byte_array.cbegin(),
                         keys.byte_array.cbegin() + f.f.children_count));

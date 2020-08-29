@@ -27,6 +27,7 @@ class mutex_db final {
   }
 
   // Modifying
+  // Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
   [[nodiscard]] auto insert(key k, value_view v) {
     const std::lock_guard guard{mutex};
     return db_.insert(k, v);

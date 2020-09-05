@@ -141,9 +141,13 @@ class growing_tree_node_stats final {
     inode16_to_inode48_count = test_db.get_inode16_to_inode48_count();
     inode48_to_inode256_count = test_db.get_inode48_to_inode256_count();
     key_prefix_splits = test_db.get_key_prefix_splits();
+#ifndef NDEBUG
+    get_called = true;
+#endif
   }
 
   void publish(::benchmark::State &state) const noexcept {
+    assert(get_called);
     state.counters["L"] = static_cast<double>(leaf_count);
     state.counters["4"] = static_cast<double>(inode4_count);
     state.counters["16"] = static_cast<double>(inode16_count);
@@ -167,6 +171,10 @@ class growing_tree_node_stats final {
   std::uint64_t inode16_to_inode48_count{0};
   std::uint64_t inode48_to_inode256_count{0};
   std::uint64_t key_prefix_splits{0};
+
+#ifndef NDEBUG
+  bool get_called{false};
+#endif
 };
 
 inline void set_size_counter(::benchmark::State &state,

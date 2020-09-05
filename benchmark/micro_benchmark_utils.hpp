@@ -143,6 +143,7 @@ class growing_tree_node_stats final {
     key_prefix_splits = test_db.get_key_prefix_splits();
 #ifndef NDEBUG
     get_called = true;
+    db = &test_db;
 #endif
   }
 
@@ -160,6 +161,20 @@ class growing_tree_node_stats final {
     state.counters["KPfS"] = static_cast<double>(key_prefix_splits);
   }
 
+  void assert_no_new_node4_since_get() const noexcept {
+#ifndef NDEBUG
+    assert(get_called);
+    assert(created_inode4_count == db->get_created_inode4_count());
+#endif
+  }
+
+  void assert_no_new_node16_since_get() const noexcept {
+#ifndef NDEBUG
+    assert(get_called);
+    assert(inode4_to_inode16_count == db->get_inode4_to_inode16_count());
+#endif
+  }
+
  private:
   std::uint64_t leaf_count{0};
   std::uint64_t inode4_count{0};
@@ -174,6 +189,7 @@ class growing_tree_node_stats final {
 
 #ifndef NDEBUG
   bool get_called{false};
+  const Db *db{nullptr};
 #endif
 };
 

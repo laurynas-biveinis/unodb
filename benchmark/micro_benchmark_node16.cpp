@@ -35,7 +35,7 @@ void grow_node4_to_node16_sequentially(benchmark::State &state) {
   std::size_t tree_size = 0;
 
   const auto node4_node_count = static_cast<std::uint64_t>(state.range(0));
-  std::int64_t benchmark_keys_inserted{0};
+  std::uint64_t benchmark_keys_inserted{0};
 
   for (auto _ : state) {
     state.PauseTiming();
@@ -46,18 +46,19 @@ void grow_node4_to_node16_sequentially(benchmark::State &state) {
     benchmark::ClobberMemory();
     state.ResumeTiming();
 
-    benchmark_keys_inserted = static_cast<std::int64_t>(
-        unodb::benchmark::grow_dense_node4_to_minimal_node16(test_db,
-                                                             key_limit));
+    benchmark_keys_inserted =
+        unodb::benchmark::grow_dense_node4_to_minimal_leaf_node16(test_db,
+                                                                  key_limit);
 
     state.PauseTiming();
+    assert(benchmark_keys_inserted == test_db.get_inode4_to_inode16_count());
     growing_tree_stats.get(test_db);
     tree_size = test_db.get_current_memory_use();
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          benchmark_keys_inserted);
+                          static_cast<std::int64_t>(benchmark_keys_inserted));
   growing_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
@@ -79,7 +80,7 @@ void grow_node4_to_node16_sequentially(benchmark::State &state) {
 void grow_node4_to_node16_randomly(benchmark::State &state) {
   std::size_t tree_size = 0;
   const auto node4_node_count = static_cast<unsigned>(state.range(0));
-  std::int64_t benchmark_keys_inserted{0};
+  std::uint64_t benchmark_keys_inserted{0};
 
   for (auto _ : state) {
     state.PauseTiming();
@@ -95,14 +96,14 @@ void grow_node4_to_node16_randomly(benchmark::State &state) {
     unodb::benchmark::insert_keys(test_db, node16_keys);
 
     state.PauseTiming();
-    benchmark_keys_inserted = static_cast<std::int64_t>(node16_keys.size());
-    unodb::benchmark::assert_mostly_node16_tree(test_db);
+    benchmark_keys_inserted = node16_keys.size();
+    assert(test_db.get_inode4_to_inode16_count() == benchmark_keys_inserted);
     tree_size = test_db.get_current_memory_use();
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          benchmark_keys_inserted);
+                          static_cast<std::int64_t>(benchmark_keys_inserted));
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
@@ -145,8 +146,11 @@ void node16_sequential_add(benchmark::State &state) {
       unodb::benchmark::insert_key(
           test_db, key_limit, unodb::value_view{unodb::benchmark::value100});
     }
+#ifndef NDEBUG
     unodb::benchmark::assert_mostly_node16_tree(test_db);
-    growing_tree_stats.get(test_db);  // For asserts
+    const auto node4_count = test_db.get_inode4_count();
+    const auto node16_count = test_db.get_inode16_count();
+#endif
     state.ResumeTiming();
 
     std::uint64_t i = 0;
@@ -162,9 +166,11 @@ void node16_sequential_add(benchmark::State &state) {
     }
 
     state.PauseTiming();
+#ifndef NDEBUG
     unodb::benchmark::assert_mostly_node16_tree(test_db);
-    growing_tree_stats.assert_no_new_node4_since_get();
-    growing_tree_stats.assert_no_new_node16_since_get();
+    assert(node4_count == test_db.get_inode4_count());
+    assert(node16_count == test_db.get_inode16_count());
+#endif
     growing_tree_stats.get(test_db);
     tree_size = test_db.get_current_memory_use();
     unodb::benchmark::destroy_tree(test_db, state);

@@ -242,22 +242,27 @@ void shrink_node16_to_node4_sequentially(benchmark::State &state) {
     unodb::key key_limit = unodb::benchmark::insert_sequentially(
         test_db, node4_insert_count,
         unodb::benchmark::dense_node4_key_zero_bits);
+
     const auto n4_to_n16_keys_inserted =
-        unodb::benchmark::grow_dense_node4_to_minimal_node16(test_db,
-                                                             key_limit);
+        unodb::benchmark::grow_dense_node4_to_minimal_leaf_node16(test_db,
+                                                                  key_limit);
+
     tree_size = test_db.get_current_memory_use();
     state.ResumeTiming();
 
     for (removed_key_count = 0; removed_key_count < n4_to_n16_keys_inserted;
          ++removed_key_count) {
       const auto remove_key =
-          unodb::benchmark::number_to_minimal_node16_over_node4_key(
+          unodb::benchmark::number_to_minimal_leaf_node16_over_node4_key(
               removed_key_count);
       unodb::benchmark::delete_key(test_db, remove_key);
     }
 
     state.PauseTiming();
+#ifndef NDEBUG
+    assert(removed_key_count == test_db.get_inode16_to_inode4_count());
     unodb::benchmark::assert_node4_only_tree(test_db);
+#endif
     shrinking_tree_stats.get(test_db);
     unodb::benchmark::destroy_tree(test_db, state);
   }
@@ -280,18 +285,25 @@ void shrink_node16_to_node4_randomly(benchmark::State &state) {
     unodb::db test_db;
     const auto key_limit = unodb::benchmark::make_node4_tree_with_gaps(
         test_db, node4_insert_count);
+
+#ifndef NDEBUG
+    const auto node4_created_count = test_db.get_created_inode4_count();
+#endif
     const auto node16_keys =
         unodb::benchmark::generate_random_minimal_node16_over_dense_node4_keys(
             key_limit);
     unodb::benchmark::insert_keys(test_db, node16_keys);
-    unodb::benchmark::assert_mostly_node16_tree(test_db);
+    assert(node4_created_count == test_db.get_created_inode4_count());
     tree_size = test_db.get_current_memory_use();
     state.ResumeTiming();
 
     unodb::benchmark::delete_keys(test_db, node16_keys);
 
     state.PauseTiming();
+#ifndef NDEBUG
     unodb::benchmark::assert_node4_only_tree(test_db);
+    assert(test_db.get_inode16_to_inode4_count() == node16_keys.size());
+#endif
     removed_key_count = node16_keys.size();
     shrinking_tree_stats.get(test_db);
     unodb::benchmark::destroy_tree(test_db, state);
@@ -330,7 +342,7 @@ BENCHMARK(shrink_node16_to_node4_sequentially)
     ->Range(100, 65535)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(shrink_node16_to_node4_randomly)
-    ->Range(100, 65535)
+    ->Range(100, 65532)
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();

@@ -280,8 +280,8 @@ auto grow_dense_node4_to_minimal_node16(Db &db, unodb::key key_limit) {
   std::uint64_t i = 0;
   while (true) {
     unodb::key key = number_to_minimal_node16_over_node4_key(i);
-    insert_key(db, key, unodb::value_view{value100});
     if (key > key_limit) break;
+    insert_key(db, key, unodb::value_view{value100});
     ++i;
   }
 

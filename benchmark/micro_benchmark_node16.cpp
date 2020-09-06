@@ -35,6 +35,7 @@ void grow_node4_to_node16_sequentially(benchmark::State &state) {
   std::size_t tree_size = 0;
 
   const auto node4_node_count = static_cast<std::uint64_t>(state.range(0));
+  std::int64_t benchmark_keys_inserted{0};
 
   for (auto _ : state) {
     state.PauseTiming();
@@ -45,7 +46,9 @@ void grow_node4_to_node16_sequentially(benchmark::State &state) {
     benchmark::ClobberMemory();
     state.ResumeTiming();
 
-    unodb::benchmark::grow_dense_node4_to_minimal_node16(test_db, key_limit);
+    benchmark_keys_inserted = static_cast<std::int64_t>(
+        unodb::benchmark::grow_dense_node4_to_minimal_node16(test_db,
+                                                             key_limit));
 
     state.PauseTiming();
     growing_tree_stats.get(test_db);
@@ -54,7 +57,7 @@ void grow_node4_to_node16_sequentially(benchmark::State &state) {
   }
 
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
+                          benchmark_keys_inserted);
   growing_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
@@ -76,6 +79,7 @@ void grow_node4_to_node16_sequentially(benchmark::State &state) {
 void grow_node4_to_node16_randomly(benchmark::State &state) {
   std::size_t tree_size = 0;
   const auto node4_node_count = static_cast<unsigned>(state.range(0));
+  std::int64_t benchmark_keys_inserted{0};
 
   for (auto _ : state) {
     state.PauseTiming();
@@ -91,13 +95,14 @@ void grow_node4_to_node16_randomly(benchmark::State &state) {
     unodb::benchmark::insert_keys(test_db, node16_keys);
 
     state.PauseTiming();
+    benchmark_keys_inserted = static_cast<std::int64_t>(node16_keys.size());
     unodb::benchmark::assert_mostly_node16_tree(test_db);
     tree_size = test_db.get_current_memory_use();
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
+                          benchmark_keys_inserted);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 

@@ -51,16 +51,16 @@ constexpr inline auto next_key(unodb::key k,
   return result;
 }
 
-// Minimal Node16 tree keys over dense Node4 keys: "base-5" values that vary
-// each byte from 0 to 5 with the last byte being a constant 0x04.
-inline constexpr auto number_to_minimal_node16_over_node4_key(
+// Minimal leaf-level Node16 tree keys over dense Node4 keys: "base-5" values
+// that vary each byte from 0 to 3 with the last byte being a constant 4.
+inline constexpr auto number_to_minimal_leaf_node16_over_node4_key(
     std::uint64_t i) noexcept {
-  assert(i / (5 * 5 * 5 * 5 * 5 * 5) < 5);
-  return 4ULL | ((i % 5) << 8) | ((i / 5 % 5) << 16) |
-         ((i / (5 * 5) % 5) << 24) | ((i / (5 * 5 * 5) % 5) << 32) |
-         ((i / (5 * 5 * 5 * 5) % 5) << 40) |
-         ((i / (5 * 5 * 5 * 5 * 5) % 5) << 48) |
-         ((i / (5 * 5 * 5 * 5 * 5 * 5) % 5) << 56);
+  assert(i / (4 * 4 * 4 * 4 * 4 * 4) < 4);
+  return 4ULL | ((i % 4) << 8) | ((i / 4 % 4) << 16) |
+         ((i / (4 * 4) % 4) << 24) | ((i / (4 * 4 * 4) % 4) << 32) |
+         ((i / (4 * 4 * 4 * 4) % 4) << 40) |
+         ((i / (4 * 4 * 4 * 4 * 4) % 4) << 48) |
+         ((i / (4 * 4 * 4 * 4 * 4 * 4) % 4) << 56);
 }
 
 // Dense Node4 tree keys with 1, 3, 5, & 7 as the different key byte values so
@@ -161,20 +161,6 @@ class growing_tree_node_stats final {
     state.counters["KPfS"] = static_cast<double>(key_prefix_splits);
   }
 
-  void assert_no_new_node4_since_get() const noexcept {
-#ifndef NDEBUG
-    assert(get_called);
-    assert(created_inode4_count == db->get_created_inode4_count());
-#endif
-  }
-
-  void assert_no_new_node16_since_get() const noexcept {
-#ifndef NDEBUG
-    assert(get_called);
-    assert(inode4_to_inode16_count == db->get_inode4_to_inode16_count());
-#endif
-  }
-
  private:
   std::uint64_t leaf_count{0};
   std::uint64_t inode4_count{0};
@@ -212,13 +198,13 @@ void assert_node4_only_tree(const Db &test_db USED_IN_DEBUG) noexcept {
     test_db.dump(std::cerr);
     assert(test_db.get_inode16_count() == 0);
   }
-  assert(test_db.get_inode16_count() == 0);
   assert(test_db.get_inode48_count() == 0);
   assert(test_db.get_inode256_count() == 0);
 #endif
 }
 
-// In a mostly-Node16 tree a few Node4 are allowed on the rightmost tree edge
+// In a mostly-Node16 tree a few Node4 are allowed on the rightmost tree edge,
+// including the root
 template <class Db>
 void assert_mostly_node16_tree(const Db &test_db USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
@@ -274,18 +260,24 @@ void insert_keys(Db &db, const std::vector<unodb::key> &keys) {
 }
 
 template <class Db>
-auto grow_dense_node4_to_minimal_node16(Db &db, unodb::key key_limit) {
+auto grow_dense_node4_to_minimal_leaf_node16(Db &db, unodb::key key_limit) {
+#ifndef NDEBUG
   assert_node4_only_tree(db);
+  const auto created_node4_count = db.get_created_inode4_count();
+#endif
 
   std::uint64_t i = 0;
   while (true) {
-    unodb::key key = number_to_minimal_node16_over_node4_key(i);
+    unodb::key key = number_to_minimal_leaf_node16_over_node4_key(i);
     if (key > key_limit) break;
     insert_key(db, key, unodb::value_view{value100});
     ++i;
   }
 
-  assert_mostly_node16_tree(db);
+#ifndef NDEBUG
+  assert(created_node4_count == db.get_created_inode4_count());
+  assert(i == db.get_inode4_to_inode16_count());
+#endif
   return i;
 }
 

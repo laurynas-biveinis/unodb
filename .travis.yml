@@ -118,35 +118,35 @@ matrix:
       <<: *clang10
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug SCAN_BUILD=scan-build-10
-    - name: "macOS XCode 11.3 Release"
+    - name: "XCode 11.3 Release"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release
-    - name: "macOS XCode 11.3 Release with ASan/UBSan"
+    - name: "XCode 11.3 Release with ASan/UBSan"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release SANITIZE=ON
-    - name: "macOS XCode 11.3 Release with TSan/UBSan"
+    - name: "XCode 11.3 Release with TSan/UBSan"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release SANITIZE_THREAD=ON
-    - name: "macOS XCode 11.3 Debug"
+    - name: "XCode 11.3 Debug"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug
-    - name: "macOS XCode 11.3 Debug with ASan/UBSan"
+    - name: "XCode 11.3 Debug with ASan/UBSan"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug SANITIZE=ON
-    - name: "macOS XCode 11.3 Debug with TSan/UBSan"
+    - name: "XCode 11.3 Debug with TSan/UBSan"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - name: "macOS Debug coverage"
+    - name: "Debug coverage"
       <<: *coverage
       env:
         - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Debug COVERAGE=ON
-    - name: "macOS Release coverage"
+    - name: "Release coverage"
       <<: *coverage
       env:
         - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Release COVERAGE=ON

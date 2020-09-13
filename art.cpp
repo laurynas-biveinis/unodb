@@ -850,6 +850,7 @@ class inode_16 final : public basic_inode_16 {
  private:
   __attribute__((pure)) auto get_sorted_key_array_insert_position(
       std::byte key_byte) noexcept {
+    assert(f.f.children_count < capacity);
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + f.f.children_count));
     assert(std::adjacent_find(keys.byte_array.cbegin(),

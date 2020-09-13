@@ -323,6 +323,7 @@ else()
       "-misc-non-private-member-variables-in-classes,"
       "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang
       "-modernize-use-trailing-return-type,"
+      "-portability-simd-intrinsics,"
       "-readability-braces-around-statements,"
       "-readability-named-parameter,"
       "-readability-magic-numbers")

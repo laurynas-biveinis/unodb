@@ -497,7 +497,14 @@ void delete_subtree(unodb::detail::node_ptr node) noexcept {
     delete_on_scope_exit.internal->delete_subtree();
 }
 
-#if !defined(__x86_64)
+#if defined(__x86_64)
+
+// Idea from https://stackoverflow.com/a/32945715/80458
+inline auto _mm_cmple_epu8(__m128i x, __m128i y) noexcept {
+  return _mm_cmpeq_epi8(_mm_max_epu8(y, x), y);
+}
+
+#else
 // From public domain
 // https://graphics.stanford.edu/~seander/bithacks.html
 inline constexpr __attribute__((const)) std::uint32_t has_zero_byte(
@@ -849,11 +856,23 @@ class inode_16 final : public basic_inode_16 {
                               keys.byte_array.cbegin() + f.f.children_count) >=
            keys.byte_array.cbegin() + f.f.children_count);
 
+#if defined(__x86_64)
+    const auto replicated_insert_key =
+        _mm_set1_epi8(static_cast<char>(key_byte));
+    const auto lesser_key_positions =
+        _mm_cmple_epu8(replicated_insert_key, keys.sse);
+    const auto mask = (1U << f.f.children_count) - 1;
+    const auto bit_field =
+        static_cast<unsigned>(_mm_movemask_epi8(lesser_key_positions)) & mask;
+    const auto result = static_cast<std::uint8_t>(
+        (bit_field != 0) ? __builtin_ctz(bit_field) : f.f.children_count);
+#else
     const auto result = static_cast<std::uint8_t>(
         std::lower_bound(keys.byte_array.cbegin(),
                          keys.byte_array.cbegin() + f.f.children_count,
                          key_byte) -
         keys.byte_array.cbegin());
+#endif
 
     assert(result == f.f.children_count || keys.byte_array[result] != key_byte);
     return result;

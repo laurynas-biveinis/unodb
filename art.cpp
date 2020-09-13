@@ -855,17 +855,19 @@ class inode_16 final : public basic_inode_16 {
     assert(std::adjacent_find(keys.byte_array.cbegin(),
                               keys.byte_array.cbegin() + f.f.children_count) >=
            keys.byte_array.cbegin() + f.f.children_count);
+    assert(f.f.children_count < capacity);
 
 #if defined(__x86_64)
+    keys.byte_array[f.f.children_count] = key_byte;
     const auto replicated_insert_key =
         _mm_set1_epi8(static_cast<char>(key_byte));
     const auto lesser_key_positions =
         _mm_cmple_epu8(replicated_insert_key, keys.sse);
-    const auto mask = (1U << f.f.children_count) - 1;
+    const auto mask = (1U << (f.f.children_count + 1)) - 1;
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(lesser_key_positions)) & mask;
-    const auto result = static_cast<std::uint8_t>(
-        (bit_field != 0) ? __builtin_ctz(bit_field) : f.f.children_count);
+    assert(bit_field != 0);
+    const auto result = static_cast<std::uint8_t>(__builtin_ctz(bit_field));
 #else
     const auto result = static_cast<std::uint8_t>(
         std::lower_bound(keys.byte_array.cbegin(),

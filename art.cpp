@@ -888,12 +888,10 @@ class inode_16 final : public basic_inode_16 {
         get_sorted_key_array_insert_position(key_byte);
     if (insert_pos_index != f.f.children_count) {
       assert(keys.byte_array[insert_pos_index] != key_byte);
-      std::copy_backward(keys.byte_array.cbegin() + insert_pos_index,
-                         keys.byte_array.cbegin() + f.f.children_count,
-                         keys.byte_array.begin() + f.f.children_count + 1);
-      std::copy_backward(children.begin() + insert_pos_index,
-                         children.begin() + f.f.children_count,
-                         children.begin() + f.f.children_count + 1);
+      for (unsigned i = f.f.children_count; i > insert_pos_index; --i) {
+        keys.byte_array[i] = keys.byte_array[i - 1];
+        children[i] = children[i - 1];
+      }
     }
     keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = child.release();

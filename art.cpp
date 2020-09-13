@@ -849,11 +849,13 @@ class inode_16 final : public basic_inode_16 {
                               keys.byte_array.cbegin() + f.f.children_count) >=
            keys.byte_array.cbegin() + f.f.children_count);
 
-    const auto result = static_cast<std::uint8_t>(
-        std::lower_bound(keys.byte_array.cbegin(),
-                         keys.byte_array.cbegin() + f.f.children_count,
-                         key_byte) -
-        keys.byte_array.cbegin());
+    auto it = keys.byte_array.cbegin();
+    while (it != keys.byte_array.cbegin() + f.f.children_count) {
+      if (*it > key_byte) break;
+      ++it;
+    }
+    const auto result =
+        static_cast<std::uint8_t>(it - keys.byte_array.cbegin());
 
     assert(result == f.f.children_count || keys.byte_array[result] != key_byte);
     return result;

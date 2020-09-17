@@ -18,24 +18,6 @@ namespace {
 
 constexpr auto sparse_node4_key_zero_bits = 0xFEFEFEFE'FEFEFEFEULL;
 
-// In case it's needed later:
-// constexpr auto sparse_single_node4_mask = 0x1;
-constexpr auto dense_single_node4_mask = 0x3;
-
-inline auto number_to_node4_key(std::uint64_t i,
-                                std::uint64_t one_node_mask) noexcept {
-  const auto result = (i & one_node_mask) |
-                      ((i & (one_node_mask << 2)) << (8 - 2)) |
-                      ((i & (one_node_mask << 4)) << (16 - 4)) |
-                      ((i & (one_node_mask << 6)) << (24 - 6)) |
-                      ((i & (one_node_mask << 8)) << (32 - 8)) |
-                      ((i & (one_node_mask << 10)) << (40 - 10)) |
-                      ((i & (one_node_mask << 12)) << (48 - 12)) |
-                      ((i & (one_node_mask << 14)) << (56 - 14));
-  assert((result & unodb::benchmark::dense_node4_key_zero_bits) == 0);
-  return result;
-}
-
 std::vector<unodb::key> generate_random_key_sequence(
     std::size_t count, std::uint64_t key_zero_bits) {
   std::vector<unodb::key> result;
@@ -65,6 +47,7 @@ void node4_sequential_insert(benchmark::State &state,
         test_db, static_cast<std::uint64_t>(state.range(0)), key_zero_bits);
 
     state.PauseTiming();
+    unodb::benchmark::assert_node4_only_tree(test_db);
     growing_tree_stats.get(test_db);
     tree_size = test_db.get_current_memory_use();
     unodb::benchmark::destroy_tree(test_db, state);
@@ -118,41 +101,13 @@ void sparse_node4_random_insert(benchmark::State &state) {
 }
 
 void node4_full_scan(benchmark::State &state) {
-  unodb::db test_db;
-  const auto number_of_keys = static_cast<std::uint64_t>(state.range(0));
-
-  unodb::benchmark::insert_sequentially(
-      test_db, number_of_keys, unodb::benchmark::dense_node4_key_zero_bits);
-
-  for (auto _ : state) {
-    unodb::key k = 0;
-    for (std::uint64_t j = 0; j < number_of_keys; ++j) {
-      unodb::benchmark::get_existing_key(test_db, k);
-      k = unodb::benchmark::next_key(
-          k, unodb::benchmark::dense_node4_key_zero_bits);
-    }
-  }
-
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
+  unodb::benchmark::full_node_scan_benchmark<unodb::db>(
+      state, unodb::benchmark::dense_node4_key_zero_bits);
 }
 
 void node4_random_gets(benchmark::State &state) {
-  const auto number_of_keys = static_cast<std::uint64_t>(state.range(0));
-  unodb::benchmark::batched_prng random_key_positions{number_of_keys - 1};
-  unodb::db test_db;
-  unodb::benchmark::insert_sequentially(
-      test_db, number_of_keys, unodb::benchmark::dense_node4_key_zero_bits);
-
-  for (auto _ : state) {
-    for (std::uint64_t i = 0; i < number_of_keys; ++i) {
-      const auto key_index = random_key_positions.get(state);
-      const auto key = number_to_node4_key(key_index, dense_single_node4_mask);
-      unodb::benchmark::get_existing_key(test_db, key);
-    }
-  }
-
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()));
+  unodb::benchmark::full_node_random_get_benchmark<unodb::db, 4>(
+      state, unodb::benchmark::dense_node4_key_zero_bits);
 }
 
 void full_node4_sequential_delete(benchmark::State &state) {
@@ -163,6 +118,7 @@ void full_node4_sequential_delete(benchmark::State &state) {
     unodb::db test_db;
     unodb::benchmark::insert_sequentially(
         test_db, number_of_keys, unodb::benchmark::dense_node4_key_zero_bits);
+    unodb::benchmark::assert_node4_only_tree(test_db);
     state.ResumeTiming();
 
     unodb::key k = 0;
@@ -193,6 +149,7 @@ void full_node4_random_deletes(benchmark::State &state) {
     unodb::db test_db;
     unodb::benchmark::insert_sequentially(
         test_db, number_of_keys, unodb::benchmark::dense_node4_key_zero_bits);
+    unodb::benchmark::assert_node4_only_tree(test_db);
     state.ResumeTiming();
 
     unodb::benchmark::delete_keys(test_db, keys);
@@ -242,6 +199,7 @@ void shrink_node16_to_node4_sequentially(benchmark::State &state) {
     unodb::key key_limit = unodb::benchmark::insert_sequentially(
         test_db, node4_insert_count,
         unodb::benchmark::dense_node4_key_zero_bits);
+    unodb::benchmark::assert_node4_only_tree(test_db);
 
     const auto n4_to_n16_keys_inserted =
         unodb::benchmark::grow_dense_node4_to_minimal_leaf_node16(test_db,

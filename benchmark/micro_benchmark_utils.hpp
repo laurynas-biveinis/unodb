@@ -398,7 +398,8 @@ void full_node_random_get_benchmark(::benchmark::State &state,
     }
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()));
+  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+                          state.range(0));
   growing_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }

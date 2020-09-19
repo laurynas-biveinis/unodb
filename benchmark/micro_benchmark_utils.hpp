@@ -51,6 +51,16 @@ constexpr inline auto next_key(unodb::key k,
   return result;
 }
 
+template <unsigned B>
+constexpr inline auto to_base_n_value(std::uint64_t i) noexcept {
+  assert(i / (B * B * B * B * B * B * B) < B);
+  return (i % B) | (i / B % B) << 8 | ((i / (B * B) % B) << 16) |
+         ((i / (B * B * B) % B) << 24) | ((i / (B * B * B * B) % B) << 32) |
+         ((i / (B * B * B * B * B) % B) << 40) |
+         ((i / (B * B * B * B * B * B) % B) << 48) |
+         ((i / (B * B * B * B * B * B * B) % B) << 56);
+}
+
 // Minimal leaf-level Node16 tree keys over dense Node4 keys: "base-5" values
 // that vary each byte from 0 to 3 with the last byte being a constant 4.
 inline constexpr auto number_to_minimal_leaf_node16_over_node4_key(
@@ -190,6 +200,14 @@ inline void set_size_counter(::benchmark::State &state,
 
 // Asserts
 
+#ifndef NDEBUG
+
+inline void print_key(std::ostream &out, unodb::key k) {
+  out << "0x" << std::hex << k << std::dec;
+}
+
+#endif
+
 template <class Db>
 void assert_node4_only_tree(const Db &test_db USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
@@ -225,8 +243,9 @@ void insert_key(Db &db, unodb::key k, unodb::value_view v) {
   const auto result USED_IN_DEBUG = db.insert(k, v);
 #ifndef NDEBUG
   if (!result) {
-    std::cerr << "Failed to insert key 0x" << std::hex << k << std::dec << '\n';
-    std::cerr << "Current tree:";
+    std::cerr << "Failed to insert key ";
+    print_key(std::cerr, k);
+    std::cerr << "\nCurrent tree:";
     db.dump(std::cerr);
     assert(result);
   }
@@ -248,7 +267,6 @@ unodb::key insert_sequentially(Db &db, std::uint64_t number_of_keys,
     insert_key(db, k, unodb::value_view{value100});
     k = next_key(k, key_zero_bits);
   }
-  assert_node4_only_tree(db);
   return k;
 }
 
@@ -298,7 +316,15 @@ auto make_node4_tree_with_gaps(Db &db, unsigned number_of_keys) {
 template <class Db>
 void get_existing_key(const Db &db, unodb::key k) {
   const auto result = db.get(k);
-  assert(result);
+#ifndef NDEBUG
+  if (!result) {
+    std::cerr << "Failed to get existing key ";
+    print_key(std::cerr, k);
+    std::cerr << "\nTree:";
+    db.dump(std::cerr);
+    assert(result);
+  }
+#endif
   ::benchmark::DoNotOptimize(result);
 }
 
@@ -325,6 +351,56 @@ void delete_key_if_exists(Db &db, unodb::key k) {
 template <class Db>
 void delete_keys(Db &db, const std::vector<unodb::key> &keys) {
   for (const auto k : keys) delete_key(db, k);
+}
+
+// Benchmarks
+
+template <class Db>
+void full_node_scan_benchmark(::benchmark::State &state,
+                              std::uint64_t key_zero_bits) {
+  Db test_db;
+  const auto number_of_keys = static_cast<std::uint64_t>(state.range(0));
+
+  unodb::benchmark::insert_sequentially(test_db, number_of_keys, key_zero_bits);
+  const auto tree_size = test_db.get_current_memory_use();
+
+  for (auto _ : state) {
+    unodb::key k = 0;
+    for (std::uint64_t j = 0; j < number_of_keys; ++j) {
+      unodb::benchmark::get_existing_key(test_db, k);
+      k = unodb::benchmark::next_key(k, key_zero_bits);
+    }
+  }
+
+  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+                          state.range(0));
+  unodb::benchmark::set_size_counter(state, "size", tree_size);
+}
+
+// TODO(laurynas): can derive zero bits from base?
+template <class Db, unsigned Dense_Key_Base>
+void full_node_random_get_benchmark(::benchmark::State &state,
+                                    std::uint64_t key_zero_bits) {
+  Db test_db;
+  unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
+  const auto number_of_keys = static_cast<std::uint64_t>(state.range(0));
+  unodb::benchmark::batched_prng random_key_positions{number_of_keys - 1};
+  unodb::benchmark::insert_sequentially(test_db, number_of_keys, key_zero_bits);
+  const auto tree_size = test_db.get_current_memory_use();
+  growing_tree_stats.get(test_db);
+  // TODO(laurynas): assert desired tree shape here?
+
+  for (auto _ : state) {
+    for (std::uint64_t i = 0; i < number_of_keys; ++i) {
+      const auto key_index = random_key_positions.get(state);
+      const auto key = to_base_n_value<Dense_Key_Base>(key_index);
+      unodb::benchmark::get_existing_key(test_db, key);
+    }
+  }
+
+  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()));
+  growing_tree_stats.publish(state);
+  unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
 // Teardown

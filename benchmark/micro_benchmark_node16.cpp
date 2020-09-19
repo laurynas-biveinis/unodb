@@ -43,6 +43,7 @@ void grow_node4_to_node16_sequentially(benchmark::State &state) {
     unodb::key key_limit = unodb::benchmark::insert_sequentially(
         test_db, node4_node_count * 4,
         unodb::benchmark::dense_node4_key_zero_bits);
+    unodb::benchmark::assert_node4_only_tree(test_db);
     benchmark::ClobberMemory();
     state.ResumeTiming();
 
@@ -110,12 +111,7 @@ void grow_node4_to_node16_randomly(benchmark::State &state) {
 // Minimal Node16 tree sequential keys: "base-5" values that vary each byte from
 // 0 to 5.
 inline constexpr auto number_to_minimal_node16_key(std::uint64_t i) noexcept {
-  assert(i / (5 * 5 * 5 * 5 * 5 * 5 * 5) < 5);
-  return (i % 5) | (i / 5 % 5) << 8 | ((i / (5 * 5) % 5) << 16) |
-         ((i / (5 * 5 * 5) % 5) << 24) | ((i / (5 * 5 * 5 * 5) % 5) << 32) |
-         ((i / (5 * 5 * 5 * 5 * 5) % 5) << 40) |
-         ((i / (5 * 5 * 5 * 5 * 5 * 5) % 5) << 48) |
-         ((i / (5 * 5 * 5 * 5 * 5 * 5 * 5) % 5) << 56);
+  return unodb::benchmark::to_base_n_value<5>(i);
 }
 
 // Dense leaf layer Node16 tree over minimal Node16 sequential keys: "base-5"
@@ -235,6 +231,62 @@ void node16_random_add(benchmark::State &state) {
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
+void minimal_node16_tree_full_scan(benchmark::State &state) {
+  const auto node16_node_count = static_cast<unsigned>(state.range(0));
+  unodb::db test_db;
+  const auto key_limit = make_minimal_node16_tree(test_db, node16_node_count);
+  const auto tree_size = test_db.get_current_memory_use();
+  std::int64_t items_processed = 0;
+
+  for (auto _ : state) {
+    std::uint64_t i = 0;
+    while (true) {
+      unodb::key k = number_to_minimal_node16_key(i);
+      if (k > key_limit) break;
+      unodb::benchmark::get_existing_key(test_db, k);
+      ++i;
+    }
+    items_processed += static_cast<std::int64_t>(i);
+  }
+
+  state.SetItemsProcessed(items_processed);
+  unodb::benchmark::set_size_counter(state, "size", tree_size);
+}
+
+void minimal_node16_tree_random_gets(benchmark::State &state) {
+  const auto node16_node_count = static_cast<unsigned>(state.range(0));
+  unodb::db test_db;
+  const auto key_limit USED_IN_DEBUG =
+      make_minimal_node16_tree(test_db, node16_node_count);
+  assert(number_to_minimal_node16_key(node16_node_count * 5 - 1) == key_limit);
+  const auto tree_size = test_db.get_current_memory_use();
+  unodb::benchmark::batched_prng random_key_positions{node16_node_count * 5 -
+                                                      1};
+  std::int64_t items_processed = 0;
+
+  for (auto _ : state) {
+    const auto key_index = random_key_positions.get(state);
+    const auto key = number_to_minimal_node16_key(key_index);
+    unodb::benchmark::get_existing_key(test_db, key);
+    ++items_processed;
+  }
+
+  state.SetItemsProcessed(items_processed);
+  unodb::benchmark::set_size_counter(state, "size", tree_size);
+}
+
+constexpr inline auto full_node16_key_zero_bits = 0xF0F0F0F0'F0F0F0F0U;
+
+void full_node16_tree_full_scan(benchmark::State &state) {
+  unodb::benchmark::full_node_scan_benchmark<unodb::db>(
+      state, full_node16_key_zero_bits);
+}
+
+void full_node16_tree_random_gets(benchmark::State &state) {
+  unodb::benchmark::full_node_random_get_benchmark<unodb::db, 16>(
+      state, full_node16_key_zero_bits);
+}
+
 }  // namespace
 
 BENCHMARK(grow_node4_to_node16_sequentially)
@@ -247,5 +299,16 @@ BENCHMARK(node16_sequential_add)
     ->Range(10, 16383)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(node16_random_add)->Range(10, 16383)->Unit(benchmark::kMicrosecond);
-
+BENCHMARK(minimal_node16_tree_full_scan)
+    ->Range(10, 16383)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK(minimal_node16_tree_random_gets)
+    ->Range(10, 16383)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK(full_node16_tree_full_scan)
+    ->Range(64, 82000)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK(full_node16_tree_random_gets)
+    ->Range(64, 82000)
+    ->Unit(benchmark::kMicrosecond);
 BENCHMARK_MAIN();

@@ -18,8 +18,8 @@ namespace {
 
 constexpr auto sparse_node4_key_zero_bits = 0xFEFEFEFE'FEFEFEFEULL;
 
-std::vector<unodb::key> generate_random_key_sequence(
-    std::size_t count, std::uint64_t key_zero_bits) {
+std::vector<unodb::key> make_key_sequence(std::size_t count,
+                                          std::uint64_t key_zero_bits) {
   std::vector<unodb::key> result;
   result.reserve(count);
 
@@ -71,8 +71,8 @@ void node4_random_insert(benchmark::State &state, std::uint64_t key_zero_bits) {
   std::random_device rd;
   std::mt19937 gen{rd()};
 
-  auto keys = generate_random_key_sequence(
-      static_cast<std::size_t>(state.range(0)), key_zero_bits);
+  auto keys = make_key_sequence(static_cast<std::size_t>(state.range(0)),
+                                key_zero_bits);
 
   for (auto _ : state) {
     state.PauseTiming();
@@ -140,8 +140,8 @@ void full_node4_random_deletes(benchmark::State &state) {
   std::mt19937 gen{rd()};
 
   const auto number_of_keys = static_cast<std::uint64_t>(state.range(0));
-  auto keys = generate_random_key_sequence(
-      number_of_keys, unodb::benchmark::dense_node4_key_zero_bits);
+  auto keys = make_key_sequence(number_of_keys,
+                                unodb::benchmark::dense_node4_key_zero_bits);
 
   for (auto _ : state) {
     state.PauseTiming();

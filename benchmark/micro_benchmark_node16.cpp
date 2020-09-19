@@ -275,7 +275,7 @@ void minimal_node16_tree_random_gets(benchmark::State &state) {
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
-constexpr inline auto full_node16_key_zero_bits = 0xF0F0F0F0'F0F0F0F0U;
+inline constexpr auto full_node16_key_zero_bits = 0xF0F0F0F0'F0F0F0F0U;
 
 void full_node16_tree_full_scan(benchmark::State &state) {
   unodb::benchmark::full_node_scan_benchmark<unodb::db>(

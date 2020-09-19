@@ -37,9 +37,9 @@ inline constexpr std::array<unodb::value_view, 5> values = {
 
 // Key manipulation
 
-constexpr inline auto dense_node4_key_zero_bits = 0xFCFCFCFC'FCFCFCFCULL;
+inline constexpr auto dense_node4_key_zero_bits = 0xFCFCFCFC'FCFCFCFCULL;
 
-constexpr inline auto next_key(unodb::key k,
+inline constexpr auto next_key(unodb::key k,
                                std::uint64_t key_zero_bits) noexcept {
   assert((k & key_zero_bits) == 0);
 
@@ -52,7 +52,7 @@ constexpr inline auto next_key(unodb::key k,
 }
 
 template <unsigned B>
-constexpr inline auto to_base_n_value(std::uint64_t i) noexcept {
+inline constexpr auto to_base_n_value(std::uint64_t i) noexcept {
   assert(i / (B * B * B * B * B * B * B) < B);
   return (i % B) | (i / B % B) << 8 | ((i / (B * B) % B) << 16) |
          ((i / (B * B * B) % B) << 24) | ((i / (B * B * B * B) % B) << 32) |

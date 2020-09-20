@@ -100,6 +100,12 @@ std::vector<unodb::key> generate_random_minimal_node16_over_dense_node4_keys(
 
 // PRNG
 
+inline auto &get_prng() {
+  static std::random_device rd;
+  static std::mt19937 gen{rd()};
+  return gen;
+}
+
 class batched_prng final {
   using result_type = std::uint64_t;
 
@@ -121,7 +127,7 @@ class batched_prng final {
  private:
   void refill() {
     for (decltype(random_keys)::size_type i = 0; i < random_keys.size(); ++i)
-      random_keys[i] = random_key_dist(gen);
+      random_keys[i] = random_key_dist(get_prng());
     random_key_ptr = random_keys.cbegin();
   }
 
@@ -130,8 +136,6 @@ class batched_prng final {
   std::vector<result_type> random_keys{random_batch_size};
   decltype(random_keys)::const_iterator random_key_ptr;
 
-  std::random_device rd;
-  std::mt19937 gen{rd()};
   std::uniform_int_distribution<result_type> random_key_dist;
 };
 

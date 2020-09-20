@@ -184,9 +184,6 @@ void node16_sequential_add(benchmark::State &state) {
 }
 
 void node16_random_add(benchmark::State &state) {
-  std::random_device rd;
-  std::mt19937 gen{rd()};
-
   unodb::benchmark::growing_tree_node_stats<unodb::db> growing_tree_stats;
   std::size_t tree_size{0};
   const auto node16_node_count = static_cast<unsigned>(state.range(0));
@@ -208,7 +205,8 @@ void node16_random_add(benchmark::State &state) {
       if (k > key_limit) break;
       ++i;
     }
-    std::shuffle(insert_keys.begin(), insert_keys.end(), gen);
+    std::shuffle(insert_keys.begin(), insert_keys.end(),
+                 unodb::benchmark::get_prng());
     state.ResumeTiming();
 
     unodb::benchmark::insert_keys(test_db, insert_keys);

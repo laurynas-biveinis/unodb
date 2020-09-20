@@ -68,15 +68,12 @@ void sparse_node4_sequential_insert(benchmark::State &state) {
 }
 
 void node4_random_insert(benchmark::State &state, std::uint64_t key_zero_bits) {
-  std::random_device rd;
-  std::mt19937 gen{rd()};
-
   auto keys = make_key_sequence(static_cast<std::size_t>(state.range(0)),
                                 key_zero_bits);
 
   for (auto _ : state) {
     state.PauseTiming();
-    std::shuffle(keys.begin(), keys.end(), gen);
+    std::shuffle(keys.begin(), keys.end(), unodb::benchmark::get_prng());
     unodb::db test_db;
     benchmark::ClobberMemory();
     state.ResumeTiming();
@@ -136,16 +133,13 @@ void full_node4_sequential_delete(benchmark::State &state) {
 }
 
 void full_node4_random_deletes(benchmark::State &state) {
-  std::random_device rd;
-  std::mt19937 gen{rd()};
-
   const auto number_of_keys = static_cast<std::uint64_t>(state.range(0));
   auto keys = make_key_sequence(number_of_keys,
                                 unodb::benchmark::dense_node4_key_zero_bits);
 
   for (auto _ : state) {
     state.PauseTiming();
-    std::shuffle(keys.begin(), keys.end(), gen);
+    std::shuffle(keys.begin(), keys.end(), unodb::benchmark::get_prng());
     unodb::db test_db;
     unodb::benchmark::insert_sequentially(
         test_db, number_of_keys, unodb::benchmark::dense_node4_key_zero_bits);

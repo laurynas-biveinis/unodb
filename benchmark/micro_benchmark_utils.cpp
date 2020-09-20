@@ -13,8 +13,6 @@ namespace unodb::benchmark {
 
 std::vector<unodb::key> generate_random_minimal_node16_over_dense_node4_keys(
     unodb::key key_limit) noexcept {
-  std::random_device rd;
-  std::mt19937 gen{rd()};
   std::uniform_int_distribution<std::uint8_t> random_04{0, 4ULL};
 
   std::vector<unodb::key> result;
@@ -37,12 +35,13 @@ std::vector<unodb::key> generate_random_minimal_node16_over_dense_node4_keys(
               key.as_bytes[2] = static_cast<std::uint8_t>(i6 * 2 + 1);
               for (std::uint8_t i7 = 0; i7 < 4; ++i7) {
                 key.as_bytes[1] = static_cast<std::uint8_t>(i7 * 2 + 1);
-                key.as_bytes[0] = static_cast<std::uint8_t>(random_04(gen) * 2);
+                key.as_bytes[0] =
+                    static_cast<std::uint8_t>(random_04(get_prng()) * 2);
 
                 const unodb::key k = key.as_int;
                 if (k > key_limit) {
                   result.shrink_to_fit();
-                  std::shuffle(result.begin(), result.end(), gen);
+                  std::shuffle(result.begin(), result.end(), get_prng());
                   return result;
                 }
                 result.push_back(k);

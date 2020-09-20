@@ -79,12 +79,10 @@ void unpredictable_get_shared_length(benchmark::State &state) {
     search_keys.push_back(second_not_found_key);
   }
 
-  std::random_device rd;
-  std::mt19937 gen{rd()};
-
   for (auto _ : state) {
     state.PauseTiming();
-    std::shuffle(search_keys.begin(), search_keys.end(), gen);
+    std::shuffle(search_keys.begin(), search_keys.end(),
+                 unodb::benchmark::get_prng());
     state.ResumeTiming();
     for (const auto k : search_keys) {
       unodb::benchmark::get_key(test_db, k);
@@ -165,14 +163,12 @@ void insert_keys(unodb::db &test_db, const std::vector<unodb::key> &keys) {
 void do_insert_benchmark(benchmark::State &state,
                          const std::vector<unodb::key> &prepare_keys,
                          std::vector<unodb::key> &benchmark_keys) {
-  std::random_device rd;
-  std::mt19937 gen{rd()};
-
   for (auto _ : state) {
     state.PauseTiming();
     unodb::db test_db;
     insert_keys(test_db, prepare_keys);
-    std::shuffle(benchmark_keys.begin(), benchmark_keys.end(), gen);
+    std::shuffle(benchmark_keys.begin(), benchmark_keys.end(),
+                 unodb::benchmark::get_prng());
     state.ResumeTiming();
 
     insert_keys(test_db, benchmark_keys);
@@ -398,14 +394,12 @@ void unpredictable_prepend_key_prefix(benchmark::State &state) {
     benchmark_keys.push_back(third_key);
   }
 
-  std::random_device rd;
-  std::mt19937 gen{rd()};
-
   for (auto _ : state) {
     state.PauseTiming();
     unodb::db test_db;
     insert_keys(test_db, prepare_keys);
-    std::shuffle(benchmark_keys.begin(), benchmark_keys.end(), gen);
+    std::shuffle(benchmark_keys.begin(), benchmark_keys.end(),
+                 unodb::benchmark::get_prng());
     state.ResumeTiming();
 
     for (const auto k : benchmark_keys) {

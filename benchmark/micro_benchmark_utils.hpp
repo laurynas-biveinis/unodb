@@ -37,7 +37,7 @@ inline constexpr std::array<unodb::value_view, 5> values = {
 
 // Key manipulation
 
-inline constexpr auto dense_node4_key_zero_bits = 0xFCFCFCFC'FCFCFCFCULL;
+inline constexpr auto full_node4_tree_key_zero_bits = 0xFCFCFCFC'FCFCFCFCULL;
 
 inline constexpr auto next_key(unodb::key k,
                                std::uint64_t key_zero_bits) noexcept {
@@ -342,6 +342,15 @@ void get_key(const Db &db, unodb::key k) {
 template <class Db>
 void delete_key(Db &db, unodb::key k) {
   const auto result USED_IN_DEBUG = db.remove(k);
+#ifndef NDEBUG
+  if (!result) {
+    std::cerr << "Failed to delete existing key ";
+    print_key(std::cerr, k);
+    std::cerr << "\nTree:";
+    db.dump(std::cerr);
+    assert(result);
+  }
+#endif
   assert(result);
   ::benchmark::ClobberMemory();
 }

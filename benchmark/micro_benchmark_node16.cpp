@@ -42,7 +42,7 @@ void grow_node4_to_node16_sequentially(benchmark::State &state) {
     unodb::db test_db;
     unodb::key key_limit = unodb::benchmark::insert_sequentially(
         test_db, node4_node_count * 4,
-        unodb::benchmark::dense_node4_key_zero_bits);
+        unodb::benchmark::full_node4_tree_key_zero_bits);
     unodb::benchmark::assert_node4_only_tree(test_db);
     benchmark::ClobberMemory();
     state.ResumeTiming();

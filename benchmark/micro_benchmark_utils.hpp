@@ -61,8 +61,8 @@ inline constexpr auto to_base_n_value(std::uint64_t i) noexcept {
          ((i / (B * B * B * B * B * B * B) % B) << 56);
 }
 
-// Minimal leaf-level Node16 tree keys over dense Node4 keys: "base-5" values
-// that vary each byte from 0 to 3 with the last byte being a constant 4.
+// Minimal leaf-level Node16 tree keys over full Node4 tree keys: "base-5"
+// values that vary each byte from 0 to 3 with the last byte being a constant 4.
 inline constexpr auto number_to_minimal_leaf_node16_over_node4_key(
     std::uint64_t i) noexcept {
   assert(i / (4 * 4 * 4 * 4 * 4 * 4) < 4);
@@ -73,7 +73,7 @@ inline constexpr auto number_to_minimal_leaf_node16_over_node4_key(
          ((i / (4 * 4 * 4 * 4 * 4 * 4) % 4) << 56);
 }
 
-// Dense Node4 tree keys with 1, 3, 5, & 7 as the different key byte values so
+// Full Node4 tree keys with 1, 3, 5, & 7 as the different key byte values so
 // that a new byte could be inserted later at any position:
 // 0x0101010101010101 to ...107
 // 0x0101010101010301 to ...307
@@ -81,7 +81,7 @@ inline constexpr auto number_to_minimal_leaf_node16_over_node4_key(
 // 0x0101010101010701 to ...707
 // 0x0101010101030101 to ...107
 // 0x0101010101030301 to ...307
-inline constexpr auto number_to_dense_node4_with_gaps_key(
+inline constexpr auto number_to_full_node4_with_gaps_key(
     std::uint64_t i) noexcept {
   assert(i / (4 * 4 * 4 * 4 * 4 * 4 * 4) < 4);
   return (i % 4 * 2 + 1) | ((i / 4 % 4 * 2 + 1) << 8) |
@@ -95,7 +95,7 @@ inline constexpr auto number_to_dense_node4_with_gaps_key(
 
 // Key vectors
 
-std::vector<unodb::key> generate_random_minimal_node16_over_dense_node4_keys(
+std::vector<unodb::key> generate_random_minimal_node16_over_full_node4_keys(
     unodb::key key_limit) noexcept;
 
 // PRNG
@@ -142,8 +142,21 @@ class batched_prng final {
 // Stats
 
 template <class Db>
-class growing_tree_node_stats final {
- public:
+struct tree_stats final {
+  tree_stats(void) noexcept = default;
+
+  explicit tree_stats(const Db &test_db) noexcept
+      : leaf_count{test_db.get_leaf_count()},
+        inode4_count{test_db.get_inode4_count()},
+        inode16_count{test_db.get_inode16_count()},
+        inode48_count{test_db.get_inode48_count()},
+        inode256_count{test_db.get_inode256_count()},
+        created_inode4_count{test_db.get_created_inode4_count()},
+        inode4_to_inode16_count{test_db.get_inode4_to_inode16_count()},
+        inode16_to_inode48_count{test_db.get_inode16_to_inode48_count()},
+        inode48_to_inode256_count{test_db.get_inode48_to_inode256_count()},
+        key_prefix_splits{test_db.get_key_prefix_splits()} {}
+
   void get(const Db &test_db) noexcept {
     leaf_count = test_db.get_leaf_count();
     inode4_count = test_db.get_inode4_count();
@@ -155,27 +168,24 @@ class growing_tree_node_stats final {
     inode16_to_inode48_count = test_db.get_inode16_to_inode48_count();
     inode48_to_inode256_count = test_db.get_inode48_to_inode256_count();
     key_prefix_splits = test_db.get_key_prefix_splits();
-#ifndef NDEBUG
-    get_called = true;
-    db = &test_db;
-#endif
   }
 
-  void publish(::benchmark::State &state) const noexcept {
-    assert(get_called);
-    state.counters["L"] = static_cast<double>(leaf_count);
-    state.counters["4"] = static_cast<double>(inode4_count);
-    state.counters["16"] = static_cast<double>(inode16_count);
-    state.counters["48"] = static_cast<double>(inode48_count);
-    state.counters["256"] = static_cast<double>(inode256_count);
-    state.counters["+4"] = static_cast<double>(created_inode4_count);
-    state.counters["4^"] = static_cast<double>(inode4_to_inode16_count);
-    state.counters["16^"] = static_cast<double>(inode16_to_inode48_count);
-    state.counters["48^"] = static_cast<double>(inode48_to_inode256_count);
-    state.counters["KPfS"] = static_cast<double>(key_prefix_splits);
+  bool operator==(const tree_stats<Db> &other) const noexcept {
+    return leaf_count == other.leaf_count && internal_levels_equal(other);
   }
 
- private:
+  bool internal_levels_equal(const tree_stats<Db> &other) const noexcept {
+    return inode4_count == other.inode4_count &&
+           inode16_count == other.inode16_count &&
+           inode48_count == other.inode48_count &&
+           inode256_count == other.inode256_count &&
+           created_inode4_count == other.created_inode4_count &&
+           inode4_to_inode16_count == other.inode4_to_inode16_count &&
+           inode16_to_inode48_count == other.inode16_to_inode48_count &&
+           inode48_to_inode256_count == other.inode48_to_inode256_count &&
+           key_prefix_splits == other.key_prefix_splits;
+  }
+
   std::uint64_t leaf_count{0};
   std::uint64_t inode4_count{0};
   std::uint64_t inode16_count{0};
@@ -186,7 +196,36 @@ class growing_tree_node_stats final {
   std::uint64_t inode16_to_inode48_count{0};
   std::uint64_t inode48_to_inode256_count{0};
   std::uint64_t key_prefix_splits{0};
+};
 
+template <class Db>
+class growing_tree_node_stats final {
+ public:
+  void get(const Db &test_db) noexcept {
+    stats.get(test_db);
+#ifndef NDEBUG
+    get_called = true;
+    db = &test_db;
+#endif
+  }
+
+  void publish(::benchmark::State &state) const noexcept {
+    assert(get_called);
+    state.counters["L"] = static_cast<double>(stats.leaf_count);
+    state.counters["4"] = static_cast<double>(stats.inode4_count);
+    state.counters["16"] = static_cast<double>(stats.inode16_count);
+    state.counters["48"] = static_cast<double>(stats.inode48_count);
+    state.counters["256"] = static_cast<double>(stats.inode256_count);
+    state.counters["+4"] = static_cast<double>(stats.created_inode4_count);
+    state.counters["4^"] = static_cast<double>(stats.inode4_to_inode16_count);
+    state.counters["16^"] = static_cast<double>(stats.inode16_to_inode48_count);
+    state.counters["48^"] =
+        static_cast<double>(stats.inode48_to_inode256_count);
+    state.counters["KPfS"] = static_cast<double>(stats.key_prefix_splits);
+  }
+
+ private:
+  tree_stats<Db> stats;
 #ifndef NDEBUG
   bool get_called{false};
   const Db *db{nullptr};
@@ -240,6 +279,31 @@ void assert_mostly_node16_tree(const Db &test_db USED_IN_DEBUG) noexcept {
 #endif
 }
 
+template <class Db>
+class tree_shape_snapshot final {
+ public:
+  explicit tree_shape_snapshot(const Db &test_db USED_IN_DEBUG) noexcept
+#ifndef NDEBUG
+      : db{test_db}, stats {
+    test_db
+  }
+#endif
+  {}
+
+  void assert_internal_levels_same() const noexcept {
+#ifndef NDEBUG
+    const tree_stats<Db> current_stats{db};
+    assert(stats.internal_levels_equal(current_stats));
+#endif
+  }
+
+ private:
+#ifndef NDEBUG
+  const Db &db;
+  const tree_stats<Db> stats;
+#endif
+};
+
 // Insertion
 
 template <class Db>
@@ -282,7 +346,7 @@ void insert_keys(Db &db, const std::vector<unodb::key> &keys) {
 }
 
 template <class Db>
-auto grow_dense_node4_to_minimal_leaf_node16(Db &db, unodb::key key_limit) {
+auto grow_full_node4_to_minimal_leaf_node16(Db &db, unodb::key key_limit) {
 #ifndef NDEBUG
   assert_node4_only_tree(db);
   const auto created_node4_count = db.get_created_inode4_count();
@@ -307,7 +371,7 @@ template <class Db>
 auto make_node4_tree_with_gaps(Db &db, unsigned number_of_keys) {
   unodb::key k{0};
   for (unsigned i = 0; i < number_of_keys; ++i) {
-    k = number_to_dense_node4_with_gaps_key(i);
+    k = number_to_full_node4_with_gaps_key(i);
     insert_key(db, k, unodb::value_view{value100});
   }
 
@@ -391,29 +455,26 @@ void full_node_scan_benchmark(::benchmark::State &state,
 }
 
 // TODO(laurynas): can derive zero bits from base?
-template <class Db, unsigned Dense_Key_Base>
+template <class Db, unsigned Full_Key_Base>
 void full_node_random_get_benchmark(::benchmark::State &state,
                                     std::uint64_t key_zero_bits) {
   Db test_db;
-  unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   const auto number_of_keys = static_cast<std::uint64_t>(state.range(0));
   unodb::benchmark::batched_prng random_key_positions{number_of_keys - 1};
   unodb::benchmark::insert_sequentially(test_db, number_of_keys, key_zero_bits);
   const auto tree_size = test_db.get_current_memory_use();
-  growing_tree_stats.get(test_db);
   // TODO(laurynas): assert desired tree shape here?
 
   for (auto _ : state) {
     for (std::uint64_t i = 0; i < number_of_keys; ++i) {
       const auto key_index = random_key_positions.get(state);
-      const auto key = to_base_n_value<Dense_Key_Base>(key_index);
+      const auto key = to_base_n_value<Full_Key_Base>(key_index);
       unodb::benchmark::get_existing_key(test_db, key);
     }
   }
 
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           state.range(0));
-  growing_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 

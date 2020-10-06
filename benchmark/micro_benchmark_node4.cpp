@@ -108,7 +108,7 @@ void full_node4_random_insert(benchmark::State &state) {
   node4_random_insert(state, unodb::benchmark::full_node4_tree_key_zero_bits);
 }
 
-void sparse_node4_random_insert(benchmark::State &state) {
+void minimal_node4_random_insert(benchmark::State &state) {
   node4_random_insert(state, minimal_node4_key_zero_bits);
 }
 
@@ -210,10 +210,9 @@ void full_node4_to_minimal_random_delete(benchmark::State &state) {
 // 0x0000000000000100 to ...104
 // 0x0000000000000200 to ...204
 // 0x0000000000000300 to ...304
-// 0x0000000000000404 (note that no 0x0400..0x403, these would create sparse
-// but not minimal Node16 tree).
+// 0x0000000000000404 (note that no 0x0400..0x403 to avoid creating Node4).
 //
-// Then remove the minimal Node16 over dense Node4 key subset, see
+// Then remove the minimal Node16 over full Node4 key subset, see
 // number_to_minimal_node16_over_node4_key.
 
 class shrinking_tree_node_stats final {
@@ -246,8 +245,8 @@ void shrink_node16_to_node4_sequentially(benchmark::State &state) {
     unodb::benchmark::assert_node4_only_tree(test_db);
 
     const auto n4_to_n16_keys_inserted =
-        unodb::benchmark::grow_dense_node4_to_minimal_leaf_node16(test_db,
-                                                                  key_limit);
+        unodb::benchmark::grow_full_node4_to_minimal_leaf_node16(test_db,
+                                                                 key_limit);
 
     tree_size = test_db.get_current_memory_use();
     state.ResumeTiming();
@@ -292,7 +291,7 @@ void shrink_node16_to_node4_randomly(benchmark::State &state) {
     const auto node4_created_count = test_db.get_created_inode4_count();
 #endif
     const auto node16_keys =
-        unodb::benchmark::generate_random_minimal_node16_over_dense_node4_keys(
+        unodb::benchmark::generate_random_minimal_node16_over_full_node4_keys(
             key_limit);
     unodb::benchmark::insert_keys(test_db, node16_keys);
     assert(node4_created_count == test_db.get_created_inode4_count());
@@ -329,7 +328,7 @@ BENCHMARK(full_node4_random_insert)
 BENCHMARK(minimal_node4_sequential_insert)
     ->Range(16, 255)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(sparse_node4_random_insert)
+BENCHMARK(minimal_node4_random_insert)
     ->Range(16, 255)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(node4_full_scan)->Range(100, 65535)->Unit(benchmark::kMicrosecond);

@@ -11,7 +11,7 @@
 
 namespace unodb::benchmark {
 
-std::vector<unodb::key> generate_random_minimal_node16_over_dense_node4_keys(
+std::vector<unodb::key> generate_random_minimal_node16_over_full_node4_keys(
     unodb::key key_limit) noexcept {
   std::uniform_int_distribution<std::uint8_t> random_04{0, 4ULL};
 

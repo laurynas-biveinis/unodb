@@ -909,16 +909,14 @@ class inode_16 final : public basic_inode_16 {
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + f.f.children_count));
 
-    std::copy(keys.byte_array.cbegin() + child_to_remove + 1,
-              keys.byte_array.cbegin() + f.f.children_count,
-              keys.byte_array.begin() + child_to_remove);
-
     delete_node_ptr_at_scope_exit delete_on_scope_exit{
         children[child_to_remove]};
 
-    std::copy(children.begin() + child_to_remove + 1,
-              children.begin() + f.f.children_count,
-              children.begin() + child_to_remove);
+    for (unsigned i = child_to_remove + 1; i < f.f.children_count; ++i) {
+      keys.byte_array[i - 1] = keys.byte_array[i];
+      children[i - 1] = children[i];
+    }
+
     --f.f.children_count;
 
     assert(std::is_sorted(keys.byte_array.cbegin(),

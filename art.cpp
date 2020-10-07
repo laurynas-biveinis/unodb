@@ -918,7 +918,9 @@ class inode_16 final : public basic_inode_16 {
 
   union {
     std::array<std::byte, capacity> byte_array;
+#ifdef __x86_64
     __m128i sse;
+#endif
   } keys;
   std::array<node_ptr, capacity> children;
 

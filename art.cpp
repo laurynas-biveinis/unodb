@@ -837,8 +837,21 @@ class inode_16 final : public basic_inode_16 {
 
   void remove(std::uint8_t child_index) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
+    assert(child_index < f.f.children_count);
+    assert(std::is_sorted(keys.byte_array.cbegin(),
+                          keys.byte_array.cbegin() + f.f.children_count));
 
-    remove_from_sorted_key_children_arrays(child_index);
+    delete_node_ptr_at_scope_exit delete_on_scope_exit{children[child_index]};
+
+    for (unsigned i = child_index + 1; i < f.f.children_count; ++i) {
+      keys.byte_array[i - 1] = keys.byte_array[i];
+      children[i - 1] = children[i];
+    }
+
+    --f.f.children_count;
+
+    assert(std::is_sorted(keys.byte_array.cbegin(),
+                          keys.byte_array.cbegin() + f.f.children_count));
   }
 
   [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
@@ -898,26 +911,6 @@ class inode_16 final : public basic_inode_16 {
     keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = child.release();
     ++f.f.children_count;
-
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + f.f.children_count));
-  }
-
-  void remove_from_sorted_key_children_arrays(
-      std::uint8_t child_to_remove) noexcept {
-    assert(child_to_remove < f.f.children_count);
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + f.f.children_count));
-
-    delete_node_ptr_at_scope_exit delete_on_scope_exit{
-        children[child_to_remove]};
-
-    for (unsigned i = child_to_remove + 1; i < f.f.children_count; ++i) {
-      keys.byte_array[i - 1] = keys.byte_array[i];
-      children[i - 1] = children[i];
-    }
-
-    --f.f.children_count;
 
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + f.f.children_count));

@@ -106,18 +106,18 @@ void grow_node4_to_node16_randomly(benchmark::State &state) {
 }
 
 // Minimal Node16 tree sequential keys: "base-5" values that vary each byte from
-// 0 to 5.
+// 0 to 4.
 inline constexpr auto number_to_minimal_node16_key(std::uint64_t i) noexcept {
   return unodb::benchmark::to_base_n_value<5>(i);
 }
 
 // Full leaf layer Node16 tree over minimal Node16 sequential keys: "base-5"
-// values that vary each byte from 0 to 5 with the last byte being varied from 6
-// to 16.
+// values that vary each byte from 0 to 4 with the last byte being varied from 5
+// to 15.
 inline constexpr auto number_to_full_leaf_over_minimal_node16_key(
     std::uint64_t i) noexcept {
   assert(i / (11 * 5 * 5 * 5 * 5 * 5 * 5) < 5);
-  return ((i % 11) + 6) | ((i / 11 % 5) << 8) | ((i / (11 * 5) % 5) << 16) |
+  return ((i % 11) + 5) | ((i / 11 % 5) << 8) | ((i / (11 * 5) % 5) << 16) |
          ((i / (11 * 5 * 5) % 5) << 24) | ((i / (11 * 5 * 5 * 5) % 5) << 32) |
          ((i / (11 * 5 * 5 * 5 * 5) % 5) << 40) |
          ((i / (11 * 5 * 5 * 5 * 5 * 5) % 5) << 48) |

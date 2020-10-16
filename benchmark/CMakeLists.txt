@@ -22,6 +22,8 @@ add_benchmark_target(micro_benchmark_node4)
 set(micro_benchmark_node4_quick_arg "--benchmark_filter='/16|/20|/100'")
 add_benchmark_target(micro_benchmark_node16)
 set(micro_benchmark_node16_quick_arg "--benchmark_filter='/10|/64'")
+add_benchmark_target(micro_benchmark_node48)
+set(micro_benchmark_node48_quick_arg "--benchmark_filter='/64'")
 add_benchmark_target(micro_benchmark)
 set(micro_benchmark_quick_arg "--benchmark_filter='.*262144|.*51200'")
 add_benchmark_target(micro_benchmark_mutex)
@@ -31,9 +33,11 @@ add_custom_target(benchmarks
   env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_key_prefix
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node4
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node16
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node48
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_mutex
-  DEPENDS micro_benchmark_key_prefix micro_benchmark_node4 micro_benchmark
+  DEPENDS micro_benchmark_key_prefix micro_benchmark_node4
+  micro_benchmark_node16 micro_benchmark_node48 micro_benchmark
   micro_benchmark_mutex)
 
 add_custom_target(quick_benchmarks
@@ -44,11 +48,13 @@ add_custom_target(quick_benchmarks
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
   ./micro_benchmark_node16 ${micro_benchmark_node16_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+  ./micro_benchmark_node48 ${micro_benchmark_node48_quick_arg}
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
   ./micro_benchmark ${micro_benchmark_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
   ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg}
   DEPENDS micro_benchmark_key_prefix micro_benchmark micro_benchmark_node4
-  micro_benchmark_node16 micro_benchmark_mutex)
+  micro_benchmark_node16 micro_benchmark_node48 micro_benchmark_mutex)
 
 add_custom_target(valgrind_benchmarks
   COMMAND valgrind --error-exitcode=1 --leak-check=full
@@ -58,9 +64,11 @@ add_custom_target(valgrind_benchmarks
   COMMAND valgrind --error-exitcode=1 --leak-check=full
   ./micro_benchmark_node16 ${micro_benchmark_node16_quick_arg};
   COMMAND valgrind --error-exitcode=1 --leak-check=full
+  ./micro_benchmark_node48 ${micro_benchmark_node48_quick_arg};
+  COMMAND valgrind --error-exitcode=1 --leak-check=full
   ./micro_benchmark ${micro_benchmark_quick_arg};
   COMMAND valgrind --error-exitcode=1 --leak-check=full
   ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg};
   DEPENDS micro_benchmark_key_prefix
-  micro_benchmark_node4 micro_benchmark_node16 micro_benchmark
-  micro_benchmark_mutex)
+  micro_benchmark_node4 micro_benchmark_node16 micro_benchmark_node48
+  micro_benchmark micro_benchmark_mutex)

@@ -113,7 +113,7 @@ void minimal_node4_random_insert(benchmark::State &state) {
 }
 
 void node4_full_scan(benchmark::State &state) {
-  unodb::benchmark::full_node_scan_benchmark<unodb::db>(
+  unodb::benchmark::full_node_scan_benchmark<unodb::db, 4>(
       state, unodb::benchmark::full_node4_tree_key_zero_bits);
 }
 
@@ -245,8 +245,10 @@ void shrink_node16_to_node4_sequentially(benchmark::State &state) {
     unodb::benchmark::assert_node4_only_tree(test_db);
 
     const auto n4_to_n16_keys_inserted =
-        unodb::benchmark::grow_full_node4_to_minimal_leaf_node16(test_db,
-                                                                 key_limit);
+        unodb::benchmark::grow_full_node_tree_to_minimal_next_size_leaf_level<
+            unodb::db, 4>(
+            test_db, key_limit,
+            unodb::benchmark::number_to_minimal_leaf_node16_over_node4_key);
 
     tree_size = test_db.get_current_memory_use();
     state.ResumeTiming();

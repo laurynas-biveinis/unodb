@@ -1129,9 +1129,15 @@ inode_48::inode_48(std::unique_ptr<inode_16> &&source_node,
   std::memset(&child_indexes[0], empty_child,
               child_indexes.size() * sizeof(child_indexes[0]));
   std::uint8_t i;
-  for (i = 0; i < inode_16::capacity; ++i) {
-    const auto existing_key_byte = source_node_ptr->keys.byte_array[i];
-    child_indexes[static_cast<std::uint8_t>(existing_key_byte)] = i;
+  for (i = 0; i < inode_16::capacity; i += 4) {
+    const auto b0 = source_node_ptr->keys.byte_array[i];
+    const auto b1 = source_node_ptr->keys.byte_array[i + 1];
+    const auto b2 = source_node_ptr->keys.byte_array[i + 2];
+    const auto b3 = source_node_ptr->keys.byte_array[i + 3];
+    child_indexes[static_cast<std::uint8_t>(b0)] = i;
+    child_indexes[static_cast<std::uint8_t>(b1)] = i + 1;
+    child_indexes[static_cast<std::uint8_t>(b2)] = i + 2;
+    child_indexes[static_cast<std::uint8_t>(b3)] = i + 3;
   }
   for (i = 0; i < inode_16::capacity; ++i) {
     children[i] = source_node_ptr->children[i];

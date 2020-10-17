@@ -1132,6 +1132,8 @@ inode_48::inode_48(std::unique_ptr<inode_16> &&source_node,
   for (i = 0; i < inode_16::capacity; ++i) {
     const auto existing_key_byte = source_node_ptr->keys.byte_array[i];
     child_indexes[static_cast<std::uint8_t>(existing_key_byte)] = i;
+  }
+  for (i = 0; i < inode_16::capacity; ++i) {
     children[i] = source_node_ptr->children[i];
   }
 

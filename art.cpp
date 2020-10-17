@@ -1123,20 +1123,22 @@ inode_16::inode_16(std::unique_ptr<inode_48> &&source_node,
 inode_48::inode_48(std::unique_ptr<inode_16> &&source_node,
                    leaf_unique_ptr &&child, tree_depth depth) noexcept
     : basic_inode_48{*source_node} {
+  auto *const __restrict__ source_node_ptr = source_node.get();
+  auto *const __restrict__ child_ptr = child.release();
+
   std::memset(&child_indexes[0], empty_child,
               child_indexes.size() * sizeof(child_indexes[0]));
   std::uint8_t i;
   for (i = 0; i < inode_16::capacity; ++i) {
-    const auto existing_key_byte = source_node->keys.byte_array[i];
+    const auto existing_key_byte = source_node_ptr->keys.byte_array[i];
     child_indexes[static_cast<std::uint8_t>(existing_key_byte)] = i;
-    children[i] = source_node->children[i];
+    children[i] = source_node_ptr->children[i];
   }
 
-  const auto key_byte =
-      static_cast<std::uint8_t>(leaf::key(child.get())[depth]);
+  const auto key_byte = static_cast<std::uint8_t>(leaf::key(child_ptr)[depth]);
   assert(child_indexes[key_byte] == empty_child);
   child_indexes[key_byte] = i;
-  children[i] = child.release();
+  children[i] = child_ptr;
   for (i = f.f.children_count; i < capacity; i++) {
     children[i] = nullptr;
   }

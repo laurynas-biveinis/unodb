@@ -1128,6 +1128,7 @@ inode_48::inode_48(std::unique_ptr<inode_16> &&source_node,
 
   std::memset(&child_indexes[0], empty_child,
               child_indexes.size() * sizeof(child_indexes[0]));
+  // TODO(laurynas): consider AVX512 scatter?
   std::uint8_t i;
   for (i = 0; i < inode_16::capacity; ++i) {
     const auto existing_key_byte = source_node_ptr->keys.byte_array[i];

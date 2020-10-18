@@ -16,6 +16,10 @@ namespace {
 
 template <std::uint8_t NumByteValues>
 auto generate_random_keys_over_full_smaller_tree(unodb::key key_limit) {
+  // The last byte at the limit will be randomly-generated and may happen to
+  // fall above or below the limit. Reset the limit so that any byte value will
+  // pass.
+  key_limit |= 0xFFU;
   std::uniform_int_distribution<std::uint8_t> prng_byte_values{0,
                                                                NumByteValues};
 

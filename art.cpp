@@ -321,7 +321,8 @@ class inode {
         gsl::narrow_cast<key_prefix_size_type>(key_prefix_length() - cut_len);
   }
 
-  void prepend_key_prefix(const inode &prefix1, std::byte prefix2) noexcept {
+  void prepend_key_prefix(const inode &__restrict__ prefix1,
+                          std::byte prefix2) noexcept {
     assert(key_prefix_length() + prefix1.key_prefix_length() <
            key_prefix_capacity);
 

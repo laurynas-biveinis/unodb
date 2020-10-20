@@ -1128,6 +1128,7 @@ inode_48::inode_48(std::unique_ptr<inode_16> &&source_node,
 
   std::memset(&child_indexes[0], empty_child,
               child_indexes.size() * sizeof(child_indexes[0]));
+  std::uninitialized_fill(children.begin(), children.end(), nullptr);
   // TODO(laurynas): consider AVX512 scatter?
   std::uint8_t i;
   for (i = 0; i < inode_16::capacity; ++i) {
@@ -1142,9 +1143,6 @@ inode_48::inode_48(std::unique_ptr<inode_16> &&source_node,
   assert(child_indexes[key_byte] == empty_child);
   child_indexes[key_byte] = i;
   children[i] = child_ptr;
-  for (i = f.f.children_count; i < capacity; i++) {
-    children[i] = nullptr;
-  }
 }
 
 __attribute__((pure)) inode::find_result_type inode_48::find_child(

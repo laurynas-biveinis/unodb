@@ -33,7 +33,7 @@ compile_commands.json
 *.app
 
 # clangd
-.clangd
+.cache
 
 # cmake-build.el build dirs
 build.*

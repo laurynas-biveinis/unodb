@@ -44,6 +44,8 @@ inline constexpr std::array<unodb::value_view, 5> values = {
 
 inline constexpr auto full_node4_tree_key_zero_bits = 0xFCFCFCFC'FCFCFCFCULL;
 
+inline constexpr auto full_node16_tree_key_zero_bits = 0xF0F0F0F0'F0F0F0F0ULL;
+
 inline constexpr auto next_key(unodb::key k,
                                std::uint64_t key_zero_bits) noexcept {
   assert((k & key_zero_bits) == 0);
@@ -74,12 +76,16 @@ inline constexpr auto to_base_n_value(std::uint64_t i) noexcept {
   return to_scaled_base_n_value<B, 1, 0>(i);
 }
 
-// Minimal leaf-level Node16 tree keys over full Node4 tree keys: "base-4"
-// values that vary each byte from 0 to 3 with the last byte being a constant 4.
 inline constexpr auto number_to_minimal_leaf_node16_over_node4_key(
     std::uint64_t i) noexcept {
   assert(i / (4 * 4 * 4 * 4 * 4 * 4) < 4);
   return 4ULL | to_base_n_value<4>(i) << 8;
+}
+
+inline constexpr auto number_to_minimal_leaf_node48_over_node16_key(
+    std::uint64_t i) noexcept {
+  assert(i / (0x10 * 0x10 * 0x10 * 0x10 * 0x10 * 0x10) < 0x10);
+  return 0x10ULL | unodb::benchmark::to_base_n_value<0x10>(i) << 8;
 }
 
 // Full Node4 tree keys with 1, 3, 5, & 7 as the different key byte values so
@@ -104,11 +110,15 @@ inline constexpr auto number_to_full_node16_with_gaps_key(
 
 // Key vectors
 
-std::vector<unodb::key> generate_random_minimal_node16_over_full_node4_keys(
+template <std::uint8_t NumByteValues>
+std::vector<unodb::key> generate_random_keys_over_full_smaller_tree(
     unodb::key key_limit);
 
-std::vector<unodb::key> generate_random_minimal_node48_over_full_node16_keys(
-    unodb::key key_limit);
+extern template std::vector<unodb::key>
+    generate_random_keys_over_full_smaller_tree<4>(unodb::key);
+
+extern template std::vector<unodb::key>
+    generate_random_keys_over_full_smaller_tree<16>(unodb::key);
 
 // PRNG
 
@@ -237,6 +247,24 @@ class growing_tree_node_stats final {
 #endif
 };
 
+template <class Db>
+class shrinking_tree_node_stats final {
+ public:
+  void get(const Db &test_db) noexcept {
+    inode16_to_inode4_count = test_db.get_inode16_to_inode4_count();
+    inode48_to_inode16_count = test_db.get_inode48_to_inode16_count();
+  }
+
+  void publish(::benchmark::State &state) const noexcept {
+    state.counters["16v"] = static_cast<double>(inode16_to_inode4_count);
+    state.counters["48v"] = static_cast<double>(inode48_to_inode16_count);
+  }
+
+ private:
+  std::uint64_t inode16_to_inode4_count{0};
+  std::uint64_t inode48_to_inode16_count{0};
+};
+
 inline void set_size_counter(::benchmark::State &state,
                              const std::string &label, std::size_t value) {
   // state.SetLabel might be a better logical fit but the automatic k/M/G
@@ -284,16 +312,32 @@ void assert_node_size_tree(const Db &test_db USED_IN_DEBUG) noexcept {
 }
 
 // Do not bother with extern templates due to large parameter space
-template <class Db, unsigned NodeSize>
+template <class Db, unsigned SmallerNodeSize>
 void assert_growing_nodes(const Db &test_db USED_IN_DEBUG,
                           std::uint64_t number_of_nodes
                               USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
-  static_assert(NodeSize == 4 || NodeSize == 16);
-  if constexpr (NodeSize == 4) {
+  static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16);
+  if constexpr (SmallerNodeSize == 4) {
     assert(number_of_nodes == test_db.get_inode4_to_inode16_count());
-  } else if constexpr (NodeSize == 16) {
+  } else if constexpr (SmallerNodeSize == 16) {
     assert(number_of_nodes == test_db.get_inode16_to_inode48_count());
+  }
+#endif
+}
+
+template <class Db, unsigned SmallerNodeSize>
+void assert_shrinking_nodes(const Db &test_db USED_IN_DEBUG,
+                            std::uint64_t number_of_nodes
+                                USED_IN_DEBUG) noexcept {
+#ifndef NDEBUG
+  static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16);
+  if constexpr (SmallerNodeSize == 4) {
+    assert(number_of_nodes == test_db.get_inode16_to_inode4_count());
+    assert_node4_only_tree(test_db);
+  } else if constexpr (SmallerNodeSize == 16) {
+    assert(number_of_nodes == test_db.get_inode48_to_inode16_count());
+    assert_mostly_node16_tree(test_db);
   }
 #endif
 }
@@ -417,18 +461,6 @@ auto grow_full_node_tree_to_minimal_next_size_leaf_level(
   return keys_inserted;
 }
 
-template <class Db>
-unodb::key make_node4_tree_with_gaps(Db &db, unsigned number_of_keys);
-
-extern template unodb::key make_node4_tree_with_gaps<unodb::db>(unodb::db &,
-                                                                unsigned);
-
-template <class Db>
-unodb::key make_node16_tree_with_gaps(Db &db, unsigned number_of_keys);
-
-extern template unodb::key make_node16_tree_with_gaps<unodb::db>(unodb::db &,
-                                                                 unsigned);
-
 // Gets
 
 template <class Db>
@@ -546,11 +578,12 @@ void grow_node_sequentially_benchmark(::benchmark::State &state,
 }
 
 // Do not bother with extern templates due to large parameter space
-template <class Db, unsigned SmallerNodeSize, typename MakeSmallerTreeFn,
+template <class Db, unsigned SmallerNodeSize, typename SmallerTreeNumberToKeyFn,
           typename GenerateKeysFn>
-void grow_node_randomly_benchmark(::benchmark::State &state,
-                                  MakeSmallerTreeFn make_smaller_tree_fn,
-                                  GenerateKeysFn generate_keys_fn) {
+void grow_node_randomly_benchmark(
+    ::benchmark::State &state,
+    SmallerTreeNumberToKeyFn smaller_tree_number_to_key_fn,
+    GenerateKeysFn generate_keys_fn) {
   std::size_t tree_size{0};
   const auto smaller_node_count = static_cast<unsigned>(state.range(0));
   std::uint64_t benchmark_keys_inserted{0};
@@ -558,8 +591,9 @@ void grow_node_randomly_benchmark(::benchmark::State &state,
   for (auto _ : state) {
     state.PauseTiming();
     Db test_db;
-    const auto key_limit =
-        make_smaller_tree_fn(test_db, smaller_node_count * 4);
+    const auto key_limit = insert_n_keys(test_db, smaller_node_count * 4,
+                                         smaller_tree_number_to_key_fn);
+    assert_node_size_tree<Db, SmallerNodeSize>(test_db);
 
     const auto larger_tree_keys = generate_keys_fn(key_limit);
     state.ResumeTiming();
@@ -576,6 +610,96 @@ void grow_node_randomly_benchmark(::benchmark::State &state,
 
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           static_cast<std::int64_t>(benchmark_keys_inserted));
+  unodb::benchmark::set_size_counter(state, "size", tree_size);
+}
+
+// Do not bother with extern templates due to large parameter space
+template <class Db, unsigned SmallerNodeSize,
+          std::uint64_t SmallerNodeKeyZeroBits,
+          typename NumberToLargerNodeKeyFn>
+void shrink_node_sequentially_benchmark(
+    ::benchmark::State &state,
+    NumberToLargerNodeKeyFn number_to_larger_node_key_fn) {
+  shrinking_tree_node_stats<Db> shrinking_tree_stats;
+  std::size_t tree_size{0};
+  std::uint64_t removed_key_count{0};
+
+  const auto smaller_node_count = static_cast<std::uint64_t>(state.range(0));
+
+  for (auto _ : state) {
+    state.PauseTiming();
+    Db test_db;
+    unodb::key key_limit = insert_sequentially(test_db, smaller_node_count,
+                                               SmallerNodeKeyZeroBits);
+    assert_node_size_tree<Db, SmallerNodeSize>(test_db);
+
+    const auto node_growing_keys_inserted =
+        grow_full_node_tree_to_minimal_next_size_leaf_level<Db,
+                                                            SmallerNodeSize>(
+            test_db, key_limit, number_to_larger_node_key_fn);
+    assert_growing_nodes<Db, SmallerNodeSize>(test_db,
+                                              node_growing_keys_inserted);
+    tree_size = test_db.get_current_memory_use();
+    state.ResumeTiming();
+
+    for (removed_key_count = 0; removed_key_count < node_growing_keys_inserted;
+         ++removed_key_count) {
+      const auto remove_key = number_to_larger_node_key_fn(removed_key_count);
+      delete_key(test_db, remove_key);
+    }
+
+    state.PauseTiming();
+    assert_shrinking_nodes<Db, SmallerNodeSize>(test_db, removed_key_count);
+    shrinking_tree_stats.get(test_db);
+    destroy_tree(test_db, state);
+  }
+
+  state.SetItemsProcessed(
+      static_cast<std::int64_t>(state.iterations() * removed_key_count));
+  shrinking_tree_stats.publish(state);
+  unodb::benchmark::set_size_counter(state, "size", tree_size);
+}
+
+// Do not bother with extern templates due to large parameter space
+template <class Db, unsigned SmallerNodeSize,
+          typename NumberToSmallerNodeTreeWithGapsKey>
+void shrink_node_randomly_benchmark(
+    ::benchmark::State &state, NumberToSmallerNodeTreeWithGapsKey
+                                   number_to_smaller_node_tree_with_gaps_key) {
+  shrinking_tree_node_stats<Db> shrinking_tree_stats;
+  std::size_t tree_size{0};
+  std::uint64_t removed_key_count{0};
+
+  const auto smaller_node_count = static_cast<unsigned>(state.range(0));
+
+  for (auto _ : state) {
+    state.PauseTiming();
+    Db test_db;
+
+    const auto key_limit = insert_n_keys(
+        test_db, smaller_node_count, number_to_smaller_node_tree_with_gaps_key);
+    assert_node_size_tree<Db, SmallerNodeSize>(test_db);
+
+    const auto node_growing_keys =
+        generate_random_keys_over_full_smaller_tree<SmallerNodeSize>(key_limit);
+    insert_keys(test_db, node_growing_keys);
+    assert_growing_nodes<Db, SmallerNodeSize>(test_db,
+                                              node_growing_keys.size());
+    tree_size = test_db.get_current_memory_use();
+    state.ResumeTiming();
+
+    unodb::benchmark::delete_keys(test_db, node_growing_keys);
+
+    state.PauseTiming();
+    removed_key_count = node_growing_keys.size();
+    assert_shrinking_nodes<Db, SmallerNodeSize>(test_db, removed_key_count);
+    shrinking_tree_stats.get(test_db);
+    unodb::benchmark::destroy_tree(test_db, state);
+  }
+
+  state.SetItemsProcessed(
+      static_cast<std::int64_t>(state.iterations() * removed_key_count));
+  shrinking_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 

@@ -12,10 +12,13 @@
 #include "art.hpp"
 #include "mutex_art.hpp"
 
-namespace {
+namespace unodb::benchmark {
+
+// Key vectors
 
 template <std::uint8_t NumByteValues>
-auto generate_random_keys_over_full_smaller_tree(unodb::key key_limit) {
+std::vector<unodb::key> generate_random_keys_over_full_smaller_tree(
+    unodb::key key_limit) {
   // The last byte at the limit will be randomly-generated and may happen to
   // fall above or below the limit. Reset the limit so that any byte value will
   // pass.
@@ -63,21 +66,12 @@ auto generate_random_keys_over_full_smaller_tree(unodb::key key_limit) {
   }
   cannot_happen();
 }
-}  // namespace
 
-namespace unodb::benchmark {
+template std::vector<unodb::key> generate_random_keys_over_full_smaller_tree<4>(
+    unodb::key);
 
-// Key vectors
-
-std::vector<unodb::key> generate_random_minimal_node16_over_full_node4_keys(
-    unodb::key key_limit) {
-  return generate_random_keys_over_full_smaller_tree<4>(key_limit);
-}
-
-std::vector<unodb::key> generate_random_minimal_node48_over_full_node16_keys(
-    unodb::key key_limit) {
-  return generate_random_keys_over_full_smaller_tree<16>(key_limit);
-}
+template std::vector<unodb::key>
+    generate_random_keys_over_full_smaller_tree<16>(unodb::key);
 
 // PRNG
 
@@ -123,29 +117,6 @@ void assert_mostly_node16_tree(const Db &test_db USED_IN_DEBUG) noexcept {
 }
 
 template void assert_mostly_node16_tree<unodb::db>(const unodb::db &) noexcept;
-
-// Insertion
-
-template <class Db>
-unodb::key make_node4_tree_with_gaps(Db &db, unsigned number_of_keys) {
-  const auto last_inserted_key =
-      insert_n_keys(db, number_of_keys, number_to_full_node4_with_gaps_key);
-  assert_node4_only_tree(db);
-  return last_inserted_key;
-}
-
-template unodb::key make_node4_tree_with_gaps<unodb::db>(unodb::db &, unsigned);
-
-template <class Db>
-unodb::key make_node16_tree_with_gaps(Db &db, unsigned number_of_keys) {
-  const auto last_inserted_key =
-      insert_n_keys(db, number_of_keys, number_to_full_node16_with_gaps_key);
-  assert_mostly_node16_tree(db);
-  return last_inserted_key;
-}
-
-template unodb::key make_node16_tree_with_gaps<unodb::db>(unodb::db &,
-                                                          unsigned);
 
 // Teardown
 

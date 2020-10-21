@@ -215,107 +215,15 @@ void full_node4_to_minimal_random_delete(benchmark::State &state) {
 // Then remove the minimal Node16 over full Node4 key subset, see
 // number_to_minimal_node16_over_node4_key.
 
-class shrinking_tree_node_stats final {
- public:
-  void get(const unodb::db &test_db) noexcept {
-    inode16_to_inode4_count = test_db.get_inode16_to_inode4_count();
-  }
-
-  void publish(::benchmark::State &state) const noexcept {
-    state.counters["16v"] = static_cast<double>(inode16_to_inode4_count);
-  }
-
- private:
-  std::uint64_t inode16_to_inode4_count{0};
-};
-
 void shrink_node16_to_node4_sequentially(benchmark::State &state) {
-  shrinking_tree_node_stats shrinking_tree_stats;
-  std::size_t tree_size = 0;
-  std::uint64_t removed_key_count{0};
-
-  const auto node4_insert_count = static_cast<std::uint64_t>(state.range(0));
-
-  for (auto _ : state) {
-    state.PauseTiming();
-    unodb::db test_db;
-    unodb::key key_limit = unodb::benchmark::insert_sequentially(
-        test_db, node4_insert_count,
-        unodb::benchmark::full_node4_tree_key_zero_bits);
-    unodb::benchmark::assert_node4_only_tree(test_db);
-
-    const auto n4_to_n16_keys_inserted =
-        unodb::benchmark::grow_full_node_tree_to_minimal_next_size_leaf_level<
-            unodb::db, 4>(
-            test_db, key_limit,
-            unodb::benchmark::number_to_minimal_leaf_node16_over_node4_key);
-
-    tree_size = test_db.get_current_memory_use();
-    state.ResumeTiming();
-
-    for (removed_key_count = 0; removed_key_count < n4_to_n16_keys_inserted;
-         ++removed_key_count) {
-      const auto remove_key =
-          unodb::benchmark::number_to_minimal_leaf_node16_over_node4_key(
-              removed_key_count);
-      unodb::benchmark::delete_key(test_db, remove_key);
-    }
-
-    state.PauseTiming();
-#ifndef NDEBUG
-    assert(removed_key_count == test_db.get_inode16_to_inode4_count());
-    unodb::benchmark::assert_node4_only_tree(test_db);
-#endif
-    shrinking_tree_stats.get(test_db);
-    unodb::benchmark::destroy_tree(test_db, state);
-  }
-
-  state.SetItemsProcessed(
-      static_cast<std::int64_t>(state.iterations() * removed_key_count));
-  shrinking_tree_stats.publish(state);
-  unodb::benchmark::set_size_counter(state, "size", tree_size);
+  unodb::benchmark::shrink_node_sequentially_benchmark<
+      unodb::db, 4, unodb::benchmark::full_node4_tree_key_zero_bits>(
+      state, unodb::benchmark::number_to_minimal_leaf_node16_over_node4_key);
 }
 
 void shrink_node16_to_node4_randomly(benchmark::State &state) {
-  shrinking_tree_node_stats shrinking_tree_stats;
-  std::size_t tree_size{0};
-  std::uint64_t removed_key_count{0};
-
-  const auto node4_insert_count = static_cast<unsigned>(state.range(0));
-
-  for (auto _ : state) {
-    state.PauseTiming();
-    unodb::db test_db;
-    const auto key_limit = unodb::benchmark::make_node4_tree_with_gaps(
-        test_db, node4_insert_count);
-
-#ifndef NDEBUG
-    const auto node4_created_count = test_db.get_created_inode4_count();
-#endif
-    const auto node16_keys =
-        unodb::benchmark::generate_random_minimal_node16_over_full_node4_keys(
-            key_limit);
-    unodb::benchmark::insert_keys(test_db, node16_keys);
-    assert(node4_created_count == test_db.get_created_inode4_count());
-    tree_size = test_db.get_current_memory_use();
-    state.ResumeTiming();
-
-    unodb::benchmark::delete_keys(test_db, node16_keys);
-
-    state.PauseTiming();
-#ifndef NDEBUG
-    unodb::benchmark::assert_node4_only_tree(test_db);
-    assert(test_db.get_inode16_to_inode4_count() == node16_keys.size());
-#endif
-    removed_key_count = node16_keys.size();
-    shrinking_tree_stats.get(test_db);
-    unodb::benchmark::destroy_tree(test_db, state);
-  }
-
-  state.SetItemsProcessed(
-      static_cast<std::int64_t>(state.iterations() * removed_key_count));
-  shrinking_tree_stats.publish(state);
-  unodb::benchmark::set_size_counter(state, "size", tree_size);
+  unodb::benchmark::shrink_node_randomly_benchmark<unodb::db, 4>(
+      state, unodb::benchmark::number_to_full_node4_with_gaps_key);
 }
 
 }  // namespace

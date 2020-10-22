@@ -52,11 +52,9 @@ void grow_node4_to_node16_sequentially(benchmark::State &state) {
 // randomly-selected value from 0, 2, 4, 6, and 8.
 
 void grow_node4_to_node16_randomly(benchmark::State &state) {
-  unodb::benchmark::grow_node_randomly_benchmark<
-      unodb::db, 4,
-      decltype(unodb::benchmark::make_node4_tree_with_gaps<unodb::db>)>(
-      state, unodb::benchmark::make_node4_tree_with_gaps,
-      unodb::benchmark::generate_random_minimal_node16_over_full_node4_keys);
+  unodb::benchmark::grow_node_randomly_benchmark<unodb::db, 4>(
+      state, unodb::benchmark::number_to_full_node4_with_gaps_key,
+      unodb::benchmark::generate_random_keys_over_full_smaller_tree<4>);
 }
 
 // Minimal Node16 tree sequential keys: "base-5" values that vary each byte from
@@ -290,6 +288,17 @@ void full_node16_tree_random_delete(benchmark::State &state) {
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
+void shrink_node48_to_node16_sequentially(benchmark::State &state) {
+  unodb::benchmark::shrink_node_sequentially_benchmark<
+      unodb::db, 16, unodb::benchmark::full_node16_tree_key_zero_bits>(
+      state, unodb::benchmark::number_to_minimal_leaf_node48_over_node16_key);
+}
+
+void shrink_node48_to_node16_randomly(benchmark::State &state) {
+  unodb::benchmark::shrink_node_randomly_benchmark<unodb::db, 16>(
+      state, unodb::benchmark::number_to_full_node16_with_gaps_key);
+}
+
 }  // namespace
 
 BENCHMARK(grow_node4_to_node16_sequentially)
@@ -318,6 +327,12 @@ BENCHMARK(full_node16_tree_sequential_delete)
     ->Range(64, 246000)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(full_node16_tree_random_delete)
+    ->Range(64, 246000)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK(shrink_node48_to_node16_sequentially)
+    ->Range(64, 246000)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK(shrink_node48_to_node16_randomly)
     ->Range(64, 246000)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_MAIN();

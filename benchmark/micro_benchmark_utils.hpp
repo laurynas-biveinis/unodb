@@ -590,8 +590,9 @@ void grow_node_randomly_benchmark(
   for (auto _ : state) {
     state.PauseTiming();
     Db test_db;
-    const auto key_limit = insert_n_keys(test_db, smaller_node_count * 4,
-                                         smaller_tree_number_to_key_fn);
+    const auto key_limit =
+        insert_n_keys(test_db, smaller_node_count * SmallerNodeSize,
+                      smaller_tree_number_to_key_fn);
     assert_node_size_tree<Db, SmallerNodeSize>(test_db);
 
     const auto larger_tree_keys = generate_keys_fn(key_limit);

@@ -50,7 +50,7 @@ BENCHMARK(grow_node16_to_node48_sequentially)
     ->Range(8, 8192)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(grow_node16_to_node48_randomly)
-    ->Range(8, 8192)
+    ->Range(2, 2048)
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();

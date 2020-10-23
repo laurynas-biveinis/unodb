@@ -85,7 +85,7 @@ inline constexpr auto number_to_minimal_leaf_node16_over_node4_key(
 inline constexpr auto number_to_minimal_leaf_node48_over_node16_key(
     std::uint64_t i) noexcept {
   assert(i / (0x10 * 0x10 * 0x10 * 0x10 * 0x10 * 0x10) < 0x10);
-  return 0x10ULL | unodb::benchmark::to_base_n_value<0x10>(i) << 8;
+  return 0x10ULL | to_base_n_value<0x10>(i) << 8;
 }
 
 // Full Node4 tree keys with 1, 3, 5, & 7 as the different key byte values so
@@ -566,8 +566,7 @@ void grow_node_sequentially_benchmark(::benchmark::State &state,
             test_db, key_limit, number_to_key_fn);
 
     state.PauseTiming();
-    unodb::benchmark::assert_growing_nodes<Db, SmallerNodeSize>(
-        test_db, benchmark_keys_inserted);
+    assert_growing_nodes<Db, SmallerNodeSize>(test_db, benchmark_keys_inserted);
     tree_size = test_db.get_current_memory_use();
     destroy_tree(test_db, state);
   }
@@ -598,19 +597,18 @@ void grow_node_randomly_benchmark(
     const auto larger_tree_keys = generate_keys_fn(key_limit);
     state.ResumeTiming();
 
-    unodb::benchmark::insert_keys(test_db, larger_tree_keys);
+    insert_keys(test_db, larger_tree_keys);
 
     state.PauseTiming();
     benchmark_keys_inserted = larger_tree_keys.size();
-    unodb::benchmark::assert_growing_nodes<Db, SmallerNodeSize>(
-        test_db, benchmark_keys_inserted);
+    assert_growing_nodes<Db, SmallerNodeSize>(test_db, benchmark_keys_inserted);
     tree_size = test_db.get_current_memory_use();
-    unodb::benchmark::destroy_tree(test_db, state);
+    destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           static_cast<std::int64_t>(benchmark_keys_inserted));
-  unodb::benchmark::set_size_counter(state, "size", tree_size);
+  set_size_counter(state, "size", tree_size);
 }
 
 // Do not bother with extern templates due to large parameter space
@@ -657,7 +655,7 @@ void shrink_node_sequentially_benchmark(
   state.SetItemsProcessed(
       static_cast<std::int64_t>(state.iterations() * removed_key_count));
   shrinking_tree_stats.publish(state);
-  unodb::benchmark::set_size_counter(state, "size", tree_size);
+  set_size_counter(state, "size", tree_size);
 }
 
 // Do not bother with extern templates due to large parameter space
@@ -688,19 +686,19 @@ void shrink_node_randomly_benchmark(
     tree_size = test_db.get_current_memory_use();
     state.ResumeTiming();
 
-    unodb::benchmark::delete_keys(test_db, node_growing_keys);
+    delete_keys(test_db, node_growing_keys);
 
     state.PauseTiming();
     removed_key_count = node_growing_keys.size();
     assert_shrinking_nodes<Db, SmallerNodeSize>(test_db, removed_key_count);
     shrinking_tree_stats.get(test_db);
-    unodb::benchmark::destroy_tree(test_db, state);
+    destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(
       static_cast<std::int64_t>(state.iterations() * removed_key_count));
   shrinking_tree_stats.publish(state);
-  unodb::benchmark::set_size_counter(state, "size", tree_size);
+  set_size_counter(state, "size", tree_size);
 }
 
 }  // namespace unodb::benchmark

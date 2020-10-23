@@ -46,14 +46,13 @@ std::vector<unodb::key> generate_random_keys_over_full_smaller_tree(
               key.as_bytes[2] = static_cast<std::uint8_t>(i6 * 2 + 1);
               for (std::uint8_t i7 = 0; i7 < NumByteValues; ++i7) {
                 key.as_bytes[1] = static_cast<std::uint8_t>(i7 * 2 + 1);
-                key.as_bytes[0] = static_cast<std::uint8_t>(
-                    prng_byte_values(unodb::benchmark::get_prng()) * 2);
+                key.as_bytes[0] =
+                    static_cast<std::uint8_t>(prng_byte_values(get_prng()) * 2);
 
                 const unodb::key k = key.as_int;
                 if (k > key_limit) {
                   result.shrink_to_fit();
-                  std::shuffle(result.begin(), result.end(),
-                               unodb::benchmark::get_prng());
+                  std::shuffle(result.begin(), result.end(), get_prng());
                   return result;
                 }
                 result.push_back(k);

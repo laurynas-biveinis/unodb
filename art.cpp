@@ -1095,9 +1095,11 @@ inode_16::inode_16(std::unique_ptr<inode_48> &&source_node,
                    std::uint8_t child_to_remove) noexcept
     : basic_inode_16{*source_node} {
   source_node->remove_child_pointer(child_to_remove);
+  // This assignment is redundant but results in benchmark regression, go figure
   source_node->children[source_node->child_indexes[child_to_remove]] = nullptr;
   source_node->child_indexes[child_to_remove] = inode_48::empty_child;
 
+  // TODO(laurynas): consider AVX512 gather?
   std::uint8_t next_child = 0;
   for (unsigned i = 0; i < 256; i++) {
     const auto source_child_i = source_node->child_indexes[i];

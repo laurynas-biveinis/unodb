@@ -1109,7 +1109,7 @@ inode_16::inode_16(std::unique_ptr<inode_48> &&source_node,
       assert(source_child_ptr != nullptr);
       children[next_child] = source_child_ptr;
       ++next_child;
-      if (next_child == f.f.children_count) break;
+      if (next_child == capacity) break;
     }
   }
 

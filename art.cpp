@@ -1094,25 +1094,20 @@ class inode_48 final : public basic_inode_48 {
 inode_16::inode_16(std::unique_ptr<inode_48> &&source_node,
                    std::uint8_t child_to_remove) noexcept
     : basic_inode_16{*source_node} {
+  source_node->remove_child_pointer(child_to_remove);
+  source_node->children[source_node->child_indexes[child_to_remove]] = nullptr;
+  source_node->child_indexes[child_to_remove] = inode_48::empty_child;
+
   std::uint8_t next_child = 0;
   for (unsigned i = 0; i < 256; i++) {
     const auto source_child_i = source_node->child_indexes[i];
-    if (i == child_to_remove) {
-      source_node->direct_remove_child_pointer(source_child_i);
-      continue;
-    }
     if (source_child_i != inode_48::empty_child) {
       keys.byte_array[next_child] = gsl::narrow_cast<std::byte>(i);
       const auto source_child_ptr = source_node->children[source_child_i];
       assert(source_child_ptr != nullptr);
       children[next_child] = source_child_ptr;
       ++next_child;
-      if (next_child == f.f.children_count) {
-        if (i < child_to_remove) {
-          source_node->remove_child_pointer(child_to_remove);
-        }
-        break;
-      }
+      if (next_child == f.f.children_count) break;
     }
   }
 

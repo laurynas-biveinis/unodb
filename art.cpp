@@ -1100,7 +1100,7 @@ inode_16::inode_16(std::unique_ptr<inode_48> &&source_node,
   source_node->child_indexes[child_to_remove] = inode_48::empty_child;
 
   // TODO(laurynas): consider AVX512 gather?
-  std::uint8_t next_child = 0;
+  unsigned next_child = 0;
   for (unsigned i = 0; i < 256; i++) {
     const auto source_child_i = source_node->child_indexes[i];
     if (source_child_i != inode_48::empty_child) {

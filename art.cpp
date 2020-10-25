@@ -1101,7 +1101,8 @@ inode_16::inode_16(std::unique_ptr<inode_48> &&source_node,
 
   // TODO(laurynas): consider AVX512 gather?
   unsigned next_child = 0;
-  for (unsigned i = 0; i < 256; i++) {
+  unsigned i = 0;
+  while (true) {
     const auto source_child_i = source_node->child_indexes[i];
     if (source_child_i != inode_48::empty_child) {
       keys.byte_array[next_child] = gsl::narrow_cast<std::byte>(i);
@@ -1111,6 +1112,8 @@ inode_16::inode_16(std::unique_ptr<inode_48> &&source_node,
       ++next_child;
       if (next_child == capacity) break;
     }
+    assert(i < 255);
+    ++i;
   }
 
   assert(std::is_sorted(keys.byte_array.cbegin(),

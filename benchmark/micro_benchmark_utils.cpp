@@ -117,6 +117,20 @@ void assert_mostly_node16_tree(const Db &test_db USED_IN_DEBUG) noexcept {
 
 template void assert_mostly_node16_tree<unodb::db>(const unodb::db &) noexcept;
 
+template <class Db>
+void assert_mostly_node48_tree(const Db &test_db USED_IN_DEBUG) noexcept {
+#ifndef NDEBUG
+  if (test_db.get_inode4_count() + test_db.get_inode16_count() > 8) {
+    std::cerr << "Too many I4/I16 nodes found in mostly-I48 tree:\n";
+    test_db.dump(std::cerr);
+    assert(test_db.get_inode4_count() + test_db.get_inode16_count() <= 8);
+  }
+  assert(test_db.get_inode256_count() == 0);
+#endif
+}
+
+template void assert_mostly_node48_tree<unodb::db>(const unodb::db &) noexcept;
+
 // Teardown
 
 template <class Db>

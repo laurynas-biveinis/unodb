@@ -44,6 +44,28 @@ void grow_node16_to_node48_randomly(benchmark::State &state) {
       unodb::benchmark::generate_random_keys_over_full_smaller_tree<16>);
 }
 
+inline constexpr auto number_to_minimal_node48_key(std::uint64_t i) noexcept {
+  return unodb::benchmark::to_base_n_value<17>(i);
+}
+
+inline constexpr auto number_to_full_leaf_over_minimal_node48_key(
+    std::uint64_t i) noexcept {
+  assert(i / (31 * 17 * 17 * 17 * 17 * 17 * 17) < 17);
+  return ((i % 31) + 17) | unodb::benchmark::to_base_n_value<17>(i / 31) << 8;
+}
+
+void node48_sequential_add(benchmark::State &state) {
+  unodb::benchmark::sequential_add_benchmark<unodb::db, 48>(
+      state, number_to_minimal_node48_key,
+      number_to_full_leaf_over_minimal_node48_key);
+}
+
+void node48_random_add(benchmark::State &state) {
+  unodb::benchmark::random_add_benchmark<unodb::db, 48>(
+      state, number_to_minimal_node48_key,
+      number_to_full_leaf_over_minimal_node48_key);
+}
+
 }  // namespace
 
 BENCHMARK(grow_node16_to_node48_sequentially)
@@ -52,5 +74,7 @@ BENCHMARK(grow_node16_to_node48_sequentially)
 BENCHMARK(grow_node16_to_node48_randomly)
     ->Range(2, 2048)
     ->Unit(benchmark::kMicrosecond);
+BENCHMARK(node48_sequential_add)->Range(2, 4096)->Unit(benchmark::kMicrosecond);
+BENCHMARK(node48_random_add)->Range(2, 4096)->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();

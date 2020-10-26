@@ -1041,13 +1041,14 @@ class inode_48 final : public basic_inode_48 {
 
     const auto key_byte = static_cast<uint8_t>(leaf::key(child.get())[depth]);
     assert(child_indexes[key_byte] == empty_child);
-    std::uint8_t i;
+    std::uint8_t i{0};
     node_ptr child_ptr;
-    for (i = 0; i < capacity; ++i) {
+    while (true) {
       child_ptr = children[i];
       if (child_ptr == nullptr) break;
+      assert(i < 255);
+      ++i;
     }
-    assert(child_ptr == nullptr);
     child_indexes[key_byte] = i;
     children[i] = child.release();
     ++f.f.children_count;

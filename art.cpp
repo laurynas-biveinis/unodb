@@ -7,15 +7,17 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
-#ifdef __x86_64
-#include <emmintrin.h>
-#endif
 #include <exception>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
 #include <utility>
+
+#ifdef __x86_64
+#include <emmintrin.h>
+#include <smmintrin.h>
+#endif
 
 #include <gsl/gsl_util>
 
@@ -1045,16 +1047,32 @@ class inode_48 final : public basic_inode_48 {
 
     const auto key_byte = static_cast<uint8_t>(leaf::key(child.get())[depth]);
     assert(child_indexes[key_byte] == empty_child);
-    std::uint8_t i{0};
+    unsigned i{0};
+#ifdef __x86_64
+    const auto nullptr_vector = _mm_setzero_si128();
+    while (true) {
+      const auto pointer_vector = _mm_load_si128(&children.pointer_vector[i]);
+      const auto vec_cmp = _mm_cmpeq_epi64(pointer_vector, nullptr_vector);
+      const auto cmp_mask =
+          static_cast<std::uint64_t>(_mm_movemask_epi8(vec_cmp));
+      if (cmp_mask != 0) {
+        i = (i << 1U) + (ffs_nonzero(cmp_mask) >> 3U);
+        break;
+      }
+      ++i;
+    }
+#else
     node_ptr child_ptr;
     while (true) {
-      child_ptr = children[i];
+      child_ptr = children.pointer_array[i];
       if (child_ptr == nullptr) break;
       assert(i < 255);
       ++i;
     }
-    child_indexes[key_byte] = i;
-    children[i] = child.release();
+#endif
+    assert(children.pointer_array[i] == nullptr);
+    child_indexes[key_byte] = gsl::narrow_cast<std::uint8_t>(i);
+    children.pointer_array[i] = child.release();
     ++f.f.children_count;
   }
 
@@ -1062,7 +1080,7 @@ class inode_48 final : public basic_inode_48 {
     assert(reinterpret_cast<node_header *>(this)->type() == static_node_type);
 
     remove_child_pointer(child_index);
-    children[child_indexes[child_index]] = nullptr;
+    children.pointer_array[child_indexes[child_index]] = nullptr;
     child_indexes[child_index] = empty_child;
     --f.f.children_count;
   }
@@ -1079,7 +1097,7 @@ class inode_48 final : public basic_inode_48 {
   }
 
   void direct_remove_child_pointer(std::uint8_t children_i) noexcept {
-    const auto child_ptr = children[children_i];
+    const auto child_ptr = children.pointer_array[children_i];
 
     assert(children_i != empty_child);
     assert(child_ptr != nullptr);
@@ -1088,7 +1106,17 @@ class inode_48 final : public basic_inode_48 {
   }
 
   std::array<std::uint8_t, 256> child_indexes;
-  std::array<node_ptr, capacity> children;
+
+  union children_union {
+    std::array<node_ptr, capacity> pointer_array;
+#ifdef __x86_64
+    static_assert(capacity % 16 == 0);
+    // No std::array below because it would ignore the alignment attribute
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    __m128i pointer_vector[capacity / 16];  // NOLINT(runtime/arrays)
+#endif
+    children_union() {}
+  } children;
 
   static constexpr std::uint8_t empty_child = 0xFF;
 
@@ -1111,7 +1139,8 @@ inode_16::inode_16(std::unique_ptr<inode_48> &&source_node,
     const auto source_child_i = source_node->child_indexes[i];
     if (source_child_i != inode_48::empty_child) {
       keys.byte_array[next_child] = gsl::narrow_cast<std::byte>(i);
-      const auto source_child_ptr = source_node->children[source_child_i];
+      const auto source_child_ptr =
+          source_node->children.pointer_array[source_child_i];
       assert(source_child_ptr != nullptr);
       children[next_child] = source_child_ptr;
       ++next_child;
@@ -1140,15 +1169,15 @@ inode_48::inode_48(std::unique_ptr<inode_16> &&source_node,
     child_indexes[static_cast<std::uint8_t>(existing_key_byte)] = i;
   }
   for (i = 0; i < inode_16::capacity; ++i) {
-    children[i] = source_node_ptr->children[i];
+    children.pointer_array[i] = source_node_ptr->children[i];
   }
 
   const auto key_byte = static_cast<std::uint8_t>(leaf::key(child_ptr)[depth]);
   assert(child_indexes[key_byte] == empty_child);
   child_indexes[key_byte] = i;
-  children[i] = child_ptr;
+  children.pointer_array[i] = child_ptr;
   for (i = f.f.children_count; i < capacity; i++) {
-    children[i] = nullptr;
+    children.pointer_array[i] = nullptr;
   }
 }
 
@@ -1158,9 +1187,9 @@ __attribute__((pure)) inode::find_result_type inode_48::find_child(
 
   if (child_indexes[static_cast<std::uint8_t>(key_byte)] != empty_child) {
     const auto child_i = child_indexes[static_cast<std::uint8_t>(key_byte)];
-    assert(children[child_i] != nullptr);
+    assert(children.pointer_array[child_i] != nullptr);
     return std::make_pair(static_cast<std::uint8_t>(key_byte),
-                          &children[child_i]);
+                          &children.pointer_array[child_i]);
   }
   return std::make_pair(0xFF, nullptr);
 }
@@ -1168,7 +1197,7 @@ __attribute__((pure)) inode::find_result_type inode_48::find_child(
 void inode_48::delete_subtree() noexcept {
   unsigned actual_children_count = 0;
   for (unsigned i = 0; i < capacity; ++i) {
-    const auto child = children[i];
+    const auto child = children.pointer_array[i];
     if (child != nullptr) {
       ++actual_children_count;
       ::delete_subtree(child);
@@ -1188,8 +1217,8 @@ void inode_48::dump(std::ostream &os) const {
       dump_byte(os, gsl::narrow_cast<std::byte>(i));
       os << ", child index = " << static_cast<unsigned>(child_indexes[i])
          << ": ";
-      assert(children[child_indexes[i]] != nullptr);
-      dump_node(os, children[child_indexes[i]]);
+      assert(children.pointer_array[child_indexes[i]] != nullptr);
+      dump_node(os, children.pointer_array[child_indexes[i]]);
       assert(actual_children_count <= f.f.children_count);
     }
 
@@ -1266,7 +1295,7 @@ inode_48::inode_48(std::unique_ptr<inode_256> &&source_node,
     }
     assert(child_ptr != nullptr);
     child_indexes[child_i] = next_child;
-    children[next_child] = source_node->children[child_i];
+    children.pointer_array[next_child] = source_node->children[child_i];
     ++next_child;
     if (next_child == f.f.children_count) {
       if (child_i < child_to_remove) {
@@ -1289,7 +1318,7 @@ inode_256::inode_256(std::unique_ptr<inode_48> &&source_node,
     const auto children_i = source_node->child_indexes[i];
     children[i] = children_i == inode_48::empty_child
                       ? nullptr
-                      : source_node->children[children_i];
+                      : source_node->children.pointer_array[children_i];
   }
 
   const auto key_byte = static_cast<uint8_t>(leaf::key(child.get())[depth]);

@@ -722,6 +722,8 @@ class inode_4 final : public basic_inode_4 {
   std::array<node_ptr, capacity> children;
 };
 
+static_assert(sizeof(inode_4) == 48);
+
 inode_4::inode_4(art_key k1, art_key shifted_k2, tree_depth depth,
                  node_ptr child1, leaf_unique_ptr &&child2) noexcept
     : basic_inode_4{k1, shifted_k2, depth} {
@@ -928,6 +930,8 @@ class inode_16 final : public basic_inode_16 {
   friend class inode_48;
 };
 
+static_assert(sizeof(inode_16) == 160);
+
 inode_4::inode_4(std::unique_ptr<inode_16> &&source_node,
                  uint8_t child_to_remove) noexcept
     : basic_inode_4{*source_node} {
@@ -1092,6 +1096,8 @@ class inode_48 final : public basic_inode_48 {
   friend class inode_256;
 };
 
+static_assert(sizeof(inode_48) == 656);
+
 inode_16::inode_16(std::unique_ptr<inode_48> &&source_node,
                    std::uint8_t child_to_remove) noexcept
     : basic_inode_16{*source_node} {
@@ -1238,6 +1244,8 @@ class inode_256 final : public basic_inode_256 {
 
   friend class inode_48;
 };
+
+static_assert(sizeof(inode_256) == 2064);
 
 inode_48::inode_48(std::unique_ptr<inode_256> &&source_node,
                    std::uint8_t child_to_remove) noexcept

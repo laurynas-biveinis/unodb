@@ -11,6 +11,11 @@ Status](https://travis-ci.org/laurynas-biveinis/unodb.svg?branch=master)](https:
 Unodb is a adaptive radix tree implementation, done as my playground for various
 C++ tools and ideas.
 
+## Requirements
+
+The code uses SSE4.1 intrinsics (Nehalem and higher). This is in contrast to the
+original ART paper needing SSE2 only.
+
 ## Usage
 
 All the declarations live in the `unodb` namespace, which is omitted in the

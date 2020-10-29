@@ -61,7 +61,7 @@ else()
     "-Warray-bounds=2" "-Wredundant-tags")
 endif()
 
-list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g")
+list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g" "-msse4.1")
 
 option(COVERAGE "Enable code coverage reporting")
 if(COVERAGE)
@@ -294,6 +294,8 @@ else()
     string(CONCAT CLANG_TIDY_DISABLED
       "-fuchsia-default-arguments,"
       "-clang-diagnostic-error,"
+      # Duplicated by modernize-avoid-c-arrays
+      "-cppcoreguidelines-avoid-c-arrays,"
       "-cppcoreguidelines-avoid-magic-numbers,"
       "-cppcoreguidelines-init-variables,"
       "-cppcoreguidelines-macro-usage," # Until it respects __LINE__ in macro definition
@@ -314,6 +316,8 @@ else()
       "-fuchsia-overloaded-operator,"
       "-google-readability-braces-around-statements,"
       "-google-runtime-references,"
+      # Duplicated by modernize-avoid-c-arrays
+      "-hicpp-avoid-c-arrays,"
       "-hicpp-braces-around-statements,"
       "-hicpp-member-init,"
       "-hicpp-no-array-decay,"

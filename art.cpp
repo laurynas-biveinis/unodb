@@ -1051,15 +1051,20 @@ class inode_48 final : public basic_inode_48 {
 #ifdef __x86_64
     const auto nullptr_vector = _mm_setzero_si128();
     while (true) {
-      const auto pointer_vector = _mm_load_si128(&children.pointer_vector[i]);
-      const auto vec_cmp = _mm_cmpeq_epi64(pointer_vector, nullptr_vector);
+      const auto ptr_vec0 = _mm_load_si128(&children.pointer_vector[i]);
+      const auto ptr_vec1 = _mm_load_si128(&children.pointer_vector[i + 1]);
+      const auto vec0_cmp = _mm_cmpeq_epi64(ptr_vec0, nullptr_vector);
+      const auto vec1_cmp = _mm_cmpeq_epi64(ptr_vec1, nullptr_vector);
+      // OK to treat 64-bit comparison result as 32-bit vector: we need to find
+      // the first 0xFF only.
+      const auto packed_vec_cmp = _mm_packs_epi32(vec0_cmp, vec1_cmp);
       const auto cmp_mask =
-          static_cast<std::uint64_t>(_mm_movemask_epi8(vec_cmp));
+          static_cast<std::uint64_t>(_mm_movemask_epi8(packed_vec_cmp));
       if (cmp_mask != 0) {
-        i = (i << 1U) + (ffs_nonzero(cmp_mask) >> 3U);
+        i = (i << 1U) + (ffs_nonzero(cmp_mask) >> 2U);
         break;
       }
-      ++i;
+      i += 2;
     }
 #else
     node_ptr child_ptr;

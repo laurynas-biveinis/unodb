@@ -1055,22 +1055,34 @@ class inode_48 final : public basic_inode_48 {
       const auto ptr_vec1 = _mm_load_si128(&children.pointer_vector[i + 1]);
       const auto ptr_vec2 = _mm_load_si128(&children.pointer_vector[i + 2]);
       const auto ptr_vec3 = _mm_load_si128(&children.pointer_vector[i + 3]);
+      const auto ptr_vec4 = _mm_load_si128(&children.pointer_vector[i + 4]);
+      const auto ptr_vec5 = _mm_load_si128(&children.pointer_vector[i + 5]);
+      const auto ptr_vec6 = _mm_load_si128(&children.pointer_vector[i + 6]);
+      const auto ptr_vec7 = _mm_load_si128(&children.pointer_vector[i + 7]);
       const auto vec0_cmp = _mm_cmpeq_epi64(ptr_vec0, nullptr_vector);
       const auto vec1_cmp = _mm_cmpeq_epi64(ptr_vec1, nullptr_vector);
       const auto vec2_cmp = _mm_cmpeq_epi64(ptr_vec2, nullptr_vector);
       const auto vec3_cmp = _mm_cmpeq_epi64(ptr_vec3, nullptr_vector);
+      const auto vec4_cmp = _mm_cmpeq_epi64(ptr_vec4, nullptr_vector);
+      const auto vec5_cmp = _mm_cmpeq_epi64(ptr_vec5, nullptr_vector);
+      const auto vec6_cmp = _mm_cmpeq_epi64(ptr_vec6, nullptr_vector);
+      const auto vec7_cmp = _mm_cmpeq_epi64(ptr_vec7, nullptr_vector);
       // OK to treat 64-bit comparison result as 32-bit vector: we need to find
       // the first 0xFF only.
       const auto vec01_cmp = _mm_packs_epi32(vec0_cmp, vec1_cmp);
       const auto vec23_cmp = _mm_packs_epi32(vec2_cmp, vec3_cmp);
-      const auto vec_cmp = _mm_packs_epi32(vec01_cmp, vec23_cmp);
+      const auto vec45_cmp = _mm_packs_epi32(vec4_cmp, vec5_cmp);
+      const auto vec67_cmp = _mm_packs_epi32(vec6_cmp, vec7_cmp);
+      const auto vec03_cmp = _mm_packs_epi32(vec01_cmp, vec23_cmp);
+      const auto vec47_cmp = _mm_packs_epi32(vec45_cmp, vec67_cmp);
+      const auto vec_cmp = _mm_packs_epi16(vec03_cmp, vec47_cmp);
       const auto cmp_mask =
           static_cast<std::uint64_t>(_mm_movemask_epi8(vec_cmp));
       if (cmp_mask != 0) {
-        i = (i << 1U) + (ffs_nonzero(cmp_mask) >> 1U);
+        i = (i << 1U) + ffs_nonzero(cmp_mask) - 1;
         break;
       }
-      i += 4;
+      i += 8;
     }
 #else
     node_ptr child_ptr;

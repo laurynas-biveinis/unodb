@@ -1115,10 +1115,12 @@ class inode_48 final : public basic_inode_48 {
   union children_union {
     std::array<node_ptr, capacity> pointer_array;
 #ifdef __x86_64
-    static_assert(capacity % 16 == 0);
+    static_assert(capacity % 2 == 0);
+    // To support unrolling without remainder
+    static_assert((capacity / 2) % 2 == 0);
     // No std::array below because it would ignore the alignment attribute
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    __m128i pointer_vector[capacity / 16];  // NOLINT(runtime/arrays)
+    __m128i pointer_vector[capacity / 2];  // NOLINT(runtime/arrays)
 #endif
     children_union() {}
   } children;

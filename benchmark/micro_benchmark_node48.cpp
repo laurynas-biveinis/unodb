@@ -44,10 +44,6 @@ void grow_node16_to_node48_randomly(benchmark::State &state) {
       unodb::benchmark::generate_random_keys_over_full_smaller_tree<16>);
 }
 
-inline constexpr auto number_to_minimal_node48_key(std::uint64_t i) noexcept {
-  return unodb::benchmark::to_base_n_value<17>(i);
-}
-
 inline constexpr auto number_to_full_leaf_over_minimal_node48_key(
     std::uint64_t i) noexcept {
   assert(i / (31 * 17 * 17 * 17 * 17 * 17 * 17) < 17);
@@ -56,14 +52,12 @@ inline constexpr auto number_to_full_leaf_over_minimal_node48_key(
 
 void node48_sequential_add(benchmark::State &state) {
   unodb::benchmark::sequential_add_benchmark<unodb::db, 48>(
-      state, number_to_minimal_node48_key,
-      number_to_full_leaf_over_minimal_node48_key);
+      state, number_to_full_leaf_over_minimal_node48_key);
 }
 
 void node48_random_add(benchmark::State &state) {
   unodb::benchmark::random_add_benchmark<unodb::db, 48>(
-      state, number_to_minimal_node48_key,
-      number_to_full_leaf_over_minimal_node48_key);
+      state, number_to_full_leaf_over_minimal_node48_key);
 }
 
 }  // namespace

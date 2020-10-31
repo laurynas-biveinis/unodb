@@ -205,4 +205,21 @@ template void full_node_random_get_benchmark<unodb::db, 4>(::benchmark::State &,
 template void full_node_random_get_benchmark<unodb::db, 16>(
     ::benchmark::State &, std::uint64_t);
 
+template <class Db, unsigned NodeCapacity>
+std::tuple<unodb::key, const tree_shape_snapshot<Db>> make_base_tree_for_add(
+    Db &test_db, unsigned node_count) {
+  const auto key_limit = insert_n_keys<
+      Db, decltype(number_to_minimal_node_size_tree_key<NodeCapacity>)>(
+      test_db, node_count * (node_capacity_to_minimum_size<NodeCapacity>() + 1),
+      number_to_minimal_node_size_tree_key<NodeCapacity>);
+  assert_node_size_tree<Db, NodeCapacity>(test_db);
+  return std::make_tuple(key_limit, tree_shape_snapshot<unodb::db>{test_db});
+}
+
+template std::tuple<unodb::key, const tree_shape_snapshot<unodb::db>>
+make_base_tree_for_add<unodb::db, 16>(unodb::db &, unsigned);
+
+template std::tuple<unodb::key, const tree_shape_snapshot<unodb::db>>
+make_base_tree_for_add<unodb::db, 48>(unodb::db &, unsigned);
+
 }  // namespace unodb::benchmark

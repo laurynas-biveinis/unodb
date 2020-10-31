@@ -58,23 +58,23 @@ void grow_node4_to_node16_randomly(benchmark::State &state) {
 }
 
 auto make_minimal_node16_tree(unodb::db &db, unsigned node16_node_count) {
-  const auto last_inserted_key = unodb::benchmark::insert_n_keys(
+  const auto last_inserted_key = unodb::benchmark::insert_n_keys<
+      unodb::db,
+      decltype(unodb::benchmark::number_to_minimal_node_size_tree_key<16>)>(
       db, node16_node_count * 5,
-      unodb::benchmark::number_to_minimal_node16_key);
+      unodb::benchmark::number_to_minimal_node_size_tree_key<16>);
   unodb::benchmark::assert_mostly_node16_tree(db);
   return last_inserted_key;
 }
 
 void node16_sequential_add(benchmark::State &state) {
   unodb::benchmark::sequential_add_benchmark<unodb::db, 16>(
-      state, unodb::benchmark::number_to_minimal_node16_key,
-      unodb::benchmark::number_to_full_leaf_over_minimal_node16_key);
+      state, unodb::benchmark::number_to_full_leaf_over_minimal_node16_key);
 }
 
 void node16_random_add(benchmark::State &state) {
   unodb::benchmark::random_add_benchmark<unodb::db, 16>(
-      state, unodb::benchmark::number_to_minimal_node16_key,
-      unodb::benchmark::number_to_full_leaf_over_minimal_node16_key);
+      state, unodb::benchmark::number_to_full_leaf_over_minimal_node16_key);
 }
 
 void minimal_node16_tree_full_scan(benchmark::State &state) {
@@ -87,7 +87,8 @@ void minimal_node16_tree_full_scan(benchmark::State &state) {
   for (auto _ : state) {
     std::uint64_t i = 0;
     while (true) {
-      unodb::key k = unodb::benchmark::number_to_minimal_node16_key(i);
+      unodb::key k =
+          unodb::benchmark::number_to_minimal_node_size_tree_key<16>(i);
       if (k > key_limit) break;
       unodb::benchmark::get_existing_key(test_db, k);
       ++i;
@@ -104,8 +105,8 @@ void minimal_node16_tree_random_gets(benchmark::State &state) {
   unodb::db test_db;
   const auto key_limit USED_IN_DEBUG =
       make_minimal_node16_tree(test_db, node16_node_count);
-  assert(unodb::benchmark::number_to_minimal_node16_key(node16_node_count * 5 -
-                                                        1) == key_limit);
+  assert(unodb::benchmark::number_to_minimal_node_size_tree_key<16>(
+             node16_node_count * 5 - 1) == key_limit);
   const auto tree_size = test_db.get_current_memory_use();
   unodb::benchmark::batched_prng random_key_positions{node16_node_count * 5 -
                                                       1};
@@ -113,7 +114,8 @@ void minimal_node16_tree_random_gets(benchmark::State &state) {
 
   for (auto _ : state) {
     const auto key_index = random_key_positions.get(state);
-    const auto key = unodb::benchmark::number_to_minimal_node16_key(key_index);
+    const auto key =
+        unodb::benchmark::number_to_minimal_node_size_tree_key<16>(key_index);
     unodb::benchmark::get_existing_key(test_db, key);
     ++items_processed;
   }

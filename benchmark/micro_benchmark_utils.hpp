@@ -14,6 +14,7 @@
 #include <limits>
 #include <random>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include <benchmark/benchmark.h>
@@ -39,6 +40,18 @@ inline constexpr std::array<unodb::value_view, 5> values = {
     unodb::value_view{value1}, unodb::value_view{value10},
     unodb::value_view{value100}, unodb::value_view{value1000},
     unodb::value_view{value10000}};
+
+// Node sizes
+
+template <unsigned NodeCapacity>
+constexpr inline auto node_capacity_to_minimum_size() noexcept {
+  static_assert(NodeCapacity == 16 || NodeCapacity == 48);
+  if constexpr (NodeCapacity == 16) {
+    return 5;
+  } else if constexpr (NodeCapacity == 48) {
+    return 17;
+  }
+}
 
 // Key manipulation
 
@@ -82,8 +95,10 @@ inline constexpr auto number_to_minimal_leaf_node16_over_node4_key(
   return 4ULL | to_base_n_value<4>(i) << 8;
 }
 
-inline constexpr auto number_to_minimal_node16_key(std::uint64_t i) noexcept {
-  return unodb::benchmark::to_base_n_value<5>(i);
+template <unsigned NodeSize>
+inline constexpr auto number_to_minimal_node_size_tree_key(
+    std::uint64_t i) noexcept {
+  return to_base_n_value<node_capacity_to_minimum_size<NodeSize>()>(i);
 }
 
 inline constexpr auto number_to_full_leaf_over_minimal_node16_key(
@@ -734,33 +749,20 @@ void shrink_node_randomly_benchmark(
   set_size_counter(state, "size", tree_size);
 }
 
-template <unsigned NodeCapacity>
-constexpr inline auto node_capacity_to_minimum_size() noexcept {
-  static_assert(NodeCapacity == 16 || NodeCapacity == 48);
-  if constexpr (NodeCapacity == 16) {
-    return 5;
-  } else if constexpr (NodeCapacity == 48) {
-    return 17;
-  }
-}
-
-// Do not bother with extern templates due to large parameter space
-template <class Db, unsigned NodeCapacity, typename NumberToBaseTreeKeyFn>
+template <class Db, unsigned NodeCapacity>
 std::tuple<unodb::key, const tree_shape_snapshot<Db>> make_base_tree_for_add(
-    Db &test_db, unsigned node_count,
-    NumberToBaseTreeKeyFn number_to_base_tree_key_fn) {
-  const auto key_limit = insert_n_keys(
-      test_db, node_count * (node_capacity_to_minimum_size<NodeCapacity>() + 1),
-      number_to_base_tree_key_fn);
-  assert_node_size_tree<Db, NodeCapacity>(test_db);
-  return std::make_tuple(key_limit, tree_shape_snapshot<unodb::db>{test_db});
-}
+    Db &test_db, unsigned node_count);
+
+extern template std::tuple<unodb::key, const tree_shape_snapshot<unodb::db>>
+make_base_tree_for_add<unodb::db, 16>(unodb::db &, unsigned);
+
+extern template std::tuple<unodb::key, const tree_shape_snapshot<unodb::db>>
+make_base_tree_for_add<unodb::db, 48>(unodb::db &, unsigned);
 
 // Do not bother with extern templates due to large parameter space
-template <class Db, unsigned NodeSize, typename NumberToBaseTreeKeyFn,
-          typename NumberToBenchmarkKeyFn>
+template <class Db, unsigned NodeSize, typename NumberToBenchmarkKeyFn>
 void sequential_add_benchmark(
-    ::benchmark::State &state, NumberToBaseTreeKeyFn number_to_base_tree_key_fn,
+    ::benchmark::State &state,
     NumberToBenchmarkKeyFn number_to_benchmark_key_fn) {
   std::size_t tree_size{0};
   const auto node_count = static_cast<unsigned>(state.range(0));
@@ -769,8 +771,8 @@ void sequential_add_benchmark(
   for (auto _ : state) {
     state.PauseTiming();
     Db test_db;
-    auto [key_limit, tree_shape] = make_base_tree_for_add<Db, NodeSize>(
-        test_db, node_count, number_to_base_tree_key_fn);
+    auto [key_limit, tree_shape] =
+        make_base_tree_for_add<Db, NodeSize>(test_db, node_count);
     state.ResumeTiming();
 
     benchmark_keys_inserted =
@@ -791,10 +793,8 @@ void sequential_add_benchmark(
 }
 
 // Do not bother with extern templates due to large parameter space
-template <class Db, unsigned NodeSize, typename NumberToBaseTreeKeyFn,
-          typename NumberToBenchmarkKeyFn>
+template <class Db, unsigned NodeSize, typename NumberToBenchmarkKeyFn>
 void random_add_benchmark(::benchmark::State &state,
-                          NumberToBaseTreeKeyFn number_to_base_tree_key_fn,
                           NumberToBenchmarkKeyFn number_to_benchmark_key_fn) {
   std::size_t tree_size{0};
   const auto node_count = static_cast<unsigned>(state.range(0));
@@ -803,8 +803,8 @@ void random_add_benchmark(::benchmark::State &state,
   for (auto _ : state) {
     state.PauseTiming();
     Db test_db;
-    auto [key_limit, tree_shape] = make_base_tree_for_add<Db, NodeSize>(
-        test_db, node_count, number_to_base_tree_key_fn);
+    auto [key_limit, tree_shape] =
+        make_base_tree_for_add<Db, NodeSize>(test_db, node_count);
     auto benchmark_keys =
         generate_keys_to_limit(key_limit, number_to_benchmark_key_fn);
     std::shuffle(benchmark_keys.begin(), benchmark_keys.end(), get_prng());

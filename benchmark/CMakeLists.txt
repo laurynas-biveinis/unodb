@@ -3,7 +3,8 @@
 set(micro_benchmark_key_prefix_quick_arg "") # Benchmark is quick as-is
 set(micro_benchmark_node4_quick_arg "--benchmark_filter='/16|/20|/100'")
 set(micro_benchmark_node16_quick_arg "--benchmark_filter='/64'")
-set(micro_benchmark_node48_quick_arg "--benchmark_filter='/64'")
+set(micro_benchmark_node48_quick_arg "--benchmark_filter='/64|/128|/192'")
+set(micro_benchmark_node256_quick_arg "--benchmark_filter='/8'")
 set(micro_benchmark_quick_arg "--benchmark_filter='.*262144|.*51200'")
 set(micro_benchmark_mutex_quick_arg "--benchmark_filter='/4/70000/'")
 
@@ -12,6 +13,7 @@ add_custom_target(benchmarks
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node4
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node16
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node48
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node256
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_mutex)
 
@@ -24,6 +26,8 @@ add_custom_target(quick_benchmarks
   ./micro_benchmark_node16 ${micro_benchmark_node16_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
   ./micro_benchmark_node48 ${micro_benchmark_node48_quick_arg}
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+  ./micro_benchmark_node256 ${micro_benchmark_node256_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
   ./micro_benchmark ${micro_benchmark_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
@@ -38,6 +42,8 @@ add_custom_target(valgrind_benchmarks
   ./micro_benchmark_node16 ${micro_benchmark_node16_quick_arg}
   COMMAND valgrind --error-exitcode=1 --leak-check=full
   ./micro_benchmark_node48 ${micro_benchmark_node48_quick_arg}
+  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  ./micro_benchmark_node256 ${micro_benchmark_node256_quick_arg}
   COMMAND valgrind --error-exitcode=1 --leak-check=full
   ./micro_benchmark ${micro_benchmark_quick_arg}
   COMMAND valgrind --error-exitcode=1 --leak-check=full
@@ -66,5 +72,6 @@ add_benchmark_target(micro_benchmark_key_prefix)
 add_benchmark_target(micro_benchmark_node4)
 add_benchmark_target(micro_benchmark_node16)
 add_benchmark_target(micro_benchmark_node48)
+add_benchmark_target(micro_benchmark_node256)
 add_benchmark_target(micro_benchmark)
 add_benchmark_target(micro_benchmark_mutex)

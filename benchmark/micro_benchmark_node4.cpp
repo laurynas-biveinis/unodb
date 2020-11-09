@@ -16,17 +16,16 @@
 
 namespace {
 
-constexpr auto minimal_node4_key_zero_bits = 0xFEFEFEFE'FEFEFEFEULL;
-
-std::vector<unodb::key> make_n_key_sequence(std::size_t n,
-                                            std::uint64_t key_zero_bits) {
+template <unsigned NodeSize>
+std::vector<unodb::key> make_n_key_sequence(std::size_t n) {
   std::vector<unodb::key> result;
   result.reserve(n);
 
   unodb::key insert_key = 0;
   for (decltype(n) i = 0; i < n; ++i) {
     result.push_back(insert_key);
-    insert_key = unodb::benchmark::next_key(insert_key, key_zero_bits);
+    insert_key = unodb::benchmark::next_key(
+        insert_key, unodb::benchmark::node_size_to_key_zero_bits<NodeSize>());
   }
 
   return result;
@@ -46,8 +45,8 @@ std::vector<unodb::key> make_limited_key_sequence(unodb::key limit,
   return result;
 }
 
-void node4_sequential_insert(benchmark::State &state,
-                             std::uint64_t key_zero_bits) {
+template <unsigned NodeSize>
+void node4_sequential_insert(benchmark::State &state) {
   unodb::benchmark::growing_tree_node_stats<unodb::db> growing_tree_stats;
   std::size_t tree_size = 0;
 
@@ -57,8 +56,8 @@ void node4_sequential_insert(benchmark::State &state,
     benchmark::ClobberMemory();
     state.ResumeTiming();
 
-    unodb::benchmark::insert_sequentially(
-        test_db, static_cast<std::uint64_t>(state.range(0)), key_zero_bits);
+    unodb::benchmark::insert_sequentially<unodb::db, NodeSize>(
+        test_db, static_cast<unsigned>(state.range(0)));
 
     state.PauseTiming();
     unodb::benchmark::assert_node4_only_tree(test_db);
@@ -74,17 +73,17 @@ void node4_sequential_insert(benchmark::State &state,
 }
 
 void full_node4_sequential_insert(benchmark::State &state) {
-  node4_sequential_insert(state,
-                          unodb::benchmark::full_node4_tree_key_zero_bits);
+  node4_sequential_insert<4>(state);
 }
 
 void minimal_node4_sequential_insert(benchmark::State &state) {
-  node4_sequential_insert(state, minimal_node4_key_zero_bits);
+  node4_sequential_insert<2>(state);
 }
 
-void node4_random_insert(benchmark::State &state, std::uint64_t key_zero_bits) {
-  auto keys = make_n_key_sequence(static_cast<std::size_t>(state.range(0)),
-                                  key_zero_bits);
+template <unsigned NodeSize>
+void node4_random_insert(benchmark::State &state) {
+  auto keys =
+      make_n_key_sequence<NodeSize>(static_cast<std::size_t>(state.range(0)));
 
   for (auto _ : state) {
     state.PauseTiming();
@@ -105,35 +104,34 @@ void node4_random_insert(benchmark::State &state, std::uint64_t key_zero_bits) {
 }
 
 void full_node4_random_insert(benchmark::State &state) {
-  node4_random_insert(state, unodb::benchmark::full_node4_tree_key_zero_bits);
+  node4_random_insert<4>(state);
 }
 
 void minimal_node4_random_insert(benchmark::State &state) {
-  node4_random_insert(state, minimal_node4_key_zero_bits);
+  node4_random_insert<2>(state);
 }
 
 void node4_full_scan(benchmark::State &state) {
-  unodb::benchmark::full_node_scan_benchmark<unodb::db, 4>(
-      state, unodb::benchmark::full_node4_tree_key_zero_bits);
+  unodb::benchmark::full_node_scan_benchmark<unodb::db, 4>(state);
 }
 
 void node4_random_gets(benchmark::State &state) {
-  unodb::benchmark::full_node_random_get_benchmark<unodb::db, 4>(
-      state, unodb::benchmark::full_node4_tree_key_zero_bits);
+  unodb::benchmark::full_node_random_get_benchmark<unodb::db, 4>(state);
 }
 
+template <unsigned NodeSize>
 void node4_sequential_delete_benchmark(benchmark::State &state,
-                                       std::uint64_t insert_key_zero_bits,
                                        std::uint64_t delete_key_zero_bits) {
-  const auto number_of_keys = static_cast<std::uint64_t>(state.range(0));
+  const auto key_count = static_cast<unsigned>(state.range(0));
   int keys_deleted{0};
   std::size_t tree_size{0};
 
   for (auto _ : state) {
     state.PauseTiming();
     unodb::db test_db;
-    const auto key_limit = unodb::benchmark::insert_sequentially(
-        test_db, number_of_keys, insert_key_zero_bits);
+    const auto key_limit =
+        unodb::benchmark::insert_sequentially<unodb::db, NodeSize>(test_db,
+                                                                   key_count);
     tree_size = test_db.get_current_memory_use();
     unodb::benchmark::assert_node4_only_tree(test_db);
     state.ResumeTiming();
@@ -153,22 +151,22 @@ void node4_sequential_delete_benchmark(benchmark::State &state,
 }
 
 void full_node4_sequential_delete(benchmark::State &state) {
-  node4_sequential_delete_benchmark(
-      state, unodb::benchmark::full_node4_tree_key_zero_bits,
-      unodb::benchmark::full_node4_tree_key_zero_bits);
+  node4_sequential_delete_benchmark<4>(
+      state, unodb::benchmark::node_size_to_key_zero_bits<4>());
 }
 
+template <unsigned NodeSize>
 void node4_random_delete_benchmark(benchmark::State &state,
-                                   std::uint64_t insert_key_zero_bits,
                                    std::uint64_t delete_key_zero_bits) {
-  const auto number_of_keys = static_cast<std::uint64_t>(state.range(0));
+  const auto key_count = static_cast<unsigned>(state.range(0));
   std::size_t tree_size{0};
 
   for (auto _ : state) {
     state.PauseTiming();
     unodb::db test_db;
-    const auto key_limit = unodb::benchmark::insert_sequentially(
-        test_db, number_of_keys, insert_key_zero_bits);
+    const auto key_limit =
+        unodb::benchmark::insert_sequentially<unodb::db, NodeSize>(test_db,
+                                                                   key_count);
     tree_size = test_db.get_current_memory_use();
     unodb::benchmark::assert_node4_only_tree(test_db);
 
@@ -185,45 +183,29 @@ void node4_random_delete_benchmark(benchmark::State &state,
 }
 
 void full_node4_random_deletes(benchmark::State &state) {
-  node4_random_delete_benchmark(
-      state, unodb::benchmark::full_node4_tree_key_zero_bits,
-      unodb::benchmark::full_node4_tree_key_zero_bits);
+  node4_random_delete_benchmark<4>(
+      state, unodb::benchmark::node_size_to_key_zero_bits<4>());
 }
 
 constexpr auto minimal_node4_tree_full_leaf_level_key_zero_bits =
     0xFCFCFCFC'FCFCFCFEULL;
 
 void full_node4_to_minimal_sequential_delete(benchmark::State &state) {
-  node4_sequential_delete_benchmark(
-      state, unodb::benchmark::full_node4_tree_key_zero_bits,
-      minimal_node4_tree_full_leaf_level_key_zero_bits);
+  node4_sequential_delete_benchmark<4>(
+      state, minimal_node4_tree_full_leaf_level_key_zero_bits);
 }
 
 void full_node4_to_minimal_random_delete(benchmark::State &state) {
-  node4_random_delete_benchmark(
-      state, unodb::benchmark::full_node4_tree_key_zero_bits,
-      minimal_node4_tree_full_leaf_level_key_zero_bits);
+  node4_random_delete_benchmark<4>(
+      state, minimal_node4_tree_full_leaf_level_key_zero_bits);
 }
 
-// Benchmark shrinking Node16 to Node4: insert to minimal Node16 first:
-// 0x0000000000000000 to ...004
-// 0x0000000000000100 to ...104
-// 0x0000000000000200 to ...204
-// 0x0000000000000300 to ...304
-// 0x0000000000000404 (note that no 0x0400..0x403 to avoid creating Node4).
-//
-// Then remove the minimal Node16 over full Node4 key subset, see
-// number_to_minimal_node16_over_node4_key.
-
 void shrink_node16_to_node4_sequentially(benchmark::State &state) {
-  unodb::benchmark::shrink_node_sequentially_benchmark<
-      unodb::db, 4, unodb::benchmark::full_node4_tree_key_zero_bits>(
-      state, unodb::benchmark::number_to_minimal_leaf_node16_over_node4_key);
+  unodb::benchmark::shrink_node_sequentially_benchmark<unodb::db, 4>(state);
 }
 
 void shrink_node16_to_node4_randomly(benchmark::State &state) {
-  unodb::benchmark::shrink_node_randomly_benchmark<unodb::db, 4>(
-      state, unodb::benchmark::number_to_full_node4_with_gaps_key);
+  unodb::benchmark::shrink_node_randomly_benchmark<unodb::db, 4>(state);
 }
 
 }  // namespace
@@ -256,10 +238,10 @@ BENCHMARK(full_node4_to_minimal_random_delete)
     ->Range(100, 65533)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(shrink_node16_to_node4_sequentially)
-    ->Range(100, 65535)
+    ->Range(25, 16383)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(shrink_node16_to_node4_randomly)
-    ->Range(100, 65532)
+    ->Range(25, 16383)
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();

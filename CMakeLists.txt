@@ -320,10 +320,13 @@ else()
       "-hicpp-avoid-c-arrays,"
       "-hicpp-braces-around-statements,"
       "-hicpp-member-init,"
+      "-hicpp-named-parameter,"
       "-hicpp-no-array-decay,"
       "-hicpp-no-assembler," # Valgrind client requests
       "-hicpp-use-equals-default,"
       "-llvm-include-order,"
+      "-llvmlibc*,"
+      "-misc-no-recursion,"
       "-misc-non-private-member-variables-in-classes,"
       "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang
       "-modernize-use-trailing-return-type,"
@@ -339,6 +342,7 @@ else()
       "-build-include-order,"
       "-cert-err58-cpp,"
       "-cppcoreguidelines-avoid-goto,"
+      "-cppcoreguidelines-avoid-non-const-global-variables," # TEST() macros
       "-cppcoreguidelines-owning-memory,"
       "-cppcoreguidelines-pro-type-vararg," # GTest uses varargs
       "-cppcoreguidelines-special-member-functions,"
@@ -352,6 +356,7 @@ else()
     string(CONCAT CLANG_TIDY_DISABLED_FOR_DEEPSTATE
       "${CLANG_TIDY_DISABLED},"
       "-cert-err58-cpp,"
+      "-cppcoreguidelines-avoid-non-const-global-variables," # TEST() macros
       "-fuchsia-statically-constructed-objects,"
       "-readability-implicit-bool-conversion") # DeepState_Bool returning int
     set(DO_CLANG_TIDY_DEEPSTATE ${DO_CLANG_TIDY_COMMON}

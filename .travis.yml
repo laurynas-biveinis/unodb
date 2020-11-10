@@ -15,25 +15,27 @@ os_setups:
           - python3-pip
           - g++-10
           - valgrind
-  clang10_setup: &clang10
+  clang11_setup: &clang11
     os: linux
     compiler: clang
     addons:
       apt:
         sources:
           - sourceline: 'ppa:mhier/libboost-latest'
+          - sourceline: 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-11 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
         packages:
           - python3-pip
           - boost1.73
-          - clang-10
-          - clang-tidy-10
-          - clang-tools-10
-          - llvm-10-dev
-          - lld
+          - clang-11
+          - clang-tidy-11
+          - clang-tools-11
+          - llvm-11-dev
+          - lld-11
           - valgrind
   macos_setup: &macos
     os: osx
-    osx_image: xcode11.3
+    osx_image: xcode12.2
     compiler: clang
     addons:
       homebrew:
@@ -43,7 +45,7 @@ os_setups:
         update: true
   coverage_setup: &coverage
     os: osx
-    osx_image: xcode11.3
+    osx_image: xcode12.2
     compiler: gcc
     addons:
       homebrew:
@@ -86,59 +88,59 @@ matrix:
       <<: *gcc10
       env:
         - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - name: "clang 10 Release"
-      <<: *clang10
+    - name: "clang 11 Release"
+      <<: *clang11
       env:
-        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release
-    - name: "clang 10 Release with ASan/UBSan"
-      <<: *clang10
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release
+    - name: "clang 11 Release with ASan/UBSan"
+      <<: *clang11
       env:
-        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release SANITIZE=ON
-    - name: "clang 10 Release with TSan/UBSan"
-      <<: *clang10
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release SANITIZE=ON
+    - name: "clang 11 Release with TSan/UBSan"
+      <<: *clang11
       env:
-        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release SANITIZE_THREAD=ON
-    - name: "clang 10 Debug"
-      <<: *clang10
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release SANITIZE_THREAD=ON
+    - name: "clang 11 Debug"
+      <<: *clang11
       env:
-        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug
-    - name: "clang 10 Debug with ASan/UBSan"
-      <<: *clang10
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug
+    - name: "clang 11 Debug with ASan/UBSan"
+      <<: *clang11
       env:
-        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug SANITIZE=ON
-    - name: "clang 10 Debug with TSan/UBSan"
-      <<: *clang10
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug SANITIZE=ON
+    - name: "clang 11 Debug with TSan/UBSan"
+      <<: *clang11
       env:
-        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - name: "clang 10 static analysis Release"
-      <<: *clang10
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug SANITIZE_THREAD=ON
+    - name: "clang 11 static analysis Release"
+      <<: *clang11
       env:
-        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Release SCAN_BUILD=scan-build-10
-    - name: "clang 10 static analysis Debug"
-      <<: *clang10
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release SCAN_BUILD=scan-build-10
+    - name: "clang 11 static analysis Debug"
+      <<: *clang11
       env:
-        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10" BUILD_TYPE=Debug SCAN_BUILD=scan-build-10
-    - name: "XCode 11.3 Release"
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug SCAN_BUILD=scan-build-10
+    - name: "XCode 12.2 Release"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release
-    - name: "XCode 11.3 Release with ASan/UBSan"
+    - name: "XCode 12.2 Release with ASan/UBSan"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release SANITIZE=ON
-    - name: "XCode 11.3 Release with TSan/UBSan"
+    - name: "XCode 12.2 Release with TSan/UBSan"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release SANITIZE_THREAD=ON
-    - name: "XCode 11.3 Debug"
+    - name: "XCode 12.2 Debug"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug
-    - name: "XCode 11.3 Debug with ASan/UBSan"
+    - name: "XCode 12.2 Debug with ASan/UBSan"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug SANITIZE=ON
-    - name: "XCode 11.3 Debug with TSan/UBSan"
+    - name: "XCode 12.2 Debug with TSan/UBSan"
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug SANITIZE_THREAD=ON
@@ -162,8 +164,9 @@ script:
   - cd build
   - EXTRA_CMAKE_OPTIONS=""
   - sudo rm -rf /usr/local/clang-7.0.0
-  - if [[ "$CC" == "clang-10" ]]; then
-      sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 50;
+  - if [[ "$CC" == "clang-11" ]]; then
+      sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-11 50;
+      sudo update-alternatives --install /usr/bin/ld ld /usr/bin/lld-11 50;
     fi
   - if [[ "$CC" == "gcc-10" && "$COVERAGE" == "ON" ]]; then
       set -e;

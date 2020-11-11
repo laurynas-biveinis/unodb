@@ -1049,12 +1049,20 @@ class inode_48 final : public basic_inode_48 {
     assert(children.f.indexes[key_byte] == empty_child);
     unsigned i{0};
 #ifdef __x86_64
+    auto next_vec0 = _mm_load_si128(&children.pointer_vector[0]);
+    auto next_vec1 = _mm_load_si128(&children.pointer_vector[1]);
+    auto next_vec2 = _mm_load_si128(&children.pointer_vector[2]);
+    auto next_vec3 = _mm_load_si128(&children.pointer_vector[3]);
     const auto nullptr_vector = _mm_setzero_si128();
     while (true) {
-      const auto ptr_vec0 = _mm_load_si128(&children.pointer_vector[i]);
-      const auto ptr_vec1 = _mm_load_si128(&children.pointer_vector[i + 1]);
-      const auto ptr_vec2 = _mm_load_si128(&children.pointer_vector[i + 2]);
-      const auto ptr_vec3 = _mm_load_si128(&children.pointer_vector[i + 3]);
+      const auto ptr_vec0 = next_vec0;
+      const auto ptr_vec1 = next_vec1;
+      const auto ptr_vec2 = next_vec2;
+      const auto ptr_vec3 = next_vec3;
+      next_vec0 = _mm_load_si128(&children.pointer_vector[i + 4]);
+      next_vec1 = _mm_load_si128(&children.pointer_vector[i + 5]);
+      next_vec2 = _mm_load_si128(&children.pointer_vector[i + 6]);
+      next_vec3 = _mm_load_si128(&children.pointer_vector[i + 7]);
       const auto vec0_cmp = _mm_cmpeq_epi64(ptr_vec0, nullptr_vector);
       const auto vec1_cmp = _mm_cmpeq_epi64(ptr_vec1, nullptr_vector);
       const auto vec2_cmp = _mm_cmpeq_epi64(ptr_vec2, nullptr_vector);
@@ -1120,7 +1128,7 @@ class inode_48 final : public basic_inode_48 {
 #ifdef __x86_64
     // No std::array below because it would ignore the alignment attribute
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    __m128i pointer_vector[capacity / 2 + 1];  // NOLINT(runtime/arrays)
+    __m128i pointer_vector[capacity / 2 + 4];  // NOLINT(runtime/arrays)
 #endif
     struct {
       std::array<node_ptr, capacity> pointers;

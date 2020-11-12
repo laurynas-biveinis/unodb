@@ -1296,23 +1296,19 @@ inode_48::inode_48(std::unique_ptr<inode_256> &&source_node,
       source_node->children[child_to_remove]};
   source_node->children[child_to_remove] = nullptr;
 
+  std::memset(&child_indexes[0], empty_child, 256);
+
   std::uint8_t next_child = 0;
-  unsigned child_i = 0;
-  for (; child_i < 256; child_i++) {
+  for (unsigned child_i = 0; child_i < 256; child_i++) {
     const auto child_ptr = source_node->children[child_i];
-    if (child_ptr == nullptr) {
-      child_indexes[child_i] = empty_child;
-      continue;
-    }
-    assert(child_ptr != nullptr);
+    if (child_ptr == nullptr) continue;
+
     child_indexes[child_i] = next_child;
     children.pointer_array[next_child] = source_node->children[child_i];
     ++next_child;
+
     if (next_child == f.f.children_count) break;
   }
-
-  ++child_i;
-  for (; child_i < 256; child_i++) child_indexes[child_i] = empty_child;
 }
 
 inode_256::inode_256(std::unique_ptr<inode_48> &&source_node,

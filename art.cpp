@@ -1292,16 +1292,14 @@ static_assert(sizeof(inode_256) == 2064);
 inode_48::inode_48(std::unique_ptr<inode_256> &&source_node,
                    std::uint8_t child_to_remove) noexcept
     : basic_inode_48{*source_node} {
+  delete_node_ptr_at_scope_exit delete_on_scope_exit{
+      source_node->children[child_to_remove]};
+  source_node->children[child_to_remove] = nullptr;
+
   std::uint8_t next_child = 0;
   unsigned child_i = 0;
   for (; child_i < 256; child_i++) {
     const auto child_ptr = source_node->children[child_i];
-    if (child_i == child_to_remove) {
-      assert(child_ptr != nullptr);
-      delete_node_ptr_at_scope_exit delete_on_scope_exit{child_ptr};
-      child_indexes[child_i] = empty_child;
-      continue;
-    }
     if (child_ptr == nullptr) {
       child_indexes[child_i] = empty_child;
       continue;
@@ -1310,14 +1308,7 @@ inode_48::inode_48(std::unique_ptr<inode_256> &&source_node,
     child_indexes[child_i] = next_child;
     children.pointer_array[next_child] = source_node->children[child_i];
     ++next_child;
-    if (next_child == f.f.children_count) {
-      if (child_i < child_to_remove) {
-        const auto child_to_remove_ptr = source_node->children[child_to_remove];
-        assert(child_to_remove_ptr != nullptr);
-        delete_node_ptr_at_scope_exit delete_on_scope_exit{child_to_remove_ptr};
-      }
-      break;
-    }
+    if (next_child == f.f.children_count) break;
   }
 
   ++child_i;

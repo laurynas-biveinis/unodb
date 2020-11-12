@@ -1292,19 +1292,20 @@ static_assert(sizeof(inode_256) == 2064);
 inode_48::inode_48(std::unique_ptr<inode_256> &&source_node,
                    std::uint8_t child_to_remove) noexcept
     : basic_inode_48{*source_node} {
+  auto *const __restrict__ source_node_ptr = source_node.get();
   delete_node_ptr_at_scope_exit delete_on_scope_exit{
-      source_node->children[child_to_remove]};
-  source_node->children[child_to_remove] = nullptr;
+      source_node_ptr->children[child_to_remove]};
+  source_node_ptr->children[child_to_remove] = nullptr;
 
   std::memset(&child_indexes[0], empty_child, 256);
 
   std::uint8_t next_child = 0;
   for (unsigned child_i = 0; child_i < 256; child_i++) {
-    const auto child_ptr = source_node->children[child_i];
+    const auto child_ptr = source_node_ptr->children[child_i];
     if (child_ptr == nullptr) continue;
 
     child_indexes[child_i] = next_child;
-    children.pointer_array[next_child] = source_node->children[child_i];
+    children.pointer_array[next_child] = source_node_ptr->children[child_i];
     ++next_child;
 
     if (next_child == f.f.children_count) break;

@@ -1315,14 +1315,17 @@ inode_48::inode_48(std::unique_ptr<inode_256> &&source_node,
 inode_256::inode_256(std::unique_ptr<inode_48> &&source_node,
                      leaf_unique_ptr &&child, tree_depth depth) noexcept
     : basic_inode_256{*source_node} {
+  auto *const __restrict__ source_node_ptr = source_node.get();
+  auto *const __restrict__ child_ptr = child.release();
+
   unsigned children_copied = 0;
   unsigned i = 0;
   while (true) {
-    const auto children_i = source_node->child_indexes[i];
+    const auto children_i = source_node_ptr->child_indexes[i];
     if (children_i == inode_48::empty_child) {
       children[i] = nullptr;
     } else {
-      children[i] = source_node->children.pointer_array[children_i];
+      children[i] = source_node_ptr->children.pointer_array[children_i];
       ++children_copied;
       if (children_copied == inode_48::capacity) break;
     }
@@ -1332,9 +1335,9 @@ inode_256::inode_256(std::unique_ptr<inode_48> &&source_node,
   ++i;
   for (; i < capacity; ++i) children[i] = nullptr;
 
-  const auto key_byte = static_cast<uint8_t>(leaf::key(child.get())[depth]);
+  const auto key_byte = static_cast<uint8_t>(leaf::key(child_ptr)[depth]);
   assert(children[key_byte] == nullptr);
-  children[key_byte] = child.release();
+  children[key_byte] = child_ptr;
 }
 
 __attribute__((pure)) inode::find_result_type inode_256::find_child(

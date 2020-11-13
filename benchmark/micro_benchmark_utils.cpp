@@ -18,17 +18,20 @@ namespace {
 
 template <unsigned NodeCapacity>
 constexpr inline auto node_capacity_to_minimum_size() noexcept {
-  static_assert(NodeCapacity == 16 || NodeCapacity == 48);
+  static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
+                NodeCapacity == 256);
   if constexpr (NodeCapacity == 16) {
     return 5;
   } else if constexpr (NodeCapacity == 48) {
     return 17;
   }
+  return 49;
 }
 
 template <unsigned NodeCapacity>
 constexpr inline auto node_capacity_over_minimum() noexcept {
-  static_assert(NodeCapacity == 16 || NodeCapacity == 48);
+  static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
+                NodeCapacity == 256);
   return NodeCapacity - node_capacity_to_minimum_size<NodeCapacity>();
 }
 
@@ -46,8 +49,10 @@ inline constexpr auto to_scaled_base_n_value(std::uint64_t i) noexcept {
   return (i % B * S + O) | (i / B % B * S + O) << 8U |
          ((i / (B * B) % B * S + O) << 16U) |
          ((i / (B * B * B) % B * S + O) << 24U) |
-         ((i / (B * B * B * B) % B * S + O) << 32U) |
-         ((i / (B * B * B * B * B) % B * S + O) << 40U) |
+         ((i / (static_cast<std::uint64_t>(B) * B * B * B) % B * S + O)
+          << 32U) |
+         ((i / (static_cast<std::uint64_t>(B) * B * B * B * B) % B * S + O)
+          << 40U) |
          ((i / (static_cast<std::uint64_t>(B) * B * B * B * B * B) % B * S + O)
           << 48U) |
          ((i / (static_cast<std::uint64_t>(B) * B * B * B * B * B * B) % B * S +
@@ -182,7 +187,7 @@ std::vector<unodb::key> generate_random_keys_over_full_smaller_tree(
 // In a mostly-Node16 tree a few Node4 are allowed on the rightmost tree edge,
 // including the root
 template <class Db>
-void assert_mostly_node16_tree(const Db &test_db USED_IN_DEBUG) noexcept {
+void assert_mostly_node16_tree(const Db &test_db) noexcept {
   if (test_db.get_inode4_count() > 8) {
     std::cerr << "Too many I4 nodes found in mostly-I16 tree:\n";
     test_db.dump(std::cerr);
@@ -193,7 +198,7 @@ void assert_mostly_node16_tree(const Db &test_db USED_IN_DEBUG) noexcept {
 }
 
 template <class Db>
-void assert_mostly_node48_tree(const Db &test_db USED_IN_DEBUG) noexcept {
+void assert_mostly_node48_tree(const Db &test_db) noexcept {
   if (test_db.get_inode4_count() + test_db.get_inode16_count() > 8) {
     std::cerr << "Too many I4/I16 nodes found in mostly-I48 tree:\n";
     test_db.dump(std::cerr);
@@ -202,18 +207,33 @@ void assert_mostly_node48_tree(const Db &test_db USED_IN_DEBUG) noexcept {
   assert(test_db.get_inode256_count() == 0);
 }
 
+template <class Db>
+void assert_mostly_node256_tree(const Db &test_db) noexcept {
+  const auto i4 = test_db.get_inode4_count();
+  const auto i16 = test_db.get_inode16_count();
+  const auto i48 = test_db.get_inode48_count();
+  if (i4 + i16 + i48 > 8) {
+    std::cerr << "Too many I4/I16/I48 nodes found in mostly-I256 tree:\n";
+    test_db.dump(std::cerr);
+    assert(i4 + i16 + i48 > 8);
+  }
+}
+
 #endif  // #ifndef NDEBUG
 
 template <class Db, unsigned NodeSize>
 void assert_node_size_tree(const Db &test_db USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
-  static_assert(NodeSize == 4 || NodeSize == 16 || NodeSize == 48);
+  static_assert(NodeSize == 4 || NodeSize == 16 || NodeSize == 48 ||
+                NodeSize == 256);
   if constexpr (NodeSize == 4) {
     unodb::benchmark::assert_node4_only_tree(test_db);
   } else if constexpr (NodeSize == 16) {
     assert_mostly_node16_tree(test_db);
   } else if constexpr (NodeSize == 48) {
     assert_mostly_node48_tree(test_db);
+  } else {
+    assert_mostly_node256_tree(test_db);
   }
 #endif
 }
@@ -326,7 +346,8 @@ auto insert_n_keys_to_empty_tree(Db &db, unsigned n,
 
 template <class Db, unsigned NodeSize>
 auto make_full_node_size_tree(Db &db, unsigned key_count) {
-  static_assert(NodeSize == 4 || NodeSize == 16 || NodeSize == 48);
+  static_assert(NodeSize == 4 || NodeSize == 16 || NodeSize == 48 ||
+                NodeSize == 256);
 
   unodb::key key_limit;
   if constexpr (node_size_has_key_zero_bits<NodeSize>()) {
@@ -499,6 +520,7 @@ void full_node_scan_benchmark(::benchmark::State &state) {
 template void full_node_scan_benchmark<unodb::db, 4>(::benchmark::State &);
 template void full_node_scan_benchmark<unodb::db, 16>(::benchmark::State &);
 template void full_node_scan_benchmark<unodb::db, 48>(::benchmark::State &);
+template void full_node_scan_benchmark<unodb::db, 256>(::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void full_node_random_get_benchmark(::benchmark::State &state) {
@@ -529,6 +551,8 @@ template void full_node_random_get_benchmark<unodb::db, 16>(
     ::benchmark::State &);
 template void full_node_random_get_benchmark<unodb::db, 48>(
     ::benchmark::State &);
+template void full_node_random_get_benchmark<unodb::db, 256>(
+    ::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void minimal_tree_full_scan(::benchmark::State &state) {
@@ -552,6 +576,7 @@ void minimal_tree_full_scan(::benchmark::State &state) {
 
 template void minimal_tree_full_scan<unodb::db, 16>(::benchmark::State &);
 template void minimal_tree_full_scan<unodb::db, 48>(::benchmark::State &);
+template void minimal_tree_full_scan<unodb::db, 256>(::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void minimal_tree_random_gets(::benchmark::State &state) {
@@ -580,6 +605,7 @@ void minimal_tree_random_gets(::benchmark::State &state) {
 
 template void minimal_tree_random_gets<unodb::db, 16>(::benchmark::State &);
 template void minimal_tree_random_gets<unodb::db, 48>(::benchmark::State &);
+template void minimal_tree_random_gets<unodb::db, 256>(::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void sequential_add_benchmark(::benchmark::State &state) {
@@ -615,6 +641,7 @@ void sequential_add_benchmark(::benchmark::State &state) {
 
 template void sequential_add_benchmark<unodb::db, 16>(::benchmark::State &);
 template void sequential_add_benchmark<unodb::db, 48>(::benchmark::State &);
+template void sequential_add_benchmark<unodb::db, 256>(::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void random_add_benchmark(::benchmark::State &state) {
@@ -651,6 +678,7 @@ void random_add_benchmark(::benchmark::State &state) {
 
 template void random_add_benchmark<unodb::db, 16>(::benchmark::State &);
 template void random_add_benchmark<unodb::db, 48>(::benchmark::State &);
+template void random_add_benchmark<unodb::db, 256>(::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void sequential_delete_benchmark(::benchmark::State &state) {
@@ -690,6 +718,7 @@ void sequential_delete_benchmark(::benchmark::State &state) {
 
 template void sequential_delete_benchmark<unodb::db, 16>(::benchmark::State &);
 template void sequential_delete_benchmark<unodb::db, 48>(::benchmark::State &);
+template void sequential_delete_benchmark<unodb::db, 256>(::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void random_delete_benchmark(::benchmark::State &state) {
@@ -726,6 +755,7 @@ void random_delete_benchmark(::benchmark::State &state) {
 
 template void random_delete_benchmark<unodb::db, 16>(::benchmark::State &);
 template void random_delete_benchmark<unodb::db, 48>(::benchmark::State &);
+template void random_delete_benchmark<unodb::db, 256>(::benchmark::State &);
 
 template <class Db, unsigned SmallerNodeSize>
 void shrink_node_sequentially_benchmark(::benchmark::State &state) {

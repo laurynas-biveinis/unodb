@@ -45,13 +45,16 @@ inline constexpr std::array<unodb::value_view, 5> values = {
 
 template <unsigned NodeSize>
 constexpr inline auto node_size_to_key_zero_bits() noexcept {
-  static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16);
+  static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
+                NodeSize == 256);
   if constexpr (NodeSize == 2) {
     return 0xFEFEFEFE'FEFEFEFEULL;
   } else if constexpr (NodeSize == 4) {
     return 0xFCFCFCFC'FCFCFCFCULL;
+  } else if constexpr (NodeSize == 16) {
+    return 0xF0F0F0F0'F0F0F0F0ULL;
   }
-  return 0xF0F0F0F0'F0F0F0F0ULL;
+  return 0ULL;
 }
 
 inline constexpr auto next_key(unodb::key k,
@@ -269,8 +272,11 @@ void insert_key_ignore_dups(Db &db, unodb::key k, unodb::value_view v) {
 template <class Db, unsigned NodeSize>
 unodb::key insert_sequentially(Db &db, unsigned key_count) {
   unodb::key k = 0;
-  for (decltype(key_count) i = 0; i < key_count; ++i) {
+  decltype(key_count) i = 0;
+  while (true) {
     insert_key(db, k, unodb::value_view{value100});
+    if (i == key_count) break;
+    ++i;
     k = next_key(k, node_size_to_key_zero_bits<NodeSize>());
   }
   return k;
@@ -355,6 +361,8 @@ extern template void full_node_scan_benchmark<unodb::db, 16>(
     ::benchmark::State &);
 extern template void full_node_scan_benchmark<unodb::db, 48>(
     ::benchmark::State &);
+extern template void full_node_scan_benchmark<unodb::db, 256>(
+    ::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void full_node_random_get_benchmark(::benchmark::State &state);
@@ -364,6 +372,8 @@ extern template void full_node_random_get_benchmark<unodb::db, 4>(
 extern template void full_node_random_get_benchmark<unodb::db, 16>(
     ::benchmark::State &);
 extern template void full_node_random_get_benchmark<unodb::db, 48>(
+    ::benchmark::State &);
+extern template void full_node_random_get_benchmark<unodb::db, 256>(
     ::benchmark::State &);
 
 // Benchmark e.g. growing Node4 to Node16: insert to full Node4 tree first:
@@ -477,12 +487,15 @@ extern template void sequential_add_benchmark<unodb::db, 16>(
     ::benchmark::State &);
 extern template void sequential_add_benchmark<unodb::db, 48>(
     ::benchmark::State &);
+extern template void sequential_add_benchmark<unodb::db, 256>(
+    ::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void random_add_benchmark(::benchmark::State &state);
 
 extern template void random_add_benchmark<unodb::db, 16>(::benchmark::State &);
 extern template void random_add_benchmark<unodb::db, 48>(::benchmark::State &);
+extern template void random_add_benchmark<unodb::db, 256>(::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void minimal_tree_full_scan(::benchmark::State &state);
@@ -490,6 +503,8 @@ void minimal_tree_full_scan(::benchmark::State &state);
 extern template void minimal_tree_full_scan<unodb::db, 16>(
     ::benchmark::State &);
 extern template void minimal_tree_full_scan<unodb::db, 48>(
+    ::benchmark::State &);
+extern template void minimal_tree_full_scan<unodb::db, 256>(
     ::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
@@ -499,6 +514,8 @@ extern template void minimal_tree_random_gets<unodb::db, 16>(
     ::benchmark::State &);
 extern template void minimal_tree_random_gets<unodb::db, 48>(
     ::benchmark::State &);
+extern template void minimal_tree_random_gets<unodb::db, 256>(
+    ::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void sequential_delete_benchmark(::benchmark::State &state);
@@ -507,6 +524,8 @@ extern template void sequential_delete_benchmark<unodb::db, 16>(
     ::benchmark::State &);
 extern template void sequential_delete_benchmark<unodb::db, 48>(
     ::benchmark::State &);
+extern template void sequential_delete_benchmark<unodb::db, 256>(
+    ::benchmark::State &);
 
 template <class Db, unsigned NodeSize>
 void random_delete_benchmark(::benchmark::State &state);
@@ -514,6 +533,8 @@ void random_delete_benchmark(::benchmark::State &state);
 extern template void random_delete_benchmark<unodb::db, 16>(
     ::benchmark::State &);
 extern template void random_delete_benchmark<unodb::db, 48>(
+    ::benchmark::State &);
+extern template void random_delete_benchmark<unodb::db, 256>(
     ::benchmark::State &);
 
 }  // namespace unodb::benchmark

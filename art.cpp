@@ -1315,22 +1315,19 @@ inode_48::inode_48(std::unique_ptr<inode_256> &&source_node,
 inode_256::inode_256(std::unique_ptr<inode_48> &&source_node,
                      leaf_unique_ptr &&child, tree_depth depth) noexcept
     : basic_inode_256{*source_node} {
+  for (unsigned i = 0; i < capacity; ++i) children[i] = nullptr;
+
   unsigned children_copied = 0;
   unsigned i = 0;
   while (true) {
     const auto children_i = source_node->child_indexes[i];
-    if (children_i == inode_48::empty_child) {
-      children[i] = nullptr;
-    } else {
+    if (children_i != inode_48::empty_child) {
       children[i] = source_node->children.pointer_array[children_i];
       ++children_copied;
       if (children_copied == inode_48::capacity) break;
     }
     ++i;
   }
-
-  ++i;
-  for (; i < capacity; ++i) children[i] = nullptr;
 
   const auto key_byte = static_cast<uint8_t>(leaf::key(child.get())[depth]);
   assert(children[key_byte] == nullptr);

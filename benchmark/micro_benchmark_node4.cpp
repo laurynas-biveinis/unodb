@@ -36,7 +36,7 @@ std::vector<unodb::key> make_limited_key_sequence(unodb::key limit,
   std::vector<unodb::key> result;
 
   unodb::key insert_key = 0;
-  while (insert_key < limit) {
+  while (insert_key <= limit) {
     result.push_back(insert_key);
     insert_key = unodb::benchmark::next_key(insert_key, key_zero_bits);
   }
@@ -138,7 +138,7 @@ void node4_sequential_delete_benchmark(benchmark::State &state,
 
     unodb::key k = 0;
     keys_deleted = 0;
-    while (k < key_limit) {
+    while (k <= key_limit) {
       unodb::benchmark::delete_key(test_db, k);
       ++keys_deleted;
       k = unodb::benchmark::next_key(k, delete_key_zero_bits);
@@ -226,16 +226,16 @@ BENCHMARK(minimal_node4_random_insert)
 BENCHMARK(node4_full_scan)->Range(100, 65535)->Unit(benchmark::kMicrosecond);
 BENCHMARK(node4_random_gets)->Range(100, 65535)->Unit(benchmark::kMicrosecond);
 BENCHMARK(full_node4_sequential_delete)
-    ->Range(100, 65535)
+    ->Range(100, 65534)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(full_node4_random_deletes)
-    ->Range(100, 65535)
+    ->Range(100, 65534)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(full_node4_to_minimal_sequential_delete)
-    ->Range(100, 65533)
+    ->Range(100, 65532)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(full_node4_to_minimal_random_delete)
-    ->Range(100, 65533)
+    ->Range(100, 65532)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK(shrink_node16_to_node4_sequentially)
     ->Range(25, 16383)

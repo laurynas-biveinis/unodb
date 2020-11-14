@@ -1300,15 +1300,17 @@ inode_48::inode_48(std::unique_ptr<inode_256> &&source_node,
   std::memset(&child_indexes[0], empty_child, 256);
 
   std::uint8_t next_child = 0;
-  for (unsigned child_i = 0; child_i < 256; child_i++) {
+  unsigned child_i = 0;
+  while (true) {
     const auto child_ptr = source_node_ptr->children[child_i];
-    if (child_ptr == nullptr) continue;
+    if (child_ptr != nullptr) {
+      child_indexes[child_i] = next_child;
+      children.pointer_array[next_child] = source_node_ptr->children[child_i];
+      ++next_child;
 
-    child_indexes[child_i] = next_child;
-    children.pointer_array[next_child] = source_node_ptr->children[child_i];
-    ++next_child;
-
-    if (next_child == f.f.children_count) break;
+      if (next_child == f.f.children_count) break;
+    }
+    ++child_i;
   }
 }
 

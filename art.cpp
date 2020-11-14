@@ -1317,7 +1317,7 @@ inode_256::inode_256(std::unique_ptr<inode_48> &&source_node,
     : basic_inode_256{*source_node} {
   unsigned children_copied = 0;
   unsigned i = 0;
-  for (; i < capacity; ++i) {
+  while (true) {
     const auto children_i = source_node->child_indexes[i];
     if (children_i == inode_48::empty_child) {
       children[i] = nullptr;
@@ -1326,6 +1326,7 @@ inode_256::inode_256(std::unique_ptr<inode_48> &&source_node,
       ++children_copied;
       if (children_copied == inode_48::capacity) break;
     }
+    ++i;
   }
 
   ++i;

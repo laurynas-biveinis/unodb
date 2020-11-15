@@ -16,6 +16,10 @@ C++ tools and ideas.
 The code uses SSE4.1 intrinsics (Nehalem and higher). This is in contrast to the
 original ART paper needing SSE2 only.
 
+Note: since this is my personal project, it only supports GCC 10 and LLVM 11
+compilers. Drop me a note if you want to try this and need a lower supported
+compiler version.
+
 ## Usage
 
 All the declarations live in the `unodb` namespace, which is omitted in the
@@ -91,6 +95,10 @@ instead of boost::pmr, will result in UBSan false positives due to
 
 To enable Thread and Undefined Behavior sanitizers, add `-DSANITIZE_THREAD=ON`
 CMake option. It is incompatible with `-DSANITIZE=ON` option.
+
+To enable GCC 10+ compiler static analysis, add `-DSTATIC_ANALYSIS=ON` CMake
+option. For LLVM static analysis, no special CMake option is needed, and you
+have to prepend `scan-build` to `make` instead.
 
 To invoke include-what-you-use, add `-DIWYU=ON` CMake option. It will take
 effect if CMake configures to build project with clang.

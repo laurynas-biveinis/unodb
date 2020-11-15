@@ -180,6 +180,8 @@ if(SANITIZE_THREAD)
   list(APPEND SANITIZER_LD_FLAGS "-fsanitize=thread")
 endif()
 
+option(STATIC_ANALYSIS "Enable compiler static analysis")
+
 if(CMAKE_BUILD_TYPE MATCHES Debug)
   set(DEBUG "ON")
 endif()
@@ -446,6 +448,9 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   endif()
   if(IWYU_EXE)
     set_target_properties(${TARGET} PROPERTIES CXX_INCLUDE_WHAT_YOU_USE "${DO_IWYU}")
+  endif()
+  if(STATIC_ANALYSIS)
+    target_compile_options(${TARGET} PRIVATE "-fanalyzer")
   endif()
 endfunction()
 

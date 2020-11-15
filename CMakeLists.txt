@@ -45,7 +45,7 @@ else()
     "-Wctor-dtor-privacy" "-Wdouble-promotion" "-Wduplicated-branches"
     "-Wduplicated-cond" "-Wextra-semi" "-Wfloat-equal" "-Wformat-overflow=2"
     "-Wformat-signedness" "-Wformat-truncation=2" "-Wformat=2"
-    "-Wimplicit-fallthrough=5" "-Winvalid-pch" "-Wlogical-op"
+    "-Wimplicit-fallthrough=5" "-Winvalid-pch" "-Wlogical-op" "-Wmismatched-tags"
     "-Wmissing-declarations" "-Wmissing-include-dirs" "-Wnoexcept"
     "-Wnon-virtual-dtor" "-Wnull-dereference" "-Wold-style-cast"
     "-Woverloaded-virtual" "-Wpacked" "-Wplacement-new=2" "-Wredundant-decls"

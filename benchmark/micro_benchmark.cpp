@@ -188,9 +188,9 @@ void dense_insert_value_lengths(benchmark::State &state) {
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
-  // TODO(laurynas): use value lengths with SetBytesProcessed instead?
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
+  state.SetBytesProcessed(
+      static_cast<std::int64_t>(state.iterations()) * state.range(0) *
+      (state.range(1) + static_cast<std::int64_t>(sizeof(unodb::key))));
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 

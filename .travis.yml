@@ -188,10 +188,11 @@ script:
       ${SCAN_BUILD} --status-bugs -stats -analyze-headers --force-analyze-debug-code make -j3;
       travis_terminate 0;
     fi
-  - make -j3;
   - if [[ "$STATIC_ANALYSIS" == "ON" ]]; then
+      make -j2;
       travis_terminate 0;
     fi
+  - make -j3
   - if [[ "$COVERAGE" == "OFF" ]]; then
       ctest -j3 -V;
       echo "Benchmark runs (for benchmark correctness, not performance!)";

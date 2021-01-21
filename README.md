@@ -46,7 +46,8 @@ All ART classes implement the same API:
   successful (i.e. the key was not already present).
 * `bool remove(key k)`, returning whether delete was successful (i.e. the
   key was found in the tree).
-* `clear`, making the tree empty.
+* `clear`, making the tree empty. For `olc_db`, it is not a concurrent operation
+  and must be called from a single-threaded context.
 * `bool empty()`, returning whether the tree is empty.
 * `void dump(std::ostream &)`, dumping the tree representation into output
   stream.
@@ -59,6 +60,19 @@ The are two ART classes available:
 * `db`: unsychronized ART tree, to be used in single-thread context or with
   external synchronization.
 * `mutex_db`: single global mutex-synchronized ART tree.
+* `olc_db`: a concurrent ART tree, implementing Optimistic Lock Coupling as
+  described by Leis et al. in the "The ART of Practical Synchronization" paper;
+  the nodes are versioned, the writers lock per-node so-called optimistic lock,
+  the readers don't lock anything, but check node versions and restart if they
+  change. The optimistic lock concept seems to be nearly identical to that of
+  [sequential locks][seqlock] as used in the Linux kernel, with the addition of
+  "obsolete" state. The lock implementation uses seqlock memory model
+  implementation as described by Boehm in "Can seqlocks get along with
+  programming language memory models?" 2012 paper. The OLC ART implementation
+  necessitates a memory reclamation scheme as required by lock-free data
+  structures (even though `olc_db` is not lock-free in the general sense, the
+  readers do not take locks), and for that a Quiescent State Based Reclamation
+  (QSBR) was chosen.
 
 ## Dependencies
 
@@ -126,6 +140,18 @@ indexing for main-memory databases," 2013 29th IEEE International Conference on
 Data Engineering (ICDE 2013)(ICDE), Brisbane, QLD, 2013, pp. 38-49.
 doi:10.1109/ICDE.2013.6544812
 
+*ART Sync*: V. Leis, F. Schneiber, A. Kemper and T. Neumann, "The ART of
+Practical Synchronization," 2016 Proceedings of the 12th International Workshop
+on Data Management on New Hardware (DaMoN), pages 3:1--3:8, 2016.
+
+*qsbr*: P. E. McKenney, J. D. Slingwine, "Read-copy update: using execution
+history to solve concurrency problems," Parallel and Distributed Computing and
+Systems, 1998, pages 509--518.
+
+*seqlock sync*: H-J. Boehm, "Can seqlocks get along with programming language
+memory models?," Proceedings of the 2012 ACM SIGPLAN Workshop on Memory Systems
+Performance and Correctness, June 2012, pages 12--21, 2012.
+
 [boostub1]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80963
 
 [boostub2]: https://bugs.llvm.org/show_bug.cgi?id=39191
@@ -138,3 +164,5 @@ doi:10.1109/ICDE.2013.6544812
 "Google C++ Style Guide"
 
 [deepstate]: https://github.com/trailofbits/deepstate "DeepState on GitHub"
+
+[seqlock]: https://en.wikipedia.org/wiki/Seqlock

@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Laurynas Biveinis
+// Copyright 2019-2021 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -7,8 +7,8 @@
 
 #include <gtest/gtest.h>
 
+#include "db_test_utils.hpp"
 #include "mutex_art.hpp"
-#include "test_utils.hpp"
 
 namespace {
 

@@ -11,8 +11,11 @@ os_setups:
     compiler: gcc
     addons:
       apt:
+        sources:
+          - sourceline: 'ppa:mhier/libboost-latest'
         packages:
           - python3-pip
+          - boost1.73
           - g++-10
           - valgrind
   clang11_setup: &clang11

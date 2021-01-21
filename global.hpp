@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Laurynas Biveinis
+// Copyright 2019-2021 Laurynas Biveinis
 #ifndef UNODB_GLOBAL_HPP_
 #define UNODB_GLOBAL_HPP_
 
@@ -33,23 +33,32 @@
 #define _GLIBCXX_SANITIZE_VECTOR 1
 #endif
 
-#include <cassert>
+#if defined(__has_feature)
+#if __has_feature(thread_sanitizer)
+#define UNODB_THREAD_SANITIZER 1
+#endif
+#elif defined(__SANITIZE_THREAD__)
+#define UNODB_THREAD_SANITIZER 1
+#endif
 
 #define DO_PRAGMA(x) _Pragma(#x)
 
-#ifdef __clang__
-#define DISABLE_CLANG_WARNING(x) \
+#define DISABLE_WARNING(x) \
   _Pragma("GCC diagnostic push") DO_PRAGMA(GCC diagnostic ignored x)
-#define RESTORE_CLANG_WARNINGS() _Pragma("GCC diagnostic pop")
+
+#define RESTORE_WARNINGS(x) _Pragma("GCC diagnostic pop")
+
+#ifdef __clang__
+#define DISABLE_CLANG_WARNING(x) DISABLE_WARNING(x)
+#define RESTORE_CLANG_WARNINGS() RESTORE_WARNINGS()
 #else
 #define DISABLE_CLANG_WARNING(x)
 #define RESTORE_CLANG_WARNINGS()
 #endif
 
 #if defined(__GNUG__) && !defined(__clang__)
-#define DISABLE_GCC_WARNING(x) \
-  _Pragma("GCC diagnostic push") DO_PRAGMA(GCC diagnostic ignored x)
-#define RESTORE_GCC_WARNINGS() _Pragma("GCC diagnostic pop")
+#define DISABLE_GCC_WARNING(x) DISABLE_WARNING(x)
+#define RESTORE_GCC_WARNINGS() RESTORE_WARNINGS()
 #else
 #define DISABLE_GCC_WARNING(x)
 #define RESTORE_GCC_WARNINGS()
@@ -57,13 +66,6 @@
 
 #define likely(x) __builtin_expect(x, 1)
 #define unlikely(x) __builtin_expect(x, 0)
-
-// LCOV_EXCL_START
-inline __attribute__((noreturn)) void cannot_happen() {
-  assert(0);
-  __builtin_unreachable();
-}
-// LCOV_EXCL_STOP
 
 #ifdef NDEBUG
 #define USED_IN_DEBUG __attribute__((unused))
@@ -74,5 +76,17 @@ inline __attribute__((noreturn)) void cannot_happen() {
 #if defined(__GNUG__) && !defined(__clang__)
 #define USE_STD_PMR
 #endif
+
+#include <cassert>
+
+// LCOV_EXCL_START
+namespace unodb {
+inline __attribute__((noreturn)) void cannot_happen() {
+  assert(0);
+  __builtin_unreachable();
+}
+// LCOV_EXCL_STOP
+
+}  // namespace unodb
 
 #endif  // UNODB_GLOBAL_HPP_

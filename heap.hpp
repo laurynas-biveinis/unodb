@@ -1,4 +1,4 @@
-// Copyright 2020 Laurynas Biveinis
+// Copyright 2020-2021 Laurynas Biveinis
 #ifndef UNODB_HEAP_HPP_
 #define UNODB_HEAP_HPP_
 
@@ -11,6 +11,7 @@
 #ifndef USE_STD_PMR
 #include <boost/container/pmr/global_resource.hpp>
 #include <boost/container/pmr/memory_resource.hpp>
+#include <boost/container/pmr/synchronized_pool_resource.hpp>
 #include <boost/container/pmr/unsynchronized_pool_resource.hpp>
 #endif
 
@@ -45,6 +46,7 @@ namespace unodb::detail {
 using pmr_pool = std::pmr::memory_resource;
 using pmr_pool_options = std::pmr::pool_options;
 inline const auto &pmr_new_delete_resource = std::pmr::new_delete_resource;
+using pmr_synchronized_pool_resource = std::pmr::synchronized_pool_resource;
 using pmr_unsynchronized_pool_resource = std::pmr::unsynchronized_pool_resource;
 
 #else
@@ -53,6 +55,8 @@ using pmr_pool = boost::container::pmr::memory_resource;
 using pmr_pool_options = boost::container::pmr::pool_options;
 inline const auto &pmr_new_delete_resource =
     boost::container::pmr::new_delete_resource;
+using pmr_synchronized_pool_resource =
+    boost::container::pmr::synchronized_pool_resource;
 using pmr_unsynchronized_pool_resource =
     boost::container::pmr::unsynchronized_pool_resource;
 

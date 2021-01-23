@@ -87,13 +87,17 @@ clang-tidy, cppcheck, and cpplint will be invoked automatically during build if
 found. Currently the diagnostic level for them as well as for compiler warnings
 is set very high, and can be relaxed, especially for clang-tidy, as need arises.
 
-To enable Address, Leak, and Undefined Behavior sanitizers, add `-DSANITIZE=ON`
-CMake option. Using this with GCC 9, where std::pmr from libstdc++ is used
-instead of boost::pmr, will result in UBSan false positives due to
-[this][libstdc++ub]. This option is incompatible with `-DSANITIZE_THREAD=ON`.
+To enable AddressSanitizer and LeakSanitizers, add `-DSANITIZE_ADDRESS=ON` CMake
+option. It is incompatible with `-DSANITIZE_THREAD=ON`.
 
-To enable Thread and Undefined Behavior sanitizers, add `-DSANITIZE_THREAD=ON`
-CMake option. It is incompatible with `-DSANITIZE=ON` option.
+To enable ThreadSanitizer, add `-DSANITIZE_THREAD=ON` CMake option. It is
+incompatible with `-DSANITIZE_ADDRESS=ON`
+
+To enable UndefinedBehaviorSanitizer, add `-DSANITIZE_UB=ON` CMake option. It is
+compatible with both `-DSANITIZE_ADDRESS=ON` and `-DSANITIZE_THREAD=ON` options,
+although some [false positives][sanitizer-combination-bug] might occur. Enabling
+it with GCC, where `std::pmr` from libstdc++ is used instead of `boost::pmr`,
+will result in UBSan false positives due to [this][libstdc++ub].
 
 To enable GCC 10+ compiler static analysis, add `-DSTATIC_ANALYSIS=ON` CMake
 option. For LLVM static analysis, no special CMake option is needed, and you
@@ -122,6 +126,8 @@ doi:10.1109/ICDE.2013.6544812
 [boostub1]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80963
 
 [boostub2]: https://bugs.llvm.org/show_bug.cgi?id=39191
+
+[sanitizer-combination-bug]: https://github.com/google/sanitizers/issues/1106
 
 [libstdc++ub]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90442
 

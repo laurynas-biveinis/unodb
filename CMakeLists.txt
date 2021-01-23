@@ -113,45 +113,26 @@ else()
   endif()
 endif()
 
-macro(ADD_TO_SANITIZER_FLAGS)
+macro(ADD_TO_GNU_SANITIZER_FLAGS)
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     list(APPEND SANITIZER_CXX_FLAGS ${ARGV})
     list(APPEND SANITIZER_LD_FLAGS ${ARGV})
   endif()
 endmacro()
 
-macro(SET_UBSAN_ENV)
-  string(CONCAT UBSAN_ENV "UBSAN_ENV="
-    "print_stacktrace=1:halt_on_error=1:abort_on_error=1")
-  string(CONCAT SANITIZER_ENV "${ASAN_ENV}" " " "${UBSAN_ENV}")
-endmacro()
-
 macro(SET_COMMON_SANITIZER_FLAGS)
-  list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=undefined"
-    "-fno-omit-frame-pointer" "-fno-optimize-sibling-calls")
-  # Boost library 1.72 on macOS from Homebrew produces the following error:
-  # SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /Users/laurynas/unodb/unodb/heap.hpp:83:8 in 
-  # /usr/local/include/boost/container/pmr/memory_resource.hpp:49:20: runtime error: member call on address 0x000105abd0b
-  # 0 which does not point to an object of type 'boost::container::pmr::memory_resource'
-  # 0x000105abd0b0: note: object is of type 'boost::container::pmr::new_delete_resource_imp'
-  # It looks like it's because new_delete_resource_imp is not exported as a
-  # visible symbol in the library?
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"
-      AND CMAKE_BUILD_TYPE MATCHES "Release")
-    list(APPEND SANITIZER_CXX_FLAGS "-fno-sanitize=vptr")
-  endif()
-  set(SANITIZER_LD_FLAGS "-fsanitize=undefined")
-  set_ubsan_env()
+  list(APPEND SANITIZER_CXX_FLAGS "-fno-omit-frame-pointer"
+    "-fno-optimize-sibling-calls")
 endmacro()
 
-option(SANITIZE
-  "Enable AddressSanitizer and UndefinedBehaviorSanitizer runtime checks")
-if(SANITIZE)
+option(SANITIZE_ADDRESS "Enable AddressSanitizer runtime checks")
+if(SANITIZE_ADDRESS)
   set_common_sanitizer_flags()
   list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=address")
   list(APPEND SANITIZER_LD_FLAGS "-fsanitize=address")
-  add_to_sanitizer_flags("-fsanitize=leak" "-fsanitize-address-use-after-scope"
-    "-fsanitize=pointer-compare" "-fsanitize=pointer-subtract")
+  add_to_gnu_sanitizer_flags("-fsanitize=leak"
+    "-fsanitize-address-use-after-scope" "-fsanitize=pointer-compare"
+    "-fsanitize=pointer-subtract")
   string(CONCAT ASAN_ENV "ASAN_ENV="
     "check_initialization_order=true:detect_stack_use_after_return=true:"
     "alloc_dealloc_mismatch=true:strict_string_checks=true")
@@ -169,15 +150,35 @@ if(SANITIZE)
   if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     string(APPEND ASAN_ENV ":detect_leaks=1")
   endif()
-  set_ubsan_env()
+  set(SANITIZER_ENV ${ASAN_ENV})
 endif()
 
-option(SANITIZE_THREAD
-  "Enable ThreadSanitizer and UndefinedBehaviorSanitizer runtime checks")
+option(SANITIZE_THREAD "Enable ThreadSanitizer runtime checks")
 if(SANITIZE_THREAD)
   set_common_sanitizer_flags()
   list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=thread")
   list(APPEND SANITIZER_LD_FLAGS "-fsanitize=thread")
+endif()
+
+option(SANITIZE_UB "Enable UndefinedBehaviorSanitizer runtime checks")
+if(SANITIZE_UB)
+  set_common_sanitizer_flags()
+  list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=undefined")
+  # Boost library 1.72 on macOS from Homebrew produces the following error:
+  # SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /Users/laurynas/unodb/unodb/heap.hpp:83:8 in
+  # /usr/local/include/boost/container/pmr/memory_resource.hpp:49:20: runtime error: member call on address 0x000105abd0b
+  # 0 which does not point to an object of type 'boost::container::pmr::memory_resource'
+  # 0x000105abd0b0: note: object is of type 'boost::container::pmr::new_delete_resource_imp'
+  # It looks like it's because new_delete_resource_imp is not exported as a
+  # visible symbol in the library?
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"
+      AND CMAKE_BUILD_TYPE MATCHES "Release")
+    list(APPEND SANITIZER_CXX_FLAGS "-fno-sanitize=vptr")
+  endif()
+  set(SANITIZER_LD_FLAGS "-fsanitize=undefined")
+  string(CONCAT UBSAN_ENV "UBSAN_ENV="
+    "print_stacktrace=1:halt_on_error=1:abort_on_error=1")
+  set(SANITIZER_ENV ${UBSAN_ENV})
 endif()
 
 option(STATIC_ANALYSIS "Enable compiler static analysis")
@@ -509,11 +510,8 @@ function(ADD_TEST_TARGET TARGET)
   target_link_libraries("${TARGET}" PRIVATE unodb gtest_main test_utils)
   set_clang_tidy_options("${TARGET}" "${DO_CLANG_TIDY_TEST}")
   add_test(NAME "${TARGET}" COMMAND "${TARGET}")
-  if(SANITIZE)
-    set_tests_properties(${TARGET} PROPERTIES ENVIRONMENT "${ASAN_ENV}")
-  endif()
-  if(SANITIZE OR SANITIZE_THREAD)
-    set_property(TEST ${TARGET} APPEND PROPERTY ENVIRONMENT "${UBSAN_ENV}")
+  if(SANITIZE_ADDRESS OR SANITIZE_THREAD OR SANITIZE_UB)
+    set_property(TEST ${TARGET} APPEND PROPERTY ENVIRONMENT "${SANITIZER_ENV}")
   endif()
 endfunction()
 
@@ -567,19 +565,19 @@ if(DEEPSTATE_LF_OK)
 
   add_custom_target(deepstate_lf_1m
     ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
-    COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+    COMMAND env ${SANITIZER_ENV}
     ./test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1
     -detect_leaks=0  -max_total_time=60)
 
   add_custom_target(deepstate_lf_20m
     ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
-    COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+    COMMAND env ${SANITIZER_ENV}
     ./test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1
     -detect_leaks=0  -max_total_time=1200)
 
   add_custom_target(deepstate_lf_8h
     ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
-    COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+    COMMAND env ${SANITIZER_ENV}
     ./test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1
     -detect_leaks=0  -max_total_time=28800)
 

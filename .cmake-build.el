@@ -1,6 +1,7 @@
 ((cmake-build-cmake-profiles
   (release "-DCMAKE_BUILD_TYPE=Release")
   (release-asan "-DCMAKE_BUILD_TYPE=Release -DSANITIZE_ADDRESS=ON")
+  (release-tsan "-DCMAKE_BUILD_TYPE=Release -DSANTIZE_THREAD=ON")
 
   (debug "-DCMAKE_BUILD_TYPE=Debug")
   (debug-asan "-DCMAKE_BUILD_TYPE=Debug -DSANITIZE_ADDRESS=ON")

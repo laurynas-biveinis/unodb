@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Laurynas Biveinis
+// Copyright 2019-2021 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -299,8 +299,8 @@ class inode {
 
   [[nodiscard]] __attribute__((pure)) auto get_shared_key_prefix_length(
       unodb::detail::art_key shifted_key) const noexcept {
-    const auto prefix_word = header_as_uint64() >> 8U;
-    return shared_len(static_cast<std::uint64_t>(shifted_key), prefix_word,
+    const auto prefix_u64 = header_as_uint64() >> 8U;
+    return shared_len(static_cast<std::uint64_t>(shifted_key), prefix_u64,
                       key_prefix_length());
   }
 
@@ -314,10 +314,10 @@ class inode {
     assert(cut_len <= key_prefix_length());
 
     const auto type = static_cast<std::uint8_t>(f.f.header.type());
-    const auto prefix_word = header_as_uint64();
-    const auto cut_prefix_word =
-        ((prefix_word >> (cut_len * 8)) & key_bytes_mask) | type;
-    set_header(cut_prefix_word);
+    const auto prefix_u64 = header_as_uint64();
+    const auto cut_prefix_u64 =
+        ((prefix_u64 >> (cut_len * 8)) & key_bytes_mask) | type;
+    set_header(cut_prefix_u64);
 
     f.f.key_prefix_length =
         gsl::narrow_cast<key_prefix_size_type>(key_prefix_length() - cut_len);
@@ -328,15 +328,15 @@ class inode {
            key_prefix_capacity);
 
     const auto type = static_cast<std::uint8_t>(f.f.header.type());
-    const auto prefix_word = header_as_uint64() & key_bytes_mask;
+    const auto prefix_u64 = header_as_uint64() & key_bytes_mask;
     const auto trailing_prefix_shift = (prefix1.key_prefix_length() + 1U) * 8U;
-    const auto shifted_prefix_word = prefix_word << trailing_prefix_shift;
+    const auto shifted_prefix_u64 = prefix_u64 << trailing_prefix_shift;
     const auto shifted_prefix2 = static_cast<std::uint64_t>(prefix2)
                                  << trailing_prefix_shift;
     const auto prefix1_mask = ((1ULL << trailing_prefix_shift) - 1) ^ 0xFFU;
     const auto masked_prefix1 = prefix1.header_as_uint64() & prefix1_mask;
     const auto prefix_result =
-        shifted_prefix_word | shifted_prefix2 | masked_prefix1 | type;
+        shifted_prefix_u64 | shifted_prefix2 | masked_prefix1 | type;
     set_header(prefix_result);
 
     f.f.key_prefix_length = gsl::narrow_cast<key_prefix_size_type>(
@@ -411,7 +411,7 @@ class inode {
 
   [[nodiscard]] __attribute__((const)) std::uint64_t header_as_uint64()
       const noexcept {
-    return static_cast<std::uint64_t>(f.words[1]) << 32U | f.words[0];
+    return static_cast<std::uint64_t>(f.u32[1]) << 32U | f.u32[0];
   }
 
   [[nodiscard]] static __attribute__((pure)) unsigned shared_len(
@@ -423,9 +423,9 @@ class inode {
     return (ffs_nonzero(clamped) - 1) >> 3U;
   }
 
-  void set_header(std::uint64_t word) noexcept {
-    f.words[0] = gsl::narrow_cast<std::uint32_t>(word & 0xFFFFFFFFULL);
-    f.words[1] = gsl::narrow_cast<std::uint32_t>(word >> 32U);
+  void set_header(std::uint64_t u64) noexcept {
+    f.u32[0] = gsl::narrow_cast<std::uint32_t>(u64 & 0xFFFFFFFFULL);
+    f.u32[1] = gsl::narrow_cast<std::uint32_t>(u64 >> 32U);
   }
 
   union inode_union {
@@ -436,21 +436,22 @@ class inode {
       std::uint8_t children_count;
     } f;
     static_assert(sizeof(inode_fields) == 10);
-    std::array<std::uint32_t, 2> words;
+    // Two 32-bit integers instead of one 64-bit in order not to increase the
+    // containing type alignment.
+    std::array<std::uint32_t, 2> u32;
 
     inode_union(node_type type, art_key k1, art_key shifted_k2,
                 tree_depth depth, unsigned children_count) noexcept {
       k1.shift_right(depth);
 
-      const auto k1_word = static_cast<std::uint64_t>(k1);
+      const auto k1_u64 = static_cast<std::uint64_t>(k1);
 
-      words[0] = gsl::narrow_cast<std::uint32_t>(
-          static_cast<std::uint32_t>(type) | (k1_word & 0xFFFFFFFULL) << 8U);
-      words[1] = gsl::narrow_cast<std::uint32_t>(k1_word >> 24U);
+      u32[0] = gsl::narrow_cast<std::uint32_t>(
+          static_cast<std::uint32_t>(type) | (k1_u64 & 0xFFFFFFFULL) << 8U);
+      u32[1] = gsl::narrow_cast<std::uint32_t>(k1_u64 >> 24U);
 
-      f.key_prefix_length = gsl::narrow_cast<key_prefix_size_type>(
-          shared_len(k1_word, static_cast<std::uint64_t>(shifted_k2),
-                     key_prefix_capacity));
+      f.key_prefix_length = gsl::narrow_cast<key_prefix_size_type>(shared_len(
+          k1_u64, static_cast<std::uint64_t>(shifted_k2), key_prefix_capacity));
       f.children_count = gsl::narrow_cast<std::uint8_t>(children_count);
     }
 
@@ -459,9 +460,9 @@ class inode {
                 const inode &key_prefix_source_node) noexcept {
       assert(key_prefix_len <= key_prefix_capacity);
 
-      words[0] = (key_prefix_source_node.f.words[0] & 0xFFFFFF00U) |
-                 static_cast<std::uint8_t>(type);
-      words[1] = key_prefix_source_node.f.words[1];
+      u32[0] = (key_prefix_source_node.f.u32[0] & 0xFFFFFF00U) |
+               static_cast<std::uint8_t>(type);
+      u32[1] = key_prefix_source_node.f.u32[1];
       f.key_prefix_length =
           gsl::narrow_cast<key_prefix_size_type>(key_prefix_len);
       f.children_count = gsl::narrow_cast<std::uint8_t>(children_count);

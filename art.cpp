@@ -1580,9 +1580,9 @@ db::~db() noexcept { ::delete_subtree(root); }
 get_result db::get(key search_key) const noexcept {
   if (unlikely(root.header == nullptr)) return {};
 
-  detail::node_ptr node{root};
+  auto node{root};
   const detail::art_key k{search_key};
-  detail::art_key remaining_key{k};
+  auto remaining_key{k};
 
   while (true) {
     if (node.type() == detail::node_type::LEAF) {
@@ -1595,10 +1595,11 @@ get_result db::get(key search_key) const noexcept {
 
     assert(node.type() != detail::node_type::LEAF);
 
+    const auto key_prefix_length = node.internal->key_prefix_length();
     if (node.internal->get_shared_key_prefix_length(remaining_key) <
-        node.internal->key_prefix_length())
+        key_prefix_length)
       return {};
-    remaining_key.shift_right(node.internal->key_prefix_length());
+    remaining_key.shift_right(key_prefix_length);
     auto *const child = node.internal->find_child(remaining_key[0]).second;
     if (child == nullptr) return {};
 
@@ -1616,9 +1617,9 @@ bool db::insert(key insert_key, value_view v) {
     return true;
   }
 
-  detail::node_ptr *node = &root;
+  auto *node = &root;
   detail::tree_depth depth{};
-  detail::art_key remaining_key{k};
+  auto remaining_key{k};
 
   while (true) {
     if (node->type() == detail::node_type::LEAF) {
@@ -1642,9 +1643,10 @@ bool db::insert(key insert_key, value_view v) {
     assert(node->type() != detail::node_type::LEAF);
     assert(depth < detail::art_key::size);
 
+    const auto key_prefix_length = node->internal->key_prefix_length();
     const auto shared_prefix_len =
         node->internal->get_shared_key_prefix_length(remaining_key);
-    if (shared_prefix_len < node->internal->key_prefix_length()) {
+    if (shared_prefix_len < key_prefix_length) {
       detail::raii_leaf_creator leaf_creator{k, v, *this};
       auto leaf = leaf_creator.get();
       increase_memory_use(sizeof(detail::inode_4));
@@ -1659,9 +1661,9 @@ bool db::insert(key insert_key, value_view v) {
       return true;
     }
 
-    assert(shared_prefix_len == node->internal->key_prefix_length());
-    depth += node->internal->key_prefix_length();
-    remaining_key.shift_right(node->internal->key_prefix_length());
+    assert(shared_prefix_len == key_prefix_length);
+    depth += key_prefix_length;
+    remaining_key.shift_right(key_prefix_length);
 
     auto *const child = node->internal->find_child(remaining_key[0]).second;
 
@@ -1750,21 +1752,22 @@ bool db::remove(key remove_key) {
     return false;
   }
 
-  detail::node_ptr *node = &root;
+  auto *node = &root;
   detail::tree_depth depth{};
-  detail::art_key remaining_key{k};
+  auto remaining_key{k};
 
   while (true) {
     assert(node->type() != detail::node_type::LEAF);
     assert(depth < detail::art_key::size);
 
+    const auto key_prefix_length = node->internal->key_prefix_length();
     const auto shared_prefix_len =
         node->internal->get_shared_key_prefix_length(remaining_key);
-    if (shared_prefix_len < node->internal->key_prefix_length()) return false;
+    if (shared_prefix_len < key_prefix_length) return false;
 
-    assert(shared_prefix_len == node->internal->key_prefix_length());
-    depth += node->internal->key_prefix_length();
-    remaining_key.shift_right(node->internal->key_prefix_length());
+    assert(shared_prefix_len == key_prefix_length);
+    depth += key_prefix_length;
+    remaining_key.shift_right(key_prefix_length);
 
     const auto [child_i, child_ptr] =
         node->internal->find_child(remaining_key[0]);

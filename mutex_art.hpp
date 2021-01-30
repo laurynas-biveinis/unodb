@@ -13,7 +13,7 @@ namespace unodb {
 class mutex_db final {
  public:
   // Creation and destruction
-  mutex_db() noexcept : db_{} {}
+  constexpr mutex_db() noexcept : db_{} {}
 
   // Querying
   [[nodiscard]] auto get(key k) const noexcept {

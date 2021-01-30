@@ -92,14 +92,14 @@ __attribute__((const)) unsigned ffs_nonzero(std::uint64_t arg) {
 // A class used as a sentinel for basic_inode template args: the
 // larger node type for the largest node type and the smaller node type for
 // the smallest node type.
-class fake_inode {};
+class fake_inode final {};
 
 }  // namespace
 
 namespace unodb::detail {
 
 template <>
-__attribute__((const)) std::uint64_t
+__attribute__((const)) constexpr std::uint64_t
 basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   return __builtin_bswap64(k);
@@ -112,9 +112,9 @@ enum class node_type : std::uint8_t { LEAF, I4, I16, I48, I256 };
 
 // A common prefix shared by all node types
 struct node_header final {
-  explicit node_header(node_type type_) : m_type{type_} {}
+  constexpr explicit node_header(node_type type_) : m_type{type_} {}
 
-  [[nodiscard]] auto type() const noexcept { return m_type; }
+  [[nodiscard]] constexpr auto type() const noexcept { return m_type; }
 
  private:
   const node_type m_type;
@@ -122,7 +122,7 @@ struct node_header final {
 
 static_assert(std::is_standard_layout_v<node_header>);
 
-node_type node_ptr::type() const noexcept { return header->type(); }
+constexpr node_type node_ptr::type() const noexcept { return header->type(); }
 
 // leaf_deleter and leaf_unique_ptr could be in anonymous namespace but then
 // cyclical dependency with struct leaf happens
@@ -244,7 +244,7 @@ union delete_node_ptr_at_scope_exit {
   const std::unique_ptr<unodb::detail::inode_48> node_48;
   const std::unique_ptr<unodb::detail::inode_256> node_256;
 
-  explicit delete_node_ptr_at_scope_exit(
+  constexpr explicit delete_node_ptr_at_scope_exit(
       unodb::detail::node_ptr node_ptr_) noexcept
       : header(node_ptr_.header) {}
 
@@ -304,12 +304,12 @@ class inode {
                       key_prefix_length());
   }
 
-  [[nodiscard]] unsigned key_prefix_length() const noexcept {
+  [[nodiscard]] constexpr unsigned key_prefix_length() const noexcept {
     assert(f.f.key_prefix_length <= key_prefix_capacity);
     return f.f.key_prefix_length;
   }
 
-  void cut_key_prefix(unsigned cut_len) noexcept {
+  constexpr void cut_key_prefix(unsigned cut_len) noexcept {
     assert(cut_len > 0);
     assert(cut_len <= key_prefix_length());
 
@@ -323,7 +323,8 @@ class inode {
         gsl::narrow_cast<key_prefix_size_type>(key_prefix_length() - cut_len);
   }
 
-  void prepend_key_prefix(const inode &prefix1, std::byte prefix2) noexcept {
+  constexpr void prepend_key_prefix(const inode &prefix1,
+                                    std::byte prefix2) noexcept {
     assert(key_prefix_length() + prefix1.key_prefix_length() <
            key_prefix_capacity);
 
@@ -343,7 +344,7 @@ class inode {
         key_prefix_length() + prefix1.key_prefix_length() + 1);
   }
 
-  [[nodiscard]] const auto &key_prefix_data() const noexcept {
+  [[nodiscard]] constexpr const auto &key_prefix_data() const noexcept {
     return f.f.key_prefix_data;
   }
 
@@ -364,15 +365,16 @@ class inode {
 
   void add(leaf_unique_ptr &&child, tree_depth depth) noexcept;
 
-  void remove(std::uint8_t child_index) noexcept;
+  constexpr void remove(std::uint8_t child_index) noexcept;
 
-  [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
+  [[nodiscard]] constexpr find_result_type find_child(
+      std::byte key_byte) noexcept;
 
-  [[nodiscard]] bool is_full() const noexcept;
+  [[nodiscard]] constexpr bool is_full() const noexcept;
 
-  [[nodiscard]] bool is_min_size() const noexcept;
+  [[nodiscard]] constexpr bool is_min_size() const noexcept;
 
-  void delete_subtree() noexcept;
+  constexpr void delete_subtree() noexcept;
 
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
@@ -409,8 +411,8 @@ class inode {
  private:
   static constexpr auto key_bytes_mask = 0xFFFFFFFF'FFFFFF00ULL;
 
-  [[nodiscard]] __attribute__((const)) std::uint64_t header_as_uint64()
-      const noexcept {
+  [[nodiscard]] __attribute__((const)) constexpr std::uint64_t
+  header_as_uint64() const noexcept {
     return static_cast<std::uint64_t>(f.u32[1]) << 32U | f.u32[0];
   }
 
@@ -423,7 +425,7 @@ class inode {
     return (ffs_nonzero(clamped) - 1) >> 3U;
   }
 
-  void set_header(std::uint64_t u64) noexcept {
+  constexpr void set_header(std::uint64_t u64) noexcept {
     f.u32[0] = gsl::narrow_cast<std::uint32_t>(u64 & 0xFFFFFFFFULL);
     f.u32[1] = gsl::narrow_cast<std::uint32_t>(u64 >> 32U);
   }
@@ -537,12 +539,12 @@ class basic_inode : public inode {
   static_assert(MinSize < Capacity);
 
  public:
-  [[nodiscard]] static auto create(std::unique_ptr<LargerDerived> &&source_node,
-                                   unsigned child_to_remove) {
+  [[nodiscard]] static constexpr auto create(
+      std::unique_ptr<LargerDerived> &&source_node, unsigned child_to_remove) {
     return std::make_unique<Derived>(std::move(source_node), child_to_remove);
   }
 
-  [[nodiscard]] static auto create(
+  [[nodiscard]] static constexpr auto create(
       std::unique_ptr<SmallerDerived> &&source_node, leaf_unique_ptr &&child,
       tree_depth depth) {
     return std::make_unique<Derived>(std::move(source_node), std::move(child),
@@ -561,37 +563,37 @@ class basic_inode : public inode {
                    alignment_for_new<Derived>());
   }
 
-  [[nodiscard]] auto is_full() const noexcept {
+  [[nodiscard]] constexpr auto is_full() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
 
     return f.f.children_count == capacity;
   }
 
-  [[nodiscard]] auto is_min_size() const noexcept {
+  [[nodiscard]] constexpr auto is_min_size() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
 
     return f.f.children_count == min_size;
   }
 
  protected:
-  basic_inode(art_key k1, art_key k2, tree_depth depth) noexcept
+  constexpr basic_inode(art_key k1, art_key k2, tree_depth depth) noexcept
       : inode{NodeType, MinSize, k1, k2, depth} {
     assert(is_min_size());
   }
 
-  basic_inode(unsigned key_prefix_len,
-              const inode &key_prefix_source_node) noexcept
+  constexpr basic_inode(unsigned key_prefix_len,
+                        const inode &key_prefix_source_node) noexcept
       : inode{NodeType, MinSize, key_prefix_len, key_prefix_source_node} {
     assert(is_min_size());
   }
 
-  explicit basic_inode(const SmallerDerived &source_node) noexcept
+  explicit constexpr basic_inode(const SmallerDerived &source_node) noexcept
       : inode{NodeType, MinSize, source_node} {
     assert(source_node.is_full());
     assert(is_min_size());
   }
 
-  explicit basic_inode(const LargerDerived &source_node) noexcept
+  explicit constexpr basic_inode(const LargerDerived &source_node) noexcept
       : inode{NodeType, Capacity, source_node} {
     assert(source_node.is_min_size());
     assert(is_full());
@@ -708,7 +710,7 @@ class inode_4 final : public basic_inode_4 {
 
   [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
 
-  void delete_subtree() noexcept;
+  constexpr void delete_subtree() noexcept;
 
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
@@ -769,7 +771,7 @@ void inode_4::add_two_to_empty(std::byte key1, node_ptr child1, std::byte key2,
                         keys.byte_array.cbegin() + f.f.children_count));
 }
 
-void inode_4::delete_subtree() noexcept {
+constexpr void inode_4::delete_subtree() noexcept {
   for (unsigned i = 0; i < f.f.children_count; ++i)
     ::delete_subtree(children[i]);
 }
@@ -861,7 +863,7 @@ class inode_16 final : public basic_inode_16 {
 
   [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
 
-  void delete_subtree() noexcept;
+  constexpr void delete_subtree() noexcept;
 
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
@@ -1018,7 +1020,7 @@ __attribute__((pure)) inode::find_result_type inode_16::find_child(
 #endif
 }
 
-void inode_16::delete_subtree() noexcept {
+constexpr void inode_16::delete_subtree() noexcept {
   for (std::uint8_t i = 0; i < f.f.children_count; ++i)
     ::delete_subtree(children[i]);
 }
@@ -1099,7 +1101,7 @@ class inode_48 final : public basic_inode_48 {
 
   [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
 
-  void delete_subtree() noexcept;
+  constexpr void delete_subtree() noexcept;
 
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
@@ -1208,7 +1210,7 @@ __attribute__((pure)) inode::find_result_type inode_48::find_child(
   return std::make_pair(0xFF, nullptr);
 }
 
-void inode_48::delete_subtree() noexcept {
+constexpr void inode_48::delete_subtree() noexcept {
   unsigned actual_children_count = 0;
   for (unsigned i = 0; i < capacity; ++i) {
     const auto child = children.pointer_array[i];
@@ -1273,12 +1275,14 @@ class inode_256 final : public basic_inode_256 {
   [[nodiscard]] find_result_type find_child(std::byte key_byte) noexcept;
 
   template <typename Function>
-  void for_each_child(Function func) noexcept(noexcept(func(0, nullptr)));
+  constexpr void for_each_child(Function func) noexcept(
+      noexcept(func(0, nullptr)));
 
   template <typename Function>
-  void for_each_child(Function func) const noexcept(noexcept(func(0, nullptr)));
+  constexpr void for_each_child(Function func) const
+      noexcept(noexcept(func(0, nullptr)));
 
-  void delete_subtree() noexcept;
+  constexpr void delete_subtree() noexcept;
 
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
@@ -1349,7 +1353,7 @@ __attribute__((pure)) inode::find_result_type inode_256::find_child(
 }
 
 template <typename Function>
-void inode_256::for_each_child(Function func) noexcept(
+constexpr void inode_256::for_each_child(Function func) noexcept(
     noexcept(func(0, nullptr))) {
   std::uint8_t actual_children_count = 0;
   for (unsigned i = 0; i < 256; ++i) {
@@ -1365,12 +1369,12 @@ void inode_256::for_each_child(Function func) noexcept(
 }
 
 template <typename Function>
-void inode_256::for_each_child(Function func) const
+constexpr void inode_256::for_each_child(Function func) const
     noexcept(noexcept(func(0, nullptr))) {
   const_cast<inode_256 *>(this)->for_each_child(func);
 }
 
-void inode_256::delete_subtree() noexcept {
+constexpr void inode_256::delete_subtree() noexcept {
   for_each_child(
       [](unsigned, node_ptr child) noexcept { ::delete_subtree(child); });
 }
@@ -1385,7 +1389,7 @@ void inode_256::dump(std::ostream &os) const {
   });
 }
 
-inline bool inode::is_full() const noexcept {
+constexpr inline bool inode::is_full() const noexcept {
   switch (f.f.header.type()) {
     case node_type::I4:
       return static_cast<const inode_4 *>(this)->is_full();
@@ -1401,7 +1405,7 @@ inline bool inode::is_full() const noexcept {
   cannot_happen();
 }
 
-inline bool inode::is_min_size() const noexcept {
+constexpr inline bool inode::is_min_size() const noexcept {
   switch (f.f.header.type()) {
     case node_type::I4:
       return static_cast<const inode_4 *>(this)->is_min_size();
@@ -1439,7 +1443,7 @@ inline void inode::add(leaf_unique_ptr &&child, tree_depth depth) noexcept {
   }
 }
 
-inline void inode::remove(std::uint8_t child_index) noexcept {
+constexpr inline void inode::remove(std::uint8_t child_index) noexcept {
   assert(!is_min_size());
 
   switch (f.f.header.type()) {
@@ -1460,7 +1464,8 @@ inline void inode::remove(std::uint8_t child_index) noexcept {
   }
 }
 
-inline inode::find_result_type inode::find_child(std::byte key_byte) noexcept {
+constexpr inline inode::find_result_type inode::find_child(
+    std::byte key_byte) noexcept {
   switch (f.f.header.type()) {
     case node_type::I4:
       return static_cast<inode_4 *>(this)->find_child(key_byte);
@@ -1476,7 +1481,7 @@ inline inode::find_result_type inode::find_child(std::byte key_byte) noexcept {
   cannot_happen();
 }
 
-void inode::delete_subtree() noexcept {
+constexpr void inode::delete_subtree() noexcept {
   switch (f.f.header.type()) {
     case node_type::I4:
       return static_cast<inode_4 *>(this)->delete_subtree();
@@ -1556,7 +1561,7 @@ class raii_leaf_creator {
     --db_instance.leaf_count;
   }
 
-  auto &&get() noexcept {
+  constexpr auto &&get() noexcept {
 #ifndef NDEBUG
     assert(!get_called);
     get_called = true;

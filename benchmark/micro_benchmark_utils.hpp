@@ -107,9 +107,9 @@ class batched_prng final {
 
 template <class Db>
 struct tree_stats final {
-  tree_stats(void) noexcept = default;
+  constexpr tree_stats(void) noexcept = default;
 
-  explicit tree_stats(const Db &test_db) noexcept
+  explicit constexpr tree_stats(const Db &test_db) noexcept
       : leaf_count{test_db.get_leaf_count()},
         inode4_count{test_db.get_inode4_count()},
         inode16_count{test_db.get_inode16_count()},
@@ -121,7 +121,7 @@ struct tree_stats final {
         inode48_to_inode256_count{test_db.get_inode48_to_inode256_count()},
         key_prefix_splits{test_db.get_key_prefix_splits()} {}
 
-  void get(const Db &test_db) noexcept {
+  constexpr void get(const Db &test_db) noexcept {
     leaf_count = test_db.get_leaf_count();
     inode4_count = test_db.get_inode4_count();
     inode16_count = test_db.get_inode16_count();
@@ -134,11 +134,12 @@ struct tree_stats final {
     key_prefix_splits = test_db.get_key_prefix_splits();
   }
 
-  bool operator==(const tree_stats<Db> &other) const noexcept {
+  constexpr bool operator==(const tree_stats<Db> &other) const noexcept {
     return leaf_count == other.leaf_count && internal_levels_equal(other);
   }
 
-  bool internal_levels_equal(const tree_stats<Db> &other) const noexcept {
+  constexpr bool internal_levels_equal(
+      const tree_stats<Db> &other) const noexcept {
     return inode4_count == other.inode4_count &&
            inode16_count == other.inode16_count &&
            inode48_count == other.inode48_count &&
@@ -165,7 +166,7 @@ struct tree_stats final {
 template <class Db>
 class growing_tree_node_stats final {
  public:
-  void get(const Db &test_db) noexcept {
+  constexpr void get(const Db &test_db) noexcept {
     stats.get(test_db);
 #ifndef NDEBUG
     get_called = true;
@@ -173,7 +174,7 @@ class growing_tree_node_stats final {
 #endif
   }
 
-  void publish(::benchmark::State &state) const noexcept {
+  constexpr void publish(::benchmark::State &state) const noexcept {
     assert(get_called);
     state.counters["L"] = static_cast<double>(stats.leaf_count);
     state.counters["4"] = static_cast<double>(stats.inode4_count);
@@ -199,13 +200,13 @@ class growing_tree_node_stats final {
 template <class Db>
 class shrinking_tree_node_stats final {
  public:
-  void get(const Db &test_db) noexcept {
+  constexpr void get(const Db &test_db) noexcept {
     inode16_to_inode4_count = test_db.get_inode16_to_inode4_count();
     inode48_to_inode16_count = test_db.get_inode48_to_inode16_count();
     inode256_to_inode48_count = test_db.get_inode256_to_inode48_count();
   }
 
-  void publish(::benchmark::State &state) const noexcept {
+  constexpr void publish(::benchmark::State &state) const noexcept {
     state.counters["16v"] = static_cast<double>(inode16_to_inode4_count);
     state.counters["48v"] = static_cast<double>(inode48_to_inode16_count);
     state.counters["256v"] = static_cast<double>(inode256_to_inode48_count);

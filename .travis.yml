@@ -214,7 +214,7 @@ script:
       travis_terminate 0;
     fi
   - if [[ "$STATIC_ANALYSIS" == "ON" ]]; then
-      make -j2;
+      make;
       travis_terminate 0;
     fi
   - make -j3

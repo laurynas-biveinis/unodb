@@ -62,7 +62,7 @@ RESTORE_CLANG_WARNINGS()
 template <class Db>
 class tree_verifier final {
  public:
-  explicit tree_verifier(bool parallel_test_ = false) noexcept
+  explicit constexpr tree_verifier(bool parallel_test_ = false) noexcept
       : test_db{}, parallel_test{parallel_test_} {
     assert_empty();
     assert_increasing_nodes(0, 0, 0, 0);
@@ -196,7 +196,7 @@ class tree_verifier final {
     }
   }
 
-  void assert_empty() const noexcept {
+  constexpr void assert_empty() const noexcept {
     ASSERT_TRUE(test_db.empty());
 
     ASSERT_EQ(test_db.get_current_memory_use(), 0);
@@ -204,7 +204,7 @@ class tree_verifier final {
     assert_node_counts(0, 0, 0, 0, 0);
   }
 
-  void assert_node_counts(
+  constexpr void assert_node_counts(
       std::optional<std::uint64_t> leaf_count,
       std::optional<std::uint64_t> inode4_count,
       std::optional<std::uint64_t> inode16_count,
@@ -231,7 +231,7 @@ class tree_verifier final {
     }
   }
 
-  void assert_increasing_nodes(
+  constexpr void assert_increasing_nodes(
       std::uint64_t created_inode4_count, std::uint64_t inode4_to_inode16_count,
       std::uint64_t inode16_to_inode48_count,
       std::uint64_t inode48_to_inode256_count) const noexcept {
@@ -242,10 +242,10 @@ class tree_verifier final {
               inode48_to_inode256_count);
   }
 
-  void assert_shrinking_nodes(std::uint64_t deleted_inode4_count,
-                              std::uint64_t inode16_to_inode4_count,
-                              std::uint64_t inode48_to_inode16_count,
-                              std::uint64_t inode256_to_inode48_count) {
+  constexpr void assert_shrinking_nodes(
+      std::uint64_t deleted_inode4_count, std::uint64_t inode16_to_inode4_count,
+      std::uint64_t inode48_to_inode16_count,
+      std::uint64_t inode256_to_inode48_count) {
     ASSERT_EQ(test_db.get_deleted_inode4_count(), deleted_inode4_count);
     ASSERT_EQ(test_db.get_inode16_to_inode4_count(), inode16_to_inode4_count);
     ASSERT_EQ(test_db.get_inode48_to_inode16_count(), inode48_to_inode16_count);
@@ -253,7 +253,7 @@ class tree_verifier final {
               inode256_to_inode48_count);
   }
 
-  void assert_key_prefix_splits(std::uint64_t splits) const noexcept {
+  constexpr void assert_key_prefix_splits(std::uint64_t splits) const noexcept {
     ASSERT_EQ(test_db.get_key_prefix_splits(), splits);
   }
 
@@ -264,7 +264,7 @@ class tree_verifier final {
     values.clear();
   }
 
-  Db &get_db() noexcept { return test_db; }
+  constexpr Db &get_db() noexcept { return test_db; }
 
  private:
   Db test_db;

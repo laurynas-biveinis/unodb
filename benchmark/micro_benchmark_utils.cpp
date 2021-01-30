@@ -17,7 +17,7 @@ namespace {
 // Node sizes
 
 template <unsigned NodeCapacity>
-constexpr inline auto node_capacity_to_minimum_size() noexcept {
+inline constexpr auto node_capacity_to_minimum_size() noexcept {
   static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
                 NodeCapacity == 256);
   if constexpr (NodeCapacity == 16) {
@@ -29,14 +29,14 @@ constexpr inline auto node_capacity_to_minimum_size() noexcept {
 }
 
 template <unsigned NodeCapacity>
-constexpr inline auto node_capacity_over_minimum() noexcept {
+inline constexpr auto node_capacity_over_minimum() noexcept {
   static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
                 NodeCapacity == 256);
   return NodeCapacity - node_capacity_to_minimum_size<NodeCapacity>();
 }
 
 template <unsigned NodeSize>
-constexpr inline auto node_size_has_key_zero_bits() noexcept {
+inline constexpr auto node_size_has_key_zero_bits() noexcept {
   // If node size is a power of two, then can use key zero bit-based operations
   return (NodeSize & (NodeSize - 1)) == 0;
 }
@@ -284,7 +284,8 @@ void assert_shrinking_nodes(const Db &test_db USED_IN_DEBUG,
 template <class Db>
 class tree_shape_snapshot final {
  public:
-  explicit tree_shape_snapshot(const Db &test_db USED_IN_DEBUG) noexcept
+  explicit constexpr tree_shape_snapshot(
+      const Db &test_db USED_IN_DEBUG) noexcept
 #ifndef NDEBUG
       : db{test_db}, stats {
     test_db
@@ -292,7 +293,7 @@ class tree_shape_snapshot final {
 #endif
   {}
 
-  void assert_internal_levels_same() const noexcept {
+  constexpr void assert_internal_levels_same() const noexcept {
 #ifndef NDEBUG
     const unodb::benchmark::tree_stats<Db> current_stats{db};
     assert(stats.internal_levels_equal(current_stats));

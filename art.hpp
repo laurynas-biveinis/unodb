@@ -23,42 +23,50 @@ class raii_leaf_creator;
 // Internal ART key in binary-comparable format
 template <typename KeyType>
 struct basic_art_key final {
-  [[nodiscard]] static KeyType make_binary_comparable(KeyType key) noexcept;
+  [[nodiscard]] constexpr static KeyType make_binary_comparable(
+      KeyType key) noexcept;
 
-  basic_art_key() noexcept = default;
+  constexpr basic_art_key() noexcept = default;
 
-  explicit basic_art_key(KeyType key_) noexcept
+  constexpr explicit basic_art_key(KeyType key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
-  [[nodiscard]] static auto create(const std::byte from[]) noexcept {
+  [[nodiscard]] constexpr static auto create(const std::byte from[]) noexcept {
     struct basic_art_key result;
     std::memcpy(&result, from, size);
     return result;
   }
 
-  void copy_to(std::byte to[]) const noexcept { std::memcpy(to, &key, size); }
+  constexpr void copy_to(std::byte to[]) const noexcept {
+    std::memcpy(to, &key, size);
+  }
 
-  [[nodiscard]] bool operator==(const std::byte key2[]) const noexcept {
+  [[nodiscard]] constexpr bool operator==(
+      const std::byte key2[]) const noexcept {
     return !std::memcmp(&key, key2, size);
   }
 
-  [[nodiscard]] bool operator==(basic_art_key<KeyType> key2) const noexcept {
+  [[nodiscard]] constexpr bool operator==(
+      basic_art_key<KeyType> key2) const noexcept {
     return !std::memcmp(&key, &key2.key, size);
   }
 
-  [[nodiscard]] bool operator!=(basic_art_key<KeyType> key2) const noexcept {
+  [[nodiscard]] constexpr bool operator!=(
+      basic_art_key<KeyType> key2) const noexcept {
     return std::memcmp(&key, &key2.key, size);
   }
 
-  [[nodiscard]] __attribute__((pure)) auto operator[](
+  [[nodiscard]] __attribute__((pure)) constexpr auto operator[](
       std::size_t index) const noexcept {
     assert(index < size);
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }
 
-  [[nodiscard]] explicit operator KeyType() const noexcept { return key; }
+  [[nodiscard]] constexpr explicit operator KeyType() const noexcept {
+    return key;
+  }
 
-  void shift_right(const std::size_t num_bytes) noexcept {
+  constexpr void shift_right(const std::size_t num_bytes) noexcept {
     key >>= (num_bytes * 8);
   }
 
@@ -91,22 +99,23 @@ class tree_depth final {
  public:
   using value_type = unsigned;
 
-  explicit tree_depth(value_type value_ = 0) noexcept : value{value_} {
+  explicit constexpr tree_depth(value_type value_ = 0) noexcept
+      : value{value_} {
     assert(value <= art_key::size);
   }
 
-  [[nodiscard]] operator value_type() const noexcept {
+  [[nodiscard]] constexpr operator value_type() const noexcept {
     assert(value <= art_key::size);
     return value;
   }
 
-  tree_depth &operator++() noexcept {
+  constexpr tree_depth &operator++() noexcept {
     ++value;
     assert(value <= art_key::size);
     return *this;
   }
 
-  void operator+=(value_type delta) noexcept {
+  constexpr void operator+=(value_type delta) noexcept {
     value += delta;
     assert(value <= art_key::size);
   }
@@ -130,22 +139,22 @@ union node_ptr {
   inode_256 *node_256;
 
   node_ptr() noexcept {}
-  node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
-  node_ptr(raw_leaf_ptr leaf_) noexcept : leaf{leaf_} {}
-  node_ptr(inode_4 *node_4_) noexcept : node_4{node_4_} {}
-  node_ptr(inode_16 *node_16_) noexcept : node_16{node_16_} {}
-  node_ptr(inode_48 *node_48_) noexcept : node_48{node_48_} {}
-  node_ptr(inode_256 *node_256_) noexcept : node_256{node_256_} {}
+  constexpr node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
+  constexpr node_ptr(raw_leaf_ptr leaf_) noexcept : leaf{leaf_} {}
+  constexpr node_ptr(inode_4 *node_4_) noexcept : node_4{node_4_} {}
+  constexpr node_ptr(inode_16 *node_16_) noexcept : node_16{node_16_} {}
+  constexpr node_ptr(inode_48 *node_48_) noexcept : node_48{node_48_} {}
+  constexpr node_ptr(inode_256 *node_256_) noexcept : node_256{node_256_} {}
 
-  [[nodiscard]] auto operator==(std::nullptr_t) const noexcept {
+  [[nodiscard]] constexpr auto operator==(std::nullptr_t) const noexcept {
     return header == nullptr;
   }
 
-  [[nodiscard]] auto operator!=(std::nullptr_t) const noexcept {
+  [[nodiscard]] constexpr auto operator!=(std::nullptr_t) const noexcept {
     return header != nullptr;
   }
 
-  [[nodiscard]] __attribute__((pure)) node_type type() const noexcept;
+  [[nodiscard]] __attribute__((pure)) constexpr node_type type() const noexcept;
 };
 
 }  // namespace detail
@@ -153,14 +162,16 @@ union node_ptr {
 class db final {
  public:
   // Creation and destruction
-  db() noexcept {}
+  constexpr db() noexcept {}
 
   ~db() noexcept;
 
   // Querying
   [[nodiscard]] get_result get(key search_key) const noexcept;
 
-  [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
+  [[nodiscard]] constexpr auto empty() const noexcept {
+    return root == nullptr;
+  }
 
   // Modifying
   // Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
@@ -173,59 +184,63 @@ class db final {
   // Stats
 
   // Return current memory use by tree nodes in bytes.
-  [[nodiscard]] auto get_current_memory_use() const noexcept {
+  [[nodiscard]] constexpr auto get_current_memory_use() const noexcept {
     return current_memory_use;
   }
 
-  [[nodiscard]] auto get_leaf_count() const noexcept { return leaf_count; }
+  [[nodiscard]] constexpr auto get_leaf_count() const noexcept {
+    return leaf_count;
+  }
 
-  [[nodiscard]] auto get_inode4_count() const noexcept { return inode4_count; }
+  [[nodiscard]] constexpr auto get_inode4_count() const noexcept {
+    return inode4_count;
+  }
 
-  [[nodiscard]] auto get_inode16_count() const noexcept {
+  [[nodiscard]] constexpr auto get_inode16_count() const noexcept {
     return inode16_count;
   }
 
-  [[nodiscard]] auto get_inode48_count() const noexcept {
+  [[nodiscard]] constexpr auto get_inode48_count() const noexcept {
     return inode48_count;
   }
 
-  [[nodiscard]] auto get_inode256_count() const noexcept {
+  [[nodiscard]] constexpr auto get_inode256_count() const noexcept {
     return inode256_count;
   }
 
-  [[nodiscard]] auto get_created_inode4_count() const noexcept {
+  [[nodiscard]] constexpr auto get_created_inode4_count() const noexcept {
     return created_inode4_count;
   }
 
-  [[nodiscard]] auto get_inode4_to_inode16_count() const noexcept {
+  [[nodiscard]] constexpr auto get_inode4_to_inode16_count() const noexcept {
     return inode4_to_inode16_count;
   }
 
-  [[nodiscard]] auto get_inode16_to_inode48_count() const noexcept {
+  [[nodiscard]] constexpr auto get_inode16_to_inode48_count() const noexcept {
     return inode16_to_inode48_count;
   }
 
-  [[nodiscard]] auto get_inode48_to_inode256_count() const noexcept {
+  [[nodiscard]] constexpr auto get_inode48_to_inode256_count() const noexcept {
     return inode48_to_inode256_count;
   }
 
-  [[nodiscard]] auto get_deleted_inode4_count() const noexcept {
+  [[nodiscard]] constexpr auto get_deleted_inode4_count() const noexcept {
     return deleted_inode4_count;
   }
 
-  [[nodiscard]] auto get_inode16_to_inode4_count() const noexcept {
+  [[nodiscard]] constexpr auto get_inode16_to_inode4_count() const noexcept {
     return inode16_to_inode4_count;
   }
 
-  [[nodiscard]] auto get_inode48_to_inode16_count() const noexcept {
+  [[nodiscard]] constexpr auto get_inode48_to_inode16_count() const noexcept {
     return inode48_to_inode16_count;
   }
 
-  [[nodiscard]] auto get_inode256_to_inode48_count() const noexcept {
+  [[nodiscard]] constexpr auto get_inode256_to_inode48_count() const noexcept {
     return inode256_to_inode48_count;
   }
 
-  [[nodiscard]] auto get_key_prefix_splits() const noexcept {
+  [[nodiscard]] constexpr auto get_key_prefix_splits() const noexcept {
     return key_prefix_splits;
   }
 
@@ -233,11 +248,11 @@ class db final {
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
-  void increase_memory_use(std::size_t delta) noexcept {
+  constexpr void increase_memory_use(std::size_t delta) noexcept {
     current_memory_use += delta;
   }
 
-  void decrease_memory_use(std::size_t delta) noexcept {
+  constexpr void decrease_memory_use(std::size_t delta) noexcept {
     assert(delta <= current_memory_use);
     current_memory_use -= delta;
   }

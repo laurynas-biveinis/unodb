@@ -4,20 +4,20 @@
 
 readonly WORKDIR=$1
 
-mkdir $WORKDIR
-pushd $WORKDIR
+mkdir "$WORKDIR"
+pushd "$WORKDIR" || exit 1
 
 cmake ../unodb/ -DCMAKE_BUILD_TYPE=Release -DCPPCHECK_AGGRESSIVE=ON
 make -j4 -k
-rm -rf *
+rm -rf ./*
 
 cmake ../unodb/ -DCMAKE_BUILD_TYPE=Debug -DCPPCHECK_AGGRESSIVE=ON
 make -j4 -k
-rm -rf *
+rm -rf ./*
 
-pushd ../unodb
+pushd ../unodb || exit 1
 ../FlintPlusPlus/flint/flint++
-popd
+popd || exit 1
 
-popd
-rm -rf $WORKDIR
+popd || exit 1
+rm -rf "$WORKDIR"

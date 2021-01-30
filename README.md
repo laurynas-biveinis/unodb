@@ -5,6 +5,7 @@
 [![Build
 Status](https://travis-ci.org/laurynas-biveinis/unodb.svg?branch=master)](https://travis-ci.org/laurynas-biveinis/unodb)
 [![codecov](https://codecov.io/gh/laurynas-biveinis/unodb/branch/master/graph/badge.svg)](https://codecov.io/gh/laurynas-biveinis/unodb)
+[![GitHub Super-Linter](https://github.com/laurynas-biveinis/unodb/workflows/Lint%20code%20base/badge.svg)](https://github.com/marketplace/actions/super-linter)
 
 ## Introduction
 

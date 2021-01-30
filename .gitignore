@@ -37,3 +37,4 @@ compile_commands.json
 
 # cmake-build.el build dirs
 build.*
+!build.yml

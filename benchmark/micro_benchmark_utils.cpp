@@ -627,10 +627,8 @@ void sequential_add_benchmark(::benchmark::State &state) {
         number_to_full_leaf_over_minimal_tree_key<NodeSize>);
 
     state.PauseTiming();
-#ifndef NDEBUG
     assert_node_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
-#endif
     tree_size = test_db.get_current_memory_use();
     destroy_tree(test_db, state);
   }
@@ -663,10 +661,8 @@ void random_add_benchmark(::benchmark::State &state) {
     insert_keys(test_db, benchmark_keys);
 
     state.PauseTiming();
-#ifndef NDEBUG
     assert_node_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
-#endif
     tree_size = test_db.get_current_memory_use();
     benchmark_keys_inserted = static_cast<std::int64_t>(benchmark_keys.size());
     destroy_tree(test_db, state);
@@ -706,10 +702,8 @@ void sequential_delete_benchmark(::benchmark::State &state) {
     }
 
     state.PauseTiming();
-#ifndef NDEBUG
     assert_node_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
-#endif
     destroy_tree(test_db, state);
   }
 
@@ -743,10 +737,8 @@ void random_delete_benchmark(::benchmark::State &state) {
     delete_keys(test_db, remove_keys);
 
     state.PauseTiming();
-#ifndef NDEBUG
     assert_node_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
-#endif
     destroy_tree(test_db, state);
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *

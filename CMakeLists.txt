@@ -133,18 +133,21 @@ if(SANITIZE_ADDRESS)
   add_to_gnu_sanitizer_flags("-fsanitize=leak"
     "-fsanitize-address-use-after-scope" "-fsanitize=pointer-compare"
     "-fsanitize=pointer-subtract")
-  string(CONCAT ASAN_ENV "ASAN_ENV="
+  string(CONCAT ASAN_ENV "ASAN_OPTIONS="
     "check_initialization_order=true:detect_stack_use_after_return=true:"
     "alloc_dealloc_mismatch=true:strict_string_checks=true")
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
-      "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 8)
-    # ERROR: AddressSanitizer: invalid-pointer-pair: 0x7fffe8404697
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+      OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    # Not for GCC, up to version 10 at least, because:
+    # 1) AddressSanitizer CHECK failed:
+    # ../../../../src/libsanitizer/asan/asan_thread.cpp:369 "((bottom)) != (0)"
+    # (0x0, 0x0)
+    # https://bugs.llvm.org/show_bug.cgi?id=47626
+    # 2) ERROR: AddressSanitizer: invalid-pointer-pair: 0x7fffe8404697
     # 0x000000000000
     # #0 0x55d21abf7a40 in std::__cxx11::basic_stringbuf<char,
     # std::char_traits<char>, std::allocator<char> >::str() const
     # /usr/include/c++/8/sstream:173
-    string(APPEND ASAN_ENV ":detect_invalid_pointer_pairs=1")
-  else()
     string(APPEND ASAN_ENV ":detect_invalid_pointer_pairs=2")
   endif()
   if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
@@ -165,18 +168,23 @@ if(SANITIZE_UB)
   set_common_sanitizer_flags()
   list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=undefined")
   # Boost library 1.72 on macOS from Homebrew produces the following error:
-  # SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /Users/laurynas/unodb/unodb/heap.hpp:83:8 in
-  # /usr/local/include/boost/container/pmr/memory_resource.hpp:49:20: runtime error: member call on address 0x000105abd0b
-  # 0 which does not point to an object of type 'boost::container::pmr::memory_resource'
-  # 0x000105abd0b0: note: object is of type 'boost::container::pmr::new_delete_resource_imp'
+  # SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior
+  # /Users/laurynas/unodb/unodb/heap.hpp:83:8 in
+  # /usr/local/include/boost/container/pmr/memory_resource.hpp:49:20: runtime
+  # error: member call on address 0x000105abd0b
+  # 0 which does not point to an object of type
+  # 'boost::container::pmr::memory_resource'
+  # 0x000105abd0b0: note: object is of type
+  # 'boost::container::pmr::new_delete_resource_imp'
   # It looks like it's because new_delete_resource_imp is not exported as a
-  # visible symbol in the library?
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"
-      AND CMAKE_BUILD_TYPE MATCHES "Release")
+  # visible symbol in the library? I.e.
+  # https://bugs.llvm.org/show_bug.cgi?id=39191,
+  # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80963
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     list(APPEND SANITIZER_CXX_FLAGS "-fno-sanitize=vptr")
   endif()
   set(SANITIZER_LD_FLAGS "-fsanitize=undefined")
-  string(CONCAT UBSAN_ENV "UBSAN_ENV="
+  string(CONCAT UBSAN_ENV "UBSAN_OPTIONS="
     "print_stacktrace=1:halt_on_error=1:abort_on_error=1")
   set(SANITIZER_ENV ${UBSAN_ENV})
 endif()

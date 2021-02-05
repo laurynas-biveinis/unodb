@@ -226,7 +226,7 @@ jobs:
           if [[ $COMPILER == "gcc" ]]; then
             sudo apt-get install -y g++-10
           elif [[ $COMPILER == "clang" ]]; then
-            sudo apt-get install -y boost1.73 clang-11
+            sudo apt-get install -y boost1.74 clang-11
             if [[ $BUILD_TYPE == "Release" ]]; then
               sudo apt-get install -y llvm-11-dev lld-11
             fi

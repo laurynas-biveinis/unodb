@@ -26,7 +26,7 @@ os_setups:
             key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
         packages:
           - python3-pip
-          - boost1.73
+          - boost1.74
           - clang-11
           - clang-tidy-11
           - clang-tools-11

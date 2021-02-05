@@ -43,17 +43,6 @@ os_setups:
           - cmake
           - cppcheck
         update: true
-  coverage_setup: &coverage
-    os: osx
-    osx_image: xcode12.2
-    compiler: gcc
-    addons:
-      homebrew:
-        packages:
-          - cmake
-          - gcc
-          - cpanm
-        update: true
 
 env:
   global:
@@ -61,7 +50,6 @@ env:
     - SANITIZE_THREAD=OFF
     - SANITIZE_UB=OFF
     - SCAN_BUILD=
-    - COVERAGE=OFF
     - STATIC_ANALYSIS=OFF
 
 matrix:
@@ -178,14 +166,6 @@ matrix:
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug SANITIZE_UB=ON
-    - name: "Debug coverage"
-      <<: *coverage
-      env:
-        - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Debug COVERAGE=ON
-    - name: "Release coverage"
-      <<: *coverage
-      env:
-        - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Release COVERAGE=ON
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -202,13 +182,7 @@ script:
       sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-11 50;
       sudo update-alternatives --install /usr/bin/ld ld /usr/bin/lld-11 50;
     fi
-  - if [[ "$CC" == "gcc-10" && "$COVERAGE" == "ON" ]]; then
-      set -e;
-      sudo cpanm install JSON;
-      brew install lcov;
-      EXTRA_CMAKE_OPTIONS+="-DGCOV_PATH=/usr/local/bin/gcov-10 ";
-    fi
-  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE_ADDRESS=${SANITIZE_ADDRESS} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DSANITIZE_UB=${SANITIZE_UB} -DCOVERAGE=${COVERAGE} -DSTATIC_ANALYSIS=${STATIC_ANALYSIS} ${EXTRA_CMAKE_OPTIONS}
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE_ADDRESS=${SANITIZE_ADDRESS} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DSANITIZE_UB=${SANITIZE_UB} -DSTATIC_ANALYSIS=${STATIC_ANALYSIS} ${EXTRA_CMAKE_OPTIONS}
   - if [[ ! -z "${SCAN_BUILD}" ]]; then
       ${SCAN_BUILD} --status-bugs -stats -analyze-headers --force-analyze-debug-code make -j3;
       travis_terminate 0;
@@ -218,15 +192,9 @@ script:
       travis_terminate 0;
     fi
   - make -j3
-  - if [[ "$COVERAGE" == "OFF" ]]; then
-      ctest -j3 -V;
-      echo "Benchmark runs (for benchmark correctness, not performance!)";
-      make quick_benchmarks;
-    else
-      set -e;
-      make -j3 coverage;
-      bash <(curl -s https://codecov.io/bash) -f coverage-coverage.info || echo "Codecov did not collect coverage reports";
-    fi
+  - ctest -j3 -V
+  - echo "Benchmark runs (for benchmark correctness, not performance!)"
+  - make quick_benchmarks
   - if [[ "$SANITIZE" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$SANITIZE_UB" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
       make valgrind;
     fi

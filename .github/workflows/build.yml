@@ -245,7 +245,10 @@ jobs:
         run: |
           CPPCHECK="${CPPCHECK:-$DEFAULT_CPPCHECK}"
           COVERAGE="${COVERAGE:-$DEFAULT_COVERAGE}"
-          brew install boost
+          COMPILER="${COMPILER:-$DEFAULT_COMPILER}"
+          if [[ $COMPILER != "gcc" ]]; then
+            brew install boost
+          fi
           if [[ $CPPCHECK == "ON" ]]; then
             brew install cppcheck
           fi

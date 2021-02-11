@@ -18,7 +18,7 @@ namespace unodb {
 namespace detail {
 
 struct leaf;
-class raii_leaf_creator;
+class db_leaf_deleter;
 
 // Internal ART key in binary-comparable format
 template <typename KeyType>
@@ -248,6 +248,8 @@ class db final {
   __attribute__((cold, noinline)) void dump(std::ostream &os) const;
 
  private:
+  void delete_subtree(detail::node_ptr) noexcept;
+
   constexpr void increase_memory_use(std::size_t delta) noexcept {
     current_memory_use += delta;
   }
@@ -280,7 +282,11 @@ class db final {
   std::uint64_t key_prefix_splits{0};
 
   friend struct detail::leaf;
-  friend class detail::raii_leaf_creator;
+  friend class detail::db_leaf_deleter;
+  friend class detail::inode_4;
+  friend class detail::inode_16;
+  friend class detail::inode_48;
+  friend class detail::inode_256;
 };
 
 }  // namespace unodb

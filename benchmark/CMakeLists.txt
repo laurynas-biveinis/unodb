@@ -34,19 +34,19 @@ add_custom_target(quick_benchmarks
   ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg})
 
 add_custom_target(valgrind_benchmarks
-  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  COMMAND valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all
   ./micro_benchmark_key_prefix ${micro_benchmark_key_prefix_quick_arg}
-  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  COMMAND valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all
   ./micro_benchmark_node4 ${micro_benchmark_node4_quick_arg}
-  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  COMMAND valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all
   ./micro_benchmark_node16 ${micro_benchmark_node16_quick_arg}
-  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  COMMAND valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all
   ./micro_benchmark_node48 ${micro_benchmark_node48_quick_arg}
-  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  COMMAND valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all
   ./micro_benchmark_node256 ${micro_benchmark_node256_quick_arg}
-  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  COMMAND valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all
   ./micro_benchmark ${micro_benchmark_quick_arg}
-  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  COMMAND valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all
   ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg})
 
 add_library(micro_benchmark_utils STATIC micro_benchmark_utils.cpp

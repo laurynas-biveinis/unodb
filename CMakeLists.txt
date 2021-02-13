@@ -597,7 +597,8 @@ endif()
 add_subdirectory(benchmark)
 
 add_custom_target(valgrind
-  COMMAND valgrind --error-exitcode=1 --leak-check=full ./test_art;
-  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  COMMAND valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all
+  ./test_art;
+  COMMAND valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all
   ./test_art_mutex_concurrency
   DEPENDS test_art test_art_mutex_concurrency valgrind_benchmarks)

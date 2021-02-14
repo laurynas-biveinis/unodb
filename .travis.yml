@@ -51,6 +51,7 @@ env:
     - SANITIZE_UB=OFF
     - SCAN_BUILD=
     - STATIC_ANALYSIS=OFF
+    - COVERAGE=OFF
 
 matrix:
   include:

@@ -250,6 +250,8 @@ class db final {
  private:
   void delete_subtree(detail::node_ptr) noexcept;
 
+  void delete_root_subtree() noexcept;
+
   constexpr void increase_memory_use(std::size_t delta) noexcept {
     current_memory_use += delta;
   }

@@ -1581,7 +1581,7 @@ void inode::dump(std::ostream &os) const {
 
 }  // namespace detail
 
-db::~db() noexcept { delete_subtree(root); }
+db::~db() noexcept { delete_root_subtree(); }
 
 get_result db::get(key search_key) const noexcept {
   if (unlikely(root.header == nullptr)) return {};
@@ -1854,14 +1854,19 @@ void db::delete_subtree(unodb::detail::node_ptr node) noexcept {
   delete_on_scope_exit.delete_subtree();
 }
 
-void db::clear() {
+void db::delete_root_subtree() noexcept {
   delete_subtree(root);
-  root = nullptr;
-  current_memory_use = 0;
 
   // It is possible to reset the counter to zero instead of decrementing it for
   // each leaf, but not sure the savings will be significant.
   assert(leaf_count == 0);
+}
+
+void db::clear() {
+  delete_root_subtree();
+
+  root = nullptr;
+  current_memory_use = 0;
   inode4_count = 0;
   inode16_count = 0;
   inode48_count = 0;

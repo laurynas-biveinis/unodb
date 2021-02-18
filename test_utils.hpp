@@ -46,9 +46,11 @@ void assert_result_eq(Db &db, unodb::key key, unodb::value_view expected,
   testing::ScopedTrace trace(__FILE__, caller_line, msg.str());
   const auto result = db.get(key);
   if (!result) {
+    // LCOV_EXCL_START
     std::cerr << "db.get did not find key: " << key << '\n';
     db.dump(std::cerr);
     FAIL();
+    // LCOV_EXCL_STOP
   }
   ASSERT_TRUE(std::equal(result->cbegin(), result->cend(), expected.cbegin(),
                          expected.cend()));
@@ -145,9 +147,11 @@ class tree_verifier final {
     ASSERT_TRUE(mem_use_before > 0);
 
     if (!test_db.remove(k)) {
+      // LCOV_EXCL_START
       std::cerr << "test_db.remove failed for key " << k << '\n';
       test_db.dump(std::cerr);
       FAIL();
+      // LCOV_EXCL_STOP
     }
 
     if (!parallel_test) {
@@ -215,10 +219,12 @@ class tree_verifier final {
     }
     if (inode4_count.has_value() &&
         test_db.get_inode4_count() != *inode4_count) {
+      // LCOV_EXCL_START
       std::cerr << "inode4 count mismatch! Expected: " << *inode4_count
                 << ", actual: " << test_db.get_inode4_count() << '\n';
       test_db.dump(std::cerr);
       FAIL();
+      // LCOV_EXCL_STOP
     }
     if (inode16_count.has_value()) {
       ASSERT_EQ(test_db.get_inode16_count(), *inode16_count);

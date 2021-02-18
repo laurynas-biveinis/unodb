@@ -59,7 +59,7 @@ using pmr_unsynchronized_pool_resource =
 #endif
 
 template <typename T>
-constexpr std::size_t alignment_for_new() noexcept {
+constexpr auto alignment_for_new() noexcept {
   return std::max(alignof(T),
                   static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
 }

@@ -499,7 +499,7 @@ class delete_db_node_ptr_at_scope_exit final {
         return;
       }
     }
-    cannot_happen();
+    cannot_happen();  // LCOV_EXCL_LINE
   }
 
   delete_db_node_ptr_at_scope_exit(const delete_db_node_ptr_at_scope_exit &) =
@@ -1425,10 +1425,12 @@ constexpr inline bool inode::is_full() const noexcept {
       return static_cast<const inode_48 *>(this)->is_full();
     case node_type::I256:
       return static_cast<const inode_256 *>(this)->is_full();
+    // LCOV_EXCL_START
     case node_type::LEAF:
       cannot_happen();
   }
   cannot_happen();
+  // LCOV_EXCL_STOP
 }
 
 constexpr inline bool inode::is_min_size() const noexcept {
@@ -1441,10 +1443,12 @@ constexpr inline bool inode::is_min_size() const noexcept {
       return static_cast<const inode_48 *>(this)->is_min_size();
     case node_type::I256:
       return static_cast<const inode_256 *>(this)->is_min_size();
+    // LCOV_EXCL_START
     case node_type::LEAF:
       cannot_happen();
   }
   cannot_happen();
+  // LCOV_EXCL_STOP
 }
 
 inline void inode::add(db_leaf_unique_ptr &&child, tree_depth depth) noexcept {
@@ -1464,8 +1468,10 @@ inline void inode::add(db_leaf_unique_ptr &&child, tree_depth depth) noexcept {
     case node_type::I256:
       static_cast<inode_256 *>(this)->add(std::move(child), depth);
       break;
+    // LCOV_EXCL_START
     case node_type::LEAF:
       cannot_happen();
+      // LCOV_EXCL_STOP
   }
 }
 
@@ -1486,8 +1492,10 @@ constexpr inline void inode::remove(std::uint8_t child_index,
     case node_type::I256:
       static_cast<inode_256 *>(this)->remove(child_index, db_instance);
       break;
+    // LCOV_EXCL_START
     case node_type::LEAF:
       cannot_happen();
+      // LCOV_EXCL_STOP
   }
 }
 
@@ -1502,10 +1510,12 @@ constexpr inline inode::find_result_type inode::find_child(
       return static_cast<inode_48 *>(this)->find_child(key_byte);
     case node_type::I256:
       return static_cast<inode_256 *>(this)->find_child(key_byte);
+    // LCOV_EXCL_START
     case node_type::LEAF:
       cannot_happen();
   }
   cannot_happen();
+  // LCOV_EXCL_STOP
 }
 
 constexpr void inode::delete_subtree(db &db_instance) noexcept {
@@ -1518,10 +1528,12 @@ constexpr void inode::delete_subtree(db &db_instance) noexcept {
       return static_cast<inode_48 *>(this)->delete_subtree(db_instance);
     case node_type::I256:
       return static_cast<inode_256 *>(this)->delete_subtree(db_instance);
+    // LCOV_EXCL_START
     case node_type::LEAF:
       cannot_happen();
   }
   cannot_happen();
+  // LCOV_EXCL_STOP
 }
 
 void inode::dump(std::ostream &os) const {
@@ -1538,8 +1550,10 @@ void inode::dump(std::ostream &os) const {
     case node_type::I256:
       os << "I256: ";
       break;
+    // LCOV_EXCL_START
     case node_type::LEAF:
       cannot_happen();
+      // LCOV_EXCL_STOP
   }
   os << "# children = "
      << (f.f.children_count == 0 ? 256
@@ -1558,8 +1572,10 @@ void inode::dump(std::ostream &os) const {
     case node_type::I256:
       static_cast<const inode_256 *>(this)->dump(os);
       break;
+    // LCOV_EXCL_START
     case node_type::LEAF:
       cannot_happen();
+      // LCOV_EXCL_STOP
   }
 }
 

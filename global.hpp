@@ -58,10 +58,12 @@
 #define likely(x) __builtin_expect(x, 1)
 #define unlikely(x) __builtin_expect(x, 0)
 
+// LCOV_EXCL_START
 inline __attribute__((noreturn)) void cannot_happen() {
   assert(0);
   __builtin_unreachable();
 }
+// LCOV_EXCL_STOP
 
 #ifdef NDEBUG
 #define USED_IN_DEBUG __attribute__((unused))

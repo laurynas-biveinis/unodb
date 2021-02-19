@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Laurynas Biveinis
+// Copyright 2019-2021 Laurynas Biveinis
 #ifndef UNODB_TEST_UTILS_HPP_
 #define UNODB_TEST_UTILS_HPP_
 
@@ -186,10 +186,6 @@ class tree_verifier final {
     for (const auto &[key, value] : values) {
       ASSERT_VALUE_FOR_KEY(test_db, key, value);
     }
-    // Dump the tree to a string. Do not attempt to check the dump format, only
-    // that dumping does not crash
-    std::stringstream dump_sink;
-    test_db.dump(dump_sink);
   }
 
   void check_absent_keys(
@@ -208,12 +204,17 @@ class tree_verifier final {
     assert_node_counts(0, 0, 0, 0, 0);
   }
 
-  constexpr void assert_node_counts(
+  void assert_node_counts(
       std::optional<std::uint64_t> leaf_count,
       std::optional<std::uint64_t> inode4_count,
       std::optional<std::uint64_t> inode16_count,
       std::optional<std::uint64_t> inode48_count,
       std::optional<std::uint64_t> inode256_count) const noexcept {
+    // Dump the tree to a string. Do not attempt to check the dump format, only
+    // that dumping does not crash
+    std::stringstream dump_sink;
+    test_db.dump(dump_sink);
+
     if (leaf_count.has_value()) {
       ASSERT_EQ(test_db.get_leaf_count(), *leaf_count);
     }

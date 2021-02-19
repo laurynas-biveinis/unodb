@@ -310,6 +310,16 @@ TYPED_TEST(ART, SingleNodeTreeDelete) {
   verifier.check_absent_keys({1});
 }
 
+TYPED_TEST(ART, SingleNodeTreeAttemptDeleteAbsent) {
+  tree_verifier<TypeParam> verifier;
+
+  verifier.insert(2, test_values[1]);
+  verifier.attempt_remove_missing_keys({1, 3, 0xFF02});
+  verifier.check_present_values();
+  verifier.assert_node_counts(1, 0, 0, 0, 0);
+  verifier.check_absent_keys({1, 3, 0xFF02});
+}
+
 TYPED_TEST(ART, Node4AttemptDeleteAbsent) {
   tree_verifier<TypeParam> verifier;
 

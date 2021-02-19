@@ -1878,9 +1878,9 @@ void db::clear() {
 namespace {
 
 void dump_node(std::ostream &os, const unodb::detail::node_ptr &node) {
-  os << "node at: " << &node;
+  os << "node at: " << node.header;
   if (node.header == nullptr) {
-    os << ", <null>\n";
+    os << '\n';
     return;
   }
   os << ", type = ";

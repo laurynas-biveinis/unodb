@@ -552,9 +552,9 @@ class basic_inode : public inode {
 
  public:
   [[nodiscard]] static constexpr auto create(
-      std::unique_ptr<LargerDerived> &&source_node, unsigned child_to_remove,
+      std::unique_ptr<LargerDerived> &&source_node, unsigned child_to_delete,
       db &db_instance) {
-    return std::make_unique<Derived>(std::move(source_node), child_to_remove,
+    return std::make_unique<Derived>(std::move(source_node), child_to_delete,
                                      db_instance);
   }
 
@@ -649,7 +649,7 @@ class inode_4 final : public basic_inode_4 {
   inode_4(node_ptr source_node, unsigned len, tree_depth depth,
           db_leaf_unique_ptr &&child1) noexcept;
 
-  inode_4(std::unique_ptr<inode_16> source_node, std::uint8_t child_to_remove,
+  inode_4(std::unique_ptr<inode_16> source_node, std::uint8_t child_to_delete,
           db &db_instance) noexcept;
 
   void add(db_leaf_unique_ptr child, tree_depth depth) noexcept {
@@ -850,7 +850,7 @@ class inode_16 final : public basic_inode_16 {
   inode_16(std::unique_ptr<inode_4> source_node, db_leaf_unique_ptr child,
            tree_depth depth) noexcept;
 
-  inode_16(std::unique_ptr<inode_48> source_node, uint8_t child_to_remove,
+  inode_16(std::unique_ptr<inode_48> source_node, uint8_t child_to_delete,
            db &db_instance) noexcept;
 
   void add(db_leaf_unique_ptr &&child, tree_depth depth) noexcept {
@@ -956,7 +956,7 @@ class inode_16 final : public basic_inode_16 {
 
 static_assert(sizeof(inode_16) == 160);
 
-inode_4::inode_4(std::unique_ptr<inode_16> source_node, uint8_t child_to_remove,
+inode_4::inode_4(std::unique_ptr<inode_16> source_node, uint8_t child_to_delete,
                  db &db_instance) noexcept
     : basic_inode_4{*source_node} {
   const auto *source_keys_itr = source_node->keys.byte_array.cbegin();
@@ -965,7 +965,7 @@ inode_4::inode_4(std::unique_ptr<inode_16> source_node, uint8_t child_to_remove,
   auto *children_itr = children.begin();
 
   while (source_keys_itr !=
-         source_node->keys.byte_array.cbegin() + child_to_remove) {
+         source_node->keys.byte_array.cbegin() + child_to_delete) {
     *keys_itr++ = *source_keys_itr++;
     *children_itr++ = *source_children_itr++;
   }
@@ -1062,7 +1062,7 @@ class inode_48 final : public basic_inode_48 {
   inode_48(std::unique_ptr<inode_16> source_node, db_leaf_unique_ptr child,
            tree_depth depth) noexcept;
 
-  inode_48(std::unique_ptr<inode_256> source_node, uint8_t child_to_remove,
+  inode_48(std::unique_ptr<inode_256> source_node, uint8_t child_to_delete,
            db &db_instance) noexcept;
 
   void add(db_leaf_unique_ptr child, tree_depth depth) noexcept {
@@ -1167,10 +1167,10 @@ class inode_48 final : public basic_inode_48 {
 static_assert(sizeof(inode_48) == 656);
 
 inode_16::inode_16(std::unique_ptr<inode_48> source_node,
-                   std::uint8_t child_to_remove, db &db_instance) noexcept
+                   std::uint8_t child_to_delete, db &db_instance) noexcept
     : basic_inode_16{*source_node} {
-  source_node->remove_child_pointer(child_to_remove, db_instance);
-  source_node->child_indexes[child_to_remove] = inode_48::empty_child;
+  source_node->remove_child_pointer(child_to_delete, db_instance);
+  source_node->child_indexes[child_to_delete] = inode_48::empty_child;
 
   // TODO(laurynas): consider AVX512 gather?
   unsigned next_child = 0;
@@ -1320,12 +1320,12 @@ class inode_256 final : public basic_inode_256 {
 static_assert(sizeof(inode_256) == 2064);
 
 inode_48::inode_48(std::unique_ptr<inode_256> source_node,
-                   std::uint8_t child_to_remove, db &db_instance) noexcept
+                   std::uint8_t child_to_delete, db &db_instance) noexcept
     : basic_inode_48{*source_node} {
   auto *const __restrict__ source_node_ptr = source_node.get();
   delete_db_node_ptr_at_scope_exit delete_on_scope_exit{
-      source_node_ptr->children[child_to_remove], db_instance};
-  source_node_ptr->children[child_to_remove] = nullptr;
+      source_node_ptr->children[child_to_delete], db_instance};
+  source_node_ptr->children[child_to_delete] = nullptr;
 
   std::memset(&child_indexes[0], empty_child, 256);
 

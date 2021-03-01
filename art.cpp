@@ -1591,7 +1591,8 @@ get_result db::get(key search_key) const noexcept {
   auto remaining_key{k};
 
   while (true) {
-    if (node.type() == detail::node_type::LEAF) {
+    const auto node_type = node.type();
+    if (node_type == detail::node_type::LEAF) {
       if (detail::leaf::matches(node.leaf, k)) {
         const auto value = detail::leaf::value(node.leaf);
         return value;
@@ -1599,7 +1600,7 @@ get_result db::get(key search_key) const noexcept {
       return {};
     }
 
-    assert(node.type() != detail::node_type::LEAF);
+    assert(node_type != detail::node_type::LEAF);
 
     const auto key_prefix_length = node.internal->key_prefix_length();
     if (node.internal->get_shared_key_prefix_length(remaining_key) <
@@ -1628,7 +1629,8 @@ bool db::insert(key insert_key, value_view v) {
   auto remaining_key{k};
 
   while (true) {
-    if (node->type() == detail::node_type::LEAF) {
+    const auto node_type = node->type();
+    if (node_type == detail::node_type::LEAF) {
       const auto existing_key = detail::leaf::key(node->leaf);
       if (unlikely(k == existing_key)) return false;
 
@@ -1646,7 +1648,7 @@ bool db::insert(key insert_key, value_view v) {
       return true;
     }
 
-    assert(node->type() != detail::node_type::LEAF);
+    assert(node_type != detail::node_type::LEAF);
     assert(depth < detail::art_key::size);
 
     const auto key_prefix_length = node->internal->key_prefix_length();
@@ -1684,7 +1686,7 @@ bool db::insert(key insert_key, value_view v) {
 
       assert(node_is_full);
 
-      if (node->type() == detail::node_type::I4) {
+      if (node_type == detail::node_type::I4) {
         assert(inode4_count > 0);
 
         increase_memory_use(sizeof(detail::inode_16) - sizeof(detail::inode_4));
@@ -1698,7 +1700,7 @@ bool db::insert(key insert_key, value_view v) {
         ++inode4_to_inode16_count;
         assert(inode4_to_inode16_count >= inode16_count);
 
-      } else if (node->type() == detail::node_type::I16) {
+      } else if (node_type == detail::node_type::I16) {
         assert(inode16_count > 0);
 
         std::unique_ptr<detail::inode_16> current_node{node->node_16};
@@ -1716,7 +1718,7 @@ bool db::insert(key insert_key, value_view v) {
       } else {
         assert(inode48_count > 0);
 
-        assert(node->type() == detail::node_type::I48);
+        assert(node_type == detail::node_type::I48);
         std::unique_ptr<detail::inode_48> current_node{node->node_48};
         increase_memory_use(sizeof(detail::inode_256) -
                             sizeof(detail::inode_48));
@@ -1758,7 +1760,8 @@ bool db::remove(key remove_key) {
   auto remaining_key{k};
 
   while (true) {
-    assert(node->type() != detail::node_type::LEAF);
+    const auto node_type = node->type();
+    assert(node_type != detail::node_type::LEAF);
     assert(depth < detail::art_key::size);
 
     const auto key_prefix_length = node->internal->key_prefix_length();
@@ -1787,7 +1790,7 @@ bool db::remove(key remove_key) {
 
       assert(is_node_min_size);
 
-      if (node->type() == detail::node_type::I4) {
+      if (node_type == detail::node_type::I4) {
         std::unique_ptr<detail::inode_4> current_node{node->node_4};
         *node = current_node->leave_last_child(child_i, *this);
         decrease_memory_use(sizeof(detail::inode_4));
@@ -1797,7 +1800,7 @@ bool db::remove(key remove_key) {
         ++deleted_inode4_count;
         assert(deleted_inode4_count <= created_inode4_count);
 
-      } else if (node->type() == detail::node_type::I16) {
+      } else if (node_type == detail::node_type::I16) {
         std::unique_ptr<detail::inode_16> current_node{node->node_16};
         auto new_node{
             detail::inode_4::create(std::move(current_node), child_i, *this)};
@@ -1810,7 +1813,7 @@ bool db::remove(key remove_key) {
         ++inode16_to_inode4_count;
         assert(inode16_to_inode4_count <= inode4_to_inode16_count);
 
-      } else if (node->type() == detail::node_type::I48) {
+      } else if (node_type == detail::node_type::I48) {
         std::unique_ptr<detail::inode_48> current_node{node->node_48};
         auto new_node{
             detail::inode_16::create(std::move(current_node), child_i, *this)};
@@ -1825,7 +1828,7 @@ bool db::remove(key remove_key) {
         assert(inode48_to_inode16_count <= inode16_to_inode48_count);
 
       } else {
-        assert(node->type() == detail::node_type::I256);
+        assert(node_type == detail::node_type::I256);
         std::unique_ptr<detail::inode_256> current_node{node->node_256};
         auto new_node{
             detail::inode_48::create(std::move(current_node), child_i, *this)};

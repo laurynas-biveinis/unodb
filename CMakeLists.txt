@@ -1,4 +1,4 @@
-# Copyright 2019-2020 Laurynas Biveinis
+# Copyright 2019-2021 Laurynas Biveinis
 cmake_minimum_required(VERSION 3.12)
 
 project(unodb VERSION 0.1
@@ -203,8 +203,8 @@ find_package(Threads REQUIRED)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   message(STATUS "Using GCC, using std::pmr instead of boost::pmr")
-  set(USE_BOOST FALSE)
 else()
+  list(APPEND BOOST_COMPONENTS container)
   # Workaround https://github.com/boostorg/boost_install/issues/13: Homebrew
   # Boost 1.71 installs single-thread and MT build to the same prefix, resulting
   # in -
@@ -213,9 +213,9 @@ else()
   # '/usr/local/lib/libboost_container-mt.dylib', which will be overwritten
   # with '/usr/local/lib/libboost_container.dylib'
   set(Boost_NO_BOOST_CMAKE ON)
-  find_package(Boost REQUIRED COMPONENTS container)
-  set(USE_BOOST TRUE)
 endif()
+
+find_package(Boost REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 
 string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
 string(APPEND CMAKE_CXX_FLAGS ${CXX_FLAGS_FOR_SUBDIR_STR})
@@ -303,8 +303,10 @@ else()
   else()
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
     string(CONCAT CLANG_TIDY_DISABLED
-      "-fuchsia-default-arguments,"
+      "-bugprone-use-after-move,"
       "-clang-diagnostic-error,"
+      # Moved-from object states are asserted
+      "-clang-analyzer-cplusplus.Move,"
       # Duplicated by modernize-avoid-c-arrays
       "-cppcoreguidelines-avoid-c-arrays,"
       "-cppcoreguidelines-avoid-magic-numbers,"
@@ -323,6 +325,7 @@ else()
       "-cppcoreguidelines-pro-type-reinterpret-cast,"
       "-cppcoreguidelines-pro-type-static-cast-downcast,"
       "-cppcoreguidelines-pro-type-union-access,"
+      "-fuchsia-default-arguments,"
       "-fuchsia-default-arguments-calls,"
       "-fuchsia-overloaded-operator,"
       "-google-readability-braces-around-statements,"
@@ -330,6 +333,7 @@ else()
       # Duplicated by modernize-avoid-c-arrays
       "-hicpp-avoid-c-arrays,"
       "-hicpp-braces-around-statements,"
+      "-hicpp-invalid-access-moved,"
       "-hicpp-member-init,"
       "-hicpp-named-parameter,"
       "-hicpp-no-array-decay,"
@@ -408,6 +412,7 @@ else()
   string(CONCAT CPPLINT_DISABLED_TESTS "--filter="
     "-build/c++11," # <thread> is an unapproved C++11 header
     "-build/include_order,"
+    "-build/include_subdir,"
     "-readability/nolint," # clang-tidy owns NOLINT
     "-runtime/references,"
     # Does not understand C++17 structured bindings and we use clang-format
@@ -469,17 +474,24 @@ function(SET_CLANG_TIDY_OPTIONS TARGET COMMAND)
   endif()
 endfunction()
 
-add_library(unodb art.cpp art.hpp art_common.hpp global.hpp mutex_art.hpp
-  heap.hpp)
+add_library(unodb_qsbr qsbr.cpp qsbr.hpp heap.hpp global.hpp
+  debug_thread_sync.h)
+common_target_properties(unodb_qsbr)
+target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
+target_link_libraries(unodb_qsbr PRIVATE "${Boost_LIBRARIES}")
+if(DO_CLANG_TIDY)
+  set_target_properties(unodb_qsbr PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
+endif()
+target_link_libraries(unodb_qsbr PUBLIC Threads::Threads)
+
+add_library(unodb art.cpp art.hpp art_common.hpp mutex_art.hpp
+  optimistic_lock.hpp art_internal_impl.hpp olc_art.hpp olc_art.cpp
+  art_internal.hpp)
 common_target_properties(unodb)
+target_link_libraries(unodb PUBLIC unodb_qsbr)
 target_include_directories(unodb PUBLIC ".")
 target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
-if(USE_BOOST)
-  target_include_directories(unodb SYSTEM PRIVATE "${Boost_INCLUDE_DIRS}")
-  target_link_libraries(unodb PRIVATE "${Boost_LIBRARIES}")
-endif()
 set_clang_tidy_options(unodb "${DO_CLANG_TIDY}")
-target_link_libraries(unodb PUBLIC Threads::Threads)
 
 enable_testing()
 
@@ -507,15 +519,23 @@ function(ADD_COVERAGE_TARGET)
     DEPENDS ${ARG_DEPENDENCY})
 endfunction()
 
-add_library(test_utils STATIC test_utils.hpp test_utils.cpp)
-common_target_properties(test_utils)
-target_link_libraries(test_utils PRIVATE unodb gtest_main)
-set_clang_tidy_options(test_utils "${DO_CLANG_TIDY_TEST}")
+add_library(db_test_utils STATIC db_test_utils.hpp db_test_utils.cpp)
+common_target_properties(db_test_utils)
+target_link_libraries(db_test_utils PRIVATE unodb gtest_main)
+set_clang_tidy_options(db_test_utils "${DO_CLANG_TIDY_TEST}")
 
+# FIXME(laurynas): unduplicate
+add_library(qsbr_test_utils STATIC qsbr_test_utils.hpp qsbr_test_utils.cpp)
+common_target_properties(qsbr_test_utils)
+target_link_libraries(qsbr_test_utils PRIVATE unodb_qsbr gtest_main)
+set_clang_tidy_options(qsbr_test_utils "${DO_CLANG_TIDY_TEST}")
+
+# FIXME(laurynas): merge with add_db_test_target, pass which test utils libs
+# to link with
 function(ADD_TEST_TARGET TARGET)
   add_executable("${TARGET}" "${TARGET}.cpp")
   common_target_properties("${TARGET}")
-  target_link_libraries("${TARGET}" PRIVATE unodb gtest_main test_utils)
+  target_link_libraries("${TARGET}" PRIVATE unodb_qsbr gtest_main)
   set_clang_tidy_options("${TARGET}" "${DO_CLANG_TIDY_TEST}")
   add_test(NAME "${TARGET}" COMMAND "${TARGET}")
   if(SANITIZE_ADDRESS OR SANITIZE_THREAD OR SANITIZE_UB)
@@ -523,12 +543,22 @@ function(ADD_TEST_TARGET TARGET)
   endif()
 endfunction()
 
-add_test_target(test_art)
-add_test_target(test_art_mutex_concurrency)
+function(ADD_DB_TEST_TARGET TARGET)
+  add_test_target("${TARGET}")
+  target_link_libraries("${TARGET}" PRIVATE unodb db_test_utils)
+endfunction()
+
+add_test_target(test_qsbr)
+target_link_libraries(test_qsbr PRIVATE qsbr_test_utils)
+add_db_test_target(test_art)
+add_db_test_target(test_art_mutex_concurrency)
+add_db_test_target(test_olc_art_concurrency)
+target_link_libraries(test_olc_art_concurrency PRIVATE qsbr_test_utils)
 
 if(COVERAGE)
   add_custom_target(tests_for_coverage ctest -E test_art_fuzz_deepstate
-    DEPENDS test_art test_art_mutex_concurrency)
+    DEPENDS test_art test_art_mutex_concurrency test_qsbr
+    test_olc_art_concurrency)
   add_coverage_target(TARGET coverage DEPENDENCY tests_for_coverage)
 endif()
 

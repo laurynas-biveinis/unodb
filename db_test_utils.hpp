@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef UNODB_TEST_UTILS_HPP_
-#define UNODB_TEST_UTILS_HPP_
+#ifndef UNODB_DB_TEST_UTILS_HPP_
+#define UNODB_DB_TEST_UTILS_HPP_
 
 #include "global.hpp"
 
@@ -16,6 +16,8 @@
 
 #include "art.hpp"
 #include "mutex_art.hpp"
+#include "olc_art.hpp"
+#include "qsbr.hpp"
 
 constexpr auto test_value_1 = std::array<std::byte, 1>{std::byte{0x00}};
 constexpr auto test_value_2 =
@@ -283,5 +285,8 @@ class tree_verifier final {
 
 extern template class tree_verifier<unodb::db>;
 extern template class tree_verifier<unodb::mutex_db>;
+extern template class tree_verifier<unodb::olc_db>;
 
-#endif  // UNODB_TEST_UTILS_HPP_
+using olc_tree_verifier = tree_verifier<unodb::olc_db>;
+
+#endif  // UNODB_DB_TEST_UTILS_HPP_

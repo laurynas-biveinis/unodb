@@ -1,4 +1,4 @@
-# Copyright 2020 Laurynas Biveinis
+# Copyright 2020-2021 Laurynas Biveinis
 
 set(micro_benchmark_key_prefix_quick_arg "") # Benchmark is quick as-is
 set(micro_benchmark_node4_quick_arg "--benchmark_filter='/16|/20|/100'")
@@ -7,6 +7,7 @@ set(micro_benchmark_node48_quick_arg "--benchmark_filter='/64|/128|/192'")
 set(micro_benchmark_node256_quick_arg "--benchmark_filter='/8|/128|/192'")
 set(micro_benchmark_quick_arg "--benchmark_filter='.*262144|.*51200'")
 set(micro_benchmark_mutex_quick_arg "--benchmark_filter='/4/70000/'")
+set(micro_benchmark_olc_quick_arg "--benchmark_filter='/4/70000/'")
 
 add_custom_target(benchmarks
   env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_key_prefix
@@ -15,7 +16,8 @@ add_custom_target(benchmarks
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node48
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node256
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_mutex)
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_mutex
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_olc)
 
 add_custom_target(quick_benchmarks
   env ${ASAN_ENV} ${UBSAN_ENV}
@@ -31,7 +33,9 @@ add_custom_target(quick_benchmarks
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
   ./micro_benchmark ${micro_benchmark_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
-  ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg})
+  ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg}
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+  ./micro_benchmark_olc ${micro_benchmark_olc_quick_arg})
 
 add_custom_target(valgrind_benchmarks
   COMMAND valgrind --error-exitcode=1 --leak-check=full
@@ -47,7 +51,9 @@ add_custom_target(valgrind_benchmarks
   COMMAND valgrind --error-exitcode=1 --leak-check=full
   ./micro_benchmark ${micro_benchmark_quick_arg}
   COMMAND valgrind --error-exitcode=1 --leak-check=full
-  ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg})
+  ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg}
+  COMMAND valgrind --error-exitcode=1 --leak-check=full
+  ./micro_benchmark_olc ${micro_benchmark_olc_quick_arg})
 
 add_library(micro_benchmark_utils STATIC micro_benchmark_utils.cpp
   micro_benchmark_utils.hpp)
@@ -68,10 +74,16 @@ function(ADD_BENCHMARK_TARGET TARGET)
   add_dependencies(valgrind_benchmarks "${TARGET}")
 endfunction()
 
+function(ADD_CONCURRENT_BENCHMARK_TARGET TARGET)
+  add_benchmark_target("${TARGET}")
+  target_sources("${TARGET}" PRIVATE micro_benchmark_concurrency.hpp)
+endfunction()
+
 add_benchmark_target(micro_benchmark_key_prefix)
 add_benchmark_target(micro_benchmark_node4)
 add_benchmark_target(micro_benchmark_node16)
 add_benchmark_target(micro_benchmark_node48)
 add_benchmark_target(micro_benchmark_node256)
 add_benchmark_target(micro_benchmark)
-add_benchmark_target(micro_benchmark_mutex)
+add_concurrent_benchmark_target(micro_benchmark_mutex)
+add_concurrent_benchmark_target(micro_benchmark_olc)

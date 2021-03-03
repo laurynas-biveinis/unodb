@@ -1,4 +1,4 @@
-// Copyright 2020 Laurynas Biveinis
+// Copyright 2020-2021 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -11,6 +11,7 @@
 
 #include "art.hpp"
 #include "mutex_art.hpp"
+#include "olc_art.hpp"
 
 namespace {
 
@@ -177,7 +178,7 @@ std::vector<unodb::key> generate_random_keys_over_full_smaller_tree(
       }
     }
   }
-  cannot_happen();
+  unodb::cannot_happen();
 }
 
 // Asserts
@@ -486,6 +487,8 @@ template void destroy_tree<unodb::db>(unodb::db &,
                                       ::benchmark::State &) noexcept;
 template void destroy_tree<unodb::mutex_db>(unodb::mutex_db &,
                                             ::benchmark::State &) noexcept;
+template void destroy_tree<unodb::olc_db>(unodb::olc_db &,
+                                          ::benchmark::State &) noexcept;
 
 // Benchmarks
 

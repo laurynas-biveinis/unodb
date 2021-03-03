@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Laurynas Biveinis
+// Copyright 2019-2021 Laurynas Biveinis
 #ifndef MICRO_BENCHMARK_HPP_
 #define MICRO_BENCHMARK_HPP_
 
@@ -24,6 +24,7 @@
 namespace unodb {
 class db;
 class mutex_db;
+class olc_db;
 }  // namespace unodb
 
 namespace unodb::benchmark {
@@ -350,6 +351,8 @@ extern template void destroy_tree<unodb::db>(unodb::db &,
                                              ::benchmark::State &) noexcept;
 extern template void destroy_tree<unodb::mutex_db>(
     unodb::mutex_db &, ::benchmark::State &) noexcept;
+extern template void destroy_tree<unodb::olc_db>(unodb::olc_db &,
+                                                 ::benchmark::State &) noexcept;
 
 // Benchmarks
 

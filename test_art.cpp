@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Laurynas Biveinis
+// Copyright 2019-2021 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -9,18 +9,19 @@
 #include <gtest/gtest.h>  // IWYU pragma: keep
 
 #include "art.hpp"
+#include "db_test_utils.hpp"
 #include "mutex_art.hpp"
-#include "test_utils.hpp"
+#include "olc_art.hpp"
 
 namespace {
 
 template <class Db>
-class ART : public ::testing::Test {
+class ARTCorrectnessTest : public ::testing::Test {
  public:
   using Test::Test;
 };
 
-using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db>;
+using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db, unodb::olc_db>;
 
 // Because Google thinks
 // error: must specify at least one argument for '...' parameter of variadic
@@ -31,7 +32,7 @@ using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db>;
 // is not a bug: https://github.com/google/googletest/issues/2271
 DISABLE_CLANG_WARNING("-Wgnu-zero-variadic-macro-arguments")
 
-TYPED_TEST_CASE(ART, ARTTypes);
+TYPED_TEST_CASE(ARTCorrectnessTest, ARTTypes);
 
 RESTORE_CLANG_WARNINGS()
 
@@ -43,7 +44,7 @@ RESTORE_CLANG_WARNINGS()
 
 DISABLE_GCC_WARNING("-Wsuggest-override")
 
-TYPED_TEST(ART, SingleNodeTreeEmptyValue) {
+TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeEmptyValue) {
   tree_verifier<TypeParam> verifier;
   verifier.check_absent_keys({1});
   verifier.insert(1, {});
@@ -54,7 +55,7 @@ TYPED_TEST(ART, SingleNodeTreeEmptyValue) {
   verifier.check_absent_keys({0});
 }
 
-TYPED_TEST(ART, SingleNodeTreeNonemptyValue) {
+TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeNonemptyValue) {
   tree_verifier<TypeParam> verifier;
   verifier.insert(1, test_values[2]);
   verifier.assert_node_counts(1, 0, 0, 0, 0);
@@ -64,7 +65,7 @@ TYPED_TEST(ART, SingleNodeTreeNonemptyValue) {
   verifier.check_absent_keys({0, 2});
 }
 
-TYPED_TEST(ART, TooLongValue) {
+TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
   std::byte fake_val{0x00};
   unodb::value_view too_long{
       &fake_val,
@@ -80,7 +81,7 @@ TYPED_TEST(ART, TooLongValue) {
   verifier.assert_increasing_nodes(0, 0, 0, 0);
 }
 
-TYPED_TEST(ART, ExpandLeafToNode4) {
+TYPED_TEST(ARTCorrectnessTest, ExpandLeafToNode4) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert(0, test_values[1]);
@@ -95,7 +96,7 @@ TYPED_TEST(ART, ExpandLeafToNode4) {
   verifier.check_absent_keys({2});
 }
 
-TYPED_TEST(ART, DuplicateKey) {
+TYPED_TEST(ARTCorrectnessTest, DuplicateKey) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert(0, test_values[0]);
@@ -110,7 +111,7 @@ TYPED_TEST(ART, DuplicateKey) {
   verifier.check_present_values();
 }
 
-TYPED_TEST(ART, InsertToFullNode4) {
+TYPED_TEST(ARTCorrectnessTest, InsertToFullNode4) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 4);
@@ -121,7 +122,7 @@ TYPED_TEST(ART, InsertToFullNode4) {
   verifier.check_absent_keys({5, 4});
 }
 
-TYPED_TEST(ART, TwoNode4) {
+TYPED_TEST(ARTCorrectnessTest, TwoNode4) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, test_values[0]);
@@ -138,7 +139,7 @@ TYPED_TEST(ART, TwoNode4) {
   verifier.check_absent_keys({0xFF00, 2});
 }
 
-TYPED_TEST(ART, DbInsertNodeRecursion) {
+TYPED_TEST(ARTCorrectnessTest, DbInsertNodeRecursion) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, test_values[0]);
@@ -159,10 +160,12 @@ TYPED_TEST(ART, DbInsertNodeRecursion) {
   verifier.check_absent_keys({0xFF0100, 0xFF0000, 2});
 }
 
-TYPED_TEST(ART, Node16) {
+TYPED_TEST(ARTCorrectnessTest, Node16) {
   tree_verifier<TypeParam> verifier;
 
-  verifier.insert_key_range(0, 5);
+  verifier.insert_key_range(0, 4);
+  verifier.check_present_values();
+  verifier.insert(5, test_values[0]);
   verifier.assert_node_counts(5, 0, 1, 0, 0);
   verifier.assert_increasing_nodes(1, 1, 0, 0);
 
@@ -170,7 +173,7 @@ TYPED_TEST(ART, Node16) {
   verifier.check_absent_keys({6, 0x0100, 0xFFFFFFFFFFFFFFFFULL});
 }
 
-TYPED_TEST(ART, FullNode16) {
+TYPED_TEST(ARTCorrectnessTest, FullNode16) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 16);
@@ -181,7 +184,7 @@ TYPED_TEST(ART, FullNode16) {
   verifier.check_present_values();
 }
 
-TYPED_TEST(ART, Node16KeyPrefixSplit) {
+TYPED_TEST(ARTCorrectnessTest, Node16KeyPrefixSplit) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 5);
@@ -196,7 +199,7 @@ TYPED_TEST(ART, Node16KeyPrefixSplit) {
   verifier.check_absent_keys({9, 0x10FF});
 }
 
-TYPED_TEST(ART, Node16KeyInsertOrderDescending) {
+TYPED_TEST(ARTCorrectnessTest, Node16KeyInsertOrderDescending) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert(5, test_values[0]);
@@ -211,7 +214,7 @@ TYPED_TEST(ART, Node16KeyInsertOrderDescending) {
   verifier.check_absent_keys({6});
 }
 
-TYPED_TEST(ART, Node48) {
+TYPED_TEST(ARTCorrectnessTest, Node48) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 17);
@@ -222,7 +225,7 @@ TYPED_TEST(ART, Node48) {
   verifier.check_absent_keys({17});
 }
 
-TYPED_TEST(ART, FullNode48) {
+TYPED_TEST(ARTCorrectnessTest, FullNode48) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 48);
@@ -233,7 +236,7 @@ TYPED_TEST(ART, FullNode48) {
   verifier.check_absent_keys({49});
 }
 
-TYPED_TEST(ART, Node48KeyPrefixSplit) {
+TYPED_TEST(ARTCorrectnessTest, Node48KeyPrefixSplit) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 17);
@@ -251,7 +254,7 @@ TYPED_TEST(ART, Node48KeyPrefixSplit) {
   verifier.check_absent_keys({9, 27, 0x100019, 0x100100, 0x110000});
 }
 
-TYPED_TEST(ART, Node256) {
+TYPED_TEST(ARTCorrectnessTest, Node256) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
@@ -262,7 +265,7 @@ TYPED_TEST(ART, Node256) {
   verifier.check_absent_keys({50});
 }
 
-TYPED_TEST(ART, FullNode256) {
+TYPED_TEST(ARTCorrectnessTest, FullNode256) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 256);
@@ -273,7 +276,7 @@ TYPED_TEST(ART, FullNode256) {
   verifier.check_absent_keys({256});
 }
 
-TYPED_TEST(ART, Node256KeyPrefixSplit) {
+TYPED_TEST(ARTCorrectnessTest, Node256KeyPrefixSplit) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(20, 49);
@@ -291,7 +294,7 @@ TYPED_TEST(ART, Node256KeyPrefixSplit) {
   verifier.check_absent_keys({19, 69, 0x100019, 0x100100, 0x110000});
 }
 
-TYPED_TEST(ART, TryDeleteFromEmpty) {
+TYPED_TEST(ARTCorrectnessTest, TryDeleteFromEmpty) {
   tree_verifier<TypeParam> verifier;
 
   verifier.attempt_remove_missing_keys({1});
@@ -299,7 +302,7 @@ TYPED_TEST(ART, TryDeleteFromEmpty) {
   verifier.check_absent_keys({1});
 }
 
-TYPED_TEST(ART, SingleNodeTreeDelete) {
+TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeDelete) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, test_values[0]);
@@ -310,7 +313,7 @@ TYPED_TEST(ART, SingleNodeTreeDelete) {
   verifier.check_absent_keys({1});
 }
 
-TYPED_TEST(ART, SingleNodeTreeAttemptDeleteAbsent) {
+TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeAttemptDeleteAbsent) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert(2, test_values[1]);
@@ -320,7 +323,7 @@ TYPED_TEST(ART, SingleNodeTreeAttemptDeleteAbsent) {
   verifier.check_absent_keys({1, 3, 0xFF02});
 }
 
-TYPED_TEST(ART, Node4AttemptDeleteAbsent) {
+TYPED_TEST(ARTCorrectnessTest, Node4AttemptDeleteAbsent) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 4);
@@ -330,7 +333,7 @@ TYPED_TEST(ART, Node4AttemptDeleteAbsent) {
   verifier.check_absent_keys({0, 6, 0xFF00000});
 }
 
-TYPED_TEST(ART, Node4FullDeleteMiddleAndBeginning) {
+TYPED_TEST(ARTCorrectnessTest, Node4FullDeleteMiddleAndBeginning) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 4);
@@ -346,7 +349,7 @@ TYPED_TEST(ART, Node4FullDeleteMiddleAndBeginning) {
   verifier.assert_node_counts(2, 1, 0, 0, 0);
 }
 
-TYPED_TEST(ART, Node4FullDeleteEndAndMiddle) {
+TYPED_TEST(ARTCorrectnessTest, Node4FullDeleteEndAndMiddle) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 4);
@@ -362,7 +365,7 @@ TYPED_TEST(ART, Node4FullDeleteEndAndMiddle) {
   verifier.assert_node_counts(2, 1, 0, 0, 0);
 }
 
-TYPED_TEST(ART, Node4ShrinkToSingleLeaf) {
+TYPED_TEST(ARTCorrectnessTest, Node4ShrinkToSingleLeaf) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 2);
@@ -376,7 +379,7 @@ TYPED_TEST(ART, Node4ShrinkToSingleLeaf) {
   verifier.assert_node_counts(1, 0, 0, 0, 0);
 }
 
-TYPED_TEST(ART, Node4DeleteLowerNode) {
+TYPED_TEST(ARTCorrectnessTest, Node4DeleteLowerNode) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 2);
@@ -395,7 +398,7 @@ TYPED_TEST(ART, Node4DeleteLowerNode) {
   verifier.assert_node_counts(2, 1, 0, 0, 0);
 }
 
-TYPED_TEST(ART, Node4DeleteKeyPrefixMerge) {
+TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0x8001, 2);
@@ -416,7 +419,7 @@ TYPED_TEST(ART, Node4DeleteKeyPrefixMerge) {
   verifier.assert_node_counts(2, 1, 0, 0, 0);
 }
 
-TYPED_TEST(ART, Node16DeleteBeginningMiddleEnd) {
+TYPED_TEST(ARTCorrectnessTest, Node16DeleteBeginningMiddleEnd) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 16);
@@ -430,7 +433,7 @@ TYPED_TEST(ART, Node16DeleteBeginningMiddleEnd) {
   verifier.assert_node_counts(13, 0, 1, 0, 0);
 }
 
-TYPED_TEST(ART, Node16ShrinkToNode4DeleteMiddle) {
+TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteMiddle) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
@@ -444,7 +447,7 @@ TYPED_TEST(ART, Node16ShrinkToNode4DeleteMiddle) {
   verifier.check_absent_keys({0, 2, 6});
 }
 
-TYPED_TEST(ART, Node16ShrinkToNode4DeleteBeginning) {
+TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteBeginning) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
@@ -458,7 +461,7 @@ TYPED_TEST(ART, Node16ShrinkToNode4DeleteBeginning) {
   verifier.check_absent_keys({0, 1, 6});
 }
 
-TYPED_TEST(ART, Node16ShrinkToNode4DeleteEnd) {
+TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteEnd) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
@@ -472,7 +475,7 @@ TYPED_TEST(ART, Node16ShrinkToNode4DeleteEnd) {
   verifier.check_absent_keys({0, 5, 6});
 }
 
-TYPED_TEST(ART, Node16KeyPrefixMerge) {
+TYPED_TEST(ARTCorrectnessTest, Node16KeyPrefixMerge) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 5);
@@ -491,7 +494,7 @@ TYPED_TEST(ART, Node16KeyPrefixMerge) {
   verifier.check_absent_keys({9, 16, 0x1020});
 }
 
-TYPED_TEST(ART, Node48DeleteBeginningMiddleEnd) {
+TYPED_TEST(ARTCorrectnessTest, Node48DeleteBeginningMiddleEnd) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 48);
@@ -505,7 +508,7 @@ TYPED_TEST(ART, Node48DeleteBeginningMiddleEnd) {
   verifier.assert_node_counts(45, 0, 0, 1, 0);
 }
 
-TYPED_TEST(ART, Node48ShrinkToNode16DeleteMiddle) {
+TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteMiddle) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0x80, 17);
@@ -519,7 +522,7 @@ TYPED_TEST(ART, Node48ShrinkToNode16DeleteMiddle) {
   verifier.check_absent_keys({0x7F, 0x85, 0x91});
 }
 
-TYPED_TEST(ART, Node48ShrinkToNode16DeleteBeginning) {
+TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteBeginning) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 17);
@@ -533,7 +536,7 @@ TYPED_TEST(ART, Node48ShrinkToNode16DeleteBeginning) {
   verifier.check_absent_keys({0, 1, 18});
 }
 
-TYPED_TEST(ART, Node48ShrinkToNode16DeleteEnd) {
+TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteEnd) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 17);
@@ -547,7 +550,7 @@ TYPED_TEST(ART, Node48ShrinkToNode16DeleteEnd) {
   verifier.check_absent_keys({0, 17, 18});
 }
 
-TYPED_TEST(ART, Node48KeyPrefixMerge) {
+TYPED_TEST(ARTCorrectnessTest, Node48KeyPrefixMerge) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 17);
@@ -565,7 +568,7 @@ TYPED_TEST(ART, Node48KeyPrefixMerge) {
   verifier.check_absent_keys({9, 0x2010, 28});
 }
 
-TYPED_TEST(ART, Node256DeleteBeginningMiddleEnd) {
+TYPED_TEST(ARTCorrectnessTest, Node256DeleteBeginningMiddleEnd) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 256);
@@ -578,7 +581,7 @@ TYPED_TEST(ART, Node256DeleteBeginningMiddleEnd) {
   verifier.assert_node_counts(253, 0, 0, 0, 1);
 }
 
-TYPED_TEST(ART, Node256ShrinkToNode48DeleteMiddle) {
+TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteMiddle) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
@@ -592,7 +595,7 @@ TYPED_TEST(ART, Node256ShrinkToNode48DeleteMiddle) {
   verifier.check_absent_keys({0, 25, 50});
 }
 
-TYPED_TEST(ART, Node256ShrinkToNode48DeleteBeginning) {
+TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteBeginning) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
@@ -606,7 +609,7 @@ TYPED_TEST(ART, Node256ShrinkToNode48DeleteBeginning) {
   verifier.check_absent_keys({0, 1, 50});
 }
 
-TYPED_TEST(ART, Node256ShrinkToNode48DeleteEnd) {
+TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteEnd) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
@@ -620,7 +623,7 @@ TYPED_TEST(ART, Node256ShrinkToNode48DeleteEnd) {
   verifier.check_absent_keys({0, 49, 50});
 }
 
-TYPED_TEST(ART, Node256KeyPrefixMerge) {
+TYPED_TEST(ARTCorrectnessTest, Node256KeyPrefixMerge) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 49);
@@ -638,7 +641,7 @@ TYPED_TEST(ART, Node256KeyPrefixMerge) {
   verifier.check_absent_keys({9, 0x2010, 60});
 }
 
-TYPED_TEST(ART, MissingKeyWithPresentPrefix) {
+TYPED_TEST(ARTCorrectnessTest, MissingKeyWithPresentPrefix) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert(0x010000, test_values[0]);
@@ -648,7 +651,7 @@ TYPED_TEST(ART, MissingKeyWithPresentPrefix) {
   verifier.attempt_remove_missing_keys({0x000002, 0x010100, 0x010002});
 }
 
-TYPED_TEST(ART, MissingKeyMatchingInodePath) {
+TYPED_TEST(ARTCorrectnessTest, MissingKeyMatchingInodePath) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert(0x0100, test_values[0]);
@@ -656,7 +659,7 @@ TYPED_TEST(ART, MissingKeyMatchingInodePath) {
   verifier.attempt_remove_missing_keys({0x0101, 0x0202});
 }
 
-TYPED_TEST(ART, MemoryAccountingDuplicateKeyInsert) {
+TYPED_TEST(ARTCorrectnessTest, MemoryAccountingDuplicateKeyInsert) {
   tree_verifier<TypeParam> verifier;
   verifier.insert(0, test_values[0]);
   ASSERT_FALSE(verifier.get_db().insert(0, test_values[1]));
@@ -664,7 +667,7 @@ TYPED_TEST(ART, MemoryAccountingDuplicateKeyInsert) {
   ASSERT_EQ(verifier.get_db().get_current_memory_use(), 0);
 }
 
-TYPED_TEST(ART, Node48InsertIntoDeletedSlot) {
+TYPED_TEST(ARTCorrectnessTest, Node48InsertIntoDeletedSlot) {
   tree_verifier<TypeParam> verifier;
   verifier.insert(16865361447928765957ULL, test_values[0]);
   verifier.insert(7551546784238320931ULL, test_values[1]);
@@ -690,14 +693,14 @@ TYPED_TEST(ART, Node48InsertIntoDeletedSlot) {
   verifier.assert_node_counts(18, 0, 0, 1, 0);
 }
 
-TYPED_TEST(ART, ClearOnEmpty) {
+TYPED_TEST(ARTCorrectnessTest, ClearOnEmpty) {
   tree_verifier<TypeParam> verifier;
 
   verifier.clear();
   verifier.assert_node_counts(0, 0, 0, 0, 0);
 }
 
-TYPED_TEST(ART, Clear) {
+TYPED_TEST(ARTCorrectnessTest, Clear) {
   tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, test_values[0]);

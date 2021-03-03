@@ -212,13 +212,14 @@ jobs:
           SANITIZE_UB="${SANITIZE_UB:-$DEFAULT_SANITIZE_UB}"
           STATIC_ANALYSIS="${STATIC_ANALYSIS:-$DEFAULT_STATIC_ANALYSIS}"
           if [[ $COMPILER == "clang" ]]; then
-            sudo add-apt-repository -y 'ppa:mhier/libboost-latest'
             curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
             | sudo apt-key add -
             echo 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-11 main' \
             | sudo tee -a /etc/apt/sources.list
           fi
+          sudo add-apt-repository -y 'ppa:mhier/libboost-latest'
           sudo apt-get update
+          sudo apt-get install -y boost1.74
           if [[ $SANITIZE_ADDRESS != "ON" && $SANITIZE_THREAD != "ON" \
               && $SANITIZE_UB != "ON" && $STATIC_ANALYSIS != "ON" ]]; then
             sudo apt-get install -y valgrind
@@ -226,7 +227,7 @@ jobs:
           if [[ $COMPILER == "gcc" ]]; then
             sudo apt-get install -y g++-10
           elif [[ $COMPILER == "clang" ]]; then
-            sudo apt-get install -y boost1.74 clang-11
+            sudo apt-get install -y clang-11
             if [[ $BUILD_TYPE == "Release" ]]; then
               sudo apt-get install -y llvm-11-dev lld-11
             fi
@@ -246,9 +247,7 @@ jobs:
           CPPCHECK="${CPPCHECK:-$DEFAULT_CPPCHECK}"
           COVERAGE="${COVERAGE:-$DEFAULT_COVERAGE}"
           COMPILER="${COMPILER:-$DEFAULT_COMPILER}"
-          if [[ $COMPILER != "gcc" ]]; then
-            brew install boost
-          fi
+          brew install boost
           if [[ $CPPCHECK == "ON" ]]; then
             brew install cppcheck
           fi

@@ -134,10 +134,6 @@ matrix:
       <<: *clang11
       env:
         - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release SCAN_BUILD=scan-build-11
-    - name: "clang 11 static analysis Debug"
-      <<: *clang11
-      env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug SCAN_BUILD=scan-build-11
     - name: "XCode 12.2 Release"
       <<: *macos
       env:

@@ -118,8 +118,8 @@ class optimistic_lock final {
   optimistic_lock(const optimistic_lock &) = delete;
   optimistic_lock(optimistic_lock &&) = delete;
 
-  optimistic_lock & operator = (const optimistic_lock &) = delete;
-  optimistic_lock & operator = (optimistic_lock &&) = delete;
+  optimistic_lock &operator=(const optimistic_lock &) = delete;
+  optimistic_lock &operator=(optimistic_lock &&) = delete;
 
   // If QSBR starts running destructors for objects being deallocated, add one
   // here that asserts read_lock_count == 0
@@ -345,28 +345,29 @@ class unique_write_lock_obsoleting_guard final {
 };
 
 template <typename T>
-class relaxed_atomic final {
+class critical_section_protected final {
  public:
-  constexpr relaxed_atomic() noexcept = default;
+  constexpr critical_section_protected() noexcept = default;
 
-  explicit constexpr relaxed_atomic(T value_) noexcept : value{value_} {}
+  explicit constexpr critical_section_protected(T value_) noexcept
+      : value{value_} {}
 
   // Regular C++ assignment operators return ref to this, std::atomic returns
   // the assigned value, we return nothing as we never chain assignments.
-  void operator=(T new_value) noexcept {
-    value.store(new_value, std::memory_order_relaxed);
+  void operator=(T new_value) noexcept { store(new_value); }
+
+  void operator=(const critical_section_protected<T> &new_value) noexcept {
+    store(new_value.load());
   }
 
-  void operator=(const relaxed_atomic<T> &new_value) noexcept {
-    value.store(new_value.load(), std::memory_order_relaxed);
-  }
+  void operator++() noexcept { store(load() + 1); }
 
-  void operator++() noexcept { value.fetch_add(1, std::memory_order_relaxed); }
-
-  void operator--() noexcept { value.fetch_sub(1, std::memory_order_relaxed); }
+  void operator--() noexcept { store(load() - 1); }
 
   T operator--(int) noexcept {
-    return value.fetch_sub(1, std::memory_order_relaxed);
+    const auto result = load();
+    store(result - 1);
+    return result;
   }
 
   template <typename T_ = T,
@@ -384,6 +385,10 @@ class relaxed_atomic final {
   operator T() const noexcept { return load(); }
 
   T load() const noexcept { return value.load(std::memory_order_relaxed); }
+
+  void store(T new_value) noexcept {
+    value.store(new_value, std::memory_order_relaxed);
+  }
 
  private:
   std::atomic<T> value;

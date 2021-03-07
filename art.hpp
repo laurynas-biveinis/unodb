@@ -148,6 +148,11 @@ class db final {
     current_memory_use -= delta;
   }
 
+  constexpr void increment_leaf_count(std::size_t leaf_size) noexcept {
+    increase_memory_use(leaf_size);
+    ++leaf_count;
+  }
+
   constexpr void decrement_leaf_count(std::size_t leaf_size) noexcept {
     decrease_memory_use(leaf_size);
 
@@ -178,7 +183,8 @@ class db final {
   std::uint64_t key_prefix_splits{0};
 
   friend auto detail::make_db_leaf_ptr<detail::node_header, db>(detail::art_key,
-                                                         value_view, db &);
+                                                                value_view,
+                                                                db &);
 
   template <class, class>
   friend class detail::basic_db_leaf_deleter;

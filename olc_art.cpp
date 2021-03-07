@@ -96,8 +96,9 @@ struct inode_pool_getter {
 };
 
 using olc_art_policy = unodb::detail::basic_art_policy<
-    unodb::olc_db, unodb::relaxed_atomic, unodb::detail::olc_node_ptr,
-    unodb::detail::db_leaf_qsbr_deleter, inode_pool_getter>;
+    unodb::olc_db, unodb::critical_section_protected,
+    unodb::detail::olc_node_ptr, unodb::detail::db_leaf_qsbr_deleter,
+    inode_pool_getter>;
 
 using olc_db_leaf_unique_ptr = olc_art_policy::db_leaf_unique_ptr;
 
@@ -722,8 +723,8 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       auto new_node = detail::olc_inode_4::create(existing_key, remaining_key,
                                                   depth, node, std::move(leaf));
       *node_loc = new_node.release();
-      ++inode4_count;
-      ++created_inode4_count;
+      inode4_count.fetch_add(1, std::memory_order_relaxed);
+      created_inode4_count.fetch_add(1, std::memory_order_relaxed);
       return true;
     }
 
@@ -750,9 +751,9 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       auto new_node = detail::olc_inode_4::create(node, shared_prefix_length,
                                                   depth, std::move(leaf));
       *node_loc = new_node.release();
-      ++inode4_count;
-      ++created_inode4_count;
-      ++key_prefix_splits;
+      inode4_count.fetch_add(1, std::memory_order_relaxed);
+      created_inode4_count.fetch_add(1, std::memory_order_relaxed);
+      key_prefix_splits.fetch_add(1, std::memory_order_relaxed);
       return true;
     }
 
@@ -802,9 +803,9 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
             std::move(leaf), depth);
         *node_loc = larger_node.release();
 
-        --inode4_count;
-        ++inode16_count;
-        ++inode4_to_inode16_count;
+        inode4_count.fetch_sub(1, std::memory_order_relaxed);
+        inode16_count.fetch_add(1, std::memory_order_relaxed);
+        inode4_to_inode16_count.fetch_add(1, std::memory_order_relaxed);
 
       } else if (node_type == detail::node_type::I16) {
         increase_memory_use(sizeof(detail::olc_inode_48) -
@@ -815,9 +816,9 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
             std::move(leaf), depth);
         *node_loc = larger_node.release();
 
-        --inode16_count;
-        ++inode48_count;
-        ++inode16_to_inode48_count;
+        inode16_count.fetch_sub(1, std::memory_order_relaxed);
+        inode48_count.fetch_add(1, std::memory_order_relaxed);
+        inode16_to_inode48_count.fetch_add(1, std::memory_order_relaxed);
 
       } else {
         increase_memory_use(sizeof(detail::olc_inode_256) -
@@ -829,9 +830,9 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
             std::move(leaf), depth);
         *node_loc = larger_node.release();
 
-        --inode48_count;
-        ++inode256_count;
-        ++inode48_to_inode256_count;
+        inode48_count.fetch_sub(1, std::memory_order_relaxed);
+        inode256_count.fetch_add(1, std::memory_order_relaxed);
+        inode48_to_inode256_count.fetch_add(1, std::memory_order_relaxed);
       }
 
       assert(!obsolete_node_on_exit.active());
@@ -1008,8 +1009,8 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
         *node_loc = current_node->leave_last_child(child_i, *this);
 
         decrease_memory_use(sizeof(detail::olc_inode_4));
-        --inode4_count;
-        ++deleted_inode4_count;
+        inode4_count.fetch_sub(1, std::memory_order_relaxed);
+        deleted_inode4_count.fetch_add(1, std::memory_order_relaxed);
 
       } else if (node_type == detail::node_type::I16) {
         std::unique_ptr<detail::olc_inode_16> current_node{node.node_16};
@@ -1020,9 +1021,9 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
 
         decrease_memory_use(sizeof(detail::olc_inode_16) -
                             sizeof(detail::olc_inode_4));
-        --inode16_count;
-        ++inode4_count;
-        ++inode16_to_inode4_count;
+        inode16_count.fetch_sub(1, std::memory_order_relaxed);
+        inode4_count.fetch_add(1, std::memory_order_relaxed);
+        inode16_to_inode4_count.fetch_add(1, std::memory_order_relaxed);
 
       } else if (node_type == detail::node_type::I48) {
         std::unique_ptr<detail::olc_inode_48> current_node{node.node_48};
@@ -1033,9 +1034,9 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
 
         decrease_memory_use(sizeof(detail::olc_inode_48) -
                             sizeof(detail::olc_inode_16));
-        --inode48_count;
-        ++inode16_count;
-        ++inode48_to_inode16_count;
+        inode48_count.fetch_sub(1, std::memory_order_relaxed);
+        inode16_count.fetch_add(1, std::memory_order_relaxed);
+        inode48_to_inode16_count.fetch_add(1, std::memory_order_relaxed);
 
       } else {
         assert(node_type == detail::node_type::I256);
@@ -1047,9 +1048,9 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
 
         decrease_memory_use(sizeof(detail::olc_inode_256) -
                             sizeof(detail::olc_inode_48));
-        --inode256_count;
-        ++inode48_count;
-        ++inode256_to_inode48_count;
+        inode256_count.fetch_sub(1, std::memory_order_relaxed);
+        inode48_count.fetch_add(1, std::memory_order_relaxed);
+        inode256_to_inode48_count.fetch_add(1, std::memory_order_relaxed);
       }
 
       assert(!obsolete_node_on_exit.active());
@@ -1085,7 +1086,7 @@ void olc_db::delete_root_subtree() noexcept {
   delete_subtree(root);
   // It is possible to reset the counter to zero instead of decrementing it for
   // each leaf, but not sure the savings will be significant.
-  assert(leaf_count == 0);
+  assert(leaf_count.load(std::memory_order_relaxed) == 0);
 }
 
 void olc_db::clear() {
@@ -1096,10 +1097,10 @@ void olc_db::clear() {
   root = nullptr;
   current_memory_use.store(0, std::memory_order_relaxed);
 
-  inode4_count = 0;
-  inode16_count = 0;
-  inode48_count = 0;
-  inode256_count = 0;
+  inode4_count.store(0, std::memory_order_relaxed);
+  inode16_count.store(0, std::memory_order_relaxed);
+  inode48_count.store(0, std::memory_order_relaxed);
+  inode256_count.store(0, std::memory_order_relaxed);
 }
 
 #if defined(__GNUC__) && (__GNUC__ >= 9)

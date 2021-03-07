@@ -55,7 +55,7 @@ All ART classes implement the same API:
   counters of various internal tree  operations (i.e. number of times Node4 grew
   to Node16, key prefix was split, etc - check the source code).
 
-The are two ART classes available:
+The are three ART classes available:
 
 * `db`: unsychronized ART tree, to be used in single-thread context or with
   external synchronization.

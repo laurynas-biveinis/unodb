@@ -1,4 +1,4 @@
-// Copyright 2020 Laurynas Biveinis
+// Copyright 2020-2021 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -12,7 +12,10 @@
 
 #include "art.hpp"
 #include "art_common.hpp"
+#include "micro_benchmark_node_utils.hpp"
 #include "micro_benchmark_utils.hpp"
+#include "mutex_art.hpp"
+#include "olc_art.hpp"
 
 namespace {
 
@@ -45,18 +48,18 @@ std::vector<unodb::key> make_limited_key_sequence(unodb::key limit,
   return result;
 }
 
-template <unsigned NodeSize>
+template <class Db, unsigned NodeSize>
 void node4_sequential_insert(benchmark::State &state) {
-  unodb::benchmark::growing_tree_node_stats<unodb::db> growing_tree_stats;
+  unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   std::size_t tree_size = 0;
 
   for (auto _ : state) {
     state.PauseTiming();
-    unodb::db test_db;
+    Db test_db;
     benchmark::ClobberMemory();
     state.ResumeTiming();
 
-    unodb::benchmark::insert_sequentially<unodb::db, NodeSize>(
+    unodb::benchmark::insert_sequentially<Db, NodeSize>(
         test_db, static_cast<unsigned>(state.range(0)));
 
     state.PauseTiming();
@@ -72,15 +75,17 @@ void node4_sequential_insert(benchmark::State &state) {
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
+template <class Db>
 void full_node4_sequential_insert(benchmark::State &state) {
-  node4_sequential_insert<4>(state);
+  node4_sequential_insert<Db, 4>(state);
 }
 
+template <class Db>
 void minimal_node4_sequential_insert(benchmark::State &state) {
-  node4_sequential_insert<2>(state);
+  node4_sequential_insert<Db, 2>(state);
 }
 
-template <unsigned NodeSize>
+template <class Db, unsigned NodeSize>
 void node4_random_insert(benchmark::State &state) {
   auto keys =
       make_n_key_sequence<NodeSize>(static_cast<std::size_t>(state.range(0)));
@@ -88,7 +93,7 @@ void node4_random_insert(benchmark::State &state) {
   for (auto _ : state) {
     state.PauseTiming();
     std::shuffle(keys.begin(), keys.end(), unodb::benchmark::get_prng());
-    unodb::db test_db;
+    Db test_db;
     benchmark::ClobberMemory();
     state.ResumeTiming();
 
@@ -103,23 +108,27 @@ void node4_random_insert(benchmark::State &state) {
                           state.range(0));
 }
 
+template <class Db>
 void full_node4_random_insert(benchmark::State &state) {
-  node4_random_insert<4>(state);
+  node4_random_insert<Db, 4>(state);
 }
 
+template <class Db>
 void minimal_node4_random_insert(benchmark::State &state) {
-  node4_random_insert<2>(state);
+  node4_random_insert<Db, 2>(state);
 }
 
+template <class Db>
 void node4_full_scan(benchmark::State &state) {
-  unodb::benchmark::full_node_scan_benchmark<unodb::db, 4>(state);
+  unodb::benchmark::full_node_scan_benchmark<Db, 4>(state);
 }
 
+template <class Db>
 void node4_random_gets(benchmark::State &state) {
-  unodb::benchmark::full_node_random_get_benchmark<unodb::db, 4>(state);
+  unodb::benchmark::full_node_random_get_benchmark<Db, 4>(state);
 }
 
-template <unsigned NodeSize>
+template <class Db, unsigned NodeSize>
 void node4_sequential_delete_benchmark(benchmark::State &state,
                                        std::uint64_t delete_key_zero_bits) {
   const auto key_count = static_cast<unsigned>(state.range(0));
@@ -128,10 +137,9 @@ void node4_sequential_delete_benchmark(benchmark::State &state,
 
   for (auto _ : state) {
     state.PauseTiming();
-    unodb::db test_db;
+    Db test_db;
     const auto key_limit =
-        unodb::benchmark::insert_sequentially<unodb::db, NodeSize>(test_db,
-                                                                   key_count);
+        unodb::benchmark::insert_sequentially<Db, NodeSize>(test_db, key_count);
     tree_size = test_db.get_current_memory_use();
     unodb::benchmark::assert_node4_only_tree(test_db);
     state.ResumeTiming();
@@ -150,12 +158,13 @@ void node4_sequential_delete_benchmark(benchmark::State &state,
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
+template <class Db>
 void full_node4_sequential_delete(benchmark::State &state) {
-  node4_sequential_delete_benchmark<4>(
+  node4_sequential_delete_benchmark<Db, 4>(
       state, unodb::benchmark::node_size_to_key_zero_bits<4>());
 }
 
-template <unsigned NodeSize>
+template <class Db, unsigned NodeSize>
 void node4_random_delete_benchmark(benchmark::State &state,
                                    std::uint64_t delete_key_zero_bits) {
   const auto key_count = static_cast<unsigned>(state.range(0));
@@ -163,10 +172,9 @@ void node4_random_delete_benchmark(benchmark::State &state,
 
   for (auto _ : state) {
     state.PauseTiming();
-    unodb::db test_db;
+    Db test_db;
     const auto key_limit =
-        unodb::benchmark::insert_sequentially<unodb::db, NodeSize>(test_db,
-                                                                   key_count);
+        unodb::benchmark::insert_sequentially<Db, NodeSize>(test_db, key_count);
     tree_size = test_db.get_current_memory_use();
     unodb::benchmark::assert_node4_only_tree(test_db);
 
@@ -182,65 +190,157 @@ void node4_random_delete_benchmark(benchmark::State &state,
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
+template <class Db>
 void full_node4_random_deletes(benchmark::State &state) {
-  node4_random_delete_benchmark<4>(
+  node4_random_delete_benchmark<Db, 4>(
       state, unodb::benchmark::node_size_to_key_zero_bits<4>());
 }
 
 constexpr auto minimal_node4_tree_full_leaf_level_key_zero_bits =
     0xFCFCFCFC'FCFCFCFEULL;
 
+template <class Db>
 void full_node4_to_minimal_sequential_delete(benchmark::State &state) {
-  node4_sequential_delete_benchmark<4>(
+  node4_sequential_delete_benchmark<Db, 4>(
       state, minimal_node4_tree_full_leaf_level_key_zero_bits);
 }
 
+template <class Db>
 void full_node4_to_minimal_random_delete(benchmark::State &state) {
-  node4_random_delete_benchmark<4>(
+  node4_random_delete_benchmark<Db, 4>(
       state, minimal_node4_tree_full_leaf_level_key_zero_bits);
 }
 
+template <class Db>
 void shrink_node16_to_node4_sequentially(benchmark::State &state) {
-  unodb::benchmark::shrink_node_sequentially_benchmark<unodb::db, 4>(state);
+  unodb::benchmark::shrink_node_sequentially_benchmark<Db, 4>(state);
 }
 
+template <class Db>
 void shrink_node16_to_node4_randomly(benchmark::State &state) {
-  unodb::benchmark::shrink_node_randomly_benchmark<unodb::db, 4>(state);
+  unodb::benchmark::shrink_node_randomly_benchmark<Db, 4>(state);
 }
 
 }  // namespace
 
 // A maximum Node4-only tree can hold 65K values
-BENCHMARK(full_node4_sequential_insert)
+BENCHMARK_TEMPLATE(full_node4_sequential_insert, unodb::db)
     ->Range(100, 65535)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(full_node4_random_insert)
+BENCHMARK_TEMPLATE(full_node4_sequential_insert, unodb::mutex_db)
     ->Range(100, 65535)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(minimal_node4_sequential_insert)
+BENCHMARK_TEMPLATE(full_node4_sequential_insert, unodb::olc_db)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(full_node4_random_insert, unodb::db)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(full_node4_random_insert, unodb::mutex_db)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(full_node4_random_insert, unodb::olc_db)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(minimal_node4_sequential_insert, unodb::db)
     ->Range(16, 255)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(minimal_node4_random_insert)
+BENCHMARK_TEMPLATE(minimal_node4_sequential_insert, unodb::mutex_db)
     ->Range(16, 255)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(node4_full_scan)->Range(100, 65535)->Unit(benchmark::kMicrosecond);
-BENCHMARK(node4_random_gets)->Range(100, 65535)->Unit(benchmark::kMicrosecond);
-BENCHMARK(full_node4_sequential_delete)
+BENCHMARK_TEMPLATE(minimal_node4_sequential_insert, unodb::olc_db)
+    ->Range(16, 255)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(minimal_node4_random_insert, unodb::db)
+    ->Range(16, 255)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(minimal_node4_random_insert, unodb::mutex_db)
+    ->Range(16, 255)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(minimal_node4_random_insert, unodb::olc_db)
+    ->Range(16, 255)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(node4_full_scan, unodb::db)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(node4_full_scan, unodb::mutex_db)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(node4_full_scan, unodb::olc_db)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(node4_random_gets, unodb::db)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(node4_random_gets, unodb::mutex_db)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(node4_random_gets, unodb::olc_db)
+    ->Range(100, 65535)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(full_node4_sequential_delete, unodb::db)
     ->Range(100, 65534)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(full_node4_random_deletes)
+BENCHMARK_TEMPLATE(full_node4_sequential_delete, unodb::mutex_db)
     ->Range(100, 65534)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(full_node4_to_minimal_sequential_delete)
+BENCHMARK_TEMPLATE(full_node4_sequential_delete, unodb::olc_db)
+    ->Range(100, 65534)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(full_node4_random_deletes, unodb::db)
+    ->Range(100, 65534)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(full_node4_random_deletes, unodb::mutex_db)
+    ->Range(100, 65534)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(full_node4_random_deletes, unodb::olc_db)
+    ->Range(100, 65534)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(full_node4_to_minimal_sequential_delete, unodb::db)
     ->Range(100, 65532)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(full_node4_to_minimal_random_delete)
+BENCHMARK_TEMPLATE(full_node4_to_minimal_sequential_delete, unodb::mutex_db)
     ->Range(100, 65532)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(shrink_node16_to_node4_sequentially)
+BENCHMARK_TEMPLATE(full_node4_to_minimal_sequential_delete, unodb::olc_db)
+    ->Range(100, 65532)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(full_node4_to_minimal_random_delete, unodb::db)
+    ->Range(100, 65532)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(full_node4_to_minimal_random_delete, unodb::mutex_db)
+    ->Range(100, 65532)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(full_node4_to_minimal_random_delete, unodb::olc_db)
+    ->Range(100, 65532)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(shrink_node16_to_node4_sequentially, unodb::db)
     ->Range(25, 16383)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(shrink_node16_to_node4_randomly)
+BENCHMARK_TEMPLATE(shrink_node16_to_node4_sequentially, unodb::mutex_db)
+    ->Range(25, 16383)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(shrink_node16_to_node4_sequentially, unodb::olc_db)
+    ->Range(25, 16383)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(shrink_node16_to_node4_randomly, unodb::db)
+    ->Range(25, 16383)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(shrink_node16_to_node4_randomly, unodb::mutex_db)
+    ->Range(25, 16383)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(shrink_node16_to_node4_randomly, unodb::olc_db)
     ->Range(25, 16383)
     ->Unit(benchmark::kMicrosecond);
 

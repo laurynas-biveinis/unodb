@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Laurynas Biveinis
+// Copyright 2019-2021 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -7,17 +7,21 @@
 #include <benchmark/benchmark.h>
 
 #include "art.hpp"
+#include "micro_benchmark_node_utils.hpp"
 #include "micro_benchmark_utils.hpp"
+#include "mutex_art.hpp"
+#include "olc_art.hpp"
 
 namespace {
 
+template <class Db>
 void dense_insert(benchmark::State &state) {
-  unodb::benchmark::growing_tree_node_stats<unodb::db> growing_tree_stats;
+  unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   std::size_t tree_size = 0;
 
   for (auto _ : state) {
     state.PauseTiming();
-    unodb::db test_db;
+    Db test_db;
     benchmark::ClobberMemory();
     state.ResumeTiming();
 
@@ -37,14 +41,15 @@ void dense_insert(benchmark::State &state) {
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
+template <class Db>
 void sparse_insert_dups_allowed(benchmark::State &state) {
   unodb::benchmark::batched_prng random_keys;
-  unodb::benchmark::growing_tree_node_stats<unodb::db> growing_tree_stats;
+  unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   std::size_t tree_size = 0;
 
   for (auto _ : state) {
     state.PauseTiming();
-    unodb::db test_db;
+    Db test_db;
     benchmark::ClobberMemory();
     state.ResumeTiming();
 
@@ -68,8 +73,9 @@ void sparse_insert_dups_allowed(benchmark::State &state) {
 
 constexpr auto full_scan_multiplier = 50;
 
+template <class Db>
 void dense_full_scan(benchmark::State &state) {
-  unodb::db test_db;
+  Db test_db;
   const auto key_limit = static_cast<unodb::key>(state.range(0));
 
   for (unodb::key i = 0; i < key_limit; ++i)
@@ -93,6 +99,7 @@ void dense_tree_sparse_deletes_args(benchmark::internal::Benchmark *b) {
   }
 }
 
+template <class Db>
 void dense_tree_sparse_deletes(benchmark::State &state) {
   // Node shrinking stats almost always zero, thus this test only tests
   // non-shrinking Node256 delete
@@ -105,7 +112,7 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
     state.PauseTiming();
     unodb::benchmark::batched_prng random_keys{
         static_cast<std::uint64_t>(state.range(0) - 1)};
-    unodb::db test_db;
+    Db test_db;
     for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
       unodb::benchmark::insert_key(
           test_db, i, unodb::value_view{unodb::benchmark::value100});
@@ -132,10 +139,11 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
 
 constexpr auto dense_tree_increasing_keys_delete_insert_pairs = 1000000;
 
+template <class Db>
 void dense_tree_increasing_keys(benchmark::State &state) {
   for (auto _ : state) {
     state.PauseTiming();
-    unodb::db test_db;
+    Db test_db;
     unodb::key key_to_insert;
     for (key_to_insert = 0;
          key_to_insert < static_cast<unodb::key>(state.range(0));
@@ -169,11 +177,12 @@ void dense_insert_value_lengths_args(benchmark::internal::Benchmark *b) {
       b->Args({i, j});
 }
 
+template <class Db>
 void dense_insert_value_lengths(benchmark::State &state) {
   std::size_t tree_size = 0;
   for (auto _ : state) {
     state.PauseTiming();
-    unodb::db test_db;
+    Db test_db;
     benchmark::ClobberMemory();
     state.ResumeTiming();
 
@@ -194,11 +203,12 @@ void dense_insert_value_lengths(benchmark::State &state) {
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
+template <class Db>
 void dense_insert_dup_attempts(benchmark::State &state) {
   for (auto _ : state) {
     state.PauseTiming();
     const auto key_limit = static_cast<unodb::key>(state.range(0));
-    unodb::db test_db;
+    Db test_db;
     for (unodb::key i = 0; i < key_limit; ++i)
       unodb::benchmark::insert_key(
           test_db, i, unodb::value_view{unodb::benchmark::value100});
@@ -220,23 +230,79 @@ void dense_insert_dup_attempts(benchmark::State &state) {
 
 // TODO(laurynas): only dense Node256 trees have reasonable coverage, need
 // to handle sparse Node16/Node48 trees too
-BENCHMARK(dense_insert)->Range(100, 30000000)->Unit(benchmark::kMicrosecond);
-BENCHMARK(sparse_insert_dups_allowed)
+BENCHMARK_TEMPLATE(dense_insert, unodb::db)
+    ->Range(100, 30000000)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_insert, unodb::mutex_db)
+    ->Range(100, 30000000)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_insert, unodb::olc_db)
+    ->Range(100, 30000000)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(sparse_insert_dups_allowed, unodb::db)
     ->Range(100, 10000000)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(dense_full_scan)->Range(100, 20000000)->Unit(benchmark::kMicrosecond);
-BENCHMARK(dense_tree_sparse_deletes)
+BENCHMARK_TEMPLATE(sparse_insert_dups_allowed, unodb::mutex_db)
+    ->Range(100, 10000000)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(sparse_insert_dups_allowed, unodb::olc_db)
+    ->Range(100, 10000000)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(dense_full_scan, unodb::db)
+    ->Range(100, 20000000)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_full_scan, unodb::mutex_db)
+    ->Range(100, 20000000)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_full_scan, unodb::olc_db)
+    ->Range(100, 20000000)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(dense_tree_sparse_deletes, unodb::db)
     ->ArgNames({"", "deletes"})
     ->Apply(dense_tree_sparse_deletes_args)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(dense_tree_increasing_keys)
+BENCHMARK_TEMPLATE(dense_tree_sparse_deletes, unodb::mutex_db)
+    ->ArgNames({"", "deletes"})
+    ->Apply(dense_tree_sparse_deletes_args)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_tree_sparse_deletes, unodb::olc_db)
+    ->ArgNames({"", "deletes"})
+    ->Apply(dense_tree_sparse_deletes_args)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(dense_tree_increasing_keys, unodb::db)
     ->Range(100, 30000000)
     ->Unit(benchmark::kMillisecond);
-BENCHMARK(dense_insert_value_lengths)
+BENCHMARK_TEMPLATE(dense_tree_increasing_keys, unodb::mutex_db)
+    ->Range(100, 30000000)
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK_TEMPLATE(dense_tree_increasing_keys, unodb::olc_db)
+    ->Range(100, 30000000)
+    ->Unit(benchmark::kMillisecond);
+
+BENCHMARK_TEMPLATE(dense_insert_value_lengths, unodb::db)
     ->ArgNames({"", "value len log10"})
     ->Apply(dense_insert_value_lengths_args)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK(dense_insert_dup_attempts)
+BENCHMARK_TEMPLATE(dense_insert_value_lengths, unodb::mutex_db)
+    ->ArgNames({"", "value len log10"})
+    ->Apply(dense_insert_value_lengths_args)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_insert_value_lengths, unodb::olc_db)
+    ->ArgNames({"", "value len log10"})
+    ->Apply(dense_insert_value_lengths_args)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(dense_insert_dup_attempts, unodb::db)
+    ->Range(100, 30000000)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_insert_dup_attempts, unodb::mutex_db)
+    ->Range(100, 30000000)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_insert_dup_attempts, unodb::olc_db)
     ->Range(100, 30000000)
     ->Unit(benchmark::kMicrosecond);
 

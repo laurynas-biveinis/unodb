@@ -1,11 +1,11 @@
 # Copyright 2020-2021 Laurynas Biveinis
 
 set(micro_benchmark_key_prefix_quick_arg "") # Benchmark is quick as-is
-set(micro_benchmark_node4_quick_arg "--benchmark_filter='/16|/20|/100'")
+set(micro_benchmark_node4_quick_arg "--benchmark_filter='/16|/25|/100'")
 set(micro_benchmark_node16_quick_arg "--benchmark_filter='/64'")
-set(micro_benchmark_node48_quick_arg "--benchmark_filter='/64|/128|/192'")
+set(micro_benchmark_node48_quick_arg "--benchmark_filter='/8$|/128|/192'")
 set(micro_benchmark_node256_quick_arg "--benchmark_filter='/8|/128|/192'")
-set(micro_benchmark_quick_arg "--benchmark_filter='.*262144|.*51200'")
+set(micro_benchmark_quick_arg "--benchmark_filter='.*/512$|.*/800/|.*/1000/'")
 set(micro_benchmark_mutex_quick_arg "--benchmark_filter='/4/70000/'")
 set(micro_benchmark_olc_quick_arg "--benchmark_filter='/4/70000/'")
 
@@ -74,16 +74,21 @@ function(ADD_BENCHMARK_TARGET TARGET)
   add_dependencies(valgrind_benchmarks "${TARGET}")
 endfunction()
 
+function(ADD_NODE_BENCHMARK_TARGET TARGET)
+  add_benchmark_target("${TARGET}")
+  target_sources("${TARGET}" PRIVATE micro_benchmark_node_utils.hpp)
+endfunction()
+
 function(ADD_CONCURRENT_BENCHMARK_TARGET TARGET)
   add_benchmark_target("${TARGET}")
   target_sources("${TARGET}" PRIVATE micro_benchmark_concurrency.hpp)
 endfunction()
 
 add_benchmark_target(micro_benchmark_key_prefix)
-add_benchmark_target(micro_benchmark_node4)
-add_benchmark_target(micro_benchmark_node16)
-add_benchmark_target(micro_benchmark_node48)
-add_benchmark_target(micro_benchmark_node256)
-add_benchmark_target(micro_benchmark)
+add_node_benchmark_target(micro_benchmark_node4)
+add_node_benchmark_target(micro_benchmark_node16)
+add_node_benchmark_target(micro_benchmark_node48)
+add_node_benchmark_target(micro_benchmark_node256)
+add_node_benchmark_target(micro_benchmark)
 add_concurrent_benchmark_target(micro_benchmark_mutex)
 add_concurrent_benchmark_target(micro_benchmark_olc)

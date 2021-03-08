@@ -5,7 +5,6 @@
 #include <benchmark/benchmark.h>
 
 #include "micro_benchmark_concurrency.hpp"
-#include "micro_benchmark_utils.hpp"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 

@@ -11,6 +11,8 @@
 #include "art.hpp"
 #include "art_common.hpp"
 #include "micro_benchmark_utils.hpp"
+#include "mutex_art.hpp"
+#include "olc_art.hpp"
 
 namespace {
 
@@ -57,10 +59,11 @@ Keys to be inserted:    Additional key prefix mismatch keys:
 0x0501000000000000
  */
 
+template <class Db>
 void unpredictable_get_shared_length(benchmark::State &state) {
   std::vector<unodb::key> search_keys{};
   search_keys.reserve(7 * 2 + 7 * 2 - 3);
-  unodb::db test_db;
+  Db test_db;
   for (std::uint8_t top_byte = 0x00; top_byte <= 0x05; ++top_byte) {
     const auto first_key = static_cast<std::uint64_t>(top_byte) << 56;
     const auto second_key = first_key | (1ULL << ((top_byte + 1) * 8));
@@ -85,7 +88,7 @@ void unpredictable_get_shared_length(benchmark::State &state) {
                  unodb::benchmark::get_prng());
     state.ResumeTiming();
     for (const auto k : search_keys) {
-      unodb::benchmark::get_key(test_db, k);
+      static_cast<void>(test_db.get(k));
     }
   }
 
@@ -153,19 +156,21 @@ In benchmark:
 
 */
 
-void insert_keys(unodb::db &test_db, const std::vector<unodb::key> &keys) {
+template <class Db>
+void insert_keys(Db &test_db, const std::vector<unodb::key> &keys) {
   for (const auto k : keys) {
     unodb::benchmark::insert_key(test_db, k,
                                  unodb::value_view{unodb::benchmark::value100});
   }
 }
 
+template <class Db>
 void do_insert_benchmark(benchmark::State &state,
                          const std::vector<unodb::key> &prepare_keys,
                          std::vector<unodb::key> &benchmark_keys) {
   for (auto _ : state) {
     state.PauseTiming();
-    unodb::db test_db;
+    Db test_db;
     insert_keys(test_db, prepare_keys);
     std::shuffle(benchmark_keys.begin(), benchmark_keys.end(),
                  unodb::benchmark::get_prng());
@@ -181,6 +186,7 @@ void do_insert_benchmark(benchmark::State &state,
       static_cast<std::int64_t>(state.iterations() * benchmark_keys.size()));
 }
 
+template <class Db>
 void unpredictable_leaf_key_prefix_split(benchmark::State &state) {
   static constexpr auto stride_len = 7;
   static constexpr auto num_strides = 36;
@@ -210,7 +216,7 @@ void unpredictable_leaf_key_prefix_split(benchmark::State &state) {
     benchmark_keys.push_back(second_key);
   }
 
-  do_insert_benchmark(state, prepare_keys, benchmark_keys);
+  do_insert_benchmark<Db>(state, prepare_keys, benchmark_keys);
 }
 
 /*
@@ -277,6 +283,7 @@ In benchmark:
 
 */
 
+template <class Db>
 void unpredictable_cut_key_prefix(benchmark::State &state) {
   static constexpr auto stride_len = 6;
   static constexpr auto num_strides = 42;
@@ -298,7 +305,7 @@ void unpredictable_cut_key_prefix(benchmark::State &state) {
     benchmark_keys.push_back(third_key);
   }
 
-  do_insert_benchmark(state, prepare_keys, benchmark_keys);
+  do_insert_benchmark<Db>(state, prepare_keys, benchmark_keys);
 }
 
 /*
@@ -372,6 +379,7 @@ Keys to be removed in benchmark:
 
 */
 
+template <class Db>
 void unpredictable_prepend_key_prefix(benchmark::State &state) {
   static constexpr auto stride_len = 6;
   static constexpr auto num_strides = 42;
@@ -396,7 +404,7 @@ void unpredictable_prepend_key_prefix(benchmark::State &state) {
 
   for (auto _ : state) {
     state.PauseTiming();
-    unodb::db test_db;
+    Db test_db;
     insert_keys(test_db, prepare_keys);
     std::shuffle(benchmark_keys.begin(), benchmark_keys.end(),
                  unodb::benchmark::get_prng());
@@ -416,9 +424,32 @@ void unpredictable_prepend_key_prefix(benchmark::State &state) {
 
 }  // namespace
 
-BENCHMARK(unpredictable_get_shared_length)->Unit(benchmark::kMicrosecond);
-BENCHMARK(unpredictable_leaf_key_prefix_split)->Unit(benchmark::kMicrosecond);
-BENCHMARK(unpredictable_cut_key_prefix)->Unit(benchmark::kMicrosecond);
-BENCHMARK(unpredictable_prepend_key_prefix)->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_get_shared_length, unodb::db)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_get_shared_length, unodb::mutex_db)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_get_shared_length, unodb::olc_db)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(unpredictable_leaf_key_prefix_split, unodb::db)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_leaf_key_prefix_split, unodb::mutex_db)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_leaf_key_prefix_split, unodb::olc_db)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(unpredictable_cut_key_prefix, unodb::db)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_cut_key_prefix, unodb::mutex_db)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_cut_key_prefix, unodb::olc_db)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(unpredictable_prepend_key_prefix, unodb::db)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_prepend_key_prefix, unodb::mutex_db)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_prepend_key_prefix, unodb::olc_db)
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();

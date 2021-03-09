@@ -9,7 +9,6 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
-#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 
@@ -30,17 +29,6 @@ class olc_db;
 }  // namespace unodb
 
 namespace unodb::detail {
-
-__attribute__((cold, noinline)) inline void dump_byte(std::ostream &os,
-                                                      std::byte byte) {
-  os << ' ' << std::hex << std::setfill('0') << std::setw(2)
-     << static_cast<unsigned>(byte) << std::dec;
-}
-
-__attribute__((cold, noinline)) inline void dump_key(std::ostream &os,
-                                                     art_key key) {
-  for (std::size_t i = 0; i < sizeof(key); i++) dump_byte(os, key[i]);
-}
 
 // For internal node pools, approximate requesting ~2MB blocks from backing
 // storage (when ported to Linux, ask for 2MB huge pages directly)
@@ -219,9 +207,7 @@ auto make_db_leaf_ptr(art_key k, value_view v, Db &db) {
 
 template <class Header>
 void basic_leaf<Header>::dump(std::ostream &os, raw_leaf_ptr leaf) {
-  os << "LEAF: key:";
-  dump_key(os, key(leaf));
-  os << ", value size: " << value_size(leaf) << '\n';
+  os << "LEAF: " << key(leaf) << ", value size: " << value_size(leaf) << '\n';
 }
 
 // Implementation of things declared in art_internal.hpp

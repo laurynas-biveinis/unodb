@@ -44,20 +44,6 @@ inline auto &get_prng() {
   return gen;
 }
 
-// Asserts
-
-namespace detail {
-
-#ifndef NDEBUG
-
-inline void print_key(std::ostream &out, unodb::key k) {
-  out << "0x" << std::hex << k << std::dec;
-}
-
-#endif  // #ifndef NDEBUG
-
-}  // namespace detail
-
 // Inserts
 
 template <class Db>
@@ -65,8 +51,8 @@ void insert_key(Db &db, unodb::key k, unodb::value_view v) {
   const auto result USED_IN_DEBUG = db.insert(k, v);
 #ifndef NDEBUG
   if (!result) {
-    std::cerr << "Failed to insert key ";
-    detail::print_key(std::cerr, k);
+    std::cerr << "Failed to insert ";
+    detail::dump_key(std::cerr, k);
     std::cerr << "\nCurrent tree:";
     db.dump(std::cerr);
     assert(result);
@@ -82,8 +68,8 @@ void delete_key(Db &db, unodb::key k) {
   const auto result USED_IN_DEBUG = db.remove(k);
 #ifndef NDEBUG
   if (!result) {
-    std::cerr << "Failed to delete existing key ";
-    detail::print_key(std::cerr, k);
+    std::cerr << "Failed to delete existing ";
+    detail::dump_key(std::cerr, k);
     std::cerr << "\nTree:";
     db.dump(std::cerr);
     assert(result);
@@ -100,8 +86,8 @@ void get_existing_key(const Db &db, unodb::key k) {
   const auto result = db.get(k);
 #ifndef NDEBUG
   if (!result) {
-    std::cerr << "Failed to get existing key ";
-    detail::print_key(std::cerr, k);
+    std::cerr << "Failed to get existing ";
+    detail::dump_key(std::cerr, k);
     std::cerr << "\nTree:";
     db.dump(std::cerr);
     assert(result);

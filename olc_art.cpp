@@ -680,7 +680,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
     if (unlikely(!parent_lock->try_upgrade_to_write_lock(parent_version)))
-      return {};
+      return {};  // LCOV_EXCL_LINE
     optimistic_write_lock_guard unlock_on_exit{*parent_lock};
 
     root = leaf.release();
@@ -710,7 +710,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
       if (unlikely(!parent_lock->try_upgrade_to_write_lock(parent_version)))
-        return {};
+        return {};  // LCOV_EXCL_LINE
       optimistic_write_lock_guard unlock_on_exit{*parent_lock};
 
       if (unlikely(!node_lock.try_upgrade_to_write_lock(version))) return {};
@@ -740,7 +740,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
       if (unlikely(!parent_lock->try_upgrade_to_write_lock(parent_version)))
-        return {};
+        return {};  // LCOV_EXCL_LINE
       optimistic_write_lock_guard unlock_on_exit{*parent_lock};
 
       if (unlikely(!node_lock.try_upgrade_to_write_lock(version))) return {};
@@ -785,7 +785,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       assert(node_is_full);
 
       if (!unlikely(parent_lock->try_upgrade_to_write_lock(parent_version)))
-        return {};
+        return {};  // LCOV_EXCL_LINE
       optimistic_write_lock_guard unlock_on_exit{*parent_lock};
 
       if (!unlikely(node_lock.try_upgrade_to_write_lock(version))) return {};
@@ -894,7 +894,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
     if (leaf::matches(node.leaf, k)) {
       if (unlikely(
               !root_pointer_lock.try_upgrade_to_write_lock(parent_version)))
-        return {};
+        return {};  // LCOV_EXCL_LINE
 
       optimistic_write_lock_guard unlock_on_exit{root_pointer_lock};
       if (unlikely(!node_lock->try_upgrade_to_write_lock(version))) return {};
@@ -975,7 +975,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
         optimistic_write_lock_guard unlock_on_exit{*node_lock};
 
         if (unlikely(!child_lock.try_upgrade_to_write_lock(child_version)))
-          return {};
+          return {};  // LCOV_EXCL_LINE
         child_lock.write_unlock_and_obsolete();
 
         node.internal->remove(child_i, *this);
@@ -986,15 +986,17 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
       assert(is_node_min_size);
 
       if (unlikely(!parent_lock->try_upgrade_to_write_lock(parent_version)))
-        return {};
+        return {};  // LCOV_EXCL_LINE
       optimistic_write_lock_guard unlock_on_exit{*parent_lock};
 
       if (unlikely(!node_lock->try_upgrade_to_write_lock(version))) return {};
       unique_write_lock_obsoleting_guard obsolete_node_on_exit{*node_lock};
 
       if (unlikely(!child_lock.try_upgrade_to_write_lock(child_version))) {
+        // LCOV_EXCL_START
         obsolete_node_on_exit.abort();
         return {};
+        // LCOV_EXCL_STOP
       }
       unique_write_lock_obsoleting_guard obsolete_child_on_exit{child_lock};
 

@@ -42,14 +42,16 @@ DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
 
 template <class Db>
 void assert_result_eq(Db &db, unodb::key key, unodb::value_view expected,
-                      int caller_line) noexcept {
+                      const char *file, int line) noexcept {
   std::ostringstream msg;
-  msg << "key = " << static_cast<unsigned>(key);
-  testing::ScopedTrace trace(__FILE__, caller_line, msg.str());
+  unodb::detail::dump_key(msg, key);
+  testing::ScopedTrace trace(file, line, msg.str());
   const auto result = db.get(key);
   if (!result) {
     // LCOV_EXCL_START
-    std::cerr << "db.get did not find key: " << key << '\n';
+    std::cerr << "db.get did not find ";
+    unodb::detail::dump_key(std::cerr, key);
+    std::cerr << '\n';
     db.dump(std::cerr);
     FAIL();
     // LCOV_EXCL_STOP
@@ -61,7 +63,7 @@ void assert_result_eq(Db &db, unodb::key key, unodb::value_view expected,
 RESTORE_CLANG_WARNINGS()
 
 #define ASSERT_VALUE_FOR_KEY(test_db, key, expected) \
-  assert_result_eq(test_db, key, expected, __LINE__)
+  assert_result_eq(test_db, key, expected, __FILE__, __LINE__)
 
 template <class Db>
 class tree_verifier final {
@@ -150,7 +152,9 @@ class tree_verifier final {
 
     if (!test_db.remove(k)) {
       // LCOV_EXCL_START
-      std::cerr << "test_db.remove failed for key " << k << '\n';
+      std::cerr << "test_db.remove failed for ";
+      unodb::detail::dump_key(std::cerr, k);
+      std::cerr << '\n';
       test_db.dump(std::cerr);
       FAIL();
       // LCOV_EXCL_STOP

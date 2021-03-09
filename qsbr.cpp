@@ -157,7 +157,7 @@ void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
 #ifdef NDEBUG
     std::abort();
 #else
-    cannot_happen();
+    CANNOT_HAPPEN();
 #endif
   } catch (...) {
     std::cerr << "Impossible happened: QSBR thread vector insert threw unknown "
@@ -165,7 +165,7 @@ void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
 #ifdef NDEBUG
     std::abort();
 #else
-    cannot_happen();
+    CANNOT_HAPPEN();
 #endif
     // LCOV_EXCL_STOP
   }

@@ -252,7 +252,7 @@ std::vector<unodb::key> generate_random_keys_over_full_smaller_tree(
       }
     }
   }
-  unodb::cannot_happen();
+  CANNOT_HAPPEN();
 }
 
 }  // namespace detail

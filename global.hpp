@@ -77,16 +77,29 @@
 #define USE_STD_PMR
 #endif
 
-#include <cassert>
+#ifndef NDEBUG
+#include <cstdlib>
+#include <iostream>
+#endif
 
 // LCOV_EXCL_START
-namespace unodb {
-inline __attribute__((noreturn)) void cannot_happen() {
-  assert(0);
+namespace unodb::detail {
+
+inline __attribute__((noreturn)) void cannot_happen(
+    const char *file USED_IN_DEBUG, int line USED_IN_DEBUG,
+    const char *func USED_IN_DEBUG) {
+#ifndef NDEBUG
+  std::cerr << "Execution reached an unreachable point at " << file << ':'
+            << line << ": " << func << '\n';
+  std::abort();
+#endif
   __builtin_unreachable();
 }
 // LCOV_EXCL_STOP
 
-}  // namespace unodb
+}  // namespace unodb::detail
+
+#define CANNOT_HAPPEN()                                         \
+  unodb::detail::cannot_happen(__FILE__, __LINE__, __func__)
 
 #endif  // UNODB_GLOBAL_HPP_

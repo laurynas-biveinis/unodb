@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <iosfwd>
 #include <memory>
 #include <type_traits>
 
@@ -83,6 +84,12 @@ struct basic_art_key final {
 };
 
 using art_key = basic_art_key<unodb::key>;
+
+__attribute__((cold, noinline)) void dump_byte(std::ostream &os,
+                                               std::byte byte);
+
+__attribute__((cold, noinline)) std::ostream &operator<<(std::ostream &os,
+                                                         art_key key);
 
 // This corresponds to the "single value leaf" type in the ART paper. Since we
 // have only one kind of leaf nodes, we call them simply "leaf" nodes. Should we

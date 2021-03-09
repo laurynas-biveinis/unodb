@@ -1,10 +1,11 @@
-// Copyright 2019 Laurynas Biveinis
+// Copyright 2019-2021 Laurynas Biveinis
 #ifndef UNODB_ART_COMMON_HPP_
 #define UNODB_ART_COMMON_HPP_
 
 #include "global.hpp"
 
 #include <cstdint>
+#include <iosfwd>
 #include <optional>
 
 #include <gsl/span>
@@ -13,6 +14,12 @@ namespace unodb {
 
 // Key type for public API
 using key = std::uint64_t;
+
+namespace detail {
+
+__attribute__((cold, noinline)) void dump_key(std::ostream &os, key k);
+
+}  // namespace detail
 
 // Value type for public API. Values are passed as non-owning pointers to
 // memory with associated length (gsl::span). The memory is copied upon

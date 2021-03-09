@@ -484,9 +484,9 @@ if(DO_CLANG_TIDY)
 endif()
 target_link_libraries(unodb_qsbr PUBLIC Threads::Threads)
 
-add_library(unodb art.cpp art.hpp art_common.hpp mutex_art.hpp
+add_library(unodb art.cpp art.hpp art_common.cpp art_common.hpp mutex_art.hpp
   optimistic_lock.hpp art_internal_impl.hpp olc_art.hpp olc_art.cpp
-  art_internal.hpp)
+  art_internal.cpp art_internal.hpp)
 common_target_properties(unodb)
 target_link_libraries(unodb PUBLIC unodb_qsbr)
 target_include_directories(unodb PUBLIC ".")

@@ -293,7 +293,7 @@ struct basic_reclaim_db_node_ptr_at_scope_exit final {
         return;
       }
     }
-    cannot_happen();  // LCOV_EXCL_LINE
+    CANNOT_HAPPEN();  // LCOV_EXCL_LINE
   }
 
   void delete_subtree() noexcept {
@@ -516,7 +516,7 @@ class basic_inode_impl {
         break;
         // LCOV_EXCL_START
       case node_type::LEAF:
-        cannot_happen();
+        CANNOT_HAPPEN();
         // LCOV_EXCL_STOP
     }
     os << "# children = "
@@ -538,7 +538,7 @@ class basic_inode_impl {
         break;
         // LCOV_EXCL_START
       case node_type::LEAF:
-        cannot_happen();
+        CANNOT_HAPPEN();
         // LCOV_EXCL_STOP
     }
   }
@@ -562,7 +562,7 @@ class basic_inode_impl {
         break;
         // LCOV_EXCL_START
       case node_type::LEAF:
-        cannot_happen();
+        CANNOT_HAPPEN();
         // LCOV_EXCL_STOP
     }
   }
@@ -585,7 +585,7 @@ class basic_inode_impl {
         break;
         // LCOV_EXCL_START
       case node_type::LEAF:
-        cannot_happen();
+        CANNOT_HAPPEN();
         // LCOV_EXCL_STOP
     }
   }
@@ -602,7 +602,7 @@ class basic_inode_impl {
         return static_cast<inode256_type *>(this)->delete_subtree(db_instance);
         // LCOV_EXCL_START
       case node_type::LEAF:
-        cannot_happen();
+        CANNOT_HAPPEN();
         // LCOV_EXCL_STOP
     }
   }
@@ -628,9 +628,9 @@ class basic_inode_impl {
         return static_cast<inode256_type *>(this)->find_child(key_byte);
         // LCOV_EXCL_START
       case node_type::LEAF:
-        cannot_happen();
+        CANNOT_HAPPEN();
     }
-    cannot_happen();
+    CANNOT_HAPPEN();
     // LCOV_EXCL_STOP
   }
 
@@ -646,9 +646,9 @@ class basic_inode_impl {
         return static_cast<const inode256_type *>(this)->is_full();
         // LCOV_EXCL_START
       case node_type::LEAF:
-        cannot_happen();
+        CANNOT_HAPPEN();
     }
-    cannot_happen();
+    CANNOT_HAPPEN();
     // LCOV_EXCL_STOP
   }
 
@@ -664,9 +664,9 @@ class basic_inode_impl {
         return static_cast<const inode256_type *>(this)->is_min_size();
         // LCOV_EXCL_START
       case node_type::LEAF:
-        cannot_happen();
+        CANNOT_HAPPEN();
     }
-    cannot_happen();
+    CANNOT_HAPPEN();
     // LCOV_EXCL_STOP
   }
 
@@ -674,12 +674,12 @@ class basic_inode_impl {
   // define their own new and delete operators using node pools
   [[nodiscard]] __attribute__((cold, noinline)) static void *operator new(
       std::size_t) {
-    cannot_happen();
+    CANNOT_HAPPEN();
   }
 
   DISABLE_CLANG_WARNING("-Wmissing-noreturn")
   __attribute__((cold, noinline)) static void operator delete(void *) {
-    cannot_happen();
+    CANNOT_HAPPEN();
   }
   RESTORE_CLANG_WARNINGS()
 

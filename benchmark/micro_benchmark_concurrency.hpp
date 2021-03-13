@@ -17,7 +17,7 @@ namespace unodb::benchmark {
 // Something small for CI quick checks
 static constexpr auto small_concurrent_tree_size = 70000;
 // Do not OOM on a 16GB Linux test server
-static constexpr auto large_concurrent_tree_size = 3000000;
+static constexpr auto large_concurrent_tree_size = 2000000;
 
 inline constexpr void concurrency_ranges(::benchmark::internal::Benchmark *b,
                                          int max_concurrency) {

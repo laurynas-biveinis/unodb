@@ -10,7 +10,7 @@
 #include <utility>
 
 #include "art_internal_impl.hpp"
-#include "not_atomic.hpp"
+#include "critical_section_unprotected.hpp"
 
 namespace {
 
@@ -24,7 +24,7 @@ struct inode_pool_getter {
 };
 
 using art_policy = unodb::detail::basic_art_policy<
-    unodb::db, unodb::not_atomic, unodb::detail::node_ptr,
+    unodb::db, unodb::critical_section_unprotected, unodb::detail::node_ptr,
     unodb::detail::basic_db_leaf_deleter, inode_pool_getter>;
 
 using inode_base = unodb::detail::basic_inode_impl<art_policy>;

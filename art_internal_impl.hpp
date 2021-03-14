@@ -191,8 +191,7 @@ auto make_db_leaf_ptr(art_key k, value_view v, Db &db) {
       get_leaf_node_pool(), leaf_size, alignment_for_new<Header>()));
   new (leaf_mem) Header{node_type::LEAF};
 
-  db.increase_memory_use(leaf_size);
-  ++db.leaf_count;
+  db.increment_leaf_count(leaf_size);
 
   k.copy_to(&leaf_mem[leaf_type::offset_key]);
   std::memcpy(&leaf_mem[leaf_type::offset_value_size], &value_size,
@@ -333,12 +332,12 @@ class fake_inode final {
 };
 RESTORE_GCC_WARNINGS()
 
-template <class Db, template <class> class AtomicPolicy, class NodePtr,
+template <class Db, template <class> class CriticalSectionPolicy, class NodePtr,
           template <class, class> class LeafReclamator,
           template <class> class INodePoolGetter>
 struct basic_art_policy final {
   template <typename T>
-  using atomic_policy = AtomicPolicy<T>;
+  using critical_section_policy = CriticalSectionPolicy<T>;
 
   using node_ptr = NodePtr;
   using header_type = typename node_ptr::header_type;
@@ -385,13 +384,15 @@ class basic_inode_impl {
  public:
   using node_ptr = typename ArtPolicy::node_ptr;
   template <typename T>
-  using atomic_policy = typename ArtPolicy::template atomic_policy<T>;
+  using critical_section_policy =
+      typename ArtPolicy::template critical_section_policy<T>;
   using db_leaf_unique_ptr = typename ArtPolicy::db_leaf_unique_ptr;
   using db = typename ArtPolicy::db;
   // The first element is the child index in the node, the 2nd is pointer
   // to the child. If not present, the pointer is nullptr, and the index
   // is undefined
-  using find_result = std::pair<std::uint8_t, atomic_policy<node_ptr> *>;
+  using find_result =
+      std::pair<std::uint8_t, critical_section_policy<node_ptr> *>;
 
  protected:
   using inode_type = typename node_ptr::inode;
@@ -417,7 +418,7 @@ class basic_inode_impl {
   static constexpr auto header_pad_bytes = header_pad_u32 * 4;
 
  public:
-  using key_prefix_data = std::array<atomic_policy<std::byte>,
+  using key_prefix_data = std::array<critical_section_policy<std::byte>,
                                      key_prefix_capacity + header_pad_bytes>;
 
   [[nodiscard]] __attribute__((pure)) constexpr auto
@@ -727,13 +728,13 @@ class basic_inode_impl {
     struct inode_fields {
       const node_type type;
       key_prefix_data key_prefix;
-      atomic_policy<key_prefix_size> key_prefix_length;
-      atomic_policy<std::uint8_t> children_count;
+      critical_section_policy<key_prefix_size> key_prefix_length;
+      critical_section_policy<std::uint8_t> children_count;
     } f;
     header_type header;
-    std::array<atomic_policy<std::uint32_t>, 2 + header_pad_u32> u32;
+    std::array<critical_section_policy<std::uint32_t>, 2 + header_pad_u32> u32;
 #ifdef UNODB_THREAD_SANITIZER
-    std::array<atomic_policy<std::uint8_t>, 4> header_bytes;
+    std::array<critical_section_policy<std::uint8_t>, 4> header_bytes;
 #endif
 
     static void static_asserts() noexcept {
@@ -917,7 +918,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   using leaf_type = typename ArtPolicy::leaf_type;
   using node_ptr = typename ArtPolicy::node_ptr;
   template <typename T>
-  using atomic_policy = typename ArtPolicy::template atomic_policy<T>;
+  using critical_section_policy =
+      typename ArtPolicy::template critical_section_policy<T>;
   using db_leaf_unique_ptr = typename ArtPolicy::db_leaf_unique_ptr;
   using reclaim_node_ptr_at_scope_exit_type =
       typename ArtPolicy::reclaim_node_ptr_at_scope_exit_type;
@@ -1102,10 +1104,10 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     if (bit_field != 0) {
       const auto i = static_cast<unsigned>(__builtin_ctz(bit_field));
       return std::make_pair(
-          i, static_cast<atomic_policy<node_ptr> *>(&children[i]));
+          i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
     return std::make_pair(0xFF, nullptr);
-#else  // #ifdef __x86_64
+#else   // #ifdef __x86_64
     // Bit twiddling:
     // contains_byte:     __builtin_ffs:   for key index:
     //    0x80000000               0x20                3
@@ -1124,8 +1126,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     if ((result == 0) || (result > this->children_count.load()))
       return std::make_pair(0xFF, nullptr);
 
-    return std::make_pair(result - 1, static_cast<atomic_policy<node_ptr> *>(
-                                          &children[result - 1]));
+    return std::make_pair(result - 1,
+                          static_cast<critical_section_policy<node_ptr> *>(
+                              &children[result - 1]));
 #endif  // #ifdef __x86_64
   }
 
@@ -1168,11 +1171,13 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   }
 
   union {
-    std::array<atomic_policy<std::byte>, basic_inode_4::capacity> byte_array;
-    atomic_policy<std::uint32_t> integer;
+    std::array<critical_section_policy<std::byte>, basic_inode_4::capacity>
+        byte_array;
+    critical_section_policy<std::uint32_t> integer;
   } keys;
 
-  std::array<atomic_policy<node_ptr>, basic_inode_4::capacity> children;
+  std::array<critical_section_policy<node_ptr>, basic_inode_4::capacity>
+      children;
 
  private:
   template <class>
@@ -1192,7 +1197,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   using inode48_type = typename ArtPolicy::inode48_type;
   using leaf_type = typename basic_inode_impl<ArtPolicy>::leaf_type;
   template <typename T>
-  using atomic_policy = typename ArtPolicy::template atomic_policy<T>;
+  using critical_section_policy =
+      typename ArtPolicy::template critical_section_policy<T>;
   using node_ptr = typename ArtPolicy::node_ptr;
   using reclaim_node_ptr_at_scope_exit_type =
       typename ArtPolicy::reclaim_node_ptr_at_scope_exit_type;
@@ -1291,7 +1297,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + children_count));
-   }
+  }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
@@ -1328,8 +1334,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
     if (bit_field != 0) {
       const auto i = static_cast<unsigned>(__builtin_ctz(bit_field));
-      return std::make_pair(
-          i, static_cast<atomic_policy<node_ptr> *>(&this->children[i]));
+      return std::make_pair(i, static_cast<critical_section_policy<node_ptr> *>(
+                                   &this->children[i]));
     }
     return std::make_pair(0xFF, nullptr);
 #else
@@ -1389,10 +1395,12 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 
  protected:
   union {
-    std::array<atomic_policy<std::byte>, basic_inode_16::capacity> byte_array;
+    std::array<critical_section_policy<std::byte>, basic_inode_16::capacity>
+        byte_array;
     __m128i sse;
   } keys;
-  std::array<atomic_policy<node_ptr>, basic_inode_16::capacity> children;
+  std::array<critical_section_policy<node_ptr>, basic_inode_16::capacity>
+      children;
 
  private:
   static constexpr std::uint8_t empty_child = 0xFF;
@@ -1414,7 +1422,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   using inode48_type = typename ArtPolicy::inode48_type;
   using inode256_type = typename ArtPolicy::inode256_type;
   template <typename T>
-  using atomic_policy = typename ArtPolicy::template atomic_policy<T>;
+  using critical_section_policy =
+      typename ArtPolicy::template critical_section_policy<T>;
   using node_ptr = typename ArtPolicy::node_ptr;
   using reclaim_node_ptr_at_scope_exit_type =
       typename ArtPolicy::reclaim_node_ptr_at_scope_exit_type;
@@ -1516,7 +1525,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       }
       i += 4;
     }
-#else  // #ifdef __x86_64
+#else   // #ifdef __x86_64
     node_ptr child_ptr;
     while (true) {
       child_ptr = children.pointer_array[i];
@@ -1605,9 +1614,10 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     reclaim_node_ptr_at_scope_exit_type reclaim{child_ptr, db_instance};
   }
 
-  std::array<atomic_policy<std::uint8_t>, 256> child_indexes;
+  std::array<critical_section_policy<std::uint8_t>, 256> child_indexes;
   union children_union {
-    std::array<atomic_policy<node_ptr>, basic_inode_48::capacity> pointer_array;
+    std::array<critical_section_policy<node_ptr>, basic_inode_48::capacity>
+        pointer_array;
 #ifdef __x86_64
     static_assert(basic_inode_48::capacity % 2 == 0);
     // To support unrolling without remainder
@@ -1640,7 +1650,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   using inode48_type = typename ArtPolicy::inode48_type;
   using inode256_type = typename ArtPolicy::inode256_type;
   template <typename T>
-  using atomic_policy = typename ArtPolicy::template atomic_policy<T>;
+  using critical_section_policy =
+      typename ArtPolicy::template critical_section_policy<T>;
   using node_ptr = typename ArtPolicy::node_ptr;
   using reclaim_node_ptr_at_scope_exit_type =
       typename ArtPolicy::reclaim_node_ptr_at_scope_exit_type;
@@ -1748,7 +1759,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   }
 
  private:
-  std::array<atomic_policy<node_ptr>, basic_inode_256::capacity> children;
+  std::array<critical_section_policy<node_ptr>, basic_inode_256::capacity>
+      children;
 
   template <class>
   friend class basic_inode_48;

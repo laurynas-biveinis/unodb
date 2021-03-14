@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef NOT_ATOMIC_HPP_
-#define NOT_ATOMIC_HPP_
+#ifndef CRITICAL_SECTION_UNPROTECTED_HPP_
+#define CRITICAL_SECTION_UNPROTECTED_HPP_
 
 #include "global.hpp"
 
@@ -9,23 +9,25 @@
 
 namespace unodb {
 
-// A template wrapper providing access to T with std::atomic-like interface
-// (like relaxed_atomic<T>), which is not actually atomic. It enables having a
-// common templatized non-atomic and relaxed atomic implementation.
+// Provide access to T with critical_section_protected<T>-like interface, except
+// that loads and stores are direct instead of relaxed atomic. It enables having
+// a common templatized implementation of single-threaded and OLC node
+// algorithms.
 template <typename T>
-class not_atomic final {
+class critical_section_unprotected final {
  public:
-  constexpr not_atomic() noexcept = default;
+  constexpr critical_section_unprotected() noexcept = default;
   // cppcheck-suppress noExplicitConstructor
-  constexpr not_atomic(T value_) noexcept : value{value_} {}
-  constexpr not_atomic(const not_atomic<T> &) = default;
-  constexpr not_atomic(not_atomic<T> &&) = default;
+  constexpr critical_section_unprotected(T value_) noexcept : value{value_} {}
+  constexpr critical_section_unprotected(
+      const critical_section_unprotected<T> &) = default;
+  constexpr critical_section_unprotected(critical_section_unprotected<T> &&) =
+      default;
 
-  // Regular C++ assignment operators return ref to this, std::atomic returns
-  // the assigned value, we return nothing as we never chain assignments.
+  // Return nothing as we never chain assignments for now.
   constexpr void operator=(T new_value) noexcept { value = new_value; }
 
-  constexpr void operator=(not_atomic<T> new_value) noexcept {
+  constexpr void operator=(critical_section_unprotected<T> new_value) noexcept {
     value = new_value;
   }
 
@@ -57,4 +59,4 @@ class not_atomic final {
 
 }  // namespace unodb
 
-#endif  // NOT_ATOMIC_HPP_
+#endif  // CRITICAL_SECTION_UNPROTECTED_HPP_

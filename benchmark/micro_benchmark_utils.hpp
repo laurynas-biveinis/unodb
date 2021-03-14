@@ -32,9 +32,9 @@ constexpr auto value1000 = std::array<std::byte, 1000>{};
 constexpr auto value10000 = std::array<std::byte, 10000>{};
 
 inline constexpr std::array<unodb::value_view, 5> values = {
-  unodb::value_view{value1}, unodb::value_view{value10},
-  unodb::value_view{value100}, unodb::value_view{value1000},
-  unodb::value_view{value10000}};
+    unodb::value_view{value1}, unodb::value_view{value10},
+    unodb::value_view{value100}, unodb::value_view{value1000},
+    unodb::value_view{value10000}};
 
 // PRNG
 

@@ -23,9 +23,7 @@ class concurrent_benchmark_olc final
     unodb::current_thread_reclamator().quiescent_state();
   }
 
-  void teardown() override {
-    assert_idle_qsbr();
-  }
+  void teardown() override { assert_idle_qsbr(); }
 
  private:
   void assert_idle_qsbr() const {

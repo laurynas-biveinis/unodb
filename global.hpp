@@ -99,7 +99,7 @@ inline __attribute__((noreturn)) void cannot_happen(
 
 }  // namespace unodb::detail
 
-#define CANNOT_HAPPEN()                                         \
+#define CANNOT_HAPPEN() \
   unodb::detail::cannot_happen(__FILE__, __LINE__, __func__)
 
 #endif  // UNODB_GLOBAL_HPP_

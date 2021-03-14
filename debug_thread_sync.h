@@ -30,7 +30,7 @@ class thread_wait final {
   void wait() {
     std::unique_lock<std::mutex> lock{sync_mutex};
     // cppcheck-suppress assignBoolToPointer
-    thread_sync.wait(lock, [& flag = flag] { return flag; });
+    thread_sync.wait(lock, [&flag = flag] { return flag; });
     flag = false;
     lock.unlock();
   }

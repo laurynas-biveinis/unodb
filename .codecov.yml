@@ -1,0 +1,10 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+
+codecov:
+  require_to_ci_pass: false
+  notify:
+    wait_for_ci: false

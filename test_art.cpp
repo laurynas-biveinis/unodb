@@ -10,6 +10,7 @@
 
 #include "art.hpp"
 #include "db_test_utils.hpp"
+#include "gtest_utils.hpp"
 #include "mutex_art.hpp"
 #include "olc_art.hpp"
 
@@ -23,26 +24,9 @@ class ARTCorrectnessTest : public ::testing::Test {
 
 using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db, unodb::olc_db>;
 
-// Because Google thinks
-// error: must specify at least one argument for '...' parameter of variadic
-// macro
-//       [-Werror,-Wgnu-zero-variadic-macro-arguments]
-// TYPED_TEST_CASE(ARTCorrectnessTest, ARTTypes);
-//                                             ^
-// is not a bug: https://github.com/google/googletest/issues/2271
-DISABLE_CLANG_WARNING("-Wgnu-zero-variadic-macro-arguments")
+UNODB_TYPED_TEST_CASE(ARTCorrectnessTest, ARTTypes)
 
-TYPED_TEST_CASE(ARTCorrectnessTest, ARTTypes);
-
-RESTORE_CLANG_WARNINGS()
-
-// Because Google thinks
-// error: 'void {anonymous}::ARTCorrectnessTest_single_node_tree_empty_value_
-// Test<gtest_TypeParam_>::TestBody() [with gtest_TypeParam_ = unodb::db]'
-// can be marked override [-Werror=suggest-override] is not a bug:
-// https://github.com/google/googletest/issues/1063
-
-DISABLE_GCC_WARNING("-Wsuggest-override")
+UNODB_START_TYPED_TESTS()
 
 TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeEmptyValue) {
   tree_verifier<TypeParam> verifier;
@@ -712,6 +696,6 @@ TYPED_TEST(ARTCorrectnessTest, Clear) {
   verifier.assert_node_counts(0, 0, 0, 0, 0);
 }
 
-RESTORE_GCC_WARNINGS()
+UNODB_END_TYPED_TESTS()
 
 }  // namespace

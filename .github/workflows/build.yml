@@ -25,6 +25,7 @@ jobs:
       COVERAGE: ${{matrix.COVERAGE}}
       COMPILER: ${{matrix.COMPILER}}
       CPPLINT: ${{matrix.CPPLINT}}
+      OCLINT: ${{matrix.OCLINT}}
       CPPCHECK: ${{matrix.CPPCHECK}}
       AVX2: ${{matrix.AVX2}}
 
@@ -155,11 +156,13 @@ jobs:
             COMPILER: clang
             STATIC_ANALYSIS: ON
 
-          - name: XCode Release
+          - name: XCode Release with cppcheck & oclint
             os: macos-latest
             BUILD_TYPE: Release
             COMPILER: macos-clang
             AVX2: OFF
+            CPPCHECK: ON
+            OCLINT: ON
 
           - name: XCode Release with ASan
             os: macos-latest
@@ -182,11 +185,12 @@ jobs:
             SANITIZE_UB: ON
             AVX2: OFF
 
-          - name: XCode Debug with cppcheck
+          - name: XCode Debug with cppcheck & oclint
             os: macos-latest
             BUILD_TYPE: Debug
             COMPILER: macos-clang
             CPPCHECK: ON
+            OCLINT: ON
             AVX2: OFF
 
           - name: XCode Debug with ASan
@@ -291,6 +295,10 @@ jobs:
         run: brew install cppcheck
         if: runner.os == 'macOS' && env.CPPCHECK == 'ON'
 
+      - name: Set up dependencies for macOS (oclint)
+        run: brew install oclint
+        if: runner.os == 'macOS' && env.OCLINT == 'ON'
+
       - name: Create build environment
         run: mkdir ${{github.workspace}}/build
 
@@ -361,28 +369,41 @@ jobs:
             --force-analyze-debug-code make -j3;
         if: env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang'
 
+      - name: OCLint static analysis
+        working-directory: ${{github.workspace}}/build
+        run: |
+          oclint-json-compilation-database -e 3rd_party -- \
+             -enable-global-analysis
+        if: env.OCLINT == 'ON'
+
       - name: Correctness test
         working-directory: ${{github.workspace}}/build
         run: ctest -j3 -V
-        if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+        if: >
+          env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+          && env.OCLINT != 'ON'
 
       - name: Benchmark correctness test
         working-directory: ${{github.workspace}}/build
         run: make quick_benchmarks
-        if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+        if: >
+          env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+          && env.OCLINT != 'ON'
 
       - name: DeepState 1 minute fuzzing
         working-directory: ${{github.workspace}}/build
         run: make -j2 deepstate_1m
-        if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+        if: >
+          env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+          && env.OCLINT != 'ON'
 
       - name: DeepState libfuzzer 1 minute fuzzing
         working-directory: ${{github.workspace}}/build
         run: make -j2 deepstate_lf_1m
         if: >
           env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
-          && env.COMPILER == 'clang' && env.BUILD_TYPE != 'Release'
-          && env.SANITIZE_THREAD != 'ON'
+          && env.OCLINT != 'ON' && env.COMPILER == 'clang'
+          && env.BUILD_TYPE != 'Release' && env.SANITIZE_THREAD != 'ON'
 
       - name: Valgrind test
         working-directory: ${{github.workspace}}/build
@@ -394,6 +415,7 @@ jobs:
           env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'
           && env.SANITIZE_UB != 'ON' && env.STATIC_ANALYSIS != 'ON'
           && runner.os == 'Linux' && env.COVERAGE != 'ON'
+          && env.OCLINT != 'ON'
 
       - name: Gather coverage data
         working-directory: ${{github.workspace}}/build

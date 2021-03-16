@@ -26,11 +26,13 @@ class ARTConcurrencyTest : public ::testing::Test {
                                   unodb::qsbr_thread, std::thread>;
 
   ARTConcurrencyTest() noexcept {
-    if constexpr (std::is_same_v<Db, unodb::olc_db>) expect_idle_qsbr();
+    if constexpr (std::is_same_v<Db, unodb::olc_db>)
+      unodb::test::expect_idle_qsbr();
   }
 
   ~ARTConcurrencyTest() noexcept override {
-    if constexpr (std::is_same_v<Db, unodb::olc_db>) expect_idle_qsbr();
+    if constexpr (std::is_same_v<Db, unodb::olc_db>)
+      unodb::test::expect_idle_qsbr();
   }
 
   template <std::size_t ThreadCount, std::size_t OpsPerThread, typename TestFn>
@@ -58,14 +60,14 @@ class ARTConcurrencyTest : public ::testing::Test {
     parallel_test<ThreadCount, OpsPerThread>(key_range_op_thread);
   }
 
-  static void parallel_insert_thread(tree_verifier<Db> *verifier,
+  static void parallel_insert_thread(unodb::test::tree_verifier<Db> *verifier,
                                      std::size_t thread_i,
                                      std::size_t ops_per_thread) {
     verifier->insert_preinserted_key_range(thread_i * ops_per_thread,
                                            ops_per_thread);
   }
 
-  static void parallel_remove_thread(tree_verifier<Db> *verifier,
+  static void parallel_remove_thread(unodb::test::tree_verifier<Db> *verifier,
                                      std::size_t thread_i,
                                      std::size_t ops_per_thread) {
     const auto start_key = thread_i * ops_per_thread;
@@ -74,14 +76,14 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
   }
 
-  static void key_range_op_thread(tree_verifier<Db> *verifier,
+  static void key_range_op_thread(unodb::test::tree_verifier<Db> *verifier,
                                   std::size_t thread_i,
                                   std::size_t ops_per_thread) {
     unodb::key key = thread_i / 3 * 3;
     for (decltype(ops_per_thread) i = 0; i < ops_per_thread; ++i) {
       switch (thread_i % 3) {
         case 0: /* insert */
-          verifier->try_insert(key, test_value_1);
+          verifier->try_insert(key, unodb::test::test_value_1);
           break;
         case 1: /* remove */
           verifier->try_remove(key);
@@ -94,7 +96,7 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
   }
 
-  static void random_op_thread(tree_verifier<Db> *verifier,
+  static void random_op_thread(unodb::test::tree_verifier<Db> *verifier,
                                std::size_t thread_i,
                                std::size_t ops_per_thread) {
     std::random_device rd;
@@ -104,7 +106,7 @@ class ARTConcurrencyTest : public ::testing::Test {
       const auto key{key_generator(gen)};
       switch (thread_i % 3) {
         case 0: /* insert */
-          verifier->try_insert(key, test_value_2);
+          verifier->try_insert(key, unodb::test::test_value_2);
           break;
         case 1: /* remove */
           verifier->try_remove(key);
@@ -116,7 +118,7 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
   }
 
-  tree_verifier<Db> verifier{true};
+  unodb::test::tree_verifier<Db> verifier{true};
 };
 
 using ConcurrentARTTypes = ::testing::Types<unodb::mutex_db, unodb::olc_db>;

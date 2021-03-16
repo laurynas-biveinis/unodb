@@ -19,6 +19,8 @@
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 
+namespace unodb::test {
+
 constexpr auto test_value_1 = std::array<std::byte, 1>{std::byte{0x00}};
 constexpr auto test_value_2 =
     std::array<std::byte, 2>{std::byte{0x00}, std::byte{0x02}};
@@ -292,5 +294,7 @@ extern template class tree_verifier<unodb::mutex_db>;
 extern template class tree_verifier<unodb::olc_db>;
 
 using olc_tree_verifier = tree_verifier<unodb::olc_db>;
+
+}  // namespace unodb::test
 
 #endif  // UNODB_DB_TEST_UTILS_HPP_

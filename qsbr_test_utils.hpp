@@ -8,6 +8,10 @@
 
 #include "qsbr.hpp"
 
+namespace unodb::test {
+
 void expect_idle_qsbr();
+
+}  // namespace unodb::test
 
 #endif  // UNODB_QSBR_TEST_UTILS_HPP_

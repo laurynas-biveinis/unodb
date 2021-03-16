@@ -1,0 +1,20 @@
+disable-rules:
+  - AvoidPrivateStaticMembers # GTest macros
+  - EmptyIfStatement # GTest macros
+  - DestructorOfVirtualClass # GTest macros
+  - GotoStatement # GTest macros
+  - HighNPathComplexity
+  - NonCaseLabelInSwitchStatement # GTest macros
+  - ShortVariableName
+  - TooFewBranchesInSwitchStatement # GTest macros
+  - UnusedLocalVariable
+  - UselessParentheses # GTest macros
+rule-configurations:
+  - key: LONG_METHOD
+    value: 130
+  - key: LONG_VARIABLE_NAME
+    value: 30
+  - key: NCSS_METHOD
+    value: 150
+  - key: CYCLOMATIC_COMPLEXITY
+    value: 15

@@ -10,6 +10,7 @@ env:
   DEFAULT_STATIC_ANALYSIS: OFF
   DEFAULT_CPPLINT: OFF
   DEFAULT_CPPCHECK: OFF
+  DEFAULT_OCLINT: OFF
   DEFAULT_COVERAGE: OFF
 
 jobs:
@@ -25,6 +26,7 @@ jobs:
       COVERAGE: ${{matrix.COVERAGE}}
       COMPILER: ${{matrix.COMPILER}}
       CPPLINT: ${{matrix.CPPLINT}}
+      OCLINT: ${{matrix.OCLINT}}
       CPPCHECK: ${{matrix.CPPCHECK}}
 
     strategy:
@@ -139,10 +141,12 @@ jobs:
             COMPILER: clang
             STATIC_ANALYSIS: ON
 
-          - name: XCode Release
+          - name: XCode Release with cppcheck & oclint
             os: macos-latest
             BUILD_TYPE: Release
             COMPILER: macos-clang
+            CPPCHECK: ON
+            OCLINT: ON
 
           - name: XCode Release with ASan
             os: macos-latest
@@ -162,11 +166,12 @@ jobs:
             COMPILER: macos-clang
             SANITIZE_UB: ON
 
-          - name: XCode Debug with cppcheck
+          - name: XCode Debug with cppcheck & oclint
             os: macos-latest
             BUILD_TYPE: Debug
             COMPILER: macos-clang
             CPPCHECK: ON
+            OCLINT: ON
 
           - name: XCode Debug with ASan
             os: macos-latest
@@ -251,6 +256,9 @@ jobs:
           if [[ $CPPCHECK == "ON" ]]; then
             brew install cppcheck
           fi
+          if [[ $OCLINT == "ON" ]]; then
+            brew install oclint
+          fi
           if [[ $COVERAGE == "ON" ]]; then
             brew install cpanm lcov
             sudo cpanm install JSON
@@ -309,11 +317,15 @@ jobs:
         run: |
           COMPILER="${COMPILER:-$DEFAULT_COMPILER}"
           STATIC_ANALYSIS="${STATIC_ANALYSIS:-$DEFAULT_STATIC_ANALYSIS}"
+          OCLINT="${OCLINT:-$OCLINT}"
           if [[ $STATIC_ANALYSIS == "ON" && $COMPILER == "clang" ]]; then
             /usr/bin/scan-build-11 --status-bugs -stats -analyze-headers \
               --force-analyze-debug-code make -j3;
           else
             make -j3
+          fi
+          if [[ $OCLINT == "ON" ]]; then
+            oclint-json-compilation-database -v -e 3rd_party -debug
           fi
 
       - name: Correctness test

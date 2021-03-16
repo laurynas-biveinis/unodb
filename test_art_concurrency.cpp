@@ -89,6 +89,8 @@ class ARTConcurrencyTest : public ::testing::Test {
         case 2: /* get */
           verifier->try_get(key);
           break;
+        default:
+          CANNOT_HAPPEN();
       }
       key++;
     }
@@ -112,6 +114,8 @@ class ARTConcurrencyTest : public ::testing::Test {
         case 2: /* get */
           verifier->try_get(key);
           break;
+        default:
+          CANNOT_HAPPEN();
       }
     }
   }

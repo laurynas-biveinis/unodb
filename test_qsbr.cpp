@@ -60,9 +60,9 @@ class mock_pool : public unodb::detail::pmr_pool {
 
 class QSBR : public ::testing::Test {
  protected:
-  QSBR() noexcept { expect_idle_qsbr(); }
+  QSBR() noexcept { unodb::test::expect_idle_qsbr(); }
 
-  ~QSBR() noexcept override { expect_idle_qsbr(); }
+  ~QSBR() noexcept override { unodb::test::expect_idle_qsbr(); }
 
   // Epochs
 

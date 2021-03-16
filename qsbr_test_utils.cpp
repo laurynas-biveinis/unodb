@@ -8,6 +8,8 @@
 
 #include "qsbr.hpp"
 
+namespace unodb::test {
+
 void expect_idle_qsbr() {
   EXPECT_TRUE(unodb::qsbr::instance().single_thread_mode());
   EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
@@ -16,3 +18,5 @@ void expect_idle_qsbr() {
   EXPECT_EQ(unodb::qsbr::instance().get_reserved_thread_capacity(), 1);
   EXPECT_EQ(unodb::qsbr::instance().get_threads_in_previous_epoch(), 1);
 }
+
+}  // namespace unodb::test

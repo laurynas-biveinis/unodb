@@ -13,9 +13,9 @@
 // TYPED_TEST_CASE(ARTCorrectnessTest, ARTTypes);
 //                                             ^
 // is not a bug: https://github.com/google/googletest/issues/2271
-#define UNODB_TYPED_TEST_CASE(Suite, Types)                    \
+#define UNODB_TYPED_TEST_SUITE(Suite, Types)                   \
   DISABLE_CLANG_WARNING("-Wgnu-zero-variadic-macro-arguments") \
-  TYPED_TEST_CASE(Suite, Types);                               \
+  TYPED_TEST_SUITE(Suite, Types);                              \
   RESTORE_CLANG_WARNINGS()
 
 // Because Google thinks

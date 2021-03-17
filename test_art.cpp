@@ -25,7 +25,7 @@ class ARTCorrectnessTest : public ::testing::Test {
 
 using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db, unodb::olc_db>;
 
-UNODB_TYPED_TEST_CASE(ARTCorrectnessTest, ARTTypes)
+UNODB_TYPED_TEST_SUITE(ARTCorrectnessTest, ARTTypes)
 
 UNODB_START_TYPED_TESTS()
 

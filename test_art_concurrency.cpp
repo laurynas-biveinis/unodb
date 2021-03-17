@@ -123,7 +123,7 @@ class ARTConcurrencyTest : public ::testing::Test {
 
 using ConcurrentARTTypes = ::testing::Types<unodb::mutex_db, unodb::olc_db>;
 
-UNODB_TYPED_TEST_CASE(ARTConcurrencyTest, ConcurrentARTTypes)
+UNODB_TYPED_TEST_SUITE(ARTConcurrencyTest, ConcurrentARTTypes)
 
 UNODB_START_TYPED_TESTS()
 

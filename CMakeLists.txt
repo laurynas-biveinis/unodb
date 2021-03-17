@@ -351,21 +351,19 @@ else()
       "-readability-magic-numbers")
     set(DO_CLANG_TIDY_COMMON "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
       "-warnings-as-errors=*")
-    set(DO_CLANG_TIDY ${DO_CLANG_TIDY_COMMON} "-checks=*,${CLANG_TIDY_DISABLED}")
+    set(DO_CLANG_TIDY ${DO_CLANG_TIDY_COMMON}
+      "-checks=*,${CLANG_TIDY_DISABLED}")
+    # Google Test forces to disable the following
     string(CONCAT CLANG_TIDY_DISABLED_FOR_TESTS
       "${CLANG_TIDY_DISABLED},"
-      "-build-include-order,"
       "-cert-err58-cpp,"
       "-cppcoreguidelines-avoid-goto,"
-      "-cppcoreguidelines-avoid-non-const-global-variables," # TEST() macros
+      "-cppcoreguidelines-avoid-non-const-global-variables,"
       "-cppcoreguidelines-owning-memory,"
-      "-cppcoreguidelines-pro-type-vararg," # GTest uses varargs
       "-cppcoreguidelines-special-member-functions,"
       "-fuchsia-statically-constructed-objects,"
-      "-google-runtime-references,"
       "-hicpp-avoid-goto,"
-      "-hicpp-special-member-functions,"
-      "-hicpp-vararg") # GTest uses varargs
+      "-hicpp-special-member-functions")
     set(DO_CLANG_TIDY_TEST ${DO_CLANG_TIDY_COMMON}
       "-checks=*,${CLANG_TIDY_DISABLED_FOR_TESTS}")
     string(CONCAT CLANG_TIDY_DISABLED_FOR_DEEPSTATE

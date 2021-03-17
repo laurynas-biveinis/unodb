@@ -11,6 +11,7 @@
 
 #include "art_internal_impl.hpp"
 #include "critical_section_unprotected.hpp"
+#include "heap.hpp"
 
 namespace {
 

@@ -5,20 +5,15 @@
 
 #include "olc_art.hpp"
 
-#include <algorithm>
-#include <array>
 #include <cassert>
-#include <iomanip>
+#include <cstddef>
 #include <iostream>
-#include <limits>
 #include <memory>
-#include <stdexcept>
 #include <type_traits>
 #include <utility>
 
-#include <gsl/gsl_util>
-
 #include "art_internal_impl.hpp"
+#include "heap.hpp"
 #include "optimistic_lock.hpp"
 #include "qsbr.hpp"
 

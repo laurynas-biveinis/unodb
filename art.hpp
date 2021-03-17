@@ -19,16 +19,16 @@ namespace detail {
 struct node_header;
 
 template <class>
-class basic_inode_4;
+class basic_inode_4;  // IWYU pragma: keep
 
 template <class>
-class basic_inode_16;
+class basic_inode_16;  // IWYU pragma: keep
 
 template <class>
-class basic_inode_48;
+class basic_inode_48;  // IWYU pragma: keep
 
 template <class>
-class basic_inode_256;
+class basic_inode_256;  // IWYU pragma: keep
 
 class inode;
 

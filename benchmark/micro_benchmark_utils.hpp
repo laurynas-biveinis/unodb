@@ -6,6 +6,7 @@
 
 #include <array>
 #include <cassert>
+#include <cstddef>
 #ifndef NDEBUG
 #include <iostream>
 #endif
@@ -16,9 +17,9 @@
 #include "art_common.hpp"
 
 namespace unodb {
-class db;
-class mutex_db;
-class olc_db;
+class db;        // IWYU pragma: keep
+class mutex_db;  // IWYU pragma: keep
+class olc_db;    // IWYU pragma: keep
 }  // namespace unodb
 
 namespace unodb::benchmark {

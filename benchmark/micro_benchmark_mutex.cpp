@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 #include <thread>
 

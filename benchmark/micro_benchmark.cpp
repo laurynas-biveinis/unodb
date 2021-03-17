@@ -1,12 +1,15 @@
 // Copyright 2019-2021 Laurynas Biveinis
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
-#include <string>
+#include <array>
+#include <cstddef>
+#include <cstdint>
 
 #include <benchmark/benchmark.h>
 
 #include "art.hpp"
+#include "art_common.hpp"
 #include "micro_benchmark_node_utils.hpp"
 #include "micro_benchmark_utils.hpp"
 #include "mutex_art.hpp"

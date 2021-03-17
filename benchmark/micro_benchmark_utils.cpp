@@ -1,14 +1,14 @@
 // Copyright 2020-2021 Laurynas Biveinis
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 #include "micro_benchmark_utils.hpp"
 
 #include <benchmark/benchmark.h>
 
-#include "art.hpp"
-#include "mutex_art.hpp"
-#include "olc_art.hpp"
+#include "art.hpp"        // IWYU pragma: keep
+#include "mutex_art.hpp"  // IWYU pragma: keep
+#include "olc_art.hpp"    // IWYU pragma: keep
 
 namespace unodb::benchmark {
 

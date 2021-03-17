@@ -2,11 +2,9 @@
 #ifndef UNODB_QSBR_TEST_UTILS_HPP_
 #define UNODB_QSBR_TEST_UTILS_HPP_
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
-#include <gtest/gtest.h>
-
-#include "qsbr.hpp"
+#include <gtest/gtest.h>  // IWYU pragma: keep
 
 namespace unodb::test {
 

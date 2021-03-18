@@ -62,7 +62,6 @@ void node4_sequential_insert(benchmark::State &state) {
         test_db, static_cast<unsigned>(state.range(0)));
 
     state.PauseTiming();
-    unodb::benchmark::assert_node4_only_tree(test_db);
     growing_tree_stats.get(test_db);
     tree_size = test_db.get_current_memory_use();
     unodb::benchmark::destroy_tree(test_db, state);
@@ -140,7 +139,6 @@ void node4_sequential_delete_benchmark(benchmark::State &state,
     const auto key_limit =
         unodb::benchmark::insert_sequentially<Db, NodeSize>(test_db, key_count);
     tree_size = test_db.get_current_memory_use();
-    unodb::benchmark::assert_node4_only_tree(test_db);
     state.ResumeTiming();
 
     unodb::key k = 0;
@@ -175,7 +173,6 @@ void node4_random_delete_benchmark(benchmark::State &state,
     const auto key_limit =
         unodb::benchmark::insert_sequentially<Db, NodeSize>(test_db, key_count);
     tree_size = test_db.get_current_memory_use();
-    unodb::benchmark::assert_node4_only_tree(test_db);
 
     auto keys = make_limited_key_sequence(key_limit, delete_key_zero_bits);
     std::shuffle(keys.begin(), keys.end(), unodb::benchmark::get_prng());

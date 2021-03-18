@@ -1,0 +1,3 @@
+setup = ".muse/dependencies.sh"
+build = "CC=clang-11 CXX=clang++-11 cmake"
+ignoreFiles = "3rd_party/**"

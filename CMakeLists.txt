@@ -311,16 +311,20 @@ else()
   endif()
 endif()
 
-option(CPPCHECK_AGGRESSIVE "Enable inconclusive and false positive cppcheck checks")
+set(CPPCHECK_ARGS
+  # I actually do that
+  "--suppress=accessMoved"
+  # False positive on pointer unions being passed by value
+  "--suppress=passedByValue"
+  # False positive on Google Test TEST macro and compilers are much better
+  # for syntax checking anyway
+  "--suppress=syntaxError")
+
+option(CPPCHECK_AGGRESSIVE "Enable inconclusive cppcheck checks")
 if(CPPCHECK_AGGRESSIVE)
-  set(CPPCHECK_CHECKS "--inconclusive")
+  list(APPEND CPPCHECK_ARGS "--inconclusive" "--error-exitcode=0")
 else()
-  set(CPPCHECK_CHECKS
-    # False positive on Google Test TEST macro and compilers are much better
-    # for syntax checking anyway
-    "--suppress=syntaxError"
-    # False positive on pointer unions being passed by value
-    "--suppress=passedByValue")
+  list(APPEND CPPCHECK_ARGS "--error-exitcode=2")
 endif()
 
 find_program(CPPCHECK_EXE NAMES "cppcheck" DOC "Path to cppcheck executable")
@@ -331,9 +335,10 @@ else()
     CPPCHECK_VERSION_OUTPUT)
   message(STATUS
     "cppcheck found: ${CPPCHECK_EXE}, --version: ${CPPCHECK_VERSION_OUTPUT}")
-  set(DO_CPPCHECK "${CPPCHECK_EXE}" "--enable=warning,style,performance,portability"
-    "--error-exitcode=2" "-D__x86_64" "--inline-suppr")
-  list(APPEND DO_CPPCHECK "${CPPCHECK_CHECKS}")
+  set(DO_CPPCHECK "${CPPCHECK_EXE}"
+    "--enable=warning,style,performance,portability" "-D__x86_64"
+    "--inline-suppr")
+  list(APPEND DO_CPPCHECK "${CPPCHECK_ARGS}")
 endif()
 
 find_program(CPPLINT_EXE NAMES "cpplint" DOC "Path to cpplint executable")

@@ -122,7 +122,7 @@ To invoke include-what-you-use, add `-DIWYU=ON` CMake option. It will take
 effect if CMake configures to build project with clang.
 
 To enable inconclusive cppcheck diagnostics, add `-DCPPCHECK_AGGRESSIVE=ON`
-CMake option.
+CMake option. These diagnostics will not fail a build.
 
 To generate coverage reports on tests, fuzzers excluded, using lcov, add
 `-DCOVERAGE=ON` CMake option.

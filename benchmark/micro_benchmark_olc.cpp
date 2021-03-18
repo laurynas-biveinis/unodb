@@ -28,7 +28,7 @@ class concurrent_benchmark_olc final
   void teardown() override { assert_idle_qsbr(); }
 
  private:
-  void assert_idle_qsbr() const {
+  static void assert_idle_qsbr() {
     // FIXME(laurynas): copy-paste with expect_idle_qsbr, but not clear how to
     // fix this
     assert(unodb::qsbr::instance().single_thread_mode());

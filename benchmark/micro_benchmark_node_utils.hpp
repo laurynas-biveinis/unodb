@@ -440,9 +440,10 @@ void assert_mostly_node256_tree(const Db &test_db) noexcept {
 template <class Db, unsigned NodeSize>
 void assert_node_size_tree(const Db &test_db USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
-  static_assert(NodeSize == 4 || NodeSize == 16 || NodeSize == 48 ||
-                NodeSize == 256);
-  if constexpr (NodeSize == 4) {
+  static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
+                NodeSize == 48 || NodeSize == 256);
+
+  if constexpr (NodeSize == 2 || NodeSize == 4) {
     assert_node4_only_tree(test_db);
   } else if constexpr (NodeSize == 16) {
     assert_mostly_node16_tree(test_db);
@@ -543,6 +544,7 @@ unodb::key insert_sequentially(Db &db, unsigned key_count) {
     ++i;
     k = next_key(k, node_size_to_key_zero_bits<NodeSize>());
   }
+  detail::assert_node_size_tree<Db, NodeSize>(db);
   return k;
 }
 
@@ -594,17 +596,13 @@ auto make_full_node_size_tree(Db &db, unsigned key_count) {
   static_assert(NodeSize == 4 || NodeSize == 16 || NodeSize == 48 ||
                 NodeSize == 256);
 
-  unodb::key key_limit;
   if constexpr (node_size_has_key_zero_bits<NodeSize>()) {
-    key_limit = insert_sequentially<Db, NodeSize>(db, key_count);
+    return insert_sequentially<Db, NodeSize>(db, key_count);
   } else {
-    key_limit = insert_n_keys_to_empty_tree<
+    return insert_n_keys_to_empty_tree<
         Db, NodeSize, decltype(number_to_full_node_size_tree_key<NodeSize>)>(
         db, key_count, number_to_full_node_size_tree_key<NodeSize>);
   }
-
-  detail::assert_node_size_tree<Db, NodeSize>(db);
-  return key_limit;
 }
 
 template <class Db, unsigned NodeCapacity>

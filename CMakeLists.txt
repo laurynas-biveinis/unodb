@@ -258,56 +258,7 @@ else()
     message(STATUS "clang-tidy not found")
   else()
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-    string(CONCAT CLANG_TIDY_DISABLED
-      "-bugprone-use-after-move,"
-      "-clang-diagnostic-error,"
-      # Moved-from object states are asserted
-      "-clang-analyzer-cplusplus.Move,"
-      # Duplicated by modernize-avoid-c-arrays
-      "-cppcoreguidelines-avoid-c-arrays,"
-      "-cppcoreguidelines-avoid-magic-numbers,"
-      "-cppcoreguidelines-init-variables,"
-      "-cppcoreguidelines-macro-usage," # Until it respects __LINE__ in macro definition
-      "-cppcoreguidelines-non-private-member-variables-in-classes,"
-      "-cppcoreguidelines-pro-bounds-array-to-pointer-decay,"
-      "-cppcoreguidelines-pro-bounds-constant-array-index,"
-      # Because leaf nodes are std::byte arrays
-      "-cppcoreguidelines-pro-bounds-pointer-arithmetic,"
-      # Because VALGRIND_MALLOCLIKE_BLOCK expands to C-style cast, and we have
-      # -Wold-style-cast anyway
-      "-cppcoreguidelines-pro-type-const-cast,"
-      "-cppcoreguidelines-pro-type-cstyle-cast,"
-      "-cppcoreguidelines-pro-type-member-init,"
-      "-cppcoreguidelines-pro-type-reinterpret-cast,"
-      "-cppcoreguidelines-pro-type-static-cast-downcast,"
-      "-cppcoreguidelines-pro-type-union-access,"
-      "-fuchsia-default-arguments,"
-      "-fuchsia-default-arguments-calls,"
-      "-fuchsia-overloaded-operator,"
-      "-google-readability-braces-around-statements,"
-      "-google-runtime-references,"
-      # Duplicated by modernize-avoid-c-arrays
-      "-hicpp-avoid-c-arrays,"
-      "-hicpp-braces-around-statements,"
-      "-hicpp-invalid-access-moved,"
-      "-hicpp-member-init,"
-      "-hicpp-named-parameter,"
-      "-hicpp-no-array-decay,"
-      "-hicpp-no-assembler," # Valgrind client requests
-      "-hicpp-use-equals-default,"
-      "-llvm-include-order,"
-      "-llvmlibc*,"
-      "-misc-no-recursion,"
-      "-misc-non-private-member-variables-in-classes,"
-      "-modernize-use-equals-default," # Until foo() noexcept = default is accepted by clang
-      "-modernize-use-trailing-return-type,"
-      "-portability-simd-intrinsics,"
-      "-readability-braces-around-statements,"
-      "-readability-named-parameter,"
-      "-readability-magic-numbers")
-    set(DO_CLANG_TIDY_COMMON "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}"
-      "-warnings-as-errors=*")
-    set(DO_CLANG_TIDY ${DO_CLANG_TIDY_COMMON} "-checks=*,${CLANG_TIDY_DISABLED}")
+    set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}")
   endif()
 endif()
 

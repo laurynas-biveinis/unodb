@@ -47,27 +47,14 @@ if(DEEPSTATE_HPP_PATH)
 endif()
 
 if(DO_CLANG_TIDY)
-  # Google Test forces to disable the following
-  string(CONCAT CLANG_TIDY_DISABLED_FOR_TESTS
-    "${CLANG_TIDY_DISABLED},"
-    "-cert-err58-cpp,"
-    "-cppcoreguidelines-avoid-goto,"
-    "-cppcoreguidelines-avoid-non-const-global-variables,"
-    "-cppcoreguidelines-owning-memory,"
-    "-cppcoreguidelines-special-member-functions,"
-    "-fuchsia-statically-constructed-objects,"
-    "-hicpp-avoid-goto,"
-    "-hicpp-special-member-functions,")
-  set(DO_CLANG_TIDY_TEST ${DO_CLANG_TIDY_COMMON}
-    "-checks=*,${CLANG_TIDY_DISABLED_FOR_TESTS}")
+  # TODO(laurynas): introduce subdir, move this to own .clang-tidy
   string(CONCAT CLANG_TIDY_DISABLED_FOR_DEEPSTATE
-    "${CLANG_TIDY_DISABLED},"
     "-cert-err58-cpp,"
     "-cppcoreguidelines-avoid-non-const-global-variables," # TEST() macros
     "-fuchsia-statically-constructed-objects,"
     "-readability-implicit-bool-conversion") # DeepState_Bool returning int
-  set(DO_CLANG_TIDY_DEEPSTATE ${DO_CLANG_TIDY_COMMON}
-    "-checks=*,${CLANG_TIDY_DISABLED_FOR_DEEPSTATE}")
+  set(DO_CLANG_TIDY_DEEPSTATE ${DO_CLANG_TIDY}
+    "-checks=${CLANG_TIDY_DISABLED_FOR_DEEPSTATE}")
 endif()
 
 function(ADD_COVERAGE_TARGET)
@@ -97,13 +84,13 @@ endfunction()
 add_library(db_test_utils STATIC db_test_utils.hpp db_test_utils.cpp)
 common_target_properties(db_test_utils)
 target_link_libraries(db_test_utils PRIVATE unodb gtest_main)
-set_clang_tidy_options(db_test_utils "${DO_CLANG_TIDY_TEST}")
+set_clang_tidy_options(db_test_utils "${DO_CLANG_TIDY}")
 
 # FIXME(laurynas): unduplicate
 add_library(qsbr_test_utils STATIC qsbr_test_utils.hpp qsbr_test_utils.cpp)
 common_target_properties(qsbr_test_utils)
 target_link_libraries(qsbr_test_utils PRIVATE unodb_qsbr gtest_main)
-set_clang_tidy_options(qsbr_test_utils "${DO_CLANG_TIDY_TEST}")
+set_clang_tidy_options(qsbr_test_utils "${DO_CLANG_TIDY}")
 
 # FIXME(laurynas): merge with add_db_test_target, pass which test utils libs
 # to link with
@@ -111,7 +98,7 @@ function(ADD_TEST_TARGET TARGET)
   add_executable("${TARGET}" "${TARGET}.cpp")
   common_target_properties("${TARGET}")
   target_link_libraries("${TARGET}" PRIVATE unodb_qsbr gtest_main)
-  set_clang_tidy_options("${TARGET}" "${DO_CLANG_TIDY_TEST}")
+  set_clang_tidy_options("${TARGET}" "${DO_CLANG_TIDY}")
   add_test(NAME "${TARGET}" COMMAND "${TARGET}")
   if(SANITIZE_ADDRESS OR SANITIZE_THREAD OR SANITIZE_UB)
     set_property(TEST ${TARGET} APPEND PROPERTY ENVIRONMENT "${SANITIZER_ENV}")

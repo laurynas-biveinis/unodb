@@ -4,13 +4,15 @@
 
 #include <algorithm>
 #include <atomic>
-#include <cstddef>
+#ifdef NDEBUG
 #include <cstdlib>
+#endif
+#include <exception>
 #include <iostream>
+#include <iterator>
 #include <thread>
 #include <utility>
 
-#include "heap.hpp"
 #include "qsbr.hpp"
 
 namespace {

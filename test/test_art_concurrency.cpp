@@ -1,18 +1,20 @@
 // Copyright 2021 Laurynas Biveinis
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 #include <array>
+#include <cstddef>
 #include <random>
 #include <thread>
 #include <type_traits>
 
-#include <gtest/gtest.h>
+#include <gtest/gtest.h>  // IWYU pragma: keep
 
+#include "art_common.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
-#include "mutex_art.hpp"
-#include "olc_art.hpp"
+#include "mutex_art.hpp"  // IWYU pragma: keep
+#include "olc_art.hpp"    // IWYU pragma: keep
 #include "qsbr.hpp"
 #include "qsbr_test_utils.hpp"
 

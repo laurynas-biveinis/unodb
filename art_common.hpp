@@ -2,8 +2,9 @@
 #ifndef UNODB_ART_COMMON_HPP_
 #define UNODB_ART_COMMON_HPP_
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
+#include <cstddef>
 #include <cstdint>
 #include <iosfwd>
 #include <optional>

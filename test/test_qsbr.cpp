@@ -2,13 +2,13 @@
 
 #include "global.hpp"
 
-#include <condition_variable>
+#include <cstddef>  // IWYU pragma: keep
+#include <cstdint>
 #include <limits>
-#include <mutex>
-#include <thread>
+#include <mutex>  // IWYU pragma: keep
 #include <unordered_set>
 
-#include <gtest/gtest.h>
+#include <gtest/gtest.h>  // IWYU pragma: keep
 
 #include "debug_thread_sync.h"
 #include "heap.hpp"

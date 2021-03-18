@@ -5,7 +5,8 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <atomic>
-#include <cstddef>
+#include <cassert>
+#include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #include <iostream>
 #include <optional>
@@ -19,16 +20,16 @@ namespace unodb {
 namespace detail {
 
 template <class>
-class basic_inode_4;
+class basic_inode_4;  // IWYU pragma: keep
 
 template <class>
-class basic_inode_16;
+class basic_inode_16;  // IWYU pragma: keep
 
 template <class>
-class basic_inode_48;
+class basic_inode_48;  // IWYU pragma: keep
 
 template <class>
-class basic_inode_256;
+class basic_inode_256;  // IWYU pragma: keep
 
 struct olc_node_header;
 
@@ -45,7 +46,7 @@ using olc_inode_defs =
 using olc_node_ptr = basic_node_ptr<olc_node_header, olc_inode, olc_inode_defs>;
 
 template <class, class>
-class db_leaf_qsbr_deleter;
+class db_leaf_qsbr_deleter;  // IWYU pragma: keep
 
 template <class Header, class Db>
 auto make_db_leaf_ptr(art_key, value_view, Db &);

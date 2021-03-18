@@ -6,24 +6,25 @@
 
 #include <array>
 #include <atomic>
-#include <cstddef>
+#include <cassert>
+#include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
-#include <functional>
 #include <iostream>
-#include <memory>
-#include <mutex>
+#include <mutex>  // IWYU pragma: keep
 #include <thread>
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
 
-#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/accumulators.hpp>  // IWYU pragma: keep
 #include <boost/accumulators/statistics/max.hpp>
 #include <boost/accumulators/statistics/mean.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
 
+#ifndef NDEBUG
 #include "debug_thread_sync.h"
+#endif
 #include "heap.hpp"
 
 namespace unodb {
@@ -43,7 +44,6 @@ namespace unodb {
 // If C++ standartisation proposal by A. D. Robison "Policy-based design for
 // safe destruction in concurrent containers" ever gets anywhere, consider
 // changing to its interface, like Stamp-it paper does.
-class qsbr;
 
 class qsbr_per_thread final {
  public:

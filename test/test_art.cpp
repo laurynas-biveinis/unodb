@@ -1,18 +1,20 @@
 // Copyright 2019-2021 Laurynas Biveinis
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
-#include <algorithm>
-#include <optional>
-#include <unordered_map>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <stdexcept>
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
 
-#include "art.hpp"
+#include "art.hpp"  // IWYU pragma: keep
+#include "art_common.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
-#include "mutex_art.hpp"
-#include "olc_art.hpp"
+#include "mutex_art.hpp"  // IWYU pragma: keep
+#include "olc_art.hpp"    // IWYU pragma: keep
 
 namespace {
 using unodb::test::test_values;

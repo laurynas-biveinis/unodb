@@ -1,10 +1,12 @@
-// Copyright 2020 Laurynas Biveinis
+// Copyright 2020-2021 Laurynas Biveinis
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <random>
+#include <vector>
 
 #include <benchmark/benchmark.h>
 

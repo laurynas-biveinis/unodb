@@ -4,20 +4,22 @@
 
 #include "global.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
+#include <iostream>
 #include <new>
 #include <optional>
 #include <unordered_map>
 
-#include <gtest/gtest.h>
+#include <gtest/gtest.h>  // IWYU pragma: keep
 
 #include "art.hpp"
+#include "art_common.hpp"
 #include "mutex_art.hpp"
 #include "olc_art.hpp"
-#include "qsbr.hpp"
 
 namespace unodb::test {
 

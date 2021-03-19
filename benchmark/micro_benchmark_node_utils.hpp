@@ -699,14 +699,12 @@ template <class Db, unsigned NodeSize>
 void full_node_scan_benchmark(::benchmark::State &state) {
   const auto key_count = static_cast<unsigned>(state.range(0));
   Db test_db;
-
-  const auto key_limit =
-      detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
-  const auto tree_size = test_db.get_current_memory_use();
-
   std::int64_t items_processed{0};
-  for (auto _ : state) {
-    if constexpr (detail::node_size_has_key_zero_bits<NodeSize>()) {
+
+  if constexpr (detail::node_size_has_key_zero_bits<NodeSize>()) {
+    const auto key_limit USED_IN_DEBUG =
+        detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
+    for (auto _ : state) {
       unodb::key k = 0;
       for (std::uint64_t j = 0; j < key_count; ++j) {
         assert(k <= key_limit);
@@ -714,7 +712,12 @@ void full_node_scan_benchmark(::benchmark::State &state) {
         k = next_key(k, node_size_to_key_zero_bits<NodeSize>());
       }
       items_processed += key_count;
-    } else {
+    }
+  } else {
+    const auto key_limit =
+        detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
+    for (auto _ : state) {
+      // cppcheck-suppress useStlAlgorithm
       items_processed += detail::get_key_loop(
           test_db, key_limit,
           detail::number_to_full_node_size_tree_key<NodeSize>);
@@ -722,7 +725,7 @@ void full_node_scan_benchmark(::benchmark::State &state) {
   }
 
   state.SetItemsProcessed(items_processed);
-  set_size_counter(state, "size", tree_size);
+  set_size_counter(state, "size", test_db.get_current_memory_use());
 }
 
 template <class Db, unsigned NodeSize>

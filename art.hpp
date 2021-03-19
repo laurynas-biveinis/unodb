@@ -132,7 +132,7 @@ class db final {
   }
 
   // Debugging
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const;
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const;
 
  private:
   void delete_subtree(detail::node_ptr) noexcept;

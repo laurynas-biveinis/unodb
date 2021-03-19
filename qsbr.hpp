@@ -133,7 +133,7 @@ class qsbr final {
 
   void reset() noexcept;
 
-  __attribute__((cold, noinline)) void dump(std::ostream &out) const;
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &out) const;
 
   [[nodiscard]] auto get_epoch_callback_count_max() const noexcept {
     // TODO(laurynas): std::max against current_interval_callbacks.size(), but

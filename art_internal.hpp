@@ -59,7 +59,7 @@ struct basic_art_key final {
     return std::memcmp(&key, &key2.key, size);
   }
 
-  [[nodiscard]] __attribute__((pure)) constexpr auto operator[](
+  [[nodiscard, gnu::pure]] constexpr auto operator[](
       std::size_t index) const noexcept {
     assert(index < size);
     return (reinterpret_cast<const std::byte *>(&key))[index];
@@ -85,11 +85,10 @@ struct basic_art_key final {
 
 using art_key = basic_art_key<unodb::key>;
 
-__attribute__((cold, noinline)) void dump_byte(std::ostream &os,
-                                               std::byte byte);
+[[gnu::cold, gnu::noinline]] void dump_byte(std::ostream &os, std::byte byte);
 
-__attribute__((cold, noinline)) std::ostream &operator<<(std::ostream &os,
-                                                         art_key key);
+[[gnu::cold, gnu::noinline]] std::ostream &operator<<(std::ostream &os,
+                                                      art_key key);
 
 // This corresponds to the "single value leaf" type in the ART paper. Since we
 // have only one kind of leaf nodes, we call them simply "leaf" nodes. Should we
@@ -190,7 +189,7 @@ union basic_node_ptr {
   constexpr basic_node_ptr(inode256_type *node_256_) noexcept
       : node_256{node_256_} {}
 
-  [[nodiscard]] __attribute__((pure)) constexpr auto type() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto type() const noexcept {
     return header->type();
   }
 

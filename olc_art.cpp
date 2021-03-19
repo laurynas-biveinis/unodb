@@ -237,7 +237,7 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
     return basic_inode_4::leave_last_child(child_to_delete, db_instance);
   }
 
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     os << ", ";
     lock(*this).dump(os);
     basic_inode_4::dump(os);
@@ -321,7 +321,7 @@ class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
 #endif
   }
 
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     os << ", ";
     lock(*this).dump(os);
     basic_inode_16::dump(os);
@@ -420,7 +420,7 @@ class olc_inode_48 final : public basic_inode_48<olc_art_policy> {
     basic_inode_48::remove(child_index, db_instance);
   }
 
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     os << ", ";
     lock(*this).dump(os);
     basic_inode_48::dump(os);
@@ -507,7 +507,7 @@ class olc_inode_256 final : public basic_inode_256<olc_art_policy> {
     basic_inode_256::remove(child_index, db_instance);
   }
 
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     os << ", ";
     lock(*this).dump(os);
     basic_inode_256::dump(os);

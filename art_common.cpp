@@ -9,7 +9,7 @@
 
 namespace unodb::detail {
 
-__attribute__((cold, noinline)) void dump_key(std::ostream &os, unodb::key k) {
+[[gnu::cold, gnu::noinline]] void dump_key(std::ostream &os, unodb::key k) {
   os << "key: 0x" << std::hex << std::setfill('0') << std::setw(sizeof(k)) << k
      << std::dec;
 }

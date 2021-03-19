@@ -184,7 +184,7 @@ class optimistic_lock final {
   }
 #endif
 
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     const auto dump_version = version.load();
     os << "lock: version = 0x" << std::hex << std::setfill('0') << std::setw(8)
        << dump_version << std::dec;

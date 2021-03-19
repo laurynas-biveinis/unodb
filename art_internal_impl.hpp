@@ -45,7 +45,7 @@ template <class INode>
 }
 
 template <>
-__attribute__((const)) inline constexpr std::uint64_t
+[[gnu::const]] inline constexpr std::uint64_t
 basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   return __builtin_bswap64(k);
@@ -58,7 +58,7 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 // BSF/CMOVE pair if TZCNT is not available. CMOVE is only required if arg is
 // zero, which we know not to be. Only GCC 11 gets the hint by "if (arg == 0)
 // __builtin_unreachable()"
-__attribute__((const)) inline unsigned ffs_nonzero(std::uint64_t arg) {
+[[gnu::const]] inline unsigned ffs_nonzero(std::uint64_t arg) {
   std::int64_t result;
 #ifdef __x86_64
   __asm__("bsfq %1, %0" : "=r"(result) : "rm"(arg) : "cc");
@@ -79,12 +79,12 @@ inline auto _mm_cmple_epu8(__m128i x, __m128i y) noexcept {
 
 // From public domain
 // https://graphics.stanford.edu/~seander/bithacks.html
-inline constexpr __attribute__((const)) std::uint32_t has_zero_byte(
+inline constexpr [[gnu::const]] std::uint32_t has_zero_byte(
     std::uint32_t v) noexcept {
   return ((v - 0x01010101UL) & ~v & 0x80808080UL);
 }
 
-inline constexpr __attribute__((const)) std::uint32_t contains_byte(
+inline constexpr [[gnu::const]] std::uint32_t contains_byte(
     std::uint32_t v, std::byte b) noexcept {
   return has_zero_byte(v ^ (~0U / 255 * static_cast<std::uint8_t>(b)));
 }
@@ -146,8 +146,8 @@ struct basic_leaf final {
     return value_size(leaf) + offset_value;
   }
 
-  __attribute__((cold, noinline)) static void dump(std::ostream &os,
-                                                   raw_leaf_ptr leaf);
+  [[gnu::cold, gnu::noinline]] static void dump(std::ostream &os,
+                                                raw_leaf_ptr leaf);
 
   static constexpr void assert_invariants(
       USED_IN_DEBUG raw_leaf_ptr leaf) noexcept {
@@ -300,8 +300,8 @@ struct basic_reclaim_db_node_ptr_at_scope_exit final {
 };
 
 template <class NodePtr>
-__attribute__((cold, noinline)) void dump_node(std::ostream &os,
-                                               const NodePtr &node) {
+[[gnu::cold, gnu::noinline]] void dump_node(std::ostream &os,
+                                            const NodePtr &node) {
   using local_leaf_type = basic_leaf<typename NodePtr::header_type>;
 
   os << "node at: " << node.header;
@@ -421,8 +421,7 @@ class basic_inode_impl {
   using key_prefix_data = std::array<critical_section_policy<std::byte>,
                                      key_prefix_capacity + header_pad_bytes>;
 
-  [[nodiscard]] __attribute__((pure)) constexpr auto
-  get_shared_key_prefix_length(
+  [[nodiscard, gnu::pure]] constexpr auto get_shared_key_prefix_length(
       unodb::detail::art_key shifted_key) const noexcept {
     const auto prefix_u64 = header_as_uint64() >> 8U;
     return shared_len(static_cast<std::uint64_t>(shifted_key), prefix_u64,
@@ -474,7 +473,7 @@ class basic_inode_impl {
     return f.f.key_prefix;
   }
 
-  __attribute__((cold, noinline)) void dump_key_prefix(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump_key_prefix(std::ostream &os) const {
     const auto len = key_prefix_length();
     os << ", key prefix len = " << static_cast<unsigned>(len);
     if (len > 0) {
@@ -487,7 +486,7 @@ class basic_inode_impl {
   // Only for unodb::detail use
   constexpr const auto &get_header() const noexcept { return f.header; }
 
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     switch (this->f.header.type()) {
       case node_type::I4:
         os << "I4: ";
@@ -659,13 +658,13 @@ class basic_inode_impl {
 
   // inode must not be allocated directly on heap, concrete subclasses will
   // define their own new and delete operators using node pools
-  [[nodiscard]] __attribute__((cold, noinline)) static void *operator new(
+  [[nodiscard, gnu::cold, gnu::noinline]] static void *operator new(
       std::size_t) {
     CANNOT_HAPPEN();
   }
 
   DISABLE_CLANG_WARNING("-Wmissing-noreturn")
-  __attribute__((cold, noinline)) static void operator delete(void *) {
+  [[gnu::cold, gnu::noinline]] static void operator delete(void *) {
     CANNOT_HAPPEN();
   }
   RESTORE_CLANG_WARNINGS()
@@ -692,12 +691,12 @@ class basic_inode_impl {
  private:
   static constexpr auto key_bytes_mask = 0xFFFFFFFF'FFFFFF00ULL;
 
-  [[nodiscard]] constexpr __attribute__((const)) std::uint64_t
-  header_as_uint64() const noexcept {
+  [[nodiscard, gnu::const]] constexpr std::uint64_t header_as_uint64()
+      const noexcept {
     return static_cast<std::uint64_t>(f.u32[1]) << 32U | f.u32[0];
   }
 
-  [[nodiscard]] static constexpr __attribute__((pure)) unsigned shared_len(
+  [[nodiscard, gnu::pure]] static constexpr unsigned shared_len(
       std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept {
     assert(clamp_byte_pos < 8);
 
@@ -1089,8 +1088,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     return child_to_leave_ptr;
   }
 
-  [[nodiscard]] __attribute__((pure)) find_result find_child(
-      std::byte key_byte) noexcept {
+  [[nodiscard, gnu::pure]] find_result find_child(std::byte key_byte) noexcept {
 #ifdef __x86_64
     const auto replicated_search_key =
         _mm_set1_epi8(static_cast<char>(key_byte));
@@ -1139,7 +1137,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     }
   }
 
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     const auto children_count_copy = this->f.f.children_count.load();
     os << ", key bytes =";
     for (std::uint8_t i = 0; i < children_count_copy; i++)
@@ -1322,7 +1320,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                           keys.byte_array.cbegin() + children_count));
   }
 
-  [[nodiscard]] constexpr __attribute__((pure)) find_result find_child(
+  [[nodiscard, gnu::pure]] constexpr find_result find_child(
       std::byte key_byte) noexcept {
 #ifdef __x86_64
     const auto replicated_search_key =
@@ -1349,7 +1347,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       db_instance.delete_subtree(this->children[i]);
   }
 
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     const auto children_count = this->f.f.children_count.load();
     os << ", key bytes =";
     for (std::uint8_t i = 0; i < children_count; ++i)
@@ -1360,7 +1358,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   }
 
  private:
-  __attribute__((pure)) constexpr auto get_sorted_key_array_insert_position(
+  [[nodiscard, gnu::pure]] constexpr auto get_sorted_key_array_insert_position(
       std::byte key_byte) noexcept {
     const auto children_count = this->f.f.children_count.load();
 
@@ -1577,7 +1575,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     assert(actual_children_count == children_count);
   }
 
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     const auto children_count USED_IN_DEBUG = this->f.f.children_count.load();
 
     os << ", key bytes & child indexes\n";
@@ -1748,7 +1746,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     });
   }
 
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     os << ", key bytes & children:\n";
     for_each_child([&](unsigned i, node_ptr child) noexcept {
       os << ' ';

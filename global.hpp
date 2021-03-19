@@ -68,6 +68,8 @@
 #define unlikely(x) __builtin_expect(x, 0)
 
 #ifdef NDEBUG
+// Cannot do [[gnu::unused]], as that does not play well with structured
+// bindings when compiling with GCC.
 #define USED_IN_DEBUG __attribute__((unused))
 #else
 #define USED_IN_DEBUG
@@ -85,9 +87,9 @@
 // LCOV_EXCL_START
 namespace unodb::detail {
 
-inline __attribute__((noreturn)) void cannot_happen(
-    const char *file USED_IN_DEBUG, int line USED_IN_DEBUG,
-    const char *func USED_IN_DEBUG) {
+[[noreturn]] inline void cannot_happen(const char *file USED_IN_DEBUG,
+                                       int line USED_IN_DEBUG,
+                                       const char *func USED_IN_DEBUG) {
 #ifndef NDEBUG
   std::cerr << "Execution reached an unreachable point at " << file << ':'
             << line << ": " << func << '\n';

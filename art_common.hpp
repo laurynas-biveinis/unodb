@@ -18,7 +18,7 @@ using key = std::uint64_t;
 
 namespace detail {
 
-__attribute__((cold, noinline)) void dump_key(std::ostream &os, key k);
+[[gnu::cold, gnu::noinline]] void dump_key(std::ostream &os, key k);
 
 }  // namespace detail
 

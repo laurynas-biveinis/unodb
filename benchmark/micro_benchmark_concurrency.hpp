@@ -45,11 +45,13 @@ inline constexpr auto to_counter(T value) {
 template <class Db, class Thread>
 class concurrent_benchmark {
  protected:
+  DISABLE_GCC_WARNING("-Wsuggest-final-methods")
   virtual void setup() {}
 
   virtual void end_workload_in_main_thread() {}
 
   virtual void teardown() {}
+  RESTORE_GCC_WARNINGS()
 
  public:
   virtual ~concurrent_benchmark() {}

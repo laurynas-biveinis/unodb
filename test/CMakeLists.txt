@@ -86,14 +86,11 @@ common_target_properties(db_test_utils)
 target_link_libraries(db_test_utils PRIVATE unodb gtest_main)
 set_clang_tidy_options(db_test_utils "${DO_CLANG_TIDY}")
 
-# FIXME(laurynas): unduplicate
 add_library(qsbr_test_utils STATIC qsbr_test_utils.hpp qsbr_test_utils.cpp)
 common_target_properties(qsbr_test_utils)
 target_link_libraries(qsbr_test_utils PRIVATE unodb_qsbr gtest_main)
 set_clang_tidy_options(qsbr_test_utils "${DO_CLANG_TIDY}")
 
-# FIXME(laurynas): merge with add_db_test_target, pass which test utils libs
-# to link with
 function(ADD_TEST_TARGET TARGET)
   add_executable("${TARGET}" "${TARGET}.cpp")
   common_target_properties("${TARGET}")

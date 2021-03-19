@@ -1,0 +1,44 @@
+name: experimental-build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    env:
+      BUILD_TYPE: ${{matrix.BUILD_TYPE}}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: XCode Release include-what-you-use
+            BUILD_TYPE: Release
+
+          - name: XCode Debug include-what-you-use
+            BUILD_TYPE: Debug
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Set up dependencies for macOS
+        run: brew install boost iwyu
+
+      - name: Create build environment
+        run: mkdir ${{github.workspace}}/build
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: |
+          export CC=clang
+          export CXX=clang++
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DIWYU=ON
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: make -j3
+        continue-on-error: true

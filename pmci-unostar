@@ -14,13 +14,5 @@ cmake ../unodb -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_BUILD
 make -j4
 rm -rf ./*
 
-cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Release -DIWYU=ON
-make -j4
-rm -rf ./*
-
-cmake ../unodb -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DCMAKE_BUILD_TYPE=Debug -DIWYU=ON
-make -j4
-rm -rf ./*
-
 popd || exit 1
 rm -rf "$WORKDIR"

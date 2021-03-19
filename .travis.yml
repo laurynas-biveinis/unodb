@@ -44,7 +44,6 @@ os_setups:
       homebrew:
         packages:
           - cmake
-          - cppcheck
         update: true
 
 env:
@@ -166,6 +165,17 @@ matrix:
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug SANITIZE_UB=ON
+    - name: "XCode 12.2 Release include-what-you-use"
+      <<: *macos
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release IWYU=ON
+    - name: "XCode 12.2 Debug include-what-you-use"
+      <<: *macos
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug IWYU=ON
+  allow_failures:
+    - env: MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release IWYU=ON
+    - env: MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug IWYU=ON
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -182,12 +192,20 @@ script:
       sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-11 50;
       sudo update-alternatives --install /usr/bin/ld ld /usr/bin/lld-11 50;
     fi
-  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE_ADDRESS=${SANITIZE_ADDRESS} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DSANITIZE_UB=${SANITIZE_UB} -DSTATIC_ANALYSIS=${STATIC_ANALYSIS} ${EXTRA_CMAKE_OPTIONS}
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      if [[ "$SANITIZE" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$SANITIZE_UB" == "OFF" ]]; then
+        brew install cppcheck;
+      fi;
+      if [[ "$IWYU" == "ON" ]]; then
+        brew install iwyu;
+      fi;
+    fi
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE_ADDRESS=${SANITIZE_ADDRESS} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DSANITIZE_UB=${SANITIZE_UB} -DSTATIC_ANALYSIS=${STATIC_ANALYSIS} -DIWYU=${IWYU} ${EXTRA_CMAKE_OPTIONS}
   - if [[ ! -z "${SCAN_BUILD}" ]]; then
       ${SCAN_BUILD} --status-bugs -stats -analyze-headers --force-analyze-debug-code make -j3;
       travis_terminate 0;
     fi
-  - if [[ "$STATIC_ANALYSIS" == "ON" ]]; then
+  - if [[ "$STATIC_ANALYSIS" == "ON" || "$IWYU" == "ON" ]]; then
       travis_wait make;
       travis_terminate 0;
     fi

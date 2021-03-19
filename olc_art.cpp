@@ -122,7 +122,6 @@ void qsbr_delete(void *to_delete) {
       unodb::detail::alignment_for_new<INode>());
 }
 
-// FIXME(laurynas): belongs to optimistic_lock.hpp
 template <class T>
 std::remove_reference_t<T> &&obsolete_and_move(
     T &&t, unodb::unique_write_lock_obsoleting_guard &&guard) noexcept {

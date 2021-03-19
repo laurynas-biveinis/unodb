@@ -13,10 +13,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: XCode Release include-what-you-use
+          - name: XCode Release include-what-you-use & aggressive cppcheck
             BUILD_TYPE: Release
 
-          - name: XCode Debug include-what-you-use
+          - name: XCode Debug include-what-you-use & aggressive cppcheck
             BUILD_TYPE: Debug
 
     steps:
@@ -25,7 +25,7 @@ jobs:
           submodules: true
 
       - name: Set up dependencies for macOS
-        run: brew install boost iwyu
+        run: brew install boost cppcheck iwyu
 
       - name: Create build environment
         run: mkdir ${{github.workspace}}/build
@@ -36,7 +36,8 @@ jobs:
         run: |
           export CC=clang
           export CXX=clang++
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DIWYU=ON
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DIWYU=ON \
+            -DCPPCHECK_AGGRESSIVE=ON
 
       - name: Build
         working-directory: ${{github.workspace}}/build

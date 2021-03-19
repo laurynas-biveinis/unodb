@@ -17,7 +17,7 @@
 
 namespace {
 
-__attribute__((constructor)) void run_tls_ctor_in_main_thread() {
+[[gnu::constructor]] void run_tls_ctor_in_main_thread() {
   unodb::construct_current_thread_reclamator();
 }
 

@@ -144,7 +144,7 @@ class olc_db final {
   }
 
   // Debugging
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const;
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const;
 
  private:
   // If get_result is not present, the search was interrupted. Yes, this

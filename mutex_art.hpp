@@ -120,7 +120,7 @@ class mutex_db final {
   }
 
   // Debugging
-  __attribute__((cold, noinline)) void dump(std::ostream &os) const {
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     const std::lock_guard guard{mutex};
     db_.dump(os);
   }

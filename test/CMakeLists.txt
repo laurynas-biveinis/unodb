@@ -185,6 +185,7 @@ if(DEEPSTATE_LF_OK)
 endif()
 
 add_custom_target(valgrind
+  COMMAND valgrind --error-exitcode=1 --leak-check=full ./test_qsbr;
   COMMAND valgrind --error-exitcode=1 --leak-check=full ./test_art;
   COMMAND valgrind --error-exitcode=1 --leak-check=full ./test_art_concurrency
-  DEPENDS test_art test_art_concurrency valgrind_benchmarks)
+  DEPENDS test_qsbr test_art test_art_concurrency valgrind_benchmarks)

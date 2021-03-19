@@ -297,16 +297,6 @@ if(NOT CPPLINT_EXE)
   message(STATUS "cpplint not found")
 else()
   message(STATUS "cpplint found: ${CPPLINT_EXE}")
-  string(CONCAT CPPLINT_DISABLED_TESTS "--filter="
-    "-build/c++11," # <thread> is an unapproved C++11 header
-    "-build/include_order,"
-    "-build/include_subdir,"
-    "-readability/nolint," # clang-tidy owns NOLINT
-    "-runtime/references,"
-    # Does not understand C++17 structured bindings and we use clang-format
-    # anyway
-    "-whitespace/braces")
-  set(DO_CPPLINT "${CPPLINT_EXE}" "${CPPLINT_DISABLED_TESTS}")
 endif()
 
 option(IWYU "Enable include-what-you-use checking")
@@ -346,7 +336,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     set_target_properties(${TARGET} PROPERTIES CXX_CPPCHECK "${DO_CPPCHECK}")
   endif()
   if(CPPLINT_EXE)
-    set_target_properties(${TARGET} PROPERTIES CXX_CPPLINT "${DO_CPPLINT}")
+    set_target_properties(${TARGET} PROPERTIES CXX_CPPLINT "${CPPLINT_EXE}")
   endif()
   if(IWYU_EXE)
     set_target_properties(${TARGET} PROPERTIES CXX_INCLUDE_WHAT_YOU_USE "${DO_IWYU}")

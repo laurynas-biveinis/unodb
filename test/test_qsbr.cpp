@@ -32,30 +32,30 @@ class mock_pool : public unodb::detail::pmr_pool {
   }
   RESTORE_GCC_WARNINGS()
 
-  [[nodiscard]] void *do_allocate(std::size_t, std::size_t) override {
-    const auto pointer_val = next_pointer++;
-    allocations.emplace(pointer_val);
-    return reinterpret_cast<void *>(pointer_val);
+  [[nodiscard]] void *do_allocate(std::size_t bytes,
+                                  std::size_t alignment) override {
+    auto *const result = unodb::detail::pmr_allocate(
+        *unodb::detail::pmr_new_delete_resource(), bytes, alignment);
+    allocations.emplace(reinterpret_cast<std::uintptr_t>(result));
+    return result;
   }
 
-  void do_deallocate(void *ptr, std::size_t, std::size_t) override {
+  void do_deallocate(void *ptr, std::size_t bytes,
+                     std::size_t alignment) override {
     const auto elems_removed =
         allocations.erase(reinterpret_cast<std::uintptr_t>(ptr));
     EXPECT_EQ(elems_removed, 1);
+    unodb::detail::pmr_deallocate(*unodb::detail::pmr_new_delete_resource(),
+                                  ptr, bytes, alignment);
   }
 
-  // LCOV_EXCL_START
   [[nodiscard]] bool do_is_equal(
       const unodb::detail::pmr_pool &other) const noexcept override {
-    const auto *other_as_mock_pool = dynamic_cast<const mock_pool *>(&other);
-    return (other_as_mock_pool != nullptr) && (this == other_as_mock_pool);
+    return other.is_equal(*unodb::detail::pmr_new_delete_resource());
   }
-  // LCOV_EXCL_STOP
 
  private:
   std::unordered_set<std::uintptr_t> allocations{};
-
-  std::uintptr_t next_pointer{1};
 };
 
 class QSBR : public ::testing::Test {

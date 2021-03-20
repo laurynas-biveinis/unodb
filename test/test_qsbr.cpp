@@ -686,6 +686,40 @@ TEST_F(QSBR, TwoThreadsDeallocateBeforeQuittingPointerStaysLive) {
   ASSERT_FALSE(mock_is_allocated(test_ptr));
 }
 
+TEST_F(QSBR, ThreeDeallocationRequestSets) {
+  mark_epoch();
+  auto *ptr = mock_allocate();
+
+  unodb::qsbr_thread second_thread{[this] {
+    thread_sync_1.notify();  // 1 ->
+    thread_sync_2.wait();    // 2 <-
+
+    unodb::current_thread_reclamator().quiescent_state();
+
+    thread_sync_1.notify();  // 3 ->
+    thread_sync_2.wait();    // 4 <-
+  }};
+
+  thread_sync_1.wait();  // 1 <-
+
+  mock_qsbr_deallocate(ptr);
+  unodb::current_thread_reclamator().quiescent_state();
+
+  thread_sync_2.notify();  // 2 ->
+  thread_sync_1.wait();    // 3 <-
+
+  ASSERT_TRUE(mock_is_allocated(ptr));
+
+  check_epoch_advanced();
+  unodb::current_thread_reclamator().quiescent_state();
+
+  thread_sync_2.notify();  // 4 ->
+
+  second_thread.join();
+
+  ASSERT_FALSE(mock_is_allocated(ptr));
+}
+
 // TODO(laurynas): stat tests
 // TODO(laurynas): quiescent_state_on_scope_exit tests?
 // TODO(laurynas): qsbr::reset test?

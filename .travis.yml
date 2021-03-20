@@ -165,17 +165,17 @@ matrix:
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug SANITIZE_UB=ON
-    - name: "XCode 12.2 Release include-what-you-use"
+    - name: "XCode 12.2 Release include-what-you-use & aggressive cppcheck"
       <<: *macos
       env:
-        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release IWYU=ON
-    - name: "XCode 12.2 Debug include-what-you-use"
+        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release IWYU=ON CPPCHECK_AGGRESSIVE=ON
+    - name: "XCode 12.2 Debug include-what-you-use & aggressive cppcheck"
       <<: *macos
       env:
-        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug IWYU=ON
+        - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug IWYU=ON CPPCHECK_AGGRESSIVE=ON
   allow_failures:
-    - env: MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release IWYU=ON
-    - env: MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug IWYU=ON
+    - env: MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release IWYU=ON CPPCHECK_AGGRESSIVE=ON
+    - env: MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug IWYU=ON CPPCHECK_AGGRESSIVE=ON
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -186,26 +186,25 @@ install:
 script:
   - mkdir build
   - cd build
-  - EXTRA_CMAKE_OPTIONS=""
   - sudo rm -rf /usr/local/clang-7.0.0
   - if [[ "$CC" == "clang-11" ]]; then
       sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-11 50;
       sudo update-alternatives --install /usr/bin/ld ld /usr/bin/lld-11 50;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      if [[ "$SANITIZE" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$SANITIZE_UB" == "OFF" ]]; then
+      if [[ "$SANITIZE_ADDRESS" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$SANITIZE_UB" == "OFF" ]]; then
         brew install cppcheck;
       fi;
       if [[ "$IWYU" == "ON" ]]; then
         brew install iwyu;
       fi;
     fi
-  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE_ADDRESS=${SANITIZE_ADDRESS} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DSANITIZE_UB=${SANITIZE_UB} -DSTATIC_ANALYSIS=${STATIC_ANALYSIS} -DIWYU=${IWYU} ${EXTRA_CMAKE_OPTIONS}
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE_ADDRESS=${SANITIZE_ADDRESS} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DSANITIZE_UB=${SANITIZE_UB} -DSTATIC_ANALYSIS=${STATIC_ANALYSIS} -DIWYU=${IWYU} -DCPPCHECK_AGGRESSIVE=${CPPCHECK_AGGRESSIVE}
   - if [[ ! -z "${SCAN_BUILD}" ]]; then
       ${SCAN_BUILD} --status-bugs -stats -analyze-headers --force-analyze-debug-code make -j3;
       travis_terminate 0;
     fi
-  - if [[ "$STATIC_ANALYSIS" == "ON" || "$IWYU" == "ON" ]]; then
+  - if [[ "$STATIC_ANALYSIS" == "ON" || "$IWYU" == "ON" || "$CPPCHECK_AGGRESSIVE" == "ON" ]]; then
       travis_wait make;
       travis_terminate 0;
     fi
@@ -213,6 +212,6 @@ script:
   - ctest -j3 -V
   - echo "Benchmark runs (for benchmark correctness, not performance!)"
   - make quick_benchmarks
-  - if [[ "$SANITIZE" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$SANITIZE_UB" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
+  - if [[ "$SANITIZE_ADDRESS" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$SANITIZE_UB" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
       make valgrind;
     fi

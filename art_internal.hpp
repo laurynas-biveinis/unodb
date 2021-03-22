@@ -62,6 +62,7 @@ struct basic_art_key final {
   [[nodiscard, gnu::pure]] constexpr auto operator[](
       std::size_t index) const noexcept {
     assert(index < size);
+    // cppcheck-suppress objectIndex
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }
 

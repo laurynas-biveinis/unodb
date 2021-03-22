@@ -44,7 +44,7 @@ void qsbr::register_new_thread(std::thread::id thread_id) {
 }
 
 void qsbr::unregister_thread(std::thread::id thread_id) {
-  deferred_requests_type requests_to_deallocate;
+  deferred_requests requests_to_deallocate;
   {
     std::lock_guard<std::mutex> guard{qsbr_mutex};
 
@@ -80,17 +80,15 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
       deallocation_size_stats(
           previous_interval_total_dealloc_size.load(std::memory_order_relaxed));
       previous_interval_total_dealloc_size.store(0, std::memory_order_relaxed);
-      assert(requests_to_deallocate[1].empty());
-      requests_to_deallocate[1] =
+      assert(requests_to_deallocate.requests[1].empty());
+      // cppcheck-suppress unreadVariable
+      requests_to_deallocate.requests[1] =
           std::move(previous_interval_deallocation_requests);
       previous_interval_deallocation_requests.clear();
     }
 
     assert_invariants();
   }
-
-  deallocate_requests(requests_to_deallocate[0]);
-  deallocate_requests(requests_to_deallocate[1]);
 }
 
 void qsbr::reset() noexcept {
@@ -101,7 +99,7 @@ void qsbr::reset() noexcept {
   deallocation_size_stats = {};
   epoch_callback_stats = {};
   quiescent_states_per_thread_between_epoch_change_stats = {};
-  epoch_change_count = 0;
+  current_epoch = 0;
 }
 
 void qsbr::dump(std::ostream &out) const {
@@ -172,7 +170,7 @@ void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
   ++threads_in_previous_epoch;
 }
 
-qsbr::deferred_requests_type qsbr::quiescent_state_locked(
+qsbr::deferred_requests qsbr::quiescent_state_locked(
     std::thread::id thread_id) noexcept {
   assert_invariants();
 
@@ -182,29 +180,41 @@ qsbr::deferred_requests_type qsbr::quiescent_state_locked(
   ++thread_state->second;
   if (thread_state->second > 1) {
     assert_invariants();
-    return deferred_requests_type{};
+    return deferred_requests{
+#ifndef NDEBUG
+        get_current_epoch()
+#endif
+    };
   }
 
   --threads_in_previous_epoch;
 
-  deferred_requests_type result = (threads_in_previous_epoch == 0)
-                                      ? change_epoch()
-                                      : deferred_requests_type{};
+  deferred_requests result = (threads_in_previous_epoch == 0)
+                                 ? change_epoch()
+                                 : deferred_requests{
+#ifndef NDEBUG
+                                       get_current_epoch()
+#endif
+                                   };
 
   assert_invariants();
 
   return result;
 }
 
-qsbr::deferred_requests_type qsbr::change_epoch() noexcept {
-  ++epoch_change_count;
+qsbr::deferred_requests qsbr::change_epoch() noexcept {
+  ++current_epoch;
 
   deallocation_size_stats(
       current_interval_total_dealloc_size.load(std::memory_order_relaxed));
   epoch_callback_stats(previous_interval_deallocation_requests.size());
 
-  deferred_requests_type result;
-  result[0] = std::move(previous_interval_deallocation_requests);
+  deferred_requests result{
+#ifndef NDEBUG
+      get_current_epoch()
+#endif
+  };
+  result.requests[0] = std::move(previous_interval_deallocation_requests);
 
   if (likely(!single_thread_mode_locked())) {
     previous_interval_deallocation_requests =
@@ -214,7 +224,7 @@ qsbr::deferred_requests_type qsbr::change_epoch() noexcept {
         std::memory_order_relaxed);
   } else {
     previous_interval_deallocation_requests.clear();
-    result[1] = std::move(current_interval_deallocation_requests);
+    result.requests[1] = std::move(current_interval_deallocation_requests);
   }
   current_interval_deallocation_requests.clear();
   current_interval_total_dealloc_size.store(0, std::memory_order_relaxed);

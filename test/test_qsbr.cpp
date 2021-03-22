@@ -67,17 +67,17 @@ class QSBR : public ::testing::Test {
   // Epochs
 
   void mark_epoch() noexcept {
-    last_epoch_num = unodb::qsbr::instance().get_epoch_change_count();
+    last_epoch_num = unodb::qsbr::instance().get_current_epoch();
   }
 
   void check_epoch_advanced() {
-    const auto current_epoch = unodb::qsbr::instance().get_epoch_change_count();
+    const auto current_epoch = unodb::qsbr::instance().get_current_epoch();
     EXPECT_EQ(last_epoch_num + 1, current_epoch);
     last_epoch_num = current_epoch;
   }
 
   void check_epoch_same() const {
-    const auto current_epoch = unodb::qsbr::instance().get_epoch_change_count();
+    const auto current_epoch = unodb::qsbr::instance().get_current_epoch();
     EXPECT_EQ(last_epoch_num, current_epoch);
   }
 

@@ -43,8 +43,8 @@ class concurrent_benchmark_olc final
 concurrent_benchmark_olc benchmark_fixture;
 
 void set_common_qsbr_counters(benchmark::State &state) {
-  state.counters["epoch changes"] = unodb::benchmark::to_counter(
-      unodb::qsbr::instance().get_epoch_change_count());
+  state.counters["epoch changes"] =
+      unodb::benchmark::to_counter(unodb::qsbr::instance().get_current_epoch());
   state.counters["mean qstates before epoch change"] = benchmark::Counter(
       unodb::qsbr::instance()
           .get_mean_quiescent_states_per_thread_between_epoch_changes());

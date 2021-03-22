@@ -84,7 +84,7 @@ namespace boost_acc = boost::accumulators;
 
 class qsbr final {
  public:
-  [[nodiscard]] static auto &instance() noexcept {
+  [[nodiscard]] static qsbr &instance() noexcept {
     static qsbr instance;
     return instance;
   }
@@ -118,15 +118,13 @@ class qsbr final {
   }
 
   void quiescent_state(std::thread::id thread_id) noexcept {
-    deferred_requests_type to_deallocate;
+    deferred_requests to_deallocate;
     {
       // TODO(laurynas): can call with locked mutex too
       std::lock_guard<std::mutex> guard{qsbr_mutex};
 
       to_deallocate = quiescent_state_locked(thread_id);
     }
-    deallocate_requests(to_deallocate[0]);
-    deallocate_requests(to_deallocate[1]);
   }
 
   void prepare_new_thread();
@@ -156,8 +154,8 @@ class qsbr final {
         quiescent_states_per_thread_between_epoch_change_stats);
   }
 
-  [[nodiscard]] constexpr std::size_t get_epoch_change_count() const noexcept {
-    return epoch_change_count;
+  [[nodiscard]] constexpr std::uint64_t get_current_epoch() const noexcept {
+    return current_epoch;
   }
 
   [[nodiscard]] auto get_max_backlog_bytes() const noexcept {
@@ -205,28 +203,65 @@ class qsbr final {
     const std::size_t size;
     const std::size_t alignment;
 
+#ifndef NDEBUG
+    const std::uint64_t request_epoch{qsbr::instance().get_current_epoch()};
+#endif
+
     // cppcheck-suppress constParameter
-    constexpr deallocation_request(detail::pmr_pool &pool_, void *pointer_,
-                                   std::size_t size_,
-                                   std::size_t alignment_) noexcept
+    deallocation_request(detail::pmr_pool &pool_, void *pointer_,
+                         std::size_t size_, std::size_t alignment_) noexcept
         : pool{pool_}, pointer{pointer_}, size{size_}, alignment{alignment_} {}
 
-    void deallocate() const {
+    void deallocate(
+#ifndef NDEBUG
+        std::uint64_t dealloc_epoch
+#endif
+    ) const {
       // TODO(laurynas): count deallocation request instances, assert 0 in QSBR
       // dtor
+      assert(dealloc_epoch == request_epoch + 2 ||
+             (qsbr::instance().single_thread_mode() &&
+              dealloc_epoch == request_epoch + 1));
+
       detail::pmr_deallocate(pool, pointer, size, alignment);
     }
   };
 
-  using deferred_requests_type =
-      std::array<std::vector<deallocation_request>, 2>;
+  class deferred_requests {
+   public:
+    std::array<std::vector<deallocation_request>, 2> requests;
 
-  static void deallocate_requests(
-      const std::vector<deallocation_request> &requests) {
-    for (const auto &dealloc_request : requests) {
-      dealloc_request.deallocate();
+    deferred_requests() noexcept = default;
+
+#ifndef NDEBUG
+    explicit deferred_requests(std::uint64_t request_epoch_) noexcept
+        : dealloc_epoch{request_epoch_}
+
+    {}
+#endif
+
+    deferred_requests(const deferred_requests &) noexcept = default;
+    deferred_requests(deferred_requests &&) noexcept = default;
+    deferred_requests &operator=(const deferred_requests &) noexcept = default;
+    deferred_requests &operator=(deferred_requests &&) noexcept = default;
+
+    ~deferred_requests() {
+      for (const auto &reqs : requests) {
+        for (const auto &dealloc_request : reqs) {
+          dealloc_request.deallocate(
+#ifndef NDEBUG
+              dealloc_epoch
+#endif
+          );
+        }
+      }
     }
-  }
+
+   private:
+#ifndef NDEBUG
+    std::uint64_t dealloc_epoch;
+#endif
+  };
 
   qsbr() noexcept {}
 
@@ -245,10 +280,10 @@ class qsbr final {
   void prepare_new_thread_locked();
   void register_prepared_thread_locked(std::thread::id thread_id) noexcept;
 
-  [[nodiscard]] deferred_requests_type quiescent_state_locked(
+  [[nodiscard]] deferred_requests quiescent_state_locked(
       std::thread::id thread_id) noexcept;
 
-  [[nodiscard]] deferred_requests_type change_epoch() noexcept;
+  [[nodiscard]] deferred_requests change_epoch() noexcept;
 
   void assert_invariants() const noexcept;
 
@@ -289,7 +324,7 @@ class qsbr final {
                              boost_acc::stats<boost_acc::tag::mean>>
       quiescent_states_per_thread_between_epoch_change_stats;
 
-  std::uint64_t epoch_change_count{0};
+  std::uint64_t current_epoch{0};
 };
 
 inline qsbr_per_thread::qsbr_per_thread() noexcept

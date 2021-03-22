@@ -57,6 +57,11 @@ class qsbr_per_thread final {
 
   void resume();
 
+  qsbr_per_thread(const qsbr_per_thread &) = delete;
+  qsbr_per_thread(qsbr_per_thread &&) = delete;
+  qsbr_per_thread &operator=(const qsbr_per_thread &) = delete;
+  qsbr_per_thread &operator=(qsbr_per_thread &&) = delete;
+
  private:
   std::thread::id thread_id;
 
@@ -226,9 +231,9 @@ class qsbr final {
   qsbr() noexcept {}
 
   ~qsbr() noexcept {
-    assert(threads.size() == 0);
-    assert(previous_interval_deallocation_requests.size() == 0);
-    assert(current_interval_deallocation_requests.size() == 0);
+    assert(threads.empty());
+    assert(previous_interval_deallocation_requests.empty());
+    assert(current_interval_deallocation_requests.empty());
     assert(reserved_thread_capacity == 0);
     assert(threads_in_previous_epoch == 0);
   }
@@ -353,6 +358,10 @@ class qsbr_thread : public std::thread {
     thread::operator=(std::move(static_cast<std::thread &&>(other)));
     return *this;
   }
+
+  ~qsbr_thread() = default;
+
+  qsbr_thread &operator=(const qsbr_thread &) = delete;
 
   template <typename Function, typename... Args,
             class = std::enable_if_t<

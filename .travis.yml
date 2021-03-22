@@ -35,6 +35,7 @@ os_setups:
           - clang-tools-11
           - llvm-11-dev
           - lld-11
+          - libc6-dev-i386
           - valgrind
   macos_setup: &macos
     os: osx

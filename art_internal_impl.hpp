@@ -974,7 +974,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   }
 
   constexpr basic_inode_4(std::unique_ptr<inode16_type> source_node,
-                          std::uint8_t child_to_delete, db &db_instance)
+                          std::uint8_t child_to_delete,
+                          // cppcheck-suppress constParameter
+                          db &db_instance)
       : parent_class{*source_node} {
     const auto *source_keys_itr = source_node->keys.byte_array.cbegin();
     auto *keys_itr = keys.byte_array.begin();
@@ -1467,6 +1469,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   DISABLE_GCC_WARNING("-Wclass-memaccess")
   constexpr basic_inode_48(std::unique_ptr<inode256_type> source_node,
                            std::uint8_t child_to_delete,
+                           // cppcheck-suppress constParameter
                            db &db_instance) noexcept
       : parent_type{*source_node} {
     auto *const __restrict__ source_node_ptr = source_node.get();
@@ -1603,6 +1606,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   }
 
   constexpr void direct_remove_child_pointer(std::uint8_t children_i,
+                                             // cppcheck-suppress constParameter
                                              db &db_instance) noexcept {
     const auto child_ptr = children.pointer_array[children_i].load();
 

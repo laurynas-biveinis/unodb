@@ -80,10 +80,9 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
       deallocation_size_stats(
           previous_interval_total_dealloc_size.load(std::memory_order_relaxed));
       previous_interval_total_dealloc_size.store(0, std::memory_order_relaxed);
-      // FIXME(laurynas): replace with a third member of deferred_requests_type
-      std::move(std::begin(previous_interval_deallocation_requests),
-                std::end(previous_interval_deallocation_requests),
-                std::back_inserter(requests_to_deallocate[0]));
+      assert(requests_to_deallocate[1].empty());
+      requests_to_deallocate[1] =
+          std::move(previous_interval_deallocation_requests);
       previous_interval_deallocation_requests.clear();
     }
 

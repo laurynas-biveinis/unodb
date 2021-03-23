@@ -66,6 +66,7 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
     }
     threads.erase(thread_state);
     --reserved_thread_capacity;
+    requests_to_deallocate.update_single_thread_mode();
 
     if (unlikely(threads.empty())) {
       threads_in_previous_epoch = 0;
@@ -180,22 +181,14 @@ qsbr::deferred_requests qsbr::quiescent_state_locked(
   ++thread_state->second;
   if (thread_state->second > 1) {
     assert_invariants();
-    return deferred_requests{
-#ifndef NDEBUG
-        get_current_epoch()
-#endif
-    };
+    return make_deferred_requests();
   }
 
   --threads_in_previous_epoch;
 
-  deferred_requests result = (threads_in_previous_epoch == 0)
-                                 ? change_epoch()
-                                 : deferred_requests{
-#ifndef NDEBUG
-                                       get_current_epoch()
-#endif
-                                   };
+  deferred_requests result{(threads_in_previous_epoch == 0)
+                               ? change_epoch()
+                               : make_deferred_requests()};
 
   assert_invariants();
 
@@ -209,11 +202,7 @@ qsbr::deferred_requests qsbr::change_epoch() noexcept {
       current_interval_total_dealloc_size.load(std::memory_order_relaxed));
   epoch_callback_stats(previous_interval_deallocation_requests.size());
 
-  deferred_requests result{
-#ifndef NDEBUG
-      get_current_epoch()
-#endif
-  };
+  deferred_requests result{make_deferred_requests()};
   result.requests[0] = std::move(previous_interval_deallocation_requests);
 
   if (likely(!single_thread_mode_locked())) {

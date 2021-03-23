@@ -214,13 +214,13 @@ class qsbr final {
 
     void deallocate(
 #ifndef NDEBUG
-        std::uint64_t dealloc_epoch
+        std::uint64_t dealloc_epoch, bool dealloc_epoch_single_thread_mode
 #endif
     ) const {
       // TODO(laurynas): count deallocation request instances, assert 0 in QSBR
       // dtor
       assert(dealloc_epoch == request_epoch + 2 ||
-             (qsbr::instance().single_thread_mode() &&
+             (dealloc_epoch_single_thread_mode &&
               dealloc_epoch == request_epoch + 1));
 
       detail::pmr_deallocate(pool, pointer, size, alignment);
@@ -234,10 +234,10 @@ class qsbr final {
     deferred_requests() noexcept = default;
 
 #ifndef NDEBUG
-    explicit deferred_requests(std::uint64_t request_epoch_) noexcept
-        : dealloc_epoch{request_epoch_}
-
-    {}
+    deferred_requests(std::uint64_t request_epoch_,
+                      bool dealloc_epoch_single_thread_mode_) noexcept
+        : dealloc_epoch{request_epoch_},
+          dealloc_epoch_single_thread_mode{dealloc_epoch_single_thread_mode_} {}
 #endif
 
     deferred_requests(const deferred_requests &) noexcept = default;
@@ -250,16 +250,25 @@ class qsbr final {
         for (const auto &dealloc_request : reqs) {
           dealloc_request.deallocate(
 #ifndef NDEBUG
-              dealloc_epoch
+              dealloc_epoch, dealloc_epoch_single_thread_mode
 #endif
           );
         }
       }
     }
 
+    // TODO(laurynas): get rid of this wart
+    void update_single_thread_mode() noexcept {
+#ifndef NDEBUG
+      dealloc_epoch_single_thread_mode =
+          qsbr::instance().single_thread_mode_locked();
+#endif
+    }
+
    private:
 #ifndef NDEBUG
     std::uint64_t dealloc_epoch;
+    bool dealloc_epoch_single_thread_mode;
 #endif
   };
 
@@ -286,6 +295,14 @@ class qsbr final {
   [[nodiscard]] deferred_requests change_epoch() noexcept;
 
   void assert_invariants() const noexcept;
+
+  deferred_requests make_deferred_requests() noexcept {
+    return deferred_requests{
+#ifndef NDEBUG
+        get_current_epoch(), single_thread_mode_locked()
+#endif
+    };
+  }
 
   std::vector<deallocation_request> previous_interval_deallocation_requests;
   std::vector<deallocation_request> current_interval_deallocation_requests;

@@ -238,8 +238,10 @@ else()
 endif()
 add_subdirectory(3rd_party/benchmark)
 
-# TODO(laurynas): fix DeepState and GCC compatibility
-if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+# Do not build DeepState with GCC under macOS due to
+# https://github.com/trailofbits/deepstate/issues/374
+if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}"
+      STREQUAL "Darwin"))
   include(ExternalProject)
   ExternalProject_Add(3rd_party_deepstate
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rd_party/deepstate"

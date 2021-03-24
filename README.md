@@ -12,7 +12,8 @@ Status](https://travis-ci.org/laurynas-biveinis/unodb.svg?branch=master)](https:
 ## Introduction
 
 Unodb is a adaptive radix tree implementation, done as my playground for various
-C++ tools and ideas. I am trying to describe some of the things I learned at my [blog](https://of-code.blogspot.com/search/label/art).
+C++ tools and ideas. I am trying to describe some of the things I learned at my
+[blog](https://of-code.blogspot.com/search/label/art).
 
 ## Requirements
 
@@ -81,15 +82,16 @@ The are three ART classes available:
 * CMake, at least 3.12
 * Guidelines Support Library for gsl::span, imported as a git submodule.
 * Boost library. Currently tested with versions 1.74 and 1.75.
-* clang-format 9.0
-* Google Test for tests, imported as a git submodule.
+* (optional) clang-format
 * (optional) lcov
 * (optional) clang-tidy
 * (optional) cppcheck
 * (optional) cpplint
 * (optional) include-what-you-use
-* (optional) [DeepState][deepstate] for fuzzing, currently working on macOS only
-* (optional) Google Benchmark for microbenchmarks.
+* Google Test for tests, bundled as a git submodule.
+* [DeepState][deepstate] for fuzzing `unodb::db`, currently building with clang
+  only, bundled.
+* (optional) Google Benchmark for microbenchmarks, bundled.
 
 ## Development
 

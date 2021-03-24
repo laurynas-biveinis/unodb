@@ -64,8 +64,8 @@ if(COVERAGE)
   add_coverage_target(TARGET coverage DEPENDENCY tests_for_coverage)
 endif()
 
-add_custom_target(valgrind
-  COMMAND valgrind --error-exitcode=1 --leak-check=full ./test_qsbr;
-  COMMAND valgrind --error-exitcode=1 --leak-check=full ./test_art;
-  COMMAND valgrind --error-exitcode=1 --leak-check=full ./test_art_concurrency
-  DEPENDS test_qsbr test_art test_art_concurrency valgrind_benchmarks)
+add_custom_target(valgrind_tests
+  COMMAND ${VALGRIND_COMMAND} ./test_qsbr;
+  COMMAND ${VALGRIND_COMMAND} ./test_art;
+  COMMAND ${VALGRIND_COMMAND} ./test_art_concurrency
+  DEPENDS test_qsbr test_art test_art_concurrency)

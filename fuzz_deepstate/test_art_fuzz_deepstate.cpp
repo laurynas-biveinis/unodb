@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Laurynas Biveinis
+// Copyright 2019-2021 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -77,6 +77,12 @@ void dump_tree(const unodb::db &tree) {
 // attribute 'noreturn' [-Wmissing-noreturn]
 // We consider this to be a TEST macro internal implementation detail
 DISABLE_CLANG_WARNING("-Wmissing-noreturn")
+
+// Cast for logging to std::uint64_t to workaround
+// https://github.com/trailofbits/deepstate/issues/138, but then
+// error: useless cast to type ‘uint64_t’ {aka ‘long unsigned int’}
+// [-Werror=useless-cast]
+DISABLE_GCC_WARNING("-Wuseless-cast")
 
 TEST(ART, DeepStateFuzz) {
   const auto limit_max_key = DeepState_Bool();
@@ -213,5 +219,7 @@ TEST(ART, DeepStateFuzz) {
   ASSERT(prev_mem_use == 0);
   ASSERT(test_db.empty());
 }
+
+RESTORE_GCC_WARNINGS()
 
 RESTORE_CLANG_WARNINGS()

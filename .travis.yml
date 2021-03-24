@@ -17,6 +17,7 @@ os_setups:
           - python3-pip
           - boost1.73
           - g++-10
+          - libc6-dev-i386
           - valgrind
   clang11_setup: &clang11
     os: linux

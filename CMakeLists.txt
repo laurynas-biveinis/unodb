@@ -240,22 +240,7 @@ add_subdirectory(3rd_party/benchmark)
 
 # TODO(laurynas): fix DeepState and GCC compatibility
 if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  include(ExternalProject)
-  ExternalProject_Add(3rd_party_deepstate
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rd_party/deepstate"
-    BINARY_DIR "${CMAKE_BINARY_DIR}/3rd_party/deepstate"
-    CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
-    "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}" "-DCMAKE_C_FLAGS=-w"
-    "-DCMAKE_CXX_FLAGS=-w"
-    INSTALL_COMMAND "")
-
-  add_library(deepstate STATIC IMPORTED)
-
-  ExternalProject_Get_property(3rd_party_deepstate SOURCE_DIR)
-  target_include_directories(deepstate INTERFACE "${SOURCE_DIR}/src/include/")
-  ExternalProject_Get_property(3rd_party_deepstate BINARY_DIR)
-  set_target_properties(deepstate PROPERTIES IMPORTED_LOCATION
-    "${BINARY_DIR}/libdeepstate.a")
+  add_subdirectory(3rd_party/deepstate)
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"

@@ -1,0 +1,3 @@
+InheritParentConfig: true
+# DeepState forces to disable the following
+Checks: '-cert-err58-cpp,-cppcoreguidelines-avoid-non-const-global-variables,-fuchsia-statically-constructed-objects,-readability-implicit-bool-conversion'

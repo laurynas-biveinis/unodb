@@ -398,4 +398,7 @@ set_clang_tidy_options(unodb "${DO_CLANG_TIDY}")
 enable_testing()
 
 add_subdirectory(benchmark)
+if(TARGET deepstate)
+  add_subdirectory(fuzz_deepstate)
+endif()
 add_subdirectory(test)

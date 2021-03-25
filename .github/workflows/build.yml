@@ -326,6 +326,11 @@ jobs:
         run: make quick_benchmarks
         if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
 
+      - name: DeepState 1 minute fuzzing
+        working-directory: ${{github.workspace}}/build
+        run: make deepstate_1m
+        if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+
       - name: Valgrind test
         working-directory: ${{github.workspace}}/build
         run: make valgrind

@@ -287,7 +287,6 @@ struct basic_reclaim_db_node_ptr_at_scope_exit final {
     node_ptr.internal->delete_subtree(db);
   }
 
- private:
   basic_reclaim_db_node_ptr_at_scope_exit(
       const basic_reclaim_db_node_ptr_at_scope_exit &) = delete;
   basic_reclaim_db_node_ptr_at_scope_exit(
@@ -295,6 +294,7 @@ struct basic_reclaim_db_node_ptr_at_scope_exit final {
   auto &operator=(const basic_reclaim_db_node_ptr_at_scope_exit &) = delete;
   auto &operator=(basic_reclaim_db_node_ptr_at_scope_exit &&) = delete;
 
+ private:
   const NodePtr node_ptr;
   Db &db;
 };
@@ -328,6 +328,7 @@ DISABLE_GCC_WARNING("-Wctor-dtor-privacy")
 // larger node type for the largest node type and the smaller node type for
 // the smallest node type.
 class fake_inode final {
+ public:
   fake_inode() = delete;
 };
 RESTORE_GCC_WARNINGS()
@@ -482,7 +483,6 @@ class basic_inode_impl {
     }
   }
 
- public:
   // Only for unodb::detail use
   constexpr const auto &get_header() const noexcept { return f.header; }
 

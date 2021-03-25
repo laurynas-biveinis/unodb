@@ -73,6 +73,10 @@ class optimistic_lock final {
 #endif
     {}
 
+    version_type(version_type &&) noexcept = delete;
+
+    ~version_type() noexcept = default;
+
     constexpr version_type &operator=(version_type other) noexcept {
       version = other.version;
 #ifndef NDEBUG
@@ -81,10 +85,14 @@ class optimistic_lock final {
       return *this;
     }
 
+    version_type &operator=(version_type &&) = delete;
+
+    // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
     [[nodiscard]] constexpr operator version_number_type() const noexcept {
       return version;
     }
 
+    // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
     [[nodiscard]] constexpr operator version_number_type &() noexcept {
       return version;
     }
@@ -155,7 +163,7 @@ class optimistic_lock final {
         locked_version, set_locked_bit(locked_version),
         std::memory_order_acquire))};
     dec_read_lock_count();
-    return result;
+    return result != 0;
   }
 
   void write_unlock() noexcept {
@@ -198,7 +206,7 @@ class optimistic_lock final {
  private:
   [[nodiscard]] static constexpr bool is_write_locked(
       version_type::version_number_type version) noexcept {
-    return version & 2;
+    return (version & 2U) != 0U;
   }
 
   [[nodiscard]] version_type::version_number_type await_node_unlocked()
@@ -227,7 +235,7 @@ class optimistic_lock final {
 
   [[nodiscard]] static constexpr bool is_obsolete(
       version_type::version_number_type version) noexcept {
-    return version & 1;
+    return (version & 1U) != 0U;
   }
 
   std::atomic<version_type::version_number_type> version{0};
@@ -273,9 +281,6 @@ class optimistic_write_lock_guard final {
 
   ~optimistic_write_lock_guard() { lock.write_unlock(); }
 
- private:
-  optimistic_lock &lock;
-
   optimistic_write_lock_guard() = delete;
   optimistic_write_lock_guard(const optimistic_write_lock_guard &) = delete;
   optimistic_write_lock_guard(optimistic_write_lock_guard &&) = delete;
@@ -283,6 +288,9 @@ class optimistic_write_lock_guard final {
       delete;
   optimistic_write_lock_guard &operator=(optimistic_write_lock_guard &&) =
       delete;
+
+ private:
+  optimistic_lock &lock;
 };
 
 class unique_write_lock_obsoleting_guard final {
@@ -324,16 +332,12 @@ class unique_write_lock_obsoleting_guard final {
   }
 
 #ifndef NDEBUG
-  bool active() const noexcept { return lock != nullptr; }
+  [[nodiscard]] bool active() const noexcept { return lock != nullptr; }
 
-  bool guards(const optimistic_lock &lock_) const noexcept {
+  [[nodiscard]] bool guards(const optimistic_lock &lock_) const noexcept {
     return lock == &lock_;
   }
 #endif
-
- private:
-  optimistic_lock *lock;
-  const int exceptions_at_ctor;
 
   unique_write_lock_obsoleting_guard() = delete;
   unique_write_lock_obsoleting_guard(
@@ -342,6 +346,10 @@ class unique_write_lock_obsoleting_guard final {
       const unique_write_lock_obsoleting_guard &) = delete;
   unique_write_lock_obsoleting_guard &operator=(
       unique_write_lock_obsoleting_guard &&) = delete;
+
+ private:
+  optimistic_lock *lock;
+  const int exceptions_at_ctor;
 };
 
 template <typename T>
@@ -352,19 +360,31 @@ class critical_section_protected final {
   explicit constexpr critical_section_protected(T value_) noexcept
       : value{value_} {}
 
-  // Regular C++ assignment operators return ref to this, std::atomic returns
-  // the assigned value, we return nothing as we never chain assignments.
-  void operator=(T new_value) noexcept { store(new_value); }
+  critical_section_protected(const critical_section_protected<T> &) = delete;
+  critical_section_protected(critical_section_protected<T> &&) = delete;
 
-  void operator=(const critical_section_protected<T> &new_value) noexcept {
-    store(new_value.load());
+  ~critical_section_protected() noexcept = default;
+
+  critical_section_protected<T> &operator=(T new_value) noexcept {
+    store(new_value);
+    return *this;
   }
+
+  // NOLINTNEXTLINE(cert-oop54-cpp)
+  critical_section_protected<T> &operator=(
+      const critical_section_protected<T> &new_value) noexcept {
+    store(new_value.load());
+    return *this;
+  }
+
+  void operator=(critical_section_protected<T> &&) = delete;
 
   void operator++() noexcept { store(load() + 1); }
 
   void operator--() noexcept { store(load() - 1); }
 
-  T operator--(int) noexcept {
+  // NOLINTNEXTLINE(readability-const-return-type)
+  const T operator--(int) noexcept {
     const auto result = load();
     store(result - 1);
     return result;
@@ -382,6 +402,7 @@ class critical_section_protected final {
     return load() != nullptr;
   }
 
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   operator T() const noexcept { return load(); }
 
   T load() const noexcept { return value.load(std::memory_order_relaxed); }

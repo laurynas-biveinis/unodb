@@ -397,10 +397,15 @@ target_include_directories(unodb PUBLIC ".")
 target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
 set_clang_tidy_options(unodb "${DO_CLANG_TIDY}")
 
+set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full")
+
+add_custom_target(valgrind DEPENDS valgrind_tests valgrind_benchmarks)
+
 enable_testing()
 
 add_subdirectory(benchmark)
 if(TARGET deepstate)
   add_subdirectory(fuzz_deepstate)
+  add_dependencies(valgrind valgrind_deepstate)
 endif()
 add_subdirectory(test)

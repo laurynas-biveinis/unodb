@@ -194,6 +194,24 @@ class qsbr final {
     return threads_in_previous_epoch;
   }
 
+  void assert_idle() noexcept {
+#ifndef NDEBUG
+    // FIXME(laurynas): copy-paste-tweak with expect_idle_qsbr, but not clear
+    // how to fix this
+    assert(previous_interval_deallocation_requests.empty());
+    assert(current_interval_deallocation_requests.empty());
+    if (threads.empty()) {
+      assert(reserved_thread_capacity == 0);
+      assert(threads_in_previous_epoch == 0);
+    } else if (threads.size() == 1) {
+      assert(reserved_thread_capacity == 1);
+      assert(threads_in_previous_epoch == 1);
+    } else {
+      assert(threads.size() < 2);
+    }
+#endif
+  }
+
  private:
   struct deallocation_request {
     // If memory usage becomes an issue, replace pool references with
@@ -274,13 +292,7 @@ class qsbr final {
 
   qsbr() noexcept {}
 
-  ~qsbr() noexcept {
-    assert(threads.empty());
-    assert(previous_interval_deallocation_requests.empty());
-    assert(current_interval_deallocation_requests.empty());
-    assert(reserved_thread_capacity == 0);
-    assert(threads_in_previous_epoch == 0);
-  }
+  ~qsbr() noexcept { assert_idle(); }
 
   [[nodiscard]] bool single_thread_mode_locked() const noexcept {
     return threads.size() < 2;

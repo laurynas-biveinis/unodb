@@ -134,6 +134,12 @@ TEST_F(QSBR, TwoThreads) {
   ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
 }
 
+TEST_F(QSBR, TwoThreadsSecondQuitPaused) {
+  unodb::qsbr_thread second_thread(
+      [] { unodb::current_thread_reclamator().pause(); });
+  second_thread.join();
+}
+
 TEST_F(QSBR, TwoThreadsSecondPaused) {
   unodb::qsbr_thread second_thread([] {
     EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 2);

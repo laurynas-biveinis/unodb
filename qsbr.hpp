@@ -49,7 +49,9 @@ class qsbr_per_thread final {
  public:
   qsbr_per_thread() noexcept;
 
-  ~qsbr_per_thread() { pause(); }
+  ~qsbr_per_thread() {
+    if (!is_paused()) pause();
+  }
 
   void quiescent_state() noexcept;
 

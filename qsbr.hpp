@@ -57,6 +57,8 @@ class qsbr_per_thread final {
 
   void resume();
 
+  [[nodiscard]] bool is_paused() const noexcept { return paused; }
+
   qsbr_per_thread(const qsbr_per_thread &) = delete;
   qsbr_per_thread(qsbr_per_thread &&) = delete;
   qsbr_per_thread &operator=(const qsbr_per_thread &) = delete;
@@ -65,9 +67,7 @@ class qsbr_per_thread final {
  private:
   std::thread::id thread_id;
 
-#ifndef NDEBUG
-  bool is_paused{true};
-#endif
+  bool paused{true};
 };
 
 [[nodiscard]] inline qsbr_per_thread &current_thread_reclamator() {
@@ -358,11 +358,9 @@ class qsbr final {
 
 inline qsbr_per_thread::qsbr_per_thread() noexcept
     : thread_id{std::this_thread::get_id()} {
-  assert(is_paused);
+  assert(paused);
   qsbr::instance().register_prepared_thread(thread_id);
-#ifndef NDEBUG
-  is_paused = false;
-#endif
+  paused = false;
 }
 
 inline void qsbr_per_thread::quiescent_state() noexcept {
@@ -370,19 +368,15 @@ inline void qsbr_per_thread::quiescent_state() noexcept {
 }
 
 inline void qsbr_per_thread::pause() {
-  assert(!is_paused);
+  assert(!paused);
   qsbr::instance().unregister_thread(thread_id);
-#ifndef NDEBUG
-  is_paused = true;
-#endif
+  paused = true;
 }
 
 inline void qsbr_per_thread::resume() {
-  assert(is_paused);
+  assert(paused);
   qsbr::instance().register_new_thread(thread_id);
-#ifndef NDEBUG
-  is_paused = false;
-#endif
+  paused = false;
 }
 
 struct quiescent_state_on_scope_exit final {

@@ -60,7 +60,11 @@ class mock_pool : public unodb::detail::pmr_pool {
 
 class QSBR : public ::testing::Test {
  protected:
-  QSBR() noexcept { unodb::test::expect_idle_qsbr(); }
+  QSBR() noexcept {
+    if (unodb::current_thread_reclamator().is_paused())
+      unodb::current_thread_reclamator().resume();
+    unodb::test::expect_idle_qsbr();
+  }
 
   ~QSBR() noexcept override { unodb::test::expect_idle_qsbr(); }
 
@@ -108,6 +112,12 @@ class QSBR : public ::testing::Test {
   std::mutex mock_allocator_mutex;
 };
 
+TEST_F(QSBR, SingleThreadQuitPaused) {
+  ASSERT_FALSE(unodb::current_thread_reclamator().is_paused());
+  unodb::current_thread_reclamator().pause();
+  ASSERT_TRUE(unodb::current_thread_reclamator().is_paused());
+}
+
 TEST_F(QSBR, SingleThreadPauseResume) {
   ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
   unodb::current_thread_reclamator().pause();
@@ -127,7 +137,9 @@ TEST_F(QSBR, TwoThreads) {
 TEST_F(QSBR, TwoThreadsSecondPaused) {
   unodb::qsbr_thread second_thread([] {
     EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 2);
+    ASSERT_FALSE(unodb::current_thread_reclamator().is_paused());
     unodb::current_thread_reclamator().pause();
+    ASSERT_TRUE(unodb::current_thread_reclamator().is_paused());
     EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
     unodb::current_thread_reclamator().resume();
     EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 2);

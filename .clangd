@@ -2,3 +2,9 @@ If:
   PathMatch: .*\.hpp
 CompileFlags:
   Add: -Wno-unused-function
+---
+# -Wunused-member-function false positive:
+# https://github.com/clangd/clangd/issues/363
+CompileFlags:
+  Add: -Wno-unused-member-function
+

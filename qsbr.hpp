@@ -364,6 +364,7 @@ inline qsbr_per_thread::qsbr_per_thread() noexcept
 }
 
 inline void qsbr_per_thread::quiescent_state() noexcept {
+  assert(!paused);
   qsbr::instance().quiescent_state(thread_id);
 }
 

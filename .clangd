@@ -6,5 +6,4 @@ CompileFlags:
 # -Wunused-member-function false positive:
 # https://github.com/clangd/clangd/issues/363
 CompileFlags:
-  Add: -Wno-unused-member-function
-
+  Add: -Wno-unused-member-function -Wno-unused-template

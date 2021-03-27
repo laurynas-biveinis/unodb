@@ -17,7 +17,7 @@ class concurrent_benchmark_olc final
                                                     unodb::qsbr_thread> {
  protected:
   void setup() override {
-    assert_idle_qsbr();
+    unodb::qsbr::instance().assert_idle();
     unodb::qsbr::instance().reset();
   }
 
@@ -25,19 +25,7 @@ class concurrent_benchmark_olc final
     unodb::current_thread_reclamator().quiescent_state();
   }
 
-  void teardown() override { assert_idle_qsbr(); }
-
- private:
-  static void assert_idle_qsbr() {
-    // FIXME(laurynas): copy-paste with expect_idle_qsbr, but not clear how to
-    // fix this
-    assert(unodb::qsbr::instance().single_thread_mode());
-    assert(unodb::qsbr::instance().number_of_threads() == 1);
-    assert(unodb::qsbr::instance().previous_interval_size() == 0);
-    assert(unodb::qsbr::instance().current_interval_size() == 0);
-    assert(unodb::qsbr::instance().get_reserved_thread_capacity() == 1);
-    assert(unodb::qsbr::instance().get_threads_in_previous_epoch() == 1);
-  }
+  void teardown() override { unodb::qsbr::instance().assert_idle(); }
 };
 
 concurrent_benchmark_olc benchmark_fixture;

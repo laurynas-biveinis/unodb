@@ -1,0 +1,2 @@
+InheritParentConfig: true
+Checks: '-cert-err58-cpp,-cppcoreguidelines-avoid-non-const-global-variables,-cppcoreguidelines-owning-memory,-fuchsia-statically-constructed-objects'

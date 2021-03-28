@@ -74,9 +74,12 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
       // Deallocate previous epoch requests immediately as the sole current
       // thread cannot be holding any live pointers to them. We cannot do the
       // same for the current epoch requests as they might come from a
-      // just-stopped thread with the current thread holding live pointers.
-      // However, any new deallocation requests from this point on can be
-      // executed immediately.
+      // just-stopped thread with the current thread holding live pointers. It
+      // is possible to address this by tracking the deallocating thread in
+      // deallocation requests, but not sure whether that would be a good
+      // trade-off.
+      // Any new deallocation requests from this point on can be executed
+      // immediately.
       epoch_callback_stats(previous_interval_deallocation_requests.size());
       deallocation_size_stats(
           previous_interval_total_dealloc_size.load(std::memory_order_relaxed));

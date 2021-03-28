@@ -100,6 +100,7 @@ class qsbr final {
       detail::pmr_pool &pool, void *pointer, std::size_t size,
       std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
     assert(alignment >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
+    assert(!unodb::current_thread_reclamator().is_paused());
 
     bool deallocate_immediately = false;
     {

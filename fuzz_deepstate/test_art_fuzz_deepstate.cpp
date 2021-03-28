@@ -8,6 +8,7 @@
 #include <deepstate/DeepState.hpp>
 
 #include "art.hpp"
+#include "deepstate_utils.hpp"
 
 namespace {
 
@@ -36,7 +37,7 @@ auto get_value(dynamic_value::size_type max_length, values_type &values) {
   ASSERT(max_length <= std::numeric_limits<std::uint32_t>::max());
   if (make_new_value) {
     const auto new_value_len = static_cast<dynamic_value::size_type>(
-        DeepState_UIntInRange(0, static_cast<std::uint32_t>(max_length)));
+        DeepState_SizeTInRange(0, max_length));
     auto new_value = make_random_value(new_value_len);
     LOG(TRACE) << "Making a new value of length "
                << static_cast<std::uint64_t>(new_value_len);
@@ -46,7 +47,7 @@ auto get_value(dynamic_value::size_type max_length, values_type &values) {
   LOG(TRACE) << "Reusing an existing value";
   ASSERT(values.size() <= std::numeric_limits<std::uint32_t>::max());
   const auto existing_value_i = static_cast<values_type::size_type>(
-      DeepState_UIntInRange(0, static_cast<std::uint32_t>(values.size() - 1)));
+      DeepState_SizeTInRange(0, values.size() - 1));
   const auto &existing_value = values[existing_value_i];
   return unodb::value_view{existing_value};
 }
@@ -57,8 +58,7 @@ unodb::key get_key(unodb::key max_key_value,
   if (use_existing_key) {
     ASSERT(!keys.empty());
     ASSERT(keys.size() <= std::numeric_limits<std::uint32_t>::max());
-    const auto existing_key_i = static_cast<std::size_t>(
-        DeepState_UIntInRange(0, static_cast<std::uint32_t>(keys.size()) - 1));
+    const auto existing_key_i = DeepState_SizeTInRange(0, keys.size() - 1);
     return keys[existing_key_i];
   }
   return DeepState_UInt64InRange(0, max_key_value);
@@ -73,16 +73,7 @@ void dump_tree(const unodb::db &tree) {
 
 }  // namespace
 
-// warning: function 'DeepState_Run_ART_DeepState_fuzz' could be declared with
-// attribute 'noreturn' [-Wmissing-noreturn]
-// We consider this to be a TEST macro internal implementation detail
-DISABLE_CLANG_WARNING("-Wmissing-noreturn")
-
-// Cast for logging to std::uint64_t to workaround
-// https://github.com/trailofbits/deepstate/issues/138, but then
-// error: useless cast to type ‘uint64_t’ {aka ‘long unsigned int’}
-// [-Werror=useless-cast]
-DISABLE_GCC_WARNING("-Wuseless-cast")
+UNODB_START_DEEPSTATE_TESTS()
 
 TEST(ART, DeepStateFuzz) {
   const auto limit_max_key = DeepState_Bool();
@@ -219,7 +210,3 @@ TEST(ART, DeepStateFuzz) {
   ASSERT(prev_mem_use == 0);
   ASSERT(test_db.empty());
 }
-
-RESTORE_GCC_WARNINGS()
-
-RESTORE_CLANG_WARNINGS()

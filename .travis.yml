@@ -215,7 +215,7 @@ script:
   - echo "Benchmark runs (for benchmark correctness, not performance!)"
   - make quick_benchmarks
   - echo "Fuzzing with DeepState for 1 minute"
-  - make deepstate_1m
+  - make -j2 deepstate_1m
   - if [[ "$SANITIZE_ADDRESS" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$SANITIZE_UB" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then
       make valgrind;
     fi

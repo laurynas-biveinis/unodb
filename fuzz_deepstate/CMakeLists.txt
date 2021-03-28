@@ -35,7 +35,7 @@ function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
   if(CMAKE_BUILD_TYPE MATCHES "Debug"
       AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # Workaround https://github.com/trailofbits/deepstate/issues/375 -
-    # n file included from
+    # In file included from
     # /home/travis/build/laurynas-biveinis/unodb/3rd_party/deepstate/src/include/deepstate/DeepState.hpp:20,
     # from
     # /home/travis/build/laurynas-biveinis/unodb/fuzz_deepstate/test_art_fuzz_deepstate.cpp:8:
@@ -50,31 +50,48 @@ function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
   endif()
 endfunction()
 
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/deepstate_fails)
+set(DEEPSTATE_FAIL_DIR "deepstate_fails")
+set(DEEPSTATE_OPTIONS "--fuzz" "--output_test_dir" "${DEEPSTATE_FAIL_DIR}"
+  "--timeout")
 
-add_executable(test_art_fuzz_deepstate test_art_fuzz_deepstate.cpp)
-add_test(NAME test_art_fuzz_deepstate
-  COMMAND test_art_fuzz_deepstate --fuzz --timeout 5 --output_test_dir
-  deepstate_fails)
-common_deepstate_target_properties(test_art_fuzz_deepstate)
+function(ADD_FUZZ_DEEPSTATE_TARGET ID)
+  set(TEST_NAME "test_${ID}_fuzz_deepstate")
+  set(TEST_5S "deepstate_${ID}_5s")
+  set(TEST_1M "deepstate_${ID}_1m")
+  set(TEST_20M "deepstate_${ID}_20m")
+  set(TEST_8H "deepstate_${ID}_8h")
+  set(VALGRIND_TARGET "valgrind_${ID}_deepstate")
 
-add_custom_target(deepstate_5s DEPENDS test_art_fuzz_deepstate)
+  add_executable(${TEST_NAME} "${TEST_NAME}.cpp")
+  common_deepstate_target_properties(${TEST_NAME})
+  add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 5)
 
-add_custom_target(deepstate_1m
-  COMMAND test_art_fuzz_deepstate --fuzz --timeout 60 --output_test_dir
-  deepstate_fails)
+  add_custom_target(${TEST_5S} DEPENDS ${TEST_NAME})
+  add_custom_target(${TEST_1M} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 60)
+  add_custom_target(${TEST_20M} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 1200)
+  add_custom_target(${TEST_8H} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 28800)
 
-add_custom_target(deepstate_20m
-  COMMAND test_art_fuzz_deepstate --fuzz --timeout 1200 --output_test_dir
-  deepstate_fails)
+  add_dependencies(deepstate_5s ${TEST_5S})
+  add_dependencies(deepstate_1m ${TEST_1M})
+  add_dependencies(deepstate_20m ${TEST_20M})
+  add_dependencies(deepstate_8h ${TEST_8H})
 
-add_custom_target(deepstate_8h
-  COMMAND test_art_fuzz_deepstate --fuzz --timeout 28800 --output_test_dir
-  deepstate_fails)
+  add_custom_target(${VALGRIND_TARGET} COMMAND ${VALGRIND_COMMAND}
+    ./${TEST_NAME} ${DEEPSTATE_OPTIONS} 60)
 
-add_custom_target(valgrind_deepstate
-  COMMAND ${VALGRIND_COMMAND} ./test_art_fuzz_deepstate --fuzz --timeout 60
-  --output_test_dir deepstate_fails)
+  add_dependencies(valgrind_deepstate ${VALGRIND_TARGET})
+endfunction()
+
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${DEEPSTATE_FAIL_DIR})
+
+add_custom_target(deepstate_5s)
+add_custom_target(deepstate_1m)
+add_custom_target(deepstate_20m)
+add_custom_target(deepstate_8h)
+add_custom_target(valgrind_deepstate)
+
+add_fuzz_deepstate_target(art)
+add_fuzz_deepstate_target(qsbr)
 
 if(DEEPSTATE_LF_OK)
   add_executable(test_art_fuzz_deepstate_lf test_art_fuzz_deepstate.cpp)

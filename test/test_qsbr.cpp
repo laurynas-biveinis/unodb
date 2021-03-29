@@ -525,6 +525,24 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentStateBefore1stThreadQState) {
   ASSERT_FALSE(mock_is_allocated(ptr));
 }
 
+TEST_F(QSBR, ToSingleThreadedModeDeallocationsByRemainingThread) {
+  unodb::qsbr_thread second_thread{[this] {
+    thread_sync_1.notify();  // 1 ->
+    thread_sync_2.wait();    // 2 <-
+  }};
+
+  thread_sync_1.wait();  // 1 <-
+
+  auto *ptr = mock_allocate();
+
+  mock_qsbr_deallocate(ptr);
+
+  thread_sync_2.notify();  // 2 ->
+  second_thread.join();
+
+  unodb::current_thread_reclamator().quiescent_state();
+}
+
 TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
   mark_epoch();
   auto *ptr_1_1 = mock_allocate();

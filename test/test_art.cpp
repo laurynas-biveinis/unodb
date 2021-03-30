@@ -699,6 +699,4 @@ TYPED_TEST(ARTCorrectnessTest, Clear) {
   verifier.assert_node_counts(0, 0, 0, 0, 0);
 }
 
-UNODB_END_TYPED_TESTS()
-
 }  // namespace

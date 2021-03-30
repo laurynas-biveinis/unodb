@@ -25,6 +25,4 @@
 // https://github.com/google/googletest/issues/1063
 #define UNODB_START_TYPED_TESTS() DISABLE_GCC_WARNING("-Wsuggest-override")
 
-#define UNODB_END_TYPED_TESTS() RESTORE_GCC_WARNINGS()
-
 #endif  // UNODB_DB_GTEST_UTILS_HPP_

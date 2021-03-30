@@ -54,6 +54,7 @@ using pmr_unsynchronized_pool_resource = std::pmr::unsynchronized_pool_resource;
 
 using pmr_pool = boost::container::pmr::memory_resource;
 using pmr_pool_options = boost::container::pmr::pool_options;
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 inline const auto &pmr_new_delete_resource =
     boost::container::pmr::new_delete_resource;
 using pmr_synchronized_pool_resource =

@@ -328,7 +328,7 @@ jobs:
 
       - name: DeepState 1 minute fuzzing
         working-directory: ${{github.workspace}}/build
-        run: make deepstate_1m
+        run: make -j2 deepstate_1m
         if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
 
       - name: Valgrind test

@@ -2,36 +2,18 @@
 
 enable_testing()
 
-include(CheckCXXSourceCompiles)
-
-set(CMAKE_REQUIRED_FLAGS "-fsanitize=fuzzer")
-set(CMAKE_REQUIRED_LINK_OPTIONS "-fsanitize=fuzzer")
-check_cxx_source_compiles(
-  "#include <cstddef>
-     #include <cstdint>
-     extern \"C\" int LLVMFuzzerTestOneInput(const std::uint8_t *, std::size_t) {
-       return 0;
-     }" LIBFUZZER_OK)
-
-if(LIBFUZZER_OK)
-  find_library(DEEPSTATE_LF_LIB_PATH deepstate_LF)
-  if(NOT DEEPSTATE_LF_LIB_PATH)
-    message(STATUS "libfuzzer-enabled DeepState not found, not building its fuzz tests")
+function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET WITH_LIBFUZZER)
+  # FIXME(laurynas): replace with cmake_parse_arguments
+  if(WITH_LIBFUZZER)
+    common_target_properties(${TARGET} SKIP_CHECKS)
+    target_link_libraries(${TARGET} PRIVATE deepstate_lf)
+    target_compile_options(${TARGET} PRIVATE "-fsanitize=fuzzer-no-link")
+    target_link_libraries(${TARGET} PRIVATE "-fsanitize=fuzzer")
   else()
-    message(STATUS "libfuzzer-enabled DeepState found in ${DEEPSTATE_LF_LIB_PATH}")
+    common_target_properties(${TARGET})
+    target_link_libraries(${TARGET} PRIVATE deepstate)
+    set_clang_tidy_options(${TARGET} "${DO_CLANG_TIDY_DEEPSTATE}")
   endif()
-endif()
-
-if(DEEPSTATE_LF_LIB_PATH)
-  set(DEEPSTATE_LF_OK TRUE)
-endif()
-
-function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
-  common_target_properties(${TARGET})
-  target_include_directories(${TARGET} SYSTEM PRIVATE
-    "${DEEPSTATE_INCLUDE_PATH}")
-  target_link_libraries(${TARGET} PRIVATE unodb deepstate)
-  set_clang_tidy_options(${TARGET} "${DO_CLANG_TIDY_DEEPSTATE}")
   if(CMAKE_BUILD_TYPE STREQUAL "Debug"
       AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # Workaround https://github.com/trailofbits/deepstate/issues/375 -
@@ -51,8 +33,12 @@ function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
 endfunction()
 
 set(DEEPSTATE_FAIL_DIR "deepstate_fails")
-set(DEEPSTATE_OPTIONS "--fuzz" "--output_test_dir" "${DEEPSTATE_FAIL_DIR}"
-  "--timeout")
+set(DEEPSTATE_OPTIONS "--fuzz" "--no_fork" "--output_test_dir"
+  "${DEEPSTATE_FAIL_DIR}" "--timeout")
+
+if(LIBFUZZER_AVAILABLE)
+  set(DEEPSTATE_LF_OPTIONS "-use_value_profile=1" "-detect_leaks=0")
+endif()
 
 function(ADD_FUZZ_DEEPSTATE_TARGET ID)
   set(TEST_NAME "test_${ID}_fuzz_deepstate")
@@ -63,7 +49,7 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
   set(VALGRIND_TARGET "valgrind_${ID}_deepstate")
 
   add_executable(${TEST_NAME} "${TEST_NAME}.cpp")
-  common_deepstate_target_properties(${TEST_NAME})
+  common_deepstate_target_properties(${TEST_NAME} FALSE)
   add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 5)
 
   add_custom_target(${TEST_5S} DEPENDS ${TEST_NAME})
@@ -80,6 +66,39 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
     ./${TEST_NAME} ${DEEPSTATE_OPTIONS} 60)
 
   add_dependencies(valgrind_deepstate ${VALGRIND_TARGET})
+
+  if(LIBFUZZER_AVAILABLE)
+    set(SOURCE_NAME "test_${ID}_fuzz_deepstate.cpp")
+    set(TEST_NAME "test_${ID}_fuzz_deepstate_lf")
+    set(CORPUS_DIR "deepstate_lf_corpus_${ID}")
+    set(INVOCATION ${TEST_NAME} ${CORPUS_DIR} ${DEEPSTATE_LF_OPTIONS})
+    set(TEST_5S "deepstate_lf_${ID}_5s")
+    set(TEST_1M "deepstate_lf_${ID}_1m")
+    set(TEST_20M "deepstate_lf_${ID}_20m")
+    set(TEST_8H "deepstate_lf_${ID}_8h")
+    set(VALGRIND_TARGET "valgrind_${ID}_deepstate_lf")
+
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CORPUS_DIR})
+
+    add_executable(${TEST_NAME} "${SOURCE_NAME}")
+    common_deepstate_target_properties(${TEST_NAME} TRUE)
+    add_test(NAME ${TEST_NAME} COMMAND ${INVOCATION} "-max_total_time=5")
+
+    add_custom_target(${TEST_5S} DEPENDS ${TEST_NAME})
+    add_custom_target(${TEST_1M} COMMAND ${INVOCATION} "-max_total_time=60")
+    add_custom_target(${TEST_20M} COMMAND ${INVOCATION} "-max_total_time=1200")
+    add_custom_target(${TEST_8H} COMMAND ${INVOCATION} "-max_total_time=28800")
+
+    add_dependencies(deepstate_lf_5s ${TEST_5S})
+    add_dependencies(deepstate_lf_1m ${TEST_1M})
+    add_dependencies(deepstate_lf_20m ${TEST_20M})
+    add_dependencies(deepstate_lf_8h ${TEST_8H})
+
+    add_custom_target(${VALGRIND_TARGET} COMMAND ${VALGRIND_COMMAND}
+      ./${INVOCATION} 60)
+
+    add_dependencies(valgrind_deepstate_lf ${VALGRIND_TARGET})
+  endif()
 endfunction()
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${DEEPSTATE_FAIL_DIR})
@@ -90,33 +109,23 @@ add_custom_target(deepstate_20m)
 add_custom_target(deepstate_8h)
 add_custom_target(valgrind_deepstate)
 
+if(LIBFUZZER_AVAILABLE)
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${DEEPSTATE_LF_CORPUS_DIR})
+  add_custom_target(deepstate_lf_5s)
+  add_custom_target(deepstate_lf_1m)
+  add_custom_target(deepstate_lf_20m)
+  add_custom_target(deepstate_lf_8h)
+  add_custom_target(valgrind_deepstate_lf)
+endif()
+
 add_fuzz_deepstate_target(art)
+target_link_libraries(test_art_fuzz_deepstate PRIVATE unodb)
+if(LIBFUZZER_AVAILABLE)
+  target_link_libraries(test_art_fuzz_deepstate_lf PRIVATE unodb_lf)
+endif()
+
 add_fuzz_deepstate_target(qsbr)
-
-if(DEEPSTATE_LF_OK)
-  add_executable(test_art_fuzz_deepstate_lf test_art_fuzz_deepstate.cpp)
-  add_test(NAME test_art_fuzz_deepstate_lf COMMAND test_art_fuzz_deepstate_lf -runs=1)
-  common_deepstate_target_properties(test_art_fuzz_deepstate_lf)
-  set_target_properties(test_art_fuzz_deepstate_lf PROPERTIES COMPILE_DEFINITIONS "LIBFUZZER")
-  target_compile_options(test_art_fuzz_deepstate_lf PRIVATE "-fsanitize=fuzzer")
-  target_link_libraries(test_art_fuzz_deepstate_lf PRIVATE "${DEEPSTATE_LF_LIB_PATH}")
-  target_link_libraries(test_art_fuzz_deepstate_lf PRIVATE "-fsanitize=fuzzer")
-
-  add_custom_target(deepstate_lf_1m
-    ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
-    COMMAND env ${SANITIZER_ENV}
-    ./test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1
-    -detect_leaks=0  -max_total_time=60)
-
-  add_custom_target(deepstate_lf_20m
-    ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
-    COMMAND env ${SANITIZER_ENV}
-    ./test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1
-    -detect_leaks=0  -max_total_time=1200)
-
-  add_custom_target(deepstate_lf_8h
-    ${CMAKE_COMMAND} -E make_directory deepstate_lf_corpus
-    COMMAND env ${SANITIZER_ENV}
-    ./test_art_fuzz_deepstate_lf deepstate_lf_corpus/ -use_value_profile=1
-    -detect_leaks=0  -max_total_time=28800)
+target_link_libraries(test_qsbr_fuzz_deepstate PRIVATE unodb_qsbr)
+if(LIBFUZZER_AVAILABLE)
+  target_link_libraries(test_qsbr_fuzz_deepstate_lf PRIVATE unodb_qsbr_lf)
 endif()

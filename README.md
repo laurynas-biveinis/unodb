@@ -91,8 +91,9 @@ The are three ART classes available:
 * (optional) cpplint
 * (optional) include-what-you-use
 * Google Test for tests, bundled as a git submodule.
-* [DeepState][deepstate] for fuzzing `unodb::db`, currently building with clang
-  only, bundled.
+* [DeepState][deepstate] for fuzzing tests, currently building with clang only,
+  bundled.
+* libfuzzer
 * (optional) Google Benchmark for microbenchmarks, bundled.
 
 ## Development
@@ -110,7 +111,8 @@ To enable AddressSanitizer and LeakSanitizers, add `-DSANITIZE_ADDRESS=ON` CMake
 option. It is incompatible with `-DSANITIZE_THREAD=ON`.
 
 To enable ThreadSanitizer, add `-DSANITIZE_THREAD=ON` CMake option. It is
-incompatible with `-DSANITIZE_ADDRESS=ON`
+incompatible with `-DSANITIZE_ADDRESS=ON`. It is also incompatible with
+libfuzzer, and will disable its support if specified.
 
 To enable UndefinedBehaviorSanitizer, add `-DSANITIZE_UB=ON` CMake option. It is
 compatible with both `-DSANITIZE_ADDRESS=ON` and `-DSANITIZE_THREAD=ON` options,
@@ -134,6 +136,25 @@ To generate coverage reports on tests, fuzzers excluded, using lcov, add
 Google Test and DeepState are used for testing. There will be no unit tests for
 each private implementation class. For DeepState, both LLVM libfuzzer and
 built-in fuzzer are supported.
+
+## Fuzzing
+
+There are fuzzer tests for `unodb::db` and QSBR components in the
+`fuzz_deepstate` subdirectory. The tests use DeepState with either brute force
+or libfuzzer-based backend. The former is always built, the latter is built if
+using non-XCode clang for build in debug configuration and ThreadSanitizer is
+not enabled.
+
+There are several Make targets for fuzzing. For time-based brute-force fuzzing
+of all components, use on of `deepstate_5s`, `deepstate_1m`, `deepstate_20m`,
+and `deepstate_8h`. Individual fuzzers can be used by inserting `art` or `qsbr`,
+i.e. `deepstate_qsbr_20m` or `deepstate_art_8h`. Running fuzzer under Valgrind
+is available through `valgrind_deepstate` for everything or
+`valgrind_{art|qsbr}_deepstate` for individual fuzzers.
+
+Fuzzers that use libfuzzer mirror the above by adding `_lf` before the time
+suffix, i.e. `deepstate_lf_8h`, `deepstate_qsbr_lf_20m`,
+`valgrind_deepstate_lf`, and so on.
 
 ## Literature
 

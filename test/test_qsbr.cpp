@@ -10,7 +10,7 @@
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
 
-#include "debug_thread_sync.h"
+#include "debug_thread_sync.hpp"
 #include "heap.hpp"
 #include "qsbr.hpp"
 #include "qsbr_test_utils.hpp"

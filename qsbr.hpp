@@ -23,7 +23,7 @@
 #include <boost/accumulators/statistics/variance.hpp>
 
 #ifndef NDEBUG
-#include "debug_thread_sync.h"
+#include "debug_thread_sync.hpp"
 #endif
 #include "heap.hpp"
 

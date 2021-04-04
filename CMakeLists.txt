@@ -376,11 +376,13 @@ function(SET_CLANG_TIDY_OPTIONS TARGET COMMAND)
   endif()
 endfunction()
 
-add_library(unodb_qsbr qsbr.cpp qsbr.hpp heap.hpp global.hpp
-  debug_thread_sync.h)
+add_library(unodb_util INTERFACE global.hpp debug_thread_sync.hpp heap.hpp)
+
+add_library(unodb_qsbr qsbr.cpp qsbr.hpp)
 common_target_properties(unodb_qsbr)
 target_include_directories(unodb_qsbr PUBLIC ".")
 target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
+target_link_libraries(unodb_qsbr PRIVATE unodb_util)
 target_link_libraries(unodb_qsbr PRIVATE "${Boost_LIBRARIES}")
 if(DO_CLANG_TIDY)
   set_target_properties(unodb_qsbr PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
@@ -392,6 +394,7 @@ add_library(unodb art.cpp art.hpp art_common.cpp art_common.hpp mutex_art.hpp
   optimistic_lock.hpp art_internal_impl.hpp olc_art.hpp olc_art.cpp
   art_internal.cpp art_internal.hpp)
 common_target_properties(unodb)
+target_link_libraries(unodb PRIVATE unodb_util)
 target_link_libraries(unodb PUBLIC unodb_qsbr)
 target_include_directories(unodb PUBLIC ".")
 target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")

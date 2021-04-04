@@ -10,7 +10,7 @@
 
 #include <deepstate/DeepState.hpp>
 
-#include "debug_thread_sync.h"
+#include "debug_thread_sync.hpp"
 #include "deepstate_utils.hpp"
 #include "heap.hpp"
 #include "qsbr.hpp"

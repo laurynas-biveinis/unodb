@@ -52,6 +52,7 @@ function(ADD_DB_TEST_TARGET TARGET)
   target_link_libraries("${TARGET}" PRIVATE unodb db_test_utils)
 endfunction()
 
+add_test_target(test_qsbr_ptr)
 add_test_target(test_qsbr)
 target_link_libraries(test_qsbr PRIVATE qsbr_test_utils)
 add_db_test_target(test_art)
@@ -60,12 +61,13 @@ target_link_libraries(test_art_concurrency PRIVATE qsbr_test_utils)
 
 if(COVERAGE)
   add_custom_target(tests_for_coverage ctest -E
-    DEPENDS test_art test_art_concurrency test_qsbr)
+    DEPENDS test_art test_art_concurrency test_qsbr_ptr test_qsbr)
   add_coverage_target(TARGET coverage DEPENDENCY tests_for_coverage)
 endif()
 
 add_custom_target(valgrind_tests
+  COMMAND ${VALGRIND_COMMAND} ./test_qsbr_ptr;
   COMMAND ${VALGRIND_COMMAND} ./test_qsbr;
   COMMAND ${VALGRIND_COMMAND} ./test_art;
   COMMAND ${VALGRIND_COMMAND} ./test_art_concurrency
-  DEPENDS test_qsbr test_art test_art_concurrency)
+  DEPENDS test_qsbr_ptr test_qsbr test_art test_art_concurrency)

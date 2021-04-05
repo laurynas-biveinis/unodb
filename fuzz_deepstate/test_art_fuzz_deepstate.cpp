@@ -1,13 +1,22 @@
 // Copyright 2019-2021 Laurynas Biveinis
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <new>
 #include <sstream>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include <deepstate/DeepState.hpp>
+#include <gsl/gsl_util>
 
 #include "art.hpp"
+#include "art_common.hpp"
 #include "deepstate_utils.hpp"
 
 namespace {

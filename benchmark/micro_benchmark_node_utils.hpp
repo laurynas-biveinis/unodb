@@ -58,7 +58,8 @@ class batched_prng final {
   using result_type = std::uint64_t;
 
  public:
-  batched_prng(result_type max_value = std::numeric_limits<result_type>::max())
+  explicit batched_prng(
+      result_type max_value = std::numeric_limits<result_type>::max())
       : random_key_dist{0ULL, max_value} {
     refill();
   }
@@ -261,7 +262,7 @@ std::vector<unodb::key> generate_random_keys_over_full_smaller_tree(
 
 template <class Db>
 struct tree_stats final {
-  constexpr tree_stats(void) noexcept = default;
+  constexpr tree_stats() noexcept = default;
 
   explicit constexpr tree_stats(const Db &test_db) noexcept
       : leaf_count{test_db.get_leaf_count()},
@@ -528,12 +529,6 @@ class tree_shape_snapshot final {
 
 // Insertion
 
-template <class Db>
-void insert_key_ignore_dups(Db &db, unodb::key k, unodb::value_view v) {
-  (void)db.insert(k, v);
-  ::benchmark::ClobberMemory();
-}
-
 template <class Db, unsigned NodeSize>
 unodb::key insert_sequentially(Db &db, unsigned key_count) {
   unodb::key k = 0;
@@ -681,12 +676,6 @@ auto get_key_loop(Db &db, unodb::key key_limit,
 }  // namespace detail
 
 // Deletes
-
-template <class Db>
-void delete_key_if_exists(Db &db, unodb::key k) {
-  (void)db.remove(k);
-  ::benchmark::ClobberMemory();
-}
 
 template <class Db>
 void delete_keys(Db &db, const std::vector<unodb::key> &keys) {

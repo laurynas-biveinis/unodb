@@ -2,8 +2,6 @@
 
 #include "global.hpp"  // IWYU pragma: keep
 
-#include <cassert>
-
 #include <benchmark/benchmark.h>
 
 #include "micro_benchmark_concurrency.hpp"

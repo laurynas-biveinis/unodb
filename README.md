@@ -34,10 +34,12 @@ However, adding new key types should be relatively easy by instantiating
 `art_key` type with the desired key type and specializing
 `art_key::make_binary_comparable` in accordance with the ART paper.
 
-Values are treated opaquely. They are passed as non-owning objects of
-`value_view`, which is `gsl::span<std::byte>`, and insertion copies them
-internally. The same applies for `get`: a non-owning `value_view` object is
-returned. How long would it remain valid depends on the ART concurrency flavor.
+Values are treated opaquely. For `unodb::db`, they are passed as non-owning
+objects of `value_view`, which is `gsl::span<std::byte>`, and insertion copies
+them internally. The same applies for `get`: a non-owning `value_view` object is
+returned. For `unodb::olc_db`, `get` returns a `qsbr_value_view`, which is a
+`span` that is guaranteed to stay valid until the next time the current thread
+passes through a quiescent state.
 
 All ART classes implement the same API:
 

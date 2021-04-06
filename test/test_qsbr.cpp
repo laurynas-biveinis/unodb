@@ -7,12 +7,15 @@
 #include <limits>
 #include <mutex>  // IWYU pragma: keep
 #include <unordered_set>
+#include <utility>  // IWYU pragma: keep
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
 
 #include "debug_thread_sync.hpp"
+#include "gtest_utils.hpp"  // IWYU pragma: keep
 #include "heap.hpp"
 #include "qsbr.hpp"
+#include "qsbr_ptr.hpp"
 #include "qsbr_test_utils.hpp"
 
 namespace {
@@ -111,6 +114,15 @@ class QSBR : public ::testing::Test {
   mock_pool allocator;
   std::mutex mock_allocator_mutex;
 };
+
+void active_pointer_ops(void *raw_ptr) noexcept {
+  unodb::qsbr_ptr<void> active_ptr{raw_ptr};
+  unodb::qsbr_ptr<void> active_ptr2{active_ptr};
+  unodb::qsbr_ptr<void> active_ptr3{std::move(active_ptr)};
+
+  active_ptr = active_ptr2;
+  active_ptr2 = std::move(active_ptr3);
+}
 
 TEST_F(QSBR, SingleThreadQuitPaused) {
   ASSERT_FALSE(unodb::current_thread_reclamator().is_paused());
@@ -316,6 +328,32 @@ TEST_F(QSBR, SingleThreadAllocationAndEpochChange) {
   mock_qsbr_deallocate(ptr);
   ASSERT_FALSE(mock_is_allocated(ptr));
 }
+
+TEST_F(QSBR, ActivePointersBeforeQuiescentState) {
+  auto *ptr = mock_allocate();
+  active_pointer_ops(ptr);
+  mock_qsbr_deallocate(ptr);
+  unodb::current_thread_reclamator().quiescent_state();
+}
+
+TEST_F(QSBR, ActivePointersBeforePause) {
+  auto *ptr = mock_allocate();
+  active_pointer_ops(ptr);
+  mock_qsbr_deallocate(ptr);
+  unodb::current_thread_reclamator().pause();
+}
+
+#ifndef NDEBUG
+
+TEST_F(QSBR, ActivePointersDuringQuiescentState) {
+  auto *ptr = mock_allocate();
+  unodb::qsbr_ptr<void> active_ptr{ptr};
+  UNODB_ASSERT_DEATH({ unodb::current_thread_reclamator().quiescent_state(); },
+                     "");
+  mock_qsbr_deallocate(ptr);
+}
+
+#endif
 
 TEST_F(QSBR, TwoThreadEpochChangesSecondStartsQuiescent) {
   mark_epoch();

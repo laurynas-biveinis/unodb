@@ -75,6 +75,12 @@
 #define USED_IN_DEBUG
 #endif
 
+#ifdef NDEBUG
+#define RELEASE_CONSTEXPR constexpr
+#else
+#define RELEASE_CONSTEXPR
+#endif
+
 #if defined(__GNUG__) && !defined(__clang__)
 #define USE_STD_PMR
 #endif

@@ -2,14 +2,15 @@
 
 #include "global.hpp"
 
+#ifndef NDEBUG
 #include <algorithm>
+#endif
 #include <atomic>
 #ifdef NDEBUG
 #include <cstdlib>
 #endif
 #include <exception>
 #include <iostream>
-#include <iterator>
 #include <thread>
 #include <utility>
 
@@ -24,6 +25,26 @@ namespace {
 }  // namespace
 
 namespace unodb {
+
+#ifndef NDEBUG
+
+void qsbr_per_thread::register_active_ptr(const void *ptr) {
+  assert(ptr != nullptr);
+  assert(!is_paused());
+
+  active_ptrs.insert(ptr);
+}
+
+void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
+  assert(ptr != nullptr);
+  assert(!is_paused());
+
+  const auto itr = active_ptrs.find(ptr);
+  assert(itr != active_ptrs.end());
+  active_ptrs.erase(itr);
+}
+
+#endif  // !NDEBUG
 
 void qsbr::prepare_new_thread() {
   std::lock_guard<std::mutex> guard{qsbr_mutex};

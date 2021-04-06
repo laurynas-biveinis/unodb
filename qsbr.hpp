@@ -14,6 +14,9 @@
 #include <thread>
 #include <type_traits>
 #include <unordered_map>
+#ifndef NDEBUG
+#include <unordered_set>
+#endif
 #include <vector>
 
 #include <boost/accumulators/accumulators.hpp>  // IWYU pragma: keep
@@ -66,10 +69,19 @@ class qsbr_per_thread final {
   qsbr_per_thread &operator=(const qsbr_per_thread &) = delete;
   qsbr_per_thread &operator=(qsbr_per_thread &&) = delete;
 
+#ifndef NDEBUG
+  void register_active_ptr(const void *ptr);
+  void unregister_active_ptr(const void *ptr);
+#endif
+
  private:
   std::thread::id thread_id;
 
   bool paused{true};
+
+#ifndef NDEBUG
+  std::unordered_multiset<const void *> active_ptrs;
+#endif
 };
 
 [[nodiscard]] inline qsbr_per_thread &current_thread_reclamator() {
@@ -368,17 +380,20 @@ inline qsbr_per_thread::qsbr_per_thread() noexcept
 
 inline void qsbr_per_thread::quiescent_state() noexcept {
   assert(!paused);
+  assert(active_ptrs.empty());
   qsbr::instance().quiescent_state(thread_id);
 }
 
 inline void qsbr_per_thread::pause() {
   assert(!paused);
+  assert(active_ptrs.empty());
   qsbr::instance().unregister_thread(thread_id);
   paused = true;
 }
 
 inline void qsbr_per_thread::resume() {
   assert(paused);
+  assert(active_ptrs.empty());
   qsbr::instance().register_new_thread(thread_id);
   paused = false;
 }

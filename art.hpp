@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <optional>
 
 #include "art_common.hpp"
 #include "art_internal.hpp"
@@ -45,6 +46,9 @@ template <class Header, class Db>
 auto make_db_leaf_ptr(art_key, value_view, Db &);
 
 }  // namespace detail
+
+// Search result type. If value is not present, it was not found
+using get_result = std::optional<value_view>;
 
 class db final {
  public:

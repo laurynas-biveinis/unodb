@@ -25,4 +25,10 @@
 // https://github.com/google/googletest/issues/1063
 #define UNODB_START_TYPED_TESTS() DISABLE_GCC_WARNING("-Wsuggest-override")
 
+#define UNODB_ASSERT_DEATH(statement, regex)        \
+  DISABLE_CLANG_WARNING("-Wused-but-marked-unused") \
+  DISABLE_CLANG_WARNING("-Wcovered-switch-default") \
+  ASSERT_DEATH(statement, regex)                    \
+  RESTORE_CLANG_WARNINGS()
+
 #endif  // UNODB_DB_GTEST_UTILS_HPP_

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <new>
 #include <optional>
+#include <type_traits>  // IWYU pragma: keep
 #include <unordered_map>
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
@@ -20,6 +21,7 @@
 #include "art_common.hpp"
 #include "mutex_art.hpp"
 #include "olc_art.hpp"
+#include "qsbr.hpp"
 
 namespace unodb::test {
 
@@ -40,13 +42,16 @@ constexpr std::array<unodb::value_view, 6> test_values = {
     unodb::value_view{test_value_3}, unodb::value_view{test_value_4},
     unodb::value_view{test_value_5}, unodb::value_view{empty_test_value}};
 
+namespace detail {
+
 // warning: 'ScopedTrace' was marked unused but was used
 // [-Wused-but-marked-unused]
 DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
 
 template <class Db>
-void assert_result_eq(Db &db, unodb::key key, unodb::value_view expected,
-                      const char *file, int line) noexcept {
+void do_assert_result_eq(const Db &db, unodb::key key,
+                         unodb::value_view expected, const char *file,
+                         int line) noexcept {
   std::ostringstream msg;
   unodb::detail::dump_key(msg, key);
   testing::ScopedTrace trace(file, line, msg.str());
@@ -66,14 +71,68 @@ void assert_result_eq(Db &db, unodb::key key, unodb::value_view expected,
 
 RESTORE_CLANG_WARNINGS()
 
+template <class Db>
+void assert_result_eq(const Db &db, unodb::key key, unodb::value_view expected,
+                      const char *file, int line) noexcept {
+  do_assert_result_eq(db, key, expected, file, line);
+}
+
+template <>
+inline void assert_result_eq(const unodb::olc_db &db, unodb::key key,
+                             unodb::value_view expected, const char *file,
+                             int line) noexcept {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  do_assert_result_eq(db, key, expected, file, line);
+}
+
+}  // namespace detail
+
 #define ASSERT_VALUE_FOR_KEY(test_db, key, expected) \
-  assert_result_eq(test_db, key, expected, __FILE__, __LINE__)
+  detail::assert_result_eq(test_db, key, expected, __FILE__, __LINE__)
 
 template <class Db>
 class tree_verifier final {
+ private:
+  void do_insert(unodb::key k, unodb::value_view v) {
+    ASSERT_TRUE(test_db.insert(k, v));
+  }
+
+  void do_remove(unodb::key k, bool bypass_verifier) {
+    if (!bypass_verifier) {
+      const auto remove_result = values.erase(k);
+      ASSERT_EQ(remove_result, 1);
+    }
+    const auto leaf_count_before = test_db.get_leaf_count();
+    const auto mem_use_before = test_db.get_current_memory_use();
+    ASSERT_TRUE(leaf_count_before > 0);
+    ASSERT_TRUE(mem_use_before > 0);
+
+    if (!test_db.remove(k)) {
+      // LCOV_EXCL_START
+      std::cerr << "test_db.remove failed for ";
+      unodb::detail::dump_key(std::cerr, k);
+      std::cerr << '\n';
+      test_db.dump(std::cerr);
+      FAIL();
+      // LCOV_EXCL_STOP
+    }
+
+    if (!parallel_test) {
+      const auto mem_use_after = test_db.get_current_memory_use();
+      ASSERT_TRUE(mem_use_after < mem_use_before);
+
+      const auto leaf_count_after = test_db.get_leaf_count();
+      ASSERT_EQ(leaf_count_before - 1, leaf_count_after);
+    }
+  }
+
+  void do_try_remove_missing_key(unodb::key absent_key) {
+    ASSERT_FALSE(test_db.remove(absent_key));
+  }
+
  public:
   explicit constexpr tree_verifier(bool parallel_test_ = false) noexcept
-      : test_db{}, parallel_test{parallel_test_} {
+      : parallel_test{parallel_test_} {
     assert_empty();
     assert_increasing_nodes(0, 0, 0, 0);
     assert_shrinking_nodes(0, 0, 0, 0);
@@ -86,7 +145,7 @@ class tree_verifier final {
     const auto leaf_count_before = parallel_test ? 0 : test_db.get_leaf_count();
 
     try {
-      ASSERT_TRUE(test_db.insert(k, v));
+      do_insert(k, v);
     } catch (const std::bad_alloc &) {
       if (!parallel_test) {
         const auto mem_use_after = test_db.get_current_memory_use();
@@ -140,37 +199,12 @@ class tree_verifier final {
 
   void insert_preinserted_key_range(unodb::key start_key, std::size_t count) {
     for (auto key = start_key; key < start_key + count; ++key) {
-      ASSERT_TRUE(test_db.insert(key, test_values[key % test_values.size()]));
+      do_insert(key, test_values[key % test_values.size()]);
     }
   }
 
   void remove(unodb::key k, bool bypass_verifier = false) {
-    if (!bypass_verifier) {
-      const auto remove_result = values.erase(k);
-      ASSERT_EQ(remove_result, 1);
-    }
-    const auto leaf_count_before = test_db.get_leaf_count();
-    const auto mem_use_before = test_db.get_current_memory_use();
-    ASSERT_TRUE(leaf_count_before > 0);
-    ASSERT_TRUE(mem_use_before > 0);
-
-    if (!test_db.remove(k)) {
-      // LCOV_EXCL_START
-      std::cerr << "test_db.remove failed for ";
-      unodb::detail::dump_key(std::cerr, k);
-      std::cerr << '\n';
-      test_db.dump(std::cerr);
-      FAIL();
-      // LCOV_EXCL_STOP
-    }
-
-    if (!parallel_test) {
-      const auto mem_use_after = test_db.get_current_memory_use();
-      ASSERT_TRUE(mem_use_after < mem_use_before);
-
-      const auto leaf_count_after = test_db.get_leaf_count();
-      ASSERT_EQ(leaf_count_before - 1, leaf_count_after);
-    }
+    do_remove(k, bypass_verifier);
   }
 
   void try_remove(unodb::key k) { (void)test_db.remove(k); }
@@ -183,14 +217,14 @@ class tree_verifier final {
     for (const auto &absent_key : absent_keys) {
       const auto remove_result = values.erase(absent_key);
       ASSERT_EQ(remove_result, 0);
-      ASSERT_FALSE(test_db.remove(absent_key));
+      do_try_remove_missing_key(absent_key);
       if (!parallel_test) {
         ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
       }
     }
   }
 
-  void try_get(unodb::key k) noexcept { (void)test_db.get(k); }
+  void try_get(unodb::key k) const noexcept { (void)test_db.get(k); }
 
   void check_present_values() const noexcept {
     for (const auto &[key, value] : values) {
@@ -202,7 +236,7 @@ class tree_verifier final {
       std::initializer_list<unodb::key> absent_keys) const noexcept {
     for (const auto &absent_key : absent_keys) {
       ASSERT_TRUE(values.find(absent_key) == values.cend());
-      ASSERT_FALSE(test_db.get(absent_key));
+      try_get(absent_key);
     }
   }
 
@@ -281,15 +315,48 @@ class tree_verifier final {
     values.clear();
   }
 
-  constexpr Db &get_db() noexcept { return test_db; }
+  [[nodiscard]] constexpr Db &get_db() noexcept { return test_db; }
 
  private:
-  Db test_db;
+  Db test_db{};
 
   std::unordered_map<unodb::key, unodb::value_view> values;
 
   const bool parallel_test;
 };
+
+template <>
+inline void tree_verifier<unodb::olc_db>::do_insert(unodb::key k,
+                                                    unodb::value_view v) {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  ASSERT_TRUE(test_db.insert(k, v));
+}
+
+template <>
+inline void tree_verifier<unodb::olc_db>::remove(unodb::key k,
+                                                 bool bypass_verifier) {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  do_remove(k, bypass_verifier);
+}
+
+template <>
+inline void tree_verifier<unodb::olc_db>::try_remove(unodb::key k) {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  (void)test_db.remove(k);
+}
+
+template <>
+inline void tree_verifier<unodb::olc_db>::do_try_remove_missing_key(
+    unodb::key absent_key) {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  ASSERT_FALSE(test_db.remove(absent_key));
+}
+
+template <>
+inline void tree_verifier<unodb::olc_db>::try_get(unodb::key k) const noexcept {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  (void)test_db.get(k);
+}
 
 extern template class tree_verifier<unodb::db>;
 extern template class tree_verifier<unodb::mutex_db>;

@@ -14,6 +14,7 @@
 #include "art_common.hpp"
 #include "art_internal.hpp"
 #include "optimistic_lock.hpp"
+#include "qsbr_ptr.hpp"
 
 namespace unodb {
 
@@ -53,6 +54,10 @@ auto make_db_leaf_ptr(art_key, value_view, Db &);
 
 }  // namespace detail
 
+using qsbr_value_view = qsbr_ptr_span<const std::byte>;
+
+using qsbr_get_result = std::optional<qsbr_value_view>;
+
 // A concurrent Adaptive Radix Tree that is synchronized using optimistic lock
 // coupling. At any time, at most two directly-related tree nodes can be
 // write-locked by the insert algorithm and three by the delete algorithm. The
@@ -67,7 +72,7 @@ class olc_db final {
   ~olc_db() noexcept;
 
   // Querying
-  [[nodiscard]] get_result get(key search_key) const noexcept;
+  [[nodiscard]] qsbr_get_result get(key search_key) const noexcept;
 
   [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
 
@@ -150,7 +155,7 @@ class olc_db final {
   // If get_result is not present, the search was interrupted. Yes, this
   // resolves to std::optional<std::optional<value_view>>, but IMHO both
   // levels of std::optional are clear here
-  using try_get_result_type = std::optional<get_result>;
+  using try_get_result_type = std::optional<qsbr_get_result>;
 
   using try_update_result_type = std::optional<bool>;
 

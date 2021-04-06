@@ -67,8 +67,8 @@ void unpredictable_get_shared_length(benchmark::State &state) {
   search_keys.reserve(7 * 2 + 7 * 2 - 3);
   Db test_db;
   for (std::uint8_t top_byte = 0x00; top_byte <= 0x05; ++top_byte) {
-    const auto first_key = static_cast<std::uint64_t>(top_byte) << 56;
-    const auto second_key = first_key | (1ULL << ((top_byte + 1) * 8));
+    const auto first_key = static_cast<std::uint64_t>(top_byte) << 56U;
+    const auto second_key = first_key | (1ULL << ((top_byte + 1) * 8U));
     unodb::benchmark::insert_key(test_db, first_key,
                                  unodb::value_view{unodb::benchmark::value100});
     unodb::benchmark::insert_key(test_db, second_key,
@@ -76,11 +76,12 @@ void unpredictable_get_shared_length(benchmark::State &state) {
     search_keys.push_back(first_key);
     search_keys.push_back(second_key);
     if (top_byte > 4) continue;
-    const auto first_not_found_key = first_key | (1ULL << ((top_byte + 2) * 8));
+    const auto first_not_found_key =
+        first_key | (1ULL << ((top_byte + 2) * 8U));
     search_keys.push_back(first_not_found_key);
 
     if (top_byte > 3) continue;
-    const auto second_not_found_key = first_key | (1ULL << 48);
+    const auto second_not_found_key = first_key | (1ULL << 48U);
     search_keys.push_back(second_not_found_key);
   }
 
@@ -89,9 +90,7 @@ void unpredictable_get_shared_length(benchmark::State &state) {
     std::shuffle(search_keys.begin(), search_keys.end(),
                  unodb::benchmark::get_prng());
     state.ResumeTiming();
-    for (const auto k : search_keys) {
-      static_cast<void>(test_db.get(k));
-    }
+    for (const auto k : search_keys) unodb::benchmark::get_key(test_db, k);
   }
 
   state.SetItemsProcessed(
@@ -190,7 +189,7 @@ void do_insert_benchmark(benchmark::State &state,
 
 template <class Db>
 void unpredictable_leaf_key_prefix_split(benchmark::State &state) {
-  static constexpr auto stride_len = 7;
+  static constexpr auto stride_len = 7U;
   static constexpr auto num_strides = 36;
   static constexpr auto num_top_bytes = stride_len * num_strides;
   static_assert(num_top_bytes < 256);
@@ -209,7 +208,7 @@ void unpredictable_leaf_key_prefix_split(benchmark::State &state) {
                      first_key) == benchmark_keys.cend());
     prepare_keys.push_back(first_key);
 
-    const auto second_key = first_key | (1ULL << (top_byte % stride_len * 8));
+    const auto second_key = first_key | (1ULL << (top_byte % stride_len * 8U));
     // Quadratic but debug build only
     assert(std::find(prepare_keys.cbegin(), prepare_keys.cend(), second_key) ==
            prepare_keys.cend());
@@ -287,7 +286,7 @@ In benchmark:
 
 template <class Db>
 void unpredictable_cut_key_prefix(benchmark::State &state) {
-  static constexpr auto stride_len = 6;
+  static constexpr auto stride_len = 6U;
   static constexpr auto num_strides = 42;
   static constexpr auto num_top_bytes = stride_len * num_strides;
   static_assert(num_top_bytes < 256);
@@ -303,7 +302,7 @@ void unpredictable_cut_key_prefix(benchmark::State &state) {
     prepare_keys.push_back(second_key);
 
     const auto third_key =
-        first_key | (1ULL << ((top_byte % stride_len + 1) * 8));
+        first_key | (1ULL << ((top_byte % stride_len + 1U) * 8U));
     benchmark_keys.push_back(third_key);
   }
 
@@ -383,7 +382,7 @@ Keys to be removed in benchmark:
 
 template <class Db>
 void unpredictable_prepend_key_prefix(benchmark::State &state) {
-  static constexpr auto stride_len = 6;
+  static constexpr auto stride_len = 6U;
   static constexpr auto num_strides = 42;
   static constexpr auto num_top_bytes = stride_len * num_strides;
   static_assert(num_top_bytes < 256);
@@ -398,7 +397,7 @@ void unpredictable_prepend_key_prefix(benchmark::State &state) {
     const auto second_key = first_key | 1U;
     prepare_keys.push_back(second_key);
     const auto third_key =
-        first_key | (1ULL << ((top_byte % stride_len + 1) * 8));
+        first_key | (1ULL << ((top_byte % stride_len + 1U) * 8U));
     prepare_keys.push_back(third_key);
 
     benchmark_keys.push_back(third_key);

@@ -2,10 +2,12 @@
 #ifndef MICRO_BENCHMARK_UTILS_HPP_
 #define MICRO_BENCHMARK_UTILS_HPP_
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 #include <array>
+#ifndef NDEBUG
 #include <cassert>
+#endif
 #include <cstddef>
 #ifndef NDEBUG
 #include <iostream>
@@ -15,11 +17,12 @@
 #include <benchmark/benchmark.h>
 
 #include "art_common.hpp"
+#include "olc_art.hpp"
+#include "qsbr.hpp"
 
 namespace unodb {
 class db;        // IWYU pragma: keep
 class mutex_db;  // IWYU pragma: keep
-class olc_db;    // IWYU pragma: keep
 }  // namespace unodb
 
 namespace unodb::benchmark {
@@ -47,54 +50,151 @@ inline auto &get_prng() {
 
 // Inserts
 
+namespace detail {
+
 template <class Db>
-void insert_key(Db &db, unodb::key k, unodb::value_view v) {
-  const auto result USED_IN_DEBUG = db.insert(k, v);
+void do_insert_key_ignore_dups(Db &db, unodb::key k, unodb::value_view v) {
+  const auto result = db.insert(k, v);
+  ::benchmark::DoNotOptimize(result);
+}
+
+template <class Db>
+void do_insert_key(Db &db, unodb::key k, unodb::value_view v) {
+  const auto result = db.insert(k, v);
 #ifndef NDEBUG
   if (!result) {
     std::cerr << "Failed to insert ";
-    detail::dump_key(std::cerr, k);
+    ::unodb::detail::dump_key(std::cerr, k);
     std::cerr << "\nCurrent tree:";
     db.dump(std::cerr);
     assert(result);
   }
 #endif
-  ::benchmark::ClobberMemory();
+  ::benchmark::DoNotOptimize(result);
+}
+
+}  // namespace detail
+
+template <class Db>
+void insert_key_ignore_dups(Db &db, unodb::key k, unodb::value_view v) {
+  detail::do_insert_key_ignore_dups(db, k, v);
+}
+
+template <>
+inline void insert_key_ignore_dups(unodb::olc_db &db, unodb::key k,
+                                   unodb::value_view v) {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  detail::do_insert_key_ignore_dups(db, k, v);
+}
+
+template <class Db>
+void insert_key(Db &db, unodb::key k, unodb::value_view v) {
+  detail::do_insert_key(db, k, v);
+}
+
+template <>
+inline void insert_key(unodb::olc_db &db, unodb::key k, unodb::value_view v) {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  detail::do_insert_key(db, k, v);
 }
 
 // Deletes
 
+namespace detail {
+
 template <class Db>
-void delete_key(Db &db, unodb::key k) {
-  const auto result USED_IN_DEBUG = db.remove(k);
+void do_delete_key_if_exists(Db &db, unodb::key k) {
+  const auto result = db.remove(k);
+  ::benchmark::DoNotOptimize(result);
+}
+
+template <class Db>
+void do_delete_key(Db &db, unodb::key k) {
+  const auto result = db.remove(k);
 #ifndef NDEBUG
   if (!result) {
     std::cerr << "Failed to delete existing ";
-    detail::dump_key(std::cerr, k);
-    std::cerr << "\nTree:";
-    db.dump(std::cerr);
-    assert(result);
-  }
-#endif
-  assert(result);
-  ::benchmark::ClobberMemory();
-}
-
-// Gets
-
-template <class Db>
-void get_existing_key(const Db &db, unodb::key k) {
-  const auto result = db.get(k);
-#ifndef NDEBUG
-  if (!result) {
-    std::cerr << "Failed to get existing ";
-    detail::dump_key(std::cerr, k);
+    ::unodb::detail::dump_key(std::cerr, k);
     std::cerr << "\nTree:";
     db.dump(std::cerr);
     assert(result);
   }
 #endif
   ::benchmark::DoNotOptimize(result);
+}
+
+}  // namespace detail
+
+template <class Db>
+void delete_key_if_exists(Db &db, unodb::key k) {
+  detail::do_delete_key_if_exists(db, k);
+}
+
+template <>
+inline void delete_key_if_exists(unodb::olc_db &db, unodb::key k) {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  detail::do_delete_key_if_exists(db, k);
+}
+
+template <class Db>
+void delete_key(Db &db, unodb::key k) {
+  detail::do_delete_key(db, k);
+}
+
+template <>
+inline void delete_key(unodb::olc_db &db, unodb::key k) {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  detail::do_delete_key(db, k);
+}
+
+// Gets
+
+namespace detail {
+
+template <class Db>
+void do_get_key(const Db &db, unodb::key k) {
+  const auto result = db.get(k);
+  ::benchmark::DoNotOptimize(result);
+}
+
+template <class Db>
+void do_get_existing_key(const Db &db, unodb::key k) {
+  const auto result = db.get(k);
+
+#ifndef NDEBUG
+  if (!result) {
+    std::cerr << "Failed to get existing ";
+    ::unodb::detail::dump_key(std::cerr, k);
+    std::cerr << "\nTree:";
+    db.dump(std::cerr);
+    assert(result);
+  }
+#endif
+  ::benchmark::DoNotOptimize(result);
+}
+
+}  // namespace detail
+
+template <class Db>
+void get_key(const Db &db, unodb::key k) {
+  detail::do_get_key(db, k);
+}
+
+template <>
+inline void get_key(const unodb::olc_db &db, unodb::key k) {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  detail::do_get_key(db, k);
+}
+
+template <class Db>
+void get_existing_key(const Db &db, unodb::key k) {
+  detail::do_get_existing_key(db, k);
+}
+
+template <>
+inline void get_existing_key(const unodb::olc_db &db, unodb::key k) {
+  quiescent_state_on_scope_exit qsbr_after_get{};
+  detail::do_get_existing_key(db, k);
 }
 
 // Teardown

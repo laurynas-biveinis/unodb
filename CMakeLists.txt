@@ -378,11 +378,12 @@ endfunction()
 
 add_library(unodb_util INTERFACE global.hpp debug_thread_sync.hpp heap.hpp)
 
-add_library(unodb_qsbr qsbr.cpp qsbr.hpp)
+add_library(unodb_qsbr qsbr.cpp qsbr.hpp qsbr_ptr.cpp qsbr_ptr.hpp)
 common_target_properties(unodb_qsbr)
 target_include_directories(unodb_qsbr PUBLIC ".")
 target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
 target_link_libraries(unodb_qsbr PRIVATE unodb_util)
+target_include_directories(unodb_qsbr SYSTEM PUBLIC "${GSL_INCLUDES}")
 target_link_libraries(unodb_qsbr PRIVATE "${Boost_LIBRARIES}")
 if(DO_CLANG_TIDY)
   set_target_properties(unodb_qsbr PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")

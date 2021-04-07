@@ -32,7 +32,7 @@ function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
     "${DEEPSTATE_INCLUDE_PATH}")
   target_link_libraries(${TARGET} PRIVATE unodb deepstate)
   set_clang_tidy_options(${TARGET} "${DO_CLANG_TIDY_DEEPSTATE}")
-  if(CMAKE_BUILD_TYPE MATCHES "Debug"
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug"
       AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # Workaround https://github.com/trailofbits/deepstate/issues/375 -
     # In file included from

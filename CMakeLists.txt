@@ -79,7 +79,7 @@ else()
   message(STATUS "Code coverage reporting not enabled")
 endif()
 
-if(CMAKE_BUILD_TYPE MATCHES "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   find_path(VALGRIND_H_PATH valgrind.h PATH_SUFFIXES valgrind)
   if(VALGRIND_H_PATH)
     find_path(MEMCHECK_H_PATH memcheck.h PATH_SUFFIXES valgrind)
@@ -191,7 +191,7 @@ endif()
 
 option(STATIC_ANALYSIS "Enable compiler static analysis")
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(DEBUG "ON")
 endif()
 
@@ -261,7 +261,7 @@ if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}"
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
-    AND CMAKE_BUILD_TYPE MATCHES "Debug")
+    AND CMAKE_BUILD_TYPE STREQUAL "Debug")
   target_compile_definitions(benchmark PUBLIC _GLIBCXX_DEBUG
     _GLIBCXX_DEBUG_PEDANTIC)
 endif()

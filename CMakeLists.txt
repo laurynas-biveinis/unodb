@@ -344,7 +344,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(GSL_INCLUDES "3rd_party/GSL/include")
 
 function(COMMON_TARGET_PROPERTIES TARGET)
-  target_include_directories(${TARGET} PRIVATE ${CMAKE_BINARY_DIR})
   target_compile_options(${TARGET} PRIVATE "${CXX_FLAGS}")
   target_compile_options(${TARGET} PRIVATE "${SANITIZER_CXX_FLAGS}")
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
@@ -376,13 +375,18 @@ function(SET_CLANG_TIDY_OPTIONS TARGET COMMAND)
   endif()
 endfunction()
 
-add_library(unodb_util INTERFACE global.hpp debug_thread_sync.hpp heap.hpp)
+add_library(unodb_util INTERFACE)
+# Move to add_library itself once CMake minimum version is 3.13
+target_sources(unodb_util INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/global.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/debug_thread_sync.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/heap.hpp)
+target_include_directories(unodb_util INTERFACE ".")
+target_include_directories(unodb_util INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(unodb_qsbr qsbr.cpp qsbr.hpp qsbr_ptr.cpp qsbr_ptr.hpp)
 common_target_properties(unodb_qsbr)
-target_include_directories(unodb_qsbr PUBLIC ".")
 target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
-target_link_libraries(unodb_qsbr PRIVATE unodb_util)
+target_link_libraries(unodb_qsbr PUBLIC unodb_util)
 target_include_directories(unodb_qsbr SYSTEM PUBLIC "${GSL_INCLUDES}")
 target_link_libraries(unodb_qsbr PRIVATE "${Boost_LIBRARIES}")
 if(DO_CLANG_TIDY)
@@ -395,9 +399,8 @@ add_library(unodb art.cpp art.hpp art_common.cpp art_common.hpp mutex_art.hpp
   optimistic_lock.hpp art_internal_impl.hpp olc_art.hpp olc_art.cpp
   art_internal.cpp art_internal.hpp)
 common_target_properties(unodb)
-target_link_libraries(unodb PRIVATE unodb_util)
+target_link_libraries(unodb PUBLIC unodb_util)
 target_link_libraries(unodb PUBLIC unodb_qsbr)
-target_include_directories(unodb PUBLIC ".")
 target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
 set_clang_tidy_options(unodb "${DO_CLANG_TIDY}")
 

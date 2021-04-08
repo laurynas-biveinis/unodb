@@ -49,14 +49,29 @@ namespace detail {
 DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
 
 template <class Db>
+void assert_value_eq(const typename Db::get_result &result,
+                     unodb::value_view expected) {
+  if constexpr (std::is_same_v<Db, unodb::mutex_db>) {
+    assert(result.second.owns_lock());
+    assert(result.first.has_value());
+    ASSERT_TRUE(std::equal(result.first->cbegin(), result.first->cend(),
+                           expected.cbegin(), expected.cend()));
+  } else {
+    assert(result.has_value());
+    ASSERT_TRUE(std::equal(result->cbegin(), result->cend(), expected.cbegin(),
+                           expected.cend()));
+  }
+}
+
+template <class Db>
 void do_assert_result_eq(const Db &db, unodb::key key,
                          unodb::value_view expected, const char *file,
                          int line) noexcept {
   std::ostringstream msg;
   unodb::detail::dump_key(msg, key);
   testing::ScopedTrace trace(file, line, msg.str());
-  const auto result = db.get(key);
-  if (!result) {
+  auto result = db.get(key);
+  if (!Db::key_found(result)) {
     // LCOV_EXCL_START
     std::cerr << "db.get did not find ";
     unodb::detail::dump_key(std::cerr, key);
@@ -65,8 +80,7 @@ void do_assert_result_eq(const Db &db, unodb::key key,
     FAIL();
     // LCOV_EXCL_STOP
   }
-  ASSERT_TRUE(std::equal(result->cbegin(), result->cend(), expected.cbegin(),
-                         expected.cend()));
+  assert_value_eq<Db>(result, expected);
 }
 
 RESTORE_CLANG_WARNINGS()

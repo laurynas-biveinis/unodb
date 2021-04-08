@@ -79,7 +79,7 @@ namespace unodb {
 
 db::~db() noexcept { delete_root_subtree(); }
 
-get_result db::get(key search_key) const noexcept {
+db::get_result db::get(key search_key) const noexcept {
   if (unlikely(root.header == nullptr)) return {};
 
   auto node{root};

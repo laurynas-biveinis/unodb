@@ -47,11 +47,10 @@ auto make_db_leaf_ptr(art_key, value_view, Db &);
 
 }  // namespace detail
 
-// Search result type. If value is not present, it was not found
-using get_result = std::optional<value_view>;
-
 class db final {
  public:
+  using get_result = std::optional<value_view>;
+
   // Creation and destruction
   constexpr db() noexcept {}
 
@@ -133,6 +132,12 @@ class db final {
 
   [[nodiscard]] constexpr auto get_key_prefix_splits() const noexcept {
     return key_prefix_splits;
+  }
+
+  // Public utils
+  [[nodiscard]] static constexpr auto key_found(
+      const get_result &result) noexcept {
+    return static_cast<bool>(result);
   }
 
   // Debugging

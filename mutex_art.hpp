@@ -12,13 +12,17 @@ namespace unodb {
 
 class mutex_db final {
  public:
+  // The mutex is returned locked, and must be unlocked ASAP after checking the
+  // first pair member.
+  using get_result = std::pair<db::get_result, std::unique_lock<std::mutex>>;
+
   // Creation and destruction
   constexpr mutex_db() noexcept : db_{} {}
 
   // Querying
   [[nodiscard]] auto get(key k) const noexcept {
-    const std::lock_guard guard{mutex};
-    return db_.get(k);
+    std::unique_lock<std::mutex> guard{mutex};
+    return std::make_pair(db_.get(k), std::move(guard));
   }
 
   [[nodiscard]] auto empty() const noexcept {
@@ -117,6 +121,19 @@ class mutex_db final {
   [[nodiscard]] auto get_key_prefix_splits() const noexcept {
     const std::lock_guard guard{mutex};
     return db_.get_key_prefix_splits();
+  }
+
+  // Public utils
+
+  // Releases the mutex in the case key was not found, keeps it locked
+  // otherwise.
+  [[nodiscard]] static auto key_found(get_result &result) {
+    auto &lock{result.second};
+    assert(lock.owns_lock());
+
+    const auto ret = static_cast<bool>(result.first);
+    if (!ret) lock.unlock();
+    return ret;
   }
 
   // Debugging

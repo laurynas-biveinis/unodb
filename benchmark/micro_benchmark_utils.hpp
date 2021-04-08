@@ -159,15 +159,15 @@ void do_get_key(const Db &db, unodb::key k) {
 
 template <class Db>
 void do_get_existing_key(const Db &db, unodb::key k) {
-  const auto result = db.get(k);
+  auto result = db.get(k);
 
 #ifndef NDEBUG
-  if (!result) {
+  if (!Db::key_found(result)) {
     std::cerr << "Failed to get existing ";
     ::unodb::detail::dump_key(std::cerr, k);
     std::cerr << "\nTree:";
     db.dump(std::cerr);
-    assert(result);
+    assert(false);
   }
 #endif
   ::benchmark::DoNotOptimize(result);

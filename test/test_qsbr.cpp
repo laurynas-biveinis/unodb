@@ -115,6 +115,8 @@ class QSBR : public ::testing::Test {
   std::mutex mock_allocator_mutex;
 };
 
+using QSBRDeathTest = QSBR;
+
 void active_pointer_ops(void *raw_ptr) noexcept {
   unodb::qsbr_ptr<void> active_ptr{raw_ptr};
   unodb::qsbr_ptr<void> active_ptr2{active_ptr};
@@ -345,7 +347,7 @@ TEST_F(QSBR, ActivePointersBeforePause) {
 
 #ifndef NDEBUG
 
-TEST_F(QSBR, ActivePointersDuringQuiescentState) {
+TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
   auto *ptr = mock_allocate();
   unodb::qsbr_ptr<void> active_ptr{ptr};
   UNODB_ASSERT_DEATH({ unodb::current_thread_reclamator().quiescent_state(); },

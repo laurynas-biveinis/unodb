@@ -561,7 +561,7 @@ olc_db::~olc_db() noexcept {
   delete_root_subtree();
 }
 
-qsbr_get_result olc_db::get(key search_key) const noexcept {
+olc_db::get_result olc_db::get(key search_key) const noexcept {
   try_get_result_type result;
   const detail::art_key bin_comparable_key{search_key};
   do {
@@ -585,7 +585,7 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
 
   if (unlikely(node.header == nullptr)) {
     if (unlikely(!parent_lock->try_read_unlock(parent_version))) return {};
-    return std::make_optional<qsbr_get_result>(std::nullopt);
+    return std::make_optional<get_result>(std::nullopt);
   }
 
   auto remaining_key{k};
@@ -608,7 +608,7 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
         return qsbr_ptr_span<const std::byte>{value};
       }
       if (unlikely(!node_lock.try_read_unlock(version))) return {};
-      return std::make_optional<qsbr_get_result>(std::nullopt);
+      return std::make_optional<get_result>(std::nullopt);
     }
 
     const auto key_prefix_length = node.internal->key_prefix_length();
@@ -617,7 +617,7 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
 
     if (shared_key_prefix_length < key_prefix_length) {
       if (unlikely(!node_lock.try_read_unlock(version))) return {};
-      return std::make_optional<qsbr_get_result>(std::nullopt);
+      return std::make_optional<get_result>(std::nullopt);
     }
 
     if (unlikely(!node_lock.check(version))) return {};
@@ -631,7 +631,7 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
 
     if (child_loc == nullptr) {
       if (unlikely(!node_lock.try_read_unlock(version))) return {};
-      return std::make_optional<qsbr_get_result>(std::nullopt);
+      return std::make_optional<get_result>(std::nullopt);
     }
 
     const auto child = child_loc->load();

@@ -56,8 +56,6 @@ auto make_db_leaf_ptr(art_key, value_view, Db &);
 
 using qsbr_value_view = qsbr_ptr_span<const std::byte>;
 
-using qsbr_get_result = std::optional<qsbr_value_view>;
-
 // A concurrent Adaptive Radix Tree that is synchronized using optimistic lock
 // coupling. At any time, at most two directly-related tree nodes can be
 // write-locked by the insert algorithm and three by the delete algorithm. The
@@ -66,13 +64,15 @@ using qsbr_get_result = std::optional<qsbr_value_view>;
 // deleted node reclamation, Quiescent State-Based Reclamation is used.
 class olc_db final {
  public:
+  using get_result = std::optional<qsbr_value_view>;
+
   // Creation and destruction
   constexpr explicit olc_db() noexcept {}
 
   ~olc_db() noexcept;
 
   // Querying
-  [[nodiscard]] qsbr_get_result get(key search_key) const noexcept;
+  [[nodiscard]] get_result get(key search_key) const noexcept;
 
   [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
 
@@ -148,6 +148,12 @@ class olc_db final {
     return key_prefix_splits.load(std::memory_order_relaxed);
   }
 
+  // Public utils
+  [[nodiscard]] static constexpr auto key_found(
+      const get_result &result) noexcept {
+    return static_cast<bool>(result);
+  }
+
   // Debugging
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const;
 
@@ -155,7 +161,7 @@ class olc_db final {
   // If get_result is not present, the search was interrupted. Yes, this
   // resolves to std::optional<std::optional<value_view>>, but IMHO both
   // levels of std::optional are clear here
-  using try_get_result_type = std::optional<qsbr_get_result>;
+  using try_get_result_type = std::optional<get_result>;
 
   using try_update_result_type = std::optional<bool>;
 

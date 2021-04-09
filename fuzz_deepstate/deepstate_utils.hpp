@@ -23,4 +23,10 @@ inline auto DeepState_SizeTInRange(std::size_t min, std::size_t max) {
   return static_cast<std::size_t>(DeepState_UInt64InRange(min, max));
 }
 
+template <class T>
+auto DeepState_ContainerIndex(const T &container) {
+  ASSERT(!container.empty());
+  return DeepState_SizeTInRange(0, container.size() - 1);
+}
+
 #endif  // DEEPSTATE_UTILS_HPP_

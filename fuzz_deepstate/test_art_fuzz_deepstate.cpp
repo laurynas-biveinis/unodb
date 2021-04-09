@@ -55,8 +55,7 @@ auto get_value(dynamic_value::size_type max_length, values_type &values) {
   }
   LOG(TRACE) << "Reusing an existing value";
   ASSERT(values.size() <= std::numeric_limits<std::uint32_t>::max());
-  const auto existing_value_i = static_cast<values_type::size_type>(
-      DeepState_SizeTInRange(0, values.size() - 1));
+  const auto existing_value_i = DeepState_ContainerIndex(values);
   const auto &existing_value = values[existing_value_i];
   return unodb::value_view{existing_value};
 }
@@ -67,7 +66,7 @@ unodb::key get_key(unodb::key max_key_value,
   if (use_existing_key) {
     ASSERT(!keys.empty());
     ASSERT(keys.size() <= std::numeric_limits<std::uint32_t>::max());
-    const auto existing_key_i = DeepState_SizeTInRange(0, keys.size() - 1);
+    const auto existing_key_i = DeepState_ContainerIndex(keys);
     return keys[existing_key_i];
   }
   return DeepState_UInt64InRange(0, max_key_value);

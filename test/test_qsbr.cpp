@@ -451,12 +451,11 @@ TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
   auto *ptr = mock_allocate();
 
   unodb::qsbr_thread second_thread([this] {
-    thread_sync_1.notify();
-    thread_sync_2.wait();
-    thread_sync_1.notify();
+    thread_sync_1.notify();  // 1 ->
+    thread_sync_2.wait();    // 2 <-
   });
 
-  thread_sync_1.wait();
+  thread_sync_1.wait();  // 1 <-
   mock_qsbr_deallocate(ptr);
   ASSERT_TRUE(mock_is_allocated(ptr));
 
@@ -465,11 +464,10 @@ TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
 
   ASSERT_TRUE(mock_is_allocated(ptr));
 
-  thread_sync_2.notify();
-  thread_sync_1.wait();
-
+  thread_sync_2.notify();  // 2 ->
   second_thread.join();
-  ASSERT_FALSE(mock_is_allocated(ptr));
+
+  ASSERT_TRUE(mock_is_allocated(ptr));
 
   unodb::current_thread_reclamator().quiescent_state();
 
@@ -528,18 +526,22 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
   auto *ptr = mock_allocate();
 
   unodb::qsbr_thread second_thread([this] {
-    thread_sync_1.notify();
-    thread_sync_2.wait();
+    thread_sync_1.notify();  // 1 ->
+    thread_sync_2.wait();    // 2 <-
   });
 
-  thread_sync_1.wait();
+  thread_sync_1.wait();  // 1 <-
   mock_qsbr_deallocate(ptr);
 
   unodb::current_thread_reclamator().quiescent_state();
   ASSERT_TRUE(mock_is_allocated(ptr));
 
-  thread_sync_2.notify();
+  thread_sync_2.notify();  // 2 ->
   second_thread.join();
+
+  ASSERT_TRUE(mock_is_allocated(ptr));
+
+  unodb::current_thread_reclamator().quiescent_state();
 
   ASSERT_FALSE(mock_is_allocated(ptr));
 }
@@ -644,27 +646,27 @@ TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
   second_thread.join();
 }
 
-TEST_F(QSBR, TwoThreadsImmediateTwoEpochDeallocationOnOneQuitting) {
+TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   mark_epoch();
   auto *ptr = mock_allocate();
 
   unodb::qsbr_thread second_thread{[this] {
-    thread_sync_1.notify();
-    thread_sync_2.wait();
+    thread_sync_1.notify();  // 1 ->
+    thread_sync_2.wait();    // 2 <-
 
     unodb::current_thread_reclamator().quiescent_state();
 
-    thread_sync_1.notify();
-    thread_sync_2.wait();
+    thread_sync_1.notify();  // 3 ->
+    thread_sync_2.wait();    // 4 <-
   }};
 
-  thread_sync_1.wait();
+  thread_sync_1.wait();  // 1 <-
   mock_qsbr_deallocate(ptr);
 
   unodb::current_thread_reclamator().quiescent_state();
 
-  thread_sync_2.notify();
-  thread_sync_1.wait();
+  thread_sync_2.notify();  // 2 ->
+  thread_sync_1.wait();    // 3 <-
 
   check_epoch_advanced();
   ASSERT_TRUE(mock_is_allocated(ptr));
@@ -673,14 +675,15 @@ TEST_F(QSBR, TwoThreadsImmediateTwoEpochDeallocationOnOneQuitting) {
   mock_qsbr_deallocate(ptr2);
   ASSERT_TRUE(mock_is_allocated(ptr2));
 
-  thread_sync_2.notify();
+  thread_sync_2.notify();  // 4 ->
   second_thread.join();
 
-  ASSERT_FALSE(mock_is_allocated(ptr));
+  ASSERT_TRUE(mock_is_allocated(ptr));
   ASSERT_TRUE(mock_is_allocated(ptr2));
 
   unodb::current_thread_reclamator().quiescent_state();
 
+  ASSERT_FALSE(mock_is_allocated(ptr));
   ASSERT_FALSE(mock_is_allocated(ptr2));
 }
 
@@ -794,6 +797,43 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
   second_thread.join();
 
   ASSERT_FALSE(mock_is_allocated(ptr));
+}
+
+TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
+  mark_epoch();
+  char *ptr = static_cast<char *>(mock_allocate());
+  *ptr = 'A';
+
+  unodb::qsbr_thread second_thread{[this, ptr] {
+    thread_sync_1.notify();  // 1 ->
+    thread_sync_2.wait();    // 2 <-
+
+    mock_qsbr_deallocate(ptr);
+  }};
+
+  thread_sync_1.wait();  // 1 <-
+
+  // Wrote ptr to a shared data structure and done with it for now
+  unodb::current_thread_reclamator().quiescent_state();
+
+  check_epoch_same();
+
+  {
+    // Reacquired ptr from a shared data structure
+    unodb::qsbr_ptr<char> active_ptr{ptr};
+
+    thread_sync_2.notify();  // 2 ->
+
+    second_thread.join();
+
+    check_epoch_advanced();
+
+    ASSERT_EQ(*active_ptr, 'A');
+  }
+
+  unodb::current_thread_reclamator().quiescent_state();
+
+  check_epoch_advanced();
 }
 
 // TODO(laurynas): stat tests

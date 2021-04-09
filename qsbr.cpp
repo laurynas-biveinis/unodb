@@ -87,29 +87,21 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
     }
     threads.erase(thread_state);
     --reserved_thread_capacity;
+#ifndef NDEBUG
     requests_to_deallocate.update_single_thread_mode();
+    single_threaded_mode_start_epoch = get_current_epoch();
+#endif
 
     if (unlikely(threads.empty())) {
       threads_in_previous_epoch = 0;
     } else if (unlikely(single_thread_mode_locked())) {
-      // Deallocate previous epoch requests immediately as the sole current
-      // thread cannot be holding any live pointers to them. We cannot do the
-      // same for the current epoch requests as they might come from a
-      // just-stopped thread with the current thread holding live pointers. It
-      // is possible to address this by tracking the deallocating thread in
-      // deallocation requests, but not sure whether that would be a good
-      // trade-off.
+      // Even though we are single-threaded now, we cannot deallocate neither
+      // previous nor current interval requests immediately. We could track the
+      // deallocating thread in the request structure and deallocate the ones
+      // coming from the sole live thread, but not sure whether that would be a
+      // good trade-off.
       // Any new deallocation requests from this point on can be executed
       // immediately.
-      epoch_callback_stats(previous_interval_deallocation_requests.size());
-      deallocation_size_stats(
-          previous_interval_total_dealloc_size.load(std::memory_order_relaxed));
-      previous_interval_total_dealloc_size.store(0, std::memory_order_relaxed);
-      assert(requests_to_deallocate.requests[1].empty());
-      // cppcheck-suppress unreadVariable
-      requests_to_deallocate.requests[1] =
-          std::move(previous_interval_deallocation_requests);
-      previous_interval_deallocation_requests.clear();
     }
 
     assert_invariants();
@@ -237,6 +229,7 @@ qsbr::deferred_requests qsbr::change_epoch() noexcept {
         std::memory_order_relaxed);
   } else {
     previous_interval_deallocation_requests.clear();
+    previous_interval_total_dealloc_size.store(0, std::memory_order_relaxed);
     result.requests[1] = std::move(current_interval_deallocation_requests);
   }
   current_interval_deallocation_requests.clear();
@@ -261,11 +254,20 @@ void qsbr::assert_invariants() const noexcept {
 #ifndef NDEBUG
   assert(reserved_thread_capacity >= threads.size());
 
-  if (single_thread_mode_locked()) {
-    assert(previous_interval_deallocation_requests.empty());
+  if (previous_interval_deallocation_requests.empty()) {
     assert(previous_interval_total_dealloc_size.load(
                std::memory_order_relaxed) == 0);
   }
+
+  if (current_interval_deallocation_requests.empty()) {
+    assert(current_interval_total_dealloc_size.load(
+               std::memory_order_relaxed) == 0);
+  }
+
+  if (single_thread_mode_locked() &&
+      get_current_epoch() > single_threaded_mode_start_epoch)
+    assert(previous_interval_deallocation_requests.empty());
+
   // TODO(laurynas): can this be simplified after the thread registration
   // quiescent state fix?
   if (!thread_count_changed_in_current_epoch &&

@@ -214,7 +214,11 @@ class qsbr final {
     // FIXME(laurynas): copy-paste-tweak with expect_idle_qsbr, but not clear
     // how to fix this
     assert(previous_interval_deallocation_requests.empty());
+    assert(previous_interval_total_dealloc_size.load(
+               std::memory_order_relaxed) == 0);
     assert(current_interval_deallocation_requests.empty());
+    assert(current_interval_total_dealloc_size.load(
+               std::memory_order_relaxed) == 0);
     if (threads.empty()) {
       assert(reserved_thread_capacity == 0);
       assert(threads_in_previous_epoch == 0);
@@ -290,13 +294,13 @@ class qsbr final {
       }
     }
 
+#ifndef NDEBUG
     // TODO(laurynas): get rid of this wart
     void update_single_thread_mode() noexcept {
-#ifndef NDEBUG
       dealloc_epoch_single_thread_mode =
           qsbr::instance().single_thread_mode_locked();
-#endif
     }
+#endif
 
    private:
 #ifndef NDEBUG
@@ -346,6 +350,7 @@ class qsbr final {
   std::size_t threads_in_previous_epoch{0};
 
 #ifndef NDEBUG
+  std::uint64_t single_threaded_mode_start_epoch{0};
   bool thread_count_changed_in_current_epoch{false};
   bool thread_count_changed_in_previous_epoch{false};
 #endif

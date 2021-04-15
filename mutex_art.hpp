@@ -12,8 +12,10 @@ namespace unodb {
 
 class mutex_db final {
  public:
-  // The mutex is returned locked, and must be unlocked ASAP after checking the
-  // first pair member.
+  // If the search key was found, that is, the first pair member has a value,
+  // then the second member is a locked tree mutex which must be released ASAP
+  // after reading the first pair member. Otherwise, the second member is
+  // undefined.
   using get_result = std::pair<db::get_result, std::unique_lock<std::mutex>>;
 
   // Creation and destruction
@@ -22,7 +24,12 @@ class mutex_db final {
   // Querying
   [[nodiscard]] auto get(key k) const noexcept {
     std::unique_lock<std::mutex> guard{mutex};
-    return std::make_pair(db_.get(k), std::move(guard));
+    const auto db_get_result{db_.get(k)};
+    if (!db_get_result) {
+      guard.unlock();
+      return std::make_pair(db_get_result, std::unique_lock<std::mutex>{});
+    }
+    return std::make_pair(db_get_result, std::move(guard));
   }
 
   [[nodiscard]] auto empty() const noexcept {
@@ -128,12 +135,12 @@ class mutex_db final {
   // Releases the mutex in the case key was not found, keeps it locked
   // otherwise.
   [[nodiscard]] static auto key_found(get_result &result) {
+#ifndef NDEBUG
     auto &lock{result.second};
-    assert(lock.owns_lock());
+    assert(!result.first || lock.owns_lock());
+#endif
 
-    const auto ret = static_cast<bool>(result.first);
-    if (!ret) lock.unlock();
-    return ret;
+    return static_cast<bool>(result.first);
   }
 
   // Debugging

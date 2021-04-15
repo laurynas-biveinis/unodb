@@ -381,13 +381,9 @@ void quit_thread(std::size_t thread_i) {
       static_cast<decltype(threads)::difference_type>(thread_i);
   thread_info &tinfo{*thread_itr};
 
-  if (tinfo.is_paused) {
-    LOG(TRACE) << "Selected thread paused, resuming it instead of quitting";
-    do_op_in_thread(thread_i, thread_operation::RESUME_THREAD);
-    tinfo.is_paused = false;
-    return;
-  }
   if (!tinfo.active_ptrs.empty()) {
+    ASSERT(!tinfo.is_paused);
+
     LOG(TRACE) << "Selected thread has active pointers, releasing one instead "
                   "of quitting";
     do_op_in_thread(thread_i, thread_operation::RELEASE_ACTIVE_POINTER);

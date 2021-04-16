@@ -2,6 +2,7 @@
 
 #include "global.hpp"
 
+#include <cmath>
 #include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #include <limits>
@@ -67,6 +68,7 @@ class QSBR : public ::testing::Test {
     if (unodb::current_thread_reclamator().is_paused())
       unodb::current_thread_reclamator().resume();
     unodb::test::expect_idle_qsbr();
+    unodb::qsbr::instance().reset_stats();
   }
 
   ~QSBR() noexcept override { unodb::test::expect_idle_qsbr(); }
@@ -836,9 +838,47 @@ TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
   check_epoch_advanced();
 }
 
+TEST_F(QSBR, ResetStats) {
+  auto *ptr = mock_allocate();
+  auto *ptr2 = mock_allocate();
+
+  unodb::qsbr_thread second_thread{[this] {
+    unodb::current_thread_reclamator().quiescent_state();
+    thread_sync_1.notify();  // 1 ->
+    thread_sync_2.wait();    // 2 <-
+  }};
+
+  thread_sync_1.wait();  // 1 <-
+  mock_qsbr_deallocate(ptr);
+  mock_qsbr_deallocate(ptr2);
+
+  unodb::current_thread_reclamator().quiescent_state();
+  unodb::current_thread_reclamator().quiescent_state();
+
+  thread_sync_2.notify();  // 2 ->
+  second_thread.join();
+
+  ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 2);
+  ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 1);
+  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 2);
+  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(), 1);
+  ASSERT_EQ(unodb::qsbr::instance()
+                .get_mean_quiescent_states_per_thread_between_epoch_changes(),
+            1);
+
+  unodb::qsbr::instance().reset_stats();
+
+  ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 0);
+  ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 0);
+  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 0);
+  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(), 0);
+  ASSERT_TRUE(std::isnan(
+      unodb::qsbr::instance()
+          .get_mean_quiescent_states_per_thread_between_epoch_changes()));
+}
+
 // TODO(laurynas): stat tests
 // TODO(laurynas): quiescent_state_on_scope_exit tests?
-// TODO(laurynas): qsbr::reset test?
 // TODO(laurynas): qsbr::dump test
 
 }  // namespace

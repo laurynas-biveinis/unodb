@@ -149,7 +149,7 @@ class qsbr final {
 
   void unregister_thread(std::thread::id thread_id);
 
-  void reset() noexcept;
+  void reset_stats() noexcept;
 
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &out) const;
 

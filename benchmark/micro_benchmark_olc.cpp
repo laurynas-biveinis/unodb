@@ -16,7 +16,7 @@ class concurrent_benchmark_olc final
  protected:
   void setup() override {
     unodb::qsbr::instance().assert_idle();
-    unodb::qsbr::instance().reset();
+    unodb::qsbr::instance().reset_stats();
   }
 
   void end_workload_in_main_thread() override {

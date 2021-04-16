@@ -404,7 +404,8 @@ target_link_libraries(unodb PUBLIC unodb_qsbr)
 target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
 set_clang_tidy_options(unodb "${DO_CLANG_TIDY}")
 
-set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full")
+set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"
+  "--trace-children=yes")
 
 add_custom_target(valgrind DEPENDS valgrind_tests valgrind_benchmarks)
 

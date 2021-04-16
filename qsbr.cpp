@@ -108,15 +108,17 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
   }
 }
 
-void qsbr::reset() noexcept {
+void qsbr::reset_stats() noexcept {
   std::lock_guard<std::mutex> guard{qsbr_mutex};
 
+  assert_idle();
   assert_invariants();
 
   deallocation_size_stats = {};
   epoch_callback_stats = {};
   quiescent_states_per_thread_between_epoch_change_stats = {};
-  current_epoch = 0;
+
+  assert_invariants();
 }
 
 void qsbr::dump(std::ostream &out) const {

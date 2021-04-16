@@ -35,7 +35,8 @@ enum class thread_operation {
   QUIESCENT_STATE,
   QUIT_THREAD,
   PAUSE_THREAD,
-  RESUME_THREAD
+  RESUME_THREAD,
+  RESET_STATS
 };
 
 thread_operation thread_op;
@@ -69,7 +70,11 @@ struct thread_info {
   thread_info &operator=(const thread_info &) = delete;
 };
 
+constexpr std::size_t main_thread_i{0};
+
 std::vector<thread_info> threads;
+
+constexpr std::size_t main_thread_id{0};
 
 std::array<unodb::debug::thread_wait, max_thread_id> thread_sync;
 
@@ -356,25 +361,26 @@ void pause_thread(std::size_t thread_i) {
 }
 
 void do_op_in_thread(std::size_t thread_i, thread_operation op) {
-  ASSERT(thread_i > 0);
+  ASSERT(thread_i > main_thread_i);
   ASSERT(thread_i < threads.size());
   ASSERT(op != thread_operation::QUIT_THREAD);
+  ASSERT(op != thread_operation::RESET_STATS);
 
   thread_op = op;
   op_thread_i = thread_i;
 
   const auto thread_id = threads[thread_i].id;
-  ASSERT(thread_id > 0);
+  ASSERT(thread_id > main_thread_i);
   ASSERT(thread_id < new_thread_id);
 
   thread_sync[thread_id].notify();
-  thread_sync[0].wait();
+  thread_sync[main_thread_id].wait();
 }
 
 void quit_thread(std::size_t thread_i) {
   LOG(TRACE) << "Trying to quit thread "
              << static_cast<std::uint64_t>(thread_i);
-  ASSERT(thread_i > 0);
+  ASSERT(thread_i > main_thread_i);
 
   const auto thread_itr =
       threads.begin() +
@@ -391,7 +397,7 @@ void quit_thread(std::size_t thread_i) {
   }
 
   const auto thread_id{tinfo.id};
-  ASSERT(thread_id > 0);
+  ASSERT(thread_id > main_thread_id);
   ASSERT(thread_id < new_thread_id);
   LOG(TRACE) << "Stopping the thread with ID "
              << static_cast<std::uint64_t>(thread_id);
@@ -401,8 +407,40 @@ void quit_thread(std::size_t thread_i) {
   threads.erase(thread_itr);
 }
 
+void reset_stats() {
+  ASSERT(threads.size() == 1);
+
+  if (!threads[main_thread_i].active_ptrs.empty()) {
+    LOG(TRACE) << "Thread has active pointers, releasing one instead of "
+                  "resetting stats";
+    release_active_pointer(main_thread_i);
+    return;
+  }
+  if (!allocated_pointers.empty()) {
+    LOG(TRACE) << "Allocated pointers exist, deallocating one instead of "
+                  "resetting stats";
+    deallocate_pointer(main_thread_i);
+    return;
+  }
+  if (unodb::qsbr::instance().previous_interval_size() > 0) {
+    LOG(TRACE) << "Previous interval non-empty, going through qstate instead "
+                  "of resetting stats";
+    quiescent_state(main_thread_i);
+    return;
+  }
+  if (unodb::qsbr::instance().current_interval_size() > 0) {
+    LOG(TRACE) << "Current interval non-empty, going through qstate instead of "
+                  "resetting stats";
+    quiescent_state(main_thread_i);
+    return;
+  }
+  LOG(TRACE) << "Resetting QSBR stats";
+  unodb::qsbr::instance().reset_stats();
+}
+
 void do_op(std::size_t thread_i, thread_operation op) {
   ASSERT(op != thread_operation::QUIT_THREAD);
+  ASSERT(op != thread_operation::RESET_STATS);
 
   switch (op) {
     case thread_operation::ALLOCATE_POINTER:
@@ -426,29 +464,35 @@ void do_op(std::size_t thread_i, thread_operation op) {
     case thread_operation::RESUME_THREAD:
       resume_thread(thread_i);
       break;
+    case thread_operation::RESET_STATS:
     case thread_operation::QUIT_THREAD:
       CANNOT_HAPPEN();
   }
 }
 
 void test_thread(std::size_t thread_id) {
-  ASSERT(thread_id > 0);
-  thread_sync[0].notify();
+  ASSERT(thread_id > main_thread_id);
+  thread_sync[main_thread_id].notify();
 
   while (true) {
     thread_sync[thread_id].wait();
+
+    ASSERT(thread_op != thread_operation::RESET_STATS);
+
     if (thread_op == thread_operation::QUIT_THREAD) return;
     do_op(op_thread_i, thread_op);
-    thread_sync[0].notify();
+
+    thread_sync[main_thread_id].notify();
   }
 }
 
 void do_or_dispatch_op(std::size_t thread_i, thread_operation op) {
   ASSERT(op != thread_operation::QUIT_THREAD);
+  ASSERT(op != thread_operation::RESET_STATS);
 
   LOG(TRACE) << "Next operation in thread "
              << static_cast<std::uint64_t>(thread_i);
-  if (thread_i == 0)
+  if (thread_i == main_thread_i)
     do_op(thread_i, op);
   else
     do_op_in_thread(thread_i, op);
@@ -460,7 +504,7 @@ TEST(QSBR, DeepStateFuzz) {
   const auto test_length = DeepState_ShortInRange(0, 2000);
   LOG(TRACE) << "Test length " << test_length;
 
-  threads.emplace_back(0);
+  threads.emplace_back(main_thread_i);
 
   for (auto i = 0; i < test_length; ++i) {
     LOG(TRACE) << "Iteration " << i;
@@ -496,7 +540,7 @@ TEST(QSBR, DeepStateFuzz) {
           LOG(TRACE) << "Creating a new thread with ID "
                      << static_cast<std::uint64_t>(tid);
           threads.emplace_back(tid, test_thread, tid);
-          thread_sync[0].wait();
+          thread_sync[main_thread_id].wait();
         },
         // A random thread passes through a quiescent state
         [&] {
@@ -515,6 +559,17 @@ TEST(QSBR, DeepStateFuzz) {
                               ? thread_operation::RESUME_THREAD
                               : thread_operation::PAUSE_THREAD;
           do_or_dispatch_op(thread_i, op);
+        },
+        // Reset stats
+        [&] {
+          if (threads.size() > 1) {
+            LOG(TRACE)
+                << "More than one thread running, stopping one instead of "
+                   "resetting stats";
+            quit_thread(choose_non_main_thread());
+            return;
+          }
+          reset_stats();
         });
     const auto unpaused_threads = static_cast<std::size_t>(
         std::count_if(threads.cbegin(), threads.cend(),

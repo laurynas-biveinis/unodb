@@ -12,6 +12,7 @@ namespace unodb::debug {
 
 class thread_wait final {
  public:
+  thread_wait() noexcept = default;
   ~thread_wait() noexcept { assert(is_reset()); }
 
   [[nodiscard]] bool is_reset() const noexcept {
@@ -34,6 +35,11 @@ class thread_wait final {
     flag = false;
     lock.unlock();
   }
+
+  thread_wait(const thread_wait &) = delete;
+  thread_wait(thread_wait &&) = delete;
+  thread_wait &operator=(const thread_wait &) = delete;
+  thread_wait &operator=(thread_wait &&) = delete;
 
  private:
   // Replace with a C++20 latch when that's available

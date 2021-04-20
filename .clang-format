@@ -2,3 +2,4 @@
 Language: Cpp
 BasedOnStyle: Google
 IncludeBlocks: Preserve
+StatementAttributeLikeMacros: [USED_IN_DEBUG, RELEASE_CONSTEXPR]

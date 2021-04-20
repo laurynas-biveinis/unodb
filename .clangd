@@ -7,3 +7,6 @@ CompileFlags:
 # https://github.com/clangd/clangd/issues/363
 CompileFlags:
   Add: [-Wno-unused-macros,-Wno-unused-member-function,-Wno-unused-template]
+Diagnostics:
+  ClangTidy:
+    Add: *

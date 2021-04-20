@@ -406,9 +406,9 @@ void assert_dominating_inode_size_tree(const Db &test_db) noexcept {
 }
 
 template <class Db, unsigned SmallerNodeSize>
-void assert_growing_nodes(const Db &test_db USED_IN_DEBUG,
-                          std::uint64_t expected_number_of_nodes
-                              USED_IN_DEBUG) noexcept {
+void assert_growing_nodes(
+    const Db &test_db USED_IN_DEBUG,
+    std::uint64_t expected_number_of_nodes USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   constexpr auto larger_node_type =
       node_size_to_larger_node_type<SmallerNodeSize>();
@@ -423,9 +423,9 @@ void assert_growing_nodes(const Db &test_db USED_IN_DEBUG,
 }
 
 template <class Db, unsigned SmallerNodeSize>
-void assert_shrinking_nodes(const Db &test_db USED_IN_DEBUG,
-                            std::uint64_t expected_number_of_nodes
-                                USED_IN_DEBUG) noexcept {
+void assert_shrinking_nodes(
+    const Db &test_db USED_IN_DEBUG,
+    std::uint64_t expected_number_of_nodes USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   constexpr auto larger_node_type =
       node_size_to_larger_node_type<SmallerNodeSize>();

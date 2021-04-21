@@ -151,6 +151,8 @@ void qsbr::prepare_new_thread_locked() {
 }
 
 void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
+  // TODO(laurynas): cleanup this field and get rid of this if statement.
+  // Reserve one thread in the global QSBR ctor?
   // No need to reserve space for the first (or the last, depending on the
   // workload) thread
   if (unlikely(reserved_thread_capacity == 0)) reserved_thread_capacity = 1;

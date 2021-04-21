@@ -67,6 +67,8 @@ endif()
 
 add_custom_target(valgrind_tests
   COMMAND ${VALGRIND_COMMAND} ./test_qsbr_ptr;
+  # The death tests will print their SIGABRT stacktrace under Valgrind. I have
+  # not found a way to disable it.
   COMMAND ${VALGRIND_COMMAND} ./test_qsbr;
   COMMAND ${VALGRIND_COMMAND} ./test_art;
   COMMAND ${VALGRIND_COMMAND} ./test_art_concurrency

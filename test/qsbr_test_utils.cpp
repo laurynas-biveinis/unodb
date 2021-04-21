@@ -11,6 +11,9 @@
 namespace unodb::test {
 
 void expect_idle_qsbr() {
+  // Copy-paste-tweak with qsbr::assert_idle, but not clear how to fix this:
+  // here we are using Google Test macros with the public interface, over there
+  // we are asserting over internals.
   EXPECT_TRUE(unodb::qsbr::instance().single_thread_mode());
   EXPECT_EQ(unodb::qsbr::instance().previous_interval_size(), 0);
   EXPECT_EQ(unodb::qsbr::instance().current_interval_size(), 0);

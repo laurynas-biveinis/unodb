@@ -181,8 +181,7 @@ class qsbr final {
     return boost_acc::mean(deallocation_size_stats);
   }
 
-  // FIXME(laurynas): cleanup! But I cannot pull gtest EXPECT here
-  // Made public for tests
+  // Made public for tests and asserts
   [[nodiscard]] auto single_thread_mode() const noexcept {
     std::lock_guard<std::mutex> guard{qsbr_mutex};
     return single_thread_mode_locked();
@@ -211,8 +210,9 @@ class qsbr final {
 
   void assert_idle() noexcept {
 #ifndef NDEBUG
-    // FIXME(laurynas): copy-paste-tweak with expect_idle_qsbr, but not clear
-    // how to fix this
+    // Copy-paste-tweak with expect_idle_qsbr, but not clear how to fix this:
+    // here we are asserting over internals, over there we are using Google Test
+    // EXPECT macros with the public interface.
     assert(previous_interval_deallocation_requests.empty());
     assert(previous_interval_total_dealloc_size.load(
                std::memory_order_relaxed) == 0);

@@ -11,7 +11,6 @@
 #ifdef __x86_64
 #include <emmintrin.h>
 #endif
-#include <exception>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -296,25 +295,22 @@ class optimistic_write_lock_guard final {
 class unique_write_lock_obsoleting_guard final {
  public:
   explicit unique_write_lock_obsoleting_guard(optimistic_lock &lock_) noexcept
-      : lock{&lock_}, exceptions_at_ctor{std::uncaught_exceptions()} {
+      : lock{&lock_} {
     assert(lock->is_write_locked());
   }
 
   unique_write_lock_obsoleting_guard(
       unique_write_lock_obsoleting_guard &&other) noexcept
-      : lock{other.lock}, exceptions_at_ctor{other.exceptions_at_ctor} {
+      : lock{other.lock} {
+    assert(other.active());
+    assert(other.lock->is_write_locked());
+
     other.lock = nullptr;
   }
 
   ~unique_write_lock_obsoleting_guard() {
-    if (lock == nullptr) return;
-    // FIXME(laurynas): remove uncaught_exceptions() calls and require commit()
-    // to be called in the success paths (which is what the user code has to do
-    // anyway).
-    if (likely(exceptions_at_ctor == std::uncaught_exceptions()))
-      lock->write_unlock_and_obsolete();
-    else
-      lock->write_unlock();
+    if (likely(lock == nullptr)) return;
+    lock->write_unlock();
   }
 
   void commit() {
@@ -349,7 +345,6 @@ class unique_write_lock_obsoleting_guard final {
 
  private:
   optimistic_lock *lock;
-  const int exceptions_at_ctor;
 };
 
 template <typename T>

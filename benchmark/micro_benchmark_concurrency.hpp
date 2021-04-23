@@ -54,38 +54,23 @@ class concurrent_benchmark {
   RESTORE_GCC_WARNINGS()
 
  public:
+  concurrent_benchmark() noexcept = default;
   virtual ~concurrent_benchmark() {}
 
   void parallel_get(::benchmark::State &state) {
+    const auto num_of_threads = static_cast<std::size_t>(state.range(0));
+    const auto tree_size = static_cast<unodb::key>(state.range(1));
+
     test_db = std::make_unique<Db>();
 
-    const auto tree_size = static_cast<unodb::key>(state.range(1));
     for (unodb::key i = 0; i < tree_size; ++i)
       insert_key(*test_db, i, values[i % values.size()]);
 
-    const auto num_of_threads = static_cast<std::size_t>(state.range(0));
-    const unodb::key length = tree_size / num_of_threads;
-    // FIXME(laurynas): copy-paste
-    std::vector<Thread> threads{num_of_threads - 1};
-
     for (auto _ : state) {
-      setup();
-
-      for (std::size_t i = 0; i < num_of_threads - 1; ++i) {
-        const unodb::key start = i * length;
-        threads[i] =
-            Thread{parallel_get_worker, std::ref(*test_db), start, length};
-      }
-
-      parallel_get_worker(*test_db, 0, length);
-
-      for (std::size_t i = 0; i < num_of_threads - 1; ++i) {
-        threads[i].join();
-      }
-
-      end_workload_in_main_thread();
-
-      teardown();
+      state.PauseTiming();
+      do_parallel_test(*test_db, num_of_threads, tree_size, parallel_get_worker,
+                       state);
+      state.ResumeTiming();
     }
 
     test_db.reset(nullptr);
@@ -94,74 +79,78 @@ class concurrent_benchmark {
   void parallel_insert_disjoint_ranges(::benchmark::State &state) {
     const auto num_of_threads = static_cast<std::size_t>(state.range(0));
     const auto tree_size = static_cast<unodb::key>(state.range(1));
-    const unodb::key length = tree_size / num_of_threads;
 
     for (auto _ : state) {
       state.PauseTiming();
-      std::vector<Thread> threads{num_of_threads};
       test_db = std::make_unique<Db>();
-      setup();
-      state.ResumeTiming();
 
-      for (std::size_t i = 1; i < num_of_threads; ++i) {
-        const unodb::key start = i * length;
-        threads[i] =
-            Thread{parallel_insert_worker, std::ref(*test_db), start, length};
-      }
+      do_parallel_test(*test_db, num_of_threads, tree_size,
+                       parallel_insert_worker, state);
 
-      parallel_insert_worker(*test_db, 0, length);
-
-      for (std::size_t i = 1; i < num_of_threads; ++i) {
-        threads[i].join();
-      }
-
-      end_workload_in_main_thread();
-
-      state.PauseTiming();
       destroy_tree(*test_db, state);
-      teardown();
+      state.ResumeTiming();
     }
 
     test_db.reset(nullptr);
   }
 
   void parallel_delete_disjoint_ranges(::benchmark::State &state) {
-    const auto tree_size = static_cast<unodb::key>(state.range(1));
     const auto num_of_threads = static_cast<std::size_t>(state.range(0));
-    const unodb::key length = tree_size / num_of_threads;
+    const auto tree_size = static_cast<unodb::key>(state.range(1));
 
     for (auto _ : state) {
       state.PauseTiming();
-      std::vector<Thread> threads{num_of_threads};
+
       test_db = std::make_unique<Db>();
       for (unodb::key i = 0; i < tree_size; ++i)
         insert_key(*test_db, i, values[i % values.size()]);
-      setup();
-      state.ResumeTiming();
 
-      for (std::size_t i = 1; i < num_of_threads; ++i) {
-        const unodb::key start = i * length;
-        threads[i] =
-            Thread{parallel_delete_worker, std::ref(*test_db), start, length};
-      }
-
-      parallel_delete_worker(*test_db, 0, length);
-
-      for (std::size_t i = 1; i < num_of_threads; ++i) {
-        threads[i].join();
-      }
-
-      end_workload_in_main_thread();
-
-      state.PauseTiming();
+      do_parallel_test(*test_db, num_of_threads, tree_size,
+                       parallel_delete_worker, state);
       destroy_tree(*test_db, state);
-      teardown();
+      state.ResumeTiming();
     }
 
     test_db.reset(nullptr);
   }
 
+  concurrent_benchmark(const concurrent_benchmark<Db, Thread> &) = delete;
+  concurrent_benchmark(concurrent_benchmark<Db, Thread> &&) = delete;
+  concurrent_benchmark<Db, Thread> &operator=(
+      const concurrent_benchmark<Db, Thread> &) = delete;
+  concurrent_benchmark<Db, Thread> &operator=(
+      concurrent_benchmark<Db, Thread> &&) = delete;
+
  private:
+  template <typename Worker>
+  void do_parallel_test(Db &db, std::size_t num_of_threads,
+                        std::size_t tree_size, Worker worker,
+                        ::benchmark::State &state) {
+    setup();
+
+    std::vector<Thread> threads{num_of_threads - 1};
+    const unodb::key length{tree_size / num_of_threads};
+
+    state.ResumeTiming();
+
+    for (std::size_t i = 1; i < num_of_threads; ++i) {
+      const unodb::key start = i * length;
+      threads[i - 1] = Thread{worker, std::ref(db), start, length};
+    }
+
+    worker(db, 0, length);
+
+    for (std::size_t i = 1; i < num_of_threads; ++i) {
+      threads[i - 1].join();
+    }
+
+    end_workload_in_main_thread();
+
+    state.PauseTiming();
+
+    teardown();
+  }
+
   static void parallel_get_worker(const Db &test_db, unodb::key start,
                                   unodb::key length) {
     for (unodb::key i = start; i < start + length; ++i)

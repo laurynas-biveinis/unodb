@@ -242,22 +242,42 @@ add_subdirectory(3rd_party/benchmark)
 # https://github.com/trailofbits/deepstate/issues/374
 if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}"
       STREQUAL "Darwin"))
+  # ThreadSanitizer is not compatible with libfuzzer and LLVM 11 linker crashes
+  # on libfuzzer release build
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT("${CMAKE_BUILD_TYPE}"
+        STREQUAL "Release") AND NOT(SANITIZE_THREAD))
+    set(LIBFUZZER_AVAILABLE TRUE)
+    set(BUILD_DEEPSTATE_LIBFUZZER "-DDEEPSTATE_LIBFUZZER=ON")
+  else()
+    set(LIBFUZZER_AVAILABLE FALSE)
+    set(BUILD_DEEPSTATE_LIBFUZZER "-DDEEPSTATE_LIBFUZZER=OFF")
+  endif()
+
   include(ExternalProject)
   ExternalProject_Add(3rd_party_deepstate
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rd_party/deepstate"
     BINARY_DIR "${CMAKE_BINARY_DIR}/3rd_party/deepstate"
     CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
     "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}" "-DCMAKE_C_FLAGS=-w"
-    "-DCMAKE_CXX_FLAGS=-w"
+    "-DCMAKE_CXX_FLAGS=-w" "${BUILD_DEEPSTATE_LIBFUZZER}"
     INSTALL_COMMAND "")
+  ExternalProject_Get_property(3rd_party_deepstate SOURCE_DIR)
+  ExternalProject_Get_property(3rd_party_deepstate BINARY_DIR)
 
   add_library(deepstate STATIC IMPORTED)
-
-  ExternalProject_Get_property(3rd_party_deepstate SOURCE_DIR)
+  add_dependencies(deepstate 3rd_party_deepstate)
   target_include_directories(deepstate INTERFACE "${SOURCE_DIR}/src/include/")
-  ExternalProject_Get_property(3rd_party_deepstate BINARY_DIR)
   set_target_properties(deepstate PROPERTIES IMPORTED_LOCATION
     "${BINARY_DIR}/libdeepstate.a")
+
+  if(LIBFUZZER_AVAILABLE)
+    add_library(deepstate_lf STATIC IMPORTED)
+    add_dependencies(deepstate_lf 3rd_party_deepstate)
+    target_include_directories(deepstate_lf INTERFACE
+      "${SOURCE_DIR}/src/include/")
+    set_target_properties(deepstate_lf PROPERTIES IMPORTED_LOCATION
+      "${BINARY_DIR}/libdeepstate_LF.a")
+  endif()
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
@@ -344,6 +364,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(GSL_INCLUDES "3rd_party/GSL/include")
 
 function(COMMON_TARGET_PROPERTIES TARGET)
+  cmake_parse_arguments(PARSE_ARGV 1 CTP "SKIP_CHECKS" "" "")
   target_compile_options(${TARGET} PRIVATE "${CXX_FLAGS}")
   target_compile_options(${TARGET} PRIVATE "${SANITIZER_CXX_FLAGS}")
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
@@ -355,17 +376,19 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   if(IPO_SUPPORTED)
     set_target_properties(${TARGET} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
   endif()
-  if(CPPCHECK_EXE)
-    set_target_properties(${TARGET} PROPERTIES CXX_CPPCHECK "${DO_CPPCHECK}")
-  endif()
-  if(CPPLINT_EXE)
-    set_target_properties(${TARGET} PROPERTIES CXX_CPPLINT "${CPPLINT_EXE}")
-  endif()
-  if(IWYU_EXE)
-    set_target_properties(${TARGET} PROPERTIES CXX_INCLUDE_WHAT_YOU_USE "${DO_IWYU}")
-  endif()
-  if(STATIC_ANALYSIS)
-    target_compile_options(${TARGET} PRIVATE "-fanalyzer")
+  if(NOT CTP_SKIP_CHECKS)
+    if(CPPCHECK_EXE)
+      set_target_properties(${TARGET} PROPERTIES CXX_CPPCHECK "${DO_CPPCHECK}")
+    endif()
+    if(CPPLINT_EXE)
+      set_target_properties(${TARGET} PROPERTIES CXX_CPPLINT "${CPPLINT_EXE}")
+    endif()
+    if(IWYU_EXE)
+      set_target_properties(${TARGET} PROPERTIES CXX_INCLUDE_WHAT_YOU_USE "${DO_IWYU}")
+    endif()
+    if(STATIC_ANALYSIS)
+      target_compile_options(${TARGET} PRIVATE "-fanalyzer")
+    endif()
   endif()
 endfunction()
 
@@ -383,26 +406,40 @@ target_sources(unodb_util INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/global.hpp
 target_include_directories(unodb_util INTERFACE ".")
 target_include_directories(unodb_util INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(unodb_qsbr qsbr.cpp qsbr.hpp qsbr_ptr.cpp qsbr_ptr.hpp)
-common_target_properties(unodb_qsbr)
-target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
-target_link_libraries(unodb_qsbr PUBLIC unodb_util)
-target_include_directories(unodb_qsbr SYSTEM PUBLIC "${GSL_INCLUDES}")
-target_link_libraries(unodb_qsbr PRIVATE "${Boost_LIBRARIES}")
-if(DO_CLANG_TIDY)
-  set_target_properties(unodb_qsbr PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
-endif()
-target_link_libraries(unodb_qsbr PUBLIC Threads::Threads)
-set_clang_tidy_options(unodb_qsbr "${DO_CLANG_TIDY}")
+function(ADD_UNODB_LIBRARY LIB)
+  add_library(${LIB} ${ARGN})
+  common_target_properties(${LIB})
+  target_link_libraries(${LIB} PUBLIC unodb_util)
+  target_include_directories(${LIB} SYSTEM PUBLIC "${GSL_INCLUDES}")
+  set_clang_tidy_options(${LIB} "${DO_CLANG_TIDY}")
 
-add_library(unodb art.cpp art.hpp art_common.cpp art_common.hpp mutex_art.hpp
-  optimistic_lock.hpp art_internal_impl.hpp olc_art.hpp olc_art.cpp
-  art_internal.cpp art_internal.hpp)
-common_target_properties(unodb)
-target_link_libraries(unodb PUBLIC unodb_util)
+  if(LIBFUZZER_AVAILABLE)
+    set(LIB_LF "${LIB}_lf")
+    add_library(${LIB_LF} ${ARGN})
+    common_target_properties(${LIB_LF} SKIP_CHECKS)
+    target_link_libraries(${LIB_LF} PUBLIC unodb_util)
+    target_include_directories(${LIB_LF} SYSTEM PUBLIC "${GSL_INCLUDES}")
+    target_compile_options(${LIB_LF} PRIVATE "-fsanitize=fuzzer-no-link")
+  endif()
+endfunction()
+
+add_unodb_library(unodb_qsbr qsbr.cpp qsbr.hpp qsbr_ptr.cpp qsbr_ptr.hpp)
+target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
+target_link_libraries(unodb_qsbr PRIVATE "${Boost_LIBRARIES}")
+target_link_libraries(unodb_qsbr PUBLIC Threads::Threads)
+if(LIBFUZZER_AVAILABLE)
+  target_include_directories(unodb_qsbr_lf SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
+  target_link_libraries(unodb_qsbr_lf PRIVATE "${Boost_LIBRARIES}")
+  target_link_libraries(unodb_qsbr_lf PUBLIC Threads::Threads)
+endif()
+
+add_unodb_library(unodb art.cpp art.hpp art_common.cpp art_common.hpp
+  mutex_art.hpp optimistic_lock.hpp art_internal_impl.hpp olc_art.hpp
+  olc_art.cpp art_internal.cpp art_internal.hpp)
 target_link_libraries(unodb PUBLIC unodb_qsbr)
-target_include_directories(unodb SYSTEM PUBLIC "${GSL_INCLUDES}")
-set_clang_tidy_options(unodb "${DO_CLANG_TIDY}")
+if(LIBFUZZER_AVAILABLE)
+  target_link_libraries(unodb_lf PUBLIC unodb_qsbr_lf)
+endif()
 
 set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"
   "--trace-children=yes")

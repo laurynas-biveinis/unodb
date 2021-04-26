@@ -52,7 +52,8 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
   common_deepstate_target_properties(${TEST_NAME} FALSE)
   add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 5)
 
-  add_custom_target(${TEST_5S} DEPENDS ${TEST_NAME})
+  add_custom_target(${TEST_5S} DEPENDS ${TEST_NAME}
+    COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 5)
   add_custom_target(${TEST_1M} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 60)
   add_custom_target(${TEST_20M} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 1200)
   add_custom_target(${TEST_8H} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 28800)
@@ -84,7 +85,8 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
     common_deepstate_target_properties(${TEST_NAME} TRUE)
     add_test(NAME ${TEST_NAME} COMMAND ${INVOCATION} "-max_total_time=5")
 
-    add_custom_target(${TEST_5S} DEPENDS ${TEST_NAME})
+    add_custom_target(${TEST_5S} DEPENDS ${TEST_NAME}
+      COMMAND ${INVOCATION} "-max-total-time=5")
     add_custom_target(${TEST_1M} COMMAND ${INVOCATION} "-max_total_time=60")
     add_custom_target(${TEST_20M} COMMAND ${INVOCATION} "-max_total_time=1200")
     add_custom_target(${TEST_8H} COMMAND ${INVOCATION} "-max_total_time=28800")

@@ -45,11 +45,10 @@ auto get_value(dynamic_value::size_type max_length, values_type &values) {
   const auto make_new_value = values.empty() || DeepState_Bool();
   ASSERT(max_length <= std::numeric_limits<std::uint32_t>::max());
   if (make_new_value) {
-    const auto new_value_len = static_cast<dynamic_value::size_type>(
-        DeepState_SizeTInRange(0, max_length));
+    const dynamic_value::size_type new_value_len =
+        DeepState_SizeTInRange(0, max_length);
     auto new_value = make_random_value(new_value_len);
-    LOG(TRACE) << "Making a new value of length "
-               << static_cast<std::uint64_t>(new_value_len);
+    LOG(TRACE) << "Making a new value of length " << new_value_len;
     const auto &inserted_value = values.emplace_back(std::move(new_value));
     return unodb::value_view{inserted_value};
   }
@@ -90,8 +89,7 @@ TEST(ART, DeepStateFuzz) {
           ? DeepState_UInt64InRange(0, std::numeric_limits<unodb::key>::max())
           : std::numeric_limits<unodb::key>::max();
   if (limit_max_key)
-    LOG(TRACE) << "Limiting maximum key value to "
-               << static_cast<std::uint64_t>(max_key_value);
+    LOG(TRACE) << "Limiting maximum key value to " << max_key_value;
   else
     LOG(TRACE) << "Not limiting maximum key value (" << max_key_value << ")";
 
@@ -143,9 +141,7 @@ TEST(ART, DeepStateFuzz) {
             ASSERT(mem_use_after == mem_use_before);
           }
           dump_tree(test_db);
-          LOG(TRACE) << "Current mem use: "
-                     << static_cast<std::uint64_t>(
-                            test_db.get_current_memory_use());
+          LOG(TRACE) << "Current mem use: " << test_db.get_current_memory_use();
         },
         // Query
         [&] {
@@ -195,9 +191,7 @@ TEST(ART, DeepStateFuzz) {
                 << "If delete failed, oracle delete must fail too";
           }
           dump_tree(test_db);
-          LOG(TRACE) << "Current mem use: "
-                     << static_cast<std::uint64_t>(
-                            test_db.get_current_memory_use());
+          LOG(TRACE) << "Current mem use: " << test_db.get_current_memory_use();
         });
   }
 
@@ -210,8 +204,7 @@ TEST(ART, DeepStateFuzz) {
     const auto db_remove_result = test_db.remove(key);
     ASSERT(db_remove_result);
     const auto current_mem_use = test_db.get_current_memory_use();
-    LOG(TRACE) << "Current mem use: "
-               << static_cast<std::uint64_t>(current_mem_use);
+    LOG(TRACE) << "Current mem use: " << current_mem_use;
     ASSERT(current_mem_use < prev_mem_use);
     prev_mem_use = current_mem_use;
   }

@@ -90,16 +90,12 @@ randomly_advanced_pos_and_iterator(T &container) {
   return std::make_pair(i, std::move(itr));
 }
 
-DISABLE_GCC_WARNING("-Wuseless-cast")
-
 auto choose_thread() { return DeepState_ContainerIndex(threads); }
 
 auto choose_non_main_thread() {
   ASSERT(threads.size() >= 2);
   return DeepState_SizeTInRange(1, threads.size() - 1);
 }
-
-RESTORE_GCC_WARNINGS()
 
 void resume_thread(std::size_t thread_i) {
   ASSERT(threads[thread_i].is_paused ==
@@ -180,20 +176,16 @@ void deallocate_pointer(std::size_t thread_i) {
   }
 
   auto [ptr_i, itr] = randomly_advanced_pos_and_iterator(allocated_pointers);
-  LOG(TRACE) << "Deallocating pointer index "
-             << static_cast<std::uint64_t>(ptr_i);
+  LOG(TRACE) << "Deallocating pointer index " << ptr_i;
   auto *const ptr{*itr};
   deallocate_pointer(ptr);
   allocated_pointers.erase(itr);
 }
 
-DISABLE_GCC_WARNING("-Wuseless-cast")
-
 void new_active_pointer_from_allocated_pointer(active_pointers &active_ptrs) {
   auto [allocated_ptr_i, allocated_ptr_itr] =
       randomly_advanced_pos_and_iterator(allocated_pointers);
-  LOG(TRACE) << "Taking allocated pointer "
-             << static_cast<std::uint64_t>(allocated_ptr_i);
+  LOG(TRACE) << "Taking allocated pointer " << allocated_ptr_i;
   ASSERT(**allocated_ptr_itr == object_mem);
   active_ptrs.emplace_back(*allocated_ptr_itr);
 }
@@ -201,8 +193,7 @@ void new_active_pointer_from_allocated_pointer(active_pointers &active_ptrs) {
 void new_copy_constructed_active_pointer(active_pointers &active_ptrs) {
   auto [active_ptr_i, active_ptr_itr] =
       randomly_advanced_pos_and_iterator(active_ptrs);
-  LOG(TRACE) << "Copy-constructing active pointer from "
-             << static_cast<std::uint64_t>(active_ptr_i);
+  LOG(TRACE) << "Copy-constructing active pointer from " << active_ptr_i;
   ASSERT(**active_ptr_itr == object_mem);
   active_ptrs.emplace_back(*active_ptr_itr);
 }
@@ -210,8 +201,7 @@ void new_copy_constructed_active_pointer(active_pointers &active_ptrs) {
 void new_move_constructed_active_pointer(active_pointers &active_ptrs) {
   auto [active_ptr_i, active_ptr_itr] =
       randomly_advanced_pos_and_iterator(active_ptrs);
-  LOG(TRACE) << "Move-constructing active pointer from "
-             << static_cast<std::uint64_t>(active_ptr_i);
+  LOG(TRACE) << "Move-constructing active pointer from " << active_ptr_i;
   ASSERT(**active_ptr_itr == object_mem);
   active_ptrs.emplace_back(std::move(*active_ptr_itr));
   active_ptrs.erase(active_ptrs.begin() + active_ptr_i);
@@ -222,9 +212,8 @@ void copy_assign_active_pointer(active_pointers &active_ptrs) {
       randomly_advanced_pos_and_iterator(active_ptrs);
   auto [dest_active_ptr_i, dest_active_ptr_itr] =
       randomly_advanced_pos_and_iterator(active_ptrs);
-  LOG(TRACE) << "Copy-assigning active pointer from "
-             << static_cast<std::uint64_t>(source_active_ptr_i) << " to "
-             << static_cast<std::uint64_t>(dest_active_ptr_i);
+  LOG(TRACE) << "Copy-assigning active pointer from " << source_active_ptr_i
+             << " to " << dest_active_ptr_i;
   ASSERT(**dest_active_ptr_itr == object_mem);
   ASSERT(**source_active_ptr_itr == object_mem);
   *dest_active_ptr_itr = *source_active_ptr_itr;
@@ -238,17 +227,15 @@ void move_assign_active_pointer(active_pointers &active_ptrs) {
   auto [dest_active_ptr_i, dest_active_ptr_itr] =
       randomly_advanced_pos_and_iterator(active_ptrs);
   if (source_active_ptr_i != dest_active_ptr_i) {
-    LOG(TRACE) << "Move-assigning active pointer from "
-               << static_cast<std::uint64_t>(source_active_ptr_i) << " to "
-               << static_cast<std::uint64_t>(dest_active_ptr_i);
+    LOG(TRACE) << "Move-assigning active pointer from " << source_active_ptr_i
+               << " to " << dest_active_ptr_i;
     ASSERT(**dest_active_ptr_itr == object_mem);
     ASSERT(**source_active_ptr_itr == object_mem);
     *dest_active_ptr_itr = std::move(*source_active_ptr_itr);
     ASSERT(**dest_active_ptr_itr == object_mem);
     active_ptrs.erase(source_active_ptr_itr);
   } else {
-    LOG(TRACE) << "Copy-self-assigning active pointer "
-               << static_cast<std::uint64_t>(source_active_ptr_i);
+    LOG(TRACE) << "Copy-self-assigning active pointer " << source_active_ptr_i;
     ASSERT(**dest_active_ptr_itr == object_mem);
     ASSERT(**source_active_ptr_itr == object_mem);
     *dest_active_ptr_itr = *source_active_ptr_itr;
@@ -256,8 +243,6 @@ void move_assign_active_pointer(active_pointers &active_ptrs) {
     ASSERT(**source_active_ptr_itr == object_mem);
   }
 }
-
-RESTORE_GCC_WARNINGS()
 
 void take_active_pointer(std::size_t thread_i) {
   ASSERT(threads[thread_i].is_paused ==
@@ -316,8 +301,6 @@ void take_active_pointer(std::size_t thread_i) {
   }
 }
 
-DISABLE_GCC_WARNING("-Wuseless-cast")
-
 void release_active_pointer(std::size_t thread_i) {
   ASSERT(threads[thread_i].is_paused ==
          unodb::current_thread_reclamator().is_paused());
@@ -338,8 +321,7 @@ void release_active_pointer(std::size_t thread_i) {
 
   auto [active_ptr_i, active_ptr_itr] =
       randomly_advanced_pos_and_iterator(active_ptrs);
-  LOG(TRACE) << "Releasing active pointer "
-             << static_cast<std::uint64_t>(active_ptr_i);
+  LOG(TRACE) << "Releasing active pointer " << active_ptr_i;
   active_ptrs.erase(active_ptr_itr);
 }
 
@@ -378,8 +360,7 @@ void do_op_in_thread(std::size_t thread_i, thread_operation op) {
 }
 
 void quit_thread(std::size_t thread_i) {
-  LOG(TRACE) << "Trying to quit thread "
-             << static_cast<std::uint64_t>(thread_i);
+  LOG(TRACE) << "Trying to quit thread " << thread_i;
   ASSERT(thread_i > main_thread_i);
 
   const auto thread_itr =
@@ -399,8 +380,7 @@ void quit_thread(std::size_t thread_i) {
   const auto thread_id{tinfo.id};
   ASSERT(thread_id > main_thread_id);
   ASSERT(thread_id < new_thread_id);
-  LOG(TRACE) << "Stopping the thread with ID "
-             << static_cast<std::uint64_t>(thread_id);
+  LOG(TRACE) << "Stopping the thread with ID " << thread_id;
   thread_op = thread_operation::QUIT_THREAD;
   thread_sync[thread_id].notify();
   tinfo.thread.join();
@@ -490,8 +470,7 @@ void do_or_dispatch_op(std::size_t thread_i, thread_operation op) {
   ASSERT(op != thread_operation::QUIT_THREAD);
   ASSERT(op != thread_operation::RESET_STATS);
 
-  LOG(TRACE) << "Next operation in thread "
-             << static_cast<std::uint64_t>(thread_i);
+  LOG(TRACE) << "Next operation in thread " << thread_i;
   if (thread_i == main_thread_i)
     do_op(thread_i, op);
   else
@@ -537,8 +516,7 @@ TEST(QSBR, DeepStateFuzz) {
             return;
           }
           const auto tid = new_thread_id++;
-          LOG(TRACE) << "Creating a new thread with ID "
-                     << static_cast<std::uint64_t>(tid);
+          LOG(TRACE) << "Creating a new thread with ID " << tid;
           threads.emplace_back(tid, test_thread, tid);
           thread_sync[main_thread_id].wait();
         },
@@ -603,7 +581,7 @@ TEST(QSBR, DeepStateFuzz) {
   }
 
   for (std::size_t i = 0; i < threads.size(); ++i) {
-    LOG(TRACE) << "Cleaning up thread " << static_cast<std::uint64_t>(i);
+    LOG(TRACE) << "Cleaning up thread " << i;
     if (threads[i].is_paused) {
       LOG(TRACE) << "Thread is stopped, resuming";
       ASSERT(threads[i].active_ptrs.empty());
@@ -611,8 +589,7 @@ TEST(QSBR, DeepStateFuzz) {
       continue;
     }
     while (!threads[i].active_ptrs.empty()) {
-      LOG(TRACE) << "Releasing active pointer in thread "
-                 << static_cast<std::uint64_t>(i);
+      LOG(TRACE) << "Releasing active pointer in thread " << i;
       do_or_dispatch_op(i, thread_operation::RELEASE_ACTIVE_POINTER);
     }
   }

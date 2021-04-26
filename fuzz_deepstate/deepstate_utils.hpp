@@ -13,14 +13,8 @@
 #define UNODB_START_DEEPSTATE_TESTS() \
   DISABLE_CLANG_WARNING("-Wmissing-noreturn")
 
-// Cast for logging to std::uint64_t to workaround
-// https://github.com/trailofbits/deepstate/issues/138, but then
-// error: useless cast to type ‘uint64_t’ {aka ‘long unsigned int’}
-// [-Werror=useless-cast]
-DISABLE_GCC_WARNING("-Wuseless-cast")
-
-inline auto DeepState_SizeTInRange(std::size_t min, std::size_t max) {
-  return static_cast<std::size_t>(DeepState_UInt64InRange(min, max));
+inline std::size_t DeepState_SizeTInRange(std::size_t min, std::size_t max) {
+  return DeepState_UInt64InRange(min, max);
 }
 
 template <class T>

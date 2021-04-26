@@ -14,22 +14,6 @@ function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET WITH_LIBFUZZER)
     target_link_libraries(${TARGET} PRIVATE deepstate)
     set_clang_tidy_options(${TARGET} "${DO_CLANG_TIDY_DEEPSTATE}")
   endif()
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug"
-      AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    # Workaround https://github.com/trailofbits/deepstate/issues/375 -
-    # In file included from
-    # /home/travis/build/laurynas-biveinis/unodb/3rd_party/deepstate/src/include/deepstate/DeepState.hpp:20,
-    # from
-    # /home/travis/build/laurynas-biveinis/unodb/fuzz_deepstate/test_art_fuzz_deepstate.cpp:8:
-    # /home/travis/build/laurynas-biveinis/unodb/3rd_party/deepstate/src/include/deepstate/DeepState.h: In function ‘size_t deepstate::PickIndex(double*, size_t)’:
-    # /home/travis/build/laurynas-biveinis/unodb/3rd_party/deepstate/src/include/deepstate/DeepState.h:392:1: error: inlining failed in call to ‘always_inline’ ‘uint32_t DeepState_UIntInRange(uint32_t, uint32_t)’: function not considered for inlining
-    # 392 | DEEPSTATE_MAKE_SYMBOLIC_RANGE(UInt, uint32_t)
-    #      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # /home/travis/build/laurynas-biveinis/unodb/3rd_party/deepstate/src/include/deepstate/DeepState.h:392:1: note: called from here
-    # 392 | DEEPSTATE_MAKE_SYMBOLIC_RANGE(UInt, uint32_t)
-    #      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    target_compile_options(${TARGET} PRIVATE "-O1")
-  endif()
 endfunction()
 
 set(DEEPSTATE_FAIL_DIR "deepstate_fails")

@@ -2,9 +2,9 @@
 
 enable_testing()
 
-function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET WITH_LIBFUZZER)
-  # FIXME(laurynas): replace with cmake_parse_arguments
-  if(WITH_LIBFUZZER)
+function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
+  cmake_parse_arguments(PARSE_ARGV 1 CDTP "WITH_LIBFUZZER" "" "")
+  if(CDTP_WITH_LIBFUZZER)
     common_target_properties(${TARGET} SKIP_CHECKS)
     target_link_libraries(${TARGET} PRIVATE deepstate_lf)
     target_compile_options(${TARGET} PRIVATE "-fsanitize=fuzzer-no-link")
@@ -33,7 +33,7 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
   set(VALGRIND_TARGET "valgrind_${ID}_deepstate")
 
   add_executable(${TEST_NAME} "${TEST_NAME}.cpp")
-  common_deepstate_target_properties(${TEST_NAME} FALSE)
+  common_deepstate_target_properties(${TEST_NAME})
   add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 5)
 
   add_custom_target(${TEST_5S} DEPENDS ${TEST_NAME}
@@ -66,7 +66,7 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CORPUS_DIR})
 
     add_executable(${TEST_NAME} "${SOURCE_NAME}")
-    common_deepstate_target_properties(${TEST_NAME} TRUE)
+    common_deepstate_target_properties(${TEST_NAME} WITH_LIBFUZZER)
     add_test(NAME ${TEST_NAME} COMMAND ${INVOCATION} "-max_total_time=5")
 
     add_custom_target(${TEST_5S} DEPENDS ${TEST_NAME}

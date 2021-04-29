@@ -139,6 +139,8 @@ class basic_db_leaf_deleter {
 
   void operator()(raw_leaf_ptr to_delete) const noexcept;
 
+  [[nodiscard]] Db &get_db() const noexcept { return db; }
+
  private:
   Db &db;
 };
@@ -157,6 +159,22 @@ struct basic_inode_def final {
   basic_inode_def() = delete;
 };
 
+template <class INode, class Header, class Db, class INodeDefs>
+class basic_db_inode_deleter {
+ public:
+  constexpr explicit basic_db_inode_deleter(Db &db_) noexcept : db{db_} {}
+
+  void operator()(INode *inode_ptr) const noexcept;
+
+  [[nodiscard]] Db &get_db() const noexcept { return db; }
+
+ private:
+  template <class T>
+  struct dependent_false : std::false_type {};
+
+  Db &db;
+};
+
 // A pointer to some kind of node. It can be accessed either as a node header,
 // to query the right node type, a leaf, or as one of the internal nodes. This
 // depends on all types being of standard layout and Header being at the same
@@ -165,6 +183,7 @@ struct basic_inode_def final {
 template <class Header, class INode, class INodeDefs>
 union basic_node_ptr {
   using header_type = Header;
+  using inode_defs = INodeDefs;
   using inode = INode;
   using inode4_type = typename INodeDefs::n4;
   using inode16_type = typename INodeDefs::n16;

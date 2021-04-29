@@ -8,7 +8,6 @@
 #include <cassert>
 #include <cstddef>
 #include <iostream>
-#include <memory>
 #include <type_traits>
 #include <utility>
 
@@ -168,18 +167,17 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
   }
 
   // FIXME(laurynas): hide guards in unique_ptr deleters?
-  olc_inode_4(std::unique_ptr<olc_inode_16> &&source_node,
-              unique_write_lock_obsoleting_guard &&node_obsoleting_guard,
-              std::uint8_t child_to_delete,
-              unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-              olc_db &db_instance) noexcept;
-
-  [[nodiscard]] static std::unique_ptr<olc_inode_4> create(
-      std::unique_ptr<olc_inode_16> &&source_node,
+  olc_inode_4(
+      db_inode16_unique_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&node_obsoleting_guard,
       std::uint8_t child_to_delete,
-      unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-      olc_db &db_instance);
+      unique_write_lock_obsoleting_guard &&child_obsoleting_guard) noexcept;
+
+  [[nodiscard]] static db_inode4_unique_ptr create(
+      db_inode16_unique_ptr &&source_node,
+      unique_write_lock_obsoleting_guard &&node_obsoleting_guard,
+      std::uint8_t child_to_delete,
+      unique_write_lock_obsoleting_guard &&child_obsoleting_guard);
 
   // Create a new node with two given child nodes
   [[nodiscard]] static auto create(detail::art_key k1,
@@ -253,7 +251,7 @@ static_assert(sizeof(olc_inode_4) == 48 + 32);
 class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
  public:
   olc_inode_16(
-      std::unique_ptr<olc_inode_4> &&source_node,
+      db_inode4_unique_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       olc_db_leaf_unique_ptr &&child, detail::tree_depth depth) noexcept
       : basic_inode_16<olc_art_policy>{
@@ -264,31 +262,29 @@ class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
   }
 
   olc_inode_16(
-      std::unique_ptr<olc_inode_48> &&source_node,
+      db_inode48_unique_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       std::uint8_t child_to_delete,
-      unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-      olc_db &db_instance) noexcept;
+      unique_write_lock_obsoleting_guard &&child_obsoleting_guard) noexcept;
 
   // FIXME(laurynas): if cannot hide the guards in unique_ptr, move superclass
   // create methods to db::
   [[nodiscard]] static auto create(
-      std::unique_ptr<olc_inode_4> &&source_node,
+      db_inode4_unique_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       olc_db_leaf_unique_ptr &&child, detail::tree_depth depth) {
     assert(source_node_obsoleting_guard.guards(lock(*source_node)));
 
-    return std::make_unique<olc_inode_16>(
-        std::move(source_node), std::move(source_node_obsoleting_guard),
-        std::move(child), depth);
+    return olc_art_policy::make_db_inode_unique_ptr<olc_inode_16>(
+        child.get_deleter().get_db(), std::move(source_node),
+        std::move(source_node_obsoleting_guard), std::move(child), depth);
   }
 
-  [[nodiscard]] static std::unique_ptr<olc_inode_16> create(
-      std::unique_ptr<olc_inode_48> &&source_node,
+  [[nodiscard]] static db_inode16_unique_ptr create(
+      db_inode48_unique_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       std::uint8_t child_to_delete,
-      unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-      olc_db &db_instance);
+      unique_write_lock_obsoleting_guard &&child_obsoleting_guard);
 
   static void operator delete(void *to_delete) {
     qsbr_delete<olc_inode_16>(to_delete);
@@ -335,40 +331,37 @@ static_assert(sizeof(olc_inode_16) == 160 + 32);
 #endif
 
 olc_inode_4::olc_inode_4(
-    std::unique_ptr<olc_inode_16> &&source_node,
+    db_inode16_unique_ptr &&source_node,
     unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
     std::uint8_t child_to_delete,
-    unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-    // cppcheck-suppress constParameter
-    olc_db &db_instance) noexcept
+    unique_write_lock_obsoleting_guard &&child_obsoleting_guard) noexcept
     : basic_inode_4<olc_art_policy>{
           obsolete_and_move(source_node,
                             std::move(source_node_obsoleting_guard)),
           obsolete_child_by_index(child_to_delete,
-                                  std::move(child_obsoleting_guard)),
-          db_instance} {
+                                  std::move(child_obsoleting_guard))} {
   assert(!source_node_obsoleting_guard.active());
   assert(!child_obsoleting_guard.active());
 }
 
-[[nodiscard]] inline std::unique_ptr<olc_inode_4> olc_inode_4::create(
-    std::unique_ptr<olc_inode_16> &&source_node,
+[[nodiscard]] inline olc_inode_4::db_inode4_unique_ptr olc_inode_4::create(
+    db_inode16_unique_ptr &&source_node,
     unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
     std::uint8_t child_to_delete,
-    unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-    olc_db &db_instance) {
+    unique_write_lock_obsoleting_guard &&child_obsoleting_guard) {
   assert(source_node_obsoleting_guard.guards(lock(*source_node)));
   assert(child_obsoleting_guard.active());
 
-  return std::make_unique<olc_inode_4>(
-      std::move(source_node), std::move(source_node_obsoleting_guard),
-      child_to_delete, std::move(child_obsoleting_guard), db_instance);
+  return olc_art_policy::make_db_inode_unique_ptr<olc_inode_4>(
+      source_node.get_deleter().get_db(), std::move(source_node),
+      std::move(source_node_obsoleting_guard), child_to_delete,
+      std::move(child_obsoleting_guard));
 }
 
 class olc_inode_48 final : public basic_inode_48<olc_art_policy> {
  public:
   olc_inode_48(
-      std::unique_ptr<olc_inode_16> &&source_node,
+      db_inode16_unique_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       olc_db_leaf_unique_ptr &&child, detail::tree_depth depth) noexcept
       : basic_inode_48<olc_art_policy>{
@@ -379,29 +372,27 @@ class olc_inode_48 final : public basic_inode_48<olc_art_policy> {
   }
 
   [[nodiscard]] static auto create(
-      std::unique_ptr<olc_inode_16> &&source_node,
+      db_inode16_unique_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       olc_db_leaf_unique_ptr &&child, detail::tree_depth depth) {
     assert(source_node_obsoleting_guard.guards(lock(*source_node)));
 
-    return std::make_unique<olc_inode_48>(
-        std::move(source_node), std::move(source_node_obsoleting_guard),
-        std::move(child), depth);
+    return olc_art_policy::make_db_inode_unique_ptr<olc_inode_48>(
+        child.get_deleter().get_db(), std::move(source_node),
+        std::move(source_node_obsoleting_guard), std::move(child), depth);
   }
 
   olc_inode_48(
-      std::unique_ptr<olc_inode_256> &&source_node,
+      db_inode256_unique_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       std::uint8_t child_to_delete,
-      unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-      olc_db &db_instance) noexcept;
+      unique_write_lock_obsoleting_guard &&child_obsoleting_guard) noexcept;
 
-  [[nodiscard]] static std::unique_ptr<olc_inode_48> create(
-      std::unique_ptr<olc_inode_256> &&source_node,
+  [[nodiscard]] static db_inode48_unique_ptr create(
+      db_inode256_unique_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       std::uint8_t child_to_delete,
-      unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-      olc_db &db_instance);
+      unique_write_lock_obsoleting_guard &&child_obsoleting_guard);
 
   static void operator delete(void *to_delete) {
     qsbr_delete<olc_inode_48>(to_delete);
@@ -433,35 +424,32 @@ static_assert(sizeof(olc_inode_48) == 656 + 16);
 static_assert(sizeof(olc_inode_48) == 656 + 32);
 #endif
 
-[[nodiscard]] inline std::unique_ptr<olc_inode_16> olc_inode_16::create(
-    std::unique_ptr<olc_inode_48> &&source_node,
+[[nodiscard]] inline olc_inode_16::db_inode16_unique_ptr olc_inode_16::create(
+    db_inode48_unique_ptr &&source_node,
     unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
     std::uint8_t child_to_delete,
-    unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-    olc_db &db_instance) {
+    unique_write_lock_obsoleting_guard &&child_obsoleting_guard) {
   assert(source_node_obsoleting_guard.guards(lock(*source_node)));
   // TODO(laurynas): consider asserting that the child guard guards the right
   // lock.
   assert(child_obsoleting_guard.active());
 
-  return std::make_unique<olc_inode_16>(
-      std::move(source_node), std::move(source_node_obsoleting_guard),
-      child_to_delete, std::move(child_obsoleting_guard), db_instance);
+  return olc_art_policy::make_db_inode_unique_ptr<olc_inode_16>(
+      source_node.get_deleter().get_db(), std::move(source_node),
+      std::move(source_node_obsoleting_guard), child_to_delete,
+      std::move(child_obsoleting_guard));
 }
 
 olc_inode_16::olc_inode_16(
-    std::unique_ptr<olc_inode_48> &&source_node,
+    db_inode48_unique_ptr &&source_node,
     unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
     std::uint8_t child_to_delete,
-    unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-    // cppcheck-suppress constParameter
-    olc_db &db_instance) noexcept
+    unique_write_lock_obsoleting_guard &&child_obsoleting_guard) noexcept
     : basic_inode_16<olc_art_policy>{
           obsolete_and_move(source_node,
                             std::move(source_node_obsoleting_guard)),
           obsolete_child_by_index(child_to_delete,
-                                  std::move(child_obsoleting_guard)),
-          db_instance} {
+                                  std::move(child_obsoleting_guard))} {
   assert(!source_node_obsoleting_guard.active());
   assert(!child_obsoleting_guard.active());
 }
@@ -469,7 +457,7 @@ olc_inode_16::olc_inode_16(
 class olc_inode_256 final : public basic_inode_256<olc_art_policy> {
  public:
   olc_inode_256(
-      std::unique_ptr<olc_inode_48> &&source_node,
+      db_inode48_unique_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       olc_db_leaf_unique_ptr &&child, detail::tree_depth depth) noexcept
       : basic_inode_256<olc_art_policy>{
@@ -480,14 +468,14 @@ class olc_inode_256 final : public basic_inode_256<olc_art_policy> {
   }
 
   [[nodiscard]] static auto create(
-      std::unique_ptr<olc_inode_48> &&source_node,
+      db_inode48_unique_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       olc_db_leaf_unique_ptr &&child, detail::tree_depth depth) {
     assert(source_node_obsoleting_guard.guards(lock(*source_node)));
 
-    return std::make_unique<olc_inode_256>(
-        std::move(source_node), std::move(source_node_obsoleting_guard),
-        std::move(child), depth);
+    return olc_art_policy::make_db_inode_unique_ptr<olc_inode_256>(
+        child.get_deleter().get_db(), std::move(source_node),
+        std::move(source_node_obsoleting_guard), std::move(child), depth);
   }
 
   static void operator delete(void *to_delete) {
@@ -520,33 +508,30 @@ static_assert(sizeof(olc_inode_256) == 2064 + 8);
 static_assert(sizeof(olc_inode_256) == 2064 + 24);
 #endif
 
-[[nodiscard]] inline std::unique_ptr<olc_inode_48> olc_inode_48::create(
-    std::unique_ptr<olc_inode_256> &&source_node,
+[[nodiscard]] inline olc_inode_48::db_inode48_unique_ptr olc_inode_48::create(
+    db_inode256_unique_ptr &&source_node,
     unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
     std::uint8_t child_to_delete,
-    unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-    olc_db &db_instance) {
+    unique_write_lock_obsoleting_guard &&child_obsoleting_guard) {
   assert(source_node_obsoleting_guard.guards(lock(*source_node)));
   assert(child_obsoleting_guard.active());
 
-  return std::make_unique<olc_inode_48>(
-      std::move(source_node), std::move(source_node_obsoleting_guard),
-      child_to_delete, std::move(child_obsoleting_guard), db_instance);
+  return olc_art_policy::make_db_inode_unique_ptr<olc_inode_48>(
+      source_node.get_deleter().get_db(), std::move(source_node),
+      std::move(source_node_obsoleting_guard), child_to_delete,
+      std::move(child_obsoleting_guard));
 }
 
 olc_inode_48::olc_inode_48(
-    std::unique_ptr<olc_inode_256> &&source_node,
+    db_inode256_unique_ptr &&source_node,
     unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
     std::uint8_t child_to_delete,
-    unique_write_lock_obsoleting_guard &&child_obsoleting_guard,
-    // cppcheck-suppress constParameter
-    olc_db &db_instance) noexcept
+    unique_write_lock_obsoleting_guard &&child_obsoleting_guard) noexcept
     : basic_inode_48<olc_art_policy>{
           obsolete_and_move(source_node,
                             std::move(source_node_obsoleting_guard)),
           obsolete_child_by_index(child_to_delete,
-                                  std::move(child_obsoleting_guard)),
-          db_instance} {
+                                  std::move(child_obsoleting_guard))} {
   assert(!source_node_obsoleting_guard.active());
   assert(!child_obsoleting_guard.active());
 }
@@ -786,42 +771,40 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       if (node_type == detail::node_type::I4) {
         // TODO(laurynas): shorten the critical section by moving allocation
         // before it?
-        increase_memory_use(sizeof(detail::olc_inode_16) -
-                            sizeof(detail::olc_inode_4));
-        std::unique_ptr<detail::olc_inode_4> current_node{node.node_4};
+        increase_memory_use(sizeof(detail::olc_inode_16));
+        auto current_node{
+            olc_art_policy::make_db_inode_unique_ptr(*this, node.node_4)};
         auto larger_node = detail::olc_inode_16::create(
             std::move(current_node), std::move(obsolete_node_on_exit),
             std::move(leaf), depth);
         *node_loc = larger_node.release();
 
-        inode4_count.fetch_sub(1, std::memory_order_relaxed);
         inode16_count.fetch_add(1, std::memory_order_relaxed);
         inode4_to_inode16_count.fetch_add(1, std::memory_order_relaxed);
 
       } else if (node_type == detail::node_type::I16) {
-        increase_memory_use(sizeof(detail::olc_inode_48) -
-                            sizeof(detail::olc_inode_16));
-        std::unique_ptr<detail::olc_inode_16> current_node{node.node_16};
+        increase_memory_use(sizeof(detail::olc_inode_48));
+        auto current_node{
+            olc_art_policy::make_db_inode_unique_ptr(*this, node.node_16)};
         auto larger_node = detail::olc_inode_48::create(
             std::move(current_node), std::move(obsolete_node_on_exit),
             std::move(leaf), depth);
         *node_loc = larger_node.release();
 
-        inode16_count.fetch_sub(1, std::memory_order_relaxed);
         inode48_count.fetch_add(1, std::memory_order_relaxed);
         inode16_to_inode48_count.fetch_add(1, std::memory_order_relaxed);
 
       } else {
-        increase_memory_use(sizeof(detail::olc_inode_256) -
-                            sizeof(detail::olc_inode_48));
         assert(node_type == detail::node_type::I48);
-        std::unique_ptr<detail::olc_inode_48> current_node{node.node_48};
+
+        increase_memory_use(sizeof(detail::olc_inode_256));
+        auto current_node{
+            olc_art_policy::make_db_inode_unique_ptr(*this, node.node_48)};
         auto larger_node = detail::olc_inode_256::create(
             std::move(current_node), std::move(obsolete_node_on_exit),
             std::move(leaf), depth);
         *node_loc = larger_node.release();
 
-        inode48_count.fetch_sub(1, std::memory_order_relaxed);
         inode256_count.fetch_add(1, std::memory_order_relaxed);
         inode48_to_inode256_count.fetch_add(1, std::memory_order_relaxed);
       }
@@ -994,50 +977,47 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
       if (node_type == detail::node_type::I4) {
         obsolete_node_on_exit.commit();
         obsolete_child_on_exit.commit();
-        std::unique_ptr<detail::olc_inode_4> current_node{node.node_4};
+        auto current_node{
+            olc_art_policy::make_db_inode_unique_ptr(*this, node.node_4)};
         *node_loc = current_node->leave_last_child(child_i, *this);
 
-        decrease_memory_use(sizeof(detail::olc_inode_4));
-        inode4_count.fetch_sub(1, std::memory_order_relaxed);
         deleted_inode4_count.fetch_add(1, std::memory_order_relaxed);
 
       } else if (node_type == detail::node_type::I16) {
-        std::unique_ptr<detail::olc_inode_16> current_node{node.node_16};
+        auto current_node{
+            olc_art_policy::make_db_inode_unique_ptr(*this, node.node_16)};
         auto new_node{detail::olc_inode_4::create(
             std::move(current_node), std::move(obsolete_node_on_exit), child_i,
-            std::move(obsolete_child_on_exit), *this)};
+            std::move(obsolete_child_on_exit))};
         *node_loc = new_node.release();
 
-        decrease_memory_use(sizeof(detail::olc_inode_16) -
-                            sizeof(detail::olc_inode_4));
-        inode16_count.fetch_sub(1, std::memory_order_relaxed);
+        increase_memory_use(sizeof(detail::olc_inode_4));
         inode4_count.fetch_add(1, std::memory_order_relaxed);
         inode16_to_inode4_count.fetch_add(1, std::memory_order_relaxed);
 
       } else if (node_type == detail::node_type::I48) {
-        std::unique_ptr<detail::olc_inode_48> current_node{node.node_48};
+        auto current_node{
+            olc_art_policy::make_db_inode_unique_ptr(*this, node.node_48)};
         auto new_node{detail::olc_inode_16::create(
             std::move(current_node), std::move(obsolete_node_on_exit), child_i,
-            std::move(obsolete_child_on_exit), *this)};
+            std::move(obsolete_child_on_exit))};
         *node_loc = new_node.release();
 
-        decrease_memory_use(sizeof(detail::olc_inode_48) -
-                            sizeof(detail::olc_inode_16));
-        inode48_count.fetch_sub(1, std::memory_order_relaxed);
+        increase_memory_use(sizeof(detail::olc_inode_16));
         inode16_count.fetch_add(1, std::memory_order_relaxed);
         inode48_to_inode16_count.fetch_add(1, std::memory_order_relaxed);
 
       } else {
         assert(node_type == detail::node_type::I256);
-        std::unique_ptr<detail::olc_inode_256> current_node{node.node_256};
+
+        auto current_node{
+            olc_art_policy::make_db_inode_unique_ptr(*this, node.node_256)};
         auto new_node{detail::olc_inode_48::create(
             std::move(current_node), std::move(obsolete_node_on_exit), child_i,
-            std::move(obsolete_child_on_exit), *this)};
+            std::move(obsolete_child_on_exit))};
         *node_loc = new_node.release();
 
-        decrease_memory_use(sizeof(detail::olc_inode_256) -
-                            sizeof(detail::olc_inode_48));
-        inode256_count.fetch_sub(1, std::memory_order_relaxed);
+        increase_memory_use(sizeof(detail::olc_inode_48));
         inode48_count.fetch_add(1, std::memory_order_relaxed);
         inode256_to_inode48_count.fetch_add(1, std::memory_order_relaxed);
       }
@@ -1116,6 +1096,38 @@ void olc_db::decrease_memory_use(std::size_t delta) noexcept {
 void olc_db::dump(std::ostream &os) const {
   os << "olc_db dump, currently used = " << get_current_memory_use() << '\n';
   detail::dump_node(os, root.load());
+}
+
+inline void olc_db::decrement_inode4_count() noexcept {
+  const auto USED_IN_DEBUG old_inode4_count =
+      inode4_count.fetch_sub(1, std::memory_order_relaxed);
+  assert(old_inode4_count > 0);
+
+  decrease_memory_use(sizeof(detail::olc_inode_4));
+}
+
+inline void olc_db::decrement_inode16_count() noexcept {
+  const auto USED_IN_DEBUG old_inode16_count =
+      inode16_count.fetch_sub(1, std::memory_order_relaxed);
+  assert(old_inode16_count > 0);
+
+  decrease_memory_use(sizeof(detail::olc_inode_16));
+}
+
+inline void olc_db::decrement_inode48_count() noexcept {
+  const auto USED_IN_DEBUG old_inode48_count =
+      inode48_count.fetch_sub(1, std::memory_order_relaxed);
+  assert(old_inode48_count > 0);
+
+  decrease_memory_use(sizeof(detail::olc_inode_48));
+}
+
+inline void olc_db::decrement_inode256_count() noexcept {
+  const auto USED_IN_DEBUG old_inode256_count =
+      inode256_count.fetch_sub(1, std::memory_order_relaxed);
+  assert(old_inode256_count > 0);
+
+  decrease_memory_use(sizeof(detail::olc_inode_256));
 }
 
 }  // namespace unodb

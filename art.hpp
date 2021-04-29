@@ -169,6 +169,11 @@ class db final {
     --leaf_count;
   }
 
+  inline constexpr void decrement_inode4_count() noexcept;
+  inline constexpr void decrement_inode16_count() noexcept;
+  inline constexpr void decrement_inode48_count() noexcept;
+  inline constexpr void decrement_inode256_count() noexcept;
+
   detail::node_ptr root{nullptr};
 
   std::size_t current_memory_use{0};
@@ -197,6 +202,9 @@ class db final {
 
   template <class, class>
   friend class detail::basic_db_leaf_deleter;
+
+  template <class, class, class, class>
+  friend class detail::basic_db_inode_deleter;
 
   template <class>
   friend class detail::basic_inode_4;

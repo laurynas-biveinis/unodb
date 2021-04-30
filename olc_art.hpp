@@ -192,6 +192,11 @@ class olc_db final {
     assert(old_leaf_count > 0);
   }
 
+  inline void decrement_inode4_count() noexcept;
+  inline void decrement_inode16_count() noexcept;
+  inline void decrement_inode48_count() noexcept;
+  inline void decrement_inode256_count() noexcept;
+
   mutable optimistic_lock root_pointer_lock;
 
   critical_section_protected<detail::olc_node_ptr> root{nullptr};
@@ -231,6 +236,9 @@ class olc_db final {
 
   template <class, class>
   friend class detail::db_leaf_qsbr_deleter;
+
+  template <class, class, class, class>
+  friend class detail::basic_db_inode_deleter;
 
   template <class>
   friend class detail::basic_inode_4;

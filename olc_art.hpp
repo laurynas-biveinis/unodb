@@ -32,6 +32,9 @@ class basic_inode_48;  // IWYU pragma: keep
 template <class>
 class basic_inode_256;  // IWYU pragma: keep
 
+template <class, class, template <class, class> class>
+struct db_defs;
+
 struct olc_node_header;
 
 class olc_inode;
@@ -192,6 +195,11 @@ class olc_db final {
     assert(old_leaf_count > 0);
   }
 
+  inline void increment_inode4_count() noexcept;
+  inline void increment_inode16_count() noexcept;
+  inline void increment_inode48_count() noexcept;
+  inline void increment_inode256_count() noexcept;
+
   inline void decrement_inode4_count() noexcept;
   inline void decrement_inode16_count() noexcept;
   inline void decrement_inode48_count() noexcept;
@@ -236,6 +244,9 @@ class olc_db final {
 
   template <class, class>
   friend class detail::db_leaf_qsbr_deleter;
+
+  template <class, class, template <class, class> class>
+  friend struct detail::db_defs;
 
   template <class, class, class, class>
   friend class detail::basic_db_inode_deleter;

@@ -131,14 +131,12 @@ bool db::insert(key insert_key, value_view v) {
       if (unlikely(k == existing_key)) return false;
 
       auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
-      increase_memory_use(sizeof(detail::inode_4));
       // TODO(laurynas): try to pass leaf node type instead of generic node
       // below. This way it would be apparent that its key prefix does not need
       // updating as leaves don't have any.
       auto new_node = detail::inode_4::create(existing_key, remaining_key,
                                               depth, *node, std::move(leaf));
       *node = detail::node_ptr{new_node.release()};
-      ++inode4_count;
       ++created_inode4_count;
       assert(created_inode4_count >= inode4_count);
       return true;
@@ -152,11 +150,9 @@ bool db::insert(key insert_key, value_view v) {
         node->internal->get_shared_key_prefix_length(remaining_key);
     if (shared_prefix_len < key_prefix_length) {
       auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
-      increase_memory_use(sizeof(detail::inode_4));
       auto new_node = detail::inode_4::create(*node, shared_prefix_len, depth,
                                               std::move(leaf));
       *node = detail::node_ptr{new_node.release()};
-      ++inode4_count;
       ++created_inode4_count;
       ++key_prefix_splits;
       assert(created_inode4_count >= inode4_count);
@@ -184,26 +180,22 @@ bool db::insert(key insert_key, value_view v) {
       assert(node_is_full);
 
       if (node_type == detail::node_type::I4) {
-        increase_memory_use(sizeof(detail::inode_16));
         auto current_node{
             art_policy::make_db_inode_unique_ptr(*this, node->node_4)};
         auto larger_node = detail::inode_16::create(std::move(current_node),
                                                     std::move(leaf), depth);
         *node = detail::node_ptr{larger_node.release()};
 
-        ++inode16_count;
         ++inode4_to_inode16_count;
         assert(inode4_to_inode16_count >= inode16_count);
 
       } else if (node_type == detail::node_type::I16) {
         auto current_node{
             art_policy::make_db_inode_unique_ptr(*this, node->node_16)};
-        increase_memory_use(sizeof(detail::inode_48));
         auto larger_node = detail::inode_48::create(std::move(current_node),
                                                     std::move(leaf), depth);
         *node = detail::node_ptr{larger_node.release()};
 
-        ++inode48_count;
         ++inode16_to_inode48_count;
         assert(inode16_to_inode48_count >= inode48_count);
 
@@ -211,12 +203,10 @@ bool db::insert(key insert_key, value_view v) {
         assert(node_type == detail::node_type::I48);
         auto current_node{
             art_policy::make_db_inode_unique_ptr(*this, node->node_48)};
-        increase_memory_use(sizeof(detail::inode_256));
         auto larger_node = detail::inode_256::create(std::move(current_node),
                                                      std::move(leaf), depth);
         *node = detail::node_ptr{larger_node.release()};
 
-        ++inode256_count;
         ++inode48_to_inode256_count;
         assert(inode48_to_inode256_count >= inode256_count);
       }
@@ -294,9 +284,7 @@ bool db::remove(key remove_key) {
         auto new_node{
             detail::inode_4::create(std::move(current_node), child_i)};
         *node = detail::node_ptr{new_node.release()};
-        increase_memory_use(sizeof(detail::inode_4));
 
-        ++inode4_count;
         ++inode16_to_inode4_count;
         assert(inode16_to_inode4_count <= inode4_to_inode16_count);
 
@@ -306,9 +294,7 @@ bool db::remove(key remove_key) {
         auto new_node{
             detail::inode_16::create(std::move(current_node), child_i)};
         *node = detail::node_ptr{new_node.release()};
-        increase_memory_use(sizeof(detail::inode_16));
 
-        ++inode16_count;
         ++inode48_to_inode16_count;
         assert(inode48_to_inode16_count <= inode16_to_inode48_count);
 
@@ -319,9 +305,7 @@ bool db::remove(key remove_key) {
         auto new_node{
             detail::inode_48::create(std::move(current_node), child_i)};
         *node = detail::node_ptr{new_node.release()};
-        increase_memory_use(sizeof(detail::inode_48));
 
-        ++inode48_count;
         ++inode256_to_inode48_count;
         assert(inode256_to_inode48_count <= inode48_to_inode256_count);
       }
@@ -362,6 +346,26 @@ void db::clear() {
 void db::dump(std::ostream &os) const {
   os << "db dump, current memory use = " << get_current_memory_use() << '\n';
   detail::dump_node(os, root);
+}
+
+inline constexpr void db::increment_inode4_count() noexcept {
+  ++inode4_count;
+  increase_memory_use(sizeof(detail::inode_4));
+}
+
+inline constexpr void db::increment_inode16_count() noexcept {
+  ++inode16_count;
+  increase_memory_use(sizeof(detail::inode_16));
+}
+
+inline constexpr void db::increment_inode48_count() noexcept {
+  ++inode48_count;
+  increase_memory_use(sizeof(detail::inode_48));
+}
+
+inline constexpr void db::increment_inode256_count() noexcept {
+  ++inode256_count;
+  increase_memory_use(sizeof(detail::inode_256));
 }
 
 inline constexpr void db::decrement_inode4_count() noexcept {

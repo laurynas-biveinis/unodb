@@ -159,6 +159,9 @@ struct basic_inode_def final {
   basic_inode_def() = delete;
 };
 
+template <class T>
+struct dependent_false : std::false_type {};
+
 template <class INode, class Header, class Db, class INodeDefs>
 class basic_db_inode_deleter {
  public:
@@ -169,9 +172,6 @@ class basic_db_inode_deleter {
   [[nodiscard]] Db &get_db() const noexcept { return db; }
 
  private:
-  template <class T>
-  struct dependent_false : std::false_type {};
-
   Db &db;
 };
 

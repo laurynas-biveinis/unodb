@@ -294,8 +294,23 @@ struct db_defs {
   template <class INode, class... Args>
   [[nodiscard]] static auto make_db_inode_unique_ptr(Db &db_instance,
                                                      Args &&...args) {
-    return db_inode_unique_ptr<INode>{new INode{std::forward<Args>(args)...},
+    db_inode_unique_ptr<INode> result{new INode{std::forward<Args>(args)...},
                                       db_inode_deleter<INode>(db_instance)};
+
+    if constexpr (std::is_same_v<INode, inode4_type>)
+      db_instance.increment_inode4_count();
+    else if constexpr (std::is_same_v<INode, inode16_type>)
+      db_instance.increment_inode16_count();
+    else if constexpr (std::is_same_v<INode, inode48_type>)
+      db_instance.increment_inode48_count();
+    else if constexpr (std::is_same_v<INode, inode256_type>)
+      db_instance.increment_inode256_count();
+    else
+      static_assert(
+          dependent_false<INode>::value,
+          "make_db_inode_unique_ptr instantiated with incorrect inode type");
+
+    return result;
   }
 
   template <class INode>

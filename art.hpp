@@ -31,6 +31,9 @@ class basic_inode_48;  // IWYU pragma: keep
 template <class>
 class basic_inode_256;  // IWYU pragma: keep
 
+template <class, class, template <class, class> class>
+struct db_defs;
+
 class inode;
 
 class inode_4;
@@ -169,6 +172,11 @@ class db final {
     --leaf_count;
   }
 
+  inline constexpr void increment_inode4_count() noexcept;
+  inline constexpr void increment_inode16_count() noexcept;
+  inline constexpr void increment_inode48_count() noexcept;
+  inline constexpr void increment_inode256_count() noexcept;
+
   inline constexpr void decrement_inode4_count() noexcept;
   inline constexpr void decrement_inode16_count() noexcept;
   inline constexpr void decrement_inode48_count() noexcept;
@@ -202,6 +210,9 @@ class db final {
 
   template <class, class>
   friend class detail::basic_db_leaf_deleter;
+
+  template <class, class, template <class, class> class>
+  friend struct detail::db_defs;
 
   template <class, class, class, class>
   friend class detail::basic_db_inode_deleter;

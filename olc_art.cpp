@@ -693,13 +693,11 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       if (unlikely(!node_lock.try_upgrade_to_write_lock(version))) return {};
       optimistic_write_lock_guard unlock_on_exit2{node_lock};
 
-      increase_memory_use(sizeof(detail::olc_inode_4));
       // TODO(laurynas): consider creating new lower version and replacing
       // contents, to enable replacing parent write unlock with parent unlock
       auto new_node = detail::olc_inode_4::create(existing_key, remaining_key,
                                                   depth, node, std::move(leaf));
       *node_loc = new_node.release();
-      inode4_count.fetch_add(1, std::memory_order_relaxed);
       created_inode4_count.fetch_add(1, std::memory_order_relaxed);
       return true;
     }
@@ -723,11 +721,9 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       if (unlikely(!node_lock.try_upgrade_to_write_lock(version))) return {};
       optimistic_write_lock_guard unlock_on_exit2{node_lock};
 
-      increase_memory_use(sizeof(detail::olc_inode_4));
       auto new_node = detail::olc_inode_4::create(node, shared_prefix_length,
                                                   depth, std::move(leaf));
       *node_loc = new_node.release();
-      inode4_count.fetch_add(1, std::memory_order_relaxed);
       created_inode4_count.fetch_add(1, std::memory_order_relaxed);
       key_prefix_splits.fetch_add(1, std::memory_order_relaxed);
       return true;
@@ -771,7 +767,6 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       if (node_type == detail::node_type::I4) {
         // TODO(laurynas): shorten the critical section by moving allocation
         // before it?
-        increase_memory_use(sizeof(detail::olc_inode_16));
         auto current_node{
             olc_art_policy::make_db_inode_unique_ptr(*this, node.node_4)};
         auto larger_node = detail::olc_inode_16::create(
@@ -779,11 +774,9 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
             std::move(leaf), depth);
         *node_loc = larger_node.release();
 
-        inode16_count.fetch_add(1, std::memory_order_relaxed);
         inode4_to_inode16_count.fetch_add(1, std::memory_order_relaxed);
 
       } else if (node_type == detail::node_type::I16) {
-        increase_memory_use(sizeof(detail::olc_inode_48));
         auto current_node{
             olc_art_policy::make_db_inode_unique_ptr(*this, node.node_16)};
         auto larger_node = detail::olc_inode_48::create(
@@ -791,13 +784,11 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
             std::move(leaf), depth);
         *node_loc = larger_node.release();
 
-        inode48_count.fetch_add(1, std::memory_order_relaxed);
         inode16_to_inode48_count.fetch_add(1, std::memory_order_relaxed);
 
       } else {
         assert(node_type == detail::node_type::I48);
 
-        increase_memory_use(sizeof(detail::olc_inode_256));
         auto current_node{
             olc_art_policy::make_db_inode_unique_ptr(*this, node.node_48)};
         auto larger_node = detail::olc_inode_256::create(
@@ -805,7 +796,6 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
             std::move(leaf), depth);
         *node_loc = larger_node.release();
 
-        inode256_count.fetch_add(1, std::memory_order_relaxed);
         inode48_to_inode256_count.fetch_add(1, std::memory_order_relaxed);
       }
 
@@ -991,8 +981,6 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
             std::move(obsolete_child_on_exit))};
         *node_loc = new_node.release();
 
-        increase_memory_use(sizeof(detail::olc_inode_4));
-        inode4_count.fetch_add(1, std::memory_order_relaxed);
         inode16_to_inode4_count.fetch_add(1, std::memory_order_relaxed);
 
       } else if (node_type == detail::node_type::I48) {
@@ -1003,8 +991,6 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
             std::move(obsolete_child_on_exit))};
         *node_loc = new_node.release();
 
-        increase_memory_use(sizeof(detail::olc_inode_16));
-        inode16_count.fetch_add(1, std::memory_order_relaxed);
         inode48_to_inode16_count.fetch_add(1, std::memory_order_relaxed);
 
       } else {
@@ -1017,8 +1003,6 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
             std::move(obsolete_child_on_exit))};
         *node_loc = new_node.release();
 
-        increase_memory_use(sizeof(detail::olc_inode_48));
-        inode48_count.fetch_add(1, std::memory_order_relaxed);
         inode256_to_inode48_count.fetch_add(1, std::memory_order_relaxed);
       }
 
@@ -1096,6 +1080,26 @@ void olc_db::decrease_memory_use(std::size_t delta) noexcept {
 void olc_db::dump(std::ostream &os) const {
   os << "olc_db dump, currently used = " << get_current_memory_use() << '\n';
   detail::dump_node(os, root.load());
+}
+
+inline void olc_db::increment_inode4_count() noexcept {
+  inode4_count.fetch_add(1, std::memory_order_relaxed);
+  increase_memory_use(sizeof(detail::olc_inode_4));
+}
+
+inline void olc_db::increment_inode16_count() noexcept {
+  inode16_count.fetch_add(1, std::memory_order_relaxed);
+  increase_memory_use(sizeof(detail::olc_inode_16));
+}
+
+inline void olc_db::increment_inode48_count() noexcept {
+  inode48_count.fetch_add(1, std::memory_order_relaxed);
+  increase_memory_use(sizeof(detail::olc_inode_48));
+}
+
+inline void olc_db::increment_inode256_count() noexcept {
+  inode256_count.fetch_add(1, std::memory_order_relaxed);
+  increase_memory_use(sizeof(detail::olc_inode_256));
 }
 
 inline void olc_db::decrement_inode4_count() noexcept {

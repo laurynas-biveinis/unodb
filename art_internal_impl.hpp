@@ -399,7 +399,6 @@ template <class NodePtr>
   }
 }
 
-DISABLE_GCC_WARNING("-Wctor-dtor-privacy")
 // A class used as a sentinel for basic_inode template args: the
 // larger node type for the largest node type and the smaller node type for
 // the smallest node type.
@@ -407,7 +406,6 @@ class fake_inode final {
  public:
   fake_inode() = delete;
 };
-RESTORE_GCC_WARNINGS()
 
 template <class Db, template <class> class CriticalSectionPolicy, class NodePtr,
           template <class, class> class LeafReclamator,

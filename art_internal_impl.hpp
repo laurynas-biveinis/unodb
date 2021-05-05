@@ -225,8 +225,8 @@ inline void basic_db_leaf_deleter<Header, Db>::operator()(
 template <class Header, class Db, template <class, class> class Reclamator>
 using leaf_reclaimable_ptr = std::unique_ptr<raw_leaf, Reclamator<Header, Db>>;
 
-template <class INode, class Header, class Db, class INodeDefs>
-inline void basic_db_inode_deleter<INode, Header, Db, INodeDefs>::operator()(
+template <class INode, class Db, class INodeDefs>
+inline void basic_db_inode_deleter<INode, Db, INodeDefs>::operator()(
     INode *inode_ptr) const noexcept {
   if (inode_ptr == nullptr) return;
 
@@ -260,8 +260,8 @@ struct db_defs {
 
  private:
   template <class INode>
-  using db_inode_deleter = basic_db_inode_deleter<INode, header_type, Db,
-                                                  typename NodePtr::inode_defs>;
+  using db_inode_deleter =
+      basic_db_inode_deleter<INode, Db, typename NodePtr::inode_defs>;
 
  public:
   template <class INode>

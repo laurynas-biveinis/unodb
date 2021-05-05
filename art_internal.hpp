@@ -162,7 +162,7 @@ struct basic_inode_def final {
 template <class T>
 struct dependent_false : std::false_type {};
 
-template <class INode, class Header, class Db, class INodeDefs>
+template <class INode, class Db, class INodeDefs>
 class basic_db_inode_deleter {
  public:
   constexpr explicit basic_db_inode_deleter(Db &db_) noexcept : db{db_} {}

@@ -248,7 +248,7 @@ class olc_db final {
   template <class, class, template <class, class> class>
   friend struct detail::db_defs;
 
-  template <class, class, class, class>
+  template <class, class, class>
   friend class detail::basic_db_inode_deleter;
 
   template <class>

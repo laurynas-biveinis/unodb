@@ -285,10 +285,11 @@ struct db_defs {
                                                               db_instance);
   }
 
-  [[nodiscard]] static auto make_db_reclaimable_leaf_ptr(raw_leaf_ptr leaf,
-                                                         Db &db_instance) {
+  [[nodiscard]] static auto reclaim_leaf_on_scope_exit(NodePtr leaf_node_ptr,
+                                                       Db &db_instance) {
+    assert(leaf_node_ptr.type() == node_type::LEAF);
     return leaf_reclaimable_ptr<header_type, Db, LeafReclamator>{
-        leaf, LeafReclamator<header_type, Db>{db_instance}};
+        leaf_node_ptr.leaf, LeafReclamator<header_type, Db>{db_instance}};
   }
 
   template <class INode, class... Args>
@@ -323,10 +324,10 @@ struct db_defs {
   db_defs() = delete;
 };
 
-template <class NodePtr, template <class, class> class LeafReclamator, class Db>
+template <class NodePtr, class Db>
 struct basic_reclaim_db_node_ptr_at_scope_exit final {
  private:
-  using defs = db_defs<NodePtr, Db, LeafReclamator>;
+  using defs = db_defs<NodePtr, Db, basic_db_leaf_deleter>;
 
  public:
   constexpr explicit basic_reclaim_db_node_ptr_at_scope_exit(
@@ -340,32 +341,27 @@ struct basic_reclaim_db_node_ptr_at_scope_exit final {
     switch (node_ptr.type()) {
       case node_type::LEAF: {
         // cppcheck-suppress unreadVariable
-        const auto leaf_unique_ptr{
-            defs::make_db_reclaimable_leaf_ptr(node_ptr.leaf, db)};
+        const auto r{defs::reclaim_leaf_on_scope_exit(node_ptr, db)};
         return;
       }
       case node_type::I4: {
         // cppcheck-suppress unreadVariable
-        const auto node4_unique_ptr{
-            defs::make_db_inode_unique_ptr(db, node_ptr.node_4)};
+        const auto r{defs::make_db_inode_unique_ptr(db, node_ptr.node_4)};
         return;
       }
       case node_type::I16: {
         // cppcheck-suppress unreadVariable
-        const auto node16_unique_ptr{
-            defs::make_db_inode_unique_ptr(db, node_ptr.node_16)};
+        const auto r{defs::make_db_inode_unique_ptr(db, node_ptr.node_16)};
         return;
       }
       case node_type::I48: {
         // cppcheck-suppress unreadVariable
-        const auto node48_unique_ptr{
-            defs::make_db_inode_unique_ptr(db, node_ptr.node_48)};
+        const auto r{defs::make_db_inode_unique_ptr(db, node_ptr.node_48)};
         return;
       }
       case node_type::I256: {
         // cppcheck-suppress unreadVariable
-        const auto node256_unique_ptr{
-            defs::make_db_inode_unique_ptr(db, node_ptr.node_256)};
+        const auto r{defs::make_db_inode_unique_ptr(db, node_ptr.node_256)};
         return;
       }
     }
@@ -435,11 +431,7 @@ struct basic_art_policy final : public db_defs<NodePtr, Db, LeafReclamator> {
   }
 
   using delete_db_node_ptr_at_scope_exit =
-      basic_reclaim_db_node_ptr_at_scope_exit<NodePtr, basic_db_leaf_deleter,
-                                              Db>;
-
-  using reclaim_node_ptr_at_scope_exit =
-      basic_reclaim_db_node_ptr_at_scope_exit<NodePtr, LeafReclamator, Db>;
+      basic_reclaim_db_node_ptr_at_scope_exit<NodePtr, Db>;
 
   basic_art_policy() = delete;
 };
@@ -469,8 +461,6 @@ class basic_inode_impl {
   using db_inode16_unique_ptr = typename ArtPolicy::db_inode16_unique_ptr;
   using db_inode48_unique_ptr = typename ArtPolicy::db_inode48_unique_ptr;
   using db_inode256_unique_ptr = typename ArtPolicy::db_inode256_unique_ptr;
-  using reclaim_node_ptr_at_scope_exit =
-      typename ArtPolicy::reclaim_node_ptr_at_scope_exit;
 
  private:
   using header_type = typename ArtPolicy::header_type;
@@ -994,7 +984,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   using typename parent_class::inode16_type;
   using typename parent_class::inode4_type;
   using typename parent_class::leaf_type;
-  using typename parent_class::reclaim_node_ptr_at_scope_exit;
 
   template <typename T>
   using critical_section_policy =
@@ -1068,8 +1057,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       *children_itr++ = *source_children_itr++;
     }
 
-    reclaim_node_ptr_at_scope_exit reclaim_on_scope_exit{
-        *source_children_itr, source_node.get_deleter().get_db()};
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
+        *source_children_itr, source_node.get_deleter().get_db())};
 
     ++source_keys_itr;
     ++source_children_itr;
@@ -1133,8 +1122,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + children_count));
 
-    reclaim_node_ptr_at_scope_exit reclaim_on_scope_exit{children[child_index],
-                                                         db_instance};
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(children[child_index],
+                                                       db_instance)};
 
     for (typename decltype(keys.byte_array)::size_type i = child_index;
          i < static_cast<unsigned>(this->f.f.children_count - 1); ++i) {
@@ -1157,11 +1146,11 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_4::static_node_type);
 
-    const auto child_to_delete_ptr = children[child_to_delete].load();
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
+        children[child_to_delete], db_instance)};
+
     const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1 : 0;
     const auto child_to_leave_ptr = children[child_to_leave].load();
-    reclaim_node_ptr_at_scope_exit reclaim_on_scope_exit{child_to_delete_ptr,
-                                                         db_instance};
     if (child_to_leave_ptr.type() != node_type::LEAF) {
       child_to_leave_ptr.internal->prepend_key_prefix(
           *this, keys.byte_array[child_to_leave]);
@@ -1276,7 +1265,6 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   using typename parent_class::inode4_type;
   using typename parent_class::leaf_type;
   using typename parent_class::node_ptr;
-  using typename parent_class::reclaim_node_ptr_at_scope_exit;
 
   template <typename T>
   using critical_section_policy =
@@ -1387,8 +1375,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + children_count));
 
-    reclaim_node_ptr_at_scope_exit reclamator{children[child_index],
-                                              db_instance};
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(children[child_index],
+                                                       db_instance)};
 
     for (unsigned i = child_index + 1; i < children_count; ++i) {
       keys.byte_array[i - 1] = keys.byte_array[i];
@@ -1502,7 +1490,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
   using typename parent_class::inode16_type;
   using typename parent_class::node_ptr;
-  using typename parent_class::reclaim_node_ptr_at_scope_exit;
 
   template <typename T>
   using critical_section_policy =
@@ -1552,9 +1539,11 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
                            std::uint8_t child_to_delete) noexcept
       : parent_class{*source_node} {
     auto *const __restrict__ source_node_ptr = source_node.get();
-    reclaim_node_ptr_at_scope_exit reclaim_on_scope_exit{
-        source_node_ptr->children[child_to_delete].load(),
-        source_node.get_deleter().get_db()};
+
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
+        source_node_ptr->children[child_to_delete],
+        source_node.get_deleter().get_db())};
+
     source_node_ptr->children[child_to_delete] = nullptr;
 
     std::memset(&child_indexes[0], empty_child, 256);
@@ -1688,12 +1677,10 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   constexpr void direct_remove_child_pointer(std::uint8_t children_i,
                                              // cppcheck-suppress constParameter
                                              db &db_instance) noexcept {
-    const auto child_ptr = children.pointer_array[children_i].load();
-
     assert(children_i != empty_child);
-    assert(child_ptr != nullptr);
 
-    reclaim_node_ptr_at_scope_exit reclaim{child_ptr, db_instance};
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
+        children.pointer_array[children_i], db_instance)};
   }
 
   std::array<critical_section_policy<std::uint8_t>, 256> child_indexes;
@@ -1732,7 +1719,6 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
 
   using typename parent_class::inode48_type;
   using typename parent_class::node_ptr;
-  using typename parent_class::reclaim_node_ptr_at_scope_exit;
 
   template <typename T>
   using critical_section_policy =
@@ -1782,13 +1768,11 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
-    const auto child_ptr = children[child_index].load();
-
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_256::static_node_type);
-    assert(child_ptr != nullptr);
 
-    reclaim_node_ptr_at_scope_exit reclaim{child_ptr, db_instance};
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(children[child_index],
+                                                       db_instance)};
 
     children[child_index] = node_ptr{nullptr};
     --this->f.f.children_count;

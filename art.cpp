@@ -226,9 +226,7 @@ bool db::remove(key remove_key) {
 
   if (root.type() == detail::node_type::LEAF) {
     if (leaf::matches(root.leaf, k)) {
-      // FIXME(laurynas): why not same in node deleters?
-      const auto delete_root_leaf_on_scope_exit{
-          art_policy::make_db_reclaimable_leaf_ptr(root.leaf, *this)};
+      const auto r{art_policy::reclaim_leaf_on_scope_exit(root, *this)};
       root = nullptr;
       return true;
     }

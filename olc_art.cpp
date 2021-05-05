@@ -864,8 +864,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
 
       node_lock->write_unlock_and_obsolete();
 
-      const auto reclaim_root_leaf_on_scope_exit{
-          olc_art_policy::make_db_reclaimable_leaf_ptr(node.leaf, *this)};
+      const auto r{olc_art_policy::reclaim_leaf_on_scope_exit(node, *this)};
       root = nullptr;
       return true;
     }

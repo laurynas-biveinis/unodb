@@ -213,8 +213,6 @@ void basic_leaf<Header>::dump(std::ostream &os, raw_leaf_ptr leaf) {
 template <class Header, class Db>
 inline void basic_db_leaf_deleter<Header, Db>::operator()(
     raw_leaf_ptr to_delete) const noexcept {
-  if (to_delete == nullptr) return;
-
   const auto leaf_size = basic_leaf<Header>::size(to_delete);
   pmr_deallocate(get_leaf_node_pool(), to_delete, leaf_size,
                  alignment_for_new<Header>());
@@ -228,8 +226,6 @@ using leaf_reclaimable_ptr = std::unique_ptr<raw_leaf, Reclamator<Header, Db>>;
 template <class INode, class Db, class INodeDefs>
 inline void basic_db_inode_deleter<INode, Db, INodeDefs>::operator()(
     INode *inode_ptr) const noexcept {
-  if (inode_ptr == nullptr) return;
-
   delete inode_ptr;
 
   if constexpr (std::is_same_v<INode, typename INodeDefs::n4>)

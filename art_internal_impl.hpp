@@ -10,7 +10,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <limits>
+#include <memory>
 #include <stdexcept>
+#include <utility>
 
 #ifdef __x86_64
 #include <emmintrin.h>
@@ -838,7 +841,6 @@ class basic_inode_impl {
     inode_union(node_type type, unsigned children_count,
                 const basic_inode_impl &other) noexcept
         : inode_union{type, children_count, other.key_prefix_length(), other} {}
-
   } f;
 
  protected:

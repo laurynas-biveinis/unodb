@@ -118,8 +118,8 @@ class tree_verifier final {
     }
     const auto leaf_count_before = test_db.get_leaf_count();
     const auto mem_use_before = test_db.get_current_memory_use();
-    ASSERT_TRUE(leaf_count_before > 0);
-    ASSERT_TRUE(mem_use_before > 0);
+    ASSERT_GT(leaf_count_before, 0);
+    ASSERT_GT(mem_use_before, 0);
 
     if (!test_db.remove(k)) {
       // LCOV_EXCL_START
@@ -175,13 +175,13 @@ class tree_verifier final {
 
     const auto mem_use_after = test_db.get_current_memory_use();
     if (parallel_test)
-      ASSERT_TRUE(mem_use_after > 0);
+      ASSERT_GT(mem_use_after, 0);
     else
-      ASSERT_TRUE(mem_use_before < mem_use_after);
+      ASSERT_LT(mem_use_before, mem_use_after);
 
     const auto leaf_count_after = test_db.get_leaf_count();
     if (parallel_test)
-      ASSERT_TRUE(leaf_count_after > 0);
+      ASSERT_GT(leaf_count_after, 0);
     else
       ASSERT_EQ(leaf_count_after, leaf_count_before + 1);
 

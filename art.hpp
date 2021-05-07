@@ -31,7 +31,8 @@ class basic_inode_48;  // IWYU pragma: keep
 template <class>
 class basic_inode_256;  // IWYU pragma: keep
 
-template <class, class, template <class, class> class>
+template <class, class, template <class> class, template <class, class> class,
+          template <class> class>
 struct db_defs;
 
 class inode;
@@ -211,10 +212,11 @@ class db final {
   template <class, class>
   friend class detail::basic_db_leaf_deleter;
 
-  template <class, class, template <class, class> class>
+  template <class, class, template <class> class, template <class, class> class,
+            template <class> class>
   friend struct detail::db_defs;
 
-  template <class, class, class>
+  template <class, class, class, template <class> class>
   friend class detail::basic_db_inode_deleter;
 
   template <class>

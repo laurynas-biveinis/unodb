@@ -32,7 +32,8 @@ class basic_inode_48;  // IWYU pragma: keep
 template <class>
 class basic_inode_256;  // IWYU pragma: keep
 
-template <class, class, template <class, class> class>
+template <class, class, template <class> class, template <class, class> class,
+          template <class> class>
 struct db_defs;
 
 struct olc_node_header;
@@ -48,6 +49,9 @@ using olc_inode_defs =
     basic_inode_def<olc_inode_4, olc_inode_16, olc_inode_48, olc_inode_256>;
 
 using olc_node_ptr = basic_node_ptr<olc_node_header, olc_inode, olc_inode_defs>;
+
+template <class>
+class db_inode_qsbr_deleter;
 
 template <class, class>
 class db_leaf_qsbr_deleter;  // IWYU pragma: keep
@@ -245,10 +249,14 @@ class olc_db final {
   template <class, class>
   friend class detail::db_leaf_qsbr_deleter;
 
-  template <class, class, template <class, class> class>
+  template <class>
+  friend class detail::db_inode_qsbr_deleter;
+
+  template <class, class, template <class> class, template <class, class> class,
+            template <class> class>
   friend struct detail::db_defs;
 
-  template <class, class, class>
+  template <class, class, class, template <class> class>
   friend class detail::basic_db_inode_deleter;
 
   template <class>

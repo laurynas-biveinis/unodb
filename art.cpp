@@ -21,11 +21,17 @@ struct inode_pool_getter {
         unodb::detail::get_inode_pool_options<INode>()};
     return inode_pool;
   }
+
+  inode_pool_getter() = delete;
 };
+
+template <class INode>
+using db_inode_deleter = unodb::detail::basic_db_inode_deleter<
+    INode, unodb::db, unodb::detail::inode_defs, inode_pool_getter>;
 
 using art_policy = unodb::detail::basic_art_policy<
     unodb::db, unodb::critical_section_unprotected, unodb::detail::node_ptr,
-    unodb::detail::basic_db_leaf_deleter, inode_pool_getter>;
+    db_inode_deleter, unodb::detail::basic_db_leaf_deleter, inode_pool_getter>;
 
 using inode_base = unodb::detail::basic_inode_impl<art_policy>;
 

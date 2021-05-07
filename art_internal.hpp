@@ -162,14 +162,18 @@ struct basic_inode_def final {
 template <class T>
 struct dependent_false : std::false_type {};
 
-template <class INode, class Db, class INodeDefs>
+template <class INode, class Db, class INodeDefs,
+          template <class> class INodePoolGetter>
 class basic_db_inode_deleter {
  public:
   constexpr explicit basic_db_inode_deleter(Db &db_) noexcept : db{db_} {}
 
-  void operator()(INode *inode_ptr) const noexcept;
+  void operator()(INode *inode_ptr) noexcept;
 
-  [[nodiscard]] Db &get_db() const noexcept { return db; }
+  [[nodiscard]] Db &get_db() noexcept { return db; }
+
+ protected:
+  void account_delete_in_db() noexcept;
 
  private:
   Db &db;

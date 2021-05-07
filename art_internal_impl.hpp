@@ -226,11 +226,23 @@ inline void basic_db_leaf_deleter<Header, Db>::operator()(
 template <class Header, class Db, template <class, class> class Reclamator>
 using leaf_reclaimable_ptr = std::unique_ptr<raw_leaf, Reclamator<Header, Db>>;
 
-template <class INode, class Db, class INodeDefs>
-inline void basic_db_inode_deleter<INode, Db, INodeDefs>::operator()(
-    INode *inode_ptr) const noexcept {
-  delete inode_ptr;
+template <class INode, class Db, class INodeDefs,
+          template <class> class INodePoolGetter>
+inline void
+basic_db_inode_deleter<INode, Db, INodeDefs, INodePoolGetter>::operator()(
+    INode *inode_ptr) noexcept {
+  static_assert(std::is_trivially_destructible_v<INode>);
 
+  pmr_deallocate(INodePoolGetter<INode>::get(), inode_ptr, sizeof(INode),
+                 alignment_for_new<INode>());
+
+  account_delete_in_db();
+}
+
+template <class INode, class Db, class INodeDefs,
+          template <class> class INodePoolGetter>
+inline void basic_db_inode_deleter<
+    INode, Db, INodeDefs, INodePoolGetter>::account_delete_in_db() noexcept {
   if constexpr (std::is_same_v<INode, typename INodeDefs::n4>)
     db.decrement_inode4_count();
   else if constexpr (std::is_same_v<INode, typename INodeDefs::n16>)
@@ -245,7 +257,9 @@ inline void basic_db_inode_deleter<INode, Db, INodeDefs>::operator()(
         "basic_db_inode_deleter instantiated with incorrect inode type");
 }
 
-template <class NodePtr, class Db, template <class, class> class LeafReclamator>
+template <class NodePtr, class Db, template <class> class INodeReclamator,
+          template <class, class> class LeafReclamator,
+          template <class> class INodePoolGetter>
 struct db_defs {
   using node_ptr = NodePtr;
   using header_type = typename NodePtr::header_type;
@@ -260,7 +274,8 @@ struct db_defs {
  private:
   template <class INode>
   using db_inode_deleter =
-      basic_db_inode_deleter<INode, Db, typename NodePtr::inode_defs>;
+      basic_db_inode_deleter<INode, Db, typename NodePtr::inode_defs,
+                             INodePoolGetter>;
 
  public:
   template <class INode>
@@ -270,6 +285,15 @@ struct db_defs {
   using db_inode16_unique_ptr = db_inode_unique_ptr<inode16_type>;
   using db_inode48_unique_ptr = db_inode_unique_ptr<inode48_type>;
   using db_inode256_unique_ptr = db_inode_unique_ptr<inode256_type>;
+
+  template <class INode>
+  using db_inode_reclaimable_ptr =
+      std::unique_ptr<INode, INodeReclamator<INode>>;
+
+  using db_inode4_reclaimable_ptr = db_inode_reclaimable_ptr<inode4_type>;
+  using db_inode16_reclaimable_ptr = db_inode_reclaimable_ptr<inode16_type>;
+  using db_inode48_reclaimable_ptr = db_inode_reclaimable_ptr<inode48_type>;
+  using db_inode256_reclaimable_ptr = db_inode_reclaimable_ptr<inode256_type>;
 
   using leaf_type = basic_leaf<header_type>;
   static_assert(std::is_standard_layout_v<leaf_type>,
@@ -295,7 +319,7 @@ struct db_defs {
   [[nodiscard]] static auto make_db_inode_unique_ptr(Db &db_instance,
                                                      Args &&...args) {
     db_inode_unique_ptr<INode> result{new INode{std::forward<Args>(args)...},
-                                      db_inode_deleter<INode>(db_instance)};
+                                      db_inode_deleter<INode>{db_instance}};
 
     if constexpr (std::is_same_v<INode, inode4_type>)
       db_instance.increment_inode4_count();
@@ -323,18 +347,23 @@ struct db_defs {
   db_defs() = delete;
 };
 
-template <class NodePtr, class Db>
-struct basic_reclaim_db_node_ptr_at_scope_exit final {
+template <class NodePtr, class Db, template <class> class INodePoolGetter>
+struct basic_delete_db_node_ptr_at_scope_exit final {
  private:
-  using defs = db_defs<NodePtr, Db, basic_db_leaf_deleter>;
+  template <class INode>
+  using db_inode_deleter =
+      basic_db_inode_deleter<INode, Db, typename NodePtr::inode_defs,
+                             INodePoolGetter>;
+  using defs = db_defs<NodePtr, Db, db_inode_deleter, basic_db_leaf_deleter,
+                       INodePoolGetter>;
 
  public:
-  constexpr explicit basic_reclaim_db_node_ptr_at_scope_exit(
+  constexpr explicit basic_delete_db_node_ptr_at_scope_exit(
       NodePtr node_ptr_,
       Db &db_) noexcept  // cppcheck-suppress constParameter
       : node_ptr{node_ptr_}, db{db_} {}
 
-  ~basic_reclaim_db_node_ptr_at_scope_exit() {
+  ~basic_delete_db_node_ptr_at_scope_exit() {
     if (node_ptr == nullptr) return;
 
     switch (node_ptr.type()) {
@@ -373,12 +402,12 @@ struct basic_reclaim_db_node_ptr_at_scope_exit final {
     node_ptr.internal->delete_subtree(db);
   }
 
-  basic_reclaim_db_node_ptr_at_scope_exit(
-      const basic_reclaim_db_node_ptr_at_scope_exit &) = delete;
-  basic_reclaim_db_node_ptr_at_scope_exit(
-      basic_reclaim_db_node_ptr_at_scope_exit &&) = delete;
-  auto &operator=(const basic_reclaim_db_node_ptr_at_scope_exit &) = delete;
-  auto &operator=(basic_reclaim_db_node_ptr_at_scope_exit &&) = delete;
+  basic_delete_db_node_ptr_at_scope_exit(
+      const basic_delete_db_node_ptr_at_scope_exit &) = delete;
+  basic_delete_db_node_ptr_at_scope_exit(
+      basic_delete_db_node_ptr_at_scope_exit &&) = delete;
+  auto &operator=(const basic_delete_db_node_ptr_at_scope_exit &) = delete;
+  auto &operator=(basic_delete_db_node_ptr_at_scope_exit &&) = delete;
 
  private:
   const NodePtr node_ptr;
@@ -418,9 +447,12 @@ class fake_inode final {
 };
 
 template <class Db, template <class> class CriticalSectionPolicy, class NodePtr,
+          template <class> class INodeReclamator,
           template <class, class> class LeafReclamator,
           template <class> class INodePoolGetter>
-struct basic_art_policy final : public db_defs<NodePtr, Db, LeafReclamator> {
+struct basic_art_policy final
+    : public db_defs<NodePtr, Db, INodeReclamator, LeafReclamator,
+                     INodePoolGetter> {
   template <typename T>
   using critical_section_policy = CriticalSectionPolicy<T>;
 
@@ -430,7 +462,7 @@ struct basic_art_policy final : public db_defs<NodePtr, Db, LeafReclamator> {
   }
 
   using delete_db_node_ptr_at_scope_exit =
-      basic_reclaim_db_node_ptr_at_scope_exit<NodePtr, Db>;
+      basic_delete_db_node_ptr_at_scope_exit<NodePtr, Db, INodePoolGetter>;
 
   basic_art_policy() = delete;
 };
@@ -456,10 +488,17 @@ class basic_inode_impl {
 
  protected:
   using inode_type = typename node_ptr::inode;
+  using db_inode4_reclaimable_ptr =
+      typename ArtPolicy::db_inode4_reclaimable_ptr;
   using db_inode4_unique_ptr = typename ArtPolicy::db_inode4_unique_ptr;
+  using db_inode16_reclaimable_ptr =
+      typename ArtPolicy::db_inode16_reclaimable_ptr;
   using db_inode16_unique_ptr = typename ArtPolicy::db_inode16_unique_ptr;
+  using db_inode48_reclaimable_ptr =
+      typename ArtPolicy::db_inode48_reclaimable_ptr;
   using db_inode48_unique_ptr = typename ArtPolicy::db_inode48_unique_ptr;
-  using db_inode256_unique_ptr = typename ArtPolicy::db_inode256_unique_ptr;
+  using db_inode256_reclaimable_ptr =
+      typename ArtPolicy::db_inode256_reclaimable_ptr;
 
  private:
   using header_type = typename ArtPolicy::header_type;
@@ -890,14 +929,14 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
   using typename basic_inode_impl<ArtPolicy>::db_leaf_unique_ptr;
   using typename basic_inode_impl<ArtPolicy>::db;
 
-  using db_smaller_derived_unique_ptr =
-      typename ArtPolicy::template db_inode_unique_ptr<SmallerDerived>;
+  using db_smaller_derived_reclaimable_ptr =
+      typename ArtPolicy::template db_inode_reclaimable_ptr<SmallerDerived>;
 
-  using db_larger_derived_unique_ptr =
-      typename ArtPolicy::template db_inode_unique_ptr<LargerDerived>;
+  using db_larger_derived_reclaimable_ptr =
+      typename ArtPolicy::template db_inode_reclaimable_ptr<LargerDerived>;
 
   [[nodiscard]] static constexpr auto create(
-      db_larger_derived_unique_ptr &&source_node,
+      db_larger_derived_reclaimable_ptr &&source_node,
       std::uint8_t child_to_delete) {
     return ArtPolicy::template make_db_inode_unique_ptr<Derived>(
         source_node.get_deleter().get_db(), std::move(source_node),
@@ -905,8 +944,8 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
   }
 
   [[nodiscard]] static constexpr auto create(
-      db_smaller_derived_unique_ptr &&source_node, db_leaf_unique_ptr &&child,
-      tree_depth depth) {
+      db_smaller_derived_reclaimable_ptr &&source_node,
+      db_leaf_unique_ptr &&child, tree_depth depth) {
     return ArtPolicy::template make_db_inode_unique_ptr<Derived>(
         source_node.get_deleter().get_db(), std::move(source_node),
         std::move(child), depth);
@@ -917,11 +956,6 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
 
     return pmr_allocate(ArtPolicy::template get_inode_pool<Derived>(), size,
                         alignment_for_new<Derived>());
-  }
-
-  static void operator delete(void *to_delete) {
-    pmr_deallocate(ArtPolicy::template get_inode_pool<Derived>(), to_delete,
-                   sizeof(Derived), alignment_for_new<Derived>());
   }
 
   [[nodiscard]] constexpr bool is_full() const noexcept {
@@ -989,7 +1023,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
  public:
   using typename parent_class::db;
-  using typename parent_class::db_inode16_unique_ptr;
+  using typename parent_class::db_inode16_reclaimable_ptr;
   using typename parent_class::db_inode4_unique_ptr;
   using typename parent_class::db_leaf_unique_ptr;
   using typename parent_class::find_result;
@@ -1041,7 +1075,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                      std::move(child1));
   }
 
-  constexpr basic_inode_4(db_inode16_unique_ptr source_node,
+  constexpr basic_inode_4(db_inode16_reclaimable_ptr source_node,
                           std::uint8_t child_to_delete)
       : parent_class{*source_node} {
     const auto *source_keys_itr = source_node->keys.byte_array.cbegin();
@@ -1270,12 +1304,12 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 
  public:
   using typename parent_class::db;
-  using typename parent_class::db_inode48_unique_ptr;
-  using typename parent_class::db_inode4_unique_ptr;
+  using typename parent_class::db_inode48_reclaimable_ptr;
+  using typename parent_class::db_inode4_reclaimable_ptr;
   using typename parent_class::db_leaf_unique_ptr;
   using typename parent_class::find_result;
 
-  constexpr basic_inode_16(db_inode4_unique_ptr source_node,
+  constexpr basic_inode_16(db_inode4_reclaimable_ptr source_node,
                            db_leaf_unique_ptr child, tree_depth depth) noexcept
       : parent_class{*source_node} {
     const auto key_byte =
@@ -1305,7 +1339,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     }
   }
 
-  constexpr basic_inode_16(db_inode48_unique_ptr source_node,
+  constexpr basic_inode_16(db_inode48_reclaimable_ptr source_node,
                            std::uint8_t child_to_delete) noexcept
       : parent_class{*source_node} {
     source_node->remove_child_pointer(child_to_delete,
@@ -1495,11 +1529,11 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
  public:
   using typename parent_class::db;
-  using typename parent_class::db_inode16_unique_ptr;
-  using typename parent_class::db_inode256_unique_ptr;
+  using typename parent_class::db_inode16_reclaimable_ptr;
+  using typename parent_class::db_inode256_reclaimable_ptr;
   using typename parent_class::db_leaf_unique_ptr;
 
-  constexpr basic_inode_48(db_inode16_unique_ptr source_node,
+  constexpr basic_inode_48(db_inode16_reclaimable_ptr source_node,
                            db_leaf_unique_ptr child, tree_depth depth) noexcept
       : parent_class{*source_node} {
     auto *const __restrict__ source_node_ptr = source_node.get();
@@ -1533,7 +1567,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
   // The warning disable might go away once C++20 std::atomic_ref is used
   DISABLE_GCC_WARNING("-Wclass-memaccess")
-  constexpr basic_inode_48(db_inode256_unique_ptr source_node,
+  constexpr basic_inode_48(db_inode256_reclaimable_ptr source_node,
                            std::uint8_t child_to_delete) noexcept
       : parent_class{*source_node} {
     auto *const __restrict__ source_node_ptr = source_node.get();
@@ -1724,10 +1758,10 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
 
  public:
   using typename parent_class::db;
-  using typename parent_class::db_inode48_unique_ptr;
+  using typename parent_class::db_inode48_reclaimable_ptr;
   using typename parent_class::db_leaf_unique_ptr;
 
-  constexpr basic_inode_256(db_inode48_unique_ptr source_node,
+  constexpr basic_inode_256(db_inode48_reclaimable_ptr source_node,
                             db_leaf_unique_ptr child, tree_depth depth) noexcept
       : parent_class{*source_node} {
     unsigned children_copied = 0;

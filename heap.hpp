@@ -4,6 +4,7 @@
 
 #include "global.hpp"
 
+#include <algorithm>
 #include <cassert>
 #ifdef USE_STD_PMR
 #include <memory_resource>

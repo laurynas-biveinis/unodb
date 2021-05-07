@@ -17,6 +17,7 @@
 #ifndef NDEBUG
 #include <unordered_set>
 #endif
+#include <utility>
 #include <vector>
 
 #include <boost/accumulators/accumulators.hpp>  // IWYU pragma: keep
@@ -117,9 +118,9 @@ class qsbr final {
     bool deallocate_immediately = false;
     {
       std::lock_guard<std::mutex> guard{qsbr_mutex};
-      if (unlikely(single_thread_mode_locked()))
+      if (unlikely(single_thread_mode_locked())) {
         deallocate_immediately = true;
-      else {
+      } else {
         // TODO(laurynas): out of critical section?
         current_interval_total_dealloc_size.fetch_add(
             size, std::memory_order_relaxed);

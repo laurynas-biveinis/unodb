@@ -1819,8 +1819,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   }
 
   template <typename Function>
-  constexpr void for_each_child(Function func) noexcept(
-      noexcept(func(0, node_ptr{nullptr}))) {
+  constexpr void for_each_child(Function func) const
+      noexcept(noexcept(func(0, node_ptr{nullptr}))) {
     const auto children_count USED_IN_DEBUG = this->f.f.children_count.load();
     std::uint8_t actual_children_count = 0;
     for (unsigned i = 0; i < 256; ++i) {
@@ -1832,12 +1832,6 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
       }
     }
     assert(actual_children_count == children_count);
-  }
-
-  template <typename Function>
-  constexpr void for_each_child(Function func) const
-      noexcept(noexcept(func(0, node_ptr{nullptr}))) {
-    const_cast<basic_inode_256 *>(this)->for_each_child(func);
   }
 
   constexpr void delete_subtree(db &db_instance) noexcept {

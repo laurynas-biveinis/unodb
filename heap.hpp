@@ -71,9 +71,9 @@ constexpr auto alignment_for_new() noexcept {
                   static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
 }
 
-[[nodiscard]] inline auto *pmr_allocate(
-    pmr_pool &pool, std::size_t size,
-    std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+[[nodiscard]] inline auto *__attribute__((malloc, returns_nonnull))
+pmr_allocate(pmr_pool &pool, std::size_t size,
+             std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
   assert(alignment >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
 
   auto *const result = pool.allocate(size, alignment);

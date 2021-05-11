@@ -589,7 +589,7 @@ class basic_inode_impl {
   constexpr const auto &get_header() const noexcept { return f.header; }
 
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
-    switch (this->f.header.type()) {
+    switch (f.header.type()) {
       case node_type::I4:
         os << "I4: ";
         break;
@@ -611,7 +611,7 @@ class basic_inode_impl {
        << (f.f.children_count == 0 ? 256
                                    : static_cast<unsigned>(f.f.children_count));
     dump_key_prefix(os);
-    switch (this->f.header.type()) {
+    switch (f.header.type()) {
       case node_type::I4:
         static_cast<const inode4_type *>(this)->dump(os);
         break;
@@ -635,7 +635,7 @@ class basic_inode_impl {
     assert(!is_full());
     assert(child.get() != nullptr);
 
-    switch (this->f.header.type()) {
+    switch (f.header.type()) {
       case node_type::I4:
         static_cast<inode4_type *>(this)->add(std::move(child), depth);
         break;
@@ -658,7 +658,7 @@ class basic_inode_impl {
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     assert(!is_min_size());
 
-    switch (this->f.header.type()) {
+    switch (f.header.type()) {
       case node_type::I4:
         static_cast<inode4_type *>(this)->remove(child_index, db_instance);
         break;
@@ -679,7 +679,7 @@ class basic_inode_impl {
   }
 
   constexpr void delete_subtree(db &db_instance) noexcept {
-    switch (this->f.header.type()) {
+    switch (f.header.type()) {
       case node_type::I4:
         return static_cast<inode4_type *>(this)->delete_subtree(db_instance);
       case node_type::I16:
@@ -698,12 +698,12 @@ class basic_inode_impl {
   [[nodiscard]] constexpr find_result find_child(detail::node_type type,
                                                  std::byte key_byte) noexcept {
     assert(type != node_type::LEAF);
-    // type == this->f.header.type(), but this node can be updated in parallel
-    // in OLC. Even though the node type byte stays constant, the header word
-    // containing it does not, so don't risk it. Because of the same parallel
-    // updates, the callees below may work on inconsistent nodes and must not
-    // assert, just produce results, which are OK to be incorrect/inconsistent
-    // as the node state will be checked before acting on them.
+    // type == f.header.type(), but this node can be updated in parallel in OLC.
+    // Even though the node type byte stays constant, the header word containing
+    // it does not, so don't risk it. Because of the same parallel updates, the
+    // callees below may work on inconsistent nodes and must not assert, just
+    // produce results, which are OK to be incorrect/inconsistent as the node
+    // state will be checked before acting on them.
 
     switch (type) {
       case node_type::I4:
@@ -723,7 +723,7 @@ class basic_inode_impl {
   }
 
   [[nodiscard]] constexpr bool is_full() const noexcept {
-    switch (this->f.header.type()) {
+    switch (f.header.type()) {
       case node_type::I4:
         return static_cast<const inode4_type *>(this)->is_full();
       case node_type::I16:
@@ -741,7 +741,7 @@ class basic_inode_impl {
   }
 
   [[nodiscard]] constexpr bool is_min_size() const noexcept {
-    switch (this->f.header.type()) {
+    switch (f.header.type()) {
       case node_type::I4:
         return static_cast<const inode4_type *>(this)->is_min_size();
       case node_type::I16:
@@ -1243,7 +1243,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto children_count_copy = this->f.f.children_count.load();
     os << ", key bytes =";
     for (std::uint8_t i = 0; i < children_count_copy; i++)
-      dump_byte(os, this->keys.byte_array[i]);
+      dump_byte(os, keys.byte_array[i]);
     os << ", children:\n";
     for (std::uint8_t i = 0; i < children_count_copy; i++)
       dump_node(os, children[i].load());
@@ -1258,16 +1258,15 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
     const std::uint8_t key1_i = key1 < key2 ? 0 : 1;
     const std::uint8_t key2_i = key1_i == 0 ? 1 : 0;
-    this->keys.byte_array[key1_i] = key1;
-    this->children[key1_i] = child1;
-    this->keys.byte_array[key2_i] = key2;
-    this->children[key2_i] = child2.release();
+    keys.byte_array[key1_i] = key1;
+    children[key1_i] = child1;
+    keys.byte_array[key2_i] = key2;
+    children[key2_i] = child2.release();
     keys.byte_array[2] = std::byte{0};
     keys.byte_array[3] = std::byte{0};
 
-    assert(std::is_sorted(
-        this->keys.byte_array.cbegin(),
-        this->keys.byte_array.cbegin() + this->f.f.children_count));
+    assert(std::is_sorted(keys.byte_array.cbegin(),
+                          keys.byte_array.cbegin() + this->f.f.children_count));
   }
 
   union {
@@ -1356,7 +1355,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         const auto source_child_ptr =
             source_node->children.pointer_array[source_child_i].load();
         assert(source_child_ptr != nullptr);
-        this->children[next_child] = source_child_ptr;
+        children[next_child] = source_child_ptr;
         ++next_child;
         if (next_child == basic_inode_16::capacity) break;
       }
@@ -1428,14 +1427,14 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto replicated_search_key =
         _mm_set1_epi8(static_cast<char>(key_byte));
     const auto matching_key_positions =
-        _mm_cmpeq_epi8(replicated_search_key, this->keys.sse);
+        _mm_cmpeq_epi8(replicated_search_key, keys.sse);
     const auto mask = (1U << this->f.f.children_count) - 1;
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
     if (bit_field != 0) {
       const auto i = static_cast<unsigned>(__builtin_ctz(bit_field));
-      return std::make_pair(i, static_cast<critical_section_policy<node_ptr> *>(
-                                   &this->children[i]));
+      return std::make_pair(
+          i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
     return std::make_pair(0xFF, nullptr);
 #else
@@ -1446,17 +1445,17 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   constexpr void delete_subtree(db &db_instance) noexcept {
     const auto children_count = this->f.f.children_count.load();
     for (std::uint8_t i = 0; i < children_count; ++i)
-      db_instance.delete_subtree(this->children[i]);
+      db_instance.delete_subtree(children[i]);
   }
 
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     const auto children_count = this->f.f.children_count.load();
     os << ", key bytes =";
     for (std::uint8_t i = 0; i < children_count; ++i)
-      dump_byte(os, this->keys.byte_array[i]);
+      dump_byte(os, keys.byte_array[i]);
     os << ", children:\n";
     for (std::uint8_t i = 0; i < children_count; ++i)
-      dump_node(os, this->children[i].load());
+      dump_node(os, children[i].load());
   }
 
  private:
@@ -1542,26 +1541,25 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     // TODO(laurynas): initialize at declaration
     // Cannot use memset without C++20 atomic_ref, but even then check whether
     // this compiles to memset already
-    std::fill(this->child_indexes.begin(), this->child_indexes.end(),
-              empty_child);
+    std::fill(child_indexes.begin(), child_indexes.end(), empty_child);
 
     // TODO(laurynas): consider AVX512 scatter?
     std::uint8_t i = 0;
     for (; i < inode16_type::capacity; ++i) {
       const auto existing_key_byte = source_node_ptr->keys.byte_array[i].load();
-      this->child_indexes[static_cast<std::uint8_t>(existing_key_byte)] = i;
+      child_indexes[static_cast<std::uint8_t>(existing_key_byte)] = i;
     }
     for (i = 0; i < inode16_type::capacity; ++i) {
-      this->children.pointer_array[i] = source_node_ptr->children[i];
+      children.pointer_array[i] = source_node_ptr->children[i];
     }
 
     const auto key_byte = static_cast<std::uint8_t>(
         basic_inode_48::leaf_type::key(child_ptr)[depth]);
-    assert(this->child_indexes[key_byte] == empty_child);
-    this->child_indexes[key_byte] = i;
-    this->children.pointer_array[i] = child_ptr;
+    assert(child_indexes[key_byte] == empty_child);
+    child_indexes[key_byte] = i;
+    children.pointer_array[i] = child_ptr;
     for (i = this->f.f.children_count; i < basic_inode_48::capacity; i++) {
-      this->children.pointer_array[i] = node_ptr{nullptr};
+      children.pointer_array[i] = node_ptr{nullptr};
     }
   }
 
@@ -1585,8 +1583,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       const auto child_ptr = source_node_ptr->children[child_i].load();
       if (child_ptr == nullptr) continue;
 
-      this->child_indexes[child_i] = next_child;
-      this->children.pointer_array[next_child] =
+      child_indexes[child_i] = next_child;
+      children.pointer_array[next_child] =
           source_node_ptr->children[child_i].load();
       ++next_child;
 
@@ -1654,12 +1652,11 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
   [[nodiscard]] constexpr typename basic_inode_48::find_result find_child(
       std::byte key_byte) noexcept {
-    if (this->child_indexes[static_cast<std::uint8_t>(key_byte)] !=
-        empty_child) {
+    if (child_indexes[static_cast<std::uint8_t>(key_byte)] != empty_child) {
       const auto child_i =
-          this->child_indexes[static_cast<std::uint8_t>(key_byte)].load();
+          child_indexes[static_cast<std::uint8_t>(key_byte)].load();
       return std::make_pair(static_cast<std::uint8_t>(key_byte),
-                            &this->children.pointer_array[child_i]);
+                            &children.pointer_array[child_i]);
     }
     return std::make_pair(0xFF, nullptr);
   }
@@ -1669,7 +1666,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
     unsigned actual_children_count = 0;
     for (unsigned i = 0; i < this->capacity; ++i) {
-      const auto child = this->children.pointer_array[i].load();
+      const auto child = children.pointer_array[i].load();
       if (child != nullptr) {
         ++actual_children_count;
         db_instance.delete_subtree(child);
@@ -1685,15 +1682,14 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     os << ", key bytes & child indexes\n";
     unsigned actual_children_count = 0;
     for (unsigned i = 0; i < 256; i++)
-      if (this->child_indexes[i] != empty_child) {
+      if (child_indexes[i] != empty_child) {
         ++actual_children_count;
         os << " ";
         dump_byte(os, gsl::narrow_cast<std::byte>(i));
-        os << ", child index = "
-           << static_cast<unsigned>(this->child_indexes[i]) << ": ";
-        assert(this->children.pointer_array[this->child_indexes[i]] != nullptr);
-        dump_node(os,
-                  this->children.pointer_array[this->child_indexes[i]].load());
+        os << ", child index = " << static_cast<unsigned>(child_indexes[i])
+           << ": ";
+        assert(children.pointer_array[child_indexes[i]] != nullptr);
+        dump_node(os, children.pointer_array[child_indexes[i]].load());
         assert(actual_children_count <= children_count);
       }
 

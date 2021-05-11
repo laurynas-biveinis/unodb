@@ -1662,7 +1662,9 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   }
 
   constexpr void delete_subtree(db &db_instance) noexcept {
-    const auto children_count USED_IN_DEBUG = this->f.f.children_count.load();
+#ifndef NDEBUG
+    const auto children_count = this->f.f.children_count.load();
+#endif
 
     unsigned actual_children_count = 0;
     for (unsigned i = 0; i < this->capacity; ++i) {
@@ -1677,7 +1679,9 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   }
 
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
-    const auto children_count USED_IN_DEBUG = this->f.f.children_count.load();
+#ifndef NDEBUG
+    const auto children_count = this->f.f.children_count.load();
+#endif
 
     os << ", key bytes & child indexes\n";
     unsigned actual_children_count = 0;
@@ -1817,7 +1821,9 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   template <typename Function>
   constexpr void for_each_child(Function func) const
       noexcept(noexcept(func(0, node_ptr{nullptr}))) {
-    const auto children_count USED_IN_DEBUG = this->f.f.children_count.load();
+#ifndef NDEBUG
+    const auto children_count = this->f.f.children_count.load();
+#endif
     std::uint8_t actual_children_count = 0;
     for (unsigned i = 0; i < 256; ++i) {
       const auto child_ptr = children[i].load();

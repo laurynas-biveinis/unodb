@@ -59,10 +59,19 @@
 #if defined(__GNUG__) && !defined(__clang__)
 #define DISABLE_GCC_WARNING(x) DISABLE_WARNING(x)
 #define RESTORE_GCC_WARNINGS() RESTORE_WARNINGS()
-#else
+#if __GNUG__ >= 11
+#define DISABLE_GCC_11_WARNING(x) DISABLE_WARNING(x)
+#define RESTORE_GCC_11_WARNINGS() RESTORE_WARNINGS()
+#else  // __GNUG__ >= 11
+#define DISABLE_GCC_11_WARNING(x)
+#define RESTORE_GCC_11_WARNINGS()
+#endif  // __GNUG__ >= 11
+#else   // defined(__GNUG__) && !defined(__clang__)
 #define DISABLE_GCC_WARNING(x)
 #define RESTORE_GCC_WARNINGS()
-#endif
+#define DISABLE_GCC_11_WARNING(x)
+#define RESTORE_GCC_11_WARNINGS()
+#endif  // defined(__GNUG__) && !defined(__clang__)
 
 #define likely(x) __builtin_expect(x, 1)
 #define unlikely(x) __builtin_expect(x, 0)

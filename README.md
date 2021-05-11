@@ -17,12 +17,12 @@ C++ tools and ideas. I am trying to describe some of the things I learned at my
 
 ## Requirements
 
-The code uses SSE4.1 intrinsics (Nehalem and higher). This is in contrast to the
-original ART paper needing SSE2 only.
+The source code is C++17, using SSE4.1 intrinsics (Nehalem and higher). This is
+in contrast to the original ART paper needing SSE2 only.
 
-Note: since this is my personal project, it only supports GCC 10 and LLVM
-version 11-12 compilers. Drop me a note if you want to try this and need a lower
-supported compiler version.
+Note: since this is my personal project, it only supports GCC 10, 11, LLVM 11,
+12, and XCode 12.2 compilers. Drop me a note if you want to try this and need a
+lower supported compiler version.
 
 ## Usage
 
@@ -79,22 +79,20 @@ The are three ART classes available:
 
 ## Dependencies
 
-* git
-* a C++17 compiler, currently tested with clang 11, XCode clang 12 and GCC 10.2.
 * CMake, at least 3.12
-* Guidelines Support Library for gsl::span, imported as a git submodule.
 * Boost library. Currently tested with versions 1.74 and 1.75.
+* Guidelines Support Library for gsl::span, bundled as a git submodule.
+* Google Test for tests, bundled as a git submodule.
+* Google Benchmark for microbenchmarks, bundled, as a git submodule.
+* [DeepState][deepstate] for fuzzing tests, bundled as a git submodule.
 * (optional) clang-format
 * (optional) lcov
 * (optional) clang-tidy
+* (optional) clangd
 * (optional) cppcheck
 * (optional) cpplint
 * (optional) include-what-you-use
-* Google Test for tests, bundled as a git submodule.
-* [DeepState][deepstate] for fuzzing tests, currently building with clang only,
-  bundled.
-* libfuzzer
-* (optional) Google Benchmark for microbenchmarks, bundled.
+* (optional) libfuzzer
 
 ## Development
 

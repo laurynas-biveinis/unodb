@@ -59,6 +59,11 @@ else()
     "-Wunused-macros" "-Wuseless-cast" "-Wvector-operation-performance"
     "-Wvla" "-Wzero-as-null-pointer-constant" "-Wattribute-alias=2"
     "-Warray-bounds=2" "-Wredundant-tags")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 11.0)
+    list(APPEND CXX_FLAGS "-Wctad-maybe-unsupported"
+      "-Wdeprecated-enum-enum-conversion" "-Wdeprecated-enum-float-conversion"
+      "-Wvexing-parse")
+  endif()
 endif()
 
 list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g" "-msse4.1")
@@ -388,6 +393,13 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     endif()
     if(STATIC_ANALYSIS)
       target_compile_options(${TARGET} PRIVATE "-fanalyzer")
+      if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
+          "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 11)
+        # GCC 11 -fanalyzer not fully ready for C++ yet
+        target_compile_options(${TARGET} PRIVATE
+          "-Wno-analyzer-possible-null-dereference"
+          "-Wno-analyzer-possible-null-argument")
+      endif()
     endif()
   endif()
 endfunction()

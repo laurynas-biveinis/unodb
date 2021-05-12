@@ -31,9 +31,9 @@ class basic_inode_48;  // IWYU pragma: keep
 template <class>
 class basic_inode_256;  // IWYU pragma: keep
 
-template <class, class, template <class> class, template <class, class> class,
-          template <class> class>
-struct db_defs;
+template <class, template <class> class, class, template <class> class,
+          template <class, class> class, template <class> class>
+struct basic_art_policy;
 
 class inode;
 
@@ -148,8 +148,6 @@ class db final {
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const;
 
  private:
-  void delete_subtree(detail::node_ptr) noexcept;
-
   void delete_root_subtree() noexcept;
 
   constexpr void increase_memory_use(std::size_t delta) noexcept {
@@ -212,9 +210,9 @@ class db final {
   template <class, class>
   friend class detail::basic_db_leaf_deleter;
 
-  template <class, class, template <class> class, template <class, class> class,
-            template <class> class>
-  friend struct detail::db_defs;
+  template <class, template <class> class, class, template <class> class,
+            template <class, class> class, template <class> class>
+  friend struct detail::basic_art_policy;
 
   template <class, class, class, template <class> class>
   friend class detail::basic_db_inode_deleter;

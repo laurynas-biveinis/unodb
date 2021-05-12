@@ -138,9 +138,6 @@ using leaf = olc_art_policy::leaf_type;
 
 using olc_inode_base = unodb::detail::basic_inode_impl<olc_art_policy>;
 
-using delete_db_node_ptr_at_scope_exit =
-    olc_art_policy::delete_db_node_ptr_at_scope_exit;
-
 [[nodiscard]] inline constexpr auto &node_ptr_lock(
     const unodb::detail::olc_node_ptr &node) noexcept {
   return node.header->lock();
@@ -1034,15 +1031,10 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
   }
 }
 
-void olc_db::delete_subtree(detail::olc_node_ptr node) noexcept {
-  delete_db_node_ptr_at_scope_exit delete_on_scope_exit{node, *this};
-  delete_on_scope_exit.delete_subtree();
-}
-
 void olc_db::delete_root_subtree() noexcept {
   assert(qsbr::instance().single_thread_mode());
 
-  delete_subtree(root);
+  if (root != nullptr) olc_art_policy::delete_subtree(root, *this);
   // It is possible to reset the counter to zero instead of decrementing it for
   // each leaf, but not sure the savings will be significant.
   assert(leaf_count.load(std::memory_order_relaxed) == 0);

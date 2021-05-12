@@ -32,9 +32,9 @@ class basic_inode_48;  // IWYU pragma: keep
 template <class>
 class basic_inode_256;  // IWYU pragma: keep
 
-template <class, class, template <class> class, template <class, class> class,
-          template <class> class>
-struct db_defs;
+template <class, template <class> class, class, template <class> class,
+          template <class, class> class, template <class> class>
+struct basic_art_policy;
 
 struct olc_node_header;
 
@@ -179,8 +179,6 @@ class olc_db final {
 
   [[nodiscard]] try_update_result_type try_remove(detail::art_key k);
 
-  void delete_subtree(detail::olc_node_ptr) noexcept;
-
   void delete_root_subtree() noexcept;
 
   void increase_memory_use(std::size_t delta);
@@ -252,9 +250,9 @@ class olc_db final {
   template <class>
   friend class detail::db_inode_qsbr_deleter;
 
-  template <class, class, template <class> class, template <class, class> class,
-            template <class> class>
-  friend struct detail::db_defs;
+  template <class, template <class> class, class, template <class> class,
+            template <class, class> class, template <class> class>
+  friend struct detail::basic_art_policy;
 
   template <class, class, class, template <class> class>
   friend class detail::basic_db_inode_deleter;

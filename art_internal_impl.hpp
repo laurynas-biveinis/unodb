@@ -223,9 +223,6 @@ inline void basic_db_leaf_deleter<Header, Db>::operator()(
   db.decrement_leaf_count(leaf_size);
 }
 
-template <class Header, class Db, template <class, class> class Reclamator>
-using leaf_reclaimable_ptr = std::unique_ptr<raw_leaf, Reclamator<Header, Db>>;
-
 template <class INode, class Db, class INodeDefs,
           template <class> class INodePoolGetter>
 inline void
@@ -257,10 +254,11 @@ inline void basic_db_inode_deleter<
         "basic_db_inode_deleter instantiated with incorrect inode type");
 }
 
-template <class NodePtr, class Db, template <class> class INodeReclamator,
+template <class Db, template <class> class CriticalSectionPolicy, class NodePtr,
+          template <class> class INodeReclamator,
           template <class, class> class LeafReclamator,
           template <class> class INodePoolGetter>
-struct db_defs {
+struct basic_art_policy final {
   using node_ptr = NodePtr;
   using header_type = typename NodePtr::header_type;
 
@@ -277,7 +275,13 @@ struct db_defs {
       basic_db_inode_deleter<INode, Db, typename NodePtr::inode_defs,
                              INodePoolGetter>;
 
+  using leaf_reclaimable_ptr =
+      std::unique_ptr<raw_leaf, LeafReclamator<header_type, Db>>;
+
  public:
+  template <typename T>
+  using critical_section_policy = CriticalSectionPolicy<T>;
+
   template <class INode>
   using db_inode_unique_ptr = std::unique_ptr<INode, db_inode_deleter<INode>>;
 
@@ -302,6 +306,11 @@ struct db_defs {
 
   using db_leaf_unique_ptr = basic_db_leaf_unique_ptr<header_type, Db>;
 
+  template <class INode>
+  [[nodiscard]] static auto &get_inode_pool() {
+    return INodePoolGetter<INode>::get();
+  }
+
   [[nodiscard]] static auto make_db_leaf_ptr(art_key k, value_view v,
                                              Db &db_instance) {
     return ::unodb::detail::make_db_leaf_ptr<header_type, Db>(k, v,
@@ -311,8 +320,8 @@ struct db_defs {
   [[nodiscard]] static auto reclaim_leaf_on_scope_exit(NodePtr leaf_node_ptr,
                                                        Db &db_instance) {
     assert(leaf_node_ptr.type() == node_type::LEAF);
-    return leaf_reclaimable_ptr<header_type, Db, LeafReclamator>{
-        leaf_node_ptr.leaf, LeafReclamator<header_type, Db>{db_instance}};
+    return leaf_reclaimable_ptr{leaf_node_ptr.leaf,
+                                LeafReclamator<header_type, Db>{db_instance}};
   }
 
   template <class INode, class... Args>
@@ -344,74 +353,73 @@ struct db_defs {
                                       db_inode_deleter<INode>{db_instance}};
   }
 
-  db_defs() = delete;
-};
-
-template <class NodePtr, class Db, template <class> class INodePoolGetter>
-struct basic_delete_db_node_ptr_at_scope_exit final {
  private:
-  template <class INode>
-  using db_inode_deleter =
-      basic_db_inode_deleter<INode, Db, typename NodePtr::inode_defs,
-                             INodePoolGetter>;
-  using defs = db_defs<NodePtr, Db, db_inode_deleter, basic_db_leaf_deleter,
-                       INodePoolGetter>;
+  [[nodiscard]] static auto make_db_leaf_ptr(Db &db_instance,
+                                             raw_leaf_ptr leaf) {
+    return basic_db_leaf_unique_ptr<header_type, Db>{
+        leaf, basic_db_leaf_deleter<header_type, Db>{db_instance}};
+  }
+
+  struct delete_db_node_ptr_at_scope_exit final {
+    constexpr explicit delete_db_node_ptr_at_scope_exit(
+        NodePtr node_ptr_,
+        Db &db_) noexcept  // cppcheck-suppress constParameter
+        : node_ptr{node_ptr_}, db{db_} {}
+
+    ~delete_db_node_ptr_at_scope_exit() {
+      switch (node_ptr.type()) {
+        case node_type::LEAF: {
+          // cppcheck-suppress unreadVariable
+          const auto r{make_db_leaf_ptr(db, node_ptr.leaf)};
+          return;
+        }
+        case node_type::I4: {
+          // cppcheck-suppress unreadVariable
+          const auto r{make_db_inode_unique_ptr(db, node_ptr.node_4)};
+          return;
+        }
+        case node_type::I16: {
+          // cppcheck-suppress unreadVariable
+          const auto r{make_db_inode_unique_ptr(db, node_ptr.node_16)};
+          return;
+        }
+        case node_type::I48: {
+          // cppcheck-suppress unreadVariable
+          const auto r{make_db_inode_unique_ptr(db, node_ptr.node_48)};
+          return;
+        }
+        case node_type::I256: {
+          // cppcheck-suppress unreadVariable
+          const auto r{make_db_inode_unique_ptr(db, node_ptr.node_256)};
+          return;
+        }
+      }
+      CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+    }
+
+    delete_db_node_ptr_at_scope_exit(const delete_db_node_ptr_at_scope_exit &) =
+        delete;
+    delete_db_node_ptr_at_scope_exit(delete_db_node_ptr_at_scope_exit &&) =
+        delete;
+    auto &operator=(const delete_db_node_ptr_at_scope_exit &) = delete;
+    auto &operator=(delete_db_node_ptr_at_scope_exit &&) = delete;
+
+   private:
+    const NodePtr node_ptr;
+    Db &db;
+  };
 
  public:
-  constexpr explicit basic_delete_db_node_ptr_at_scope_exit(
-      NodePtr node_ptr_,
-      Db &db_) noexcept  // cppcheck-suppress constParameter
-      : node_ptr{node_ptr_}, db{db_} {}
+  // cppcheck-suppress constParameter
+  static void delete_subtree(NodePtr node, Db &db_instance) noexcept {
+    delete_db_node_ptr_at_scope_exit delete_on_scope_exit{node, db_instance};
 
-  ~basic_delete_db_node_ptr_at_scope_exit() {
-    if (node_ptr == nullptr) return;
+    if (node.type() == node_type::LEAF) return;
 
-    switch (node_ptr.type()) {
-      case node_type::LEAF: {
-        // cppcheck-suppress unreadVariable
-        const auto r{defs::reclaim_leaf_on_scope_exit(node_ptr, db)};
-        return;
-      }
-      case node_type::I4: {
-        // cppcheck-suppress unreadVariable
-        const auto r{defs::make_db_inode_unique_ptr(db, node_ptr.node_4)};
-        return;
-      }
-      case node_type::I16: {
-        // cppcheck-suppress unreadVariable
-        const auto r{defs::make_db_inode_unique_ptr(db, node_ptr.node_16)};
-        return;
-      }
-      case node_type::I48: {
-        // cppcheck-suppress unreadVariable
-        const auto r{defs::make_db_inode_unique_ptr(db, node_ptr.node_48)};
-        return;
-      }
-      case node_type::I256: {
-        // cppcheck-suppress unreadVariable
-        const auto r{defs::make_db_inode_unique_ptr(db, node_ptr.node_256)};
-        return;
-      }
-    }
-    CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+    node.internal->delete_subtree(db_instance);
   }
 
-  void delete_subtree() noexcept {
-    if (node_ptr == nullptr || node_ptr.type() == node_type::LEAF) return;
-
-    node_ptr.internal->delete_subtree(db);
-  }
-
-  basic_delete_db_node_ptr_at_scope_exit(
-      const basic_delete_db_node_ptr_at_scope_exit &) = delete;
-  basic_delete_db_node_ptr_at_scope_exit(
-      basic_delete_db_node_ptr_at_scope_exit &&) = delete;
-  auto &operator=(const basic_delete_db_node_ptr_at_scope_exit &) = delete;
-  auto &operator=(basic_delete_db_node_ptr_at_scope_exit &&) = delete;
-
- private:
-  const NodePtr node_ptr;
-  Db &db;
+  basic_art_policy() = delete;
 };
 
 template <class NodePtr>
@@ -444,27 +452,6 @@ template <class NodePtr>
 class fake_inode final {
  public:
   fake_inode() = delete;
-};
-
-template <class Db, template <class> class CriticalSectionPolicy, class NodePtr,
-          template <class> class INodeReclamator,
-          template <class, class> class LeafReclamator,
-          template <class> class INodePoolGetter>
-struct basic_art_policy final
-    : public db_defs<NodePtr, Db, INodeReclamator, LeafReclamator,
-                     INodePoolGetter> {
-  template <typename T>
-  using critical_section_policy = CriticalSectionPolicy<T>;
-
-  template <class INode>
-  [[nodiscard]] static auto &get_inode_pool() {
-    return INodePoolGetter<INode>::get();
-  }
-
-  using delete_db_node_ptr_at_scope_exit =
-      basic_delete_db_node_ptr_at_scope_exit<NodePtr, Db, INodePoolGetter>;
-
-  basic_art_policy() = delete;
 };
 
 template <class ArtPolicy>
@@ -1235,7 +1222,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   constexpr void delete_subtree(db &db_instance) noexcept {
     const auto children_count_copy = this->f.f.children_count.load();
     for (std::uint8_t i = 0; i < children_count_copy; ++i) {
-      db_instance.delete_subtree(children[i]);
+      ArtPolicy::delete_subtree(children[i], db_instance);
     }
   }
 
@@ -1445,7 +1432,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   constexpr void delete_subtree(db &db_instance) noexcept {
     const auto children_count = this->f.f.children_count.load();
     for (std::uint8_t i = 0; i < children_count; ++i)
-      db_instance.delete_subtree(children[i]);
+      ArtPolicy::delete_subtree(children[i], db_instance);
   }
 
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
@@ -1671,7 +1658,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       const auto child = children.pointer_array[i].load();
       if (child != nullptr) {
         ++actual_children_count;
-        db_instance.delete_subtree(child);
+        ArtPolicy::delete_subtree(child, db_instance);
         assert(actual_children_count <= children_count);
       }
     }
@@ -1838,7 +1825,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
 
   constexpr void delete_subtree(db &db_instance) noexcept {
     for_each_child([&db_instance](unsigned, node_ptr child) noexcept {
-      db_instance.delete_subtree(child);
+      ArtPolicy::delete_subtree(child, db_instance);
     });
   }
 

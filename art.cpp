@@ -35,9 +35,6 @@ using art_policy = unodb::detail::basic_art_policy<
 
 using inode_base = unodb::detail::basic_inode_impl<art_policy>;
 
-using delete_db_node_ptr_at_scope_exit =
-    art_policy::delete_db_node_ptr_at_scope_exit;
-
 }  // namespace
 
 namespace unodb::detail {
@@ -323,13 +320,8 @@ bool db::remove(key remove_key) {
   }
 }
 
-void db::delete_subtree(unodb::detail::node_ptr node) noexcept {
-  delete_db_node_ptr_at_scope_exit delete_on_scope_exit(node, *this);
-  delete_on_scope_exit.delete_subtree();
-}
-
 void db::delete_root_subtree() noexcept {
-  delete_subtree(root);
+  if (root != nullptr) art_policy::delete_subtree(root, *this);
 
   // It is possible to reset the counter to zero instead of decrementing it for
   // each leaf, but not sure the savings will be significant.

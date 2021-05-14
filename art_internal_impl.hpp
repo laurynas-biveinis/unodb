@@ -575,6 +575,11 @@ class basic_inode_impl {
   // Only for unodb::detail use
   constexpr const auto &get_header() const noexcept { return f.header; }
 
+  // Only for OLC add. The rest should use is_full_for_add / is_min_size
+  constexpr auto get_children_count() const noexcept {
+    return f.f.children_count.load();
+  }
+
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     switch (f.header.type()) {
       case node_type::I4:
@@ -618,28 +623,30 @@ class basic_inode_impl {
     }
   }
 
-  constexpr void add(db_leaf_unique_ptr &&child, tree_depth depth) noexcept {
-    assert(!is_full_for_add());
+  template <typename ReturnType, typename... Args>
+  [[nodiscard]] constexpr ReturnType add(db_leaf_unique_ptr &child,
+                                         Args &&...args) noexcept {
     assert(child.get() != nullptr);
 
     switch (f.header.type()) {
       case node_type::I4:
-        static_cast<inode4_type *>(this)->add(std::move(child), depth);
-        break;
+        return static_cast<inode4_type *>(this)->add(
+            child, std::forward<Args>(args)...);
       case node_type::I16:
-        static_cast<inode16_type *>(this)->add(std::move(child), depth);
-        break;
+        return static_cast<inode16_type *>(this)->add(
+            child, std::forward<Args>(args)...);
       case node_type::I48:
-        static_cast<inode48_type *>(this)->add(std::move(child), depth);
-        break;
+        return static_cast<inode48_type *>(this)->add(
+            child, std::forward<Args>(args)...);
       case node_type::I256:
-        static_cast<inode256_type *>(this)->add(std::move(child), depth);
-        break;
+        return static_cast<inode256_type *>(this)->add(
+            child, std::forward<Args>(args)...);
         // LCOV_EXCL_START
       case node_type::LEAF:
         CANNOT_HAPPEN();
-        // LCOV_EXCL_STOP
     }
+    CANNOT_HAPPEN();
+    // LCOV_EXCL_STOP
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
@@ -701,24 +708,6 @@ class basic_inode_impl {
         return static_cast<inode48_type *>(this)->find_child(key_byte);
       case node_type::I256:
         return static_cast<inode256_type *>(this)->find_child(key_byte);
-        // LCOV_EXCL_START
-      case node_type::LEAF:
-        CANNOT_HAPPEN();
-    }
-    CANNOT_HAPPEN();
-    // LCOV_EXCL_STOP
-  }
-
-  [[nodiscard]] constexpr bool is_full_for_add() const noexcept {
-    switch (f.header.type()) {
-      case node_type::I4:
-        return static_cast<const inode4_type *>(this)->is_full_for_add();
-      case node_type::I16:
-        return static_cast<const inode16_type *>(this)->is_full_for_add();
-      case node_type::I48:
-        return static_cast<const inode48_type *>(this)->is_full_for_add();
-      case node_type::I256:
-        return static_cast<const inode256_type *>(this)->is_full_for_add();
         // LCOV_EXCL_START
       case node_type::LEAF:
         CANNOT_HAPPEN();
@@ -1092,12 +1081,23 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                           keys.byte_array.cbegin() + this->f.f.children_count));
   }
 
-  constexpr void add(db_leaf_unique_ptr child, tree_depth depth) noexcept {
+  [[nodiscard]] constexpr bool add(db_leaf_unique_ptr &child,
+                                   tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_4::static_node_type);
 
-    auto children_count = this->f.f.children_count.load();
+    const auto children_count = this->f.f.children_count.load();
 
+    if (unlikely(children_count == parent_class::capacity)) return false;
+
+    add_to_nonfull(child, depth, children_count);
+    return true;
+  }
+
+  constexpr void add_to_nonfull(db_leaf_unique_ptr &child, tree_depth depth,
+                                std::uint8_t children_count) noexcept {
+    assert(children_count == this->f.f.children_count);
+    assert(children_count < parent_class::capacity);
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + children_count));
 
@@ -1355,15 +1355,28 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                           keys.byte_array.cbegin() + basic_inode_16::capacity));
   }
 
-  constexpr void add(db_leaf_unique_ptr child, tree_depth depth) noexcept {
+  [[nodiscard]] constexpr bool add(db_leaf_unique_ptr &child,
+                                   tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_16::static_node_type);
 
-    const auto key_byte = leaf_type::key(child.get())[depth];
-    auto children_count = this->f.f.children_count.load();
+    const auto children_count = this->f.f.children_count.load();
 
+    if (unlikely(children_count == parent_class::capacity)) return false;
+
+    add_to_nonfull(child, depth, children_count);
+
+    return true;
+  }
+
+  constexpr void add_to_nonfull(db_leaf_unique_ptr &child, tree_depth depth,
+                                std::uint8_t children_count) noexcept {
+    assert(children_count == this->f.f.children_count);
+    assert(children_count < parent_class::capacity);
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + children_count));
+
+    const auto key_byte = leaf_type::key(child.get())[depth];
 
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(key_byte);
@@ -1580,9 +1593,24 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   }
   RESTORE_GCC_WARNINGS()
 
-  constexpr void add(db_leaf_unique_ptr child, tree_depth depth) noexcept {
+  [[nodiscard]] constexpr bool add(db_leaf_unique_ptr &child,
+                                   tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_48::static_node_type);
+
+    const auto children_count = this->f.f.children_count.load();
+
+    if (unlikely(children_count == parent_class::capacity)) return false;
+
+    add_to_nonfull(child, depth, children_count);
+
+    return true;
+  }
+
+  constexpr void add_to_nonfull(db_leaf_unique_ptr &child, tree_depth depth,
+                                std::uint8_t children_count) noexcept {
+    assert(this->f.f.children_count == children_count);
+    assert(this->f.f.children_count < parent_class::capacity);
 
     const auto key_byte = static_cast<uint8_t>(
         basic_inode_48::leaf_type::key(child.get())[depth]);
@@ -1624,7 +1652,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     assert(children.pointer_array[i] == nullptr);
     child_indexes[key_byte] = gsl::narrow_cast<std::uint8_t>(i);
     children.pointer_array[i] = child.release();
-    ++this->f.f.children_count;
+    this->f.f.children_count = children_count + 1;
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
@@ -1774,16 +1802,23 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     children[key_byte] = node_ptr{child.release()};
   }
 
-  constexpr void add(db_leaf_unique_ptr child, tree_depth depth) noexcept {
+  constexpr bool add(db_leaf_unique_ptr &child, tree_depth depth) noexcept {
+    add_to_nonfull(child, depth, this->f.f.children_count.load());
+    return true;
+  }
+
+  constexpr void add_to_nonfull(db_leaf_unique_ptr &child, tree_depth depth,
+                                std::uint8_t children_count) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_256::static_node_type);
-    assert(this->f.f.children_count < parent_class::capacity);
+    assert(this->f.f.children_count == children_count);
+    assert(children_count < parent_class::capacity);
 
     const auto key_byte = static_cast<std::uint8_t>(
         basic_inode_256::leaf_type::key(child.get())[depth]);
     assert(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release()};
-    ++this->f.f.children_count;
+    this->f.f.children_count = children_count + 1;
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {

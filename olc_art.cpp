@@ -753,7 +753,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
       auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
-      const auto node_is_full = node.internal->is_full();
+      const auto node_is_full = node.internal->is_full_for_add();
 
       if (likely(!node_is_full)) {
         if (unlikely(!node_lock.try_upgrade_to_write_lock(version))) return {};

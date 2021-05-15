@@ -619,7 +619,7 @@ class basic_inode_impl {
   }
 
   constexpr void add(db_leaf_unique_ptr &&child, tree_depth depth) noexcept {
-    assert(!is_full());
+    assert(!is_full_for_add());
     assert(child.get() != nullptr);
 
     switch (f.header.type()) {
@@ -709,16 +709,16 @@ class basic_inode_impl {
     // LCOV_EXCL_STOP
   }
 
-  [[nodiscard]] constexpr bool is_full() const noexcept {
+  [[nodiscard]] constexpr bool is_full_for_add() const noexcept {
     switch (f.header.type()) {
       case node_type::I4:
-        return static_cast<const inode4_type *>(this)->is_full();
+        return static_cast<const inode4_type *>(this)->is_full_for_add();
       case node_type::I16:
-        return static_cast<const inode16_type *>(this)->is_full();
+        return static_cast<const inode16_type *>(this)->is_full_for_add();
       case node_type::I48:
-        return static_cast<const inode48_type *>(this)->is_full();
+        return static_cast<const inode48_type *>(this)->is_full_for_add();
       case node_type::I256:
-        return static_cast<const inode256_type *>(this)->is_full();
+        return static_cast<const inode256_type *>(this)->is_full_for_add();
         // LCOV_EXCL_START
       case node_type::LEAF:
         CANNOT_HAPPEN();
@@ -945,7 +945,7 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
                         alignment_for_new<Derived>());
   }
 
-  [[nodiscard]] constexpr bool is_full() const noexcept {
+  [[nodiscard]] constexpr bool is_full_for_add() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
 
     return this->f.f.children_count == capacity;
@@ -979,14 +979,14 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
 
   explicit constexpr basic_inode(const SmallerDerived &source_node) noexcept
       : basic_inode_impl<ArtPolicy>{NodeType, MinSize, source_node} {
-    assert(source_node.is_full());
+    assert(source_node.is_full_for_add());
     assert(is_min_size());
   }
 
   explicit constexpr basic_inode(const LargerDerived &source_node) noexcept
       : basic_inode_impl<ArtPolicy>{NodeType, Capacity, source_node} {
     assert(source_node.is_min_size());
-    assert(is_full());
+    assert(is_full_for_add());
   }
 };
 
@@ -1777,7 +1777,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   constexpr void add(db_leaf_unique_ptr child, tree_depth depth) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_256::static_node_type);
-    assert(!this->is_full());
+    assert(this->f.f.children_count < parent_class::capacity);
 
     const auto key_byte = static_cast<std::uint8_t>(
         basic_inode_256::leaf_type::key(child.get())[depth]);
@@ -1803,6 +1803,10 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     if (children[key_int_byte] != nullptr)
       return std::make_pair(key_int_byte, &children[key_int_byte]);
     return std::make_pair(0xFF, nullptr);
+  }
+
+  [[nodiscard]] constexpr bool is_full_for_add() const noexcept {
+    return false;  // A full-for-add Node256 does not exist
   }
 
   template <typename Function>

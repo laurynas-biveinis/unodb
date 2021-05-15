@@ -173,7 +173,7 @@ bool db::insert(key insert_key, value_view v) {
     if (child == nullptr) {
       auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
 
-      const auto node_is_full = node->internal->is_full();
+      const auto node_is_full = node->internal->is_full_for_add();
 
       if (likely(!node_is_full)) {
         node->internal->add(std::move(leaf), depth);

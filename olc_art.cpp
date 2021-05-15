@@ -176,20 +176,20 @@ namespace unodb::detail {
 class olc_inode : public olc_inode_base {};
 
 class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
+  using parent_class = basic_inode_4<olc_art_policy>;
+
  public:
   constexpr olc_inode_4(detail::art_key k1, detail::art_key shifted_k2,
                         detail::tree_depth depth, olc_node_ptr child1,
                         olc_db_leaf_unique_ptr &&child2) noexcept
-      : basic_inode_4<olc_art_policy>{k1, shifted_k2, depth, child1,
-                                      std::move(child2)} {
+      : parent_class{k1, shifted_k2, depth, child1, std::move(child2)} {
     assert(node_ptr_lock(child1).is_write_locked());
   }
 
   constexpr olc_inode_4(olc_node_ptr source_node, unsigned len,
                         detail::tree_depth depth,
                         olc_db_leaf_unique_ptr &&child1) noexcept
-      : basic_inode_4<olc_art_policy>{source_node, len, depth,
-                                      std::move(child1)} {
+      : parent_class{source_node, len, depth, std::move(child1)} {
     assert(node_ptr_lock(source_node).is_write_locked());
   }
 
@@ -272,15 +272,16 @@ static_assert(sizeof(olc_inode_4) == 48 + 32);
 #endif
 
 class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
+  using parent_class = basic_inode_16<olc_art_policy>;
+
  public:
   olc_inode_16(
       db_inode4_reclaimable_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       olc_db_leaf_unique_ptr &&child, detail::tree_depth depth) noexcept
-      : basic_inode_16<olc_art_policy>{
-            obsolete_and_move(source_node,
-                              std::move(source_node_obsoleting_guard)),
-            std::move(child), depth} {
+      : parent_class{obsolete_and_move(source_node,
+                                       std::move(source_node_obsoleting_guard)),
+                     std::move(child), depth} {
     assert(!source_node_obsoleting_guard.active());
   }
 
@@ -354,11 +355,10 @@ olc_inode_4::olc_inode_4(
     unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
     std::uint8_t child_to_delete,
     unique_write_lock_obsoleting_guard &&child_obsoleting_guard) noexcept
-    : basic_inode_4<olc_art_policy>{
-          obsolete_and_move(source_node,
-                            std::move(source_node_obsoleting_guard)),
-          obsolete_child_by_index(child_to_delete,
-                                  std::move(child_obsoleting_guard))} {
+    : parent_class{obsolete_and_move(source_node,
+                                     std::move(source_node_obsoleting_guard)),
+                   obsolete_child_by_index(child_to_delete,
+                                           std::move(child_obsoleting_guard))} {
   assert(!source_node_obsoleting_guard.active());
   assert(!child_obsoleting_guard.active());
 }
@@ -378,15 +378,16 @@ olc_inode_4::olc_inode_4(
 }
 
 class olc_inode_48 final : public basic_inode_48<olc_art_policy> {
+  using parent_class = basic_inode_48<olc_art_policy>;
+
  public:
   olc_inode_48(
       db_inode16_reclaimable_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       olc_db_leaf_unique_ptr &&child, detail::tree_depth depth) noexcept
-      : basic_inode_48<olc_art_policy>{
-            obsolete_and_move(source_node,
-                              std::move(source_node_obsoleting_guard)),
-            std::move(child), depth} {
+      : parent_class{obsolete_and_move(source_node,
+                                       std::move(source_node_obsoleting_guard)),
+                     std::move(child), depth} {
     assert(!source_node_obsoleting_guard.active());
   }
 
@@ -460,25 +461,25 @@ olc_inode_16::olc_inode_16(
     unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
     std::uint8_t child_to_delete,
     unique_write_lock_obsoleting_guard &&child_obsoleting_guard) noexcept
-    : basic_inode_16<olc_art_policy>{
-          obsolete_and_move(source_node,
-                            std::move(source_node_obsoleting_guard)),
-          obsolete_child_by_index(child_to_delete,
-                                  std::move(child_obsoleting_guard))} {
+    : parent_class{obsolete_and_move(source_node,
+                                     std::move(source_node_obsoleting_guard)),
+                   obsolete_child_by_index(child_to_delete,
+                                           std::move(child_obsoleting_guard))} {
   assert(!source_node_obsoleting_guard.active());
   assert(!child_obsoleting_guard.active());
 }
 
 class olc_inode_256 final : public basic_inode_256<olc_art_policy> {
+  using parent_class = basic_inode_256<olc_art_policy>;
+
  public:
   olc_inode_256(
       db_inode48_reclaimable_ptr &&source_node,
       unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
       olc_db_leaf_unique_ptr &&child, detail::tree_depth depth) noexcept
-      : basic_inode_256<olc_art_policy>{
-            obsolete_and_move(source_node,
-                              std::move(source_node_obsoleting_guard)),
-            std::move(child), depth} {
+      : parent_class{obsolete_and_move(source_node,
+                                       std::move(source_node_obsoleting_guard)),
+                     std::move(child), depth} {
     assert(!source_node_obsoleting_guard.active());
   }
 
@@ -538,11 +539,10 @@ olc_inode_48::olc_inode_48(
     unique_write_lock_obsoleting_guard &&source_node_obsoleting_guard,
     std::uint8_t child_to_delete,
     unique_write_lock_obsoleting_guard &&child_obsoleting_guard) noexcept
-    : basic_inode_48<olc_art_policy>{
-          obsolete_and_move(source_node,
-                            std::move(source_node_obsoleting_guard)),
-          obsolete_child_by_index(child_to_delete,
-                                  std::move(child_obsoleting_guard))} {
+    : parent_class{obsolete_and_move(source_node,
+                                     std::move(source_node_obsoleting_guard)),
+                   obsolete_child_by_index(child_to_delete,
+                                           std::move(child_obsoleting_guard))} {
   assert(!source_node_obsoleting_guard.active());
   assert(!child_obsoleting_guard.active());
 }

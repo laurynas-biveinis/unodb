@@ -12,154 +12,154 @@
 namespace {
 
 template <class Db>
-void grow_node48_to_node256_sequentially(benchmark::State &state) {
+void grow_n48_to_n256_sequentially(benchmark::State &state) {
   unodb::benchmark::grow_node_sequentially_benchmark<Db, 48>(state);
 }
 
 template <class Db>
-void grow_node48_to_node256_randomly(benchmark::State &state) {
+void grow_n48_to_n256_randomly(benchmark::State &state) {
   unodb::benchmark::grow_node_randomly_benchmark<Db, 48>(state);
 }
 
 template <class Db>
-void node256_sequential_add(benchmark::State &state) {
+void n256_sequential_add(benchmark::State &state) {
   unodb::benchmark::sequential_add_benchmark<Db, 256>(state);
 }
 
 template <class Db>
-void node256_random_add(benchmark::State &state) {
+void n256_random_add(benchmark::State &state) {
   unodb::benchmark::random_add_benchmark<Db, 256>(state);
 }
 
 template <class Db>
-void minimal_node256_tree_full_scan(benchmark::State &state) {
+void minimal_n256_tree_full_scan(benchmark::State &state) {
   unodb::benchmark::minimal_tree_full_scan<Db, 256>(state);
 }
 
 template <class Db>
-void minimal_node256_tree_random_gets(benchmark::State &state) {
+void minimal_n256_tree_random_gets(benchmark::State &state) {
   unodb::benchmark::minimal_tree_random_gets<Db, 256>(state);
 }
 
 template <class Db>
-void full_node256_tree_full_scan(benchmark::State &state) {
+void full_n256_tree_full_scan(benchmark::State &state) {
   unodb::benchmark::full_node_scan_benchmark<Db, 256>(state);
 }
 
 template <class Db>
-void full_node256_tree_random_gets(benchmark::State &state) {
+void full_n256_tree_random_gets(benchmark::State &state) {
   unodb::benchmark::full_node_random_get_benchmark<Db, 256>(state);
 }
 
 template <class Db>
-void full_node256_tree_sequential_delete(benchmark::State &state) {
+void full_n256_tree_sequential_delete(benchmark::State &state) {
   unodb::benchmark::sequential_delete_benchmark<Db, 256>(state);
 }
 
 template <class Db>
-void full_node256_tree_random_delete(benchmark::State &state) {
+void full_n256_tree_random_delete(benchmark::State &state) {
   unodb::benchmark::random_delete_benchmark<Db, 256>(state);
 }
 
 }  // namespace
 
-BENCHMARK_TEMPLATE(grow_node48_to_node256_sequentially, unodb::db)
+BENCHMARK_TEMPLATE(grow_n48_to_n256_sequentially, unodb::db)
     ->Range(2, 2048)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(grow_node48_to_node256_sequentially, unodb::mutex_db)
+BENCHMARK_TEMPLATE(grow_n48_to_n256_sequentially, unodb::mutex_db)
     ->Range(2, 2048)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(grow_node48_to_node256_sequentially, unodb::olc_db)
-    ->Range(2, 2048)
-    ->Unit(benchmark::kMicrosecond);
-
-BENCHMARK_TEMPLATE(grow_node48_to_node256_randomly, unodb::db)
-    ->Range(2, 2048)
-    ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(grow_node48_to_node256_randomly, unodb::mutex_db)
-    ->Range(2, 2048)
-    ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(grow_node48_to_node256_randomly, unodb::olc_db)
+BENCHMARK_TEMPLATE(grow_n48_to_n256_sequentially, unodb::olc_db)
     ->Range(2, 2048)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_TEMPLATE(node256_sequential_add, unodb::db)
+BENCHMARK_TEMPLATE(grow_n48_to_n256_randomly, unodb::db)
+    ->Range(2, 2048)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(grow_n48_to_n256_randomly, unodb::mutex_db)
+    ->Range(2, 2048)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(grow_n48_to_n256_randomly, unodb::olc_db)
+    ->Range(2, 2048)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(n256_sequential_add, unodb::db)
     ->Range(1, 1024)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(node256_sequential_add, unodb::mutex_db)
+BENCHMARK_TEMPLATE(n256_sequential_add, unodb::mutex_db)
     ->Range(1, 1024)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(node256_sequential_add, unodb::olc_db)
+BENCHMARK_TEMPLATE(n256_sequential_add, unodb::olc_db)
     ->Range(1, 1024)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_TEMPLATE(node256_random_add, unodb::db)
+BENCHMARK_TEMPLATE(n256_random_add, unodb::db)
     ->Range(1, 1024)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(node256_random_add, unodb::mutex_db)
+BENCHMARK_TEMPLATE(n256_random_add, unodb::mutex_db)
     ->Range(1, 1024)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(node256_random_add, unodb::olc_db)
+BENCHMARK_TEMPLATE(n256_random_add, unodb::olc_db)
     ->Range(1, 1024)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_TEMPLATE(minimal_node256_tree_full_scan, unodb::db)
+BENCHMARK_TEMPLATE(minimal_n256_tree_full_scan, unodb::db)
     ->Range(4, 4096)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(minimal_node256_tree_full_scan, unodb::mutex_db)
+BENCHMARK_TEMPLATE(minimal_n256_tree_full_scan, unodb::mutex_db)
     ->Range(4, 4096)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(minimal_node256_tree_full_scan, unodb::olc_db)
-    ->Range(4, 4096)
-    ->Unit(benchmark::kMicrosecond);
-
-BENCHMARK_TEMPLATE(minimal_node256_tree_random_gets, unodb::db)
-    ->Range(4, 4096)
-    ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(minimal_node256_tree_random_gets, unodb::mutex_db)
-    ->Range(4, 4096)
-    ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(minimal_node256_tree_random_gets, unodb::olc_db)
+BENCHMARK_TEMPLATE(minimal_n256_tree_full_scan, unodb::olc_db)
     ->Range(4, 4096)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_TEMPLATE(full_node256_tree_full_scan, unodb::db)
+BENCHMARK_TEMPLATE(minimal_n256_tree_random_gets, unodb::db)
+    ->Range(4, 4096)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(minimal_n256_tree_random_gets, unodb::mutex_db)
+    ->Range(4, 4096)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(minimal_n256_tree_random_gets, unodb::olc_db)
+    ->Range(4, 4096)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(full_n256_tree_full_scan, unodb::db)
     ->Range(128, 131064)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(full_node256_tree_full_scan, unodb::mutex_db)
+BENCHMARK_TEMPLATE(full_n256_tree_full_scan, unodb::mutex_db)
     ->Range(128, 131064)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(full_node256_tree_full_scan, unodb::olc_db)
+BENCHMARK_TEMPLATE(full_n256_tree_full_scan, unodb::olc_db)
     ->Range(128, 131064)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_TEMPLATE(full_node256_tree_random_gets, unodb::db)
+BENCHMARK_TEMPLATE(full_n256_tree_random_gets, unodb::db)
     ->Range(128, 131064)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(full_node256_tree_random_gets, unodb::mutex_db)
+BENCHMARK_TEMPLATE(full_n256_tree_random_gets, unodb::mutex_db)
     ->Range(128, 131064)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(full_node256_tree_random_gets, unodb::olc_db)
+BENCHMARK_TEMPLATE(full_n256_tree_random_gets, unodb::olc_db)
     ->Range(128, 131064)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_TEMPLATE(full_node256_tree_sequential_delete, unodb::db)
+BENCHMARK_TEMPLATE(full_n256_tree_sequential_delete, unodb::db)
     ->Range(192, 196608)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(full_node256_tree_sequential_delete, unodb::mutex_db)
+BENCHMARK_TEMPLATE(full_n256_tree_sequential_delete, unodb::mutex_db)
     ->Range(192, 196608)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(full_node256_tree_sequential_delete, unodb::olc_db)
+BENCHMARK_TEMPLATE(full_n256_tree_sequential_delete, unodb::olc_db)
     ->Range(192, 196608)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_TEMPLATE(full_node256_tree_random_delete, unodb::db)
+BENCHMARK_TEMPLATE(full_n256_tree_random_delete, unodb::db)
     ->Range(192, 196608)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(full_node256_tree_random_delete, unodb::mutex_db)
+BENCHMARK_TEMPLATE(full_n256_tree_random_delete, unodb::mutex_db)
     ->Range(192, 196608)
     ->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(full_node256_tree_random_delete, unodb::olc_db)
+BENCHMARK_TEMPLATE(full_n256_tree_random_delete, unodb::olc_db)
     ->Range(192, 196608)
     ->Unit(benchmark::kMicrosecond);
 

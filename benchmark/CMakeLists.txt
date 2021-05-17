@@ -1,20 +1,20 @@
 # Copyright 2020-2021 Laurynas Biveinis
 
 set(micro_benchmark_key_prefix_quick_arg "") # Benchmark is quick as-is
-set(micro_benchmark_node4_quick_arg "--benchmark_filter='/16|/25|/100'")
-set(micro_benchmark_node16_quick_arg "--benchmark_filter='/64'")
-set(micro_benchmark_node48_quick_arg "--benchmark_filter='/8$|/128|/192'")
-set(micro_benchmark_node256_quick_arg "--benchmark_filter='/8|/128|/192'")
+set(micro_benchmark_n4_quick_arg "--benchmark_filter='/16|/25|/100'")
+set(micro_benchmark_n16_quick_arg "--benchmark_filter='/64'")
+set(micro_benchmark_n48_quick_arg "--benchmark_filter='/8$|/128|/192'")
+set(micro_benchmark_n256_quick_arg "--benchmark_filter='/8|/128|/192'")
 set(micro_benchmark_quick_arg "--benchmark_filter='.*/512$|.*/800/|.*/1000/'")
 set(micro_benchmark_mutex_quick_arg "--benchmark_filter='/4/70000/'")
 set(micro_benchmark_olc_quick_arg "--benchmark_filter='/4/70000/'")
 
 add_custom_target(benchmarks
   env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_key_prefix
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node4
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node16
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node48
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_node256
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_n4
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_n16
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_n48
+  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_n256
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_mutex
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_olc)
@@ -23,13 +23,13 @@ add_custom_target(quick_benchmarks
   env ${ASAN_ENV} ${UBSAN_ENV}
   ./micro_benchmark_key_prefix ${micro_benchmark_key_prefix_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
-  ./micro_benchmark_node4 ${micro_benchmark_node4_quick_arg}
+  ./micro_benchmark_n4 ${micro_benchmark_n4_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
-  ./micro_benchmark_node16 ${micro_benchmark_node16_quick_arg}
+  ./micro_benchmark_n16 ${micro_benchmark_n16_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
-  ./micro_benchmark_node48 ${micro_benchmark_node48_quick_arg}
+  ./micro_benchmark_n48 ${micro_benchmark_n48_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
-  ./micro_benchmark_node256 ${micro_benchmark_node256_quick_arg}
+  ./micro_benchmark_n256 ${micro_benchmark_n256_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
   ./micro_benchmark ${micro_benchmark_quick_arg}
   COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
@@ -40,14 +40,14 @@ add_custom_target(quick_benchmarks
 add_custom_target(valgrind_benchmarks
   COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_key_prefix
   ${micro_benchmark_key_prefix_quick_arg}
-  COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_node4
-  ${micro_benchmark_node4_quick_arg}
-  COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_node16
-  ${micro_benchmark_node16_quick_arg}
-  COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_node48
-  ${micro_benchmark_node48_quick_arg}
-  COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_node256
-  ${micro_benchmark_node256_quick_arg}
+  COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_n4
+  ${micro_benchmark_n4_quick_arg}
+  COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_n16
+  ${micro_benchmark_n16_quick_arg}
+  COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_n48
+  ${micro_benchmark_n48_quick_arg}
+  COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_n256
+  ${micro_benchmark_n256_quick_arg}
   COMMAND ${VALGRIND_COMMAND} ./micro_benchmark ${micro_benchmark_quick_arg}
   COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_mutex
   ${micro_benchmark_mutex_quick_arg}
@@ -84,10 +84,10 @@ function(ADD_CONCURRENT_BENCHMARK_TARGET TARGET)
 endfunction()
 
 add_benchmark_target(micro_benchmark_key_prefix)
-add_node_benchmark_target(micro_benchmark_node4)
-add_node_benchmark_target(micro_benchmark_node16)
-add_node_benchmark_target(micro_benchmark_node48)
-add_node_benchmark_target(micro_benchmark_node256)
+add_node_benchmark_target(micro_benchmark_n4)
+add_node_benchmark_target(micro_benchmark_n16)
+add_node_benchmark_target(micro_benchmark_n48)
+add_node_benchmark_target(micro_benchmark_n256)
 add_node_benchmark_target(micro_benchmark)
 add_concurrent_benchmark_target(micro_benchmark_mutex)
 add_concurrent_benchmark_target(micro_benchmark_olc)

@@ -35,8 +35,8 @@ TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeEmptyValue) {
   unodb::test::tree_verifier<TypeParam> verifier;
   verifier.check_absent_keys({1});
   verifier.insert(1, {});
-  verifier.assert_node_counts(1, 0, 0, 0, 0);
-  verifier.assert_increasing_nodes(0, 0, 0, 0);
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
+  verifier.assert_growing_inodes({0, 0, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0});
@@ -45,8 +45,8 @@ TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeEmptyValue) {
 TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeNonemptyValue) {
   unodb::test::tree_verifier<TypeParam> verifier;
   verifier.insert(1, unodb::test::test_values[2]);
-  verifier.assert_node_counts(1, 0, 0, 0, 0);
-  verifier.assert_increasing_nodes(0, 0, 0, 0);
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
+  verifier.assert_growing_inodes({0, 0, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 2});
@@ -65,19 +65,19 @@ TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
 
   verifier.check_absent_keys({1});
   verifier.assert_empty();
-  verifier.assert_increasing_nodes(0, 0, 0, 0);
+  verifier.assert_growing_inodes({0, 0, 0, 0});
 }
 
 TYPED_TEST(ARTCorrectnessTest, ExpandLeafToNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(0, unodb::test::test_values[1]);
-  verifier.assert_node_counts(1, 0, 0, 0, 0);
-  verifier.assert_increasing_nodes(0, 0, 0, 0);
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
+  verifier.assert_growing_inodes({0, 0, 0, 0});
 
   verifier.insert(1, unodb::test::test_values[2]);
-  verifier.assert_node_counts(2, 1, 0, 0, 0);
-  verifier.assert_increasing_nodes(1, 0, 0, 0);
+  verifier.assert_node_counts({2, 1, 0, 0, 0});
+  verifier.assert_growing_inodes({1, 0, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({2});
@@ -87,14 +87,14 @@ TYPED_TEST(ARTCorrectnessTest, DuplicateKey) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(0, unodb::test::test_values[0]);
-  verifier.assert_node_counts(1, 0, 0, 0, 0);
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
 
   const auto mem_use_before = verifier.get_db().get_current_memory_use();
   ASSERT_FALSE(verifier.get_db().insert(0, unodb::test::test_values[3]));
   ASSERT_EQ(mem_use_before, verifier.get_db().get_current_memory_use());
 
-  verifier.assert_node_counts(1, 0, 0, 0, 0);
-  verifier.assert_increasing_nodes(0, 0, 0, 0);
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
+  verifier.assert_growing_inodes({0, 0, 0, 0});
   verifier.check_present_values();
 }
 
@@ -102,8 +102,8 @@ TYPED_TEST(ARTCorrectnessTest, InsertToFullNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 4);
-  verifier.assert_node_counts(4, 1, 0, 0, 0);
-  verifier.assert_increasing_nodes(1, 0, 0, 0);
+  verifier.assert_node_counts({4, 1, 0, 0, 0});
+  verifier.assert_growing_inodes({1, 0, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({5, 4});
@@ -114,12 +114,12 @@ TYPED_TEST(ARTCorrectnessTest, TwoNode4) {
 
   verifier.insert(1, unodb::test::test_values[0]);
   verifier.insert(3, unodb::test::test_values[2]);
-  verifier.assert_increasing_nodes(1, 0, 0, 0);
+  verifier.assert_growing_inodes({1, 0, 0, 0});
 
   // Insert a value that does not share full prefix with the current Node4
   verifier.insert(0xFF01, unodb::test::test_values[3]);
-  verifier.assert_node_counts(3, 2, 0, 0, 0);
-  verifier.assert_increasing_nodes(2, 0, 0, 0);
+  verifier.assert_node_counts({3, 2, 0, 0, 0});
+  verifier.assert_growing_inodes({2, 0, 0, 0});
   verifier.assert_key_prefix_splits(1);
 
   verifier.check_present_values();
@@ -133,14 +133,14 @@ TYPED_TEST(ARTCorrectnessTest, DbInsertNodeRecursion) {
   verifier.insert(3, unodb::test::test_values[2]);
   // Insert a value that does not share full prefix with the current Node4
   verifier.insert(0xFF0001, unodb::test::test_values[3]);
-  verifier.assert_increasing_nodes(2, 0, 0, 0);
+  verifier.assert_growing_inodes({2, 0, 0, 0});
   verifier.assert_key_prefix_splits(1);
 
   // Then insert a value that shares full prefix with the above node and will
   // ask for a recursive insertion there
   verifier.insert(0xFF0101, unodb::test::test_values[1]);
-  verifier.assert_node_counts(4, 3, 0, 0, 0);
-  verifier.assert_increasing_nodes(3, 0, 0, 0);
+  verifier.assert_node_counts({4, 3, 0, 0, 0});
+  verifier.assert_growing_inodes({3, 0, 0, 0});
   verifier.assert_key_prefix_splits(1);
 
   verifier.check_present_values();
@@ -153,8 +153,8 @@ TYPED_TEST(ARTCorrectnessTest, Node16) {
   verifier.insert_key_range(0, 4);
   verifier.check_present_values();
   verifier.insert(5, unodb::test::test_values[0]);
-  verifier.assert_node_counts(5, 0, 1, 0, 0);
-  verifier.assert_increasing_nodes(1, 1, 0, 0);
+  verifier.assert_node_counts({5, 0, 1, 0, 0});
+  verifier.assert_growing_inodes({1, 1, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({6, 0x0100, 0xFFFFFFFFFFFFFFFFULL});
@@ -164,8 +164,8 @@ TYPED_TEST(ARTCorrectnessTest, FullNode16) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 16);
-  verifier.assert_node_counts(16, 0, 1, 0, 0);
-  verifier.assert_increasing_nodes(1, 1, 0, 0);
+  verifier.assert_node_counts({16, 0, 1, 0, 0});
+  verifier.assert_growing_inodes({1, 1, 0, 0});
 
   verifier.check_absent_keys({16});
   verifier.check_present_values();
@@ -178,8 +178,8 @@ TYPED_TEST(ARTCorrectnessTest, Node16KeyPrefixSplit) {
 
   // Insert a value that does share full prefix with the current Node16
   verifier.insert(0x1020, unodb::test::test_values[0]);
-  verifier.assert_node_counts(6, 1, 1, 0, 0);
-  verifier.assert_increasing_nodes(2, 1, 0, 0);
+  verifier.assert_node_counts({6, 1, 1, 0, 0});
+  verifier.assert_growing_inodes({2, 1, 0, 0});
   verifier.assert_key_prefix_splits(1);
 
   verifier.check_present_values();
@@ -195,7 +195,7 @@ TYPED_TEST(ARTCorrectnessTest, Node16KeyInsertOrderDescending) {
   verifier.insert(2, unodb::test::test_values[3]);
   verifier.insert(1, unodb::test::test_values[4]);
   verifier.insert(0, unodb::test::test_values[0]);
-  verifier.assert_node_counts(6, 0, 1, 0, 0);
+  verifier.assert_node_counts({6, 0, 1, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({6});
@@ -205,8 +205,8 @@ TYPED_TEST(ARTCorrectnessTest, Node48) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 17);
-  verifier.assert_node_counts(17, 0, 0, 1, 0);
-  verifier.assert_increasing_nodes(1, 1, 1, 0);
+  verifier.assert_node_counts({17, 0, 0, 1, 0});
+  verifier.assert_growing_inodes({1, 1, 1, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({17});
@@ -216,8 +216,8 @@ TYPED_TEST(ARTCorrectnessTest, FullNode48) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 48);
-  verifier.assert_node_counts(48, 0, 0, 1, 0);
-  verifier.assert_increasing_nodes(1, 1, 1, 0);
+  verifier.assert_node_counts({48, 0, 0, 1, 0});
+  verifier.assert_growing_inodes({1, 1, 1, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({49});
@@ -227,14 +227,14 @@ TYPED_TEST(ARTCorrectnessTest, Node48KeyPrefixSplit) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 17);
-  verifier.assert_node_counts(17, 0, 0, 1, 0);
-  verifier.assert_increasing_nodes(1, 1, 1, 0);
+  verifier.assert_node_counts({17, 0, 0, 1, 0});
+  verifier.assert_growing_inodes({1, 1, 1, 0});
   verifier.assert_key_prefix_splits(0);
 
   // Insert a value that does share full prefix with the current Node48
   verifier.insert(0x100020, unodb::test::test_values[0]);
-  verifier.assert_node_counts(18, 1, 0, 1, 0);
-  verifier.assert_increasing_nodes(2, 1, 1, 0);
+  verifier.assert_node_counts({18, 1, 0, 1, 0});
+  verifier.assert_growing_inodes({2, 1, 1, 0});
   verifier.assert_key_prefix_splits(1);
 
   verifier.check_present_values();
@@ -245,8 +245,8 @@ TYPED_TEST(ARTCorrectnessTest, Node256) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
-  verifier.assert_node_counts(49, 0, 0, 0, 1);
-  verifier.assert_increasing_nodes(1, 1, 1, 1);
+  verifier.assert_node_counts({49, 0, 0, 0, 1});
+  verifier.assert_growing_inodes({1, 1, 1, 1});
 
   verifier.check_present_values();
   verifier.check_absent_keys({50});
@@ -256,8 +256,8 @@ TYPED_TEST(ARTCorrectnessTest, FullNode256) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 256);
-  verifier.assert_node_counts(256, 0, 0, 0, 1);
-  verifier.assert_increasing_nodes(1, 1, 1, 1);
+  verifier.assert_node_counts({256, 0, 0, 0, 1});
+  verifier.assert_growing_inodes({1, 1, 1, 1});
 
   verifier.check_present_values();
   verifier.check_absent_keys({256});
@@ -267,14 +267,14 @@ TYPED_TEST(ARTCorrectnessTest, Node256KeyPrefixSplit) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(20, 49);
-  verifier.assert_node_counts(49, 0, 0, 0, 1);
-  verifier.assert_increasing_nodes(1, 1, 1, 1);
+  verifier.assert_node_counts({49, 0, 0, 0, 1});
+  verifier.assert_growing_inodes({1, 1, 1, 1});
   verifier.assert_key_prefix_splits(0);
 
   // Insert a value that does share full prefix with the current Node256
   verifier.insert(0x100020, unodb::test::test_values[0]);
-  verifier.assert_node_counts(50, 1, 0, 0, 1);
-  verifier.assert_increasing_nodes(2, 1, 1, 1);
+  verifier.assert_node_counts({50, 1, 0, 0, 1});
+  verifier.assert_growing_inodes({2, 1, 1, 1});
   verifier.assert_key_prefix_splits(1);
 
   verifier.check_present_values();
@@ -306,7 +306,7 @@ TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeAttemptDeleteAbsent) {
   verifier.insert(2, unodb::test::test_values[1]);
   verifier.attempt_remove_missing_keys({1, 3, 0xFF02});
   verifier.check_present_values();
-  verifier.assert_node_counts(1, 0, 0, 0, 0);
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
   verifier.check_absent_keys({1, 3, 0xFF02});
 }
 
@@ -315,7 +315,7 @@ TYPED_TEST(ARTCorrectnessTest, Node4AttemptDeleteAbsent) {
 
   verifier.insert_key_range(1, 4);
   verifier.attempt_remove_missing_keys({0, 6, 0xFF000001});
-  verifier.assert_node_counts(4, 1, 0, 0, 0);
+  verifier.assert_node_counts({4, 1, 0, 0, 0});
 
   verifier.check_absent_keys({0, 6, 0xFF00000});
 }
@@ -333,7 +333,7 @@ TYPED_TEST(ARTCorrectnessTest, Node4FullDeleteMiddleAndBeginning) {
   verifier.check_present_values();
   verifier.check_absent_keys({1, 0, 2, 5});
 
-  verifier.assert_node_counts(2, 1, 0, 0, 0);
+  verifier.assert_node_counts({2, 1, 0, 0, 0});
 }
 
 TYPED_TEST(ARTCorrectnessTest, Node4FullDeleteEndAndMiddle) {
@@ -349,21 +349,21 @@ TYPED_TEST(ARTCorrectnessTest, Node4FullDeleteEndAndMiddle) {
   verifier.check_present_values();
   verifier.check_absent_keys({2, 4, 0, 5});
 
-  verifier.assert_node_counts(2, 1, 0, 0, 0);
+  verifier.assert_node_counts({2, 1, 0, 0, 0});
 }
 
 TYPED_TEST(ARTCorrectnessTest, Node4ShrinkToSingleLeaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 2);
-  verifier.assert_shrinking_nodes(0, 0, 0, 0);
+  verifier.assert_shrinking_inodes({0, 0, 0, 0});
 
   verifier.remove(1);
-  verifier.assert_shrinking_nodes(1, 0, 0, 0);
+  verifier.assert_shrinking_inodes({1, 0, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({1});
-  verifier.assert_node_counts(1, 0, 0, 0, 0);
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
 }
 
 TYPED_TEST(ARTCorrectnessTest, Node4DeleteLowerNode) {
@@ -372,17 +372,17 @@ TYPED_TEST(ARTCorrectnessTest, Node4DeleteLowerNode) {
   verifier.insert_key_range(0, 2);
   // Insert a value that does not share full prefix with the current Node4
   verifier.insert(0xFF00, unodb::test::test_values[3]);
-  verifier.assert_shrinking_nodes(0, 0, 0, 0);
+  verifier.assert_shrinking_inodes({0, 0, 0, 0});
   verifier.assert_key_prefix_splits(1);
 
   // Make the lower Node4 shrink to a single value leaf
   verifier.remove(0);
-  verifier.assert_shrinking_nodes(1, 0, 0, 0);
+  verifier.assert_shrinking_inodes({1, 0, 0, 0});
   verifier.assert_key_prefix_splits(1);
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 2, 0xFF01});
-  verifier.assert_node_counts(2, 1, 0, 0, 0);
+  verifier.assert_node_counts({2, 1, 0, 0, 0});
 }
 
 TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge) {
@@ -392,18 +392,18 @@ TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge) {
   // Insert a value that does not share full prefix with the current Node4
   verifier.insert(0x90AA, unodb::test::test_values[3]);
   verifier.assert_key_prefix_splits(1);
-  verifier.assert_node_counts(3, 2, 0, 0, 0);
+  verifier.assert_node_counts({3, 2, 0, 0, 0});
 
   // And delete it
   verifier.remove(0x90AA);
   verifier.assert_key_prefix_splits(1);
-  verifier.assert_node_counts(2, 1, 0, 0, 0);
-  verifier.assert_shrinking_nodes(1, 0, 0, 0);
+  verifier.assert_node_counts({2, 1, 0, 0, 0});
+  verifier.assert_shrinking_inodes({1, 0, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0x90AA, 0x8003});
 
-  verifier.assert_node_counts(2, 1, 0, 0, 0);
+  verifier.assert_node_counts({2, 1, 0, 0, 0});
 }
 
 TYPED_TEST(ARTCorrectnessTest, Node16DeleteBeginningMiddleEnd) {
@@ -417,18 +417,18 @@ TYPED_TEST(ARTCorrectnessTest, Node16DeleteBeginningMiddleEnd) {
   verifier.check_present_values();
   verifier.check_absent_keys({0, 1, 5, 16, 17});
 
-  verifier.assert_node_counts(13, 0, 1, 0, 0);
+  verifier.assert_node_counts({13, 0, 1, 0, 0});
 }
 
 TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteMiddle) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
-  verifier.assert_node_counts(5, 0, 1, 0, 0);
+  verifier.assert_node_counts({5, 0, 1, 0, 0});
 
   verifier.remove(2);
-  verifier.assert_shrinking_nodes(0, 1, 0, 0);
-  verifier.assert_node_counts(4, 1, 0, 0, 0);
+  verifier.assert_shrinking_inodes({0, 1, 0, 0});
+  verifier.assert_node_counts({4, 1, 0, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 2, 6});
@@ -438,11 +438,11 @@ TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteBeginning) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
-  verifier.assert_node_counts(5, 0, 1, 0, 0);
+  verifier.assert_node_counts({5, 0, 1, 0, 0});
 
   verifier.remove(1);
-  verifier.assert_shrinking_nodes(0, 1, 0, 0);
-  verifier.assert_node_counts(4, 1, 0, 0, 0);
+  verifier.assert_shrinking_inodes({0, 1, 0, 0});
+  verifier.assert_node_counts({4, 1, 0, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 1, 6});
@@ -452,11 +452,11 @@ TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteEnd) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
-  verifier.assert_node_counts(5, 0, 1, 0, 0);
+  verifier.assert_node_counts({5, 0, 1, 0, 0});
 
   verifier.remove(5);
-  verifier.assert_shrinking_nodes(0, 1, 0, 0);
-  verifier.assert_node_counts(4, 1, 0, 0, 0);
+  verifier.assert_shrinking_inodes({0, 1, 0, 0});
+  verifier.assert_node_counts({4, 1, 0, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 5, 6});
@@ -468,14 +468,14 @@ TYPED_TEST(ARTCorrectnessTest, Node16KeyPrefixMerge) {
   verifier.insert_key_range(10, 5);
   // Insert a value that does not share full prefix with the current Node16
   verifier.insert(0x1020, unodb::test::test_values[0]);
-  verifier.assert_node_counts(6, 1, 1, 0, 0);
+  verifier.assert_node_counts({6, 1, 1, 0, 0});
   verifier.assert_key_prefix_splits(1);
 
   // And delete it, so that upper level Node4 key prefix gets merged with
   // Node16 one
   verifier.remove(0x1020);
-  verifier.assert_shrinking_nodes(1, 0, 0, 0);
-  verifier.assert_node_counts(5, 0, 1, 0, 0);
+  verifier.assert_shrinking_inodes({1, 0, 0, 0});
+  verifier.assert_node_counts({5, 0, 1, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({9, 16, 0x1020});
@@ -492,18 +492,18 @@ TYPED_TEST(ARTCorrectnessTest, Node48DeleteBeginningMiddleEnd) {
   verifier.check_present_values();
   verifier.check_absent_keys({0, 1, 30, 48, 49});
 
-  verifier.assert_node_counts(45, 0, 0, 1, 0);
+  verifier.assert_node_counts({45, 0, 0, 1, 0});
 }
 
 TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteMiddle) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0x80, 17);
-  verifier.assert_node_counts(17, 0, 0, 1, 0);
+  verifier.assert_node_counts({17, 0, 0, 1, 0});
 
   verifier.remove(0x85);
-  verifier.assert_shrinking_nodes(0, 0, 1, 0);
-  verifier.assert_node_counts(16, 0, 1, 0, 0);
+  verifier.assert_shrinking_inodes({0, 0, 1, 0});
+  verifier.assert_node_counts({16, 0, 1, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0x7F, 0x85, 0x91});
@@ -513,11 +513,11 @@ TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteBeginning) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 17);
-  verifier.assert_node_counts(17, 0, 0, 1, 0);
+  verifier.assert_node_counts({17, 0, 0, 1, 0});
 
   verifier.remove(1);
-  verifier.assert_shrinking_nodes(0, 0, 1, 0);
-  verifier.assert_node_counts(16, 0, 1, 0, 0);
+  verifier.assert_shrinking_inodes({0, 0, 1, 0});
+  verifier.assert_node_counts({16, 0, 1, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 1, 18});
@@ -527,11 +527,11 @@ TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteEnd) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 17);
-  verifier.assert_node_counts(17, 0, 0, 1, 0);
+  verifier.assert_node_counts({17, 0, 0, 1, 0});
 
   verifier.remove(17);
-  verifier.assert_shrinking_nodes(0, 0, 1, 0);
-  verifier.assert_node_counts(16, 0, 1, 0, 0);
+  verifier.assert_shrinking_inodes({0, 0, 1, 0});
+  verifier.assert_node_counts({16, 0, 1, 0, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 17, 18});
@@ -543,13 +543,13 @@ TYPED_TEST(ARTCorrectnessTest, Node48KeyPrefixMerge) {
   verifier.insert_key_range(10, 17);
   // Insert a value that does not share full prefix with the current Node48
   verifier.insert(0x2010, unodb::test::test_values[1]);
-  verifier.assert_node_counts(18, 1, 0, 1, 0);
+  verifier.assert_node_counts({18, 1, 0, 1, 0});
 
   // And delete it, so that upper level Node4 key prefix gets merged with
   // Node48 one
   verifier.remove(0x2010);
-  verifier.assert_shrinking_nodes(1, 0, 0, 0);
-  verifier.assert_node_counts(17, 0, 0, 1, 0);
+  verifier.assert_shrinking_inodes({1, 0, 0, 0});
+  verifier.assert_node_counts({17, 0, 0, 1, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({9, 0x2010, 28});
@@ -565,18 +565,18 @@ TYPED_TEST(ARTCorrectnessTest, Node256DeleteBeginningMiddleEnd) {
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 1, 180, 256});
-  verifier.assert_node_counts(253, 0, 0, 0, 1);
+  verifier.assert_node_counts({253, 0, 0, 0, 1});
 }
 
 TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteMiddle) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
-  verifier.assert_node_counts(49, 0, 0, 0, 1);
+  verifier.assert_node_counts({49, 0, 0, 0, 1});
 
   verifier.remove(25);
-  verifier.assert_shrinking_nodes(0, 0, 0, 1);
-  verifier.assert_node_counts(48, 0, 0, 1, 0);
+  verifier.assert_shrinking_inodes({0, 0, 0, 1});
+  verifier.assert_node_counts({48, 0, 0, 1, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 25, 50});
@@ -586,11 +586,11 @@ TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteBeginning) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
-  verifier.assert_node_counts(49, 0, 0, 0, 1);
+  verifier.assert_node_counts({49, 0, 0, 0, 1});
 
   verifier.remove(1);
-  verifier.assert_shrinking_nodes(0, 0, 0, 1);
-  verifier.assert_node_counts(48, 0, 0, 1, 0);
+  verifier.assert_shrinking_inodes({0, 0, 0, 1});
+  verifier.assert_node_counts({48, 0, 0, 1, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 1, 50});
@@ -600,11 +600,11 @@ TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteEnd) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
-  verifier.assert_node_counts(49, 0, 0, 0, 1);
+  verifier.assert_node_counts({49, 0, 0, 0, 1});
 
   verifier.remove(49);
-  verifier.assert_shrinking_nodes(0, 0, 0, 1);
-  verifier.assert_node_counts(48, 0, 0, 1, 0);
+  verifier.assert_shrinking_inodes({0, 0, 0, 1});
+  verifier.assert_node_counts({48, 0, 0, 1, 0});
 
   verifier.check_present_values();
   verifier.check_absent_keys({0, 49, 50});
@@ -616,13 +616,13 @@ TYPED_TEST(ARTCorrectnessTest, Node256KeyPrefixMerge) {
   verifier.insert_key_range(10, 49);
   // Insert a value that does not share full prefix with the current Node256
   verifier.insert(0x2010, unodb::test::test_values[1]);
-  verifier.assert_node_counts(50, 1, 0, 0, 1);
+  verifier.assert_node_counts({50, 1, 0, 0, 1});
 
   // And delete it, so that upper level Node4 key prefix gets merged with
   // Node256 one
   verifier.remove(0x2010);
-  verifier.assert_shrinking_nodes(1, 0, 0, 0);
-  verifier.assert_node_counts(49, 0, 0, 0, 1);
+  verifier.assert_shrinking_inodes({1, 0, 0, 0});
+  verifier.assert_node_counts({49, 0, 0, 0, 1});
 
   verifier.check_present_values();
   verifier.check_absent_keys({9, 0x2010, 60});
@@ -677,26 +677,26 @@ TYPED_TEST(ARTCorrectnessTest, Node48InsertIntoDeletedSlot) {
   verifier.remove(6583227679421302512ULL);
   verifier.insert(0, test_values[0]);
   verifier.check_present_values();
-  verifier.assert_node_counts(18, 0, 0, 1, 0);
+  verifier.assert_node_counts({18, 0, 0, 1, 0});
 }
 
 TYPED_TEST(ARTCorrectnessTest, ClearOnEmpty) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.clear();
-  verifier.assert_node_counts(0, 0, 0, 0, 0);
+  verifier.assert_node_counts({0, 0, 0, 0, 0});
 }
 
 TYPED_TEST(ARTCorrectnessTest, Clear) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, test_values[0]);
-  verifier.assert_node_counts(1, 0, 0, 0, 0);
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
 
   verifier.clear();
 
   verifier.check_absent_keys({1});
-  verifier.assert_node_counts(0, 0, 0, 0, 0);
+  verifier.assert_node_counts({0, 0, 0, 0, 0});
 }
 
 }  // namespace

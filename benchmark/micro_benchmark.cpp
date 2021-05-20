@@ -13,6 +13,7 @@
 #include "micro_benchmark_node_utils.hpp"
 #include "micro_benchmark_utils.hpp"
 #include "mutex_art.hpp"
+#include "node_type.hpp"
 #include "olc_art.hpp"
 
 namespace {
@@ -120,7 +121,8 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
       unodb::benchmark::insert_key(
           test_db, i, unodb::value_view{unodb::benchmark::value100});
     start_tree_size = test_db.get_current_memory_use();
-    start_leaf_count = test_db.get_leaf_count();
+    start_leaf_count =
+        test_db.template get_node_count<unodb::node_type::LEAF>();
     state.ResumeTiming();
 
     for (auto j = 0; j < state.range(1); ++j) {
@@ -129,7 +131,7 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
     }
 
     end_tree_size = test_db.get_current_memory_use();
-    end_leaf_count = test_db.get_leaf_count();
+    end_leaf_count = test_db.template get_node_count<unodb::node_type::LEAF>();
   }
 
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
@@ -192,8 +194,8 @@ void dense_insert_value_lengths(benchmark::State &state) {
     for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
       unodb::benchmark::insert_key(
           test_db, i,
-          unodb::benchmark::values[static_cast<decltype(
-              unodb::benchmark::values)::size_type>(state.range(1))]);
+          unodb::benchmark::values[static_cast<
+              decltype(unodb::benchmark::values)::size_type>(state.range(1))]);
 
     state.PauseTiming();
     tree_size = test_db.get_current_memory_use();

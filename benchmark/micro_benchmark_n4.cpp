@@ -14,6 +14,7 @@
 #include "micro_benchmark_node_utils.hpp"
 #include "micro_benchmark_utils.hpp"
 #include "mutex_art.hpp"
+#include "node_type.hpp"
 #include "olc_art.hpp"
 
 namespace {
@@ -98,7 +99,8 @@ void node4_random_insert(benchmark::State &state) {
     unodb::benchmark::insert_keys(test_db, keys);
 
     state.PauseTiming();
-    unodb::benchmark::assert_node4_only_tree(test_db);
+    unodb::benchmark::assert_dominating_inode_tree<Db, unodb::node_type::I4>(
+        test_db);
     unodb::benchmark::destroy_tree(test_db, state);
   }
 

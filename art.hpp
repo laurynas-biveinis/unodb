@@ -12,6 +12,7 @@
 
 #include "art_common.hpp"
 #include "art_internal.hpp"
+#include "node_type.hpp"
 
 namespace unodb {
 
@@ -33,7 +34,7 @@ class basic_inode_256;  // IWYU pragma: keep
 
 template <class, template <class> class, class, template <class> class,
           template <class, class> class, template <class> class>
-struct basic_art_policy;
+struct basic_art_policy;  // IWYU pragma: keep
 
 class inode;
 
@@ -82,56 +83,31 @@ class db final {
     return current_memory_use;
   }
 
-  [[nodiscard]] constexpr auto get_leaf_count() const noexcept {
-    return leaf_count;
+  template <node_type NodeType>
+  [[nodiscard]] constexpr auto get_node_count() const noexcept {
+    return node_counts[as_i<NodeType>];
   }
 
-  [[nodiscard]] constexpr auto get_inode4_count() const noexcept {
-    return inode4_count;
+  [[nodiscard]] constexpr auto get_node_counts() const noexcept {
+    return node_counts;
   }
 
-  [[nodiscard]] constexpr auto get_inode16_count() const noexcept {
-    return inode16_count;
+  template <node_type NodeType>
+  [[nodiscard]] constexpr auto get_growing_inode_count() const noexcept {
+    return growing_inode_counts[internal_as_i<NodeType>];
   }
 
-  [[nodiscard]] constexpr auto get_inode48_count() const noexcept {
-    return inode48_count;
+  [[nodiscard]] constexpr auto get_growing_inode_counts() const noexcept {
+    return growing_inode_counts;
   }
 
-  [[nodiscard]] constexpr auto get_inode256_count() const noexcept {
-    return inode256_count;
+  template <node_type NodeType>
+  [[nodiscard]] constexpr auto get_shrinking_inode_count() const noexcept {
+    return shrinking_inode_counts[internal_as_i<NodeType>];
   }
 
-  [[nodiscard]] constexpr auto get_created_inode4_count() const noexcept {
-    return created_inode4_count;
-  }
-
-  [[nodiscard]] constexpr auto get_inode4_to_inode16_count() const noexcept {
-    return inode4_to_inode16_count;
-  }
-
-  [[nodiscard]] constexpr auto get_inode16_to_inode48_count() const noexcept {
-    return inode16_to_inode48_count;
-  }
-
-  [[nodiscard]] constexpr auto get_inode48_to_inode256_count() const noexcept {
-    return inode48_to_inode256_count;
-  }
-
-  [[nodiscard]] constexpr auto get_deleted_inode4_count() const noexcept {
-    return deleted_inode4_count;
-  }
-
-  [[nodiscard]] constexpr auto get_inode16_to_inode4_count() const noexcept {
-    return inode16_to_inode4_count;
-  }
-
-  [[nodiscard]] constexpr auto get_inode48_to_inode16_count() const noexcept {
-    return inode48_to_inode16_count;
-  }
-
-  [[nodiscard]] constexpr auto get_inode256_to_inode48_count() const noexcept {
-    return inode256_to_inode48_count;
+  [[nodiscard]] constexpr auto get_shrinking_inode_counts() const noexcept {
+    return shrinking_inode_counts;
   }
 
   [[nodiscard]] constexpr auto get_key_prefix_splits() const noexcept {
@@ -161,45 +137,35 @@ class db final {
 
   constexpr void increment_leaf_count(std::size_t leaf_size) noexcept {
     increase_memory_use(leaf_size);
-    ++leaf_count;
+    ++node_counts[as_i<node_type::LEAF>];
   }
 
   constexpr void decrement_leaf_count(std::size_t leaf_size) noexcept {
     decrease_memory_use(leaf_size);
 
-    assert(leaf_count > 0);
-    --leaf_count;
+    assert(node_counts[as_i<node_type::LEAF>] > 0);
+    --node_counts[as_i<node_type::LEAF>];
   }
 
-  inline constexpr void increment_inode4_count() noexcept;
-  inline constexpr void increment_inode16_count() noexcept;
-  inline constexpr void increment_inode48_count() noexcept;
-  inline constexpr void increment_inode256_count() noexcept;
+  template <class INode>
+  constexpr void increment_inode_count() noexcept;
 
-  inline constexpr void decrement_inode4_count() noexcept;
-  inline constexpr void decrement_inode16_count() noexcept;
-  inline constexpr void decrement_inode48_count() noexcept;
-  inline constexpr void decrement_inode256_count() noexcept;
+  template <class INode>
+  constexpr void decrement_inode_count() noexcept;
+
+  template <node_type NodeType>
+  constexpr void account_growing_inode() noexcept;
+
+  template <node_type NodeType>
+  constexpr void account_shrinking_inode() noexcept;
 
   detail::node_ptr root{nullptr};
 
   std::size_t current_memory_use{0};
 
-  std::uint64_t leaf_count{0};
-  std::uint64_t inode4_count{0};
-  std::uint64_t inode16_count{0};
-  std::uint64_t inode48_count{0};
-  std::uint64_t inode256_count{0};
-
-  std::uint64_t created_inode4_count{0};
-  std::uint64_t inode4_to_inode16_count{0};
-  std::uint64_t inode16_to_inode48_count{0};
-  std::uint64_t inode48_to_inode256_count{0};
-
-  std::uint64_t deleted_inode4_count{0};
-  std::uint64_t inode16_to_inode4_count{0};
-  std::uint64_t inode48_to_inode16_count{0};
-  std::uint64_t inode256_to_inode48_count{0};
+  node_type_counter_array node_counts{};
+  inode_type_counter_array growing_inode_counts{};
+  inode_type_counter_array shrinking_inode_counts{};
 
   std::uint64_t key_prefix_splits{0};
 

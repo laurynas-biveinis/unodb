@@ -20,26 +20,24 @@ static constexpr auto small_concurrent_tree_size = 70000;
 // Do not OOM on a 16GB Linux test server
 static constexpr auto large_concurrent_tree_size = 2000000;
 
-inline constexpr void concurrency_ranges(::benchmark::internal::Benchmark *b,
-                                         int max_concurrency) {
+constexpr void concurrency_ranges(::benchmark::internal::Benchmark *b,
+                                  int max_concurrency) {
   for (auto i = 1; i <= max_concurrency; i *= 2)
     b->Args({i, small_concurrent_tree_size});
   for (auto i = 1; i <= max_concurrency; i *= 2)
     b->Args({i, large_concurrent_tree_size});
 }
 
-inline constexpr void concurrency_ranges16(
-    ::benchmark::internal::Benchmark *b) {
+constexpr void concurrency_ranges16(::benchmark::internal::Benchmark *b) {
   concurrency_ranges(b, 16);
 }
 
-inline constexpr void concurrency_ranges32(
-    ::benchmark::internal::Benchmark *b) {
+constexpr void concurrency_ranges32(::benchmark::internal::Benchmark *b) {
   concurrency_ranges(b, 32);
 }
 
 template <typename T>
-inline constexpr auto to_counter(T value) {
+constexpr auto to_counter(T value) {
   return ::benchmark::Counter{static_cast<double>(value)};
 }
 

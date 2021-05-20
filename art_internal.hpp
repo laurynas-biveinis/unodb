@@ -6,7 +6,6 @@
 
 #include <cassert>
 #include <cstddef>
-#include <cstdint>
 #include <cstring>
 #include <iosfwd>
 #include <memory>
@@ -100,8 +99,6 @@ using raw_leaf = std::byte;
 // to a struct or union, which is inconvenient here.
 using raw_leaf_ptr = raw_leaf *;
 
-enum class node_type : std::uint8_t { LEAF, I4, I16, I48, I256 };
-
 class tree_depth final {
  public:
   using value_type = unsigned;
@@ -156,6 +153,12 @@ struct basic_inode_def final {
   using n48 = Node48;
   using n256 = Node256;
 
+  template <class INode>
+  [[nodiscard]] static constexpr bool is_inode() noexcept {
+    return std::is_same_v<INode, n4> || std::is_same_v<INode, n16> ||
+           std::is_same_v<INode, n48> || std::is_same_v<INode, n256>;
+  }
+
   basic_inode_def() = delete;
 };
 
@@ -171,9 +174,6 @@ class basic_db_inode_deleter {
   void operator()(INode *inode_ptr) noexcept;
 
   [[nodiscard]] Db &get_db() noexcept { return db; }
-
- protected:
-  void account_delete_in_db() noexcept;
 
  private:
   Db &db;

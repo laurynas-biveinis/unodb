@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "art.hpp"
+#include "node_type.hpp"
 
 namespace unodb {
 
@@ -61,69 +62,37 @@ class mutex_db final {
     return db_.get_current_memory_use();
   }
 
-  [[nodiscard]] auto get_leaf_count() const noexcept {
+  template <node_type NodeType>
+  [[nodiscard]] auto get_node_count() const noexcept {
     const std::lock_guard guard{mutex};
-    return db_.get_leaf_count();
+    return db_.get_node_count<NodeType>();
   }
 
-  [[nodiscard]] auto get_inode4_count() const noexcept {
+  [[nodiscard]] auto get_node_counts() const noexcept {
     const std::lock_guard guard{mutex};
-    return db_.get_inode4_count();
+    return db_.get_node_counts();
   }
 
-  [[nodiscard]] auto get_inode16_count() const noexcept {
+  template <node_type NodeType>
+  [[nodiscard]] auto get_growing_inode_count() const noexcept {
     const std::lock_guard guard{mutex};
-    return db_.get_inode16_count();
+    return db_.get_growing_inode_count<NodeType>();
   }
 
-  [[nodiscard]] auto get_inode48_count() const noexcept {
+  [[nodiscard]] auto get_growing_inode_counts() const noexcept {
     const std::lock_guard guard{mutex};
-    return db_.get_inode48_count();
+    return db_.get_growing_inode_counts();
   }
 
-  [[nodiscard]] auto get_inode256_count() const noexcept {
+  template <node_type NodeType>
+  [[nodiscard]] auto get_shrinking_inode_count() const noexcept {
     const std::lock_guard guard{mutex};
-    return db_.get_inode256_count();
+    return db_.get_shrinking_inode_count<NodeType>();
   }
 
-  [[nodiscard]] auto get_created_inode4_count() const noexcept {
+  [[nodiscard]] auto get_shrinking_inode_counts() const noexcept {
     const std::lock_guard guard{mutex};
-    return db_.get_created_inode4_count();
-  }
-
-  [[nodiscard]] auto get_inode4_to_inode16_count() const noexcept {
-    const std::lock_guard guard{mutex};
-    return db_.get_inode4_to_inode16_count();
-  }
-
-  [[nodiscard]] auto get_inode16_to_inode48_count() const noexcept {
-    const std::lock_guard guard{mutex};
-    return db_.get_inode16_to_inode48_count();
-  }
-
-  [[nodiscard]] auto get_inode48_to_inode256_count() const noexcept {
-    const std::lock_guard guard{mutex};
-    return db_.get_inode48_to_inode256_count();
-  }
-
-  [[nodiscard]] auto get_deleted_inode4_count() const noexcept {
-    const std::lock_guard guard{mutex};
-    return db_.get_deleted_inode4_count();
-  }
-
-  [[nodiscard]] auto get_inode16_to_inode4_count() const noexcept {
-    const std::lock_guard guard{mutex};
-    return db_.get_inode16_to_inode4_count();
-  }
-
-  [[nodiscard]] auto get_inode48_to_inode16_count() const noexcept {
-    const std::lock_guard guard{mutex};
-    return db_.get_inode48_to_inode16_count();
-  }
-
-  [[nodiscard]] auto get_inode256_to_inode48_count() const noexcept {
-    const std::lock_guard guard{mutex};
-    return db_.get_inode256_to_inode48_count();
+    return db_.get_shrinking_inode_counts();
   }
 
   [[nodiscard]] auto get_key_prefix_splits() const noexcept {

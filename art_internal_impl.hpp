@@ -25,6 +25,7 @@
 #include "art_common.hpp"
 #include "art_internal.hpp"
 #include "heap.hpp"
+#include "node_type.hpp"
 
 namespace unodb {
 class db;
@@ -48,7 +49,7 @@ template <class INode>
 }
 
 template <>
-[[gnu::const]] inline constexpr std::uint64_t
+[[gnu::const]] constexpr std::uint64_t
 basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   return __builtin_bswap64(k);
@@ -82,13 +83,12 @@ inline auto _mm_cmple_epu8(__m128i x, __m128i y) noexcept {
 
 // From public domain
 // https://graphics.stanford.edu/~seander/bithacks.html
-inline constexpr [[gnu::const]] std::uint32_t has_zero_byte(
-    std::uint32_t v) noexcept {
+[[gnu::const]] constexpr std::uint32_t has_zero_byte(std::uint32_t v) noexcept {
   return ((v - 0x01010101UL) & ~v & 0x80808080UL);
 }
 
-inline constexpr [[gnu::const]] std::uint32_t contains_byte(
-    std::uint32_t v, std::byte b) noexcept {
+[[gnu::const]] constexpr std::uint32_t contains_byte(std::uint32_t v,
+                                                     std::byte b) noexcept {
   return has_zero_byte(v ^ (~0U / 255 * static_cast<std::uint8_t>(b)));
 }
 
@@ -233,25 +233,7 @@ basic_db_inode_deleter<INode, Db, INodeDefs, INodePoolGetter>::operator()(
   pmr_deallocate(INodePoolGetter<INode>::get(), inode_ptr, sizeof(INode),
                  alignment_for_new<INode>());
 
-  account_delete_in_db();
-}
-
-template <class INode, class Db, class INodeDefs,
-          template <class> class INodePoolGetter>
-inline void basic_db_inode_deleter<
-    INode, Db, INodeDefs, INodePoolGetter>::account_delete_in_db() noexcept {
-  if constexpr (std::is_same_v<INode, typename INodeDefs::n4>)
-    db.decrement_inode4_count();
-  else if constexpr (std::is_same_v<INode, typename INodeDefs::n16>)
-    db.decrement_inode16_count();
-  else if constexpr (std::is_same_v<INode, typename INodeDefs::n48>)
-    db.decrement_inode48_count();
-  else if constexpr (std::is_same_v<INode, typename INodeDefs::n256>)
-    db.decrement_inode256_count();
-  else
-    static_assert(
-        dependent_false<INode>::value,
-        "basic_db_inode_deleter instantiated with incorrect inode type");
+  db.template decrement_inode_count<INode>();
 }
 
 template <class Db, template <class> class CriticalSectionPolicy, class NodePtr,
@@ -330,18 +312,7 @@ struct basic_art_policy final {
     db_inode_unique_ptr<INode> result{new INode{std::forward<Args>(args)...},
                                       db_inode_deleter<INode>{db_instance}};
 
-    if constexpr (std::is_same_v<INode, inode4_type>)
-      db_instance.increment_inode4_count();
-    else if constexpr (std::is_same_v<INode, inode16_type>)
-      db_instance.increment_inode16_count();
-    else if constexpr (std::is_same_v<INode, inode48_type>)
-      db_instance.increment_inode48_count();
-    else if constexpr (std::is_same_v<INode, inode256_type>)
-      db_instance.increment_inode256_count();
-    else
-      static_assert(
-          dependent_false<INode>::value,
-          "make_db_inode_unique_ptr instantiated with incorrect inode type");
+    db_instance.template increment_inode_count<INode>();
 
     return result;
   }
@@ -689,7 +660,7 @@ class basic_inode_impl {
     }
   }
 
-  [[nodiscard]] constexpr find_result find_child(detail::node_type type,
+  [[nodiscard]] constexpr find_result find_child(node_type type,
                                                  std::byte key_byte) noexcept {
     assert(type != node_type::LEAF);
     // type == f.header.type(), but this node can be updated in parallel in OLC.
@@ -895,7 +866,7 @@ template <class ArtPolicy, unsigned MinSize, unsigned Capacity,
           node_type NodeType, class SmallerDerived, class LargerDerived,
           class Derived>
 class basic_inode : public basic_inode_impl<ArtPolicy> {
-  static_assert(NodeType != detail::node_type::LEAF);
+  static_assert(NodeType != node_type::LEAF);
   static_assert(!std::is_same_v<Derived, LargerDerived>);
   static_assert(!std::is_same_v<SmallerDerived, Derived>);
   static_assert(!std::is_same_v<SmallerDerived, LargerDerived>);

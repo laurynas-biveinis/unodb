@@ -17,7 +17,7 @@
 #ifndef NDEBUG
 #include <unordered_set>
 #endif
-#include <utility>
+#include <utility>  // IWYU pragma: keep
 #include <vector>
 
 #include <boost/accumulators/accumulators.hpp>  // IWYU pragma: keep

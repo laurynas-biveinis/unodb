@@ -21,13 +21,14 @@
 
 #include "art_common.hpp"
 #include "micro_benchmark_utils.hpp"
+#include "node_type.hpp"
 
 namespace unodb::benchmark {
 
 // Key manipulation with key zero bits
 
 template <unsigned NodeSize>
-constexpr inline auto node_size_to_key_zero_bits() noexcept {
+constexpr auto node_size_to_key_zero_bits() noexcept {
   static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
                 NodeSize == 256);
   if constexpr (NodeSize == 2) {
@@ -40,8 +41,7 @@ constexpr inline auto node_size_to_key_zero_bits() noexcept {
   return 0ULL;
 }
 
-inline constexpr auto next_key(unodb::key k,
-                               std::uint64_t key_zero_bits) noexcept {
+constexpr auto next_key(unodb::key k, std::uint64_t key_zero_bits) noexcept {
   assert((k & key_zero_bits) == 0);
 
   const auto result = ((k | key_zero_bits) + 1) & ~key_zero_bits;
@@ -93,7 +93,7 @@ namespace detail {
 // Node sizes
 
 template <unsigned NodeCapacity>
-inline constexpr auto node_capacity_to_minimum_size() noexcept {
+constexpr auto node_capacity_to_minimum_size() noexcept {
   static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
                 NodeCapacity == 256);
   if constexpr (NodeCapacity == 16) {
@@ -105,22 +105,45 @@ inline constexpr auto node_capacity_to_minimum_size() noexcept {
 }
 
 template <unsigned NodeCapacity>
-inline constexpr auto node_capacity_over_minimum() noexcept {
+constexpr auto node_capacity_over_minimum() noexcept {
   static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
                 NodeCapacity == 256);
   return NodeCapacity - node_capacity_to_minimum_size<NodeCapacity>();
 }
 
 template <unsigned NodeSize>
-inline constexpr auto node_size_has_key_zero_bits() noexcept {
+constexpr auto node_size_has_key_zero_bits() noexcept {
   // If node size is a power of two, then can use key zero bit-based operations
   return (NodeSize & (NodeSize - 1)) == 0;
 }
 
+template <unsigned NodeSize>
+constexpr auto node_size_to_node_type() noexcept {
+  static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
+                NodeSize == 48 || NodeSize == 256);
+  if constexpr (NodeSize == 2 || NodeSize == 4) return node_type::I4;
+  if constexpr (NodeSize == 16) return node_type::I16;
+  if constexpr (NodeSize == 48) return node_type::I48;
+  return node_type::I256;
+}
+
+#ifndef NDEBUG
+
+template <unsigned SmallerNodeSize>
+constexpr auto node_size_to_larger_node_type() noexcept {
+  static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16 ||
+                SmallerNodeSize == 48);
+  if constexpr (SmallerNodeSize == 4) return node_type::I16;
+  if constexpr (SmallerNodeSize == 16) return node_type::I48;
+  return node_type::I256;
+}
+
+#endif  // NDEBUG
+
 // Key manipulation
 
 template <unsigned B, unsigned S, unsigned O>
-inline constexpr auto to_scaled_base_n_value(std::uint64_t i) noexcept {
+constexpr auto to_scaled_base_n_value(std::uint64_t i) noexcept {
   assert(i / (static_cast<std::uint64_t>(B) * B * B * B * B * B * B) < B);
   return (i % B * S + O) | (i / B % B * S + O) << 8U |
          ((i / (B * B) % B * S + O) << 16U) |
@@ -137,25 +160,23 @@ inline constexpr auto to_scaled_base_n_value(std::uint64_t i) noexcept {
 }
 
 template <unsigned B>
-inline constexpr auto to_base_n_value(std::uint64_t i) noexcept {
+constexpr auto to_base_n_value(std::uint64_t i) noexcept {
   assert(i / (static_cast<std::uint64_t>(B) * B * B * B * B * B * B) < B);
   return to_scaled_base_n_value<B, 1, 0>(i);
 }
 
 template <unsigned NodeSize>
-inline constexpr auto number_to_full_node_size_tree_key(
-    std::uint64_t i) noexcept {
+constexpr auto number_to_full_node_size_tree_key(std::uint64_t i) noexcept {
   return to_base_n_value<NodeSize>(i);
 }
 
 template <unsigned NodeSize>
-inline constexpr auto number_to_minimal_node_size_tree_key(
-    std::uint64_t i) noexcept {
+constexpr auto number_to_minimal_node_size_tree_key(std::uint64_t i) noexcept {
   return to_base_n_value<node_capacity_to_minimum_size<NodeSize>()>(i);
 }
 
 template <unsigned NodeSize>
-inline constexpr auto number_to_full_leaf_over_minimal_tree_key(
+constexpr auto number_to_full_leaf_over_minimal_tree_key(
     std::uint64_t i) noexcept {
   constexpr auto min = node_capacity_to_minimum_size<NodeSize>();
   constexpr auto delta = node_capacity_over_minimum<NodeSize>();
@@ -165,7 +186,7 @@ inline constexpr auto number_to_full_leaf_over_minimal_tree_key(
 }
 
 template <unsigned NodeSize>
-inline constexpr auto number_to_minimal_leaf_over_smaller_node_tree(
+constexpr auto number_to_minimal_leaf_over_smaller_node_tree(
     std::uint64_t i) noexcept {
   constexpr auto N = static_cast<std::uint64_t>(NodeSize);
   assert(i / (N * N * N * N * N * N) < N);
@@ -173,7 +194,7 @@ inline constexpr auto number_to_minimal_leaf_over_smaller_node_tree(
 }
 
 template <unsigned NodeSize>
-inline constexpr auto number_to_full_node_tree_with_gaps_key(
+constexpr auto number_to_full_node_tree_with_gaps_key(
     std::uint64_t i) noexcept {
   static_assert(NodeSize == 4 || NodeSize == 16 || NodeSize == 48);
   // Full Node4 tree keys with 1, 3, 5, & 7 as the different key byte values
@@ -265,56 +286,36 @@ struct tree_stats final {
   constexpr tree_stats() noexcept = default;
 
   explicit constexpr tree_stats(const Db &test_db) noexcept
-      : leaf_count{test_db.get_leaf_count()},
-        inode4_count{test_db.get_inode4_count()},
-        inode16_count{test_db.get_inode16_count()},
-        inode48_count{test_db.get_inode48_count()},
-        inode256_count{test_db.get_inode256_count()},
-        created_inode4_count{test_db.get_created_inode4_count()},
-        inode4_to_inode16_count{test_db.get_inode4_to_inode16_count()},
-        inode16_to_inode48_count{test_db.get_inode16_to_inode48_count()},
-        inode48_to_inode256_count{test_db.get_inode48_to_inode256_count()},
+      : node_counts{test_db.get_node_counts()},
+        growing_inode_counts{test_db.get_growing_inode_counts()},
         key_prefix_splits{test_db.get_key_prefix_splits()} {}
 
   constexpr void get(const Db &test_db) noexcept {
-    leaf_count = test_db.get_leaf_count();
-    inode4_count = test_db.get_inode4_count();
-    inode16_count = test_db.get_inode16_count();
-    inode48_count = test_db.get_inode48_count();
-    inode256_count = test_db.get_inode256_count();
-    created_inode4_count = test_db.get_created_inode4_count();
-    inode4_to_inode16_count = test_db.get_inode4_to_inode16_count();
-    inode16_to_inode48_count = test_db.get_inode16_to_inode48_count();
-    inode48_to_inode256_count = test_db.get_inode48_to_inode256_count();
+    node_counts = test_db.get_node_counts();
+    growing_inode_counts = test_db.get_growing_inode_counts();
     key_prefix_splits = test_db.get_key_prefix_splits();
   }
 
   constexpr bool operator==(const tree_stats<Db> &other) const noexcept {
-    return leaf_count == other.leaf_count && internal_levels_equal(other);
+    return node_counts == other.node_counts;
   }
 
   constexpr bool internal_levels_equal(
       const tree_stats<Db> &other) const noexcept {
-    return inode4_count == other.inode4_count &&
-           inode16_count == other.inode16_count &&
-           inode48_count == other.inode48_count &&
-           inode256_count == other.inode256_count &&
-           created_inode4_count == other.created_inode4_count &&
-           inode4_to_inode16_count == other.inode4_to_inode16_count &&
-           inode16_to_inode48_count == other.inode16_to_inode48_count &&
-           inode48_to_inode256_count == other.inode48_to_inode256_count &&
+    return node_counts[unodb::as_i<unodb::node_type::I4>] ==
+               other.node_counts[unodb::as_i<unodb::node_type::I4>] &&
+           node_counts[unodb::as_i<unodb::node_type::I16>] ==
+               other.node_counts[unodb::as_i<unodb::node_type::I16>] &&
+           node_counts[unodb::as_i<unodb::node_type::I48>] ==
+               other.node_counts[unodb::as_i<unodb::node_type::I48>] &&
+           node_counts[unodb::as_i<unodb::node_type::I256>] ==
+               other.node_counts[unodb::as_i<unodb::node_type::I256>] &&
+           growing_inode_counts == other.growing_inode_counts &&
            key_prefix_splits == other.key_prefix_splits;
   }
 
-  std::uint64_t leaf_count{0};
-  std::uint64_t inode4_count{0};
-  std::uint64_t inode16_count{0};
-  std::uint64_t inode48_count{0};
-  std::uint64_t inode256_count{0};
-  std::uint64_t created_inode4_count{0};
-  std::uint64_t inode4_to_inode16_count{0};
-  std::uint64_t inode16_to_inode48_count{0};
-  std::uint64_t inode48_to_inode256_count{0};
+  node_type_counter_array node_counts;
+  inode_type_counter_array growing_inode_counts;
   std::uint64_t key_prefix_splits{0};
 };
 
@@ -331,16 +332,28 @@ class growing_tree_node_stats final {
 
   constexpr void publish(::benchmark::State &state) const noexcept {
     assert(get_called);
-    state.counters["L"] = static_cast<double>(stats.leaf_count);
-    state.counters["4"] = static_cast<double>(stats.inode4_count);
-    state.counters["16"] = static_cast<double>(stats.inode16_count);
-    state.counters["48"] = static_cast<double>(stats.inode48_count);
-    state.counters["256"] = static_cast<double>(stats.inode256_count);
-    state.counters["+4"] = static_cast<double>(stats.created_inode4_count);
-    state.counters["4^"] = static_cast<double>(stats.inode4_to_inode16_count);
-    state.counters["16^"] = static_cast<double>(stats.inode16_to_inode48_count);
-    state.counters["48^"] =
-        static_cast<double>(stats.inode48_to_inode256_count);
+    state.counters["L"] = static_cast<double>(
+        stats.node_counts[::unodb::as_i<unodb::node_type::LEAF>]);
+    state.counters["4"] = static_cast<double>(
+        stats.node_counts[::unodb::as_i<unodb::node_type::I4>]);
+    state.counters["16"] = static_cast<double>(
+        stats.node_counts[::unodb::as_i<unodb::node_type::I16>]);
+    state.counters["48"] = static_cast<double>(
+        stats.node_counts[::unodb::as_i<unodb::node_type::I48>]);
+    state.counters["256"] = static_cast<double>(
+        stats.node_counts[::unodb::as_i<unodb::node_type::I256>]);
+    state.counters["+4"] =
+        static_cast<double>(stats.growing_inode_counts
+                                [::unodb::internal_as_i<unodb::node_type::I4>]);
+    state.counters["4^"] = static_cast<double>(
+        stats.growing_inode_counts
+            [::unodb::internal_as_i<unodb::node_type::I16>]);
+    state.counters["16^"] = static_cast<double>(
+        stats.growing_inode_counts
+            [::unodb::internal_as_i<unodb::node_type::I48>]);
+    state.counters["48^"] = static_cast<double>(
+        stats.growing_inode_counts
+            [::unodb::internal_as_i<unodb::node_type::I256>]);
     state.counters["KPfS"] = static_cast<double>(stats.key_prefix_splits);
   }
 
@@ -350,27 +363,6 @@ class growing_tree_node_stats final {
   bool get_called{false};
   const Db *db{nullptr};
 #endif
-};
-
-template <class Db>
-class shrinking_tree_node_stats final {
- public:
-  constexpr void get(const Db &test_db) noexcept {
-    inode16_to_inode4_count = test_db.get_inode16_to_inode4_count();
-    inode48_to_inode16_count = test_db.get_inode48_to_inode16_count();
-    inode256_to_inode48_count = test_db.get_inode256_to_inode48_count();
-  }
-
-  constexpr void publish(::benchmark::State &state) const noexcept {
-    state.counters["16v"] = static_cast<double>(inode16_to_inode4_count);
-    state.counters["48v"] = static_cast<double>(inode48_to_inode16_count);
-    state.counters["256v"] = static_cast<double>(inode256_to_inode48_count);
-  }
-
- private:
-  std::uint64_t inode16_to_inode4_count{0};
-  std::uint64_t inode48_to_inode16_count{0};
-  std::uint64_t inode256_to_inode48_count{0};
 };
 
 inline void set_size_counter(::benchmark::State &state,
@@ -384,118 +376,63 @@ inline void set_size_counter(::benchmark::State &state,
 
 // Asserts
 
-template <class Db>
-void assert_node4_only_tree(const Db &test_db USED_IN_DEBUG) noexcept {
+template <class Db, node_type DominatingINodeType>
+void assert_dominating_inode_tree(const Db &test_db USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
-  if (test_db.get_inode16_count() > 0) {
-    std::cerr << "I16 node found in I4-only tree:\n";
-    test_db.dump(std::cerr);
-    assert(test_db.get_inode16_count() == 0);
+  static_assert(DominatingINodeType != node_type::LEAF);
+  const auto node_counts{test_db.get_node_counts()};
+  auto node_type_i = as_i<node_type::I4>;
+  std::uint64_t smaller_inode_count = 0;
+  // Smaller-than-dominating inode types are allowed on the rightmost tree edge,
+  // including the root.
+  while (node_type_i < as_i<DominatingINodeType>) {
+    smaller_inode_count += node_counts[node_type_i];
+    assert(smaller_inode_count <= 8);
+    ++node_type_i;
   }
-  assert(test_db.get_inode48_count() == 0);
-  assert(test_db.get_inode256_count() == 0);
+  ++node_type_i;
+  while (node_type_i <= as_i<node_type::I256>) {
+    assert(node_counts[node_type_i] == 0);
+    ++node_type_i;
+  }
 #endif
 }
 
 namespace detail {
 
-#ifndef NDEBUG
-
-// In a mostly-Node16 tree a few Node4 are allowed on the rightmost tree edge,
-// including the root
-template <class Db>
-void assert_mostly_node16_tree(const Db &test_db) noexcept {
-  if (test_db.get_inode4_count() > 8) {
-    std::cerr << "Too many I4 nodes found in mostly-I16 tree:\n";
-    test_db.dump(std::cerr);
-    assert(test_db.get_inode4_count() <= 8);
-  }
-  assert(test_db.get_inode48_count() == 0);
-  assert(test_db.get_inode256_count() == 0);
-}
-
-template <class Db>
-void assert_mostly_node48_tree(const Db &test_db) noexcept {
-  if (test_db.get_inode4_count() + test_db.get_inode16_count() > 8) {
-    std::cerr << "Too many I4/I16 nodes found in mostly-I48 tree:\n";
-    test_db.dump(std::cerr);
-    assert(test_db.get_inode4_count() + test_db.get_inode16_count() <= 8);
-  }
-  assert(test_db.get_inode256_count() == 0);
-}
-
-template <class Db>
-void assert_mostly_node256_tree(const Db &test_db) noexcept {
-  const auto i4 = test_db.get_inode4_count();
-  const auto i16 = test_db.get_inode16_count();
-  const auto i48 = test_db.get_inode48_count();
-  if (i4 + i16 + i48 > 8) {
-    std::cerr << "Too many I4/I16/I48 nodes found in mostly-I256 tree:\n";
-    test_db.dump(std::cerr);
-    assert(i4 + i16 + i48 > 8);
-  }
-}
-
-#endif  // #ifndef NDEBUG
-
 template <class Db, unsigned NodeSize>
-void assert_node_size_tree(const Db &test_db USED_IN_DEBUG) noexcept {
-#ifndef NDEBUG
-  static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
-                NodeSize == 48 || NodeSize == 256);
-
-  if constexpr (NodeSize == 2 || NodeSize == 4) {
-    assert_node4_only_tree(test_db);
-  } else if constexpr (NodeSize == 16) {
-    assert_mostly_node16_tree(test_db);
-  } else if constexpr (NodeSize == 48) {
-    assert_mostly_node48_tree(test_db);
-  } else {
-    assert_mostly_node256_tree(test_db);
-  }
-#endif
+void assert_dominating_inode_size_tree(const Db &test_db) noexcept {
+  assert_dominating_inode_tree<Db, node_size_to_node_type<NodeSize>()>(test_db);
 }
 
 template <class Db, unsigned SmallerNodeSize>
 void assert_growing_nodes(const Db &test_db USED_IN_DEBUG,
-                          std::uint64_t number_of_nodes
+                          std::uint64_t expected_number_of_nodes
                               USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
-  static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16 ||
-                SmallerNodeSize == 48);
-  if constexpr (SmallerNodeSize == 4) {
-    assert(number_of_nodes == test_db.get_inode4_to_inode16_count());
-  } else if constexpr (SmallerNodeSize == 16) {
-    assert(number_of_nodes == test_db.get_inode16_to_inode48_count());
-  } else {
-    if (number_of_nodes != test_db.get_inode48_to_inode256_count()) {
-      std::cerr << "Difference between inserts: " << number_of_nodes
-                << ", N48 -> N256: " << test_db.get_inode48_to_inode256_count();
-      std::cerr << "\nTree:";
-      test_db.dump(std::cerr);
-      assert(number_of_nodes == test_db.get_inode48_to_inode256_count());
-    }
+  constexpr auto larger_node_type =
+      node_size_to_larger_node_type<SmallerNodeSize>();
+  const auto actual_number_of_nodes =
+      test_db.template get_growing_inode_count<larger_node_type>();
+  if (expected_number_of_nodes != actual_number_of_nodes) {
+    std::cerr << "Difference between inserts: " << expected_number_of_nodes
+              << ", N" << SmallerNodeSize << "^: " << actual_number_of_nodes;
+    assert(expected_number_of_nodes == actual_number_of_nodes);
   }
 #endif
 }
 
 template <class Db, unsigned SmallerNodeSize>
 void assert_shrinking_nodes(const Db &test_db USED_IN_DEBUG,
-                            std::uint64_t number_of_nodes
+                            std::uint64_t expected_number_of_nodes
                                 USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
-  static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16 ||
-                SmallerNodeSize == 48);
-  if constexpr (SmallerNodeSize == 4) {
-    assert(number_of_nodes == test_db.get_inode16_to_inode4_count());
-    assert_node4_only_tree(test_db);
-  } else if constexpr (SmallerNodeSize == 16) {  // NOLINT(readability/braces)
-    assert(number_of_nodes == test_db.get_inode48_to_inode16_count());
-    assert_mostly_node16_tree(test_db);
-  } else {
-    assert(number_of_nodes == test_db.get_inode256_to_inode48_count());
-    assert_mostly_node48_tree(test_db);
-  }
+  constexpr auto larger_node_type =
+      node_size_to_larger_node_type<SmallerNodeSize>();
+  const auto actual_number_of_nodes =
+      test_db.template get_shrinking_inode_count<larger_node_type>();
+  assert(expected_number_of_nodes == actual_number_of_nodes);
+  assert_dominating_inode_size_tree<Db, SmallerNodeSize>(test_db);
 #endif
 }
 
@@ -539,7 +476,7 @@ unodb::key insert_sequentially(Db &db, unsigned key_count) {
     ++i;
     k = next_key(k, node_size_to_key_zero_bits<NodeSize>());
   }
-  detail::assert_node_size_tree<Db, NodeSize>(db);
+  detail::assert_dominating_inode_size_tree<Db, NodeSize>(db);
   return k;
 }
 
@@ -582,7 +519,7 @@ auto insert_n_keys_to_empty_tree(Db &db, unsigned n,
                                  NumberToKeyFn number_to_key_fn) {
   assert(db.empty());
   const auto result = insert_n_keys(db, n, number_to_key_fn);
-  assert_node_size_tree<Db, NodeSize>(db);
+  assert_dominating_inode_size_tree<Db, NodeSize>(db);
   return result;
 }
 
@@ -626,16 +563,8 @@ auto grow_full_node_tree_to_minimal_next_size_leaf_level(Db &db,
                 SmallerNodeSize == 48);
 
 #ifndef NDEBUG
-  assert_node_size_tree<Db, SmallerNodeSize>(db);
-  const auto created_node4_count = db.get_created_inode4_count();
-  size_t created_node16_count{0};
-  if constexpr (SmallerNodeSize >= 16) {
-    created_node16_count = db.get_inode4_to_inode16_count();
-  }
-  size_t created_node48_count{0};
-  if constexpr (SmallerNodeSize == 48) {
-    created_node48_count = db.get_inode16_to_inode48_count();
-  }
+  assert_dominating_inode_size_tree<Db, SmallerNodeSize>(db);
+  const auto initial_growing_inode_counts = db.get_growing_inode_counts();
 #endif
 
   const auto keys_inserted = insert_keys_to_limit<
@@ -646,12 +575,12 @@ auto grow_full_node_tree_to_minimal_next_size_leaf_level(Db &db,
 
 #ifndef NDEBUG
   assert_growing_nodes<Db, SmallerNodeSize>(db, keys_inserted);
-  assert(created_node4_count == db.get_created_inode4_count());
-  if constexpr (SmallerNodeSize >= 16) {
-    assert(created_node16_count == db.get_inode4_to_inode16_count());
-  }
-  if constexpr (SmallerNodeSize == 48) {
-    assert(created_node48_count == db.get_inode16_to_inode48_count());
+  const auto final_growing_inode_counts = db.get_growing_inode_counts();
+  for (auto node_type_i = as_i<node_type::I4>;
+       node_type_i < as_i<node_size_to_node_type<SmallerNodeSize>()>;
+       ++node_type_i) {
+    assert(initial_growing_inode_counts[node_type_i] ==
+           final_growing_inode_counts[node_type_i]);
   }
 #endif
 
@@ -837,8 +766,8 @@ void grow_node_randomly_benchmark(::benchmark::State &state) {
     Db test_db;
     const auto key_limit = detail::insert_n_keys_to_empty_tree<
         Db, SmallerNodeSize,
-        decltype(
-            detail::number_to_full_node_tree_with_gaps_key<SmallerNodeSize>)>(
+        decltype(detail::number_to_full_node_tree_with_gaps_key<
+                 SmallerNodeSize>)>(
         test_db, smaller_node_count * SmallerNodeSize,
         detail::number_to_full_node_tree_with_gaps_key<SmallerNodeSize>);
 
@@ -925,8 +854,8 @@ void shrink_node_randomly_benchmark(::benchmark::State &state) {
     Db test_db;
     const auto key_limit = detail::insert_n_keys_to_empty_tree<
         Db, SmallerNodeSize,
-        decltype(
-            detail::number_to_full_node_tree_with_gaps_key<SmallerNodeSize>)>(
+        decltype(detail::number_to_full_node_tree_with_gaps_key<
+                 SmallerNodeSize>)>(
         test_db, smaller_node_count * SmallerNodeSize,
         detail::number_to_full_node_tree_with_gaps_key<SmallerNodeSize>);
 
@@ -973,7 +902,7 @@ void sequential_add_benchmark(::benchmark::State &state) {
         detail::number_to_full_leaf_over_minimal_tree_key<NodeSize>);
 
     state.PauseTiming();
-    detail::assert_node_size_tree<Db, NodeSize>(test_db);
+    detail::assert_dominating_inode_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
     tree_size = test_db.get_current_memory_use();
     destroy_tree(test_db, state);
@@ -1003,7 +932,7 @@ void random_add_benchmark(::benchmark::State &state) {
     insert_keys(test_db, benchmark_keys);
 
     state.PauseTiming();
-    detail::assert_node_size_tree<Db, NodeSize>(test_db);
+    detail::assert_dominating_inode_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
     tree_size = test_db.get_current_memory_use();
     benchmark_keys_inserted = static_cast<std::int64_t>(benchmark_keys.size());
@@ -1088,7 +1017,7 @@ void sequential_delete_benchmark(::benchmark::State &state) {
     }
 
     state.PauseTiming();
-    detail::assert_node_size_tree<Db, NodeSize>(test_db);
+    detail::assert_dominating_inode_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
     destroy_tree(test_db, state);
   }
@@ -1119,7 +1048,7 @@ void random_delete_benchmark(::benchmark::State &state) {
     delete_keys(test_db, remove_keys);
 
     state.PauseTiming();
-    detail::assert_node_size_tree<Db, NodeSize>(test_db);
+    detail::assert_dominating_inode_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
     destroy_tree(test_db, state);
   }

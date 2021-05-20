@@ -11,6 +11,7 @@
 #include "art_internal_impl.hpp"
 #include "critical_section_unprotected.hpp"
 #include "heap.hpp"
+#include "node_type.hpp"
 
 namespace {
 
@@ -81,6 +82,41 @@ namespace unodb {
 
 db::~db() noexcept { delete_root_subtree(); }
 
+template <class INode>
+constexpr void db::increment_inode_count() noexcept {
+  static_assert(detail::inode_defs::is_inode<INode>());
+
+  ++node_counts[as_i<INode::static_node_type>];
+  increase_memory_use(sizeof(INode));
+}
+
+template <class INode>
+constexpr void db::decrement_inode_count() noexcept {
+  static_assert(detail::inode_defs::is_inode<INode>());
+  assert(node_counts[as_i<INode::static_node_type>] > 0);
+
+  --node_counts[as_i<INode::static_node_type>];
+  decrease_memory_use(sizeof(INode));
+}
+
+template <node_type NodeType>
+constexpr void db::account_growing_inode() noexcept {
+  static_assert(NodeType != node_type::LEAF);
+
+  ++growing_inode_counts[internal_as_i<NodeType>];
+  assert(growing_inode_counts[internal_as_i<NodeType>] >=
+         node_counts[as_i<NodeType>]);
+}
+
+template <node_type NodeType>
+constexpr void db::account_shrinking_inode() noexcept {
+  static_assert(NodeType != node_type::LEAF);
+
+  ++shrinking_inode_counts[internal_as_i<NodeType>];
+  assert(shrinking_inode_counts[internal_as_i<NodeType>] <=
+         growing_inode_counts[internal_as_i<NodeType>]);
+}
+
 db::get_result db::get(key search_key) const noexcept {
   if (unlikely(root.header == nullptr)) return {};
 
@@ -90,7 +126,7 @@ db::get_result db::get(key search_key) const noexcept {
 
   while (true) {
     const auto node_type = node.type();
-    if (node_type == detail::node_type::LEAF) {
+    if (node_type == node_type::LEAF) {
       if (leaf::matches(node.leaf, k)) {
         const auto value = leaf::value(node.leaf);
         return value;
@@ -98,7 +134,7 @@ db::get_result db::get(key search_key) const noexcept {
       return {};
     }
 
-    assert(node_type != detail::node_type::LEAF);
+    assert(node_type != node_type::LEAF);
 
     const auto key_prefix_length = node.internal->key_prefix_length();
     if (node.internal->get_shared_key_prefix_length(remaining_key) <
@@ -129,7 +165,7 @@ bool db::insert(key insert_key, value_view v) {
 
   while (true) {
     const auto node_type = node->type();
-    if (node_type == detail::node_type::LEAF) {
+    if (node_type == node_type::LEAF) {
       const auto existing_key = leaf::key(node->leaf);
       if (unlikely(k == existing_key)) return false;
 
@@ -140,12 +176,11 @@ bool db::insert(key insert_key, value_view v) {
       auto new_node = detail::inode_4::create(existing_key, remaining_key,
                                               depth, *node, std::move(leaf));
       *node = detail::node_ptr{new_node.release()};
-      ++created_inode4_count;
-      assert(created_inode4_count >= inode4_count);
+      account_growing_inode<node_type::I4>();
       return true;
     }
 
-    assert(node_type != detail::node_type::LEAF);
+    assert(node_type != node_type::LEAF);
     assert(depth < detail::art_key::size);
 
     const auto key_prefix_length = node->internal->key_prefix_length();
@@ -156,10 +191,10 @@ bool db::insert(key insert_key, value_view v) {
       auto new_node = detail::inode_4::create(*node, shared_prefix_len, depth,
                                               std::move(leaf));
       *node = detail::node_ptr{new_node.release()};
-      ++created_inode4_count;
+      account_growing_inode<node_type::I4>();
       ++key_prefix_splits;
-      assert(created_inode4_count >= inode4_count);
-      assert(created_inode4_count > key_prefix_splits);
+      assert(growing_inode_counts[internal_as_i<node_type::I4>] >
+             key_prefix_splits);
       return true;
     }
 
@@ -183,36 +218,30 @@ bool db::insert(key insert_key, value_view v) {
       assert(node_is_full);
       assert(leaf != nullptr);
 
-      if (node_type == detail::node_type::I4) {
+      if (node_type == node_type::I4) {
         auto current_node{
             art_policy::make_db_inode_unique_ptr(*this, node->node_4)};
         auto larger_node = detail::inode_16::create(std::move(current_node),
                                                     std::move(leaf), depth);
         *node = detail::node_ptr{larger_node.release()};
+        account_growing_inode<node_type::I16>();
 
-        ++inode4_to_inode16_count;
-        assert(inode4_to_inode16_count >= inode16_count);
-
-      } else if (node_type == detail::node_type::I16) {
+      } else if (node_type == node_type::I16) {
         auto current_node{
             art_policy::make_db_inode_unique_ptr(*this, node->node_16)};
         auto larger_node = detail::inode_48::create(std::move(current_node),
                                                     std::move(leaf), depth);
         *node = detail::node_ptr{larger_node.release()};
-
-        ++inode16_to_inode48_count;
-        assert(inode16_to_inode48_count >= inode48_count);
+        account_growing_inode<node_type::I48>();
 
       } else {
-        assert(node_type == detail::node_type::I48);
+        assert(node_type == node_type::I48);
         auto current_node{
             art_policy::make_db_inode_unique_ptr(*this, node->node_48)};
         auto larger_node = detail::inode_256::create(std::move(current_node),
                                                      std::move(leaf), depth);
         *node = detail::node_ptr{larger_node.release()};
-
-        ++inode48_to_inode256_count;
-        assert(inode48_to_inode256_count >= inode256_count);
+        account_growing_inode<node_type::I256>();
       }
       return true;
     }
@@ -228,7 +257,7 @@ bool db::remove(key remove_key) {
 
   if (unlikely(root == nullptr)) return false;
 
-  if (root.type() == detail::node_type::LEAF) {
+  if (root.type() == node_type::LEAF) {
     if (leaf::matches(root.leaf, k)) {
       const auto r{art_policy::reclaim_leaf_on_scope_exit(root, *this)};
       root = nullptr;
@@ -243,7 +272,7 @@ bool db::remove(key remove_key) {
 
   while (true) {
     const auto node_type = node->type();
-    assert(node_type != detail::node_type::LEAF);
+    assert(node_type != node_type::LEAF);
     assert(depth < detail::art_key::size);
 
     const auto key_prefix_length = node->internal->key_prefix_length();
@@ -260,7 +289,7 @@ bool db::remove(key remove_key) {
 
     if (child_ptr == nullptr) return false;
 
-    if (child_ptr->load().type() == detail::node_type::LEAF) {
+    if (child_ptr->load().type() == node_type::LEAF) {
       if (!leaf::matches(child_ptr->load().leaf, k)) return false;
 
       const auto is_node_min_size = node->internal->is_min_size();
@@ -272,44 +301,36 @@ bool db::remove(key remove_key) {
 
       assert(is_node_min_size);
 
-      if (node_type == detail::node_type::I4) {
+      if (node_type == node_type::I4) {
         auto current_node{
             art_policy::make_db_inode_unique_ptr(*this, node->node_4)};
         *node = current_node->leave_last_child(child_i, *this);
+        account_shrinking_inode<node_type::I4>();
 
-        ++deleted_inode4_count;
-        assert(deleted_inode4_count <= created_inode4_count);
-
-      } else if (node_type == detail::node_type::I16) {
+      } else if (node_type == node_type::I16) {
         auto current_node{
             art_policy::make_db_inode_unique_ptr(*this, node->node_16)};
         auto new_node{
             detail::inode_4::create(std::move(current_node), child_i)};
         *node = detail::node_ptr{new_node.release()};
+        account_shrinking_inode<node_type::I16>();
 
-        ++inode16_to_inode4_count;
-        assert(inode16_to_inode4_count <= inode4_to_inode16_count);
-
-      } else if (node_type == detail::node_type::I48) {
+      } else if (node_type == node_type::I48) {
         auto current_node{
             art_policy::make_db_inode_unique_ptr(*this, node->node_48)};
         auto new_node{
             detail::inode_16::create(std::move(current_node), child_i)};
         *node = detail::node_ptr{new_node.release()};
-
-        ++inode48_to_inode16_count;
-        assert(inode48_to_inode16_count <= inode16_to_inode48_count);
+        account_shrinking_inode<node_type::I48>();
 
       } else {
-        assert(node_type == detail::node_type::I256);
+        assert(node_type == node_type::I256);
         auto current_node{
             art_policy::make_db_inode_unique_ptr(*this, node->node_256)};
         auto new_node{
             detail::inode_48::create(std::move(current_node), child_i)};
         *node = detail::node_ptr{new_node.release()};
-
-        ++inode256_to_inode48_count;
-        assert(inode256_to_inode48_count <= inode48_to_inode256_count);
+        account_shrinking_inode<node_type::I256>();
       }
 
       return true;
@@ -326,7 +347,7 @@ void db::delete_root_subtree() noexcept {
 
   // It is possible to reset the counter to zero instead of decrementing it for
   // each leaf, but not sure the savings will be significant.
-  assert(leaf_count == 0);
+  assert(node_counts[as_i<node_type::LEAF>] == 0);
 }
 
 void db::clear() {
@@ -334,63 +355,15 @@ void db::clear() {
 
   root = nullptr;
   current_memory_use = 0;
-  inode4_count = 0;
-  inode16_count = 0;
-  inode48_count = 0;
-  inode256_count = 0;
+  node_counts[as_i<node_type::I4>] = 0;
+  node_counts[as_i<node_type::I16>] = 0;
+  node_counts[as_i<node_type::I48>] = 0;
+  node_counts[as_i<node_type::I256>] = 0;
 }
 
 void db::dump(std::ostream &os) const {
   os << "db dump, current memory use = " << get_current_memory_use() << '\n';
   detail::dump_node(os, root);
-}
-
-inline constexpr void db::increment_inode4_count() noexcept {
-  ++inode4_count;
-  increase_memory_use(sizeof(detail::inode_4));
-}
-
-inline constexpr void db::increment_inode16_count() noexcept {
-  ++inode16_count;
-  increase_memory_use(sizeof(detail::inode_16));
-}
-
-inline constexpr void db::increment_inode48_count() noexcept {
-  ++inode48_count;
-  increase_memory_use(sizeof(detail::inode_48));
-}
-
-inline constexpr void db::increment_inode256_count() noexcept {
-  ++inode256_count;
-  increase_memory_use(sizeof(detail::inode_256));
-}
-
-inline constexpr void db::decrement_inode4_count() noexcept {
-  assert(inode4_count > 0);
-
-  --inode4_count;
-  decrease_memory_use(sizeof(detail::inode_4));
-}
-
-inline constexpr void db::decrement_inode16_count() noexcept {
-  assert(inode16_count > 0);
-
-  --inode16_count;
-  decrease_memory_use(sizeof(detail::inode_16));
-}
-
-inline constexpr void db::decrement_inode48_count() noexcept {
-  assert(inode48_count > 0);
-
-  --inode48_count;
-  decrease_memory_use(sizeof(detail::inode_48));
-}
-
-inline constexpr void db::decrement_inode256_count() noexcept {
-  assert(inode256_count > 0);
-
-  --inode256_count;
-  decrease_memory_use(sizeof(detail::inode_256));
 }
 
 }  // namespace unodb

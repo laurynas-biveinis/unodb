@@ -435,7 +435,7 @@ endif()
 
 add_unodb_library(unodb art.cpp art.hpp art_common.cpp art_common.hpp
   mutex_art.hpp optimistic_lock.hpp art_internal_impl.hpp olc_art.hpp
-  olc_art.cpp art_internal.cpp art_internal.hpp)
+  olc_art.cpp art_internal.cpp art_internal.hpp node_type.hpp)
 target_link_libraries(unodb PUBLIC unodb_qsbr)
 if(LIBFUZZER_AVAILABLE)
   target_link_libraries(unodb_lf PUBLIC unodb_qsbr_lf)

@@ -28,12 +28,13 @@ endfunction()
 
 add_library(db_test_utils STATIC db_test_utils.hpp db_test_utils.cpp)
 common_target_properties(db_test_utils)
-target_link_libraries(db_test_utils PRIVATE unodb gtest_main)
+target_link_libraries(db_test_utils PUBLIC unodb gtest_main gmock_main)
 set_clang_tidy_options(db_test_utils "${DO_CLANG_TIDY}")
 
 add_library(qsbr_test_utils STATIC qsbr_test_utils.hpp qsbr_test_utils.cpp)
 common_target_properties(qsbr_test_utils)
-target_link_libraries(qsbr_test_utils PRIVATE unodb_qsbr gtest_main)
+target_link_libraries(qsbr_test_utils PUBLIC gtest_main)
+target_link_libraries(qsbr_test_utils PRIVATE unodb_qsbr)
 set_clang_tidy_options(qsbr_test_utils "${DO_CLANG_TIDY}")
 
 function(ADD_TEST_TARGET TARGET)

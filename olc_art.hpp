@@ -4,6 +4,7 @@
 
 #include "global.hpp"  // IWYU pragma: keep
 
+#include <array>
 #include <atomic>
 #include <cassert>
 #include <cstddef>  // IWYU pragma: keep
@@ -13,6 +14,7 @@
 
 #include "art_common.hpp"
 #include "art_internal.hpp"
+#include "node_type.hpp"
 #include "optimistic_lock.hpp"
 #include "qsbr_ptr.hpp"
 
@@ -34,7 +36,7 @@ class basic_inode_256;  // IWYU pragma: keep
 
 template <class, template <class> class, class, template <class> class,
           template <class, class> class, template <class> class>
-struct basic_art_policy;
+struct basic_art_policy;  // IWYU pragma: keep
 
 struct olc_node_header;
 
@@ -51,7 +53,7 @@ using olc_inode_defs =
 using olc_node_ptr = basic_node_ptr<olc_node_header, olc_inode, olc_inode_defs>;
 
 template <class>
-class db_inode_qsbr_deleter;
+class db_inode_qsbr_deleter;  // IWYU pragma: keep
 
 template <class, class>
 class db_leaf_qsbr_deleter;  // IWYU pragma: keep
@@ -99,56 +101,47 @@ class olc_db final {
     return current_memory_use.load(std::memory_order_relaxed);
   }
 
-  [[nodiscard]] auto get_leaf_count() const noexcept {
-    return leaf_count.load(std::memory_order_relaxed);
+  template <node_type NodeType>
+  [[nodiscard]] auto get_node_count() const noexcept {
+    return node_counts[as_i<NodeType>].load(std::memory_order_relaxed);
   }
 
-  [[nodiscard]] auto get_inode4_count() const noexcept {
-    return inode4_count.load(std::memory_order_relaxed);
+  [[nodiscard]] auto get_node_counts() const noexcept {
+    node_type_counter_array result;
+    for (decltype(node_counts)::size_type i = 0; i < node_counts.size(); ++i) {
+      result[i] = node_counts[i].load(std::memory_order_relaxed);
+    }
+    return result;
   }
 
-  [[nodiscard]] auto get_inode16_count() const noexcept {
-    return inode16_count.load(std::memory_order_relaxed);
+  template <node_type NodeType>
+  [[nodiscard]] auto get_growing_inode_count() const noexcept {
+    return growing_inode_counts[internal_as_i<NodeType>].load(
+        std::memory_order_relaxed);
   }
 
-  [[nodiscard]] auto get_inode48_count() const noexcept {
-    return inode48_count.load(std::memory_order_relaxed);
+  [[nodiscard]] auto get_growing_inode_counts() const noexcept {
+    inode_type_counter_array result;
+    for (decltype(growing_inode_counts)::size_type i = 0;
+         i < growing_inode_counts.size(); ++i) {
+      result[i] = growing_inode_counts[i].load(std::memory_order_relaxed);
+    }
+    return result;
   }
 
-  [[nodiscard]] auto get_inode256_count() const noexcept {
-    return inode256_count.load(std::memory_order_relaxed);
+  template <node_type NodeType>
+  [[nodiscard]] auto get_shrinking_inode_count() const noexcept {
+    return shrinking_inode_counts[internal_as_i<NodeType>].load(
+        std::memory_order_relaxed);
   }
 
-  [[nodiscard]] auto get_created_inode4_count() const noexcept {
-    return created_inode4_count.load(std::memory_order_relaxed);
-  }
-
-  [[nodiscard]] auto get_inode4_to_inode16_count() const noexcept {
-    return inode4_to_inode16_count.load(std::memory_order_relaxed);
-  }
-
-  [[nodiscard]] auto get_inode16_to_inode48_count() const noexcept {
-    return inode16_to_inode48_count.load(std::memory_order_relaxed);
-  }
-
-  [[nodiscard]] auto get_inode48_to_inode256_count() const noexcept {
-    return inode48_to_inode256_count.load(std::memory_order_relaxed);
-  }
-
-  [[nodiscard]] auto get_deleted_inode4_count() const noexcept {
-    return deleted_inode4_count.load(std::memory_order_relaxed);
-  }
-
-  [[nodiscard]] auto get_inode16_to_inode4_count() const noexcept {
-    return inode16_to_inode4_count.load(std::memory_order_relaxed);
-  }
-
-  [[nodiscard]] auto get_inode48_to_inode16_count() const noexcept {
-    return inode48_to_inode16_count.load(std::memory_order_relaxed);
-  }
-
-  [[nodiscard]] auto get_inode256_to_inode48_count() const noexcept {
-    return inode256_to_inode48_count.load(std::memory_order_relaxed);
+  [[nodiscard]] auto get_shrinking_inode_counts() const noexcept {
+    inode_type_counter_array result;
+    for (decltype(shrinking_inode_counts)::size_type i = 0;
+         i < shrinking_inode_counts.size(); ++i) {
+      result[i] = shrinking_inode_counts[i].load(std::memory_order_relaxed);
+    }
+    return result;
   }
 
   [[nodiscard]] auto get_key_prefix_splits() const noexcept {
@@ -186,26 +179,35 @@ class olc_db final {
 
   void increment_leaf_count(std::size_t leaf_size) noexcept {
     increase_memory_use(leaf_size);
-    leaf_count.fetch_add(1, std::memory_order_relaxed);
+    node_counts[as_i<node_type::LEAF>].fetch_add(1, std::memory_order_relaxed);
   }
 
   void decrement_leaf_count(std::size_t leaf_size) noexcept {
     decrease_memory_use(leaf_size);
 
     const auto USED_IN_DEBUG old_leaf_count =
-        leaf_count.fetch_sub(1, std::memory_order_relaxed);
+        node_counts[as_i<node_type::LEAF>].fetch_sub(1,
+                                                     std::memory_order_relaxed);
     assert(old_leaf_count > 0);
   }
 
-  inline void increment_inode4_count() noexcept;
-  inline void increment_inode16_count() noexcept;
-  inline void increment_inode48_count() noexcept;
-  inline void increment_inode256_count() noexcept;
+  template <class INode>
+  constexpr void increment_inode_count() noexcept {
+    static_assert(detail::olc_inode_defs::is_inode<INode>());
 
-  inline void decrement_inode4_count() noexcept;
-  inline void decrement_inode16_count() noexcept;
-  inline void decrement_inode48_count() noexcept;
-  inline void decrement_inode256_count() noexcept;
+    node_counts[as_i<INode::static_node_type>].fetch_add(
+        1, std::memory_order_relaxed);
+    increase_memory_use(sizeof(INode));
+  }
+
+  template <class INode>
+  constexpr void decrement_inode_count() noexcept;
+
+  template <node_type NodeType>
+  constexpr void account_growing_inode() noexcept;
+
+  template <node_type NodeType>
+  constexpr void account_shrinking_inode() noexcept;
 
   mutable optimistic_lock root_pointer_lock;
 
@@ -217,21 +219,13 @@ class olc_db final {
   // qsbr::current_interval_total_dealloc_size).
   std::atomic<std::size_t> current_memory_use{0};
 
-  std::atomic<std::uint64_t> leaf_count{0};
-  std::atomic<std::uint64_t> inode4_count{0};
-  std::atomic<std::uint64_t> inode16_count{0};
-  std::atomic<std::uint64_t> inode48_count{0};
-  std::atomic<std::uint64_t> inode256_count{0};
+  template <class T>
+  using atomic_array = std::array<std::atomic<typename T::value_type>,
+                                  std::tuple_size<T>::value>;
 
-  std::atomic<std::uint64_t> created_inode4_count{0};
-  std::atomic<std::uint64_t> inode4_to_inode16_count{0};
-  std::atomic<std::uint64_t> inode16_to_inode48_count{0};
-  std::atomic<std::uint64_t> inode48_to_inode256_count{0};
-
-  std::atomic<std::uint64_t> deleted_inode4_count{0};
-  std::atomic<std::uint64_t> inode16_to_inode4_count{0};
-  std::atomic<std::uint64_t> inode48_to_inode16_count{0};
-  std::atomic<std::uint64_t> inode256_to_inode48_count{0};
+  atomic_array<node_type_counter_array> node_counts{};
+  atomic_array<inode_type_counter_array> growing_inode_counts{};
+  atomic_array<inode_type_counter_array> shrinking_inode_counts{};
 
   std::atomic<std::uint64_t> key_prefix_splits{0};
 

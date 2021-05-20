@@ -6,20 +6,22 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
 #include <iostream>
 #include <new>
-#include <optional>
 #include <type_traits>  // IWYU pragma: keep
 #include <unordered_map>
 
+#include <gmock/gmock.h>  // IWYU pragma: keep
 #include <gtest/gtest.h>  // IWYU pragma: keep
 
 #include "art.hpp"
 #include "art_common.hpp"
 #include "mutex_art.hpp"
+#include "node_type.hpp"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 
@@ -116,7 +118,8 @@ class tree_verifier final {
       const auto remove_result = values.erase(k);
       ASSERT_EQ(remove_result, 1);
     }
-    const auto leaf_count_before = test_db.get_leaf_count();
+    const auto leaf_count_before =
+        test_db.template get_node_count<::unodb::node_type::LEAF>();
     const auto mem_use_before = test_db.get_current_memory_use();
     ASSERT_GT(leaf_count_before, 0);
     ASSERT_GT(mem_use_before, 0);
@@ -135,7 +138,8 @@ class tree_verifier final {
       const auto mem_use_after = test_db.get_current_memory_use();
       ASSERT_TRUE(mem_use_after < mem_use_before);
 
-      const auto leaf_count_after = test_db.get_leaf_count();
+      const auto leaf_count_after =
+          test_db.template get_node_count<::unodb::node_type::LEAF>();
       ASSERT_EQ(leaf_count_before - 1, leaf_count_after);
     }
   }
@@ -148,28 +152,20 @@ class tree_verifier final {
   explicit constexpr tree_verifier(bool parallel_test_ = false) noexcept
       : parallel_test{parallel_test_} {
     assert_empty();
-    assert_increasing_nodes(0, 0, 0, 0);
-    assert_shrinking_nodes(0, 0, 0, 0);
+    assert_growing_inodes({0, 0, 0, 0});
+    assert_shrinking_inodes({0, 0, 0, 0});
     assert_key_prefix_splits(0);
   }
 
   void insert(unodb::key k, unodb::value_view v, bool bypass_verifier = false) {
     const auto mem_use_before =
         parallel_test ? 0 : test_db.get_current_memory_use();
-    const auto leaf_count_before = parallel_test ? 0 : test_db.get_leaf_count();
+    const auto leaf_count_before =
+        parallel_test
+            ? 0
+            : test_db.template get_node_count<unodb::node_type::LEAF>();
 
-    try {
-      do_insert(k, v);
-    } catch (const std::bad_alloc &) {
-      if (!parallel_test) {
-        const auto mem_use_after = test_db.get_current_memory_use();
-        ASSERT_EQ(mem_use_before, mem_use_after);
-
-        const auto leaf_count_after = test_db.get_leaf_count();
-        ASSERT_EQ(leaf_count_before, leaf_count_after);
-      }
-      throw;
-    }
+    do_insert(k, v);
 
     ASSERT_FALSE(test_db.empty());
 
@@ -179,7 +175,8 @@ class tree_verifier final {
     else
       ASSERT_LT(mem_use_before, mem_use_after);
 
-    const auto leaf_count_after = test_db.get_leaf_count();
+    const auto leaf_count_after =
+        test_db.template get_node_count<unodb::node_type::LEAF>();
     if (parallel_test)
       ASSERT_GT(leaf_count_after, 0);
     else
@@ -259,63 +256,34 @@ class tree_verifier final {
 
     ASSERT_EQ(test_db.get_current_memory_use(), 0);
 
-    assert_node_counts(0, 0, 0, 0, 0);
+    assert_node_counts({0, 0, 0, 0, 0});
   }
 
   void assert_node_counts(
-      std::optional<std::uint64_t> leaf_count,
-      std::optional<std::uint64_t> inode4_count,
-      std::optional<std::uint64_t> inode16_count,
-      std::optional<std::uint64_t> inode48_count,
-      std::optional<std::uint64_t> inode256_count) const noexcept {
+      node_type_counter_array expected_node_counts) const noexcept {
     // Dump the tree to a string. Do not attempt to check the dump format, only
     // that dumping does not crash
     std::stringstream dump_sink;
     test_db.dump(dump_sink);
 
-    if (leaf_count.has_value()) {
-      ASSERT_EQ(test_db.get_leaf_count(), *leaf_count);
-    }
-    if (inode4_count.has_value() &&
-        test_db.get_inode4_count() != *inode4_count) {
-      // LCOV_EXCL_START
-      std::cerr << "inode4 count mismatch! Expected: " << *inode4_count
-                << ", actual: " << test_db.get_inode4_count() << '\n';
-      test_db.dump(std::cerr);
-      FAIL();
-      // LCOV_EXCL_STOP
-    }
-    if (inode16_count.has_value()) {
-      ASSERT_EQ(test_db.get_inode16_count(), *inode16_count);
-    }
-    if (inode48_count.has_value()) {
-      ASSERT_EQ(test_db.get_inode48_count(), *inode48_count);
-    }
-    if (inode256_count.has_value()) {
-      ASSERT_EQ(test_db.get_inode256_count(), *inode256_count);
-    }
+    const auto actual_node_counts = test_db.get_node_counts();
+    ASSERT_THAT(actual_node_counts,
+                ::testing::ElementsAreArray(expected_node_counts));
   }
 
-  constexpr void assert_increasing_nodes(
-      std::uint64_t created_inode4_count, std::uint64_t inode4_to_inode16_count,
-      std::uint64_t inode16_to_inode48_count,
-      std::uint64_t inode48_to_inode256_count) const noexcept {
-    ASSERT_EQ(test_db.get_created_inode4_count(), created_inode4_count);
-    ASSERT_EQ(test_db.get_inode4_to_inode16_count(), inode4_to_inode16_count);
-    ASSERT_EQ(test_db.get_inode16_to_inode48_count(), inode16_to_inode48_count);
-    ASSERT_EQ(test_db.get_inode48_to_inode256_count(),
-              inode48_to_inode256_count);
+  constexpr void assert_growing_inodes(
+      inode_type_counter_array expected_growing_inode_counts) const noexcept {
+    const auto actual_growing_inode_counts = test_db.get_growing_inode_counts();
+    ASSERT_THAT(actual_growing_inode_counts,
+                ::testing::ElementsAreArray(expected_growing_inode_counts));
   }
 
-  constexpr void assert_shrinking_nodes(
-      std::uint64_t deleted_inode4_count, std::uint64_t inode16_to_inode4_count,
-      std::uint64_t inode48_to_inode16_count,
-      std::uint64_t inode256_to_inode48_count) {
-    ASSERT_EQ(test_db.get_deleted_inode4_count(), deleted_inode4_count);
-    ASSERT_EQ(test_db.get_inode16_to_inode4_count(), inode16_to_inode4_count);
-    ASSERT_EQ(test_db.get_inode48_to_inode16_count(), inode48_to_inode16_count);
-    ASSERT_EQ(test_db.get_inode256_to_inode48_count(),
-              inode256_to_inode48_count);
+  constexpr void assert_shrinking_inodes(
+      inode_type_counter_array expected_shrinking_inode_counts) {
+    const auto actual_shrinking_inode_counts =
+        test_db.get_shrinking_inode_counts();
+    ASSERT_THAT(actual_shrinking_inode_counts,
+                ::testing::ElementsAreArray(expected_shrinking_inode_counts));
   }
 
   constexpr void assert_key_prefix_splits(std::uint64_t splits) const noexcept {

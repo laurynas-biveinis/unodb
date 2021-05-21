@@ -3,12 +3,16 @@ name: clang-format check
 on: push
 
 jobs:
+  strategy:
+    fail-fast: false
+
   formatting-check:
     name: clang-format check
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Run clang-format check
-      uses: jidicula/clang-format-action@v3.2.0
+      continue-on-error: true
+      uses: jidicula/clang-format-action@v3.4.0
       with:
         clang-format-version: '11'

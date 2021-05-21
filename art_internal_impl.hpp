@@ -63,8 +63,11 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 // zero, which we know not to be. Only GCC 11 gets the hint by "if (arg == 0)
 // __builtin_unreachable()"
 [[gnu::const]] inline unsigned ffs_nonzero(std::uint64_t arg) {
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 11
+  if (arg == 0) __builtin_unreachable();
+  return static_cast<unsigned>(__builtin_ffsl(static_cast<std::int64_t>(arg)));
+#elif __x86_64
   std::int64_t result;
-#ifdef __x86_64
   __asm__("bsfq %1, %0" : "=r"(result) : "rm"(arg) : "cc");
   return gsl::narrow_cast<unsigned>(result + 1);
 #else
@@ -306,6 +309,7 @@ struct basic_art_policy final {
                                 LeafReclamator<header_type, Db>{db_instance}};
   }
 
+  DISABLE_GCC_11_WARNING("-Wmismatched-new-delete")
   template <class INode, class... Args>
   [[nodiscard]] static auto make_db_inode_unique_ptr(Db &db_instance,
                                                      Args &&...args) {
@@ -316,6 +320,7 @@ struct basic_art_policy final {
 
     return result;
   }
+  RESTORE_GCC_11_WARNINGS()
 
   template <class INode>
   [[nodiscard]] static auto make_db_inode_unique_ptr(Db &db_instance,

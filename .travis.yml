@@ -19,6 +19,25 @@ os_setups:
           - g++-10
           - libc6-dev-i386
           - valgrind
+  clang12_setup: &clang12
+    os: linux
+    compiler: clang
+    addons:
+      apt:
+        sources:
+          - sourceline: 'ppa:mhier/libboost-latest'
+          - sourceline: 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-12 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+        packages:
+          - python3-pip
+          - boost1.74
+          - clang-12
+          - clang-tidy-12
+          - clang-tools-12
+          - llvm-12-dev
+          - lld-12
+          - libc6-dev-i386
+          - valgrind
   clang11_setup: &clang11
     os: linux
     compiler: clang
@@ -99,42 +118,42 @@ matrix:
       <<: *gcc10
       env:
         - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10" BUILD_TYPE=Debug STATIC_ANALYSIS=ON
-    - name: "clang 11 Release"
-      <<: *clang11
+    - name: "clang 12 Release"
+      <<: *clang12
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release
-    - name: "clang 11 Release with ASan"
-      <<: *clang11
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12" BUILD_TYPE=Release
+    - name: "clang 12 Release with ASan"
+      <<: *clang12
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release SANITIZE_ADDRESS=ON
-    - name: "clang 11 Release with TSan"
-      <<: *clang11
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12" BUILD_TYPE=Release SANITIZE_ADDRESS=ON
+    - name: "clang 12 Release with TSan"
+      <<: *clang12
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release SANITIZE_THREAD=ON
-    - name: "clang 11 Release with UBSan"
-      <<: *clang11
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12" BUILD_TYPE=Release SANITIZE_THREAD=ON
+    - name: "clang 12 Release with UBSan"
+      <<: *clang12
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release SANITIZE_UB=ON
-    - name: "clang 11 Debug"
-      <<: *clang11
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12" BUILD_TYPE=Release SANITIZE_UB=ON
+    - name: "clang 12 Debug"
+      <<: *clang12
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug
-    - name: "clang 11 Debug with ASan"
-      <<: *clang11
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12" BUILD_TYPE=Debug
+    - name: "clang 12 Debug with ASan"
+      <<: *clang12
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug SANITIZE_ADDRESS=ON
-    - name: "clang 11 Debug with TSan"
-      <<: *clang11
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12" BUILD_TYPE=Debug SANITIZE_ADDRESS=ON
+    - name: "clang 12 Debug with TSan"
+      <<: *clang12
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug SANITIZE_THREAD=ON
-    - name: "clang 11 Debug with UBSan"
-      <<: *clang11
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12" BUILD_TYPE=Debug SANITIZE_THREAD=ON
+    - name: "clang 12 Debug with UBSan"
+      <<: *clang12
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug SANITIZE_UB=ON
-    - name: "clang 11 static analysis Release"
-      <<: *clang11
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12" BUILD_TYPE=Debug SANITIZE_UB=ON
+    - name: "clang 12 static analysis Release"
+      <<: *clang12
       env:
-        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release SCAN_BUILD=scan-build-11
+        - MATRIX_EVAL="CC=clang-12 && CXX=clang++-12" BUILD_TYPE=Release SCAN_BUILD=scan-build-12
     - name: "XCode 12.2 Release"
       <<: *macos
       env:
@@ -175,6 +194,38 @@ matrix:
       <<: *macos
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug IWYU=ON CPPCHECK_AGGRESSIVE=ON
+    - name: "clang 11 Release"
+      <<: *clang11
+      env:
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release
+    - name: "clang 11 Release with ASan"
+      <<: *clang11
+      env:
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release SANITIZE_ADDRESS=ON
+    - name: "clang 11 Release with TSan"
+      <<: *clang11
+      env:
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release SANITIZE_THREAD=ON
+    - name: "clang 11 Release with UBSan"
+      <<: *clang11
+      env:
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Release SANITIZE_UB=ON
+    - name: "clang 11 Debug"
+      <<: *clang11
+      env:
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug
+    - name: "clang 11 Debug with ASan"
+      <<: *clang11
+      env:
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug SANITIZE_ADDRESS=ON
+    - name: "clang 11 Debug with TSan"
+      <<: *clang11
+      env:
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug SANITIZE_THREAD=ON
+    - name: "clang 11 Debug with UBSan"
+      <<: *clang11
+      env:
+        - MATRIX_EVAL="CC=clang-11 && CXX=clang++-11" BUILD_TYPE=Debug SANITIZE_UB=ON
   allow_failures:
     - env: MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Release IWYU=ON CPPCHECK_AGGRESSIVE=ON
     - env: MATRIX_EVAL="CC=clang && CXX=clang++" BUILD_TYPE=Debug IWYU=ON CPPCHECK_AGGRESSIVE=ON
@@ -189,9 +240,14 @@ script:
   - mkdir build
   - cd build
   - sudo rm -rf /usr/local/clang-7.0.0
-  - if [[ "$CC" == "clang-11" ]]; then
-      sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-11 50;
-      sudo update-alternatives --install /usr/bin/ld ld /usr/bin/lld-11 50;
+  - EXTRA_CMAKE_ARGS=
+  - if [[ "$CC" == clang-* ]]; then
+      readonly V=${CC#*clang};
+      sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-$V 50;
+      sudo update-alternatives --install /usr/bin/ld ld /usr/bin/lld-$V 50;
+      EXTRA_CMAKE_ARGS+="-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-$V
+                -DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-$V
+                -DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-$V";
     fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       if [[ "$SANITIZE_ADDRESS" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$SANITIZE_UB" == "OFF" ]]; then
@@ -201,7 +257,8 @@ script:
         brew install iwyu;
       fi;
     fi
-  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE_ADDRESS=${SANITIZE_ADDRESS} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DSANITIZE_UB=${SANITIZE_UB} -DSTATIC_ANALYSIS=${STATIC_ANALYSIS} -DIWYU=${IWYU} -DCPPCHECK_AGGRESSIVE=${CPPCHECK_AGGRESSIVE}
+  - echo ${EXTRA_CMAKE_ARGS}
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DSANITIZE_ADDRESS=${SANITIZE_ADDRESS} -DSANITIZE_THREAD=${SANITIZE_THREAD} -DSANITIZE_UB=${SANITIZE_UB} -DSTATIC_ANALYSIS=${STATIC_ANALYSIS} -DIWYU=${IWYU} -DCPPCHECK_AGGRESSIVE=${CPPCHECK_AGGRESSIVE} ${EXTRA_CMAKE_ARGS}
   - if [[ ! -z "${SCAN_BUILD}" ]]; then
       ${SCAN_BUILD} --status-bugs -stats -analyze-headers --force-analyze-debug-code make -j3;
       travis_terminate 0;
@@ -214,11 +271,11 @@ script:
   - ctest -j3 -V
   - echo "Benchmark runs (for benchmark correctness, not performance!)"
   - make quick_benchmarks
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then
+  - if [[ "$TRAVIS_OS_NAME" != "osx" && "$CC" =~ "^(gcc-10|clang-12)$" ]]; then
       echo "Fuzzing with DeepState for 1 minute";
       make -j2 deepstate_1m;
     fi
-  - if [[ "$CC" == "clang-11" && "$BUILD_TYPE" != "Release" && "$SANITIZE_THREAD" != "ON" ]]; then
+  - if [[ "$CC" == "clang-12" && "$BUILD_TYPE" != "Release" && "$SANITIZE_THREAD" != "ON" ]]; then
       make -j2 deepstate_lf_1m;
     fi
   - if [[ "$SANITIZE_ADDRESS" == "OFF" && "$SANITIZE_THREAD" == "OFF" && "$SANITIZE_UB" == "OFF" && "$COVERAGE" == "OFF" && "$TRAVIS_OS_NAME" != "osx" ]]; then

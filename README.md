@@ -20,9 +20,9 @@ C++ tools and ideas. I am trying to describe some of the things I learned at my
 The code uses SSE4.1 intrinsics (Nehalem and higher). This is in contrast to the
 original ART paper needing SSE2 only.
 
-Note: since this is my personal project, it only supports GCC 10 and LLVM 11
-compilers. Drop me a note if you want to try this and need a lower supported
-compiler version.
+Note: since this is my personal project, it only supports GCC 10 and LLVM
+version 11-12 compilers. Drop me a note if you want to try this and need a lower
+supported compiler version.
 
 ## Usage
 

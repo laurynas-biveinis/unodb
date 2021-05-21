@@ -3,9 +3,6 @@ name: clang-format check
 on: push
 
 jobs:
-  strategy:
-    fail-fast: false
-
   formatting-check:
     name: clang-format check
     runs-on: ubuntu-latest

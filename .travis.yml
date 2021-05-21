@@ -242,7 +242,7 @@ script:
   - sudo rm -rf /usr/local/clang-7.0.0
   - EXTRA_CMAKE_ARGS=
   - if [[ "$CC" == clang-* ]]; then
-      readonly V=${CC#*clang};
+      readonly V=${CC#*clang-};
       sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-$V 50;
       sudo update-alternatives --install /usr/bin/ld ld /usr/bin/lld-$V 50;
       EXTRA_CMAKE_ARGS+="-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-$V

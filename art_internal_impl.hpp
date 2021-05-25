@@ -600,23 +600,23 @@ class basic_inode_impl {
   }
 
   template <typename ReturnType, typename... Args>
-  [[nodiscard]] constexpr ReturnType add(db_leaf_unique_ptr &child,
+  [[nodiscard]] constexpr ReturnType add(db_leaf_unique_ptr &&child,
                                          Args &&...args) noexcept {
     assert(child.get() != nullptr);
 
     switch (f.header.type()) {
       case node_type::I4:
         return static_cast<inode4_type *>(this)->add(
-            child, std::forward<Args>(args)...);
+            std::move(child), std::forward<Args>(args)...);
       case node_type::I16:
         return static_cast<inode16_type *>(this)->add(
-            child, std::forward<Args>(args)...);
+            std::move(child), std::forward<Args>(args)...);
       case node_type::I48:
         return static_cast<inode48_type *>(this)->add(
-            child, std::forward<Args>(args)...);
+            std::move(child), std::forward<Args>(args)...);
       case node_type::I256:
         return static_cast<inode256_type *>(this)->add(
-            child, std::forward<Args>(args)...);
+            std::move(child), std::forward<Args>(args)...);
         // LCOV_EXCL_START
       case node_type::LEAF:
         CANNOT_HAPPEN();
@@ -1057,20 +1057,26 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                           keys.byte_array.cbegin() + this->f.f.children_count));
   }
 
-  [[nodiscard]] constexpr bool add(db_leaf_unique_ptr &child,
-                                   tree_depth depth) noexcept {
+  constexpr void add(db_leaf_unique_ptr &&child, tree_depth depth,
+                     db &db_instance, node_ptr *node_in_parent) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_4::static_node_type);
 
     const auto children_count = this->f.f.children_count.load();
 
-    if (unlikely(children_count == parent_class::capacity)) return false;
-
-    add_to_nonfull(child, depth, children_count);
-    return true;
+    if (likely(children_count < parent_class::capacity)) {
+      add_to_nonfull(std::move(child), depth, children_count);
+    } else {
+      auto current_node{ArtPolicy::make_db_inode_unique_ptr(
+          db_instance, static_cast<inode4_type *>(this))};
+      auto larger_node{inode16_type::create(std::move(current_node),
+                                            std::move(child), depth)};
+      *node_in_parent = node_ptr{larger_node.release()};
+      db_instance.template account_growing_inode<node_type::I16>();
+    }
   }
 
-  constexpr void add_to_nonfull(db_leaf_unique_ptr &child, tree_depth depth,
+  constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count) noexcept {
     assert(children_count == this->f.f.children_count);
     assert(children_count < parent_class::capacity);
@@ -1255,6 +1261,7 @@ template <class ArtPolicy>
 class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   using parent_class = basic_inode_16_parent<ArtPolicy>;
 
+  using typename parent_class::inode16_type;
   using typename parent_class::inode48_type;
   using typename parent_class::inode4_type;
   using typename parent_class::leaf_type;
@@ -1331,21 +1338,26 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                           keys.byte_array.cbegin() + basic_inode_16::capacity));
   }
 
-  [[nodiscard]] constexpr bool add(db_leaf_unique_ptr &child,
-                                   tree_depth depth) noexcept {
+  constexpr void add(db_leaf_unique_ptr &&child, tree_depth depth,
+                     db &db_instance, node_ptr *node_in_parent) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_16::static_node_type);
 
     const auto children_count = this->f.f.children_count.load();
 
-    if (unlikely(children_count == parent_class::capacity)) return false;
-
-    add_to_nonfull(child, depth, children_count);
-
-    return true;
+    if (likely(children_count < parent_class::capacity)) {
+      add_to_nonfull(std::move(child), depth, children_count);
+    } else {
+      auto current_node{ArtPolicy::make_db_inode_unique_ptr(
+          db_instance, static_cast<inode16_type *>(this))};
+      auto larger_node{inode48_type::create(std::move(current_node),
+                                            std::move(child), depth)};
+      *node_in_parent = node_ptr{larger_node.release()};
+      db_instance.template account_growing_inode<node_type::I48>();
+    }
   }
 
-  constexpr void add_to_nonfull(db_leaf_unique_ptr &child, tree_depth depth,
+  constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count) noexcept {
     assert(children_count == this->f.f.children_count);
     assert(children_count < parent_class::capacity);
@@ -1496,6 +1508,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   using parent_class = basic_inode_48_parent<ArtPolicy>;
 
   using typename parent_class::inode16_type;
+  using typename parent_class::inode256_type;
+  using typename parent_class::inode48_type;
   using typename parent_class::node_ptr;
 
   template <typename T>
@@ -1569,21 +1583,26 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   }
   RESTORE_GCC_WARNINGS()
 
-  [[nodiscard]] constexpr bool add(db_leaf_unique_ptr &child,
-                                   tree_depth depth) noexcept {
+  constexpr void add(db_leaf_unique_ptr &&child, tree_depth depth,
+                     db &db_instance, node_ptr *node_in_parent) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_48::static_node_type);
 
     const auto children_count = this->f.f.children_count.load();
 
-    if (unlikely(children_count == parent_class::capacity)) return false;
-
-    add_to_nonfull(child, depth, children_count);
-
-    return true;
+    if (likely(children_count < parent_class::capacity)) {
+      add_to_nonfull(std::move(child), depth, children_count);
+    } else {
+      auto current_node{ArtPolicy::make_db_inode_unique_ptr(
+          db_instance, static_cast<inode48_type *>(this))};
+      auto larger_node{inode256_type::create(std::move(current_node),
+                                             std::move(child), depth)};
+      *node_in_parent = node_ptr{larger_node.release()};
+      db_instance.template account_growing_inode<node_type::I256>();
+    }
   }
 
-  constexpr void add_to_nonfull(db_leaf_unique_ptr &child, tree_depth depth,
+  constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count) noexcept {
     assert(this->f.f.children_count == children_count);
     assert(this->f.f.children_count < parent_class::capacity);
@@ -1778,12 +1797,12 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     children[key_byte] = node_ptr{child.release()};
   }
 
-  constexpr bool add(db_leaf_unique_ptr &child, tree_depth depth) noexcept {
-    add_to_nonfull(child, depth, this->f.f.children_count.load());
-    return true;
+  constexpr void add(db_leaf_unique_ptr &&child, tree_depth depth, db &,
+                     node_ptr *) noexcept {
+    add_to_nonfull(std::move(child), depth, this->f.f.children_count.load());
   }
 
-  constexpr void add_to_nonfull(db_leaf_unique_ptr &child, tree_depth depth,
+  constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_256::static_node_type);

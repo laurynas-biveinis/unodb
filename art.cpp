@@ -207,42 +207,7 @@ bool db::insert(key insert_key, value_view v) {
 
     if (child == nullptr) {
       auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
-
-      const auto node_is_full = !node->internal->add<bool>(leaf, depth);
-
-      if (likely(!node_is_full)) {
-        assert(leaf == nullptr);
-        return true;
-      }
-
-      assert(node_is_full);
-      assert(leaf != nullptr);
-
-      if (node_type == node_type::I4) {
-        auto current_node{
-            art_policy::make_db_inode_unique_ptr(*this, node->node_4)};
-        auto larger_node = detail::inode_16::create(std::move(current_node),
-                                                    std::move(leaf), depth);
-        *node = detail::node_ptr{larger_node.release()};
-        account_growing_inode<node_type::I16>();
-
-      } else if (node_type == node_type::I16) {
-        auto current_node{
-            art_policy::make_db_inode_unique_ptr(*this, node->node_16)};
-        auto larger_node = detail::inode_48::create(std::move(current_node),
-                                                    std::move(leaf), depth);
-        *node = detail::node_ptr{larger_node.release()};
-        account_growing_inode<node_type::I48>();
-
-      } else {
-        assert(node_type == node_type::I48);
-        auto current_node{
-            art_policy::make_db_inode_unique_ptr(*this, node->node_48)};
-        auto larger_node = detail::inode_256::create(std::move(current_node),
-                                                     std::move(leaf), depth);
-        *node = detail::node_ptr{larger_node.release()};
-        account_growing_inode<node_type::I256>();
-      }
+      node->internal->add<void>(std::move(leaf), depth, *this, node);
       return true;
     }
 

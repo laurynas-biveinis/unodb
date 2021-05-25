@@ -171,32 +171,31 @@ inline auto obsolete_child_by_index(
   return child;
 }
 
-template <class INode>
-[[nodiscard]] std::optional<bool> olc_inode_add(
-    INode &inode, olc_db_leaf_unique_ptr &child,
-    unodb::detail::tree_depth depth,
-    unodb::optimistic_lock::version_type version,
-    const unodb::optimistic_lock &parent_lock,
-    unodb::optimistic_lock::version_type parent_version) noexcept {
-  const auto children_count = inode.get_children_count();
-
-  if constexpr (!std::is_same_v<INode, unodb::detail::olc_inode_256>)
-    if (unlikely(children_count == INode::capacity)) return false;
-
-  auto &node_lock = lock(inode);
-  if (unlikely(!node_lock.try_upgrade_to_write_lock(version))) return {};
-  unodb::optimistic_write_lock_guard unlock_on_exit{node_lock};
-
-  if (unlikely(!parent_lock.try_read_unlock(parent_version))) return {};
-
-  inode.add_to_nonfull(child, depth, children_count);
-
-  return true;
-}
-
 }  // namespace
 
 namespace unodb::detail {
+
+// Wrap olc_inode_add in a struct so that the latter and not the former could be
+// declared as friend of olc_db, avoiding the need to forward declare the likes
+// of olc_db_leaf_unique_ptr.
+struct olc_impl_helpers {
+  // GCC 10 diagnoses parameters that are present only in uninstantiated if
+  // constexpr branch, such as parent_version and db_instance for olc_inode_256.
+  DISABLE_GCC_10_WARNING("-Wunused-parameter")
+
+  template <class INode>
+  [[nodiscard]] static bool olc_inode_add(
+      INode *inode, olc_db_leaf_unique_ptr &&child, tree_depth depth,
+      optimistic_lock &node_lock, optimistic_lock::version_type version,
+      critical_section_protected<olc_node_ptr> *node_in_parent,
+      optimistic_lock &parent_lock,
+      optimistic_lock::version_type parent_version,
+      olc_db &db_instance) noexcept;
+
+  RESTORE_GCC_10_WARNINGS()
+
+  olc_impl_helpers() = delete;
+};
 
 class olc_inode : public olc_inode_base {};
 
@@ -254,12 +253,16 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
     return basic_inode_4::create(source_node, len, depth, std::move(child1));
   }
 
-  [[nodiscard]] std::optional<bool> add(
-      olc_db_leaf_unique_ptr &child, detail::tree_depth depth,
-      optimistic_lock::version_type version, const optimistic_lock &parent_lock,
-      optimistic_lock::version_type parent_version) noexcept {
-    return olc_inode_add(*this, child, depth, version, parent_lock,
-                         parent_version);
+  [[nodiscard]] bool add(
+      olc_db_leaf_unique_ptr &&child, detail::tree_depth depth,
+      unodb::optimistic_lock &node_lock, optimistic_lock::version_type version,
+      critical_section_protected<unodb::detail::olc_node_ptr> *node_in_parent,
+      optimistic_lock &parent_lock,
+      optimistic_lock::version_type parent_version,
+      unodb::olc_db &db_instance) noexcept {
+    return olc_impl_helpers::olc_inode_add(
+        this, std::move(child), depth, node_lock, version, node_in_parent,
+        parent_lock, parent_version, db_instance);
   }
 
   void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
@@ -337,12 +340,16 @@ class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
       std::uint8_t child_to_delete,
       unique_write_lock_obsoleting_guard &&child_obsoleting_guard);
 
-  [[nodiscard]] std::optional<bool> add(
-      olc_db_leaf_unique_ptr &child, detail::tree_depth depth,
-      optimistic_lock::version_type version, const optimistic_lock &parent_lock,
-      optimistic_lock::version_type parent_version) noexcept {
-    return olc_inode_add(*this, child, depth, version, parent_lock,
-                         parent_version);
+  [[nodiscard]] bool add(
+      olc_db_leaf_unique_ptr &&child, detail::tree_depth depth,
+      unodb::optimistic_lock &node_lock, optimistic_lock::version_type version,
+      critical_section_protected<unodb::detail::olc_node_ptr> *node_in_parent,
+      optimistic_lock &parent_lock,
+      optimistic_lock::version_type parent_version,
+      unodb::olc_db &db_instance) noexcept {
+    return olc_impl_helpers::olc_inode_add(
+        this, std::move(child), depth, node_lock, version, node_in_parent,
+        parent_lock, parent_version, db_instance);
   }
 
   void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
@@ -443,12 +450,16 @@ class olc_inode_48 final : public basic_inode_48<olc_art_policy> {
       std::uint8_t child_to_delete,
       unique_write_lock_obsoleting_guard &&child_obsoleting_guard);
 
-  [[nodiscard]] std::optional<bool> add(
-      olc_db_leaf_unique_ptr &child, detail::tree_depth depth,
-      optimistic_lock::version_type version, const optimistic_lock &parent_lock,
-      optimistic_lock::version_type parent_version) noexcept {
-    return olc_inode_add(*this, child, depth, version, parent_lock,
-                         parent_version);
+  [[nodiscard]] bool add(
+      olc_db_leaf_unique_ptr &&child, detail::tree_depth depth,
+      unodb::optimistic_lock &node_lock, optimistic_lock::version_type version,
+      critical_section_protected<unodb::detail::olc_node_ptr> *node_in_parent,
+      optimistic_lock &parent_lock,
+      optimistic_lock::version_type parent_version,
+      unodb::olc_db &db_instance) noexcept {
+    return olc_impl_helpers::olc_inode_add(
+        this, std::move(child), depth, node_lock, version, node_in_parent,
+        parent_lock, parent_version, db_instance);
   }
 
   void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
@@ -525,12 +536,16 @@ class olc_inode_256 final : public basic_inode_256<olc_art_policy> {
         std::move(source_node_obsoleting_guard), std::move(child), depth);
   }
 
-  [[nodiscard]] std::optional<bool> add(
-      olc_db_leaf_unique_ptr &child, detail::tree_depth depth,
-      optimistic_lock::version_type version, const optimistic_lock &parent_lock,
-      optimistic_lock::version_type parent_version) noexcept {
-    return olc_inode_add(*this, child, depth, version, parent_lock,
-                         parent_version);
+  [[nodiscard]] bool add(
+      olc_db_leaf_unique_ptr &&child, detail::tree_depth depth,
+      unodb::optimistic_lock &node_lock, optimistic_lock::version_type version,
+      critical_section_protected<unodb::detail::olc_node_ptr> *node_in_parent,
+      optimistic_lock &parent_lock,
+      optimistic_lock::version_type parent_version,
+      unodb::olc_db &db_instance) noexcept {
+    return olc_impl_helpers::olc_inode_add(
+        this, std::move(child), depth, node_lock, version, node_in_parent,
+        parent_lock, parent_version, db_instance);
   }
 
   void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
@@ -578,6 +593,69 @@ olc_inode_48::olc_inode_48(
                                            std::move(child_obsoleting_guard))} {
   assert(!source_node_obsoleting_guard.active());
   assert(!child_obsoleting_guard.active());
+}
+
+template <class INode>
+[[nodiscard]] bool olc_impl_helpers::olc_inode_add(
+    INode *inode, olc_db_leaf_unique_ptr &&child, tree_depth depth,
+    // TODO(laurynas): introduce new helper struct wrapping a lock and its
+    // version
+    optimistic_lock &node_lock, optimistic_lock::version_type version,
+    critical_section_protected<olc_node_ptr> *node_in_parent,
+    optimistic_lock &parent_lock, optimistic_lock::version_type parent_version,
+    olc_db &db_instance) noexcept {
+  assert(&lock(*inode) == &node_lock);
+
+  const auto children_count = inode->get_children_count();
+
+  if constexpr (!std::is_same_v<INode, olc_inode_256>) {
+    if (unlikely(children_count == INode::capacity)) {
+      if (!unlikely(parent_lock.try_upgrade_to_write_lock(parent_version)))
+        return false;  // LCOV_EXCL_LINE
+      optimistic_write_lock_guard unlock_on_exit{parent_lock};
+
+      if (!unlikely(node_lock.try_upgrade_to_write_lock(version))) return false;
+      unique_write_lock_obsoleting_guard obsolete_node_on_exit{node_lock};
+
+      // TODO(laurynas): shorten the critical section by moving allocation
+      // before it?
+      if constexpr (std::is_same_v<INode, olc_inode_4>) {
+        auto current_node{make_db_inode_reclaimable_ptr(db_instance, inode)};
+        auto larger_node = olc_inode_16::create(
+            std::move(current_node), std::move(obsolete_node_on_exit),
+            std::move(child), depth);
+        *node_in_parent = larger_node.release();
+        db_instance.account_growing_inode<node_type::I16>();
+      } else if constexpr (std::is_same_v<INode, olc_inode_16>) {
+        auto current_node{make_db_inode_reclaimable_ptr(db_instance, inode)};
+        auto larger_node = olc_inode_48::create(
+            std::move(current_node), std::move(obsolete_node_on_exit),
+            std::move(child), depth);
+        *node_in_parent = larger_node.release();
+        db_instance.account_growing_inode<node_type::I48>();
+      } else {
+        auto current_node{make_db_inode_reclaimable_ptr(db_instance, inode)};
+        auto larger_node = olc_inode_256::create(
+            std::move(current_node), std::move(obsolete_node_on_exit),
+            std::move(child), depth);
+        *node_in_parent = larger_node.release();
+        db_instance.account_growing_inode<node_type::I256>();
+      }
+
+      assert(!obsolete_node_on_exit.active());
+
+      return true;
+    }
+  }
+
+  if (unlikely(!node_lock.try_upgrade_to_write_lock(version))) return false;
+  optimistic_write_lock_guard unlock_on_exit{node_lock};
+
+  if (unlikely(!parent_lock.try_read_unlock(parent_version))) return false;
+
+  inode->add_to_nonfull(std::move(child), depth, children_count);
+
+  return true;
 }
 
 }  // namespace unodb::detail
@@ -814,57 +892,11 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
       auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
-      const auto add_result = node.internal->add<std::optional<bool>>(
-          leaf, depth, version, *parent_lock, parent_version);
-      if (unlikely(!add_result)) return {};
+      const auto added = node.internal->add<bool>(
+          std::move(leaf), depth, node_lock, version, node_loc, *parent_lock,
+          parent_version, *this);
 
-      const auto node_is_full = !(*add_result);
-
-      if (likely(!node_is_full)) {
-        assert(leaf == nullptr);
-        return true;
-      }
-
-      assert(node_is_full);
-      assert(leaf != nullptr);
-
-      if (!unlikely(parent_lock->try_upgrade_to_write_lock(parent_version)))
-        return {};  // LCOV_EXCL_LINE
-      optimistic_write_lock_guard unlock_on_exit{*parent_lock};
-
-      if (!unlikely(node_lock.try_upgrade_to_write_lock(version))) return {};
-      unique_write_lock_obsoleting_guard obsolete_node_on_exit{node_lock};
-
-      if (node_type == node_type::I4) {
-        // TODO(laurynas): shorten the critical section by moving allocation
-        // before it?
-        auto current_node{make_db_inode_reclaimable_ptr(*this, node.node_4)};
-        auto larger_node = detail::olc_inode_16::create(
-            std::move(current_node), std::move(obsolete_node_on_exit),
-            std::move(leaf), depth);
-        *node_loc = larger_node.release();
-        account_growing_inode<node_type::I16>();
-
-      } else if (node_type == node_type::I16) {
-        auto current_node{make_db_inode_reclaimable_ptr(*this, node.node_16)};
-        auto larger_node = detail::olc_inode_48::create(
-            std::move(current_node), std::move(obsolete_node_on_exit),
-            std::move(leaf), depth);
-        *node_loc = larger_node.release();
-        account_growing_inode<node_type::I48>();
-
-      } else {
-        assert(node_type == node_type::I48);
-
-        auto current_node{make_db_inode_reclaimable_ptr(*this, node.node_48)};
-        auto larger_node = detail::olc_inode_256::create(
-            std::move(current_node), std::move(obsolete_node_on_exit),
-            std::move(leaf), depth);
-        *node_loc = larger_node.release();
-        account_growing_inode<node_type::I256>();
-      }
-
-      assert(!obsolete_node_on_exit.active());
+      if (unlikely(!added)) return {};
 
       return true;
     }

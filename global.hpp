@@ -59,6 +59,13 @@
 #if defined(__GNUG__) && !defined(__clang__)
 #define DISABLE_GCC_WARNING(x) DISABLE_WARNING(x)
 #define RESTORE_GCC_WARNINGS() RESTORE_WARNINGS()
+#if __GNUG__ == 10
+#define DISABLE_GCC_10_WARNING(x) DISABLE_WARNING(x)
+#define RESTORE_GCC_10_WARNINGS() RESTORE_WARNINGS()
+#else  // __GNUG__ == 10
+#define DISABLE_GCC_10_WARNING(x)
+#define RESTORE_GCC_10_WARNINGS()
+#endif  // __GNUG__ == 10
 #if __GNUG__ >= 11
 #define DISABLE_GCC_11_WARNING(x) DISABLE_WARNING(x)
 #define RESTORE_GCC_11_WARNINGS() RESTORE_WARNINGS()
@@ -69,6 +76,8 @@
 #else   // defined(__GNUG__) && !defined(__clang__)
 #define DISABLE_GCC_WARNING(x)
 #define RESTORE_GCC_WARNINGS()
+#define DISABLE_GCC_10_WARNING(x)
+#define RESTORE_GCC_10_WARNINGS()
 #define DISABLE_GCC_11_WARNING(x)
 #define RESTORE_GCC_11_WARNINGS()
 #endif  // defined(__GNUG__) && !defined(__clang__)

@@ -362,7 +362,7 @@ if(IWYU)
       execute_process(COMMAND "${IWYU_EXE}" "--version" OUTPUT_VARIABLE
         IWYU_VERSION_OUTPUT)
       message(STATUS
-        "include-what-you-use found: ${IWYU_EXE}, --version: ${IWYU_VERSION_OUTPUT")
+        "include-what-you-use found: ${IWYU_EXE}, --version: ${IWYU_VERSION_OUTPUT}")
       set(DO_IWYU "${IWYU_EXE}")
     endif()
   endif()

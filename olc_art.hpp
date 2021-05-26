@@ -61,6 +61,8 @@ class db_leaf_qsbr_deleter;  // IWYU pragma: keep
 template <class Header, class Db>
 auto make_db_leaf_ptr(art_key, value_view, Db &);
 
+struct olc_impl_helpers;
+
 }  // namespace detail
 
 using qsbr_value_view = qsbr_ptr_span<const std::byte>;
@@ -262,6 +264,8 @@ class olc_db final {
 
   template <class>
   friend class detail::basic_inode_256;
+
+  friend struct detail::olc_impl_helpers;
 };
 
 }  // namespace unodb

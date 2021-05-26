@@ -359,7 +359,10 @@ if(IWYU)
     if(NOT IWYU_EXE)
       message(STATUS "include-what-you-use not found")
     else()
-      message(STATUS "include-what-you-use found: ${IWYU_EXE}")
+      execute_process(COMMAND "${IWYU_EXE}" "--version" OUTPUT_VARIABLE
+        IWYU_VERSION_OUTPUT)
+      message(STATUS
+        "include-what-you-use found: ${IWYU_EXE}, --version: ${IWYU_VERSION_OUTPUT")
       set(DO_IWYU "${IWYU_EXE}")
     endif()
   endif()

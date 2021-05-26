@@ -1140,9 +1140,7 @@ void olc_db::clear() {
   node_counts[as_i<node_type::I256>].store(0, std::memory_order_relaxed);
 }
 
-#if defined(__GNUC__) && (__GNUC__ >= 9)
 DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
-#endif
 
 void olc_db::increase_memory_use(std::size_t delta) {
   if (delta == 0) return;
@@ -1150,9 +1148,7 @@ void olc_db::increase_memory_use(std::size_t delta) {
   current_memory_use.fetch_add(delta, std::memory_order_relaxed);
 }
 
-#if defined(__GNUC__) && (__GNUC__ >= 9)
 RESTORE_GCC_WARNINGS()
-#endif
 
 void olc_db::decrease_memory_use(std::size_t delta) noexcept {
   if (delta == 0) return;

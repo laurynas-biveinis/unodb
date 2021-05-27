@@ -202,16 +202,11 @@ bool db::insert(key insert_key, value_view v) {
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
-    auto *const child =
-        node->internal->find_child(node_type, remaining_key[0]).second;
+    node = node->internal->add_or_choose_subtree<detail::node_ptr *>(
+        node_type, remaining_key[0], k, v, *this, depth, node);
 
-    if (child == nullptr) {
-      auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
-      node->internal->add<void>(std::move(leaf), depth, *this, node);
-      return true;
-    }
+    if (node == nullptr) return true;
 
-    node = reinterpret_cast<detail::node_ptr *>(child);
     ++depth;
     remaining_key.shift_right(1);
   }

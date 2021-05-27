@@ -600,23 +600,21 @@ class basic_inode_impl {
   }
 
   template <typename ReturnType, typename... Args>
-  [[nodiscard]] constexpr ReturnType add(db_leaf_unique_ptr &&child,
-                                         Args &&...args) noexcept {
-    assert(child.get() != nullptr);
-
-    switch (f.header.type()) {
+  [[nodiscard]] ReturnType add_or_choose_subtree(node_type type,
+                                                 Args &&...args) {
+    switch (type) {
       case node_type::I4:
-        return static_cast<inode4_type *>(this)->add(
-            std::move(child), std::forward<Args>(args)...);
+        return static_cast<inode4_type *>(this)->add_or_choose_subtree(
+            std::forward<Args>(args)...);
       case node_type::I16:
-        return static_cast<inode16_type *>(this)->add(
-            std::move(child), std::forward<Args>(args)...);
+        return static_cast<inode16_type *>(this)->add_or_choose_subtree(
+            std::forward<Args>(args)...);
       case node_type::I48:
-        return static_cast<inode48_type *>(this)->add(
-            std::move(child), std::forward<Args>(args)...);
+        return static_cast<inode48_type *>(this)->add_or_choose_subtree(
+            std::forward<Args>(args)...);
       case node_type::I256:
-        return static_cast<inode256_type *>(this)->add(
-            std::move(child), std::forward<Args>(args)...);
+        return static_cast<inode256_type *>(this)->add_or_choose_subtree(
+            std::forward<Args>(args)...);
         // LCOV_EXCL_START
       case node_type::LEAF:
         CANNOT_HAPPEN();
@@ -880,6 +878,7 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
  public:
   using typename basic_inode_impl<ArtPolicy>::db_leaf_unique_ptr;
   using typename basic_inode_impl<ArtPolicy>::db;
+  using typename basic_inode_impl<ArtPolicy>::node_ptr;
 
   using db_smaller_derived_reclaimable_ptr =
       typename ArtPolicy::template db_inode_reclaimable_ptr<SmallerDerived>;
@@ -953,6 +952,24 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
     assert(source_node.is_min_size());
     assert(is_full_for_add());
   }
+
+ private:
+  [[nodiscard]] auto *add_or_choose_subtree(std::byte key_byte, art_key k,
+                                            value_view v, db &db_instance,
+                                            tree_depth depth,
+                                            node_ptr *node_in_parent) {
+    auto *const child = reinterpret_cast<node_ptr *>(
+        static_cast<Derived *>(this)->find_child(key_byte).second);
+    if (child == nullptr) {
+      auto leaf = ArtPolicy::make_db_leaf_ptr(k, v, db_instance);
+      static_cast<Derived *>(this)->add(std::move(leaf), db_instance, depth,
+                                        node_in_parent);
+    }
+    return child;
+  }
+
+  template <class>
+  friend class basic_inode_impl;
 };
 
 template <class ArtPolicy>
@@ -1057,8 +1074,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                           keys.byte_array.cbegin() + this->f.f.children_count));
   }
 
-  constexpr void add(db_leaf_unique_ptr &&child, tree_depth depth,
-                     db &db_instance, node_ptr *node_in_parent) noexcept {
+  // TODO(laurynas): refactor all the add() sibling methods to a single one
+  constexpr void add(db_leaf_unique_ptr &&child, db &db_instance,
+                     tree_depth depth, node_ptr *node_in_parent) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_4::static_node_type);
 
@@ -1338,8 +1356,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                           keys.byte_array.cbegin() + basic_inode_16::capacity));
   }
 
-  constexpr void add(db_leaf_unique_ptr &&child, tree_depth depth,
-                     db &db_instance, node_ptr *node_in_parent) noexcept {
+  constexpr void add(db_leaf_unique_ptr &&child, db &db_instance,
+                     tree_depth depth, node_ptr *node_in_parent) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_16::static_node_type);
 
@@ -1583,8 +1601,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   }
   RESTORE_GCC_WARNINGS()
 
-  constexpr void add(db_leaf_unique_ptr &&child, tree_depth depth,
-                     db &db_instance, node_ptr *node_in_parent) noexcept {
+  constexpr void add(db_leaf_unique_ptr &&child, db &db_instance,
+                     tree_depth depth, node_ptr *node_in_parent) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_48::static_node_type);
 
@@ -1797,7 +1815,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     children[key_byte] = node_ptr{child.release()};
   }
 
-  constexpr void add(db_leaf_unique_ptr &&child, tree_depth depth, db &,
+  constexpr void add(db_leaf_unique_ptr &&child, db &, tree_depth depth,
                      node_ptr *) noexcept {
     add_to_nonfull(std::move(child), depth, this->f.f.children_count.load());
   }

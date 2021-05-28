@@ -95,8 +95,10 @@
 
 #ifdef NDEBUG
 #define RELEASE_CONSTEXPR constexpr
+#define RELEASE_CONST const
 #else
 #define RELEASE_CONSTEXPR
+#define RELEASE_CONST
 #endif
 
 #if defined(__GNUG__) && !defined(__clang__)

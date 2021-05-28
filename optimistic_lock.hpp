@@ -49,82 +49,108 @@ namespace unodb {
 // All bool-returning try_ functions return true on success and false on
 // lock version change, which indicates the need to restart
 class optimistic_lock final {
+ private:
+  using version_type = std::uint64_t;
+
  public:
-  class version_type final {
+  class write_guard;
+
+  class read_critical_section final {
    public:
-    using version_number_type = std::uint64_t;
+    read_critical_section() noexcept = default;
 
-    constexpr version_type(version_number_type version_,
-                           USED_IN_DEBUG const optimistic_lock *owner_) noexcept
-        : version {
-      version_
-    }
-#ifndef NDEBUG
-    , owner { owner_ }
-#endif
-    {}
+    read_critical_section(optimistic_lock &lock_,
+                          version_type version_) noexcept
+        : lock{&lock_}, version{version_} {}
 
-    constexpr version_type(const version_type &other) noexcept : version {
-      other.version
-    }
-#ifndef NDEBUG
-    , owner { other.owner }
-#endif
-    {}
+    read_critical_section &operator=(read_critical_section &&other) noexcept {
+      assert(other.lock != nullptr);
 
-    version_type(version_type &&) noexcept = delete;
-
-    ~version_type() noexcept = default;
-
-    constexpr version_type &operator=(version_type other) noexcept {
+      lock = other.lock;
+      other.lock = nullptr;
       version = other.version;
-#ifndef NDEBUG
-      owner = other.owner;
-#endif
+
       return *this;
     }
 
-    version_type &operator=(version_type &&) = delete;
-
-    // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
-    [[nodiscard]] constexpr operator version_number_type() const noexcept {
-      return version;
-    }
-
-    // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
-    [[nodiscard]] constexpr operator version_number_type &() noexcept {
-      return version;
-    }
-
-    constexpr void assert_owner(
-        USED_IN_DEBUG const optimistic_lock *owner_) const noexcept {
+    [[nodiscard]] bool try_read_unlock() RELEASE_CONST noexcept {
+      const auto result = lock->try_read_unlock(version);
 #ifndef NDEBUG
-      assert(owner_ == owner);
+      lock = nullptr;
 #endif
+      return result;
     }
+
+    [[nodiscard]] bool check() RELEASE_CONST noexcept {
+      const auto result = lock->check(version);
+#ifndef NDEBUG
+      if (unlikely(!result)) lock = nullptr;
+#endif
+      return result;
+    }
+
+    [[nodiscard]] bool must_restart() const noexcept { return lock == nullptr; }
+
+    ~read_critical_section() = default;
+    read_critical_section(const read_critical_section &) = delete;
+    read_critical_section(read_critical_section &&) = delete;
+    read_critical_section &operator=(const read_critical_section &) = delete;
 
    private:
-    version_number_type version;
-#ifndef NDEBUG
-    const optimistic_lock *owner;
-#endif
+    optimistic_lock *lock{nullptr};
+    version_type version{};
+
+    friend class write_guard;
   };
 
-#ifdef NDEBUG
-  static_assert(
-      sizeof(version_type) == sizeof(std::uint64_t),
-      "class version_type must have no overhead over std::uint64_t in "
-      "release build ");
-  static_assert(sizeof(version_type) == 8);
-#else
-  static_assert(sizeof(version_type) == 16);
+  class write_guard final {
+   public:
+    explicit write_guard(read_critical_section &&critical_section) noexcept
+        : lock{critical_section.lock} {
+      critical_section.lock = nullptr;
+      const auto result =
+          lock->try_upgrade_to_write_lock(critical_section.version);
+      if (unlikely(!result)) lock = nullptr;
+    }
+
+    ~write_guard() {
+      if (likely(lock == nullptr)) return;
+      lock->write_unlock();
+    }
+
+    [[nodiscard]] bool must_restart() const noexcept { return lock == nullptr; }
+
+    void unlock_and_obsolete() {
+      lock->write_unlock_and_obsolete();
+      lock = nullptr;
+    }
+
+    void unlock() {
+      lock->write_unlock();
+      lock = nullptr;
+    }
+
+#ifndef NDEBUG
+    [[nodiscard]] bool active() const noexcept { return lock != nullptr; }
+
+    [[nodiscard]] bool guards(const optimistic_lock &lock_) const noexcept {
+      return lock == &lock_;
+    }
 #endif
+
+    write_guard(const write_guard &) = delete;
+    write_guard(write_guard &&) = delete;
+    write_guard &operator=(const write_guard &) = delete;
+    write_guard &operator=(write_guard &&) = delete;
+
+   private:
+    optimistic_lock *lock{nullptr};
+  };
 
   optimistic_lock() noexcept = default;
 
   optimistic_lock(const optimistic_lock &) = delete;
   optimistic_lock(optimistic_lock &&) = delete;
-
   optimistic_lock &operator=(const optimistic_lock &) = delete;
   optimistic_lock &operator=(optimistic_lock &&) = delete;
 
@@ -132,23 +158,45 @@ class optimistic_lock final {
   // here that asserts read_lock_count == 0
   ~optimistic_lock() = default;
 
-  [[nodiscard]] std::optional<version_type> try_read_lock() const noexcept {
+  [[nodiscard]] read_critical_section try_read_lock() noexcept {
     const auto current_version = await_node_unlocked();
-    if (unlikely(is_obsolete(current_version))) return {};
+    if (unlikely(is_obsolete(current_version))) return read_critical_section{};
     inc_read_lock_count();
-    return std::optional<version_type>{std::in_place, current_version, this};
+    return read_critical_section{*this, current_version};
   }
 
-  [[nodiscard]] bool check(const version_type locked_version) const noexcept {
+#ifndef NDEBUG
+  [[nodiscard]] bool is_obsoleted_by_this_thread() const noexcept {
+    return is_obsolete(version.load(std::memory_order_acquire)) &&
+        std::this_thread::get_id() == obsoleter_thread;
+  }
+
+  [[nodiscard]] bool is_write_locked() const noexcept {
+    return is_write_locked(version.load(std::memory_order_acquire));
+  }
+#endif
+
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+    const auto dump_version = version.load();
+    os << "lock: version = 0x" << std::hex << std::setfill('0') << std::setw(8)
+       << dump_version << std::dec;
+    if (is_write_locked(dump_version)) os << " (write locked)";
+    if (is_obsolete(dump_version)) os << " (obsoleted)";
+#ifndef NDEBUG
+    os << " current read lock count = " << read_lock_count;
+#endif
+  }
+
+ private:
+  [[nodiscard]] bool check(version_type locked_version) const noexcept {
     assert(read_lock_count.load(std::memory_order_relaxed) > 0);
-    locked_version.assert_owner(this);
 
     std::atomic_thread_fence(std::memory_order_acquire);
     return likely(locked_version == version.load());
   }
 
   [[nodiscard]] bool try_read_unlock(
-      const version_type locked_version) const noexcept {
+      version_type locked_version) const noexcept {
     const auto result{check(locked_version)};
     dec_read_lock_count();
     return result;
@@ -156,8 +204,6 @@ class optimistic_lock final {
 
   [[nodiscard]] bool try_upgrade_to_write_lock(
       version_type locked_version) noexcept {
-    locked_version.assert_owner(this);
-
     const auto result{likely(version.compare_exchange_strong(
         locked_version, set_locked_bit(locked_version),
         std::memory_order_acquire))};
@@ -180,38 +226,13 @@ class optimistic_lock final {
 #endif
   }
 
-#ifndef NDEBUG
-  [[nodiscard]] bool is_obsoleted_by_this_thread() const noexcept {
-    return is_obsolete(version.load(std::memory_order_acquire)) &&
-           std::this_thread::get_id() == obsoleter_thread;
-  }
-
-  [[nodiscard]] bool is_write_locked() const noexcept {
-    return is_write_locked(version.load(std::memory_order_acquire));
-  }
-#endif
-
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
-    const auto dump_version = version.load();
-    os << "lock: version = 0x" << std::hex << std::setfill('0') << std::setw(8)
-       << dump_version << std::dec;
-    if (is_write_locked(dump_version)) os << " (write locked)";
-    if (is_obsolete(dump_version)) os << " (obsoleted)";
-#ifndef NDEBUG
-    os << " current read lock count = " << read_lock_count;
-#endif
-  }
-
- private:
   [[nodiscard]] static constexpr bool is_write_locked(
-      version_type::version_number_type version) noexcept {
+      version_type version) noexcept {
     return (version & 2U) != 0U;
   }
 
-  [[nodiscard]] version_type::version_number_type await_node_unlocked()
-      const noexcept {
-    version_type::version_number_type current_version =
-        version.load(std::memory_order_acquire);
+  [[nodiscard]] version_type await_node_unlocked() const noexcept {
+    version_type current_version = version.load(std::memory_order_acquire);
     while (is_write_locked(current_version)) {
 #ifdef UNODB_THREAD_SANITIZER
       std::this_thread::yield();
@@ -226,18 +247,18 @@ class optimistic_lock final {
     return current_version;
   }
 
-  [[nodiscard]] static constexpr version_type::version_number_type
-  set_locked_bit(const version_type version) noexcept {
+  [[nodiscard]] static constexpr version_type set_locked_bit(
+      version_type version) noexcept {
     assert(!is_write_locked(version));
     return version + 2;
   }
 
   [[nodiscard]] static constexpr bool is_obsolete(
-      version_type::version_number_type version) noexcept {
+      version_type version) noexcept {
     return (version & 1U) != 0U;
   }
 
-  std::atomic<version_type::version_number_type> version{0};
+  std::atomic<version_type> version{0};
 
   static_assert(decltype(version)::is_always_lock_free,
                 "Must use always lock-free atomics");
@@ -265,87 +286,10 @@ class optimistic_lock final {
 static_assert(std::is_standard_layout_v<optimistic_lock>);
 
 #ifdef NDEBUG
-static_assert(sizeof(optimistic_lock) == sizeof(optimistic_lock::version_type));
 static_assert(sizeof(optimistic_lock) == 8);
 #else
 static_assert(sizeof(optimistic_lock) == 24);
 #endif
-
-class optimistic_write_lock_guard final {
- public:
-  explicit constexpr optimistic_write_lock_guard(optimistic_lock &lock_)
-      : lock{lock_} {
-    assert(lock.is_write_locked());
-  }
-
-  ~optimistic_write_lock_guard() { lock.write_unlock(); }
-
-  optimistic_write_lock_guard() = delete;
-  optimistic_write_lock_guard(const optimistic_write_lock_guard &) = delete;
-  optimistic_write_lock_guard(optimistic_write_lock_guard &&) = delete;
-  optimistic_write_lock_guard &operator=(const optimistic_write_lock_guard &) =
-      delete;
-  optimistic_write_lock_guard &operator=(optimistic_write_lock_guard &&) =
-      delete;
-
- private:
-  optimistic_lock &lock;
-};
-
-class unique_write_lock_obsoleting_guard final {
- public:
-  explicit unique_write_lock_obsoleting_guard(optimistic_lock &lock_) noexcept
-      : lock{&lock_} {
-    assert(lock->is_write_locked());
-  }
-
-  unique_write_lock_obsoleting_guard(
-      unique_write_lock_obsoleting_guard &&other) noexcept
-      : lock{other.lock} {
-    assert(other.active());
-    assert(other.lock->is_write_locked());
-
-    other.lock = nullptr;
-  }
-
-  ~unique_write_lock_obsoleting_guard() {
-    if (likely(lock == nullptr)) return;
-    lock->write_unlock();
-  }
-
-  void commit() {
-    assert(active());
-
-    lock->write_unlock_and_obsolete();
-    lock = nullptr;
-  }
-
-  void abort() {
-    assert(active());
-
-    lock->write_unlock();
-    lock = nullptr;
-  }
-
-#ifndef NDEBUG
-  [[nodiscard]] bool active() const noexcept { return lock != nullptr; }
-
-  [[nodiscard]] bool guards(const optimistic_lock &lock_) const noexcept {
-    return lock == &lock_;
-  }
-#endif
-
-  unique_write_lock_obsoleting_guard() = delete;
-  unique_write_lock_obsoleting_guard(
-      const unique_write_lock_obsoleting_guard &) = delete;
-  unique_write_lock_obsoleting_guard &operator=(
-      const unique_write_lock_obsoleting_guard &) = delete;
-  unique_write_lock_obsoleting_guard &operator=(
-      unique_write_lock_obsoleting_guard &&) = delete;
-
- private:
-  optimistic_lock *lock;
-};
 
 template <typename T>
 class critical_section_protected final {

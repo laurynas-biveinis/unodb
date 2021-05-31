@@ -36,15 +36,50 @@ using art_policy = unodb::detail::basic_art_policy<
 
 using inode_base = unodb::detail::basic_inode_impl<art_policy>;
 
+template <class INode>
+struct larger_inode {
+  using type = unodb::detail::fake_inode;
+};
+
+template <>
+struct larger_inode<unodb::detail::inode_4> {
+  using type = unodb::detail::inode_16;
+};
+
+template <>
+struct larger_inode<unodb::detail::inode_16> {
+  using type = unodb::detail::inode_48;
+};
+
+template <>
+struct larger_inode<unodb::detail::inode_48> {
+  using type = unodb::detail::inode_256;
+};
+
 }  // namespace
 
 namespace unodb::detail {
+
+struct impl_helpers {
+  template <class INode>
+  static void add(INode &inode, art_policy::db_leaf_unique_ptr &&child,
+                  db &db_instance, tree_depth depth,
+                  unodb::detail::node_ptr *node_in_parent);
+
+  impl_helpers() = delete;
+};
 
 class inode : public inode_base {};
 
 class inode_4 final : public basic_inode_4<art_policy> {
  public:
   using basic_inode_4::basic_inode_4;
+
+  void add(art_policy::db_leaf_unique_ptr &&child, db &db_instance,
+           tree_depth depth, unodb::detail::node_ptr *node_in_parent) noexcept {
+    impl_helpers::add<inode_4>(*this, std::move(child), db_instance, depth,
+                               node_in_parent);
+  }
 };
 
 static_assert(sizeof(inode_4) == 48);
@@ -52,6 +87,12 @@ static_assert(sizeof(inode_4) == 48);
 class inode_16 final : public basic_inode_16<art_policy> {
  public:
   using basic_inode_16::basic_inode_16;
+
+  void add(art_policy::db_leaf_unique_ptr &&child, db &db_instance,
+           tree_depth depth, unodb::detail::node_ptr *node_in_parent) noexcept {
+    impl_helpers::add<inode_16>(*this, std::move(child), db_instance, depth,
+                                node_in_parent);
+  }
 };
 
 static_assert(sizeof(inode_16) == 160);
@@ -59,6 +100,12 @@ static_assert(sizeof(inode_16) == 160);
 class inode_48 final : public basic_inode_48<art_policy> {
  public:
   using basic_inode_48::basic_inode_48;
+
+  void add(art_policy::db_leaf_unique_ptr &&child, db &db_instance,
+           tree_depth depth, unodb::detail::node_ptr *node_in_parent) noexcept {
+    impl_helpers::add<inode_48>(*this, std::move(child), db_instance, depth,
+                                node_in_parent);
+  }
 };
 
 static_assert(sizeof(inode_48) == 656);
@@ -66,9 +113,33 @@ static_assert(sizeof(inode_48) == 656);
 class inode_256 final : public basic_inode_256<art_policy> {
  public:
   using basic_inode_256::basic_inode_256;
+
+  void add(art_policy::db_leaf_unique_ptr &&child, db &, tree_depth depth,
+           unodb::detail::node_ptr *) noexcept {
+    add_to_nonfull(std::move(child), depth, this->f.f.children_count.load());
+  }
 };
 
 static_assert(sizeof(inode_256) == 2064);
+
+template <class INode>
+void impl_helpers::add(INode &inode, art_policy::db_leaf_unique_ptr &&child,
+                       db &db_instance, tree_depth depth,
+                       node_ptr *node_in_parent) {
+  const auto children_count = inode.get_children_count();
+
+  if (likely(children_count < INode::capacity)) {
+    inode.add_to_nonfull(std::move(child), depth, children_count);
+  } else {
+    auto current_node{
+        art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
+    auto larger_node{larger_inode<INode>::type::create(
+        std::move(current_node), std::move(child), depth)};
+    *node_in_parent = node_ptr{larger_node.release()};
+    db_instance.template account_growing_inode<
+        larger_inode<INode>::type::static_node_type>();
+  }
+}
 
 }  // namespace unodb::detail
 

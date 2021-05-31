@@ -923,8 +923,9 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
 
   static constexpr auto min_size = MinSize;
   static constexpr auto capacity = Capacity;
-  static constexpr auto static_node_type = NodeType;
+  static constexpr auto type = NodeType;
 
+  using larger_derived_type = LargerDerived;
   using smaller_derived_type = SmallerDerived;
   using inode_type = typename basic_inode_impl<ArtPolicy>::inode_type;
 
@@ -996,6 +997,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   using typename parent_class::db_inode4_unique_ptr;
   using typename parent_class::db_leaf_unique_ptr;
   using typename parent_class::find_result;
+  using typename parent_class::larger_derived_type;
   using typename parent_class::node_ptr;
 
   // Create a new node with two given child nodes
@@ -1113,7 +1115,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
-           basic_inode_4::static_node_type);
+           basic_inode_4::type);
 
     auto children_count = this->f.f.children_count.load();
 
@@ -1143,7 +1145,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     assert(this->is_min_size());
     assert(child_to_delete == 0 || child_to_delete == 1);
     assert(reinterpret_cast<node_header *>(this)->type() ==
-           basic_inode_4::static_node_type);
+           basic_inode_4::type);
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
         children[child_to_delete], db_instance)};
@@ -1367,7 +1369,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
-           basic_inode_16::static_node_type);
+           basic_inode_16::type);
     auto children_count = this->f.f.children_count.load();
     assert(child_index < children_count);
     assert(std::is_sorted(keys.byte_array.cbegin(),
@@ -1612,7 +1614,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
-           basic_inode_48::static_node_type);
+           basic_inode_48::type);
 
     remove_child_pointer(child_index, db_instance);
     children.pointer_array[child_indexes[child_index]] = node_ptr{nullptr};
@@ -1760,7 +1762,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
-           basic_inode_256::static_node_type);
+           basic_inode_256::type);
     assert(this->f.f.children_count == children_count);
     assert(children_count < parent_class::capacity);
 
@@ -1773,7 +1775,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
-           basic_inode_256::static_node_type);
+           basic_inode_256::type);
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(children[child_index],
                                                        db_instance)};

@@ -36,26 +36,6 @@ using art_policy = unodb::detail::basic_art_policy<
 
 using inode_base = unodb::detail::basic_inode_impl<art_policy>;
 
-template <class INode>
-struct larger_inode {
-  using type = unodb::detail::fake_inode;
-};
-
-template <>
-struct larger_inode<unodb::detail::inode_4> {
-  using type = unodb::detail::inode_16;
-};
-
-template <>
-struct larger_inode<unodb::detail::inode_16> {
-  using type = unodb::detail::inode_48;
-};
-
-template <>
-struct larger_inode<unodb::detail::inode_48> {
-  using type = unodb::detail::inode_256;
-};
-
 }  // namespace
 
 namespace unodb::detail {
@@ -133,11 +113,11 @@ void impl_helpers::add(INode &inode, art_policy::db_leaf_unique_ptr &&child,
   } else {
     auto current_node{
         art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
-    auto larger_node{larger_inode<INode>::type::create(
+    auto larger_node{INode::larger_derived_type::create(
         std::move(current_node), std::move(child), depth)};
     *node_in_parent = node_ptr{larger_node.release()};
-    db_instance.template account_growing_inode<
-        larger_inode<INode>::type::static_node_type>();
+    db_instance
+        .template account_growing_inode<INode::larger_derived_type::type>();
   }
 }
 
@@ -157,16 +137,16 @@ template <class INode>
 constexpr void db::increment_inode_count() noexcept {
   static_assert(detail::inode_defs::is_inode<INode>());
 
-  ++node_counts[as_i<INode::static_node_type>];
+  ++node_counts[as_i<INode::type>];
   increase_memory_use(sizeof(INode));
 }
 
 template <class INode>
 constexpr void db::decrement_inode_count() noexcept {
   static_assert(detail::inode_defs::is_inode<INode>());
-  assert(node_counts[as_i<INode::static_node_type>] > 0);
+  assert(node_counts[as_i<INode::type>] > 0);
 
-  --node_counts[as_i<INode::static_node_type>];
+  --node_counts[as_i<INode::type>];
   decrease_memory_use(sizeof(INode));
 }
 

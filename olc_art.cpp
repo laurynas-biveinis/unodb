@@ -184,7 +184,7 @@ struct olc_impl_helpers {
 
   template <class INode>
   [[nodiscard]] static std::optional<critical_section_protected<olc_node_ptr> *>
-  olc_inode_add_or_choose_subtree(
+  add_or_choose_subtree(
       INode &inode, std::byte key_byte, art_key k, value_view v,
       olc_db &db_instance, tree_depth depth,
       optimistic_lock::read_critical_section &node_critical_section,
@@ -194,6 +194,13 @@ struct olc_impl_helpers {
   RESTORE_GCC_10_WARNINGS()
 
   olc_impl_helpers() = delete;
+
+ private:
+  template <class INode>
+  static void grow_inode(
+      INode &inode, optimistic_lock::write_guard &&node_write_guard,
+      olc_db_leaf_unique_ptr &&leaf, olc_db &db_instance, tree_depth depth,
+      critical_section_protected<olc_node_ptr> *node_in_parent);
 };
 
 class olc_inode : public olc_inode_base {};
@@ -254,7 +261,7 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
       optimistic_lock::read_critical_section &node_critical_section,
       critical_section_protected<olc_node_ptr> *node_in_parent,
       optimistic_lock::read_critical_section &parent_critical_section) {
-    return olc_impl_helpers::olc_inode_add_or_choose_subtree(
+    return olc_impl_helpers::add_or_choose_subtree(
         *this, key_byte, k, v, db_instance, depth, node_critical_section,
         node_in_parent, parent_critical_section);
   }
@@ -337,7 +344,7 @@ class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
       optimistic_lock::read_critical_section &node_critical_section,
       critical_section_protected<olc_node_ptr> *node_in_parent,
       optimistic_lock::read_critical_section &parent_critical_section) {
-    return olc_impl_helpers::olc_inode_add_or_choose_subtree(
+    return olc_impl_helpers::add_or_choose_subtree(
         *this, key_byte, k, v, db_instance, depth, node_critical_section,
         node_in_parent, parent_critical_section);
   }
@@ -439,7 +446,7 @@ class olc_inode_48 final : public basic_inode_48<olc_art_policy> {
       optimistic_lock::read_critical_section &node_critical_section,
       critical_section_protected<olc_node_ptr> *node_in_parent,
       optimistic_lock::read_critical_section &parent_critical_section) {
-    return olc_impl_helpers::olc_inode_add_or_choose_subtree(
+    return olc_impl_helpers::add_or_choose_subtree(
         *this, key_byte, k, v, db_instance, depth, node_critical_section,
         node_in_parent, parent_critical_section);
   }
@@ -519,7 +526,7 @@ class olc_inode_256 final : public basic_inode_256<olc_art_policy> {
       optimistic_lock::read_critical_section &node_critical_section,
       critical_section_protected<olc_node_ptr> *node_in_parent,
       optimistic_lock::read_critical_section &parent_critical_section) {
-    return olc_impl_helpers::olc_inode_add_or_choose_subtree(
+    return olc_impl_helpers::add_or_choose_subtree(
         *this, key_byte, k, v, db_instance, depth, node_critical_section,
         node_in_parent, parent_critical_section);
   }
@@ -569,7 +576,7 @@ olc_inode_48::olc_inode_48(db_inode256_reclaimable_ptr &&source_node,
 
 template <class INode>
 [[nodiscard]] std::optional<critical_section_protected<olc_node_ptr> *>
-olc_impl_helpers::olc_inode_add_or_choose_subtree(
+olc_impl_helpers::add_or_choose_subtree(
     INode &inode, std::byte key_byte, art_key k, value_view v,
     olc_db &db_instance, tree_depth depth,
     optimistic_lock::read_critical_section &node_critical_section,
@@ -587,6 +594,8 @@ olc_impl_helpers::olc_inode_add_or_choose_subtree(
 
     if constexpr (!std::is_same_v<INode, olc_inode_256>) {
       if (unlikely(children_count == INode::capacity)) {
+        // TODO(laurynas): shorten the critical section by moving allocation
+        // before it?
         optimistic_lock::write_guard write_unlock_on_exit{
             std::move(parent_critical_section)};
         if (unlikely(write_unlock_on_exit.must_restart())) return {};
@@ -595,31 +604,8 @@ olc_impl_helpers::olc_inode_add_or_choose_subtree(
             std::move(node_critical_section)};
         if (unlikely(node_write_guard.must_restart())) return {};
 
-        // TODO(laurynas): shorten the critical section by moving allocation
-        // before it?
-        // TODO(laurynas): refactor if constexpr duplication below
-        if constexpr (std::is_same_v<INode, olc_inode_4>) {
-          auto current_node{make_db_inode_reclaimable_ptr(db_instance, &inode)};
-          auto larger_node = olc_inode_16::create(std::move(current_node),
-                                                  std::move(node_write_guard),
-                                                  std::move(leaf), depth);
-          *node_in_parent = larger_node.release();
-          db_instance.account_growing_inode<node_type::I16>();
-        } else if constexpr (std::is_same_v<INode, olc_inode_16>) {
-          auto current_node{make_db_inode_reclaimable_ptr(db_instance, &inode)};
-          auto larger_node = olc_inode_48::create(std::move(current_node),
-                                                  std::move(node_write_guard),
-                                                  std::move(leaf), depth);
-          *node_in_parent = larger_node.release();
-          db_instance.account_growing_inode<node_type::I48>();
-        } else {
-          auto current_node{make_db_inode_reclaimable_ptr(db_instance, &inode)};
-          auto larger_node = olc_inode_256::create(std::move(current_node),
-                                                   std::move(node_write_guard),
-                                                   std::move(leaf), depth);
-          *node_in_parent = larger_node.release();
-          db_instance.account_growing_inode<node_type::I256>();
-        }
+        grow_inode(inode, std::move(node_write_guard), std::move(leaf),
+                   db_instance, depth, node_in_parent);
 
         assert(!node_write_guard.active());
 
@@ -639,6 +625,19 @@ olc_impl_helpers::olc_inode_add_or_choose_subtree(
   return child_loc;
 }
 
+template <class INode>
+void olc_impl_helpers::grow_inode(
+    INode &inode, optimistic_lock::write_guard &&node_write_guard,
+    olc_db_leaf_unique_ptr &&leaf, olc_db &db_instance, tree_depth depth,
+    critical_section_protected<olc_node_ptr> *node_in_parent) {
+  auto current_node{make_db_inode_reclaimable_ptr(db_instance, &inode)};
+  auto larger_node{INode::larger_derived_type::create(
+      std::move(current_node), std::move(node_write_guard), std::move(leaf),
+      depth)};
+  *node_in_parent = larger_node.release();
+  db_instance.account_growing_inode<INode::larger_derived_type::type>();
+}
+
 }  // namespace unodb::detail
 
 namespace unodb {
@@ -648,8 +647,7 @@ constexpr void olc_db::decrement_inode_count() noexcept {
   static_assert(detail::olc_inode_defs::is_inode<INode>());
 
   const auto USED_IN_DEBUG old_inode_count =
-      node_counts[as_i<INode::static_node_type>].fetch_sub(
-          1, std::memory_order_relaxed);
+      node_counts[as_i<INode::type>].fetch_sub(1, std::memory_order_relaxed);
   assert(old_inode_count > 0);
 
   decrease_memory_use(sizeof(INode));

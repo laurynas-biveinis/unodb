@@ -197,8 +197,7 @@ class olc_db final {
   constexpr void increment_inode_count() noexcept {
     static_assert(detail::olc_inode_defs::is_inode<INode>());
 
-    node_counts[as_i<INode::static_node_type>].fetch_add(
-        1, std::memory_order_relaxed);
+    node_counts[as_i<INode::type>].fetch_add(1, std::memory_order_relaxed);
     increase_memory_use(sizeof(INode));
   }
 

@@ -20,18 +20,6 @@ namespace detail {
 
 struct node_header;
 
-template <class>
-class basic_inode_4;  // IWYU pragma: keep
-
-template <class>
-class basic_inode_16;  // IWYU pragma: keep
-
-template <class>
-class basic_inode_48;  // IWYU pragma: keep
-
-template <class>
-class basic_inode_256;  // IWYU pragma: keep
-
 template <class, template <class> class, class, template <class> class,
           template <class, class> class, template <class> class>
 struct basic_art_policy;  // IWYU pragma: keep
@@ -49,6 +37,8 @@ using node_ptr = basic_node_ptr<node_header, inode, inode_defs>;
 
 template <class Header, class Db>
 auto make_db_leaf_ptr(art_key, value_view, Db &);
+
+struct impl_helpers;
 
 }  // namespace detail
 
@@ -183,22 +173,7 @@ class db final {
   template <class, class, class, template <class> class>
   friend class detail::basic_db_inode_deleter;
 
-  template <class>
-  friend class detail::basic_inode_4;
-
-  template <class>
-  friend class detail::basic_inode_16;
-
-  template <class>
-  friend class detail::basic_inode_48;
-
-  template <class>
-  friend class detail::basic_inode_256;
-
-  friend class detail::inode_4;
-  friend class detail::inode_16;
-  friend class detail::inode_48;
-  friend class detail::inode_256;
+  friend struct detail::impl_helpers;
 };
 
 }  // namespace unodb

@@ -253,18 +253,6 @@ class olc_db final {
   template <class, class, class, template <class> class>
   friend class detail::basic_db_inode_deleter;
 
-  template <class>
-  friend class detail::basic_inode_4;
-
-  template <class>
-  friend class detail::basic_inode_16;
-
-  template <class>
-  friend class detail::basic_inode_48;
-
-  template <class>
-  friend class detail::basic_inode_256;
-
   friend struct detail::olc_impl_helpers;
 };
 

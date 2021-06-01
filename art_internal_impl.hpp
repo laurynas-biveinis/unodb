@@ -953,24 +953,6 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
     assert(source_node.is_min_size());
     assert(is_full_for_add());
   }
-
- private:
-  [[nodiscard]] auto *add_or_choose_subtree(std::byte key_byte, art_key k,
-                                            value_view v, db &db_instance,
-                                            tree_depth depth,
-                                            node_ptr *node_in_parent) {
-    auto *const child = reinterpret_cast<node_ptr *>(
-        static_cast<Derived *>(this)->find_child(key_byte).second);
-    if (child == nullptr) {
-      auto leaf = ArtPolicy::make_db_leaf_ptr(k, v, db_instance);
-      static_cast<Derived *>(this)->add(std::move(leaf), db_instance, depth,
-                                        node_in_parent);
-    }
-    return child;
-  }
-
-  template <class>
-  friend class basic_inode_impl;
 };
 
 template <class ArtPolicy>

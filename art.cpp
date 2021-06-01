@@ -41,10 +41,16 @@ using inode_base = unodb::detail::basic_inode_impl<art_policy>;
 namespace unodb::detail {
 
 struct impl_helpers {
+  // GCC 10 diagnoses parameters that are present only in uninstantiated if
+  // constexpr branch, such as node_in_parent for inode_256.
+  DISABLE_GCC_10_WARNING("-Wunused-parameter")
+
   template <class INode>
-  static void add(INode &inode, art_policy::db_leaf_unique_ptr &&child,
-                  db &db_instance, tree_depth depth,
-                  unodb::detail::node_ptr *node_in_parent);
+  [[nodiscard]] static detail::node_ptr *add_or_choose_subtree(
+      INode &inode, std::byte key_byte, art_key k, value_view v,
+      db &db_instance, tree_depth depth, detail::node_ptr *node_in_parent);
+
+  RESTORE_GCC_10_WARNINGS()
 
   impl_helpers() = delete;
 };
@@ -55,10 +61,11 @@ class inode_4 final : public basic_inode_4<art_policy> {
  public:
   using basic_inode_4::basic_inode_4;
 
-  void add(art_policy::db_leaf_unique_ptr &&child, db &db_instance,
-           tree_depth depth, unodb::detail::node_ptr *node_in_parent) noexcept {
-    impl_helpers::add<inode_4>(*this, std::move(child), db_instance, depth,
-                               node_in_parent);
+  [[nodiscard]] detail::node_ptr *add_or_choose_subtree(
+      std::byte key_byte, art_key k, value_view v, db &db_instance,
+      tree_depth depth, detail::node_ptr *node_in_parent) {
+    return impl_helpers::add_or_choose_subtree<inode_4>(
+        *this, key_byte, k, v, db_instance, depth, node_in_parent);
   }
 };
 
@@ -68,10 +75,11 @@ class inode_16 final : public basic_inode_16<art_policy> {
  public:
   using basic_inode_16::basic_inode_16;
 
-  void add(art_policy::db_leaf_unique_ptr &&child, db &db_instance,
-           tree_depth depth, unodb::detail::node_ptr *node_in_parent) noexcept {
-    impl_helpers::add<inode_16>(*this, std::move(child), db_instance, depth,
-                                node_in_parent);
+  [[nodiscard]] detail::node_ptr *add_or_choose_subtree(
+      std::byte key_byte, art_key k, value_view v, db &db_instance,
+      tree_depth depth, detail::node_ptr *node_in_parent) {
+    return impl_helpers::add_or_choose_subtree<inode_16>(
+        *this, key_byte, k, v, db_instance, depth, node_in_parent);
   }
 };
 
@@ -81,10 +89,11 @@ class inode_48 final : public basic_inode_48<art_policy> {
  public:
   using basic_inode_48::basic_inode_48;
 
-  void add(art_policy::db_leaf_unique_ptr &&child, db &db_instance,
-           tree_depth depth, unodb::detail::node_ptr *node_in_parent) noexcept {
-    impl_helpers::add<inode_48>(*this, std::move(child), db_instance, depth,
-                                node_in_parent);
+  [[nodiscard]] detail::node_ptr *add_or_choose_subtree(
+      std::byte key_byte, art_key k, value_view v, db &db_instance,
+      tree_depth depth, detail::node_ptr *node_in_parent) {
+    return impl_helpers::add_or_choose_subtree<inode_48>(
+        *this, key_byte, k, v, db_instance, depth, node_in_parent);
   }
 };
 
@@ -94,31 +103,41 @@ class inode_256 final : public basic_inode_256<art_policy> {
  public:
   using basic_inode_256::basic_inode_256;
 
-  void add(art_policy::db_leaf_unique_ptr &&child, db &, tree_depth depth,
-           unodb::detail::node_ptr *) noexcept {
-    add_to_nonfull(std::move(child), depth, this->f.f.children_count.load());
+  [[nodiscard]] detail::node_ptr *add_or_choose_subtree(
+      std::byte key_byte, art_key k, value_view v, db &db_instance,
+      tree_depth depth, detail::node_ptr *node_in_parent) {
+    return impl_helpers::add_or_choose_subtree<inode_256>(
+        *this, key_byte, k, v, db_instance, depth, node_in_parent);
   }
 };
 
 static_assert(sizeof(inode_256) == 2064);
 
 template <class INode>
-void impl_helpers::add(INode &inode, art_policy::db_leaf_unique_ptr &&child,
-                       db &db_instance, tree_depth depth,
-                       node_ptr *node_in_parent) {
-  const auto children_count = inode.get_children_count();
+detail::node_ptr *impl_helpers::add_or_choose_subtree(
+    INode &inode, std::byte key_byte, art_key k, value_view v, db &db_instance,
+    tree_depth depth, detail::node_ptr *node_in_parent) {
+  auto *const child = reinterpret_cast<node_ptr *>(
+      static_cast<INode &>(inode).find_child(key_byte).second);
+  if (child == nullptr) {
+    auto leaf = art_policy::make_db_leaf_ptr(k, v, db_instance);
+    const auto children_count = inode.get_children_count();
 
-  if (likely(children_count < INode::capacity)) {
-    inode.add_to_nonfull(std::move(child), depth, children_count);
-  } else {
-    auto current_node{
-        art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
-    auto larger_node{INode::larger_derived_type::create(
-        std::move(current_node), std::move(child), depth)};
-    *node_in_parent = node_ptr{larger_node.release()};
-    db_instance
-        .template account_growing_inode<INode::larger_derived_type::type>();
+    if constexpr (!std::is_same_v<INode, inode_256>) {
+      if (unlikely(children_count == INode::capacity)) {
+        auto current_node{
+          art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
+        auto larger_node{INode::larger_derived_type::create(
+            std::move(current_node), std::move(leaf), depth)};
+        *node_in_parent = node_ptr{larger_node.release()};
+        db_instance
+            .template account_growing_inode<INode::larger_derived_type::type>();
+        return child;
+      }
+    }
+    inode.add_to_nonfull(std::move(leaf), depth, children_count);
   }
+  return child;
 }
 
 }  // namespace unodb::detail

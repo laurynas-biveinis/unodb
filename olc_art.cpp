@@ -194,13 +194,6 @@ struct olc_impl_helpers {
   RESTORE_GCC_10_WARNINGS()
 
   olc_impl_helpers() = delete;
-
- private:
-  template <class INode>
-  static void grow_inode(
-      INode &inode, optimistic_lock::write_guard &&node_write_guard,
-      olc_db_leaf_unique_ptr &&leaf, olc_db &db_instance, tree_depth depth,
-      critical_section_protected<olc_node_ptr> *node_in_parent);
 };
 
 class olc_inode : public olc_inode_base {};
@@ -582,9 +575,9 @@ olc_impl_helpers::add_or_choose_subtree(
     optimistic_lock::read_critical_section &node_critical_section,
     critical_section_protected<olc_node_ptr> *node_in_parent,
     optimistic_lock::read_critical_section &parent_critical_section) {
-  auto *const child_loc = inode.find_child(key_byte).second;
+  auto *const child_in_parent = inode.find_child(key_byte).second;
 
-  if (child_loc == nullptr) {
+  if (child_in_parent == nullptr) {
     if (unlikely(!node_critical_section.check())) return {};
     if (unlikely(!parent_critical_section.check())) return {};
 
@@ -604,12 +597,16 @@ olc_impl_helpers::add_or_choose_subtree(
             std::move(node_critical_section)};
         if (unlikely(node_write_guard.must_restart())) return {};
 
-        grow_inode(inode, std::move(node_write_guard), std::move(leaf),
-                   db_instance, depth, node_in_parent);
+        auto current_node{make_db_inode_reclaimable_ptr(db_instance, &inode)};
+        auto larger_node{INode::larger_derived_type::create(
+            std::move(current_node), std::move(node_write_guard),
+            std::move(leaf), depth)};
+        *node_in_parent = larger_node.release();
+        db_instance.account_growing_inode<INode::larger_derived_type::type>();
 
         assert(!node_write_guard.active());
 
-        return child_loc;
+        return child_in_parent;
       }
     }
 
@@ -622,20 +619,7 @@ olc_impl_helpers::add_or_choose_subtree(
     inode.add_to_nonfull(std::move(leaf), depth, children_count);
   }
 
-  return child_loc;
-}
-
-template <class INode>
-void olc_impl_helpers::grow_inode(
-    INode &inode, optimistic_lock::write_guard &&node_write_guard,
-    olc_db_leaf_unique_ptr &&leaf, olc_db &db_instance, tree_depth depth,
-    critical_section_protected<olc_node_ptr> *node_in_parent) {
-  auto current_node{make_db_inode_reclaimable_ptr(db_instance, &inode)};
-  auto larger_node{INode::larger_derived_type::create(
-      std::move(current_node), std::move(node_write_guard), std::move(leaf),
-      depth)};
-  *node_in_parent = larger_node.release();
-  db_instance.account_growing_inode<INode::larger_derived_type::type>();
+  return child_in_parent;
 }
 
 }  // namespace unodb::detail
@@ -735,15 +719,15 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
 
     remaining_key.shift_right(key_prefix_length);
 
-    auto *const child_loc =
+    auto *const child_in_parent =
         node.internal->find_child(node_type, remaining_key[0]).second;
 
-    if (child_loc == nullptr) {
+    if (child_in_parent == nullptr) {
       if (unlikely(!node_critical_section.try_read_unlock())) return {};
       return std::make_optional<get_result>(std::nullopt);
     }
 
-    const auto child = child_loc->load();
+    const auto child = child_in_parent->load();
 
     if (unlikely(!node_critical_section.check())) return {};
 
@@ -860,17 +844,17 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
     if (unlikely(!add_result)) return {};
 
-    auto *const child_loc = *add_result;
-    if (child_loc == nullptr) return true;
+    auto *const child_in_parent = *add_result;
+    if (child_in_parent == nullptr) return true;
 
-    const auto child = child_loc->load();
+    const auto child = child_in_parent->load();
 
     if (unlikely(!node_critical_section.check())) return {};
     if (unlikely(!parent_critical_section.try_read_unlock())) return {};
 
     parent_critical_section = std::move(node_critical_section);
     node = child;
-    node_loc = child_loc;
+    node_loc = child_in_parent;
     ++depth;
     remaining_key.shift_right(1);
   }

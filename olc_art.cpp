@@ -950,20 +950,19 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
-    // FIXME(laurynas): child_loc, child_lock too similar
-    auto [child_i, child_loc] =
+    auto [child_i, child_in_parent] =
         node.internal->find_child(node_type, remaining_key[0]);
 
     const auto is_node_min_size = node.internal->is_min_size();
 
-    if (child_loc == nullptr) {
+    if (child_in_parent == nullptr) {
       if (unlikely(!parent_critical_section.try_read_unlock())) return {};
       if (unlikely(!node_critical_section.try_read_unlock())) return {};
 
       return false;
     }
 
-    auto child = child_loc->load();
+    auto child = child_in_parent->load();
 
     if (unlikely(!node_critical_section.check())) return {};
 
@@ -1062,7 +1061,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
 
     parent_critical_section = std::move(node_critical_section);
     node = child;
-    node_loc = child_loc;
+    node_loc = child_in_parent;
     node_critical_section = std::move(child_lock_critical_section);
     node_type = child_type;
 

@@ -551,7 +551,7 @@ class basic_inode_impl {
   // Only for unodb::detail use
   constexpr const auto &get_header() const noexcept { return f.header; }
 
-  // Only for OLC add. The rest should use is_full_for_add / is_min_size
+  // Only for unodb::detail use.
   constexpr auto get_children_count() const noexcept {
     return f.f.children_count.load();
   }
@@ -909,11 +909,15 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
                         alignment_for_new<Derived>());
   }
 
+#ifndef NDEBUG
+
   [[nodiscard]] constexpr bool is_full_for_add() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
 
     return this->f.f.children_count == capacity;
   }
+
+#endif
 
   [[nodiscard]] constexpr bool is_min_size() const noexcept {
     assert(reinterpret_cast<const node_header *>(this)->type() == NodeType);
@@ -1772,10 +1776,6 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     if (children[key_int_byte] != nullptr)
       return std::make_pair(key_int_byte, &children[key_int_byte]);
     return std::make_pair(0xFF, nullptr);
-  }
-
-  [[nodiscard]] constexpr bool is_full_for_add() const noexcept {
-    return false;  // A full-for-add Node256 does not exist
   }
 
   template <typename Function>

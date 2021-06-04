@@ -623,27 +623,28 @@ class basic_inode_impl {
     // LCOV_EXCL_STOP
   }
 
-  constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
-    assert(!is_min_size());
-
-    switch (f.header.type()) {
+  template <typename ReturnType, typename... Args>
+  [[nodiscard]] ReturnType remove_or_choose_subtree(node_type type,
+                                                    Args &&...args) {
+    switch (type) {
       case node_type::I4:
-        static_cast<inode4_type *>(this)->remove(child_index, db_instance);
-        break;
+        return static_cast<inode4_type *>(this)->remove_or_choose_subtree(
+            std::forward<Args>(args)...);
       case node_type::I16:
-        static_cast<inode16_type *>(this)->remove(child_index, db_instance);
-        break;
+        return static_cast<inode16_type *>(this)->remove_or_choose_subtree(
+            std::forward<Args>(args)...);
       case node_type::I48:
-        static_cast<inode48_type *>(this)->remove(child_index, db_instance);
-        break;
+        return static_cast<inode48_type *>(this)->remove_or_choose_subtree(
+            std::forward<Args>(args)...);
       case node_type::I256:
-        static_cast<inode256_type *>(this)->remove(child_index, db_instance);
-        break;
-        // LCOV_EXCL_START
+        return static_cast<inode256_type *>(this)->remove_or_choose_subtree(
+            std::forward<Args>(args)...);
       case node_type::LEAF:
+        // LCOV_EXCL_START
         CANNOT_HAPPEN();
-        // LCOV_EXCL_STOP
     }
+    CANNOT_HAPPEN();
+    // LCOV_EXCL_STOP
   }
 
   constexpr void delete_subtree(db &db_instance) noexcept {
@@ -682,24 +683,6 @@ class basic_inode_impl {
         return static_cast<inode48_type *>(this)->find_child(key_byte);
       case node_type::I256:
         return static_cast<inode256_type *>(this)->find_child(key_byte);
-        // LCOV_EXCL_START
-      case node_type::LEAF:
-        CANNOT_HAPPEN();
-    }
-    CANNOT_HAPPEN();
-    // LCOV_EXCL_STOP
-  }
-
-  [[nodiscard]] constexpr bool is_min_size() const noexcept {
-    switch (f.header.type()) {
-      case node_type::I4:
-        return static_cast<const inode4_type *>(this)->is_min_size();
-      case node_type::I16:
-        return static_cast<const inode16_type *>(this)->is_min_size();
-      case node_type::I48:
-        return static_cast<const inode48_type *>(this)->is_min_size();
-      case node_type::I256:
-        return static_cast<const inode256_type *>(this)->is_min_size();
         // LCOV_EXCL_START
       case node_type::LEAF:
         CANNOT_HAPPEN();

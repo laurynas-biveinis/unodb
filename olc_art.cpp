@@ -193,6 +193,16 @@ struct olc_impl_helpers {
 
   RESTORE_GCC_10_WARNINGS()
 
+  template <class INode>
+  [[nodiscard]] static std::optional<bool> remove_or_choose_subtree(
+      INode &inode, std::byte key_byte, detail::art_key k, olc_db &db_instance,
+      optimistic_lock::read_critical_section &parent_critical_section,
+      optimistic_lock::read_critical_section &node_critical_section,
+      critical_section_protected<olc_node_ptr> *node_in_parent,
+      critical_section_protected<olc_node_ptr> **child_in_parent,
+      optimistic_lock::read_critical_section *child_critical_section,
+      node_type *child_type, olc_node_ptr *child);
+
   olc_impl_helpers() = delete;
 };
 
@@ -248,15 +258,16 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
     return basic_inode_4::create(source_node, len, depth, std::move(child1));
   }
 
-  [[nodiscard]] auto add_or_choose_subtree(
-      std::byte key_byte, art_key k, value_view v, olc_db &db_instance,
-      tree_depth depth,
-      optimistic_lock::read_critical_section &node_critical_section,
-      critical_section_protected<olc_node_ptr> *node_in_parent,
-      optimistic_lock::read_critical_section &parent_critical_section) {
-    return olc_impl_helpers::add_or_choose_subtree(
-        *this, key_byte, k, v, db_instance, depth, node_critical_section,
-        node_in_parent, parent_critical_section);
+  template <typename... Args>
+  [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
+    return olc_impl_helpers::add_or_choose_subtree(*this,
+                                                   std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
+  [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
+    return olc_impl_helpers::remove_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
@@ -331,15 +342,16 @@ class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
       optimistic_lock::write_guard &&source_node_guard,
       std::uint8_t child_to_delete, optimistic_lock::write_guard &&child_guard);
 
-  [[nodiscard]] auto add_or_choose_subtree(
-      std::byte key_byte, art_key k, value_view v, olc_db &db_instance,
-      tree_depth depth,
-      optimistic_lock::read_critical_section &node_critical_section,
-      critical_section_protected<olc_node_ptr> *node_in_parent,
-      optimistic_lock::read_critical_section &parent_critical_section) {
-    return olc_impl_helpers::add_or_choose_subtree(
-        *this, key_byte, k, v, db_instance, depth, node_critical_section,
-        node_in_parent, parent_critical_section);
+  template <typename... Args>
+  [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
+    return olc_impl_helpers::add_or_choose_subtree(*this,
+                                                   std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
+  [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
+    return olc_impl_helpers::remove_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
@@ -433,15 +445,16 @@ class olc_inode_48 final : public basic_inode_48<olc_art_policy> {
       optimistic_lock::write_guard &&source_node_guard,
       std::uint8_t child_to_delete, optimistic_lock::write_guard &&child_guard);
 
-  [[nodiscard]] auto add_or_choose_subtree(
-      std::byte key_byte, art_key k, value_view v, olc_db &db_instance,
-      tree_depth depth,
-      optimistic_lock::read_critical_section &node_critical_section,
-      critical_section_protected<olc_node_ptr> *node_in_parent,
-      optimistic_lock::read_critical_section &parent_critical_section) {
-    return olc_impl_helpers::add_or_choose_subtree(
-        *this, key_byte, k, v, db_instance, depth, node_critical_section,
-        node_in_parent, parent_critical_section);
+  template <typename... Args>
+  [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
+    return olc_impl_helpers::add_or_choose_subtree(*this,
+                                                   std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
+  [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
+    return olc_impl_helpers::remove_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
@@ -513,15 +526,16 @@ class olc_inode_256 final : public basic_inode_256<olc_art_policy> {
         std::move(source_node_guard), std::move(child), depth);
   }
 
-  [[nodiscard]] auto add_or_choose_subtree(
-      std::byte key_byte, art_key k, value_view v, olc_db &db_instance,
-      tree_depth depth,
-      optimistic_lock::read_critical_section &node_critical_section,
-      critical_section_protected<olc_node_ptr> *node_in_parent,
-      optimistic_lock::read_critical_section &parent_critical_section) {
-    return olc_impl_helpers::add_or_choose_subtree(
-        *this, key_byte, k, v, db_instance, depth, node_critical_section,
-        node_in_parent, parent_critical_section);
+  template <typename... Args>
+  [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
+    return olc_impl_helpers::add_or_choose_subtree(*this,
+                                                   std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
+  [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
+    return olc_impl_helpers::remove_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
@@ -620,6 +634,102 @@ olc_impl_helpers::add_or_choose_subtree(
   }
 
   return child_in_parent;
+}
+
+template <class INode>
+[[nodiscard]] std::optional<bool> olc_impl_helpers::remove_or_choose_subtree(
+    INode &inode, std::byte key_byte, detail::art_key k, olc_db &db_instance,
+    optimistic_lock::read_critical_section &parent_critical_section,
+    optimistic_lock::read_critical_section &node_critical_section,
+    critical_section_protected<olc_node_ptr> *node_in_parent,
+    critical_section_protected<olc_node_ptr> **child_in_parent,
+    optimistic_lock::read_critical_section *child_critical_section,
+    node_type *child_type, olc_node_ptr *child) {
+  auto [child_i, found_child]{inode.find_child(key_byte)};
+
+  if (found_child == nullptr) {
+    if (unlikely(!parent_critical_section.try_read_unlock())) return {};
+    if (unlikely(!node_critical_section.try_read_unlock())) return {};
+
+    return false;
+  }
+
+  *child = found_child->load();
+
+  if (unlikely(!node_critical_section.check())) return {};
+
+  auto &child_lock{node_ptr_lock(*child)};
+  *child_critical_section = child_lock.try_read_lock();
+  if (unlikely(child_critical_section->must_restart())) return {};
+
+  *child_type = child->type();
+
+  if (*child_type != node_type::LEAF) {
+    *child_in_parent = found_child;
+    return true;
+  }
+
+  if (!leaf::matches(child->leaf, k)) {
+    if (unlikely(!parent_critical_section.try_read_unlock())) return {};
+    if (unlikely(!node_critical_section.try_read_unlock())) return {};
+    if (unlikely(!child_critical_section->try_read_unlock())) return {};
+
+    return false;
+  }
+
+  const auto is_node_min_size{inode.is_min_size()};
+
+  if (likely(!is_node_min_size)) {
+    // TODO(laurynas): decrease_memory_use outside the critical section
+    optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
+    if (unlikely(node_guard.must_restart())) return {};
+
+    optimistic_lock::write_guard child_guard{
+        std::move(*child_critical_section)};
+    if (unlikely(child_guard.must_restart())) return {};
+
+    child_guard.unlock_and_obsolete();
+
+    inode.remove(child_i, db_instance);
+
+    *child_in_parent = nullptr;
+    return true;
+  }
+
+  assert(is_node_min_size);
+
+  optimistic_lock::write_guard parent_guard{std::move(parent_critical_section)};
+  if (unlikely(parent_guard.must_restart())) return {};
+
+  optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
+  if (unlikely(node_guard.must_restart())) return {};
+
+  optimistic_lock::write_guard child_guard{std::move(*child_critical_section)};
+  if (unlikely(child_guard.must_restart())) {
+    // LCOV_EXCL_START
+    node_guard.unlock();
+    return {};
+    // LCOV_EXCL_STOP
+  }
+
+  auto current_node{make_db_inode_reclaimable_ptr(db_instance, &inode)};
+  if constexpr (std::is_same_v<INode, olc_inode_4>) {
+    node_guard.unlock_and_obsolete();
+    child_guard.unlock_and_obsolete();
+    *node_in_parent = current_node->leave_last_child(child_i, db_instance);
+  } else {
+    auto new_node{INode::smaller_derived_type::create(
+        std::move(current_node), std::move(node_guard), child_i,
+        std::move(child_guard))};
+    *node_in_parent = new_node.release();
+  }
+  db_instance.template account_shrinking_inode<INode::type>();
+
+  assert(!node_guard.active());
+  assert(!child_guard.active());
+
+  *child_in_parent = nullptr;
+  return true;
 }
 
 }  // namespace unodb::detail
@@ -753,7 +863,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (unlikely(parent_critical_section.must_restart())) return {};
 
-  auto *node_loc{&root};
+  auto *node_in_parent{&root};
   auto node{root.load()};
 
   if (unlikely(!parent_critical_section.check())) return {};
@@ -800,7 +910,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       // contents, to enable replacing parent write unlock with parent unlock
       auto new_node = detail::olc_inode_4::create(existing_key, remaining_key,
                                                   depth, node, std::move(leaf));
-      *node_loc = new_node.release();
+      *node_in_parent = new_node.release();
       account_growing_inode<node_type::I4>();
       return true;
     }
@@ -826,7 +936,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
       auto new_node = detail::olc_inode_4::create(node, shared_prefix_length,
                                                   depth, std::move(leaf));
-      *node_loc = new_node.release();
+      *node_in_parent = new_node.release();
       account_growing_inode<node_type::I4>();
       key_prefix_splits.fetch_add(1, std::memory_order_relaxed);
       return true;
@@ -840,7 +950,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     const auto add_result = node.internal->add_or_choose_subtree<
         std::optional<critical_section_protected<detail::olc_node_ptr> *>>(
         node_type, remaining_key[0], k, v, *this, depth, node_critical_section,
-        node_loc, parent_critical_section);
+        node_in_parent, parent_critical_section);
 
     if (unlikely(!add_result)) return {};
 
@@ -854,7 +964,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
     parent_critical_section = std::move(node_critical_section);
     node = child;
-    node_loc = child_in_parent;
+    node_in_parent = child_in_parent;
     ++depth;
     remaining_key.shift_right(1);
   }
@@ -875,7 +985,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (unlikely(parent_critical_section.must_restart())) return {};
 
-  auto *node_loc{&root};
+  auto *node_in_parent{&root};
   auto node{root.load()};
 
   if (unlikely(!parent_critical_section.check())) return {};
@@ -934,119 +1044,28 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
-    auto [child_i, child_in_parent] =
-        node.internal->find_child(node_type, remaining_key[0]);
+    critical_section_protected<detail::olc_node_ptr> *child_in_parent;
+    enum node_type child_type;
+    detail::olc_node_ptr child;
+    optimistic_lock::read_critical_section child_critical_section;
 
-    const auto is_node_min_size = node.internal->is_min_size();
+    const auto opt_remove_result{
+        node.internal->remove_or_choose_subtree<std::optional<bool>>(
+            node_type, remaining_key[0], k, *this, parent_critical_section,
+            node_critical_section, node_in_parent, &child_in_parent,
+            &child_critical_section, &child_type, &child)};
 
-    if (child_in_parent == nullptr) {
-      if (unlikely(!parent_critical_section.try_read_unlock())) return {};
-      if (unlikely(!node_critical_section.try_read_unlock())) return {};
+    if (unlikely(!opt_remove_result)) return {};
 
-      return false;
-    }
+    const auto remove_result{*opt_remove_result};
 
-    auto child = child_in_parent->load();
-
-    if (unlikely(!node_critical_section.check())) return {};
-
-    auto &child_lock = node_ptr_lock(child);
-    auto child_lock_critical_section = child_lock.try_read_lock();
-    if (unlikely(child_lock_critical_section.must_restart())) return {};
-
-    const auto child_type = child.type();
-
-    if (child_type == node_type::LEAF) {
-      if (!leaf::matches(child.leaf, k)) {
-        if (unlikely(!parent_critical_section.try_read_unlock())) return {};
-        if (unlikely(!node_critical_section.try_read_unlock())) return {};
-        if (unlikely(!child_lock_critical_section.try_read_unlock())) return {};
-
-        return false;
-      }
-
-      if (likely(!is_node_min_size)) {
-        // TODO(laurynas): decrease_memory_use outside the critical section
-        optimistic_lock::write_guard node_guard{
-            std::move(node_critical_section)};
-        if (unlikely(node_guard.must_restart())) return {};
-
-        optimistic_lock::write_guard child_guard{
-            std::move(child_lock_critical_section)};
-        if (unlikely(child_guard.must_restart())) return {};
-
-        child_guard.unlock_and_obsolete();
-
-        node.internal->remove(child_i, *this);
-
-        return true;
-      }
-
-      assert(is_node_min_size);
-
-      optimistic_lock::write_guard parent_guard{
-          std::move(parent_critical_section)};
-      if (unlikely(parent_guard.must_restart())) return {};
-
-      optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
-      if (unlikely(node_guard.must_restart())) return {};
-
-      optimistic_lock::write_guard child_guard{
-          std::move(child_lock_critical_section)};
-      if (unlikely(child_guard.must_restart())) {
-        // LCOV_EXCL_START
-        node_guard.unlock();
-        return {};
-        // LCOV_EXCL_STOP
-      }
-
-      // TODO(laurynas): exception safety, OOM specifically
-      if (node_type == node_type::I4) {
-        node_guard.unlock_and_obsolete();
-        child_guard.unlock_and_obsolete();
-        auto current_node{make_db_inode_reclaimable_ptr(*this, node.node_4)};
-        *node_loc = current_node->leave_last_child(child_i, *this);
-        account_shrinking_inode<node_type::I4>();
-
-      } else if (node_type == node_type::I16) {
-        auto current_node{make_db_inode_reclaimable_ptr(*this, node.node_16)};
-        auto new_node{detail::olc_inode_4::create(
-            std::move(current_node), std::move(node_guard), child_i,
-            std::move(child_guard))};
-        *node_loc = new_node.release();
-        account_shrinking_inode<node_type::I16>();
-
-      } else if (node_type == node_type::I48) {
-        auto current_node{make_db_inode_reclaimable_ptr(*this, node.node_48)};
-        auto new_node{detail::olc_inode_16::create(
-            std::move(current_node), std::move(node_guard), child_i,
-            std::move(child_guard))};
-        *node_loc = new_node.release();
-        account_shrinking_inode<node_type::I48>();
-
-      } else {
-        assert(node_type == node_type::I256);
-
-        auto current_node{make_db_inode_reclaimable_ptr(*this, node.node_256)};
-        auto new_node{detail::olc_inode_48::create(
-            std::move(current_node), std::move(node_guard), child_i,
-            std::move(child_guard))};
-        *node_loc = new_node.release();
-        account_shrinking_inode<node_type::I256>();
-      }
-
-      assert(!node_guard.active());
-      assert(!child_guard.active());
-
-      return true;
-    }
-
-    assert(child_type != node_type::LEAF);
+    if (unlikely(!remove_result)) return false;
+    if (child_in_parent == nullptr) return true;
 
     parent_critical_section = std::move(node_critical_section);
     node = child;
-    node_loc = child_in_parent;
-    node_critical_section = std::move(child_lock_critical_section);
+    node_in_parent = child_in_parent;
+    node_critical_section = std::move(child_critical_section);
     node_type = child_type;
 
     ++depth;

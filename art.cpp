@@ -36,6 +36,8 @@ using art_policy = unodb::detail::basic_art_policy<
 
 using inode_base = unodb::detail::basic_inode_impl<art_policy>;
 
+using leaf = unodb::detail::basic_leaf<unodb::detail::node_header>;
+
 }  // namespace
 
 namespace unodb::detail {
@@ -52,6 +54,11 @@ struct impl_helpers {
 
   RESTORE_GCC_10_WARNINGS()
 
+  template <class INode>
+  [[nodiscard]] static std::optional<detail::node_ptr *>
+  remove_or_choose_subtree(INode &inode, std::byte key_byte, detail::art_key k,
+                           db &db_instance, detail::node_ptr *node_in_parent);
+
   impl_helpers() = delete;
 };
 
@@ -61,11 +68,16 @@ class inode_4 final : public basic_inode_4<art_policy> {
  public:
   using basic_inode_4::basic_inode_4;
 
-  [[nodiscard]] detail::node_ptr *add_or_choose_subtree(
-      std::byte key_byte, art_key k, value_view v, db &db_instance,
-      tree_depth depth, detail::node_ptr *node_in_parent) {
-    return impl_helpers::add_or_choose_subtree<inode_4>(
-        *this, key_byte, k, v, db_instance, depth, node_in_parent);
+  template <typename... Args>
+  [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
+    return impl_helpers::add_or_choose_subtree(*this,
+                                               std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
+  [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
+    return impl_helpers::remove_or_choose_subtree(*this,
+                                                  std::forward<Args>(args)...);
   }
 };
 
@@ -75,11 +87,16 @@ class inode_16 final : public basic_inode_16<art_policy> {
  public:
   using basic_inode_16::basic_inode_16;
 
-  [[nodiscard]] detail::node_ptr *add_or_choose_subtree(
-      std::byte key_byte, art_key k, value_view v, db &db_instance,
-      tree_depth depth, detail::node_ptr *node_in_parent) {
-    return impl_helpers::add_or_choose_subtree<inode_16>(
-        *this, key_byte, k, v, db_instance, depth, node_in_parent);
+  template <typename... Args>
+  [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
+    return impl_helpers::add_or_choose_subtree(*this,
+                                               std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
+  [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
+    return impl_helpers::remove_or_choose_subtree(*this,
+                                                  std::forward<Args>(args)...);
   }
 };
 
@@ -89,11 +106,16 @@ class inode_48 final : public basic_inode_48<art_policy> {
  public:
   using basic_inode_48::basic_inode_48;
 
-  [[nodiscard]] detail::node_ptr *add_or_choose_subtree(
-      std::byte key_byte, art_key k, value_view v, db &db_instance,
-      tree_depth depth, detail::node_ptr *node_in_parent) {
-    return impl_helpers::add_or_choose_subtree<inode_48>(
-        *this, key_byte, k, v, db_instance, depth, node_in_parent);
+  template <typename... Args>
+  [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
+    return impl_helpers::add_or_choose_subtree(*this,
+                                               std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
+  [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
+    return impl_helpers::remove_or_choose_subtree(*this,
+                                                  std::forward<Args>(args)...);
   }
 };
 
@@ -103,11 +125,16 @@ class inode_256 final : public basic_inode_256<art_policy> {
  public:
   using basic_inode_256::basic_inode_256;
 
-  [[nodiscard]] detail::node_ptr *add_or_choose_subtree(
-      std::byte key_byte, art_key k, value_view v, db &db_instance,
-      tree_depth depth, detail::node_ptr *node_in_parent) {
-    return impl_helpers::add_or_choose_subtree<inode_256>(
-        *this, key_byte, k, v, db_instance, depth, node_in_parent);
+  template <typename... Args>
+  [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
+    return impl_helpers::add_or_choose_subtree(*this,
+                                               std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
+  [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
+    return impl_helpers::remove_or_choose_subtree(*this,
+                                                  std::forward<Args>(args)...);
   }
 };
 
@@ -126,7 +153,7 @@ detail::node_ptr *impl_helpers::add_or_choose_subtree(
     if constexpr (!std::is_same_v<INode, inode_256>) {
       if (unlikely(children_count == INode::capacity)) {
         auto current_node{
-          art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
+            art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
         auto larger_node{INode::larger_derived_type::create(
             std::move(current_node), std::move(leaf), depth)};
         *node_in_parent = node_ptr{larger_node.release()};
@@ -140,13 +167,39 @@ detail::node_ptr *impl_helpers::add_or_choose_subtree(
   return child;
 }
 
+template <class INode>
+std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
+    INode &inode, std::byte key_byte, detail::art_key k, db &db_instance,
+    detail::node_ptr *node_in_parent) {
+  const auto [child_i, child_ptr]{inode.find_child(key_byte)};
+
+  if (child_ptr == nullptr) return {};
+
+  const auto child_ptr_val{child_ptr->load()};
+  if (child_ptr_val.type() != node_type::LEAF)
+    return reinterpret_cast<detail::node_ptr *>(child_ptr);
+
+  if (!leaf::matches(child_ptr_val.leaf, k)) return {};
+
+  if (unlikely(inode.is_min_size())) {
+    auto current_node{
+        art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
+    if constexpr (std::is_same_v<INode, inode_4>) {
+      *node_in_parent = current_node->leave_last_child(child_i, db_instance);
+    } else {
+      auto new_node{INode::smaller_derived_type::create(std::move(current_node),
+                                                        child_i)};
+      *node_in_parent = detail::node_ptr{new_node.release()};
+    }
+    db_instance.template account_shrinking_inode<INode::type>();
+    return nullptr;
+  }
+
+  inode.remove(child_i, db_instance);
+  return nullptr;
+}
+
 }  // namespace unodb::detail
-
-namespace {
-
-using leaf = unodb::detail::basic_leaf<unodb::detail::node_header>;
-
-}  // namespace
 
 namespace unodb {
 
@@ -314,59 +367,16 @@ bool db::remove(key remove_key) {
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
-    const auto [child_i, child_ptr] =
-        node->internal->find_child(node_type, remaining_key[0]);
+    const auto remove_result{
+        node->internal
+            ->remove_or_choose_subtree<std::optional<detail::node_ptr *>>(
+                node_type, remaining_key[0], k, *this, node)};
+    if (unlikely(!remove_result)) return false;
 
-    if (child_ptr == nullptr) return false;
+    auto *const child_ptr{*remove_result};
+    if (child_ptr == nullptr) return true;
 
-    if (child_ptr->load().type() == node_type::LEAF) {
-      if (!leaf::matches(child_ptr->load().leaf, k)) return false;
-
-      const auto is_node_min_size = node->internal->is_min_size();
-
-      if (likely(!is_node_min_size)) {
-        node->internal->remove(child_i, *this);
-        return true;
-      }
-
-      assert(is_node_min_size);
-
-      if (node_type == node_type::I4) {
-        auto current_node{
-            art_policy::make_db_inode_unique_ptr(*this, node->node_4)};
-        *node = current_node->leave_last_child(child_i, *this);
-        account_shrinking_inode<node_type::I4>();
-
-      } else if (node_type == node_type::I16) {
-        auto current_node{
-            art_policy::make_db_inode_unique_ptr(*this, node->node_16)};
-        auto new_node{
-            detail::inode_4::create(std::move(current_node), child_i)};
-        *node = detail::node_ptr{new_node.release()};
-        account_shrinking_inode<node_type::I16>();
-
-      } else if (node_type == node_type::I48) {
-        auto current_node{
-            art_policy::make_db_inode_unique_ptr(*this, node->node_48)};
-        auto new_node{
-            detail::inode_16::create(std::move(current_node), child_i)};
-        *node = detail::node_ptr{new_node.release()};
-        account_shrinking_inode<node_type::I48>();
-
-      } else {
-        assert(node_type == node_type::I256);
-        auto current_node{
-            art_policy::make_db_inode_unique_ptr(*this, node->node_256)};
-        auto new_node{
-            detail::inode_48::create(std::move(current_node), child_i)};
-        *node = detail::node_ptr{new_node.release()};
-        account_shrinking_inode<node_type::I256>();
-      }
-
-      return true;
-    }
-
-    node = reinterpret_cast<detail::node_ptr *>(child_ptr);
+    node = child_ptr;
     ++depth;
     remaining_key.shift_right(1);
   }

@@ -64,8 +64,6 @@ class optimistic_lock final {
         : lock{&lock_}, version{version_} {}
 
     read_critical_section &operator=(read_critical_section &&other) noexcept {
-      assert(other.lock != nullptr);
-
       lock = other.lock;
       other.lock = nullptr;
       version = other.version;

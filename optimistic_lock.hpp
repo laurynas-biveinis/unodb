@@ -166,7 +166,7 @@ class optimistic_lock final {
 #ifndef NDEBUG
   [[nodiscard]] bool is_obsoleted_by_this_thread() const noexcept {
     return is_obsolete(version.load(std::memory_order_acquire)) &&
-        std::this_thread::get_id() == obsoleter_thread;
+           std::this_thread::get_id() == obsoleter_thread;
   }
 
   [[nodiscard]] bool is_write_locked() const noexcept {
@@ -290,31 +290,30 @@ static_assert(sizeof(optimistic_lock) == 24);
 #endif
 
 template <typename T>
-class critical_section_protected final {
+class in_critical_section final {
  public:
-  constexpr critical_section_protected() noexcept = default;
+  constexpr in_critical_section() noexcept = default;
 
-  explicit constexpr critical_section_protected(T value_) noexcept
-      : value{value_} {}
+  explicit constexpr in_critical_section(T value_) noexcept : value{value_} {}
 
-  critical_section_protected(const critical_section_protected<T> &) = delete;
-  critical_section_protected(critical_section_protected<T> &&) = delete;
+  in_critical_section(const in_critical_section<T> &) = delete;
+  in_critical_section(in_critical_section<T> &&) = delete;
 
-  ~critical_section_protected() noexcept = default;
+  ~in_critical_section() noexcept = default;
 
-  critical_section_protected<T> &operator=(T new_value) noexcept {
+  in_critical_section<T> &operator=(T new_value) noexcept {
     store(new_value);
     return *this;
   }
 
   // NOLINTNEXTLINE(cert-oop54-cpp)
-  critical_section_protected<T> &operator=(
-      const critical_section_protected<T> &new_value) noexcept {
+  in_critical_section<T> &operator=(
+      const in_critical_section<T> &new_value) noexcept {
     store(new_value.load());
     return *this;
   }
 
-  void operator=(critical_section_protected<T> &&) = delete;
+  void operator=(in_critical_section<T> &&) = delete;
 
   void operator++() noexcept { store(load() + 1); }
 

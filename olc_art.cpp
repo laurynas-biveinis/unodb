@@ -130,9 +130,9 @@ template <class INode>
 }
 
 using olc_art_policy = unodb::detail::basic_art_policy<
-    unodb::olc_db, unodb::critical_section_protected,
-    unodb::detail::olc_node_ptr, unodb::detail::db_inode_qsbr_deleter,
-    unodb::detail::db_leaf_qsbr_deleter, inode_pool_getter>;
+    unodb::olc_db, unodb::in_critical_section, unodb::detail::olc_node_ptr,
+    unodb::detail::db_inode_qsbr_deleter, unodb::detail::db_leaf_qsbr_deleter,
+    inode_pool_getter>;
 
 using olc_db_leaf_unique_ptr = olc_art_policy::db_leaf_unique_ptr;
 
@@ -183,12 +183,12 @@ struct olc_impl_helpers {
   DISABLE_GCC_10_WARNING("-Wunused-parameter")
 
   template <class INode>
-  [[nodiscard]] static std::optional<critical_section_protected<olc_node_ptr> *>
+  [[nodiscard]] static std::optional<in_critical_section<olc_node_ptr> *>
   add_or_choose_subtree(
       INode &inode, std::byte key_byte, art_key k, value_view v,
       olc_db &db_instance, tree_depth depth,
       optimistic_lock::read_critical_section &node_critical_section,
-      critical_section_protected<olc_node_ptr> *node_in_parent,
+      in_critical_section<olc_node_ptr> *node_in_parent,
       optimistic_lock::read_critical_section &parent_critical_section);
 
   RESTORE_GCC_10_WARNINGS()
@@ -198,8 +198,8 @@ struct olc_impl_helpers {
       INode &inode, std::byte key_byte, detail::art_key k, olc_db &db_instance,
       optimistic_lock::read_critical_section &parent_critical_section,
       optimistic_lock::read_critical_section &node_critical_section,
-      critical_section_protected<olc_node_ptr> *node_in_parent,
-      critical_section_protected<olc_node_ptr> **child_in_parent,
+      in_critical_section<olc_node_ptr> *node_in_parent,
+      in_critical_section<olc_node_ptr> **child_in_parent,
       optimistic_lock::read_critical_section *child_critical_section,
       node_type *child_type, olc_node_ptr *child);
 
@@ -582,12 +582,12 @@ olc_inode_48::olc_inode_48(db_inode256_reclaimable_ptr &&source_node,
 }
 
 template <class INode>
-[[nodiscard]] std::optional<critical_section_protected<olc_node_ptr> *>
+[[nodiscard]] std::optional<in_critical_section<olc_node_ptr> *>
 olc_impl_helpers::add_or_choose_subtree(
     INode &inode, std::byte key_byte, art_key k, value_view v,
     olc_db &db_instance, tree_depth depth,
     optimistic_lock::read_critical_section &node_critical_section,
-    critical_section_protected<olc_node_ptr> *node_in_parent,
+    in_critical_section<olc_node_ptr> *node_in_parent,
     optimistic_lock::read_critical_section &parent_critical_section) {
   auto *const child_in_parent = inode.find_child(key_byte).second;
 
@@ -641,8 +641,8 @@ template <class INode>
     INode &inode, std::byte key_byte, detail::art_key k, olc_db &db_instance,
     optimistic_lock::read_critical_section &parent_critical_section,
     optimistic_lock::read_critical_section &node_critical_section,
-    critical_section_protected<olc_node_ptr> *node_in_parent,
-    critical_section_protected<olc_node_ptr> **child_in_parent,
+    in_critical_section<olc_node_ptr> *node_in_parent,
+    in_critical_section<olc_node_ptr> **child_in_parent,
     optimistic_lock::read_critical_section *child_critical_section,
     node_type *child_type, olc_node_ptr *child) {
   auto [child_i, found_child]{inode.find_child(key_byte)};
@@ -948,7 +948,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     remaining_key.shift_right(key_prefix_length);
 
     const auto add_result = node.internal->add_or_choose_subtree<
-        std::optional<critical_section_protected<detail::olc_node_ptr> *>>(
+        std::optional<in_critical_section<detail::olc_node_ptr> *>>(
         node_type, remaining_key[0], k, v, *this, depth, node_critical_section,
         node_in_parent, parent_critical_section);
 
@@ -1044,7 +1044,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
-    critical_section_protected<detail::olc_node_ptr> *child_in_parent;
+    in_critical_section<detail::olc_node_ptr> *child_in_parent;
     enum node_type child_type;
     detail::olc_node_ptr child;
     optimistic_lock::read_critical_section child_critical_section;

@@ -212,7 +212,7 @@ class olc_db final {
 
   mutable optimistic_lock root_pointer_lock;
 
-  critical_section_protected<detail::olc_node_ptr> root{nullptr};
+  in_critical_section<detail::olc_node_ptr> root{nullptr};
 
   // Current logically allocated memory that is not scheduled to be reclaimed.
   // The total memory currently allocated is this plus the QSBR deallocation

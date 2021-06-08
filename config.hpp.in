@@ -1,7 +1,7 @@
-// Copyright 2019 Laurynas Biveinis
-#ifndef UNODB_CONFIG_HPP_
-#define UNODB_CONFIG_HPP_
+// Copyright 2019-2021 Laurynas Biveinis
+#ifndef UNODB_DETAIL_CONFIG_HPP
+#define UNODB_DETAIL_CONFIG_HPP
 
-#cmakedefine DEBUG
+#cmakedefine UNODB_DETAIL_DEBUG
 
-#endif  // UNODB_CONFIG_HPP_
+#endif  // UNODB_DETAIL_CONFIG_HPP

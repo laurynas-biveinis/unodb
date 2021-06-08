@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef UNODB_DB_TEST_UTILS_HPP_
-#define UNODB_DB_TEST_UTILS_HPP_
+#ifndef UNODB_DETAIL_DB_TEST_UTILS_HPP
+#define UNODB_DETAIL_DB_TEST_UTILS_HPP
 
 #include "global.hpp"
 
@@ -48,7 +48,7 @@ namespace detail {
 
 // warning: 'ScopedTrace' was marked unused but was used
 // [-Wused-but-marked-unused]
-DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
+UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
 
 template <class Db>
 void assert_value_eq(const typename Db::get_result &result,
@@ -85,7 +85,7 @@ void do_assert_result_eq(const Db &db, unodb::key key,
   assert_value_eq<Db>(result, expected);
 }
 
-RESTORE_CLANG_WARNINGS()
+UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
 template <class Db>
 void assert_result_eq(const Db &db, unodb::key key, unodb::value_view expected,
@@ -348,4 +348,4 @@ using olc_tree_verifier = tree_verifier<unodb::olc_db>;
 
 }  // namespace unodb::test
 
-#endif  // UNODB_DB_TEST_UTILS_HPP_
+#endif  // UNODB_DETAIL_DB_TEST_UTILS_HPP

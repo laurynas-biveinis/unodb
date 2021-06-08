@@ -1,6 +1,6 @@
 // Copyright (C) 2019-2021 Laurynas Biveinis
-#ifndef UNODB_QSBR_HPP_
-#define UNODB_QSBR_HPP_
+#ifndef UNODB_DETAIL_QSBR_HPP
+#define UNODB_DETAIL_QSBR_HPP
 
 #include "global.hpp"
 
@@ -118,7 +118,7 @@ class qsbr final {
     bool deallocate_immediately = false;
     {
       std::lock_guard<std::mutex> guard{qsbr_mutex};
-      if (unlikely(single_thread_mode_locked())) {
+      if (UNODB_DETAIL_UNLIKELY(single_thread_mode_locked())) {
         deallocate_immediately = true;
       } else {
         // TODO(laurynas): out of critical section?
@@ -475,4 +475,4 @@ class qsbr_thread : public std::thread {
 
 }  // namespace unodb
 
-#endif  // UNODB_QSBR_HPP_
+#endif  // UNODB_DETAIL_QSBR_HPP

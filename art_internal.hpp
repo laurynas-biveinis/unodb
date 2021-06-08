@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef UNODB_ART_INTERNAL_HPP_
-#define UNODB_ART_INTERNAL_HPP_
+#ifndef UNODB_DETAIL_ART_INTERNAL_HPP
+#define UNODB_DETAIL_ART_INTERNAL_HPP
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -234,4 +234,4 @@ union basic_node_ptr {
 
 }  // namespace unodb::detail
 
-#endif  // UNODB_ART_INTERNAL_HPP_
+#endif  // UNODB_DETAIL_ART_INTERNAL_HPP

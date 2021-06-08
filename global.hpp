@@ -1,10 +1,10 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef UNODB_GLOBAL_HPP_
-#define UNODB_GLOBAL_HPP_
+#ifndef UNODB_DETAIL_GLOBAL_HPP
+#define UNODB_DETAIL_GLOBAL_HPP
 
 #include "config.hpp"
 
-#ifdef DEBUG
+#ifdef UNODB_DETAIL_DEBUG
 #ifndef __clang__
 
 #ifndef _GLIBCXX_DEBUG
@@ -17,13 +17,13 @@
 
 #endif  // #ifndef __clang__
 
-#else  // #ifdef DEBUG
+#else  // #ifdef UNODB_DETAIL_DEBUG
 
 #ifndef NDEBUG
 #define NDEBUG
 #endif
 
-#endif  // #ifdef DEBUG
+#endif  // #ifdef UNODB_DETAIL_DEBUG
 
 #if defined(__has_feature) && !defined(__clang__)
 #if __has_feature(address_sanitizer)
@@ -35,74 +35,75 @@
 
 #if defined(__has_feature)
 #if __has_feature(thread_sanitizer)
-#define UNODB_THREAD_SANITIZER 1
+#define UNODB_DETAIL_THREAD_SANITIZER 1
 #endif
 #elif defined(__SANITIZE_THREAD__)
-#define UNODB_THREAD_SANITIZER 1
+#define UNODB_DETAIL_THREAD_SANITIZER 1
 #endif
 
-#define DO_PRAGMA(x) _Pragma(#x)
+#define UNODB_DETAIL_DO_PRAGMA(x) _Pragma(#x)
 
-#define DISABLE_WARNING(x) \
-  _Pragma("GCC diagnostic push") DO_PRAGMA(GCC diagnostic ignored x)
+#define UNODB_DETAIL_DISABLE_WARNING(x) \
+  _Pragma("GCC diagnostic push")        \
+      UNODB_DETAIL_DO_PRAGMA(GCC diagnostic ignored x)
 
-#define RESTORE_WARNINGS(x) _Pragma("GCC diagnostic pop")
+#define UNODB_DETAIL_RESTORE_WARNINGS(x) _Pragma("GCC diagnostic pop")
 
 #ifdef __clang__
-#define DISABLE_CLANG_WARNING(x) DISABLE_WARNING(x)
-#define RESTORE_CLANG_WARNINGS() RESTORE_WARNINGS()
+#define UNODB_DETAIL_DISABLE_CLANG_WARNING(x) UNODB_DETAIL_DISABLE_WARNING(x)
+#define UNODB_DETAIL_RESTORE_CLANG_WARNINGS() UNODB_DETAIL_RESTORE_WARNINGS()
 #else
-#define DISABLE_CLANG_WARNING(x)
-#define RESTORE_CLANG_WARNINGS()
+#define UNODB_DETAIL_DISABLE_CLANG_WARNING(x)
+#define UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 #endif
 
 #if defined(__GNUG__) && !defined(__clang__)
-#define DISABLE_GCC_WARNING(x) DISABLE_WARNING(x)
-#define RESTORE_GCC_WARNINGS() RESTORE_WARNINGS()
+#define UNODB_DETAIL_DISABLE_GCC_WARNING(x) UNODB_DETAIL_DISABLE_WARNING(x)
+#define UNODB_DETAIL_RESTORE_GCC_WARNINGS() UNODB_DETAIL_RESTORE_WARNINGS()
 #if __GNUG__ == 10
-#define DISABLE_GCC_10_WARNING(x) DISABLE_WARNING(x)
-#define RESTORE_GCC_10_WARNINGS() RESTORE_WARNINGS()
+#define UNODB_DETAIL_DISABLE_GCC_10_WARNING(x) UNODB_DETAIL_DISABLE_WARNING(x)
+#define UNODB_DETAIL_RESTORE_GCC_10_WARNINGS() UNODB_DETAIL_RESTORE_WARNINGS()
 #else  // __GNUG__ == 10
-#define DISABLE_GCC_10_WARNING(x)
-#define RESTORE_GCC_10_WARNINGS()
+#define UNODB_DETAIL_DISABLE_GCC_10_WARNING(x)
+#define UNODB_DETAIL_RESTORE_GCC_10_WARNINGS()
 #endif  // __GNUG__ == 10
 #if __GNUG__ >= 11
-#define DISABLE_GCC_11_WARNING(x) DISABLE_WARNING(x)
-#define RESTORE_GCC_11_WARNINGS() RESTORE_WARNINGS()
+#define UNODB_DETAIL_DISABLE_GCC_11_WARNING(x) UNODB_DETAIL_DISABLE_WARNING(x)
+#define UNODB_DETAIL_RESTORE_GCC_11_WARNINGS() UNODB_DETAIL_RESTORE_WARNINGS()
 #else  // __GNUG__ >= 11
-#define DISABLE_GCC_11_WARNING(x)
-#define RESTORE_GCC_11_WARNINGS()
+#define UNODB_DETAIL_DISABLE_GCC_11_WARNING(x)
+#define UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
 #endif  // __GNUG__ >= 11
 #else   // defined(__GNUG__) && !defined(__clang__)
-#define DISABLE_GCC_WARNING(x)
-#define RESTORE_GCC_WARNINGS()
-#define DISABLE_GCC_10_WARNING(x)
-#define RESTORE_GCC_10_WARNINGS()
-#define DISABLE_GCC_11_WARNING(x)
-#define RESTORE_GCC_11_WARNINGS()
+#define UNODB_DETAIL_DISABLE_GCC_WARNING(x)
+#define UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+#define UNODB_DETAIL_DISABLE_GCC_10_WARNING(x)
+#define UNODB_DETAIL_RESTORE_GCC_10_WARNINGS()
+#define UNODB_DETAIL_DISABLE_GCC_11_WARNING(x)
+#define UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
 #endif  // defined(__GNUG__) && !defined(__clang__)
 
-#define likely(x) __builtin_expect(x, 1)
-#define unlikely(x) __builtin_expect(x, 0)
+#define UNODB_DETAIL_LIKELY(x) __builtin_expect(x, 1)
+#define UNODB_DETAIL_UNLIKELY(x) __builtin_expect(x, 0)
 
 #ifdef NDEBUG
 // Cannot do [[gnu::unused]], as that does not play well with structured
 // bindings when compiling with GCC.
-#define USED_IN_DEBUG __attribute__((unused))
+#define UNODB_DETAIL_USED_IN_DEBUG __attribute__((unused))
 #else
-#define USED_IN_DEBUG
+#define UNODB_DETAIL_USED_IN_DEBUG
 #endif
 
 #ifdef NDEBUG
-#define RELEASE_CONSTEXPR constexpr
-#define RELEASE_CONST const
+#define UNODB_DETAIL_RELEASE_CONSTEXPR constexpr
+#define UNODB_DETAIL_RELEASE_CONST const
 #else
-#define RELEASE_CONSTEXPR
-#define RELEASE_CONST
+#define UNODB_DETAIL_RELEASE_CONSTEXPR
+#define UNODB_DETAIL_RELEASE_CONST
 #endif
 
 #if defined(__GNUG__) && !defined(__clang__)
-#define USE_STD_PMR
+#define UNODB_DETAIL_USE_STD_PMR
 #endif
 
 #ifndef NDEBUG
@@ -113,9 +114,10 @@
 // LCOV_EXCL_START
 namespace unodb::detail {
 
-[[noreturn]] inline void cannot_happen(const char *file USED_IN_DEBUG,
-                                       int line USED_IN_DEBUG,
-                                       const char *func USED_IN_DEBUG) {
+[[noreturn]] inline void cannot_happen(
+    const char *file UNODB_DETAIL_USED_IN_DEBUG,
+    int line UNODB_DETAIL_USED_IN_DEBUG,
+    const char *func UNODB_DETAIL_USED_IN_DEBUG) {
 #ifndef NDEBUG
   std::cerr << "Execution reached an unreachable point at " << file << ':'
             << line << ": " << func << '\n';
@@ -127,7 +129,7 @@ namespace unodb::detail {
 
 }  // namespace unodb::detail
 
-#define CANNOT_HAPPEN() \
+#define UNODB_DETAIL_CANNOT_HAPPEN() \
   unodb::detail::cannot_happen(__FILE__, __LINE__, __func__)
 
-#endif  // UNODB_GLOBAL_HPP_
+#endif  // UNODB_DETAIL_GLOBAL_HPP

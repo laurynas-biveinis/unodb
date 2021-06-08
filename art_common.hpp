@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef UNODB_ART_COMMON_HPP_
-#define UNODB_ART_COMMON_HPP_
+#ifndef UNODB_DETAIL_ART_COMMON_HPP
+#define UNODB_DETAIL_ART_COMMON_HPP
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -27,4 +27,4 @@ using value_view = gsl::span<const std::byte>;
 
 }  // namespace unodb
 
-#endif  // UNODB_ART_COMMON_HPP_
+#endif  // UNODB_DETAIL_ART_COMMON_HPP

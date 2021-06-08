@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef UNODB_OLC_ART_HPP_
-#define UNODB_OLC_ART_HPP_
+#ifndef UNODB_DETAIL_OLC_ART_HPP
+#define UNODB_DETAIL_OLC_ART_HPP
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -187,7 +187,7 @@ class olc_db final {
   void decrement_leaf_count(std::size_t leaf_size) noexcept {
     decrease_memory_use(leaf_size);
 
-    const auto USED_IN_DEBUG old_leaf_count =
+    const auto UNODB_DETAIL_USED_IN_DEBUG old_leaf_count =
         node_counts[as_i<node_type::LEAF>].fetch_sub(1,
                                                      std::memory_order_relaxed);
     assert(old_leaf_count > 0);
@@ -257,4 +257,4 @@ class olc_db final {
 
 }  // namespace unodb
 
-#endif  // UNODB_OLC_ART_HPP_
+#endif  // UNODB_DETAIL_OLC_ART_HPP

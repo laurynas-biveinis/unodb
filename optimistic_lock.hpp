@@ -1,6 +1,6 @@
 // Copyright (C) 2019-2021 Laurynas Biveinis
-#ifndef OPTIMISTIC_LOCK_HPP_
-#define OPTIMISTIC_LOCK_HPP_
+#ifndef UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
+#define UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
 
 #include "global.hpp"
 
@@ -71,7 +71,7 @@ class optimistic_lock final {
       return *this;
     }
 
-    [[nodiscard]] bool try_read_unlock() RELEASE_CONST noexcept {
+    [[nodiscard]] bool try_read_unlock() UNODB_DETAIL_RELEASE_CONST noexcept {
       const auto result = lock->try_read_unlock(version);
 #ifndef NDEBUG
       lock = nullptr;
@@ -79,10 +79,10 @@ class optimistic_lock final {
       return result;
     }
 
-    [[nodiscard]] bool check() RELEASE_CONST noexcept {
+    [[nodiscard]] bool check() UNODB_DETAIL_RELEASE_CONST noexcept {
       const auto result = lock->check(version);
 #ifndef NDEBUG
-      if (unlikely(!result)) lock = nullptr;
+      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;
 #endif
       return result;
     }
@@ -108,11 +108,11 @@ class optimistic_lock final {
       critical_section.lock = nullptr;
       const auto result =
           lock->try_upgrade_to_write_lock(critical_section.version);
-      if (unlikely(!result)) lock = nullptr;
+      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;
     }
 
     ~write_guard() {
-      if (likely(lock == nullptr)) return;
+      if (UNODB_DETAIL_LIKELY(lock == nullptr)) return;
       lock->write_unlock();
     }
 
@@ -158,7 +158,8 @@ class optimistic_lock final {
 
   [[nodiscard]] read_critical_section try_read_lock() noexcept {
     const auto current_version = await_node_unlocked();
-    if (unlikely(is_obsolete(current_version))) return read_critical_section{};
+    if (UNODB_DETAIL_UNLIKELY(is_obsolete(current_version)))
+      return read_critical_section{};  // LCOV_EXCL_LINE
     inc_read_lock_count();
     return read_critical_section{*this, current_version};
   }
@@ -190,7 +191,7 @@ class optimistic_lock final {
     assert(read_lock_count.load(std::memory_order_relaxed) > 0);
 
     std::atomic_thread_fence(std::memory_order_acquire);
-    return likely(locked_version == version.load());
+    return UNODB_DETAIL_LIKELY(locked_version == version.load());
   }
 
   [[nodiscard]] bool try_read_unlock(
@@ -202,7 +203,7 @@ class optimistic_lock final {
 
   [[nodiscard]] bool try_upgrade_to_write_lock(
       version_type locked_version) noexcept {
-    const auto result{likely(version.compare_exchange_strong(
+    const auto result{UNODB_DETAIL_LIKELY(version.compare_exchange_strong(
         locked_version, set_locked_bit(locked_version),
         std::memory_order_acquire))};
     dec_read_lock_count();
@@ -232,7 +233,7 @@ class optimistic_lock final {
   [[nodiscard]] version_type await_node_unlocked() const noexcept {
     version_type current_version = version.load(std::memory_order_acquire);
     while (is_write_locked(current_version)) {
-#ifdef UNODB_THREAD_SANITIZER
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
       std::this_thread::yield();
 #elif defined(__x86_64)
       // Dear reader, please don't make fun of this just yet
@@ -356,4 +357,4 @@ class in_critical_section final {
 
 }  // namespace unodb
 
-#endif  // OPTIMISTIC_LOCK_HPP_
+#endif  // UNODB_DETAIL_OPTIMISTIC_LOCK_HPP

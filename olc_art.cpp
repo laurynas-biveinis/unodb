@@ -43,7 +43,7 @@ struct olc_node_header final {
 };
 
 // LCOV_EXCL_START
-DISABLE_WARNING("-Wunused-function")
+UNODB_DETAIL_DISABLE_WARNING("-Wunused-function")
 static void olc_node_header_static_asserts() {
 #ifdef NDEBUG
   static_assert(sizeof(olc_node_header) == 16);
@@ -53,7 +53,7 @@ static void olc_node_header_static_asserts() {
   static_assert(std::is_standard_layout_v<olc_node_header>);
   static_assert(offsetof(olc_node_header, m_lock) == 8);
 }
-RESTORE_WARNINGS()
+UNODB_DETAIL_RESTORE_WARNINGS()
 // LCOV_EXCL_STOP
 
 template <class Header, class Db>
@@ -180,7 +180,7 @@ namespace unodb::detail {
 struct olc_impl_helpers {
   // GCC 10 diagnoses parameters that are present only in uninstantiated if
   // constexpr branch, such as node_in_parent for olc_inode_256.
-  DISABLE_GCC_10_WARNING("-Wunused-parameter")
+  UNODB_DETAIL_DISABLE_GCC_10_WARNING("-Wunused-parameter")
 
   template <class INode>
   [[nodiscard]] static std::optional<in_critical_section<olc_node_ptr> *>
@@ -191,7 +191,7 @@ struct olc_impl_helpers {
       in_critical_section<olc_node_ptr> *node_in_parent,
       optimistic_lock::read_critical_section &parent_critical_section);
 
-  RESTORE_GCC_10_WARNINGS()
+  UNODB_DETAIL_RESTORE_GCC_10_WARNINGS()
 
   template <class INode>
   [[nodiscard]] static std::optional<bool> remove_or_choose_subtree(
@@ -361,7 +361,7 @@ class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
   }
 
   [[nodiscard]] find_result find_child(std::byte key_byte) noexcept {
-#ifdef UNODB_THREAD_SANITIZER
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
     const auto children_count_copy = this->f.f.children_count.load();
     for (unsigned i = 0; i < children_count_copy; ++i)
       if (keys.byte_array[i] == key_byte)
@@ -592,24 +592,25 @@ olc_impl_helpers::add_or_choose_subtree(
   auto *const child_in_parent = inode.find_child(key_byte).second;
 
   if (child_in_parent == nullptr) {
-    if (unlikely(!node_critical_section.check())) return {};
-    if (unlikely(!parent_critical_section.check())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
 
     auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, db_instance)};
 
     const auto children_count = inode.get_children_count();
 
     if constexpr (!std::is_same_v<INode, olc_inode_256>) {
-      if (unlikely(children_count == INode::capacity)) {
+      if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
         // TODO(laurynas): shorten the critical section by moving allocation
         // before it?
         optimistic_lock::write_guard write_unlock_on_exit{
             std::move(parent_critical_section)};
-        if (unlikely(write_unlock_on_exit.must_restart())) return {};
+        if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart()))
+          return {};  // LCOV_EXCL_LINE
 
         optimistic_lock::write_guard node_write_guard{
             std::move(node_critical_section)};
-        if (unlikely(node_write_guard.must_restart())) return {};
+        if (UNODB_DETAIL_UNLIKELY(node_write_guard.must_restart())) return {};
 
         auto current_node{make_db_inode_reclaimable_ptr(db_instance, &inode)};
         auto larger_node{INode::larger_derived_type::create(
@@ -626,9 +627,10 @@ olc_impl_helpers::add_or_choose_subtree(
 
     optimistic_lock::write_guard write_unlock_on_exit{
         std::move(node_critical_section)};
-    if (unlikely(write_unlock_on_exit.must_restart())) return {};
+    if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) return {};
 
-    if (unlikely(!parent_critical_section.try_read_unlock())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
 
     inode.add_to_nonfull(std::move(leaf), depth, children_count);
   }
@@ -648,19 +650,21 @@ template <class INode>
   auto [child_i, found_child]{inode.find_child(key_byte)};
 
   if (found_child == nullptr) {
-    if (unlikely(!parent_critical_section.try_read_unlock())) return {};
-    if (unlikely(!node_critical_section.try_read_unlock())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
 
     return false;
   }
 
   *child = found_child->load();
 
-  if (unlikely(!node_critical_section.check())) return {};
+  if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
   auto &child_lock{node_ptr_lock(*child)};
   *child_critical_section = child_lock.try_read_lock();
-  if (unlikely(child_critical_section->must_restart())) return {};
+  if (UNODB_DETAIL_UNLIKELY(child_critical_section->must_restart())) return {};
 
   *child_type = child->type();
 
@@ -670,23 +674,26 @@ template <class INode>
   }
 
   if (!leaf::matches(child->leaf, k)) {
-    if (unlikely(!parent_critical_section.try_read_unlock())) return {};
-    if (unlikely(!node_critical_section.try_read_unlock())) return {};
-    if (unlikely(!child_critical_section->try_read_unlock())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
+    if (UNODB_DETAIL_UNLIKELY(!child_critical_section->try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
 
     return false;
   }
 
   const auto is_node_min_size{inode.is_min_size()};
 
-  if (likely(!is_node_min_size)) {
+  if (UNODB_DETAIL_LIKELY(!is_node_min_size)) {
     // TODO(laurynas): decrease_memory_use outside the critical section
     optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
-    if (unlikely(node_guard.must_restart())) return {};
+    if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
     optimistic_lock::write_guard child_guard{
         std::move(*child_critical_section)};
-    if (unlikely(child_guard.must_restart())) return {};
+    if (UNODB_DETAIL_UNLIKELY(child_guard.must_restart())) return {};
 
     child_guard.unlock_and_obsolete();
 
@@ -699,13 +706,13 @@ template <class INode>
   assert(is_node_min_size);
 
   optimistic_lock::write_guard parent_guard{std::move(parent_critical_section)};
-  if (unlikely(parent_guard.must_restart())) return {};
+  if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
   optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
-  if (unlikely(node_guard.must_restart())) return {};
+  if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
   optimistic_lock::write_guard child_guard{std::move(*child_critical_section)};
-  if (unlikely(child_guard.must_restart())) {
+  if (UNODB_DETAIL_UNLIKELY(child_guard.must_restart())) {
     // LCOV_EXCL_START
     node_guard.unlock();
     return {};
@@ -740,7 +747,7 @@ template <class INode>
 constexpr void olc_db::decrement_inode_count() noexcept {
   static_assert(detail::olc_inode_defs::is_inode<INode>());
 
-  const auto USED_IN_DEBUG old_inode_count =
+  const auto UNODB_DETAIL_USED_IN_DEBUG old_inode_count =
       node_counts[as_i<INode::type>].fetch_sub(1, std::memory_order_relaxed);
   assert(old_inode_count > 0);
 
@@ -783,14 +790,15 @@ olc_db::get_result olc_db::get(key search_key) const noexcept {
 
 olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
-  if (unlikely(parent_critical_section.must_restart())) return {};
+  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) return {};
 
   auto node{root.load()};
 
-  if (unlikely(!parent_critical_section.check())) return {};
+  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
 
-  if (unlikely(node.header == nullptr)) {
-    if (unlikely(!parent_critical_section.try_read_unlock())) return {};
+  if (UNODB_DETAIL_UNLIKELY(node.header == nullptr)) {
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
     return std::make_optional<get_result>(std::nullopt);
   }
 
@@ -798,19 +806,22 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
 
   while (true) {
     auto node_critical_section = node_ptr_lock(node).try_read_lock();
-    if (unlikely(node_critical_section.must_restart())) return {};
+    if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) return {};
 
-    if (unlikely(!parent_critical_section.try_read_unlock())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
 
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
       if (leaf::matches(node.leaf, k)) {
         const auto value = leaf::value(node.leaf);
-        if (unlikely(!node_critical_section.try_read_unlock())) return {};
+        if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+          return {};  // LCOV_EXCL_LINE
         return qsbr_ptr_span<const std::byte>{value};
       }
-      if (unlikely(!node_critical_section.try_read_unlock())) return {};
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+        return {};  // LCOV_EXCL_LINE
       return std::make_optional<get_result>(std::nullopt);
     }
 
@@ -819,11 +830,12 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
         node.internal->get_shared_key_prefix_length(remaining_key);
 
     if (shared_key_prefix_length < key_prefix_length) {
-      if (unlikely(!node_critical_section.try_read_unlock())) return {};
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+        return {};  // LCOV_EXCL_LINE
       return std::make_optional<get_result>(std::nullopt);
     }
 
-    if (unlikely(!node_critical_section.check())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
     assert(shared_key_prefix_length == key_prefix_length);
 
@@ -833,13 +845,14 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
         node.internal->find_child(node_type, remaining_key[0]).second;
 
     if (child_in_parent == nullptr) {
-      if (unlikely(!node_critical_section.try_read_unlock())) return {};
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+        return {};  // LCOV_EXCL_LINE
       return std::make_optional<get_result>(std::nullopt);
     }
 
     const auto child = child_in_parent->load();
 
-    if (unlikely(!node_critical_section.check())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
     parent_critical_section = std::move(node_critical_section);
     node = child;
@@ -861,19 +874,19 @@ bool olc_db::insert(key insert_key, value_view v) {
 olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
                                                   value_view v) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
-  if (unlikely(parent_critical_section.must_restart())) return {};
+  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) return {};
 
   auto *node_in_parent{&root};
   auto node{root.load()};
 
-  if (unlikely(!parent_critical_section.check())) return {};
+  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
 
-  if (unlikely(node.header == nullptr)) {
+  if (UNODB_DETAIL_UNLIKELY(node.header == nullptr)) {
     auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
     optimistic_lock::write_guard write_unlock_on_exit{
         std::move(parent_critical_section)};
-    if (unlikely(write_unlock_on_exit.must_restart())) return {};
+    if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) return {};
 
     root = leaf.release();
     return true;
@@ -884,15 +897,17 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
   while (true) {
     auto node_critical_section = node_ptr_lock(node).try_read_lock();
-    if (unlikely(node_critical_section.must_restart())) return {};
+    if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) return {};
 
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
       const auto existing_key = leaf::key(node.leaf);
-      if (unlikely(k == existing_key)) {
-        if (unlikely(!parent_critical_section.try_read_unlock())) return {};
-        if (unlikely(!node_critical_section.try_read_unlock())) return {};
+      if (UNODB_DETAIL_UNLIKELY(k == existing_key)) {
+        if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+          return {};  // LCOV_EXCL_LINE
+        if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+          return {};  // LCOV_EXCL_LINE
 
         return false;
       }
@@ -901,10 +916,10 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
       optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
-      if (unlikely(parent_guard.must_restart())) return {};
+      if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
       optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
-      if (unlikely(node_guard.must_restart())) return {};
+      if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
       // TODO(laurynas): consider creating new lower version and replacing
       // contents, to enable replacing parent write unlock with parent unlock
@@ -922,17 +937,17 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     const auto shared_prefix_length =
         node.internal->get_shared_key_prefix_length(remaining_key);
 
-    if (unlikely(!node_critical_section.check())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
     if (shared_prefix_length < key_prefix_length) {
       auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
       optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
-      if (unlikely(parent_guard.must_restart())) return {};
+      if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
       optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
-      if (unlikely(node_guard.must_restart())) return {};
+      if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
       auto new_node = detail::olc_inode_4::create(node, shared_prefix_length,
                                                   depth, std::move(leaf));
@@ -952,15 +967,16 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
         node_type, remaining_key[0], k, v, *this, depth, node_critical_section,
         node_in_parent, parent_critical_section);
 
-    if (unlikely(!add_result)) return {};
+    if (UNODB_DETAIL_UNLIKELY(!add_result)) return {};
 
     auto *const child_in_parent = *add_result;
     if (child_in_parent == nullptr) return true;
 
     const auto child = child_in_parent->load();
 
-    if (unlikely(!node_critical_section.check())) return {};
-    if (unlikely(!parent_critical_section.try_read_unlock())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
 
     parent_critical_section = std::move(node_critical_section);
     node = child;
@@ -983,30 +999,30 @@ bool olc_db::remove(key remove_key) {
 
 olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
-  if (unlikely(parent_critical_section.must_restart())) return {};
+  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) return {};
 
   auto *node_in_parent{&root};
   auto node{root.load()};
 
-  if (unlikely(!parent_critical_section.check())) return {};
+  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
 
-  if (unlikely(node == nullptr)) return false;
+  if (UNODB_DETAIL_UNLIKELY(node == nullptr)) return false;
 
   auto node_critical_section = node_ptr_lock(node).try_read_lock();
-  if (unlikely(node_critical_section.must_restart())) return {};
+  if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) return {};
 
   auto node_type = node.type();
 
-  if (unlikely(!node_critical_section.check())) return {};
+  if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
   if (node_type == node_type::LEAF) {
     if (leaf::matches(node.leaf, k)) {
       optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
-      if (unlikely(parent_guard.must_restart())) return {};
+      if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
       optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
-      if (unlikely(node_guard.must_restart())) return {};
+      if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
       node_guard.unlock_and_obsolete();
 
@@ -1015,7 +1031,8 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
       return true;
     }
 
-    if (unlikely(!node_critical_section.try_read_unlock())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
 
     return false;
   }
@@ -1032,13 +1049,15 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
         node.internal->get_shared_key_prefix_length(remaining_key);
 
     if (shared_prefix_length < key_prefix_length) {
-      if (unlikely(!parent_critical_section.try_read_unlock())) return {};
-      if (unlikely(!node_critical_section.try_read_unlock())) return {};
+      if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+        return {};  // LCOV_EXCL_LINE
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+        return {};  // LCOV_EXCL_LINE
 
       return false;
     }
 
-    if (unlikely(!node_critical_section.check())) return {};
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
     assert(shared_prefix_length == key_prefix_length);
     depth += key_prefix_length;
@@ -1055,11 +1074,11 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
             node_critical_section, node_in_parent, &child_in_parent,
             &child_critical_section, &child_type, &child)};
 
-    if (unlikely(!opt_remove_result)) return {};
+    if (UNODB_DETAIL_UNLIKELY(!opt_remove_result)) return {};
 
     const auto remove_result{*opt_remove_result};
 
-    if (unlikely(!remove_result)) return false;
+    if (UNODB_DETAIL_UNLIKELY(!remove_result)) return false;
     if (child_in_parent == nullptr) return true;
 
     parent_critical_section = std::move(node_critical_section);
@@ -1097,7 +1116,7 @@ void olc_db::clear() {
   node_counts[as_i<node_type::I256>].store(0, std::memory_order_relaxed);
 }
 
-DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
+UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
 void olc_db::increase_memory_use(std::size_t delta) {
   if (delta == 0) return;
@@ -1105,7 +1124,7 @@ void olc_db::increase_memory_use(std::size_t delta) {
   current_memory_use.fetch_add(delta, std::memory_order_relaxed);
 }
 
-RESTORE_GCC_WARNINGS()
+UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 void olc_db::decrease_memory_use(std::size_t delta) noexcept {
   if (delta == 0) return;

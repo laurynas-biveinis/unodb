@@ -2,4 +2,4 @@
 Language: Cpp
 BasedOnStyle: Google
 IncludeBlocks: Preserve
-StatementAttributeLikeMacros: [USED_IN_DEBUG, RELEASE_CONSTEXPR]
+StatementAttributeLikeMacros: [UNODB_DETAIL_USED_IN_DEBUG, UNODB_DETAIL_RELEASE_CONSTEXPR]

@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef MICRO_BENCHMARK_NODE_UTILS_HPP_
-#define MICRO_BENCHMARK_NODE_UTILS_HPP_
+#ifndef UNODB_DETAIL_MICRO_BENCHMARK_NODE_UTILS_HPP
+#define UNODB_DETAIL_MICRO_BENCHMARK_NODE_UTILS_HPP
 
 #include "global.hpp"
 
@@ -274,7 +274,7 @@ std::vector<unodb::key> generate_random_keys_over_full_smaller_tree(
       }
     }
   }
-  CANNOT_HAPPEN();
+  UNODB_DETAIL_CANNOT_HAPPEN();
 }
 
 }  // namespace detail
@@ -377,7 +377,8 @@ inline void set_size_counter(::benchmark::State &state,
 // Asserts
 
 template <class Db, node_type DominatingINodeType>
-void assert_dominating_inode_tree(const Db &test_db USED_IN_DEBUG) noexcept {
+void assert_dominating_inode_tree(
+    const Db &test_db UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   static_assert(DominatingINodeType != node_type::LEAF);
   const auto node_counts{test_db.get_node_counts()};
@@ -407,8 +408,9 @@ void assert_dominating_inode_size_tree(const Db &test_db) noexcept {
 
 template <class Db, unsigned SmallerNodeSize>
 void assert_growing_nodes(
-    const Db &test_db USED_IN_DEBUG,
-    std::uint64_t expected_number_of_nodes USED_IN_DEBUG) noexcept {
+    const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
+    std::uint64_t
+        expected_number_of_nodes UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   constexpr auto larger_node_type =
       node_size_to_larger_node_type<SmallerNodeSize>();
@@ -424,8 +426,9 @@ void assert_growing_nodes(
 
 template <class Db, unsigned SmallerNodeSize>
 void assert_shrinking_nodes(
-    const Db &test_db USED_IN_DEBUG,
-    std::uint64_t expected_number_of_nodes USED_IN_DEBUG) noexcept {
+    const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
+    std::uint64_t
+        expected_number_of_nodes UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   constexpr auto larger_node_type =
       node_size_to_larger_node_type<SmallerNodeSize>();
@@ -440,7 +443,7 @@ template <class Db>
 class tree_shape_snapshot final {
  public:
   explicit constexpr tree_shape_snapshot(
-      const Db &test_db USED_IN_DEBUG) noexcept
+      const Db &test_db UNODB_DETAIL_USED_IN_DEBUG) noexcept
 #ifndef NDEBUG
       : db{test_db}, stats {
     test_db
@@ -620,7 +623,7 @@ void full_node_scan_benchmark(::benchmark::State &state) {
   std::int64_t items_processed{0};
 
   if constexpr (detail::node_size_has_key_zero_bits<NodeSize>()) {
-    const auto key_limit USED_IN_DEBUG =
+    const auto key_limit UNODB_DETAIL_USED_IN_DEBUG =
         detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
     for (auto _ : state) {
       unodb::key k = 0;
@@ -969,7 +972,7 @@ template <class Db, unsigned NodeSize>
 void minimal_tree_random_gets(::benchmark::State &state) {
   const auto node_count = static_cast<unsigned>(state.range(0));
   Db test_db;
-  const auto key_limit USED_IN_DEBUG =
+  const auto key_limit UNODB_DETAIL_USED_IN_DEBUG =
       detail::make_minimal_node_size_tree<Db, NodeSize>(test_db, node_count);
   assert(detail::number_to_minimal_node_size_tree_key<NodeSize>(
              node_count * detail::node_capacity_to_minimum_size<NodeSize>() -
@@ -1059,4 +1062,4 @@ void random_delete_benchmark(::benchmark::State &state) {
 
 }  // namespace unodb::benchmark
 
-#endif  // MICRO_BENCHMARK_NODE_UTILS_HPP_
+#endif  // UNODB_DETAIL_MICRO_BENCHMARK_NODE_UTILS_HPP

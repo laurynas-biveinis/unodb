@@ -1,6 +1,6 @@
 // Copyright 2020-2021 Laurynas Biveinis
-#ifndef UNODB_MICRO_BENCHMARK_CONCURRENCY_HPP_
-#define UNODB_MICRO_BENCHMARK_CONCURRENCY_HPP_
+#ifndef UNODB_DETAIL_MICRO_BENCHMARK_CONCURRENCY_HPP
+#define UNODB_DETAIL_MICRO_BENCHMARK_CONCURRENCY_HPP
 
 #include "global.hpp"
 
@@ -44,13 +44,13 @@ constexpr auto to_counter(T value) {
 template <class Db, class Thread>
 class concurrent_benchmark {
  protected:
-  DISABLE_GCC_WARNING("-Wsuggest-final-methods")
+  UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-final-methods")
   virtual void setup() {}
 
   virtual void end_workload_in_main_thread() {}
 
   virtual void teardown() {}
-  RESTORE_GCC_WARNINGS()
+  UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
  public:
   concurrent_benchmark() noexcept = default;
@@ -172,4 +172,4 @@ class concurrent_benchmark {
 
 }  // namespace unodb::benchmark
 
-#endif
+#endif  // UNODB_DETAIL_MICRO_BENCHMARK_CONCURRENCY_HPP

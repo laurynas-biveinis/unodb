@@ -1,16 +1,16 @@
 // Copyright 2020-2021 Laurynas Biveinis
-#ifndef UNODB_HEAP_HPP_
-#define UNODB_HEAP_HPP_
+#ifndef UNODB_DETAIL_HEAP_HPP
+#define UNODB_DETAIL_HEAP_HPP
 
 #include "global.hpp"
 
 #include <algorithm>
 #include <cassert>
-#ifdef USE_STD_PMR
+#ifdef UNODB_DETAIL_USE_STD_PMR
 #include <memory_resource>
 #endif
 
-#ifndef USE_STD_PMR
+#ifndef UNODB_DETAIL_USE_STD_PMR
 #include <boost/container/pmr/global_resource.hpp>
 #include <boost/container/pmr/memory_resource.hpp>
 #include <boost/container/pmr/synchronized_pool_resource.hpp>
@@ -43,7 +43,7 @@
 
 namespace unodb::detail {
 
-#ifdef USE_STD_PMR
+#ifdef UNODB_DETAIL_USE_STD_PMR
 
 using pmr_pool = std::pmr::memory_resource;
 using pmr_pool_options = std::pmr::pool_options;
@@ -79,7 +79,7 @@ pmr_allocate(pmr_pool &pool, std::size_t size,
 
   auto *const result = pool.allocate(size, alignment);
 
-#if defined(VALGRIND_CLIENT_REQUESTS) && !defined(USE_STD_PMR)
+#if defined(VALGRIND_CLIENT_REQUESTS) && !defined(UNODB_DETAIL_USE_STD_PMR)
   if (!pool.is_equal(*pmr_new_delete_resource())) {
     VALGRIND_MALLOCLIKE_BLOCK(result, size, 0, 0);
   }
@@ -95,7 +95,7 @@ inline void pmr_deallocate(
   assert(alignment >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
 
   ASAN_POISON_MEMORY_REGION(pointer, size);
-#if defined(VALGRIND_CLIENT_REQUESTS) && !defined(USE_STD_PMR)
+#if defined(VALGRIND_CLIENT_REQUESTS) && !defined(UNODB_DETAIL_USE_STD_PMR)
   if (!pool.is_equal(*pmr_new_delete_resource())) {
     VALGRIND_FREELIKE_BLOCK(pointer, 0);
     VALGRIND_MAKE_MEM_UNDEFINED(pointer, size);
@@ -107,4 +107,4 @@ inline void pmr_deallocate(
 
 }  // namespace unodb::detail
 
-#endif  // UNODB_HEAP_HPP_
+#endif  // UNODB_DETAIL_HEAP_HPP

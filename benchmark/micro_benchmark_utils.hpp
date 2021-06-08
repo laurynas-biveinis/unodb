@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef MICRO_BENCHMARK_UTILS_HPP_
-#define MICRO_BENCHMARK_UTILS_HPP_
+#ifndef UNODB_DETAIL_MICRO_BENCHMARK_UTILS_HPP
+#define UNODB_DETAIL_MICRO_BENCHMARK_UTILS_HPP
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -211,4 +211,4 @@ extern template void destroy_tree<unodb::olc_db>(unodb::olc_db &,
 
 }  // namespace unodb::benchmark
 
-#endif  // MICRO_BENCHMARK_UTILS_HPP_
+#endif  // UNODB_DETAIL_MICRO_BENCHMARK_UTILS_HPP

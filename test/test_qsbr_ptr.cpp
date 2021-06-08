@@ -46,7 +46,7 @@ TEST(QSBRPtr, MoveCtor) {
   ASSERT_EQ(ptr.get(), nullptr);
 }
 
-DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
+UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
 TEST(QSBRPtr, CopyAssignment) {
   unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
   unodb::qsbr_ptr<const char> ptr2{raw_ptr_y};
@@ -60,7 +60,7 @@ TEST(QSBRPtr, CopyAssignment) {
   ptr2 = ptr2;
   ASSERT_EQ(*ptr, x);
 }
-RESTORE_CLANG_WARNINGS()
+UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
 TEST(QSBRPtr, MoveAssignment) {
   unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
@@ -164,7 +164,7 @@ TEST(QSBRPtrSpan, MoveCtor) {
   ASSERT_EQ(span.cbegin().get(), nullptr);
 }
 
-DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
+UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
 TEST(QSBRPtrSpan, CopyAssignment) {
   unodb::qsbr_ptr_span<const char> span{gsl_span};
   unodb::qsbr_ptr_span<const char> span2{gsl_span2};
@@ -179,7 +179,7 @@ TEST(QSBRPtrSpan, CopyAssignment) {
   ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span.cbegin(),
                          gsl_span.cend()));
 }
-RESTORE_CLANG_WARNINGS()
+UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
 TEST(QSBRPtrSpan, MoveAssignment) {
   unodb::qsbr_ptr_span<const char> span{gsl_span};

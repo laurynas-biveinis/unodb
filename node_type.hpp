@@ -1,6 +1,6 @@
 // Copyright 2021 Laurynas Biveinis
-#ifndef UNODB_NODE_TYPE_HPP_
-#define UNODB_NODE_TYPE_HPP_
+#ifndef UNODB_DETAIL_NODE_TYPE_HPP
+#define UNODB_DETAIL_NODE_TYPE_HPP
 
 #include "global.hpp"
 
@@ -23,7 +23,7 @@ void is_internal() noexcept {
   static_assert(NodeType != node_type::LEAF);
   // This function is not for execution, but to wrap the static_assert, which is
   // not an expression for some reason.
-  CANNOT_HAPPEN();
+  UNODB_DETAIL_CANNOT_HAPPEN();
 }
 
 }  // namespace detail
@@ -43,4 +43,4 @@ inline constexpr auto internal_as_i{
 
 }  // namespace unodb
 
-#endif  // UNODB_NODE_TYPE_HPP_
+#endif  // UNODB_DETAIL_NODE_TYPE_HPP

@@ -29,12 +29,12 @@ class mock_pool : public unodb::detail::pmr_pool {
 
   [[nodiscard]] bool empty() const noexcept { return allocations.empty(); }
 
-  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
+  UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] auto is_allocated(void *ptr) const {
     return allocations.find(reinterpret_cast<std::uintptr_t>(ptr)) !=
            allocations.cend();
   }
-  RESTORE_GCC_WARNINGS()
+  UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
   [[nodiscard]] void *do_allocate(std::size_t bytes,
                                   std::size_t alignment) override {

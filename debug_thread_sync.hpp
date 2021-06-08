@@ -1,6 +1,6 @@
 // Copyright 2020-2021 Laurynas Biveinis
-#ifndef UNODB_DEBUG_THREAD_SYNC_HPP_
-#define UNODB_DEBUG_THREAD_SYNC_HPP_
+#ifndef UNODB_DETAIL_DEBUG_THREAD_SYNC_HPP
+#define UNODB_DETAIL_DEBUG_THREAD_SYNC_HPP
 
 #include "global.hpp"
 
@@ -50,4 +50,4 @@ class thread_wait final {
 
 }  // namespace unodb::debug
 
-#endif  // UNODB_DEBUG_THREAD_SYNC_HPP_
+#endif  // UNODB_DETAIL_DEBUG_THREAD_SYNC_HPP

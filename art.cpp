@@ -45,14 +45,14 @@ namespace unodb::detail {
 struct impl_helpers {
   // GCC 10 diagnoses parameters that are present only in uninstantiated if
   // constexpr branch, such as node_in_parent for inode_256.
-  DISABLE_GCC_10_WARNING("-Wunused-parameter")
+  UNODB_DETAIL_DISABLE_GCC_10_WARNING("-Wunused-parameter")
 
   template <class INode>
   [[nodiscard]] static detail::node_ptr *add_or_choose_subtree(
       INode &inode, std::byte key_byte, art_key k, value_view v,
       db &db_instance, tree_depth depth, detail::node_ptr *node_in_parent);
 
-  RESTORE_GCC_10_WARNINGS()
+  UNODB_DETAIL_RESTORE_GCC_10_WARNINGS()
 
   template <class INode>
   [[nodiscard]] static std::optional<detail::node_ptr *>
@@ -151,7 +151,7 @@ detail::node_ptr *impl_helpers::add_or_choose_subtree(
     const auto children_count = inode.get_children_count();
 
     if constexpr (!std::is_same_v<INode, inode_256>) {
-      if (unlikely(children_count == INode::capacity)) {
+      if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
         auto current_node{
             art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
         auto larger_node{INode::larger_derived_type::create(
@@ -181,7 +181,7 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
 
   if (!leaf::matches(child_ptr_val.leaf, k)) return {};
 
-  if (unlikely(inode.is_min_size())) {
+  if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
     auto current_node{
         art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
     if constexpr (std::is_same_v<INode, inode_4>) {
@@ -241,7 +241,7 @@ constexpr void db::account_shrinking_inode() noexcept {
 }
 
 db::get_result db::get(key search_key) const noexcept {
-  if (unlikely(root.header == nullptr)) return {};
+  if (UNODB_DETAIL_UNLIKELY(root.header == nullptr)) return {};
 
   auto node{root};
   const detail::art_key k{search_key};
@@ -276,7 +276,7 @@ db::get_result db::get(key search_key) const noexcept {
 bool db::insert(key insert_key, value_view v) {
   const auto k = detail::art_key{insert_key};
 
-  if (unlikely(root.header == nullptr)) {
+  if (UNODB_DETAIL_UNLIKELY(root.header == nullptr)) {
     auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
     root = detail::node_ptr{leaf.release()};
     return true;
@@ -290,7 +290,7 @@ bool db::insert(key insert_key, value_view v) {
     const auto node_type = node->type();
     if (node_type == node_type::LEAF) {
       const auto existing_key = leaf::key(node->leaf);
-      if (unlikely(k == existing_key)) return false;
+      if (UNODB_DETAIL_UNLIKELY(k == existing_key)) return false;
 
       auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
       // TODO(laurynas): try to pass leaf node type instead of generic node
@@ -338,7 +338,7 @@ bool db::insert(key insert_key, value_view v) {
 bool db::remove(key remove_key) {
   const auto k = detail::art_key{remove_key};
 
-  if (unlikely(root == nullptr)) return false;
+  if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
 
   if (root.type() == node_type::LEAF) {
     if (leaf::matches(root.leaf, k)) {
@@ -371,7 +371,7 @@ bool db::remove(key remove_key) {
         node->internal
             ->remove_or_choose_subtree<std::optional<detail::node_ptr *>>(
                 node_type, remaining_key[0], k, *this, node)};
-    if (unlikely(!remove_result)) return false;
+    if (UNODB_DETAIL_UNLIKELY(!remove_result)) return false;
 
     auto *const child_ptr{*remove_result};
     if (child_ptr == nullptr) return true;

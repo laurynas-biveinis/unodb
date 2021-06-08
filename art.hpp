@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef UNODB_ART_HPP_
-#define UNODB_ART_HPP_
+#ifndef UNODB_DETAIL_ART_HPP
+#define UNODB_DETAIL_ART_HPP
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -178,4 +178,4 @@ class db final {
 
 }  // namespace unodb
 
-#endif  // UNODB_ART_HPP_
+#endif  // UNODB_DETAIL_ART_HPP

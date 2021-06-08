@@ -77,6 +77,8 @@ The are three ART classes available:
   readers do not take locks), and for that a Quiescent State Based Reclamation
   (QSBR) was chosen.
 
+Any macros starting with `UNODB_DETAIL_` are internal and should not be used.
+
 ## Dependencies
 
 * CMake, at least 3.12

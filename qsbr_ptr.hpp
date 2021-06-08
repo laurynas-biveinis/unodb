@@ -1,6 +1,6 @@
 // Copyright (C) 2021 Laurynas Biveinis
-#ifndef UNODB_QSBR_PTR_HPP_
-#define UNODB_QSBR_PTR_HPP_
+#ifndef UNODB_DETAIL_QSBR_PTR_HPP
+#define UNODB_DETAIL_QSBR_PTR_HPP
 
 #include "global.hpp"
 
@@ -33,14 +33,15 @@ class qsbr_ptr : public detail::qsbr_ptr_base {
  public:
   using pointer_type = T *;
 
-  RELEASE_CONSTEXPR explicit qsbr_ptr(pointer_type ptr_) noexcept : ptr{ptr_} {
+  UNODB_DETAIL_RELEASE_CONSTEXPR explicit qsbr_ptr(pointer_type ptr_) noexcept
+      : ptr{ptr_} {
 #ifndef NDEBUG
     register_active_ptr(ptr);
 #endif
   }
 
   // cppcheck-suppress noExplicitConstructor
-  RELEASE_CONSTEXPR qsbr_ptr(const qsbr_ptr<T> &other) noexcept
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr(const qsbr_ptr<T> &other) noexcept
       : ptr{other.ptr} {
 #ifndef NDEBUG
     register_active_ptr(ptr);
@@ -58,7 +59,8 @@ class qsbr_ptr : public detail::qsbr_ptr_base {
 #endif
   }
 
-  RELEASE_CONSTEXPR qsbr_ptr<T> &operator=(const qsbr_ptr<T> &other) noexcept {
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr<T> &operator=(
+      const qsbr_ptr<T> &other) noexcept {
 #ifndef NDEBUG
     if (this == &other) return *this;
     unregister_active_ptr(ptr);
@@ -70,7 +72,8 @@ class qsbr_ptr : public detail::qsbr_ptr_base {
     return *this;
   }
 
-  RELEASE_CONSTEXPR qsbr_ptr<T> &operator=(qsbr_ptr<T> &&other) noexcept {
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr<T> &operator=(
+      qsbr_ptr<T> &&other) noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
 #endif
@@ -139,17 +142,19 @@ namespace unodb {
 template <class T>
 class qsbr_ptr_span {
  public:
-  RELEASE_CONSTEXPR explicit qsbr_ptr_span(const gsl::span<T> &other)
+  UNODB_DETAIL_RELEASE_CONSTEXPR explicit qsbr_ptr_span(
+      const gsl::span<T> &other)
       : start{other.data()}, length{static_cast<std::size_t>(other.size())} {}
 
-  RELEASE_CONSTEXPR qsbr_ptr_span(const qsbr_ptr_span<T> &) noexcept = default;
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span(
+      const qsbr_ptr_span<T> &) noexcept = default;
   constexpr qsbr_ptr_span(qsbr_ptr_span<T> &&) noexcept = default;
   ~qsbr_ptr_span() = default;
 
-  RELEASE_CONSTEXPR qsbr_ptr_span<T> &operator=(
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span<T> &operator=(
       const qsbr_ptr_span<T> &) noexcept = default;
-  RELEASE_CONSTEXPR qsbr_ptr_span<T> &operator=(qsbr_ptr_span<T> &&) noexcept =
-      default;
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span<T> &operator=(
+      qsbr_ptr_span<T> &&) noexcept = default;
 
   constexpr qsbr_ptr<const T> cbegin() const noexcept { return start; }
 
@@ -164,4 +169,4 @@ class qsbr_ptr_span {
 
 }  // namespace unodb
 
-#endif  // UNODB_QSBR_PTR_HPP_
+#endif  // UNODB_DETAIL_QSBR_PTR_HPP

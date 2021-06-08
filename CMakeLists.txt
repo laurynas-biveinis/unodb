@@ -197,7 +197,7 @@ endif()
 option(STATIC_ANALYSIS "Enable compiler static analysis")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(DEBUG "ON")
+  set(UNODB_DETAIL_DEBUG "ON")
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

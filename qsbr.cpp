@@ -79,7 +79,7 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
 
     const auto thread_state = threads.find(thread_id);
     assert(thread_state != threads.end());
-    if (unlikely(thread_state->second == 0)) {
+    if (UNODB_DETAIL_UNLIKELY(thread_state->second == 0)) {
       // The thread being unregistered become quiescent and that allowed an
       // epoch change, which marked this thread as not-quiescent again, and
       // included it in threads_in_previous_epoch
@@ -92,9 +92,9 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
     single_threaded_mode_start_epoch = get_current_epoch();
 #endif
 
-    if (unlikely(threads.empty())) {
+    if (UNODB_DETAIL_UNLIKELY(threads.empty())) {
       threads_in_previous_epoch = 0;
-    } else if (unlikely(single_thread_mode_locked())) {
+    } else if (UNODB_DETAIL_UNLIKELY(single_thread_mode_locked())) {
       // Even though we are single-threaded now, we cannot deallocate neither
       // previous nor current interval requests immediately. We could track the
       // deallocating thread in the request structure and deallocate the ones
@@ -155,7 +155,8 @@ void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
   // Reserve one thread in the global QSBR ctor?
   // No need to reserve space for the first (or the last, depending on the
   // workload) thread
-  if (unlikely(reserved_thread_capacity == 0)) reserved_thread_capacity = 1;
+  if (UNODB_DETAIL_UNLIKELY(reserved_thread_capacity == 0))
+    reserved_thread_capacity = 1;
 
 #ifndef NDEBUG
   thread_count_changed_in_current_epoch = true;
@@ -164,7 +165,7 @@ void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
 #endif
 
   try {
-    const auto USED_IN_DEBUG[itr, insert_ok] =
+    const auto UNODB_DETAIL_USED_IN_DEBUG[itr, insert_ok] =
         threads.insert({thread_id, false});
     assert(insert_ok);
     // LCOV_EXCL_START
@@ -175,7 +176,7 @@ void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
 #ifdef NDEBUG
     std::abort();
 #else
-    CANNOT_HAPPEN();
+    UNODB_DETAIL_CANNOT_HAPPEN();
 #endif
   } catch (...) {
     std::cerr << "Impossible happened: QSBR thread vector insert threw unknown "
@@ -183,7 +184,7 @@ void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
 #ifdef NDEBUG
     std::abort();
 #else
-    CANNOT_HAPPEN();
+    UNODB_DETAIL_CANNOT_HAPPEN();
 #endif
     // LCOV_EXCL_STOP
   }
@@ -225,7 +226,7 @@ qsbr::deferred_requests qsbr::change_epoch() noexcept {
   deferred_requests result{make_deferred_requests()};
   result.requests[0] = std::move(previous_interval_deallocation_requests);
 
-  if (likely(!single_thread_mode_locked())) {
+  if (UNODB_DETAIL_LIKELY(!single_thread_mode_locked())) {
     previous_interval_deallocation_requests =
         std::move(current_interval_deallocation_requests);
     previous_interval_total_dealloc_size.store(

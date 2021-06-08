@@ -1,6 +1,6 @@
-// Copyright 2019-2020 Laurynas Biveinis
-#ifndef UNODB_MUTEX_ART_HPP_
-#define UNODB_MUTEX_ART_HPP_
+// Copyright 2019-2021 Laurynas Biveinis
+#ifndef UNODB_DETAIL_MUTEX_ART_HPP
+#define UNODB_DETAIL_MUTEX_ART_HPP
 
 #include "global.hpp"
 
@@ -126,4 +126,4 @@ class mutex_db final {
 
 }  // namespace unodb
 
-#endif  // UNODB_MUTEX_ART_HPP_
+#endif  // UNODB_DETAIL_MUTEX_ART_HPP

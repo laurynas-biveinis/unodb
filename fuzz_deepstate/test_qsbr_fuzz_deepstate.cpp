@@ -325,7 +325,7 @@ void release_active_pointer(std::size_t thread_i) {
   active_ptrs.erase(active_ptr_itr);
 }
 
-RESTORE_GCC_WARNINGS()
+UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 void pause_thread(std::size_t thread_i) {
   ASSERT(threads[thread_i].is_paused ==
@@ -446,7 +446,7 @@ void do_op(std::size_t thread_i, thread_operation op) {
       break;
     case thread_operation::RESET_STATS:
     case thread_operation::QUIT_THREAD:
-      CANNOT_HAPPEN();
+      UNODB_DETAIL_CANNOT_HAPPEN();
   }
 }
 

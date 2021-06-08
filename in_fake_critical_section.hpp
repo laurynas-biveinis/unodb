@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef IN_FAKE_CRITICAL_SECTION_HPP_
-#define IN_FAKE_CRITICAL_SECTION_HPP_
+#ifndef UNODB_DETAIL_IN_FAKE_CRITICAL_SECTION_HPP
+#define UNODB_DETAIL_IN_FAKE_CRITICAL_SECTION_HPP
 
 #include "global.hpp"
 
@@ -68,4 +68,4 @@ class in_fake_critical_section final {
 
 }  // namespace unodb
 
-#endif  // IN_FAKE_CRITICAL_SECTION_HPP_
+#endif  // UNODB_DETAIL_IN_FAKE_CRITICAL_SECTION_HPP

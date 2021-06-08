@@ -1,6 +1,6 @@
 // Copyright 2019-2021 Laurynas Biveinis
-#ifndef UNODB_ART_INTERNAL_IMPL_HPP_
-#define UNODB_ART_INTERNAL_IMPL_HPP_
+#ifndef UNODB_DETAIL_ART_INTERNAL_IMPL_HPP
+#define UNODB_DETAIL_ART_INTERNAL_IMPL_HPP
 
 #include "global.hpp"
 
@@ -156,7 +156,7 @@ struct basic_leaf final {
                                                 raw_leaf_ptr leaf);
 
   static constexpr void assert_invariants(
-      USED_IN_DEBUG raw_leaf_ptr leaf) noexcept {
+      UNODB_DETAIL_USED_IN_DEBUG raw_leaf_ptr leaf) noexcept {
 #ifndef NDEBUG
     assert(reinterpret_cast<std::uintptr_t>(leaf) % alignof(Header) == 0);
     const auto *const assume_aligned =
@@ -169,7 +169,7 @@ struct basic_leaf final {
  private:
   static constexpr auto minimum_size = offset_value;
 
-  DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
+  UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] static auto value_size(raw_leaf_ptr leaf) noexcept {
     assert_invariants(leaf);
 
@@ -177,7 +177,7 @@ struct basic_leaf final {
     std::memcpy(&result, &leaf[offset_value_size], sizeof(result));
     return result;
   }
-  RESTORE_GCC_WARNINGS()
+  UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 };
 
 template <class Header, class Db>
@@ -185,7 +185,8 @@ auto make_db_leaf_ptr(art_key k, value_view v, Db &db) {
   using leaf_type = basic_leaf<Header>;
   using value_size_type = typename leaf_type::value_size_type;
 
-  if (unlikely(v.size() > std::numeric_limits<value_size_type>::max())) {
+  if (UNODB_DETAIL_UNLIKELY(v.size() >
+                            std::numeric_limits<value_size_type>::max())) {
     throw std::length_error("Value length must fit in std::uint32_t");
   }
 
@@ -309,7 +310,7 @@ struct basic_art_policy final {
                                 LeafReclamator<header_type, Db>{db_instance}};
   }
 
-  DISABLE_GCC_11_WARNING("-Wmismatched-new-delete")
+  UNODB_DETAIL_DISABLE_GCC_11_WARNING("-Wmismatched-new-delete")
   template <class INode, class... Args>
   [[nodiscard]] static auto make_db_inode_unique_ptr(Db &db_instance,
                                                      Args &&...args) {
@@ -320,7 +321,7 @@ struct basic_art_policy final {
 
     return result;
   }
-  RESTORE_GCC_11_WARNINGS()
+  UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
 
   template <class INode>
   [[nodiscard]] static auto make_db_inode_unique_ptr(Db &db_instance,
@@ -370,7 +371,7 @@ struct basic_art_policy final {
           return;
         }
       }
-      CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+      UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
     }
 
     delete_db_node_ptr_at_scope_exit(const delete_db_node_ptr_at_scope_exit &) =
@@ -572,7 +573,7 @@ class basic_inode_impl {
         break;
         // LCOV_EXCL_START
       case node_type::LEAF:
-        CANNOT_HAPPEN();
+        UNODB_DETAIL_CANNOT_HAPPEN();
         // LCOV_EXCL_STOP
     }
     os << "# children = "
@@ -594,7 +595,7 @@ class basic_inode_impl {
         break;
         // LCOV_EXCL_START
       case node_type::LEAF:
-        CANNOT_HAPPEN();
+        UNODB_DETAIL_CANNOT_HAPPEN();
         // LCOV_EXCL_STOP
     }
   }
@@ -617,9 +618,9 @@ class basic_inode_impl {
             std::forward<Args>(args)...);
         // LCOV_EXCL_START
       case node_type::LEAF:
-        CANNOT_HAPPEN();
+        UNODB_DETAIL_CANNOT_HAPPEN();
     }
-    CANNOT_HAPPEN();
+    UNODB_DETAIL_CANNOT_HAPPEN();
     // LCOV_EXCL_STOP
   }
 
@@ -641,9 +642,9 @@ class basic_inode_impl {
             std::forward<Args>(args)...);
       case node_type::LEAF:
         // LCOV_EXCL_START
-        CANNOT_HAPPEN();
+        UNODB_DETAIL_CANNOT_HAPPEN();
     }
-    CANNOT_HAPPEN();
+    UNODB_DETAIL_CANNOT_HAPPEN();
     // LCOV_EXCL_STOP
   }
 
@@ -659,7 +660,7 @@ class basic_inode_impl {
         return static_cast<inode256_type *>(this)->delete_subtree(db_instance);
         // LCOV_EXCL_START
       case node_type::LEAF:
-        CANNOT_HAPPEN();
+        UNODB_DETAIL_CANNOT_HAPPEN();
         // LCOV_EXCL_STOP
     }
   }
@@ -685,9 +686,9 @@ class basic_inode_impl {
         return static_cast<inode256_type *>(this)->find_child(key_byte);
         // LCOV_EXCL_START
       case node_type::LEAF:
-        CANNOT_HAPPEN();
+        UNODB_DETAIL_CANNOT_HAPPEN();
     }
-    CANNOT_HAPPEN();
+    UNODB_DETAIL_CANNOT_HAPPEN();
     // LCOV_EXCL_STOP
   }
 
@@ -695,14 +696,14 @@ class basic_inode_impl {
   // define their own new and delete operators using node pools
   [[nodiscard, gnu::cold, gnu::noinline]] static void *operator new(
       std::size_t) {
-    CANNOT_HAPPEN();
+    UNODB_DETAIL_CANNOT_HAPPEN();
   }
 
-  DISABLE_CLANG_WARNING("-Wmissing-noreturn")
+  UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wmissing-noreturn")
   [[gnu::cold, gnu::noinline]] static void operator delete(void *) {
-    CANNOT_HAPPEN();
+    UNODB_DETAIL_CANNOT_HAPPEN();
   }
-  RESTORE_CLANG_WARNINGS()
+  UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
   constexpr basic_inode_impl(node_type type, unsigned children_count,
                              art_key k1, art_key k2, tree_depth depth) noexcept
@@ -741,7 +742,7 @@ class basic_inode_impl {
   }
 
   constexpr void set_header(std::uint64_t u64) noexcept {
-#ifdef UNODB_THREAD_SANITIZER
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
     // If we write the initial 4 bytes of a header as one uint32_t integer, we
     // overwrite the type byte (with an identical value of course), which gets
     // flagged as a data race. Thus don't touch it under ThreadSanitizer. An
@@ -767,7 +768,7 @@ class basic_inode_impl {
     } f;
     header_type header;
     std::array<critical_section_policy<std::uint32_t>, 2 + header_pad_u32> u32;
-#ifdef UNODB_THREAD_SANITIZER
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
     std::array<critical_section_policy<std::uint8_t>, 4> header_bytes;
 #endif
 
@@ -1504,7 +1505,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   }
 
   // The warning disable might go away once C++20 std::atomic_ref is used
-  DISABLE_GCC_WARNING("-Wclass-memaccess")
+  UNODB_DETAIL_DISABLE_GCC_WARNING("-Wclass-memaccess")
   constexpr basic_inode_48(db_inode256_reclaimable_ptr source_node,
                            std::uint8_t child_to_delete) noexcept
       : parent_class{*source_node} {
@@ -1531,7 +1532,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       if (next_child == this->f.f.children_count) break;
     }
   }
-  RESTORE_GCC_WARNINGS()
+  UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count) noexcept {
@@ -1805,4 +1806,4 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
 
 }  // namespace unodb::detail
 
-#endif  // UNODB_ART_INTERNAL_IMPL_HPP_
+#endif  // UNODB_DETAIL_ART_INTERNAL_IMPL_HPP

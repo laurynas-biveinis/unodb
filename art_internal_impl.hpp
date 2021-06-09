@@ -1479,11 +1479,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     auto *const __restrict__ source_node_ptr = source_node.get();
     auto *const __restrict__ child_ptr = child.release();
 
-    // TODO(laurynas): initialize at declaration
-    // Cannot use memset without C++20 atomic_ref, but even then check whether
-    // this compiles to memset already
-    std::fill(child_indexes.begin(), child_indexes.end(), empty_child);
-
     // TODO(laurynas): consider AVX512 scatter?
     std::uint8_t i = 0;
     for (; i < inode16_type::capacity; ++i) {
@@ -1504,8 +1499,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     }
   }
 
-  // The warning disable might go away once C++20 std::atomic_ref is used
-  UNODB_DETAIL_DISABLE_GCC_WARNING("-Wclass-memaccess")
   constexpr basic_inode_48(db_inode256_reclaimable_ptr source_node,
                            std::uint8_t child_to_delete) noexcept
       : parent_class{*source_node} {
@@ -1516,8 +1509,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         source_node.get_deleter().get_db())};
 
     source_node_ptr->children[child_to_delete] = nullptr;
-
-    std::memset(&child_indexes[0], empty_child, 256);
 
     std::uint8_t next_child = 0;
     for (unsigned child_i = 0; child_i < 256; child_i++) {
@@ -1532,7 +1523,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       if (next_child == this->f.f.children_count) break;
     }
   }
-  UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count) noexcept {
@@ -1657,7 +1647,67 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         children.pointer_array[children_i], db_instance)};
   }
 
-  std::array<critical_section_policy<std::uint8_t>, 256> child_indexes;
+  static constexpr std::uint8_t empty_child = 0xFF;
+
+  // The only way I found to initialize this array so that everyone is happy and
+  // efficient. In the case of OLC, a std::fill compiles to a loop doing a
+  // single byte per iteration. memset is likely an UB, and atomic_ref is not
+  // available in C++17, and I don't like using it anyway, because this variable
+  // *is* atomic.
+  std::array<critical_section_policy<std::uint8_t>, 256> child_indexes{
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child, empty_child, empty_child, empty_child, empty_child,
+      empty_child};
+
   union children_union {
     std::array<critical_section_policy<node_ptr>, basic_inode_48::capacity>
         pointer_array;
@@ -1672,8 +1722,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 #endif
     children_union() {}
   } children;
-
-  static constexpr std::uint8_t empty_child = 0xFF;
 
   template <class>
   friend class basic_inode_16;

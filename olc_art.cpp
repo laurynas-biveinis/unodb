@@ -226,7 +226,6 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
     assert(node_ptr_lock(source_node).is_write_locked());
   }
 
-  // FIXME(laurynas): hide guards in unique_ptr deleters?
   olc_inode_4(db_inode16_reclaimable_ptr &&source_node,
               optimistic_lock::write_guard &&source_node_guard,
               std::uint8_t child_to_delete,
@@ -324,8 +323,6 @@ class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
                std::uint8_t child_to_delete,
                optimistic_lock::write_guard &&child_guard) noexcept;
 
-  // FIXME(laurynas): if cannot hide the guards in unique_ptr, move superclass
-  // create methods to db::
   [[nodiscard]] static auto create(
       db_inode4_reclaimable_ptr &&source_node,
       optimistic_lock::write_guard &&source_node_guard,
@@ -482,8 +479,6 @@ static_assert(sizeof(olc_inode_48) == 656 + 32);
     optimistic_lock::write_guard &&source_node_guard,
     std::uint8_t child_to_delete, optimistic_lock::write_guard &&child_guard) {
   assert(source_node_guard.guards(lock(*source_node)));
-  // TODO(laurynas): consider asserting that the child guard guards the right
-  // lock.
   assert(child_guard.active());
 
   return olc_art_policy::make_db_inode_unique_ptr<olc_inode_16>(
@@ -687,7 +682,6 @@ template <class INode>
   const auto is_node_min_size{inode.is_min_size()};
 
   if (UNODB_DETAIL_LIKELY(!is_node_min_size)) {
-    // TODO(laurynas): decrease_memory_use outside the critical section
     optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
     if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 

@@ -213,7 +213,7 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
 
  public:
   constexpr olc_inode_4(art_key k1, art_key shifted_k2, tree_depth depth,
-                        olc_node_ptr child1,
+                        raw_leaf_ptr child1,
                         olc_db_leaf_unique_ptr &&child2) noexcept
       : parent_class{k1, shifted_k2, depth, child1, std::move(child2)} {
     assert(node_ptr_lock(child1).is_write_locked());
@@ -236,9 +236,9 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
       optimistic_lock::write_guard &&source_node_guard,
       std::uint8_t child_to_delete, optimistic_lock::write_guard &&child_guard);
 
-  // Create a new node with two given child nodes
+  // Create a new node with two given child leaves
   [[nodiscard]] static auto create(art_key k1, art_key shifted_k2,
-                                   tree_depth depth, olc_node_ptr child1,
+                                   tree_depth depth, raw_leaf_ptr child1,
                                    olc_db_leaf_unique_ptr &&child2) {
     assert(node_ptr_lock(child1).is_write_locked());
 
@@ -906,7 +906,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
         return false;
       }
 
-      auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
+      auto new_leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
       optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
@@ -917,8 +917,8 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
       // TODO(laurynas): consider creating new lower version and replacing
       // contents, to enable replacing parent write unlock with parent unlock
-      auto new_node = detail::olc_inode_4::create(existing_key, remaining_key,
-                                                  depth, node, std::move(leaf));
+      auto new_node = detail::olc_inode_4::create(
+          existing_key, remaining_key, depth, node.leaf, std::move(new_leaf));
       *node_in_parent = new_node.release();
       account_growing_inode<node_type::I4>();
       return true;

@@ -292,12 +292,9 @@ bool db::insert(key insert_key, value_view v) {
       const auto existing_key = leaf::key(node->leaf);
       if (UNODB_DETAIL_UNLIKELY(k == existing_key)) return false;
 
-      auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
-      // TODO(laurynas): try to pass leaf node type instead of generic node
-      // below. This way it would be apparent that its key prefix does not need
-      // updating as leaves don't have any.
-      auto new_node = detail::inode_4::create(existing_key, remaining_key,
-                                              depth, *node, std::move(leaf));
+      auto new_leaf = art_policy::make_db_leaf_ptr(k, v, *this);
+      auto new_node = detail::inode_4::create(
+          existing_key, remaining_key, depth, node->leaf, std::move(new_leaf));
       *node = detail::node_ptr{new_node.release()};
       account_growing_inode<node_type::I4>();
       return true;

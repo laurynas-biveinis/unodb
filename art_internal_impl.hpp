@@ -970,9 +970,10 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   using typename parent_class::larger_derived_type;
   using typename parent_class::node_ptr;
 
-  // Create a new node with two given child nodes
+  // Create a new node with two given child leaves
   [[nodiscard]] static constexpr auto create(art_key k1, art_key shifted_k2,
-                                             tree_depth depth, node_ptr child1,
+                                             tree_depth depth,
+                                             raw_leaf_ptr child1,
                                              db_leaf_unique_ptr &&child2) {
     return ArtPolicy::template make_db_inode_unique_ptr<inode4_type>(
         child2.get_deleter().get_db(), k1, shifted_k2, depth, child1,
@@ -993,11 +994,12 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   }
 
   constexpr basic_inode_4(art_key k1, art_key shifted_k2, tree_depth depth,
-                          node_ptr child1, db_leaf_unique_ptr &&child2) noexcept
+                          raw_leaf_ptr child1,
+                          db_leaf_unique_ptr &&child2) noexcept
       : parent_class{k1, shifted_k2, depth} {
     const auto k2_next_byte_depth = this->key_prefix_length();
     const auto k1_next_byte_depth = k2_next_byte_depth + depth;
-    add_two_to_empty(k1[k1_next_byte_depth], child1,
+    add_two_to_empty(k1[k1_next_byte_depth], node_ptr{child1},
                      shifted_k2[k2_next_byte_depth], std::move(child2));
   }
 

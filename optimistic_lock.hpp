@@ -295,7 +295,8 @@ class in_critical_section final {
  public:
   constexpr in_critical_section() noexcept = default;
 
-  explicit constexpr in_critical_section(T value_) noexcept : value{value_} {}
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
+  constexpr in_critical_section(T value_) noexcept : value{value_} {}
 
   in_critical_section(const in_critical_section<T> &) = delete;
   in_critical_section(in_critical_section<T> &&) = delete;

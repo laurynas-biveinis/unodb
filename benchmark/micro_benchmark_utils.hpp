@@ -21,6 +21,7 @@
 #include "qsbr.hpp"
 
 namespace unodb {
+class art_map_db;
 class db;        // IWYU pragma: keep
 class mutex_db;  // IWYU pragma: keep
 }  // namespace unodb
@@ -29,6 +30,7 @@ namespace unodb::benchmark {
 
 // Values
 
+#if 0
 constexpr auto value1 = std::array<std::byte, 1>{};
 constexpr auto value10 = std::array<std::byte, 10>{};
 constexpr auto value100 = std::array<std::byte, 100>{};
@@ -39,6 +41,9 @@ inline constexpr std::array<unodb::value_view, 5> values = {
     unodb::value_view{value1}, unodb::value_view{value10},
     unodb::value_view{value100}, unodb::value_view{value1000},
     unodb::value_view{value10000}};
+#endif
+
+constexpr auto value8 = std::array<std::byte, 8>{};
 
 // PRNG
 
@@ -208,6 +213,8 @@ extern template void destroy_tree<unodb::mutex_db>(
     unodb::mutex_db &, ::benchmark::State &) noexcept;
 extern template void destroy_tree<unodb::olc_db>(unodb::olc_db &,
                                                  ::benchmark::State &) noexcept;
+extern template void destroy_tree<unodb::art_map_db>(
+    unodb::art_map_db &, ::benchmark::State &) noexcept;
 
 }  // namespace unodb::benchmark
 

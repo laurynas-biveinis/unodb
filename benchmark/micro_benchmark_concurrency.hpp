@@ -62,8 +62,7 @@ class concurrent_benchmark {
 
     test_db = std::make_unique<Db>();
 
-    for (unodb::key i = 0; i < tree_size; ++i)
-      insert_key(*test_db, i, values[i % values.size()]);
+    for (unodb::key i = 0; i < tree_size; ++i) insert_key(*test_db, i, value8);
 
     for (auto _ : state) {
       state.PauseTiming();
@@ -102,7 +101,7 @@ class concurrent_benchmark {
 
       test_db = std::make_unique<Db>();
       for (unodb::key i = 0; i < tree_size; ++i)
-        insert_key(*test_db, i, values[i % values.size()]);
+        insert_key(*test_db, i, value8);
 
       do_parallel_test(*test_db, num_of_threads, tree_size,
                        parallel_delete_worker, state);
@@ -159,7 +158,7 @@ class concurrent_benchmark {
   static void parallel_insert_worker(Db &test_db, unodb::key start,
                                      unodb::key length) {
     for (unodb::key i = start; i < start + length; ++i)
-      insert_key(test_db, i, values[i % values.size()]);
+      insert_key(test_db, i, value8);
   }
 
   static void parallel_delete_worker(Db &test_db, unodb::key start,

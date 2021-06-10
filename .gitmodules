@@ -11,3 +11,6 @@
 [submodule "3rd_party/deepstate"]
 	path = 3rd_party/deepstate
 	url = https://github.com/trailofbits/deepstate.git
+[submodule "3rd_party/jvd-art"]
+	path = 3rd_party/jvd-art
+	url = https://github.com/justinasvd/art_map.git

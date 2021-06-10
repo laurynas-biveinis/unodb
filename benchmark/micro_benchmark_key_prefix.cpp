@@ -12,6 +12,7 @@
 
 #include "art.hpp"
 #include "art_common.hpp"
+#include "art_map_db.hpp"
 #include "micro_benchmark_utils.hpp"
 #include "mutex_art.hpp"
 #include "olc_art.hpp"
@@ -70,9 +71,9 @@ void unpredictable_get_shared_length(benchmark::State &state) {
     const auto first_key = static_cast<std::uint64_t>(top_byte) << 56U;
     const auto second_key = first_key | (1ULL << ((top_byte + 1) * 8U));
     unodb::benchmark::insert_key(test_db, first_key,
-                                 unodb::value_view{unodb::benchmark::value100});
+                                 unodb::value_view{unodb::benchmark::value8});
     unodb::benchmark::insert_key(test_db, second_key,
-                                 unodb::value_view{unodb::benchmark::value100});
+                                 unodb::value_view{unodb::benchmark::value8});
     search_keys.push_back(first_key);
     search_keys.push_back(second_key);
     if (top_byte > 4) continue;
@@ -161,7 +162,7 @@ template <class Db>
 void insert_keys(Db &test_db, const std::vector<unodb::key> &keys) {
   for (const auto k : keys) {
     unodb::benchmark::insert_key(test_db, k,
-                                 unodb::value_view{unodb::benchmark::value100});
+                                 unodb::value_view{unodb::benchmark::value8});
   }
 }
 
@@ -431,12 +432,16 @@ BENCHMARK_TEMPLATE(unpredictable_get_shared_length, unodb::mutex_db)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(unpredictable_get_shared_length, unodb::olc_db)
     ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_get_shared_length, unodb::art_map_db)
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(unpredictable_leaf_key_prefix_split, unodb::db)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(unpredictable_leaf_key_prefix_split, unodb::mutex_db)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(unpredictable_leaf_key_prefix_split, unodb::olc_db)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_leaf_key_prefix_split, unodb::art_map_db)
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(unpredictable_cut_key_prefix, unodb::db)
@@ -445,12 +450,16 @@ BENCHMARK_TEMPLATE(unpredictable_cut_key_prefix, unodb::mutex_db)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(unpredictable_cut_key_prefix, unodb::olc_db)
     ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_cut_key_prefix, unodb::art_map_db)
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(unpredictable_prepend_key_prefix, unodb::db)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(unpredictable_prepend_key_prefix, unodb::mutex_db)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(unpredictable_prepend_key_prefix, unodb::olc_db)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(unpredictable_prepend_key_prefix, unodb::art_map_db)
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();

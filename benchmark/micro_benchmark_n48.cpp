@@ -5,6 +5,7 @@
 #include <benchmark/benchmark.h>
 
 #include "art.hpp"
+#include "art_map_db.hpp"
 #include "micro_benchmark_node_utils.hpp"
 #include "mutex_art.hpp"
 #include "olc_art.hpp"
@@ -82,6 +83,9 @@ BENCHMARK_TEMPLATE(grow_n16_to_n48_sequentially, unodb::mutex_db)
 BENCHMARK_TEMPLATE(grow_n16_to_n48_sequentially, unodb::olc_db)
     ->Range(8, 8192)
     ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(grow_n16_to_n48_sequentially, unodb::art_map_db)
+    ->Range(8, 8192)
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(grow_n16_to_n48_randomly, unodb::db)
     ->Range(8, 8192)
@@ -90,6 +94,9 @@ BENCHMARK_TEMPLATE(grow_n16_to_n48_randomly, unodb::mutex_db)
     ->Range(8, 8192)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(grow_n16_to_n48_randomly, unodb::olc_db)
+    ->Range(8, 8192)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(grow_n16_to_n48_randomly, unodb::art_map_db)
     ->Range(8, 8192)
     ->Unit(benchmark::kMicrosecond);
 
@@ -102,6 +109,9 @@ BENCHMARK_TEMPLATE(n48_sequential_add, unodb::mutex_db)
 BENCHMARK_TEMPLATE(n48_sequential_add, unodb::olc_db)
     ->Range(2, 4096)
     ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(n48_sequential_add, unodb::art_map_db)
+    ->Range(2, 4096)
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(n48_random_add, unodb::db)
     ->Range(2, 4096)
@@ -110,6 +120,9 @@ BENCHMARK_TEMPLATE(n48_random_add, unodb::mutex_db)
     ->Range(2, 4096)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(n48_random_add, unodb::olc_db)
+    ->Range(2, 4096)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(n48_random_add, unodb::art_map_db)
     ->Range(2, 4096)
     ->Unit(benchmark::kMicrosecond);
 
@@ -122,6 +135,9 @@ BENCHMARK_TEMPLATE(minimal_n48_tree_full_scan, unodb::mutex_db)
 BENCHMARK_TEMPLATE(minimal_n48_tree_full_scan, unodb::olc_db)
     ->Range(4, 6144)
     ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(minimal_n48_tree_full_scan, unodb::art_map_db)
+    ->Range(4, 6144)
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(minimal_n48_tree_random_gets, unodb::db)
     ->Range(4, 6144)
@@ -130,6 +146,9 @@ BENCHMARK_TEMPLATE(minimal_n48_tree_random_gets, unodb::mutex_db)
     ->Range(4, 6144)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(minimal_n48_tree_random_gets, unodb::olc_db)
+    ->Range(4, 6144)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(minimal_n48_tree_random_gets, unodb::art_map_db)
     ->Range(4, 6144)
     ->Unit(benchmark::kMicrosecond);
 
@@ -142,6 +161,9 @@ BENCHMARK_TEMPLATE(full_n48_tree_full_scan, unodb::mutex_db)
 BENCHMARK_TEMPLATE(full_n48_tree_full_scan, unodb::olc_db)
     ->Range(128, 131064)
     ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(full_n48_tree_full_scan, unodb::art_map_db)
+    ->Range(128, 131064)
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(full_n48_tree_random_gets, unodb::db)
     ->Range(128, 131064)
@@ -150,6 +172,9 @@ BENCHMARK_TEMPLATE(full_n48_tree_random_gets, unodb::mutex_db)
     ->Range(128, 131064)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(full_n48_tree_random_gets, unodb::olc_db)
+    ->Range(128, 131064)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(full_n48_tree_random_gets, unodb::art_map_db)
     ->Range(128, 131064)
     ->Unit(benchmark::kMicrosecond);
 
@@ -162,6 +187,9 @@ BENCHMARK_TEMPLATE(full_n48_tree_sequential_delete, unodb::mutex_db)
 BENCHMARK_TEMPLATE(full_n48_tree_sequential_delete, unodb::olc_db)
     ->Range(192, 196608)
     ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(full_n48_tree_sequential_delete, unodb::art_map_db)
+    ->Range(192, 196608)
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(full_n48_tree_random_delete, unodb::db)
     ->Range(192, 196608)
@@ -170,6 +198,9 @@ BENCHMARK_TEMPLATE(full_n48_tree_random_delete, unodb::mutex_db)
     ->Range(192, 196608)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(full_n48_tree_random_delete, unodb::olc_db)
+    ->Range(192, 196608)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(full_n48_tree_random_delete, unodb::art_map_db)
     ->Range(192, 196608)
     ->Unit(benchmark::kMicrosecond);
 
@@ -182,6 +213,9 @@ BENCHMARK_TEMPLATE(shrink_n256_to_n48_sequentially, unodb::mutex_db)
 BENCHMARK_TEMPLATE(shrink_n256_to_n48_sequentially, unodb::olc_db)
     ->Range(4, 2048)
     ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(shrink_n256_to_n48_sequentially, unodb::art_map_db)
+    ->Range(4, 2048)
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(shrink_n256_to_n48_randomly, unodb::db)
     ->Range(4, 2048)
@@ -190,6 +224,9 @@ BENCHMARK_TEMPLATE(shrink_n256_to_n48_randomly, unodb::mutex_db)
     ->Range(4, 2048)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(shrink_n256_to_n48_randomly, unodb::olc_db)
+    ->Range(4, 2048)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(shrink_n256_to_n48_randomly, unodb::art_map_db)
     ->Range(4, 2048)
     ->Unit(benchmark::kMicrosecond);
 

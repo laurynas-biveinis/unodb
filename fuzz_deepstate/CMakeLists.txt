@@ -110,6 +110,12 @@ if(LIBFUZZER_AVAILABLE)
   target_link_libraries(test_art_fuzz_deepstate_lf PRIVATE unodb_lf)
 endif()
 
+add_fuzz_deepstate_target(art_map)
+target_link_libraries(test_art_map_fuzz_deepstate PRIVATE unodb)
+if(LIBFUZZER_AVAILABLE)
+  target_link_libraries(test_art_map_fuzz_deepstate_lf PRIVATE unodb_lf)
+endif()
+
 add_fuzz_deepstate_target(qsbr)
 target_link_libraries(test_qsbr_fuzz_deepstate PRIVATE unodb_qsbr)
 if(LIBFUZZER_AVAILABLE)

@@ -474,7 +474,7 @@ unodb::key insert_sequentially(Db &db, unsigned key_count) {
   unodb::key k = 0;
   decltype(key_count) i = 0;
   while (true) {
-    insert_key(db, k, unodb::value_view{value100});
+    insert_key(db, k, unodb::value_view{value8});
     if (i == key_count) break;
     ++i;
     k = next_key(k, node_size_to_key_zero_bits<NodeSize>());
@@ -486,7 +486,7 @@ unodb::key insert_sequentially(Db &db, unsigned key_count) {
 template <class Db>
 void insert_keys(Db &db, const std::vector<unodb::key> &keys) {
   for (const auto k : keys) {
-    insert_key(db, k, unodb::value_view{value100});
+    insert_key(db, k, unodb::value_view{value8});
   }
 }
 
@@ -499,7 +499,7 @@ auto insert_keys_to_limit(Db &db, unodb::key key_limit,
   while (true) {
     unodb::key key = number_to_key_fn(i);
     if (key > key_limit) break;
-    insert_key(db, key, unodb::value_view{value100});
+    insert_key(db, key, unodb::value_view{value8});
     ++i;
   }
   return i;
@@ -511,7 +511,7 @@ auto insert_n_keys(Db &db, unsigned n, NumberToKeyFn number_to_key_fn) {
 
   for (decltype(n) i = 0; i < n; ++i) {
     last_inserted_key = number_to_key_fn(i);
-    insert_key(db, last_inserted_key, unodb::value_view{value100});
+    insert_key(db, last_inserted_key, unodb::value_view{value8});
   }
 
   return last_inserted_key;

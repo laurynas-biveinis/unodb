@@ -6,7 +6,8 @@
 
 #include <benchmark/benchmark.h>
 
-#include "art.hpp"        // IWYU pragma: keep
+#include "art.hpp"  // IWYU pragma: keep
+#include "art_map_db.hpp"
 #include "mutex_art.hpp"  // IWYU pragma: keep
 #include "olc_art.hpp"    // IWYU pragma: keep
 
@@ -28,5 +29,7 @@ template void destroy_tree<unodb::mutex_db>(unodb::mutex_db &,
                                             ::benchmark::State &) noexcept;
 template void destroy_tree<unodb::olc_db>(unodb::olc_db &,
                                           ::benchmark::State &) noexcept;
+template void destroy_tree<unodb::art_map_db>(unodb::art_map_db &,
+                                              ::benchmark::State &) noexcept;
 
 }  // namespace unodb::benchmark

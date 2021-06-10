@@ -321,7 +321,7 @@ else()
   message(STATUS
     "cppcheck found: ${CPPCHECK_EXE}, --version: ${CPPCHECK_VERSION_OUTPUT}")
   set(DO_CPPCHECK "${CPPCHECK_EXE}"
-    "--enable=warning,style,performance,portability" "-D__x86_64"
+    "--enable=warning,style,performance,portability" "-D__x86_64" "-D__SSE2__"
     "--inline-suppr")
   list(APPEND DO_CPPCHECK "${CPPCHECK_ARGS}")
 endif()
@@ -418,6 +418,8 @@ function(ADD_UNODB_LIBRARY LIB)
   common_target_properties(${LIB})
   target_link_libraries(${LIB} PUBLIC unodb_util)
   target_include_directories(${LIB} SYSTEM PUBLIC "${GSL_INCLUDES}")
+  target_include_directories(${LIB} SYSTEM PUBLIC
+    "${CMAKE_SOURCE_DIR}/3rd_party/jvd-art/include")
   set_clang_tidy_options(${LIB} "${DO_CLANG_TIDY}")
 
   if(LIBFUZZER_AVAILABLE)
@@ -426,6 +428,8 @@ function(ADD_UNODB_LIBRARY LIB)
     common_target_properties(${LIB_LF} SKIP_CHECKS)
     target_link_libraries(${LIB_LF} PUBLIC unodb_util)
     target_include_directories(${LIB_LF} SYSTEM PUBLIC "${GSL_INCLUDES}")
+    target_include_directories(${LIB_LF} SYSTEM PUBLIC
+      "${CMAKE_SOURCE_DIR}/3rd_party/jvd-art/include")
     target_compile_options(${LIB_LF} PRIVATE "-fsanitize=fuzzer-no-link")
   endif()
 endfunction()
@@ -442,7 +446,7 @@ endif()
 
 add_unodb_library(unodb art.cpp art.hpp art_common.cpp art_common.hpp
   mutex_art.hpp optimistic_lock.hpp art_internal_impl.hpp olc_art.hpp
-  olc_art.cpp art_internal.cpp art_internal.hpp node_type.hpp)
+  olc_art.cpp art_internal.cpp art_internal.hpp node_type.hpp art_map_db.hpp)
 target_link_libraries(unodb PUBLIC unodb_qsbr)
 if(LIBFUZZER_AVAILABLE)
   target_link_libraries(unodb_lf PUBLIC unodb_qsbr_lf)

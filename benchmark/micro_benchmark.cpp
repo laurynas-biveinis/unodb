@@ -30,8 +30,8 @@ void dense_insert(benchmark::State &state) {
     state.ResumeTiming();
 
     for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
-      unodb::benchmark::insert_key(
-          test_db, i, unodb::value_view{unodb::benchmark::value100});
+      unodb::benchmark::insert_key(test_db, i,
+                                   unodb::value_view{unodb::benchmark::value8});
 
     state.PauseTiming();
     growing_tree_stats.get(test_db);
@@ -60,7 +60,7 @@ void sparse_insert_dups_allowed(benchmark::State &state) {
     for (auto i = 0; i < state.range(0); ++i) {
       const auto random_key = random_keys.get(state);
       unodb::benchmark::insert_key_ignore_dups(
-          test_db, random_key, unodb::value_view{unodb::benchmark::value100});
+          test_db, random_key, unodb::value_view{unodb::benchmark::value8});
     }
 
     state.PauseTiming();
@@ -84,7 +84,7 @@ void dense_full_scan(benchmark::State &state) {
 
   for (unodb::key i = 0; i < key_limit; ++i)
     unodb::benchmark::insert_key(test_db, i,
-                                 unodb::value_view{unodb::benchmark::value100});
+                                 unodb::value_view{unodb::benchmark::value8});
   std::size_t tree_size = test_db.get_current_memory_use();
 
   for (auto _ : state)
@@ -118,8 +118,8 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
         static_cast<std::uint64_t>(state.range(0) - 1)};
     Db test_db;
     for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
-      unodb::benchmark::insert_key(
-          test_db, i, unodb::value_view{unodb::benchmark::value100});
+      unodb::benchmark::insert_key(test_db, i,
+                                   unodb::value_view{unodb::benchmark::value8});
     start_tree_size = test_db.get_current_memory_use();
     start_leaf_count =
         test_db.template get_node_count<unodb::node_type::LEAF>();
@@ -153,18 +153,16 @@ void dense_tree_increasing_keys(benchmark::State &state) {
     for (key_to_insert = 0;
          key_to_insert < static_cast<unodb::key>(state.range(0));
          ++key_to_insert) {
-      unodb::benchmark::insert_key(
-          test_db, key_to_insert,
-          unodb::value_view{unodb::benchmark::value100});
+      unodb::benchmark::insert_key(test_db, key_to_insert,
+                                   unodb::value_view{unodb::benchmark::value8});
     }
     unodb::key key_to_delete = 0;
     state.ResumeTiming();
 
     for (auto i = 0; i < dense_tree_increasing_keys_delete_insert_pairs; ++i) {
       unodb::benchmark::delete_key(test_db, key_to_delete++);
-      unodb::benchmark::insert_key(
-          test_db, key_to_insert++,
-          unodb::value_view{unodb::benchmark::value100});
+      unodb::benchmark::insert_key(test_db, key_to_insert++,
+                                   unodb::value_view{unodb::benchmark::value8});
     }
 
     state.PauseTiming();
@@ -175,6 +173,7 @@ void dense_tree_increasing_keys(benchmark::State &state) {
                           dense_tree_increasing_keys_delete_insert_pairs * 2);
 }
 
+#if 0
 void dense_insert_value_lengths_args(benchmark::internal::Benchmark *b) {
   for (auto i = 100; i <= 1000000; i *= 8)
     for (auto j = 0; j < static_cast<int64_t>(unodb::benchmark::values.size());
@@ -207,6 +206,7 @@ void dense_insert_value_lengths(benchmark::State &state) {
       (state.range(1) + static_cast<std::int64_t>(sizeof(unodb::key))));
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
+#endif
 
 template <class Db>
 void dense_insert_dup_attempts(benchmark::State &state) {
@@ -215,13 +215,13 @@ void dense_insert_dup_attempts(benchmark::State &state) {
     const auto key_limit = static_cast<unodb::key>(state.range(0));
     Db test_db;
     for (unodb::key i = 0; i < key_limit; ++i)
-      unodb::benchmark::insert_key(
-          test_db, i, unodb::value_view{unodb::benchmark::value100});
+      unodb::benchmark::insert_key(test_db, i,
+                                   unodb::value_view{unodb::benchmark::value8});
     state.ResumeTiming();
 
     for (unodb::key i = 0; i < key_limit; ++i)
       unodb::benchmark::insert_key_ignore_dups(
-          test_db, i, unodb::value_view{unodb::benchmark::value100});
+          test_db, i, unodb::value_view{unodb::benchmark::value8});
 
     state.PauseTiming();
     unodb::benchmark::destroy_tree(test_db, state);
@@ -288,6 +288,7 @@ BENCHMARK_TEMPLATE(dense_tree_increasing_keys, unodb::olc_db)
     ->Range(100, 30000000)
     ->Unit(benchmark::kMillisecond);
 
+#if 0
 BENCHMARK_TEMPLATE(dense_insert_value_lengths, unodb::db)
     ->ArgNames({"", "value len log10"})
     ->Apply(dense_insert_value_lengths_args)
@@ -300,6 +301,7 @@ BENCHMARK_TEMPLATE(dense_insert_value_lengths, unodb::olc_db)
     ->ArgNames({"", "value len log10"})
     ->Apply(dense_insert_value_lengths_args)
     ->Unit(benchmark::kMicrosecond);
+#endif
 
 BENCHMARK_TEMPLATE(dense_insert_dup_attempts, unodb::db)
     ->Range(100, 30000000)

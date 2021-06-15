@@ -1,0 +1,179 @@
+{
+    "version": 1,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 19,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "generator": "Unix Makefiles",
+            "binaryDir": "build.${presetName}"
+        },
+        {
+            "name": "asan",
+            "hidden": true,
+            "cacheVariables": {
+                "SANITIZE_ADDRESS": "ON"
+            }
+        },
+        {
+            "name": "tsan",
+            "hidden": true,
+            "cacheVariables": {
+                "SANITIZE_THREAD": "ON"
+            }
+        },
+        {
+            "name": "ubsan",
+            "hidden": true,
+            "cacheVariables": {
+                "SANITIZE_UB": "ON"
+            }
+        },
+        {
+            "name": "static-analysis",
+            "hidden": true,
+            "cacheVariables": {
+                "STATIC_ANALYSIS": "ON"
+            }
+        },
+        {
+            "name": "gcc-10",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc-10",
+                "CMAKE_CXX_COMPILER": "g++-10"
+            }
+        },
+        {
+            "name": "gcc",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc-11",
+                "CMAKE_CXX_COMPILER": "g++-11"
+            }
+        },
+        {
+            "name": "llvm",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "/usr/local/opt/llvm",
+                "CMAKE_C_COMPILER": "/usr/local/opt/llvm/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/local/opt/llvm/bin/clang++"
+            }
+        },
+        {
+            "name": "release",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "release-asan",
+            "inherits": ["release", "asan"]
+        },
+        {
+            "name": "release-tsan",
+            "inherits": ["release", "tsan"]
+        },
+        {
+            "name": "debug",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "debug-asan",
+            "inherits": ["debug", "asan"]
+        },
+        {
+            "name": "debug-tsan",
+            "inherits": ["debug", "tsan"]
+        },
+        {
+            "name": "debug-ubsan",
+            "inherits": ["debug", "ubsan"]
+        },
+        {
+            "name": "gcc-10-release",
+            "inherits": ["release", "gcc-10"]
+        },
+        {
+            "name": "gcc-10-release-asan",
+            "inherits": ["release", "gcc-10", "asan"]
+        },
+        {
+            "name": "gcc-10-release-ubsan",
+            "inherits": ["release", "gcc-10", "ubsan"]
+        },
+        {
+            "name": "gcc-10-debug",
+            "inherits": ["debug", "gcc-10"]
+        },
+        {
+            "name": "gcc-10-debug-asan",
+            "inherits": ["debug", "gcc-10", "asan"]
+        },
+        {
+            "name": "gcc-10-debug-tsan",
+            "inherits": ["debug", "gcc-10", "tsan"]
+        },
+        {
+            "name": "gcc-release",
+            "inherits": ["release", "gcc"]
+        },
+        {
+            "name": "gcc-release-asan",
+            "inherits": ["release", "gcc", "asan"]
+        },
+        {
+            "name": "gcc-release-ubsan",
+            "inherits": ["release", "gcc", "ubsan"]
+        },
+        {
+            "name": "gcc-debug",
+            "inherits": ["debug", "gcc"]
+        },
+        {
+            "name": "gcc-debug-asan",
+            "inherits": ["debug", "gcc", "asan"]
+        },
+        {
+            "name": "gcc-debug-tsan",
+            "inherits": ["debug", "gcc", "tsan"]
+        },
+        {
+            "name": "llvm-release",
+            "inherits": ["release", "llvm"]
+        },
+        {
+            "name": "llvm-release-tsan",
+            "inherits": ["release", "llvm", "tsan"]
+        },
+        {
+            "name": "llvm-debug",
+            "inherits": ["debug", "llvm"]
+        },
+        {
+            "name": "llvm-debug-asan",
+            "inherits": ["debug", "llvm", "asan"]
+        },
+        {
+            "name": "llvm-debug-tsan",
+            "inherits": ["debug", "llvm", "tsan"]
+        },
+        {
+            "name": "gcc-static-analysis-debug",
+            "inherits": ["debug", "gcc", "static-analysis"]
+        },
+        {
+            "name": "gcc-static-analysis-release",
+            "inherits": ["release", "gcc", "static-analysis"]
+        }
+    ]
+}

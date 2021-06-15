@@ -1715,8 +1715,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         pointer_array;
 #ifdef __x86_64
     static_assert(basic_inode_48::capacity % 2 == 0);
-    // To support unrolling without remainder
-    static_assert((basic_inode_48::capacity / 2) % 4 == 0);
+    static_assert((basic_inode_48::capacity / 2) % 4 == 0,
+                  "Node48 capacity must support unrolling without remainder");
     // No std::array below because it would ignore the alignment attribute
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     __m128i

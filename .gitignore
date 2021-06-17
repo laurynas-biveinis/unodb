@@ -38,3 +38,6 @@ compile_commands.json
 # CMake preset build dirs
 build.*
 !build.yml
+
+# CMake preset user config
+CMakeUserPresets.json

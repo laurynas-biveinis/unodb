@@ -35,6 +35,6 @@ compile_commands.json
 # clangd
 .cache
 
-# cmake-build.el build dirs
+# CMake preset build dirs
 build.*
 !build.yml

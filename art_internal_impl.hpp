@@ -65,6 +65,12 @@ inline auto _mm_cmple_epu8(__m128i x, __m128i y) noexcept {
   return _mm_cmpeq_epi8(_mm_max_epu8(y, x), y);
 }
 
+// Stolen from https://stackoverflow.com/a/24234695/80458
+inline auto _mm_cmplt_epu8(__m128i x, __m128i y) noexcept {
+  return _mm_cmplt_epi8(_mm_add_epi8(x, _mm_set1_epi8(-128)),
+                        _mm_add_epi8(y, _mm_set1_epi8(-128)));
+}
+
 #else  // #ifdef __x86_64
 
 // From public domain
@@ -1041,11 +1047,24 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto key_byte =
         static_cast<std::uint8_t>(leaf_type::key(child.get())[depth]);
 
+#if __x86_64
+    const auto replicated_insert_key =
+        _mm_set1_epi8(static_cast<char>(key_byte));
+    const auto keys_in_sse_reg =
+        _mm_cvtsi32_si128(static_cast<std::int32_t>(keys.integer.load()));
+    const auto lt_node_key_positions =
+        _mm_cmplt_epu8(keys_in_sse_reg, replicated_insert_key);
+    const auto bit_field =
+        static_cast<unsigned>(_mm_movemask_epi8(lt_node_key_positions)) & 0xFU;
+    const auto insert_pos_index =
+        static_cast<unsigned>(__builtin_popcount(bit_field));
+#else
     const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
     const auto second_lt = (((keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
     const auto third_lt = ((keys.integer >> 16U) & 0xFFU) < key_byte ? 1 : 0;
     const auto insert_pos_index =
         static_cast<unsigned>(first_lt + second_lt + third_lt);
+#endif
 
     for (typename decltype(keys.byte_array)::size_type i = children_count;
          i > insert_pos_index; --i) {
@@ -1239,6 +1258,18 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto key_byte =
         static_cast<std::uint8_t>(leaf_type::key(child.get())[depth]);
 
+#if __x86_64
+    const auto replicated_insert_key =
+        _mm_set1_epi8(static_cast<char>(key_byte));
+    const auto keys_in_sse_reg = _mm_cvtsi32_si128(
+        static_cast<std::int32_t>(source_node->keys.integer.load()));
+    const auto lt_node_key_positions =
+        _mm_cmplt_epu8(keys_in_sse_reg, replicated_insert_key);
+    const auto bit_field =
+        static_cast<unsigned>(_mm_movemask_epi8(lt_node_key_positions)) & 0xFU;
+    const auto insert_pos_index =
+        static_cast<unsigned>(__builtin_popcount(bit_field));
+#else
     const auto keys_integer = source_node->keys.integer.load();
     const auto first_lt = ((keys_integer & 0xFFU) < key_byte) ? 1 : 0;
     const auto second_lt = (((keys_integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
@@ -1246,6 +1277,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto fourth_lt = (((keys_integer >> 24U) & 0xFFU) < key_byte) ? 1 : 0;
     const auto insert_pos_index =
         static_cast<unsigned>(first_lt + second_lt + third_lt + fourth_lt);
+#endif
 
     unsigned i = 0;
     for (; i < insert_pos_index; ++i) {

@@ -1060,10 +1060,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
     const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
     const auto second_lt = (((keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
-    const auto third_lt =
-        ((children_count == 3) && ((keys.integer >> 16U) & 0xFFU) < key_byte)
-            ? 1
-            : 0;
+    const auto third_lt = ((keys.integer >> 16U) & 0xFFU) < key_byte ? 1 : 0;
     const auto insert_pos_index =
         static_cast<unsigned>(first_lt + second_lt + third_lt);
 
@@ -1098,12 +1095,13 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(children[child_index],
                                                        db_instance)};
 
-    for (typename decltype(keys.byte_array)::size_type i = child_index;
-         i < static_cast<unsigned>(this->f.f.children_count - 1); ++i) {
+    typename decltype(keys.byte_array)::size_type i = child_index;
+    for (; i < static_cast<unsigned>(this->f.f.children_count - 1); ++i) {
       // TODO(laurynas): see the AVX2 TODO at add method
       keys.byte_array[i] = keys.byte_array[i + 1];
       children[i] = children[i + 1];
     }
+    keys.byte_array[i] = empty_child;
 
     --children_count;
     this->f.f.children_count = children_count;
@@ -1203,8 +1201,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     children[key1_i] = child1;
     keys.byte_array[key2_i] = key2;
     children[key2_i] = child2.release();
-    keys.byte_array[2] = std::byte{0};
-    keys.byte_array[3] = std::byte{0};
+    keys.byte_array[2] = empty_child;
+    keys.byte_array[3] = empty_child;
 
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + this->f.f.children_count));
@@ -1220,6 +1218,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       children;
 
  private:
+  static constexpr std::byte empty_child{0xFF};
+
   template <class>
   friend class basic_inode_16;
 };

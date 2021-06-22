@@ -133,8 +133,7 @@ TEST(ART, DeepStateFuzz) {
               LOG(TRACE) << "Tried to insert duplicate key " << key;
               ASSERT(mem_use_after == mem_use_before);
               ASSERT(oracle.find(key) != oracle.cend())
-                  << "If insert returned failure, oracle must contain that "
-                     "value";
+                  << "If insert returned failure, oracle must contain that key";
             }
           } catch (const std::bad_alloc &) {
             const auto mem_use_after = test_db.get_current_memory_use();
@@ -152,15 +151,14 @@ TEST(ART, DeepStateFuzz) {
           if (search_result) {
             ASSERT(!test_db.empty());
             ASSERT(oracle_search_result != oracle.cend())
-                << "If search returned a value, oracle must contain that value";
+                << "If search found a key, oracle must contain that key";
             ASSERT(std::equal(search_result->cbegin(), search_result->cend(),
                               oracle_search_result->second.cbegin(),
                               oracle_search_result->second.cend()))
                 << "Values stored in ART and in oracle must match";
           } else {
             ASSERT(oracle_search_result == oracle.cend())
-                << "If search did not find a value, oracle must not contain "
-                   "that value";
+                << "If search did not find a key, oracle must not find it too ";
           }
         },
         // Delete

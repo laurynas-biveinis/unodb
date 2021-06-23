@@ -109,6 +109,17 @@ TYPED_TEST(ARTCorrectnessTest, InsertToFullNode4) {
   verifier.check_absent_keys({5, 4});
 }
 
+TYPED_TEST(ARTCorrectnessTest, Node4InsertFFByte) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert_key_range(0xFC, 4);
+
+  verifier.assert_node_counts({4, 1, 0, 0, 0});
+  verifier.assert_growing_inodes({1, 0, 0, 0});
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 0xFB});
+}
+
 TYPED_TEST(ARTCorrectnessTest, TwoNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
@@ -199,6 +210,21 @@ TYPED_TEST(ARTCorrectnessTest, Node16KeyInsertOrderDescending) {
 
   verifier.check_present_values();
   verifier.check_absent_keys({6});
+}
+
+TYPED_TEST(ARTCorrectnessTest, Node16ConstructWithFFKeyByte) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert_key_range(0xFB, 4);
+  verifier.assert_node_counts({4, 1, 0, 0, 0});
+
+  verifier.insert(0xFF, unodb::test::test_values[0]);
+
+  verifier.assert_node_counts({5, 0, 1, 0, 0});
+  verifier.assert_growing_inodes({1, 1, 0, 0});
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 0xFA});
 }
 
 TYPED_TEST(ARTCorrectnessTest, Node48) {

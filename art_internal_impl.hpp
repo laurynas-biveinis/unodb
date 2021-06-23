@@ -1041,11 +1041,16 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto key_byte =
         static_cast<std::uint8_t>(leaf_type::key(child.get())[depth]);
 
+#if __x86_64
+    const auto mask = (1U << this->f.f.children_count.load()) - 1;
+    const auto insert_pos_index = get_insert_pos(key_byte, mask);
+#else
     const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
     const auto second_lt = (((keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
     const auto third_lt = ((keys.integer >> 16U) & 0xFFU) < key_byte ? 1 : 0;
     const auto insert_pos_index =
         static_cast<unsigned>(first_lt + second_lt + third_lt);
+#endif
 
     for (typename decltype(keys.byte_array)::size_type i = children_count;
          i > insert_pos_index; --i) {
@@ -1084,7 +1089,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       keys.byte_array[i] = keys.byte_array[i + 1];
       children[i] = children[i + 1];
     }
+#ifndef __x86_64
     keys.byte_array[i] = empty_child;
+#endif
 
     --children_count;
     this->f.f.children_count = children_count;
@@ -1184,8 +1191,10 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     children[key1_i] = child1;
     keys.byte_array[key2_i] = key2;
     children[key2_i] = child2.release();
+#ifndef __x86_64
     keys.byte_array[2] = empty_child;
     keys.byte_array[3] = empty_child;
+#endif
 
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + this->f.f.children_count));
@@ -1201,7 +1210,28 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       children;
 
  private:
+#ifdef __x86_64
+  auto get_insert_pos(std::uint8_t insert_key_byte,
+                      unsigned node_key_mask) const noexcept {
+    assert(node_key_mask == (1U << this->f.f.children_count.load()) - 1);
+
+    const auto replicated_insert_key_byte =
+        _mm_set1_epi8(static_cast<char>(insert_key_byte));
+    const auto node_keys_in_sse_reg =
+        _mm_cvtsi32_si128(static_cast<std::int32_t>(keys.integer.load()));
+    // Since the existing and insert key values cannot be equal, it's OK to use
+    // "<=" comparison as "<".
+    const auto lt_node_key_positions =
+        _mm_cmple_epu8(node_keys_in_sse_reg, replicated_insert_key_byte);
+    const auto bit_field =
+        static_cast<unsigned>(_mm_movemask_epi8(lt_node_key_positions)) &
+        node_key_mask;
+    return static_cast<unsigned>(__builtin_popcount(bit_field));
+  }
+#else
+  // Non-x86_64 implementation reads children bytes past current node size
   static constexpr std::byte empty_child{0xFF};
+#endif
 
   template <class>
   friend class basic_inode_16;
@@ -1239,6 +1269,9 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto key_byte =
         static_cast<std::uint8_t>(leaf_type::key(child.get())[depth]);
 
+#if __x86_64
+    const auto insert_pos_index = source_node->get_insert_pos(key_byte, 0xFU);
+#else
     const auto keys_integer = source_node->keys.integer.load();
     const auto first_lt = ((keys_integer & 0xFFU) < key_byte) ? 1 : 0;
     const auto second_lt = (((keys_integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
@@ -1246,6 +1279,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto fourth_lt = (((keys_integer >> 24U) & 0xFFU) < key_byte) ? 1 : 0;
     const auto insert_pos_index =
         static_cast<unsigned>(first_lt + second_lt + third_lt + fourth_lt);
+#endif
 
     unsigned i = 0;
     for (; i < insert_pos_index; ++i) {

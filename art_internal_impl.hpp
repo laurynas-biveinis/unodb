@@ -1041,11 +1041,25 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto key_byte =
         static_cast<std::uint8_t>(leaf_type::key(child.get())[depth]);
 
+#if __x86_64
+    const auto replicated_insert_key =
+        _mm_set1_epi8(static_cast<char>(key_byte));
+    const auto keys_in_sse_reg =
+        _mm_cvtsi32_si128(static_cast<std::int32_t>(keys.integer.load()));
+    const auto lesser_keys =
+        _mm_cmple_epu8(replicated_insert_key, keys_in_sse_reg);
+    // Put a sentry bit here, so that we know that lo_mask is never 0
+    const auto lo_mask = (1ULL << 32U) | static_cast<std::uint64_t>(
+                                             _mm_cvtsi128_si32(lesser_keys));
+    const auto insert_pos_index =
+        static_cast<unsigned>(__builtin_ctzl(lo_mask) >> 3U);
+#else
     const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
     const auto second_lt = (((keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
     const auto third_lt = ((keys.integer >> 16U) & 0xFFU) < key_byte ? 1 : 0;
     const auto insert_pos_index =
         static_cast<unsigned>(first_lt + second_lt + third_lt);
+#endif
 
     for (typename decltype(keys.byte_array)::size_type i = children_count;
          i > insert_pos_index; --i) {
@@ -1239,6 +1253,19 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto key_byte =
         static_cast<std::uint8_t>(leaf_type::key(child.get())[depth]);
 
+#if __x86_64
+    const auto replicated_insert_key =
+        _mm_set1_epi8(static_cast<char>(key_byte));
+    const auto keys_in_sse_reg = _mm_cvtsi32_si128(
+        static_cast<std::int32_t>(source_node->keys.integer.load()));
+    const auto lesser_keys =
+        _mm_cmple_epu8(replicated_insert_key, keys_in_sse_reg);
+    // Put a sentry bit here, so that we know that lo_mask is never 0
+    const auto lo_mask = (1ULL << 32U) | static_cast<std::uint64_t>(
+                                             _mm_cvtsi128_si32(lesser_keys));
+    const auto insert_pos_index =
+        static_cast<unsigned>(__builtin_ctzl(lo_mask) >> 3U);
+#else
     const auto keys_integer = source_node->keys.integer.load();
     const auto first_lt = ((keys_integer & 0xFFU) < key_byte) ? 1 : 0;
     const auto second_lt = (((keys_integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
@@ -1246,6 +1273,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto fourth_lt = (((keys_integer >> 24U) & 0xFFU) < key_byte) ? 1 : 0;
     const auto insert_pos_index =
         static_cast<unsigned>(first_lt + second_lt + third_lt + fourth_lt);
+#endif
 
     unsigned i = 0;
     for (; i < insert_pos_index; ++i) {

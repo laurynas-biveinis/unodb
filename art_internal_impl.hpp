@@ -58,23 +58,6 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 #endif
 }
 
-// On x86_64 with GCC up to and including version 10, __builtin_ffs compiles to
-// BSF/CMOVE pair if TZCNT is not available. CMOVE is only required if arg is
-// zero, which we know not to be. Only GCC 11 gets the hint by "if (arg == 0)
-// __builtin_unreachable()"
-[[gnu::const]] inline unsigned ffs_nonzero(std::uint64_t arg) {
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 11
-  if (arg == 0) __builtin_unreachable();
-  return static_cast<unsigned>(__builtin_ffsl(static_cast<std::int64_t>(arg)));
-#elif __x86_64
-  std::int64_t result;
-  __asm__("bsfq %1, %0" : "=r"(result) : "rm"(arg) : "cc");
-  return gsl::narrow_cast<unsigned>(result + 1);
-#else
-  return static_cast<unsigned>(__builtin_ffsl(static_cast<std::int64_t>(arg)));
-#endif
-}
-
 #ifdef __x86_64
 
 // Idea from https://stackoverflow.com/a/32945715/80458
@@ -738,7 +721,7 @@ class basic_inode_impl {
 
     const auto diff = k1 ^ k2;
     const auto clamped = diff | (1ULL << (clamp_byte_pos * 8U));
-    return (ffs_nonzero(clamped) - 1) >> 3U;
+    return static_cast<unsigned>(__builtin_ctzl(clamped)) >> 3U;
   }
 
   constexpr void set_header(std::uint64_t u64) noexcept {
@@ -1554,7 +1537,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       const auto cmp_mask =
           static_cast<std::uint64_t>(_mm_movemask_epi8(vec_cmp));
       if (cmp_mask != 0) {
-        i = (i << 1U) + (ffs_nonzero(cmp_mask) >> 1U);
+        i = (i << 1U) +
+            ((static_cast<unsigned>(__builtin_ctzl(cmp_mask)) + 1) >> 1U);
         break;
       }
       i += 4;

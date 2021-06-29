@@ -81,7 +81,7 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
     add_dependencies(deepstate_lf_8h ${TEST_8H})
 
     add_custom_target(${VALGRIND_TARGET} COMMAND ${VALGRIND_COMMAND}
-      ./${INVOCATION} 60)
+      ./${INVOCATION} "-max_total_time=60")
 
     add_dependencies(valgrind_deepstate_lf ${VALGRIND_TARGET})
   endif()

@@ -5,68 +5,63 @@ project(unodb VERSION 0.1
   DESCRIPTION "unodb key-value store library"
   HOMEPAGE_URL "https://github.com/laurynas-biveinis/unodb" LANGUAGES CXX)
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
-    OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-  set(CXX_WARNING_FLAGS
-    "-Werror"
-    # Warning groups
-    "-Wall" "-Wextra" "-Wconversion" "-Wdelete-non-virtual-dtor" "-Wdeprecated"
-    "-Wgnu" "-Wimplicit" "-Wloop-analysis" "-Wparentheses" "-Wpedantic"
-    "-Wpragmas" "-Wself-assign" "-Wshadow-all"
-    # Individual warnings
-    "-Wabstract-vbase-init" "-Warray-bounds-pointer-arithmetic" "-Wassign-enum"
-    "-Watomic-implicit-seq-cst" "-Wbad-function-cast" "-Wc++2a-compat"
-    "-Wc++2a-extensions" "-Wcast-align" "-Wcast-qual" "-Wclass-varargs"
-    "-Wcomma" "-Wconditional-uninitialized" "-Wcovered-switch-default"
-    "-Wdate-time" "-Wdeprecated-implementations" "-Wdisabled-macro-expansion"
-    "-Wdouble-promotion" "-Wduplicate-decl-specifier" "-Wduplicate-enum"
-    "-Wduplicate-method-arg" "-Wduplicate-method-match" "-Wextra-semi-stmt"
-    "-Wfloat-equal" "-Wformat-pedantic" "-Wformat=2" "-Wheader-hygiene"
-    "-Widiomatic-parentheses" "-Wimplicit-fallthrough" "-Wmain"
-    "-Wmethod-signatures" "-Wmissing-noreturn" "-Wmissing-prototypes"
-    "-Wmissing-variable-declarations" "-Wnewline-eof" "-Wnon-virtual-dtor"
-    "-Wnonportable-system-include-path" "-Wold-style-cast" "-Wover-aligned"
-    "-Wpacked" "-Wpointer-arith" "-Wprofile-instr-missing" "-Wredundant-parens"
-    "-Wreserved-id-macro" "-Wshift-sign-overflow" "-Wstatic-in-inline"
-    "-Wstrict-prototypes" "-Wsuper-class-method-mismatch" "-Wswitch-enum"
-    "-Wtautological-compare" "-Wtautological-constant-in-range-compare"
-    "-Wundef" "-Wundefined-func-template" "-Wundefined-reinterpret-cast"
-    "-Wunreachable-code-aggressive" "-Wunused-exception-parameter"
-    "-Wunused-macros" "-Wunused-member-function" "-Wunused-template"
-    "-Wused-but-marked-unused" "-Wvector-conversion" "-Wvla"
-    "-Wweak-template-vtables" "-Wweak-vtables" "-Wzero-as-null-pointer-constant")
-else()
-  set(CXX_WARNING_FLAGS
-    "-Werror"
-    # Warning groups
-    "-Wall" "-Wextra" "-Wpedantic" "-Wunused" "-Wparentheses" "-Wconversion"
-    # Individual warnings
-    "-Wabi-tag" "-Wcast-align=strict" "-Wcast-qual" "-Wcatch-value=3"
-    "-Wctor-dtor-privacy" "-Wdouble-promotion" "-Wduplicated-branches"
-    "-Wduplicated-cond" "-Wextra-semi" "-Wfloat-equal" "-Wformat-overflow=2"
-    "-Wformat-signedness" "-Wformat-truncation=2" "-Wformat=2"
-    "-Wimplicit-fallthrough=5" "-Winvalid-pch" "-Wlogical-op" "-Wmismatched-tags"
-    "-Wmissing-declarations" "-Wmissing-include-dirs" "-Wnoexcept"
-    "-Wnon-virtual-dtor" "-Wnull-dereference" "-Wold-style-cast"
-    "-Woverloaded-virtual" "-Wpacked" "-Wplacement-new=2" "-Wredundant-decls"
-    "-Wshadow=global" "-Wsign-conversion" "-Wsign-promo"
-    "-Wstrict-null-sentinel" "-Wstringop-truncation" "-Wsuggest-attribute=cold"
-    "-Wsuggest-attribute=const" "-Wsuggest-attribute=format"
-    "-Wsuggest-attribute=malloc" "-Wsuggest-attribute=noreturn"
-    "-Wsuggest-attribute=pure" "-Wsuggest-final-methods" "-Wsuggest-final-types"
-    "-Wsuggest-override" "-Wswitch-enum" "-Wtrampolines" "-Wundef"
-    "-Wuninitialized" "-Wunsafe-loop-optimizations" "-Wunused-const-variable=2"
-    "-Wunused-macros" "-Wuseless-cast" "-Wvector-operation-performance"
-    "-Wvla" "-Wzero-as-null-pointer-constant" "-Wattribute-alias=2"
-    "-Warray-bounds=2" "-Wredundant-tags")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 11.0)
-    list(APPEND CXX_FLAGS "-Wctad-maybe-unsupported"
-      "-Wdeprecated-enum-enum-conversion" "-Wdeprecated-enum-float-conversion"
-      "-Wvexing-parse")
-  endif()
-endif()
+set(CLANG_CXX_WARNING_FLAGS
+  "-Werror"
+  # Warning groups
+  "-Wall" "-Wextra" "-Wconversion" "-Wdelete-non-virtual-dtor" "-Wdeprecated"
+  "-Wgnu" "-Wimplicit" "-Wloop-analysis" "-Wparentheses" "-Wpedantic"
+  "-Wpragmas"
+  "-Wself-assign" "-Wshadow-all"
+  # Individual warnings
+  "-Wabstract-vbase-init" "-Warray-bounds-pointer-arithmetic" "-Wassign-enum"
+  "-Watomic-implicit-seq-cst" "-Wbad-function-cast" "-Wc++2a-compat"
+  "-Wc++2a-extensions" "-Wcast-align" "-Wcast-qual" "-Wclass-varargs" "-Wcomma"
+  "-Wconditional-uninitialized" "-Wcovered-switch-default" "-Wdate-time"
+  "-Wdeprecated-implementations" "-Wdisabled-macro-expansion"
+  "-Wdouble-promotion" "-Wduplicate-decl-specifier" "-Wduplicate-enum"
+  "-Wduplicate-method-arg" "-Wduplicate-method-match" "-Wextra-semi-stmt"
+  "-Wfloat-equal" "-Wformat-pedantic" "-Wformat=2" "-Wheader-hygiene"
+  "-Widiomatic-parentheses" "-Wimplicit-fallthrough" "-Wmain"
+  "-Wmethod-signatures" "-Wmissing-noreturn" "-Wmissing-prototypes"
+  "-Wmissing-variable-declarations" "-Wnewline-eof" "-Wnon-virtual-dtor"
+  "-Wnonportable-system-include-path" "-Wold-style-cast" "-Wover-aligned"
+  "-Wpacked" "-Wpointer-arith" "-Wprofile-instr-missing" "-Wredundant-parens"
+  "-Wreserved-id-macro" "-Wshift-sign-overflow" "-Wstatic-in-inline"
+  "-Wstrict-prototypes" "-Wsuper-class-method-mismatch" "-Wswitch-enum"
+  "-Wtautological-compare" "-Wtautological-constant-in-range-compare" "-Wundef"
+  "-Wundefined-func-template" "-Wundefined-reinterpret-cast"
+  "-Wunreachable-code-aggressive" "-Wunused-exception-parameter"
+  "-Wunused-macros" "-Wunused-member-function" "-Wunused-template"
+  "-Wused-but-marked-unused" "-Wvector-conversion" "-Wvla"
+  "-Wweak-template-vtables" "-Wweak-vtables" "-Wzero-as-null-pointer-constant")
+set(GCC_CXX_WARNING_FLAGS
+  "-Werror"
+  # Warning groups
+  "-Wall" "-Wextra" "-Wpedantic" "-Wunused" "-Wparentheses" "-Wconversion"
+  # Individual warnings
+  "-Wabi-tag" "-Wcast-align=strict" "-Wcast-qual" "-Wcatch-value=3"
+  "-Wctor-dtor-privacy" "-Wdouble-promotion" "-Wduplicated-branches"
+  "-Wduplicated-cond" "-Wextra-semi" "-Wfloat-equal" "-Wformat-overflow=2"
+  "-Wformat-signedness" "-Wformat-truncation=2" "-Wformat=2"
+  "-Wimplicit-fallthrough=5" "-Winvalid-pch" "-Wlogical-op" "-Wmismatched-tags"
+  "-Wmissing-declarations" "-Wmissing-include-dirs" "-Wnoexcept"
+  "-Wnon-virtual-dtor" "-Wnull-dereference" "-Wold-style-cast"
+  "-Woverloaded-virtual" "-Wpacked" "-Wplacement-new=2" "-Wredundant-decls"
+  "-Wshadow=global" "-Wsign-conversion" "-Wsign-promo" "-Wstrict-null-sentinel"
+  "-Wstringop-truncation" "-Wsuggest-attribute=cold" "-Wsuggest-attribute=const"
+  "-Wsuggest-attribute=format" "-Wsuggest-attribute=malloc"
+  "-Wsuggest-attribute=noreturn" "-Wsuggest-attribute=pure"
+  "-Wsuggest-final-methods" "-Wsuggest-final-types" "-Wsuggest-override"
+  "-Wswitch-enum" "-Wtrampolines" "-Wundef" "-Wuninitialized"
+  "-Wunsafe-loop-optimizations" "-Wunused-const-variable=2" "-Wunused-macros"
+  "-Wuseless-cast" "-Wvector-operation-performance" "-Wvla"
+  "-Wzero-as-null-pointer-constant" "-Wattribute-alias=2" "-Warray-bounds=2"
+  "-Wredundant-tags")
+set(GCC_GE_11_CXX_WARNINGS_FLAGS
+  "-Wctad-maybe-unsupported" "-Wdeprecated-enum-enum-conversion"
+  "-Wdeprecated-enum-float-conversion" "-Wvexing-parse")
 
-list(APPEND CXX_FLAGS "${CXX_WARNING_FLAGS}" "-g" "-msse4.1")
+list(APPEND CXX_FLAGS "-g" "-msse4.1")
 
 option(COVERAGE "Enable code coverage reporting")
 if(COVERAGE)
@@ -373,6 +368,10 @@ set(GSL_INCLUDES "3rd_party/GSL/include")
 
 function(COMMON_TARGET_PROPERTIES TARGET)
   cmake_parse_arguments(PARSE_ARGV 1 CTP "SKIP_CHECKS" "" "")
+  target_compile_options(${TARGET} PRIVATE
+    "$<$<CXX_COMPILER_ID:AppleClang,Clang>:${CLANG_CXX_WARNING_FLAGS}>"
+    "$<$<CXX_COMPILER_ID:GNU>:${GCC_CXX_WARNING_FLAGS}>"
+    "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:${GCC_GE_11_CXX_WARNING_FLAGS}>")
   target_compile_options(${TARGET} PRIVATE "${CXX_FLAGS}")
   target_compile_options(${TARGET} PRIVATE "${SANITIZER_CXX_FLAGS}")
   target_compile_features(${TARGET} PUBLIC cxx_std_17)

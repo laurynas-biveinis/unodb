@@ -57,7 +57,7 @@ set(GCC_CXX_WARNING_FLAGS
   "-Wuseless-cast" "-Wvector-operation-performance" "-Wvla"
   "-Wzero-as-null-pointer-constant" "-Wattribute-alias=2" "-Warray-bounds=2"
   "-Wredundant-tags")
-set(GCC_GE_11_CXX_WARNINGS_FLAGS
+set(GCC_GE_11_CXX_WARNING_FLAGS
   "-Wctad-maybe-unsupported" "-Wdeprecated-enum-enum-conversion"
   "-Wdeprecated-enum-float-conversion" "-Wvexing-parse")
 

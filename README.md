@@ -156,6 +156,11 @@ Fuzzers that use libfuzzer mirror the above by adding `_lf` before the time
 suffix, i.e. `deepstate_lf_8h`, `deepstate_qsbr_lf_20m`,
 `valgrind_deepstate_lf`, and so on.
 
+## Related projects
+
+[art_map](https://github.com/justinasvd/art_map) is a C++14 template library
+providing `std::`-like interface over ART. It shares some code with UnoDB.
+
 ## Literature
 
 *ART Trie*: V. Leis, A. Kemper and T. Neumann, "The adaptive radix tree: ARTful

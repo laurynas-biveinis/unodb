@@ -77,19 +77,23 @@ else()
   message(STATUS "Code coverage reporting not enabled")
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  find_path(VALGRIND_H_PATH valgrind.h PATH_SUFFIXES valgrind)
-  if(VALGRIND_H_PATH)
-    find_path(MEMCHECK_H_PATH memcheck.h PATH_SUFFIXES valgrind)
-    if(MEMCHECK_H_PATH)
-      message(STATUS "valgrind.h & memcheck.h found, enabling Valgrind client requests")
-      add_compile_definitions(VALGRIND_CLIENT_REQUESTS)
-    else()
-      message(STATUS "valgrind.h found but memcheck.h not found, disabling Valgrind client requests")
-    endif()
+find_path(VALGRIND_H_PATH valgrind.h PATH_SUFFIXES valgrind)
+if(VALGRIND_H_PATH)
+  find_path(MEMCHECK_H_PATH memcheck.h PATH_SUFFIXES valgrind)
+  if(MEMCHECK_H_PATH)
+    message(STATUS
+      "valgrind.h & memcheck.h found, enabling Valgrind client requests in debug config")
+    set(VALGRIND_CLIENT ON)
   else()
-    message(STATUS "valgrind.h not found, disabling Valgrind client requests")
+    message(STATUS
+      "valgrind.h found but memcheck.h not found, disabling Valgrind client requests in debug config")
   endif()
+else()
+  message(STATUS
+    "valgrind.h not found, disabling Valgrind client requests in debug config")
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   # TODO(laurynas): switch to -Og once it actually works in the oldest
   # supported compilers
   list(APPEND CXX_FLAGS "-O0")
@@ -361,6 +365,8 @@ set(GSL_INCLUDES "3rd_party/GSL/include")
 
 function(COMMON_TARGET_PROPERTIES TARGET)
   cmake_parse_arguments(PARSE_ARGV 1 CTP "SKIP_CHECKS" "" "")
+  target_compile_definitions(${TARGET} PRIVATE
+    "$<$<AND:$<CONFIG:Debug>,$<BOOL:${VALGRIND_CLIENT}>>:VALGRIND_CLIENT_REQUESTS>")
   target_compile_options(${TARGET} PRIVATE
     "$<$<CXX_COMPILER_ID:AppleClang,Clang>:${CLANG_CXX_WARNING_FLAGS}>"
     "$<$<CXX_COMPILER_ID:GNU>:${GCC_CXX_WARNING_FLAGS}>"

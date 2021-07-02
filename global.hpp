@@ -2,9 +2,7 @@
 #ifndef UNODB_DETAIL_GLOBAL_HPP
 #define UNODB_DETAIL_GLOBAL_HPP
 
-#include "config.hpp"
-
-#ifdef UNODB_DETAIL_DEBUG
+#ifndef NDEBUG
 #ifndef __clang__
 
 #ifndef _GLIBCXX_DEBUG
@@ -16,14 +14,7 @@
 #endif
 
 #endif  // #ifndef __clang__
-
-#else  // #ifdef UNODB_DETAIL_DEBUG
-
-#ifndef NDEBUG
-#define NDEBUG
-#endif
-
-#endif  // #ifdef UNODB_DETAIL_DEBUG
+#endif  // #ifndef NDEBUG
 
 #if defined(__has_feature) && !defined(__clang__)
 #if __has_feature(address_sanitizer)

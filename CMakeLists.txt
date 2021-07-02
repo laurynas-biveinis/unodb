@@ -93,11 +93,7 @@ else()
     "valgrind.h not found, disabling Valgrind client requests in debug config")
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  # TODO(laurynas): switch to -Og once it actually works in the oldest
-  # supported compilers
-  list(APPEND CXX_FLAGS "-O0")
-else()
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
   if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
       "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 9)
     include(CheckIPOSupported)
@@ -188,13 +184,7 @@ endif()
 
 option(STATIC_ANALYSIS "Enable compiler static analysis")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(UNODB_DETAIL_DEBUG "ON")
-endif()
-
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-
-configure_file(config.hpp.in config.hpp)
 
 find_package(Threads REQUIRED)
 
@@ -277,10 +267,9 @@ if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}"
   endif()
 endif()
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
-    AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-  target_compile_definitions(benchmark PUBLIC _GLIBCXX_DEBUG
-    _GLIBCXX_DEBUG_PEDANTIC)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  target_compile_definitions(benchmark PUBLIC
+    "$<$<CONFIG:Debug>:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
 endif()
 
 # Add benchmark_include_dirs by target_include_directories(... SYSTEM ...)
@@ -371,6 +360,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<$<CXX_COMPILER_ID:AppleClang,Clang>:${CLANG_CXX_WARNING_FLAGS}>"
     "$<$<CXX_COMPILER_ID:GNU>:${GCC_CXX_WARNING_FLAGS}>"
     "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:${GCC_GE_11_CXX_WARNING_FLAGS}>"
+    "$<$<CONFIG:Debug>:-O0>"
     "$<$<CONFIG:Release>:$<IF:$<BOOL:${COVERAGE}>,-O0,-O3>>"
     "$<$<BOOL:${COVERAGE}>:--coverage>")
   target_compile_options(${TARGET} PRIVATE "${CXX_FLAGS}")

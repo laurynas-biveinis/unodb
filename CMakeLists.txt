@@ -93,17 +93,12 @@ else()
     "valgrind.h not found, disabling Valgrind client requests in debug config")
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
-      "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 9)
-    include(CheckIPOSupported)
-    check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
-    if(IPO_SUPPORTED)
-      message(STATUS "IPO/LTO supported")
-    else()
-      message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
-    endif()
-  endif()
+include(CheckIPOSupported)
+check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
+if(IPO_SUPPORTED)
+  message(STATUS "Enabling IPO/LTO for release config")
+else()
+  message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
 endif()
 
 macro(ADD_TO_GNU_SANITIZER_FLAGS)
@@ -216,12 +211,16 @@ set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark tests"
   FORCE)
 set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL
   "Suppressing Google Benchmark installation" FORCE)
-if(IPO_SUPPORTED AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+# It seems that Google Benchmark does not support multi-configuration generators
+# if LTO is enabled
+if(CMAKE_BUILD_TYPE STREQUAL "Release" AND IPO_SUPPORTED AND
+    NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   set(BENCHMARK_ENABLE_LTO ON CACHE BOOL "Enabling LTO for Google Benchmark"
     FORCE)
   message(STATUS "Enabling LTO for Google Benchmark")
 else()
-  message(STATUS "Disabling LTO for Google Benchmark")
+  message(STATUS
+    "Disabling LTO for Google Benchmark because Apple clang is not supported")
 endif()
 add_subdirectory(3rd_party/benchmark)
 
@@ -369,7 +368,8 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   target_link_libraries(${TARGET} INTERFACE "${INTERFACE_LD_FLAGS}")
   target_link_libraries(${TARGET} INTERFACE "$<$<BOOL:${COVERAGE}>:--coverage>")
   if(IPO_SUPPORTED)
-    set_target_properties(${TARGET} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+    set_target_properties(${TARGET} PROPERTIES
+      INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
   endif()
   if(NOT CTP_SKIP_CHECKS)
     if(CPPCHECK_EXE)

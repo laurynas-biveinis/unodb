@@ -266,10 +266,8 @@ if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}"
   endif()
 endif()
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  target_compile_definitions(benchmark PUBLIC
-    "$<$<CONFIG:Debug>:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
-endif()
+target_compile_definitions(benchmark PUBLIC
+  "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<CONFIG:Debug>>:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
 
 # Add benchmark_include_dirs by target_include_directories(... SYSTEM ...)
 # before target_link_libraries so that benchmark headers are included through

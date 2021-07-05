@@ -61,7 +61,6 @@ class db_leaf_qsbr_deleter {
  public:
   static_assert(std::is_trivially_destructible_v<basic_leaf<Header>>);
 
-  // cppcheck-suppress constParameter
   constexpr explicit db_leaf_qsbr_deleter(Db &db_) noexcept
       : db_instance{db_} {}
 

@@ -238,8 +238,8 @@ std::vector<unodb::key> generate_random_keys_over_full_smaller_tree(
 
   std::vector<unodb::key> result;
   union {
-    std::uint64_t as_int;                  // cppcheck-suppress shadowVariable
-    std::array<std::uint8_t, 8> as_bytes;  // cppcheck-suppress shadowVariable
+    std::uint64_t as_int;
+    std::array<std::uint8_t, 8> as_bytes;
   } key;
 
   for (std::uint8_t i = 0; i < NumByteValues; ++i) {
@@ -638,7 +638,6 @@ void full_node_scan_benchmark(::benchmark::State &state) {
     const auto key_limit =
         detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
     for (auto _ : state) {
-      // cppcheck-suppress useStlAlgorithm
       items_processed += detail::get_key_loop(
           test_db, key_limit,
           detail::number_to_full_node_size_tree_key<NodeSize>);
@@ -958,7 +957,6 @@ void minimal_tree_full_scan(::benchmark::State &state) {
 
   std::int64_t items_processed = 0;
   for (auto _ : state) {
-    // cppcheck-suppress useStlAlgorithm
     items_processed += detail::get_key_loop(
         test_db, key_limit,
         detail::number_to_minimal_node_size_tree_key<NodeSize>);

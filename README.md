@@ -91,7 +91,7 @@ Any macros starting with `UNODB_DETAIL_` are internal and should not be used.
 * (optional) lcov
 * (optional) clang-tidy
 * (optional) clangd
-* (optional) cppcheck
+* (optional) cppcheck 2.5
 * (optional) cpplint
 * (optional) include-what-you-use
 * (optional) libfuzzer

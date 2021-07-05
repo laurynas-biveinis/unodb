@@ -16,7 +16,6 @@ template <typename T>
 class in_fake_critical_section final {
  public:
   constexpr in_fake_critical_section() noexcept = default;
-  // cppcheck-suppress noExplicitConstructor
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   constexpr in_fake_critical_section(T value_) noexcept : value{value_} {}
   constexpr in_fake_critical_section(const in_fake_critical_section<T> &) =

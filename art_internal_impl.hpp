@@ -110,43 +110,61 @@ struct basic_leaf final {
   static constexpr auto offset_value =
       offset_value_size + sizeof(value_size_type);
 
-  [[nodiscard]] static constexpr auto key(const_raw_leaf_ptr leaf) noexcept {
-    assert_invariants(leaf);
+  [[nodiscard]] static constexpr auto key(const_raw_leaf_ptr leaf_) noexcept {
+    const auto *const leaf{assume_aligned(leaf_)};
 
     return art_key::create(&leaf[offset_key]);
   }
 
-  [[nodiscard]] static constexpr auto matches(const_raw_leaf_ptr leaf,
+  [[nodiscard]] static constexpr auto matches(const_raw_leaf_ptr leaf_,
                                               art_key k) noexcept {
-    assert_invariants(leaf);
+    const auto *const leaf{assume_aligned(leaf_)};
 
     return k == leaf + offset_key;
   }
 
-  [[nodiscard]] static constexpr auto value(const_raw_leaf_ptr leaf) noexcept {
-    assert_invariants(leaf);
+  [[nodiscard]] static constexpr auto value(const_raw_leaf_ptr leaf_) noexcept {
+    const auto *const leaf{assume_aligned(leaf_)};
 
     return value_view{&leaf[offset_value], value_size(leaf)};
   }
 
   [[nodiscard]] static constexpr std::size_t size(
-      const_raw_leaf_ptr leaf) noexcept {
-    assert_invariants(leaf);
+      const_raw_leaf_ptr leaf_) noexcept {
+    const auto *const leaf{assume_aligned(leaf_)};
 
     return value_size(leaf) + offset_value;
   }
 
+  template <typename T>
+  [[nodiscard]] static constexpr auto assume_aligned(T leaf_) noexcept {
+    static_assert(std::is_same_v<T, raw_leaf_ptr> ||
+                  std::is_same_v<T, const_raw_leaf_ptr>);
+    assert_invariants(leaf_);
+#ifndef __clang__
+    return reinterpret_cast<T>(
+        __builtin_assume_aligned(leaf_, alignment_for_new<Header>()));
+#else
+    // FIXME(laurynas): bug ref
+    return leaf_;
+#endif
+  }
+
   [[gnu::cold, gnu::noinline]] static void dump(std::ostream &os,
-                                                const_raw_leaf_ptr leaf);
+                                                const_raw_leaf_ptr leaf_);
 
   static constexpr void assert_invariants(
-      UNODB_DETAIL_USED_IN_DEBUG const_raw_leaf_ptr leaf) noexcept {
+      UNODB_DETAIL_USED_IN_DEBUG const_raw_leaf_ptr leaf_) noexcept {
 #ifndef NDEBUG
-    assert(reinterpret_cast<std::uintptr_t>(leaf) % alignof(Header) == 0);
-    const auto *const assume_aligned =
-        __builtin_assume_aligned(leaf, alignof(Header));
-    assert(reinterpret_cast<const Header *>(assume_aligned)->type() ==
-           node_type::LEAF);
+    assert(reinterpret_cast<std::uintptr_t>(leaf_) % alignof(Header) == 0);
+#ifndef __clang__
+    const auto *const leaf{
+        __builtin_assume_aligned(leaf_, alignment_for_new<Header>())};
+#else
+    // FIXME(laurynas): bug ref
+    const auto *const leaf{leaf_};
+#endif
+    assert(reinterpret_cast<const Header *>(leaf)->type() == node_type::LEAF);
 #endif
   }
 
@@ -154,8 +172,8 @@ struct basic_leaf final {
   static constexpr auto minimum_size = offset_value;
 
   UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-  [[nodiscard]] static auto value_size(const_raw_leaf_ptr leaf) noexcept {
-    assert_invariants(leaf);
+  [[nodiscard]] static auto value_size(const_raw_leaf_ptr leaf_) noexcept {
+    const auto *const leaf{assume_aligned(leaf_)};
 
     value_size_type result;
     std::memcpy(&result, &leaf[offset_value_size], sizeof(result));
@@ -203,7 +221,8 @@ void basic_leaf<Header>::dump(std::ostream &os, const_raw_leaf_ptr leaf) {
 // Implementation of things declared in art_internal.hpp
 template <class Header, class Db>
 inline void basic_db_leaf_deleter<Header, Db>::operator()(
-    raw_leaf_ptr to_delete) const noexcept {
+    raw_leaf_ptr to_delete_) const noexcept {
+  auto *const to_delete{basic_leaf<Header>::assume_aligned(to_delete_)};
   const auto leaf_size = basic_leaf<Header>::size(to_delete);
   pmr_deallocate(get_leaf_node_pool(), to_delete, leaf_size,
                  alignment_for_new<Header>());

@@ -381,13 +381,11 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     endif()
     if(STATIC_ANALYSIS)
       target_compile_options(${TARGET} PRIVATE "-fanalyzer")
-      if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
-          "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 11)
-        # GCC 11 -fanalyzer not fully ready for C++ yet
-        target_compile_options(${TARGET} PRIVATE
-          "-Wno-analyzer-possible-null-dereference"
-          "-Wno-analyzer-possible-null-argument")
-      endif()
+      # GCC 11 -fanalyzer not fully ready for C++ yet
+      target_compile_options(${TARGET} PRIVATE
+        "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:-Wno-analyzer-possible-null-dereference>")
+      target_compile_options(${TARGET} PRIVATE
+        "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:-Wno-analyzer-possible-null-argument>")
     endif()
   endif()
 endfunction()

@@ -245,7 +245,6 @@ class qsbr final {
     const std::uint64_t request_epoch{qsbr::instance().get_current_epoch()};
 #endif
 
-    // cppcheck-suppress constParameter
     deallocation_request(detail::pmr_pool &pool_, void *pointer_,
                          std::size_t size_, std::size_t alignment_) noexcept
         : pool{pool_}, pointer{pointer_}, size{size_}, alignment{alignment_} {}

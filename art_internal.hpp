@@ -131,7 +131,6 @@ class tree_depth final {
 template <class Header, class Db>
 class basic_db_leaf_deleter {
  public:
-  // cppcheck-suppress constParameter
   constexpr explicit basic_db_leaf_deleter(Db &db_) noexcept : db{db_} {}
 
   void operator()(raw_leaf_ptr to_delete) const noexcept;

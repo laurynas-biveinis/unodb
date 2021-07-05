@@ -40,7 +40,6 @@ class qsbr_ptr : public detail::qsbr_ptr_base {
 #endif
   }
 
-  // cppcheck-suppress noExplicitConstructor
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr(const qsbr_ptr<T> &other) noexcept
       : ptr{other.ptr} {
 #ifndef NDEBUG
@@ -48,7 +47,6 @@ class qsbr_ptr : public detail::qsbr_ptr_base {
 #endif
   }
 
-  // cppcheck-suppress noExplicitConstructor
   constexpr qsbr_ptr(qsbr_ptr<T> &&other) noexcept : ptr{other.ptr} {
     other.ptr = nullptr;
   }

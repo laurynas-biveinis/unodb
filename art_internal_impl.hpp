@@ -321,35 +321,29 @@ struct basic_art_policy final {
   }
 
   struct delete_db_node_ptr_at_scope_exit final {
-    constexpr explicit delete_db_node_ptr_at_scope_exit(
-        NodePtr node_ptr_,
-        Db &db_) noexcept  // cppcheck-suppress constParameter
+    constexpr explicit delete_db_node_ptr_at_scope_exit(NodePtr node_ptr_,
+                                                        Db &db_) noexcept
         : node_ptr{node_ptr_}, db{db_} {}
 
     ~delete_db_node_ptr_at_scope_exit() {
       switch (node_ptr.type()) {
         case node_type::LEAF: {
-          // cppcheck-suppress unreadVariable
           const auto r{make_db_leaf_ptr(db, node_ptr.leaf)};
           return;
         }
         case node_type::I4: {
-          // cppcheck-suppress unreadVariable
           const auto r{make_db_inode_unique_ptr(db, node_ptr.node_4)};
           return;
         }
         case node_type::I16: {
-          // cppcheck-suppress unreadVariable
           const auto r{make_db_inode_unique_ptr(db, node_ptr.node_16)};
           return;
         }
         case node_type::I48: {
-          // cppcheck-suppress unreadVariable
           const auto r{make_db_inode_unique_ptr(db, node_ptr.node_48)};
           return;
         }
         case node_type::I256: {
-          // cppcheck-suppress unreadVariable
           const auto r{make_db_inode_unique_ptr(db, node_ptr.node_256)};
           return;
         }
@@ -370,7 +364,6 @@ struct basic_art_policy final {
   };
 
  public:
-  // cppcheck-suppress constParameter
   static void delete_subtree(NodePtr node, Db &db_instance) noexcept {
     delete_db_node_ptr_at_scope_exit delete_on_scope_exit{node, db_instance};
 
@@ -1659,7 +1652,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   }
 
   constexpr void direct_remove_child_pointer(std::uint8_t children_i,
-                                             // cppcheck-suppress constParameter
                                              db &db_instance) noexcept {
     assert(children_i != empty_child);
 

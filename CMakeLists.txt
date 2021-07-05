@@ -293,10 +293,6 @@ else()
 endif()
 
 set(CPPCHECK_ARGS
-  # I actually do that
-  "--suppress=accessMoved"
-  # False positive on pointer unions being passed by value
-  "--suppress=passedByValue"
   # False positive on Google Test TEST macro and compilers are much better
   # for syntax checking anyway
   "--suppress=syntaxError")

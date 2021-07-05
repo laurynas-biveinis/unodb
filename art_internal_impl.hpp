@@ -110,36 +110,37 @@ struct basic_leaf final {
   static constexpr auto offset_value =
       offset_value_size + sizeof(value_size_type);
 
-  [[nodiscard]] static constexpr auto key(raw_leaf_ptr leaf) noexcept {
+  [[nodiscard]] static constexpr auto key(const_raw_leaf_ptr leaf) noexcept {
     assert_invariants(leaf);
 
     return art_key::create(&leaf[offset_key]);
   }
 
-  [[nodiscard]] static constexpr auto matches(raw_leaf_ptr leaf,
+  [[nodiscard]] static constexpr auto matches(const_raw_leaf_ptr leaf,
                                               art_key k) noexcept {
     assert_invariants(leaf);
 
     return k == leaf + offset_key;
   }
 
-  [[nodiscard]] static constexpr auto value(raw_leaf_ptr leaf) noexcept {
+  [[nodiscard]] static constexpr auto value(const_raw_leaf_ptr leaf) noexcept {
     assert_invariants(leaf);
 
     return value_view{&leaf[offset_value], value_size(leaf)};
   }
 
-  [[nodiscard]] static constexpr std::size_t size(raw_leaf_ptr leaf) noexcept {
+  [[nodiscard]] static constexpr std::size_t size(
+      const_raw_leaf_ptr leaf) noexcept {
     assert_invariants(leaf);
 
     return value_size(leaf) + offset_value;
   }
 
   [[gnu::cold, gnu::noinline]] static void dump(std::ostream &os,
-                                                raw_leaf_ptr leaf);
+                                                const_raw_leaf_ptr leaf);
 
   static constexpr void assert_invariants(
-      UNODB_DETAIL_USED_IN_DEBUG raw_leaf_ptr leaf) noexcept {
+      UNODB_DETAIL_USED_IN_DEBUG const_raw_leaf_ptr leaf) noexcept {
 #ifndef NDEBUG
     assert(reinterpret_cast<std::uintptr_t>(leaf) % alignof(Header) == 0);
     const auto *const assume_aligned =
@@ -153,7 +154,7 @@ struct basic_leaf final {
   static constexpr auto minimum_size = offset_value;
 
   UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-  [[nodiscard]] static auto value_size(raw_leaf_ptr leaf) noexcept {
+  [[nodiscard]] static auto value_size(const_raw_leaf_ptr leaf) noexcept {
     assert_invariants(leaf);
 
     value_size_type result;
@@ -195,7 +196,7 @@ auto make_db_leaf_ptr(art_key k, value_view v, Db &db) {
 }
 
 template <class Header>
-void basic_leaf<Header>::dump(std::ostream &os, raw_leaf_ptr leaf) {
+void basic_leaf<Header>::dump(std::ostream &os, const_raw_leaf_ptr leaf) {
   os << "LEAF: " << key(leaf) << ", value size: " << value_size(leaf) << '\n';
 }
 

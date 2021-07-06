@@ -98,6 +98,7 @@ using raw_leaf = std::byte;
 // This pointer should be aligned as node header, but we can only attach alignas
 // to a struct or union, which is inconvenient here.
 using raw_leaf_ptr = raw_leaf *;
+using const_raw_leaf_ptr = const raw_leaf *;
 
 class tree_depth final {
  public:

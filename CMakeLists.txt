@@ -87,10 +87,12 @@ if(VALGRIND_H_PATH)
   else()
     message(STATUS
       "valgrind.h found but memcheck.h not found, disabling Valgrind client requests in debug config")
+    set(VALGRIND_CLIENT OFF)
   endif()
 else()
   message(STATUS
     "valgrind.h not found, disabling Valgrind client requests in debug config")
+  set(VALGRIND_CLIENT OFF)
 endif()
 
 include(CheckIPOSupported)
@@ -100,6 +102,9 @@ if(IPO_SUPPORTED)
 else()
   message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
 endif()
+
+set(SANITIZER_CXX_FLAGS "")
+set(SANITIZER_LD_FLAGS "")
 
 macro(ADD_TO_GNU_SANITIZER_FLAGS)
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -142,6 +147,8 @@ if(SANITIZE_ADDRESS)
     string(APPEND ASAN_ENV ":detect_leaks=1")
   endif()
   set(SANITIZER_ENV ${ASAN_ENV})
+else()
+  set(ASAN_ENV "")
 endif()
 
 option(SANITIZE_THREAD "Enable ThreadSanitizer runtime checks")
@@ -175,6 +182,8 @@ if(SANITIZE_UB)
   string(CONCAT UBSAN_ENV "UBSAN_OPTIONS="
     "print_stacktrace=1:halt_on_error=1:abort_on_error=1")
   set(SANITIZER_ENV ${UBSAN_ENV})
+else()
+  set(UBSAN_ENV "")
 endif()
 
 option(STATIC_ANALYSIS "Enable compiler static analysis")
@@ -278,11 +287,13 @@ get_target_property(benchmark_include_dirs benchmark::benchmark
 if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
     AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   message(STATUS "Not using clang-tidy due to non-clang compiler being used")
+  set(DO_CLANG_TIDY "")
 else()
   find_program(CLANG_TIDY_EXE NAMES "clang-tidy"
     DOC "Path to clang-tidy executable")
   if(NOT CLANG_TIDY_EXE)
     message(STATUS "clang-tidy not found")
+    set(DO_CLANG_TIDY "")
   else()
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
     set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}")
@@ -361,9 +372,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
   # Change to target_link_options on 3.13 minimum CMake version
-  target_link_libraries(${TARGET} PRIVATE "${LD_FLAGS}")
   target_link_libraries(${TARGET} PRIVATE "${SANITIZER_LD_FLAGS}")
-  target_link_libraries(${TARGET} INTERFACE "${INTERFACE_LD_FLAGS}")
   target_link_libraries(${TARGET} INTERFACE "$<$<BOOL:${COVERAGE}>:--coverage>")
   if(IPO_SUPPORTED)
     set_target_properties(${TARGET} PROPERTIES

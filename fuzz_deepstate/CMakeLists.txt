@@ -12,7 +12,7 @@ function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
   else()
     common_target_properties(${TARGET})
     target_link_libraries(${TARGET} PRIVATE deepstate)
-    set_clang_tidy_options(${TARGET} "${DO_CLANG_TIDY_DEEPSTATE}")
+    set_clang_tidy_options(${TARGET} "${DO_CLANG_TIDY}")
   endif()
 endfunction()
 

@@ -95,8 +95,10 @@ using art_key = basic_art_key<unodb::key>;
 // ever implement other kinds, rename this and related types to
 // single_value_leaf.
 using raw_leaf = std::byte;
-// This pointer should be aligned as node header, but we can only attach alignas
-// to a struct or union, which is inconvenient here.
+
+// These pointers should be aligned as node headers, although accessing them
+// through __builtin_assume_aligned results in no difference in generated code
+// last time I checked.
 using raw_leaf_ptr = raw_leaf *;
 using const_raw_leaf_ptr = const raw_leaf *;
 

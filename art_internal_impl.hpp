@@ -462,6 +462,9 @@ class basic_inode_impl {
   static constexpr auto header_pad_bytes = header_pad_u32 * 4;
 
  public:
+  // Hide padding inside key prefix data, as any separate padding field will
+  // occupy at least one byte even when no padding is needed. Change this when
+  // C++20 no_unique_address is available.
   using key_prefix_data = std::array<critical_section_policy<std::byte>,
                                      key_prefix_capacity + header_pad_bytes>;
 

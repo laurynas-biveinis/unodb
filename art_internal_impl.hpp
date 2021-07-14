@@ -1438,8 +1438,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 #else
     const auto result = static_cast<std::uint8_t>(
         std::lower_bound(keys.byte_array.cbegin(),
-                         keys.byte_array.cbegin() + children_count_ccopy,
-                         key_byte) -
+                         keys.byte_array.cbegin() + children_count, key_byte) -
         keys.byte_array.cbegin());
 #endif
 

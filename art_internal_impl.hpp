@@ -1025,7 +1025,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     }
 
     assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + this->f.f.children_count));
+                          keys.byte_array.cbegin() + parent_class::capacity));
   }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,

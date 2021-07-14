@@ -47,14 +47,14 @@ class db final {
   using get_result = std::optional<value_view>;
 
   // Creation and destruction
-  constexpr db() noexcept {}
+  db() noexcept {}
 
   ~db() noexcept;
 
   // Querying
   [[nodiscard]] get_result get(key search_key) const noexcept;
 
-  [[nodiscard]] constexpr auto empty() const noexcept {
+  [[nodiscard]] auto empty() const noexcept {
     return root == nullptr;
   }
 

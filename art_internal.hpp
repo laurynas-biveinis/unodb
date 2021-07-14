@@ -192,7 +192,8 @@ class basic_db_inode_deleter {
 // location in Header and all node types. This is checked by static asserts in
 // the implementation file.
 template <class Header, class INode, class INodeDefs>
-union basic_node_ptr {
+class basic_node_ptr {
+ public:
   using header_type = Header;
   using inode_defs = INodeDefs;
   using inode = INode;
@@ -201,89 +202,126 @@ union basic_node_ptr {
   using inode48_type = typename INodeDefs::n48;
   using inode256_type = typename INodeDefs::n256;
 
-  basic_node_ptr() noexcept {}
-  explicit constexpr basic_node_ptr(std::nullptr_t) noexcept
-      : header{nullptr} {}
-  constexpr explicit basic_node_ptr(raw_leaf_ptr leaf_) noexcept
-      : leaf{leaf_} {}
-  constexpr explicit basic_node_ptr(inode4_type *node_4_) noexcept
-      : node_4{node_4_} {}
-  constexpr explicit basic_node_ptr(inode16_type *node_16_) noexcept
-      : node_16{node_16_} {}
-  constexpr explicit basic_node_ptr(inode48_type *node_48_) noexcept
-      : node_48{node_48_} {}
-  constexpr explicit basic_node_ptr(inode256_type *node_256_) noexcept
-      : node_256{node_256_} {}
+  constexpr basic_node_ptr() noexcept = default;
+  explicit basic_node_ptr(std::nullptr_t) noexcept
+      : tagged_ptr{reinterpret_cast<std::uintptr_t>(nullptr)} {}
+  explicit basic_node_ptr(raw_leaf_ptr leaf) noexcept
+      : tagged_ptr{tag_ptr(leaf, unodb::node_type::LEAF)} {}
+  explicit basic_node_ptr(inode4_type *node_4) noexcept
+      : tagged_ptr{tag_ptr(node_4, unodb::node_type::I4)} {}
+  explicit basic_node_ptr(inode16_type *node_16) noexcept
+      : tagged_ptr{tag_ptr(node_16, unodb::node_type::I16)} {}
+  explicit basic_node_ptr(inode48_type *node_48) noexcept
+      : tagged_ptr{tag_ptr(node_48, unodb::node_type::I48)} {}
+  explicit basic_node_ptr(inode256_type *node_256) noexcept
+      : tagged_ptr{tag_ptr(node_256, unodb::node_type::I256)} {}
 
-  constexpr basic_node_ptr<Header, INode, INodeDefs> &operator=(
-      std::nullptr_t) noexcept {
-    header = nullptr;
+  basic_node_ptr<Header, INode, INodeDefs> &operator=(std::nullptr_t) noexcept {
+    tagged_ptr = reinterpret_cast<std::uintptr_t>(nullptr);
     return *this;
   }
 
-  constexpr basic_node_ptr<Header, INode, INodeDefs> &operator=(
+  basic_node_ptr<Header, INode, INodeDefs> &operator=(
       raw_leaf_ptr other) noexcept {
-    leaf = other;
+    tagged_ptr = tag_ptr(other, unodb::node_type::LEAF);
     return *this;
   }
 
   [[nodiscard, gnu::pure]] constexpr auto type() const noexcept {
-    return header->type();
+    return static_cast<unodb::node_type>(tagged_ptr & tag_bit_mask);
   }
 
-  [[nodiscard]] constexpr auto *as_header() const noexcept { return header; }
+  [[nodiscard, gnu::pure]] constexpr auto raw_val() const noexcept {
+    return tagged_ptr;
+  }
 
-  [[nodiscard]] constexpr auto *as_leaf() const noexcept {
+  [[nodiscard, gnu::pure]] auto *raw_ptr() const noexcept {
+    return as_ptr<void *>();
+  }
+
+  [[nodiscard]] auto *as_header() const noexcept {
+    return as_ptr<header_type *>();
+  }
+
+  [[nodiscard]] auto *as_leaf() const noexcept {
     assert(type() == unodb::node_type::LEAF);
-    return leaf;
+    return as_ptr<raw_leaf_ptr>();
   }
 
-  [[nodiscard]] constexpr auto *as_inode() const noexcept {
+  [[nodiscard]] auto *as_inode() const noexcept {
     assert(type() != unodb::node_type::LEAF);
-    return internal;
+    return as_ptr<inode *>();
   }
 
-  [[nodiscard]] constexpr auto *as_inode4() const noexcept {
+  [[nodiscard]] auto *as_inode4() const noexcept {
     assert(type() == unodb::node_type::I4);
-    return node_4;
+    return as_ptr<inode4_type *>();
   }
 
-  [[nodiscard]] constexpr auto *as_inode16() const noexcept {
+  [[nodiscard]] auto *as_inode16() const noexcept {
     assert(type() == unodb::node_type::I16);
-    return node_16;
+    return as_ptr<inode16_type *>();
   }
 
-  [[nodiscard]] constexpr auto *as_inode48() const noexcept {
+  [[nodiscard]] auto *as_inode48() const noexcept {
     assert(type() == unodb::node_type::I48);
-    return node_48;
+    return as_ptr<inode48_type *>();
   }
 
-  [[nodiscard]] constexpr auto *as_inode256() const noexcept {
+  [[nodiscard]] auto *as_inode256() const noexcept {
     assert(type() == unodb::node_type::I256);
-    return node_256;
+    return as_ptr<inode256_type *>();
   }
 
-  [[nodiscard]] constexpr auto operator==(std::nullptr_t) const noexcept {
-    return header == nullptr;
+  [[nodiscard]] auto operator==(std::nullptr_t) const noexcept {
+    return tagged_ptr == reinterpret_cast<std::uintptr_t>(nullptr);
   }
 
-  [[nodiscard]] constexpr auto operator!=(std::nullptr_t) const noexcept {
-    return header != nullptr;
+  [[nodiscard]] auto operator!=(std::nullptr_t) const noexcept {
+    return tagged_ptr != reinterpret_cast<std::uintptr_t>(nullptr);
   }
 
  private:
-  header_type *header;
-  raw_leaf_ptr leaf;
-  INode *internal;
-  inode4_type *node_4;
-  inode16_type *node_16;
-  inode48_type *node_48;
-  inode256_type *node_256;
+  std::uintptr_t tagged_ptr;
+
+  template <typename T>
+  std::uintptr_t tag_ptr(T ptr, unodb::node_type tag) {
+    static_assert(std::is_pointer_v<T>);
+    const auto result = reinterpret_cast<std::uintptr_t>(ptr) |
+                        static_cast<std::underlying_type_t<decltype(tag)>>(tag);
+    assert(as_ptr<T>(result) == ptr);
+    return result;
+  }
+
+  template <typename T>
+  auto as_ptr(std::uintptr_t ptr_with_tag) const noexcept {
+    static_assert(std::is_pointer_v<T>);
+    return reinterpret_cast<T>(ptr_with_tag & ptr_bit_mask);
+  }
+
+  template <typename T>
+  auto as_ptr() const noexcept {
+    return as_ptr<T>(tagged_ptr);
+  }
+
+  static constexpr unsigned mask_bits_needed(unsigned count) {
+    return count < 2 ? 1 : 1 + mask_bits_needed(count >> 1U);
+  }
+
+  static constexpr auto lowest_non_tag_bit =
+      1ULL << mask_bits_needed(node_type_count);
+  static constexpr auto tag_bit_mask = lowest_non_tag_bit - 1;
+  static constexpr auto ptr_bit_mask = ~tag_bit_mask;
 
   static auto static_asserts() {
     static_assert(
         sizeof(basic_node_ptr<Header, INode, INodeDefs>) == sizeof(void *),
         "node_ptr union must be of equal size to a raw pointer");
+    static_assert(alignof(inode4_type) - 1 > lowest_non_tag_bit);
+    static_assert(alignof(inode16_type) - 1 > lowest_non_tag_bit);
+    static_assert(alignof(inode48_type) - 1 > lowest_non_tag_bit);
+    static_assert(alignof(inode256_type) - 1 > lowest_non_tag_bit);
+    static_assert(alignof(header_type) - 1 > lowest_non_tag_bit);
   }
 };
 

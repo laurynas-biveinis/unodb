@@ -13,6 +13,14 @@
 #include "in_fake_critical_section.hpp"
 #include "node_type.hpp"
 
+namespace unodb::detail {
+
+struct node_header {};
+
+static_assert(std::is_empty_v<node_header>);
+
+}  // namespace unodb::detail
+
 namespace {
 
 template <class INode>

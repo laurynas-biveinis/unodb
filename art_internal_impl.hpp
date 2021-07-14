@@ -1536,8 +1536,10 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
           source_node_ptr->children[child_i].load();
       ++next_child;
 
-      if (next_child == this->f.f.children_count) break;
+      if (next_child == basic_inode_48::capacity) break;
     }
+
+    assert(this->f.f.children_count == basic_inode_48::capacity);
   }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,

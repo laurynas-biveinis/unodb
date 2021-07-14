@@ -1081,7 +1081,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                                                        db_instance)};
 
     typename decltype(keys.byte_array)::size_type i = child_index;
-    for (; i < static_cast<unsigned>(this->f.f.children_count - 1); ++i) {
+    for (; i < static_cast<unsigned>(children_count - 1); ++i) {
       // TODO(laurynas): see the AVX2 TODO at add method
       keys.byte_array[i] = keys.byte_array[i + 1];
       children[i] = children[i + 1];

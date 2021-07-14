@@ -1613,15 +1613,17 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   constexpr void delete_subtree(db &db_instance) noexcept {
 #ifndef NDEBUG
     const auto children_count = this->f.f.children_count.load();
+    unsigned actual_children_count = 0;
 #endif
 
-    unsigned actual_children_count = 0;
     for (unsigned i = 0; i < this->capacity; ++i) {
       const auto child = children.pointer_array[i].load();
       if (child != nullptr) {
-        ++actual_children_count;
         ArtPolicy::delete_subtree(child, db_instance);
+#ifndef NDEBUG
+        ++actual_children_count;
         assert(actual_children_count <= children_count);
+#endif
       }
     }
     assert(actual_children_count == children_count);
@@ -1630,20 +1632,22 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
 #ifndef NDEBUG
     const auto children_count = this->f.f.children_count.load();
+    unsigned actual_children_count = 0;
 #endif
 
     os << ", key bytes & child indexes\n";
-    unsigned actual_children_count = 0;
     for (unsigned i = 0; i < 256; i++)
       if (child_indexes[i] != empty_child) {
-        ++actual_children_count;
         os << " ";
         dump_byte(os, gsl::narrow_cast<std::byte>(i));
         os << ", child index = " << static_cast<unsigned>(child_indexes[i])
            << ": ";
         assert(children.pointer_array[child_indexes[i]] != nullptr);
         dump_node(os, children.pointer_array[child_indexes[i]].load());
+#ifndef NDEBUG
+        ++actual_children_count;
         assert(actual_children_count <= children_count);
+#endif
       }
 
     assert(actual_children_count == children_count);
@@ -1831,14 +1835,17 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
       noexcept(noexcept(func(0, node_ptr{nullptr}))) {
 #ifndef NDEBUG
     const auto children_count = this->f.f.children_count.load();
-#endif
     std::uint8_t actual_children_count = 0;
+#endif
+
     for (unsigned i = 0; i < 256; ++i) {
       const auto child_ptr = children[i].load();
       if (child_ptr != nullptr) {
-        ++actual_children_count;
         func(i, child_ptr);
+#ifndef NDEBUG
+        ++actual_children_count;
         assert(actual_children_count <= children_count || children_count == 0);
+#endif
       }
     }
     assert(actual_children_count == children_count);

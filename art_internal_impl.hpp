@@ -1039,7 +1039,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
         static_cast<std::uint8_t>(leaf_type::key(child.get())[depth]);
 
 #if __x86_64
-    const auto mask = (1U << this->f.f.children_count.load()) - 1;
+    const auto mask = (1U << children_count) - 1;
     const auto insert_pos_index = get_insert_pos(key_byte, mask);
 #else
     const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;

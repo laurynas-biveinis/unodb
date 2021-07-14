@@ -1024,8 +1024,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       *children_itr++ = *source_children_itr++;
     }
 
+    assert(this->f.f.children_count == basic_inode_4::capacity);
     assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + parent_class::capacity));
+                          keys.byte_array.cbegin() + basic_inode_4::capacity));
   }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
@@ -1319,7 +1320,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       ++i;
     }
 
-    assert(basic_inode_16::capacity == this->f.f.children_count);
+    assert(this->f.f.children_count == basic_inode_16::capacity);
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + basic_inode_16::capacity));
   }

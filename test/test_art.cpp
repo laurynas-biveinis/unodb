@@ -432,6 +432,19 @@ TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge) {
   verifier.assert_node_counts({2, 1, 0, 0, 0});
 }
 
+TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge2) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert(0x0000000003020102, unodb::test::test_values[0]);
+  verifier.insert(0x0000000003030302, unodb::test::test_values[1]);
+  verifier.insert(0x0000000100010102, unodb::test::test_values[2]);
+
+  verifier.remove(0x0000000100010102);
+  verifier.remove(0x0000000003020102);
+
+  verifier.check_present_values();
+}
+
 TYPED_TEST(ARTCorrectnessTest, Node16DeleteBeginningMiddleEnd) {
   unodb::test::tree_verifier<TypeParam> verifier;
 

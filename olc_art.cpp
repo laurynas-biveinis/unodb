@@ -141,8 +141,19 @@ using olc_inode_base = unodb::detail::basic_inode_impl<olc_art_policy>;
 
 [[nodiscard]] constexpr auto &node_ptr_lock(
     const unodb::detail::olc_node_ptr &node) noexcept {
-  return node.header->lock();
+  return node.as_header()->lock();
 }
+
+#ifndef NDEBUG
+
+[[nodiscard]] auto &node_ptr_lock(unodb::detail::raw_leaf_ptr node) noexcept {
+  return reinterpret_cast<unodb::detail::olc_node_header *>(
+             __builtin_assume_aligned(node,
+                                      alignof(unodb::detail::olc_node_header)))
+      ->lock();
+}
+
+#endif
 
 template <class INode>
 [[nodiscard]] constexpr auto &lock(const INode &inode) noexcept {
@@ -610,7 +621,7 @@ olc_impl_helpers::add_or_choose_subtree(
         auto larger_node{INode::larger_derived_type::create(
             std::move(current_node), std::move(node_write_guard),
             std::move(leaf), depth)};
-        *node_in_parent = larger_node.release();
+        *node_in_parent = detail::olc_node_ptr{larger_node.release()};
         db_instance.account_growing_inode<INode::larger_derived_type::type>();
 
         assert(!node_write_guard.active());
@@ -667,7 +678,7 @@ template <class INode>
     return true;
   }
 
-  if (!leaf::matches(child->leaf, k)) {
+  if (!leaf::matches(child->as_leaf(), k)) {
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return {};  // LCOV_EXCL_LINE
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -721,7 +732,7 @@ template <class INode>
     auto new_node{INode::smaller_derived_type::create(
         std::move(current_node), std::move(node_guard), child_i,
         std::move(child_guard))};
-    *node_in_parent = new_node.release();
+    *node_in_parent = detail::olc_node_ptr{new_node.release()};
   }
   db_instance.template account_shrinking_inode<INode::type>();
 
@@ -789,7 +800,7 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
 
   if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
 
-  if (UNODB_DETAIL_UNLIKELY(node.header == nullptr)) {
+  if (UNODB_DETAIL_UNLIKELY(node == nullptr)) {
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return {};  // LCOV_EXCL_LINE
     return std::make_optional<get_result>(std::nullopt);
@@ -807,8 +818,9 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
-      if (leaf::matches(node.leaf, k)) {
-        const auto value = leaf::value(node.leaf);
+      const auto *const leaf{node.as_leaf()};
+      if (leaf::matches(leaf, k)) {
+        const auto value{leaf::value(leaf)};
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
           return {};  // LCOV_EXCL_LINE
         return qsbr_ptr_span<const std::byte>{value};
@@ -818,9 +830,10 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
       return std::make_optional<get_result>(std::nullopt);
     }
 
-    const auto key_prefix_length = node.internal->key_prefix_length();
-    const auto shared_key_prefix_length =
-        node.internal->get_shared_key_prefix_length(remaining_key);
+    auto *const inode{node.as_inode()};
+    const auto key_prefix_length{inode->key_prefix_length()};
+    const auto shared_key_prefix_length{
+        inode->get_shared_key_prefix_length(remaining_key)};
 
     if (shared_key_prefix_length < key_prefix_length) {
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -834,8 +847,8 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
 
     remaining_key.shift_right(key_prefix_length);
 
-    auto *const child_in_parent =
-        node.internal->find_child(node_type, remaining_key[0]).second;
+    auto *const child_in_parent{
+        inode->find_child(node_type, remaining_key[0]).second};
 
     if (child_in_parent == nullptr) {
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -874,14 +887,14 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
   if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
 
-  if (UNODB_DETAIL_UNLIKELY(node.header == nullptr)) {
+  if (UNODB_DETAIL_UNLIKELY(node == nullptr)) {
     auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
     optimistic_lock::write_guard write_unlock_on_exit{
         std::move(parent_critical_section)};
     if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) return {};
 
-    root = leaf.release();
+    root = detail::olc_node_ptr{leaf.release()};
     return true;
   }
 
@@ -895,7 +908,8 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
-      const auto existing_key = leaf::key(node.leaf);
+      auto *const leaf{node.as_leaf()};
+      const auto existing_key{leaf::key(leaf)};
       if (UNODB_DETAIL_UNLIKELY(k == existing_key)) {
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
           return {};  // LCOV_EXCL_LINE
@@ -916,9 +930,9 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
       // TODO(laurynas): consider creating new lower version and replacing
       // contents, to enable replacing parent write unlock with parent unlock
-      auto new_node = detail::olc_inode_4::create(
-          existing_key, remaining_key, depth, node.leaf, std::move(new_leaf));
-      *node_in_parent = new_node.release();
+      auto new_node{detail::olc_inode_4::create(
+          existing_key, remaining_key, depth, leaf, std::move(new_leaf))};
+      *node_in_parent = detail::olc_node_ptr{new_node.release()};
       account_growing_inode<node_type::I4>();
       return true;
     }
@@ -926,9 +940,10 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     assert(node_type != node_type::LEAF);
     assert(depth < detail::art_key::size);
 
-    const auto key_prefix_length = node.internal->key_prefix_length();
-    const auto shared_prefix_length =
-        node.internal->get_shared_key_prefix_length(remaining_key);
+    auto *const inode{node.as_inode()};
+    const auto key_prefix_length{inode->key_prefix_length()};
+    const auto shared_prefix_length{
+        inode->get_shared_key_prefix_length(remaining_key)};
 
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
@@ -944,7 +959,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
       auto new_node = detail::olc_inode_4::create(node, shared_prefix_length,
                                                   depth, std::move(leaf));
-      *node_in_parent = new_node.release();
+      *node_in_parent = detail::olc_node_ptr{new_node.release()};
       account_growing_inode<node_type::I4>();
       key_prefix_splits.fetch_add(1, std::memory_order_relaxed);
       return true;
@@ -955,10 +970,10 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
-    const auto add_result = node.internal->add_or_choose_subtree<
+    const auto add_result{inode->add_or_choose_subtree<
         std::optional<in_critical_section<detail::olc_node_ptr> *>>(
         node_type, remaining_key[0], k, v, *this, depth, node_critical_section,
-        node_in_parent, parent_critical_section);
+        node_in_parent, parent_critical_section)};
 
     if (UNODB_DETAIL_UNLIKELY(!add_result)) return {};
 
@@ -1009,7 +1024,8 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
   if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
   if (node_type == node_type::LEAF) {
-    if (leaf::matches(node.leaf, k)) {
+    auto *const leaf{node.as_leaf()};
+    if (leaf::matches(leaf, k)) {
       optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
       if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
@@ -1019,8 +1035,8 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
 
       node_guard.unlock_and_obsolete();
 
-      const auto r{olc_art_policy::reclaim_leaf_on_scope_exit(node, *this)};
-      root = nullptr;
+      const auto r{olc_art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
+      root = detail::olc_node_ptr{nullptr};
       return true;
     }
 
@@ -1037,9 +1053,10 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
     assert(node_type != node_type::LEAF);
     assert(depth < detail::art_key::size);
 
-    const auto key_prefix_length = node.internal->key_prefix_length();
-    const auto shared_prefix_length =
-        node.internal->get_shared_key_prefix_length(remaining_key);
+    auto *const inode{node.as_inode()};
+    const auto key_prefix_length{inode->key_prefix_length()};
+    const auto shared_prefix_length{
+        inode->get_shared_key_prefix_length(remaining_key)};
 
     if (shared_prefix_length < key_prefix_length) {
       if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
@@ -1062,7 +1079,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
     optimistic_lock::read_critical_section child_critical_section;
 
     const auto opt_remove_result{
-        node.internal->remove_or_choose_subtree<std::optional<bool>>(
+        inode->remove_or_choose_subtree<std::optional<bool>>(
             node_type, remaining_key[0], k, *this, parent_critical_section,
             node_critical_section, node_in_parent, &child_in_parent,
             &child_critical_section, &child_type, &child)};
@@ -1100,7 +1117,7 @@ void olc_db::clear() {
 
   delete_root_subtree();
 
-  root = nullptr;
+  root = detail::olc_node_ptr{nullptr};
   current_memory_use.store(0, std::memory_order_relaxed);
 
   node_counts[as_i<node_type::I4>].store(0, std::memory_order_relaxed);

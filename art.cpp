@@ -265,7 +265,8 @@ db::get_result db::get(key search_key) const noexcept {
     if (inode->get_shared_key_prefix_length(remaining_key) < key_prefix_length)
       return {};
     remaining_key.shift_right(key_prefix_length);
-    auto *const child{inode->find_child(node_type, remaining_key[0]).second};
+    const auto *const child{
+        inode->find_child(node_type, remaining_key[0]).second};
     if (child == nullptr) return {};
 
     node = *child;

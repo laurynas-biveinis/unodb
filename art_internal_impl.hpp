@@ -1169,12 +1169,12 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   }
 
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
-    const auto children_count_copy = this->f.f.children_count.load();
+    const auto children_count_ = this->f.f.children_count.load();
     os << ", key bytes =";
-    for (std::uint8_t i = 0; i < children_count_copy; i++)
+    for (std::uint8_t i = 0; i < children_count_; i++)
       dump_byte(os, keys.byte_array[i]);
     os << ", children:\n";
-    for (std::uint8_t i = 0; i < children_count_copy; i++)
+    for (std::uint8_t i = 0; i < children_count_; i++)
       dump_node(os, children[i].load());
   }
 

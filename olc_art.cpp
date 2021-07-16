@@ -369,8 +369,8 @@ class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
 
   [[nodiscard]] find_result find_child(std::byte key_byte) noexcept {
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
-    const auto children_count_copy = this->f.f.children_count.load();
-    for (unsigned i = 0; i < children_count_copy; ++i)
+    const auto children_count_ = this->f.f.children_count.load();
+    for (unsigned i = 0; i < children_count_; ++i)
       if (keys.byte_array[i] == key_byte)
         return std::make_pair(i, &children[i]);
     return std::make_pair(0xFF, nullptr);

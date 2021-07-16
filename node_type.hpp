@@ -5,6 +5,7 @@
 #include "global.hpp"
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 
 namespace unodb {
@@ -15,8 +16,8 @@ namespace detail {
 
 // C++ has five value categories and IIRC thousands of ways to initialize but no
 // way to count the number of enum elements.
-constexpr auto node_type_count{5};
-constexpr auto inode_type_count{4};
+constexpr std::size_t node_type_count{5};
+constexpr std::size_t inode_type_count{4};
 
 template <node_type NodeType>
 void is_internal() noexcept {

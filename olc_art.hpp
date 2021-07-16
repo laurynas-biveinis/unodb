@@ -159,6 +159,11 @@ class olc_db final {
   // Debugging
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const;
 
+  olc_db(const olc_db &) noexcept = delete;
+  olc_db(olc_db &&) noexcept = delete;
+  olc_db &operator=(const olc_db &) noexcept = delete;
+  olc_db &operator=(olc_db &&) noexcept = delete;
+
  private:
   // If get_result is not present, the search was interrupted. Yes, this
   // resolves to std::optional<std::optional<value_view>>, but IMHO both
@@ -212,7 +217,7 @@ class olc_db final {
 
   mutable optimistic_lock root_pointer_lock;
 
-  in_critical_section<detail::olc_node_ptr> root{nullptr};
+  in_critical_section<detail::olc_node_ptr> root{detail::olc_node_ptr{nullptr}};
 
   // Current logically allocated memory that is not scheduled to be reclaimed.
   // The total memory currently allocated is this plus the QSBR deallocation

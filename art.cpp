@@ -179,7 +179,7 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
   if (child_ptr_val.type() != node_type::LEAF)
     return reinterpret_cast<detail::node_ptr *>(child_ptr);
 
-  if (!leaf::matches(child_ptr_val.leaf, k)) return {};
+  if (!leaf::matches(child_ptr_val.as_leaf(), k)) return {};
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
     auto current_node{
@@ -241,7 +241,7 @@ constexpr void db::account_shrinking_inode() noexcept {
 }
 
 db::get_result db::get(key search_key) const noexcept {
-  if (UNODB_DETAIL_UNLIKELY(root.header == nullptr)) return {};
+  if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
 
   auto node{root};
   const detail::art_key k{search_key};
@@ -250,8 +250,9 @@ db::get_result db::get(key search_key) const noexcept {
   while (true) {
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
-      if (leaf::matches(node.leaf, k)) {
-        const auto value = leaf::value(node.leaf);
+      const auto *const leaf{node.as_leaf()};
+      if (leaf::matches(leaf, k)) {
+        const auto value{leaf::value(leaf)};
         return value;
       }
       return {};
@@ -259,13 +260,12 @@ db::get_result db::get(key search_key) const noexcept {
 
     assert(node_type != node_type::LEAF);
 
-    const auto key_prefix_length = node.internal->key_prefix_length();
-    if (node.internal->get_shared_key_prefix_length(remaining_key) <
-        key_prefix_length)
+    auto *const inode{node.as_inode()};
+    const auto key_prefix_length{inode->key_prefix_length()};
+    if (inode->get_shared_key_prefix_length(remaining_key) < key_prefix_length)
       return {};
     remaining_key.shift_right(key_prefix_length);
-    auto *const child =
-        node.internal->find_child(node_type, remaining_key[0]).second;
+    auto *const child{inode->find_child(node_type, remaining_key[0]).second};
     if (child == nullptr) return {};
 
     node = *child;
@@ -276,7 +276,7 @@ db::get_result db::get(key search_key) const noexcept {
 bool db::insert(key insert_key, value_view v) {
   const auto k = detail::art_key{insert_key};
 
-  if (UNODB_DETAIL_UNLIKELY(root.header == nullptr)) {
+  if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
     auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
     root = detail::node_ptr{leaf.release()};
     return true;
@@ -289,12 +289,13 @@ bool db::insert(key insert_key, value_view v) {
   while (true) {
     const auto node_type = node->type();
     if (node_type == node_type::LEAF) {
-      const auto existing_key = leaf::key(node->leaf);
+      auto *const leaf{node->as_leaf()};
+      const auto existing_key{leaf::key(leaf)};
       if (UNODB_DETAIL_UNLIKELY(k == existing_key)) return false;
 
       auto new_leaf = art_policy::make_db_leaf_ptr(k, v, *this);
-      auto new_node = detail::inode_4::create(
-          existing_key, remaining_key, depth, node->leaf, std::move(new_leaf));
+      auto new_node{detail::inode_4::create(existing_key, remaining_key, depth,
+                                            leaf, std::move(new_leaf))};
       *node = detail::node_ptr{new_node.release()};
       account_growing_inode<node_type::I4>();
       return true;
@@ -303,9 +304,10 @@ bool db::insert(key insert_key, value_view v) {
     assert(node_type != node_type::LEAF);
     assert(depth < detail::art_key::size);
 
-    const auto key_prefix_length = node->internal->key_prefix_length();
-    const auto shared_prefix_len =
-        node->internal->get_shared_key_prefix_length(remaining_key);
+    auto *const inode{node->as_inode()};
+    const auto key_prefix_length{inode->key_prefix_length()};
+    const auto shared_prefix_len{
+        inode->get_shared_key_prefix_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) {
       auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
       auto new_node = detail::inode_4::create(*node, shared_prefix_len, depth,
@@ -322,7 +324,7 @@ bool db::insert(key insert_key, value_view v) {
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
-    node = node->internal->add_or_choose_subtree<detail::node_ptr *>(
+    node = inode->add_or_choose_subtree<detail::node_ptr *>(
         node_type, remaining_key[0], k, v, *this, depth, node);
 
     if (node == nullptr) return true;
@@ -338,8 +340,9 @@ bool db::remove(key remove_key) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
 
   if (root.type() == node_type::LEAF) {
-    if (leaf::matches(root.leaf, k)) {
-      const auto r{art_policy::reclaim_leaf_on_scope_exit(root, *this)};
+    auto *const root_leaf{root.as_leaf()};
+    if (leaf::matches(root_leaf, k)) {
+      const auto r{art_policy::reclaim_leaf_on_scope_exit(root_leaf, *this)};
       root = nullptr;
       return true;
     }
@@ -355,9 +358,10 @@ bool db::remove(key remove_key) {
     assert(node_type != node_type::LEAF);
     assert(depth < detail::art_key::size);
 
-    const auto key_prefix_length = node->internal->key_prefix_length();
-    const auto shared_prefix_len =
-        node->internal->get_shared_key_prefix_length(remaining_key);
+    auto *const inode{node->as_inode()};
+    const auto key_prefix_length{inode->key_prefix_length()};
+    const auto shared_prefix_len{
+        inode->get_shared_key_prefix_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) return false;
 
     assert(shared_prefix_len == key_prefix_length);
@@ -365,9 +369,8 @@ bool db::remove(key remove_key) {
     remaining_key.shift_right(key_prefix_length);
 
     const auto remove_result{
-        node->internal
-            ->remove_or_choose_subtree<std::optional<detail::node_ptr *>>(
-                node_type, remaining_key[0], k, *this, node)};
+        inode->remove_or_choose_subtree<std::optional<detail::node_ptr *>>(
+            node_type, remaining_key[0], k, *this, node)};
     if (UNODB_DETAIL_UNLIKELY(!remove_result)) return false;
 
     auto *const child_ptr{*remove_result};

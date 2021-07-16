@@ -104,7 +104,8 @@ struct basic_leaf final {
   using value_size_type = std::uint32_t;
 
   static constexpr auto offset_header = 0;
-  static constexpr auto offset_key = sizeof(Header);
+  static constexpr auto offset_key =
+      std::is_empty_v<Header> ? offset_header : sizeof(Header);
   static constexpr auto offset_value_size = offset_key + sizeof(art_key);
 
   static constexpr auto offset_value =
@@ -287,10 +288,9 @@ struct basic_art_policy final {
                                                               db_instance);
   }
 
-  [[nodiscard]] static auto reclaim_leaf_on_scope_exit(NodePtr leaf_node_ptr,
-                                                       Db &db_instance) {
-    assert(leaf_node_ptr.type() == node_type::LEAF);
-    return leaf_reclaimable_ptr{leaf_node_ptr.leaf,
+  [[nodiscard]] static auto reclaim_leaf_on_scope_exit(
+      raw_leaf_ptr leaf_node_ptr, Db &db_instance) {
+    return leaf_reclaimable_ptr{leaf_node_ptr,
                                 LeafReclamator<header_type, Db>{db_instance}};
   }
 
@@ -329,23 +329,23 @@ struct basic_art_policy final {
     ~delete_db_node_ptr_at_scope_exit() {
       switch (node_ptr.type()) {
         case node_type::LEAF: {
-          const auto r{make_db_leaf_ptr(db, node_ptr.leaf)};
+          const auto r{make_db_leaf_ptr(db, node_ptr.as_leaf())};
           return;
         }
         case node_type::I4: {
-          const auto r{make_db_inode_unique_ptr(db, node_ptr.node_4)};
+          const auto r{make_db_inode_unique_ptr(db, node_ptr.as_inode4())};
           return;
         }
         case node_type::I16: {
-          const auto r{make_db_inode_unique_ptr(db, node_ptr.node_16)};
+          const auto r{make_db_inode_unique_ptr(db, node_ptr.as_inode16())};
           return;
         }
         case node_type::I48: {
-          const auto r{make_db_inode_unique_ptr(db, node_ptr.node_48)};
+          const auto r{make_db_inode_unique_ptr(db, node_ptr.as_inode48())};
           return;
         }
         case node_type::I256: {
-          const auto r{make_db_inode_unique_ptr(db, node_ptr.node_256)};
+          const auto r{make_db_inode_unique_ptr(db, node_ptr.as_inode256())};
           return;
         }
       }
@@ -370,7 +370,7 @@ struct basic_art_policy final {
 
     if (node.type() == node_type::LEAF) return;
 
-    node.internal->delete_subtree(db_instance);
+    node.as_inode()->delete_subtree(db_instance);
   }
 
   basic_art_policy() = delete;
@@ -381,21 +381,21 @@ template <class NodePtr>
                                             const NodePtr &node) {
   using local_leaf_type = basic_leaf<typename NodePtr::header_type>;
 
-  os << "node at: " << node.header;
-  if (node.header == nullptr) {
+  os << "node at: " << node.as_header();
+  if (node == nullptr) {
     os << '\n';
     return;
   }
   os << ", type = ";
   switch (node.type()) {
     case node_type::LEAF:
-      local_leaf_type::dump(os, node.leaf);
+      local_leaf_type::dump(os, node.as_leaf());
       break;
     case node_type::I4:
     case node_type::I16:
     case node_type::I48:
     case node_type::I256:
-      node.internal->dump(os);
+      node.as_inode()->dump(os);
       break;
   }
 }
@@ -522,7 +522,7 @@ class basic_inode_impl {
 
   [[gnu::cold, gnu::noinline]] void dump_key_prefix(std::ostream &os) const {
     const auto len = key_prefix_length();
-    os << ", key prefix len = " << static_cast<unsigned>(len);
+    os << ", key prefix len = " << len;
     if (len > 0) {
       os << ", key prefix =";
       for (std::size_t i = 0; i < len; ++i) dump_byte(os, f.f.key_prefix[i]);
@@ -985,14 +985,15 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
   constexpr basic_inode_4(node_ptr source_node, unsigned len, tree_depth depth,
                           db_leaf_unique_ptr &&child1) noexcept
-      : parent_class{len, *source_node.internal} {
+      : parent_class{len, *source_node.as_inode()} {
+    auto *const source_inode = source_node.as_inode();
     assert(source_node.type() != node_type::LEAF);
-    assert(len < source_node.internal->key_prefix_length());
+    assert(len < source_inode->key_prefix_length());
     assert(depth + len < art_key::size);
 
     const auto source_node_key_byte =
-        source_node.internal->get_key_prefix()[len].load();
-    source_node.internal->cut_key_prefix(len + 1);
+        source_inode->get_key_prefix()[len].load();
+    source_inode->cut_key_prefix(len + 1);
     const auto new_key_byte = leaf_type::key(child1.get())[depth + len];
     add_two_to_empty(source_node_key_byte, source_node, new_key_byte,
                      std::move(child1));
@@ -1013,7 +1014,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     }
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
-        *source_children_itr, source_node.get_deleter().get_db())};
+        source_children_itr->load().as_leaf(),
+        source_node.get_deleter().get_db())};
 
     ++source_keys_itr;
     ++source_children_itr;
@@ -1030,17 +1032,17 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
-                                std::uint8_t children_count) noexcept {
-    assert(children_count == this->f.f.children_count);
-    assert(children_count < parent_class::capacity);
+                                std::uint8_t children_count_) noexcept {
+    assert(children_count_ == this->f.f.children_count);
+    assert(children_count_ < parent_class::capacity);
     assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count));
+                          keys.byte_array.cbegin() + children_count_));
 
     const auto key_byte =
         static_cast<std::uint8_t>(leaf_type::key(child.get())[depth]);
 
 #if __x86_64
-    const auto mask = (1U << children_count) - 1;
+    const auto mask = (1U << children_count_) - 1;
     const auto insert_pos_index = get_insert_pos(key_byte, mask);
 #else
     const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
@@ -1050,7 +1052,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
         static_cast<unsigned>(first_lt + second_lt + third_lt);
 #endif
 
-    for (typename decltype(keys.byte_array)::size_type i = children_count;
+    for (typename decltype(keys.byte_array)::size_type i = children_count_;
          i > insert_pos_index; --i) {
       keys.byte_array[i] = keys.byte_array[i - 1];
       // TODO(laurynas): Node4 children fit into a single YMM register on AVX
@@ -1059,30 +1061,30 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       children[i] = children[i - 1];
     }
     keys.byte_array[insert_pos_index] = static_cast<std::byte>(key_byte);
-    children[insert_pos_index] = child.release();
+    children[insert_pos_index] = node_ptr{child.release()};
 
-    ++children_count;
-    this->f.f.children_count = children_count;
+    ++children_count_;
+    this->f.f.children_count = children_count_;
 
     assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count));
+                          keys.byte_array.cbegin() + children_count_));
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_4::type);
 
-    auto children_count = this->f.f.children_count.load();
+    auto children_count_ = this->f.f.children_count.load();
 
-    assert(child_index < children_count);
+    assert(child_index < children_count_);
     assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count));
+                          keys.byte_array.cbegin() + children_count_));
 
-    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(children[child_index],
-                                                       db_instance)};
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
+        children[child_index].load().as_leaf(), db_instance)};
 
     typename decltype(keys.byte_array)::size_type i = child_index;
-    for (; i < static_cast<unsigned>(children_count - 1); ++i) {
+    for (; i < static_cast<unsigned>(children_count_ - 1); ++i) {
       // TODO(laurynas): see the AVX2 TODO at add method
       keys.byte_array[i] = keys.byte_array[i + 1];
       children[i] = children[i + 1];
@@ -1091,11 +1093,11 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     keys.byte_array[i] = empty_child;
 #endif
 
-    --children_count;
-    this->f.f.children_count = children_count;
+    --children_count_;
+    this->f.f.children_count = children_count_;
 
     assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count));
+                          keys.byte_array.cbegin() + children_count_));
   }
 
   constexpr auto leave_last_child(std::uint8_t child_to_delete,
@@ -1106,12 +1108,12 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
            basic_inode_4::type);
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
-        children[child_to_delete], db_instance)};
+        children[child_to_delete].load().as_leaf(), db_instance)};
 
     const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1 : 0;
     const auto child_to_leave_ptr = children[child_to_leave].load();
     if (child_to_leave_ptr.type() != node_type::LEAF) {
-      child_to_leave_ptr.internal->prepend_key_prefix(
+      child_to_leave_ptr.as_inode()->prepend_key_prefix(
           *this, keys.byte_array[child_to_leave]);
     }
     return child_to_leave_ptr;
@@ -1160,8 +1162,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   }
 
   constexpr void delete_subtree(db &db_instance) noexcept {
-    const auto children_count_copy = this->f.f.children_count.load();
-    for (std::uint8_t i = 0; i < children_count_copy; ++i) {
+    const auto children_count_ = this->f.f.children_count.load();
+    for (std::uint8_t i = 0; i < children_count_; ++i) {
       ArtPolicy::delete_subtree(children[i], db_instance);
     }
   }
@@ -1188,7 +1190,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     keys.byte_array[key1_i] = key1;
     children[key1_i] = child1;
     keys.byte_array[key2_i] = key2;
-    children[key2_i] = child2.release();
+    children[key2_i] = node_ptr{child2.release()};
 #ifndef __x86_64
     keys.byte_array[2] = empty_child;
     keys.byte_array[3] = empty_child;
@@ -1286,7 +1288,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     }
 
     keys.byte_array[i] = static_cast<std::byte>(key_byte);
-    children[i] = child.release();
+    children[i] = node_ptr{child.release()};
     ++i;
 
     for (; i <= inode4_type::capacity; ++i) {
@@ -1326,55 +1328,55 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
-                                std::uint8_t children_count) noexcept {
-    assert(children_count == this->f.f.children_count);
-    assert(children_count < parent_class::capacity);
+                                std::uint8_t children_count_) noexcept {
+    assert(children_count_ == this->f.f.children_count);
+    assert(children_count_ < parent_class::capacity);
     assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count));
+                          keys.byte_array.cbegin() + children_count_));
 
     const auto key_byte = leaf_type::key(child.get())[depth];
 
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(key_byte);
-    if (insert_pos_index != children_count) {
+    if (insert_pos_index != children_count_) {
       assert(keys.byte_array[insert_pos_index] != key_byte);
       std::copy_backward(keys.byte_array.cbegin() + insert_pos_index,
-                         keys.byte_array.cbegin() + children_count,
-                         keys.byte_array.begin() + children_count + 1);
+                         keys.byte_array.cbegin() + children_count_,
+                         keys.byte_array.begin() + children_count_ + 1);
       std::copy_backward(children.begin() + insert_pos_index,
-                         children.begin() + children_count,
-                         children.begin() + children_count + 1);
+                         children.begin() + children_count_,
+                         children.begin() + children_count_ + 1);
     }
     keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = node_ptr{child.release()};
-    ++children_count;
-    this->f.f.children_count = children_count;
+    ++children_count_;
+    this->f.f.children_count = children_count_;
 
     assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count));
+                          keys.byte_array.cbegin() + children_count_));
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_16::type);
-    auto children_count = this->f.f.children_count.load();
-    assert(child_index < children_count);
+    auto children_count_ = this->f.f.children_count.load();
+    assert(child_index < children_count_);
     assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count));
+                          keys.byte_array.cbegin() + children_count_));
 
-    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(children[child_index],
-                                                       db_instance)};
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
+        children[child_index].load().as_leaf(), db_instance)};
 
-    for (unsigned i = child_index + 1; i < children_count; ++i) {
+    for (unsigned i = child_index + 1; i < children_count_; ++i) {
       keys.byte_array[i - 1] = keys.byte_array[i];
       children[i - 1] = children[i];
     }
 
-    --children_count;
-    this->f.f.children_count = children_count;
+    --children_count_;
+    this->f.f.children_count = children_count_;
 
     assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count));
+                          keys.byte_array.cbegin() + children_count_));
   }
 
   [[nodiscard, gnu::pure]] constexpr find_result find_child(
@@ -1399,51 +1401,51 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   }
 
   constexpr void delete_subtree(db &db_instance) noexcept {
-    const auto children_count = this->f.f.children_count.load();
-    for (std::uint8_t i = 0; i < children_count; ++i)
+    const auto children_count_ = this->f.f.children_count.load();
+    for (std::uint8_t i = 0; i < children_count_; ++i)
       ArtPolicy::delete_subtree(children[i], db_instance);
   }
 
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
-    const auto children_count = this->f.f.children_count.load();
+    const auto children_count_ = this->f.f.children_count.load();
     os << ", key bytes =";
-    for (std::uint8_t i = 0; i < children_count; ++i)
+    for (std::uint8_t i = 0; i < children_count_; ++i)
       dump_byte(os, keys.byte_array[i]);
     os << ", children:\n";
-    for (std::uint8_t i = 0; i < children_count; ++i)
+    for (std::uint8_t i = 0; i < children_count_; ++i)
       dump_node(os, children[i].load());
   }
 
  private:
   [[nodiscard, gnu::pure]] constexpr auto get_sorted_key_array_insert_position(
       std::byte key_byte) noexcept {
-    const auto children_count = this->f.f.children_count.load();
+    const auto children_count_ = this->f.f.children_count.load();
 
-    assert(children_count < basic_inode_16::capacity);
+    assert(children_count_ < basic_inode_16::capacity);
     assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count));
+                          keys.byte_array.cbegin() + children_count_));
     assert(std::adjacent_find(keys.byte_array.cbegin(),
-                              keys.byte_array.cbegin() + children_count) >=
-           keys.byte_array.cbegin() + children_count);
+                              keys.byte_array.cbegin() + children_count_) >=
+           keys.byte_array.cbegin() + children_count_);
 
 #ifdef __x86_64
     const auto replicated_insert_key =
         _mm_set1_epi8(static_cast<char>(key_byte));
     const auto lesser_key_positions =
         _mm_cmple_epu8(replicated_insert_key, keys.sse);
-    const auto mask = (1U << children_count) - 1;
+    const auto mask = (1U << children_count_) - 1;
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(lesser_key_positions)) & mask;
     const auto result = static_cast<std::uint8_t>(
-        (bit_field != 0) ? __builtin_ctz(bit_field) : children_count);
+        (bit_field != 0) ? __builtin_ctz(bit_field) : children_count_);
 #else
     const auto result = static_cast<std::uint8_t>(
         std::lower_bound(keys.byte_array.cbegin(),
-                         keys.byte_array.cbegin() + children_count, key_byte) -
+                         keys.byte_array.cbegin() + children_count_, key_byte) -
         keys.byte_array.cbegin());
 #endif
 
-    assert(result == children_count || keys.byte_array[result] != key_byte);
+    assert(result == children_count_ || keys.byte_array[result] != key_byte);
     return result;
   }
 
@@ -1509,7 +1511,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         basic_inode_48::leaf_type::key(child_ptr)[depth]);
     assert(child_indexes[key_byte] == empty_child);
     child_indexes[key_byte] = i;
-    children.pointer_array[i] = child_ptr;
+    children.pointer_array[i] = node_ptr{child_ptr};
     for (i = this->f.f.children_count; i < basic_inode_48::capacity; i++) {
       children.pointer_array[i] = node_ptr{nullptr};
     }
@@ -1521,10 +1523,10 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     auto *const __restrict__ source_node_ptr = source_node.get();
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
-        source_node_ptr->children[child_to_delete],
+        source_node_ptr->children[child_to_delete].load().as_leaf(),
         source_node.get_deleter().get_db())};
 
-    source_node_ptr->children[child_to_delete] = nullptr;
+    source_node_ptr->children[child_to_delete] = node_ptr{nullptr};
 
     std::uint8_t next_child = 0;
     for (unsigned child_i = 0; child_i < 256; child_i++) {
@@ -1543,8 +1545,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
-                                std::uint8_t children_count) noexcept {
-    assert(this->f.f.children_count == children_count);
+                                std::uint8_t children_count_) noexcept {
+    assert(this->f.f.children_count == children_count_);
     assert(this->f.f.children_count < parent_class::capacity);
 
     const auto key_byte = static_cast<uint8_t>(
@@ -1587,8 +1589,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 #endif  // #ifdef __x86_64
     assert(children.pointer_array[i] == nullptr);
     child_indexes[key_byte] = gsl::narrow_cast<std::uint8_t>(i);
-    children.pointer_array[i] = child.release();
-    this->f.f.children_count = children_count + 1;
+    children.pointer_array[i] = node_ptr{child.release()};
+    this->f.f.children_count = children_count_ + 1;
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
@@ -1614,7 +1616,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
   constexpr void delete_subtree(db &db_instance) noexcept {
 #ifndef NDEBUG
-    const auto children_count = this->f.f.children_count.load();
+    const auto children_count_ = this->f.f.children_count.load();
     unsigned actual_children_count = 0;
 #endif
 
@@ -1624,16 +1626,16 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         ArtPolicy::delete_subtree(child, db_instance);
 #ifndef NDEBUG
         ++actual_children_count;
-        assert(actual_children_count <= children_count);
+        assert(actual_children_count <= children_count_);
 #endif
       }
     }
-    assert(actual_children_count == children_count);
+    assert(actual_children_count == children_count_);
   }
 
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
 #ifndef NDEBUG
-    const auto children_count = this->f.f.children_count.load();
+    const auto children_count_ = this->f.f.children_count.load();
     unsigned actual_children_count = 0;
 #endif
 
@@ -1648,11 +1650,11 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         dump_node(os, children.pointer_array[child_indexes[i]].load());
 #ifndef NDEBUG
         ++actual_children_count;
-        assert(actual_children_count <= children_count);
+        assert(actual_children_count <= children_count_);
 #endif
       }
 
-    assert(actual_children_count == children_count);
+    assert(actual_children_count == children_count_);
   }
 
  private:
@@ -1666,7 +1668,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     assert(children_i != empty_child);
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
-        children.pointer_array[children_i], db_instance)};
+        children.pointer_array[children_i].load().as_leaf(), db_instance)};
   }
 
   static constexpr std::uint8_t empty_child = 0xFF;
@@ -1781,7 +1783,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     while (true) {
       const auto children_i = source_node->child_indexes[i].load();
       if (children_i == inode48_type::empty_child) {
-        children[i] = nullptr;
+        children[i] = node_ptr{nullptr};
       } else {
         children[i] = source_node->children.pointer_array[children_i].load();
         ++children_copied;
@@ -1791,7 +1793,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     }
 
     ++i;
-    for (; i < basic_inode_256::capacity; ++i) children[i] = nullptr;
+    for (; i < basic_inode_256::capacity; ++i) children[i] = node_ptr{nullptr};
 
     const auto key_byte = static_cast<uint8_t>(
         basic_inode_256::leaf_type::key(child.get())[depth]);
@@ -1800,25 +1802,25 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
-                                std::uint8_t children_count) noexcept {
+                                std::uint8_t children_count_) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_256::type);
-    assert(this->f.f.children_count == children_count);
-    assert(children_count < parent_class::capacity);
+    assert(this->f.f.children_count == children_count_);
+    assert(children_count_ < parent_class::capacity);
 
     const auto key_byte = static_cast<std::uint8_t>(
         basic_inode_256::leaf_type::key(child.get())[depth]);
     assert(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release()};
-    this->f.f.children_count = children_count + 1;
+    this->f.f.children_count = children_count_ + 1;
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     assert(reinterpret_cast<node_header *>(this)->type() ==
            basic_inode_256::type);
 
-    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(children[child_index],
-                                                       db_instance)};
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
+        children[child_index].load().as_leaf(), db_instance)};
 
     children[child_index] = node_ptr{nullptr};
     --this->f.f.children_count;
@@ -1836,7 +1838,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   constexpr void for_each_child(Function func) const
       noexcept(noexcept(func(0, node_ptr{nullptr}))) {
 #ifndef NDEBUG
-    const auto children_count = this->f.f.children_count.load();
+    const auto children_count_ = this->f.f.children_count.load();
     std::uint8_t actual_children_count = 0;
 #endif
 
@@ -1846,11 +1848,12 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
         func(i, child_ptr);
 #ifndef NDEBUG
         ++actual_children_count;
-        assert(actual_children_count <= children_count || children_count == 0);
+        assert(actual_children_count <= children_count_ ||
+               children_count_ == 0);
 #endif
       }
     }
-    assert(actual_children_count == children_count);
+    assert(actual_children_count == children_count_);
   }
 
   constexpr void delete_subtree(db &db_instance) noexcept {

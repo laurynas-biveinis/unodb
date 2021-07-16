@@ -12,6 +12,7 @@
 #include <type_traits>  // IWYU pragma: keep
 
 #include "art_common.hpp"
+#include "node_type.hpp"
 
 namespace unodb::detail {
 
@@ -33,17 +34,20 @@ struct basic_art_key final {
   explicit constexpr basic_art_key(KeyType key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   [[nodiscard]] static constexpr auto create(const std::byte from[]) noexcept {
     struct basic_art_key result;
     std::memcpy(&result, from, size);
     return result;
   }
 
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   constexpr void copy_to(std::byte to[]) const noexcept {
     std::memcpy(to, &key, size);
   }
 
   [[nodiscard]] constexpr bool operator==(
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       const std::byte key2[]) const noexcept {
     return !std::memcmp(&key, key2, size);
   }
@@ -111,6 +115,7 @@ class tree_depth final {
     assert(value <= art_key::size);
   }
 
+  // NOLINTNEXTLINE(google-explicit-constructor)
   [[nodiscard]] constexpr operator value_type() const noexcept {
     assert(value <= art_key::size);
     return value;
@@ -196,27 +201,66 @@ union basic_node_ptr {
   using inode48_type = typename INodeDefs::n48;
   using inode256_type = typename INodeDefs::n256;
 
-  header_type *header;
-  raw_leaf_ptr leaf;
-  INode *internal;
-  inode4_type *node_4;
-  inode16_type *node_16;
-  inode48_type *node_48;
-  inode256_type *node_256;
-
   basic_node_ptr() noexcept {}
-  constexpr basic_node_ptr(std::nullptr_t) noexcept : header{nullptr} {}
-  constexpr basic_node_ptr(raw_leaf_ptr leaf_) noexcept : leaf{leaf_} {}
-  constexpr basic_node_ptr(inode4_type *node_4_) noexcept : node_4{node_4_} {}
-  constexpr basic_node_ptr(inode16_type *node_16_) noexcept
+  explicit constexpr basic_node_ptr(std::nullptr_t) noexcept
+      : header{nullptr} {}
+  constexpr explicit basic_node_ptr(raw_leaf_ptr leaf_) noexcept
+      : leaf{leaf_} {}
+  constexpr explicit basic_node_ptr(inode4_type *node_4_) noexcept
+      : node_4{node_4_} {}
+  constexpr explicit basic_node_ptr(inode16_type *node_16_) noexcept
       : node_16{node_16_} {}
-  constexpr basic_node_ptr(inode48_type *node_48_) noexcept
+  constexpr explicit basic_node_ptr(inode48_type *node_48_) noexcept
       : node_48{node_48_} {}
-  constexpr basic_node_ptr(inode256_type *node_256_) noexcept
+  constexpr explicit basic_node_ptr(inode256_type *node_256_) noexcept
       : node_256{node_256_} {}
+
+  constexpr basic_node_ptr<Header, INode, INodeDefs> &operator=(
+      std::nullptr_t) noexcept {
+    header = nullptr;
+    return *this;
+  }
+
+  constexpr basic_node_ptr<Header, INode, INodeDefs> &operator=(
+      raw_leaf_ptr other) noexcept {
+    leaf = other;
+    return *this;
+  }
 
   [[nodiscard, gnu::pure]] constexpr auto type() const noexcept {
     return header->type();
+  }
+
+  [[nodiscard]] constexpr auto *as_header() const noexcept { return header; }
+
+  [[nodiscard]] constexpr auto *as_leaf() const noexcept {
+    assert(type() == unodb::node_type::LEAF);
+    return leaf;
+  }
+
+  [[nodiscard]] constexpr auto *as_inode() const noexcept {
+    assert(type() != unodb::node_type::LEAF);
+    return internal;
+  }
+
+  [[nodiscard]] constexpr auto *as_inode4() const noexcept {
+    assert(type() == unodb::node_type::I4);
+    return node_4;
+  }
+
+  [[nodiscard]] constexpr auto *as_inode16() const noexcept {
+    assert(type() == unodb::node_type::I16);
+    return node_16;
+  }
+
+  [[nodiscard]] constexpr auto *as_inode48() const noexcept {
+    assert(type() == unodb::node_type::I48);
+    return node_48;
+  }
+
+  [[nodiscard]] constexpr auto *as_inode256() const noexcept {
+    assert(type() == unodb::node_type::I256);
+    return node_256;
   }
 
   [[nodiscard]] constexpr auto operator==(std::nullptr_t) const noexcept {
@@ -226,6 +270,15 @@ union basic_node_ptr {
   [[nodiscard]] constexpr auto operator!=(std::nullptr_t) const noexcept {
     return header != nullptr;
   }
+
+ private:
+  header_type *header;
+  raw_leaf_ptr leaf;
+  INode *internal;
+  inode4_type *node_4;
+  inode16_type *node_16;
+  inode48_type *node_48;
+  inode256_type *node_256;
 
   static auto static_asserts() {
     static_assert(

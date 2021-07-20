@@ -21,7 +21,7 @@ class mutex_db final {
   using get_result = std::pair<db::get_result, std::unique_lock<std::mutex>>;
 
   // Creation and destruction
-  constexpr mutex_db() noexcept : db_{} {}
+  mutex_db() noexcept : db_{} {}
 
   // Querying
   [[nodiscard]] auto get(key k) const noexcept {

@@ -613,19 +613,19 @@ class basic_inode_impl : public ArtPolicy::header_type {
   }
   UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
-  constexpr basic_inode_impl(unsigned children_count_, art_key k1, art_key k2,
-                             tree_depth depth) noexcept
-      : f{k1, k2, depth},
+  constexpr basic_inode_impl(unsigned children_count_, art_key k1,
+                             art_key shifted_k2, tree_depth depth) noexcept
+      : f{k1, shifted_k2, depth},
         children_count{gsl::narrow_cast<std::uint8_t>(children_count_)} {}
 
   constexpr basic_inode_impl(unsigned children_count_, unsigned key_prefix_len,
                              const inode_type &key_prefix_source_node) noexcept
-      : f{key_prefix_len, key_prefix_source_node},
+      : f{key_prefix_len, key_prefix_source_node.f},
         children_count{gsl::narrow_cast<std::uint8_t>(children_count_)} {}
 
   constexpr basic_inode_impl(unsigned children_count_,
                              const basic_inode_impl &other) noexcept
-      : f{other},
+      : f{other.f},
         children_count{gsl::narrow_cast<std::uint8_t>(children_count_)} {}
 
  protected:
@@ -654,13 +654,33 @@ class basic_inode_impl : public ArtPolicy::header_type {
     return static_cast<std::uint64_t>(length) << 56U;
   }
 
-  union inode_union {
+  union key_prefix_union {
     struct inode_fields {
       key_prefix_data key_prefix;
       critical_section_policy<key_prefix_size> key_prefix_length;
     } f;
     critical_section_policy<std::uint64_t> u64;
 
+    key_prefix_union(art_key k1, art_key shifted_k2, tree_depth depth) noexcept
+        : u64{make_u64(k1, shifted_k2, depth)} {}
+
+    key_prefix_union(unsigned key_prefix_len,
+                     const key_prefix_union &source_key_prefix) noexcept
+        : u64{(source_key_prefix.u64 & key_bytes_mask) |
+              length_to_word(key_prefix_len)} {
+      assert(key_prefix_len <= key_prefix_capacity);
+    }
+
+    key_prefix_union(const key_prefix_union &other) noexcept
+        : u64{other.u64.load()} {}
+
+    ~key_prefix_union() noexcept = default;
+
+    key_prefix_union(key_prefix_union &&) = delete;
+    key_prefix_union &operator=(const key_prefix_union &) = delete;
+    key_prefix_union &operator=(key_prefix_union &&) = delete;
+
+   private:
     static void static_asserts() noexcept {
       static_assert(offsetof(inode_fields, key_prefix_data) == 0);
       static_assert(offsetof(inode_fields, key_prefix_length) == 7);
@@ -668,26 +688,16 @@ class basic_inode_impl : public ArtPolicy::header_type {
       static_assert(sizeof(inode_fields) == 9);
     }
 
-    inode_union(art_key k1, art_key shifted_k2, tree_depth depth) noexcept {
+    static std::uint64_t make_u64(art_key k1, art_key shifted_k2,
+                                  tree_depth depth) noexcept {
       k1.shift_right(depth);
 
       const auto k1_u64 = static_cast<std::uint64_t>(k1) & key_bytes_mask;
 
-      u64 = k1_u64 | length_to_word(shared_len(
-                         k1_u64, static_cast<std::uint64_t>(shifted_k2),
-                         key_prefix_capacity));
+      return k1_u64 | length_to_word(shared_len(
+                          k1_u64, static_cast<std::uint64_t>(shifted_k2),
+                          key_prefix_capacity));
     }
-
-    inode_union(unsigned key_prefix_len,
-                const basic_inode_impl &key_prefix_source_node) noexcept {
-      assert(key_prefix_len <= key_prefix_capacity);
-
-      u64 = (key_prefix_source_node.f.u64 & key_bytes_mask) |
-            length_to_word(key_prefix_len);
-    }
-
-    explicit inode_union(const basic_inode_impl &other) noexcept
-        : inode_union{other.key_prefix_length(), other} {}
   } f;
 
   critical_section_policy<std::uint8_t> children_count;
@@ -790,8 +800,9 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
   using inode_type = typename basic_inode_impl<ArtPolicy>::inode_type;
 
  protected:
-  constexpr basic_inode(art_key k1, art_key k2, tree_depth depth) noexcept
-      : basic_inode_impl<ArtPolicy>{MinSize, k1, k2, depth} {
+  constexpr basic_inode(art_key k1, art_key shifted_k2,
+                        tree_depth depth) noexcept
+      : basic_inode_impl<ArtPolicy>{MinSize, k1, shifted_k2, depth} {
     assert(is_min_size());
   }
 

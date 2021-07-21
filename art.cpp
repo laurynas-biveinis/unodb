@@ -269,8 +269,9 @@ db::get_result db::get(key search_key) const noexcept {
     assert(node_type != node_type::LEAF);
 
     auto *const inode{node.as_inode()};
-    const auto key_prefix_length{inode->key_prefix_length()};
-    if (inode->get_shared_key_prefix_length(remaining_key) < key_prefix_length)
+    const auto key_prefix_length{inode->get_key_prefix().length()};
+    if (inode->get_key_prefix().get_shared_length(remaining_key) <
+        key_prefix_length)
       return {};
     remaining_key.shift_right(key_prefix_length);
     const auto *const child{
@@ -314,9 +315,9 @@ bool db::insert(key insert_key, value_view v) {
     assert(depth < detail::art_key::size);
 
     auto *const inode{node->as_inode()};
-    const auto key_prefix_length{inode->key_prefix_length()};
+    const auto key_prefix_length{inode->get_key_prefix().length()};
     const auto shared_prefix_len{
-        inode->get_shared_key_prefix_length(remaining_key)};
+        inode->get_key_prefix().get_shared_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) {
       auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
       auto new_node = detail::inode_4::create(*node, shared_prefix_len, depth,
@@ -368,9 +369,9 @@ bool db::remove(key remove_key) {
     assert(depth < detail::art_key::size);
 
     auto *const inode{node->as_inode()};
-    const auto key_prefix_length{inode->key_prefix_length()};
+    const auto key_prefix_length{inode->get_key_prefix().length()};
     const auto shared_prefix_len{
-        inode->get_shared_key_prefix_length(remaining_key)};
+        inode->get_key_prefix().get_shared_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) return false;
 
     assert(shared_prefix_len == key_prefix_length);

@@ -807,9 +807,9 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
     }
 
     auto *const inode{node.as_inode()};
-    const auto key_prefix_length{inode->key_prefix_length()};
+    const auto key_prefix_length{inode->get_key_prefix().length()};
     const auto shared_key_prefix_length{
-        inode->get_shared_key_prefix_length(remaining_key)};
+        inode->get_key_prefix().get_shared_length(remaining_key)};
 
     if (shared_key_prefix_length < key_prefix_length) {
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -917,9 +917,9 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     assert(depth < detail::art_key::size);
 
     auto *const inode{node.as_inode()};
-    const auto key_prefix_length{inode->key_prefix_length()};
+    const auto key_prefix_length{inode->get_key_prefix().length()};
     const auto shared_prefix_length{
-        inode->get_shared_key_prefix_length(remaining_key)};
+        inode->get_key_prefix().get_shared_length(remaining_key)};
 
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
@@ -1030,9 +1030,9 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
     assert(depth < detail::art_key::size);
 
     auto *const inode{node.as_inode()};
-    const auto key_prefix_length{inode->key_prefix_length()};
+    const auto key_prefix_length{inode->get_key_prefix().length()};
     const auto shared_prefix_length{
-        inode->get_shared_key_prefix_length(remaining_key)};
+        inode->get_key_prefix().get_shared_length(remaining_key)};
 
     if (shared_prefix_length < key_prefix_length) {
       if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))

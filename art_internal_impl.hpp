@@ -406,6 +406,129 @@ template <class NodePtr>
   }
 }
 
+template <template <class> class CriticalSectionPolicy>
+union key_prefix {
+ private:
+  template <typename T>
+  using critical_section_policy = CriticalSectionPolicy<T>;
+
+  using key_prefix_size = std::uint8_t;
+
+  static constexpr key_prefix_size key_prefix_capacity = 7;
+
+  using key_prefix_data =
+      std::array<critical_section_policy<std::byte>, key_prefix_capacity>;
+
+  struct inode_fields {
+    key_prefix_data key_prefix;
+    critical_section_policy<key_prefix_size> key_prefix_length;
+  } f;
+  critical_section_policy<std::uint64_t> u64;
+
+ public:
+  key_prefix(art_key k1, art_key shifted_k2, tree_depth depth) noexcept
+      : u64{make_u64(k1, shifted_k2, depth)} {}
+
+  key_prefix(unsigned key_prefix_len,
+             const key_prefix &source_key_prefix) noexcept
+      : u64{(source_key_prefix.u64 & key_bytes_mask) |
+            length_to_word(key_prefix_len)} {
+    assert(key_prefix_len <= key_prefix_capacity);
+  }
+
+  key_prefix(const key_prefix &other) noexcept : u64{other.u64.load()} {}
+
+  ~key_prefix() noexcept = default;
+
+  [[nodiscard, gnu::pure]] constexpr auto get_shared_length(
+      unodb::detail::art_key shifted_key) const noexcept {
+    return shared_len(static_cast<std::uint64_t>(shifted_key), u64, length());
+  }
+
+  [[nodiscard]] constexpr unsigned length() const noexcept {
+    const auto result = f.key_prefix_length.load();
+    assert(result <= key_prefix_capacity);
+    return result;
+  }
+
+  constexpr void cut(unsigned cut_len) noexcept {
+    assert(cut_len > 0);
+    assert(cut_len <= length());
+
+    u64 = ((u64 >> (cut_len * 8)) & key_bytes_mask) |
+          length_to_word(length() - cut_len);
+
+    assert(f.key_prefix_length.load() <= key_prefix_capacity);
+  }
+
+  constexpr void prepend(const key_prefix &prefix1,
+                         std::byte prefix2) noexcept {
+    assert(length() + prefix1.length() < key_prefix_capacity);
+
+    const auto prefix1_bit_length = prefix1.length() * 8U;
+    const auto prefix1_mask = (1ULL << prefix1_bit_length) - 1;
+    const auto prefix3_bit_length = length() * 8U;
+    const auto prefix3_mask = (1ULL << prefix3_bit_length) - 1;
+    const auto prefix3 = u64 & prefix3_mask;
+    const auto shifted_prefix3 = prefix3 << (prefix1_bit_length + 8U);
+    const auto shifted_prefix2 = static_cast<std::uint64_t>(prefix2)
+                                 << prefix1_bit_length;
+    const auto masked_prefix1 = prefix1.u64 & prefix1_mask;
+
+    u64 = shifted_prefix3 | shifted_prefix2 | masked_prefix1 |
+          length_to_word(length() + prefix1.length() + 1);
+
+    assert(f.key_prefix_length.load() <= key_prefix_capacity);
+  }
+
+  [[nodiscard]] constexpr auto byte_at(std::size_t i) const noexcept {
+    assert(i < length());
+    return f.key_prefix[i].load();
+  }
+
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+    const auto len = length();
+    os << ", key prefix len = " << len;
+    if (len > 0) {
+      os << ", key prefix =";
+      for (std::size_t i = 0; i < len; ++i) dump_byte(os, f.key_prefix[i]);
+    }
+  }
+
+  key_prefix(key_prefix &&) = delete;
+  key_prefix &operator=(const key_prefix &) = delete;
+  key_prefix &operator=(key_prefix &&) = delete;
+
+ private:
+  static constexpr auto key_bytes_mask = 0x00FFFFFF'FFFFFFFFULL;
+
+  [[nodiscard, gnu::pure]] static constexpr std::uint64_t length_to_word(
+      unsigned length) {
+    assert(length <= key_prefix_capacity);
+    return static_cast<std::uint64_t>(length) << 56U;
+  }
+
+  [[nodiscard, gnu::pure]] static constexpr unsigned shared_len(
+      std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept {
+    assert(clamp_byte_pos < 8);
+
+    const auto diff = k1 ^ k2;
+    const auto clamped = diff | (1ULL << (clamp_byte_pos * 8U));
+    return static_cast<unsigned>(__builtin_ctzl(clamped)) >> 3U;
+  }
+
+  static std::uint64_t make_u64(art_key k1, art_key shifted_k2,
+                                tree_depth depth) noexcept {
+    k1.shift_right(depth);
+
+    const auto k1_u64 = static_cast<std::uint64_t>(k1) & key_bytes_mask;
+
+    return k1_u64 | length_to_word(shared_len(
+                        k1_u64, static_cast<std::uint64_t>(shifted_k2),
+                        key_prefix_capacity));
+  }
+};
+
 // A class used as a sentinel for basic_inode template args: the
 // larger node type for the largest node type and the smaller node type for
 // the smallest node type.
@@ -454,73 +577,12 @@ class basic_inode_impl : public ArtPolicy::header_type {
   using inode48_type = typename ArtPolicy::inode48_type;
   using inode256_type = typename ArtPolicy::inode256_type;
 
-  // key_prefix fields and methods
  public:
-  using key_prefix_size = std::uint8_t;
-
- private:
-  static constexpr key_prefix_size key_prefix_capacity = 7;
-
- public:
-  using key_prefix_data =
-      std::array<critical_section_policy<std::byte>, key_prefix_capacity>;
-
-  [[nodiscard, gnu::pure]] constexpr auto get_shared_key_prefix_length(
-      unodb::detail::art_key shifted_key) const noexcept {
-    return shared_len(static_cast<std::uint64_t>(shifted_key), f.u64,
-                      key_prefix_length());
-  }
-
-  [[nodiscard]] constexpr unsigned key_prefix_length() const noexcept {
-    const auto result = f.f.key_prefix_length.load();
-    assert(result <= key_prefix_capacity);
-    return result;
-  }
-
-  constexpr void cut_key_prefix(unsigned cut_len) noexcept {
-    assert(cut_len > 0);
-    assert(cut_len <= key_prefix_length());
-
-    f.u64 = ((f.u64 >> (cut_len * 8)) & key_bytes_mask) |
-            length_to_word(key_prefix_length() - cut_len);
-
-    assert(f.f.key_prefix_length.load() <= key_prefix_capacity);
-  }
-
-  constexpr void prepend_key_prefix(const basic_inode_impl &prefix1,
-                                    std::byte prefix2) noexcept {
-    assert(key_prefix_length() + prefix1.key_prefix_length() <
-           key_prefix_capacity);
-
-    const auto prefix1_bit_length = prefix1.key_prefix_length() * 8U;
-    const auto prefix1_mask = (1ULL << prefix1_bit_length) - 1;
-    const auto prefix3_bit_length = key_prefix_length() * 8U;
-    const auto prefix3_mask = (1ULL << prefix3_bit_length) - 1;
-    const auto prefix3 = f.u64 & prefix3_mask;
-    const auto shifted_prefix3 = prefix3 << (prefix1_bit_length + 8U);
-    const auto shifted_prefix2 = static_cast<std::uint64_t>(prefix2)
-                                 << prefix1_bit_length;
-    const auto masked_prefix1 = prefix1.f.u64 & prefix1_mask;
-
-    f.u64 =
-        shifted_prefix3 | shifted_prefix2 | masked_prefix1 |
-        length_to_word(key_prefix_length() + prefix1.key_prefix_length() + 1);
-
-    assert(f.f.key_prefix_length.load() <= key_prefix_capacity);
-  }
-
   [[nodiscard]] constexpr const auto &get_key_prefix() const noexcept {
-    return f.f.key_prefix;
+    return k_prefix;
   }
 
-  [[gnu::cold, gnu::noinline]] void dump_key_prefix(std::ostream &os) const {
-    const auto len = key_prefix_length();
-    os << ", key prefix len = " << len;
-    if (len > 0) {
-      os << ", key prefix =";
-      for (std::size_t i = 0; i < len; ++i) dump_byte(os, f.f.key_prefix[i]);
-    }
-  }
+  [[nodiscard]] constexpr auto &get_key_prefix() noexcept { return k_prefix; }
 
   // Only for unodb::detail use.
   constexpr auto get_children_count() const noexcept {
@@ -615,92 +677,32 @@ class basic_inode_impl : public ArtPolicy::header_type {
 
   constexpr basic_inode_impl(unsigned children_count_, art_key k1,
                              art_key shifted_k2, tree_depth depth) noexcept
-      : f{k1, shifted_k2, depth},
+      : k_prefix{k1, shifted_k2, depth},
         children_count{gsl::narrow_cast<std::uint8_t>(children_count_)} {}
 
   constexpr basic_inode_impl(unsigned children_count_, unsigned key_prefix_len,
                              const inode_type &key_prefix_source_node) noexcept
-      : f{key_prefix_len, key_prefix_source_node.f},
+      : k_prefix{key_prefix_len, key_prefix_source_node.get_key_prefix()},
         children_count{gsl::narrow_cast<std::uint8_t>(children_count_)} {}
 
   constexpr basic_inode_impl(unsigned children_count_,
                              const basic_inode_impl &other) noexcept
-      : f{other.f},
+      : k_prefix{other.k_prefix},
         children_count{gsl::narrow_cast<std::uint8_t>(children_count_)} {}
 
  protected:
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
-    dump_key_prefix(os);
+    k_prefix.dump(os);
     const auto children_count_ = this->children_count.load();
     os << ", # children = "
        << (children_count_ == 0 ? 256 : static_cast<unsigned>(children_count_));
   }
 
  private:
-  static constexpr auto key_bytes_mask = 0x00FFFFFF'FFFFFFFFULL;
-
-  [[nodiscard, gnu::pure]] static constexpr unsigned shared_len(
-      std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept {
-    assert(clamp_byte_pos < 8);
-
-    const auto diff = k1 ^ k2;
-    const auto clamped = diff | (1ULL << (clamp_byte_pos * 8U));
-    return static_cast<unsigned>(__builtin_ctzl(clamped)) >> 3U;
-  }
-
-  [[nodiscard, gnu::pure]] static constexpr std::uint64_t length_to_word(
-      unsigned length) {
-    assert(length <= key_prefix_capacity);
-    return static_cast<std::uint64_t>(length) << 56U;
-  }
-
-  union key_prefix_union {
-    struct inode_fields {
-      key_prefix_data key_prefix;
-      critical_section_policy<key_prefix_size> key_prefix_length;
-    } f;
-    critical_section_policy<std::uint64_t> u64;
-
-    key_prefix_union(art_key k1, art_key shifted_k2, tree_depth depth) noexcept
-        : u64{make_u64(k1, shifted_k2, depth)} {}
-
-    key_prefix_union(unsigned key_prefix_len,
-                     const key_prefix_union &source_key_prefix) noexcept
-        : u64{(source_key_prefix.u64 & key_bytes_mask) |
-              length_to_word(key_prefix_len)} {
-      assert(key_prefix_len <= key_prefix_capacity);
-    }
-
-    key_prefix_union(const key_prefix_union &other) noexcept
-        : u64{other.u64.load()} {}
-
-    ~key_prefix_union() noexcept = default;
-
-    key_prefix_union(key_prefix_union &&) = delete;
-    key_prefix_union &operator=(const key_prefix_union &) = delete;
-    key_prefix_union &operator=(key_prefix_union &&) = delete;
-
-   private:
-    static void static_asserts() noexcept {
-      static_assert(offsetof(inode_fields, key_prefix_data) == 0);
-      static_assert(offsetof(inode_fields, key_prefix_length) == 7);
-      static_assert(offsetof(inode_fields, children_count) == 8);
-      static_assert(sizeof(inode_fields) == 9);
-    }
-
-    static std::uint64_t make_u64(art_key k1, art_key shifted_k2,
-                                  tree_depth depth) noexcept {
-      k1.shift_right(depth);
-
-      const auto k1_u64 = static_cast<std::uint64_t>(k1) & key_bytes_mask;
-
-      return k1_u64 | length_to_word(shared_len(
-                          k1_u64, static_cast<std::uint64_t>(shifted_k2),
-                          key_prefix_capacity));
-    }
-  } f;
-
+  key_prefix<critical_section_policy> k_prefix;
   critical_section_policy<std::uint8_t> children_count;
+
+  static_assert(sizeof(k_prefix) == sizeof(std::uint64_t));
 
  protected:
   using leaf_type = basic_leaf<header_type>;
@@ -880,7 +882,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                           raw_leaf_ptr child1,
                           db_leaf_unique_ptr &&child2) noexcept
       : parent_class{k1, shifted_k2, depth} {
-    const auto k2_next_byte_depth = this->key_prefix_length();
+    const auto k2_next_byte_depth = this->get_key_prefix().length();
     const auto k1_next_byte_depth = k2_next_byte_depth + depth;
     add_two_to_empty(k1[k1_next_byte_depth], node_ptr{child1},
                      shifted_k2[k2_next_byte_depth], std::move(child2));
@@ -890,12 +892,12 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                           db_leaf_unique_ptr &&child1) noexcept
       : parent_class{len, *source_node.as_inode()} {
     auto *const source_inode = source_node.as_inode();
-    assert(len < source_inode->key_prefix_length());
+    auto &source_key_prefix = source_inode->get_key_prefix();
+    assert(len < source_key_prefix.length());
     assert(depth + len < art_key::size);
 
-    const auto source_node_key_byte =
-        source_inode->get_key_prefix()[len].load();
-    source_inode->cut_key_prefix(len + 1);
+    const auto source_node_key_byte = source_key_prefix.byte_at(len);
+    source_key_prefix.cut(len + 1);
     const auto new_key_byte = leaf_type::key(child1.get())[depth + len];
     add_two_to_empty(source_node_key_byte, source_node, new_key_byte,
                      std::move(child1));
@@ -1010,8 +1012,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1 : 0;
     const auto child_to_leave_ptr = children[child_to_leave].load();
     if (child_to_leave_ptr.type() != node_type::LEAF) {
-      child_to_leave_ptr.as_inode()->prepend_key_prefix(
-          *this, keys.byte_array[child_to_leave]);
+      child_to_leave_ptr.as_inode()->get_key_prefix().prepend(
+          this->get_key_prefix(), keys.byte_array[child_to_leave]);
     }
     return child_to_leave_ptr;
   }

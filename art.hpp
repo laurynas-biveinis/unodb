@@ -170,7 +170,7 @@ class db final {
             template <class, class> class, template <class> class>
   friend struct detail::basic_art_policy;
 
-  template <class, class, class, template <class> class>
+  template <class, class, template <class> class>
   friend class detail::basic_db_inode_deleter;
 
   friend struct detail::impl_helpers;

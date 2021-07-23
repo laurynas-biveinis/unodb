@@ -172,8 +172,7 @@ struct basic_inode_def final {
 template <class T>
 struct dependent_false : std::false_type {};
 
-template <class INode, class Db, class INodeDefs,
-          template <class> class INodePoolGetter>
+template <class INode, class Db, template <class> class INodePoolGetter>
 class basic_db_inode_deleter {
  public:
   constexpr explicit basic_db_inode_deleter(Db &db_) noexcept : db{db_} {}
@@ -193,9 +192,10 @@ class basic_db_inode_deleter {
 // the implementation file.
 template <class Header, class INode, class INodeDefs>
 class basic_node_ptr {
+  using inode_defs = INodeDefs;
+
  public:
   using header_type = Header;
-  using inode_defs = INodeDefs;
   using inode = INode;
   using inode4_type = typename INodeDefs::n4;
   using inode16_type = typename INodeDefs::n16;

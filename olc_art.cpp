@@ -70,8 +70,9 @@ struct inode_pool_getter {
 };
 
 template <class INode>
-using db_inode_qsbr_deleter_parent = unodb::detail::basic_db_inode_deleter<
-    INode, unodb::olc_db, unodb::detail::olc_inode_defs, inode_pool_getter>;
+using db_inode_qsbr_deleter_parent =
+    unodb::detail::basic_db_inode_deleter<INode, unodb::olc_db,
+                                          inode_pool_getter>;
 
 }  // namespace
 

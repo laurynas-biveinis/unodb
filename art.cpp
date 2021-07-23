@@ -35,8 +35,8 @@ struct inode_pool_getter {
 };
 
 template <class INode>
-using db_inode_deleter = unodb::detail::basic_db_inode_deleter<
-    INode, unodb::db, unodb::detail::inode_defs, inode_pool_getter>;
+using db_inode_deleter =
+    unodb::detail::basic_db_inode_deleter<INode, unodb::db, inode_pool_getter>;
 
 using art_policy = unodb::detail::basic_art_policy<
     unodb::db, unodb::in_fake_critical_section, unodb::detail::node_ptr,

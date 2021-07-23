@@ -133,8 +133,6 @@ struct basic_leaf final {
   }
 
  private:
-  static constexpr auto minimum_size = offset_value;
-
   UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
   [[nodiscard]] static auto value_size(const_raw_leaf_ptr leaf) noexcept {
     assert_invariants(leaf);
@@ -193,10 +191,8 @@ inline void basic_db_leaf_deleter<Header, Db>::operator()(
   db.decrement_leaf_count(leaf_size);
 }
 
-template <class INode, class Db, class INodeDefs,
-          template <class> class INodePoolGetter>
-inline void
-basic_db_inode_deleter<INode, Db, INodeDefs, INodePoolGetter>::operator()(
+template <class INode, class Db, template <class> class INodePoolGetter>
+inline void basic_db_inode_deleter<INode, Db, INodePoolGetter>::operator()(
     INode *inode_ptr) noexcept {
   static_assert(std::is_trivially_destructible_v<INode>);
 
@@ -223,9 +219,7 @@ struct basic_art_policy final {
 
  private:
   template <class INode>
-  using db_inode_deleter =
-      basic_db_inode_deleter<INode, Db, typename NodePtr::inode_defs,
-                             INodePoolGetter>;
+  using db_inode_deleter = basic_db_inode_deleter<INode, Db, INodePoolGetter>;
 
   using leaf_reclaimable_ptr =
       std::unique_ptr<raw_leaf, LeafReclamator<header_type, Db>>;

@@ -18,7 +18,7 @@ namespace unodb::detail {
 
 // Forward declarations to use in unodb::db and its siblings
 template <class>
-struct basic_leaf;  // IWYU pragma: keep
+class basic_leaf;  // IWYU pragma: keep
 
 template <class, class>
 class basic_db_leaf_deleter;  // IWYU pragma: keep
@@ -94,18 +94,6 @@ using art_key = basic_art_key<unodb::key>;
 [[gnu::cold, gnu::noinline]] std::ostream &operator<<(std::ostream &os,
                                                       art_key key);
 
-// This corresponds to the "single value leaf" type in the ART paper. Since we
-// have only one kind of leaf nodes, we call them simply "leaf" nodes. Should we
-// ever implement other kinds, rename this and related types to
-// single_value_leaf.
-using raw_leaf = std::byte;
-
-// These pointers should be aligned as node headers, although accessing them
-// through __builtin_assume_aligned results in no difference in generated code
-// last time I checked.
-using raw_leaf_ptr = raw_leaf *;
-using const_raw_leaf_ptr = const raw_leaf *;
-
 class tree_depth final {
  public:
   using value_type = unsigned;
@@ -139,9 +127,13 @@ class tree_depth final {
 template <class Header, class Db>
 class basic_db_leaf_deleter {
  public:
+  using leaf_type = basic_leaf<Header>;
+
+  static_assert(std::is_trivially_destructible_v<leaf_type>);
+
   constexpr explicit basic_db_leaf_deleter(Db &db_) noexcept : db{db_} {}
 
-  void operator()(raw_leaf_ptr to_delete) const noexcept;
+  void operator()(leaf_type *to_delete) const noexcept;
 
   [[nodiscard]] Db &get_db() const noexcept { return db; }
 
@@ -151,7 +143,7 @@ class basic_db_leaf_deleter {
 
 template <class Header, class Db>
 using basic_db_leaf_unique_ptr =
-    std::unique_ptr<raw_leaf, basic_db_leaf_deleter<Header, Db>>;
+    std::unique_ptr<basic_leaf<Header>, basic_db_leaf_deleter<Header, Db>>;
 
 template <class Node4, class Node16, class Node48, class Node256>
 struct basic_inode_def final {
@@ -201,11 +193,12 @@ class basic_node_ptr {
   using inode16_type = typename INodeDefs::n16;
   using inode48_type = typename INodeDefs::n48;
   using inode256_type = typename INodeDefs::n256;
+  using leaf_type = basic_leaf<header_type>;
 
   constexpr basic_node_ptr() noexcept = default;
   explicit basic_node_ptr(std::nullptr_t) noexcept
       : tagged_ptr{reinterpret_cast<std::uintptr_t>(nullptr)} {}
-  explicit basic_node_ptr(raw_leaf_ptr leaf) noexcept
+  explicit basic_node_ptr(leaf_type *leaf) noexcept
       : tagged_ptr{tag_ptr(leaf, unodb::node_type::LEAF)} {}
   explicit basic_node_ptr(inode4_type *node_4) noexcept
       : tagged_ptr{tag_ptr(node_4, unodb::node_type::I4)} {}
@@ -222,7 +215,7 @@ class basic_node_ptr {
   }
 
   basic_node_ptr<Header, INode, INodeDefs> &operator=(
-      raw_leaf_ptr other) noexcept {
+      leaf_type *other) noexcept {
     tagged_ptr = tag_ptr(other, unodb::node_type::LEAF);
     return *this;
   }
@@ -245,7 +238,7 @@ class basic_node_ptr {
 
   [[nodiscard]] auto *as_leaf() const noexcept {
     assert(type() == unodb::node_type::LEAF);
-    return as_ptr<raw_leaf_ptr>();
+    return as_ptr<leaf_type *>();
   }
 
   [[nodiscard]] auto *as_inode() const noexcept {

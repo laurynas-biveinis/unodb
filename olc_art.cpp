@@ -28,20 +28,21 @@ struct olc_node_header {
 
  private:
   mutable optimistic_lock m_lock;
-
-  friend void olc_node_header_static_asserts();
 };
+
+static_assert(std::is_standard_layout_v<olc_node_header>);
 
 template <class Header, class Db>
 class db_leaf_qsbr_deleter {
  public:
-  static_assert(std::is_trivially_destructible_v<basic_leaf<Header>>);
+  using leaf_type = basic_leaf<Header>;
+  static_assert(std::is_trivially_destructible_v<leaf_type>);
 
   constexpr explicit db_leaf_qsbr_deleter(Db &db_) noexcept
       : db_instance{db_} {}
 
-  void operator()(raw_leaf_ptr to_delete) const noexcept {
-    const auto leaf_size = basic_leaf<Header>::size(to_delete);
+  void operator()(leaf_type *to_delete) const noexcept {
+    const auto leaf_size = to_delete->get_size();
 
     qsbr::instance().on_next_epoch_pool_deallocate(get_leaf_node_pool(),
                                                    to_delete, leaf_size,
@@ -123,12 +124,7 @@ using olc_inode_base = unodb::detail::basic_inode_impl<olc_art_policy>;
 
 #ifndef NDEBUG
 
-[[nodiscard]] auto &node_ptr_lock(unodb::detail::raw_leaf_ptr node) noexcept {
-  return reinterpret_cast<unodb::detail::olc_node_header *>(
-             __builtin_assume_aligned(node,
-                                      alignof(unodb::detail::olc_node_header)))
-      ->lock();
-}
+[[nodiscard]] auto &node_ptr_lock(leaf *node) noexcept { return node->lock(); }
 
 #endif
 
@@ -200,8 +196,7 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
 
  public:
   constexpr olc_inode_4(art_key k1, art_key shifted_k2, tree_depth depth,
-                        raw_leaf_ptr child1,
-                        olc_db_leaf_unique_ptr &&child2) noexcept
+                        leaf *child1, olc_db_leaf_unique_ptr &&child2) noexcept
       : parent_class{k1, shifted_k2, depth, child1, std::move(child2)} {
     assert(node_ptr_lock(child1).is_write_locked());
   }
@@ -225,7 +220,7 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
 
   // Create a new node with two given child leaves
   [[nodiscard]] static auto create(art_key k1, art_key shifted_k2,
-                                   tree_depth depth, raw_leaf_ptr child1,
+                                   tree_depth depth, leaf *child1,
                                    olc_db_leaf_unique_ptr &&child2) {
     assert(node_ptr_lock(child1).is_write_locked());
 
@@ -655,7 +650,7 @@ template <class INode>
     return true;
   }
 
-  if (!leaf::matches(child->as_leaf(), k)) {
+  if (!child->as_leaf()->matches(k)) {
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return {};  // LCOV_EXCL_LINE
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -796,11 +791,11 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
 
     if (node_type == node_type::LEAF) {
       const auto *const leaf{node.as_leaf()};
-      if (leaf::matches(leaf, k)) {
-        const auto value{leaf::value(leaf)};
+      if (leaf->matches(k)) {
+        const auto val_view{leaf->get_value_view()};
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
           return {};  // LCOV_EXCL_LINE
-        return qsbr_ptr_span<const std::byte>{value};
+        return qsbr_ptr_span<const std::byte>{val_view};
       }
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
         return {};  // LCOV_EXCL_LINE
@@ -887,7 +882,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
     if (node_type == node_type::LEAF) {
       auto *const leaf{node.as_leaf()};
-      const auto existing_key{leaf::key(leaf)};
+      const auto existing_key{leaf->get_key()};
       if (UNODB_DETAIL_UNLIKELY(k == existing_key)) {
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
           return {};  // LCOV_EXCL_LINE
@@ -1004,7 +999,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
 
   if (node_type == node_type::LEAF) {
     auto *const leaf{node.as_leaf()};
-    if (leaf::matches(leaf, k)) {
+    if (leaf->matches(k)) {
       optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
       if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};

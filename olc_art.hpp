@@ -238,9 +238,6 @@ class olc_db final {
   friend auto detail::make_db_leaf_ptr<detail::olc_node_header, olc_db>(
       detail::art_key, value_view, olc_db &);
 
-  template <class>
-  friend struct detail::basic_leaf;
-
   template <class, class>
   friend class detail::basic_db_leaf_deleter;
 

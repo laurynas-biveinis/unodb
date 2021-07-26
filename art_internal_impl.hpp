@@ -80,113 +80,79 @@ inline auto _mm_cmple_epu8(__m128i x, __m128i y) noexcept {
 
 #endif  // #ifdef __x86_64
 
-// Helper struct for leaf node-related data and (static) code. We
-// don't use a regular class because leaf nodes are of variable size, C++ does
-// not support flexible array members, and we want to save one level of
-// (heap) indirection.
 template <class Header>
-struct basic_leaf final {
+class basic_leaf final : public Header {
+ public:
   using value_size_type = std::uint32_t;
 
-  static constexpr auto offset_header = 0;
-  static constexpr auto offset_key =
-      std::is_empty_v<Header> ? offset_header : sizeof(Header);
-  static constexpr auto offset_value_size = offset_key + sizeof(art_key);
+  constexpr basic_leaf(art_key k, value_view v) noexcept
+      : key{k}, value_size{gsl::narrow_cast<value_size_type>(v.size())} {
+    assert(static_cast<std::size_t>(v.size()) <= max_value_size);
 
-  static constexpr auto offset_value =
-      offset_value_size + sizeof(value_size_type);
-
-  [[nodiscard]] static constexpr auto key(const_raw_leaf_ptr leaf) noexcept {
-    assert_invariants(leaf);
-
-    return art_key::create(&leaf[offset_key]);
+    if (!v.empty()) std::memcpy(&value_start[0], &v[0], value_size);
   }
 
-  [[nodiscard]] static constexpr auto matches(const_raw_leaf_ptr leaf,
-                                              art_key k) noexcept {
-    assert_invariants(leaf);
+  [[nodiscard]] constexpr auto get_key() const noexcept { return key; }
 
-    return k == leaf + offset_key;
+  [[nodiscard]] constexpr auto matches(art_key k) const noexcept {
+    return k == get_key();
   }
 
-  [[nodiscard]] static constexpr auto value(const_raw_leaf_ptr leaf) noexcept {
-    assert_invariants(leaf);
-
-    return value_view{&leaf[offset_value], value_size(leaf)};
+  [[nodiscard]] constexpr auto get_value_view() const noexcept {
+    return value_view{&value_start[0], value_size};
   }
 
-  [[nodiscard]] static constexpr std::size_t size(
-      const_raw_leaf_ptr leaf) noexcept {
-    assert_invariants(leaf);
-
-    return value_size(leaf) + offset_value;
+  [[nodiscard]] constexpr auto get_size() const noexcept {
+    return compute_size(value_size);
   }
 
-  [[gnu::cold, gnu::noinline]] static void dump(std::ostream &os,
-                                                const_raw_leaf_ptr leaf);
-
-  static constexpr void assert_invariants(
-      UNODB_DETAIL_USED_IN_DEBUG const_raw_leaf_ptr leaf) noexcept {
-#ifndef NDEBUG
-    assert(reinterpret_cast<std::uintptr_t>(leaf) % alignof(Header) == 0);
-#endif
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+    os << ", " << get_key() << ", value size: " << value_size << '\n';
   }
+
+  [[nodiscard]] static constexpr auto compute_size(
+      value_size_type val_size) noexcept {
+    return sizeof(basic_leaf<Header>) + val_size - 1;
+  }
+
+  static constexpr std::size_t max_value_size =
+      std::numeric_limits<value_size_type>::max();
 
  private:
-  UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-  [[nodiscard]] static auto value_size(const_raw_leaf_ptr leaf) noexcept {
-    assert_invariants(leaf);
-
-    value_size_type result;
-    std::memcpy(&result, &leaf[offset_value_size], sizeof(result));
-    return result;
-  }
-  UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+  const art_key key;
+  const value_size_type value_size;
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  std::byte value_start[1];
 };
 
 template <class Header, class Db>
 auto make_db_leaf_ptr(art_key k, value_view v, Db &db) {
   using leaf_type = basic_leaf<Header>;
-  using value_size_type = typename leaf_type::value_size_type;
 
-  if (UNODB_DETAIL_UNLIKELY(v.size() >
-                            std::numeric_limits<value_size_type>::max())) {
+  if (UNODB_DETAIL_UNLIKELY(static_cast<std::size_t>(v.size()) >
+                            leaf_type::max_value_size)) {
     throw std::length_error("Value length must fit in std::uint32_t");
   }
 
-  const auto value_size = static_cast<value_size_type>(v.size());
-  const auto leaf_size =
-      static_cast<std::size_t>(leaf_type::offset_value) + value_size;
+  const auto size = leaf_type::compute_size(
+      gsl::narrow_cast<typename leaf_type::value_size_type>(v.size()));
 
-  auto *const leaf_mem = static_cast<std::byte *>(pmr_allocate(
-      get_leaf_node_pool(), leaf_size, alignment_for_new<Header>()));
-  new (leaf_mem) Header{};
+  auto *const leaf_mem = static_cast<std::byte *>(
+      pmr_allocate(get_leaf_node_pool(), size, alignment_for_new<leaf_type>()));
 
-  db.increment_leaf_count(leaf_size);
+  db.increment_leaf_count(size);
 
-  k.copy_to(&leaf_mem[leaf_type::offset_key]);
-  std::memcpy(&leaf_mem[leaf_type::offset_value_size], &value_size,
-              sizeof(value_size_type));
-  if (!v.empty())
-    std::memcpy(&leaf_mem[leaf_type::offset_value], &v[0],
-                static_cast<std::size_t>(v.size()));
-  leaf_type::assert_invariants(leaf_mem);
   return basic_db_leaf_unique_ptr<Header, Db>{
-      leaf_mem, basic_db_leaf_deleter<Header, Db>{db}};
-}
-
-template <class Header>
-void basic_leaf<Header>::dump(std::ostream &os, const_raw_leaf_ptr leaf) {
-  os << ", " << key(leaf) << ", value size: " << value_size(leaf) << '\n';
+      new (leaf_mem) leaf_type{k, v}, basic_db_leaf_deleter<Header, Db>{db}};
 }
 
 // Implementation of things declared in art_internal.hpp
 template <class Header, class Db>
 inline void basic_db_leaf_deleter<Header, Db>::operator()(
-    raw_leaf_ptr to_delete) const noexcept {
-  const auto leaf_size = basic_leaf<Header>::size(to_delete);
+    leaf_type *to_delete) const noexcept {
+  const auto leaf_size = to_delete->get_size();
   pmr_deallocate(get_leaf_node_pool(), to_delete, leaf_size,
-                 alignment_for_new<Header>());
+                 alignment_for_new<basic_leaf<Header>>());
 
   db.decrement_leaf_count(leaf_size);
 }
@@ -215,6 +181,8 @@ struct basic_art_policy final {
   using inode48_type = typename NodePtr::inode48_type;
   using inode256_type = typename NodePtr::inode256_type;
 
+  using leaf_type = typename NodePtr::leaf_type;
+
   using db = Db;
 
  private:
@@ -222,7 +190,7 @@ struct basic_art_policy final {
   using db_inode_deleter = basic_db_inode_deleter<INode, Db, INodePoolGetter>;
 
   using leaf_reclaimable_ptr =
-      std::unique_ptr<raw_leaf, LeafReclamator<header_type, Db>>;
+      std::unique_ptr<leaf_type, LeafReclamator<header_type, Db>>;
 
  public:
   template <typename T>
@@ -245,11 +213,6 @@ struct basic_art_policy final {
   using db_inode48_reclaimable_ptr = db_inode_reclaimable_ptr<inode48_type>;
   using db_inode256_reclaimable_ptr = db_inode_reclaimable_ptr<inode256_type>;
 
-  using leaf_type = basic_leaf<header_type>;
-  static_assert(std::is_standard_layout_v<leaf_type>,
-                "basic_leaf must be standard layout type to support aliasing"
-                " through header");
-
   using db_leaf_unique_ptr = basic_db_leaf_unique_ptr<header_type, Db>;
 
   template <class INode>
@@ -263,9 +226,9 @@ struct basic_art_policy final {
                                                               db_instance);
   }
 
-  [[nodiscard]] static auto reclaim_leaf_on_scope_exit(
-      raw_leaf_ptr leaf_node_ptr, Db &db_instance) {
-    return leaf_reclaimable_ptr{leaf_node_ptr,
+  [[nodiscard]] static auto reclaim_leaf_on_scope_exit(leaf_type *leaf,
+                                                       Db &db_instance) {
+    return leaf_reclaimable_ptr{leaf,
                                 LeafReclamator<header_type, Db>{db_instance}};
   }
 
@@ -290,8 +253,7 @@ struct basic_art_policy final {
   }
 
  private:
-  [[nodiscard]] static auto make_db_leaf_ptr(Db &db_instance,
-                                             raw_leaf_ptr leaf) {
+  [[nodiscard]] static auto make_db_leaf_ptr(Db &db_instance, leaf_type *leaf) {
     return basic_db_leaf_unique_ptr<header_type, Db>{
         leaf, basic_db_leaf_deleter<header_type, Db>{db_instance}};
   }
@@ -367,8 +329,6 @@ struct basic_art_policy final {
 template <class NodePtr>
 [[gnu::cold, gnu::noinline]] void dump_node(std::ostream &os,
                                             const NodePtr &node) {
-  using local_leaf_type = basic_leaf<typename NodePtr::header_type>;
-
   os << "node at: " << node.raw_ptr() << ", tagged ptr = 0x" << std::hex
      << node.raw_val() << std::dec;
   if (node == nullptr) {
@@ -379,7 +339,7 @@ template <class NodePtr>
   switch (node.type()) {
     case node_type::LEAF:
       os << "LEAF";
-      local_leaf_type::dump(os, node.as_leaf());
+      node.as_leaf()->dump(os);
       break;
     case node_type::I4:
       os << "I4";
@@ -834,7 +794,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
   using typename parent_class::inode16_type;
   using typename parent_class::inode4_type;
-  using typename parent_class::leaf_type;
 
   template <typename T>
   using critical_section_policy =
@@ -847,12 +806,13 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   using typename parent_class::db_leaf_unique_ptr;
   using typename parent_class::find_result;
   using typename parent_class::larger_derived_type;
+  using typename parent_class::leaf_type;
   using typename parent_class::node_ptr;
 
   // Create a new node with two given child leaves
   [[nodiscard]] static constexpr auto create(art_key k1, art_key shifted_k2,
                                              tree_depth depth,
-                                             raw_leaf_ptr child1,
+                                             leaf_type *child1,
                                              db_leaf_unique_ptr &&child2) {
     return ArtPolicy::template make_db_inode_unique_ptr<inode4_type>(
         child2.get_deleter().get_db(), k1, shifted_k2, depth, child1,
@@ -873,7 +833,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   }
 
   constexpr basic_inode_4(art_key k1, art_key shifted_k2, tree_depth depth,
-                          raw_leaf_ptr child1,
+                          leaf_type *child1,
                           db_leaf_unique_ptr &&child2) noexcept
       : parent_class{k1, shifted_k2, depth} {
     const auto k2_next_byte_depth = this->get_key_prefix().length();
@@ -892,7 +852,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
     const auto source_node_key_byte = source_key_prefix.byte_at(len);
     source_key_prefix.cut(len + 1);
-    const auto new_key_byte = leaf_type::key(child1.get())[depth + len];
+    const auto new_key_byte = child1->get_key()[depth + len];
     add_two_to_empty(source_node_key_byte, source_node, new_key_byte,
                      std::move(child1));
   }
@@ -936,8 +896,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + children_count_));
 
-    const auto key_byte =
-        static_cast<std::uint8_t>(leaf_type::key(child.get())[depth]);
+    const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
 
 #if __x86_64
     const auto mask = (1U << children_count_) - 1;
@@ -1160,8 +1119,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   constexpr basic_inode_16(db_inode4_reclaimable_ptr source_node,
                            db_leaf_unique_ptr child, tree_depth depth) noexcept
       : parent_class{*source_node} {
-    const auto key_byte =
-        static_cast<std::uint8_t>(leaf_type::key(child.get())[depth]);
+    const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
 
 #if __x86_64
     const auto insert_pos_index = source_node->get_insert_pos(key_byte, 0xFU);
@@ -1228,7 +1186,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     assert(std::is_sorted(keys.byte_array.cbegin(),
                           keys.byte_array.cbegin() + children_count_));
 
-    const auto key_byte = leaf_type::key(child.get())[depth];
+    const auto key_byte = child->get_key()[depth];
 
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(key_byte);
@@ -1400,8 +1358,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       children.pointer_array[i] = source_node_ptr->children[i];
     }
 
-    const auto key_byte = static_cast<std::uint8_t>(
-        basic_inode_48::leaf_type::key(child_ptr)[depth]);
+    const auto key_byte =
+        static_cast<std::uint8_t>(child_ptr->get_key()[depth]);
     assert(child_indexes[key_byte] == empty_child);
     child_indexes[key_byte] = i;
     children.pointer_array[i] = node_ptr{child_ptr};
@@ -1442,8 +1400,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     assert(this->children_count == children_count_);
     assert(children_count_ < parent_class::capacity);
 
-    const auto key_byte = static_cast<uint8_t>(
-        basic_inode_48::leaf_type::key(child.get())[depth]);
+    const auto key_byte = static_cast<uint8_t>(child->get_key()[depth]);
     assert(child_indexes[key_byte] == empty_child);
     unsigned i{0};
 #ifdef __x86_64
@@ -1686,8 +1643,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     ++i;
     for (; i < basic_inode_256::capacity; ++i) children[i] = node_ptr{nullptr};
 
-    const auto key_byte = static_cast<uint8_t>(
-        basic_inode_256::leaf_type::key(child.get())[depth]);
+    const auto key_byte = static_cast<uint8_t>(child->get_key()[depth]);
     assert(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release()};
   }
@@ -1697,8 +1653,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     assert(this->children_count == children_count_);
     assert(children_count_ < parent_class::capacity);
 
-    const auto key_byte = static_cast<std::uint8_t>(
-        basic_inode_256::leaf_type::key(child.get())[depth]);
+    const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
     assert(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release()};
     this->children_count = children_count_ + 1;

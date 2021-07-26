@@ -187,7 +187,7 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
   if (child_ptr_val.type() != node_type::LEAF)
     return reinterpret_cast<detail::node_ptr *>(child_ptr);
 
-  if (!leaf::matches(child_ptr_val.as_leaf(), k)) return {};
+  if (!child_ptr_val.as_leaf()->matches(k)) return {};
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
     auto current_node{
@@ -259,10 +259,7 @@ db::get_result db::get(key search_key) const noexcept {
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       const auto *const leaf{node.as_leaf()};
-      if (leaf::matches(leaf, k)) {
-        const auto value{leaf::value(leaf)};
-        return value;
-      }
+      if (leaf->matches(k)) return leaf->get_value_view();
       return {};
     }
 
@@ -300,7 +297,7 @@ bool db::insert(key insert_key, value_view v) {
     const auto node_type = node->type();
     if (node_type == node_type::LEAF) {
       auto *const leaf{node->as_leaf()};
-      const auto existing_key{leaf::key(leaf)};
+      const auto existing_key{leaf->get_key()};
       if (UNODB_DETAIL_UNLIKELY(k == existing_key)) return false;
 
       auto new_leaf = art_policy::make_db_leaf_ptr(k, v, *this);
@@ -351,7 +348,7 @@ bool db::remove(key remove_key) {
 
   if (root.type() == node_type::LEAF) {
     auto *const root_leaf{root.as_leaf()};
-    if (leaf::matches(root_leaf, k)) {
+    if (root_leaf->matches(k)) {
       const auto r{art_policy::reclaim_leaf_on_scope_exit(root_leaf, *this)};
       root = nullptr;
       return true;

@@ -34,17 +34,29 @@ struct inode_pool_getter {
   inode_pool_getter() = delete;
 };
 
+class inode;
+class inode_4;
+class inode_16;
+class inode_48;
+class inode_256;
+
+using inode_defs = unodb::detail::basic_inode_def<inode, inode_4, inode_16,
+                                                  inode_48, inode_256>;
+
 template <class INode>
 using db_inode_deleter =
     unodb::detail::basic_db_inode_deleter<INode, unodb::db, inode_pool_getter>;
 
 using art_policy = unodb::detail::basic_art_policy<
     unodb::db, unodb::in_fake_critical_section, unodb::detail::node_ptr,
-    db_inode_deleter, unodb::detail::basic_db_leaf_deleter, inode_pool_getter>;
+    inode_defs, db_inode_deleter, unodb::detail::basic_db_leaf_deleter,
+    inode_pool_getter>;
 
 using inode_base = unodb::detail::basic_inode_impl<art_policy>;
 
 using leaf = unodb::detail::basic_leaf<unodb::detail::node_header>;
+
+class inode : public inode_base {};
 
 }  // namespace
 
@@ -70,83 +82,89 @@ struct impl_helpers {
   impl_helpers() = delete;
 };
 
-class inode : public inode_base {};
+}  // namespace unodb::detail
 
-class inode_4 final : public basic_inode_4<art_policy> {
+namespace {
+
+class inode_4 final : public unodb::detail::basic_inode_4<art_policy> {
  public:
   using basic_inode_4::basic_inode_4;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
-    return impl_helpers::add_or_choose_subtree(*this,
-                                               std::forward<Args>(args)...);
+    return unodb::detail::impl_helpers::add_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
-    return impl_helpers::remove_or_choose_subtree(*this,
-                                                  std::forward<Args>(args)...);
+    return unodb::detail::impl_helpers::remove_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 };
 
 static_assert(sizeof(inode_4) == 48);
 
-class inode_16 final : public basic_inode_16<art_policy> {
+class inode_16 final : public unodb::detail::basic_inode_16<art_policy> {
  public:
   using basic_inode_16::basic_inode_16;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
-    return impl_helpers::add_or_choose_subtree(*this,
-                                               std::forward<Args>(args)...);
+    return unodb::detail::impl_helpers::add_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
-    return impl_helpers::remove_or_choose_subtree(*this,
-                                                  std::forward<Args>(args)...);
+    return unodb::detail::impl_helpers::remove_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 };
 
 static_assert(sizeof(inode_16) == 160);
 
-class inode_48 final : public basic_inode_48<art_policy> {
+class inode_48 final : public unodb::detail::basic_inode_48<art_policy> {
  public:
   using basic_inode_48::basic_inode_48;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
-    return impl_helpers::add_or_choose_subtree(*this,
-                                               std::forward<Args>(args)...);
+    return unodb::detail::impl_helpers::add_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
-    return impl_helpers::remove_or_choose_subtree(*this,
-                                                  std::forward<Args>(args)...);
+    return unodb::detail::impl_helpers::remove_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 };
 
 static_assert(sizeof(inode_48) == 656);
 
-class inode_256 final : public basic_inode_256<art_policy> {
+class inode_256 final : public unodb::detail::basic_inode_256<art_policy> {
  public:
   using basic_inode_256::basic_inode_256;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
-    return impl_helpers::add_or_choose_subtree(*this,
-                                               std::forward<Args>(args)...);
+    return unodb::detail::impl_helpers::add_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
-    return impl_helpers::remove_or_choose_subtree(*this,
-                                                  std::forward<Args>(args)...);
+    return unodb::detail::impl_helpers::remove_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 };
 
 static_assert(sizeof(inode_256) == 2064);
+
+}  // namespace
+
+namespace unodb::detail {
 
 template <class INode>
 detail::node_ptr *impl_helpers::add_or_choose_subtree(
@@ -164,7 +182,8 @@ detail::node_ptr *impl_helpers::add_or_choose_subtree(
             art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
         auto larger_node{INode::larger_derived_type::create(
             std::move(current_node), std::move(leaf), depth)};
-        *node_in_parent = node_ptr{larger_node.release()};
+        *node_in_parent =
+            node_ptr{larger_node.release(), INode::larger_derived_type::type};
         db_instance
             .template account_growing_inode<INode::larger_derived_type::type>();
         return child;
@@ -187,7 +206,8 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
   if (child_ptr_val.type() != node_type::LEAF)
     return reinterpret_cast<detail::node_ptr *>(child_ptr);
 
-  if (!child_ptr_val.as_leaf()->matches(k)) return {};
+  const auto *const leaf{static_cast<::leaf *>(child_ptr_val.ptr())};
+  if (!leaf->matches(k)) return {};
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
     auto current_node{
@@ -197,7 +217,8 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
     } else {
       auto new_node{INode::smaller_derived_type::create(std::move(current_node),
                                                         child_i)};
-      *node_in_parent = detail::node_ptr{new_node.release()};
+      *node_in_parent =
+          node_ptr{new_node.release(), INode::smaller_derived_type::type};
     }
     db_instance.template account_shrinking_inode<INode::type>();
     return nullptr;
@@ -215,7 +236,7 @@ db::~db() noexcept { delete_root_subtree(); }
 
 template <class INode>
 constexpr void db::increment_inode_count() noexcept {
-  static_assert(detail::inode_defs::is_inode<INode>());
+  static_assert(inode_defs::is_inode<INode>());
 
   ++node_counts[as_i<INode::type>];
   increase_memory_use(sizeof(INode));
@@ -223,7 +244,7 @@ constexpr void db::increment_inode_count() noexcept {
 
 template <class INode>
 constexpr void db::decrement_inode_count() noexcept {
-  static_assert(detail::inode_defs::is_inode<INode>());
+  static_assert(inode_defs::is_inode<INode>());
   assert(node_counts[as_i<INode::type>] > 0);
 
   --node_counts[as_i<INode::type>];
@@ -258,14 +279,14 @@ db::get_result db::get(key search_key) const noexcept {
   while (true) {
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
-      const auto *const leaf{node.as_leaf()};
+      const auto *const leaf{static_cast<::leaf *>(node.ptr())};
       if (leaf->matches(k)) return leaf->get_value_view();
       return {};
     }
 
     assert(node_type != node_type::LEAF);
 
-    auto *const inode{node.as_inode()};
+    auto *const inode{static_cast<::inode *>(node.ptr())};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     if (key_prefix.get_shared_length(remaining_key) < key_prefix_length)
@@ -285,7 +306,7 @@ bool db::insert(key insert_key, value_view v) {
 
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
     auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
-    root = detail::node_ptr{leaf.release()};
+    root = detail::node_ptr{leaf.release(), node_type::LEAF};
     return true;
   }
 
@@ -296,14 +317,14 @@ bool db::insert(key insert_key, value_view v) {
   while (true) {
     const auto node_type = node->type();
     if (node_type == node_type::LEAF) {
-      auto *const leaf{node->as_leaf()};
+      auto *const leaf{static_cast<::leaf *>(node->ptr())};
       const auto existing_key{leaf->get_key()};
       if (UNODB_DETAIL_UNLIKELY(k == existing_key)) return false;
 
       auto new_leaf = art_policy::make_db_leaf_ptr(k, v, *this);
-      auto new_node{detail::inode_4::create(existing_key, remaining_key, depth,
-                                            leaf, std::move(new_leaf))};
-      *node = detail::node_ptr{new_node.release()};
+      auto new_node{inode_4::create(existing_key, remaining_key, depth, leaf,
+                                    std::move(new_leaf))};
+      *node = detail::node_ptr{new_node.release(), node_type::I4};
       account_growing_inode<node_type::I4>();
       return true;
     }
@@ -311,15 +332,15 @@ bool db::insert(key insert_key, value_view v) {
     assert(node_type != node_type::LEAF);
     assert(depth < detail::art_key::size);
 
-    auto *const inode{node->as_inode()};
+    auto *const inode{static_cast<::inode *>(node->ptr())};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) {
       auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
-      auto new_node = detail::inode_4::create(*node, shared_prefix_len, depth,
-                                              std::move(leaf));
-      *node = detail::node_ptr{new_node.release()};
+      auto new_node =
+          inode_4::create(*node, shared_prefix_len, depth, std::move(leaf));
+      *node = detail::node_ptr{new_node.release(), node_type::I4};
       account_growing_inode<node_type::I4>();
       ++key_prefix_splits;
       assert(growing_inode_counts[internal_as_i<node_type::I4>] >
@@ -347,7 +368,7 @@ bool db::remove(key remove_key) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
 
   if (root.type() == node_type::LEAF) {
-    auto *const root_leaf{root.as_leaf()};
+    auto *const root_leaf{static_cast<leaf *>(root.ptr())};
     if (root_leaf->matches(k)) {
       const auto r{art_policy::reclaim_leaf_on_scope_exit(root_leaf, *this)};
       root = nullptr;
@@ -365,7 +386,7 @@ bool db::remove(key remove_key) {
     assert(node_type != node_type::LEAF);
     assert(depth < detail::art_key::size);
 
-    auto *const inode{node->as_inode()};
+    auto *const inode{static_cast<::inode *>(node->ptr())};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
@@ -410,7 +431,7 @@ void db::clear() {
 
 void db::dump(std::ostream &os) const {
   os << "db dump, current memory use = " << get_current_memory_use() << '\n';
-  detail::dump_node(os, root);
+  art_policy::dump_node(os, root);
 }
 
 }  // namespace unodb

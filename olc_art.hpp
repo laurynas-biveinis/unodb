@@ -22,35 +22,14 @@ namespace unodb {
 
 namespace detail {
 
-template <class>
-class basic_inode_4;  // IWYU pragma: keep
-
-template <class>
-class basic_inode_16;  // IWYU pragma: keep
-
-template <class>
-class basic_inode_48;  // IWYU pragma: keep
-
-template <class>
-class basic_inode_256;  // IWYU pragma: keep
-
-template <class, template <class> class, class, template <class> class,
-          template <class, class> class, template <class> class>
+template <class, template <class> class, class, class, template <class> class,
+          template <class, class> class,
+          template <class> class>
 struct basic_art_policy;  // IWYU pragma: keep
 
 struct olc_node_header;
 
-class olc_inode;
-
-class olc_inode_4;
-class olc_inode_16;
-class olc_inode_48;
-class olc_inode_256;
-
-using olc_inode_defs =
-    basic_inode_def<olc_inode_4, olc_inode_16, olc_inode_48, olc_inode_256>;
-
-using olc_node_ptr = basic_node_ptr<olc_node_header, olc_inode, olc_inode_defs>;
+using olc_node_ptr = basic_node_ptr<olc_node_header>;
 
 template <class>
 class db_inode_qsbr_deleter;  // IWYU pragma: keep
@@ -199,12 +178,7 @@ class olc_db final {
   }
 
   template <class INode>
-  constexpr void increment_inode_count() noexcept {
-    static_assert(detail::olc_inode_defs::is_inode<INode>());
-
-    node_counts[as_i<INode::type>].fetch_add(1, std::memory_order_relaxed);
-    increase_memory_use(sizeof(INode));
-  }
+  constexpr void increment_inode_count() noexcept;
 
   template <class INode>
   constexpr void decrement_inode_count() noexcept;
@@ -247,7 +221,7 @@ class olc_db final {
   template <class>
   friend class detail::db_inode_qsbr_deleter;
 
-  template <class, template <class> class, class, template <class> class,
+  template <class, template <class> class, class, class, template <class> class,
             template <class, class> class, template <class> class>
   friend struct detail::basic_art_policy;
 

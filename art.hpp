@@ -20,20 +20,12 @@ namespace detail {
 
 struct node_header;
 
-template <class, template <class> class, class, template <class> class,
-          template <class, class> class, template <class> class>
+template <class, template <class> class, class, class, template <class> class,
+          template <class, class> class,
+          template <class> class>
 struct basic_art_policy;  // IWYU pragma: keep
 
-class inode;
-
-class inode_4;
-class inode_16;
-class inode_48;
-class inode_256;
-
-using inode_defs = basic_inode_def<inode_4, inode_16, inode_48, inode_256>;
-
-using node_ptr = basic_node_ptr<node_header, inode, inode_defs>;
+using node_ptr = basic_node_ptr<node_header>;
 
 template <class Header, class Db>
 auto make_db_leaf_ptr(art_key, value_view, Db &);
@@ -54,9 +46,7 @@ class db final {
   // Querying
   [[nodiscard]] get_result get(key search_key) const noexcept;
 
-  [[nodiscard]] auto empty() const noexcept {
-    return root == nullptr;
-  }
+  [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
 
   // Modifying
   // Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
@@ -166,7 +156,7 @@ class db final {
   template <class, class>
   friend class detail::basic_db_leaf_deleter;
 
-  template <class, template <class> class, class, template <class> class,
+  template <class, template <class> class, class, class, template <class> class,
             template <class, class> class, template <class> class>
   friend struct detail::basic_art_policy;
 

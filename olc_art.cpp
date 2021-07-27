@@ -106,10 +106,20 @@ template <class INode>
       inode_ptr, unodb::detail::db_inode_qsbr_deleter<INode>{db_instance}};
 }
 
+class olc_inode;
+class olc_inode_4;
+class olc_inode_16;
+class olc_inode_48;
+class olc_inode_256;
+
+using olc_inode_defs =
+    unodb::detail::basic_inode_def<olc_inode, olc_inode_4, olc_inode_16,
+                                   olc_inode_48, olc_inode_256>;
+
 using olc_art_policy = unodb::detail::basic_art_policy<
     unodb::olc_db, unodb::in_critical_section, unodb::detail::olc_node_ptr,
-    unodb::detail::db_inode_qsbr_deleter, unodb::detail::db_leaf_qsbr_deleter,
-    inode_pool_getter>;
+    olc_inode_defs, unodb::detail::db_inode_qsbr_deleter,
+    unodb::detail::db_leaf_qsbr_deleter, inode_pool_getter>;
 
 using olc_db_leaf_unique_ptr = olc_art_policy::db_leaf_unique_ptr;
 
@@ -117,9 +127,11 @@ using leaf = olc_art_policy::leaf_type;
 
 using olc_inode_base = unodb::detail::basic_inode_impl<olc_art_policy>;
 
+class olc_inode : public olc_inode_base {};
+
 [[nodiscard]] auto &node_ptr_lock(
     const unodb::detail::olc_node_ptr &node) noexcept {
-  return node.as_header()->lock();
+  return node.ptr()->lock();
 }
 
 #ifndef NDEBUG
@@ -155,6 +167,18 @@ inline auto obsolete_child_by_index(
 
 }  // namespace
 
+namespace unodb {
+
+template <class INode>
+constexpr void olc_db::increment_inode_count() noexcept {
+  static_assert(olc_inode_defs::is_inode<INode>());
+
+  node_counts[as_i<INode::type>].fetch_add(1, std::memory_order_relaxed);
+  increase_memory_use(sizeof(INode));
+}
+
+}  // namespace unodb
+
 namespace unodb::detail {
 
 // Wrap olc_inode_add in a struct so that the latter and not the former could be
@@ -189,38 +213,45 @@ struct olc_impl_helpers {
   olc_impl_helpers() = delete;
 };
 
-class olc_inode : public olc_inode_base {};
+}  // namespace unodb::detail
 
-class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
+namespace {
+
+class olc_inode_4 final : public unodb::detail::basic_inode_4<olc_art_policy> {
   using parent_class = basic_inode_4<olc_art_policy>;
 
  public:
-  constexpr olc_inode_4(art_key k1, art_key shifted_k2, tree_depth depth,
-                        leaf *child1, olc_db_leaf_unique_ptr &&child2) noexcept
+  constexpr olc_inode_4(unodb::detail::art_key k1,
+                        unodb::detail::art_key shifted_k2,
+                        unodb::detail::tree_depth depth, leaf *child1,
+                        olc_db_leaf_unique_ptr &&child2) noexcept
       : parent_class{k1, shifted_k2, depth, child1, std::move(child2)} {
     assert(node_ptr_lock(child1).is_write_locked());
   }
 
-  constexpr olc_inode_4(olc_node_ptr source_node, unsigned len,
-                        tree_depth depth,
+  constexpr olc_inode_4(unodb::detail::olc_node_ptr source_node, unsigned len,
+                        unodb::detail::tree_depth depth,
                         olc_db_leaf_unique_ptr &&child1) noexcept
       : parent_class{source_node, len, depth, std::move(child1)} {
     assert(node_ptr_lock(source_node).is_write_locked());
   }
 
   olc_inode_4(db_inode16_reclaimable_ptr &&source_node,
-              optimistic_lock::write_guard &&source_node_guard,
+              unodb::optimistic_lock::write_guard &&source_node_guard,
               std::uint8_t child_to_delete,
-              optimistic_lock::write_guard &&child_guard) noexcept;
+              unodb::optimistic_lock::write_guard &&child_guard) noexcept;
 
   [[nodiscard]] static db_inode4_unique_ptr create(
       db_inode16_reclaimable_ptr &&source_node,
-      optimistic_lock::write_guard &&source_node_guard,
-      std::uint8_t child_to_delete, optimistic_lock::write_guard &&child_guard);
+      unodb::optimistic_lock::write_guard &&source_node_guard,
+      std::uint8_t child_to_delete,
+      unodb::optimistic_lock::write_guard &&child_guard);
 
   // Create a new node with two given child leaves
-  [[nodiscard]] static auto create(art_key k1, art_key shifted_k2,
-                                   tree_depth depth, leaf *child1,
+  [[nodiscard]] static auto create(unodb::detail::art_key k1,
+                                   unodb::detail::art_key shifted_k2,
+                                   unodb::detail::tree_depth depth,
+                                   leaf *child1,
                                    olc_db_leaf_unique_ptr &&child2) {
     assert(node_ptr_lock(child1).is_write_locked());
 
@@ -231,8 +262,9 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
   // Create a new node, split the key prefix of an existing node, and make the
   // new node contain that existing node and a given new node which caused
   // this key prefix split.
-  [[nodiscard]] static auto create(olc_node_ptr source_node, unsigned len,
-                                   tree_depth depth,
+  [[nodiscard]] static auto create(unodb::detail::olc_node_ptr source_node,
+                                   unsigned len,
+                                   unodb::detail::tree_depth depth,
                                    olc_db_leaf_unique_ptr &&child1) {
     assert(node_ptr_lock(source_node).is_write_locked());
 
@@ -241,31 +273,24 @@ class olc_inode_4 final : public basic_inode_4<olc_art_policy> {
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
-    return olc_impl_helpers::add_or_choose_subtree(*this,
-                                                   std::forward<Args>(args)...);
+    return unodb::detail::olc_impl_helpers::add_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
-    return olc_impl_helpers::remove_or_choose_subtree(
+    return unodb::detail::olc_impl_helpers::remove_or_choose_subtree(
         *this, std::forward<Args>(args)...);
   }
 
-  void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
+  void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     assert(::lock(*this).is_write_locked());
 
     basic_inode_4::remove(child_index, db_instance);
   }
 
-  void add_two_to_empty(std::byte key1, olc_node_ptr child1, std::byte key2,
-                        olc_db_leaf_unique_ptr &&child2) noexcept {
-    assert(node_ptr_lock(child1).is_write_locked());
-
-    basic_inode_4::add_two_to_empty(key1, child1, key2, std::move(child2));
-  }
-
   auto leave_last_child(std::uint8_t child_to_delete,
-                        olc_db &db_instance) noexcept {
+                        unodb::olc_db &db_instance) noexcept {
     assert(::lock(*this).is_obsoleted_by_this_thread());
     assert(node_ptr_lock(children[child_to_delete].load())
                .is_obsoleted_by_this_thread());
@@ -287,13 +312,15 @@ static_assert(sizeof(olc_inode_4) == 48 + 8);
 static_assert(sizeof(olc_inode_4) == 48 + 24);
 #endif
 
-class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
+class olc_inode_16 final
+    : public unodb::detail::basic_inode_16<olc_art_policy> {
   using parent_class = basic_inode_16<olc_art_policy>;
 
  public:
   olc_inode_16(db_inode4_reclaimable_ptr &&source_node,
-               optimistic_lock::write_guard &&source_node_guard,
-               olc_db_leaf_unique_ptr &&child, tree_depth depth) noexcept
+               unodb::optimistic_lock::write_guard &&source_node_guard,
+               olc_db_leaf_unique_ptr &&child,
+               unodb::detail::tree_depth depth) noexcept
       : parent_class{
             obsolete_and_move(source_node, std::move(source_node_guard)),
             std::move(child), depth} {
@@ -301,14 +328,14 @@ class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
   }
 
   olc_inode_16(db_inode48_reclaimable_ptr &&source_node,
-               optimistic_lock::write_guard &&source_node_guard,
+               unodb::optimistic_lock::write_guard &&source_node_guard,
                std::uint8_t child_to_delete,
-               optimistic_lock::write_guard &&child_guard) noexcept;
+               unodb::optimistic_lock::write_guard &&child_guard) noexcept;
 
   [[nodiscard]] static auto create(
       db_inode4_reclaimable_ptr &&source_node,
-      optimistic_lock::write_guard &&source_node_guard,
-      olc_db_leaf_unique_ptr &&child, tree_depth depth) {
+      unodb::optimistic_lock::write_guard &&source_node_guard,
+      olc_db_leaf_unique_ptr &&child, unodb::detail::tree_depth depth) {
     assert(source_node_guard.guards(::lock(*source_node)));
 
     return olc_art_policy::make_db_inode_unique_ptr<olc_inode_16>(
@@ -318,22 +345,23 @@ class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
 
   [[nodiscard]] static db_inode16_unique_ptr create(
       db_inode48_reclaimable_ptr &&source_node,
-      optimistic_lock::write_guard &&source_node_guard,
-      std::uint8_t child_to_delete, optimistic_lock::write_guard &&child_guard);
+      unodb::optimistic_lock::write_guard &&source_node_guard,
+      std::uint8_t child_to_delete,
+      unodb::optimistic_lock::write_guard &&child_guard);
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
-    return olc_impl_helpers::add_or_choose_subtree(*this,
-                                                   std::forward<Args>(args)...);
+    return unodb::detail::olc_impl_helpers::add_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
-    return olc_impl_helpers::remove_or_choose_subtree(
+    return unodb::detail::olc_impl_helpers::remove_or_choose_subtree(
         *this, std::forward<Args>(args)...);
   }
 
-  void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
+  void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     assert(::lock(*this).is_write_locked());
 
     basic_inode_16::remove(child_index, db_instance);
@@ -341,7 +369,7 @@ class olc_inode_16 final : public basic_inode_16<olc_art_policy> {
 
   [[nodiscard]] find_result find_child(std::byte key_byte) noexcept {
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
-    const auto children_count_ = this->children_count.load();
+    const auto children_count_ = this->get_children_count();
     for (unsigned i = 0; i < children_count_; ++i)
       if (keys.byte_array[i] == key_byte)
         return std::make_pair(i, &children[i]);
@@ -367,10 +395,11 @@ static_assert(sizeof(olc_inode_16) == 160 + 16);
 static_assert(sizeof(olc_inode_16) == 160 + 32);
 #endif
 
-olc_inode_4::olc_inode_4(db_inode16_reclaimable_ptr &&source_node,
-                         optimistic_lock::write_guard &&source_node_guard,
-                         std::uint8_t child_to_delete,
-                         optimistic_lock::write_guard &&child_guard) noexcept
+olc_inode_4::olc_inode_4(
+    db_inode16_reclaimable_ptr &&source_node,
+    unodb::optimistic_lock::write_guard &&source_node_guard,
+    std::uint8_t child_to_delete,
+    unodb::optimistic_lock::write_guard &&child_guard) noexcept
     : parent_class{
           obsolete_and_move(source_node, std::move(source_node_guard)),
           obsolete_child_by_index(child_to_delete, std::move(child_guard))} {
@@ -380,8 +409,9 @@ olc_inode_4::olc_inode_4(db_inode16_reclaimable_ptr &&source_node,
 
 [[nodiscard]] inline olc_inode_4::db_inode4_unique_ptr olc_inode_4::create(
     db_inode16_reclaimable_ptr &&source_node,
-    optimistic_lock::write_guard &&source_node_guard,
-    std::uint8_t child_to_delete, optimistic_lock::write_guard &&child_guard) {
+    unodb::optimistic_lock::write_guard &&source_node_guard,
+    std::uint8_t child_to_delete,
+    unodb::optimistic_lock::write_guard &&child_guard) {
   assert(source_node_guard.guards(::lock(*source_node)));
   assert(child_guard.active());
 
@@ -390,13 +420,15 @@ olc_inode_4::olc_inode_4(db_inode16_reclaimable_ptr &&source_node,
       std::move(source_node_guard), child_to_delete, std::move(child_guard));
 }
 
-class olc_inode_48 final : public basic_inode_48<olc_art_policy> {
+class olc_inode_48 final
+    : public unodb::detail::basic_inode_48<olc_art_policy> {
   using parent_class = basic_inode_48<olc_art_policy>;
 
  public:
   olc_inode_48(db_inode16_reclaimable_ptr &&source_node,
-               optimistic_lock::write_guard &&source_node_guard,
-               olc_db_leaf_unique_ptr &&child, tree_depth depth) noexcept
+               unodb::optimistic_lock::write_guard &&source_node_guard,
+               olc_db_leaf_unique_ptr &&child,
+               unodb::detail::tree_depth depth) noexcept
       : parent_class{
             obsolete_and_move(source_node, std::move(source_node_guard)),
             std::move(child), depth} {
@@ -405,8 +437,8 @@ class olc_inode_48 final : public basic_inode_48<olc_art_policy> {
 
   [[nodiscard]] static auto create(
       db_inode16_reclaimable_ptr &&source_node,
-      optimistic_lock::write_guard &&source_node_guard,
-      olc_db_leaf_unique_ptr &&child, tree_depth depth) {
+      unodb::optimistic_lock::write_guard &&source_node_guard,
+      olc_db_leaf_unique_ptr &&child, unodb::detail::tree_depth depth) {
     assert(source_node_guard.guards(::lock(*source_node)));
 
     return olc_art_policy::make_db_inode_unique_ptr<olc_inode_48>(
@@ -415,28 +447,29 @@ class olc_inode_48 final : public basic_inode_48<olc_art_policy> {
   }
 
   olc_inode_48(db_inode256_reclaimable_ptr &&source_node,
-               optimistic_lock::write_guard &&source_node_guard,
+               unodb::optimistic_lock::write_guard &&source_node_guard,
                std::uint8_t child_to_delete,
-               optimistic_lock::write_guard &&child_guard) noexcept;
+               unodb::optimistic_lock::write_guard &&child_guard) noexcept;
 
   [[nodiscard]] static db_inode48_unique_ptr create(
       db_inode256_reclaimable_ptr &&source_node,
-      optimistic_lock::write_guard &&source_node_guard,
-      std::uint8_t child_to_delete, optimistic_lock::write_guard &&child_guard);
+      unodb::optimistic_lock::write_guard &&source_node_guard,
+      std::uint8_t child_to_delete,
+      unodb::optimistic_lock::write_guard &&child_guard);
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
-    return olc_impl_helpers::add_or_choose_subtree(*this,
-                                                   std::forward<Args>(args)...);
+    return unodb::detail::olc_impl_helpers::add_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
-    return olc_impl_helpers::remove_or_choose_subtree(
+    return unodb::detail::olc_impl_helpers::remove_or_choose_subtree(
         *this, std::forward<Args>(args)...);
   }
 
-  void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
+  void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     assert(::lock(*this).is_write_locked());
 
     basic_inode_48::remove(child_index, db_instance);
@@ -458,8 +491,9 @@ static_assert(sizeof(olc_inode_48) == 656 + 32);
 
 [[nodiscard]] inline olc_inode_16::db_inode16_unique_ptr olc_inode_16::create(
     db_inode48_reclaimable_ptr &&source_node,
-    optimistic_lock::write_guard &&source_node_guard,
-    std::uint8_t child_to_delete, optimistic_lock::write_guard &&child_guard) {
+    unodb::optimistic_lock::write_guard &&source_node_guard,
+    std::uint8_t child_to_delete,
+    unodb::optimistic_lock::write_guard &&child_guard) {
   assert(source_node_guard.guards(::lock(*source_node)));
   assert(child_guard.active());
 
@@ -468,10 +502,11 @@ static_assert(sizeof(olc_inode_48) == 656 + 32);
       std::move(source_node_guard), child_to_delete, std::move(child_guard));
 }
 
-olc_inode_16::olc_inode_16(db_inode48_reclaimable_ptr &&source_node,
-                           optimistic_lock::write_guard &&source_node_guard,
-                           std::uint8_t child_to_delete,
-                           optimistic_lock::write_guard &&child_guard) noexcept
+olc_inode_16::olc_inode_16(
+    db_inode48_reclaimable_ptr &&source_node,
+    unodb::optimistic_lock::write_guard &&source_node_guard,
+    std::uint8_t child_to_delete,
+    unodb::optimistic_lock::write_guard &&child_guard) noexcept
     : parent_class{
           obsolete_and_move(source_node, std::move(source_node_guard)),
           obsolete_child_by_index(child_to_delete, std::move(child_guard))} {
@@ -479,13 +514,15 @@ olc_inode_16::olc_inode_16(db_inode48_reclaimable_ptr &&source_node,
   assert(!child_guard.active());
 }
 
-class olc_inode_256 final : public basic_inode_256<olc_art_policy> {
+class olc_inode_256 final
+    : public unodb::detail::basic_inode_256<olc_art_policy> {
   using parent_class = basic_inode_256<olc_art_policy>;
 
  public:
   olc_inode_256(db_inode48_reclaimable_ptr &&source_node,
-                optimistic_lock::write_guard &&source_node_guard,
-                olc_db_leaf_unique_ptr &&child, tree_depth depth) noexcept
+                unodb::optimistic_lock::write_guard &&source_node_guard,
+                olc_db_leaf_unique_ptr &&child,
+                unodb::detail::tree_depth depth) noexcept
       : parent_class{
             obsolete_and_move(source_node, std::move(source_node_guard)),
             std::move(child), depth} {
@@ -494,8 +531,8 @@ class olc_inode_256 final : public basic_inode_256<olc_art_policy> {
 
   [[nodiscard]] static auto create(
       db_inode48_reclaimable_ptr &&source_node,
-      optimistic_lock::write_guard &&source_node_guard,
-      olc_db_leaf_unique_ptr &&child, tree_depth depth) {
+      unodb::optimistic_lock::write_guard &&source_node_guard,
+      olc_db_leaf_unique_ptr &&child, unodb::detail::tree_depth depth) {
     assert(source_node_guard.guards(::lock(*source_node)));
 
     return olc_art_policy::make_db_inode_unique_ptr<olc_inode_256>(
@@ -505,17 +542,17 @@ class olc_inode_256 final : public basic_inode_256<olc_art_policy> {
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
-    return olc_impl_helpers::add_or_choose_subtree(*this,
-                                                   std::forward<Args>(args)...);
+    return unodb::detail::olc_impl_helpers::add_or_choose_subtree(
+        *this, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args &&...args) {
-    return olc_impl_helpers::remove_or_choose_subtree(
+    return unodb::detail::olc_impl_helpers::remove_or_choose_subtree(
         *this, std::forward<Args>(args)...);
   }
 
-  void remove(std::uint8_t child_index, olc_db &db_instance) noexcept {
+  void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     assert(::lock(*this).is_write_locked());
 
     basic_inode_256::remove(child_index, db_instance);
@@ -537,8 +574,9 @@ static_assert(sizeof(olc_inode_256) == 2064 + 24);
 
 [[nodiscard]] inline olc_inode_48::db_inode48_unique_ptr olc_inode_48::create(
     db_inode256_reclaimable_ptr &&source_node,
-    optimistic_lock::write_guard &&source_node_guard,
-    std::uint8_t child_to_delete, optimistic_lock::write_guard &&child_guard) {
+    unodb::optimistic_lock::write_guard &&source_node_guard,
+    std::uint8_t child_to_delete,
+    unodb::optimistic_lock::write_guard &&child_guard) {
   assert(source_node_guard.guards(::lock(*source_node)));
   assert(child_guard.active());
 
@@ -547,16 +585,21 @@ static_assert(sizeof(olc_inode_256) == 2064 + 24);
       std::move(source_node_guard), child_to_delete, std::move(child_guard));
 }
 
-olc_inode_48::olc_inode_48(db_inode256_reclaimable_ptr &&source_node,
-                           optimistic_lock::write_guard &&source_node_guard,
-                           std::uint8_t child_to_delete,
-                           optimistic_lock::write_guard &&child_guard) noexcept
+olc_inode_48::olc_inode_48(
+    db_inode256_reclaimable_ptr &&source_node,
+    unodb::optimistic_lock::write_guard &&source_node_guard,
+    std::uint8_t child_to_delete,
+    unodb::optimistic_lock::write_guard &&child_guard) noexcept
     : parent_class{
           obsolete_and_move(source_node, std::move(source_node_guard)),
           obsolete_child_by_index(child_to_delete, std::move(child_guard))} {
   assert(!source_node_guard.active());
   assert(!child_guard.active());
 }
+
+}  // namespace
+
+namespace unodb::detail {
 
 template <class INode>
 [[nodiscard]] std::optional<in_critical_section<olc_node_ptr> *>
@@ -593,7 +636,8 @@ olc_impl_helpers::add_or_choose_subtree(
         auto larger_node{INode::larger_derived_type::create(
             std::move(current_node), std::move(node_write_guard),
             std::move(leaf), depth)};
-        *node_in_parent = detail::olc_node_ptr{larger_node.release()};
+        *node_in_parent = detail::olc_node_ptr{
+            larger_node.release(), INode::larger_derived_type::type};
         db_instance.account_growing_inode<INode::larger_derived_type::type>();
 
         assert(!node_write_guard.active());
@@ -650,7 +694,8 @@ template <class INode>
     return true;
   }
 
-  if (!child->as_leaf()->matches(k)) {
+  const auto *const leaf{static_cast<::leaf *>(child->ptr())};
+  if (!leaf->matches(k)) {
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return {};  // LCOV_EXCL_LINE
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -704,7 +749,8 @@ template <class INode>
     auto new_node{INode::smaller_derived_type::create(
         std::move(current_node), std::move(node_guard), child_i,
         std::move(child_guard))};
-    *node_in_parent = detail::olc_node_ptr{new_node.release()};
+    *node_in_parent = detail::olc_node_ptr{new_node.release(),
+                                           INode::smaller_derived_type::type};
   }
   db_instance.template account_shrinking_inode<INode::type>();
 
@@ -721,7 +767,7 @@ namespace unodb {
 
 template <class INode>
 constexpr void olc_db::decrement_inode_count() noexcept {
-  static_assert(detail::olc_inode_defs::is_inode<INode>());
+  static_assert(olc_inode_defs::is_inode<INode>());
 
   const auto UNODB_DETAIL_USED_IN_DEBUG old_inode_count =
       node_counts[as_i<INode::type>].fetch_sub(1, std::memory_order_relaxed);
@@ -790,7 +836,7 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
-      const auto *const leaf{node.as_leaf()};
+      const auto *const leaf{static_cast<::leaf *>(node.ptr())};
       if (leaf->matches(k)) {
         const auto val_view{leaf->get_value_view()};
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -802,7 +848,7 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
       return std::make_optional<get_result>(std::nullopt);
     }
 
-    auto *const inode{node.as_inode()};
+    auto *const inode{static_cast<olc_inode *>(node.ptr())};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_key_prefix_length{
@@ -867,7 +913,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
         std::move(parent_critical_section)};
     if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) return {};
 
-    root = detail::olc_node_ptr{leaf.release()};
+    root = detail::olc_node_ptr{leaf.release(), node_type::LEAF};
     return true;
   }
 
@@ -881,7 +927,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
-      auto *const leaf{node.as_leaf()};
+      auto *const leaf{static_cast<::leaf *>(node.ptr())};
       const auto existing_key{leaf->get_key()};
       if (UNODB_DETAIL_UNLIKELY(k == existing_key)) {
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
@@ -903,9 +949,9 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
       // TODO(laurynas): consider creating new lower version and replacing
       // contents, to enable replacing parent write unlock with parent unlock
-      auto new_node{detail::olc_inode_4::create(
-          existing_key, remaining_key, depth, leaf, std::move(new_leaf))};
-      *node_in_parent = detail::olc_node_ptr{new_node.release()};
+      auto new_node{olc_inode_4::create(existing_key, remaining_key, depth,
+                                        leaf, std::move(new_leaf))};
+      *node_in_parent = detail::olc_node_ptr{new_node.release(), node_type::I4};
       account_growing_inode<node_type::I4>();
       return true;
     }
@@ -913,7 +959,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     assert(node_type != node_type::LEAF);
     assert(depth < detail::art_key::size);
 
-    auto *const inode{node.as_inode()};
+    auto *const inode{static_cast<olc_inode *>(node.ptr())};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_length{
@@ -931,9 +977,9 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
       if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
-      auto new_node = detail::olc_inode_4::create(node, shared_prefix_length,
-                                                  depth, std::move(leaf));
-      *node_in_parent = detail::olc_node_ptr{new_node.release()};
+      auto new_node = olc_inode_4::create(node, shared_prefix_length, depth,
+                                          std::move(leaf));
+      *node_in_parent = detail::olc_node_ptr{new_node.release(), node_type::I4};
       account_growing_inode<node_type::I4>();
       key_prefix_splits.fetch_add(1, std::memory_order_relaxed);
       return true;
@@ -998,7 +1044,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
   if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
   if (node_type == node_type::LEAF) {
-    auto *const leaf{node.as_leaf()};
+    auto *const leaf{static_cast<::leaf *>(node.ptr())};
     if (leaf->matches(k)) {
       optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
@@ -1027,7 +1073,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
     assert(node_type != node_type::LEAF);
     assert(depth < detail::art_key::size);
 
-    auto *const inode{node.as_inode()};
+    auto *const inode{static_cast<olc_inode *>(node.ptr())};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_length{
@@ -1120,7 +1166,7 @@ void olc_db::decrease_memory_use(std::size_t delta) noexcept {
 
 void olc_db::dump(std::ostream &os) const {
   os << "olc_db dump, currently used = " << get_current_memory_use() << '\n';
-  detail::dump_node(os, root.load());
+  olc_art_policy::dump_node(os, root.load());
 }
 
 }  // namespace unodb

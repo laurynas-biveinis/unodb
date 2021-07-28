@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <iosfwd>
 #include <memory>
@@ -202,7 +203,8 @@ class basic_node_ptr {
  private:
   std::uintptr_t tagged_ptr;
 
-  std::uintptr_t tag_ptr(Header *ptr_, unodb::node_type tag) {
+  [[nodiscard]] static std::uintptr_t tag_ptr(Header *ptr_,
+                                              unodb::node_type tag) {
     const auto uintptr = reinterpret_cast<std::uintptr_t>(ptr_);
     const auto result =
         uintptr | static_cast<std::underlying_type_t<decltype(tag)>>(tag);

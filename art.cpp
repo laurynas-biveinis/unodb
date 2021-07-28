@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <type_traits>
 #include <utility>
 
 #include "art_internal_impl.hpp"

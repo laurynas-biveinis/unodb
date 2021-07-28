@@ -8,6 +8,7 @@
 Super-Linter](https://github.com/laurynas-biveinis/unodb/workflows/Super-Linter/badge.svg)](https://github.com/marketplace/actions/super-linter)
 [![Travis-CI Build
 Status](https://travis-ci.org/laurynas-biveinis/unodb.svg?branch=master)](https://travis-ci.org/laurynas-biveinis/unodb)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=laurynas-biveinis_unodb&metric=alert_status)](https://sonarcloud.io/dashboard?id=laurynas-biveinis_unodb)
 
 ## Introduction
 

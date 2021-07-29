@@ -35,7 +35,7 @@ class olc_db;
 namespace unodb::detail {
 
 // For internal node pools, approximate requesting ~2MB blocks from backing
-// storage (when ported to Linux, ask for 2MB huge pages directly)
+// storage
 template <class INode>
 [[nodiscard]] inline auto get_inode_pool_options() noexcept {
   pmr_pool_options inode_pool_options;

@@ -209,7 +209,15 @@ class qsbr final {
     return threads_in_previous_epoch;
   }
 
-  void assert_idle() noexcept {
+  void assert_idle() const noexcept {
+#ifndef NDEBUG
+    std::lock_guard guard{qsbr_mutex};
+    assert_idle_locked();
+#endif
+  }
+
+ private:
+  void assert_idle_locked() const noexcept {
 #ifndef NDEBUG
     // Copy-paste-tweak with expect_idle_qsbr, but not clear how to fix this:
     // here we are asserting over internals, over there we are using Google Test
@@ -232,7 +240,6 @@ class qsbr final {
 #endif
   }
 
- private:
   struct deallocation_request {
     // If memory usage becomes an issue, replace pool references with
     // pre-registered pools with tagged pointers

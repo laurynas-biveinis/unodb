@@ -111,7 +111,7 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
 void qsbr::reset_stats() noexcept {
   std::lock_guard<std::mutex> guard{qsbr_mutex};
 
-  assert_idle();
+  assert_idle_locked();
   assert_invariants();
 
   deallocation_size_stats = {};

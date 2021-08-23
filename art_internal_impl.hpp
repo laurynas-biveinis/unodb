@@ -1746,7 +1746,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
     parent_class::dump(os);
     os << ", key bytes & children:\n";
-    for_each_child([&](unsigned i, node_ptr child) noexcept {
+    for_each_child([&os](unsigned i, node_ptr child) noexcept {
       os << ' ';
       dump_byte(os, gsl::narrow_cast<std::byte>(i));
       os << ' ';

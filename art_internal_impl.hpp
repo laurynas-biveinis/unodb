@@ -1334,6 +1334,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     return result;
   }
 
+ protected:
   union {
     std::array<critical_section_policy<std::byte>, basic_inode_16::capacity>
         byte_array;
@@ -1342,6 +1343,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   std::array<critical_section_policy<node_ptr>, basic_inode_16::capacity>
       children;
 
+ private:
   static constexpr std::uint8_t empty_child = 0xFF;
 
   template <class>
@@ -1629,7 +1631,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     __m128i
         pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)
 #endif
-    children_union() {}
   } children;
 
   template <class>

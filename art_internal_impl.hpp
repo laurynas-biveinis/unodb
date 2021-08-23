@@ -157,7 +157,7 @@ struct basic_inode_def final {
   template <class Node>
   [[nodiscard]] static constexpr bool is_inode() noexcept {
     return std::is_same_v<Node, n4> || std::is_same_v<Node, n16> ||
-        std::is_same_v<Node, n48> || std::is_same_v<Node, n256>;
+           std::is_same_v<Node, n48> || std::is_same_v<Node, n256>;
   }
 
   basic_inode_def() = delete;

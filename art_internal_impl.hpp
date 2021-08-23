@@ -1063,7 +1063,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       ArtPolicy::dump_node(os, children[i].load());
   }
 
- protected:
+ private:
   constexpr void add_two_to_empty(std::byte key1, node_ptr child1,
                                   std::byte key2,
                                   db_leaf_unique_ptr child2) noexcept {
@@ -1091,6 +1091,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     critical_section_policy<std::uint32_t> integer;
   } keys;
 
+ protected:
   std::array<critical_section_policy<node_ptr>, basic_inode_4::capacity>
       children;
 
@@ -1333,7 +1334,6 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     return result;
   }
 
- protected:
   union {
     std::array<critical_section_policy<std::byte>, basic_inode_16::capacity>
         byte_array;
@@ -1342,7 +1342,6 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   std::array<critical_section_policy<node_ptr>, basic_inode_16::capacity>
       children;
 
- private:
   static constexpr std::uint8_t empty_child = 0xFF;
 
   template <class>

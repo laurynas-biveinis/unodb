@@ -54,7 +54,7 @@ class concurrent_benchmark {
 
  public:
   concurrent_benchmark() noexcept = default;
-  virtual ~concurrent_benchmark() {}
+  virtual ~concurrent_benchmark() = default;
 
   void parallel_get(::benchmark::State &state) {
     const auto num_of_threads = static_cast<std::size_t>(state.range(0));

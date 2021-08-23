@@ -39,9 +39,15 @@ class db final {
   using get_result = std::optional<value_view>;
 
   // Creation and destruction
-  db() noexcept {}
+  db() noexcept = default;
 
   ~db() noexcept;
+
+  // TODO(laurynas): implement copy and move operations
+  db(const db &) = delete;
+  db(db &&) = delete;
+  db& operator = (const db &) = delete;
+  db& operator = (db &&) = delete;
 
   // Querying
   [[nodiscard]] get_result get(key search_key) const noexcept;

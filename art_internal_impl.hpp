@@ -756,6 +756,11 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
                         alignment_for_new<Derived>());
   }
 
+  static void operator delete(void *) {
+    // Pool-allocated memory should not be released through operator delete.
+    UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+  }
+
 #ifndef NDEBUG
 
   [[nodiscard]] constexpr bool is_full_for_add() const noexcept {

@@ -32,11 +32,11 @@ constexpr auto node_size_to_key_zero_bits() noexcept {
   static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
                 NodeSize == 256);
   if constexpr (NodeSize == 2) {
-    return 0xFEFEFEFE'FEFEFEFEULL;
+    return 0xFEFE'FEFE'FEFE'FEFEULL;
   } else if constexpr (NodeSize == 4) {
-    return 0xFCFCFCFC'FCFCFCFCULL;
+    return 0xFCFC'FCFC'FCFC'FCFCULL;
   } else if constexpr (NodeSize == 16) {
-    return 0xF0F0F0F0'F0F0F0F0ULL;
+    return 0xF0F0'F0F0'F0F0'F0F0ULL;
   }
   return 0ULL;
 }

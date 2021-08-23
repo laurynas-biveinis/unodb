@@ -195,7 +195,7 @@ void full_n4_random_deletes(benchmark::State &state) {
 }
 
 constexpr auto minimal_node4_tree_full_leaf_level_key_zero_bits =
-    0xFCFCFCFC'FCFCFCFEULL;
+    0xFCFC'FCFC'FCFC'FCFEULL;
 
 template <class Db>
 void full_n4_to_minimal_sequential_delete(benchmark::State &state) {

@@ -485,7 +485,7 @@ union key_prefix {
   key_prefix &operator=(key_prefix &&) = delete;
 
  private:
-  static constexpr auto key_bytes_mask = 0x00FFFFFF'FFFFFFFFULL;
+  static constexpr auto key_bytes_mask = 0x00FF'FFFF'FFFF'FFFFULL;
 
   [[nodiscard, gnu::pure]] static constexpr std::uint64_t length_to_word(
       unsigned length) {

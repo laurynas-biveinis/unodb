@@ -280,6 +280,8 @@ void take_active_pointer(std::size_t thread_i) {
       case 3:
         copy_assign_active_pointer(active_ptrs);
         return;
+      default:
+        UNODB_DETAIL_CANNOT_HAPPEN();
     }
   } else {
     switch (DeepState_CharInRange(0, 4)) {
@@ -297,6 +299,9 @@ void take_active_pointer(std::size_t thread_i) {
         return;
       case 4:
         move_assign_active_pointer(active_ptrs);
+        return;
+      default:
+        UNODB_DETAIL_CANNOT_HAPPEN();
     }
   }
 }

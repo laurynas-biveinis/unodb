@@ -57,7 +57,7 @@ class olc_db final {
   using get_result = std::optional<qsbr_value_view>;
 
   // Creation and destruction
-  olc_db() noexcept {}
+  olc_db() noexcept = default;
 
   ~olc_db() noexcept;
 

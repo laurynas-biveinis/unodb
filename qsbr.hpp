@@ -316,7 +316,7 @@ class qsbr final {
 #endif
   };
 
-  qsbr() noexcept {}
+  qsbr() noexcept = default;
 
   ~qsbr() noexcept { assert_idle(); }
 

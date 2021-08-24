@@ -58,6 +58,11 @@ class mock_pool : public unodb::detail::pmr_pool {
     return other.is_equal(*unodb::detail::pmr_new_delete_resource());
   }
 
+  mock_pool(const mock_pool &) = delete;
+  mock_pool(mock_pool &&) = delete;
+  mock_pool &operator=(const mock_pool &) = delete;
+  mock_pool &operator=(mock_pool &&) = delete;
+
  private:
   std::unordered_set<std::uintptr_t> allocations{};
 };
@@ -90,8 +95,6 @@ class QSBR : public ::testing::Test {
     EXPECT_EQ(last_epoch_num, current_epoch);
   }
 
-  std::size_t last_epoch_num{std::numeric_limits<std::size_t>::max()};
-
   // Allocation and deallocation
 
   [[nodiscard]] void *mock_allocate() {
@@ -112,7 +115,14 @@ class QSBR : public ::testing::Test {
   unodb::debug::thread_wait thread_sync_1;
   unodb::debug::thread_wait thread_sync_2;
 
+  QSBR(const QSBR &) = delete;
+  QSBR(QSBR &&) = delete;
+  QSBR &operator=(const QSBR &) = delete;
+  QSBR &operator=(QSBR &&) = delete;
+
  private:
+  std::size_t last_epoch_num{std::numeric_limits<std::size_t>::max()};
+
   mock_pool allocator;
   std::mutex mock_allocator_mutex;
 };

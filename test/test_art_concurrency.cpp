@@ -93,6 +93,8 @@ class ARTConcurrencyTest : public ::testing::Test {
         case 2: /* get */
           verifier->try_get(key);
           break;
+        default:
+          UNODB_DETAIL_CANNOT_HAPPEN();
       }
       key++;
     }
@@ -116,11 +118,19 @@ class ARTConcurrencyTest : public ::testing::Test {
         case 2: /* get */
           verifier->try_get(key);
           break;
+        default:
+          UNODB_DETAIL_CANNOT_HAPPEN();
       }
     }
   }
 
   unodb::test::tree_verifier<Db> verifier{true};
+
+ public:
+  ARTConcurrencyTest(const ARTConcurrencyTest<Db> &) = delete;
+  ARTConcurrencyTest(ARTConcurrencyTest<Db> &&) = delete;
+  ARTConcurrencyTest<Db> &operator=(const ARTConcurrencyTest<Db> &) = delete;
+  ARTConcurrencyTest<Db> &operator=(ARTConcurrencyTest<Db> &&) = delete;
 };
 
 using ConcurrentARTTypes = ::testing::Types<unodb::mutex_db, unodb::olc_db>;

@@ -14,10 +14,10 @@
 namespace {
 
 const char x = 'X';
-const char *raw_ptr_x = &x;
+const char* const raw_ptr_x = &x;
 
 const char y = 'Y';
-const char *raw_ptr_y = &y;
+const char* const raw_ptr_y = &y;
 
 const std::array<const char, 2> two_chars = {'A', 'B'};
 const gsl::span<const char> gsl_span{two_chars.cbegin(), two_chars.cend()};

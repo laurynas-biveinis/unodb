@@ -115,6 +115,7 @@ class QSBR : public ::testing::Test {
   unodb::debug::thread_wait thread_sync_1;
   unodb::debug::thread_wait thread_sync_2;
 
+ public:
   QSBR(const QSBR &) = delete;
   QSBR(QSBR &&) = delete;
   QSBR &operator=(const QSBR &) = delete;

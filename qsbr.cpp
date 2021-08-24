@@ -133,9 +133,8 @@ void qsbr::dump(std::ostream &out) const {
   out << "Current interval pending deallocation bytes: "
       << current_interval_total_dealloc_size.load(std::memory_order_relaxed);
   out << "Number of tracked threads: " << threads.size() << '\n';
-  for (const auto &thread_info : threads) {
-    out << "Thread key: " << thread_info.first
-        << ", quiescent: " << thread_info.second << '\n';
+  for (const auto &[thread_key, quiescent] : threads) {
+    out << "Thread key: " << thread_key << ", quiescent: " << quiescent << '\n';
   }
   out << "Number of threads in the previous epoch = "
       << threads_in_previous_epoch << '\n';

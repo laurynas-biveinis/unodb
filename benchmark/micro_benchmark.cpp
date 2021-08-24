@@ -161,10 +161,12 @@ void dense_tree_increasing_keys(benchmark::State &state) {
     state.ResumeTiming();
 
     for (auto i = 0; i < dense_tree_increasing_keys_delete_insert_pairs; ++i) {
-      unodb::benchmark::delete_key(test_db, key_to_delete++);
+      unodb::benchmark::delete_key(test_db, key_to_delete);
+      ++key_to_delete;
       unodb::benchmark::insert_key(
-          test_db, key_to_insert++,
+          test_db, key_to_insert,
           unodb::value_view{unodb::benchmark::value100});
+      ++key_to_insert;
     }
 
     state.PauseTiming();

@@ -245,7 +245,7 @@ qsbr::deferred_requests qsbr::change_epoch() noexcept {
   thread_count_changed_in_current_epoch = false;
 #endif
 
-  for (auto & __attribute__((unused)) [thread_key, quiescent] : threads) {
+  for (auto __attribute__((unused)) & [ thread_key, quiescent ] : threads) {
     quiescent_states_per_thread_between_epoch_change_stats(quiescent);
     quiescent = 0;
   }

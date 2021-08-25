@@ -182,8 +182,9 @@ class tree_verifier final {
       ASSERT_EQ(leaf_count_after, leaf_count_before + 1);
 
     if (!bypass_verifier) {
-      const auto insert_result = values.emplace(k, v);
-      ASSERT_TRUE(insert_result.second);
+      const auto __attribute__((unused))[pos, insert_succeeded] =
+          values.try_emplace(k, v);
+      ASSERT_TRUE(insert_succeeded);
     }
   }
 
@@ -201,9 +202,9 @@ class tree_verifier final {
   void preinsert_key_range_to_verifier_only(unodb::key start_key,
                                             std::size_t count) {
     for (auto key = start_key; key < start_key + count; ++key) {
-      const auto insert_result =
-          values.emplace(key, test_values[key % test_values.size()]);
-      ASSERT_TRUE(insert_result.second);
+      const auto __attribute__((unused))[pos, insert_succeeded] =
+          values.try_emplace(key, test_values[key % test_values.size()]);
+      ASSERT_TRUE(insert_succeeded);
     }
   }
 
@@ -259,7 +260,7 @@ class tree_verifier final {
   }
 
   void assert_node_counts(
-      node_type_counter_array expected_node_counts) const noexcept {
+      const node_type_counter_array &expected_node_counts) const noexcept {
     // Dump the tree to a string. Do not attempt to check the dump format, only
     // that dumping does not crash
     std::stringstream dump_sink;
@@ -271,14 +272,15 @@ class tree_verifier final {
   }
 
   constexpr void assert_growing_inodes(
-      inode_type_counter_array expected_growing_inode_counts) const noexcept {
+      const inode_type_counter_array &expected_growing_inode_counts)
+      const noexcept {
     const auto actual_growing_inode_counts = test_db.get_growing_inode_counts();
     ASSERT_THAT(actual_growing_inode_counts,
                 ::testing::ElementsAreArray(expected_growing_inode_counts));
   }
 
   constexpr void assert_shrinking_inodes(
-      inode_type_counter_array expected_shrinking_inode_counts) {
+      const inode_type_counter_array &expected_shrinking_inode_counts) {
     const auto actual_shrinking_inode_counts =
         test_db.get_shrinking_inode_counts();
     ASSERT_THAT(actual_shrinking_inode_counts,

@@ -304,8 +304,9 @@ set(CPPCHECK_ARGS
   # False positive on Google Test TEST macro and compilers are much better
   # for syntax checking anyway
   "--suppress=syntaxError"
-  # False positive on structured bindings with 2.5
-  "--suppress=unassignedVariable")
+  # False positives on structured bindings with 2.5
+  "--suppress=unassignedVariable"
+  "--suppress=unusedVariable")
 
 option(CPPCHECK_AGGRESSIVE "Enable inconclusive cppcheck checks")
 if(CPPCHECK_AGGRESSIVE)

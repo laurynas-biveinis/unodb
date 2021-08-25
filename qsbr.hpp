@@ -57,7 +57,7 @@ class qsbr_per_thread final {
     if (!is_paused()) pause();
   }
 
-  void quiescent_state() noexcept;
+  void quiescent_state() const noexcept;
 
   void pause();
 
@@ -76,7 +76,7 @@ class qsbr_per_thread final {
 #endif
 
  private:
-  std::thread::id thread_id;
+  std::thread::id thread_id{std::this_thread::get_id()};
 
   bool paused{true};
 
@@ -160,7 +160,7 @@ class qsbr final {
     return boost_acc::max(epoch_callback_stats);
   }
 
-  [[nodiscard]] auto get_epoch_callback_count_variance() noexcept {
+  [[nodiscard]] auto get_epoch_callback_count_variance() const noexcept {
     return boost_acc::variance(epoch_callback_stats);
   }
 
@@ -334,7 +334,7 @@ class qsbr final {
 
   void assert_invariants() const noexcept;
 
-  deferred_requests make_deferred_requests() noexcept {
+  deferred_requests make_deferred_requests() const noexcept {
     return deferred_requests{
 #ifndef NDEBUG
         get_current_epoch(), single_thread_mode_locked()
@@ -383,14 +383,13 @@ class qsbr final {
   std::uint64_t current_epoch{0};
 };
 
-inline qsbr_per_thread::qsbr_per_thread() noexcept
-    : thread_id{std::this_thread::get_id()} {
+inline qsbr_per_thread::qsbr_per_thread() noexcept {
   assert(paused);
   qsbr::instance().register_prepared_thread(thread_id);
   paused = false;
 }
 
-inline void qsbr_per_thread::quiescent_state() noexcept {
+inline void qsbr_per_thread::quiescent_state() const noexcept {
   assert(!paused);
   assert(active_ptrs.empty());
   qsbr::instance().quiescent_state(thread_id);

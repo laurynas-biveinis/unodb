@@ -814,7 +814,7 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
 
 TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
   mark_epoch();
-  char *ptr = static_cast<char *>(mock_allocate());
+  auto *const ptr = static_cast<char *>(mock_allocate());
   *ptr = 'A';
 
   unodb::qsbr_thread second_thread{[this, ptr] {

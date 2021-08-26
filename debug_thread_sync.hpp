@@ -22,7 +22,7 @@ class thread_wait final {
 
   void notify() {
     {
-      std::lock_guard<std::mutex> lock{sync_mutex};
+      std::lock_guard lock{sync_mutex};
       flag = true;
     }
     thread_sync.notify_one();

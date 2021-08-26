@@ -104,7 +104,7 @@ class mutex_db final {
 
   // Releases the mutex in the case key was not found, keeps it locked
   // otherwise.
-  [[nodiscard]] static auto key_found(get_result &result) {
+  [[nodiscard]] static auto key_found(const get_result &result) {
 #ifndef NDEBUG
     const auto &lock{result.second};
     assert(!result.first || lock.owns_lock());

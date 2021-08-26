@@ -25,7 +25,7 @@ class mutex_db final {
 
   // Querying
   [[nodiscard]] auto get(key k) const noexcept {
-    std::unique_lock<std::mutex> guard{mutex};
+    std::unique_lock guard{mutex};
     const auto db_get_result{db_.get(k)};
     if (!db_get_result) {
       guard.unlock();
@@ -106,7 +106,7 @@ class mutex_db final {
   // otherwise.
   [[nodiscard]] static auto key_found(get_result &result) {
 #ifndef NDEBUG
-    auto &lock{result.second};
+    const auto &lock{result.second};
     assert(!result.first || lock.owns_lock());
 #endif
 

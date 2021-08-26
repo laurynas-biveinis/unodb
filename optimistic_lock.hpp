@@ -321,8 +321,8 @@ class in_critical_section final {
 
   void operator--() noexcept { store(load() - 1); }
 
-  // NOLINTNEXTLINE(readability-const-return-type)
-  const T operator--(int) noexcept {
+  // NOLINTNEXTLINE(cert-dcl21-cpp)
+  T operator--(int) noexcept {
     const auto result = load();
     store(result - 1);
     return result;

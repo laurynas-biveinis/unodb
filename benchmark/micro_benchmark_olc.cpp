@@ -13,7 +13,7 @@ namespace {
 class concurrent_benchmark_olc final
     : public unodb::benchmark::concurrent_benchmark<unodb::olc_db,
                                                     unodb::qsbr_thread> {
- protected:
+ private:
   void setup() override {
     unodb::qsbr::instance().assert_idle();
     unodb::qsbr::instance().reset_stats();

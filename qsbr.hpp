@@ -117,7 +117,7 @@ class qsbr final {
 
     bool deallocate_immediately = false;
     {
-      std::lock_guard<std::mutex> guard{qsbr_mutex};
+      std::lock_guard guard{qsbr_mutex};
       if (UNODB_DETAIL_UNLIKELY(single_thread_mode_locked())) {
         deallocate_immediately = true;
       } else {
@@ -137,7 +137,7 @@ class qsbr final {
     deferred_requests to_deallocate;
     {
       // TODO(laurynas): can call with locked mutex too
-      std::lock_guard<std::mutex> guard{qsbr_mutex};
+      std::lock_guard guard{qsbr_mutex};
 
       to_deallocate = quiescent_state_locked(thread_id);
     }
@@ -184,12 +184,12 @@ class qsbr final {
 
   // Made public for tests and asserts
   [[nodiscard]] auto single_thread_mode() const noexcept {
-    std::lock_guard<std::mutex> guard{qsbr_mutex};
+    std::lock_guard guard{qsbr_mutex};
     return single_thread_mode_locked();
   }
 
   [[nodiscard]] auto number_of_threads() const noexcept {
-    std::lock_guard<std::mutex> guard{qsbr_mutex};
+    std::lock_guard guard{qsbr_mutex};
     return threads.size();
   }
 
@@ -437,7 +437,8 @@ using remove_cvref_t = typename remove_cvref<T>::type;
 // a thread-local current_thread_reclamator instance gets properly constructed
 class qsbr_thread : public std::thread {
  public:
-  qsbr_thread() noexcept : std::thread{} {}
+  using thread::thread;
+
   qsbr_thread(qsbr_thread &&other) noexcept
       : std::thread{std::move(static_cast<std::thread &&>(other))} {}
   qsbr_thread(const qsbr_thread &) = delete;

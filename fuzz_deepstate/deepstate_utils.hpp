@@ -20,7 +20,7 @@ inline std::size_t DeepState_SizeTInRange(std::size_t min, std::size_t max) {
 template <class T>
 auto DeepState_ContainerIndex(const T &container) {
   ASSERT(!container.empty());
-  return DeepState_SizeTInRange(0, container.size() - 1);
+  return DeepState_SizeTInRange(0, std::size(container) - 1);
 }
 
 #endif  // UNODB_DETAIL_DEEPSTATE_UTILS_HPP

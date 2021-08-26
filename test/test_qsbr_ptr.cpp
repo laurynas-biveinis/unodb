@@ -141,23 +141,23 @@ TEST(QSBRPtr, Get) {
 }
 
 TEST(QSBRPtrSpan, CopyGslSpanCtor) {
-  unodb::qsbr_ptr_span<const char> span{gsl_span};
+  unodb::qsbr_ptr_span span{gsl_span};
 
   ASSERT_TRUE(std::equal(span.cbegin(), span.cend(), gsl_span.cbegin(),
                          gsl_span.cend()));
 }
 
 TEST(QSBRPtrSpan, CopyCtor) {
-  unodb::qsbr_ptr_span<const char> span{gsl_span};
-  unodb::qsbr_ptr_span<const char> span2{span};
+  unodb::qsbr_ptr_span span{gsl_span};
+  unodb::qsbr_ptr_span span2{span};
 
   ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span.cbegin(),
                          gsl_span.cend()));
 }
 
 TEST(QSBRPtrSpan, MoveCtor) {
-  unodb::qsbr_ptr_span<const char> span{gsl_span};
-  unodb::qsbr_ptr_span<const char> span2{std::move(span)};
+  unodb::qsbr_ptr_span span{gsl_span};
+  unodb::qsbr_ptr_span span2{std::move(span)};
 
   ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span.cbegin(),
                          gsl_span.cend()));
@@ -166,8 +166,8 @@ TEST(QSBRPtrSpan, MoveCtor) {
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
 TEST(QSBRPtrSpan, CopyAssignment) {
-  unodb::qsbr_ptr_span<const char> span{gsl_span};
-  unodb::qsbr_ptr_span<const char> span2{gsl_span2};
+  unodb::qsbr_ptr_span span{gsl_span};
+  unodb::qsbr_ptr_span span2{gsl_span2};
 
   ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span2.cbegin(),
                          gsl_span2.cend()));
@@ -182,8 +182,8 @@ TEST(QSBRPtrSpan, CopyAssignment) {
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
 TEST(QSBRPtrSpan, MoveAssignment) {
-  unodb::qsbr_ptr_span<const char> span{gsl_span};
-  unodb::qsbr_ptr_span<const char> span2{gsl_span2};
+  unodb::qsbr_ptr_span span{gsl_span};
+  unodb::qsbr_ptr_span span2{gsl_span2};
 
   ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span2.cbegin(),
                          gsl_span2.cend()));
@@ -194,12 +194,12 @@ TEST(QSBRPtrSpan, MoveAssignment) {
 }
 
 TEST(QSBRPtrSpan, Cbegin) {
-  unodb::qsbr_ptr_span<const char> span{gsl_span};
+  unodb::qsbr_ptr_span span{gsl_span};
   ASSERT_EQ(span.cbegin().get(), &two_chars[0]);
 }
 
 TEST(QSBRPtrSpan, Cend) {
-  unodb::qsbr_ptr_span<const char> span{gsl_span};
+  unodb::qsbr_ptr_span span{gsl_span};
   // Do not write &two_chars[2] directly or the libstdc++ debug assertions fire
   ASSERT_EQ(span.cend().get(), &two_chars[1] + 1);
 }

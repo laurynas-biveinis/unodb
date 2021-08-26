@@ -165,6 +165,9 @@ class qsbr_ptr_span {
   std::size_t length;
 };
 
+template <class T>
+qsbr_ptr_span(const gsl::span<T> &) -> qsbr_ptr_span<T>;
+
 }  // namespace unodb
 
 #endif  // UNODB_DETAIL_QSBR_PTR_HPP

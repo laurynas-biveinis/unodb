@@ -135,7 +135,9 @@ class olc_inode : public olc_inode_base {};
 
 #ifndef NDEBUG
 
-[[nodiscard]] auto &node_ptr_lock(leaf *node) noexcept { return node->lock(); }
+[[nodiscard]] auto &node_ptr_lock(const leaf *const node) noexcept {
+  return node->lock();
+}
 
 #endif
 
@@ -865,7 +867,7 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
 
     remaining_key.shift_right(key_prefix_length);
 
-    auto *const child_in_parent{
+    const auto *const child_in_parent{
         inode->find_child(node_type, remaining_key[0]).second};
 
     if (child_in_parent == nullptr) {

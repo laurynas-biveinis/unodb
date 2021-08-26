@@ -16,7 +16,7 @@ class thread_wait final {
   ~thread_wait() noexcept { assert(is_reset()); }
 
   [[nodiscard]] bool is_reset() const noexcept {
-    std::lock_guard<std::mutex> lock{sync_mutex};
+    std::lock_guard lock{sync_mutex};
     return !flag;
   }
 
@@ -29,7 +29,7 @@ class thread_wait final {
   }
 
   void wait() {
-    std::unique_lock<std::mutex> lock{sync_mutex};
+    std::unique_lock lock{sync_mutex};
     // cppcheck-suppress assignBoolToPointer
     thread_sync.wait(lock, [&flag = flag] { return flag; });
     flag = false;

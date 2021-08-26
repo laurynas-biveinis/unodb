@@ -566,7 +566,7 @@ TEST(QSBR, DeepStateFuzz) {
     for (const auto &tinfo : threads)
       for (const auto &active_ptr : tinfo.active_ptrs)
         ASSERT(*active_ptr == object_mem);
-    for (auto *ptr : allocated_pointers) ASSERT(*ptr == object_mem);
+    for (auto * const ptr : allocated_pointers) ASSERT(*ptr == object_mem);
 
     // Check that dump does not crash
     std::stringstream dump_sink;

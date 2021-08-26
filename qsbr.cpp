@@ -47,17 +47,17 @@ void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
 #endif  // !NDEBUG
 
 void qsbr::prepare_new_thread() {
-  std::lock_guard<std::mutex> guard{qsbr_mutex};
+  std::lock_guard guard{qsbr_mutex};
   prepare_new_thread_locked();
 }
 
 void qsbr::register_prepared_thread(std::thread::id thread_id) noexcept {
-  std::lock_guard<std::mutex> guard{qsbr_mutex};
+  std::lock_guard guard{qsbr_mutex};
   register_prepared_thread_locked(thread_id);
 }
 
 void qsbr::register_new_thread(std::thread::id thread_id) {
-  std::lock_guard<std::mutex> guard{qsbr_mutex};
+  std::lock_guard guard{qsbr_mutex};
   // TODO(laurynas): both of these calls share the critical section, simpler
   // implementation possible
   prepare_new_thread_locked();
@@ -67,7 +67,7 @@ void qsbr::register_new_thread(std::thread::id thread_id) {
 void qsbr::unregister_thread(std::thread::id thread_id) {
   deferred_requests requests_to_deallocate;
   {
-    std::lock_guard<std::mutex> guard{qsbr_mutex};
+    std::lock_guard guard{qsbr_mutex};
 
 #ifndef NDEBUG
     thread_count_changed_in_current_epoch = true;
@@ -109,7 +109,7 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
 }
 
 void qsbr::reset_stats() noexcept {
-  std::lock_guard<std::mutex> guard{qsbr_mutex};
+  std::lock_guard guard{qsbr_mutex};
 
   assert_idle_locked();
   assert_invariants();
@@ -168,7 +168,7 @@ void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
         threads.insert({thread_id, false});
     assert(insert_ok);
     // LCOV_EXCL_START
-  } catch (std::exception &e) {
+  } catch (const std::exception &e) {
     std::cerr
         << "Impossible happened: QSBR thread vector insert threw exception: "
         << e.what() << ", aborting!\n";

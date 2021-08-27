@@ -23,6 +23,7 @@ jobs:
           mkdir -p $HOME/.sonar
           curl -sSLo $HOME/.sonar/sonar-scanner.zip ${{ env.SONAR_SCANNER_DOWNLOAD_URL }}
           unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
+          echo "$HOME/.sonar/build-wrapper-linux-x86" >> $GITHUB_PATH
           echo "$HOME/.sonar/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-linux/bin" >> $GITHUB_PATH
 
       - uses: actions/checkout@v2
@@ -38,9 +39,17 @@ jobs:
           sudo apt-get install -y boost1.74
 
       - name: Produce Compilation Database
-        shell: bash
         run: |
           cmake . -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: |
+          ls -R $HOME/.sonar
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build
+
+      - name: Get test coverage
+        run: |
+          make -j3 coverage
 
       - name: SonarCloud Scan
         env:

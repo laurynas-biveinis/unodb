@@ -5,8 +5,14 @@ project(unodb VERSION 0.1
   DESCRIPTION "unodb key-value store library"
   HOMEPAGE_URL "https://github.com/laurynas-biveinis/unodb" LANGUAGES CXX)
 
+option(FATAL_WARNINGS "Make warning diagnostics fatal")
+if(FATAL_WARNINGS)
+  message(STATUS "Warning diagnostics are fatal")
+else()
+  message(STATUS "Warning diagnostics are not fatal")
+endif()
+
 set(CLANG_CXX_WARNING_FLAGS
-  "-Werror"
   # Warning groups
   "-Wall" "-Wextra" "-Wconversion" "-Wdelete-non-virtual-dtor" "-Wdeprecated"
   "-Wgnu" "-Wimplicit" "-Wloop-analysis" "-Wparentheses" "-Wpedantic"
@@ -35,7 +41,6 @@ set(CLANG_CXX_WARNING_FLAGS
   "-Wused-but-marked-unused" "-Wvector-conversion" "-Wvla"
   "-Wweak-template-vtables" "-Wweak-vtables" "-Wzero-as-null-pointer-constant")
 set(GCC_CXX_WARNING_FLAGS
-  "-Werror"
   # Warning groups
   "-Wall" "-Wextra" "-Wpedantic" "-Wunused" "-Wparentheses" "-Wconversion"
   # Individual warnings
@@ -310,9 +315,12 @@ set(CPPCHECK_ARGS
 
 option(CPPCHECK_AGGRESSIVE "Enable inconclusive cppcheck checks")
 if(CPPCHECK_AGGRESSIVE)
-  list(APPEND CPPCHECK_ARGS "--inconclusive" "--error-exitcode=0")
-else()
+  list(APPEND CPPCHECK_ARGS "--inconclusive")
+endif()
+if(FATAL_WARNINGS)
   list(APPEND CPPCHECK_ARGS "--error-exitcode=2")
+else()
+  list(APPEND CPPCHECK_ARGS "--error-exitcode=0")
 endif()
 
 find_program(CPPCHECK_EXE NAMES "cppcheck" DOC "Path to cppcheck executable")
@@ -364,6 +372,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   target_compile_definitions(${TARGET} PRIVATE
     "$<$<AND:$<CONFIG:Debug>,$<BOOL:${VALGRIND_CLIENT}>>:VALGRIND_CLIENT_REQUESTS>")
   target_compile_options(${TARGET} PRIVATE
+    "$<$<BOOL:${FATAL_WARNINGS}>:-Werror>"
     "$<$<CXX_COMPILER_ID:AppleClang,Clang>:${CLANG_CXX_WARNING_FLAGS}>"
     "$<$<CXX_COMPILER_ID:GNU>:${GCC_CXX_WARNING_FLAGS}>"
     "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:${GCC_GE_11_CXX_WARNING_FLAGS}>"

@@ -104,6 +104,8 @@ formatting is configured through git  clean/fuzz filters. To enable it, do `git
 config --local include.path ../.gitconfig`. If for any reason you need to
 disable it temporarily, do `git config  --local --unset include.path`
 
+To make compiler warnings fatal, add `-DFATAL_WARNINGS=ON` CMake option.
+
 clang-tidy, cppcheck, and cpplint will be invoked automatically during build if
 found. Currently the diagnostic level for them as well as for compiler warnings
 is set very high, and can be relaxed, especially for clang-tidy, as need arises.

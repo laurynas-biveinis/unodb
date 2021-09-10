@@ -10,7 +10,10 @@
             "name": "base",
             "hidden": true,
             "generator": "Unix Makefiles",
-            "binaryDir": "build.${presetName}"
+            "binaryDir": "build.${presetName}",
+            "cacheVariables": {
+                "FATAL_WARNINGS": "ON"
+            }
         },
         {
             "name": "asan",

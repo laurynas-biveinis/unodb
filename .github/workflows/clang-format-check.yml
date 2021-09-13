@@ -9,6 +9,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run clang-format check
-      uses: jidicula/clang-format-action
+      uses: jidicula/clang-format-action@4.0.0
       with:
         clang-format-version: '12'

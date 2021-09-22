@@ -24,17 +24,6 @@ static_assert(std::is_empty_v<node_header>);
 
 namespace {
 
-template <class INode>
-struct inode_pool_getter {
-  [[nodiscard]] static inline auto &get() {
-    static unodb::detail::pmr_unsynchronized_pool_resource inode_pool{
-        unodb::detail::get_inode_pool_options<INode>()};
-    return inode_pool;
-  }
-
-  inode_pool_getter() = delete;
-};
-
 class inode;
 class inode_4;
 class inode_16;
@@ -46,12 +35,11 @@ using inode_defs = unodb::detail::basic_inode_def<inode, inode_4, inode_16,
 
 template <class INode>
 using db_inode_deleter =
-    unodb::detail::basic_db_inode_deleter<INode, unodb::db, inode_pool_getter>;
+    unodb::detail::basic_db_inode_deleter<INode, unodb::db>;
 
 using art_policy = unodb::detail::basic_art_policy<
     unodb::db, unodb::in_fake_critical_section, unodb::detail::node_ptr,
-    inode_defs, db_inode_deleter, unodb::detail::basic_db_leaf_deleter,
-    inode_pool_getter>;
+    inode_defs, db_inode_deleter, unodb::detail::basic_db_leaf_deleter>;
 
 using inode_base = unodb::detail::basic_inode_impl<art_policy>;
 

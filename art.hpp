@@ -21,8 +21,7 @@ namespace detail {
 struct node_header;
 
 template <class, template <class> class, class, class, template <class> class,
-          template <class, class> class,
-          template <class> class>
+          template <class, class> class>
 struct basic_art_policy;  // IWYU pragma: keep
 
 using node_ptr = basic_node_ptr<node_header>;
@@ -163,10 +162,10 @@ class db final {
   friend class detail::basic_db_leaf_deleter;
 
   template <class, template <class> class, class, class, template <class> class,
-            template <class, class> class, template <class> class>
+            template <class, class> class>
   friend struct detail::basic_art_policy;
 
-  template <class, class, template <class> class>
+  template <class, class>
   friend class detail::basic_db_inode_deleter;
 
   friend struct detail::impl_helpers;

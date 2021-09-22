@@ -23,8 +23,7 @@ namespace unodb {
 namespace detail {
 
 template <class, template <class> class, class, class, template <class> class,
-          template <class, class> class,
-          template <class> class>
+          template <class, class> class>
 struct basic_art_policy;  // IWYU pragma: keep
 
 struct olc_node_header;
@@ -222,10 +221,10 @@ class olc_db final {
   friend class detail::db_inode_qsbr_deleter;
 
   template <class, template <class> class, class, class, template <class> class,
-            template <class, class> class, template <class> class>
+            template <class, class> class>
   friend struct detail::basic_art_policy;
 
-  template <class, class, template <class> class>
+  template <class, class>
   friend class detail::basic_db_inode_deleter;
 
   friend struct detail::olc_impl_helpers;

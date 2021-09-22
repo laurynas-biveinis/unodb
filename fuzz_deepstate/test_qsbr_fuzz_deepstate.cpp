@@ -141,7 +141,7 @@ void allocate_pointer(std::size_t thread_i) {
 
   LOG(TRACE) << "Allocating pointer";
   auto *const new_ptr{static_cast<std::uint64_t *>(
-      unodb::detail::pmr_new_delete_resource()->allocate(sizeof(object_mem)))};
+      unodb::detail::allocate_aligned(sizeof(object_mem)))};
   *new_ptr = object_mem;
   allocated_pointers.insert(new_ptr);
 }
@@ -150,8 +150,7 @@ void deallocate_pointer(std::uint64_t *ptr) {
   ASSERT(!unodb::current_thread_reclamator().is_paused());
   ASSERT(*ptr == object_mem);
 
-  unodb::qsbr::instance().on_next_epoch_pool_deallocate(
-      *unodb::detail::pmr_new_delete_resource(), ptr, sizeof(object_mem));
+  unodb::qsbr::instance().on_next_epoch_deallocate(ptr, sizeof(object_mem));
 }
 
 void deallocate_pointer(std::size_t thread_i) {

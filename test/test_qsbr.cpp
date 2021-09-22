@@ -21,52 +21,6 @@
 
 namespace {
 
-class mock_pool : public unodb::detail::pmr_pool {
- public:
-  using unodb::detail::pmr_pool::pmr_pool;
-
-  ~mock_pool() override { EXPECT_TRUE(empty()); }
-
-  [[nodiscard]] bool empty() const noexcept { return allocations.empty(); }
-
-  UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-  [[nodiscard]] auto is_allocated(void *ptr) const {
-    return allocations.find(reinterpret_cast<std::uintptr_t>(ptr)) !=
-           allocations.cend();
-  }
-  UNODB_DETAIL_RESTORE_GCC_WARNINGS()
-
-  [[nodiscard]] void *do_allocate(std::size_t bytes,
-                                  std::size_t alignment) override {
-    auto *const result = unodb::detail::pmr_allocate(
-        *unodb::detail::pmr_new_delete_resource(), bytes, alignment);
-    allocations.emplace(reinterpret_cast<std::uintptr_t>(result));
-    return result;
-  }
-
-  void do_deallocate(void *ptr, std::size_t bytes,
-                     std::size_t alignment) override {
-    const auto elems_removed =
-        allocations.erase(reinterpret_cast<std::uintptr_t>(ptr));
-    EXPECT_EQ(elems_removed, 1);
-    unodb::detail::pmr_deallocate(*unodb::detail::pmr_new_delete_resource(),
-                                  ptr, bytes, alignment);
-  }
-
-  [[nodiscard]] bool do_is_equal(
-      const unodb::detail::pmr_pool &other) const noexcept override {
-    return other.is_equal(*unodb::detail::pmr_new_delete_resource());
-  }
-
-  mock_pool(const mock_pool &) = delete;
-  mock_pool(mock_pool &&) = delete;
-  mock_pool &operator=(const mock_pool &) = delete;
-  mock_pool &operator=(mock_pool &&) = delete;
-
- private:
-  std::unordered_set<std::uintptr_t> allocations{};
-};
-
 class QSBR : public ::testing::Test {
  protected:
   QSBR() noexcept {
@@ -97,19 +51,22 @@ class QSBR : public ::testing::Test {
 
   // Allocation and deallocation
 
-  [[nodiscard]] void *mock_allocate() {
-    std::lock_guard guard{mock_allocator_mutex};
-    return allocator.allocate(1);
+  [[nodiscard]] static void *allocate() {
+    return unodb::detail::allocate_aligned(1);
   }
 
-  void mock_qsbr_deallocate(void *ptr) {
-    std::lock_guard guard{mock_allocator_mutex};
-    unodb::qsbr::instance().on_next_epoch_pool_deallocate(allocator, ptr, 1);
+  static void qsbr_deallocate(void *ptr) {
+    unodb::qsbr::instance().on_next_epoch_deallocate(ptr, 1);
   }
 
-  [[nodiscard]] bool mock_is_allocated(void *ptr) {
-    std::lock_guard guard{mock_allocator_mutex};
-    return allocator.is_allocated(ptr);
+  static void touch_memory(char *ptr, char opt_val = '\0') {
+    if (opt_val != '\0') {
+      *ptr = opt_val;
+    } else {
+      static char value = 'A';
+      *ptr = value;
+      ++value;
+    }
   }
 
  public:
@@ -120,9 +77,6 @@ class QSBR : public ::testing::Test {
 
  private:
   std::size_t last_epoch_num{std::numeric_limits<std::size_t>::max()};
-
-  mock_pool allocator;
-  std::mutex mock_allocator_mutex;
 };
 
 using QSBRDeathTest = QSBR;
@@ -319,17 +273,15 @@ TEST_F(QSBR, ThreeThreadsInitialPaused) {
 }
 
 TEST_F(QSBR, SingleThreadOneAllocation) {
-  auto *ptr = mock_allocate();
-  ASSERT_TRUE(mock_is_allocated(ptr));
-  mock_qsbr_deallocate(ptr);
-  ASSERT_FALSE(mock_is_allocated(ptr));
+  auto *ptr = static_cast<char *>(allocate());
+  touch_memory(ptr);
+  qsbr_deallocate(ptr);
 }
 
 TEST_F(QSBR, SingleThreadAllocationAndEpochChange) {
-  auto *ptr = mock_allocate();
-  ASSERT_TRUE(mock_is_allocated(ptr));
-  mock_qsbr_deallocate(ptr);
-  ASSERT_FALSE(mock_is_allocated(ptr));
+  auto *ptr = static_cast<char *>(allocate());
+  touch_memory(ptr);
+  qsbr_deallocate(ptr);
 
   mark_epoch();
 
@@ -337,35 +289,33 @@ TEST_F(QSBR, SingleThreadAllocationAndEpochChange) {
 
   check_epoch_advanced();
 
-  ASSERT_FALSE(mock_is_allocated(ptr));
-  ptr = mock_allocate();
-  ASSERT_TRUE(mock_is_allocated(ptr));
-  mock_qsbr_deallocate(ptr);
-  ASSERT_FALSE(mock_is_allocated(ptr));
+  ptr = static_cast<char *>(allocate());
+  touch_memory(ptr);
+  qsbr_deallocate(ptr);
 }
 
 TEST_F(QSBR, ActivePointersBeforeQuiescentState) {
-  auto *ptr = mock_allocate();
+  auto *ptr = allocate();
   active_pointer_ops(ptr);
-  mock_qsbr_deallocate(ptr);
+  qsbr_deallocate(ptr);
   unodb::current_thread_reclamator().quiescent_state();
 }
 
 TEST_F(QSBR, ActivePointersBeforePause) {
-  auto *ptr = mock_allocate();
+  auto *ptr = allocate();
   active_pointer_ops(ptr);
-  mock_qsbr_deallocate(ptr);
+  qsbr_deallocate(ptr);
   unodb::current_thread_reclamator().pause();
 }
 
 #ifndef NDEBUG
 
 TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
-  auto *ptr = mock_allocate();
+  auto *ptr = allocate();
   unodb::qsbr_ptr<void> active_ptr{ptr};
   UNODB_ASSERT_DEATH({ unodb::current_thread_reclamator().quiescent_state(); },
                      "");
-  mock_qsbr_deallocate(ptr);
+  qsbr_deallocate(ptr);
 }
 
 #endif
@@ -420,7 +370,7 @@ TEST_F(QSBR, TwoThreadEpochChanges) {
 }
 
 TEST_F(QSBR, TwoThreadAllocations) {
-  auto *ptr = mock_allocate();
+  auto *ptr = static_cast<char *>(allocate());
 
   unodb::qsbr_thread second_thread([] {
     thread_sync_1.notify();
@@ -436,32 +386,31 @@ TEST_F(QSBR, TwoThreadAllocations) {
   });
 
   thread_sync_1.wait();
-  mock_qsbr_deallocate(ptr);
-  ASSERT_TRUE(mock_is_allocated(ptr));
+  qsbr_deallocate(ptr);
+  // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+  touch_memory(ptr);
 
   unodb::current_thread_reclamator().quiescent_state();
   unodb::current_thread_reclamator().quiescent_state();
 
-  ASSERT_TRUE(mock_is_allocated(ptr));
+  touch_memory(ptr);
 
   thread_sync_2.notify();
   thread_sync_1.wait();
 
   unodb::current_thread_reclamator().quiescent_state();
 
-  ASSERT_TRUE(mock_is_allocated(ptr));
+  touch_memory(ptr);
 
   thread_sync_2.notify();
   thread_sync_1.wait();
-
-  ASSERT_FALSE(mock_is_allocated(ptr));
 
   thread_sync_2.notify();
   second_thread.join();
 }
 
 TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
-  auto *ptr = mock_allocate();
+  auto *ptr = static_cast<char *>(allocate());
 
   unodb::qsbr_thread second_thread([] {
     thread_sync_1.notify();  // 1 ->
@@ -469,55 +418,52 @@ TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
   });
 
   thread_sync_1.wait();  // 1 <-
-  mock_qsbr_deallocate(ptr);
-  ASSERT_TRUE(mock_is_allocated(ptr));
+  qsbr_deallocate(ptr);
+  // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+  touch_memory(ptr);
 
   unodb::current_thread_reclamator().quiescent_state();
   unodb::current_thread_reclamator().quiescent_state();
 
-  ASSERT_TRUE(mock_is_allocated(ptr));
+  touch_memory(ptr);
 
   thread_sync_2.notify();  // 2 ->
   second_thread.join();
 
-  ASSERT_TRUE(mock_is_allocated(ptr));
+  touch_memory(ptr);
 
   unodb::current_thread_reclamator().quiescent_state();
-
-  ASSERT_FALSE(mock_is_allocated(ptr));
 }
 
 TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
   unodb::current_thread_reclamator().pause();
 
-  unodb::qsbr_thread second_thread([this] {
-    auto *ptr = mock_allocate();
-    mock_qsbr_deallocate(ptr);
-    ASSERT_FALSE(mock_is_allocated(ptr));
+  unodb::qsbr_thread second_thread([] {
+    auto *ptr = static_cast<char *>(allocate());
+    qsbr_deallocate(ptr);
 
-    ptr = mock_allocate();
+    ptr = static_cast<char *>(allocate());
 
     thread_sync_1.notify();
     thread_sync_2.wait();
 
-    mock_qsbr_deallocate(ptr);
-    ASSERT_TRUE(mock_is_allocated(ptr));
+    qsbr_deallocate(ptr);
+    // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+    touch_memory(ptr);
 
     unodb::current_thread_reclamator().quiescent_state();
 
-    ASSERT_TRUE(mock_is_allocated(ptr));
+    touch_memory(ptr);
 
     thread_sync_1.notify();
     thread_sync_2.wait();
 
     unodb::current_thread_reclamator().quiescent_state();
 
-    ASSERT_TRUE(mock_is_allocated(ptr));
+    touch_memory(ptr);
 
     thread_sync_1.notify();
     thread_sync_2.wait();
-
-    ASSERT_FALSE(mock_is_allocated(ptr));
   });
 
   thread_sync_1.wait();
@@ -536,7 +482,7 @@ TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
 }
 
 TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
-  auto *ptr = mock_allocate();
+  auto *ptr = static_cast<char *>(allocate());
 
   unodb::qsbr_thread second_thread([] {
     thread_sync_1.notify();  // 1 ->
@@ -544,23 +490,22 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
   });
 
   thread_sync_1.wait();  // 1 <-
-  mock_qsbr_deallocate(ptr);
+  qsbr_deallocate(ptr);
 
   unodb::current_thread_reclamator().quiescent_state();
-  ASSERT_TRUE(mock_is_allocated(ptr));
+  // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+  touch_memory(ptr);
 
   thread_sync_2.notify();  // 2 ->
   second_thread.join();
 
-  ASSERT_TRUE(mock_is_allocated(ptr));
+  touch_memory(ptr);
 
   unodb::current_thread_reclamator().quiescent_state();
-
-  ASSERT_FALSE(mock_is_allocated(ptr));
 }
 
 TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentStateBefore1stThreadQState) {
-  auto *ptr = mock_allocate();
+  auto *ptr = static_cast<char *>(allocate());
 
   unodb::qsbr_thread second_thread([] {
     thread_sync_1.notify();
@@ -568,16 +513,15 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentStateBefore1stThreadQState) {
   });
 
   thread_sync_1.wait();
-  mock_qsbr_deallocate(ptr);
+  qsbr_deallocate(ptr);
 
-  ASSERT_TRUE(mock_is_allocated(ptr));
+  // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+  touch_memory(ptr);
 
   thread_sync_2.notify();
   second_thread.join();
 
   unodb::current_thread_reclamator().quiescent_state();
-
-  ASSERT_FALSE(mock_is_allocated(ptr));
 }
 
 TEST_F(QSBR, ToSingleThreadedModeDeallocationsByRemainingThread) {
@@ -588,9 +532,9 @@ TEST_F(QSBR, ToSingleThreadedModeDeallocationsByRemainingThread) {
 
   thread_sync_1.wait();  // 1 <-
 
-  auto *ptr = mock_allocate();
+  auto *ptr = allocate();
 
-  mock_qsbr_deallocate(ptr);
+  qsbr_deallocate(ptr);
 
   thread_sync_2.notify();  // 2 ->
   second_thread.join();
@@ -600,52 +544,43 @@ TEST_F(QSBR, ToSingleThreadedModeDeallocationsByRemainingThread) {
 
 TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
   mark_epoch();
-  auto *ptr_1_1 = mock_allocate();
+  auto *ptr_1_1 = static_cast<char *>(allocate());
 
-  unodb::qsbr_thread second_thread([this] {
-    auto *ptr_2_1 = mock_allocate();
+  unodb::qsbr_thread second_thread([] {
+    auto *ptr_2_1 = static_cast<char *>(allocate());
 
-    mock_qsbr_deallocate(ptr_2_1);
+    qsbr_deallocate(ptr_2_1);
     unodb::current_thread_reclamator().quiescent_state();
     thread_sync_1.notify();
     thread_sync_2.wait();
 
-    ASSERT_TRUE(mock_is_allocated(ptr_2_1));
-    auto *ptr_2_2 = mock_allocate();
-    mock_qsbr_deallocate(ptr_2_2);
-    unodb::current_thread_reclamator().quiescent_state();
-
-    thread_sync_1.notify();
-    thread_sync_2.wait();
-
-    ASSERT_FALSE(mock_is_allocated(ptr_2_1));
-    ASSERT_TRUE(mock_is_allocated(ptr_2_2));
+    // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+    touch_memory(ptr_2_1);
+    auto *ptr_2_2 = static_cast<char *>(allocate());
+    qsbr_deallocate(ptr_2_2);
     unodb::current_thread_reclamator().quiescent_state();
 
     thread_sync_1.notify();
     thread_sync_2.wait();
 
-    ASSERT_FALSE(mock_is_allocated(ptr_2_2));
+    // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+    touch_memory(ptr_2_2);
+    unodb::current_thread_reclamator().quiescent_state();
+
+    thread_sync_1.notify();
+    thread_sync_2.wait();
   });
 
   thread_sync_1.wait();
-  mock_qsbr_deallocate(ptr_1_1);
+  qsbr_deallocate(ptr_1_1);
   unodb::current_thread_reclamator().quiescent_state();
 
   check_epoch_advanced();
 
-  ASSERT_TRUE(mock_is_allocated(ptr_1_1));
-  auto *ptr_1_2 = mock_allocate();
-  mock_qsbr_deallocate(ptr_1_2);
-  unodb::current_thread_reclamator().quiescent_state();
-
-  thread_sync_2.notify();
-  thread_sync_1.wait();
-
-  check_epoch_advanced();
-
-  ASSERT_FALSE(mock_is_allocated(ptr_1_1));
-  ASSERT_TRUE(mock_is_allocated(ptr_1_2));
+  // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+  touch_memory(ptr_1_1);
+  auto *ptr_1_2 = static_cast<char *>(allocate());
+  qsbr_deallocate(ptr_1_2);
   unodb::current_thread_reclamator().quiescent_state();
 
   thread_sync_2.notify();
@@ -653,7 +588,14 @@ TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
 
   check_epoch_advanced();
 
-  ASSERT_FALSE(mock_is_allocated(ptr_1_2));
+  // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+  touch_memory(ptr_1_2);
+  unodb::current_thread_reclamator().quiescent_state();
+
+  thread_sync_2.notify();
+  thread_sync_1.wait();
+
+  check_epoch_advanced();
 
   thread_sync_2.notify();
   second_thread.join();
@@ -661,7 +603,7 @@ TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
 
 TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   mark_epoch();
-  auto *ptr = mock_allocate();
+  auto *ptr = static_cast<char *>(allocate());
 
   unodb::qsbr_thread second_thread{[] {
     thread_sync_1.notify();  // 1 ->
@@ -674,7 +616,7 @@ TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   }};
 
   thread_sync_1.wait();  // 1 <-
-  mock_qsbr_deallocate(ptr);
+  qsbr_deallocate(ptr);
 
   unodb::current_thread_reclamator().quiescent_state();
 
@@ -682,44 +624,45 @@ TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   thread_sync_1.wait();    // 3 <-
 
   check_epoch_advanced();
-  ASSERT_TRUE(mock_is_allocated(ptr));
+  // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+  touch_memory(ptr);
 
-  auto *ptr2 = mock_allocate();
-  mock_qsbr_deallocate(ptr2);
-  ASSERT_TRUE(mock_is_allocated(ptr2));
+  auto *ptr2 = static_cast<char *>(allocate());
+  qsbr_deallocate(ptr2);
+  // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+  touch_memory(ptr2);
 
   thread_sync_2.notify();  // 4 ->
   second_thread.join();
 
-  ASSERT_TRUE(mock_is_allocated(ptr));
-  ASSERT_TRUE(mock_is_allocated(ptr2));
+  touch_memory(ptr);
+  touch_memory(ptr2);
 
   unodb::current_thread_reclamator().quiescent_state();
-
-  ASSERT_FALSE(mock_is_allocated(ptr));
-  ASSERT_FALSE(mock_is_allocated(ptr2));
 }
 
 TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
   mark_epoch();
 
-  auto *ptr_1_1 = mock_allocate();
+  auto *ptr_1_1 = static_cast<char *>(allocate());
 
-  unodb::qsbr_thread second_thread{[this] {
-    auto *ptr_2_1 = mock_allocate();
+  unodb::qsbr_thread second_thread{[] {
+    auto *ptr_2_1 = static_cast<char *>(allocate());
     thread_sync_1.notify();  // 1 ->
     thread_sync_2.wait();    // 2 <-
 
-    mock_qsbr_deallocate(ptr_2_1);
+    qsbr_deallocate(ptr_2_1);
     unodb::current_thread_reclamator().quiescent_state();
 
     thread_sync_1.notify();  // 3 ->
     thread_sync_2.wait();    // 4 <-
 
-    ASSERT_TRUE(mock_is_allocated(ptr_2_1));
-    auto *ptr_2_2 = mock_allocate();
-    mock_qsbr_deallocate(ptr_2_2);
-    ASSERT_TRUE(mock_is_allocated(ptr_2_2));
+    // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+    touch_memory(ptr_2_1);
+    auto *ptr_2_2 = static_cast<char *>(allocate());
+    qsbr_deallocate(ptr_2_2);
+    // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+    touch_memory(ptr_2_2);
 
     thread_sync_1.notify();  // 5 ->
     thread_sync_2.wait();    // 6 <-
@@ -728,15 +671,12 @@ TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
 
     thread_sync_1.notify();  // 7 ->
 
-    ASSERT_FALSE(mock_is_allocated(ptr_2_1));
-    ASSERT_FALSE(mock_is_allocated(ptr_2_2));
-
     unodb::current_thread_reclamator().resume();
   }};
 
   thread_sync_1.wait();  // 1 <-
 
-  mock_qsbr_deallocate(ptr_1_1);
+  qsbr_deallocate(ptr_1_1);
   unodb::current_thread_reclamator().quiescent_state();
 
   thread_sync_2.notify();  // 2 ->
@@ -747,40 +687,37 @@ TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
   thread_sync_2.notify();  // 4 ->
   thread_sync_1.wait();    // 5 <-
 
-  ASSERT_TRUE(mock_is_allocated(ptr_1_1));
-  auto *ptr_1_2 = mock_allocate();
-  mock_qsbr_deallocate(ptr_1_2);
-  ASSERT_TRUE(mock_is_allocated(ptr_1_2));
+  // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+  touch_memory(ptr_1_1);
+  auto *ptr_1_2 = static_cast<char *>(allocate());
+  qsbr_deallocate(ptr_1_2);
+  // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+  touch_memory(ptr_1_2);
 
   unodb::current_thread_reclamator().pause();
 
   thread_sync_2.notify();  // 6 ->
   thread_sync_1.wait();    // 7 <-
 
-  ASSERT_FALSE(mock_is_allocated(ptr_1_1));
-  ASSERT_FALSE(mock_is_allocated(ptr_1_2));
   second_thread.join();
 
   unodb::current_thread_reclamator().resume();
 }
 
 TEST_F(QSBR, TwoThreadsDeallocateBeforeQuittingPointerStaysLive) {
-  void *test_ptr = mock_allocate();
+  auto *ptr = static_cast<char *>(allocate());
 
-  unodb::qsbr_thread second_thread{
-      [this, test_ptr] { mock_qsbr_deallocate(test_ptr); }};
+  unodb::qsbr_thread second_thread{[ptr] { qsbr_deallocate(ptr); }};
   second_thread.join();
 
-  ASSERT_TRUE(mock_is_allocated(test_ptr));
+  touch_memory(ptr);
 
   unodb::current_thread_reclamator().quiescent_state();
-
-  ASSERT_FALSE(mock_is_allocated(test_ptr));
 }
 
 TEST_F(QSBR, ThreeDeallocationRequestSets) {
   mark_epoch();
-  auto *ptr = mock_allocate();
+  auto *ptr = static_cast<char *>(allocate());
 
   unodb::qsbr_thread second_thread{[] {
     thread_sync_1.notify();  // 1 ->
@@ -794,13 +731,14 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
 
   thread_sync_1.wait();  // 1 <-
 
-  mock_qsbr_deallocate(ptr);
+  qsbr_deallocate(ptr);
   unodb::current_thread_reclamator().quiescent_state();
 
   thread_sync_2.notify();  // 2 ->
   thread_sync_1.wait();    // 3 <-
 
-  ASSERT_TRUE(mock_is_allocated(ptr));
+  // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+  touch_memory(ptr);
 
   check_epoch_advanced();
   unodb::current_thread_reclamator().quiescent_state();
@@ -808,20 +746,18 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
   thread_sync_2.notify();  // 4 ->
 
   second_thread.join();
-
-  ASSERT_FALSE(mock_is_allocated(ptr));
 }
 
 TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
   mark_epoch();
-  auto *const ptr = static_cast<char *>(mock_allocate());
-  *ptr = 'A';
+  auto *const ptr = static_cast<char *>(allocate());
+  touch_memory(ptr, 'A');
 
-  unodb::qsbr_thread second_thread{[this, ptr] {
+  unodb::qsbr_thread second_thread{[ptr] {
     thread_sync_1.notify();  // 1 ->
     thread_sync_2.wait();    // 2 <-
 
-    mock_qsbr_deallocate(ptr);
+    qsbr_deallocate(ptr);
   }};
 
   thread_sync_1.wait();  // 1 <-
@@ -850,8 +786,8 @@ TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
 }
 
 TEST_F(QSBR, ResetStats) {
-  auto *ptr = mock_allocate();
-  auto *ptr2 = mock_allocate();
+  auto *ptr = allocate();
+  auto *ptr2 = allocate();
 
   unodb::qsbr_thread second_thread{[] {
     unodb::current_thread_reclamator().quiescent_state();
@@ -860,8 +796,8 @@ TEST_F(QSBR, ResetStats) {
   }};
 
   thread_sync_1.wait();  // 1 <-
-  mock_qsbr_deallocate(ptr);
-  mock_qsbr_deallocate(ptr2);
+  qsbr_deallocate(ptr);
+  qsbr_deallocate(ptr2);
 
   unodb::current_thread_reclamator().quiescent_state();
   unodb::current_thread_reclamator().quiescent_state();

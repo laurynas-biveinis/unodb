@@ -26,10 +26,10 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
 
-#ifndef NDEBUG
-#include "debug_thread_sync.hpp"
-#endif
 #include "heap.hpp"
+#ifndef NDEBUG
+#include "thread_sync.hpp"
+#endif
 
 namespace unodb {
 
@@ -467,8 +467,9 @@ class qsbr_thread : public std::thread {
   template <typename Function, typename... Args,
             class = std::enable_if_t<
                 !std::is_same_v<remove_cvref_t<Function>, qsbr_thread>>>
-  qsbr_thread(debug::thread_wait &notify_point, debug::thread_wait &wait_point,
-              Function &&f, Args &&...args) noexcept
+  qsbr_thread(detail::thread_sync &notify_point,
+              detail::thread_sync &wait_point, Function &&f,
+              Args &&...args) noexcept
       : std::thread{((void)qsbr::instance().prepare_new_thread(),
                      (void)notify_point.notify(), (void)wait_point.wait(),
                      [](auto &&f2, auto &&...args2) noexcept {

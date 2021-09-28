@@ -15,6 +15,7 @@
 #include "gtest_utils.hpp"
 #include "mutex_art.hpp"  // IWYU pragma: keep
 #include "olc_art.hpp"    // IWYU pragma: keep
+#include "thread_sync.hpp"
 
 namespace {
 using unodb::test::test_values;
@@ -24,6 +25,9 @@ class ARTCorrectnessTest : public ::testing::Test {
  public:
   using Test::Test;
 };
+
+using unodb::detail::thread_sync_1;
+using unodb::detail::thread_sync_2;
 
 using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db, unodb::olc_db>;
 
@@ -736,6 +740,27 @@ TYPED_TEST(ARTCorrectnessTest, Clear) {
 
   verifier.check_absent_keys({1});
   verifier.assert_node_counts({0, 0, 0, 0, 0});
+}
+
+TYPED_TEST(ARTCorrectnessTest, TwoInstances) {
+  unodb::test::tree_verifier<TypeParam> v1;
+  unodb::test::tree_verifier<TypeParam> v2;
+
+  unodb::test::thread<TypeParam> second_thread([&v2] {
+    thread_sync_1.notify();
+    thread_sync_2.wait();
+
+    v2.insert(0, unodb::test::test_values[0]);
+    v2.check_present_values();
+  });
+
+  thread_sync_1.wait();
+  thread_sync_2.notify();
+
+  v1.insert(0, unodb::test::test_values[1]);
+  v1.check_present_values();
+
+  second_thread.join();
 }
 
 }  // namespace

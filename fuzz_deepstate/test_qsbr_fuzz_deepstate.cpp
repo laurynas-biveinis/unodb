@@ -14,11 +14,11 @@
 
 #include <deepstate/DeepState.hpp>
 
-#include "debug_thread_sync.hpp"
 #include "deepstate_utils.hpp"
 #include "heap.hpp"
 #include "qsbr.hpp"
 #include "qsbr_ptr.hpp"
+#include "thread_sync.hpp"
 
 namespace {
 
@@ -76,7 +76,7 @@ std::vector<thread_info> threads;
 
 constexpr std::size_t main_thread_id{0};
 
-std::array<unodb::debug::thread_wait, max_thread_id> thread_sync;
+std::array<unodb::detail::thread_sync, max_thread_id> thread_sync;
 
 std::size_t new_thread_id{1};
 

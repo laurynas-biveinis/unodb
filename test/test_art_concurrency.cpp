@@ -23,10 +23,6 @@ namespace {
 template <class Db>
 class ARTConcurrencyTest : public ::testing::Test {
  protected:
-  using thread_type =
-      typename std::conditional_t<std::is_same_v<Db, unodb::olc_db>,
-                                  unodb::qsbr_thread, std::thread>;
-
   ARTConcurrencyTest() noexcept {
     if constexpr (std::is_same_v<Db, unodb::olc_db>)
       unodb::test::expect_idle_qsbr();
@@ -42,9 +38,10 @@ class ARTConcurrencyTest : public ::testing::Test {
     if constexpr (std::is_same_v<Db, unodb::olc_db>)
       unodb::current_thread_reclamator().pause();
 
-    std::array<thread_type, ThreadCount> threads;
+    std::array<unodb::test::thread<Db>, ThreadCount> threads;
     for (decltype(ThreadCount) i = 0; i < ThreadCount; ++i) {
-      threads[i] = thread_type{test_function, &verifier, i, OpsPerThread};
+      threads[i] =
+          unodb::test::thread<Db>{test_function, &verifier, i, OpsPerThread};
     }
     for (auto &t : threads) {
       t.join();

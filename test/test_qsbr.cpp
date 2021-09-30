@@ -12,12 +12,12 @@
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
 
-#include "debug_thread_sync.hpp"
 #include "gtest_utils.hpp"  // IWYU pragma: keep
 #include "heap.hpp"
 #include "qsbr.hpp"
 #include "qsbr_ptr.hpp"
 #include "qsbr_test_utils.hpp"
+#include "thread_sync.hpp"
 
 namespace {
 
@@ -112,9 +112,6 @@ class QSBR : public ::testing::Test {
     return allocator.is_allocated(ptr);
   }
 
-  unodb::debug::thread_wait thread_sync_1;
-  unodb::debug::thread_wait thread_sync_2;
-
  public:
   QSBR(const QSBR &) = delete;
   QSBR(QSBR &&) = delete;
@@ -129,6 +126,9 @@ class QSBR : public ::testing::Test {
 };
 
 using QSBRDeathTest = QSBR;
+
+using unodb::detail::thread_sync_1;
+using unodb::detail::thread_sync_2;
 
 void active_pointer_ops(void *raw_ptr) noexcept {
   unodb::qsbr_ptr<void> active_ptr{raw_ptr};
@@ -181,7 +181,7 @@ TEST_F(QSBR, TwoThreadsSecondPaused) {
 }
 
 TEST_F(QSBR, TwoThreadsFirstPaused) {
-  unodb::qsbr_thread second_thread([this] {
+  unodb::qsbr_thread second_thread([] {
     EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 2);
     thread_sync_1.notify();
     thread_sync_2.wait();
@@ -198,7 +198,7 @@ TEST_F(QSBR, TwoThreadsFirstPaused) {
 }
 
 TEST_F(QSBR, TwoThreadsBothPaused) {
-  unodb::qsbr_thread second_thread([this] {
+  unodb::qsbr_thread second_thread([] {
     EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 2);
     thread_sync_1.notify();
     unodb::current_thread_reclamator().pause();
@@ -239,19 +239,19 @@ TEST_F(QSBR, TwoThreadsDefaultCtor) {
 #ifndef NDEBUG
 
 TEST_F(QSBR, ThreeThreadsInterleavedCtor) {
-  std::thread second_thread_launcher([this] {
+  std::thread second_thread_launcher([] {
     unodb::qsbr_thread second_thread(thread_sync_1, thread_sync_2, [] {});
     second_thread.join();
   });
 
   thread_sync_1.wait();
-  unodb::qsbr_thread third_thread([this] { thread_sync_2.notify(); });
+  unodb::qsbr_thread third_thread([] { thread_sync_2.notify(); });
   second_thread_launcher.join();
   third_thread.join();
 }
 
 TEST_F(QSBR, TwoThreadsInterleavedCtorDtor) {
-  std::thread second_thread_launcher([this] {
+  std::thread second_thread_launcher([] {
     unodb::qsbr_thread second_thread(thread_sync_1, thread_sync_2, [] {
       ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
     });
@@ -284,7 +284,7 @@ TEST_F(QSBR, SecondThreadAddedWhileFirstPausedBothRun) {
   unodb::current_thread_reclamator().pause();
   ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
 
-  unodb::qsbr_thread second_thread([this] {
+  unodb::qsbr_thread second_thread([] {
     ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
     thread_sync_1.notify();
     thread_sync_2.wait();
@@ -300,14 +300,14 @@ TEST_F(QSBR, SecondThreadAddedWhileFirstPausedBothRun) {
 TEST_F(QSBR, ThreeThreadsInitialPaused) {
   unodb::current_thread_reclamator().pause();
   ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
-  unodb::qsbr_thread second_thread([this] {
+  unodb::qsbr_thread second_thread([] {
     ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
     thread_sync_1.notify();
     thread_sync_2.wait();
   });
   thread_sync_1.wait();
   ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
-  unodb::qsbr_thread third_thread([this] {
+  unodb::qsbr_thread third_thread([] {
     ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 2);
     thread_sync_2.notify();
   });
@@ -373,7 +373,7 @@ TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
 TEST_F(QSBR, TwoThreadEpochChangesSecondStartsQuiescent) {
   mark_epoch();
 
-  unodb::qsbr_thread second_thread([this] {
+  unodb::qsbr_thread second_thread([] {
     unodb::current_thread_reclamator().quiescent_state();
     thread_sync_1.notify();
     thread_sync_2.wait();
@@ -396,7 +396,7 @@ TEST_F(QSBR, TwoThreadEpochChanges) {
 
   check_epoch_advanced();
 
-  unodb::qsbr_thread second_thread([this] {
+  unodb::qsbr_thread second_thread([] {
     thread_sync_1.notify();
     thread_sync_2.wait();
     unodb::current_thread_reclamator().quiescent_state();
@@ -422,7 +422,7 @@ TEST_F(QSBR, TwoThreadEpochChanges) {
 TEST_F(QSBR, TwoThreadAllocations) {
   auto *ptr = mock_allocate();
 
-  unodb::qsbr_thread second_thread([this] {
+  unodb::qsbr_thread second_thread([] {
     thread_sync_1.notify();
     thread_sync_2.wait();
 
@@ -463,7 +463,7 @@ TEST_F(QSBR, TwoThreadAllocations) {
 TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
   auto *ptr = mock_allocate();
 
-  unodb::qsbr_thread second_thread([this] {
+  unodb::qsbr_thread second_thread([] {
     thread_sync_1.notify();  // 1 ->
     thread_sync_2.wait();    // 2 <-
   });
@@ -538,7 +538,7 @@ TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
 TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
   auto *ptr = mock_allocate();
 
-  unodb::qsbr_thread second_thread([this] {
+  unodb::qsbr_thread second_thread([] {
     thread_sync_1.notify();  // 1 ->
     thread_sync_2.wait();    // 2 <-
   });
@@ -562,7 +562,7 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
 TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentStateBefore1stThreadQState) {
   auto *ptr = mock_allocate();
 
-  unodb::qsbr_thread second_thread([this] {
+  unodb::qsbr_thread second_thread([] {
     thread_sync_1.notify();
     thread_sync_2.wait();
   });
@@ -581,7 +581,7 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentStateBefore1stThreadQState) {
 }
 
 TEST_F(QSBR, ToSingleThreadedModeDeallocationsByRemainingThread) {
-  unodb::qsbr_thread second_thread{[this] {
+  unodb::qsbr_thread second_thread{[] {
     thread_sync_1.notify();  // 1 ->
     thread_sync_2.wait();    // 2 <-
   }};
@@ -663,7 +663,7 @@ TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   mark_epoch();
   auto *ptr = mock_allocate();
 
-  unodb::qsbr_thread second_thread{[this] {
+  unodb::qsbr_thread second_thread{[] {
     thread_sync_1.notify();  // 1 ->
     thread_sync_2.wait();    // 2 <-
 
@@ -782,7 +782,7 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
   mark_epoch();
   auto *ptr = mock_allocate();
 
-  unodb::qsbr_thread second_thread{[this] {
+  unodb::qsbr_thread second_thread{[] {
     thread_sync_1.notify();  // 1 ->
     thread_sync_2.wait();    // 2 <-
 
@@ -853,7 +853,7 @@ TEST_F(QSBR, ResetStats) {
   auto *ptr = mock_allocate();
   auto *ptr2 = mock_allocate();
 
-  unodb::qsbr_thread second_thread{[this] {
+  unodb::qsbr_thread second_thread{[] {
     unodb::current_thread_reclamator().quiescent_state();
     thread_sync_1.notify();  // 1 ->
     thread_sync_2.wait();    // 2 <-

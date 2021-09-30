@@ -26,6 +26,10 @@
 
 namespace unodb::test {
 
+template <class Db>
+using thread = typename std::conditional_t<std::is_same_v<Db, unodb::olc_db>,
+                                           unodb::qsbr_thread, std::thread>;
+
 constexpr auto test_value_1 = std::array<std::byte, 1>{std::byte{0x00}};
 constexpr auto test_value_2 =
     std::array<std::byte, 2>{std::byte{0x00}, std::byte{0x02}};

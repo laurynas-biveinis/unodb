@@ -43,9 +43,7 @@ class db_leaf_qsbr_deleter {
   void operator()(leaf_type *to_delete) const noexcept {
     const auto leaf_size = to_delete->get_size();
 
-    qsbr::instance().on_next_epoch_pool_deallocate(get_leaf_node_pool(),
-                                                   to_delete, leaf_size,
-                                                   alignment_for_new<Header>());
+    qsbr::instance().on_next_epoch_deallocate(to_delete, leaf_size);
 
     db_instance.decrement_leaf_count(leaf_size);
   }
@@ -59,20 +57,8 @@ class db_leaf_qsbr_deleter {
 namespace {
 
 template <class INode>
-struct inode_pool_getter {
-  [[nodiscard]] static inline auto &get() {
-    static unodb::detail::pmr_synchronized_pool_resource inode_pool{
-        unodb::detail::get_inode_pool_options<INode>()};
-    return inode_pool;
-  }
-
-  inode_pool_getter() = delete;
-};
-
-template <class INode>
 using db_inode_qsbr_deleter_parent =
-    unodb::detail::basic_db_inode_deleter<INode, unodb::olc_db,
-                                          inode_pool_getter>;
+    unodb::detail::basic_db_inode_deleter<INode, unodb::olc_db>;
 
 }  // namespace
 
@@ -86,9 +72,7 @@ class db_inode_qsbr_deleter : public db_inode_qsbr_deleter_parent<INode> {
   void operator()(INode *inode_ptr) noexcept {
     static_assert(std::is_trivially_destructible_v<INode>);
 
-    qsbr::instance().on_next_epoch_pool_deallocate(
-        inode_pool_getter<INode>::get(), inode_ptr, sizeof(INode),
-        alignment_for_new<INode>());
+    qsbr::instance().on_next_epoch_deallocate(inode_ptr, sizeof(INode));
 
     this->get_db().template decrement_inode_count<INode>();
   }
@@ -115,10 +99,11 @@ using olc_inode_defs =
     unodb::detail::basic_inode_def<olc_inode, olc_inode_4, olc_inode_16,
                                    olc_inode_48, olc_inode_256>;
 
-using olc_art_policy = unodb::detail::basic_art_policy<
-    unodb::olc_db, unodb::in_critical_section, unodb::detail::olc_node_ptr,
-    olc_inode_defs, unodb::detail::db_inode_qsbr_deleter,
-    unodb::detail::db_leaf_qsbr_deleter, inode_pool_getter>;
+using olc_art_policy =
+    unodb::detail::basic_art_policy<unodb::olc_db, unodb::in_critical_section,
+                                    unodb::detail::olc_node_ptr, olc_inode_defs,
+                                    unodb::detail::db_inode_qsbr_deleter,
+                                    unodb::detail::db_leaf_qsbr_deleter>;
 
 using olc_db_leaf_unique_ptr = olc_art_policy::db_leaf_unique_ptr;
 

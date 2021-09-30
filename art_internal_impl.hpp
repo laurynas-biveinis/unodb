@@ -34,20 +34,6 @@ class olc_db;
 
 namespace unodb::detail {
 
-// For internal node pools, approximate requesting ~2MB blocks from backing
-// storage
-template <class INode>
-[[nodiscard]] inline auto get_inode_pool_options() noexcept {
-  pmr_pool_options inode_pool_options;
-  inode_pool_options.max_blocks_per_chunk = 2 * 1024 * 1024 / sizeof(INode);
-  inode_pool_options.largest_required_pool_block = sizeof(INode);
-  return inode_pool_options;
-}
-
-[[nodiscard]] inline auto &get_leaf_node_pool() noexcept {
-  return *pmr_new_delete_resource();
-}
-
 template <>
 [[gnu::const]] constexpr std::uint64_t
 basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
@@ -138,7 +124,7 @@ auto make_db_leaf_ptr(art_key k, value_view v, Db &db) {
       gsl::narrow_cast<typename leaf_type::value_size_type>(v.size()));
 
   auto *const leaf_mem = static_cast<std::byte *>(
-      pmr_allocate(get_leaf_node_pool(), size, alignment_for_new<leaf_type>()));
+      allocate_aligned(size, alignment_for_new<leaf_type>()));
 
   db.increment_leaf_count(size);
 
@@ -168,27 +154,25 @@ template <class Header, class Db>
 inline void basic_db_leaf_deleter<Header, Db>::operator()(
     leaf_type *to_delete) const noexcept {
   const auto leaf_size = to_delete->get_size();
-  pmr_deallocate(get_leaf_node_pool(), to_delete, leaf_size,
-                 alignment_for_new<basic_leaf<Header>>());
+
+  free_aligned(to_delete);
 
   db.decrement_leaf_count(leaf_size);
 }
 
-template <class INode, class Db, template <class> class INodePoolGetter>
-inline void basic_db_inode_deleter<INode, Db, INodePoolGetter>::operator()(
+template <class INode, class Db>
+inline void basic_db_inode_deleter<INode, Db>::operator()(
     INode *inode_ptr) noexcept {
   static_assert(std::is_trivially_destructible_v<INode>);
 
-  pmr_deallocate(INodePoolGetter<INode>::get(), inode_ptr, sizeof(INode),
-                 alignment_for_new<INode>());
+  free_aligned(inode_ptr);
 
   db.template decrement_inode_count<INode>();
 }
 
 template <class Db, template <class> class CriticalSectionPolicy, class NodePtr,
           class INodeDefs, template <class> class INodeReclamator,
-          template <class, class> class LeafReclamator,
-          template <class> class INodePoolGetter>
+          template <class, class> class LeafReclamator>
 struct basic_art_policy final {
   using node_ptr = NodePtr;
   using header_type = typename NodePtr::header_type;
@@ -206,7 +190,7 @@ struct basic_art_policy final {
 
  private:
   template <class INode>
-  using db_inode_deleter = basic_db_inode_deleter<INode, Db, INodePoolGetter>;
+  using db_inode_deleter = basic_db_inode_deleter<INode, Db>;
 
   using leaf_reclaimable_ptr =
       std::unique_ptr<leaf_type, LeafReclamator<header_type, Db>>;
@@ -233,11 +217,6 @@ struct basic_art_policy final {
   using db_inode256_reclaimable_ptr = db_inode_reclaimable_ptr<inode256_type>;
 
   using db_leaf_unique_ptr = basic_db_leaf_unique_ptr<header_type, Db>;
-
-  template <class INode>
-  [[nodiscard]] static auto &get_inode_pool() {
-    return INodePoolGetter<INode>::get();
-  }
 
   [[nodiscard]] static auto make_db_leaf_ptr(art_key k, value_view v,
                                              Db &db_instance) {
@@ -752,8 +731,7 @@ class basic_inode : public basic_inode_impl<ArtPolicy> {
   [[nodiscard]] static void *operator new(std::size_t size) {
     assert(size == sizeof(Derived));
 
-    return pmr_allocate(ArtPolicy::template get_inode_pool<Derived>(), size,
-                        alignment_for_new<Derived>());
+    return allocate_aligned(size, alignment_for_new<Derived>());
   }
 
   static void operator delete(void *) {

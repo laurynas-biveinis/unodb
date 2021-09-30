@@ -6,16 +6,7 @@
 
 #include <algorithm>
 #include <cassert>
-#ifdef UNODB_DETAIL_USE_STD_PMR
-#include <memory_resource>
-#endif
-
-#ifndef UNODB_DETAIL_USE_STD_PMR
-#include <boost/container/pmr/global_resource.hpp>
-#include <boost/container/pmr/memory_resource.hpp>
-#include <boost/container/pmr/synchronized_pool_resource.hpp>
-#include <boost/container/pmr/unsynchronized_pool_resource.hpp>
-#endif
+#include <cstdlib>
 
 #if defined(__SANITIZE_ADDRESS__)
 #include <sanitizer/asan_interface.h>
@@ -43,66 +34,27 @@
 
 namespace unodb::detail {
 
-#ifdef UNODB_DETAIL_USE_STD_PMR
-
-using pmr_pool = std::pmr::memory_resource;
-using pmr_pool_options = std::pmr::pool_options;
-inline const auto &pmr_new_delete_resource = std::pmr::new_delete_resource;
-using pmr_synchronized_pool_resource = std::pmr::synchronized_pool_resource;
-using pmr_unsynchronized_pool_resource = std::pmr::unsynchronized_pool_resource;
-
-#else
-
-using pmr_pool = boost::container::pmr::memory_resource;
-using pmr_pool_options = boost::container::pmr::pool_options;
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-inline const auto &pmr_new_delete_resource =
-    boost::container::pmr::new_delete_resource;
-using pmr_synchronized_pool_resource =
-    boost::container::pmr::synchronized_pool_resource;
-using pmr_unsynchronized_pool_resource =
-    boost::container::pmr::unsynchronized_pool_resource;
-
-#endif
-
 template <typename T>
 [[nodiscard]] constexpr auto alignment_for_new() noexcept {
   return std::max(alignof(T),
                   static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
 }
 
-[[nodiscard, gnu::malloc, gnu::returns_nonnull, gnu::alloc_size(2),
-  gnu::alloc_align(3)]] inline auto *
-pmr_allocate(pmr_pool &pool, std::size_t size,
-             std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
-  assert(alignment >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
+inline void* allocate_aligned(
+    std::size_t size,
+    std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+  void* result;
+  int err = posix_memalign(&result, alignment, size);
 
-  auto *const result = pool.allocate(size, alignment);
-
-#if defined(VALGRIND_CLIENT_REQUESTS) && !defined(UNODB_DETAIL_USE_STD_PMR)
-  if (!pool.is_equal(*pmr_new_delete_resource())) {
-    VALGRIND_MALLOCLIKE_BLOCK(result, size, 0, 0);
-  }
-#endif
-  ASAN_UNPOISON_MEMORY_REGION(result, size);
+  assert(err != EINVAL);
+  if (UNODB_DETAIL_UNLIKELY(err == ENOMEM)) throw std::bad_alloc{};
 
   return result;
 }
 
-inline void pmr_deallocate(
-    pmr_pool &pool, void *pointer, std::size_t size,
-    std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
-  assert(alignment >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
-
-  ASAN_POISON_MEMORY_REGION(pointer, size);
-#if defined(VALGRIND_CLIENT_REQUESTS) && !defined(UNODB_DETAIL_USE_STD_PMR)
-  if (!pool.is_equal(*pmr_new_delete_resource())) {
-    VALGRIND_FREELIKE_BLOCK(pointer, 0);
-    VALGRIND_MAKE_MEM_UNDEFINED(pointer, size);
-  }
-#endif
-
-  pool.deallocate(pointer, size, alignment);
+inline void free_aligned(void* ptr) {
+  // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
+  free(ptr);
 }
 
 }  // namespace unodb::detail

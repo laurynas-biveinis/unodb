@@ -109,10 +109,7 @@ class qsbr final {
   qsbr &operator=(const qsbr &) = delete;
   qsbr &operator=(qsbr &&) = delete;
 
-  void on_next_epoch_pool_deallocate(
-      detail::pmr_pool &pool, void *pointer, std::size_t size,
-      std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
-    assert(alignment >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
+  void on_next_epoch_deallocate(void *pointer, std::size_t size) {
     assert(!unodb::current_thread_reclamator().is_paused());
 
     bool deallocate_immediately = false;
@@ -124,13 +121,11 @@ class qsbr final {
         // TODO(laurynas): out of critical section?
         current_interval_total_dealloc_size.fetch_add(
             size, std::memory_order_relaxed);
-        current_interval_deallocation_requests.emplace_back(pool, pointer, size,
-                                                            alignment);
+        current_interval_deallocation_requests.emplace_back(pointer);
       }
       assert_invariants();
     }
-    if (deallocate_immediately)
-      detail::pmr_deallocate(pool, pointer, size, alignment);
+    if (deallocate_immediately) detail::free_aligned(pointer);
   }
 
   void quiescent_state(std::thread::id thread_id) noexcept {
@@ -241,20 +236,14 @@ class qsbr final {
   }
 
   struct deallocation_request {
-    // If memory usage becomes an issue, replace pool references with
-    // pre-registered pools with tagged pointers
-    detail::pmr_pool &pool;
     void *const pointer;
-    const std::size_t size;
-    const std::size_t alignment;
 
 #ifndef NDEBUG
     const std::uint64_t request_epoch{qsbr::instance().get_current_epoch()};
 #endif
 
-    deallocation_request(detail::pmr_pool &pool_, void *pointer_,
-                         std::size_t size_, std::size_t alignment_) noexcept
-        : pool{pool_}, pointer{pointer_}, size{size_}, alignment{alignment_} {}
+    explicit deallocation_request(void *pointer_) noexcept
+        : pointer{pointer_} {}
 
     void deallocate(
 #ifndef NDEBUG
@@ -267,7 +256,7 @@ class qsbr final {
              (dealloc_epoch_single_thread_mode &&
               dealloc_epoch == request_epoch + 1));
 
-      detail::pmr_deallocate(pool, pointer, size, alignment);
+      detail::free_aligned(pointer);
     }
   };
 

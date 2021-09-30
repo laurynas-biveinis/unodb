@@ -167,22 +167,6 @@ option(SANITIZE_UB "Enable UndefinedBehaviorSanitizer runtime checks")
 if(SANITIZE_UB)
   set_common_sanitizer_flags()
   list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=undefined")
-  # Boost library 1.72 on macOS from Homebrew produces the following error:
-  # SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior
-  # /Users/laurynas/unodb/unodb/heap.hpp:83:8 in
-  # /usr/local/include/boost/container/pmr/memory_resource.hpp:49:20: runtime
-  # error: member call on address 0x000105abd0b
-  # 0 which does not point to an object of type
-  # 'boost::container::pmr::memory_resource'
-  # 0x000105abd0b0: note: object is of type
-  # 'boost::container::pmr::new_delete_resource_imp'
-  # It looks like it's because new_delete_resource_imp is not exported as a
-  # visible symbol in the library? I.e.
-  # https://bugs.llvm.org/show_bug.cgi?id=39191,
-  # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80963
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    list(APPEND SANITIZER_CXX_FLAGS "-fno-sanitize=vptr")
-  endif()
   set(SANITIZER_LD_FLAGS "-fsanitize=undefined")
   string(CONCAT UBSAN_ENV "UBSAN_OPTIONS="
     "print_stacktrace=1:halt_on_error=1:abort_on_error=1")
@@ -197,21 +181,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_package(Threads REQUIRED)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  message(STATUS "Using GCC, using std::pmr instead of boost::pmr")
-else()
-  list(APPEND BOOST_COMPONENTS container)
-  # Workaround https://github.com/boostorg/boost_install/issues/13: Homebrew
-  # Boost 1.71 installs single-thread and MT build to the same prefix, resulting
-  # in -
-  # CMake Warning at /usr/local/lib/cmake/boost_container-1.71.0/libboost_container-variant-shared.cmake:59 (message):
-  # Target Boost::container already has an imported location
-  # '/usr/local/lib/libboost_container-mt.dylib', which will be overwritten
-  # with '/usr/local/lib/libboost_container.dylib'
-  set(Boost_NO_BOOST_CMAKE ON)
-endif()
-
-find_package(Boost REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+find_package(Boost REQUIRED)
 
 string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
 string(APPEND CMAKE_CXX_FLAGS ${CXX_FLAGS_FOR_SUBDIR_STR})

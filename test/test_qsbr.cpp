@@ -1,6 +1,6 @@
 // Copyright 2020-2021 Laurynas Biveinis
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 #include <cmath>
 #include <cstddef>  // IWYU pragma: keep

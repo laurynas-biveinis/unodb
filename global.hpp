@@ -93,10 +93,6 @@
 #define UNODB_DETAIL_RELEASE_CONST
 #endif
 
-#if defined(__GNUG__) && !defined(__clang__)
-#define UNODB_DETAIL_USE_STD_PMR
-#endif
-
 #ifndef NDEBUG
 #include <cstdlib>
 #include <iostream>

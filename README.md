@@ -119,9 +119,7 @@ libfuzzer, and will disable its support if specified.
 
 To enable UndefinedBehaviorSanitizer, add `-DSANITIZE_UB=ON` CMake option. It is
 compatible with both `-DSANITIZE_ADDRESS=ON` and `-DSANITIZE_THREAD=ON` options,
-although some [false positives][sanitizer-combination-bug] might occur. Enabling
-it with GCC, where `std::pmr` from libstdc++ is used instead of `boost::pmr`,
-will result in UBSan false positives due to [this][libstdc++ub].
+although some [false positives][sanitizer-combination-bug] might occur.
 
 To enable GCC 10+ compiler static analysis, add `-DSTATIC_ANALYSIS=ON` CMake
 option. For LLVM static analysis, no special CMake option is needed, and you
@@ -188,8 +186,6 @@ Performance and Correctness, June 2012, pages 12--21, 2012.
 [boostub2]: https://bugs.llvm.org/show_bug.cgi?id=39191
 
 [sanitizer-combination-bug]: https://github.com/google/sanitizers/issues/1106
-
-[libstdc++ub]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90442
 
 [gc++style]: https://google.github.io/styleguide/cppguide.html
 "Google C++ Style Guide"

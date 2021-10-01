@@ -10,7 +10,6 @@
 #include <utility>
 
 #include "art_internal_impl.hpp"
-#include "heap.hpp"
 #include "in_fake_critical_section.hpp"
 #include "node_type.hpp"
 

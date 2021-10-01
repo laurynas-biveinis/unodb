@@ -4,10 +4,8 @@
 
 #include <cmath>
 #include <cstddef>  // IWYU pragma: keep
-#include <cstdint>
 #include <limits>
 #include <mutex>  // IWYU pragma: keep
-#include <unordered_set>
 #include <utility>  // IWYU pragma: keep
 
 #include <gtest/gtest.h>  // IWYU pragma: keep

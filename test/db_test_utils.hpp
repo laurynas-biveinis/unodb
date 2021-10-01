@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <initializer_list>
 #include <iostream>
+#include <thread>
 #include <type_traits>  // IWYU pragma: keep
 #include <unordered_map>
 

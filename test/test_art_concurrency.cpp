@@ -5,8 +5,6 @@
 #include <array>
 #include <cstddef>
 #include <random>
-#include <thread>
-#include <type_traits>
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
 

@@ -13,7 +13,6 @@
 #include <utility>
 
 #include "art_internal_impl.hpp"
-#include "heap.hpp"
 #include "node_type.hpp"
 #include "optimistic_lock.hpp"
 #include "qsbr.hpp"

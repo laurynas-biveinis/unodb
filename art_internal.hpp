@@ -32,7 +32,7 @@ struct basic_art_key final {
 
   constexpr basic_art_key() noexcept = default;
 
-  explicit constexpr basic_art_key(KeyType key_) noexcept
+  constexpr explicit basic_art_key(KeyType key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)

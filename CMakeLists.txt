@@ -32,14 +32,17 @@ set(CLANG_CXX_WARNING_FLAGS
   "-Wmissing-variable-declarations" "-Wnewline-eof" "-Wnon-virtual-dtor"
   "-Wnonportable-system-include-path" "-Wold-style-cast" "-Wover-aligned"
   "-Wpacked" "-Wpointer-arith" "-Wprofile-instr-missing" "-Wredundant-parens"
-  "-Wreserved-id-macro" "-Wshift-sign-overflow" "-Wstatic-in-inline"
-  "-Wstrict-prototypes" "-Wsuper-class-method-mismatch" "-Wswitch-enum"
-  "-Wtautological-compare" "-Wtautological-constant-in-range-compare" "-Wundef"
+  "-Wshift-sign-overflow" "-Wstatic-in-inline" "-Wstrict-prototypes"
+  "-Wsuper-class-method-mismatch" "-Wswitch-enum" "-Wtautological-compare"
+  "-Wtautological-constant-in-range-compare" "-Wundef"
   "-Wundefined-func-template" "-Wundefined-reinterpret-cast"
   "-Wunreachable-code-aggressive" "-Wunused-exception-parameter"
   "-Wunused-macros" "-Wunused-member-function" "-Wunused-template"
   "-Wused-but-marked-unused" "-Wvector-conversion" "-Wvla"
   "-Wweak-template-vtables" "-Wweak-vtables" "-Wzero-as-null-pointer-constant")
+set(CLANG_LT_13_CXX_WARNING_FLAGS "-Wreserved-id-macro")
+set(CLANG_GE_13_CXX_WARNING_FLAGS "-Wreserved-identifier")
+
 set(GCC_CXX_WARNING_FLAGS
   # Warning groups
   "-Wall" "-Wextra" "-Wpedantic" "-Wunused" "-Wparentheses" "-Wconversion"
@@ -344,6 +347,8 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   target_compile_options(${TARGET} PRIVATE
     "$<$<BOOL:${FATAL_WARNINGS}>:-Werror>"
     "$<$<CXX_COMPILER_ID:AppleClang,Clang>:${CLANG_CXX_WARNING_FLAGS}>"
+    "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>>:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
+    "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>>:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
     "$<$<CXX_COMPILER_ID:GNU>:${GCC_CXX_WARNING_FLAGS}>"
     "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:${GCC_GE_11_CXX_WARNING_FLAGS}>"
     "$<$<CONFIG:Debug>:-O0>"

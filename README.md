@@ -21,8 +21,8 @@ C++ tools and ideas. I am trying to describe some of the things I learned at my
 The source code is C++17, using SSE4.1 intrinsics (Nehalem and higher). This is
 in contrast to the original ART paper needing SSE2 only.
 
-Note: since this is my personal project, it only supports GCC 10, 11, LLVM 11,
-12, and XCode 12.2 compilers. Drop me a note if you want to try this and need a
+Note: since this is my personal project, it only supports GCC 10, 11, LLVM 11 to
+13, and XCode 12.2 compilers. Drop me a note if you want to try this and need a
 lower supported compiler version.
 
 ## Usage

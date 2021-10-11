@@ -208,7 +208,8 @@ jobs:
             sudo apt-get install -y gcc-${VERSION}
           else
             if [[ $VERSION = "11" ]]; then
-              sudo apt-get install -y llvm-${VERSION}-linker-tools
+              sudo apt-get install -y llvm-${VERSION} \
+                llvm-${VERSION}-linker-tools
             fi
             sudo apt-get install -y clang-${VERSION} clang-tidy-${VERSION}
             if [[ $BUILD_TYPE == "Release" ]]; then

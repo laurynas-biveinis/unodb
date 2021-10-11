@@ -207,13 +207,15 @@ jobs:
           if [[ $COMPILER == "gcc" ]]; then
             sudo apt-get install -y gcc-${VERSION}
           else
-            if [[ $VERSION = "11" ]]; then
-              sudo apt-get install -y llvm-${VERSION} \
-                llvm-${VERSION}-linker-tools
-            fi
             sudo apt-get install -y clang-${VERSION} clang-tidy-${VERSION}
             if [[ $BUILD_TYPE == "Release" ]]; then
-              sudo apt-get install -y llvm-${VERSION}-dev lld-${VERSION}
+              if [[ $VERSION = "11" ]]; then
+                sudo apt-get install -y llvm-${VERSION} \
+                  llvm-${VERSION}-dev llvm-${VERSION}-linker-tools
+              else
+                sudo apt-get install -y llvm-${VERSION}-dev
+              fi
+              sudo apt-get install -y lld-${VERSION}
             fi
           fi
           if [[ $SANITIZE_ADDRESS != "ON" && $SANITIZE_THREAD != "ON" \

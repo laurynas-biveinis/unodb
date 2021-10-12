@@ -207,10 +207,8 @@ jobs:
           if [[ $COMPILER == "gcc" ]]; then
             sudo apt-get install -y gcc-${VERSION}
           else
-            sudo apt-get install -y clang-${VERSION} clang-tidy-${VERSION}
-            if [[ $BUILD_TYPE == "Release" ]]; then
-              sudo apt-get install -y llvm-${VERSION}-dev lld-${VERSION}
-            fi
+            sudo apt-get install -y llvm-${VERSION}-linker-tools \
+              clang-${VERSION} clang-tidy-${VERSION}
           fi
           if [[ $SANITIZE_ADDRESS != "ON" && $SANITIZE_THREAD != "ON" \
               && $SANITIZE_UB != "ON" ]]; then

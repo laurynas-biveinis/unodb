@@ -20,6 +20,19 @@
 
 namespace unodb {
 
+// LCOV_EXCL_START
+inline void spin_wait_loop_body() noexcept {
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
+  std::this_thread::yield();
+#elif defined(__x86_64)
+  // Dear reader, please don't make fun of this just yet
+  _mm_pause();
+#else
+#error Needs porting
+#endif
+}
+// LCOV_EXCL_STOP
+
 // Optimistic lock as described in V. Leis, F. Schneiber, A. Kemper and T.
 // Neumann, "The ART of Practical Synchronization," 2016 Proceedings of the 12th
 // International Workshop on Data Management on New Hardware(DaMoN), pages
@@ -233,14 +246,7 @@ class optimistic_lock final {
   [[nodiscard]] version_type await_node_unlocked() const noexcept {
     version_type current_version = version.load(std::memory_order_acquire);
     while (is_write_locked(current_version)) {
-#ifdef UNODB_DETAIL_THREAD_SANITIZER
-      std::this_thread::yield();
-#elif defined(__x86_64)
-      // Dear reader, please don't make fun of this just yet
-      _mm_pause();
-#else
-#error Needs porting
-#endif
+      spin_wait_loop_body();
       current_version = version.load(std::memory_order_acquire);
     }
     return current_version;

@@ -797,15 +797,29 @@ olc_db::get_result olc_db::get(key search_key) const noexcept {
 
 olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
-  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) return {};
+  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
 
   auto node{root.load()};
 
-  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
+  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
 
   if (UNODB_DETAIL_UNLIKELY(node == nullptr)) {
-    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
-      return {};  // LCOV_EXCL_LINE
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) {
+      // LCOV_EXCL_START
+      spin_wait_loop_body();
+      return {};
+      // LCOV_EXCL_STOP
+    }
     return std::make_optional<get_result>(std::nullopt);
   }
 
@@ -884,19 +898,32 @@ bool olc_db::insert(key insert_key, value_view v) {
 olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
                                                   value_view v) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
-  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) return {};
+  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
 
   auto *node_in_parent{&root};
   auto node{root.load()};
 
-  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
+  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
 
   if (UNODB_DETAIL_UNLIKELY(node == nullptr)) {
     auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
     optimistic_lock::write_guard write_unlock_on_exit{
         std::move(parent_critical_section)};
-    if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) return {};
+    if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {
+      // Do not call spin_wait_loop_body here - creating the leaf took some time
+      return {};  // LCOV_EXCL_LINE
+    }
 
     root = detail::olc_node_ptr{leaf.release(), node_type::LEAF};
     return true;
@@ -1012,27 +1039,49 @@ bool olc_db::remove(key remove_key) {
 
 olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
-  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) return {};
+  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
 
   auto *node_in_parent{&root};
   auto node{root.load()};
 
-  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
+  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
 
   if (UNODB_DETAIL_UNLIKELY(node == nullptr)) return false;
 
   auto node_critical_section = node_ptr_lock(node).try_read_lock();
-  if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) return {};
+  if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
 
   auto node_type = node.type();
 
-  if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
+  if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
 
   if (node_type == node_type::LEAF) {
     auto *const leaf{static_cast<::leaf *>(node.ptr())};
     if (leaf->matches(k)) {
       optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
+      // Do not call spin_wait_loop_body from this point on - assume the above
+      // took enough time
       if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
       optimistic_lock::write_guard node_guard{std::move(node_critical_section)};

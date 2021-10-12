@@ -25,7 +25,7 @@ namespace unodb {
 // International Workshop on Data Management on New Hardware(DaMoN), pages
 // 3:1--3:8, 2016. They also seem to be very similar to Linux kernel sequential
 // locks, with the addition of the obsolete state. Memory ordering is
-// implementing following Boehm's 2012 paper "Can seqlocks get along with
+// implemented following Boehm's 2012 paper "Can seqlocks get along with
 // programming language memory models?"
 
 // A lock is a single machine word, which encodes locked-unlocked state,

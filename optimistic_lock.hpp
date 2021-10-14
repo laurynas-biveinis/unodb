@@ -84,7 +84,8 @@ class optimistic_lock final {
       return *this;
     }
 
-    [[nodiscard]] bool try_read_unlock() UNODB_DETAIL_RELEASE_CONST noexcept {
+    [[nodiscard]] __attribute__((always_inline, flatten)) bool try_read_unlock()
+        UNODB_DETAIL_RELEASE_CONST noexcept {
       const auto result = lock->try_read_unlock(version);
 #ifndef NDEBUG
       lock = nullptr;
@@ -219,7 +220,7 @@ class optimistic_lock final {
     return UNODB_DETAIL_LIKELY(locked_version == version.load());
   }
 
-  [[nodiscard]] bool try_read_unlock(
+  [[nodiscard]] __attribute__((always_inline, flatten)) bool try_read_unlock(
       version_type locked_version) const noexcept {
     const auto result{check(locked_version)};
     dec_read_lock_count();

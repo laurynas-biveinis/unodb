@@ -35,7 +35,7 @@ class olc_db;
 namespace unodb::detail {
 
 template <>
-[[gnu::const]] constexpr std::uint64_t
+[[nodiscard, gnu::const]] constexpr std::uint64_t
 basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   return __builtin_bswap64(k);
@@ -47,7 +47,8 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 #ifdef __x86_64
 
 // Idea from https://stackoverflow.com/a/32945715/80458
-inline auto _mm_cmple_epu8(__m128i x, __m128i y) noexcept {
+[[nodiscard, gnu::const]] inline auto _mm_cmple_epu8(__m128i x,
+                                                     __m128i y) noexcept {
   return _mm_cmpeq_epi8(_mm_max_epu8(y, x), y);
 }
 
@@ -55,19 +56,20 @@ inline auto _mm_cmple_epu8(__m128i x, __m128i y) noexcept {
 
 // From public domain
 // https://graphics.stanford.edu/~seander/bithacks.html
-[[gnu::const]] constexpr std::uint32_t has_zero_byte(std::uint32_t v) noexcept {
+[[nodiscard, gnu::const]] constexpr std::uint32_t has_zero_byte(
+    std::uint32_t v) noexcept {
   return ((v - 0x01010101UL) & ~v & 0x80808080UL);
 }
 
-[[gnu::const]] constexpr std::uint32_t contains_byte(std::uint32_t v,
-                                                     std::byte b) noexcept {
+[[nodiscard, gnu::const]] constexpr std::uint32_t contains_byte(
+    std::uint32_t v, std::byte b) noexcept {
   return has_zero_byte(v ^ (~0U / 255 * static_cast<std::uint8_t>(b)));
 }
 
 #endif  // #ifdef __x86_64
 
 template <class Header>
-class basic_leaf final : public Header {
+class [[nodiscard]] basic_leaf final : public Header {
  public:
   using value_size_type = std::uint32_t;
 
@@ -78,17 +80,19 @@ class basic_leaf final : public Header {
     if (!v.empty()) std::memcpy(&value_start[0], &v[0], value_size);
   }
 
-  [[nodiscard]] constexpr auto get_key() const noexcept { return key; }
+  [[nodiscard, gnu::pure]] constexpr auto get_key() const noexcept {
+    return key;
+  }
 
-  [[nodiscard]] constexpr auto matches(art_key k) const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto matches(art_key k) const noexcept {
     return k == get_key();
   }
 
-  [[nodiscard]] constexpr auto get_value_view() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto get_value_view() const noexcept {
     return value_view{&value_start[0], value_size};
   }
 
-  [[nodiscard]] constexpr auto get_size() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto get_size() const noexcept {
     return compute_size(value_size);
   }
 
@@ -96,7 +100,7 @@ class basic_leaf final : public Header {
     os << ", " << get_key() << ", value size: " << value_size << '\n';
   }
 
-  [[nodiscard]] static constexpr auto compute_size(
+  [[nodiscard, gnu::const]] static constexpr auto compute_size(
       value_size_type val_size) noexcept {
     return sizeof(basic_leaf<Header>) + val_size - 1;
   }
@@ -112,7 +116,7 @@ class basic_leaf final : public Header {
 };
 
 template <class Header, class Db>
-auto make_db_leaf_ptr(art_key k, value_view v, Db &db) {
+[[nodiscard]] auto make_db_leaf_ptr(art_key k, value_view v, Db &db) {
   using leaf_type = basic_leaf<Header>;
 
   if (UNODB_DETAIL_UNLIKELY(static_cast<std::size_t>(v.size()) >
@@ -371,7 +375,7 @@ struct basic_art_policy final {
 };
 
 template <template <class> class CriticalSectionPolicy>
-union key_prefix {
+union [[nodiscard]] key_prefix {
  private:
   template <typename T>
   using critical_section_policy = CriticalSectionPolicy<T>;
@@ -383,7 +387,7 @@ union key_prefix {
   using key_prefix_data =
       std::array<critical_section_policy<std::byte>, key_prefix_capacity>;
 
-  struct inode_fields {
+  struct [[nodiscard]] inode_fields {
     key_prefix_data key_prefix;
     critical_section_policy<key_prefix_size> key_prefix_length;
   } f;
@@ -404,7 +408,7 @@ union key_prefix {
 
   ~key_prefix() noexcept = default;
 
-  [[nodiscard, gnu::pure]] constexpr auto get_shared_length(
+  [[nodiscard]] constexpr auto get_shared_length(
       unodb::detail::art_key shifted_key) const noexcept {
     return shared_len(static_cast<std::uint64_t>(shifted_key), u64, length());
   }
@@ -466,13 +470,13 @@ union key_prefix {
  private:
   static constexpr auto key_bytes_mask = 0x00FF'FFFF'FFFF'FFFFULL;
 
-  [[nodiscard, gnu::pure]] static constexpr std::uint64_t length_to_word(
+  [[nodiscard, gnu::const]] static constexpr std::uint64_t length_to_word(
       unsigned length) {
     assert(length <= key_prefix_capacity);
     return static_cast<std::uint64_t>(length) << 56U;
   }
 
-  [[nodiscard, gnu::pure]] static constexpr unsigned shared_len(
+  [[nodiscard, gnu::const]] static constexpr unsigned shared_len(
       std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept {
     assert(clamp_byte_pos < 8);
 
@@ -481,8 +485,8 @@ union key_prefix {
     return static_cast<unsigned>(__builtin_ctzl(clamped)) >> 3U;
   }
 
-  static std::uint64_t make_u64(art_key k1, art_key shifted_k2,
-                                tree_depth depth) noexcept {
+  [[nodiscard, gnu::const]] static std::uint64_t make_u64(
+      art_key k1, art_key shifted_k2, tree_depth depth) noexcept {
     k1.shift_right(depth);
 
     const auto k1_u64 = static_cast<std::uint64_t>(k1) & key_bytes_mask;
@@ -549,7 +553,7 @@ class basic_inode_impl : public ArtPolicy::header_type {
   [[nodiscard]] constexpr auto &get_key_prefix() noexcept { return k_prefix; }
 
   // Only for unodb::detail use.
-  constexpr auto get_children_count() const noexcept {
+  [[nodiscard]] constexpr auto get_children_count() const noexcept {
     return children_count.load();
   }
 
@@ -694,7 +698,7 @@ class basic_inode_impl : public ArtPolicy::header_type {
 template <class ArtPolicy, unsigned MinSize, unsigned Capacity,
           node_type NodeType, class SmallerDerived, class LargerDerived,
           class Derived>
-class basic_inode : public basic_inode_impl<ArtPolicy> {
+class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
   static_assert(NodeType != node_type::LEAF);
   static_assert(!std::is_same_v<Derived, LargerDerived>);
   static_assert(!std::is_same_v<SmallerDerived, Derived>);
@@ -960,8 +964,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                           keys.byte_array.cbegin() + children_count_));
   }
 
-  constexpr auto leave_last_child(std::uint8_t child_to_delete,
-                                  db &db_instance) noexcept {
+  [[nodiscard]] constexpr auto leave_last_child(std::uint8_t child_to_delete,
+                                                db &db_instance) noexcept {
     assert(this->is_min_size());
     assert(child_to_delete == 0 || child_to_delete == 1);
 
@@ -981,7 +985,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     return child_to_leave_ptr;
   }
 
-  [[nodiscard, gnu::pure]] find_result find_child(std::byte key_byte) noexcept {
+  [[nodiscard]] find_result find_child(std::byte key_byte) noexcept {
 #ifdef __x86_64
     const auto replicated_search_key =
         _mm_set1_epi8(static_cast<char>(key_byte));
@@ -1075,8 +1079,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
  private:
 #ifdef __x86_64
-  auto get_insert_pos(std::uint8_t insert_key_byte,
-                      unsigned node_key_mask) const noexcept {
+  [[nodiscard]] auto get_insert_pos(std::uint8_t insert_key_byte,
+                                    unsigned node_key_mask) const noexcept {
     assert(node_key_mask == (1U << this->children_count.load()) - 1);
 
     const auto replicated_insert_key_byte =
@@ -1241,8 +1245,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                           keys.byte_array.cbegin() + children_count_));
   }
 
-  [[nodiscard, gnu::pure]] constexpr find_result find_child(
-      std::byte key_byte) noexcept {
+  [[nodiscard]] constexpr find_result find_child(std::byte key_byte) noexcept {
 #ifdef __x86_64
     const auto replicated_search_key =
         _mm_set1_epi8(static_cast<char>(key_byte));
@@ -1280,7 +1283,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   }
 
  private:
-  [[nodiscard, gnu::pure]] constexpr auto get_sorted_key_array_insert_position(
+  [[nodiscard]] constexpr auto get_sorted_key_array_insert_position(
       std::byte key_byte) noexcept {
     const auto children_count_ = this->children_count.load();
 

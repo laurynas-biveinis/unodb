@@ -27,7 +27,7 @@ struct basic_art_policy;  // IWYU pragma: keep
 using node_ptr = basic_node_ptr<node_header>;
 
 template <class Header, class Db>
-auto make_db_leaf_ptr(art_key, value_view, Db &);
+[[nodiscard]] auto make_db_leaf_ptr(art_key, value_view, Db &);
 
 struct impl_helpers;
 
@@ -49,9 +49,11 @@ class db final {
   db &operator=(db &&) = delete;
 
   // Querying
-  [[nodiscard]] get_result get(key search_key) const noexcept;
+  [[nodiscard, gnu::pure]] get_result get(key search_key) const noexcept;
 
-  [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
+  [[nodiscard, gnu::pure]] auto empty() const noexcept {
+    return root == nullptr;
+  }
 
   // Modifying
   // Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
@@ -64,43 +66,49 @@ class db final {
   // Stats
 
   // Return current memory use by tree nodes in bytes.
-  [[nodiscard]] constexpr auto get_current_memory_use() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto get_current_memory_use()
+      const noexcept {
     return current_memory_use;
   }
 
   template <node_type NodeType>
-  [[nodiscard]] constexpr auto get_node_count() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto get_node_count() const noexcept {
     return node_counts[as_i<NodeType>];
   }
 
-  [[nodiscard]] constexpr auto get_node_counts() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto get_node_counts() const noexcept {
     return node_counts;
   }
 
   template <node_type NodeType>
-  [[nodiscard]] constexpr auto get_growing_inode_count() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto get_growing_inode_count()
+      const noexcept {
     return growing_inode_counts[internal_as_i<NodeType>];
   }
 
-  [[nodiscard]] constexpr auto get_growing_inode_counts() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto get_growing_inode_counts()
+      const noexcept {
     return growing_inode_counts;
   }
 
   template <node_type NodeType>
-  [[nodiscard]] constexpr auto get_shrinking_inode_count() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto get_shrinking_inode_count()
+      const noexcept {
     return shrinking_inode_counts[internal_as_i<NodeType>];
   }
 
-  [[nodiscard]] constexpr auto get_shrinking_inode_counts() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto get_shrinking_inode_counts()
+      const noexcept {
     return shrinking_inode_counts;
   }
 
-  [[nodiscard]] constexpr auto get_key_prefix_splits() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto get_key_prefix_splits()
+      const noexcept {
     return key_prefix_splits;
   }
 
   // Public utils
-  [[nodiscard]] static constexpr auto key_found(
+  [[nodiscard, gnu::const]] static constexpr auto key_found(
       const get_result &result) noexcept {
     return static_cast<bool>(result);
   }

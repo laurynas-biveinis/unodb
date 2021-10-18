@@ -27,17 +27,10 @@ constexpr auto max_thread_id{102400};
 
 constexpr std::uint64_t object_mem = 0xAABBCCDD22446688ULL;
 
-enum class thread_operation {
-  ALLOCATE_POINTER,
-  DEALLOCATE_POINTER,
-  TAKE_ACTIVE_POINTER,
-  RELEASE_ACTIVE_POINTER,
-  QUIESCENT_STATE,
-  QUIT_THREAD,
-  PAUSE_THREAD,
-  RESUME_THREAD,
-  RESET_STATS
-};
+enum class [[nodiscard]] thread_operation{
+    ALLOCATE_POINTER,       DEALLOCATE_POINTER, TAKE_ACTIVE_POINTER,
+    RELEASE_ACTIVE_POINTER, QUIESCENT_STATE,    QUIT_THREAD,
+    PAUSE_THREAD,           RESUME_THREAD,      RESET_STATS};
 
 thread_operation thread_op;
 std::size_t op_thread_i;
@@ -46,7 +39,7 @@ std::unordered_set<std::uint64_t *> allocated_pointers;
 
 using active_pointers = std::vector<unodb::qsbr_ptr<std::uint64_t>>;
 
-struct thread_info {
+struct [[nodiscard]] thread_info final {
   unodb::qsbr_thread thread;
   std::size_t id{SIZE_MAX};
   bool is_paused{false};
@@ -81,7 +74,7 @@ std::array<unodb::detail::thread_sync, max_thread_id> thread_sync;
 std::size_t new_thread_id{1};
 
 template <class T>
-std::pair<typename T::difference_type, typename T::iterator>
+[[nodiscard]] std::pair<typename T::difference_type, typename T::iterator>
 randomly_advanced_pos_and_iterator(T &container) {
   auto itr{container.begin()};
   auto i{static_cast<typename T::difference_type>(
@@ -90,9 +83,9 @@ randomly_advanced_pos_and_iterator(T &container) {
   return std::make_pair(i, std::move(itr));
 }
 
-auto choose_thread() { return DeepState_ContainerIndex(threads); }
+[[nodiscard]] auto choose_thread() { return DeepState_ContainerIndex(threads); }
 
-auto choose_non_main_thread() {
+[[nodiscard]] auto choose_non_main_thread() {
   ASSERT(threads.size() >= 2);
   return DeepState_SizeTInRange(1, threads.size() - 1);
 }

@@ -29,7 +29,7 @@ class qsbr_ptr_base {
 // build. A smart pointer class that provides a raw pointer-like interface.
 // Implemented bare minimum to get things to work, expand as necessary.
 template <class T>
-class qsbr_ptr : public detail::qsbr_ptr_base {
+class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
  public:
   using pointer_type = T *;
 
@@ -80,7 +80,8 @@ class qsbr_ptr : public detail::qsbr_ptr_base {
     return *this;
   }
 
-  [[nodiscard]] constexpr std::add_lvalue_reference_t<T> operator*() const {
+  [[nodiscard, gnu::pure]] constexpr std::add_lvalue_reference_t<T> operator*()
+      const {
     return *ptr;
   }
 
@@ -95,24 +96,27 @@ class qsbr_ptr : public detail::qsbr_ptr_base {
     return *this;
   }
 
-  [[nodiscard]] constexpr std::ptrdiff_t operator-(
+  [[nodiscard, gnu::pure]] constexpr std::ptrdiff_t operator-(
       qsbr_ptr<T> other) const noexcept {
     return get() - other.get();
   }
 
-  [[nodiscard]] constexpr bool operator==(qsbr_ptr<T> other) const noexcept {
+  [[nodiscard, gnu::pure]] constexpr bool operator==(
+      qsbr_ptr<T> other) const noexcept {
     return get() == other.get();
   }
 
-  [[nodiscard]] constexpr bool operator!=(qsbr_ptr<T> other) const noexcept {
+  [[nodiscard, gnu::pure]] constexpr bool operator!=(
+      qsbr_ptr<T> other) const noexcept {
     return get() != other.get();
   }
 
-  [[nodiscard]] constexpr bool operator<=(qsbr_ptr<T> other) const noexcept {
+  [[nodiscard, gnu::pure]] constexpr bool operator<=(
+      qsbr_ptr<T> other) const noexcept {
     return get() <= other.get();
   }
 
-  [[nodiscard]] constexpr T *get() const noexcept { return ptr; }
+  [[nodiscard, gnu::pure]] constexpr T *get() const noexcept { return ptr; }
 
  private:
   pointer_type ptr;
@@ -154,9 +158,11 @@ class qsbr_ptr_span {
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span<T> &operator=(
       qsbr_ptr_span<T> &&) noexcept = default;
 
-  constexpr qsbr_ptr<const T> cbegin() const noexcept { return start; }
+  [[nodiscard, gnu::pure]] constexpr qsbr_ptr<const T> cbegin() const noexcept {
+    return start;
+  }
 
-  constexpr qsbr_ptr<const T> cend() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr qsbr_ptr<const T> cend() const noexcept {
     return qsbr_ptr<const T>{start.get() + length};
   }
 

@@ -37,7 +37,7 @@ template <class, class>
 class db_leaf_qsbr_deleter;  // IWYU pragma: keep
 
 template <class Header, class Db>
-auto make_db_leaf_ptr(art_key, value_view, Db &);
+[[nodiscard]] auto make_db_leaf_ptr(art_key, value_view, Db &);
 
 struct olc_impl_helpers;
 

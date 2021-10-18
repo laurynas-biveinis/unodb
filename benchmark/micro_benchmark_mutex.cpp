@@ -11,7 +11,7 @@
 
 namespace {
 
-class concurrent_benchmark_mutex final
+class [[nodiscard]] concurrent_benchmark_mutex final
     : public unodb::benchmark::concurrent_benchmark<unodb::mutex_db,
                                                     std::thread> {};
 

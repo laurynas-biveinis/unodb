@@ -40,7 +40,7 @@ template <typename T>
                   static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
 }
 
-inline void* allocate_aligned(
+[[nodiscard]] inline void* allocate_aligned(
     std::size_t size,
     std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
   void* result;

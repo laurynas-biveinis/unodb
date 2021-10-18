@@ -42,7 +42,7 @@ inline constexpr std::array<unodb::value_view, 5> values = {
 
 // PRNG
 
-inline auto &get_prng() {
+[[nodiscard]] inline auto &get_prng() {
   static std::random_device rd;
   static std::mt19937 gen{rd()};
   return gen;

@@ -15,7 +15,7 @@
 
 namespace unodb::detail {
 
-struct node_header {};
+struct [[nodiscard]] node_header {};
 
 static_assert(std::is_empty_v<node_header>);
 
@@ -74,7 +74,8 @@ struct impl_helpers {
 
 namespace {
 
-class inode_4 final : public unodb::detail::basic_inode_4<art_policy> {
+class [[nodiscard]] inode_4 final
+    : public unodb::detail::basic_inode_4<art_policy> {
  public:
   using basic_inode_4::basic_inode_4;
 
@@ -93,7 +94,8 @@ class inode_4 final : public unodb::detail::basic_inode_4<art_policy> {
 
 static_assert(sizeof(inode_4) == 48);
 
-class inode_16 final : public unodb::detail::basic_inode_16<art_policy> {
+class [[nodiscard]] inode_16 final
+    : public unodb::detail::basic_inode_16<art_policy> {
  public:
   using basic_inode_16::basic_inode_16;
 
@@ -112,7 +114,8 @@ class inode_16 final : public unodb::detail::basic_inode_16<art_policy> {
 
 static_assert(sizeof(inode_16) == 160);
 
-class inode_48 final : public unodb::detail::basic_inode_48<art_policy> {
+class [[nodiscard]] inode_48 final
+    : public unodb::detail::basic_inode_48<art_policy> {
  public:
   using basic_inode_48::basic_inode_48;
 
@@ -131,7 +134,8 @@ class inode_48 final : public unodb::detail::basic_inode_48<art_policy> {
 
 static_assert(sizeof(inode_48) == 656);
 
-class inode_256 final : public unodb::detail::basic_inode_256<art_policy> {
+class [[nodiscard]] inode_256 final
+    : public unodb::detail::basic_inode_256<art_policy> {
  public:
   using basic_inode_256::basic_inode_256;
 

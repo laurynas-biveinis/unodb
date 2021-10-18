@@ -13,12 +13,13 @@
 #define UNODB_START_DEEPSTATE_TESTS() \
   UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wmissing-noreturn")
 
-inline std::size_t DeepState_SizeTInRange(std::size_t min, std::size_t max) {
+[[nodiscard]] inline std::size_t DeepState_SizeTInRange(std::size_t min,
+                                                        std::size_t max) {
   return DeepState_UInt64InRange(min, max);
 }
 
 template <class T>
-auto DeepState_ContainerIndex(const T &container) {
+[[nodiscard]] auto DeepState_ContainerIndex(const T &container) {
   ASSERT(!container.empty());
   return DeepState_SizeTInRange(0, std::size(container) - 1);
 }

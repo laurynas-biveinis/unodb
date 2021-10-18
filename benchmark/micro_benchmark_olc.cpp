@@ -10,7 +10,7 @@
 
 namespace {
 
-class concurrent_benchmark_olc final
+class [[nodiscard]] concurrent_benchmark_olc final
     : public unodb::benchmark::concurrent_benchmark<unodb::olc_db,
                                                     unodb::qsbr_thread> {
  private:

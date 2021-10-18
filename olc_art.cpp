@@ -19,7 +19,7 @@
 
 namespace unodb::detail {
 
-struct olc_node_header {
+struct [[nodiscard]] olc_node_header {
   [[nodiscard]] constexpr optimistic_lock &lock() const noexcept {
     return m_lock;
   }
@@ -131,7 +131,7 @@ template <class INode>
 }
 
 template <class T>
-std::remove_reference_t<T> &&obsolete_and_move(
+[[nodiscard]] std::remove_reference_t<T> &&obsolete_and_move(
     T &&t, unodb::optimistic_lock::write_guard &&guard) noexcept {
   assert(guard.guards(lock(*t)));
 
@@ -143,7 +143,7 @@ std::remove_reference_t<T> &&obsolete_and_move(
   return static_cast<std::remove_reference_t<T> &&>(t);
 }
 
-inline auto obsolete_child_by_index(
+[[nodiscard]] inline auto obsolete_child_by_index(
     std::uint8_t child, unodb::optimistic_lock::write_guard &&guard) noexcept {
   guard.unlock_and_obsolete();
 
@@ -202,7 +202,8 @@ struct olc_impl_helpers {
 
 namespace {
 
-class olc_inode_4 final : public unodb::detail::basic_inode_4<olc_art_policy> {
+class [[nodiscard]] olc_inode_4 final
+    : public unodb::detail::basic_inode_4<olc_art_policy> {
   using parent_class = basic_inode_4<olc_art_policy>;
 
  public:
@@ -274,8 +275,8 @@ class olc_inode_4 final : public unodb::detail::basic_inode_4<olc_art_policy> {
     basic_inode_4::remove(child_index, db_instance);
   }
 
-  auto leave_last_child(std::uint8_t child_to_delete,
-                        unodb::olc_db &db_instance) noexcept {
+  [[nodiscard]] auto leave_last_child(std::uint8_t child_to_delete,
+                                      unodb::olc_db &db_instance) noexcept {
     assert(::lock(*this).is_obsoleted_by_this_thread());
     assert(node_ptr_lock(children[child_to_delete].load())
                .is_obsoleted_by_this_thread());
@@ -297,7 +298,7 @@ static_assert(sizeof(olc_inode_4) == 48 + 8);
 static_assert(sizeof(olc_inode_4) == 48 + 24);
 #endif
 
-class olc_inode_16 final
+class [[nodiscard]] olc_inode_16 final
     : public unodb::detail::basic_inode_16<olc_art_policy> {
   using parent_class = basic_inode_16<olc_art_policy>;
 
@@ -405,7 +406,7 @@ olc_inode_4::olc_inode_4(
       std::move(source_node_guard), child_to_delete, std::move(child_guard));
 }
 
-class olc_inode_48 final
+class [[nodiscard]] olc_inode_48 final
     : public unodb::detail::basic_inode_48<olc_art_policy> {
   using parent_class = basic_inode_48<olc_art_policy>;
 
@@ -499,7 +500,7 @@ olc_inode_16::olc_inode_16(
   assert(!child_guard.active());
 }
 
-class olc_inode_256 final
+class [[nodiscard]] olc_inode_256 final
     : public unodb::detail::basic_inode_256<olc_art_policy> {
   using parent_class = basic_inode_256<olc_art_policy>;
 

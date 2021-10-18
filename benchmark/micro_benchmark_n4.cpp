@@ -20,7 +20,7 @@
 namespace {
 
 template <unsigned NodeSize>
-std::vector<unodb::key> make_n_key_sequence(std::size_t n) {
+[[nodiscard]] std::vector<unodb::key> make_n_key_sequence(std::size_t n) {
   std::vector<unodb::key> result;
   result.reserve(n);
 
@@ -34,8 +34,8 @@ std::vector<unodb::key> make_n_key_sequence(std::size_t n) {
   return result;
 }
 
-std::vector<unodb::key> make_limited_key_sequence(unodb::key limit,
-                                                  std::uint64_t key_zero_bits) {
+[[nodiscard]] std::vector<unodb::key> make_limited_key_sequence(
+    unodb::key limit, std::uint64_t key_zero_bits) {
   std::vector<unodb::key> result;
 
   unodb::key insert_key = 0;

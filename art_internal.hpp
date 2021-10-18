@@ -19,15 +19,15 @@ namespace unodb::detail {
 
 // Forward declarations to use in unodb::db and its siblings
 template <class>
-class basic_leaf;  // IWYU pragma: keep
+class [[nodiscard]] basic_leaf;  // IWYU pragma: keep
 
 template <class, class>
-class basic_db_leaf_deleter;  // IWYU pragma: keep
+class [[nodiscard]] basic_db_leaf_deleter;  // IWYU pragma: keep
 
 // Internal ART key in binary-comparable format
 template <typename KeyType>
-struct basic_art_key final {
-  [[nodiscard]] static constexpr KeyType make_binary_comparable(
+struct [[nodiscard]] basic_art_key final {
+  [[nodiscard, gnu::const]] static constexpr KeyType make_binary_comparable(
       KeyType key) noexcept;
 
   constexpr basic_art_key() noexcept = default;
@@ -47,18 +47,18 @@ struct basic_art_key final {
     std::memcpy(to, &key, size);
   }
 
-  [[nodiscard]] constexpr bool operator==(
+  [[nodiscard, gnu::pure]] constexpr bool operator==(
       // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       const std::byte key2[]) const noexcept {
     return !std::memcmp(&key, key2, size);
   }
 
-  [[nodiscard]] constexpr bool operator==(
+  [[nodiscard, gnu::pure]] constexpr bool operator==(
       basic_art_key<KeyType> key2) const noexcept {
     return !std::memcmp(&key, &key2.key, size);
   }
 
-  [[nodiscard]] constexpr bool operator!=(
+  [[nodiscard, gnu::pure]] constexpr bool operator!=(
       basic_art_key<KeyType> key2) const noexcept {
     return std::memcmp(&key, &key2.key, size);
   }
@@ -70,7 +70,8 @@ struct basic_art_key final {
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }
 
-  [[nodiscard]] constexpr explicit operator KeyType() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr explicit operator KeyType()
+      const noexcept {
     return key;
   }
 
@@ -95,7 +96,7 @@ using art_key = basic_art_key<unodb::key>;
 [[gnu::cold, gnu::noinline]] std::ostream &operator<<(std::ostream &os,
                                                       art_key key);
 
-class tree_depth final {
+class [[nodiscard]] tree_depth final {
  public:
   using value_type = unsigned;
 
@@ -105,7 +106,7 @@ class tree_depth final {
   }
 
   // NOLINTNEXTLINE(google-explicit-constructor)
-  [[nodiscard]] constexpr operator value_type() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr operator value_type() const noexcept {
     assert(value <= art_key::size);
     return value;
   }
@@ -136,7 +137,7 @@ class basic_db_leaf_deleter {
 
   void operator()(leaf_type *to_delete) const noexcept;
 
-  [[nodiscard]] Db &get_db() const noexcept { return db; }
+  [[nodiscard, gnu::pure]] Db &get_db() const noexcept { return db; }
 
  private:
   Db &db;
@@ -156,14 +157,14 @@ class basic_db_inode_deleter {
 
   void operator()(INode *inode_ptr) noexcept;
 
-  [[nodiscard]] Db &get_db() noexcept { return db; }
+  [[nodiscard, gnu::pure]] Db &get_db() noexcept { return db; }
 
  private:
   Db &db;
 };
 
 template <class Header>
-class basic_node_ptr {
+class [[nodiscard]] basic_node_ptr {
  public:
   using header_type = Header;
 
@@ -192,19 +193,19 @@ class basic_node_ptr {
     return reinterpret_cast<Header *>(tagged_ptr & ptr_bit_mask);
   }
 
-  [[nodiscard]] auto operator==(std::nullptr_t) const noexcept {
+  [[nodiscard, gnu::pure]] auto operator==(std::nullptr_t) const noexcept {
     return tagged_ptr == reinterpret_cast<std::uintptr_t>(nullptr);
   }
 
-  [[nodiscard]] auto operator!=(std::nullptr_t) const noexcept {
+  [[nodiscard, gnu::pure]] auto operator!=(std::nullptr_t) const noexcept {
     return tagged_ptr != reinterpret_cast<std::uintptr_t>(nullptr);
   }
 
  private:
   std::uintptr_t tagged_ptr;
 
-  [[nodiscard]] static std::uintptr_t tag_ptr(Header *ptr_,
-                                              unodb::node_type tag) {
+  [[nodiscard, gnu::const]] static std::uintptr_t tag_ptr(
+      Header *ptr_, unodb::node_type tag) {
     const auto uintptr = reinterpret_cast<std::uintptr_t>(ptr_);
     const auto result =
         uintptr | static_cast<std::underlying_type_t<decltype(tag)>>(tag);
@@ -212,7 +213,8 @@ class basic_node_ptr {
     return result;
   }
 
-  static constexpr unsigned mask_bits_needed(unsigned count) {
+  [[nodiscard, gnu::const]] static constexpr unsigned mask_bits_needed(
+      unsigned count) {
     return count < 2 ? 1 : 1 + mask_bits_needed(count >> 1U);
   }
 

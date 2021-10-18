@@ -61,14 +61,14 @@ inline void spin_wait_loop_body() noexcept {
 
 // All bool-returning try_ functions return true on success and false on
 // lock version change, which indicates the need to restart
-class optimistic_lock final {
+class [[nodiscard]] optimistic_lock final {
  private:
   using version_type = std::uint64_t;
 
  public:
   class write_guard;
 
-  class read_critical_section final {
+  class [[nodiscard]] read_critical_section final {
    public:
     read_critical_section() noexcept = default;
 
@@ -84,7 +84,7 @@ class optimistic_lock final {
       return *this;
     }
 
-    [[nodiscard]] __attribute__((always_inline, flatten)) bool try_read_unlock()
+    [[nodiscard, gnu::always_inline, gnu::flatten]] bool try_read_unlock()
         UNODB_DETAIL_RELEASE_CONST noexcept {
       const auto result = lock->try_read_unlock(version);
 #ifndef NDEBUG
@@ -117,7 +117,7 @@ class optimistic_lock final {
     friend class write_guard;
   };
 
-  class write_guard final {
+  class [[nodiscard]] write_guard final {
    public:
     explicit write_guard(read_critical_section &&critical_section) noexcept
         : lock{critical_section.lock} {
@@ -220,7 +220,7 @@ class optimistic_lock final {
     return UNODB_DETAIL_LIKELY(locked_version == version.load());
   }
 
-  [[nodiscard]] __attribute__((always_inline, flatten)) bool try_read_unlock(
+  [[nodiscard, gnu::always_inline, gnu::flatten]] bool try_read_unlock(
       version_type locked_version) const noexcept {
     const auto result{check(locked_version)};
     dec_read_lock_count();
@@ -254,22 +254,23 @@ class optimistic_lock final {
     assert(is_obsolete(version.load(std::memory_order_acquire)));
   }
 
-  [[nodiscard]] static constexpr bool is_write_locked(
+  [[nodiscard, gnu::const]] static constexpr bool is_write_locked(
       version_type version) noexcept {
     return (version & 2U) != 0U;
   }
 
-  [[nodiscard]] static constexpr bool is_free(version_type version) noexcept {
+  [[nodiscard, gnu::const]] static constexpr bool is_free(
+      version_type version) noexcept {
     return (version & 3U) == 0U;
   }
 
-  [[nodiscard]] static constexpr version_type set_locked_bit(
+  [[nodiscard, gnu::const]] static constexpr version_type set_locked_bit(
       version_type version) noexcept {
     assert(is_free(version));
     return version + 2;
   }
 
-  [[nodiscard]] static constexpr bool is_obsolete(
+  [[nodiscard, gnu::const]] static constexpr bool is_obsolete(
       version_type version) noexcept {
     return (version & 1U) != 0U;
   }
@@ -308,7 +309,7 @@ static_assert(sizeof(optimistic_lock) == 24);
 #endif
 
 template <typename T>
-class in_critical_section final {
+class [[nodiscard]] in_critical_section final {
  public:
   constexpr in_critical_section() noexcept = default;
 
@@ -360,7 +361,9 @@ class in_critical_section final {
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   operator T() const noexcept { return load(); }
 
-  T load() const noexcept { return value.load(std::memory_order_relaxed); }
+  [[nodiscard]] T load() const noexcept {
+    return value.load(std::memory_order_relaxed);
+  }
 
   void store(T new_value) noexcept {
     value.store(new_value, std::memory_order_relaxed);

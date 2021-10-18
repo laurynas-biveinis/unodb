@@ -28,7 +28,7 @@ namespace unodb::benchmark {
 // Key manipulation with key zero bits
 
 template <unsigned NodeSize>
-constexpr auto node_size_to_key_zero_bits() noexcept {
+[[nodiscard]] constexpr auto node_size_to_key_zero_bits() noexcept {
   static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
                 NodeSize == 256);
   if constexpr (NodeSize == 2) {
@@ -41,7 +41,8 @@ constexpr auto node_size_to_key_zero_bits() noexcept {
   return 0ULL;
 }
 
-constexpr auto next_key(unodb::key k, std::uint64_t key_zero_bits) noexcept {
+[[nodiscard]] constexpr auto next_key(unodb::key k,
+                                      std::uint64_t key_zero_bits) noexcept {
   assert((k & key_zero_bits) == 0);
 
   const auto result = ((k | key_zero_bits) + 1) & ~key_zero_bits;
@@ -54,7 +55,7 @@ constexpr auto next_key(unodb::key k, std::uint64_t key_zero_bits) noexcept {
 
 // PRNG
 
-class batched_prng final {
+class [[nodiscard]] batched_prng final {
   using result_type = std::uint64_t;
 
  public:
@@ -64,7 +65,7 @@ class batched_prng final {
     refill();
   }
 
-  auto get(::benchmark::State &state) {
+  [[nodiscard]] auto get(::benchmark::State &state) {
     if (random_key_ptr == random_keys.cend()) {
       state.PauseTiming();
       refill();
@@ -93,7 +94,7 @@ namespace detail {
 // Node sizes
 
 template <unsigned NodeCapacity>
-constexpr auto node_capacity_to_minimum_size() noexcept {
+[[nodiscard]] constexpr auto node_capacity_to_minimum_size() noexcept {
   static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
                 NodeCapacity == 256);
   if constexpr (NodeCapacity == 16) {
@@ -105,20 +106,20 @@ constexpr auto node_capacity_to_minimum_size() noexcept {
 }
 
 template <unsigned NodeCapacity>
-constexpr auto node_capacity_over_minimum() noexcept {
+[[nodiscard]] constexpr auto node_capacity_over_minimum() noexcept {
   static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
                 NodeCapacity == 256);
   return NodeCapacity - node_capacity_to_minimum_size<NodeCapacity>();
 }
 
 template <unsigned NodeSize>
-constexpr auto node_size_has_key_zero_bits() noexcept {
+[[nodiscard]] constexpr auto node_size_has_key_zero_bits() noexcept {
   // If node size is a power of two, then can use key zero bit-based operations
   return (NodeSize & (NodeSize - 1)) == 0;
 }
 
 template <unsigned NodeSize>
-constexpr auto node_size_to_node_type() noexcept {
+[[nodiscard]] constexpr auto node_size_to_node_type() noexcept {
   static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
                 NodeSize == 48 || NodeSize == 256);
   if constexpr (NodeSize == 2 || NodeSize == 4) return node_type::I4;
@@ -130,7 +131,7 @@ constexpr auto node_size_to_node_type() noexcept {
 #ifndef NDEBUG
 
 template <unsigned SmallerNodeSize>
-constexpr auto node_size_to_larger_node_type() noexcept {
+[[nodiscard]] constexpr auto node_size_to_larger_node_type() noexcept {
   static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16 ||
                 SmallerNodeSize == 48);
   if constexpr (SmallerNodeSize == 4) return node_type::I16;
@@ -143,11 +144,12 @@ constexpr auto node_size_to_larger_node_type() noexcept {
 // Key manipulation
 
 template <unsigned B, unsigned S, unsigned O>
-constexpr auto to_scaled_base_n_value(std::uint64_t i) noexcept {
+[[nodiscard, gnu::const]] constexpr auto to_scaled_base_n_value(
+    std::uint64_t i) noexcept {
   assert(i / (static_cast<std::uint64_t>(B) * B * B * B * B * B * B) < B);
   return (i % B * S + O) | (i / B % B * S + O) << 8U |
-         ((i / (B * B) % B * S + O) << 16U) |
-         ((i / (B * B * B) % B * S + O) << 24U) |
+         ((i / (static_cast<std::uint64_t>(B) * B) % B * S + O) << 16U) |
+         ((i / (static_cast<std::uint64_t>(B) * B * B) % B * S + O) << 24U) |
          ((i / (static_cast<std::uint64_t>(B) * B * B * B) % B * S + O)
           << 32U) |
          ((i / (static_cast<std::uint64_t>(B) * B * B * B * B) % B * S + O)
@@ -160,24 +162,27 @@ constexpr auto to_scaled_base_n_value(std::uint64_t i) noexcept {
 }
 
 template <unsigned B>
-constexpr auto to_base_n_value(std::uint64_t i) noexcept {
+[[nodiscard, gnu::const]] constexpr auto to_base_n_value(
+    std::uint64_t i) noexcept {
   assert(i / (static_cast<std::uint64_t>(B) * B * B * B * B * B * B) < B);
   return to_scaled_base_n_value<B, 1, 0>(i);
 }
 
 template <unsigned NodeSize>
-constexpr auto number_to_full_node_size_tree_key(std::uint64_t i) noexcept {
+[[nodiscard, gnu::const]] constexpr auto number_to_full_node_size_tree_key(
+    std::uint64_t i) noexcept {
   return to_base_n_value<NodeSize>(i);
 }
 
 template <unsigned NodeSize>
-constexpr auto number_to_minimal_node_size_tree_key(std::uint64_t i) noexcept {
+[[nodiscard, gnu::const]] constexpr auto number_to_minimal_node_size_tree_key(
+    std::uint64_t i) noexcept {
   return to_base_n_value<node_capacity_to_minimum_size<NodeSize>()>(i);
 }
 
 template <unsigned NodeSize>
-constexpr auto number_to_full_leaf_over_minimal_tree_key(
-    std::uint64_t i) noexcept {
+[[nodiscard, gnu::const]] constexpr auto
+number_to_full_leaf_over_minimal_tree_key(std::uint64_t i) noexcept {
   constexpr auto min = node_capacity_to_minimum_size<NodeSize>();
   constexpr auto delta = node_capacity_over_minimum<NodeSize>();
   assert(i / (delta * min * min * min * min * min * min) < min);
@@ -186,15 +191,15 @@ constexpr auto number_to_full_leaf_over_minimal_tree_key(
 }
 
 template <unsigned NodeSize>
-constexpr auto number_to_minimal_leaf_over_smaller_node_tree(
-    std::uint64_t i) noexcept {
+[[nodiscard, gnu::const]] constexpr auto
+number_to_minimal_leaf_over_smaller_node_tree(std::uint64_t i) noexcept {
   constexpr auto N = static_cast<std::uint64_t>(NodeSize);
   assert(i / (N * N * N * N * N * N) < N);
   return N | number_to_full_node_size_tree_key<N>(i) << 8U;
 }
 
 template <unsigned NodeSize>
-constexpr auto number_to_full_node_tree_with_gaps_key(
+[[nodiscard, gnu::const]] constexpr auto number_to_full_node_tree_with_gaps_key(
     std::uint64_t i) noexcept {
   static_assert(NodeSize == 4 || NodeSize == 16 || NodeSize == 48);
   // Full Node4 tree keys with 1, 3, 5, & 7 as the different key byte values
@@ -213,8 +218,8 @@ constexpr auto number_to_full_node_tree_with_gaps_key(
 // Key vectors
 
 template <typename NumberToKeyFn>
-auto generate_keys_to_limit(unodb::key key_limit,
-                            NumberToKeyFn number_to_key_fn) {
+[[nodiscard]] auto generate_keys_to_limit(unodb::key key_limit,
+                                          NumberToKeyFn number_to_key_fn) {
   std::vector<unodb::key> result;
   std::uint64_t i = 0;
   while (true) {
@@ -227,8 +232,8 @@ auto generate_keys_to_limit(unodb::key key_limit,
 }
 
 template <std::uint8_t NumByteValues>
-std::vector<unodb::key> generate_random_keys_over_full_smaller_tree(
-    unodb::key key_limit) {
+[[nodiscard]] std::vector<unodb::key>
+generate_random_keys_over_full_smaller_tree(unodb::key key_limit) {
   // The last byte at the limit will be randomly-generated and may happen to
   // fall above or below the limit. Reset the limit so that any byte value will
   // pass.
@@ -282,7 +287,7 @@ std::vector<unodb::key> generate_random_keys_over_full_smaller_tree(
 // Stats
 
 template <class Db>
-struct tree_stats final {
+struct [[nodiscard]] tree_stats final {
   constexpr tree_stats() noexcept = default;
 
   explicit constexpr tree_stats(const Db &test_db) noexcept
@@ -296,11 +301,12 @@ struct tree_stats final {
     key_prefix_splits = test_db.get_key_prefix_splits();
   }
 
-  constexpr bool operator==(const tree_stats<Db> &other) const noexcept {
+  [[nodiscard, gnu::pure]] constexpr bool operator==(
+      const tree_stats<Db> &other) const noexcept {
     return node_counts == other.node_counts;
   }
 
-  constexpr bool internal_levels_equal(
+  [[nodiscard, gnu::pure]] constexpr bool internal_levels_equal(
       const tree_stats<Db> &other) const noexcept {
     return node_counts[unodb::as_i<unodb::node_type::I4>] ==
                other.node_counts[unodb::as_i<unodb::node_type::I4>] &&
@@ -320,7 +326,7 @@ struct tree_stats final {
 };
 
 template <class Db>
-class growing_tree_node_stats final {
+class [[nodiscard]] growing_tree_node_stats final {
  public:
   constexpr void get(const Db &test_db) noexcept {
     stats.get(test_db);
@@ -440,7 +446,7 @@ void assert_shrinking_nodes(
 }
 
 template <class Db>
-class tree_shape_snapshot final {
+class [[nodiscard]] tree_shape_snapshot final {
  public:
   explicit constexpr tree_shape_snapshot(
       const Db &test_db UNODB_DETAIL_USED_IN_DEBUG) noexcept
@@ -493,8 +499,8 @@ void insert_keys(Db &db, const std::vector<unodb::key> &keys) {
 namespace detail {
 
 template <class Db, typename NumberToKeyFn>
-auto insert_keys_to_limit(Db &db, unodb::key key_limit,
-                          NumberToKeyFn number_to_key_fn) {
+[[nodiscard]] auto insert_keys_to_limit(Db &db, unodb::key key_limit,
+                                        NumberToKeyFn number_to_key_fn) {
   std::uint64_t i{0};
   while (true) {
     unodb::key key = number_to_key_fn(i);
@@ -506,7 +512,8 @@ auto insert_keys_to_limit(Db &db, unodb::key key_limit,
 }
 
 template <class Db, typename NumberToKeyFn>
-auto insert_n_keys(Db &db, unsigned n, NumberToKeyFn number_to_key_fn) {
+[[nodiscard]] auto insert_n_keys(Db &db, unsigned n,
+                                 NumberToKeyFn number_to_key_fn) {
   unodb::key last_inserted_key{0};
 
   for (decltype(n) i = 0; i < n; ++i) {
@@ -518,8 +525,8 @@ auto insert_n_keys(Db &db, unsigned n, NumberToKeyFn number_to_key_fn) {
 }
 
 template <class Db, unsigned NodeSize, typename NumberToKeyFn>
-auto insert_n_keys_to_empty_tree(Db &db, unsigned n,
-                                 NumberToKeyFn number_to_key_fn) {
+[[nodiscard]] auto insert_n_keys_to_empty_tree(Db &db, unsigned n,
+                                               NumberToKeyFn number_to_key_fn) {
   assert(db.empty());
   const auto result = insert_n_keys(db, n, number_to_key_fn);
   assert_dominating_inode_size_tree<Db, NodeSize>(db);
@@ -541,8 +548,8 @@ auto make_full_node_size_tree(Db &db, unsigned key_count) {
 }
 
 template <class Db, unsigned NodeCapacity>
-std::tuple<unodb::key, const tree_shape_snapshot<Db>> make_base_tree_for_add(
-    Db &test_db, unsigned node_count) {
+[[nodiscard]] std::tuple<unodb::key, const tree_shape_snapshot<Db>>
+make_base_tree_for_add(Db &test_db, unsigned node_count) {
   const auto key_limit = insert_n_keys_to_empty_tree<
       Db, NodeCapacity,
       decltype(number_to_minimal_node_size_tree_key<NodeCapacity>)>(
@@ -552,7 +559,7 @@ std::tuple<unodb::key, const tree_shape_snapshot<Db>> make_base_tree_for_add(
 }
 
 template <class Db, unsigned NodeSize>
-auto make_minimal_node_size_tree(Db &db, unsigned key_count) {
+[[nodiscard]] auto make_minimal_node_size_tree(Db &db, unsigned key_count) {
   return insert_n_keys_to_empty_tree<
       Db, NodeSize, decltype(number_to_minimal_node_size_tree_key<NodeSize>)>(
       db, key_count * node_capacity_to_minimum_size<NodeSize>(),
@@ -560,8 +567,8 @@ auto make_minimal_node_size_tree(Db &db, unsigned key_count) {
 }
 
 template <class Db, unsigned SmallerNodeSize>
-auto grow_full_node_tree_to_minimal_next_size_leaf_level(Db &db,
-                                                         unodb::key key_limit) {
+[[nodiscard]] auto grow_full_node_tree_to_minimal_next_size_leaf_level(
+    Db &db, unodb::key key_limit) {
   static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16 ||
                 SmallerNodeSize == 48);
 
@@ -593,8 +600,8 @@ auto grow_full_node_tree_to_minimal_next_size_leaf_level(Db &db,
 // Gets
 
 template <class Db, typename NumberToKeyFn>
-auto get_key_loop(Db &db, unodb::key key_limit,
-                  NumberToKeyFn number_to_key_fn) {
+[[nodiscard]] auto get_key_loop(Db &db, unodb::key key_limit,
+                                NumberToKeyFn number_to_key_fn) {
   std::uint64_t i{0};
   while (true) {
     const auto key = number_to_key_fn(i);

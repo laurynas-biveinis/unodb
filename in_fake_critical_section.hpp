@@ -13,7 +13,7 @@ namespace unodb {
 // loads and stores are direct instead of relaxed atomic. It enables having a
 // common templatized implementation of single-threaded and OLC node algorithms.
 template <typename T>
-class in_fake_critical_section final {
+class [[nodiscard]] in_fake_critical_section final {
  public:
   constexpr in_fake_critical_section() noexcept = default;
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
@@ -46,20 +46,22 @@ class in_fake_critical_section final {
 
   template <typename T_ = T,
             typename = std::enable_if_t<!std::is_integral_v<T_>>>
-  [[nodiscard]] constexpr auto operator==(std::nullptr_t) const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto operator==(
+      std::nullptr_t) const noexcept {
     return value == nullptr;
   }
 
   template <typename T_ = T,
             typename = std::enable_if_t<!std::is_integral_v<T_>>>
-  [[nodiscard]] constexpr auto operator!=(std::nullptr_t) const noexcept {
+  [[nodiscard, gnu::pure]] constexpr auto operator!=(
+      std::nullptr_t) const noexcept {
     return value != nullptr;
   }
 
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
-  constexpr operator T() const noexcept { return value; }
+  [[nodiscard]] constexpr operator T() const noexcept { return value; }
 
-  constexpr T load() const noexcept { return value; }
+  [[nodiscard]] constexpr T load() const noexcept { return value; }
 
  private:
   T value;

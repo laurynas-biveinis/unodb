@@ -10,7 +10,7 @@
 
 namespace unodb::detail {
 
-class thread_sync final {
+class [[nodiscard]] thread_sync final {
  public:
   thread_sync() noexcept = default;
   ~thread_sync() noexcept { assert(is_reset()); }

@@ -30,7 +30,7 @@ using dynamic_value = std::vector<std::byte>;
 
 using values_type = std::vector<dynamic_value>;
 
-auto make_random_value(dynamic_value::size_type length) {
+[[nodiscard]] auto make_random_value(dynamic_value::size_type length) {
   dynamic_value result{length};
   for (dynamic_value::size_type i = 0; i < length; i++) {
     // Ideally we would take random bytes from DeepState, but we'd end up
@@ -41,7 +41,8 @@ auto make_random_value(dynamic_value::size_type length) {
   return result;
 }
 
-auto get_value(dynamic_value::size_type max_length, values_type &values) {
+[[nodiscard]] auto get_value(dynamic_value::size_type max_length,
+                             values_type &values) {
   const auto make_new_value = values.empty() || DeepState_Bool();
   ASSERT(max_length <= std::numeric_limits<std::uint32_t>::max());
   if (make_new_value) {
@@ -59,8 +60,8 @@ auto get_value(dynamic_value::size_type max_length, values_type &values) {
   return unodb::value_view{existing_value};
 }
 
-unodb::key get_key(unodb::key max_key_value,
-                   const std::vector<unodb::key> &keys) {
+[[nodiscard]] unodb::key get_key(unodb::key max_key_value,
+                                 const std::vector<unodb::key> &keys) {
   const auto use_existing_key = !keys.empty() && DeepState_Bool();
   if (use_existing_key) {
     ASSERT(!keys.empty());

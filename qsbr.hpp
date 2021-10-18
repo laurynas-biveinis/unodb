@@ -49,7 +49,7 @@ namespace unodb {
 // safe destruction in concurrent containers" ever gets anywhere, consider
 // changing to its interface, like Stamp-it paper does.
 
-class qsbr_per_thread final {
+class [[nodiscard]] qsbr_per_thread final {
  public:
   qsbr_per_thread() noexcept;
 
@@ -63,7 +63,7 @@ class qsbr_per_thread final {
 
   void resume();
 
-  [[nodiscard]] bool is_paused() const noexcept { return paused; }
+  [[nodiscard, gnu::pure]] bool is_paused() const noexcept { return paused; }
 
   qsbr_per_thread(const qsbr_per_thread &) = delete;
   qsbr_per_thread(qsbr_per_thread &&) = delete;
@@ -235,7 +235,7 @@ class qsbr final {
 #endif
   }
 
-  struct deallocation_request {
+  struct [[nodiscard]] deallocation_request final {
     void *const pointer;
 
 #ifndef NDEBUG
@@ -260,7 +260,7 @@ class qsbr final {
     }
   };
 
-  class deferred_requests {
+  class [[nodiscard]] deferred_requests final {
    public:
     std::array<std::vector<deallocation_request>, 2> requests;
 
@@ -323,7 +323,7 @@ class qsbr final {
 
   void assert_invariants() const noexcept;
 
-  deferred_requests make_deferred_requests() const noexcept {
+  [[nodiscard]] deferred_requests make_deferred_requests() const noexcept {
     return deferred_requests{
 #ifndef NDEBUG
         get_current_epoch(), single_thread_mode_locked()
@@ -415,7 +415,7 @@ struct quiescent_state_on_scope_exit final {
 
 // Replace with C++20 std::remove_cvref once it's available
 template <typename T>
-struct remove_cvref {
+struct remove_cvref final {
   using type = std::remove_cv_t<std::remove_reference_t<T>>;
 };
 
@@ -424,7 +424,7 @@ using remove_cvref_t = typename remove_cvref<T>::type;
 
 // All the QSBR users must use qsbr_thread instead of std::thread so that
 // a thread-local current_thread_reclamator instance gets properly constructed
-class qsbr_thread : public std::thread {
+class [[nodiscard]] qsbr_thread : public std::thread {
  public:
   using thread::thread;
 

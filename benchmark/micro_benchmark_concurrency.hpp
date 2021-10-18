@@ -37,12 +37,12 @@ constexpr void concurrency_ranges32(::benchmark::internal::Benchmark *b) {
 }
 
 template <typename T>
-constexpr auto to_counter(T value) {
+[[nodiscard]] constexpr auto to_counter(T value) {
   return ::benchmark::Counter{static_cast<double>(value)};
 }
 
 template <class Db, class Thread>
-class concurrent_benchmark {
+class [[nodiscard]] concurrent_benchmark {
  protected:
   UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-final-methods")
   virtual void setup() {}

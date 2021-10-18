@@ -111,7 +111,7 @@ inline void assert_result_eq(const unodb::olc_db &db, unodb::key key,
   detail::assert_result_eq(test_db, key, expected, __FILE__, __LINE__)
 
 template <class Db>
-class tree_verifier final {
+class [[nodiscard]] tree_verifier final {
  private:
   void do_insert(unodb::key k, unodb::value_view v) {
     ASSERT_TRUE(test_db.insert(k, v));
@@ -303,7 +303,7 @@ class tree_verifier final {
     values.clear();
   }
 
-  [[nodiscard]] constexpr Db &get_db() noexcept { return test_db; }
+  [[nodiscard, gnu::pure]] constexpr Db &get_db() noexcept { return test_db; }
 
  private:
   Db test_db{};

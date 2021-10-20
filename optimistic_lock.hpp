@@ -78,8 +78,8 @@ class [[nodiscard]] optimistic_lock final {
 
     read_critical_section &operator=(read_critical_section &&other) noexcept {
       lock = other.lock;
-      // Current implementation does not need lock == nullptr in the destructor,
-      // thus only reset other.lock in debug build
+      // The current implementation does not need lock == nullptr in the
+      // destructor, thus only reset other.lock in debug builds
 #ifndef NDEBUG
       other.lock = nullptr;
 #endif
@@ -109,6 +109,8 @@ class [[nodiscard]] optimistic_lock final {
       return UNODB_DETAIL_UNLIKELY(lock == nullptr);
     }
 
+    // If the destructor ever starts doing something, reset moved-from lock
+    // fields in the move and write_guard constructors.
     ~read_critical_section() = default;
     read_critical_section(const read_critical_section &) = delete;
     read_critical_section(read_critical_section &&) = delete;

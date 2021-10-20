@@ -78,7 +78,11 @@ class [[nodiscard]] optimistic_lock final {
 
     read_critical_section &operator=(read_critical_section &&other) noexcept {
       lock = other.lock;
+      // Current implementation does not need lock == nullptr in the destructor,
+      // thus only reset other.lock in debug build
+#ifndef NDEBUG
       other.lock = nullptr;
+#endif
       version = other.version;
 
       return *this;
@@ -121,7 +125,9 @@ class [[nodiscard]] optimistic_lock final {
    public:
     explicit write_guard(read_critical_section &&critical_section) noexcept
         : lock{critical_section.lock} {
+#ifndef NDEBUG
       critical_section.lock = nullptr;
+#endif
       const auto result =
           lock->try_upgrade_to_write_lock(critical_section.version);
       if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;
@@ -202,13 +208,14 @@ class [[nodiscard]] optimistic_lock final {
 #endif
 
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
-    const auto dump_version = version.load();
+    const auto dump_version = version.load(std::memory_order_acquire);
     os << "lock: version = 0x" << std::hex << std::setfill('0') << std::setw(8)
        << dump_version << std::dec;
     if (is_write_locked(dump_version)) os << " (write locked)";
     if (is_obsolete(dump_version)) os << " (obsoleted)";
 #ifndef NDEBUG
-    os << " current read lock count = " << read_lock_count;
+    os << " current read lock count = "
+       << read_lock_count.load(std::memory_order_relaxed);
 #endif
   }
 
@@ -217,7 +224,8 @@ class [[nodiscard]] optimistic_lock final {
     assert(read_lock_count.load(std::memory_order_relaxed) > 0);
 
     std::atomic_thread_fence(std::memory_order_acquire);
-    return UNODB_DETAIL_LIKELY(locked_version == version.load());
+    return UNODB_DETAIL_LIKELY(locked_version ==
+                               version.load(std::memory_order_relaxed));
   }
 
   [[nodiscard, gnu::always_inline, gnu::flatten]] bool try_read_unlock(
@@ -248,10 +256,11 @@ class [[nodiscard]] optimistic_lock final {
     version.fetch_add(3, std::memory_order_release);
 #ifndef NDEBUG
     obsoleter_thread = std::this_thread::get_id();
-#endif
 
-    assert(!is_write_locked());
-    assert(is_obsolete(version.load(std::memory_order_acquire)));
+    const auto current_version{version.load(std::memory_order_acquire)};
+    assert(!is_write_locked(current_version));
+    assert(is_obsolete(current_version));
+#endif
   }
 
   [[nodiscard, gnu::const]] static constexpr bool is_write_locked(

@@ -357,7 +357,7 @@ jobs:
         if: env.COVERAGE == 'ON'
 
       - name: Upload coverage data
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
         with:
           flags: ${{matrix.BUILD_TYPE}}
           fail_ci_if_error: true

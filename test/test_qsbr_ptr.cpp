@@ -13,10 +13,10 @@
 
 namespace {
 
-const char x = 'X';
+const char x = 'X';  // -V707
 const char* const raw_ptr_x = &x;
 
-const char y = 'Y';
+const char y = 'Y';  // -V707
 const char* const raw_ptr_y = &y;
 
 const std::array<const char, 2> two_chars = {'A', 'B'};
@@ -57,7 +57,7 @@ TEST(QSBRPtr, CopyAssignment) {
   ASSERT_EQ(*ptr2, x);
   ASSERT_EQ(*ptr, x);
 
-  ptr2 = ptr2;
+  ptr2 = ptr2;  // -V570
   ASSERT_EQ(*ptr, x);
 }
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
@@ -94,7 +94,7 @@ TEST(QSBRPtr, Preincrement) {
 TEST(QSBRPtr, Subtraction) {
   unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
 
-  ASSERT_EQ(ptr - ptr, 0);
+  ASSERT_EQ(ptr - ptr, 0);  // -V501
 
   unodb::qsbr_ptr<const char> ptr2{&two_chars[1]};
 
@@ -112,7 +112,7 @@ TEST(QSBRPtr, Equal) {
 
 TEST(QSBRPtr, NotEqual) {
   unodb::qsbr_ptr<const char> ptr{&x};
-  ASSERT_FALSE(ptr != ptr);
+  ASSERT_FALSE(ptr != ptr);  // -V501
 
   unodb::qsbr_ptr<const char> ptr2{&x};
   ASSERT_FALSE(ptr != ptr2);
@@ -175,7 +175,7 @@ TEST(QSBRPtrSpan, CopyAssignment) {
   ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span.cbegin(),
                          gsl_span.cend()));
 
-  span2 = span2;
+  span2 = span2;  // -V570
   ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span.cbegin(),
                          gsl_span.cend()));
 }

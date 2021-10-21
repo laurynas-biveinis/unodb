@@ -20,7 +20,7 @@ constexpr std::size_t node_type_count{5};
 constexpr std::size_t inode_type_count{4};
 
 template <node_type NodeType>
-void is_internal() noexcept {
+void is_internal_static_assert() noexcept {
   static_assert(NodeType != node_type::LEAF);
   // This function is not for execution, but to wrap the static_assert, which is
   // not an expression for some reason.
@@ -40,7 +40,10 @@ using inode_type_counter_array =
 
 template <node_type NodeType>
 inline constexpr auto internal_as_i{
-    static_cast<std::size_t>(detail::is_internal<NodeType>, NodeType) - 1};
+    static_cast<std::size_t>(
+        detail::is_internal_static_assert<NodeType>,  // -V521
+        NodeType) -
+    1};
 
 }  // namespace unodb
 

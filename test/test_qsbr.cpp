@@ -88,7 +88,7 @@ void active_pointer_ops(void *raw_ptr) noexcept {
   unodb::qsbr_ptr<void> active_ptr3{std::move(active_ptr)};
 
   active_ptr = active_ptr2;
-  active_ptr2 = std::move(active_ptr3);
+  active_ptr2 = std::move(active_ptr3);  // -V1001
 }
 
 TEST_F(QSBR, SingleThreadQuitPaused) {

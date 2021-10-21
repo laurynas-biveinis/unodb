@@ -132,12 +132,12 @@ class [[nodiscard]] optimistic_lock final {
 #endif
       const auto result =
           lock->try_upgrade_to_write_lock(critical_section.version);
-      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;
+      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;  // LCOV_EXCL_LINE
     }
 
     ~write_guard() {
       if (UNODB_DETAIL_LIKELY(lock == nullptr)) return;
-      lock->write_unlock();
+      lock->write_unlock();  // LCOV_EXCL_LINE
     }
 
     [[nodiscard]] bool must_restart() const noexcept {

@@ -136,8 +136,8 @@ class [[nodiscard]] optimistic_lock final {
     }
 
     ~write_guard() {
-      if (UNODB_DETAIL_LIKELY(lock == nullptr)) return;
-      lock->write_unlock();  // LCOV_EXCL_LINE
+      if (lock == nullptr) return;
+      lock->write_unlock();
     }
 
     [[nodiscard]] bool must_restart() const noexcept {

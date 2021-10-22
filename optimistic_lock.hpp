@@ -178,8 +178,6 @@ class [[nodiscard]] optimistic_lock final {
   optimistic_lock &operator=(const optimistic_lock &) = delete;
   optimistic_lock &operator=(optimistic_lock &&) = delete;
 
-  // If QSBR starts running destructors for objects being deallocated, add one
-  // here that asserts read_lock_count == 0
   ~optimistic_lock() = default;
 
   [[nodiscard]] read_critical_section try_read_lock() noexcept {

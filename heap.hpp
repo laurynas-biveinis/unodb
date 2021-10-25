@@ -52,7 +52,7 @@ template <typename T>
   return result;
 }
 
-inline void free_aligned(void* ptr) {
+inline void free_aligned(void* ptr) noexcept {
   // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
   free(ptr);
 }

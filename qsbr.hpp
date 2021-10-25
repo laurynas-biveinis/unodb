@@ -249,7 +249,7 @@ class qsbr final {
 #ifndef NDEBUG
         std::uint64_t dealloc_epoch, bool dealloc_epoch_single_thread_mode
 #endif
-    ) const {
+    ) const noexcept {
       // TODO(laurynas): count deallocation request instances, assert 0 in QSBR
       // dtor
       assert(dealloc_epoch == request_epoch + 2 ||

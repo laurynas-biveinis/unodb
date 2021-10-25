@@ -38,7 +38,7 @@
   _Pragma("GCC diagnostic push")        \
       UNODB_DETAIL_DO_PRAGMA(GCC diagnostic ignored x)
 
-#define UNODB_DETAIL_RESTORE_WARNINGS(x) _Pragma("GCC diagnostic pop")
+#define UNODB_DETAIL_RESTORE_WARNINGS() _Pragma("GCC diagnostic pop")
 
 #ifdef __clang__
 #define UNODB_DETAIL_DISABLE_CLANG_WARNING(x) UNODB_DETAIL_DISABLE_WARNING(x)

@@ -139,11 +139,22 @@ void allocate_pointer(std::size_t thread_i) {
   allocated_pointers.insert(new_ptr);
 }
 
+#ifndef NDEBUG
+void check_qsbr_pointer_on_dealloc(const void *ptr) noexcept {
+  ASSERT(*static_cast<const std::uint64_t *>(ptr) == object_mem);
+}
+#endif
+
 void deallocate_pointer(std::uint64_t *ptr) {
   ASSERT(!unodb::current_thread_reclamator().is_paused());
   ASSERT(*ptr == object_mem);
 
-  unodb::qsbr::instance().on_next_epoch_deallocate(ptr, sizeof(object_mem));
+  unodb::qsbr::instance().on_next_epoch_deallocate(ptr, sizeof(object_mem)
+#ifndef NDEBUG
+                                                            ,
+                                                   check_qsbr_pointer_on_dealloc
+#endif
+  );
 }
 
 void deallocate_pointer(std::size_t thread_i) {

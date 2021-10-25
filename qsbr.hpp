@@ -9,6 +9,9 @@
 #include <cassert>
 #include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
+#ifndef NDEBUG
+#include <functional>
+#endif
 #include <iostream>
 #include <mutex>  // IWYU pragma: keep
 #include <thread>
@@ -109,7 +112,30 @@ class qsbr final {
   qsbr &operator=(const qsbr &) = delete;
   qsbr &operator=(qsbr &&) = delete;
 
-  void on_next_epoch_deallocate(void *pointer, std::size_t size) {
+#ifndef NDEBUG
+  using dealloc_debug_callback = std::function<void(const void *)>;
+#endif
+
+ private:
+  static void deallocate(void *pointer
+#ifndef NDEBUG
+                         ,
+                         const dealloc_debug_callback &debug_callback
+#endif
+                         ) noexcept {
+#ifndef NDEBUG
+    if (debug_callback != nullptr) debug_callback(pointer);
+#endif
+    detail::free_aligned(pointer);
+  }
+
+ public:
+  void on_next_epoch_deallocate(void *pointer, std::size_t size
+#ifndef NDEBUG
+                                ,
+                                dealloc_debug_callback debug_callback
+#endif
+  ) {
     assert(!unodb::current_thread_reclamator().is_paused());
 
     bool deallocate_immediately = false;
@@ -121,11 +147,23 @@ class qsbr final {
         // TODO(laurynas): out of critical section?
         current_interval_total_dealloc_size.fetch_add(
             size, std::memory_order_relaxed);
-        current_interval_deallocation_requests.emplace_back(pointer);
+        current_interval_deallocation_requests.emplace_back(
+            pointer
+#ifndef NDEBUG
+            ,
+            std::move(debug_callback)
+#endif
+        );
       }
       assert_invariants();
     }
-    if (deallocate_immediately) detail::free_aligned(pointer);
+    if (deallocate_immediately)
+      deallocate(pointer
+#ifndef NDEBUG
+                 ,
+                 debug_callback
+#endif
+      );
   }
 
   void quiescent_state(std::thread::id thread_id) noexcept {
@@ -239,15 +277,28 @@ class qsbr final {
     void *const pointer;
 
 #ifndef NDEBUG
+    dealloc_debug_callback dealloc_callback;
     const std::uint64_t request_epoch{qsbr::instance().get_current_epoch()};
 #endif
 
-    explicit deallocation_request(void *pointer_) noexcept
-        : pointer{pointer_} {}
+    explicit deallocation_request(void *pointer_
+#ifndef NDEBUG
+                                  ,
+                                  dealloc_debug_callback dealloc_callback_
+#endif
+                                  ) noexcept
+        : pointer {
+      pointer_
+    }
+#ifndef NDEBUG
+    , dealloc_callback { std::move(dealloc_callback_) }
+#endif
+    {}
 
     void deallocate(
 #ifndef NDEBUG
-        std::uint64_t dealloc_epoch, bool dealloc_epoch_single_thread_mode
+        std::uint64_t dealloc_epoch, bool dealloc_epoch_single_thread_mode,
+        const dealloc_debug_callback &debug_callback
 #endif
     ) const noexcept {
       // TODO(laurynas): count deallocation request instances, assert 0 in QSBR
@@ -256,7 +307,12 @@ class qsbr final {
              (dealloc_epoch_single_thread_mode &&
               dealloc_epoch == request_epoch + 1));
 
-      detail::free_aligned(pointer);
+      qsbr::deallocate(pointer
+#ifndef NDEBUG
+                       ,
+                       debug_callback
+#endif
+      );
     }
   };
 
@@ -283,7 +339,8 @@ class qsbr final {
         for (const auto &dealloc_request : reqs) {
           dealloc_request.deallocate(
 #ifndef NDEBUG
-              dealloc_epoch, dealloc_epoch_single_thread_mode
+              dealloc_epoch, dealloc_epoch_single_thread_mode,
+              dealloc_request.dealloc_callback
 #endif
           );
         }

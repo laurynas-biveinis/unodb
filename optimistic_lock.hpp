@@ -109,9 +109,14 @@ class [[nodiscard]] optimistic_lock final {
       return UNODB_DETAIL_UNLIKELY(lock == nullptr);
     }
 
-    // If the destructor ever starts doing something, reset moved-from lock
-    // fields in the move and write_guard constructors.
-    ~read_critical_section() = default;
+    // If the destructor ever starts doing something in the release build, reset
+    // moved-from lock fields in the move and write_guard constructors.
+    ~read_critical_section() {
+#ifndef NDEBUG
+      if (lock != nullptr) (void)lock->try_read_unlock(version);
+#endif
+    }
+
     read_critical_section(const read_critical_section &) = delete;
     read_critical_section(read_critical_section &&) = delete;
     read_critical_section &operator=(const read_critical_section &) = delete;
@@ -197,6 +202,10 @@ class [[nodiscard]] optimistic_lock final {
   }
 
 #ifndef NDEBUG
+  void check_on_qsbr_dealloc() const noexcept {
+    assert(read_lock_count.load(std::memory_order_acquire) == 0);
+  }
+
   [[nodiscard]] bool is_obsoleted_by_this_thread() const noexcept {
     return is_obsolete(version.load(std::memory_order_acquire)) &&
            std::this_thread::get_id() == obsoleter_thread;
@@ -215,23 +224,29 @@ class [[nodiscard]] optimistic_lock final {
     if (is_obsolete(dump_version)) os << " (obsoleted)";
 #ifndef NDEBUG
     os << " current read lock count = "
-       << read_lock_count.load(std::memory_order_relaxed);
+       << read_lock_count.load(std::memory_order_acquire);
 #endif
   }
 
  private:
   [[nodiscard]] bool check(version_type locked_version) const noexcept {
-    assert(read_lock_count.load(std::memory_order_relaxed) > 0);
+    assert(read_lock_count.load(std::memory_order_acquire) > 0);
 
     std::atomic_thread_fence(std::memory_order_acquire);
-    return UNODB_DETAIL_LIKELY(locked_version ==
-                               version.load(std::memory_order_relaxed));
+    const auto result{locked_version ==
+                      version.load(std::memory_order_relaxed)};
+#ifndef NDEBUG
+    if (UNODB_DETAIL_UNLIKELY(!result)) dec_read_lock_count();
+#endif
+    return UNODB_DETAIL_LIKELY(result);
   }
 
   [[nodiscard, gnu::always_inline, gnu::flatten]] bool try_read_unlock(
       version_type locked_version) const noexcept {
     const auto result{check(locked_version)};
-    dec_read_lock_count();
+#ifndef NDEBUG
+    if (UNODB_DETAIL_LIKELY(result)) dec_read_lock_count();
+#endif
     return UNODB_DETAIL_LIKELY(result);
   }
 
@@ -296,14 +311,14 @@ class [[nodiscard]] optimistic_lock final {
 
   void inc_read_lock_count() const noexcept {
 #ifndef NDEBUG
-    read_lock_count.fetch_add(1, std::memory_order_relaxed);
+    read_lock_count.fetch_add(1, std::memory_order_release);
 #endif
   }
 
   void dec_read_lock_count() const noexcept {
 #ifndef NDEBUG
     const auto old_value =
-        read_lock_count.fetch_sub(1, std::memory_order_relaxed);
+        read_lock_count.fetch_sub(1, std::memory_order_release);
     assert(old_value > 0);
 #endif
   }

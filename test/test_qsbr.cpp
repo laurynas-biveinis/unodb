@@ -53,8 +53,22 @@ class QSBR : public ::testing::Test {
     return unodb::detail::allocate_aligned(1);
   }
 
+#ifndef NDEBUG
+  UNODB_DETAIL_DISABLE_WARNING("-Wunused-variable")
+  static void check_ptr_on_qsbr_dealloc(const void *ptr) noexcept {
+    // The pointer must be readable
+    static volatile char sink = *static_cast<const char *>(ptr);
+  }
+  UNODB_DETAIL_RESTORE_WARNINGS()
+#endif
+
   static void qsbr_deallocate(void *ptr) {
-    unodb::qsbr::instance().on_next_epoch_deallocate(ptr, 1);
+    unodb::qsbr::instance().on_next_epoch_deallocate(ptr, 1
+#ifndef NDEBUG
+                                                     ,
+                                                     check_ptr_on_qsbr_dealloc
+#endif
+    );
   }
 
   static void touch_memory(char *ptr, char opt_val = '\0') {

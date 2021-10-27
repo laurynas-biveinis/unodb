@@ -81,7 +81,7 @@ class [[nodiscard]] batched_prng final {
     random_key_ptr = random_keys.cbegin();
   }
 
-  static constexpr auto random_batch_size = 10000;
+  static constexpr auto random_batch_size = 100000;
 
   std::vector<result_type> random_keys{random_batch_size};
   decltype(random_keys)::const_iterator random_key_ptr;

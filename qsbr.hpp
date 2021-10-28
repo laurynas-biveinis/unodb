@@ -6,7 +6,6 @@
 
 #include <array>
 #include <atomic>
-#include <cassert>
 #include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #ifndef NDEBUG
@@ -136,7 +135,7 @@ class qsbr final {
                                 dealloc_debug_callback debug_callback
 #endif
   ) {
-    assert(!unodb::current_thread_reclamator().is_paused());
+    UNODB_DETAIL_ASSERT(!unodb::current_thread_reclamator().is_paused());
 
     bool deallocate_immediately = false;
     {
@@ -255,20 +254,20 @@ class qsbr final {
     // Copy-paste-tweak with expect_idle_qsbr, but not clear how to fix this:
     // here we are asserting over internals, over there we are using Google Test
     // EXPECT macros with the public interface.
-    assert(previous_interval_deallocation_requests.empty());
-    assert(previous_interval_total_dealloc_size.load(
-               std::memory_order_relaxed) == 0);
-    assert(current_interval_deallocation_requests.empty());
-    assert(current_interval_total_dealloc_size.load(
-               std::memory_order_relaxed) == 0);
+    UNODB_DETAIL_ASSERT(previous_interval_deallocation_requests.empty());
+    UNODB_DETAIL_ASSERT(previous_interval_total_dealloc_size.load(
+                            std::memory_order_relaxed) == 0);
+    UNODB_DETAIL_ASSERT(current_interval_deallocation_requests.empty());
+    UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size.load(
+                            std::memory_order_relaxed) == 0);
     if (threads.empty()) {
-      assert(reserved_thread_capacity == 0);
-      assert(threads_in_previous_epoch == 0);
+      UNODB_DETAIL_ASSERT(reserved_thread_capacity == 0);
+      UNODB_DETAIL_ASSERT(threads_in_previous_epoch == 0);
     } else if (threads.size() == 1) {
-      assert(reserved_thread_capacity == 1);
-      assert(threads_in_previous_epoch == 1);
+      UNODB_DETAIL_ASSERT(reserved_thread_capacity == 1);
+      UNODB_DETAIL_ASSERT(threads_in_previous_epoch == 1);
     } else {
-      assert(threads.size() < 2);
+      UNODB_DETAIL_ASSERT(threads.size() < 2);
     }
 #endif
   }
@@ -303,9 +302,9 @@ class qsbr final {
     ) const noexcept {
       // TODO(laurynas): count deallocation request instances, assert 0 in QSBR
       // dtor
-      assert(dealloc_epoch == request_epoch + 2 ||
-             (dealloc_epoch_single_thread_mode &&
-              dealloc_epoch == request_epoch + 1));
+      UNODB_DETAIL_ASSERT(dealloc_epoch == request_epoch + 2 ||
+                          (dealloc_epoch_single_thread_mode &&
+                           dealloc_epoch == request_epoch + 1));
 
       qsbr::deallocate(pointer
 #ifndef NDEBUG
@@ -430,27 +429,27 @@ class qsbr final {
 };
 
 inline qsbr_per_thread::qsbr_per_thread() noexcept {
-  assert(paused);
+  UNODB_DETAIL_ASSERT(paused);
   qsbr::instance().register_prepared_thread(thread_id);
   paused = false;
 }
 
 inline void qsbr_per_thread::quiescent_state() const noexcept {
-  assert(!paused);
-  assert(active_ptrs.empty());
+  UNODB_DETAIL_ASSERT(!paused);
+  UNODB_DETAIL_ASSERT(active_ptrs.empty());
   qsbr::instance().quiescent_state(thread_id);
 }
 
 inline void qsbr_per_thread::pause() {
-  assert(!paused);
-  assert(active_ptrs.empty());
+  UNODB_DETAIL_ASSERT(!paused);
+  UNODB_DETAIL_ASSERT(active_ptrs.empty());
   qsbr::instance().unregister_thread(thread_id);
   paused = true;
 }
 
 inline void qsbr_per_thread::resume() {
-  assert(paused);
-  assert(active_ptrs.empty());
+  UNODB_DETAIL_ASSERT(paused);
+  UNODB_DETAIL_ASSERT(active_ptrs.empty());
   qsbr::instance().register_new_thread(thread_id);
   paused = false;
 }

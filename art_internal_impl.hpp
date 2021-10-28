@@ -6,7 +6,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -75,7 +74,7 @@ class [[nodiscard]] basic_leaf final : public Header {
 
   constexpr basic_leaf(art_key k, value_view v) noexcept
       : key{k}, value_size{gsl::narrow_cast<value_size_type>(v.size())} {
-    assert(static_cast<std::size_t>(v.size()) <= max_value_size);
+    UNODB_DETAIL_ASSERT(static_cast<std::size_t>(v.size()) <= max_value_size);
 
     if (!v.empty()) std::memcpy(&value_start[0], &v[0], value_size);
   }
@@ -401,7 +400,7 @@ union [[nodiscard]] key_prefix {
              const key_prefix &source_key_prefix) noexcept
       : u64{(source_key_prefix.u64 & key_bytes_mask) |
             length_to_word(key_prefix_len)} {
-    assert(key_prefix_len <= key_prefix_capacity);
+    UNODB_DETAIL_ASSERT(key_prefix_len <= key_prefix_capacity);
   }
 
   key_prefix(const key_prefix &other) noexcept : u64{other.u64.load()} {}
@@ -415,23 +414,23 @@ union [[nodiscard]] key_prefix {
 
   [[nodiscard]] constexpr unsigned length() const noexcept {
     const auto result = f.key_prefix_length.load();
-    assert(result <= key_prefix_capacity);
+    UNODB_DETAIL_ASSERT(result <= key_prefix_capacity);
     return result;
   }
 
   constexpr void cut(unsigned cut_len) noexcept {
-    assert(cut_len > 0);
-    assert(cut_len <= length());
+    UNODB_DETAIL_ASSERT(cut_len > 0);
+    UNODB_DETAIL_ASSERT(cut_len <= length());
 
     u64 = ((u64 >> (cut_len * 8)) & key_bytes_mask) |
           length_to_word(length() - cut_len);
 
-    assert(f.key_prefix_length.load() <= key_prefix_capacity);
+    UNODB_DETAIL_ASSERT(f.key_prefix_length.load() <= key_prefix_capacity);
   }
 
   constexpr void prepend(const key_prefix &prefix1,
                          std::byte prefix2) noexcept {
-    assert(length() + prefix1.length() < key_prefix_capacity);
+    UNODB_DETAIL_ASSERT(length() + prefix1.length() < key_prefix_capacity);
 
     const auto prefix1_bit_length = prefix1.length() * 8U;
     const auto prefix1_mask = (1ULL << prefix1_bit_length) - 1;
@@ -446,11 +445,11 @@ union [[nodiscard]] key_prefix {
     u64 = shifted_prefix3 | shifted_prefix2 | masked_prefix1 |
           length_to_word(length() + prefix1.length() + 1);
 
-    assert(f.key_prefix_length.load() <= key_prefix_capacity);
+    UNODB_DETAIL_ASSERT(f.key_prefix_length.load() <= key_prefix_capacity);
   }
 
   [[nodiscard]] constexpr auto byte_at(std::size_t i) const noexcept {
-    assert(i < length());
+    UNODB_DETAIL_ASSERT(i < length());
     return f.key_prefix[i].load();
   }
 
@@ -472,13 +471,13 @@ union [[nodiscard]] key_prefix {
 
   [[nodiscard, gnu::const]] static constexpr std::uint64_t length_to_word(
       unsigned length) {
-    assert(length <= key_prefix_capacity);
+    UNODB_DETAIL_ASSERT(length <= key_prefix_capacity);
     return static_cast<std::uint64_t>(length) << 56U;
   }
 
   [[nodiscard, gnu::const]] static constexpr unsigned shared_len(
       std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept {
-    assert(clamp_byte_pos < 8);
+    UNODB_DETAIL_ASSERT(clamp_byte_pos < 8);
 
     const auto diff = k1 ^ k2;
     const auto clamped = diff | (1ULL << (clamp_byte_pos * 8U));
@@ -607,7 +606,7 @@ class basic_inode_impl : public ArtPolicy::header_type {
 
   [[nodiscard]] constexpr find_result find_child(node_type type,
                                                  std::byte key_byte) noexcept {
-    assert(type != node_type::LEAF);
+    UNODB_DETAIL_ASSERT(type != node_type::LEAF);
     // Because of the parallel updates, the callees below may work on
     // inconsistent nodes and must not assert, just produce results, which are
     // OK to be incorrect/inconsistent as the node state will be checked before
@@ -733,7 +732,7 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
   }
 
   [[nodiscard]] static void *operator new(std::size_t size) {
-    assert(size == sizeof(Derived));
+    UNODB_DETAIL_ASSERT(size == sizeof(Derived));
 
     return allocate_aligned(size, alignment_for_new<Derived>());
   }
@@ -767,26 +766,26 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
   constexpr basic_inode(art_key k1, art_key shifted_k2,
                         tree_depth depth) noexcept
       : basic_inode_impl<ArtPolicy>{MinSize, k1, shifted_k2, depth} {
-    assert(is_min_size());
+    UNODB_DETAIL_ASSERT(is_min_size());
   }
 
   constexpr basic_inode(unsigned key_prefix_len,
                         const inode_type &key_prefix_source_node) noexcept
       : basic_inode_impl<ArtPolicy>{MinSize, key_prefix_len,
                                     key_prefix_source_node} {
-    assert(is_min_size());
+    UNODB_DETAIL_ASSERT(is_min_size());
   }
 
   explicit constexpr basic_inode(const SmallerDerived &source_node) noexcept
       : basic_inode_impl<ArtPolicy>{MinSize, source_node} {
-    assert(source_node.is_full_for_add());
-    assert(is_min_size());
+    UNODB_DETAIL_ASSERT(source_node.is_full_for_add());
+    UNODB_DETAIL_ASSERT(is_min_size());
   }
 
   explicit constexpr basic_inode(const LargerDerived &source_node) noexcept
       : basic_inode_impl<ArtPolicy>{Capacity, source_node} {
-    assert(source_node.is_min_size());
-    assert(is_full_for_add());
+    UNODB_DETAIL_ASSERT(source_node.is_min_size());
+    UNODB_DETAIL_ASSERT(is_full_for_add());
   }
 };
 
@@ -856,8 +855,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       : parent_class{len, *static_cast<inode_type *>(source_node.ptr())} {
     auto *const source_inode{static_cast<inode_type *>(source_node.ptr())};
     auto &source_key_prefix = source_inode->get_key_prefix();
-    assert(len < source_key_prefix.length());
-    assert(depth + len < art_key::size);
+    UNODB_DETAIL_ASSERT(len < source_key_prefix.length());
+    UNODB_DETAIL_ASSERT(depth + len < art_key::size);
 
     const auto source_node_key_byte = source_key_prefix.byte_at(len);
     source_key_prefix.cut(len + 1);
@@ -893,17 +892,18 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       *children_itr++ = *source_children_itr++;
     }
 
-    assert(this->children_count == basic_inode_4::capacity);
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + basic_inode_4::capacity));
+    UNODB_DETAIL_ASSERT(this->children_count == basic_inode_4::capacity);
+    UNODB_DETAIL_ASSERT(
+        std::is_sorted(keys.byte_array.cbegin(),
+                       keys.byte_array.cbegin() + basic_inode_4::capacity));
   }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count_) noexcept {
-    assert(children_count_ == this->children_count);
-    assert(children_count_ < parent_class::capacity);
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count_));
+    UNODB_DETAIL_ASSERT(children_count_ == this->children_count);
+    UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
+    UNODB_DETAIL_ASSERT(std::is_sorted(
+        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
 
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
 
@@ -932,16 +932,16 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     ++children_count_;
     this->children_count = children_count_;
 
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count_));
+    UNODB_DETAIL_ASSERT(std::is_sorted(
+        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     auto children_count_ = this->children_count.load();
 
-    assert(child_index < children_count_);
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count_));
+    UNODB_DETAIL_ASSERT(child_index < children_count_);
+    UNODB_DETAIL_ASSERT(std::is_sorted(
+        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
         static_cast<leaf_type *>(children[child_index].load().ptr()),
@@ -960,14 +960,14 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     --children_count_;
     this->children_count = children_count_;
 
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count_));
+    UNODB_DETAIL_ASSERT(std::is_sorted(
+        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
   [[nodiscard]] constexpr auto leave_last_child(std::uint8_t child_to_delete,
                                                 db &db_instance) noexcept {
-    assert(this->is_min_size());
-    assert(child_to_delete == 0 || child_to_delete == 1);
+    UNODB_DETAIL_ASSERT(this->is_min_size());
+    UNODB_DETAIL_ASSERT(child_to_delete == 0 || child_to_delete == 1);
 
     auto *const child_to_delete_ptr{
         static_cast<leaf_type *>(children[child_to_delete].load().ptr())};
@@ -1049,8 +1049,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   constexpr void add_two_to_empty(std::byte key1, node_ptr child1,
                                   std::byte key2,
                                   db_leaf_unique_ptr child2) noexcept {
-    assert(key1 != key2);
-    assert(this->children_count == 2);
+    UNODB_DETAIL_ASSERT(key1 != key2);
+    UNODB_DETAIL_ASSERT(this->children_count == 2);
 
     const std::uint8_t key1_i = key1 < key2 ? 0 : 1;
     const std::uint8_t key2_i = key1_i == 0 ? 1 : 0;
@@ -1063,8 +1063,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     keys.byte_array[3] = empty_child;
 #endif
 
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + this->children_count));
+    UNODB_DETAIL_ASSERT(
+        std::is_sorted(keys.byte_array.cbegin(),
+                       keys.byte_array.cbegin() + this->children_count));
   }
 
   union {
@@ -1081,7 +1082,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 #ifdef __x86_64
   [[nodiscard]] auto get_insert_pos(std::uint8_t insert_key_byte,
                                     unsigned node_key_mask) const noexcept {
-    assert(node_key_mask == (1U << this->children_count.load()) - 1);
+    UNODB_DETAIL_ASSERT(node_key_mask ==
+                        (1U << this->children_count.load()) - 1);
 
     const auto replicated_insert_key_byte =
         _mm_set1_epi8(static_cast<char>(insert_key_byte));
@@ -1180,33 +1182,34 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         keys.byte_array[next_child] = gsl::narrow_cast<std::byte>(i);
         const auto source_child_ptr =
             source_node->children.pointer_array[source_child_i].load();
-        assert(source_child_ptr != nullptr);
+        UNODB_DETAIL_ASSERT(source_child_ptr != nullptr);
         children[next_child] = source_child_ptr;
         ++next_child;
         if (next_child == basic_inode_16::capacity) break;
       }
-      assert(i < 255);
+      UNODB_DETAIL_ASSERT(i < 255);
       ++i;
     }
 
-    assert(this->children_count == basic_inode_16::capacity);
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + basic_inode_16::capacity));
+    UNODB_DETAIL_ASSERT(this->children_count == basic_inode_16::capacity);
+    UNODB_DETAIL_ASSERT(
+        std::is_sorted(keys.byte_array.cbegin(),
+                       keys.byte_array.cbegin() + basic_inode_16::capacity));
   }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count_) noexcept {
-    assert(children_count_ == this->children_count);
-    assert(children_count_ < parent_class::capacity);
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count_));
+    UNODB_DETAIL_ASSERT(children_count_ == this->children_count);
+    UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
+    UNODB_DETAIL_ASSERT(std::is_sorted(
+        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
 
     const auto key_byte = child->get_key()[depth];
 
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(key_byte);
     if (insert_pos_index != children_count_) {
-      assert(keys.byte_array[insert_pos_index] != key_byte);
+      UNODB_DETAIL_ASSERT(keys.byte_array[insert_pos_index] != key_byte);
       std::copy_backward(keys.byte_array.cbegin() + insert_pos_index,
                          keys.byte_array.cbegin() + children_count_,
                          keys.byte_array.begin() + children_count_ + 1);
@@ -1219,15 +1222,15 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     ++children_count_;
     this->children_count = children_count_;
 
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count_));
+    UNODB_DETAIL_ASSERT(std::is_sorted(
+        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     auto children_count_ = this->children_count.load();
-    assert(child_index < children_count_);
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count_));
+    UNODB_DETAIL_ASSERT(child_index < children_count_);
+    UNODB_DETAIL_ASSERT(std::is_sorted(
+        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
         static_cast<leaf_type *>(children[child_index].load().ptr()),
@@ -1241,8 +1244,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     --children_count_;
     this->children_count = children_count_;
 
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count_));
+    UNODB_DETAIL_ASSERT(std::is_sorted(
+        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
   [[nodiscard]] constexpr find_result find_child(std::byte key_byte) noexcept {
@@ -1287,12 +1290,13 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       std::byte key_byte) noexcept {
     const auto children_count_ = this->children_count.load();
 
-    assert(children_count_ < basic_inode_16::capacity);
-    assert(std::is_sorted(keys.byte_array.cbegin(),
-                          keys.byte_array.cbegin() + children_count_));
-    assert(std::adjacent_find(keys.byte_array.cbegin(),
-                              keys.byte_array.cbegin() + children_count_) >=
-           keys.byte_array.cbegin() + children_count_);
+    UNODB_DETAIL_ASSERT(children_count_ < basic_inode_16::capacity);
+    UNODB_DETAIL_ASSERT(std::is_sorted(
+        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
+    UNODB_DETAIL_ASSERT(
+        std::adjacent_find(keys.byte_array.cbegin(),
+                           keys.byte_array.cbegin() + children_count_) >=
+        keys.byte_array.cbegin() + children_count_);
 
 #ifdef __x86_64
     const auto replicated_insert_key =
@@ -1311,7 +1315,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         keys.byte_array.cbegin());
 #endif
 
-    assert(result == children_count_ || keys.byte_array[result] != key_byte);
+    UNODB_DETAIL_ASSERT(result == children_count_ ||
+                        keys.byte_array[result] != key_byte);
     return result;
   }
 
@@ -1376,7 +1381,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
     const auto key_byte =
         static_cast<std::uint8_t>(child_ptr->get_key()[depth]);
-    assert(child_indexes[key_byte] == empty_child);
+    UNODB_DETAIL_ASSERT(child_indexes[key_byte] == empty_child);
     child_indexes[key_byte] = i;
     children.pointer_array[i] = node_ptr{child_ptr, node_type::LEAF};
     for (i = this->children_count; i < basic_inode_48::capacity; i++) {
@@ -1409,16 +1414,16 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       if (next_child == basic_inode_48::capacity) break;
     }
 
-    assert(this->children_count == basic_inode_48::capacity);
+    UNODB_DETAIL_ASSERT(this->children_count == basic_inode_48::capacity);
   }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count_) noexcept {
-    assert(this->children_count == children_count_);
-    assert(children_count_ < parent_class::capacity);
+    UNODB_DETAIL_ASSERT(this->children_count == children_count_);
+    UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
 
     const auto key_byte = static_cast<uint8_t>(child->get_key()[depth]);
-    assert(child_indexes[key_byte] == empty_child);
+    UNODB_DETAIL_ASSERT(child_indexes[key_byte] == empty_child);
     unsigned i{0};
 #ifdef __x86_64
     const auto nullptr_vector = _mm_setzero_si128();
@@ -1450,11 +1455,11 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     while (true) {
       child_ptr = children.pointer_array[i];
       if (child_ptr == nullptr) break;
-      assert(i < 255);
+      UNODB_DETAIL_ASSERT(i < 255);
       ++i;
     }
 #endif  // #ifdef __x86_64
-    assert(children.pointer_array[i] == nullptr);
+    UNODB_DETAIL_ASSERT(children.pointer_array[i] == nullptr);
     child_indexes[key_byte] = gsl::narrow_cast<std::uint8_t>(i);
     children.pointer_array[i] = node_ptr{child.release(), node_type::LEAF};
     this->children_count = children_count_ + 1;
@@ -1490,11 +1495,11 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         ArtPolicy::delete_subtree(child, db_instance);
 #ifndef NDEBUG
         ++actual_children_count;
-        assert(actual_children_count <= children_count_);
+        UNODB_DETAIL_ASSERT(actual_children_count <= children_count_);
 #endif
       }
     }
-    assert(actual_children_count == children_count_);
+    UNODB_DETAIL_ASSERT(actual_children_count == children_count_);
   }
 
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
@@ -1511,16 +1516,17 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         dump_byte(os, gsl::narrow_cast<std::byte>(i));
         os << ", child index = " << static_cast<unsigned>(child_indexes[i])
            << ": ";
-        assert(children.pointer_array[child_indexes[i]] != nullptr);
+        UNODB_DETAIL_ASSERT(children.pointer_array[child_indexes[i]] !=
+                            nullptr);
         ArtPolicy::dump_node(os,
                              children.pointer_array[child_indexes[i]].load());
 #ifndef NDEBUG
         ++actual_children_count;
-        assert(actual_children_count <= children_count_);
+        UNODB_DETAIL_ASSERT(actual_children_count <= children_count_);
 #endif
       }
 
-    assert(actual_children_count == children_count_);
+    UNODB_DETAIL_ASSERT(actual_children_count == children_count_);
   }
 
  private:
@@ -1531,7 +1537,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
   constexpr void direct_remove_child_pointer(std::uint8_t children_i,
                                              db &db_instance) noexcept {
-    assert(children_i != empty_child);
+    UNODB_DETAIL_ASSERT(children_i != empty_child);
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
         static_cast<leaf_type *>(
@@ -1664,17 +1670,17 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     for (; i < basic_inode_256::capacity; ++i) children[i] = node_ptr{nullptr};
 
     const auto key_byte = static_cast<uint8_t>(child->get_key()[depth]);
-    assert(children[key_byte] == nullptr);
+    UNODB_DETAIL_ASSERT(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release(), node_type::LEAF};
   }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count_) noexcept {
-    assert(this->children_count == children_count_);
-    assert(children_count_ < parent_class::capacity);
+    UNODB_DETAIL_ASSERT(this->children_count == children_count_);
+    UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
 
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
-    assert(children[key_byte] == nullptr);
+    UNODB_DETAIL_ASSERT(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release(), node_type::LEAF};
     this->children_count = children_count_ + 1;
   }
@@ -1710,12 +1716,12 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
         func(i, child_ptr);
 #ifndef NDEBUG
         ++actual_children_count;
-        assert(actual_children_count <= children_count_ ||
-               children_count_ == 0);
+        UNODB_DETAIL_ASSERT(actual_children_count <= children_count_ ||
+                            children_count_ == 0);
 #endif
       }
     }
-    assert(actual_children_count == children_count_);
+    UNODB_DETAIL_ASSERT(actual_children_count == children_count_);
   }
 
   constexpr void delete_subtree(db &db_instance) noexcept {

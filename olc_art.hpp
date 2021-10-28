@@ -6,7 +6,6 @@
 
 #include <array>
 #include <atomic>
-#include <cassert>
 #include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #include <iostream>
@@ -173,7 +172,7 @@ class olc_db final {
     const auto UNODB_DETAIL_USED_IN_DEBUG old_leaf_count =
         node_counts[as_i<node_type::LEAF>].fetch_sub(1,
                                                      std::memory_order_relaxed);
-    assert(old_leaf_count > 0);
+    UNODB_DETAIL_ASSERT(old_leaf_count > 0);
   }
 
   template <class INode>

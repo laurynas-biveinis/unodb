@@ -6,7 +6,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
@@ -58,12 +57,12 @@ template <class Db>
 void assert_value_eq(const typename Db::get_result &result,
                      unodb::value_view expected) {
   if constexpr (std::is_same_v<Db, unodb::mutex_db>) {
-    assert(result.second.owns_lock());
-    assert(result.first.has_value());
+    UNODB_DETAIL_ASSERT(result.second.owns_lock());
+    UNODB_DETAIL_ASSERT(result.first.has_value());
     ASSERT_TRUE(std::equal(result.first->cbegin(), result.first->cend(),
                            expected.cbegin(), expected.cend()));
   } else {
-    assert(result.has_value());
+    UNODB_DETAIL_ASSERT(result.has_value());
     ASSERT_TRUE(std::equal(result->cbegin(), result->cend(), expected.cbegin(),
                            expected.cend()));
   }

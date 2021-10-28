@@ -94,11 +94,44 @@
 #endif
 
 #ifndef NDEBUG
+#include <execinfo.h>
+#include <unistd.h>
 #include <cstdlib>
 #include <iostream>
-#endif
 
 // LCOV_EXCL_START
+namespace unodb::detail {
+
+[[gnu::cold, gnu::noinline]] inline void print_stacktrace() noexcept {
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  void *stacktrace[1024];
+  const auto frames = backtrace(stacktrace, 1024);
+  // Ideally I'd like to call abi::__cxa_demangle on the symbol names but that
+  // would require parsing the strings which contain more than just symbol names
+  backtrace_symbols_fd(stacktrace, frames, STDERR_FILENO);
+}
+
+[[noreturn, gnu::cold, gnu::noinline]] inline void assert_failure(
+    const char *file, int line, const char *func, const char *condition) {
+  std::cerr << "Assertion \"" << condition << "\" failed at " << file << ':'
+            << line << ", function \"" << func << "\"\n";
+  print_stacktrace();
+  std::abort();
+}
+
+[[noreturn, gnu::cold, gnu::noinline]] inline void crash(const char *file,
+                                                         int line,
+                                                         const char *func) {
+  std::cerr << "Crash requested at " << file << ':' << line << ", function \""
+            << func << "\"\n";
+  print_stacktrace();
+  std::abort();
+}
+
+}  // namespace unodb::detail
+
+#endif
+
 namespace unodb::detail {
 
 [[noreturn]] inline void cannot_happen(
@@ -108,6 +141,7 @@ namespace unodb::detail {
 #ifndef NDEBUG
   std::cerr << "Execution reached an unreachable point at " << file << ':'
             << line << ": " << func << '\n';
+  print_stacktrace();
   std::abort();
 #endif
   __builtin_unreachable();
@@ -118,5 +152,16 @@ namespace unodb::detail {
 
 #define UNODB_DETAIL_CANNOT_HAPPEN() \
   unodb::detail::cannot_happen(__FILE__, __LINE__, __func__)
+
+#define UNODB_DETAIL_CRASH() unodb::detail::crash(__FILE__, __LINE__, __func__)
+
+#ifdef NDEBUG
+#define UNODB_DETAIL_ASSERT(condition) ((void)0)
+#else
+#define UNODB_DETAIL_ASSERT(condition)                                      \
+  UNODB_DETAIL_UNLIKELY(!(condition))                                       \
+  ? unodb::detail::assert_failure(__FILE__, __LINE__, __func__, #condition) \
+  : ((void)0)
+#endif
 
 #endif  // UNODB_DETAIL_GLOBAL_HPP

@@ -4,7 +4,6 @@
 
 #include "global.hpp"  // IWYU pragma: keep
 
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -124,7 +123,7 @@ class db final {
   }
 
   constexpr void decrease_memory_use(std::size_t delta) noexcept {
-    assert(delta <= current_memory_use);
+    UNODB_DETAIL_ASSERT(delta <= current_memory_use);
     current_memory_use -= delta;
   }
 
@@ -136,7 +135,7 @@ class db final {
   constexpr void decrement_leaf_count(std::size_t leaf_size) noexcept {
     decrease_memory_use(leaf_size);
 
-    assert(node_counts[as_i<node_type::LEAF>] > 0);
+    UNODB_DETAIL_ASSERT(node_counts[as_i<node_type::LEAF>] > 0);
     --node_counts[as_i<node_type::LEAF>];
   }
 

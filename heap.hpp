@@ -5,7 +5,6 @@
 #include "global.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <cstdlib>
 
 #if defined(__SANITIZE_ADDRESS__)
@@ -46,7 +45,7 @@ template <typename T>
   void* result;
   int err = posix_memalign(&result, alignment, size);
 
-  assert(err != EINVAL);
+  UNODB_DETAIL_ASSERT(err != EINVAL);
   if (UNODB_DETAIL_UNLIKELY(err == ENOMEM)) throw std::bad_alloc{};
 
   return result;

@@ -4,7 +4,6 @@
 
 #include "global.hpp"
 
-#include <cassert>
 #include <condition_variable>
 #include <mutex>
 
@@ -13,7 +12,7 @@ namespace unodb::detail {
 class [[nodiscard]] thread_sync final {
  public:
   thread_sync() noexcept = default;
-  ~thread_sync() noexcept { assert(is_reset()); }
+  ~thread_sync() noexcept { UNODB_DETAIL_ASSERT(is_reset()); }
 
   [[nodiscard]] bool is_reset() const noexcept {
     std::lock_guard lock{sync_mutex};

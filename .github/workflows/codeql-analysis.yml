@@ -47,8 +47,8 @@ jobs:
       run: |
         sudo add-apt-repository -y 'ppa:mhier/libboost-latest'
         sudo apt-get update
-        sudo apt-get remove -y g++-9
         sudo apt-get install -y boost1.74
+        sudo ln -sf /usr/bin/g++-10 /usr/bin/g++
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL

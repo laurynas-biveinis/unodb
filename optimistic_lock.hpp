@@ -5,7 +5,6 @@
 #include "global.hpp"
 
 #include <atomic>
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #ifdef __x86_64
@@ -195,7 +194,7 @@ class [[nodiscard]] optimistic_lock final {
       // LCOV_EXCL_START
       if (UNODB_DETAIL_UNLIKELY(is_obsolete(current_version)))
         return read_critical_section{};
-      assert(is_write_locked(current_version));
+      UNODB_DETAIL_ASSERT(is_write_locked(current_version));
       spin_wait_loop_body();
       // LCOV_EXCL_STOP
     }
@@ -203,7 +202,7 @@ class [[nodiscard]] optimistic_lock final {
 
 #ifndef NDEBUG
   void check_on_qsbr_dealloc() const noexcept {
-    assert(read_lock_count.load(std::memory_order_acquire) == 0);
+    UNODB_DETAIL_ASSERT(read_lock_count.load(std::memory_order_acquire) == 0);
   }
 
   [[nodiscard]] bool is_obsoleted_by_this_thread() const noexcept {
@@ -230,7 +229,7 @@ class [[nodiscard]] optimistic_lock final {
 
  private:
   [[nodiscard]] bool check(version_type locked_version) const noexcept {
-    assert(read_lock_count.load(std::memory_order_acquire) > 0);
+    UNODB_DETAIL_ASSERT(read_lock_count.load(std::memory_order_acquire) > 0);
 
     std::atomic_thread_fence(std::memory_order_acquire);
     const auto result{locked_version ==
@@ -260,21 +259,21 @@ class [[nodiscard]] optimistic_lock final {
   }
 
   void write_unlock() noexcept {
-    assert(is_write_locked());
+    UNODB_DETAIL_ASSERT(is_write_locked());
 
     version.fetch_add(2, std::memory_order_release);
   }
 
   void write_unlock_and_obsolete() noexcept {
-    assert(is_write_locked());
+    UNODB_DETAIL_ASSERT(is_write_locked());
 
     version.fetch_add(3, std::memory_order_release);
 #ifndef NDEBUG
     obsoleter_thread = std::this_thread::get_id();
 
     const auto current_version{version.load(std::memory_order_acquire)};
-    assert(!is_write_locked(current_version));
-    assert(is_obsolete(current_version));
+    UNODB_DETAIL_ASSERT(!is_write_locked(current_version));
+    UNODB_DETAIL_ASSERT(is_obsolete(current_version));
 #endif
   }
 
@@ -290,7 +289,7 @@ class [[nodiscard]] optimistic_lock final {
 
   [[nodiscard, gnu::const]] static constexpr version_type set_locked_bit(
       version_type version) noexcept {
-    assert(is_free(version));
+    UNODB_DETAIL_ASSERT(is_free(version));
     return version + 2;
   }
 
@@ -319,7 +318,7 @@ class [[nodiscard]] optimistic_lock final {
 #ifndef NDEBUG
     const auto old_value =
         read_lock_count.fetch_sub(1, std::memory_order_release);
-    assert(old_value > 0);
+    UNODB_DETAIL_ASSERT(old_value > 0);
 #endif
   }
 };

@@ -4,7 +4,6 @@
 
 #include "art.hpp"
 
-#include <cassert>
 #include <iostream>
 #include <type_traits>
 #include <utility>
@@ -237,7 +236,7 @@ constexpr void db::increment_inode_count() noexcept {
 template <class INode>
 constexpr void db::decrement_inode_count() noexcept {
   static_assert(inode_defs::is_inode<INode>());
-  assert(node_counts[as_i<INode::type>] > 0);
+  UNODB_DETAIL_ASSERT(node_counts[as_i<INode::type>] > 0);
 
   --node_counts[as_i<INode::type>];
   decrease_memory_use(sizeof(INode));
@@ -248,8 +247,8 @@ constexpr void db::account_growing_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
   ++growing_inode_counts[internal_as_i<NodeType>];
-  assert(growing_inode_counts[internal_as_i<NodeType>] >=
-         node_counts[as_i<NodeType>]);
+  UNODB_DETAIL_ASSERT(growing_inode_counts[internal_as_i<NodeType>] >=
+                      node_counts[as_i<NodeType>]);
 }
 
 template <node_type NodeType>
@@ -257,8 +256,8 @@ constexpr void db::account_shrinking_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
   ++shrinking_inode_counts[internal_as_i<NodeType>];
-  assert(shrinking_inode_counts[internal_as_i<NodeType>] <=
-         growing_inode_counts[internal_as_i<NodeType>]);
+  UNODB_DETAIL_ASSERT(shrinking_inode_counts[internal_as_i<NodeType>] <=
+                      growing_inode_counts[internal_as_i<NodeType>]);
 }
 
 db::get_result db::get(key search_key) const noexcept {
@@ -276,7 +275,7 @@ db::get_result db::get(key search_key) const noexcept {
       return {};
     }
 
-    assert(node_type != node_type::LEAF);
+    UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
 
     auto *const inode{static_cast<::inode *>(node.ptr())};
     const auto &key_prefix{inode->get_key_prefix()};
@@ -321,8 +320,8 @@ bool db::insert(key insert_key, value_view v) {
       return true;
     }
 
-    assert(node_type != node_type::LEAF);
-    assert(depth < detail::art_key::size);
+    UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
+    UNODB_DETAIL_ASSERT(depth < detail::art_key::size);
 
     auto *const inode{static_cast<::inode *>(node->ptr())};
     const auto &key_prefix{inode->get_key_prefix()};
@@ -335,12 +334,12 @@ bool db::insert(key insert_key, value_view v) {
       *node = detail::node_ptr{new_node.release(), node_type::I4};
       account_growing_inode<node_type::I4>();
       ++key_prefix_splits;
-      assert(growing_inode_counts[internal_as_i<node_type::I4>] >
-             key_prefix_splits);
+      UNODB_DETAIL_ASSERT(growing_inode_counts[internal_as_i<node_type::I4>] >
+                          key_prefix_splits);
       return true;
     }
 
-    assert(shared_prefix_len == key_prefix_length);
+    UNODB_DETAIL_ASSERT(shared_prefix_len == key_prefix_length);
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
@@ -375,8 +374,8 @@ bool db::remove(key remove_key) {
 
   while (true) {
     const auto node_type = node->type();
-    assert(node_type != node_type::LEAF);
-    assert(depth < detail::art_key::size);
+    UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
+    UNODB_DETAIL_ASSERT(depth < detail::art_key::size);
 
     auto *const inode{static_cast<::inode *>(node->ptr())};
     const auto &key_prefix{inode->get_key_prefix()};
@@ -384,7 +383,7 @@ bool db::remove(key remove_key) {
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) return false;
 
-    assert(shared_prefix_len == key_prefix_length);
+    UNODB_DETAIL_ASSERT(shared_prefix_len == key_prefix_length);
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
@@ -407,7 +406,7 @@ void db::delete_root_subtree() noexcept {
 
   // It is possible to reset the counter to zero instead of decrementing it for
   // each leaf, but not sure the savings will be significant.
-  assert(node_counts[as_i<node_type::LEAF>] == 0);
+  UNODB_DETAIL_ASSERT(node_counts[as_i<node_type::LEAF>] == 0);
 }
 
 void db::clear() {

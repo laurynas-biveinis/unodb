@@ -5,9 +5,6 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <array>
-#ifndef NDEBUG
-#include <cassert>
-#endif
 #include <cstddef>
 #ifndef NDEBUG
 #include <iostream>
@@ -67,7 +64,7 @@ void do_insert_key(Db &db, unodb::key k, unodb::value_view v) {
     ::unodb::detail::dump_key(std::cerr, k);
     std::cerr << "\nCurrent tree:";
     db.dump(std::cerr);
-    assert(result);
+    UNODB_DETAIL_ASSERT(result);
   }
 #endif
   ::benchmark::DoNotOptimize(result);
@@ -117,7 +114,7 @@ void do_delete_key(Db &db, unodb::key k) {
     ::unodb::detail::dump_key(std::cerr, k);
     std::cerr << "\nTree:";
     db.dump(std::cerr);
-    assert(result);
+    UNODB_DETAIL_ASSERT(result);
   }
 #endif
   ::benchmark::DoNotOptimize(result);
@@ -167,7 +164,7 @@ void do_get_existing_key(const Db &db, unodb::key k) {
     ::unodb::detail::dump_key(std::cerr, k);
     std::cerr << "\nTree:";
     db.dump(std::cerr);
-    assert(false);
+    UNODB_DETAIL_CRASH();
   }
 #endif
   ::benchmark::DoNotOptimize(result);

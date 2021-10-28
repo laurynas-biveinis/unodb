@@ -4,7 +4,6 @@
 
 #include "global.hpp"  // IWYU pragma: keep
 
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -65,7 +64,7 @@ struct [[nodiscard]] basic_art_key final {
 
   [[nodiscard, gnu::pure]] constexpr auto operator[](
       std::size_t index) const noexcept {
-    assert(index < size);
+    UNODB_DETAIL_ASSERT(index < size);
     // cppcheck-suppress objectIndex
     return (reinterpret_cast<const std::byte *>(&key))[index];
   }
@@ -102,24 +101,24 @@ class [[nodiscard]] tree_depth final {
 
   explicit constexpr tree_depth(value_type value_ = 0) noexcept
       : value{value_} {
-    assert(value <= art_key::size);
+    UNODB_DETAIL_ASSERT(value <= art_key::size);
   }
 
   // NOLINTNEXTLINE(google-explicit-constructor)
   [[nodiscard, gnu::pure]] constexpr operator value_type() const noexcept {
-    assert(value <= art_key::size);
+    UNODB_DETAIL_ASSERT(value <= art_key::size);
     return value;
   }
 
   constexpr tree_depth &operator++() noexcept {
     ++value;
-    assert(value <= art_key::size);
+    UNODB_DETAIL_ASSERT(value <= art_key::size);
     return *this;
   }
 
   constexpr void operator+=(value_type delta) noexcept {
     value += delta;
-    assert(value <= art_key::size);
+    UNODB_DETAIL_ASSERT(value <= art_key::size);
   }
 
  private:
@@ -209,7 +208,7 @@ class [[nodiscard]] basic_node_ptr {
     const auto uintptr = reinterpret_cast<std::uintptr_t>(ptr_);
     const auto result =
         uintptr | static_cast<std::underlying_type_t<decltype(tag)>>(tag);
-    assert((result & ptr_bit_mask) == uintptr);
+    UNODB_DETAIL_ASSERT((result & ptr_bit_mask) == uintptr);
     return result;
   }
 

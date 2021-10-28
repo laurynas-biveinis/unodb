@@ -5,7 +5,6 @@
 #include "global.hpp"
 
 #include <array>
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #ifndef NDEBUG
@@ -43,12 +42,12 @@ template <unsigned NodeSize>
 
 [[nodiscard]] constexpr auto next_key(unodb::key k,
                                       std::uint64_t key_zero_bits) noexcept {
-  assert((k & key_zero_bits) == 0);
+  UNODB_DETAIL_ASSERT((k & key_zero_bits) == 0);
 
   const auto result = ((k | key_zero_bits) + 1) & ~key_zero_bits;
 
-  assert(result > k);
-  assert((result & key_zero_bits) == 0);
+  UNODB_DETAIL_ASSERT(result > k);
+  UNODB_DETAIL_ASSERT((result & key_zero_bits) == 0);
 
   return result;
 }
@@ -146,7 +145,8 @@ template <unsigned SmallerNodeSize>
 template <unsigned B, unsigned S, unsigned O>
 [[nodiscard, gnu::const]] constexpr auto to_scaled_base_n_value(
     std::uint64_t i) noexcept {
-  assert(i / (static_cast<std::uint64_t>(B) * B * B * B * B * B * B) < B);
+  UNODB_DETAIL_ASSERT(
+      i / (static_cast<std::uint64_t>(B) * B * B * B * B * B * B) < B);
   return (i % B * S + O) | (i / B % B * S + O) << 8U |
          ((i / (static_cast<std::uint64_t>(B) * B) % B * S + O) << 16U) |
          ((i / (static_cast<std::uint64_t>(B) * B * B) % B * S + O) << 24U) |
@@ -164,7 +164,8 @@ template <unsigned B, unsigned S, unsigned O>
 template <unsigned B>
 [[nodiscard, gnu::const]] constexpr auto to_base_n_value(
     std::uint64_t i) noexcept {
-  assert(i / (static_cast<std::uint64_t>(B) * B * B * B * B * B * B) < B);
+  UNODB_DETAIL_ASSERT(
+      i / (static_cast<std::uint64_t>(B) * B * B * B * B * B * B) < B);
   return to_scaled_base_n_value<B, 1, 0>(i);
 }
 
@@ -185,7 +186,7 @@ template <unsigned NodeSize>
 number_to_full_leaf_over_minimal_tree_key(std::uint64_t i) noexcept {
   constexpr auto min = node_capacity_to_minimum_size<NodeSize>();
   constexpr auto delta = node_capacity_over_minimum<NodeSize>();
-  assert(i / (delta * min * min * min * min * min * min) < min);
+  UNODB_DETAIL_ASSERT(i / (delta * min * min * min * min * min * min) < min);
   return ((i % delta) + min) |
          number_to_minimal_node_size_tree_key<NodeSize>(i / delta) << 8U;
 }
@@ -194,7 +195,7 @@ template <unsigned NodeSize>
 [[nodiscard, gnu::const]] constexpr auto
 number_to_minimal_leaf_over_smaller_node_tree(std::uint64_t i) noexcept {
   constexpr auto N = static_cast<std::uint64_t>(NodeSize);
-  assert(i / (N * N * N * N * N * N) < N);
+  UNODB_DETAIL_ASSERT(i / (N * N * N * N * N * N) < N);
   return N | number_to_full_node_size_tree_key<N>(i) << 8U;
 }
 
@@ -337,7 +338,7 @@ class [[nodiscard]] growing_tree_node_stats final {
   }
 
   constexpr void publish(::benchmark::State &state) const noexcept {
-    assert(get_called);
+    UNODB_DETAIL_ASSERT(get_called);
     state.counters["L"] = static_cast<double>(
         stats.node_counts[::unodb::as_i<unodb::node_type::LEAF>]);
     state.counters["4"] = static_cast<double>(
@@ -394,12 +395,12 @@ void assert_dominating_inode_tree(
   // including the root.
   while (node_type_i < as_i<DominatingINodeType>) {
     smaller_inode_count += node_counts[node_type_i];
-    assert(smaller_inode_count <= 8);
+    UNODB_DETAIL_ASSERT(smaller_inode_count <= 8);
     ++node_type_i;
   }
   ++node_type_i;
   while (node_type_i <= as_i<node_type::I256>) {
-    assert(node_counts[node_type_i] == 0);
+    UNODB_DETAIL_ASSERT(node_counts[node_type_i] == 0);
     ++node_type_i;
   }
 #endif
@@ -425,7 +426,7 @@ void assert_growing_nodes(
   if (expected_number_of_nodes != actual_number_of_nodes) {
     std::cerr << "Difference between inserts: " << expected_number_of_nodes
               << ", N" << SmallerNodeSize << "^: " << actual_number_of_nodes;
-    assert(expected_number_of_nodes == actual_number_of_nodes);
+    UNODB_DETAIL_ASSERT(expected_number_of_nodes == actual_number_of_nodes);
   }
 #endif
 }
@@ -440,7 +441,7 @@ void assert_shrinking_nodes(
       node_size_to_larger_node_type<SmallerNodeSize>();
   const auto actual_number_of_nodes =
       test_db.template get_shrinking_inode_count<larger_node_type>();
-  assert(expected_number_of_nodes == actual_number_of_nodes);
+  UNODB_DETAIL_ASSERT(expected_number_of_nodes == actual_number_of_nodes);
   assert_dominating_inode_size_tree<Db, SmallerNodeSize>(test_db);
 #endif
 }
@@ -460,7 +461,7 @@ class [[nodiscard]] tree_shape_snapshot final {
   constexpr void assert_internal_levels_same() const noexcept {
 #ifndef NDEBUG
     const tree_stats<Db> current_stats{db};
-    assert(stats.internal_levels_equal(current_stats));
+    UNODB_DETAIL_ASSERT(stats.internal_levels_equal(current_stats));
 #endif
   }
 
@@ -527,7 +528,7 @@ template <class Db, typename NumberToKeyFn>
 template <class Db, unsigned NodeSize, typename NumberToKeyFn>
 [[nodiscard]] auto insert_n_keys_to_empty_tree(Db &db, unsigned n,
                                                NumberToKeyFn number_to_key_fn) {
-  assert(db.empty());
+  UNODB_DETAIL_ASSERT(db.empty());
   const auto result = insert_n_keys(db, n, number_to_key_fn);
   assert_dominating_inode_size_tree<Db, NodeSize>(db);
   return result;
@@ -589,8 +590,8 @@ template <class Db, unsigned SmallerNodeSize>
   for (auto node_type_i = as_i<node_type::I4>;
        node_type_i < as_i<node_size_to_node_type<SmallerNodeSize>()>;
        ++node_type_i) {
-    assert(initial_growing_inode_counts[node_type_i] ==
-           final_growing_inode_counts[node_type_i]);
+    UNODB_DETAIL_ASSERT(initial_growing_inode_counts[node_type_i] ==
+                        final_growing_inode_counts[node_type_i]);
   }
 #endif
 
@@ -635,7 +636,7 @@ void full_node_scan_benchmark(::benchmark::State &state) {
     for (auto _ : state) {
       unodb::key k = 0;
       for (std::uint64_t j = 0; j < key_count; ++j) {
-        assert(k <= key_limit);
+        UNODB_DETAIL_ASSERT(k <= key_limit);
         get_existing_key(test_db, k);
         k = next_key(k, node_size_to_key_zero_bits<NodeSize>());
       }
@@ -979,9 +980,10 @@ void minimal_tree_random_gets(::benchmark::State &state) {
   Db test_db;
   const auto key_limit UNODB_DETAIL_USED_IN_DEBUG =
       detail::make_minimal_node_size_tree<Db, NodeSize>(test_db, node_count);
-  assert(detail::number_to_minimal_node_size_tree_key<NodeSize>(
-             node_count * detail::node_capacity_to_minimum_size<NodeSize>() -
-             1) == key_limit);
+  UNODB_DETAIL_ASSERT(
+      detail::number_to_minimal_node_size_tree_key<NodeSize>(
+          node_count * detail::node_capacity_to_minimum_size<NodeSize>() - 1) ==
+      key_limit);
   const auto tree_size = test_db.get_current_memory_use();
   batched_prng random_key_positions{
       node_count * detail::node_capacity_to_minimum_size<16>() - 1};

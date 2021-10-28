@@ -3,7 +3,6 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <algorithm>
-#include <cassert>
 #include <cstdint>
 #include <random>
 #include <vector>
@@ -202,18 +201,20 @@ void unpredictable_leaf_key_prefix_split(benchmark::State &state) {
     const auto first_key = static_cast<std::uint64_t>(top_byte) << 56U;
 
     // Quadratic but debug build only
-    assert(std::find(prepare_keys.cbegin(), prepare_keys.cend(), first_key) ==
-           prepare_keys.cend());
-    assert(std::find(benchmark_keys.cbegin(), benchmark_keys.cend(),
-                     first_key) == benchmark_keys.cend());
+    UNODB_DETAIL_ASSERT(std::find(prepare_keys.cbegin(), prepare_keys.cend(),
+                                  first_key) == prepare_keys.cend());
+    UNODB_DETAIL_ASSERT(std::find(benchmark_keys.cbegin(),
+                                  benchmark_keys.cend(),
+                                  first_key) == benchmark_keys.cend());
     prepare_keys.push_back(first_key);
 
     const auto second_key = first_key | (1ULL << (top_byte % stride_len * 8U));
     // Quadratic but debug build only
-    assert(std::find(prepare_keys.cbegin(), prepare_keys.cend(), second_key) ==
-           prepare_keys.cend());
-    assert(std::find(benchmark_keys.cbegin(), benchmark_keys.cend(),
-                     second_key) == benchmark_keys.cend());
+    UNODB_DETAIL_ASSERT(std::find(prepare_keys.cbegin(), prepare_keys.cend(),
+                                  second_key) == prepare_keys.cend());
+    UNODB_DETAIL_ASSERT(std::find(benchmark_keys.cbegin(),
+                                  benchmark_keys.cend(),
+                                  second_key) == benchmark_keys.cend());
     benchmark_keys.push_back(second_key);
   }
 

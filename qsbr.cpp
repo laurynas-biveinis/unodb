@@ -2,9 +2,6 @@
 
 #include "global.hpp"
 
-#ifndef NDEBUG
-#include <algorithm>
-#endif
 #include <atomic>
 #ifdef NDEBUG
 #include <cstdlib>
@@ -12,7 +9,6 @@
 #include <exception>
 #include <iostream>
 #include <thread>
-#include <utility>
 
 #include "qsbr.hpp"
 
@@ -73,23 +69,23 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
     thread_count_changed_in_current_epoch = true;
 #endif
 
-    // TODO(laurynas): return iterator to save the find call below
     // A thread being unregistered must be quiescent
-    requests_to_deallocate = quiescent_state_locked(thread_id);
+    const auto epoch_changed =
+        remove_thread_from_previous_epoch_locked(requests_to_deallocate);
 
-    const auto thread_state = threads.find(thread_id);
-    UNODB_DETAIL_ASSERT(thread_state != threads.end());
-    if (UNODB_DETAIL_UNLIKELY(thread_state->second == 0)) {
+    const auto thread = threads.find(thread_id);
+    UNODB_DETAIL_ASSERT(thread != threads.end());
+    threads.erase(thread);
+    --reserved_thread_capacity;
+    if (epoch_changed) {
       // The thread being unregistered become quiescent and that allowed an
       // epoch change, which marked this thread as not-quiescent again, and
       // included it in threads_in_previous_epoch
       --threads_in_previous_epoch;
     }
-    threads.erase(thread_state);
-    --reserved_thread_capacity;
 #ifndef NDEBUG
     requests_to_deallocate.update_single_thread_mode();
-    single_threaded_mode_start_epoch = get_current_epoch_locked();
+    single_threaded_mode_start_epoch = get_current_epoch();
 #endif
 
     if (UNODB_DETAIL_UNLIKELY(threads.empty())) {
@@ -136,8 +132,8 @@ void qsbr::dump(std::ostream &out) const {
   out << "Current interval pending deallocation bytes: "
       << current_interval_total_dealloc_size.load(std::memory_order_relaxed);
   out << "Number of tracked threads: " << threads.size() << '\n';
-  for (const auto &[thread_key, quiescent] : threads) {
-    out << "Thread key: " << thread_key << ", quiescent: " << quiescent << '\n';
+  for (const auto &thread : threads) {
+    out << "Thread: " << thread << '\n';
   }
   out << "Number of threads in the previous epoch = "
       << threads_in_previous_epoch << '\n';
@@ -168,7 +164,7 @@ void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
 
   try {
     const auto UNODB_DETAIL_USED_IN_DEBUG[itr, insert_ok] =
-        threads.insert({thread_id, 0});
+        threads.insert(thread_id);
     UNODB_DETAIL_ASSERT(insert_ok);
     // LCOV_EXCL_START
   } catch (const std::exception &e) {
@@ -194,33 +190,36 @@ void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
   ++threads_in_previous_epoch;
 }
 
-qsbr::deferred_requests qsbr::quiescent_state_locked(
-    std::thread::id thread_id) noexcept {
+bool qsbr::remove_thread_from_previous_epoch() noexcept {
+  deferred_requests to_deallocate;
+  bool epoch_changed = false;
+  {
+    std::lock_guard guard{qsbr_rwlock};
+
+    epoch_changed = remove_thread_from_previous_epoch_locked(to_deallocate);
+  }
+  return epoch_changed;
+}
+
+bool qsbr::remove_thread_from_previous_epoch_locked(
+    qsbr::deferred_requests &requests) noexcept {
   assert_invariants();
 
-  auto thread_state = threads.find(thread_id);
-  UNODB_DETAIL_ASSERT(thread_state != threads.end());
-
-  ++thread_state->second;
-  if (thread_state->second > 1) {
-    assert_invariants();
-    return make_deferred_requests();
-  }
-
+  UNODB_DETAIL_ASSERT(threads_in_previous_epoch > 0);
   --threads_in_previous_epoch;
 
-  deferred_requests result{(threads_in_previous_epoch == 0)
-                               ? change_epoch()
-                               : make_deferred_requests()};
+  if (threads_in_previous_epoch > 0) return false;
 
-  assert_invariants();
+  requests = change_epoch();
 
-  return result;
+  return true;
 }
 
 qsbr::deferred_requests qsbr::change_epoch() noexcept {
-  ++current_epoch;
-
+  // Relaxed atomic with non-atomic increment is fine, as this is in a mutex
+  // critical section.
+  current_epoch.store(current_epoch.load(std::memory_order_relaxed) + 1,
+                      std::memory_order_relaxed);
   {
     // TODO(laurynas): consider saving the update values and actually updating
     // the stats after qsbr_rwlock is released
@@ -228,11 +227,6 @@ qsbr::deferred_requests qsbr::change_epoch() noexcept {
     deallocation_size_stats(
         current_interval_total_dealloc_size.load(std::memory_order_relaxed));
     epoch_callback_stats(previous_interval_deallocation_requests.size());
-
-    for (auto __attribute__((unused)) & [ thread_key, quiescent ] : threads) {
-      quiescent_states_per_thread_between_epoch_change_stats(quiescent);
-      quiescent = 0;
-    }
   }
 
   deferred_requests result{make_deferred_requests()};
@@ -277,23 +271,8 @@ void qsbr::assert_invariants() const noexcept {
   }
 
   if (single_thread_mode_locked() &&
-      get_current_epoch_locked() > single_threaded_mode_start_epoch)
+      get_current_epoch() > single_threaded_mode_start_epoch)
     UNODB_DETAIL_ASSERT(previous_interval_deallocation_requests.empty());
-
-  // TODO(laurynas): can this be simplified after the thread registration
-  // quiescent state fix?
-  if (!thread_count_changed_in_current_epoch &&
-      !thread_count_changed_in_previous_epoch) {
-    const auto actual_threads_in_previous_epoch = std::count_if(
-        threads.cbegin(), threads.cend(),
-        [](decltype(threads)::value_type value) { return value.second == 0; });
-    if (static_cast<std::size_t>(actual_threads_in_previous_epoch) !=
-        threads_in_previous_epoch) {
-      UNODB_DETAIL_ASSERT(
-          static_cast<std::size_t>(actual_threads_in_previous_epoch) ==
-          threads_in_previous_epoch);
-    }
-  }
 #endif
 }
 

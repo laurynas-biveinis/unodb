@@ -29,18 +29,18 @@ namespace unodb {
 #ifndef NDEBUG
 
 void qsbr_per_thread::register_active_ptr(const void *ptr) {
-  assert(ptr != nullptr);
-  assert(!is_paused());
+  UNODB_DETAIL_ASSERT(ptr != nullptr);
+  UNODB_DETAIL_ASSERT(!is_paused());
 
   active_ptrs.insert(ptr);
 }
 
 void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
-  assert(ptr != nullptr);
-  assert(!is_paused());
+  UNODB_DETAIL_ASSERT(ptr != nullptr);
+  UNODB_DETAIL_ASSERT(!is_paused());
 
   const auto itr = active_ptrs.find(ptr);
-  assert(itr != active_ptrs.end());
+  UNODB_DETAIL_ASSERT(itr != active_ptrs.end());
   active_ptrs.erase(itr);
 }
 
@@ -78,7 +78,7 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
     requests_to_deallocate = quiescent_state_locked(thread_id);
 
     const auto thread_state = threads.find(thread_id);
-    assert(thread_state != threads.end());
+    UNODB_DETAIL_ASSERT(thread_state != threads.end());
     if (UNODB_DETAIL_UNLIKELY(thread_state->second == 0)) {
       // The thread being unregistered become quiescent and that allowed an
       // epoch change, which marked this thread as not-quiescent again, and
@@ -144,7 +144,7 @@ void qsbr::prepare_new_thread_locked() {
   assert_invariants();
 
   ++reserved_thread_capacity;
-  assert(reserved_thread_capacity > threads.size());
+  UNODB_DETAIL_ASSERT(reserved_thread_capacity > threads.size());
 
   threads.reserve(reserved_thread_capacity);
 }
@@ -160,13 +160,13 @@ void qsbr::register_prepared_thread_locked(std::thread::id thread_id) noexcept {
 #ifndef NDEBUG
   thread_count_changed_in_current_epoch = true;
   assert_invariants();
-  assert(reserved_thread_capacity > threads.size());
+  UNODB_DETAIL_ASSERT(reserved_thread_capacity > threads.size());
 #endif
 
   try {
     const auto UNODB_DETAIL_USED_IN_DEBUG[itr, insert_ok] =
-        threads.insert({thread_id, false});
-    assert(insert_ok);
+        threads.insert({thread_id, 0});
+    UNODB_DETAIL_ASSERT(insert_ok);
     // LCOV_EXCL_START
   } catch (const std::exception &e) {
     std::cerr
@@ -196,7 +196,7 @@ qsbr::deferred_requests qsbr::quiescent_state_locked(
   assert_invariants();
 
   auto thread_state = threads.find(thread_id);
-  assert(thread_state != threads.end());
+  UNODB_DETAIL_ASSERT(thread_state != threads.end());
 
   ++thread_state->second;
   if (thread_state->second > 1) {
@@ -256,21 +256,21 @@ qsbr::deferred_requests qsbr::change_epoch() noexcept {
 
 void qsbr::assert_invariants() const noexcept {
 #ifndef NDEBUG
-  assert(reserved_thread_capacity >= threads.size());
+  UNODB_DETAIL_ASSERT(reserved_thread_capacity >= threads.size());
 
   if (previous_interval_deallocation_requests.empty()) {
-    assert(previous_interval_total_dealloc_size.load(
-               std::memory_order_relaxed) == 0);
+    UNODB_DETAIL_ASSERT(previous_interval_total_dealloc_size.load(
+                            std::memory_order_relaxed) == 0);
   }
 
   if (current_interval_deallocation_requests.empty()) {
-    assert(current_interval_total_dealloc_size.load(
-               std::memory_order_relaxed) == 0);
+    UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size.load(
+                            std::memory_order_relaxed) == 0);
   }
 
   if (single_thread_mode_locked() &&
       get_current_epoch() > single_threaded_mode_start_epoch)
-    assert(previous_interval_deallocation_requests.empty());
+    UNODB_DETAIL_ASSERT(previous_interval_deallocation_requests.empty());
 
   // TODO(laurynas): can this be simplified after the thread registration
   // quiescent state fix?
@@ -281,8 +281,9 @@ void qsbr::assert_invariants() const noexcept {
         [](decltype(threads)::value_type value) { return value.second == 0; });
     if (static_cast<std::size_t>(actual_threads_in_previous_epoch) !=
         threads_in_previous_epoch) {
-      assert(static_cast<std::size_t>(actual_threads_in_previous_epoch) ==
-             threads_in_previous_epoch);
+      UNODB_DETAIL_ASSERT(
+          static_cast<std::size_t>(actual_threads_in_previous_epoch) ==
+          threads_in_previous_epoch);
     }
   }
 #endif

@@ -24,8 +24,8 @@ struct [[nodiscard]] olc_node_header {
   }
 
 #ifndef NDEBUG
-  static void check_on_qsbr_dealloc(const void *ptr) noexcept {
-    static_cast<const olc_node_header *>(ptr)->m_lock.check_on_qsbr_dealloc();
+  static void check_on_dealloc(const void *ptr) noexcept {
+    static_cast<const olc_node_header *>(ptr)->m_lock.check_on_dealloc();
   }
 #endif
 
@@ -47,11 +47,10 @@ class db_leaf_qsbr_deleter {
   void operator()(leaf_type *to_delete) const noexcept {
     const auto leaf_size = to_delete->get_size();
 
-    qsbr::instance().on_next_epoch_deallocate(
-        to_delete, leaf_size
+    qsbr::instance().on_next_epoch_deallocate(to_delete, leaf_size
 #ifndef NDEBUG
-        ,
-        olc_node_header::check_on_qsbr_dealloc
+                                              ,
+                                              olc_node_header::check_on_dealloc
 #endif
     );
 
@@ -82,11 +81,10 @@ class db_inode_qsbr_deleter : public db_inode_qsbr_deleter_parent<INode> {
   void operator()(INode *inode_ptr) noexcept {
     static_assert(std::is_trivially_destructible_v<INode>);
 
-    qsbr::instance().on_next_epoch_deallocate(
-        inode_ptr, sizeof(INode)
+    qsbr::instance().on_next_epoch_deallocate(inode_ptr, sizeof(INode)
 #ifndef NDEBUG
-                       ,
-        olc_node_header::check_on_qsbr_dealloc
+                                                             ,
+                                              olc_node_header::check_on_dealloc
 #endif
     );
 

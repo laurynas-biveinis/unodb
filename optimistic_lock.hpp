@@ -201,7 +201,7 @@ class [[nodiscard]] optimistic_lock final {
   }
 
 #ifndef NDEBUG
-  void check_on_qsbr_dealloc() const noexcept {
+  void check_on_dealloc() const noexcept {
     UNODB_DETAIL_ASSERT(read_lock_count.load(std::memory_order_acquire) == 0);
   }
 

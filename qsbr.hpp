@@ -12,7 +12,7 @@
 #include <functional>
 #endif
 #include <iostream>
-#include <mutex>  // IWYU pragma: keep
+#include <shared_mutex>
 #include <thread>
 #include <type_traits>
 #include <unordered_map>
@@ -139,7 +139,7 @@ class qsbr final {
 
     bool deallocate_immediately = false;
     {
-      std::lock_guard guard{qsbr_mutex};
+      std::lock_guard guard{qsbr_rwlock};
       if (UNODB_DETAIL_UNLIKELY(single_thread_mode_locked())) {
         deallocate_immediately = true;
       } else {
@@ -169,7 +169,7 @@ class qsbr final {
     deferred_requests to_deallocate;
     {
       // TODO(laurynas): can call with locked mutex too
-      std::lock_guard guard{qsbr_mutex};
+      std::lock_guard guard{qsbr_rwlock};
 
       to_deallocate = quiescent_state_locked(thread_id);
     }
@@ -187,63 +187,71 @@ class qsbr final {
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &out) const;
 
   [[nodiscard]] auto get_epoch_callback_count_max() const noexcept {
-    // TODO(laurynas): std::max against current_interval_callbacks.size(), but
-    // that would require mutex
+    std::shared_lock guard{qsbr_rwlock};
     return boost_acc::max(epoch_callback_stats);
   }
 
   [[nodiscard]] auto get_epoch_callback_count_variance() const noexcept {
+    std::shared_lock guard{qsbr_rwlock};
     return boost_acc::variance(epoch_callback_stats);
   }
 
   [[nodiscard]] auto
   get_mean_quiescent_states_per_thread_between_epoch_changes() const noexcept {
+    std::shared_lock guard{qsbr_rwlock};
     return boost_acc::mean(
         quiescent_states_per_thread_between_epoch_change_stats);
   }
 
-  [[nodiscard]] constexpr std::uint64_t get_current_epoch() const noexcept {
-    return current_epoch;
+  [[nodiscard]] std::uint64_t get_current_epoch() const noexcept {
+    std::shared_lock guard{qsbr_rwlock};
+    return get_current_epoch_locked();
   }
 
   [[nodiscard]] auto get_max_backlog_bytes() const noexcept {
+    std::shared_lock guard{qsbr_rwlock};
     return boost_acc::max(deallocation_size_stats);
   }
 
   [[nodiscard]] auto get_mean_backlog_bytes() const noexcept {
+    std::shared_lock guard{qsbr_rwlock};
     return boost_acc::mean(deallocation_size_stats);
   }
 
   // Made public for tests and asserts
   [[nodiscard]] auto single_thread_mode() const noexcept {
-    std::lock_guard guard{qsbr_mutex};
+    std::shared_lock guard{qsbr_rwlock};
     return single_thread_mode_locked();
   }
 
   [[nodiscard]] auto number_of_threads() const noexcept {
-    std::lock_guard guard{qsbr_mutex};
+    std::shared_lock guard{qsbr_rwlock};
     return threads.size();
   }
 
   [[nodiscard]] auto previous_interval_size() const noexcept {
+    std::shared_lock guard{qsbr_rwlock};
     return previous_interval_deallocation_requests.size();
   }
 
   [[nodiscard]] auto current_interval_size() const noexcept {
+    std::shared_lock guard{qsbr_rwlock};
     return current_interval_deallocation_requests.size();
   }
 
   [[nodiscard]] auto get_reserved_thread_capacity() const noexcept {
+    std::shared_lock guard{qsbr_rwlock};
     return reserved_thread_capacity;
   }
 
   [[nodiscard]] auto get_threads_in_previous_epoch() const noexcept {
+    std::shared_lock guard{qsbr_rwlock};
     return threads_in_previous_epoch;
   }
 
   void assert_idle() const noexcept {
 #ifndef NDEBUG
-    std::lock_guard guard{qsbr_mutex};
+    std::shared_lock guard{qsbr_rwlock};
     assert_idle_locked();
 #endif
   }
@@ -277,7 +285,8 @@ class qsbr final {
 
 #ifndef NDEBUG
     dealloc_debug_callback dealloc_callback;
-    const std::uint64_t request_epoch{qsbr::instance().get_current_epoch()};
+    const std::uint64_t request_epoch{
+        qsbr::instance().get_current_epoch_locked()};
 #endif
 
     explicit deallocation_request(void *pointer_
@@ -369,6 +378,10 @@ class qsbr final {
     return threads.size() < 2;
   }
 
+  [[nodiscard]] std::uint64_t get_current_epoch_locked() const noexcept {
+    return current_epoch;
+  }
+
   void prepare_new_thread_locked();
   void register_prepared_thread_locked(std::thread::id thread_id) noexcept;
 
@@ -382,7 +395,7 @@ class qsbr final {
   [[nodiscard]] deferred_requests make_deferred_requests() const noexcept {
     return deferred_requests{
 #ifndef NDEBUG
-        get_current_epoch(), single_thread_mode_locked()
+        get_current_epoch_locked(), single_thread_mode_locked()
 #endif
     };
   }
@@ -397,7 +410,7 @@ class qsbr final {
   std::size_t reserved_thread_capacity{1};
 
   // TODO(laurynas): absolute scalability bottleneck
-  mutable std::mutex qsbr_mutex;
+  mutable std::shared_mutex qsbr_rwlock;
 
   std::size_t threads_in_previous_epoch{0};
 

@@ -837,6 +837,35 @@ TEST_F(QSBR, ResetStats) {
           .get_mean_quiescent_states_per_thread_between_epoch_changes()));
 }
 
+TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
+  unodb::qsbr_thread second_thread{[] {
+    unodb::current_thread_reclamator().quiescent_state();
+
+    thread_sync_1.notify();  // 1 -> & v
+
+    ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 0);
+    ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 0);
+    ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 0);
+    ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(), 0);
+    volatile auto force_load [[maybe_unused]] =
+        unodb::qsbr::instance()
+            .get_mean_quiescent_states_per_thread_between_epoch_changes();
+    ASSERT_EQ(unodb::qsbr::instance().previous_interval_size(), 0);
+    ASSERT_EQ(unodb::qsbr::instance().current_interval_size(), 0);
+    ASSERT_EQ(unodb::qsbr::instance().get_reserved_thread_capacity(), 2);
+    ASSERT_LE(unodb::qsbr::instance().get_threads_in_previous_epoch(), 2);
+    volatile auto force_load2 [[maybe_unused]] =
+        unodb::qsbr::instance().get_current_epoch();
+  }};
+
+  thread_sync_1.wait();  // 1 <-
+
+  unodb::current_thread_reclamator().quiescent_state();
+  unodb::current_thread_reclamator().quiescent_state();
+
+  second_thread.join();
+}
+
 // TODO(laurynas): stat tests
 // TODO(laurynas): quiescent_state_on_scope_exit tests?
 // TODO(laurynas): qsbr::dump test

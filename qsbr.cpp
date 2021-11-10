@@ -47,17 +47,17 @@ void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
 #endif  // !NDEBUG
 
 void qsbr::prepare_new_thread() {
-  std::lock_guard guard{qsbr_mutex};
+  std::lock_guard guard{qsbr_rwlock};
   prepare_new_thread_locked();
 }
 
 void qsbr::register_prepared_thread(std::thread::id thread_id) noexcept {
-  std::lock_guard guard{qsbr_mutex};
+  std::lock_guard guard{qsbr_rwlock};
   register_prepared_thread_locked(thread_id);
 }
 
 void qsbr::register_new_thread(std::thread::id thread_id) {
-  std::lock_guard guard{qsbr_mutex};
+  std::lock_guard guard{qsbr_rwlock};
   // TODO(laurynas): both of these calls share the critical section, simpler
   // implementation possible
   prepare_new_thread_locked();
@@ -67,7 +67,7 @@ void qsbr::register_new_thread(std::thread::id thread_id) {
 void qsbr::unregister_thread(std::thread::id thread_id) {
   deferred_requests requests_to_deallocate;
   {
-    std::lock_guard guard{qsbr_mutex};
+    std::lock_guard guard{qsbr_rwlock};
 
 #ifndef NDEBUG
     thread_count_changed_in_current_epoch = true;
@@ -89,7 +89,7 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
     --reserved_thread_capacity;
 #ifndef NDEBUG
     requests_to_deallocate.update_single_thread_mode();
-    single_threaded_mode_start_epoch = get_current_epoch();
+    single_threaded_mode_start_epoch = get_current_epoch_locked();
 #endif
 
     if (UNODB_DETAIL_UNLIKELY(threads.empty())) {
@@ -109,7 +109,7 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
 }
 
 void qsbr::reset_stats() noexcept {
-  std::lock_guard guard{qsbr_mutex};
+  std::lock_guard guard{qsbr_rwlock};
 
   assert_idle_locked();
   assert_invariants();
@@ -269,7 +269,7 @@ void qsbr::assert_invariants() const noexcept {
   }
 
   if (single_thread_mode_locked() &&
-      get_current_epoch() > single_threaded_mode_start_epoch)
+      get_current_epoch_locked() > single_threaded_mode_start_epoch)
     UNODB_DETAIL_ASSERT(previous_interval_deallocation_requests.empty());
 
   // TODO(laurynas): can this be simplified after the thread registration

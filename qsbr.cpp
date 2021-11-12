@@ -109,16 +109,19 @@ void qsbr::unregister_thread(std::thread::id thread_id) {
 }
 
 void qsbr::reset_stats() noexcept {
-  std::lock_guard guard{qsbr_rwlock};
-
-  assert_idle_locked();
-  assert_invariants();
+#ifndef NDEBUG
+  {
+    // Stats can only be reset on idle QSBR - best-effort check due to different
+    // locks required
+    std::lock_guard guard{qsbr_rwlock};
+    assert_idle_locked();
+  }
+#endif
+  std::lock_guard guard{stats_rwlock};
 
   deallocation_size_stats = {};
   epoch_callback_stats = {};
   quiescent_states_per_thread_between_epoch_change_stats = {};
-
-  assert_invariants();
 }
 
 void qsbr::dump(std::ostream &out) const {
@@ -218,9 +221,19 @@ qsbr::deferred_requests qsbr::quiescent_state_locked(
 qsbr::deferred_requests qsbr::change_epoch() noexcept {
   ++current_epoch;
 
-  deallocation_size_stats(
-      current_interval_total_dealloc_size.load(std::memory_order_relaxed));
-  epoch_callback_stats(previous_interval_deallocation_requests.size());
+  {
+    // TODO(laurynas): consider saving the update values and actually updating
+    // the stats after qsbr_rwlock is released
+    std::lock_guard guard{stats_rwlock};
+    deallocation_size_stats(
+        current_interval_total_dealloc_size.load(std::memory_order_relaxed));
+    epoch_callback_stats(previous_interval_deallocation_requests.size());
+
+    for (auto __attribute__((unused)) & [ thread_key, quiescent ] : threads) {
+      quiescent_states_per_thread_between_epoch_change_stats(quiescent);
+      quiescent = 0;
+    }
+  }
 
   deferred_requests result{make_deferred_requests()};
   result.requests[0] = std::move(previous_interval_deallocation_requests);
@@ -244,11 +257,6 @@ qsbr::deferred_requests qsbr::change_epoch() noexcept {
       thread_count_changed_in_current_epoch;
   thread_count_changed_in_current_epoch = false;
 #endif
-
-  for (auto __attribute__((unused)) & [ thread_key, quiescent ] : threads) {
-    quiescent_states_per_thread_between_epoch_change_stats(quiescent);
-    quiescent = 0;
-  }
 
   threads_in_previous_epoch = threads.size();
   return result;

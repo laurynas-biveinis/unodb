@@ -400,6 +400,8 @@ class qsbr final {
     };
   }
 
+  std::uint64_t current_epoch{0};
+
   std::vector<deallocation_request> previous_interval_deallocation_requests;
   std::vector<deallocation_request> current_interval_deallocation_requests;
 
@@ -437,8 +439,6 @@ class qsbr final {
   boost_acc::accumulator_set<std::uint64_t,
                              boost_acc::stats<boost_acc::tag::mean>>
       quiescent_states_per_thread_between_epoch_change_stats;
-
-  std::uint64_t current_epoch{0};
 };
 
 inline qsbr_per_thread::qsbr_per_thread() noexcept {

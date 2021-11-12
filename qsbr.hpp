@@ -187,18 +187,18 @@ class qsbr final {
   [[gnu::cold, gnu::noinline]] void dump(std::ostream &out) const;
 
   [[nodiscard]] auto get_epoch_callback_count_max() const noexcept {
-    std::shared_lock guard{qsbr_rwlock};
+    std::shared_lock guard{stats_rwlock};
     return boost_acc::max(epoch_callback_stats);
   }
 
   [[nodiscard]] auto get_epoch_callback_count_variance() const noexcept {
-    std::shared_lock guard{qsbr_rwlock};
+    std::shared_lock guard{stats_rwlock};
     return boost_acc::variance(epoch_callback_stats);
   }
 
   [[nodiscard]] auto
   get_mean_quiescent_states_per_thread_between_epoch_changes() const noexcept {
-    std::shared_lock guard{qsbr_rwlock};
+    std::shared_lock guard{stats_rwlock};
     return boost_acc::mean(
         quiescent_states_per_thread_between_epoch_change_stats);
   }
@@ -209,12 +209,12 @@ class qsbr final {
   }
 
   [[nodiscard]] auto get_max_backlog_bytes() const noexcept {
-    std::shared_lock guard{qsbr_rwlock};
+    std::shared_lock guard{stats_rwlock};
     return boost_acc::max(deallocation_size_stats);
   }
 
   [[nodiscard]] auto get_mean_backlog_bytes() const noexcept {
-    std::shared_lock guard{qsbr_rwlock};
+    std::shared_lock guard{stats_rwlock};
     return boost_acc::mean(deallocation_size_stats);
   }
 
@@ -259,6 +259,7 @@ class qsbr final {
  private:
   void assert_idle_locked() const noexcept {
 #ifndef NDEBUG
+    assert_invariants();
     // Copy-paste-tweak with expect_idle_qsbr, but not clear how to fix this:
     // here we are asserting over internals, over there we are using Google Test
     // EXPECT macros with the public interface.
@@ -400,42 +401,60 @@ class qsbr final {
     };
   }
 
-  std::uint64_t current_epoch{0};
-
-  std::vector<deallocation_request> previous_interval_deallocation_requests;
-  std::vector<deallocation_request> current_interval_deallocation_requests;
-
-  // All the registered threads. The value indicates how many times a thread was
-  // marked quiescent in the current epoch
-  std::unordered_map<std::thread::id, std::uint64_t> threads;
-
-  std::size_t reserved_thread_capacity{1};
-
   // TODO(laurynas): absolute scalability bottleneck
   mutable std::shared_mutex qsbr_rwlock;
 
+  // Protected by qsbr_rwlock
+  std::uint64_t current_epoch{0};
+
+  // Protected by qsbr_rwlock
+  std::vector<deallocation_request> previous_interval_deallocation_requests;
+
+  // Protected by qsbr_rwlock
+  std::vector<deallocation_request> current_interval_deallocation_requests;
+
+  // All the registered threads. The value indicates how many times a thread was
+  // marked quiescent in the current epoch. Protected by qsbr_rwlock.
+  std::unordered_map<std::thread::id, std::uint64_t> threads;
+
+  // Protected by qsbr_rwlock
+  std::size_t reserved_thread_capacity{1};
+
+  // Protected by qsbr_rwlock
   std::size_t threads_in_previous_epoch{0};
 
 #ifndef NDEBUG
+  // Protected by qsbr_rwlock
   std::uint64_t single_threaded_mode_start_epoch{0};
+
+  // Protected by qsbr_rwlock
   bool thread_count_changed_in_current_epoch{false};
+
+  // Protected by qsbr_rwlock
   bool thread_count_changed_in_previous_epoch{false};
 #endif
 
+  // TODO(laurynas): atomic but mostly manipulated in qsbr_rwlock critical
+  // sections. See if can move it out.
   std::atomic<std::uint64_t> previous_interval_total_dealloc_size{};
   std::atomic<std::uint64_t> current_interval_total_dealloc_size{};
 
+  mutable std::shared_mutex stats_rwlock;
+
   // TODO(laurynas): more interesting callback stats?
+  // Protected by stats_rwlock
   boost_acc::accumulator_set<
       std::size_t,
       boost_acc::stats<boost_acc::tag::max, boost_acc::tag::variance>>
       epoch_callback_stats;
 
+  // Protected by stats_rwlock
   boost_acc::accumulator_set<
       std::uint64_t,
       boost_acc::stats<boost_acc::tag::max, boost_acc::tag::variance>>
       deallocation_size_stats;
 
+  // Protected by stats_rwlock
   boost_acc::accumulator_set<std::uint64_t,
                              boost_acc::stats<boost_acc::tag::mean>>
       quiescent_states_per_thread_between_epoch_change_stats;

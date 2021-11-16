@@ -44,7 +44,7 @@ class db_leaf_qsbr_deleter {
   constexpr explicit db_leaf_qsbr_deleter(Db &db_) noexcept
       : db_instance{db_} {}
 
-  void operator()(leaf_type *to_delete) const noexcept {
+  void operator()(leaf_type *to_delete) const {
     const auto leaf_size = to_delete->get_size();
 
     qsbr::instance().on_next_epoch_deallocate(to_delete, leaf_size
@@ -78,7 +78,7 @@ class db_inode_qsbr_deleter : public db_inode_qsbr_deleter_parent<INode> {
  public:
   using db_inode_qsbr_deleter_parent<INode>::db_inode_qsbr_deleter_parent;
 
-  void operator()(INode *inode_ptr) noexcept {
+  void operator()(INode *inode_ptr) {
     static_assert(std::is_trivially_destructible_v<INode>);
 
     qsbr::instance().on_next_epoch_deallocate(inode_ptr, sizeof(INode)

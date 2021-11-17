@@ -78,7 +78,7 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
 
  private:
-  std::thread::id thread_id{std::this_thread::get_id()};
+  const std::thread::id thread_id{std::this_thread::get_id()};
 
   bool paused{true};
 

@@ -26,8 +26,7 @@ class ARTCorrectnessTest : public ::testing::Test {
   using Test::Test;
 };
 
-using unodb::detail::thread_sync_1;
-using unodb::detail::thread_sync_2;
+using unodb::detail::thread_syncs;
 
 using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db, unodb::olc_db>;
 
@@ -747,15 +746,15 @@ TYPED_TEST(ARTCorrectnessTest, TwoInstances) {
   unodb::test::tree_verifier<TypeParam> v2;
 
   unodb::test::thread<TypeParam> second_thread([&v2] {
-    thread_sync_1.notify();
-    thread_sync_2.wait();
+    thread_syncs[0].notify();
+    thread_syncs[1].wait();
 
     v2.insert(0, unodb::test::test_values[0]);
     v2.check_present_values();
   });
 
-  thread_sync_1.wait();
-  thread_sync_2.notify();
+  thread_syncs[0].wait();
+  thread_syncs[1].notify();
 
   v1.insert(0, unodb::test::test_values[1]);
   v1.check_present_values();

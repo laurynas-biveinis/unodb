@@ -34,7 +34,7 @@ class ARTConcurrencyTest : public ::testing::Test {
   template <std::size_t ThreadCount, std::size_t OpsPerThread, typename TestFn>
   void parallel_test(TestFn test_function) {
     if constexpr (std::is_same_v<Db, unodb::olc_db>)
-      unodb::current_thread_reclamator().pause();
+      unodb::this_thread().qsbr_pause();
 
     std::array<unodb::test::thread<Db>, ThreadCount> threads;
     for (decltype(ThreadCount) i = 0; i < ThreadCount; ++i) {
@@ -46,7 +46,7 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
 
     if constexpr (std::is_same_v<Db, unodb::olc_db>)
-      unodb::current_thread_reclamator().resume();
+      unodb::this_thread().qsbr_resume();
   }
 
   template <unsigned PreinsertLimit, std::size_t ThreadCount,

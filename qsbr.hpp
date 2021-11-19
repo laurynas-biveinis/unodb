@@ -56,16 +56,18 @@ class [[nodiscard]] qsbr_per_thread final {
   qsbr_per_thread() noexcept;
 
   ~qsbr_per_thread() {
-    if (!is_paused()) pause();
+    if (!is_qsbr_paused()) qsbr_pause();
   }
 
-  void quiescent_state() const noexcept;
+  void quiescent() const noexcept;
 
-  void pause();
+  void qsbr_pause();
 
-  void resume();
+  void qsbr_resume();
 
-  [[nodiscard, gnu::pure]] bool is_paused() const noexcept { return paused; }
+  [[nodiscard, gnu::pure]] bool is_qsbr_paused() const noexcept {
+    return paused;
+  }
 
   qsbr_per_thread(const qsbr_per_thread &) = delete;
   qsbr_per_thread(qsbr_per_thread &&) = delete;
@@ -87,14 +89,14 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
 };
 
-[[nodiscard]] inline qsbr_per_thread &current_thread_reclamator() {
+[[nodiscard]] inline qsbr_per_thread &this_thread() {
   thread_local static qsbr_per_thread current_thread_reclamator_instance;
   return current_thread_reclamator_instance;
 }
 
 inline void construct_current_thread_reclamator() {
   // An ODR-use ensures that the constructor gets called
-  (void)current_thread_reclamator();
+  (void)this_thread();
 }
 
 namespace boost_acc = boost::accumulators;
@@ -135,7 +137,7 @@ class qsbr final {
                                 dealloc_debug_callback debug_callback
 #endif
   ) {
-    UNODB_DETAIL_ASSERT(!unodb::current_thread_reclamator().is_paused());
+    UNODB_DETAIL_ASSERT(!unodb::this_thread().is_qsbr_paused());
 
     bool deallocate_immediately = false;
     {
@@ -466,20 +468,20 @@ inline qsbr_per_thread::qsbr_per_thread() noexcept {
   paused = false;
 }
 
-inline void qsbr_per_thread::quiescent_state() const noexcept {
+inline void qsbr_per_thread::quiescent() const noexcept {
   UNODB_DETAIL_ASSERT(!paused);
   UNODB_DETAIL_ASSERT(active_ptrs.empty());
   qsbr::instance().quiescent_state(thread_id);
 }
 
-inline void qsbr_per_thread::pause() {
+inline void qsbr_per_thread::qsbr_pause() {
   UNODB_DETAIL_ASSERT(!paused);
   UNODB_DETAIL_ASSERT(active_ptrs.empty());
   qsbr::instance().unregister_thread(thread_id);
   paused = true;
 }
 
-inline void qsbr_per_thread::resume() {
+inline void qsbr_per_thread::qsbr_resume() {
   UNODB_DETAIL_ASSERT(paused);
   UNODB_DETAIL_ASSERT(active_ptrs.empty());
   qsbr::instance().register_new_thread(thread_id);
@@ -496,9 +498,7 @@ struct quiescent_state_on_scope_exit final {
   quiescent_state_on_scope_exit &operator=(quiescent_state_on_scope_exit &&) =
       delete;
 
-  ~quiescent_state_on_scope_exit() noexcept {
-    current_thread_reclamator().quiescent_state();
-  }
+  ~quiescent_state_on_scope_exit() noexcept { this_thread().quiescent(); }
 };
 
 // Replace with C++20 std::remove_cvref once it's available

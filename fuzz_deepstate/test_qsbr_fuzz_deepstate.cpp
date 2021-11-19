@@ -91,20 +91,18 @@ randomly_advanced_pos_and_iterator(T &container) {
 }
 
 void resume_thread(std::size_t thread_i) {
-  ASSERT(threads[thread_i].is_paused ==
-         unodb::current_thread_reclamator().is_paused());
+  ASSERT(threads[thread_i].is_paused == unodb::this_thread().is_qsbr_paused());
   ASSERT(threads[thread_i].is_paused);
 
   LOG(TRACE) << "Resuming thread";
-  unodb::current_thread_reclamator().resume();
+  unodb::this_thread().qsbr_resume();
   threads[thread_i].is_paused = false;
 }
 
 void release_active_pointer(std::size_t thread_i);
 
 void quiescent_state(std::size_t thread_i) {
-  ASSERT(threads[thread_i].is_paused ==
-         unodb::current_thread_reclamator().is_paused());
+  ASSERT(threads[thread_i].is_paused == unodb::this_thread().is_qsbr_paused());
 
   if (threads[thread_i].is_paused) {
     LOG(TRACE) << "Thread is paused, resuming it instead of quiescent state";
@@ -118,12 +116,11 @@ void quiescent_state(std::size_t thread_i) {
     return;
   }
   LOG(TRACE) << "Quiescent state";
-  unodb::current_thread_reclamator().quiescent_state();
+  unodb::this_thread().quiescent();
 }
 
 void allocate_pointer(std::size_t thread_i) {
-  ASSERT(threads[thread_i].is_paused ==
-         unodb::current_thread_reclamator().is_paused());
+  ASSERT(threads[thread_i].is_paused == unodb::this_thread().is_qsbr_paused());
 
   if (threads[thread_i].is_paused) {
     LOG(TRACE)
@@ -146,7 +143,7 @@ void check_qsbr_pointer_on_dealloc(const void *ptr) noexcept {
 #endif
 
 void deallocate_pointer(std::uint64_t *ptr) {
-  ASSERT(!unodb::current_thread_reclamator().is_paused());
+  ASSERT(!unodb::this_thread().is_qsbr_paused());
   ASSERT(*ptr == object_mem);
 
   unodb::qsbr::instance().on_next_epoch_deallocate(ptr, sizeof(object_mem)
@@ -158,8 +155,7 @@ void deallocate_pointer(std::uint64_t *ptr) {
 }
 
 void deallocate_pointer(std::size_t thread_i) {
-  ASSERT(threads[thread_i].is_paused ==
-         unodb::current_thread_reclamator().is_paused());
+  ASSERT(threads[thread_i].is_paused == unodb::this_thread().is_qsbr_paused());
 
   if (threads[thread_i].is_paused) {
     LOG(TRACE) << "Current thread paused, resuming it instead of deallocating";
@@ -248,8 +244,7 @@ void move_assign_active_pointer(active_pointers &active_ptrs) {
 }
 
 void take_active_pointer(std::size_t thread_i) {
-  ASSERT(threads[thread_i].is_paused ==
-         unodb::current_thread_reclamator().is_paused());
+  ASSERT(threads[thread_i].is_paused == unodb::this_thread().is_qsbr_paused());
 
   if (allocated_pointers.empty()) {
     LOG(TRACE) << "No allocated pointers, doing quiescent state instead of "
@@ -310,8 +305,7 @@ void take_active_pointer(std::size_t thread_i) {
 }
 
 void release_active_pointer(std::size_t thread_i) {
-  ASSERT(threads[thread_i].is_paused ==
-         unodb::current_thread_reclamator().is_paused());
+  ASSERT(threads[thread_i].is_paused == unodb::this_thread().is_qsbr_paused());
   if (threads[thread_i].is_paused) {
     LOG(TRACE) << "Current thread paused, resuming it instead of releasing "
                   " active pointer";
@@ -336,8 +330,7 @@ void release_active_pointer(std::size_t thread_i) {
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 void pause_thread(std::size_t thread_i) {
-  ASSERT(threads[thread_i].is_paused ==
-         unodb::current_thread_reclamator().is_paused());
+  ASSERT(threads[thread_i].is_paused == unodb::this_thread().is_qsbr_paused());
 
   if (!threads[thread_i].active_ptrs.empty()) {
     LOG(TRACE)
@@ -346,7 +339,7 @@ void pause_thread(std::size_t thread_i) {
     return;
   }
   LOG(TRACE) << "Pausing thread";
-  unodb::current_thread_reclamator().pause();
+  unodb::this_thread().qsbr_pause();
   threads[thread_i].is_paused = true;
 }
 
@@ -613,7 +606,7 @@ TEST(QSBR, DeepStateFuzz) {
   threads.clear();
   new_thread_id = 1;
 
-  unodb::current_thread_reclamator().quiescent_state();
+  unodb::this_thread().quiescent();
 
   unodb::qsbr::instance().assert_idle();
 }

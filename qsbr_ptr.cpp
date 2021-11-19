@@ -13,11 +13,11 @@ namespace unodb::detail {
 #ifndef NDEBUG
 
 void qsbr_ptr_base::register_active_ptr(const void *ptr) {
-  if (ptr != nullptr) current_thread_reclamator().register_active_ptr(ptr);
+  if (ptr != nullptr) this_thread().register_active_ptr(ptr);
 }
 
 void qsbr_ptr_base::unregister_active_ptr(const void *ptr) {
-  if (ptr != nullptr) current_thread_reclamator().unregister_active_ptr(ptr);
+  if (ptr != nullptr) this_thread().unregister_active_ptr(ptr);
 }
 
 #endif

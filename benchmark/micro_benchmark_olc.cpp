@@ -20,7 +20,7 @@ class [[nodiscard]] concurrent_benchmark_olc final
   }
 
   void end_workload_in_main_thread() override {
-    unodb::current_thread_reclamator().quiescent_state();
+    unodb::this_thread().quiescent();
   }
 
   void teardown() override { unodb::qsbr::instance().assert_idle(); }

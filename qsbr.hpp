@@ -103,6 +103,8 @@ namespace boost_acc = boost::accumulators;
 
 class qsbr final {
  public:
+  using epoch_type = std::uint64_t;
+
   [[nodiscard]] static qsbr &instance() noexcept {
     static qsbr instance;
     return instance;
@@ -205,7 +207,7 @@ class qsbr final {
         quiescent_states_per_thread_between_epoch_change_stats);
   }
 
-  [[nodiscard]] std::uint64_t get_current_epoch() const noexcept {
+  [[nodiscard]] epoch_type get_current_epoch() const noexcept {
     std::shared_lock guard{qsbr_rwlock};
     return get_current_epoch_locked();
   }
@@ -288,8 +290,7 @@ class qsbr final {
 
 #ifndef NDEBUG
     dealloc_debug_callback dealloc_callback;
-    const std::uint64_t request_epoch{
-        qsbr::instance().get_current_epoch_locked()};
+    const epoch_type request_epoch{qsbr::instance().get_current_epoch_locked()};
 #endif
 
     explicit deallocation_request(void *pointer_
@@ -308,7 +309,7 @@ class qsbr final {
 
     void deallocate(
 #ifndef NDEBUG
-        std::uint64_t dealloc_epoch, bool dealloc_epoch_single_thread_mode,
+        epoch_type dealloc_epoch, bool dealloc_epoch_single_thread_mode,
         const dealloc_debug_callback &debug_callback
 #endif
     ) const noexcept {
@@ -334,7 +335,7 @@ class qsbr final {
     deferred_requests() noexcept = default;
 
 #ifndef NDEBUG
-    deferred_requests(std::uint64_t request_epoch_,
+    deferred_requests(epoch_type request_epoch_,
                       bool dealloc_epoch_single_thread_mode_) noexcept
         : dealloc_epoch{request_epoch_},
           dealloc_epoch_single_thread_mode{dealloc_epoch_single_thread_mode_} {}
@@ -368,7 +369,7 @@ class qsbr final {
 
    private:
 #ifndef NDEBUG
-    std::uint64_t dealloc_epoch;
+    epoch_type dealloc_epoch;
     bool dealloc_epoch_single_thread_mode;
 #endif
   };
@@ -381,7 +382,7 @@ class qsbr final {
     return threads.size() < 2;
   }
 
-  [[nodiscard]] std::uint64_t get_current_epoch_locked() const noexcept {
+  [[nodiscard]] epoch_type get_current_epoch_locked() const noexcept {
     return current_epoch;
   }
 
@@ -407,7 +408,7 @@ class qsbr final {
   mutable std::shared_mutex qsbr_rwlock;
 
   // Protected by qsbr_rwlock
-  std::uint64_t current_epoch{0};
+  epoch_type current_epoch{0};
 
   // Protected by qsbr_rwlock
   std::vector<deallocation_request> previous_interval_deallocation_requests;
@@ -427,7 +428,7 @@ class qsbr final {
 
 #ifndef NDEBUG
   // Protected by qsbr_rwlock
-  std::uint64_t single_threaded_mode_start_epoch{0};
+  epoch_type single_threaded_mode_start_epoch{0};
 
   // Protected by qsbr_rwlock
   bool thread_count_changed_in_current_epoch{false};

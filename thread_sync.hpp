@@ -4,6 +4,7 @@
 
 #include "global.hpp"
 
+#include <array>
 #include <condition_variable>
 #include <mutex>
 
@@ -48,9 +49,7 @@ class [[nodiscard]] thread_sync final {
 };
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables,fuchsia-statically-constructed-objects)
-inline thread_sync thread_sync_1;
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables,fuchsia-statically-constructed-objects)
-inline thread_sync thread_sync_2;
+inline std::array<thread_sync, 6> thread_syncs;
 
 }  // namespace unodb::detail
 

@@ -873,7 +873,7 @@ TEST_F(QSBR, ResetStats) {
   ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(), 1);
   ASSERT_EQ(unodb::qsbr::instance()
                 .get_mean_quiescent_states_per_thread_between_epoch_changes(),
-            1);
+            1.0);
 
   unodb::qsbr::instance().reset_stats();
 

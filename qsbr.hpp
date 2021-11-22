@@ -15,7 +15,9 @@
 #include <shared_mutex>
 #include <thread>
 #include <type_traits>
+#ifndef NDEBUG
 #include <unordered_set>
+#endif
 #include <utility>  // IWYU pragma: keep
 #include <vector>
 
@@ -79,8 +81,6 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
 
  private:
-  const std::thread::id thread_id{std::this_thread::get_id()};
-
   std::uint64_t quiescent_states_since_epoch_change{0};
   qsbr_epoch last_seen_epoch;
 
@@ -175,16 +175,10 @@ class qsbr final {
 #endif
       ) noexcept;
 
-  void prepare_new_thread();
+  [[nodiscard]] qsbr_epoch register_thread() noexcept;
 
-  [[nodiscard]] qsbr_epoch register_prepared_thread(
-      std::thread::id thread_id) noexcept;
-
-  [[nodiscard]] qsbr_epoch register_new_thread(std::thread::id thread_id);
-
-  void unregister_thread(std::thread::id thread_id,
-                         std::uint64_t quiescent_states_since_epoch_change,
-                         qsbr_epoch thread_epoch);
+  void unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
+                         qsbr_epoch thread_epoch) noexcept;
 
   void reset_stats() noexcept;
 
@@ -236,7 +230,7 @@ class qsbr final {
 
   [[nodiscard]] auto number_of_threads() const noexcept {
     std::shared_lock guard{qsbr_rwlock};
-    return threads.size();
+    return thread_count;
   }
 
   [[nodiscard]] auto previous_interval_size() const noexcept {
@@ -247,11 +241,6 @@ class qsbr final {
   [[nodiscard]] auto current_interval_size() const noexcept {
     std::shared_lock guard{qsbr_rwlock};
     return current_interval_deallocation_requests.size();
-  }
-
-  [[nodiscard]] auto get_reserved_thread_capacity() const noexcept {
-    std::shared_lock guard{qsbr_rwlock};
-    return reserved_thread_capacity;
   }
 
   [[nodiscard]] auto get_threads_in_previous_epoch() const noexcept {
@@ -279,15 +268,6 @@ class qsbr final {
     UNODB_DETAIL_ASSERT(current_interval_deallocation_requests.empty());
     UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size.load(
                             std::memory_order_relaxed) == 0);
-    if (threads.empty()) {
-      UNODB_DETAIL_ASSERT(reserved_thread_capacity == 0);
-      UNODB_DETAIL_ASSERT(threads_in_previous_epoch == 0);
-    } else if (threads.size() == 1) {
-      UNODB_DETAIL_ASSERT(reserved_thread_capacity == 1);
-      UNODB_DETAIL_ASSERT(threads_in_previous_epoch == 1);
-    } else {
-      UNODB_DETAIL_ASSERT(threads.size() < 2);
-    }
 #endif
   }
 
@@ -385,17 +365,12 @@ class qsbr final {
   ~qsbr() noexcept { assert_idle(); }
 
   [[nodiscard]] bool single_thread_mode_locked() const noexcept {
-    return threads.size() < 2;
+    return thread_count < 2;
   }
 
   [[nodiscard]] qsbr_epoch get_current_epoch_locked() const noexcept {
     return current_epoch;
   }
-
-  void prepare_new_thread_locked();
-
-  [[nodiscard]] qsbr_epoch register_prepared_thread_locked(
-      std::thread::id thread_id) noexcept;
 
   [[nodiscard]] bool remove_thread_from_previous_epoch_locked(
       deferred_requests &requests
@@ -431,13 +406,10 @@ class qsbr final {
   std::vector<deallocation_request> current_interval_deallocation_requests;
 
   // Protected by qsbr_rwlock
-  std::unordered_set<std::thread::id> threads;
+  std::uint64_t thread_count;
 
   // Protected by qsbr_rwlock
-  std::size_t reserved_thread_capacity{1};
-
-  // Protected by qsbr_rwlock
-  std::size_t threads_in_previous_epoch{0};
+  std::uint64_t threads_in_previous_epoch{0};
 
 #ifndef NDEBUG
   // Protected by qsbr_rwlock
@@ -477,7 +449,7 @@ class qsbr final {
 };
 
 inline qsbr_per_thread::qsbr_per_thread() noexcept
-    : last_seen_epoch{qsbr::instance().register_prepared_thread(thread_id)} {
+    : last_seen_epoch{qsbr::instance().register_thread()} {
   UNODB_DETAIL_ASSERT(paused);
   paused = false;
 }
@@ -531,8 +503,8 @@ inline void qsbr_per_thread::qsbr_pause() {
   UNODB_DETAIL_ASSERT(!paused);
   UNODB_DETAIL_ASSERT(active_ptrs.empty());
 #endif
-  qsbr::instance().unregister_thread(
-      thread_id, quiescent_states_since_epoch_change, last_seen_epoch);
+  qsbr::instance().unregister_thread(quiescent_states_since_epoch_change,
+                                     last_seen_epoch);
   quiescent_states_since_epoch_change = 0;
   paused = true;
 }
@@ -540,7 +512,7 @@ inline void qsbr_per_thread::qsbr_pause() {
 inline void qsbr_per_thread::qsbr_resume() {
   UNODB_DETAIL_ASSERT(paused);
   UNODB_DETAIL_ASSERT(active_ptrs.empty());
-  last_seen_epoch = qsbr::instance().register_new_thread(thread_id);
+  last_seen_epoch = qsbr::instance().register_thread();
   UNODB_DETAIL_ASSERT(quiescent_states_since_epoch_change == 0);
   paused = false;
 }
@@ -590,28 +562,11 @@ class [[nodiscard]] qsbr_thread : public std::thread {
             class = std::enable_if_t<
                 !std::is_same_v<remove_cvref_t<Function>, qsbr_thread>>>
   explicit qsbr_thread(Function &&f, Args &&...args) noexcept
-      : std::thread{(qsbr::instance().prepare_new_thread(),
-                     [](auto &&f2, auto &&...args2) noexcept {
-                       construct_current_thread_reclamator();
-                       f2(std::forward<Args>(args2)...);
-                     }),
+      : std::thread{[](auto &&f2, auto &&...args2) noexcept {
+                      construct_current_thread_reclamator();
+                      f2(std::forward<Args>(args2)...);
+                    },
                     std::forward<Function>(f), std::forward<Args>(args)...} {}
-
-#ifndef NDEBUG
-  template <typename Function, typename... Args,
-            class = std::enable_if_t<
-                !std::is_same_v<remove_cvref_t<Function>, qsbr_thread>>>
-  qsbr_thread(detail::thread_sync &notify_point,
-              detail::thread_sync &wait_point, Function &&f,
-              Args &&...args) noexcept
-      : std::thread{((void)qsbr::instance().prepare_new_thread(),
-                     (void)notify_point.notify(), (void)wait_point.wait(),
-                     [](auto &&f2, auto &&...args2) noexcept {
-                       construct_current_thread_reclamator();
-                       f2(std::forward<Args>(args2)...);
-                     }),
-                    std::forward<Function>(f), std::forward<Args>(args)...} {}
-#endif  // NDEBUG
 };
 
 }  // namespace unodb

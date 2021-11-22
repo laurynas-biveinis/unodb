@@ -578,7 +578,6 @@ TEST(QSBR, DeepStateFuzz) {
     dump_sink << unodb::qsbr::instance().get_mean_backlog_bytes();
     dump_sink << unodb::qsbr::instance().previous_interval_size();
     dump_sink << unodb::qsbr::instance().current_interval_size();
-    dump_sink << unodb::qsbr::instance().get_reserved_thread_capacity();
   }
 
   for (std::size_t i = 0; i < threads.size(); ++i) {

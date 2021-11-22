@@ -6,8 +6,6 @@
 #ifdef NDEBUG
 #include <cstdlib>
 #endif
-#include <exception>
-#include <iostream>
 #include <thread>
 
 #include "qsbr.hpp"
@@ -42,27 +40,20 @@ void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
 
 #endif  // !NDEBUG
 
-void qsbr::prepare_new_thread() {
+qsbr_epoch qsbr::register_thread() noexcept {
   std::lock_guard guard{qsbr_rwlock};
-  prepare_new_thread_locked();
+#ifndef NDEBUG
+  thread_count_changed_in_current_epoch = true;
+  assert_invariants();
+#endif
+
+  ++thread_count;
+  ++threads_in_previous_epoch;
+  return current_epoch;
 }
 
-qsbr_epoch qsbr::register_prepared_thread(std::thread::id thread_id) noexcept {
-  std::lock_guard guard{qsbr_rwlock};
-  return register_prepared_thread_locked(thread_id);
-}
-
-qsbr_epoch qsbr::register_new_thread(std::thread::id thread_id) {
-  std::lock_guard guard{qsbr_rwlock};
-  // TODO(laurynas): both of these calls share the critical section, simpler
-  // implementation possible
-  prepare_new_thread_locked();
-  return register_prepared_thread_locked(thread_id);
-}
-
-void qsbr::unregister_thread(std::thread::id thread_id,
-                             std::uint64_t quiescent_states_since_epoch_change,
-                             qsbr_epoch thread_epoch) {
+void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
+                             qsbr_epoch thread_epoch) noexcept {
   register_quiescent_states_per_thread_between_epoch_changes(
       quiescent_states_since_epoch_change);
   deferred_requests requests_to_deallocate;
@@ -86,32 +77,24 @@ void qsbr::unregister_thread(std::thread::id thread_id,
                                                        )
             : false;
 
-    const auto thread = threads.find(thread_id);
-    UNODB_DETAIL_ASSERT(thread != threads.end());
-    threads.erase(thread);
-    --reserved_thread_capacity;
+    --thread_count;
     if (epoch_changed) {
       // The epoch change marked this thread as not-quiescent again, and
       // included it in threads_in_previous_epoch
       --threads_in_previous_epoch;
     }
 #ifndef NDEBUG
-    UNODB_DETAIL_ASSERT(threads_in_previous_epoch <= threads.size());
     requests_to_deallocate.update_single_thread_mode();
     single_threaded_mode_start_epoch = get_current_epoch_locked();
 #endif
 
-    if (UNODB_DETAIL_UNLIKELY(threads.empty())) {
-      threads_in_previous_epoch = 0;
-    } else if (UNODB_DETAIL_UNLIKELY(single_thread_mode_locked())) {
-      // Even though we are single-threaded now, we cannot deallocate neither
-      // previous nor current interval requests immediately. We could track the
-      // deallocating thread in the request structure and deallocate the ones
-      // coming from the sole live thread, but not sure whether that would be a
-      // good trade-off.
-      // Any new deallocation requests from this point on can be executed
-      // immediately.
-    }
+    // If we became single-threaded, we still cannot deallocate neither previous
+    // nor current interval requests immediately. We could track the
+    // deallocating thread in the request structure and deallocate the ones
+    // coming from the sole live thread, but not sure whether that would be a
+    // good trade-off.
+    // Any new deallocation requests from this point on can be executed
+    // immediately.
 
     assert_invariants();
   }
@@ -144,65 +127,9 @@ void qsbr::dump(std::ostream &out) const {
       << current_interval_deallocation_requests.size() << '\n';
   out << "Current interval pending deallocation bytes: "
       << current_interval_total_dealloc_size.load(std::memory_order_relaxed);
-  out << "Number of tracked threads: " << threads.size() << '\n';
-  for (const auto &thread : threads) {
-    out << "Thread: " << thread << '\n';
-  }
+  out << "Number of tracked threads: " << thread_count << '\n';
   out << "Number of threads in the previous epoch = "
       << threads_in_previous_epoch << '\n';
-}
-
-void qsbr::prepare_new_thread_locked() {
-  assert_invariants();
-
-  ++reserved_thread_capacity;
-  UNODB_DETAIL_ASSERT(reserved_thread_capacity > threads.size());
-
-  threads.reserve(reserved_thread_capacity);
-}
-
-qsbr_epoch qsbr::register_prepared_thread_locked(
-    std::thread::id thread_id) noexcept {
-  // TODO(laurynas): cleanup this field and get rid of this if statement.
-  // Reserve one thread in the global QSBR ctor?
-  // No need to reserve space for the first (or the last, depending on the
-  // workload) thread
-  if (UNODB_DETAIL_UNLIKELY(reserved_thread_capacity == 0))
-    reserved_thread_capacity = 1;
-
-#ifndef NDEBUG
-  thread_count_changed_in_current_epoch = true;
-  assert_invariants();
-  UNODB_DETAIL_ASSERT(reserved_thread_capacity > threads.size());
-#endif
-
-  try {
-    const auto UNODB_DETAIL_USED_IN_DEBUG[itr, insert_ok] =
-        threads.insert(thread_id);
-    UNODB_DETAIL_ASSERT(insert_ok);
-    // LCOV_EXCL_START
-  } catch (const std::exception &e) {
-    std::cerr
-        << "Impossible happened: QSBR thread vector insert threw exception: "
-        << e.what() << ", aborting!\n";
-#ifdef NDEBUG
-    std::abort();
-#else
-    UNODB_DETAIL_CANNOT_HAPPEN();
-#endif
-  } catch (...) {
-    std::cerr << "Impossible happened: QSBR thread vector insert threw unknown "
-                 "exception, aborting!\n";
-#ifdef NDEBUG
-    std::abort();
-#else
-    UNODB_DETAIL_CANNOT_HAPPEN();
-#endif
-    // LCOV_EXCL_STOP
-  }
-
-  ++threads_in_previous_epoch;
-  return current_epoch;
 }
 
 bool qsbr::remove_thread_from_previous_epoch(
@@ -286,14 +213,13 @@ qsbr::deferred_requests qsbr::change_epoch() noexcept {
   thread_count_changed_in_current_epoch = false;
 #endif
 
-  threads_in_previous_epoch = threads.size();
+  threads_in_previous_epoch = thread_count;
   return result;
 }
 
 void qsbr::assert_invariants() const noexcept {
 #ifndef NDEBUG
-  UNODB_DETAIL_ASSERT(reserved_thread_capacity >= threads.size());
-
+  UNODB_DETAIL_ASSERT(threads_in_previous_epoch <= thread_count);
   if (previous_interval_deallocation_requests.empty()) {
     UNODB_DETAIL_ASSERT(previous_interval_total_dealloc_size.load(
                             std::memory_order_relaxed) == 0);

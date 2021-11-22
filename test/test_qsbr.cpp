@@ -201,37 +201,6 @@ TEST_F(QSBR, TwoThreadsDefaultCtor) {
   unodb::this_thread().qsbr_resume();
 }
 
-#ifndef NDEBUG
-
-TEST_F(QSBR, ThreeThreadsInterleavedCtor) {
-  std::thread second_thread_launcher([] {
-    unodb::qsbr_thread second_thread(thread_syncs[0], thread_syncs[1], [] {});
-    second_thread.join();
-  });
-
-  thread_syncs[0].wait();
-  unodb::qsbr_thread third_thread([] { thread_syncs[1].notify(); });
-  second_thread_launcher.join();
-  third_thread.join();
-}
-
-TEST_F(QSBR, TwoThreadsInterleavedCtorDtor) {
-  std::thread second_thread_launcher([] {
-    unodb::qsbr_thread second_thread(thread_syncs[0], thread_syncs[1], [] {
-      ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
-    });
-    second_thread.join();
-  });
-  thread_syncs[0].wait();
-  unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
-  thread_syncs[1].notify();
-  second_thread_launcher.join();
-  unodb::this_thread().qsbr_resume();
-}
-
-#endif  // NDEBUG
-
 TEST_F(QSBR, SecondThreadAddedWhileFirstPaused) {
   unodb::this_thread().qsbr_pause();
   ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
@@ -901,7 +870,6 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
             .get_mean_quiescent_states_per_thread_between_epoch_changes();
     ASSERT_EQ(unodb::qsbr::instance().previous_interval_size(), 0);
     ASSERT_EQ(unodb::qsbr::instance().current_interval_size(), 0);
-    ASSERT_EQ(unodb::qsbr::instance().get_reserved_thread_capacity(), 2);
     ASSERT_LE(unodb::qsbr::instance().get_threads_in_previous_epoch(), 2);
     volatile auto force_load2 [[maybe_unused]] =
         unodb::qsbr::instance().get_current_epoch();

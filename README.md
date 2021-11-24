@@ -181,10 +181,6 @@ Systems, 1998, pages 509--518.
 memory models?," Proceedings of the 2012 ACM SIGPLAN Workshop on Memory Systems
 Performance and Correctness, June 2012, pages 12--21, 2012.
 
-[boostub1]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80963
-
-[boostub2]: https://bugs.llvm.org/show_bug.cgi?id=39191
-
 [sanitizer-combination-bug]: https://github.com/google/sanitizers/issues/1106
 
 [gc++style]: https://google.github.io/styleguide/cppguide.html

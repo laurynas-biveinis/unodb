@@ -28,9 +28,6 @@
 #include <boost/accumulators/statistics/variance.hpp>
 
 #include "heap.hpp"
-#ifndef NDEBUG
-#include "thread_sync.hpp"
-#endif
 
 namespace unodb {
 

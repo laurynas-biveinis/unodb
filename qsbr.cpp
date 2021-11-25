@@ -95,19 +95,23 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
 }
 
 void qsbr::reset_stats() noexcept {
-#ifndef NDEBUG
   {
-    // Stats can only be reset on idle QSBR - best-effort check due to different
-    // locks required
     std::lock_guard guard{qsbr_rwlock};
+    // Stats can only be reset on idle QSBR - best-effort check due to lock
+    // release later
     assert_idle_locked();
-  }
-#endif
-  std::lock_guard guard{stats_rwlock};
 
-  deallocation_size_stats = {};
-  epoch_callback_stats = {};
+    epoch_callback_stats = {};
+    publish_epoch_callback_stats();
+
+    deallocation_size_stats = {};
+    publish_deallocation_size_stats();
+  }
+
+  std::lock_guard guard{quiescent_states_per_thread_between_epoch_change_lock};
+
   quiescent_states_per_thread_between_epoch_change_stats = {};
+  publish_quiescent_states_per_thread_between_epoch_change_stats();
 }
 
 void qsbr::dump(std::ostream &out) const {
@@ -175,14 +179,12 @@ bool qsbr::remove_thread_from_previous_epoch_locked(
 qsbr::deferred_requests qsbr::change_epoch() noexcept {
   ++current_epoch;
 
-  {
-    // TODO(laurynas): consider saving the update values and actually updating
-    // the stats after qsbr_rwlock is released
-    std::lock_guard guard{stats_rwlock};
-    deallocation_size_stats(
-        current_interval_total_dealloc_size.load(std::memory_order_relaxed));
-    epoch_callback_stats(previous_interval_deallocation_requests.size());
-  }
+  deallocation_size_stats(
+      current_interval_total_dealloc_size.load(std::memory_order_relaxed));
+  publish_deallocation_size_stats();
+
+  epoch_callback_stats(previous_interval_deallocation_requests.size());
+  publish_epoch_callback_stats();
 
   deferred_requests result{make_deferred_requests()};
   result.requests[0] = std::move(previous_interval_deallocation_requests);

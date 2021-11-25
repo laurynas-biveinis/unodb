@@ -5,8 +5,7 @@
 #include <cmath>
 #include <cstddef>  // IWYU pragma: keep
 #include <limits>
-#include <mutex>  // IWYU pragma: keep
-#include <thread>
+#include <mutex>    // IWYU pragma: keep
 #include <utility>  // IWYU pragma: keep
 
 #include <gtest/gtest.h>  // IWYU pragma: keep

@@ -2,12 +2,6 @@
 
 #include "global.hpp"
 
-#include <atomic>
-#ifdef NDEBUG
-#include <cstdlib>
-#endif
-#include <thread>
-
 #include "qsbr.hpp"
 
 namespace {

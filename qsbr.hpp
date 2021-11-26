@@ -367,12 +367,7 @@ class qsbr final {
   }
 
   [[nodiscard]] qsbr_epoch remove_thread_from_previous_epoch_locked(
-      qsbr_epoch current_global_epoch, deferred_requests &requests
-#ifndef NDEBUG
-      ,
-      qsbr_epoch thread_epoch
-#endif
-      ) noexcept;
+      qsbr_epoch current_global_epoch, deferred_requests &requests) noexcept;
 
   [[nodiscard]] qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
                                         deferred_requests &requests) noexcept;

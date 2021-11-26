@@ -65,12 +65,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
         ((thread_epoch + 1 == current_global_epoch) ||
          (quiescent_states_since_epoch_change == 0))
             ? remove_thread_from_previous_epoch_locked(current_global_epoch,
-                                                       requests_to_deallocate
-#ifndef NDEBUG
-                                                       ,
-                                                       thread_epoch
-#endif
-                                                       )
+                                                       requests_to_deallocate)
             : current_global_epoch;
     UNODB_DETAIL_ASSERT(current_global_epoch == new_global_epoch ||
                         current_global_epoch + 1 == new_global_epoch);
@@ -150,31 +145,19 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
                         thread_epoch + 1 == current_global_epoch);
 
     const auto new_global_epoch = remove_thread_from_previous_epoch_locked(
-        current_global_epoch, to_deallocate
-#ifndef NDEBUG
-        ,
-        thread_epoch
-#endif
-    );
+        current_global_epoch, to_deallocate);
     UNODB_DETAIL_ASSERT(new_global_epoch == current_global_epoch ||
                         new_global_epoch == current_global_epoch + 1);
+
     result = new_global_epoch;
   }
   return result;
 }
 
 qsbr_epoch qsbr::remove_thread_from_previous_epoch_locked(
-    qsbr_epoch current_global_epoch, qsbr::deferred_requests &requests
-#ifndef NDEBUG
-    ,
-    qsbr_epoch thread_epoch
-#endif
-    ) noexcept {
-#ifndef NDEBUG
-  UNODB_DETAIL_ASSERT(thread_epoch == current_global_epoch ||
-                      thread_epoch + 1 == current_global_epoch);
+    qsbr_epoch current_global_epoch,
+    qsbr::deferred_requests &requests) noexcept {
   assert_invariants();
-#endif
 
   UNODB_DETAIL_ASSERT(threads_in_previous_epoch > 0);
   --threads_in_previous_epoch;

@@ -167,7 +167,7 @@ class qsbr final {
       );
   }
 
-  [[nodiscard]] bool remove_thread_from_previous_epoch(
+  [[nodiscard]] qsbr_epoch remove_thread_from_previous_epoch(
 #ifndef NDEBUG
       qsbr_epoch thread_epoch
 #endif
@@ -205,8 +205,7 @@ class qsbr final {
   }
 
   [[nodiscard]] qsbr_epoch get_current_epoch() const noexcept {
-    std::shared_lock guard{qsbr_rwlock};
-    return get_current_epoch_locked();
+    return current_epoch.load(std::memory_order_acquire);
   }
 
   [[nodiscard]] auto get_max_backlog_bytes() const noexcept {
@@ -364,18 +363,19 @@ class qsbr final {
   }
 
   [[nodiscard]] qsbr_epoch get_current_epoch_locked() const noexcept {
-    return current_epoch;
+    return current_epoch.load(std::memory_order_relaxed);
   }
 
-  [[nodiscard]] bool remove_thread_from_previous_epoch_locked(
-      deferred_requests &requests
+  [[nodiscard]] qsbr_epoch remove_thread_from_previous_epoch_locked(
+      qsbr_epoch current_global_epoch, deferred_requests &requests
 #ifndef NDEBUG
       ,
       qsbr_epoch thread_epoch
 #endif
       ) noexcept;
 
-  [[nodiscard]] deferred_requests change_epoch() noexcept;
+  [[nodiscard]] qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
+                                        deferred_requests &requests) noexcept;
 
   void assert_invariants() const noexcept;
 
@@ -415,8 +415,9 @@ class qsbr final {
   // TODO(laurynas): absolute scalability bottleneck
   mutable std::shared_mutex qsbr_rwlock;
 
-  // Protected by qsbr_rwlock
-  qsbr_epoch current_epoch{0};
+  // Updated in qsbr_rwlock critical section with the rest of QSBR data
+  // structures
+  std::atomic<qsbr_epoch> current_epoch{0};
 
   // Protected by qsbr_rwlock
   std::vector<deallocation_request> previous_interval_deallocation_requests;
@@ -499,20 +500,17 @@ inline void qsbr_per_thread::quiescent() noexcept {
 
   UNODB_DETAIL_ASSERT(current_global_epoch == last_seen_epoch);
   if (quiescent_states_since_epoch_change == 0) {
-    if (const auto epoch_changed{
-            qsbr::instance().remove_thread_from_previous_epoch(
+    const auto new_global_epoch =
+        qsbr::instance().remove_thread_from_previous_epoch(
 #ifndef NDEBUG
-                last_seen_epoch
+            last_seen_epoch
 #endif
-                )};
-        epoch_changed) {
-      // Cannot avoid re-reading global epoch by using current_global_epoch + 1
-      // here - the epoch might have changed in parallel too because of a thread
-      // quitting or pausing.
-      const auto new_seen_epoch = qsbr::instance().get_current_epoch();
-      UNODB_DETAIL_ASSERT(last_seen_epoch + 1 == new_seen_epoch ||
-                          last_seen_epoch + 2 == new_seen_epoch);
-      last_seen_epoch = new_seen_epoch;
+        );
+    UNODB_DETAIL_ASSERT(new_global_epoch == last_seen_epoch ||
+                        new_global_epoch == last_seen_epoch + 1);
+
+    if (new_global_epoch > last_seen_epoch) {
+      last_seen_epoch = new_global_epoch;
       qsbr::instance()
           .register_quiescent_states_per_thread_between_epoch_changes(1);
       quiescent_states_since_epoch_change = 0;

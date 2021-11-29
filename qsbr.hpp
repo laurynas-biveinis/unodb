@@ -481,12 +481,8 @@ inline void qsbr_per_thread::quiescent() noexcept {
   const auto current_global_epoch = qsbr::instance().get_current_epoch();
 
   if (current_global_epoch > last_seen_epoch) {
-    // Either the global epoch has advanced since we last saw it,
-    UNODB_DETAIL_ASSERT(current_global_epoch == last_seen_epoch + 1
-                        // either the global epoch has advanced, and another
-                        // thread has paused, advancing the epoch the second
-                        // time.
-                        || current_global_epoch == last_seen_epoch + 2);
+    UNODB_DETAIL_ASSERT(current_global_epoch == last_seen_epoch + 1);
+
     last_seen_epoch = current_global_epoch;
     qsbr::instance().register_quiescent_states_per_thread_between_epoch_changes(
         quiescent_states_since_epoch_change);

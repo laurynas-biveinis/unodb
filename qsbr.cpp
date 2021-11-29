@@ -36,10 +36,8 @@ void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
 
 qsbr_epoch qsbr::register_thread() noexcept {
   std::lock_guard guard{qsbr_rwlock};
-#ifndef NDEBUG
-  thread_count_changed_in_current_epoch = true;
+
   assert_invariants();
-#endif
 
   ++thread_count;
   ++threads_in_previous_epoch;
@@ -55,11 +53,8 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     std::lock_guard guard{qsbr_rwlock};
 
     const auto current_global_epoch = get_current_epoch_locked();
-#ifndef NDEBUG
     UNODB_DETAIL_ASSERT(thread_epoch == current_global_epoch ||
                         thread_epoch + 1 == current_global_epoch);
-    thread_count_changed_in_current_epoch = true;
-#endif
 
     const auto new_global_epoch =
         ((thread_epoch + 1 == current_global_epoch) ||
@@ -200,12 +195,6 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
   }
   current_interval_deallocation_requests.clear();
   current_interval_total_dealloc_size.store(0, std::memory_order_relaxed);
-
-#ifndef NDEBUG
-  thread_count_changed_in_previous_epoch =
-      thread_count_changed_in_current_epoch;
-  thread_count_changed_in_current_epoch = false;
-#endif
 
   threads_in_previous_epoch = thread_count;
   return result;

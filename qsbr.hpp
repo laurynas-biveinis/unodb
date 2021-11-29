@@ -429,12 +429,6 @@ class qsbr final {
 #ifndef NDEBUG
   // Protected by qsbr_rwlock
   qsbr_epoch single_threaded_mode_start_epoch{0};
-
-  // Protected by qsbr_rwlock
-  bool thread_count_changed_in_current_epoch{false};
-
-  // Protected by qsbr_rwlock
-  bool thread_count_changed_in_previous_epoch{false};
 #endif
 
   // TODO(laurynas): atomic but mostly manipulated in qsbr_rwlock critical

@@ -52,6 +52,8 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
   {
     std::lock_guard guard{qsbr_rwlock};
 
+    assert_invariants_locked();
+
     const auto current_global_epoch = get_current_epoch_locked();
     UNODB_DETAIL_ASSERT(thread_epoch == current_global_epoch ||
                         thread_epoch + 1 == current_global_epoch);
@@ -135,6 +137,8 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
   {
     std::lock_guard guard{qsbr_rwlock};
 
+    assert_invariants_locked();
+
     const auto current_global_epoch = get_current_epoch_locked();
     UNODB_DETAIL_ASSERT(thread_epoch == current_global_epoch ||
                         thread_epoch + 1 == current_global_epoch);
@@ -145,6 +149,8 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
                         new_global_epoch == current_global_epoch + 1);
 
     result = new_global_epoch;
+
+    assert_invariants_locked();
   }
   return result;
 }
@@ -152,8 +158,6 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
 qsbr_epoch qsbr::remove_thread_from_previous_epoch_locked(
     qsbr_epoch current_global_epoch,
     qsbr::deferred_requests &requests) noexcept {
-  assert_invariants_locked();
-
   UNODB_DETAIL_ASSERT(threads_in_previous_epoch > 0);
   --threads_in_previous_epoch;
 

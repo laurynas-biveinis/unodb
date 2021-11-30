@@ -387,10 +387,6 @@ class qsbr final {
       UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size.load(
                               std::memory_order_relaxed) == 0);
     }
-
-    if (single_thread_mode_locked() &&
-        get_current_epoch_locked() > single_threaded_mode_start_epoch)
-      UNODB_DETAIL_ASSERT(previous_interval_deallocation_requests.empty());
 #endif
   }
 
@@ -445,11 +441,6 @@ class qsbr final {
 
   // Protected by qsbr_rwlock
   std::uint64_t threads_in_previous_epoch{0};
-
-#ifndef NDEBUG
-  // Protected by qsbr_rwlock
-  qsbr_epoch single_threaded_mode_start_epoch{0};
-#endif
 
   // TODO(laurynas): atomic but mostly manipulated in qsbr_rwlock critical
   // sections. See if can move it out.

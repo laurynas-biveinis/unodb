@@ -156,7 +156,7 @@ class qsbr final {
 #endif
         );
       }
-      assert_invariants();
+      assert_invariants_locked();
     }
     if (deallocate_immediately)
       deallocate(pointer
@@ -252,7 +252,7 @@ class qsbr final {
  private:
   void assert_idle_locked() const noexcept {
 #ifndef NDEBUG
-    assert_invariants();
+    assert_invariants_locked();
     // Copy-paste-tweak with expect_idle_qsbr, but not clear how to fix this:
     // here we are asserting over internals, over there we are using Google Test
     // EXPECT macros with the public interface.
@@ -372,7 +372,24 @@ class qsbr final {
   [[nodiscard]] qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
                                         deferred_requests &requests) noexcept;
 
-  void assert_invariants() const noexcept;
+  void assert_invariants_locked() const noexcept {
+#ifndef NDEBUG
+    UNODB_DETAIL_ASSERT(threads_in_previous_epoch <= thread_count);
+    if (previous_interval_deallocation_requests.empty()) {
+      UNODB_DETAIL_ASSERT(previous_interval_total_dealloc_size.load(
+                              std::memory_order_relaxed) == 0);
+    }
+
+    if (current_interval_deallocation_requests.empty()) {
+      UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size.load(
+                              std::memory_order_relaxed) == 0);
+    }
+
+    if (single_thread_mode_locked() &&
+        get_current_epoch_locked() > single_threaded_mode_start_epoch)
+      UNODB_DETAIL_ASSERT(previous_interval_deallocation_requests.empty());
+#endif
+  }
 
   [[nodiscard]] UNODB_DETAIL_RELEASE_STATIC deferred_requests
   make_deferred_requests() UNODB_DETAIL_DEBUG_CONST noexcept {

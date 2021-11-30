@@ -37,7 +37,7 @@ void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
 qsbr_epoch qsbr::register_thread() noexcept {
   std::lock_guard guard{qsbr_rwlock};
 
-  assert_invariants();
+  assert_invariants_locked();
 
   ++thread_count;
   ++threads_in_previous_epoch;
@@ -85,7 +85,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     // Any new deallocation requests from this point on can be executed
     // immediately.
 
-    assert_invariants();
+    assert_invariants_locked();
   }
 }
 
@@ -152,7 +152,7 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
 qsbr_epoch qsbr::remove_thread_from_previous_epoch_locked(
     qsbr_epoch current_global_epoch,
     qsbr::deferred_requests &requests) noexcept {
-  assert_invariants();
+  assert_invariants_locked();
 
   UNODB_DETAIL_ASSERT(threads_in_previous_epoch > 0);
   --threads_in_previous_epoch;
@@ -198,25 +198,6 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
 
   threads_in_previous_epoch = thread_count;
   return result;
-}
-
-void qsbr::assert_invariants() const noexcept {
-#ifndef NDEBUG
-  UNODB_DETAIL_ASSERT(threads_in_previous_epoch <= thread_count);
-  if (previous_interval_deallocation_requests.empty()) {
-    UNODB_DETAIL_ASSERT(previous_interval_total_dealloc_size.load(
-                            std::memory_order_relaxed) == 0);
-  }
-
-  if (current_interval_deallocation_requests.empty()) {
-    UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size.load(
-                            std::memory_order_relaxed) == 0);
-  }
-
-  if (single_thread_mode_locked() &&
-      get_current_epoch_locked() > single_threaded_mode_start_epoch)
-    UNODB_DETAIL_ASSERT(previous_interval_deallocation_requests.empty());
-#endif
 }
 
 }  // namespace unodb

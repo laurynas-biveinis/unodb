@@ -142,6 +142,9 @@ class qsbr final {
     bool deallocate_immediately = false;
     {
       std::lock_guard guard{qsbr_rwlock};
+
+      assert_invariants_locked();
+
       if (UNODB_DETAIL_UNLIKELY(single_thread_mode_locked())) {
         deallocate_immediately = true;
       } else {

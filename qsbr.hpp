@@ -171,7 +171,9 @@ class qsbr final {
   }
 
   [[nodiscard]] qsbr_epoch remove_thread_from_previous_epoch(
+      qsbr_epoch current_global_epoch
 #ifndef NDEBUG
+      ,
       qsbr_epoch thread_epoch
 #endif
       ) noexcept;
@@ -497,9 +499,10 @@ inline void qsbr_per_thread::quiescent() noexcept {
   UNODB_DETAIL_ASSERT(current_global_epoch == last_seen_epoch);
   if (quiescent_states_since_epoch_change == 0) {
     const auto new_global_epoch =
-        qsbr::instance().remove_thread_from_previous_epoch(
+        qsbr::instance().remove_thread_from_previous_epoch(current_global_epoch
 #ifndef NDEBUG
-            last_seen_epoch
+                                                           ,
+                                                           last_seen_epoch
 #endif
         );
     UNODB_DETAIL_ASSERT(new_global_epoch == last_seen_epoch ||

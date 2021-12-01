@@ -76,7 +76,6 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     }
 #ifndef NDEBUG
     requests_to_deallocate.update_single_thread_mode();
-    single_threaded_mode_start_epoch = new_global_epoch;
 #endif
 
     // If we became single-threaded, we still cannot deallocate neither previous

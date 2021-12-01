@@ -127,7 +127,9 @@ void qsbr::dump(std::ostream &out) const {
 }
 
 qsbr_epoch qsbr::remove_thread_from_previous_epoch(
+    qsbr_epoch current_global_epoch
 #ifndef NDEBUG
+    ,
     qsbr_epoch thread_epoch
 #endif
     ) noexcept {
@@ -138,7 +140,10 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
 
     assert_invariants_locked();
 
-    const auto current_global_epoch = get_current_epoch_locked();
+    // The global epoch could not have advanced since the passed in value was
+    // read because this thread is passing through the quiescent state for the
+    // first time in this epoch.
+    UNODB_DETAIL_ASSERT(current_global_epoch == get_current_epoch_locked());
     UNODB_DETAIL_ASSERT(thread_epoch == current_global_epoch ||
                         thread_epoch + 1 == current_global_epoch);
 

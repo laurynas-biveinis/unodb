@@ -4,6 +4,10 @@
 
 #include "qsbr.hpp"
 
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
+#include <sanitizer/tsan_interface.h>
+#endif
+
 namespace {
 
 [[gnu::constructor]] void run_tls_ctor_in_main_thread() {
@@ -135,7 +139,21 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
     ) noexcept {
   deferred_requests to_deallocate;
   qsbr_epoch result;
+
+  // No loads and stores can be reordered past this point, or the quiescent
+  // state contract would be violated
+  std::atomic_thread_fence(std::memory_order_release);
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
+  // I have no idea what I am doing
+  __tsan_release(&qsbr_rwlock);
+#endif
+
   {
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
+    __tsan_acquire(&qsbr_rwlock);
+#endif
+    // Acquire synchronizes-with the release fence, OK to release the old
+    // pointers.
     std::lock_guard guard{qsbr_rwlock};
 
     assert_invariants_locked();

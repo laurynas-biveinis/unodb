@@ -141,13 +141,13 @@ class qsbr final {
 
     bool deallocate_immediately = false;
     {
-      std::lock_guard guard{qsbr_rwlock};
-
-      assert_invariants_locked();
-
-      if (UNODB_DETAIL_UNLIKELY(single_thread_mode_locked())) {
+      if (UNODB_DETAIL_UNLIKELY(single_thread_mode())) {
         deallocate_immediately = true;
       } else {
+        std::lock_guard guard{qsbr_rwlock};
+
+        assert_invariants_locked();
+
         // TODO(laurynas): out of critical section?
         current_interval_total_dealloc_size.fetch_add(
             size, std::memory_order_relaxed);
@@ -158,8 +158,9 @@ class qsbr final {
             std::move(debug_callback)
 #endif
         );
+
+        assert_invariants_locked();
       }
-      assert_invariants_locked();
     }
     if (deallocate_immediately)
       deallocate(pointer
@@ -222,14 +223,12 @@ class qsbr final {
   }
 
   // Made public for tests and asserts
-  [[nodiscard]] auto single_thread_mode() const noexcept {
-    std::shared_lock guard{qsbr_rwlock};
-    return single_thread_mode_locked();
+  [[nodiscard]] bool single_thread_mode() const noexcept {
+    return number_of_threads() < 2;
   }
 
-  [[nodiscard]] auto number_of_threads() const noexcept {
-    std::shared_lock guard{qsbr_rwlock};
-    return thread_count;
+  [[nodiscard]] std::uint64_t number_of_threads() const noexcept {
+    return thread_count.load(std::memory_order_acquire);
   }
 
   [[nodiscard]] auto previous_interval_size() const noexcept {
@@ -364,7 +363,7 @@ class qsbr final {
   ~qsbr() noexcept { assert_idle(); }
 
   [[nodiscard]] bool single_thread_mode_locked() const noexcept {
-    return thread_count < 2;
+    return thread_count.load(std::memory_order_relaxed) < 2;
   }
 
   [[nodiscard]] qsbr_epoch get_current_epoch_locked() const noexcept {
@@ -379,7 +378,8 @@ class qsbr final {
 
   void assert_invariants_locked() const noexcept {
 #ifndef NDEBUG
-    UNODB_DETAIL_ASSERT(threads_in_previous_epoch <= thread_count);
+    UNODB_DETAIL_ASSERT(threads_in_previous_epoch <=
+                        thread_count.load(std::memory_order_relaxed));
     if (previous_interval_deallocation_requests.empty()) {
       UNODB_DETAIL_ASSERT(previous_interval_total_dealloc_size.load(
                               std::memory_order_relaxed) == 0);
@@ -438,8 +438,9 @@ class qsbr final {
   // Protected by qsbr_rwlock
   std::vector<deallocation_request> current_interval_deallocation_requests;
 
-  // Protected by qsbr_rwlock
-  std::uint64_t thread_count;
+  // Updated in qsbr_rwlock critical section with the rest of QSBR data
+  // structures
+  std::atomic<std::uint64_t> thread_count;
 
   // Protected by qsbr_rwlock
   std::uint64_t threads_in_previous_epoch{0};

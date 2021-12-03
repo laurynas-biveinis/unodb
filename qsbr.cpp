@@ -43,7 +43,8 @@ qsbr_epoch qsbr::register_thread() noexcept {
 
   assert_invariants_locked();
 
-  ++thread_count;
+  thread_count.store(thread_count.load(std::memory_order_relaxed) + 1,
+                     std::memory_order_release);
   ++threads_in_previous_epoch;
   return get_current_epoch_locked();
 }
@@ -71,7 +72,8 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     UNODB_DETAIL_ASSERT(current_global_epoch == new_global_epoch ||
                         current_global_epoch + 1 == new_global_epoch);
 
-    --thread_count;
+    thread_count.store(thread_count.load(std::memory_order_relaxed) - 1,
+                       std::memory_order_release);
 
     if (current_global_epoch < new_global_epoch) {
       // The epoch change marked this thread as not-quiescent again, and
@@ -125,7 +127,7 @@ void qsbr::dump(std::ostream &out) const {
       << current_interval_deallocation_requests.size() << '\n';
   out << "Current interval pending deallocation bytes: "
       << current_interval_total_dealloc_size.load(std::memory_order_relaxed);
-  out << "Number of tracked threads: " << thread_count << '\n';
+  out << "Number of tracked threads: " << number_of_threads() << '\n';
   out << "Number of threads in the previous epoch = "
       << threads_in_previous_epoch << '\n';
 }
@@ -222,7 +224,7 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
   current_interval_deallocation_requests.clear();
   current_interval_total_dealloc_size.store(0, std::memory_order_relaxed);
 
-  threads_in_previous_epoch = thread_count;
+  threads_in_previous_epoch = thread_count.load(std::memory_order_relaxed);
   return result;
 }
 

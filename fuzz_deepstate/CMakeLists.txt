@@ -19,6 +19,10 @@ endfunction()
 set(DEEPSTATE_FAIL_DIR "deepstate_fails")
 set(DEEPSTATE_OPTIONS "--fuzz" "--no_fork" "--output_test_dir"
   "${DEEPSTATE_FAIL_DIR}" "--timeout")
+# The shortest run is special in that it is a smoke test, and a part of the
+# default testsuite. On a completely broken code stop immediately instead of
+# accumulating millions of testcases.
+set(DEEPSTATE_5S_OPTIONS "--exit_on_fail" ${DEEPSTATE_OPTIONS})
 
 if(LIBFUZZER_AVAILABLE)
   set(DEEPSTATE_LF_OPTIONS "-use_value_profile=1" "-detect_leaks=0")
@@ -34,10 +38,10 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
 
   add_executable(${TEST_NAME} "${TEST_NAME}.cpp")
   common_deepstate_target_properties(${TEST_NAME})
-  add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 5)
+  add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} ${DEEPSTATE_5S_OPTIONS} 5)
 
   add_custom_target(${TEST_5S} DEPENDS ${TEST_NAME}
-    COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 5)
+    COMMAND ${TEST_NAME} ${DEEPSTATE_5S_OPTIONS} 5)
   add_custom_target(${TEST_1M} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 60)
   add_custom_target(${TEST_20M} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 1200)
   add_custom_target(${TEST_8H} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 28800)

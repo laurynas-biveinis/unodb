@@ -39,60 +39,55 @@ void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
 #endif  // !NDEBUG
 
 qsbr_epoch qsbr::register_thread() noexcept {
-  std::lock_guard guard{qsbr_rwlock};
+  // Start by incrementing threads_in_previous_epoch so that the epoch cannot
+  // advance before we incremented thread_count too.
+  inc_threads_in_previous_epoch();
 
-  assert_invariants_locked();
+  thread_count.fetch_add(1, std::memory_order_acq_rel);
 
-  thread_count.store(thread_count.load(std::memory_order_relaxed) + 1,
-                     std::memory_order_release);
-  ++threads_in_previous_epoch;
-  return get_current_epoch_locked();
+  return get_current_epoch();
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                              qsbr_epoch thread_epoch) noexcept {
-  register_quiescent_states_per_thread_between_epoch_changes(
-      quiescent_states_since_epoch_change);
-  deferred_requests requests_to_deallocate;
+  // Block the epoch change
+  inc_threads_in_previous_epoch();
+
+  thread_count.fetch_sub(1, std::memory_order_acq_rel);
+
+  bool remove_from_previous_epoch = (quiescent_states_since_epoch_change == 0);
+  const auto current_global_epoch = get_current_epoch();
+
+  if (current_global_epoch > thread_epoch) {
+    UNODB_DETAIL_ASSERT(current_global_epoch == thread_epoch + 1);
+    register_quiescent_states_per_thread_between_epoch_changes(
+        quiescent_states_since_epoch_change);
+    remove_from_previous_epoch = true;
+  }
+
+  if (remove_from_previous_epoch) {
+    std::lock_guard guard{qsbr_rwlock};
+    --threads_in_previous_epoch;
+  }
+
+  qsbr::deferred_requests requests;
   {
     std::lock_guard guard{qsbr_rwlock};
-
     assert_invariants_locked();
 
-    const auto current_global_epoch = get_current_epoch_locked();
-    UNODB_DETAIL_ASSERT(thread_epoch == current_global_epoch ||
-                        thread_epoch + 1 == current_global_epoch);
-
-    const auto new_global_epoch =
-        ((thread_epoch + 1 == current_global_epoch) ||
-         (quiescent_states_since_epoch_change == 0))
-            ? remove_thread_from_previous_epoch_locked(current_global_epoch,
-                                                       requests_to_deallocate)
-            : current_global_epoch;
-    UNODB_DETAIL_ASSERT(current_global_epoch == new_global_epoch ||
-                        current_global_epoch + 1 == new_global_epoch);
-
-    thread_count.store(thread_count.load(std::memory_order_relaxed) - 1,
-                       std::memory_order_release);
-
-    if (current_global_epoch < new_global_epoch) {
-      // The epoch change marked this thread as not-quiescent again, and
-      // included it in threads_in_previous_epoch
+    if (threads_in_previous_epoch == 1) {
+      // TODO(laurynas): suspicious! Can we miss going to single-threaded mode
+      // this way?
+      const auto old_thread_count =
+          thread_count.load(std::memory_order_acquire) + 1;
+      // Only our bump to block the epoch change prevented that, now is the time
+      change_epoch(current_global_epoch, old_thread_count, requests);
+    } else {
+      // Undo our bump to block the epoch change
+      UNODB_DETAIL_ASSERT(threads_in_previous_epoch > 0);
       --threads_in_previous_epoch;
     }
-#ifndef NDEBUG
-    requests_to_deallocate.update_single_thread_mode();
-#endif
-
-    // If we became single-threaded, we still cannot deallocate neither previous
-    // nor current interval requests immediately. We could track the
-    // deallocating thread in the request structure and deallocate the ones
-    // coming from the sole live thread, but not sure whether that would be a
-    // good trade-off.
-    // Any new deallocation requests from this point on can be executed
-    // immediately.
-
-    assert_invariants_locked();
   }
 }
 
@@ -187,14 +182,17 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch_locked(
 
   if (threads_in_previous_epoch > 0) return current_global_epoch;
 
-  const auto new_epoch = change_epoch(current_global_epoch, requests);
+  const auto new_epoch =
+      change_epoch(current_global_epoch, number_of_threads(), requests);
 
   UNODB_DETAIL_ASSERT(current_global_epoch + 1 == new_epoch);
 
   return new_epoch;
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
+                              std::uint64_t old_thread_count,
                               qsbr::deferred_requests &requests) noexcept {
   const auto result = current_global_epoch + 1;
   UNODB_DETAIL_ASSERT(get_current_epoch_locked() + 1 == result);
@@ -210,7 +208,7 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
   requests = make_deferred_requests();
   requests.requests[0] = std::move(previous_interval_deallocation_requests);
 
-  if (UNODB_DETAIL_LIKELY(!single_thread_mode_locked())) {
+  if (UNODB_DETAIL_LIKELY(!single_thread_mode(old_thread_count))) {
     previous_interval_deallocation_requests =
         std::move(current_interval_deallocation_requests);
     previous_interval_total_dealloc_size.store(
@@ -224,7 +222,8 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
   current_interval_deallocation_requests.clear();
   current_interval_total_dealloc_size.store(0, std::memory_order_relaxed);
 
-  threads_in_previous_epoch = thread_count.load(std::memory_order_relaxed);
+  threads_in_previous_epoch = number_of_threads();
+
   return result;
 }
 

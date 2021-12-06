@@ -224,7 +224,7 @@ class qsbr final {
 
   // Made public for tests and asserts
   [[nodiscard]] bool single_thread_mode() const noexcept {
-    return number_of_threads() < 2;
+    return single_thread_mode(number_of_threads());
   }
 
   [[nodiscard]] std::uint64_t number_of_threads() const noexcept {
@@ -343,14 +343,6 @@ class qsbr final {
       }
     }
 
-#ifndef NDEBUG
-    // TODO(laurynas): get rid of this wart
-    void update_single_thread_mode() noexcept {
-      dealloc_epoch_single_thread_mode =
-          qsbr::instance().single_thread_mode_locked();
-    }
-#endif
-
    private:
 #ifndef NDEBUG
     qsbr_epoch dealloc_epoch;
@@ -362,8 +354,21 @@ class qsbr final {
 
   ~qsbr() noexcept { assert_idle(); }
 
-  [[nodiscard]] bool single_thread_mode_locked() const noexcept {
-    return thread_count.load(std::memory_order_relaxed) < 2;
+  // May be used to block epoch advance by ensuring threads_in_previous_epoch
+  // cannot reach zero until a balanced decrement
+  void inc_threads_in_previous_epoch() noexcept {
+    std::lock_guard guard{qsbr_rwlock};
+
+    assert_invariants_locked();
+
+    ++threads_in_previous_epoch;
+
+    assert_invariants_locked();
+  }
+
+  [[nodiscard]] static bool single_thread_mode(
+      std::uint64_t thread_count) noexcept {
+    return thread_count < 2;
   }
 
   [[nodiscard]] qsbr_epoch get_current_epoch_locked() const noexcept {
@@ -373,13 +378,12 @@ class qsbr final {
   [[nodiscard]] qsbr_epoch remove_thread_from_previous_epoch_locked(
       qsbr_epoch current_global_epoch, deferred_requests &requests) noexcept;
 
-  [[nodiscard]] qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
-                                        deferred_requests &requests) noexcept;
+  qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
+                          std::uint64_t old_thread_count,
+                          deferred_requests &requests) noexcept;
 
   void assert_invariants_locked() const noexcept {
 #ifndef NDEBUG
-    UNODB_DETAIL_ASSERT(threads_in_previous_epoch <=
-                        thread_count.load(std::memory_order_relaxed));
     if (previous_interval_deallocation_requests.empty()) {
       UNODB_DETAIL_ASSERT(previous_interval_total_dealloc_size.load(
                               std::memory_order_relaxed) == 0);
@@ -396,7 +400,7 @@ class qsbr final {
   make_deferred_requests() UNODB_DETAIL_DEBUG_CONST noexcept {
     return deferred_requests{
 #ifndef NDEBUG
-        get_current_epoch_locked(), single_thread_mode_locked()
+        get_current_epoch_locked(), single_thread_mode()
 #endif
     };
   }
@@ -425,6 +429,8 @@ class qsbr final {
         std::memory_order_relaxed);
   }
 
+  std::atomic<std::uint64_t> thread_count;
+
   // TODO(laurynas): absolute scalability bottleneck
   mutable std::shared_mutex qsbr_rwlock;
 
@@ -437,10 +443,6 @@ class qsbr final {
 
   // Protected by qsbr_rwlock
   std::vector<deallocation_request> current_interval_deallocation_requests;
-
-  // Updated in qsbr_rwlock critical section with the rest of QSBR data
-  // structures
-  std::atomic<std::uint64_t> thread_count;
 
   // Protected by qsbr_rwlock
   std::uint64_t threads_in_previous_epoch{0};
@@ -527,7 +529,6 @@ inline void qsbr_per_thread::qsbr_pause() {
 #endif
   qsbr::instance().unregister_thread(quiescent_states_since_epoch_change,
                                      last_seen_epoch);
-  quiescent_states_since_epoch_change = 0;
   paused = true;
 }
 
@@ -535,7 +536,7 @@ inline void qsbr_per_thread::qsbr_resume() {
   UNODB_DETAIL_ASSERT(paused);
   UNODB_DETAIL_ASSERT(active_ptrs.empty());
   last_seen_epoch = qsbr::instance().register_thread();
-  UNODB_DETAIL_ASSERT(quiescent_states_since_epoch_change == 0);
+  quiescent_states_since_epoch_change = 0;
   paused = false;
 }
 

@@ -102,6 +102,7 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <iostream>
+#include <thread>
 
 // LCOV_EXCL_START
 namespace unodb::detail {
@@ -118,7 +119,8 @@ namespace unodb::detail {
 [[noreturn, gnu::cold, gnu::noinline]] inline void assert_failure(
     const char *file, int line, const char *func, const char *condition) {
   std::cerr << "Assertion \"" << condition << "\" failed at " << file << ':'
-            << line << ", function \"" << func << "\"\n";
+            << line << ", function \"" << func << "\", thread "
+            << std::this_thread::get_id() << '\n';
   print_stacktrace();
   std::abort();
 }
@@ -127,7 +129,7 @@ namespace unodb::detail {
                                                          int line,
                                                          const char *func) {
   std::cerr << "Crash requested at " << file << ':' << line << ", function \""
-            << func << "\"\n";
+            << func << "\", thread " << std::this_thread::get_id() << '\n';
   print_stacktrace();
   std::abort();
 }
@@ -144,7 +146,8 @@ namespace unodb::detail {
     const char *func UNODB_DETAIL_USED_IN_DEBUG) {
 #ifndef NDEBUG
   std::cerr << "Execution reached an unreachable point at " << file << ':'
-            << line << ": " << func << '\n';
+            << line << ": function \"" << func << "\", thread "
+            << std::this_thread::get_id() << '\n';
   print_stacktrace();
   std::abort();
 #endif

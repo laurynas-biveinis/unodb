@@ -102,36 +102,41 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 #include <thread>
 
 // LCOV_EXCL_START
 namespace unodb::detail {
 
-[[gnu::cold, gnu::noinline]] inline void print_stacktrace() noexcept {
+[[noreturn, gnu::cold, gnu::noinline]] inline void msg_stacktrace_abort(
+    const std::string &msg) noexcept {
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   void *stacktrace[1024];
   const auto frames = backtrace(stacktrace, 1024);
+
+  std::cerr << msg;
   // Ideally I'd like to call abi::__cxa_demangle on the symbol names but that
   // would require parsing the strings which contain more than just symbol names
   backtrace_symbols_fd(stacktrace, frames, STDERR_FILENO);
+  std::abort();
 }
 
 [[noreturn, gnu::cold, gnu::noinline]] inline void assert_failure(
     const char *file, int line, const char *func, const char *condition) {
-  std::cerr << "Assertion \"" << condition << "\" failed at " << file << ':'
-            << line << ", function \"" << func << "\", thread "
-            << std::this_thread::get_id() << '\n';
-  print_stacktrace();
-  std::abort();
+  std::ostringstream buf;
+  buf << "Assertion \"" << condition << "\" failed at " << file << ':' << line
+      << ", function \"" << func << "\", thread " << std::this_thread::get_id()
+      << '\n';
+  msg_stacktrace_abort(buf.str());
 }
 
 [[noreturn, gnu::cold, gnu::noinline]] inline void crash(const char *file,
                                                          int line,
                                                          const char *func) {
-  std::cerr << "Crash requested at " << file << ':' << line << ", function \""
-            << func << "\", thread " << std::this_thread::get_id() << '\n';
-  print_stacktrace();
-  std::abort();
+  std::ostringstream buf;
+  buf << "Crash requested at " << file << ':' << line << ", function \"" << func
+      << "\", thread " << std::this_thread::get_id() << '\n';
+  msg_stacktrace_abort(buf.str());
 }
 
 }  // namespace unodb::detail
@@ -145,11 +150,11 @@ namespace unodb::detail {
     int line UNODB_DETAIL_USED_IN_DEBUG,
     const char *func UNODB_DETAIL_USED_IN_DEBUG) {
 #ifndef NDEBUG
-  std::cerr << "Execution reached an unreachable point at " << file << ':'
-            << line << ": function \"" << func << "\", thread "
-            << std::this_thread::get_id() << '\n';
-  print_stacktrace();
-  std::abort();
+  std::ostringstream buf;
+  buf << "Execution reached an unreachable point at " << file << ':' << line
+      << ": function \"" << func << "\", thread " << std::this_thread::get_id()
+      << '\n';
+  msg_stacktrace_abort(buf.str());
 #endif
   __builtin_unreachable();
 }

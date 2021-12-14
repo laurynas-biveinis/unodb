@@ -396,11 +396,14 @@ class qsbr final {
 #endif
   }
 
-  [[nodiscard]] UNODB_DETAIL_RELEASE_STATIC deferred_requests
-  make_deferred_requests() UNODB_DETAIL_DEBUG_CONST noexcept {
+  [[nodiscard]] static deferred_requests make_deferred_requests(
+#ifndef NDEBUG
+      qsbr_epoch dealloc_epoch, bool single_thread_mode
+#endif
+      ) noexcept {
     return deferred_requests{
 #ifndef NDEBUG
-        get_current_epoch_locked(), single_thread_mode()
+        dealloc_epoch, single_thread_mode
 #endif
     };
   }

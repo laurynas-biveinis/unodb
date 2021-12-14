@@ -43,7 +43,9 @@ qsbr_epoch qsbr::register_thread() noexcept {
   // advance before we incremented thread_count too.
   inc_threads_in_previous_epoch();
 
-  thread_count.fetch_add(1, std::memory_order_acq_rel);
+  const auto old_thread_count UNODB_DETAIL_USED_IN_DEBUG =
+      thread_count.fetch_add(1, std::memory_order_acq_rel);
+  UNODB_DETAIL_ASSERT(old_thread_count < max_qsbr_threads);
 
   return get_current_epoch();
 }
@@ -54,7 +56,9 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
   // Block the epoch change
   inc_threads_in_previous_epoch();
 
-  thread_count.fetch_sub(1, std::memory_order_acq_rel);
+  const auto old_thread_count2 UNODB_DETAIL_USED_IN_DEBUG =
+      thread_count.fetch_sub(1, std::memory_order_acq_rel);
+  UNODB_DETAIL_ASSERT(old_thread_count2 <= max_qsbr_threads);
 
   bool remove_from_previous_epoch = (quiescent_states_since_epoch_change == 0);
   const auto current_global_epoch = get_current_epoch();
@@ -81,6 +85,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
       // this way?
       const auto old_thread_count =
           thread_count.load(std::memory_order_acquire) + 1;
+      UNODB_DETAIL_ASSERT(old_thread_count < max_qsbr_threads);
       // Only our bump to block the epoch change prevented that, now is the time
       change_epoch(current_global_epoch, old_thread_count, requests);
     } else {
@@ -192,8 +197,10 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch_locked(
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
-                              std::uint64_t old_thread_count,
+                              qsbr_thread_count_type old_thread_count,
                               qsbr::deferred_requests &requests) noexcept {
+  UNODB_DETAIL_ASSERT(old_thread_count <= max_qsbr_threads);
+
   const auto result = current_global_epoch.next();
   UNODB_DETAIL_ASSERT(get_current_epoch_locked().next() == result);
   current_epoch.store(result, std::memory_order_relaxed);

@@ -113,6 +113,13 @@ class qsbr_epoch {
 }
 // LCOV_EXCL_STOP
 
+// The maximum allowed QSBR-managed thread count is 2^30-1, should be enough for
+// everybody, let's not even bother checking the limit in the Release
+// configuration
+using qsbr_thread_count_type = std::uint32_t;
+
+inline constexpr qsbr_thread_count_type max_qsbr_threads = (2UL << 30U) - 1U;
+
 class [[nodiscard]] qsbr_per_thread final {
  public:
   qsbr_per_thread() noexcept;
@@ -294,8 +301,10 @@ class qsbr final {
     return single_thread_mode(number_of_threads());
   }
 
-  [[nodiscard]] std::uint64_t number_of_threads() const noexcept {
-    return thread_count.load(std::memory_order_acquire);
+  [[nodiscard]] qsbr_thread_count_type number_of_threads() const noexcept {
+    const auto result = thread_count.load(std::memory_order_acquire);
+    UNODB_DETAIL_ASSERT(result <= max_qsbr_threads);
+    return result;
   }
 
   [[nodiscard]] auto previous_interval_size() const noexcept {
@@ -310,6 +319,8 @@ class qsbr final {
 
   [[nodiscard]] auto get_threads_in_previous_epoch() const noexcept {
     std::shared_lock guard{qsbr_rwlock};
+    // Not correct but will go away in the lock-free QSBR
+    UNODB_DETAIL_ASSERT(threads_in_previous_epoch <= max_qsbr_threads + 1);
     return threads_in_previous_epoch;
   }
 
@@ -429,12 +440,15 @@ class qsbr final {
     assert_invariants_locked();
 
     ++threads_in_previous_epoch;
+    // Not correct but will go away in the lock-free QSBR
+    UNODB_DETAIL_ASSERT(threads_in_previous_epoch <= max_qsbr_threads + 1);
 
     assert_invariants_locked();
   }
 
   [[nodiscard]] static bool single_thread_mode(
-      std::uint64_t thread_count) noexcept {
+      qsbr_thread_count_type thread_count) noexcept {
+    UNODB_DETAIL_ASSERT(thread_count <= max_qsbr_threads);
     return thread_count < 2;
   }
 
@@ -446,7 +460,7 @@ class qsbr final {
       qsbr_epoch current_global_epoch, deferred_requests &requests) noexcept;
 
   qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
-                          std::uint64_t old_thread_count,
+                          qsbr_thread_count_type old_thread_count,
                           deferred_requests &requests) noexcept;
 
   void assert_invariants_locked() const noexcept {
@@ -499,7 +513,7 @@ class qsbr final {
         std::memory_order_relaxed);
   }
 
-  std::atomic<std::uint64_t> thread_count;
+  std::atomic<qsbr_thread_count_type> thread_count;
 
   // TODO(laurynas): absolute scalability bottleneck
   mutable std::shared_mutex qsbr_rwlock;
@@ -515,7 +529,7 @@ class qsbr final {
   std::vector<deallocation_request> current_interval_deallocation_requests;
 
   // Protected by qsbr_rwlock
-  std::uint64_t threads_in_previous_epoch{0};
+  qsbr_thread_count_type threads_in_previous_epoch{0};
 
   // TODO(laurynas): atomic but mostly manipulated in qsbr_rwlock critical
   // sections. See if can move it out.

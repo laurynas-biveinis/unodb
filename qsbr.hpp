@@ -57,7 +57,7 @@ class qsbr_epoch {
  public:
   using epoch_type = std::uint8_t;
 
-  static constexpr epoch_type max_epoch = 3U;
+  static constexpr epoch_type max = 3U;
 
   qsbr_epoch() noexcept = default;
   qsbr_epoch(const qsbr_epoch &) noexcept = default;
@@ -74,7 +74,7 @@ class qsbr_epoch {
     assert_invariant();
 
     return qsbr_epoch{
-        gsl::narrow_cast<epoch_type>((epoch_val + 1) % max_epoch_count)};
+        gsl::narrow_cast<epoch_type>((epoch_val + 1) % max_count)};
   }
 
   [[nodiscard]] constexpr bool operator==(qsbr_epoch other) const noexcept {
@@ -94,11 +94,11 @@ class qsbr_epoch {
   friend std::ostream &operator<<(std::ostream &os, qsbr_epoch value);
 
  private:
-  static constexpr auto max_epoch_count = max_epoch + 1U;
-  static_assert((max_epoch_count & (max_epoch_count - 1U)) == 0);
+  static constexpr auto max_count = max + 1U;
+  static_assert((max_count & (max_count - 1U)) == 0);
 
   constexpr void assert_invariant() const noexcept {
-    UNODB_DETAIL_ASSERT(epoch_val <= max_epoch);
+    UNODB_DETAIL_ASSERT(epoch_val <= max);
   }
 
   epoch_type epoch_val;

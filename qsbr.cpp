@@ -25,6 +25,33 @@ namespace unodb {
 }
 // LCOV_EXCL_STOP
 
+[[nodiscard]] qsbr_state::type
+qsbr_state::atomic_fetch_dec_threads_in_previous_epoch(
+    std::atomic<qsbr_state::type> &word) noexcept {
+  const auto old_word = word.fetch_sub(1, std::memory_order_acq_rel);
+
+  UNODB_DETAIL_ASSERT(get_threads_in_previous_epoch(old_word) > 0);
+  assert_invariants(old_word);
+
+  return old_word;
+}
+
+// Some GCC versions suggest cold attribute on already cold-marked functions
+UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
+
+// LCOV_EXCL_START
+[[gnu::cold, gnu::noinline]] void qsbr_state::dump(std::ostream &os,
+                                                   type word) {
+  os << "QSBR state: " << do_get_epoch(word)
+     << ", threads = " << do_get_thread_count(word)
+     << ", threads in the previous epoch = "
+     << do_get_threads_in_previous_epoch(word);
+  assert_invariants(word);
+}
+// LCOV_EXCL_STOP
+
+UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+
 #ifndef NDEBUG
 
 void qsbr_per_thread::register_active_ptr(const void *ptr) {
@@ -46,59 +73,134 @@ void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
 #endif  // !NDEBUG
 
 qsbr_epoch qsbr::register_thread() noexcept {
-  // Start by incrementing threads_in_previous_epoch so that the epoch cannot
-  // advance before we incremented thread_count too.
-  inc_threads_in_previous_epoch();
+  auto old_state = get_state();
 
-  const auto old_thread_count UNODB_DETAIL_USED_IN_DEBUG =
-      thread_count.fetch_add(1, std::memory_order_acq_rel);
-  UNODB_DETAIL_ASSERT(old_thread_count < max_qsbr_threads);
+  while (true) {
+    const auto old_epoch = qsbr_state::get_epoch(old_state);
+    const auto old_thread_count = qsbr_state::get_thread_count(old_state);
+    const auto old_threads_in_previous_epoch =
+        qsbr_state::get_threads_in_previous_epoch(old_state);
 
-  return get_epoch();
+    if (UNODB_DETAIL_LIKELY(old_threads_in_previous_epoch > 0 ||
+                            old_thread_count == 0)) {
+      const auto new_state =
+          qsbr_state::inc_thread_count_and_threads_in_previous_epoch(old_state);
+
+      if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
+              old_state, new_state, std::memory_order_acq_rel,
+              std::memory_order_acquire)))
+        return old_epoch;
+
+      // LCOV_EXCL_START
+      continue;
+    }
+
+    // TODO(laurynas): this and the rest of coverage exclusions would require
+    // thread schedules that are impossible to get deterministically. Try to
+    // device some thread pause-wait-continue facility for debug builds.
+    UNODB_DETAIL_ASSERT(old_threads_in_previous_epoch == 0);
+    UNODB_DETAIL_ASSERT(old_thread_count > 0);
+
+    // Epoch change in progress - try to bump the thread count only
+    const auto new_state = qsbr_state::inc_thread_count(old_state);
+
+    if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
+            old_state, new_state, std::memory_order_acq_rel,
+            std::memory_order_acquire))) {
+      // Spin until the epoch change completes. An alternative would be to
+      // return the new epoch early, and then handle seeing it in quiescent
+      // state as a no-op, but that trades spinning here for more work in a
+      // hotter path.
+      while (true) {
+        old_state = get_state();
+        const auto new_epoch = qsbr_state::get_epoch(old_state);
+        if (new_epoch != old_epoch) return new_epoch;
+      }
+    }
+  }
+  // LCOV_EXCL_STOP
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                              qsbr_epoch thread_epoch) noexcept {
-  // Block the epoch change
-  inc_threads_in_previous_epoch();
+  bool requests_updated_for_epoch_change = false;
+  auto old_state = state.load(std::memory_order_acquire);
 
-  const auto old_thread_count2 UNODB_DETAIL_USED_IN_DEBUG =
-      thread_count.fetch_sub(1, std::memory_order_acq_rel);
-  UNODB_DETAIL_ASSERT(old_thread_count2 <= max_qsbr_threads);
+  while (true) {
+    const auto old_epoch = qsbr_state::get_epoch(old_state);
+    const auto old_threads_in_previous_epoch =
+        qsbr_state::get_threads_in_previous_epoch(old_state);
 
-  bool remove_from_previous_epoch = (quiescent_states_since_epoch_change == 0);
-  const auto current_global_epoch = get_epoch();
+    if (UNODB_DETAIL_UNLIKELY(old_threads_in_previous_epoch == 0)) {
+      // LCOV_EXCL_START
+      // Epoch change in progress - try to decrement the thread count only
+      const auto new_state = qsbr_state::dec_thread_count(old_state);
+      if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
+              old_state, new_state, std::memory_order_acq_rel,
+              std::memory_order_acquire))) {
+        return;
+      }
+      continue;
+      // LCOV_EXCL_STOP
+    }
 
-  if (current_global_epoch != thread_epoch) {
-    UNODB_DETAIL_ASSERT(current_global_epoch == thread_epoch.next());
-    register_quiescent_states_per_thread_between_epoch_changes(
-        quiescent_states_since_epoch_change);
-    remove_from_previous_epoch = true;
-  }
+    UNODB_DETAIL_ASSERT(old_threads_in_previous_epoch > 0);
+    const auto remove_thread_from_previous_epoch =
+        (thread_epoch != old_epoch) ||
+        (quiescent_states_since_epoch_change == 0);
 
-  if (remove_from_previous_epoch) {
-    std::lock_guard guard{qsbr_rwlock};
-    --threads_in_previous_epoch;
-  }
+    const auto new_state =
+        remove_thread_from_previous_epoch
+            ? (old_threads_in_previous_epoch == 1
+                   ? qsbr_state::inc_epoch_dec_thread_count_reset_previous(
+                         old_state)
+                   : qsbr_state::dec_thread_count_and_threads_in_previous_epoch(
+                         old_state))
+            : qsbr_state::dec_thread_count(old_state);
 
-  qsbr::deferred_requests requests;
-  {
-    std::lock_guard guard{qsbr_rwlock};
-    assert_invariants_locked();
+    if (remove_thread_from_previous_epoch) {
+      thread_epoch_change_barrier();
 
-    if (threads_in_previous_epoch == 1) {
-      // TODO(laurynas): suspicious! Can we miss going to single-threaded mode
-      // this way?
-      const auto old_thread_count =
-          thread_count.load(std::memory_order_acquire) + 1;
-      UNODB_DETAIL_ASSERT(old_thread_count < max_qsbr_threads);
-      // Only our bump to block the epoch change prevented that, now is the time
-      change_epoch(current_global_epoch, old_thread_count, requests);
-    } else {
-      // Undo our bump to block the epoch change
-      UNODB_DETAIL_ASSERT(threads_in_previous_epoch > 0);
-      --threads_in_previous_epoch;
+      if (old_threads_in_previous_epoch == 1) {
+        const auto old_single_thread_mode =
+            qsbr_state::single_thread_mode(old_state);
+
+        if (!requests_updated_for_epoch_change) {
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
+          __tsan_acquire(&instance());
+#endif
+          // Acquire synchronizes-with
+          // atomic_thread_fence(std::memory_order_release) in
+          // thread_epoch_change_barrier
+          std::lock_guard guard{qsbr_rwlock};
+          const auto requests_to_deallocate = epoch_change_update_requests(
+#ifndef NDEBUG
+              old_epoch,
+#endif
+              old_single_thread_mode);
+          // If we come here the second time, do not call
+          // epoch_change_update_requests as it's already done for this
+          // particular epoch change and we cannot change the epoch twice here.
+          requests_updated_for_epoch_change = true;
+          // Request epoch invariants become fuzzy at this point - the current
+          // interval moved to previous but the epoch not advanced yet. Any new
+          // requests until CAS will get the old epoch.
+        }
+      }
+    }
+
+    // Use the strong version because we cannot call
+    // epoch_change_update_requests the second time due to a spurious failure
+    if (UNODB_DETAIL_LIKELY(state.compare_exchange_strong(
+            old_state, new_state, std::memory_order_acq_rel,
+            std::memory_order_acquire))) {
+      if (thread_epoch != old_epoch) {
+        register_quiescent_states_per_thread_between_epoch_changes(
+            quiescent_states_since_epoch_change);
+      }
+
+      return;
     }
   }
 }
@@ -123,6 +225,9 @@ void qsbr::reset_stats() noexcept {
   publish_quiescent_states_per_thread_between_epoch_change_stats();
 }
 
+// Some GCC versions suggest cold attribute on already cold-marked functions
+UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
+
 [[gnu::cold, gnu::noinline]] void qsbr::dump(std::ostream &out) const {
   // TODO(laurynas): locking? anyone using it all?
   out << "QSBR status:\n";
@@ -134,9 +239,19 @@ void qsbr::reset_stats() noexcept {
       << current_interval_deallocation_requests.size() << '\n';
   out << "Current interval pending deallocation bytes: "
       << current_interval_total_dealloc_size.load(std::memory_order_relaxed);
-  out << "Number of tracked threads: " << number_of_threads() << '\n';
-  out << "Number of threads in the previous epoch = "
-      << threads_in_previous_epoch << '\n';
+  out << state.load(std::memory_order_acquire) << '\n';
+}
+
+UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+
+void qsbr::thread_epoch_change_barrier() noexcept {
+  // No loads and stores can be reordered past this point, or the quiescent
+  // state contract would be violated
+  std::atomic_thread_fence(std::memory_order_release);
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
+  // I have no idea what I am doing
+  __tsan_release(&instance());
+#endif
 }
 
 qsbr_epoch qsbr::remove_thread_from_previous_epoch(
@@ -146,48 +261,31 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
     qsbr_epoch thread_epoch
 #endif
     ) noexcept {
+  thread_epoch_change_barrier();
+
+  const auto old_state =
+      qsbr_state::atomic_fetch_dec_threads_in_previous_epoch(state);
+
+  const auto old_threads_in_previous_epoch =
+      qsbr_state::get_threads_in_previous_epoch(old_state);
+  const auto old_single_thread_mode = qsbr_state::single_thread_mode(old_state);
+
+  // The global epoch could not have advanced since the passed in value was
+  // read because this thread is passing through the quiescent state for the
+  // first time in this epoch.
+  UNODB_DETAIL_ASSERT(current_global_epoch == qsbr_state::get_epoch(old_state));
+  UNODB_DETAIL_ASSERT(thread_epoch == current_global_epoch ||
+                      thread_epoch.next() == current_global_epoch);
+
+  if (old_threads_in_previous_epoch > 1) return current_global_epoch;
+
   deferred_requests to_deallocate;
-  qsbr_epoch result;
+  const auto new_epoch =
+      change_epoch(current_global_epoch, old_single_thread_mode, to_deallocate);
 
-  // No loads and stores can be reordered past this point, or the quiescent
-  // state contract would be violated
-  std::atomic_thread_fence(std::memory_order_release);
-#ifdef UNODB_DETAIL_THREAD_SANITIZER
-  // I have no idea what I am doing
-  __tsan_release(&instance());
-#endif
+  UNODB_DETAIL_ASSERT(current_global_epoch.next() == new_epoch);
 
-  {
-#ifdef UNODB_DETAIL_THREAD_SANITIZER
-    __tsan_acquire(&instance());
-#endif
-    // Acquire synchronizes-with the release fence, OK to release the old
-    // pointers.
-    std::lock_guard guard{qsbr_rwlock};
-
-    assert_invariants_locked();
-
-    // The global epoch could not have advanced since the passed in value was
-    // read because this thread is passing through the quiescent state for the
-    // first time in this epoch.
-    UNODB_DETAIL_ASSERT(current_global_epoch == get_current_epoch_locked());
-    UNODB_DETAIL_ASSERT(thread_epoch == current_global_epoch ||
-                        thread_epoch.next() == current_global_epoch);
-
-    UNODB_DETAIL_ASSERT(threads_in_previous_epoch > 0);
-    --threads_in_previous_epoch;
-
-    result = threads_in_previous_epoch > 0
-                 ? current_global_epoch
-                 : change_epoch(current_global_epoch, number_of_threads(),
-                                to_deallocate);
-
-    UNODB_DETAIL_ASSERT(current_global_epoch == result ||
-                        current_global_epoch.next() == result);
-
-    assert_invariants_locked();
-  }
-  return result;
+  return new_epoch;
 }
 
 [[nodiscard]] qsbr::deferred_requests qsbr::make_deferred_requests(
@@ -204,9 +302,9 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
 
 qsbr::deferred_requests qsbr::epoch_change_update_requests(
 #ifndef NDEBUG
-    qsbr_epoch current_global_epoch, bool single_thread_mode,
+    qsbr_epoch current_global_epoch,
 #endif
-    qsbr_thread_count_type old_thread_count) noexcept {
+    bool single_thread_mode) noexcept {
   const auto new_epoch_change_count =
       epoch_change_count.load(std::memory_order_relaxed) + 1;
   epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
@@ -224,17 +322,28 @@ qsbr::deferred_requests qsbr::epoch_change_update_requests(
 #endif
   );
 
-  UNODB_DETAIL_ASSERT(
-      previous_interval_deallocation_requests.empty() ||
-      previous_interval_deallocation_requests[0].request_epoch.next() ==
-          current_global_epoch);
-  UNODB_DETAIL_ASSERT(current_interval_deallocation_requests.empty() ||
-                      current_interval_deallocation_requests[0].request_epoch ==
-                          current_global_epoch);
+#ifndef NDEBUG
+  // The asserts cannot be stricter due to epoch change by unregister_thread,
+  // which moves requests between intervals not atomically with the epoch
+  // change.
+  if (!previous_interval_deallocation_requests.empty()) {
+    const auto request_epoch =
+        previous_interval_deallocation_requests[0].request_epoch;
+    UNODB_DETAIL_ASSERT(request_epoch == current_global_epoch ||
+                        request_epoch.next() == current_global_epoch ||
+                        request_epoch.next().next() == current_global_epoch);
+  }
+  if (!current_interval_deallocation_requests.empty()) {
+    const auto request_epoch =
+        current_interval_deallocation_requests[0].request_epoch;
+    UNODB_DETAIL_ASSERT(request_epoch == current_global_epoch ||
+                        request_epoch.next() == current_global_epoch);
+  }
+#endif
 
   result.requests[0] = std::move(previous_interval_deallocation_requests);
 
-  if (UNODB_DETAIL_LIKELY(!qsbr::single_thread_mode(old_thread_count))) {
+  if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
     previous_interval_deallocation_requests =
         std::move(current_interval_deallocation_requests);
     previous_interval_total_dealloc_size.store(
@@ -253,23 +362,42 @@ qsbr::deferred_requests qsbr::epoch_change_update_requests(
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
-                              qsbr_thread_count_type old_thread_count,
+                              bool single_thread_mode,
                               qsbr::deferred_requests &requests) noexcept {
-  UNODB_DETAIL_ASSERT(old_thread_count <= max_qsbr_threads);
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
+  __tsan_acquire(&instance());
+#endif
+  // Acquire synchronizes-with atomic_thread_fence(std::memory_order_release)
+  // in thread_epoch_change_barrier
+  std::lock_guard guard{qsbr_rwlock};
+
+  assert_invariants_locked();
 
   requests = epoch_change_update_requests(
 #ifndef NDEBUG
-      current_global_epoch, single_thread_mode(),
+      current_global_epoch,
 #endif
-      old_thread_count);
+      single_thread_mode);
 
-  const auto result = current_global_epoch.next();
-  UNODB_DETAIL_ASSERT(get_current_epoch_locked().next() == result);
-  current_epoch.store(result, std::memory_order_relaxed);
+  auto old_state = state.load(std::memory_order_acquire);
+  while (true) {
+    UNODB_DETAIL_ASSERT(current_global_epoch ==
+                        qsbr_state::get_epoch(old_state));
 
-  threads_in_previous_epoch = number_of_threads();
+    const auto new_state = qsbr_state::inc_epoch_reset_previous(old_state);
+    if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
+            old_state, new_state, std::memory_order_acq_rel,
+            std::memory_order_acquire))) {
+      UNODB_DETAIL_ASSERT(current_global_epoch.next() ==
+                          qsbr_state::get_epoch(new_state));
 
-  return result;
+      return current_global_epoch.next();
+    }
+
+    // Nobody else can change epoch nor threads in the previous epoch, only
+    // allowed failures are thread count change and spurious. The next loop
+    // iteration will assert this.
+  }
 }
 
 void qsbr::assert_idle_locked() const noexcept {

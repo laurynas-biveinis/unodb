@@ -28,23 +28,26 @@ class QSBR : public ::testing::Test {
   ~QSBR() noexcept override { unodb::test::expect_idle_qsbr(); }
 
   [[nodiscard]] static auto get_qsbr_thread_count() noexcept {
-    return unodb::qsbr::instance().number_of_threads();
+    return unodb::qsbr_state::get_thread_count(
+        unodb::qsbr::instance().get_state());
   }
-
   // Epochs
 
   void mark_epoch() noexcept {
-    last_epoch = unodb::qsbr::instance().get_epoch();
+    last_epoch =
+        unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
   }
 
   void check_epoch_advanced() {
-    const auto current_epoch = unodb::qsbr::instance().get_epoch();
+    const auto current_epoch =
+        unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
     EXPECT_EQ(last_epoch.next(), current_epoch);
     last_epoch = current_epoch;
   }
 
   void check_epoch_same() const {
-    const auto current_epoch = unodb::qsbr::instance().get_epoch();
+    const auto current_epoch =
+        unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
     EXPECT_EQ(last_epoch, current_epoch);
   }
 
@@ -870,9 +873,10 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
             .get_mean_quiescent_states_per_thread_between_epoch_changes();
     ASSERT_EQ(unodb::qsbr::instance().previous_interval_size(), 0);
     ASSERT_EQ(unodb::qsbr::instance().current_interval_size(), 0);
-    ASSERT_LE(unodb::qsbr::instance().get_threads_in_previous_epoch(), 2);
-    volatile auto force_load2 [[maybe_unused]] =
-        unodb::qsbr::instance().get_epoch();
+    const auto current_qsbr_state = unodb::qsbr::instance().get_state();
+    ASSERT_LE(
+        unodb::qsbr_state::get_threads_in_previous_epoch(current_qsbr_state),
+        2);
     volatile auto force_load3 [[maybe_unused]] =
         unodb::qsbr::instance().get_epoch_change_count();
   }};

@@ -793,7 +793,8 @@ constexpr void olc_db::account_shrinking_inode() noexcept {
 }
 
 olc_db::~olc_db() noexcept {
-  UNODB_DETAIL_ASSERT(qsbr::instance().single_thread_mode());
+  UNODB_DETAIL_ASSERT(
+      qsbr_state::single_thread_mode(qsbr::instance().get_state()));
 
   delete_root_subtree();
 }
@@ -1164,7 +1165,8 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
 }
 
 void olc_db::delete_root_subtree() noexcept {
-  UNODB_DETAIL_ASSERT(qsbr::instance().single_thread_mode());
+  UNODB_DETAIL_ASSERT(
+      qsbr_state::single_thread_mode(qsbr::instance().get_state()));
 
   if (root != nullptr) olc_art_policy::delete_subtree(root, *this);
   // It is possible to reset the counter to zero instead of decrementing it for
@@ -1174,7 +1176,8 @@ void olc_db::delete_root_subtree() noexcept {
 }
 
 void olc_db::clear() {
-  UNODB_DETAIL_ASSERT(qsbr::instance().single_thread_mode());
+  UNODB_DETAIL_ASSERT(
+      qsbr_state::single_thread_mode(qsbr::instance().get_state()));
 
   delete_root_subtree();
 

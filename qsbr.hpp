@@ -22,6 +22,8 @@
 #include <utility>  // IWYU pragma: keep
 #include <vector>
 
+#include <gsl/gsl_util>
+
 #include <boost/accumulators/accumulators.hpp>  // IWYU pragma: keep
 #include <boost/accumulators/statistics/max.hpp>
 #include <boost/accumulators/statistics/mean.hpp>
@@ -48,7 +50,68 @@ namespace unodb {
 // safe destruction in concurrent containers" ever gets anywhere, consider
 // changing to its interface, like Stamp-it paper does.
 
-using qsbr_epoch = std::uint64_t;
+// Two-bit wrapping-around epoch counter. Two epochs can be compared for
+// equality but otherwise are unordered. One bit counter would be enough too,
+// but with two bits we can check more invariants.
+class qsbr_epoch {
+ public:
+  using epoch_type = std::uint8_t;
+
+  static constexpr epoch_type max_epoch = 3U;
+
+  qsbr_epoch() noexcept = default;
+  qsbr_epoch(const qsbr_epoch &) noexcept = default;
+  qsbr_epoch(qsbr_epoch &&) noexcept = default;
+  qsbr_epoch &operator=(const qsbr_epoch &) noexcept = default;
+  qsbr_epoch &operator=(qsbr_epoch &&) noexcept = default;
+  ~qsbr_epoch() noexcept = default;
+
+  constexpr explicit qsbr_epoch(epoch_type epoch_val_) : epoch_val{epoch_val_} {
+    assert_invariant();
+  }
+
+  [[nodiscard]] constexpr qsbr_epoch next() const noexcept {
+    assert_invariant();
+
+    return qsbr_epoch{
+        gsl::narrow_cast<epoch_type>((epoch_val + 1) % max_epoch_count)};
+  }
+
+  [[nodiscard]] constexpr bool operator==(qsbr_epoch other) const noexcept {
+    assert_invariant();
+    other.assert_invariant();
+
+    return epoch_val == other.epoch_val;
+  }
+
+  [[nodiscard]] constexpr bool operator!=(qsbr_epoch other) const noexcept {
+    assert_invariant();
+    other.assert_invariant();
+
+    return epoch_val != other.epoch_val;
+  }
+
+  friend std::ostream &operator<<(std::ostream &os, qsbr_epoch value);
+
+ private:
+  static constexpr auto max_epoch_count = max_epoch + 1U;
+  static_assert((max_epoch_count & (max_epoch_count - 1U)) == 0);
+
+  constexpr void assert_invariant() const noexcept {
+    UNODB_DETAIL_ASSERT(epoch_val <= max_epoch);
+  }
+
+  epoch_type epoch_val;
+};
+
+// LCOV_EXCL_START
+[[gnu::cold, gnu::noinline]] inline std::ostream &operator<<(std::ostream &os,
+                                                             qsbr_epoch value) {
+  os << "epoch = " << static_cast<std::uint64_t>(value.epoch_val);
+  value.assert_invariant();
+  return os;
+}
+// LCOV_EXCL_STOP
 
 class [[nodiscard]] qsbr_per_thread final {
  public:
@@ -214,6 +277,10 @@ class qsbr final {
     return current_epoch.load(std::memory_order_acquire);
   }
 
+  [[nodiscard]] std::uint64_t get_epoch_change_count() const noexcept {
+    return epoch_change_count.load(std::memory_order_acquire);
+  }
+
   [[nodiscard]] auto get_max_backlog_bytes() const noexcept {
     return deallocation_size_max.load(std::memory_order_acquire);
   }
@@ -299,9 +366,9 @@ class qsbr final {
     ) const noexcept {
       // TODO(laurynas): count deallocation request instances, assert 0 in QSBR
       // dtor
-      UNODB_DETAIL_ASSERT(dealloc_epoch == request_epoch + 2 ||
+      UNODB_DETAIL_ASSERT(dealloc_epoch == request_epoch.next().next() ||
                           (dealloc_epoch_single_thread_mode &&
-                           dealloc_epoch == request_epoch + 1));
+                           dealloc_epoch == request_epoch.next()));
 
       qsbr::deallocate(pointer
 #ifndef NDEBUG
@@ -439,7 +506,7 @@ class qsbr final {
 
   // Updated in qsbr_rwlock critical section with the rest of QSBR data
   // structures
-  std::atomic<qsbr_epoch> current_epoch{0};
+  std::atomic<qsbr_epoch> current_epoch{qsbr_epoch{0}};
 
   // Protected by qsbr_rwlock
   std::vector<deallocation_request> previous_interval_deallocation_requests;
@@ -454,6 +521,8 @@ class qsbr final {
   // sections. See if can move it out.
   std::atomic<std::uint64_t> previous_interval_total_dealloc_size{};
   std::atomic<std::uint64_t> current_interval_total_dealloc_size{};
+
+  std::atomic<std::uint64_t> epoch_change_count;
 
   // TODO(laurynas): more interesting callback stats?
   boost_acc::accumulator_set<
@@ -493,8 +562,8 @@ inline void qsbr_per_thread::quiescent() noexcept {
 
   const auto current_global_epoch = qsbr::instance().get_current_epoch();
 
-  if (current_global_epoch > last_seen_epoch) {
-    UNODB_DETAIL_ASSERT(current_global_epoch == last_seen_epoch + 1);
+  if (current_global_epoch != last_seen_epoch) {
+    UNODB_DETAIL_ASSERT(current_global_epoch == last_seen_epoch.next());
 
     last_seen_epoch = current_global_epoch;
     qsbr::instance().register_quiescent_states_per_thread_between_epoch_changes(
@@ -512,9 +581,9 @@ inline void qsbr_per_thread::quiescent() noexcept {
 #endif
         );
     UNODB_DETAIL_ASSERT(new_global_epoch == last_seen_epoch ||
-                        new_global_epoch == last_seen_epoch + 1);
+                        new_global_epoch == last_seen_epoch.next());
 
-    if (new_global_epoch > last_seen_epoch) {
+    if (new_global_epoch != last_seen_epoch) {
       last_seen_epoch = new_global_epoch;
       qsbr::instance()
           .register_quiescent_states_per_thread_between_epoch_changes(1);

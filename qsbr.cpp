@@ -205,7 +205,11 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
   epoch_callback_stats(previous_interval_deallocation_requests.size());
   publish_epoch_callback_stats();
 
-  requests = make_deferred_requests();
+  requests = make_deferred_requests(
+#ifndef NDEBUG
+      result, single_thread_mode()
+#endif
+  );
   requests.requests[0] = std::move(previous_interval_deallocation_requests);
 
   if (UNODB_DETAIL_LIKELY(!single_thread_mode(old_thread_count))) {

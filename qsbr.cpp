@@ -59,8 +59,8 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
   bool remove_from_previous_epoch = (quiescent_states_since_epoch_change == 0);
   const auto current_global_epoch = get_current_epoch();
 
-  if (current_global_epoch > thread_epoch) {
-    UNODB_DETAIL_ASSERT(current_global_epoch == thread_epoch + 1);
+  if (current_global_epoch != thread_epoch) {
+    UNODB_DETAIL_ASSERT(current_global_epoch == thread_epoch.next());
     register_quiescent_states_per_thread_between_epoch_changes(
         quiescent_states_since_epoch_change);
     remove_from_previous_epoch = true;
@@ -160,12 +160,12 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
     // first time in this epoch.
     UNODB_DETAIL_ASSERT(current_global_epoch == get_current_epoch_locked());
     UNODB_DETAIL_ASSERT(thread_epoch == current_global_epoch ||
-                        thread_epoch + 1 == current_global_epoch);
+                        thread_epoch.next() == current_global_epoch);
 
     const auto new_global_epoch = remove_thread_from_previous_epoch_locked(
         current_global_epoch, to_deallocate);
     UNODB_DETAIL_ASSERT(new_global_epoch == current_global_epoch ||
-                        new_global_epoch == current_global_epoch + 1);
+                        new_global_epoch == current_global_epoch.next());
 
     result = new_global_epoch;
 
@@ -185,7 +185,7 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch_locked(
   const auto new_epoch =
       change_epoch(current_global_epoch, number_of_threads(), requests);
 
-  UNODB_DETAIL_ASSERT(current_global_epoch + 1 == new_epoch);
+  UNODB_DETAIL_ASSERT(current_global_epoch.next() == new_epoch);
 
   return new_epoch;
 }
@@ -194,9 +194,13 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch_locked(
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
                               std::uint64_t old_thread_count,
                               qsbr::deferred_requests &requests) noexcept {
-  const auto result = current_global_epoch + 1;
-  UNODB_DETAIL_ASSERT(get_current_epoch_locked() + 1 == result);
+  const auto result = current_global_epoch.next();
+  UNODB_DETAIL_ASSERT(get_current_epoch_locked().next() == result);
   current_epoch.store(result, std::memory_order_relaxed);
+
+  const auto new_epoch_change_count =
+      epoch_change_count.load(std::memory_order_relaxed) + 1;
+  epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
 
   deallocation_size_stats(
       current_interval_total_dealloc_size.load(std::memory_order_relaxed));

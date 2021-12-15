@@ -53,7 +53,7 @@ namespace unodb {
 // Two-bit wrapping-around epoch counter. Two epochs can be compared for
 // equality but otherwise are unordered. One bit counter would be enough too,
 // but with two bits we can check more invariants.
-class qsbr_epoch {
+class qsbr_epoch final {
  public:
   using epoch_type = std::uint8_t;
 

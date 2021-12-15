@@ -4,8 +4,6 @@
 
 #include "global.hpp"  // IWYU pragma: keep
 
-#include <gtest/gtest.h>  // IWYU pragma: keep
-
 namespace unodb::test {
 
 void expect_idle_qsbr();

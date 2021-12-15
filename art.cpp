@@ -6,7 +6,7 @@
 
 #include <iostream>
 #include <type_traits>
-#include <utility>
+#include <utility>  // IWYU pragma: keep
 
 #include "art_internal_impl.hpp"
 #include "in_fake_critical_section.hpp"

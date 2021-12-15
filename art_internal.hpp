@@ -2,14 +2,14 @@
 #ifndef UNODB_DETAIL_ART_INTERNAL_HPP
 #define UNODB_DETAIL_ART_INTERNAL_HPP
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <iosfwd>
-#include <memory>
-#include <type_traits>  // IWYU pragma: keep
+#include <memory>  // IWYU pragma: keep
+#include <type_traits>
 
 #include "art_common.hpp"
 #include "node_type.hpp"
@@ -18,10 +18,10 @@ namespace unodb::detail {
 
 // Forward declarations to use in unodb::db and its siblings
 template <class>
-class [[nodiscard]] basic_leaf;  // IWYU pragma: keep
+class [[nodiscard]] basic_leaf;
 
 template <class, class>
-class [[nodiscard]] basic_db_leaf_deleter;  // IWYU pragma: keep
+class [[nodiscard]] basic_db_leaf_deleter;
 
 // Internal ART key in binary-comparable format
 template <typename KeyType>

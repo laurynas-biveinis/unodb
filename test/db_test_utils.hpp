@@ -4,14 +4,14 @@
 
 #include "global.hpp"
 
-#include <algorithm>
+#include <algorithm>  // IWYU pragma: keep
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
 #include <iostream>
 #include <thread>
-#include <type_traits>  // IWYU pragma: keep
+#include <type_traits>
 #include <unordered_map>
 
 #include <gmock/gmock.h>  // IWYU pragma: keep

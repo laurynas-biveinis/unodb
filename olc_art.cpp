@@ -7,9 +7,9 @@
 
 #include <cstddef>
 #include <iostream>
-#include <memory>
+#include <memory>  // IWYU pragma: keep
 #include <type_traits>
-#include <utility>
+#include <utility>  // IWYU pragma: keep
 
 #include "art_internal_impl.hpp"
 #include "node_type.hpp"

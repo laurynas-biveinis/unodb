@@ -3,8 +3,6 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <cmath>
-#include <cstddef>  // IWYU pragma: keep
-#include <mutex>    // IWYU pragma: keep
 #include <utility>  // IWYU pragma: keep
 
 #include <gtest/gtest.h>  // IWYU pragma: keep

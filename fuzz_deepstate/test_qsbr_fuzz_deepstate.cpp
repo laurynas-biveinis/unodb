@@ -2,11 +2,11 @@
 
 #include "global.hpp"
 
-#include <algorithm>
+#include <algorithm>  // IWYU pragma: keep
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <iterator>
+#include <iterator>  // IWYU pragma: keep
 #include <sstream>
 #include <unordered_set>
 #include <utility>  // IWYU pragma: keep

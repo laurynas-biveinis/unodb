@@ -2,7 +2,7 @@
 
 #include "global.hpp"  // IWYU pragma: keep
 
-#include <algorithm>
+#include <algorithm>  // IWYU pragma: keep
 #include <cstddef>
 #include <cstdint>
 #include <vector>

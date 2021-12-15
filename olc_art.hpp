@@ -2,11 +2,11 @@
 #ifndef UNODB_DETAIL_OLC_ART_HPP
 #define UNODB_DETAIL_OLC_ART_HPP
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <array>
 #include <atomic>
-#include <cstddef>  // IWYU pragma: keep
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <optional>

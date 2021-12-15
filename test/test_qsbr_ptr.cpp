@@ -2,7 +2,7 @@
 
 #include "global.hpp"
 
-#include <algorithm>
+#include <algorithm>  // IWYU pragma: keep
 #include <array>
 #include <utility>  // IWYU pragma: keep
 

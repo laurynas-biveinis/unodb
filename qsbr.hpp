@@ -113,12 +113,12 @@ class qsbr_epoch final {
 }
 // LCOV_EXCL_STOP
 
-// The maximum allowed QSBR-managed thread count is 2^30-1, should be enough for
+// The maximum allowed QSBR-managed thread count is 2^29-1, should be enough for
 // everybody, let's not even bother checking the limit in the Release
 // configuration
 using qsbr_thread_count_type = std::uint32_t;
 
-inline constexpr qsbr_thread_count_type max_qsbr_threads = (2UL << 30U) - 1U;
+inline constexpr qsbr_thread_count_type max_qsbr_threads = (2UL << 29U) - 1U;
 
 class [[nodiscard]] qsbr_per_thread final {
  public:

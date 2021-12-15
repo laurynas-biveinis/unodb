@@ -121,7 +121,7 @@ void qsbr::reset_stats() noexcept {
   publish_quiescent_states_per_thread_between_epoch_change_stats();
 }
 
-void qsbr::dump(std::ostream &out) const {
+[[gnu::cold, gnu::noinline]] void qsbr::dump(std::ostream &out) const {
   // TODO(laurynas): locking? anyone using it all?
   out << "QSBR status:\n";
   out << "Previous interval pending deallocation requests: "

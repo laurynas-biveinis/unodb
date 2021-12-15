@@ -91,7 +91,7 @@ class qsbr_epoch final {
     return epoch_val != other.epoch_val;
   }
 
-  void dump(std::ostream &os) const;
+  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const;
 
  private:
   static constexpr auto max_count = max + 1U;

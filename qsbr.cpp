@@ -18,6 +18,11 @@ namespace {
 
 namespace unodb {
 
+[[gnu::cold, gnu::noinline]] void qsbr_epoch::dump(std::ostream &os) const {
+  os << "epoch = " << static_cast<std::uint64_t>(epoch_val);
+  assert_invariant();
+}
+
 #ifndef NDEBUG
 
 void qsbr_per_thread::register_active_ptr(const void *ptr) {

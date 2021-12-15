@@ -91,7 +91,7 @@ class qsbr_epoch final {
     return epoch_val != other.epoch_val;
   }
 
-  friend std::ostream &operator<<(std::ostream &os, qsbr_epoch value);
+  void dump(std::ostream &os) const;
 
  private:
   static constexpr auto max_count = max + 1U;
@@ -105,10 +105,9 @@ class qsbr_epoch final {
 };
 
 // LCOV_EXCL_START
-[[gnu::cold, gnu::noinline]] inline std::ostream &operator<<(std::ostream &os,
-                                                             qsbr_epoch value) {
-  os << "epoch = " << static_cast<std::uint64_t>(value.epoch_val);
-  value.assert_invariant();
+[[gnu::cold]] inline std::ostream &operator<<(std::ostream &os,
+                                              qsbr_epoch value) {
+  value.dump(os);
   return os;
 }
 // LCOV_EXCL_STOP

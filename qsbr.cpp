@@ -221,6 +221,15 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
       result, single_thread_mode()
 #endif
   );
+
+  UNODB_DETAIL_ASSERT(
+      previous_interval_deallocation_requests.empty() ||
+      previous_interval_deallocation_requests[0].request_epoch.next() ==
+          current_global_epoch);
+  UNODB_DETAIL_ASSERT(current_interval_deallocation_requests.empty() ||
+                      current_interval_deallocation_requests[0].request_epoch ==
+                          current_global_epoch);
+
   requests.requests[0] = std::move(previous_interval_deallocation_requests);
 
   if (UNODB_DETAIL_LIKELY(!single_thread_mode(old_thread_count))) {

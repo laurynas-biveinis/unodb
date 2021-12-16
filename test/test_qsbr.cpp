@@ -32,17 +32,17 @@ class QSBR : public ::testing::Test {
   // Epochs
 
   void mark_epoch() noexcept {
-    last_epoch = unodb::qsbr::instance().get_current_epoch();
+    last_epoch = unodb::qsbr::instance().get_epoch();
   }
 
   void check_epoch_advanced() {
-    const auto current_epoch = unodb::qsbr::instance().get_current_epoch();
+    const auto current_epoch = unodb::qsbr::instance().get_epoch();
     EXPECT_EQ(last_epoch.next(), current_epoch);
     last_epoch = current_epoch;
   }
 
   void check_epoch_same() const {
-    const auto current_epoch = unodb::qsbr::instance().get_current_epoch();
+    const auto current_epoch = unodb::qsbr::instance().get_epoch();
     EXPECT_EQ(last_epoch, current_epoch);
   }
 
@@ -870,7 +870,7 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
     ASSERT_EQ(unodb::qsbr::instance().current_interval_size(), 0);
     ASSERT_LE(unodb::qsbr::instance().get_threads_in_previous_epoch(), 2);
     volatile auto force_load2 [[maybe_unused]] =
-        unodb::qsbr::instance().get_current_epoch();
+        unodb::qsbr::instance().get_epoch();
     volatile auto force_load3 [[maybe_unused]] =
         unodb::qsbr::instance().get_epoch_change_count();
   }};

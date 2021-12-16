@@ -279,7 +279,7 @@ class qsbr final {
         std::memory_order_acquire);
   }
 
-  [[nodiscard]] qsbr_epoch get_current_epoch() const noexcept {
+  [[nodiscard]] qsbr_epoch get_epoch() const noexcept {
     return current_epoch.load(std::memory_order_acquire);
   }
 
@@ -573,7 +573,7 @@ inline void qsbr_per_thread::quiescent() noexcept {
   UNODB_DETAIL_ASSERT(!paused);
   UNODB_DETAIL_ASSERT(active_ptrs.empty());
 
-  const auto current_global_epoch = qsbr::instance().get_current_epoch();
+  const auto current_global_epoch = qsbr::instance().get_epoch();
 
   if (current_global_epoch != last_seen_epoch) {
     UNODB_DETAIL_ASSERT(current_global_epoch == last_seen_epoch.next());

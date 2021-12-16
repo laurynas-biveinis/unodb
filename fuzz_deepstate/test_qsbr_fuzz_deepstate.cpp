@@ -574,7 +574,7 @@ TEST(QSBR, DeepStateFuzz) {
     dump_sink
         << unodb::qsbr::instance()
                .get_mean_quiescent_states_per_thread_between_epoch_changes();
-    dump_sink << unodb::qsbr::instance().get_current_epoch();
+    dump_sink << unodb::qsbr::instance().get_epoch();
     dump_sink << unodb::qsbr::instance().get_epoch_change_count();
     dump_sink << unodb::qsbr::instance().get_max_backlog_bytes();
     dump_sink << unodb::qsbr::instance().get_mean_backlog_bytes();

@@ -54,7 +54,7 @@ qsbr_epoch qsbr::register_thread() noexcept {
       thread_count.fetch_add(1, std::memory_order_acq_rel);
   UNODB_DETAIL_ASSERT(old_thread_count < max_qsbr_threads);
 
-  return get_current_epoch();
+  return get_epoch();
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
@@ -68,7 +68,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
   UNODB_DETAIL_ASSERT(old_thread_count2 <= max_qsbr_threads);
 
   bool remove_from_previous_epoch = (quiescent_states_since_epoch_change == 0);
-  const auto current_global_epoch = get_current_epoch();
+  const auto current_global_epoch = get_epoch();
 
   if (current_global_epoch != thread_epoch) {
     UNODB_DETAIL_ASSERT(current_global_epoch == thread_epoch.next());

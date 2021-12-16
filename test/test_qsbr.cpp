@@ -27,6 +27,10 @@ class QSBR : public ::testing::Test {
 
   ~QSBR() noexcept override { unodb::test::expect_idle_qsbr(); }
 
+  [[nodiscard]] static auto get_qsbr_thread_count() noexcept {
+    return unodb::qsbr::instance().number_of_threads();
+  }
+
   // Epochs
 
   void mark_epoch() noexcept {
@@ -108,19 +112,19 @@ TEST_F(QSBR, SingleThreadQuitPaused) {
 }
 
 TEST_F(QSBR, SingleThreadPauseResume) {
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
+  ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, TwoThreads) {
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
   unodb::qsbr_thread second_thread(
-      [] { EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 2); });
+      [] { EXPECT_EQ(get_qsbr_thread_count(), 2); });
   second_thread.join();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, TwoThreadsSecondQuitPaused) {
@@ -130,41 +134,41 @@ TEST_F(QSBR, TwoThreadsSecondQuitPaused) {
 
 TEST_F(QSBR, TwoThreadsSecondPaused) {
   unodb::qsbr_thread second_thread([] {
-    EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 2);
+    EXPECT_EQ(get_qsbr_thread_count(), 2);
     ASSERT_FALSE(unodb::this_thread().is_qsbr_paused());
     unodb::this_thread().qsbr_pause();
     ASSERT_TRUE(unodb::this_thread().is_qsbr_paused());
-    EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+    EXPECT_EQ(get_qsbr_thread_count(), 1);
     unodb::this_thread().qsbr_resume();
-    EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 2);
+    EXPECT_EQ(get_qsbr_thread_count(), 2);
   });
   second_thread.join();
 }
 
 TEST_F(QSBR, TwoThreadsFirstPaused) {
   unodb::qsbr_thread second_thread([] {
-    EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 2);
+    EXPECT_EQ(get_qsbr_thread_count(), 2);
     thread_syncs[0].notify();
     thread_syncs[1].wait();
   });
 
   thread_syncs[0].wait();
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
   thread_syncs[1].notify();
   second_thread.join();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
+  ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, TwoThreadsBothPaused) {
   unodb::qsbr_thread second_thread([] {
-    EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 2);
+    EXPECT_EQ(get_qsbr_thread_count(), 2);
     thread_syncs[0].notify();
     unodb::this_thread().qsbr_pause();
     thread_syncs[1].wait();
-    EXPECT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
+    EXPECT_EQ(get_qsbr_thread_count(), 0);
     unodb::this_thread().qsbr_resume();
   });
   thread_syncs[0].wait();
@@ -172,80 +176,80 @@ TEST_F(QSBR, TwoThreadsBothPaused) {
   thread_syncs[1].notify();
   second_thread.join();
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, TwoThreadsSequential) {
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
+  ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::qsbr_thread second_thread(
-      [] { ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1); });
+      [] { ASSERT_EQ(get_qsbr_thread_count(), 1); });
   second_thread.join();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
+  ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, TwoThreadsDefaultCtor) {
   unodb::this_thread().qsbr_pause();
   unodb::qsbr_thread second_thread{};
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
-  second_thread = unodb::qsbr_thread{
-      [] { ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1); }};
+  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  second_thread =
+      unodb::qsbr_thread{[] { ASSERT_EQ(get_qsbr_thread_count(), 1); }};
   second_thread.join();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
+  ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
 }
 
 TEST_F(QSBR, SecondThreadAddedWhileFirstPaused) {
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
+  ASSERT_EQ(get_qsbr_thread_count(), 0);
 
   unodb::qsbr_thread second_thread(
-      [] { ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1); });
+      [] { ASSERT_EQ(get_qsbr_thread_count(), 1); });
   second_thread.join();
 
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
+  ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, SecondThreadAddedWhileFirstPausedBothRun) {
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
+  ASSERT_EQ(get_qsbr_thread_count(), 0);
 
   unodb::qsbr_thread second_thread([] {
-    ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+    ASSERT_EQ(get_qsbr_thread_count(), 1);
     thread_syncs[0].notify();
     thread_syncs[1].wait();
   });
   thread_syncs[0].wait();
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 2);
+  ASSERT_EQ(get_qsbr_thread_count(), 2);
   thread_syncs[1].notify();
   second_thread.join();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, ThreeThreadsInitialPaused) {
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
+  ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::qsbr_thread second_thread([] {
-    ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+    ASSERT_EQ(get_qsbr_thread_count(), 1);
     thread_syncs[0].notify();
     thread_syncs[1].wait();
   });
   thread_syncs[0].wait();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
   unodb::qsbr_thread third_thread([] {
-    ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 2);
+    ASSERT_EQ(get_qsbr_thread_count(), 2);
     thread_syncs[1].notify();
   });
   second_thread.join();
   third_thread.join();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 0);
+  ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(unodb::qsbr::instance().number_of_threads(), 1);
+  ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, SingleThreadOneAllocation) {

@@ -18,10 +18,12 @@ namespace {
 
 namespace unodb {
 
+// LCOV_EXCL_START
 [[gnu::cold, gnu::noinline]] void qsbr_epoch::dump(std::ostream &os) const {
   os << "epoch = " << static_cast<std::uint64_t>(epoch_val);
   assert_invariant();
 }
+// LCOV_EXCL_STOP
 
 #ifndef NDEBUG
 

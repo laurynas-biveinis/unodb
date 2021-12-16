@@ -97,6 +97,7 @@ class qsbr_epoch final {
   static constexpr auto max_count = max + 1U;
   static_assert((max_count & (max_count - 1U)) == 0);
 
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   constexpr void assert_invariant() const noexcept {
     UNODB_DETAIL_ASSERT(epoch_val <= max);
   }
@@ -331,20 +332,7 @@ class qsbr final {
   }
 
  private:
-  void assert_idle_locked() const noexcept {
-#ifndef NDEBUG
-    assert_invariants_locked();
-    // Copy-paste-tweak with expect_idle_qsbr, but not clear how to fix this:
-    // here we are asserting over internals, over there we are using Google Test
-    // EXPECT macros with the public interface.
-    UNODB_DETAIL_ASSERT(previous_interval_deallocation_requests.empty());
-    UNODB_DETAIL_ASSERT(previous_interval_total_dealloc_size.load(
-                            std::memory_order_relaxed) == 0);
-    UNODB_DETAIL_ASSERT(current_interval_deallocation_requests.empty());
-    UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size.load(
-                            std::memory_order_relaxed) == 0);
-#endif
-  }
+  void assert_idle_locked() const noexcept;
 
   struct [[nodiscard]] deallocation_request final {
     void *const pointer;
@@ -455,8 +443,11 @@ class qsbr final {
     return current_epoch.load(std::memory_order_relaxed);
   }
 
-  [[nodiscard]] qsbr_epoch remove_thread_from_previous_epoch_locked(
-      qsbr_epoch current_global_epoch, deferred_requests &requests) noexcept;
+  deferred_requests epoch_change_update_requests(
+#ifndef NDEBUG
+      qsbr_epoch current_global_epoch, bool single_thread_mode,
+#endif
+      qsbr_thread_count_type old_thread_count) noexcept;
 
   qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
                           qsbr_thread_count_type old_thread_count,
@@ -480,13 +471,7 @@ class qsbr final {
 #ifndef NDEBUG
       qsbr_epoch dealloc_epoch, bool single_thread_mode
 #endif
-      ) noexcept {
-    return deferred_requests{
-#ifndef NDEBUG
-        dealloc_epoch, single_thread_mode
-#endif
-    };
-  }
+      ) noexcept;
 
   void publish_deallocation_size_stats() noexcept {
     deallocation_size_max.store(boost_acc::max(deallocation_size_stats),

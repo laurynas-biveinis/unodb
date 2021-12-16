@@ -17,12 +17,15 @@ void expect_idle_qsbr() {
   EXPECT_TRUE(unodb::qsbr::instance().single_thread_mode());
   EXPECT_EQ(unodb::qsbr::instance().previous_interval_size(), 0);
   EXPECT_EQ(unodb::qsbr::instance().current_interval_size(), 0);
-  if (unodb::qsbr::instance().number_of_threads() == 0) {
-    EXPECT_EQ(unodb::qsbr::instance().get_threads_in_previous_epoch(), 0);
-  } else if (unodb::qsbr::instance().number_of_threads() == 1) {
-    EXPECT_EQ(unodb::qsbr::instance().get_threads_in_previous_epoch(), 1);
+  const auto thread_count = unodb::qsbr::instance().number_of_threads();
+  const auto threads_in_previous_epoch =
+      unodb::qsbr::instance().get_threads_in_previous_epoch();
+  if (thread_count == 0) {
+    EXPECT_EQ(threads_in_previous_epoch, 0);
+  } else if (thread_count == 1) {
+    EXPECT_EQ(threads_in_previous_epoch, 1);
   } else {
-    EXPECT_LE(unodb::qsbr::instance().number_of_threads(), 1);
+    EXPECT_LE(thread_count, 1);
   }
 }
 

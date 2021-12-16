@@ -1,6 +1,6 @@
 // Copyright 2021 Laurynas Biveinis
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <array>
 #include <cstddef>

@@ -6,13 +6,13 @@
 
 #include <array>
 #include <atomic>
-#include <cstddef>  // IWYU pragma: keep
+#include <cstddef>
 #include <cstdint>
 #ifndef NDEBUG
-#include <functional>
+#include <functional>  // IWYU pragma: keep
 #endif
 #include <iostream>
-#include <mutex>
+#include <mutex>  // IWYU pragma: keep
 #include <shared_mutex>
 #include <thread>
 #include <type_traits>

@@ -25,7 +25,9 @@ jobs:
           submodules: true
 
       - name: Set up dependencies for macOS
-        run: brew install boost cppcheck iwyu
+        run: |
+          brew update
+          brew install boost cppcheck iwyu
 
       - name: Create build environment
         run: mkdir ${{github.workspace}}/build

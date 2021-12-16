@@ -35,9 +35,11 @@ compile_commands.json
 # clangd
 .cache
 
-# CMake preset build dirs
+# CMake build dirs
+build
 build.*
 !build.yml
+BUILD.bazel
 
 # CMake preset user config
 CMakeUserPresets.json

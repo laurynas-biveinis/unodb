@@ -329,6 +329,45 @@ struct qsbr_state {
   }
 };
 
+namespace detail {
+
+struct [[nodiscard]] deallocation_request final {
+  void *const pointer;
+
+#ifndef NDEBUG
+  using debug_callback = std::function<void(const void *)>;
+
+  // Non-const to support move
+  debug_callback dealloc_callback;
+  qsbr_epoch request_epoch;
+#endif
+
+  explicit deallocation_request(void *pointer_
+#ifndef NDEBUG
+                                ,
+                                qsbr_epoch request_epoch_,
+                                debug_callback dealloc_callback_
+#endif
+                                ) noexcept
+      : pointer {
+    pointer_
+  }
+#ifndef NDEBUG
+  , dealloc_callback{std::move(dealloc_callback_)}, request_epoch {
+    request_epoch_
+  }
+#endif
+  {}
+
+  void deallocate(
+#ifndef NDEBUG
+      qsbr_epoch dealloc_epoch, bool dealloc_epoch_single_thread_mode
+#endif
+  ) const noexcept;
+};
+
+}  // namespace detail
+
 class [[nodiscard]] qsbr_per_thread final {
  public:
   qsbr_per_thread() noexcept;
@@ -392,17 +431,16 @@ class qsbr final {
   qsbr &operator=(const qsbr &) = delete;
   qsbr &operator=(qsbr &&) = delete;
 
-#ifndef NDEBUG
-  using dealloc_debug_callback = std::function<void(const void *)>;
-#endif
-
  private:
-  static void deallocate(void *pointer
+  friend struct detail::deallocation_request;
+
+  static void deallocate(
+      void *pointer
 #ifndef NDEBUG
-                         ,
-                         const dealloc_debug_callback &debug_callback
+      ,
+      const detail::deallocation_request::debug_callback &debug_callback
 #endif
-                         ) noexcept {
+      ) noexcept {
 #ifndef NDEBUG
     if (debug_callback != nullptr) debug_callback(pointer);
 #endif
@@ -410,15 +448,17 @@ class qsbr final {
   }
 
  public:
-  void on_next_epoch_deallocate(void *pointer, std::size_t size
+  void on_next_epoch_deallocate(
+      void *pointer, std::size_t size
 #ifndef NDEBUG
-                                ,
-                                dealloc_debug_callback debug_callback
+      ,
+      detail::deallocation_request::debug_callback debug_callback
 #endif
   ) {
     UNODB_DETAIL_ASSERT(!unodb::this_thread().is_qsbr_paused());
 
-    if (UNODB_DETAIL_UNLIKELY(qsbr_state::single_thread_mode(get_state()))) {
+    const auto current_state = get_state();
+    if (UNODB_DETAIL_UNLIKELY(qsbr_state::single_thread_mode(current_state))) {
       deallocate(pointer
 #ifndef NDEBUG
                  ,
@@ -438,7 +478,7 @@ class qsbr final {
         pointer
 #ifndef NDEBUG
         ,
-        std::move(debug_callback)
+        qsbr_state::get_epoch(current_state), std::move(debug_callback)
 #endif
     );
   }
@@ -521,59 +561,9 @@ class qsbr final {
  private:
   void assert_idle_locked() const noexcept;
 
-  struct [[nodiscard]] deallocation_request final {
-    void *const pointer;
-
-#ifndef NDEBUG
-    dealloc_debug_callback dealloc_callback;
-    const qsbr_epoch request_epoch{
-        qsbr_state::get_epoch(qsbr::instance().get_state())};
-#endif
-
-    explicit deallocation_request(void *pointer_
-#ifndef NDEBUG
-                                  ,
-                                  dealloc_debug_callback dealloc_callback_
-#endif
-                                  ) noexcept
-        : pointer {
-      pointer_
-    }
-#ifndef NDEBUG
-    , dealloc_callback { std::move(dealloc_callback_) }
-#endif
-    {}
-
-    void deallocate(
-#ifndef NDEBUG
-        qsbr_epoch dealloc_epoch, bool dealloc_epoch_single_thread_mode,
-        const dealloc_debug_callback &debug_callback
-#endif
-    ) const noexcept {
-      // TODO(laurynas): count deallocation request instances, assert 0 in QSBR
-      // dtor
-      // The assert cannot be stricter due to epoch changes by
-      // unregister_thread, which moves requests between intervals not
-      // atomically with the epoch change.
-      UNODB_DETAIL_ASSERT(
-          dealloc_epoch == request_epoch.next() ||
-          dealloc_epoch == request_epoch.next().next() ||
-          (dealloc_epoch == request_epoch.next().next().next()) ||
-          (dealloc_epoch_single_thread_mode &&
-           dealloc_epoch == request_epoch.next()));
-
-      qsbr::deallocate(pointer
-#ifndef NDEBUG
-                       ,
-                       debug_callback
-#endif
-      );
-    }
-  };
-
   class [[nodiscard]] deferred_requests final {
    public:
-    std::array<std::vector<deallocation_request>, 2> requests;
+    std::array<std::vector<detail::deallocation_request>, 2> requests;
 
     deferred_requests() noexcept = default;
 
@@ -594,8 +584,7 @@ class qsbr final {
         for (const auto &dealloc_request : reqs) {
           dealloc_request.deallocate(
 #ifndef NDEBUG
-              dealloc_epoch, dealloc_epoch_single_thread_mode,
-              dealloc_request.dealloc_callback
+              dealloc_epoch, dealloc_epoch_single_thread_mode
 #endif
           );
         }
@@ -667,10 +656,12 @@ class qsbr final {
   mutable std::mutex qsbr_lock;
 
   // Protected by qsbr_lock
-  std::vector<deallocation_request> previous_interval_deallocation_requests;
+  std::vector<detail::deallocation_request>
+      previous_interval_deallocation_requests;
 
   // Protected by qsbr_lock
-  std::vector<deallocation_request> current_interval_deallocation_requests;
+  std::vector<detail::deallocation_request>
+      current_interval_deallocation_requests;
 
   // TODO(laurynas): more interesting callback stats?
   boost_acc::accumulator_set<
@@ -742,6 +733,33 @@ inline void qsbr_per_thread::quiescent() noexcept {
   }
   ++quiescent_states_since_epoch_change;
 }
+
+namespace detail {
+
+inline void deallocation_request::deallocate(
+#ifndef NDEBUG
+    qsbr_epoch dealloc_epoch, bool dealloc_epoch_single_thread_mode
+#endif
+) const noexcept {
+  // TODO(laurynas): count deallocation request instances, assert 0 in QSBR dtor
+  // The assert cannot be stricter due to epoch changes by unregister_thread,
+  // which moves requests between intervals not atomically with the epoch
+  // change.
+  UNODB_DETAIL_ASSERT(dealloc_epoch == request_epoch.next() ||
+                      dealloc_epoch == request_epoch.next().next() ||
+                      (dealloc_epoch == request_epoch.next().next().next()) ||
+                      (dealloc_epoch_single_thread_mode &&
+                       dealloc_epoch == request_epoch.next()));
+
+  qsbr::deallocate(pointer
+#ifndef NDEBUG
+                   ,
+                   dealloc_callback
+#endif
+  );
+}
+
+}  // namespace detail
 
 inline void qsbr_per_thread::qsbr_pause() {
 #ifndef NDEBUG

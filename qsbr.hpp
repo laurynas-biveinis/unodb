@@ -419,36 +419,28 @@ class qsbr final {
   ) {
     UNODB_DETAIL_ASSERT(!unodb::this_thread().is_qsbr_paused());
 
-    bool deallocate_immediately = false;
-    {
-      if (UNODB_DETAIL_UNLIKELY(qsbr_state::single_thread_mode(get_state()))) {
-        deallocate_immediately = true;
-      } else {
-        std::lock_guard guard{qsbr_rwlock};
-
-        assert_invariants_locked();
-
-        // TODO(laurynas): out of critical section?
-        current_interval_total_dealloc_size.fetch_add(
-            size, std::memory_order_relaxed);
-        current_interval_deallocation_requests.emplace_back(
-            pointer
-#ifndef NDEBUG
-            ,
-            std::move(debug_callback)
-#endif
-        );
-
-        assert_invariants_locked();
-      }
-    }
-    if (deallocate_immediately)
+    if (UNODB_DETAIL_UNLIKELY(qsbr_state::single_thread_mode(get_state()))) {
       deallocate(pointer
 #ifndef NDEBUG
                  ,
                  debug_callback
 #endif
       );
+      return;
+    }
+
+    current_interval_total_dealloc_size.fetch_add(size,
+                                                  std::memory_order_acq_rel);
+
+    std::lock_guard guard{qsbr_rwlock};
+
+    current_interval_deallocation_requests.emplace_back(
+        pointer
+#ifndef NDEBUG
+        ,
+        std::move(debug_callback)
+#endif
+    );
   }
 
   [[nodiscard]] qsbr_epoch remove_thread_from_previous_epoch(
@@ -518,6 +510,8 @@ class qsbr final {
   }
 
   void assert_idle() const noexcept {
+    UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size.load(
+                            std::memory_order_acquire) == 0);
 #ifndef NDEBUG
     std::shared_lock guard{qsbr_rwlock};
     assert_idle_locked();
@@ -631,21 +625,6 @@ class qsbr final {
                           bool single_thread_mode,
                           deferred_requests &requests) noexcept;
 
-  void assert_invariants_locked() const noexcept {
-#ifndef NDEBUG
-    qsbr_state::assert_invariants(get_state());
-    if (previous_interval_deallocation_requests.empty()) {
-      UNODB_DETAIL_ASSERT(previous_interval_total_dealloc_size.load(
-                              std::memory_order_relaxed) == 0);
-    }
-
-    if (current_interval_deallocation_requests.empty()) {
-      UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size.load(
-                              std::memory_order_relaxed) == 0);
-    }
-#endif
-  }
-
   [[nodiscard]] static deferred_requests make_deferred_requests(
 #ifndef NDEBUG
       qsbr_epoch dealloc_epoch, bool single_thread_mode
@@ -689,7 +668,6 @@ class qsbr final {
 
   // TODO(laurynas): atomic but mostly manipulated in qsbr_rwlock critical
   // sections. See if can move it out.
-  std::atomic<std::uint64_t> previous_interval_total_dealloc_size{};
   std::atomic<std::uint64_t> current_interval_total_dealloc_size{};
 
   std::atomic<std::uint64_t> epoch_change_count;

@@ -167,13 +167,6 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
             qsbr_state::single_thread_mode(old_state);
 
         if (!requests_updated_for_epoch_change) {
-#ifdef UNODB_DETAIL_THREAD_SANITIZER
-          __tsan_acquire(&instance());
-#endif
-          // Acquire synchronizes-with
-          // atomic_thread_fence(std::memory_order_release) in
-          // thread_epoch_change_barrier
-          std::lock_guard guard{qsbr_rwlock};
           const auto requests_to_deallocate = epoch_change_update_requests(
 #ifndef NDEBUG
               old_epoch,
@@ -206,11 +199,12 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
 }
 
 void qsbr::reset_stats() noexcept {
+  // Stats can only be reset on idle QSBR - best-effort check as nothing
+  // prevents to leaving idle state at any time
+  assert_idle();
+
   {
     std::lock_guard guard{qsbr_rwlock};
-    // Stats can only be reset on idle QSBR - best-effort check due to lock
-    // release later
-    assert_idle_locked();
 
     epoch_callback_stats = {};
     publish_epoch_callback_stats();
@@ -233,12 +227,10 @@ UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
   out << "QSBR status:\n";
   out << "Previous interval pending deallocation requests: "
       << previous_interval_deallocation_requests.size() << '\n';
-  out << "Previous interval pending deallocation bytes: "
-      << previous_interval_total_dealloc_size.load(std::memory_order_relaxed);
   out << "Current interval pending deallocation requests: "
       << current_interval_deallocation_requests.size() << '\n';
   out << "Current interval pending deallocation bytes: "
-      << current_interval_total_dealloc_size.load(std::memory_order_relaxed);
+      << current_interval_total_dealloc_size.load(std::memory_order_acquire);
   out << state.load(std::memory_order_acquire) << '\n';
 }
 
@@ -309,18 +301,33 @@ qsbr::deferred_requests qsbr::epoch_change_update_requests(
       epoch_change_count.load(std::memory_order_relaxed) + 1;
   epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
 
-  deallocation_size_stats(
-      current_interval_total_dealloc_size.load(std::memory_order_relaxed));
-  publish_deallocation_size_stats();
-
-  epoch_callback_stats(previous_interval_deallocation_requests.size());
-  publish_epoch_callback_stats();
-
   deferred_requests result = make_deferred_requests(
 #ifndef NDEBUG
       current_global_epoch.next(), single_thread_mode
 #endif
   );
+
+  auto old_current_interval_total_dealloc_size =
+      current_interval_total_dealloc_size.load(std::memory_order_acquire);
+  while (UNODB_DETAIL_UNLIKELY(
+      !current_interval_total_dealloc_size.compare_exchange_weak(
+          old_current_interval_total_dealloc_size, 0, std::memory_order_acq_rel,
+          std::memory_order_acquire))) {
+    // Spin
+  }
+
+  deallocation_size_stats(old_current_interval_total_dealloc_size);
+  publish_deallocation_size_stats();
+
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
+  __tsan_acquire(&instance());
+#endif
+  // Acquire synchronizes-with atomic_thread_fence(std::memory_order_release) in
+  // thread_epoch_change_barrier
+  std::lock_guard guard{qsbr_rwlock};
+
+  epoch_callback_stats(previous_interval_deallocation_requests.size());
+  publish_epoch_callback_stats();
 
 #ifndef NDEBUG
   // The asserts cannot be stricter due to epoch change by unregister_thread,
@@ -346,16 +353,11 @@ qsbr::deferred_requests qsbr::epoch_change_update_requests(
   if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
     previous_interval_deallocation_requests =
         std::move(current_interval_deallocation_requests);
-    previous_interval_total_dealloc_size.store(
-        current_interval_total_dealloc_size.load(std::memory_order_relaxed),
-        std::memory_order_relaxed);
   } else {
     previous_interval_deallocation_requests.clear();
-    previous_interval_total_dealloc_size.store(0, std::memory_order_relaxed);
     result.requests[1] = std::move(current_interval_deallocation_requests);
   }
   current_interval_deallocation_requests.clear();
-  current_interval_total_dealloc_size.store(0, std::memory_order_relaxed);
 
   return result;
 }
@@ -364,15 +366,6 @@ qsbr::deferred_requests qsbr::epoch_change_update_requests(
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
                               bool single_thread_mode,
                               qsbr::deferred_requests &requests) noexcept {
-#ifdef UNODB_DETAIL_THREAD_SANITIZER
-  __tsan_acquire(&instance());
-#endif
-  // Acquire synchronizes-with atomic_thread_fence(std::memory_order_release)
-  // in thread_epoch_change_barrier
-  std::lock_guard guard{qsbr_rwlock};
-
-  assert_invariants_locked();
-
   requests = epoch_change_update_requests(
 #ifndef NDEBUG
       current_global_epoch,
@@ -402,16 +395,12 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
 
 void qsbr::assert_idle_locked() const noexcept {
 #ifndef NDEBUG
-  assert_invariants_locked();
+  qsbr_state::assert_invariants(get_state());
   // Copy-paste-tweak with expect_idle_qsbr, but not clear how to fix this:
   // here we are asserting over internals, over there we are using Google Test
   // EXPECT macros with the public interface.
   UNODB_DETAIL_ASSERT(previous_interval_deallocation_requests.empty());
-  UNODB_DETAIL_ASSERT(previous_interval_total_dealloc_size.load(
-                          std::memory_order_relaxed) == 0);
   UNODB_DETAIL_ASSERT(current_interval_deallocation_requests.empty());
-  UNODB_DETAIL_ASSERT(
-      current_interval_total_dealloc_size.load(std::memory_order_relaxed) == 0);
 #endif
 }
 

@@ -404,13 +404,13 @@ void reset_stats() {
     deallocate_pointer(main_thread_i);
     return;
   }
-  if (unodb::qsbr::instance().previous_interval_size() > 0) {
+  if (unodb::qsbr::instance().get_previous_interval_dealloc_count() > 0) {
     LOG(TRACE) << "Previous interval non-empty, going through qstate instead "
                   "of resetting stats";
     quiescent_state(main_thread_i);
     return;
   }
-  if (unodb::qsbr::instance().current_interval_size() > 0) {
+  if (unodb::qsbr::instance().get_current_interval_dealloc_count() > 0) {
     LOG(TRACE) << "Current interval non-empty, going through qstate instead of "
                   "resetting stats";
     quiescent_state(main_thread_i);
@@ -580,8 +580,8 @@ TEST(QSBR, DeepStateFuzz) {
     dump_sink << unodb::qsbr::instance().get_epoch_change_count();
     dump_sink << unodb::qsbr::instance().get_max_backlog_bytes();
     dump_sink << unodb::qsbr::instance().get_mean_backlog_bytes();
-    dump_sink << unodb::qsbr::instance().previous_interval_size();
-    dump_sink << unodb::qsbr::instance().current_interval_size();
+    dump_sink << unodb::qsbr::instance().get_previous_interval_dealloc_count();
+    dump_sink << unodb::qsbr::instance().get_current_interval_dealloc_count();
   }
 
   for (std::size_t i = 0; i < threads.size(); ++i) {

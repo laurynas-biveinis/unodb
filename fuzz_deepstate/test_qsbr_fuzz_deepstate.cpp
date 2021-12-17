@@ -554,11 +554,13 @@ TEST(QSBR, DeepStateFuzz) {
     const auto unpaused_threads = static_cast<unodb::qsbr_thread_count_type>(
         std::count_if(threads.cbegin(), threads.cend(),
                       [](const thread_info &info) { return !info.is_paused; }));
-    ASSERT(unodb::qsbr::instance().single_thread_mode() ==
+    const auto current_qsbr_state = unodb::qsbr::instance().get_state();
+    ASSERT(unodb::qsbr_state::single_thread_mode(current_qsbr_state) ==
            (unpaused_threads < 2));
-    ASSERT(unodb::qsbr::instance().number_of_threads() == unpaused_threads);
-    ASSERT(unodb::qsbr::instance().get_threads_in_previous_epoch() <=
+    ASSERT(unodb::qsbr_state::get_thread_count(current_qsbr_state) ==
            unpaused_threads);
+    ASSERT(unodb::qsbr_state::get_threads_in_previous_epoch(
+               current_qsbr_state) <= unpaused_threads);
 
     for (const auto &tinfo : threads)
       for (const auto &active_ptr : tinfo.active_ptrs)
@@ -574,7 +576,7 @@ TEST(QSBR, DeepStateFuzz) {
     dump_sink
         << unodb::qsbr::instance()
                .get_mean_quiescent_states_per_thread_between_epoch_changes();
-    dump_sink << unodb::qsbr::instance().get_epoch();
+    dump_sink << unodb::qsbr::instance().get_state();
     dump_sink << unodb::qsbr::instance().get_epoch_change_count();
     dump_sink << unodb::qsbr::instance().get_max_backlog_bytes();
     dump_sink << unodb::qsbr::instance().get_mean_backlog_bytes();

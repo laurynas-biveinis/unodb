@@ -661,19 +661,16 @@ class qsbr final {
 
   std::atomic<size_t> previous_interval_dealloc_count;
   std::atomic<size_t> current_interval_dealloc_count;
+  std::atomic<std::uint64_t> current_interval_total_dealloc_size{};
 
   // TODO(laurynas): absolute scalability bottleneck
   mutable std::mutex qsbr_lock;
 
-  // Protected by qsbr_rwlock
+  // Protected by qsbr_lock
   std::vector<deallocation_request> previous_interval_deallocation_requests;
 
-  // Protected by qsbr_rwlock
+  // Protected by qsbr_lock
   std::vector<deallocation_request> current_interval_deallocation_requests;
-
-  // TODO(laurynas): atomic but mostly manipulated in qsbr_rwlock critical
-  // sections. See if can move it out.
-  std::atomic<std::uint64_t> current_interval_total_dealloc_size{};
 
   // TODO(laurynas): more interesting callback stats?
   boost_acc::accumulator_set<

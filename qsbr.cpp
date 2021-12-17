@@ -203,15 +203,11 @@ void qsbr::reset_stats() noexcept {
   // prevents to leaving idle state at any time
   assert_idle();
 
-  {
-    std::lock_guard guard{qsbr_lock};
+  epoch_callback_stats = {};
+  publish_epoch_callback_stats();
 
-    epoch_callback_stats = {};
-    publish_epoch_callback_stats();
-
-    deallocation_size_stats = {};
-    publish_deallocation_size_stats();
-  }
+  deallocation_size_stats = {};
+  publish_deallocation_size_stats();
 
   std::lock_guard guard{quiescent_states_per_thread_between_epoch_change_lock};
 

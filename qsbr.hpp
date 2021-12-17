@@ -12,8 +12,7 @@
 #include <functional>  // IWYU pragma: keep
 #endif
 #include <iostream>
-#include <mutex>  // IWYU pragma: keep
-#include <shared_mutex>
+#include <mutex>
 #include <thread>
 #include <type_traits>
 #ifndef NDEBUG
@@ -431,8 +430,9 @@ class qsbr final {
 
     current_interval_total_dealloc_size.fetch_add(size,
                                                   std::memory_order_acq_rel);
+    current_interval_dealloc_count.fetch_add(1, std::memory_order_acq_rel);
 
-    std::lock_guard guard{qsbr_rwlock};
+    std::lock_guard guard{qsbr_lock};
 
     current_interval_deallocation_requests.emplace_back(
         pointer
@@ -499,21 +499,21 @@ class qsbr final {
     return state.load(std::memory_order_acquire);
   }
 
-  [[nodiscard]] auto previous_interval_size() const noexcept {
-    std::shared_lock guard{qsbr_rwlock};
-    return previous_interval_deallocation_requests.size();
+  [[nodiscard]] auto get_previous_interval_dealloc_count() const noexcept {
+    return previous_interval_dealloc_count.load(std::memory_order_acquire);
   }
 
-  [[nodiscard]] auto current_interval_size() const noexcept {
-    std::shared_lock guard{qsbr_rwlock};
-    return current_interval_deallocation_requests.size();
+  [[nodiscard]] auto get_current_interval_dealloc_count() const noexcept {
+    return current_interval_dealloc_count.load(std::memory_order_acquire);
   }
 
   void assert_idle() const noexcept {
     UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size.load(
                             std::memory_order_acquire) == 0);
+    UNODB_DETAIL_ASSERT(get_previous_interval_dealloc_count() == 0);
+    UNODB_DETAIL_ASSERT(get_current_interval_dealloc_count() == 0);
 #ifndef NDEBUG
-    std::shared_lock guard{qsbr_rwlock};
+    std::lock_guard guard{qsbr_lock};
     assert_idle_locked();
 #endif
   }
@@ -657,8 +657,13 @@ class qsbr final {
 
   std::atomic<qsbr_state::type> state;
 
+  std::atomic<std::uint64_t> epoch_change_count;
+
+  std::atomic<size_t> previous_interval_dealloc_count;
+  std::atomic<size_t> current_interval_dealloc_count;
+
   // TODO(laurynas): absolute scalability bottleneck
-  mutable std::shared_mutex qsbr_rwlock;
+  mutable std::mutex qsbr_lock;
 
   // Protected by qsbr_rwlock
   std::vector<deallocation_request> previous_interval_deallocation_requests;
@@ -669,8 +674,6 @@ class qsbr final {
   // TODO(laurynas): atomic but mostly manipulated in qsbr_rwlock critical
   // sections. See if can move it out.
   std::atomic<std::uint64_t> current_interval_total_dealloc_size{};
-
-  std::atomic<std::uint64_t> epoch_change_count;
 
   // TODO(laurynas): more interesting callback stats?
   boost_acc::accumulator_set<

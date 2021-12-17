@@ -871,8 +871,8 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
     volatile auto force_load [[maybe_unused]] =
         unodb::qsbr::instance()
             .get_mean_quiescent_states_per_thread_between_epoch_changes();
-    ASSERT_EQ(unodb::qsbr::instance().previous_interval_size(), 0);
-    ASSERT_EQ(unodb::qsbr::instance().current_interval_size(), 0);
+    ASSERT_EQ(unodb::qsbr::instance().get_previous_interval_dealloc_count(), 0);
+    ASSERT_EQ(unodb::qsbr::instance().get_current_interval_dealloc_count(), 0);
     const auto current_qsbr_state = unodb::qsbr::instance().get_state();
     ASSERT_LE(
         unodb::qsbr_state::get_threads_in_previous_epoch(current_qsbr_state),

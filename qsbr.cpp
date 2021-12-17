@@ -204,7 +204,7 @@ void qsbr::reset_stats() noexcept {
   assert_idle();
 
   {
-    std::lock_guard guard{qsbr_rwlock};
+    std::lock_guard guard{qsbr_lock};
 
     epoch_callback_stats = {};
     publish_epoch_callback_stats();
@@ -292,6 +292,17 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
   };
 }
 
+template <typename T>
+T atomic_fetch_reset(std::atomic<T> &var) noexcept {
+  auto old_var = var.load(std::memory_order_acquire);
+  while (true) {
+    if (UNODB_DETAIL_LIKELY(var.compare_exchange_weak(
+            old_var, 0, std::memory_order_acq_rel, std::memory_order_acquire)))
+      return old_var;
+    // spin
+  }
+}
+
 qsbr::deferred_requests qsbr::epoch_change_update_requests(
 #ifndef NDEBUG
     qsbr_epoch current_global_epoch,
@@ -307,27 +318,30 @@ qsbr::deferred_requests qsbr::epoch_change_update_requests(
 #endif
   );
 
-  auto old_current_interval_total_dealloc_size =
-      current_interval_total_dealloc_size.load(std::memory_order_acquire);
-  while (UNODB_DETAIL_UNLIKELY(
-      !current_interval_total_dealloc_size.compare_exchange_weak(
-          old_current_interval_total_dealloc_size, 0, std::memory_order_acq_rel,
-          std::memory_order_acquire))) {
-    // Spin
-  }
-
+  const auto old_current_interval_total_dealloc_size =
+      atomic_fetch_reset(current_interval_total_dealloc_size);
   deallocation_size_stats(old_current_interval_total_dealloc_size);
   publish_deallocation_size_stats();
+
+  epoch_callback_stats(get_previous_interval_dealloc_count());
+  publish_epoch_callback_stats();
+
+  previous_interval_dealloc_count.store(0, std::memory_order_release);
+
+  if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
+    auto old_current_interval_dealloc_count =
+        atomic_fetch_reset(current_interval_dealloc_count);
+    previous_interval_dealloc_count.store(old_current_interval_dealloc_count);
+  } else {
+    current_interval_dealloc_count.store(0, std::memory_order_release);
+  }
 
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
   __tsan_acquire(&instance());
 #endif
   // Acquire synchronizes-with atomic_thread_fence(std::memory_order_release) in
   // thread_epoch_change_barrier
-  std::lock_guard guard{qsbr_rwlock};
-
-  epoch_callback_stats(previous_interval_deallocation_requests.size());
-  publish_epoch_callback_stats();
+  std::lock_guard guard{qsbr_lock};
 
 #ifndef NDEBUG
   // The asserts cannot be stricter due to epoch change by unregister_thread,

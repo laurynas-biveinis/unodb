@@ -16,8 +16,8 @@ void expect_idle_qsbr() {
   // there we are asserting over internals.
   const auto state = unodb::qsbr::instance().get_state();
   EXPECT_TRUE(qsbr_state::single_thread_mode(state));
-  EXPECT_EQ(unodb::qsbr::instance().previous_interval_size(), 0);
-  EXPECT_EQ(unodb::qsbr::instance().current_interval_size(), 0);
+  EXPECT_EQ(unodb::qsbr::instance().get_previous_interval_dealloc_count(), 0);
+  EXPECT_EQ(unodb::qsbr::instance().get_current_interval_dealloc_count(), 0);
   const auto thread_count = qsbr_state::get_thread_count(state);
   const auto threads_in_previous_epoch =
       qsbr_state::get_threads_in_previous_epoch(state);

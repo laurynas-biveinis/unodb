@@ -366,6 +366,45 @@ struct [[nodiscard]] deallocation_request final {
   ) const noexcept;
 };
 
+using dealloc_request_vector = std::vector<deallocation_request>;
+
+class [[nodiscard]] deferred_requests final {
+ public:
+  std::array<dealloc_request_vector, 2> requests;
+
+  deferred_requests() noexcept = default;
+
+#ifndef NDEBUG
+  deferred_requests(qsbr_epoch request_epoch_,
+                    bool dealloc_epoch_single_thread_mode_) noexcept
+      : dealloc_epoch{request_epoch_},
+        dealloc_epoch_single_thread_mode{dealloc_epoch_single_thread_mode_} {}
+#endif
+
+  deferred_requests(const deferred_requests &) noexcept = default;
+  deferred_requests(deferred_requests &&) noexcept = default;
+  deferred_requests &operator=(const deferred_requests &) noexcept = default;
+  deferred_requests &operator=(deferred_requests &&) noexcept = default;
+
+  ~deferred_requests() {
+    for (const auto &reqs : requests) {
+      for (const auto &dealloc_request : reqs) {
+        dealloc_request.deallocate(
+#ifndef NDEBUG
+            dealloc_epoch, dealloc_epoch_single_thread_mode
+#endif
+        );
+      }
+    }
+  }
+
+ private:
+#ifndef NDEBUG
+  qsbr_epoch dealloc_epoch;
+  bool dealloc_epoch_single_thread_mode;
+#endif
+};
+
 }  // namespace detail
 
 class [[nodiscard]] qsbr_per_thread final {
@@ -561,50 +600,13 @@ class qsbr final {
  private:
   void assert_idle_locked() const noexcept;
 
-  class [[nodiscard]] deferred_requests final {
-   public:
-    std::array<std::vector<detail::deallocation_request>, 2> requests;
-
-    deferred_requests() noexcept = default;
-
-#ifndef NDEBUG
-    deferred_requests(qsbr_epoch request_epoch_,
-                      bool dealloc_epoch_single_thread_mode_) noexcept
-        : dealloc_epoch{request_epoch_},
-          dealloc_epoch_single_thread_mode{dealloc_epoch_single_thread_mode_} {}
-#endif
-
-    deferred_requests(const deferred_requests &) noexcept = default;
-    deferred_requests(deferred_requests &&) noexcept = default;
-    deferred_requests &operator=(const deferred_requests &) noexcept = default;
-    deferred_requests &operator=(deferred_requests &&) noexcept = default;
-
-    ~deferred_requests() {
-      for (const auto &reqs : requests) {
-        for (const auto &dealloc_request : reqs) {
-          dealloc_request.deallocate(
-#ifndef NDEBUG
-              dealloc_epoch, dealloc_epoch_single_thread_mode
-#endif
-          );
-        }
-      }
-    }
-
-   private:
-#ifndef NDEBUG
-    qsbr_epoch dealloc_epoch;
-    bool dealloc_epoch_single_thread_mode;
-#endif
-  };
-
   qsbr() noexcept = default;
 
   ~qsbr() noexcept { assert_idle(); }
 
   static void thread_epoch_change_barrier() noexcept;
 
-  deferred_requests epoch_change_update_requests(
+  detail::deferred_requests epoch_change_update_requests(
 #ifndef NDEBUG
       qsbr_epoch current_global_epoch,
 #endif
@@ -612,9 +614,9 @@ class qsbr final {
 
   qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
                           bool single_thread_mode,
-                          deferred_requests &requests) noexcept;
+                          detail::deferred_requests &requests) noexcept;
 
-  [[nodiscard]] static deferred_requests make_deferred_requests(
+  [[nodiscard]] static detail::deferred_requests make_deferred_requests(
 #ifndef NDEBUG
       qsbr_epoch dealloc_epoch, bool single_thread_mode
 #endif
@@ -656,12 +658,10 @@ class qsbr final {
   mutable std::mutex qsbr_lock;
 
   // Protected by qsbr_lock
-  std::vector<detail::deallocation_request>
-      previous_interval_deallocation_requests;
+  detail::dealloc_request_vector previous_interval_deallocation_requests;
 
   // Protected by qsbr_lock
-  std::vector<detail::deallocation_request>
-      current_interval_deallocation_requests;
+  detail::dealloc_request_vector current_interval_deallocation_requests;
 
   // TODO(laurynas): more interesting callback stats?
   boost_acc::accumulator_set<

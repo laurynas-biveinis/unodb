@@ -267,7 +267,7 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
 
   if (old_threads_in_previous_epoch > 1) return current_global_epoch;
 
-  deferred_requests to_deallocate;
+  detail::deferred_requests to_deallocate;
   const auto new_epoch =
       change_epoch(current_global_epoch, old_single_thread_mode, to_deallocate);
 
@@ -276,12 +276,12 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
   return new_epoch;
 }
 
-[[nodiscard]] qsbr::deferred_requests qsbr::make_deferred_requests(
+[[nodiscard]] detail::deferred_requests qsbr::make_deferred_requests(
 #ifndef NDEBUG
     qsbr_epoch dealloc_epoch, bool single_thread_mode
 #endif
     ) noexcept {
-  return deferred_requests{
+  return detail::deferred_requests{
 #ifndef NDEBUG
       dealloc_epoch, single_thread_mode
 #endif
@@ -299,7 +299,7 @@ T atomic_fetch_reset(std::atomic<T> &var) noexcept {
   }
 }
 
-qsbr::deferred_requests qsbr::epoch_change_update_requests(
+detail::deferred_requests qsbr::epoch_change_update_requests(
 #ifndef NDEBUG
     qsbr_epoch current_global_epoch,
 #endif
@@ -308,7 +308,7 @@ qsbr::deferred_requests qsbr::epoch_change_update_requests(
       epoch_change_count.load(std::memory_order_relaxed) + 1;
   epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
 
-  deferred_requests result = make_deferred_requests(
+  detail::deferred_requests result = make_deferred_requests(
 #ifndef NDEBUG
       current_global_epoch.next(), single_thread_mode
 #endif
@@ -375,7 +375,7 @@ qsbr::deferred_requests qsbr::epoch_change_update_requests(
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
                               bool single_thread_mode,
-                              qsbr::deferred_requests &requests) noexcept {
+                              detail::deferred_requests &requests) noexcept {
   requests = epoch_change_update_requests(
 #ifndef NDEBUG
       current_global_epoch,

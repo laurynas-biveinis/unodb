@@ -167,7 +167,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
             qsbr_state::single_thread_mode(old_state);
 
         if (!requests_updated_for_epoch_change) {
-          const auto requests_to_deallocate = epoch_change_update_requests(
+          epoch_change_update_requests(
 #ifndef NDEBUG
               old_epoch,
 #endif
@@ -267,9 +267,8 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
 
   if (old_threads_in_previous_epoch > 1) return current_global_epoch;
 
-  detail::deferred_requests to_deallocate;
   const auto new_epoch =
-      change_epoch(current_global_epoch, old_single_thread_mode, to_deallocate);
+      change_epoch(current_global_epoch, old_single_thread_mode);
 
   UNODB_DETAIL_ASSERT(current_global_epoch.next() == new_epoch);
 
@@ -299,7 +298,7 @@ T atomic_fetch_reset(std::atomic<T> &var) noexcept {
   }
 }
 
-detail::deferred_requests qsbr::epoch_change_update_requests(
+void qsbr::epoch_change_update_requests(
 #ifndef NDEBUG
     qsbr_epoch current_global_epoch,
 #endif
@@ -307,12 +306,6 @@ detail::deferred_requests qsbr::epoch_change_update_requests(
   const auto new_epoch_change_count =
       epoch_change_count.load(std::memory_order_relaxed) + 1;
   epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
-
-  detail::deferred_requests result = make_deferred_requests(
-#ifndef NDEBUG
-      current_global_epoch.next(), single_thread_mode
-#endif
-  );
 
   const auto old_current_interval_total_dealloc_size =
       atomic_fetch_reset(current_interval_total_dealloc_size);
@@ -332,51 +325,64 @@ detail::deferred_requests qsbr::epoch_change_update_requests(
     current_interval_dealloc_count.store(0, std::memory_order_release);
   }
 
+  detail::deferred_requests deallocate_requests = make_deferred_requests(
+#ifndef NDEBUG
+      current_global_epoch.next(), single_thread_mode
+#endif
+  );
+  detail::deferred_requests additional_deallocate_requests =
+      make_deferred_requests(
+#ifndef NDEBUG
+          current_global_epoch.next(), single_thread_mode
+#endif
+      );
+
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
   __tsan_acquire(&instance());
 #endif
-  // Acquire synchronizes-with atomic_thread_fence(std::memory_order_release) in
-  // thread_epoch_change_barrier
-  std::lock_guard guard{qsbr_lock};
+  {  // Acquire synchronizes-with atomic_thread_fence(std::memory_order_release)
+     // in
+    // thread_epoch_change_barrier
+    std::lock_guard guard{qsbr_lock};
 
 #ifndef NDEBUG
-  // The asserts cannot be stricter due to epoch change by unregister_thread,
-  // which moves requests between intervals not atomically with the epoch
-  // change.
-  if (!previous_interval_deallocation_requests.empty()) {
-    const auto request_epoch =
-        previous_interval_deallocation_requests[0].request_epoch;
-    UNODB_DETAIL_ASSERT(request_epoch == current_global_epoch ||
-                        request_epoch.next() == current_global_epoch ||
-                        request_epoch.next().next() == current_global_epoch);
-  }
-  if (!current_interval_deallocation_requests.empty()) {
-    const auto request_epoch =
-        current_interval_deallocation_requests[0].request_epoch;
-    UNODB_DETAIL_ASSERT(request_epoch == current_global_epoch ||
-                        request_epoch.next() == current_global_epoch);
-  }
+    // The asserts cannot be stricter due to epoch change by unregister_thread,
+    // which moves requests between intervals not atomically with the epoch
+    // change.
+    if (!previous_interval_deallocation_requests.empty()) {
+      const auto request_epoch =
+          previous_interval_deallocation_requests[0].request_epoch;
+      UNODB_DETAIL_ASSERT(request_epoch == current_global_epoch ||
+                          request_epoch.next() == current_global_epoch ||
+                          request_epoch.next().next() == current_global_epoch);
+    }
+    if (!current_interval_deallocation_requests.empty()) {
+      const auto request_epoch =
+          current_interval_deallocation_requests[0].request_epoch;
+      UNODB_DETAIL_ASSERT(request_epoch == current_global_epoch ||
+                          request_epoch.next() == current_global_epoch);
+    }
 #endif
 
-  result.requests[0] = std::move(previous_interval_deallocation_requests);
+    deallocate_requests.deallocate_on_scope_exit(
+        std::move(previous_interval_deallocation_requests));
 
-  if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
-    previous_interval_deallocation_requests =
-        std::move(current_interval_deallocation_requests);
-  } else {
-    previous_interval_deallocation_requests.clear();
-    result.requests[1] = std::move(current_interval_deallocation_requests);
+    if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
+      previous_interval_deallocation_requests =
+          std::move(current_interval_deallocation_requests);
+    } else {
+      previous_interval_deallocation_requests.clear();
+      additional_deallocate_requests.deallocate_on_scope_exit(
+          std::move(current_interval_deallocation_requests));
+    }
+    current_interval_deallocation_requests.clear();
   }
-  current_interval_deallocation_requests.clear();
-
-  return result;
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
-                              bool single_thread_mode,
-                              detail::deferred_requests &requests) noexcept {
-  requests = epoch_change_update_requests(
+                              bool single_thread_mode) noexcept {
+  epoch_change_update_requests(
 #ifndef NDEBUG
       current_global_epoch,
 #endif

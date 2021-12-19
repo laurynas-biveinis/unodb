@@ -4,7 +4,6 @@
 
 #include "global.hpp"
 
-#include <array>
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
@@ -370,8 +369,6 @@ using dealloc_request_vector = std::vector<deallocation_request>;
 
 class [[nodiscard]] deferred_requests final {
  public:
-  std::array<dealloc_request_vector, 2> requests;
-
   deferred_requests() noexcept = default;
 
 #ifndef NDEBUG
@@ -381,24 +378,28 @@ class [[nodiscard]] deferred_requests final {
         dealloc_epoch_single_thread_mode{dealloc_epoch_single_thread_mode_} {}
 #endif
 
-  deferred_requests(const deferred_requests &) noexcept = default;
-  deferred_requests(deferred_requests &&) noexcept = default;
-  deferred_requests &operator=(const deferred_requests &) noexcept = default;
-  deferred_requests &operator=(deferred_requests &&) noexcept = default;
+  void deallocate_on_scope_exit(dealloc_request_vector &&requests_) noexcept {
+    requests = std::move(requests_);
+  }
+
+  deferred_requests(const deferred_requests &) noexcept = delete;
+  deferred_requests(deferred_requests &&) noexcept = delete;
+  deferred_requests &operator=(const deferred_requests &) noexcept = delete;
+  deferred_requests &operator=(deferred_requests &&) noexcept = delete;
 
   ~deferred_requests() {
-    for (const auto &reqs : requests) {
-      for (const auto &dealloc_request : reqs) {
-        dealloc_request.deallocate(
+    for (const auto &dealloc_request : requests) {
+      dealloc_request.deallocate(
 #ifndef NDEBUG
-            dealloc_epoch, dealloc_epoch_single_thread_mode
+          dealloc_epoch, dealloc_epoch_single_thread_mode
 #endif
-        );
-      }
+      );
     }
   }
 
  private:
+  dealloc_request_vector requests;
+
 #ifndef NDEBUG
   qsbr_epoch dealloc_epoch;
   bool dealloc_epoch_single_thread_mode;
@@ -606,15 +607,14 @@ class qsbr final {
 
   static void thread_epoch_change_barrier() noexcept;
 
-  detail::deferred_requests epoch_change_update_requests(
+  void epoch_change_update_requests(
 #ifndef NDEBUG
       qsbr_epoch current_global_epoch,
 #endif
       bool single_thread_mode) noexcept;
 
   qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
-                          bool single_thread_mode,
-                          detail::deferred_requests &requests) noexcept;
+                          bool single_thread_mode) noexcept;
 
   [[nodiscard]] static detail::deferred_requests make_deferred_requests(
 #ifndef NDEBUG

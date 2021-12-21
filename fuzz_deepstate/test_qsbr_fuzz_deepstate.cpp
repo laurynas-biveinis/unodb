@@ -97,6 +97,8 @@ void resume_thread(std::size_t thread_i) {
 
   LOG(TRACE) << "Resuming thread";
   unodb::this_thread().qsbr_resume();
+  ASSERT(unodb::this_thread().previous_interval_requests_empty());
+  ASSERT(unodb::this_thread().current_interval_requests_empty());
   threads[thread_i].is_paused = false;
 }
 
@@ -147,10 +149,10 @@ void deallocate_pointer(std::uint64_t *ptr) {
   ASSERT(!unodb::this_thread().is_qsbr_paused());
   ASSERT(*ptr == object_mem);
 
-  unodb::qsbr::instance().on_next_epoch_deallocate(ptr, sizeof(object_mem)
+  unodb::this_thread().on_next_epoch_deallocate(ptr, sizeof(object_mem)
 #ifndef NDEBUG
-                                                            ,
-                                                   check_qsbr_pointer_on_dealloc
+                                                         ,
+                                                check_qsbr_pointer_on_dealloc
 #endif
   );
 }
@@ -404,17 +406,22 @@ void reset_stats() {
     deallocate_pointer(main_thread_i);
     return;
   }
-  if (unodb::qsbr::instance().get_previous_interval_dealloc_count() > 0) {
-    LOG(TRACE) << "Previous interval non-empty, going through qstate instead "
-                  "of resetting stats";
-    quiescent_state(main_thread_i);
-    return;
-  }
-  if (unodb::qsbr::instance().get_current_interval_dealloc_count() > 0) {
-    LOG(TRACE) << "Current interval non-empty, going through qstate instead of "
-                  "resetting stats";
-    quiescent_state(main_thread_i);
-    return;
+  if (!threads[main_thread_i].is_paused) {
+    if (!unodb::qsbr::instance().previous_interval_orphaned_requests_empty() ||
+        !unodb::this_thread().previous_interval_requests_empty()) {
+      LOG(TRACE)
+          << "Previous interval requests non-empty, going through qstate "
+             "instead of resetting stats";
+      quiescent_state(main_thread_i);
+      return;
+    }
+    if (!unodb::qsbr::instance().current_interval_orphaned_requests_empty() ||
+        !unodb::this_thread().current_interval_requests_empty()) {
+      LOG(TRACE) << "Current interval orphans non-empty, going through qstate "
+                    "instead of resetting stats";
+      quiescent_state(main_thread_i);
+      return;
+    }
   }
   LOG(TRACE) << "Resetting QSBR stats";
   unodb::qsbr::instance().reset_stats();
@@ -580,8 +587,10 @@ TEST(QSBR, DeepStateFuzz) {
     dump_sink << unodb::qsbr::instance().get_epoch_change_count();
     dump_sink << unodb::qsbr::instance().get_max_backlog_bytes();
     dump_sink << unodb::qsbr::instance().get_mean_backlog_bytes();
-    dump_sink << unodb::qsbr::instance().get_previous_interval_dealloc_count();
-    dump_sink << unodb::qsbr::instance().get_current_interval_dealloc_count();
+    dump_sink
+        << unodb::qsbr::instance().previous_interval_orphaned_requests_empty();
+    dump_sink
+        << unodb::qsbr::instance().current_interval_orphaned_requests_empty();
   }
 
   for (std::size_t i = 0; i < threads.size(); ++i) {
@@ -612,6 +621,8 @@ TEST(QSBR, DeepStateFuzz) {
   unodb::this_thread().quiescent();
 
   unodb::qsbr::instance().assert_idle();
+  ASSERT(unodb::this_thread().previous_interval_requests_empty());
+  ASSERT(unodb::this_thread().current_interval_requests_empty());
 }
 
 }  // namespace

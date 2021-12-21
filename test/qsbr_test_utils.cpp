@@ -13,8 +13,10 @@ namespace unodb::test {
 void expect_idle_qsbr() {
   const auto state = unodb::qsbr::instance().get_state();
   EXPECT_TRUE(qsbr_state::single_thread_mode(state));
-  EXPECT_EQ(unodb::qsbr::instance().get_previous_interval_dealloc_count(), 0);
-  EXPECT_EQ(unodb::qsbr::instance().get_current_interval_dealloc_count(), 0);
+  EXPECT_TRUE(
+      unodb::qsbr::instance().previous_interval_orphaned_requests_empty());
+  EXPECT_TRUE(
+      unodb::qsbr::instance().current_interval_orphaned_requests_empty());
   const auto thread_count = qsbr_state::get_thread_count(state);
   const auto threads_in_previous_epoch =
       qsbr_state::get_threads_in_previous_epoch(state);

@@ -72,6 +72,77 @@ void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
 
 #endif  // !NDEBUG
 
+namespace detail {
+
+struct dealloc_vector_list_node {
+  std::unique_ptr<detail::dealloc_request_vector> requests;
+  dealloc_vector_list_node *next;
+};
+
+}  // namespace detail
+
+namespace {
+
+void add_to_orphan_list(
+    std::atomic<detail::dealloc_vector_list_node *> &orphan_list,
+    std::unique_ptr<detail::dealloc_request_vector> &&requests) noexcept {
+  if (requests->empty()) {
+    requests.reset();
+    return;
+  }
+
+  auto list_node = std::make_unique<detail::dealloc_vector_list_node>();
+  auto *const list_node_ptr = list_node.release();
+
+  list_node_ptr->requests = std::move(requests);
+  list_node_ptr->next = orphan_list.load(std::memory_order_acquire);
+
+  while (true) {
+    if (UNODB_DETAIL_LIKELY(orphan_list.compare_exchange_weak(
+            list_node_ptr->next, list_node_ptr, std::memory_order_acq_rel,
+            std::memory_order_acquire)))
+      return;
+  }
+}
+
+detail::dealloc_vector_list_node *take_orphan_list(
+    std::atomic<detail::dealloc_vector_list_node *> &orphan_list) noexcept {
+  return orphan_list.exchange(nullptr, std::memory_order_acq_rel);
+}
+
+void free_orphan_list(detail::dealloc_vector_list_node *list
+#ifndef NDEBUG
+                      ,
+                      qsbr_epoch dealloc_epoch, bool single_thread_mode
+#endif
+                      ) noexcept {
+  while (list != nullptr) {
+    const std::unique_ptr<detail::dealloc_vector_list_node> list_ptr{list};
+    detail::deferred_requests requests_to_deallocate{
+        std::move(list_ptr->requests)
+#ifndef NDEBUG
+            ,
+        dealloc_epoch, single_thread_mode
+#endif
+    };
+    list = list_ptr->next;
+  }
+}
+
+}  // namespace
+
+void qsbr_per_thread::orphan_deferred_requests() noexcept {
+  add_to_orphan_list(
+      qsbr::instance().orphaned_previous_interval_dealloc_requests,
+      std::move(previous_interval_dealloc_requests));
+  add_to_orphan_list(
+      qsbr::instance().orphaned_current_interval_dealloc_requests,
+      std::move(current_interval_dealloc_requests));
+
+  UNODB_DETAIL_ASSERT(previous_interval_dealloc_requests == nullptr);
+  UNODB_DETAIL_ASSERT(current_interval_dealloc_requests == nullptr);
+}
+
 qsbr_epoch qsbr::register_thread() noexcept {
   auto old_state = get_state();
 
@@ -123,8 +194,9 @@ qsbr_epoch qsbr::register_thread() noexcept {
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
-                             qsbr_epoch thread_epoch) noexcept {
-  bool requests_updated_for_epoch_change = false;
+                             qsbr_epoch thread_epoch,
+                             qsbr_per_thread &qsbr_thread) noexcept {
+  bool global_requests_updated_for_epoch_change = false;
   auto old_state = state.load(std::memory_order_acquire);
 
   while (true) {
@@ -139,6 +211,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
       if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
               old_state, new_state, std::memory_order_acq_rel,
               std::memory_order_acquire))) {
+        qsbr_thread.orphan_deferred_requests();
         return;
       }
       continue;
@@ -162,20 +235,22 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     if (remove_thread_from_previous_epoch) {
       thread_epoch_change_barrier();
 
-      if ((old_threads_in_previous_epoch == 1) &&
-          !requests_updated_for_epoch_change) {
-        epoch_change_update_requests(
-#ifndef NDEBUG
-            old_epoch.next(),
-#endif
-            qsbr_state::single_thread_mode(old_state));
-        // If we come here the second time, do not call
-        // epoch_change_update_requests as it's already done for this particular
-        // epoch change and we cannot change the epoch twice here.
-        requests_updated_for_epoch_change = true;
+      if (old_threads_in_previous_epoch == 1) {
+        qsbr_thread.advance_last_seen_epoch(
+            qsbr_state::single_thread_mode(old_state), old_epoch.next());
         // Request epoch invariants become fuzzy at this point - the current
         // interval moved to previous but the epoch not advanced yet. Any new
         // requests until CAS will get the old epoch.
+
+        // Call epoch_change_update_requests only once for one epoch change
+        if (!global_requests_updated_for_epoch_change) {
+          epoch_change_update_requests(
+#ifndef NDEBUG
+              old_epoch.next(),
+#endif
+              qsbr_state::single_thread_mode(old_state));
+          global_requests_updated_for_epoch_change = true;
+        }
       }
     }
 
@@ -184,6 +259,8 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     if (UNODB_DETAIL_LIKELY(state.compare_exchange_strong(
             old_state, new_state, std::memory_order_acq_rel,
             std::memory_order_acquire))) {
+      qsbr_thread.orphan_deferred_requests();
+
       if (thread_epoch != old_epoch) {
         register_quiescent_states_per_thread_between_epoch_changes(
             quiescent_states_since_epoch_change);
@@ -199,13 +276,13 @@ void qsbr::reset_stats() noexcept {
   // prevents to leaving idle state at any time
   assert_idle();
 
-  epoch_callback_stats = {};
+  epoch_dealloc_per_thread_count_stats = {};
   publish_epoch_callback_stats();
 
-  deallocation_size_stats = {};
+  deallocation_size_per_thread_stats = {};
   publish_deallocation_size_stats();
 
-  std::lock_guard guard{quiescent_states_per_thread_between_epoch_change_lock};
+  std::lock_guard guard{stats_lock};
 
   quiescent_states_per_thread_between_epoch_change_stats = {};
   publish_quiescent_states_per_thread_between_epoch_change_stats();
@@ -215,14 +292,7 @@ void qsbr::reset_stats() noexcept {
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
 [[gnu::cold, gnu::noinline]] void qsbr::dump(std::ostream &out) const {
-  // TODO(laurynas): locking? anyone using it all?
-  out << "QSBR status:\n";
-  out << "Previous interval pending deallocation requests: "
-      << previous_interval_deallocation_requests.size() << '\n';
-  out << "Current interval pending deallocation requests: "
-      << current_interval_deallocation_requests.size() << '\n';
-  out << "Current interval pending deallocation bytes: "
-      << current_interval_total_dealloc_size.load(std::memory_order_acquire);
+  // TODO(laurynas): anyone using it all?
   out << state.load(std::memory_order_acquire) << '\n';
 }
 
@@ -280,75 +350,62 @@ void qsbr::epoch_change_update_requests(
       epoch_change_count.load(std::memory_order_relaxed) + 1;
   epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
 
-  const auto old_current_interval_total_dealloc_size =
-      current_interval_total_dealloc_size.exchange(0,
-                                                   std::memory_order_acq_rel);
-  deallocation_size_stats(old_current_interval_total_dealloc_size);
-  publish_deallocation_size_stats();
-
-  epoch_callback_stats(get_previous_interval_dealloc_count());
-  publish_epoch_callback_stats();
-
-  previous_interval_dealloc_count.store(0, std::memory_order_release);
-
-  if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
-    const auto old_current_interval_dealloc_count =
-        current_interval_dealloc_count.exchange(0, std::memory_order_acq_rel);
-    previous_interval_dealloc_count.store(old_current_interval_dealloc_count);
-  } else {
-    current_interval_dealloc_count.store(0, std::memory_order_release);
-  }
-
-  detail::deferred_requests deallocate_requests{
-#ifndef NDEBUG
-      dealloc_epoch, single_thread_mode
-#endif
-  };
-  detail::deferred_requests additional_deallocate_requests{
-#ifndef NDEBUG
-      dealloc_epoch, single_thread_mode
-#endif
-  };
-
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
   __tsan_acquire(&instance());
 #endif
-  {  // Acquire synchronizes-with atomic_thread_fence(std::memory_order_release)
-     // in
-    // thread_epoch_change_barrier
-    std::lock_guard guard{qsbr_lock};
+  // Acquire synchronizes-with atomic_thread_fence(std::memory_order_release)
+  // in thread_epoch_change_barrier
+  std::atomic_thread_fence(std::memory_order_acquire);
+
+  auto *orphaned_previous_requests =
+      take_orphan_list(orphaned_previous_interval_dealloc_requests);
+  auto *orphaned_current_requests =
+      take_orphan_list(orphaned_current_interval_dealloc_requests);
 
 #ifndef NDEBUG
-    // The asserts cannot be stricter due to epoch change by unregister_thread,
-    // which moves requests between intervals not atomically with the epoch
-    // change.
-    if (!previous_interval_deallocation_requests.empty()) {
-      const auto request_epoch =
-          previous_interval_deallocation_requests[0].request_epoch;
-      UNODB_DETAIL_ASSERT(request_epoch.next() == dealloc_epoch ||
-                          request_epoch.next().next() == dealloc_epoch ||
-                          request_epoch.next().next().next() == dealloc_epoch);
-    }
-    if (!current_interval_deallocation_requests.empty()) {
-      const auto request_epoch =
-          current_interval_deallocation_requests[0].request_epoch;
-      UNODB_DETAIL_ASSERT(request_epoch.next() == dealloc_epoch ||
-                          request_epoch.next().next() == dealloc_epoch);
-    }
+  if (orphaned_previous_requests != nullptr) {
+    const auto request_epoch =
+        (*orphaned_previous_requests->requests)[0].request_epoch;
+    UNODB_DETAIL_ASSERT(request_epoch.next() == dealloc_epoch ||
+                        request_epoch.next().next() == dealloc_epoch ||
+                        request_epoch.next().next().next() == dealloc_epoch);
+  }
+  if (orphaned_current_requests != nullptr) {
+    const auto request_epoch =
+        (*orphaned_current_requests->requests)[0].request_epoch;
+    UNODB_DETAIL_ASSERT(request_epoch.next() == dealloc_epoch ||
+                        request_epoch.next().next() == dealloc_epoch);
+  }
 #endif
 
-    deallocate_requests.deallocate_on_scope_exit(
-        std::move(previous_interval_deallocation_requests));
+  free_orphan_list(orphaned_previous_requests
+#ifndef NDEBUG
+                   ,
+                   dealloc_epoch, single_thread_mode
+#endif
+  );
 
-    if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
-      previous_interval_deallocation_requests =
-          std::move(current_interval_deallocation_requests);
-    } else {
-      previous_interval_deallocation_requests.clear();
-      additional_deallocate_requests.deallocate_on_scope_exit(
-          std::move(current_interval_deallocation_requests));
+  if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
+    detail::dealloc_vector_list_node *new_previous_requests = nullptr;
+    if (UNODB_DETAIL_UNLIKELY(
+            !orphaned_previous_interval_dealloc_requests
+                 .compare_exchange_strong(
+                     new_previous_requests, orphaned_current_requests,
+                     std::memory_order_acq_rel, std::memory_order_acquire))) {
+      // Someone added new previous requests since we took the previous batch
+      // above. Append ours at the tail then, only one thread can do this, as
+      // everybody else add at the list head.
+      while (new_previous_requests->next != nullptr)
+        new_previous_requests = new_previous_requests->next;
+      new_previous_requests->next = orphaned_current_requests;
     }
-    current_interval_deallocation_requests.clear();
+  } else {
+    free_orphan_list(orphaned_current_requests
+#ifndef NDEBUG
+                     ,
+                     dealloc_epoch, single_thread_mode
+#endif
+    );
   }
 }
 
@@ -380,13 +437,6 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
     // allowed failures are thread count change and spurious. The next loop
     // iteration will assert this.
   }
-}
-
-void qsbr::assert_idle_locked() const noexcept {
-#ifndef NDEBUG
-  UNODB_DETAIL_ASSERT(previous_interval_deallocation_requests.empty());
-  UNODB_DETAIL_ASSERT(current_interval_deallocation_requests.empty());
-#endif
 }
 
 }  // namespace unodb

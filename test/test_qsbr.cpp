@@ -25,7 +25,11 @@ class QSBR : public ::testing::Test {
     unodb::qsbr::instance().reset_stats();
   }
 
-  ~QSBR() noexcept override { unodb::test::expect_idle_qsbr(); }
+  ~QSBR() noexcept override {
+    if (unodb::this_thread().is_qsbr_paused())
+      unodb::this_thread().qsbr_resume();
+    unodb::test::expect_idle_qsbr();
+  }
 
   [[nodiscard]] static auto get_qsbr_thread_count() noexcept {
     return unodb::qsbr_state::get_thread_count(

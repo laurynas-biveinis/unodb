@@ -588,11 +588,15 @@ class qsbr final {
   }
 
   void assert_idle() const noexcept {
+#ifndef NDEBUG
+    const auto current_state = get_state();
+    qsbr_state::assert_invariants(current_state);
+    UNODB_DETAIL_ASSERT(qsbr_state::get_thread_count(current_state) <= 1);
     UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size.load(
                             std::memory_order_acquire) == 0);
     UNODB_DETAIL_ASSERT(get_previous_interval_dealloc_count() == 0);
     UNODB_DETAIL_ASSERT(get_current_interval_dealloc_count() == 0);
-#ifndef NDEBUG
+
     std::lock_guard guard{qsbr_lock};
     assert_idle_locked();
 #endif
@@ -615,12 +619,6 @@ class qsbr final {
 
   qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
                           bool single_thread_mode) noexcept;
-
-  [[nodiscard]] static detail::deferred_requests make_deferred_requests(
-#ifndef NDEBUG
-      qsbr_epoch dealloc_epoch, bool single_thread_mode
-#endif
-      ) noexcept;
 
   void publish_deallocation_size_stats() noexcept {
     deallocation_size_max.store(boost_acc::max(deallocation_size_stats),

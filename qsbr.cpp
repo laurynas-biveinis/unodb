@@ -275,18 +275,6 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
   return new_epoch;
 }
 
-[[nodiscard]] detail::deferred_requests qsbr::make_deferred_requests(
-#ifndef NDEBUG
-    qsbr_epoch dealloc_epoch, bool single_thread_mode
-#endif
-    ) noexcept {
-  return detail::deferred_requests{
-#ifndef NDEBUG
-      dealloc_epoch, single_thread_mode
-#endif
-  };
-}
-
 void qsbr::epoch_change_update_requests(
 #ifndef NDEBUG
     qsbr_epoch current_global_epoch,
@@ -315,17 +303,16 @@ void qsbr::epoch_change_update_requests(
     current_interval_dealloc_count.store(0, std::memory_order_release);
   }
 
-  detail::deferred_requests deallocate_requests = make_deferred_requests(
+  detail::deferred_requests deallocate_requests{
 #ifndef NDEBUG
       current_global_epoch.next(), single_thread_mode
 #endif
-  );
-  detail::deferred_requests additional_deallocate_requests =
-      make_deferred_requests(
+  };
+  detail::deferred_requests additional_deallocate_requests{
 #ifndef NDEBUG
-          current_global_epoch.next(), single_thread_mode
+      current_global_epoch.next(), single_thread_mode
 #endif
-      );
+  };
 
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
   __tsan_acquire(&instance());
@@ -401,10 +388,6 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
 
 void qsbr::assert_idle_locked() const noexcept {
 #ifndef NDEBUG
-  qsbr_state::assert_invariants(get_state());
-  // Copy-paste-tweak with expect_idle_qsbr, but not clear how to fix this:
-  // here we are asserting over internals, over there we are using Google Test
-  // EXPECT macros with the public interface.
   UNODB_DETAIL_ASSERT(previous_interval_deallocation_requests.empty());
   UNODB_DETAIL_ASSERT(current_interval_deallocation_requests.empty());
 #endif

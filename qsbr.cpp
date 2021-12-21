@@ -287,17 +287,6 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
   };
 }
 
-template <typename T>
-T atomic_fetch_reset(std::atomic<T> &var) noexcept {
-  auto old_var = var.load(std::memory_order_acquire);
-  while (true) {
-    if (UNODB_DETAIL_LIKELY(var.compare_exchange_weak(
-            old_var, 0, std::memory_order_acq_rel, std::memory_order_acquire)))
-      return old_var;
-    // spin
-  }
-}
-
 void qsbr::epoch_change_update_requests(
 #ifndef NDEBUG
     qsbr_epoch current_global_epoch,
@@ -308,7 +297,8 @@ void qsbr::epoch_change_update_requests(
   epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
 
   const auto old_current_interval_total_dealloc_size =
-      atomic_fetch_reset(current_interval_total_dealloc_size);
+      current_interval_total_dealloc_size.exchange(0,
+                                                   std::memory_order_acq_rel);
   deallocation_size_stats(old_current_interval_total_dealloc_size);
   publish_deallocation_size_stats();
 
@@ -318,8 +308,8 @@ void qsbr::epoch_change_update_requests(
   previous_interval_dealloc_count.store(0, std::memory_order_release);
 
   if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
-    auto old_current_interval_dealloc_count =
-        atomic_fetch_reset(current_interval_dealloc_count);
+    const auto old_current_interval_dealloc_count =
+        current_interval_dealloc_count.exchange(0, std::memory_order_acq_rel);
     previous_interval_dealloc_count.store(old_current_interval_dealloc_count);
   } else {
     current_interval_dealloc_count.store(0, std::memory_order_release);

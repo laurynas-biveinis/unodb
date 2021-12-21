@@ -613,7 +613,7 @@ class qsbr final {
 
   void epoch_change_update_requests(
 #ifndef NDEBUG
-      qsbr_epoch current_global_epoch,
+      qsbr_epoch dealloc_epoch,
 #endif
       bool single_thread_mode) noexcept;
 

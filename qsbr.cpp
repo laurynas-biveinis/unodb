@@ -169,7 +169,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
         if (!requests_updated_for_epoch_change) {
           epoch_change_update_requests(
 #ifndef NDEBUG
-              old_epoch,
+              old_epoch.next(),
 #endif
               old_single_thread_mode);
           // If we come here the second time, do not call
@@ -277,7 +277,7 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
 
 void qsbr::epoch_change_update_requests(
 #ifndef NDEBUG
-    qsbr_epoch current_global_epoch,
+    qsbr_epoch dealloc_epoch,
 #endif
     bool single_thread_mode) noexcept {
   const auto new_epoch_change_count =
@@ -305,12 +305,12 @@ void qsbr::epoch_change_update_requests(
 
   detail::deferred_requests deallocate_requests{
 #ifndef NDEBUG
-      current_global_epoch.next(), single_thread_mode
+      dealloc_epoch, single_thread_mode
 #endif
   };
   detail::deferred_requests additional_deallocate_requests{
 #ifndef NDEBUG
-      current_global_epoch.next(), single_thread_mode
+      dealloc_epoch, single_thread_mode
 #endif
   };
 
@@ -329,15 +329,15 @@ void qsbr::epoch_change_update_requests(
     if (!previous_interval_deallocation_requests.empty()) {
       const auto request_epoch =
           previous_interval_deallocation_requests[0].request_epoch;
-      UNODB_DETAIL_ASSERT(request_epoch == current_global_epoch ||
-                          request_epoch.next() == current_global_epoch ||
-                          request_epoch.next().next() == current_global_epoch);
+      UNODB_DETAIL_ASSERT(request_epoch.next() == dealloc_epoch ||
+                          request_epoch.next().next() == dealloc_epoch ||
+                          request_epoch.next().next().next() == dealloc_epoch);
     }
     if (!current_interval_deallocation_requests.empty()) {
       const auto request_epoch =
           current_interval_deallocation_requests[0].request_epoch;
-      UNODB_DETAIL_ASSERT(request_epoch == current_global_epoch ||
-                          request_epoch.next() == current_global_epoch);
+      UNODB_DETAIL_ASSERT(request_epoch.next() == dealloc_epoch ||
+                          request_epoch.next().next() == dealloc_epoch);
     }
 #endif
 
@@ -361,7 +361,7 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
                               bool single_thread_mode) noexcept {
   epoch_change_update_requests(
 #ifndef NDEBUG
-      current_global_epoch,
+      current_global_epoch.next(),
 #endif
       single_thread_mode);
 

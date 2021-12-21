@@ -438,7 +438,7 @@ class [[nodiscard]] qsbr_per_thread final {
 
  private:
   std::uint64_t quiescent_states_since_epoch_change{0};
-  qsbr_epoch last_seen_epoch;
+  qsbr_epoch last_seen_quiescent_state_epoch;
 
   bool paused{true};
 
@@ -690,7 +690,7 @@ static_assert(std::atomic<std::size_t>::is_always_lock_free);
 static_assert(std::atomic<double>::is_always_lock_free);
 
 inline qsbr_per_thread::qsbr_per_thread() noexcept
-    : last_seen_epoch{qsbr::instance().register_thread()} {
+    : last_seen_quiescent_state_epoch{qsbr::instance().register_thread()} {
   UNODB_DETAIL_ASSERT(paused);
   paused = false;
 }
@@ -702,29 +702,32 @@ inline void qsbr_per_thread::quiescent() noexcept {
   const auto current_global_epoch =
       qsbr_state::get_epoch(qsbr::instance().get_state());
 
-  if (current_global_epoch != last_seen_epoch) {
-    UNODB_DETAIL_ASSERT(current_global_epoch == last_seen_epoch.next());
+  if (current_global_epoch != last_seen_quiescent_state_epoch) {
+    UNODB_DETAIL_ASSERT(current_global_epoch ==
+                        last_seen_quiescent_state_epoch.next());
 
-    last_seen_epoch = current_global_epoch;
+    last_seen_quiescent_state_epoch = current_global_epoch;
     qsbr::instance().register_quiescent_states_per_thread_between_epoch_changes(
         quiescent_states_since_epoch_change);
     quiescent_states_since_epoch_change = 0;
   }
 
-  UNODB_DETAIL_ASSERT(current_global_epoch == last_seen_epoch);
+  UNODB_DETAIL_ASSERT(current_global_epoch == last_seen_quiescent_state_epoch);
   if (quiescent_states_since_epoch_change == 0) {
     const auto new_global_epoch =
-        qsbr::instance().remove_thread_from_previous_epoch(current_global_epoch
+        qsbr::instance().remove_thread_from_previous_epoch(
+            current_global_epoch
 #ifndef NDEBUG
-                                                           ,
-                                                           last_seen_epoch
+            ,
+            last_seen_quiescent_state_epoch
 #endif
         );
-    UNODB_DETAIL_ASSERT(new_global_epoch == last_seen_epoch ||
-                        new_global_epoch == last_seen_epoch.next());
+    UNODB_DETAIL_ASSERT(new_global_epoch == last_seen_quiescent_state_epoch ||
+                        new_global_epoch ==
+                            last_seen_quiescent_state_epoch.next());
 
-    if (new_global_epoch != last_seen_epoch) {
-      last_seen_epoch = new_global_epoch;
+    if (new_global_epoch != last_seen_quiescent_state_epoch) {
+      last_seen_quiescent_state_epoch = new_global_epoch;
       qsbr::instance()
           .register_quiescent_states_per_thread_between_epoch_changes(1);
       quiescent_states_since_epoch_change = 0;
@@ -767,14 +770,14 @@ inline void qsbr_per_thread::qsbr_pause() {
   UNODB_DETAIL_ASSERT(active_ptrs.empty());
 #endif
   qsbr::instance().unregister_thread(quiescent_states_since_epoch_change,
-                                     last_seen_epoch);
+                                     last_seen_quiescent_state_epoch);
   paused = true;
 }
 
 inline void qsbr_per_thread::qsbr_resume() {
   UNODB_DETAIL_ASSERT(paused);
   UNODB_DETAIL_ASSERT(active_ptrs.empty());
-  last_seen_epoch = qsbr::instance().register_thread();
+  last_seen_quiescent_state_epoch = qsbr::instance().register_thread();
   quiescent_states_since_epoch_change = 0;
   paused = false;
 }

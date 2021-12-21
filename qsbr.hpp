@@ -763,10 +763,9 @@ inline void deallocation_request::deallocate(
 }  // namespace detail
 
 inline void qsbr_per_thread::qsbr_pause() {
-#ifndef NDEBUG
   UNODB_DETAIL_ASSERT(!paused);
   UNODB_DETAIL_ASSERT(active_ptrs.empty());
-#endif
+
   qsbr::instance().unregister_thread(quiescent_states_since_epoch_change,
                                      last_seen_quiescent_state_epoch);
   paused = true;

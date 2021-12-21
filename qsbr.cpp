@@ -162,24 +162,20 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     if (remove_thread_from_previous_epoch) {
       thread_epoch_change_barrier();
 
-      if (old_threads_in_previous_epoch == 1) {
-        const auto old_single_thread_mode =
-            qsbr_state::single_thread_mode(old_state);
-
-        if (!requests_updated_for_epoch_change) {
-          epoch_change_update_requests(
+      if ((old_threads_in_previous_epoch == 1) &&
+          !requests_updated_for_epoch_change) {
+        epoch_change_update_requests(
 #ifndef NDEBUG
-              old_epoch.next(),
+            old_epoch.next(),
 #endif
-              old_single_thread_mode);
-          // If we come here the second time, do not call
-          // epoch_change_update_requests as it's already done for this
-          // particular epoch change and we cannot change the epoch twice here.
-          requests_updated_for_epoch_change = true;
-          // Request epoch invariants become fuzzy at this point - the current
-          // interval moved to previous but the epoch not advanced yet. Any new
-          // requests until CAS will get the old epoch.
-        }
+            qsbr_state::single_thread_mode(old_state));
+        // If we come here the second time, do not call
+        // epoch_change_update_requests as it's already done for this particular
+        // epoch change and we cannot change the epoch twice here.
+        requests_updated_for_epoch_change = true;
+        // Request epoch invariants become fuzzy at this point - the current
+        // interval moved to previous but the epoch not advanced yet. Any new
+        // requests until CAS will get the old epoch.
       }
     }
 

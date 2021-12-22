@@ -69,7 +69,7 @@ set(GCC_GE_11_CXX_WARNING_FLAGS
   "-Wctad-maybe-unsupported" "-Wdeprecated-enum-enum-conversion"
   "-Wdeprecated-enum-float-conversion" "-Wvexing-parse")
 
-list(APPEND CXX_FLAGS "-g" "-msse4.1")
+list(APPEND CXX_FLAGS "-g" "-msse4.1" "-mcx16")
 
 option(COVERAGE "Enable code coverage reporting")
 if(COVERAGE)
@@ -183,8 +183,6 @@ option(STATIC_ANALYSIS "Enable compiler static analysis")
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_package(Threads REQUIRED)
-
-find_package(Boost REQUIRED)
 
 string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
 string(APPEND CMAKE_CXX_FLAGS ${CXX_FLAGS_FOR_SUBDIR_STR})
@@ -417,13 +415,10 @@ function(ADD_UNODB_LIBRARY LIB)
   endif()
 endfunction()
 
-add_unodb_library(unodb_qsbr qsbr.cpp qsbr.hpp qsbr_ptr.cpp qsbr_ptr.hpp)
-target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
-target_link_libraries(unodb_qsbr PRIVATE "${Boost_LIBRARIES}")
+add_unodb_library(unodb_qsbr qsbr.cpp qsbr.hpp qsbr_ptr.cpp qsbr_ptr.hpp
+  lock_free_stats.hpp)
 target_link_libraries(unodb_qsbr PUBLIC Threads::Threads)
 if(LIBFUZZER_AVAILABLE)
-  target_include_directories(unodb_qsbr_lf SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
-  target_link_libraries(unodb_qsbr_lf PRIVATE "${Boost_LIBRARIES}")
   target_link_libraries(unodb_qsbr_lf PUBLIC Threads::Threads)
 endif()
 

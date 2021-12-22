@@ -77,6 +77,16 @@
 #define UNODB_DETAIL_LIKELY(x) __builtin_expect(x, 1)
 #define UNODB_DETAIL_UNLIKELY(x) __builtin_expect(x, 0)
 
+#ifndef __clang__
+#define UNODB_DETAIL_ASSUME(x)                                \
+  do {                                                        \
+    UNODB_DETAIL_ASSERT(x);                                   \
+    if (UNODB_DETAIL_UNLIKELY(!(x))) __builtin_unreachable(); \
+  } while (0)
+#else
+#define UNODB_DETAIL_ASSUME(x) __builtin_assume(x)
+#endif
+
 #ifdef NDEBUG
 // Cannot do [[gnu::unused]], as that does not play well with structured
 // bindings when compiling with GCC.

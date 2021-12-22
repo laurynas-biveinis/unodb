@@ -26,6 +26,12 @@
 
 namespace unodb {
 
+namespace detail {
+// FIXME(laurynas): WIP
+inline constexpr std::size_t hw_destructive_interference_size = 64;
+inline constexpr std::size_t hw_constructive_interference_size = 64;
+}  // namespace detail
+
 // Quiescent-state based reclamation (QSBR) memory reclamation scheme. Instead
 // of freeing memory directly, threads register pending deallocation requests to
 // be executed later. Further, each thread notifies when it's not holding any
@@ -624,7 +630,8 @@ class qsbr final {
   qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
                           bool single_thread_mode) noexcept;
 
-  std::atomic<qsbr_state::type> state;
+  alignas(detail::hw_destructive_interference_size)
+      std::atomic<qsbr_state::type> state;
 
   std::atomic<std::uint64_t> epoch_change_count;
 
@@ -634,8 +641,14 @@ class qsbr final {
   std::atomic<detail::dealloc_vector_list_node *>
       orphaned_current_interval_dealloc_requests;
 
+  static_assert(sizeof(state) + sizeof(epoch_change_count) +
+                    sizeof(orphaned_previous_interval_dealloc_requests) +
+                    sizeof(orphaned_current_interval_dealloc_requests) <=
+                detail::hw_constructive_interference_size);
+
   // TODO(laurynas): more interesting callback stats?
-  lock_free_max_variance_stats epoch_dealloc_per_thread_count_stats;
+  alignas(detail::hw_destructive_interference_size)
+      lock_free_max_variance_stats epoch_dealloc_per_thread_count_stats;
 
   lock_free_max_variance_stats deallocation_size_per_thread_stats;
 

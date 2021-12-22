@@ -845,12 +845,14 @@ TEST_F(QSBR, ResetStats) {
   second_thread.join();
 
   ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 2);
-  ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 1);
+  ASSERT_NEAR(unodb::qsbr::instance().get_mean_backlog_bytes(), 0.666667,
+              0.00001);
   ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 2);
-  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(), 1);
-  ASSERT_EQ(unodb::qsbr::instance()
-                .get_mean_quiescent_states_per_thread_between_epoch_changes(),
-            1.0);
+  ASSERT_NEAR(unodb::qsbr::instance().get_epoch_callback_count_variance(),
+              1.333333, 0.00001);
+  ASSERT_NEAR(unodb::qsbr::instance()
+                  .get_mean_quiescent_states_per_thread_between_epoch_changes(),
+              0.666667, 0.00001);
 
   unodb::qsbr::instance().reset_stats();
 
@@ -858,9 +860,9 @@ TEST_F(QSBR, ResetStats) {
   ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 0);
   ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 0);
   ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(), 0);
-  ASSERT_TRUE(std::isnan(
-      unodb::qsbr::instance()
-          .get_mean_quiescent_states_per_thread_between_epoch_changes()));
+  ASSERT_EQ(unodb::qsbr::instance()
+                .get_mean_quiescent_states_per_thread_between_epoch_changes(),
+            0);
 }
 
 TEST_F(QSBR, GettersConcurrentWithQuiescentState) {

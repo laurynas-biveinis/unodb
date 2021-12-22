@@ -261,38 +261,12 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
             std::memory_order_acquire))) {
       qsbr_thread.orphan_deferred_requests();
 
-      if (thread_epoch != old_epoch) {
-        register_quiescent_states_per_thread_between_epoch_changes(
-            quiescent_states_since_epoch_change);
-      }
-
       return;
     }
   }
 }
 
-void qsbr::reset_stats() noexcept {
-  // Stats can only be reset on idle QSBR - best-effort check as nothing
-  // prevents to leaving idle state at any time
-  assert_idle();
-
-  {
-    std::lock_guard guard{dealloc_stats_lock};
-
-    epoch_dealloc_per_thread_count_stats = {};
-    publish_epoch_callback_stats();
-
-    deallocation_size_per_thread_stats = {};
-    publish_deallocation_size_stats();
-  }
-
-  {
-    std::lock_guard guard{quiescent_state_stats_lock};
-
-    quiescent_states_per_thread_between_epoch_change_stats = {};
-    publish_quiescent_states_per_thread_between_epoch_change_stats();
-  }
-}
+void qsbr::reset_stats() noexcept {}
 
 // Some GCC versions suggest cold attribute on already cold-marked functions
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
@@ -352,10 +326,6 @@ void qsbr::epoch_change_update_requests(
     qsbr_epoch dealloc_epoch,
 #endif
     bool single_thread_mode) noexcept {
-  const auto new_epoch_change_count =
-      epoch_change_count.load(std::memory_order_relaxed) + 1;
-  epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
-
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
   __tsan_acquire(&instance());
 #endif

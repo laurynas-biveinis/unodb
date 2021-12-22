@@ -28,6 +28,7 @@ class QSBR : public ::testing::Test {
   ~QSBR() noexcept override {
     if (unodb::this_thread().is_qsbr_paused())
       unodb::this_thread().qsbr_resume();
+    unodb::this_thread().quiescent();
     unodb::test::expect_idle_qsbr();
   }
 
@@ -71,10 +72,10 @@ class QSBR : public ::testing::Test {
 #endif
 
   static void qsbr_deallocate(void *ptr) {
-    unodb::qsbr::instance().on_next_epoch_deallocate(ptr, 1
+    unodb::this_thread().on_next_epoch_deallocate(ptr, 1
 #ifndef NDEBUG
-                                                     ,
-                                                     check_ptr_on_qsbr_dealloc
+                                                  ,
+                                                  check_ptr_on_qsbr_dealloc
 #endif
     );
   }
@@ -875,8 +876,10 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
     volatile auto force_load [[maybe_unused]] =
         unodb::qsbr::instance()
             .get_mean_quiescent_states_per_thread_between_epoch_changes();
-    ASSERT_EQ(unodb::qsbr::instance().get_previous_interval_dealloc_count(), 0);
-    ASSERT_EQ(unodb::qsbr::instance().get_current_interval_dealloc_count(), 0);
+    ASSERT_TRUE(
+        unodb::qsbr::instance().previous_interval_orphaned_requests_empty());
+    ASSERT_TRUE(
+        unodb::qsbr::instance().current_interval_orphaned_requests_empty());
     const auto current_qsbr_state = unodb::qsbr::instance().get_state();
     ASSERT_LE(
         unodb::qsbr_state::get_threads_in_previous_epoch(current_qsbr_state),

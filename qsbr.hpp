@@ -555,7 +555,7 @@ class qsbr final {
 
   void register_quiescent_states_per_thread_between_epoch_changes(
       std::uint64_t states) noexcept {
-    std::lock_guard guard{stats_lock};
+    std::lock_guard guard{quiescent_state_stats_lock};
     quiescent_states_per_thread_between_epoch_change_stats(states);
     publish_quiescent_states_per_thread_between_epoch_change_stats();
   }
@@ -563,7 +563,7 @@ class qsbr final {
   void register_dealloc_stats_per_thread_between_epoch_changes(
       // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
       std::size_t total_size, std::size_t count) noexcept {
-    std::lock_guard guard{stats_lock};
+    std::lock_guard guard{dealloc_stats_lock};
     deallocation_size_per_thread_stats(total_size);
     publish_deallocation_size_stats();
     epoch_dealloc_per_thread_count_stats(count);
@@ -677,7 +677,7 @@ class qsbr final {
   std::atomic<detail::dealloc_vector_list_node *>
       orphaned_current_interval_dealloc_requests;
 
-  std::mutex stats_lock;
+  std::mutex dealloc_stats_lock;
 
   // TODO(laurynas): more interesting callback stats?
   boost_acc::accumulator_set<
@@ -694,6 +694,8 @@ class qsbr final {
   std::atomic<std::uint64_t> deallocation_size_per_thread_max;
   std::atomic<double> deallocation_size_per_thread_mean;
   std::atomic<double> deallocation_size_per_thread_variance;
+
+  std::mutex quiescent_state_stats_lock;
 
   boost_acc::accumulator_set<std::uint64_t,
                              boost_acc::stats<boost_acc::tag::mean>>

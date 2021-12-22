@@ -95,10 +95,33 @@
 #define UNODB_DETAIL_RELEASE_EXPLICIT
 #endif
 
+#include <cstdlib>
+#include <new>
+
+#if !defined(__cpp_lib_hardware_interference_size) || \
+    __cpp_lib_hardware_interference_size < 201703
+
+namespace unodb::detail {
+
+#ifdef __x86_64
+inline constexpr std::size_t hardware_constructive_interference_size = 64;
+inline constexpr std::size_t hardware_destructive_interference_size = 64;
+#else
+#error Needs porting
+#endif
+
+}  // namespace unodb::detail
+
+#else
+
+using std::hardware_constructive_interference_size;
+using std::hardware_destructive_interference_size;
+
+#endif
+
 #ifndef NDEBUG
 #include <execinfo.h>
 #include <unistd.h>
-#include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <thread>

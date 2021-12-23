@@ -105,7 +105,9 @@ namespace unodb::detail {
 
 #ifdef __x86_64
 inline constexpr std::size_t hardware_constructive_interference_size = 64;
-inline constexpr std::size_t hardware_destructive_interference_size = 64;
+// Two cache lines for destructive interference due to Intel fetching cache
+// lines in pairs
+inline constexpr std::size_t hardware_destructive_interference_size = 128;
 #else
 #error Needs porting
 #endif

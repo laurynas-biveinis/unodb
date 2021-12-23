@@ -667,7 +667,8 @@ class qsbr final {
         std::memory_order_relaxed);
   }
 
-  std::atomic<qsbr_state::type> state;
+  alignas(detail::hardware_destructive_interference_size)
+      std::atomic<qsbr_state::type> state;
 
   std::atomic<std::uint64_t> epoch_change_count;
 
@@ -677,7 +678,13 @@ class qsbr final {
   std::atomic<detail::dealloc_vector_list_node *>
       orphaned_current_interval_dealloc_requests;
 
-  std::mutex dealloc_stats_lock;
+  static_assert(sizeof(state) + sizeof(epoch_change_count) +
+                    sizeof(orphaned_previous_interval_dealloc_requests) +
+                    sizeof(orphaned_current_interval_dealloc_requests) <=
+                detail::hardware_constructive_interference_size);
+
+  alignas(detail::hardware_destructive_interference_size) std::mutex
+      dealloc_stats_lock;
 
   // TODO(laurynas): more interesting callback stats?
   boost_acc::accumulator_set<
@@ -695,7 +702,8 @@ class qsbr final {
   std::atomic<double> deallocation_size_per_thread_mean;
   std::atomic<double> deallocation_size_per_thread_variance;
 
-  std::mutex quiescent_state_stats_lock;
+  alignas(detail::hardware_destructive_interference_size) std::mutex
+      quiescent_state_stats_lock;
 
   boost_acc::accumulator_set<std::uint64_t,
                              boost_acc::stats<boost_acc::tag::mean>>

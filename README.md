@@ -12,9 +12,10 @@ Status](https://travis-ci.org/laurynas-biveinis/unodb.svg?branch=master)](https:
 
 ## Introduction
 
-Unodb is a adaptive radix tree implementation, done as my playground for various
-C++ tools and ideas. I am trying to describe some of the things I learned at my
-[blog](https://of-code.blogspot.com/search/label/art).
+UnoDB is an implementation of Adaptive Radix Tree in two flavors – a regular one
+and Optimistic Lock Coupling-based concurrent one with Quiescent State Based
+Reclamation (QSBR). It is done as my playground for various C++ tools and ideas,
+and I am trying to describe some of the things I learned at my [blog](https://of-code.blogspot.com/search/label/art).
 
 ## Requirements
 

@@ -26,17 +26,17 @@
 #define _GLIBCXX_SANITIZE_VECTOR 1
 #endif
 
+#include <cstddef>
 #include <cstdlib>
 #include <new>
 
 #ifndef NDEBUG
 #include <execinfo.h>
+#include <unistd.h>
 #include <iostream>
 #include <sstream>
 #include <thread>
-#include <unistd.h>
 #endif
-
 
 #if defined(__has_feature)
 #if __has_feature(thread_sanitizer)
@@ -122,6 +122,11 @@ inline constexpr std::size_t hardware_destructive_interference_size = 128;
 #else
 #error Needs porting
 #endif
+
+static_assert(hardware_constructive_interference_size >=
+              alignof(std::max_align_t));
+static_assert(hardware_destructive_interference_size >=
+              alignof(std::max_align_t));
 
 }  // namespace unodb::detail
 

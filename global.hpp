@@ -1,6 +1,8 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_GLOBAL_HPP
 #define UNODB_DETAIL_GLOBAL_HPP
+
+// Defines that must precede includes
 
 #ifndef NDEBUG
 #ifndef __clang__
@@ -23,6 +25,18 @@
 #elif defined(__SANITIZE_ADDRESS__)
 #define _GLIBCXX_SANITIZE_VECTOR 1
 #endif
+
+#include <cstdlib>
+#include <new>
+
+#ifndef NDEBUG
+#include <execinfo.h>
+#include <iostream>
+#include <sstream>
+#include <thread>
+#include <unistd.h>
+#endif
+
 
 #if defined(__has_feature)
 #if __has_feature(thread_sanitizer)
@@ -95,9 +109,6 @@
 #define UNODB_DETAIL_RELEASE_EXPLICIT
 #endif
 
-#include <cstdlib>
-#include <new>
-
 #if !defined(__cpp_lib_hardware_interference_size) || \
     __cpp_lib_hardware_interference_size < 201703
 
@@ -122,11 +133,6 @@ using std::hardware_destructive_interference_size;
 #endif
 
 #ifndef NDEBUG
-#include <execinfo.h>
-#include <unistd.h>
-#include <iostream>
-#include <sstream>
-#include <thread>
 
 // LCOV_EXCL_START
 namespace unodb::detail {

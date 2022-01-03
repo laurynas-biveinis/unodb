@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Laurynas Biveinis
+// Copyright (C) 2019-2022 Laurynas Biveinis
 
 #include "global.hpp"
 

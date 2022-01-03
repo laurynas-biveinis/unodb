@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Laurynas Biveinis
+// Copyright (C) 2019-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_QSBR_HPP
 #define UNODB_DETAIL_QSBR_HPP
 

@@ -244,11 +244,12 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
 
         // Call epoch_change_update_requests only once for one epoch change
         if (!global_requests_updated_for_epoch_change) {
-          epoch_change_update_requests(
+          epoch_change_update_requests(qsbr_state::single_thread_mode(old_state)
 #ifndef NDEBUG
-              old_epoch.next(),
+                                           ,
+                                       old_epoch.next()
 #endif
-              qsbr_state::single_thread_mode(old_state));
+          );
           global_requests_updated_for_epoch_change = true;
         }
       }
@@ -347,11 +348,12 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
   return new_epoch;
 }
 
-void qsbr::epoch_change_update_requests(
+void qsbr::epoch_change_update_requests(bool single_thread_mode
 #ifndef NDEBUG
-    qsbr_epoch dealloc_epoch,
+                                        ,
+                                        qsbr_epoch dealloc_epoch
 #endif
-    bool single_thread_mode) noexcept {
+                                        ) noexcept {
   const auto new_epoch_change_count =
       epoch_change_count.load(std::memory_order_relaxed) + 1;
   epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
@@ -420,11 +422,12 @@ void qsbr::epoch_change_update_requests(
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
                               bool single_thread_mode) noexcept {
-  epoch_change_update_requests(
+  epoch_change_update_requests(single_thread_mode
 #ifndef NDEBUG
-      current_global_epoch.next(),
+                               ,
+                               current_global_epoch.next()
 #endif
-      single_thread_mode);
+  );
 
   auto old_state = state.load(std::memory_order_acquire);
   while (true) {

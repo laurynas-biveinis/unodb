@@ -38,7 +38,7 @@ jobs:
         run: |
           export CC=clang
           export CXX=clang++
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DIWYU=ON \
+          cmake "$GITHUB_WORKSPACE" "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" -DIWYU=ON \
             -DCPPCHECK_AGGRESSIVE=ON -Wdev --warn-uninitialized
 
       - name: Build

@@ -205,10 +205,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y boost1.74 libc6-dev-i386
           if [[ $COMPILER == "gcc" ]]; then
-            sudo apt-get install -y gcc-${VERSION}
+            sudo apt-get install -y "gcc-${VERSION}"
           else
-            sudo apt-get install -y llvm-${VERSION}-linker-tools \
-              clang-${VERSION} clang-tidy-${VERSION}
+            sudo apt-get install -y "llvm-${VERSION}-linker-tools" \
+                "clang-${VERSION}" "clang-tidy-${VERSION}"
           fi
           if [[ $SANITIZE_ADDRESS != "ON" && $SANITIZE_THREAD != "ON" \
               && $SANITIZE_UB != "ON" ]]; then
@@ -230,23 +230,25 @@ jobs:
           SANITIZE_UB="${SANITIZE_UB:-$DEFAULT_SANITIZE_UB}"
           export PATH=$HOME/.local/bin:$PATH
           if [[ $COMPILER == "gcc" ]]; then
-            export CC=gcc-${VERSION}
-            export CXX=g++-${VERSION}
-            EXTRA_CMAKE_ARGS=
+            export CC="gcc-${VERSION}"
+            export CXX="g++-${VERSION}"
+            EXTRA_CMAKE_ARGS=()
           else
-            export CC=clang-${VERSION}
-            export CXX=clang++-${VERSION}
-            EXTRA_CMAKE_ARGS+="-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-${VERSION} "
+            export CC="clang-${VERSION}"
+            export CXX="clang++-${VERSION}"
+            EXTRA_CMAKE_ARGS=("-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-${VERSION}")
             if [[ $BUILD_TYPE == "Release" ]]; then
-              EXTRA_CMAKE_ARGS+="-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-${VERSION} \
-                -DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-${VERSION} \
-                -DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-${VERSION}"
+              EXTRA_CMAKE_ARGS=("${EXTRA_CMAKE_ARGS[@]}" \
+                  "-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-${VERSION}" \
+                  "-DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-${VERSION}" \
+                  "-DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-${VERSION}")
             fi
           fi
-          cmake $GITHUB_WORKSPACE -DFATAL_WARNINGS=ON \
-          -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSANITIZE_ADDRESS=${SANITIZE_ADDRESS} \
-          -DSANITIZE_THREAD=${SANITIZE_THREAD} -DSANITIZE_UB=${SANITIZE_UB} \
-          ${EXTRA_CMAKE_ARGS}
+          cmake "$GITHUB_WORKSPACE" -DFATAL_WARNINGS=ON \
+              "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
+              "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
+              "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
+              "-DSANITIZE_UB=${SANITIZE_UB}" "${EXTRA_CMAKE_ARGS[@]}"
 
       - name: Build
         working-directory: ${{github.workspace}}/build

@@ -10,9 +10,14 @@
 
 namespace {
 
-[[gnu::constructor]] void run_tls_ctor_in_main_thread() {
-  unodb::construct_current_thread_reclamator();
-}
+struct run_tls_ctor_in_main_thread {
+  run_tls_ctor_in_main_thread() noexcept {
+    unodb::construct_current_thread_reclamator();
+  }
+};
+
+// NOLINTNEXTLINE(fuchsia-statically-constructed-objects)
+const run_tls_ctor_in_main_thread do_it;
 
 }  // namespace
 

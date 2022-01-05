@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_ART_INTERNAL_IMPL_HPP
 #define UNODB_DETAIL_ART_INTERNAL_IMPL_HPP
 
@@ -868,10 +868,10 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   constexpr basic_inode_4(db_inode16_reclaimable_ptr source_node,
                           std::uint8_t child_to_delete)
       : parent_class{*source_node} {
-    const auto *source_keys_itr = source_node->keys.byte_array.cbegin();
-    auto *keys_itr = keys.byte_array.begin();
-    const auto *source_children_itr = source_node->children.cbegin();
-    auto *children_itr = children.begin();
+    auto source_keys_itr = source_node->keys.byte_array.cbegin();
+    auto keys_itr = keys.byte_array.begin();
+    auto source_children_itr = source_node->children.cbegin();
+    auto children_itr = children.begin();
 
     while (source_keys_itr !=
            source_node->keys.byte_array.cbegin() + child_to_delete) {

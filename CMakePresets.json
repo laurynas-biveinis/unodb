@@ -7,10 +7,10 @@
     },
     "configurePresets": [
         {
-            "name": "base",
+            "name": "base-unix",
             "hidden": true,
             "generator": "Unix Makefiles",
-            "binaryDir": "build/${presetName}",
+            "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "FATAL_WARNINGS": "ON"
             }
@@ -70,7 +70,7 @@
         },
         {
             "name": "release",
-            "inherits": "base",
+            "inherits": "base-unix",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
@@ -85,7 +85,7 @@
         },
         {
             "name": "debug",
-            "inherits": "base",
+            "inherits": "base-unix",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }

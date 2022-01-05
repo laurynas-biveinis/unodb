@@ -1,11 +1,11 @@
-# Copyright 2020-2021 Laurynas Biveinis
+# Copyright 2020-2022 Laurynas Biveinis
 
 set(micro_benchmark_key_prefix_quick_arg "") # Benchmark is quick as-is
 set(micro_benchmark_n4_quick_arg "--benchmark_filter='/16|/25|/100'")
 set(micro_benchmark_n16_quick_arg "--benchmark_filter='/64'")
-set(micro_benchmark_n48_quick_arg "--benchmark_filter='/8$|/128|/192'")
+set(micro_benchmark_n48_quick_arg "--benchmark_filter='/8$$|/128|/192'")
 set(micro_benchmark_n256_quick_arg "--benchmark_filter='/8|/128|/192'")
-set(micro_benchmark_quick_arg "--benchmark_filter='.*/512$|.*/800/|.*/1000/'")
+set(micro_benchmark_quick_arg "--benchmark_filter='.*/512$$|.*/800/|.*/1000/'")
 set(micro_benchmark_mutex_quick_arg "--benchmark_filter='/4/70000/'")
 set(micro_benchmark_olc_quick_arg "--benchmark_filter='/4/70000/'")
 

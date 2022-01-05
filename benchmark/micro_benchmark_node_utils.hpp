@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_MICRO_BENCHMARK_NODE_UTILS_HPP
 #define UNODB_DETAIL_MICRO_BENCHMARK_NODE_UTILS_HPP
 
@@ -239,8 +239,7 @@ generate_random_keys_over_full_smaller_tree(unodb::key key_limit) {
   // fall above or below the limit. Reset the limit so that any byte value will
   // pass.
   key_limit |= 0xFFU;
-  std::uniform_int_distribution<std::uint8_t> prng_byte_values{0,
-                                                               NumByteValues};
+  std::uniform_int_distribution<unsigned> prng_byte_values{0, NumByteValues};
 
   std::vector<unodb::key> result;
   union {

@@ -1,4 +1,4 @@
-// Copyright 2021 Laurynas Biveinis
+// Copyright 2022 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -20,10 +20,10 @@ const char y = 'Y';  // -V707
 const char* const raw_ptr_y = &y;
 
 const std::array<const char, 2> two_chars = {'A', 'B'};
-const gsl::span<const char> gsl_span{two_chars.cbegin(), two_chars.cend()};
+const gsl::span<const char> gsl_span{two_chars};
 
 const std::array<const char, 3> three_chars = {'C', 'D', 'E'};
-const gsl::span<const char> gsl_span2{three_chars.cbegin(), three_chars.cend()};
+const gsl::span<const char> gsl_span2{three_chars};
 
 TEST(QSBRPtr, Ctor) {
   unodb::qsbr_ptr<const char> ptr{raw_ptr_x};

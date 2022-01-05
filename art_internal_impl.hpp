@@ -1366,8 +1366,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   constexpr basic_inode_48(db_inode16_reclaimable_ptr source_node,
                            db_leaf_unique_ptr child, tree_depth depth) noexcept
       : parent_class{*source_node} {
-    auto *const __restrict__ source_node_ptr = source_node.get();
-    auto *const __restrict__ child_ptr = child.release();
+    auto *const __restrict source_node_ptr = source_node.get();
+    auto *const __restrict child_ptr = child.release();
 
     // TODO(laurynas): consider AVX512 scatter?
     std::uint8_t i = 0;
@@ -1392,7 +1392,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   constexpr basic_inode_48(db_inode256_reclaimable_ptr source_node,
                            std::uint8_t child_to_delete) noexcept
       : parent_class{*source_node} {
-    auto *const __restrict__ source_node_ptr = source_node.get();
+    auto *const __restrict source_node_ptr = source_node.get();
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
         static_cast<leaf_type *>(

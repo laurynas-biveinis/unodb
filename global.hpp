@@ -31,11 +31,17 @@
 #include <new>
 
 #ifndef NDEBUG
-#include <execinfo.h>
-#include <unistd.h>
 #include <iostream>
 #include <sstream>
 #include <thread>
+
+#if defined(__linux__) && !defined(__clang__)
+#define BOOST_STACKTRACE_USE_BACKTRACE
+#elif defined(__APPLE__)
+#define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
+#endif
+#include <boost/stacktrace.hpp>
+
 #endif
 
 #if defined(__has_feature)
@@ -144,14 +150,9 @@ namespace unodb::detail {
 
 [[noreturn, gnu::cold, gnu::noinline]] inline void msg_stacktrace_abort(
     const std::string &msg) noexcept {
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  void *stacktrace[1024];
-  const auto frames = backtrace(stacktrace, 1024);
-
-  std::cerr << msg;
-  // Ideally I'd like to call abi::__cxa_demangle on the symbol names but that
-  // would require parsing the strings which contain more than just symbol names
-  backtrace_symbols_fd(stacktrace, frames, STDERR_FILENO);
+  std::ostringstream buf;
+  buf << msg << boost::stacktrace::stacktrace();
+  std::cerr << buf.str();
   std::abort();
 }
 

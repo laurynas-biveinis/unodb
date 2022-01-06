@@ -1,4 +1,4 @@
-# Copyright 2019-2021 Laurynas Biveinis
+# Copyright 2019-2022 Laurynas Biveinis
 cmake_minimum_required(VERSION 3.12)
 
 project(unodb VERSION 0.1

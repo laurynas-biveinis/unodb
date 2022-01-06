@@ -1074,9 +1074,14 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     critical_section_policy<std::uint32_t> integer;
   } keys;
 
+  static_assert(std::alignment_of_v<decltype(keys)> == 4);
+  static_assert(sizeof(keys) == 4);
+
  protected:
   std::array<critical_section_policy<node_ptr>, basic_inode_4::capacity>
       children;
+
+  static_assert(sizeof(children) == 32);
 
  private:
 #ifdef __x86_64

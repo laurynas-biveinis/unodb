@@ -1070,10 +1070,12 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                        keys.byte_array.cbegin() + this->children_count));
   }
 
-  union {
+  union key_union {
     std::array<critical_section_policy<std::byte>, basic_inode_4::capacity>
         byte_array;
     critical_section_policy<std::uint32_t> integer;
+
+    key_union() noexcept {}
   } keys;
 
   static_assert(std::alignment_of_v<decltype(keys)> == 4);
@@ -1329,10 +1331,12 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   }
 
  protected:
-  union {
+  union key_union {
     std::array<critical_section_policy<std::byte>, basic_inode_16::capacity>
         byte_array;
     __m128i sse;
+
+    key_union() noexcept {}
   } keys;
   std::array<critical_section_policy<node_ptr>, basic_inode_16::capacity>
       children;
@@ -1626,6 +1630,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     __m128i
         pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)
 #endif
+
+    children_union() noexcept {}
   } children;
 
   template <class>

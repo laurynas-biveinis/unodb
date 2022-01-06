@@ -34,7 +34,7 @@ class olc_db;
 namespace unodb::detail {
 
 template <>
-[[nodiscard, gnu::const]] constexpr std::uint64_t
+[[nodiscard, gnu::const]] inline constexpr std::uint64_t
 basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   return __builtin_bswap64(k);

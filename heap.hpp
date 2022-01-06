@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Laurynas Biveinis
+// Copyright 2020-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_HEAP_HPP
 #define UNODB_DETAIL_HEAP_HPP
 
@@ -14,6 +14,8 @@
 #include <sanitizer/asan_interface.h>
 #endif
 #endif
+
+#include "assert.hpp"
 
 #ifndef ASAN_POISON_MEMORY_REGION
 

@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -9,6 +9,7 @@
 #include <utility>  // IWYU pragma: keep
 
 #include "art_internal_impl.hpp"
+#include "assert.hpp"
 #include "in_fake_critical_section.hpp"
 #include "node_type.hpp"
 

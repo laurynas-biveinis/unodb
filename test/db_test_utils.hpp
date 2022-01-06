@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_DB_TEST_UTILS_HPP
 #define UNODB_DETAIL_DB_TEST_UTILS_HPP
 
@@ -19,6 +19,7 @@
 
 #include "art.hpp"
 #include "art_common.hpp"
+#include "assert.hpp"
 #include "mutex_art.hpp"
 #include "node_type.hpp"
 #include "olc_art.hpp"

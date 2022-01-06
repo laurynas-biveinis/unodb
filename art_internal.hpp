@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_ART_INTERNAL_HPP
 #define UNODB_DETAIL_ART_INTERNAL_HPP
 
@@ -12,6 +12,7 @@
 #include <type_traits>
 
 #include "art_common.hpp"
+#include "assert.hpp"
 #include "node_type.hpp"
 
 namespace unodb::detail {

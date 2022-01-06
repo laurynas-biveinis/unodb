@@ -1,4 +1,4 @@
-// Copyright 2021 Laurynas Biveinis
+// Copyright 2021-2022 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>  // IWYU pragma: keep
 
 #include "art_common.hpp"
+#include "assert.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
 #include "mutex_art.hpp"  // IWYU pragma: keep

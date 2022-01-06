@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_OLC_ART_HPP
 #define UNODB_DETAIL_OLC_ART_HPP
 
@@ -13,6 +13,7 @@
 
 #include "art_common.hpp"
 #include "art_internal.hpp"
+#include "assert.hpp"
 #include "node_type.hpp"
 #include "optimistic_lock.hpp"
 #include "qsbr_ptr.hpp"

@@ -1,4 +1,4 @@
-// Copyright 2021 Laurynas Biveinis
+// Copyright 2021-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_NODE_TYPE_HPP
 #define UNODB_DETAIL_NODE_TYPE_HPP
 
@@ -7,6 +7,8 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+
+#include "assert.hpp"
 
 namespace unodb {
 

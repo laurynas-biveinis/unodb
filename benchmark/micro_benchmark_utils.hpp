@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_MICRO_BENCHMARK_UTILS_HPP
 #define UNODB_DETAIL_MICRO_BENCHMARK_UTILS_HPP
 
@@ -14,6 +14,7 @@
 #include <benchmark/benchmark.h>
 
 #include "art_common.hpp"
+#include "assert.hpp"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 

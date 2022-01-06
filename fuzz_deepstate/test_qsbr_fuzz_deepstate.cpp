@@ -1,4 +1,4 @@
-// Copyright 2021 Laurynas Biveinis
+// Copyright 2021-2022 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -14,6 +14,7 @@
 
 #include <deepstate/DeepState.hpp>
 
+#include "assert.hpp"
 #include "deepstate_utils.hpp"
 #include "heap.hpp"
 #include "qsbr.hpp"

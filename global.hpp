@@ -27,22 +27,7 @@
 #endif
 
 #include <cstddef>
-#include <cstdlib>
 #include <new>
-
-#ifndef NDEBUG
-#include <iostream>
-#include <sstream>
-#include <thread>
-
-#if defined(__linux__) && !defined(__clang__)
-#define BOOST_STACKTRACE_USE_BACKTRACE
-#elif defined(__APPLE__)
-#define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
-#endif
-#include <boost/stacktrace.hpp>
-
-#endif
 
 #if defined(__has_feature)
 #if __has_feature(thread_sanitizer)
@@ -141,74 +126,6 @@ static_assert(hardware_destructive_interference_size >=
 using std::hardware_constructive_interference_size;
 using std::hardware_destructive_interference_size;
 
-#endif
-
-#ifndef NDEBUG
-
-// LCOV_EXCL_START
-namespace unodb::detail {
-
-[[noreturn, gnu::cold, gnu::noinline]] inline void msg_stacktrace_abort(
-    const std::string &msg) noexcept {
-  std::ostringstream buf;
-  buf << msg << boost::stacktrace::stacktrace();
-  std::cerr << buf.str();
-  std::abort();
-}
-
-[[noreturn, gnu::cold, gnu::noinline]] inline void assert_failure(
-    const char *file, int line, const char *func, const char *condition) {
-  std::ostringstream buf;
-  buf << "Assertion \"" << condition << "\" failed at " << file << ':' << line
-      << ", function \"" << func << "\", thread " << std::this_thread::get_id()
-      << '\n';
-  msg_stacktrace_abort(buf.str());
-}
-
-[[noreturn, gnu::cold, gnu::noinline]] inline void crash(const char *file,
-                                                         int line,
-                                                         const char *func) {
-  std::ostringstream buf;
-  buf << "Crash requested at " << file << ':' << line << ", function \"" << func
-      << "\", thread " << std::this_thread::get_id() << '\n';
-  msg_stacktrace_abort(buf.str());
-}
-
-}  // namespace unodb::detail
-
-#endif
-
-namespace unodb::detail {
-
-[[noreturn]] inline void cannot_happen(
-    const char *file UNODB_DETAIL_USED_IN_DEBUG,
-    int line UNODB_DETAIL_USED_IN_DEBUG,
-    const char *func UNODB_DETAIL_USED_IN_DEBUG) {
-#ifndef NDEBUG
-  std::ostringstream buf;
-  buf << "Execution reached an unreachable point at " << file << ':' << line
-      << ": function \"" << func << "\", thread " << std::this_thread::get_id()
-      << '\n';
-  msg_stacktrace_abort(buf.str());
-#endif
-  __builtin_unreachable();
-}
-// LCOV_EXCL_STOP
-
-}  // namespace unodb::detail
-
-#define UNODB_DETAIL_CANNOT_HAPPEN() \
-  unodb::detail::cannot_happen(__FILE__, __LINE__, __func__)
-
-#define UNODB_DETAIL_CRASH() unodb::detail::crash(__FILE__, __LINE__, __func__)
-
-#ifdef NDEBUG
-#define UNODB_DETAIL_ASSERT(condition) ((void)0)
-#else
-#define UNODB_DETAIL_ASSERT(condition)                                      \
-  UNODB_DETAIL_UNLIKELY(!(condition))                                       \
-  ? unodb::detail::assert_failure(__FILE__, __LINE__, __func__, #condition) \
-  : ((void)0)
 #endif
 
 #endif  // UNODB_DETAIL_GLOBAL_HPP

@@ -28,6 +28,7 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
 
+#include "assert.hpp"
 #include "heap.hpp"
 
 namespace unodb {

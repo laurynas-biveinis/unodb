@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Laurynas Biveinis
+// Copyright 2020-2022 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -11,6 +11,7 @@
 
 #include "art.hpp"
 #include "art_common.hpp"
+#include "assert.hpp"
 #include "micro_benchmark_utils.hpp"
 #include "mutex_art.hpp"
 #include "olc_art.hpp"

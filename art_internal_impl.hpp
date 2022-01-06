@@ -23,6 +23,7 @@
 
 #include "art_common.hpp"
 #include "art_internal.hpp"
+#include "assert.hpp"
 #include "heap.hpp"
 #include "node_type.hpp"
 

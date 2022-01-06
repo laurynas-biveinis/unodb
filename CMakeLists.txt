@@ -403,6 +403,7 @@ endfunction()
 add_library(unodb_util INTERFACE)
 # Move to add_library itself once CMake minimum version is 3.13
 target_sources(unodb_util INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/global.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/assert.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/thread_sync.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/heap.hpp)
 target_include_directories(unodb_util INTERFACE ".")

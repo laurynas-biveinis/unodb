@@ -275,37 +275,44 @@ jobs:
           SANITIZE_UB="${SANITIZE_UB:-$DEFAULT_SANITIZE_UB}"
           STATIC_ANALYSIS="${STATIC_ANALYSIS:-$DEFAULT_STATIC_ANALYSIS}"
           COVERAGE="${COVERAGE:-$DEFAULT_COVERAGE}"
-          export PATH=$HOME/.local/bin:$PATH
+          export PATH="$HOME/.local/bin:$PATH"
           if [[ $COMPILER == "gcc" ]]; then
             export CC=gcc-11
             export CXX=g++-11
             if [[ $COVERAGE == "ON" ]]; then
-              EXTRA_CMAKE_ARGS="-DGCOV_PATH=/usr/local/bin/gcov-11"
+              EXTRA_CMAKE_ARGS=("-DGCOV_PATH=/usr/local/bin/gcov-11")
+            else
+              EXTRA_CMAKE_ARGS=()
             fi
           elif [[ $COMPILER == "clang" ]]; then
             export CC=clang-13
             export CXX=clang++-13
-            EXTRA_CMAKE_ARGS=
             if [[ $BUILD_TYPE == "Release" ]]; then
-              EXTRA_CMAKE_ARGS+="-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-13 \
-                -DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-13 \
-                -DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-13"
+              EXTRA_CMAKE_ARGS=(\
+                "-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-13" \
+                "-DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-13" \
+                "-DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-13")
+            else
+              EXTRA_CMAKE_ARGS=()
             fi
             # LLVM static analysis wart
             if [[ $STATIC_ANALYSIS == "ON" ]]; then
               STATIC_ANALYSIS=OFF
             else
-              EXTRA_CMAKE_ARGS+=" -DCLANG_TIDY_EXE=/usr/bin/clang-tidy-13"
+              EXTRA_CMAKE_ARGS=("${EXTRA_CMAKE_ARGS[@]}" \
+                  "-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-13")
             fi
           elif [[ $COMPILER == "macos-clang" ]]; then
             export CC=clang
             export CXX=clang++
           fi
-          cmake $GITHUB_WORKSPACE -DFATAL_WARNINGS=ON \
-          -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSANITIZE_ADDRESS=${SANITIZE_ADDRESS} \
-          -DSANITIZE_THREAD=${SANITIZE_THREAD} -DSANITIZE_UB=${SANITIZE_UB} \
-          -DSTATIC_ANALYSIS=${STATIC_ANALYSIS} -DCOVERAGE=${COVERAGE} \
-          ${EXTRA_CMAKE_ARGS}
+          cmake "$GITHUB_WORKSPACE" -DFATAL_WARNINGS=ON \
+              "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
+              "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
+              "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
+              "-DSANITIZE_UB=${SANITIZE_UB}" \
+              "-DSTATIC_ANALYSIS=${STATIC_ANALYSIS}" "-DCOVERAGE=${COVERAGE}" \
+              "${EXTRA_CMAKE_ARGS[@]}"
 
       - name: Build
         working-directory: ${{github.workspace}}/build

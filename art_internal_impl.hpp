@@ -667,9 +667,9 @@ class basic_inode_impl : public ArtPolicy::header_type {
 
  private:
   key_prefix<critical_section_policy> k_prefix;
-  critical_section_policy<std::uint8_t> children_count;
+  static_assert(sizeof(k_prefix) == 8);
 
-  static_assert(sizeof(k_prefix) == sizeof(std::uint64_t));
+  critical_section_policy<std::uint8_t> children_count;
 
  protected:
   using leaf_type = basic_leaf<header_type>;

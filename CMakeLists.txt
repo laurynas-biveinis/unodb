@@ -198,17 +198,22 @@ set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark tests"
   FORCE)
 set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL
   "Suppressing Google Benchmark installation" FORCE)
-# It seems that Google Benchmark does not support multi-configuration generators
-# if LTO is enabled
-if(CMAKE_BUILD_TYPE STREQUAL "Release" AND IPO_SUPPORTED AND
-    NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-  set(BENCHMARK_ENABLE_LTO ON CACHE BOOL "Enabling LTO for Google Benchmark"
-    FORCE)
-  message(STATUS "Enabling LTO for Google Benchmark")
-else()
-  message(STATUS
-    "Disabling LTO for Google Benchmark because Apple clang is not supported")
+
+if(IPO_SUPPORTED)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # It seems that Google Benchmark does not support multi-configuration
+    # generators if LTO is enabled
+    message(STATUS "Disabling LTO for Google Benchmark due to debug build")
+  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    message(STATUS
+      "Disabling LTO for Google Benchmark because Apple clang is not supported")
+  else()
+    set(BENCHMARK_ENABLE_LTO ON CACHE BOOL "Enabling LTO for Google Benchmark"
+      FORCE)
+    message(STATUS "Enabling LTO for Google Benchmark")
+  endif()
 endif()
+
 add_subdirectory(3rd_party/benchmark)
 
 # Do not build DeepState with GCC under macOS due to

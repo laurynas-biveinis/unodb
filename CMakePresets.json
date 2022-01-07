@@ -77,11 +77,17 @@
         },
         {
             "name": "release-asan",
-            "inherits": ["release", "asan"]
+            "inherits": [
+                "release",
+                "asan"
+            ]
         },
         {
             "name": "release-tsan",
-            "inherits": ["release", "tsan"]
+            "inherits": [
+                "release",
+                "tsan"
+            ]
         },
         {
             "name": "debug",
@@ -92,91 +98,170 @@
         },
         {
             "name": "debug-asan",
-            "inherits": ["debug", "asan"]
+            "inherits": [
+                "debug",
+                "asan"
+            ]
         },
         {
             "name": "debug-tsan",
-            "inherits": ["debug", "tsan"]
+            "inherits": [
+                "debug",
+                "tsan"
+            ]
         },
         {
             "name": "debug-ubsan",
-            "inherits": ["debug", "ubsan"]
+            "inherits": [
+                "debug",
+                "ubsan"
+            ]
         },
         {
             "name": "gcc-10-release",
-            "inherits": ["release", "gcc-10"]
+            "inherits": [
+                "release",
+                "gcc-10"
+            ]
         },
         {
             "name": "gcc-10-release-asan",
-            "inherits": ["release", "gcc-10", "asan"]
+            "inherits": [
+                "release",
+                "gcc-10",
+                "asan"
+            ]
         },
         {
             "name": "gcc-10-release-ubsan",
-            "inherits": ["release", "gcc-10", "ubsan"]
+            "inherits": [
+                "release",
+                "gcc-10",
+                "ubsan"
+            ]
         },
         {
             "name": "gcc-10-debug",
-            "inherits": ["debug", "gcc-10"]
+            "inherits": [
+                "debug",
+                "gcc-10"
+            ]
         },
         {
             "name": "gcc-10-debug-asan",
-            "inherits": ["debug", "gcc-10", "asan"]
+            "inherits": [
+                "debug",
+                "gcc-10",
+                "asan"
+            ]
         },
         {
             "name": "gcc-10-debug-tsan",
-            "inherits": ["debug", "gcc-10", "tsan"]
+            "inherits": [
+                "debug",
+                "gcc-10",
+                "tsan"
+            ]
         },
         {
             "name": "gcc-release",
-            "inherits": ["release", "gcc"]
+            "inherits": [
+                "release",
+                "gcc"
+            ]
         },
         {
             "name": "gcc-release-asan",
-            "inherits": ["release", "gcc", "asan"]
+            "inherits": [
+                "release",
+                "gcc",
+                "asan"
+            ]
         },
         {
             "name": "gcc-release-ubsan",
-            "inherits": ["release", "gcc", "ubsan"]
+            "inherits": [
+                "release",
+                "gcc",
+                "ubsan"
+            ]
         },
         {
             "name": "gcc-debug",
-            "inherits": ["debug", "gcc"]
+            "inherits": [
+                "debug",
+                "gcc"
+            ]
         },
         {
             "name": "gcc-debug-asan",
-            "inherits": ["debug", "gcc", "asan"]
+            "inherits": [
+                "debug",
+                "gcc",
+                "asan"
+            ]
         },
         {
             "name": "gcc-debug-tsan",
-            "inherits": ["debug", "gcc", "tsan"]
+            "inherits": [
+                "debug",
+                "gcc",
+                "tsan"
+            ]
         },
         {
             "name": "llvm-release",
-            "inherits": ["release", "llvm"]
+            "inherits": [
+                "release",
+                "llvm"
+            ]
         },
         {
             "name": "llvm-release-tsan",
-            "inherits": ["release", "llvm", "tsan"]
+            "inherits": [
+                "release",
+                "llvm",
+                "tsan"
+            ]
         },
         {
             "name": "llvm-debug",
-            "inherits": ["debug", "llvm"]
+            "inherits": [
+                "debug",
+                "llvm"
+            ]
         },
         {
             "name": "llvm-debug-asan",
-            "inherits": ["debug", "llvm", "asan"]
+            "inherits": [
+                "debug",
+                "llvm",
+                "asan"
+            ]
         },
         {
             "name": "llvm-debug-tsan",
-            "inherits": ["debug", "llvm", "tsan"]
+            "inherits": [
+                "debug",
+                "llvm",
+                "tsan"
+            ]
         },
         {
             "name": "gcc-static-analysis-debug",
-            "inherits": ["debug", "gcc", "static-analysis"]
+            "inherits": [
+                "debug",
+                "gcc",
+                "static-analysis"
+            ]
         },
         {
             "name": "gcc-static-analysis-release",
-            "inherits": ["release", "gcc", "static-analysis"]
+            "inherits": [
+                "release",
+                "gcc",
+                "static-analysis"
+            ]
         }
     ],
     "buildPresets": [

@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <utility>
 
-#ifdef __x86_64
+#ifdef UNODB_DETAIL_X86_64
 #include <emmintrin.h>
 #include <smmintrin.h>
 #endif
@@ -45,7 +45,7 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 #endif
 }
 
-#ifdef __x86_64
+#ifdef UNODB_DETAIL_X86_64
 
 // Idea from https://stackoverflow.com/a/32945715/80458
 [[nodiscard, gnu::const]] inline auto _mm_cmple_epu8(__m128i x,
@@ -53,7 +53,7 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
   return _mm_cmpeq_epi8(_mm_max_epu8(y, x), y);
 }
 
-#else  // #ifdef __x86_64
+#else  // #ifdef UNODB_DETAIL_X86_64
 
 // From public domain
 // https://graphics.stanford.edu/~seander/bithacks.html
@@ -67,7 +67,7 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
   return has_zero_byte(v ^ (~0U / 255 * static_cast<std::uint8_t>(b)));
 }
 
-#endif  // #ifdef __x86_64
+#endif  // #ifdef UNODB_DETAIL_X86_64
 
 template <class Header>
 class [[nodiscard]] basic_leaf final : public Header {
@@ -909,7 +909,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
 
-#if __x86_64
+#ifdef UNODB_DETAIL_X86_64
     const auto mask = (1U << children_count_) - 1;
     const auto insert_pos_index = get_insert_pos(key_byte, mask);
 #else
@@ -955,7 +955,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       keys.byte_array[i] = keys.byte_array[i + 1];
       children[i] = children[i + 1];
     }
-#ifndef __x86_64
+#ifndef UNODB_DETAIL_X86_64
     keys.byte_array[i] = empty_child;
 #endif
 
@@ -988,7 +988,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   }
 
   [[nodiscard]] find_result find_child(std::byte key_byte) noexcept {
-#ifdef __x86_64
+#ifdef UNODB_DETAIL_X86_64
     const auto replicated_search_key =
         _mm_set1_epi8(static_cast<char>(key_byte));
     const auto keys_in_sse_reg =
@@ -1004,7 +1004,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
           i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
     return std::make_pair(0xFF, nullptr);
-#else   // #ifdef __x86_64
+#else   // #ifdef UNODB_DETAIL_X86_64
     // Bit twiddling:
     // contains_byte:     __builtin_ffs:   for key index:
     //    0x80000000               0x20                3
@@ -1026,7 +1026,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     return std::make_pair(result - 1,
                           static_cast<critical_section_policy<node_ptr> *>(
                               &children[result - 1]));
-#endif  // #ifdef __x86_64
+#endif  // #ifdef UNODB_DETAIL_X86_64
   }
 
   constexpr void delete_subtree(db &db_instance) noexcept {
@@ -1060,7 +1060,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     children[key1_i] = child1;
     keys.byte_array[key2_i] = key2;
     children[key2_i] = node_ptr{child2.release(), node_type::LEAF};
-#ifndef __x86_64
+#ifndef UNODB_DETAIL_X86_64
     keys.byte_array[2] = empty_child;
     keys.byte_array[3] = empty_child;
 #endif
@@ -1088,7 +1088,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   static_assert(sizeof(children) == 32);
 
  private:
-#ifdef __x86_64
+#ifdef UNODB_DETAIL_X86_64
   [[nodiscard]] auto get_insert_pos(std::uint8_t insert_key_byte,
                                     unsigned node_key_mask) const noexcept {
     UNODB_DETAIL_ASSERT(node_key_mask ==
@@ -1147,7 +1147,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       : parent_class{*source_node} {
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
 
-#if __x86_64
+#ifdef UNODB_DETAIL_X86_64
     const auto insert_pos_index = source_node->get_insert_pos(key_byte, 0xFU);
 #else
     const auto keys_integer = source_node->keys.integer.load();
@@ -1258,7 +1258,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   }
 
   [[nodiscard]] constexpr find_result find_child(std::byte key_byte) noexcept {
-#ifdef __x86_64
+#ifdef UNODB_DETAIL_X86_64
     const auto replicated_search_key =
         _mm_set1_epi8(static_cast<char>(key_byte));
     const auto matching_key_positions =
@@ -1307,7 +1307,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                            keys.byte_array.cbegin() + children_count_) >=
         keys.byte_array.cbegin() + children_count_);
 
-#ifdef __x86_64
+#ifdef UNODB_DETAIL_X86_64
     const auto replicated_insert_key =
         _mm_set1_epi8(static_cast<char>(key_byte));
     const auto lesser_key_positions =
@@ -1436,7 +1436,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     const auto key_byte = static_cast<uint8_t>(child->get_key()[depth]);
     UNODB_DETAIL_ASSERT(child_indexes[key_byte] == empty_child);
     unsigned i{0};
-#ifdef __x86_64
+#ifdef UNODB_DETAIL_X86_64
     const auto nullptr_vector = _mm_setzero_si128();
     while (true) {
       const auto ptr_vec0 = _mm_load_si128(&children.pointer_vector[i]);
@@ -1460,7 +1460,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       }
       i += 4;
     }
-#else   // #ifdef __x86_64
+#else   // #ifdef UNODB_DETAIL_X86_64
     node_ptr child_ptr;
     while (true) {
       child_ptr = children.pointer_array[i];
@@ -1468,7 +1468,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       UNODB_DETAIL_ASSERT(i < 255);
       ++i;
     }
-#endif  // #ifdef __x86_64
+#endif  // #ifdef UNODB_DETAIL_X86_64
     UNODB_DETAIL_ASSERT(children.pointer_array[i] == nullptr);
     child_indexes[key_byte] = gsl::narrow_cast<std::uint8_t>(i);
     children.pointer_array[i] = node_ptr{child.release(), node_type::LEAF};
@@ -1619,7 +1619,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   union children_union {
     std::array<critical_section_policy<node_ptr>, basic_inode_48::capacity>
         pointer_array;
-#ifdef __x86_64
+#ifdef UNODB_DETAIL_X86_64
     static_assert(basic_inode_48::capacity % 2 == 0);
     static_assert((basic_inode_48::capacity / 2) % 4 == 0,
                   "Node48 capacity must support unrolling without remainder");

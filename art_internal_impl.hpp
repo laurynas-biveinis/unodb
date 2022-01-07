@@ -477,7 +477,6 @@ union [[nodiscard]] key_prefix {
   }
 
   [[nodiscard, gnu::const]] static constexpr unsigned shared_len(
-      // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
       std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept {
     UNODB_DETAIL_ASSERT(clamp_byte_pos < 8);
 
@@ -649,7 +648,6 @@ class basic_inode_impl : public ArtPolicy::header_type {
       : k_prefix{k1, shifted_k2, depth},
         children_count{gsl::narrow_cast<std::uint8_t>(children_count_)} {}
 
-  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   constexpr basic_inode_impl(unsigned children_count_, unsigned key_prefix_len,
                              const inode_type &key_prefix_source_node) noexcept
       : k_prefix{key_prefix_len, key_prefix_source_node.get_key_prefix()},
@@ -1090,7 +1088,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
  private:
 #ifdef __x86_64
-  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   [[nodiscard]] auto get_insert_pos(std::uint8_t insert_key_byte,
                                     unsigned node_key_mask) const noexcept {
     UNODB_DETAIL_ASSERT(node_key_mask ==

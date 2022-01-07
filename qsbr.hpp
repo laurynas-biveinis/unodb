@@ -562,7 +562,6 @@ class qsbr final {
   }
 
   void register_dealloc_stats_per_thread_between_epoch_changes(
-      // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
       std::size_t total_size, std::size_t count) noexcept {
     std::lock_guard guard{dealloc_stats_lock};
     deallocation_size_per_thread_stats(total_size);

@@ -199,7 +199,6 @@ qsbr_epoch qsbr::register_thread() noexcept {
   // LCOV_EXCL_STOP
 }
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                              qsbr_epoch thread_epoch,
                              qsbr_per_thread &qsbr_thread) noexcept {
@@ -426,7 +425,6 @@ void qsbr::epoch_change_update_requests(bool single_thread_mode
   }
 }
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
                               bool single_thread_mode) noexcept {
   epoch_change_update_requests(single_thread_mode

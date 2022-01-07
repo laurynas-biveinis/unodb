@@ -76,10 +76,9 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
   }
 
-  static void key_range_op_thread(
-      unodb::test::tree_verifier<Db> *verifier,
-      // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-      std::size_t thread_i, std::size_t ops_per_thread) {
+  static void key_range_op_thread(unodb::test::tree_verifier<Db> *verifier,
+                                  std::size_t thread_i,
+                                  std::size_t ops_per_thread) {
     unodb::key key = thread_i / 3 * 3;
     for (decltype(ops_per_thread) i = 0; i < ops_per_thread; ++i) {
       switch (thread_i % 3) {
@@ -99,10 +98,9 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
   }
 
-  static void random_op_thread(
-      unodb::test::tree_verifier<Db> *verifier,
-      // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-      std::size_t thread_i, std::size_t ops_per_thread) {
+  static void random_op_thread(unodb::test::tree_verifier<Db> *verifier,
+                               std::size_t thread_i,
+                               std::size_t ops_per_thread) {
     std::random_device rd;
     std::mt19937 gen{rd()};
     std::geometric_distribution<unodb::key> key_generator{0.5};

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Laurynas Biveinis
+// Copyright (C) 2019-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
 #define UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
 
@@ -16,6 +16,8 @@
 #include <optional>
 #include <thread>
 #include <type_traits>
+
+#include "assert.hpp"
 
 namespace unodb {
 

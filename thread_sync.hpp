@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Laurynas Biveinis
+// Copyright 2020-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_THREAD_SYNC_HPP
 #define UNODB_DETAIL_THREAD_SYNC_HPP
 
@@ -7,6 +7,8 @@
 #include <array>
 #include <condition_variable>
 #include <mutex>
+
+#include "assert.hpp"
 
 namespace unodb::detail {
 

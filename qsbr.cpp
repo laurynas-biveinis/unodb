@@ -8,6 +8,8 @@
 #include <sanitizer/tsan_interface.h>
 #endif
 
+#include "assert.hpp"
+
 namespace {
 
 struct run_tls_ctor_in_main_thread {

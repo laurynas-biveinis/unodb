@@ -19,6 +19,7 @@
 #include <benchmark/benchmark.h>
 
 #include "art_common.hpp"
+#include "assert.hpp"
 #include "micro_benchmark_utils.hpp"
 #include "node_type.hpp"
 

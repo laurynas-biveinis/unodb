@@ -1,6 +1,6 @@
 # Prerequisites
 *.d
-compile_commands.json
+/compile_commands.json
 
 # Compiled Object files
 *.slo
@@ -36,10 +36,9 @@ compile_commands.json
 .cache
 
 # CMake build dirs
-build
-build.*
+/build
 !build.yml
-BUILD.bazel
+/BUILD.bazel
 
 # CMake preset user config
-CMakeUserPresets.json
+/CMakeUserPresets.json

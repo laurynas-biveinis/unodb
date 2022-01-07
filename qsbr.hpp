@@ -30,6 +30,7 @@
 
 #include "assert.hpp"
 #include "heap.hpp"
+#include "portability_stdlib.hpp"
 
 namespace unodb {
 

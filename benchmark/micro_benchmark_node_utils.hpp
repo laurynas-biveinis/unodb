@@ -37,8 +37,9 @@ template <unsigned NodeSize>
     return 0xFCFC'FCFC'FCFC'FCFCULL;
   } else if constexpr (NodeSize == 16) {
     return 0xF0F0'F0F0'F0F0'F0F0ULL;
+  } else if constexpr (NodeSize == 256) {
+    return 0ULL;
   }
-  return 0ULL;
 }
 
 [[nodiscard]] constexpr auto next_key(unodb::key k,
@@ -101,8 +102,9 @@ template <unsigned NodeCapacity>
     return 5;
   } else if constexpr (NodeCapacity == 48) {
     return 17;
+  } else if constexpr (NodeCapacity == 256) {
+    return 49;
   }
-  return 49;
 }
 
 template <unsigned NodeCapacity>

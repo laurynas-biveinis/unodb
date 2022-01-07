@@ -405,7 +405,8 @@ add_library(unodb_util INTERFACE)
 target_sources(unodb_util INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/global.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/assert.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/thread_sync.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/heap.hpp)
+  ${CMAKE_CURRENT_SOURCE_DIR}/heap.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/portability_stdlib.hpp)
 target_include_directories(unodb_util INTERFACE ".")
 target_include_directories(unodb_util INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
 

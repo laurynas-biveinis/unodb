@@ -187,7 +187,7 @@ class [[nodiscard]] tree_verifier final {
       ASSERT_EQ(leaf_count_after, leaf_count_before + 1);
 
     if (!bypass_verifier) {
-      const auto __attribute__((unused))[pos, insert_succeeded] =
+      const auto UNODB_DETAIL_UNUSED[pos, insert_succeeded] =
           values.try_emplace(k, v);
       ASSERT_TRUE(insert_succeeded);
     }
@@ -207,7 +207,7 @@ class [[nodiscard]] tree_verifier final {
   void preinsert_key_range_to_verifier_only(unodb::key start_key,
                                             std::size_t count) {
     for (auto key = start_key; key < start_key + count; ++key) {
-      const auto __attribute__((unused))[pos, insert_succeeded] =
+      const auto UNODB_DETAIL_UNUSED[pos, insert_succeeded] =
           values.try_emplace(key, test_values[key % test_values.size()]);
       ASSERT_TRUE(insert_succeeded);
     }

@@ -85,6 +85,8 @@
 #define UNODB_DETAIL_LIKELY(x) __builtin_expect(x, 1)
 #define UNODB_DETAIL_UNLIKELY(x) __builtin_expect(x, 0)
 
+#define UNODB_DETAIL_UNUSED __attribute__((unused))
+
 #ifdef NDEBUG
 // Cannot do [[gnu::unused]], as that does not play well with structured
 // bindings when compiling with GCC.

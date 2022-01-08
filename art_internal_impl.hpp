@@ -26,6 +26,7 @@
 #include "assert.hpp"
 #include "heap.hpp"
 #include "node_type.hpp"
+#include "portability_builtins.hpp"
 
 namespace unodb {
 class db;
@@ -38,7 +39,7 @@ template <>
 [[nodiscard, gnu::const]] inline constexpr std::uint64_t
 basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-  return __builtin_bswap64(k);
+  return bswap(k);
 #else
 #error Needs implementing
 #endif
@@ -482,7 +483,7 @@ union [[nodiscard]] key_prefix {
 
     const auto diff = k1 ^ k2;
     const auto clamped = diff | (1ULL << (clamp_byte_pos * 8U));
-    return static_cast<unsigned>(__builtin_ctzl(clamped)) >> 3U;
+    return detail::ctz64(clamped) >> 3U;
   }
 
   [[nodiscard, gnu::const]] static std::uint64_t make_u64(
@@ -998,7 +999,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
     if (bit_field != 0) {
-      const auto i = static_cast<unsigned>(__builtin_ctz(bit_field));
+      const auto i = detail::ctz(bit_field);
       return std::make_pair(
           i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
@@ -1104,7 +1105,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(lt_node_key_positions)) &
         node_key_mask;
-    return static_cast<unsigned>(__builtin_popcount(bit_field));
+    return detail::popcount(bit_field);
   }
 #else
   // Non-x86_64 implementation reads children bytes past current node size
@@ -1266,7 +1267,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
     if (bit_field != 0) {
-      const auto i = static_cast<unsigned>(__builtin_ctz(bit_field));
+      const auto i = detail::ctz(bit_field);
       return std::make_pair(
           i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
@@ -1315,7 +1316,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(lesser_key_positions)) & mask;
     const auto result = static_cast<std::uint8_t>(
-        (bit_field != 0) ? __builtin_ctz(bit_field) : children_count_);
+        (bit_field != 0) ? detail::ctz(bit_field) : children_count_);
 #else
     const auto result = static_cast<std::uint8_t>(
         std::lower_bound(keys.byte_array.cbegin(),
@@ -1454,8 +1455,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       const auto cmp_mask =
           static_cast<std::uint64_t>(_mm_movemask_epi8(vec_cmp));
       if (cmp_mask != 0) {
-        i = (i << 1U) +
-            ((static_cast<unsigned>(__builtin_ctzl(cmp_mask)) + 1) >> 1U);
+        i = (i << 1U) + (((detail::ctz64(cmp_mask)) + 1) >> 1U);
         break;
       }
       i += 4;

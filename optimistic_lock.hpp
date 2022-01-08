@@ -7,15 +7,16 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-#ifdef __x86_64
-#include <emmintrin.h>
-#endif
 #include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <optional>
 #include <thread>
 #include <type_traits>
+
+#ifdef UNODB_DETAIL_X86_64
+#include <emmintrin.h>
+#endif
 
 #include "assert.hpp"
 
@@ -25,7 +26,7 @@ namespace unodb {
 inline void spin_wait_loop_body() noexcept {
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
   std::this_thread::yield();
-#elif defined(__x86_64)
+#elif defined(UNODB_DETAIL_X86_64)
   // Dear reader, please don't make fun of this just yet
   _mm_pause();
 #else

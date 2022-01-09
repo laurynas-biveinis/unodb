@@ -135,7 +135,7 @@ class olc_db final {
   }
 
   // Debugging
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const;
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;
 
   olc_db(const olc_db &) noexcept = delete;
   olc_db(olc_db &&) noexcept = delete;

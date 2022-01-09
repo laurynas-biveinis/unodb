@@ -21,7 +21,7 @@ namespace unodb::detail {
 
 // LCOV_EXCL_START
 
-[[noreturn, gnu::cold, gnu::noinline]] inline void msg_stacktrace_abort(
+[[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void msg_stacktrace_abort(
     const std::string &msg) noexcept {
   std::ostringstream buf;
   buf << msg << boost::stacktrace::stacktrace();
@@ -29,7 +29,7 @@ namespace unodb::detail {
   std::abort();
 }
 
-[[noreturn, gnu::cold, gnu::noinline]] inline void assert_failure(
+[[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void assert_failure(
     const char *file, int line, const char *func, const char *condition) {
   std::ostringstream buf;
   buf << "Assertion \"" << condition << "\" failed at " << file << ':' << line
@@ -38,9 +38,8 @@ namespace unodb::detail {
   msg_stacktrace_abort(buf.str());
 }
 
-[[noreturn, gnu::cold, gnu::noinline]] inline void crash(const char *file,
-                                                         int line,
-                                                         const char *func) {
+[[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void crash(
+    const char *file, int line, const char *func) {
   std::ostringstream buf;
   buf << "Crash requested at " << file << ':' << line << ", function \"" << func
       << "\", thread " << std::this_thread::get_id() << '\n';

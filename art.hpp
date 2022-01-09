@@ -114,7 +114,7 @@ class db final {
   }
 
   // Debugging
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const;
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;
 
  private:
   void delete_root_subtree() noexcept;

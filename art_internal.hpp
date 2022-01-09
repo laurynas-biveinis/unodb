@@ -91,10 +91,11 @@ struct [[nodiscard]] basic_art_key final {
 
 using art_key = basic_art_key<unodb::key>;
 
-[[gnu::cold, gnu::noinline]] void dump_byte(std::ostream &os, std::byte byte);
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
+                                                   std::byte byte);
 
-[[gnu::cold, gnu::noinline]] std::ostream &operator<<(std::ostream &os,
-                                                      art_key key);
+[[gnu::cold]] UNODB_DETAIL_NOINLINE std::ostream &operator<<(std::ostream &os,
+                                                             art_key key);
 
 class [[nodiscard]] tree_depth final {
  public:

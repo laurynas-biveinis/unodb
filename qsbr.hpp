@@ -91,7 +91,7 @@ class [[nodiscard]] qsbr_epoch final {
     return epoch_val != other.epoch_val;
   }
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const;
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;
 
   friend struct qsbr_state;
 
@@ -278,7 +278,8 @@ struct qsbr_state {
   [[nodiscard]] static type atomic_fetch_dec_threads_in_previous_epoch(
       std::atomic<type> &word) noexcept;
 
-  [[gnu::cold, gnu::noinline]] static void dump(std::ostream &os, type word);
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE static void dump(std::ostream &os,
+                                                       type word);
 
   static constexpr void assert_invariants(
       type word UNODB_DETAIL_USED_IN_DEBUG) noexcept {
@@ -553,7 +554,7 @@ class qsbr final {
 
   void reset_stats() noexcept;
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &out) const;
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &out) const;
 
   void register_quiescent_states_per_thread_between_epoch_changes(
       std::uint64_t states) noexcept {

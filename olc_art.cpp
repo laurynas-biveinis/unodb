@@ -300,7 +300,7 @@ class [[nodiscard]] olc_inode_4 final
     return basic_inode_4::leave_last_child(child_to_delete, db_instance);
   }
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     os << ", ";
     ::lock(*this).dump(os);
     basic_inode_4::dump(os);
@@ -383,7 +383,7 @@ class [[nodiscard]] olc_inode_16 final
 #endif
   }
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     os << ", ";
     ::lock(*this).dump(os);
     basic_inode_16::dump(os);
@@ -477,7 +477,7 @@ class [[nodiscard]] olc_inode_48 final
     basic_inode_48::remove(child_index, db_instance);
   }
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     os << ", ";
     ::lock(*this).dump(os);
     basic_inode_48::dump(os);
@@ -560,7 +560,7 @@ class [[nodiscard]] olc_inode_256 final
     basic_inode_256::remove(child_index, db_instance);
   }
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     os << ", ";
     ::lock(*this).dump(os);
     basic_inode_256::dump(os);

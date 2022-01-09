@@ -26,7 +26,8 @@ const run_tls_ctor_in_main_thread do_it;
 namespace unodb {
 
 // LCOV_EXCL_START
-[[gnu::cold, gnu::noinline]] void qsbr_epoch::dump(std::ostream &os) const {
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr_epoch::dump(
+    std::ostream &os) const {
   os << "epoch = " << static_cast<std::uint64_t>(epoch_val);
   assert_invariant();
 }
@@ -47,8 +48,8 @@ qsbr_state::atomic_fetch_dec_threads_in_previous_epoch(
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
 // LCOV_EXCL_START
-[[gnu::cold, gnu::noinline]] void qsbr_state::dump(std::ostream &os,
-                                                   type word) {
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr_state::dump(std::ostream &os,
+                                                          type word) {
   os << "QSBR state: " << do_get_epoch(word)
      << ", threads = " << do_get_thread_count(word)
      << ", threads in the previous epoch = "
@@ -304,7 +305,7 @@ void qsbr::reset_stats() noexcept {
 // Some GCC versions suggest cold attribute on already cold-marked functions
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
-[[gnu::cold, gnu::noinline]] void qsbr::dump(std::ostream &out) const {
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr::dump(std::ostream &out) const {
   // TODO(laurynas): anyone using it all?
   out << state.load(std::memory_order_acquire) << '\n';
 }

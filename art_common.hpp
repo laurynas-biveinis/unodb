@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_ART_COMMON_HPP
 #define UNODB_DETAIL_ART_COMMON_HPP
 
@@ -17,7 +17,7 @@ using key = std::uint64_t;
 
 namespace detail {
 
-[[gnu::cold, gnu::noinline]] void dump_key(std::ostream &os, key k);
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os, key k);
 
 }  // namespace detail
 

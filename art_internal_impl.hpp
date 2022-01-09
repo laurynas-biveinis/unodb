@@ -97,7 +97,7 @@ class [[nodiscard]] basic_leaf final : public Header {
     return compute_size(value_size);
   }
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     os << ", " << get_key() << ", value size: " << value_size << '\n';
   }
 
@@ -339,8 +339,8 @@ struct basic_art_policy final {
     }
   }
 
-  [[gnu::cold, gnu::noinline]] static void dump_node(std::ostream &os,
-                                                     const NodePtr &node) {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE static void dump_node(
+      std::ostream &os, const NodePtr &node) {
     os << "node at: " << node.ptr() << ", tagged ptr = 0x" << std::hex
        << node.raw_val() << std::dec;
     if (node == nullptr) {
@@ -455,7 +455,7 @@ union [[nodiscard]] key_prefix {
     return f.key_prefix[i].load();
   }
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     const auto len = length();
     os << ", key prefix len = " << len;
     if (len > 0) {
@@ -633,13 +633,13 @@ class basic_inode_impl : public ArtPolicy::header_type {
 
   // inode must not be allocated directly on heap, concrete subclasses will
   // define their own new and delete operators using node pools
-  [[nodiscard, gnu::cold, gnu::noinline]] static void *operator new(
+  [[nodiscard, gnu::cold]] UNODB_DETAIL_NOINLINE static void *operator new(
       std::size_t) {
     UNODB_DETAIL_CANNOT_HAPPEN();
   }
 
   UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wmissing-noreturn")
-  [[gnu::cold, gnu::noinline]] static void operator delete(void *) {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE static void operator delete(void *) {
     UNODB_DETAIL_CANNOT_HAPPEN();
   }
   UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
@@ -660,7 +660,7 @@ class basic_inode_impl : public ArtPolicy::header_type {
         children_count{gsl::narrow_cast<std::uint8_t>(children_count_)} {}
 
  protected:
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     k_prefix.dump(os);
     const auto children_count_ = this->children_count.load();
     os << ", # children = "
@@ -1036,7 +1036,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     }
   }
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     parent_class::dump(os);
     const auto children_count_ = this->children_count.load();
     os << ", key bytes =";
@@ -1283,7 +1283,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       ArtPolicy::delete_subtree(children[i], db_instance);
   }
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     parent_class::dump(os);
     const auto children_count_ = this->children_count.load();
     os << ", key bytes =";
@@ -1512,7 +1512,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(actual_children_count == children_count_);
   }
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     parent_class::dump(os);
 #ifndef NDEBUG
     const auto children_count_ = this->children_count.load();
@@ -1742,7 +1742,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     });
   }
 
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     parent_class::dump(os);
     os << ", key bytes & children:\n";
     for_each_child([&os](unsigned i, node_ptr child) noexcept {

@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_MUTEX_ART_HPP
 #define UNODB_DETAIL_MUTEX_ART_HPP
 
@@ -114,7 +114,7 @@ class mutex_db final {
   }
 
   // Debugging
-  [[gnu::cold, gnu::noinline]] void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     const std::lock_guard guard{mutex};
     db_.dump(os);
   }

@@ -18,18 +18,18 @@
 #endif  // #ifndef __clang__
 #endif  // #ifndef NDEBUG
 
-// Architecture
-
-#ifdef __x86_64
-#define UNODB_DETAIL_X86_64
-#endif
-
 #if defined(__has_feature) && !defined(__clang__)
 #if __has_feature(address_sanitizer)
 #define _GLIBCXX_SANITIZE_VECTOR 1
 #endif
 #elif defined(__SANITIZE_ADDRESS__)
 #define _GLIBCXX_SANITIZE_VECTOR 1
+#endif
+
+// Architecture
+
+#ifdef __x86_64
+#define UNODB_DETAIL_X86_64
 #endif
 
 #if defined(__has_feature)

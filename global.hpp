@@ -87,6 +87,7 @@
 #define UNODB_DETAIL_UNUSED __attribute__((unused))
 #define UNODB_DETAIL_FORCE_INLINE __attribute__((always_inline))
 #define UNODB_DETAIL_NOINLINE __attribute__((noinline))
+#define UNODB_DETAIL_UNREACHABLE() __builtin_unreachable()
 
 #ifdef NDEBUG
 // Cannot do [[gnu::unused]], as that does not play well with structured

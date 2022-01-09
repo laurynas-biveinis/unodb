@@ -67,7 +67,7 @@ namespace unodb::detail {
 namespace unodb::detail {
 
 [[noreturn]] inline void cannot_happen(const char *, int, const char *) {
-  __builtin_unreachable();
+  UNODB_DETAIL_UNREACHABLE();
 }
 
 }  // namespace unodb::detail

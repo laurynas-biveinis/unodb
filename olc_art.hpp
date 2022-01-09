@@ -86,6 +86,8 @@ class olc_db final {
     return node_counts[as_i<NodeType>].load(std::memory_order_relaxed);
   }
 
+  // warning C4701: potentially uninitialized local variable '...' used
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(4701)
   [[nodiscard]] auto get_node_counts() const noexcept {
     node_type_counter_array result;
     for (decltype(node_counts)::size_type i = 0; i < node_counts.size(); ++i) {
@@ -93,6 +95,7 @@ class olc_db final {
     }
     return result;
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <node_type NodeType>
   [[nodiscard]] auto get_growing_inode_count() const noexcept {
@@ -100,6 +103,8 @@ class olc_db final {
         std::memory_order_relaxed);
   }
 
+  // warning C4701: potentially uninitialized local variable '...' used
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(4701)
   [[nodiscard]] auto get_growing_inode_counts() const noexcept {
     inode_type_counter_array result;
     for (decltype(growing_inode_counts)::size_type i = 0;
@@ -108,6 +113,7 @@ class olc_db final {
     }
     return result;
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <node_type NodeType>
   [[nodiscard]] auto get_shrinking_inode_count() const noexcept {
@@ -115,6 +121,8 @@ class olc_db final {
         std::memory_order_relaxed);
   }
 
+  // warning C4701: potentially uninitialized local variable '...' used
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(4701)
   [[nodiscard]] auto get_shrinking_inode_counts() const noexcept {
     inode_type_counter_array result;
     for (decltype(shrinking_inode_counts)::size_type i = 0;
@@ -123,6 +131,7 @@ class olc_db final {
     }
     return result;
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard]] auto get_key_prefix_splits() const noexcept {
     return key_prefix_splits.load(std::memory_order_relaxed);
@@ -167,6 +176,8 @@ class olc_db final {
     node_counts[as_i<node_type::LEAF>].fetch_add(1, std::memory_order_relaxed);
   }
 
+  // FIXME(laurynas): why UNODB_DETAIL_USED_IN_DEBUG does not work?
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
   void decrement_leaf_count(std::size_t leaf_size) noexcept {
     decrease_memory_use(leaf_size);
 
@@ -175,6 +186,7 @@ class olc_db final {
                                                      std::memory_order_relaxed);
     UNODB_DETAIL_ASSERT(old_leaf_count > 0);
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <class INode>
   constexpr void increment_inode_count() noexcept;

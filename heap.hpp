@@ -7,6 +7,10 @@
 #include <algorithm>
 #include <cstdlib>
 
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
+
 #if defined(__SANITIZE_ADDRESS__)
 #include <sanitizer/asan_interface.h>
 #elif defined(__has_feature)
@@ -45,7 +49,12 @@ template <typename T>
     std::size_t size,
     std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
   void* result;
-  int err = posix_memalign(&result, alignment, size);
+#ifndef _MSC_VER
+  const auto err = posix_memalign(&result, alignment, size);
+#else
+  result = _aligned_malloc(size, alignment);
+  const auto err = UNODB_DETAIL_LIKELY(result != nullptr) ? 0 : errno;
+#endif
 
   UNODB_DETAIL_ASSERT(err != EINVAL);
   if (UNODB_DETAIL_UNLIKELY(err == ENOMEM)) throw std::bad_alloc{};
@@ -54,8 +63,12 @@ template <typename T>
 }
 
 inline void free_aligned(void* ptr) noexcept {
+#ifndef _MSC_VER
   // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
   free(ptr);
+#else
+  _aligned_free(ptr);
+#endif
 }
 
 }  // namespace unodb::detail

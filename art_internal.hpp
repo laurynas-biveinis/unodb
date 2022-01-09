@@ -27,12 +27,12 @@ class [[nodiscard]] basic_db_leaf_deleter;
 // Internal ART key in binary-comparable format
 template <typename KeyType>
 struct [[nodiscard]] basic_art_key final {
-  [[nodiscard, gnu::const]] static constexpr KeyType make_binary_comparable(
-      KeyType key) noexcept;
+  [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
+  make_binary_comparable(KeyType key) noexcept;
 
   constexpr basic_art_key() noexcept = default;
 
-  constexpr explicit basic_art_key(KeyType key_) noexcept
+  UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(KeyType key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)

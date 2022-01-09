@@ -42,3 +42,7 @@
 
 # CMake preset user config
 /CMakeUserPresets.json
+
+# MSVC
+/.vs
+/out

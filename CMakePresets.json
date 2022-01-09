@@ -7,13 +7,24 @@
     },
     "configurePresets": [
         {
-            "name": "base-unix",
+            "name": "base",
             "hidden": true,
-            "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "FATAL_WARNINGS": "ON"
             }
+        },
+        {
+            "name": "base-unix",
+            "hidden": true,
+            "inherits": "base",
+            "generator": "Unix Makefiles"
+        },
+        {
+            "name": "base-msvc",
+            "hidden": true,
+            "inherits": "base",
+            "generator": "Ninja"
         },
         {
             "name": "asan",
@@ -262,6 +273,14 @@
                 "gcc",
                 "static-analysis"
             ]
+        },
+        {
+            "name": "msvc-debug",
+            "inherits": [ "base-msvc", "debug" ]
+        },
+        {
+            "name": "msvc-release",
+            "inherits": [ "base-msvc", "release" ]
         }
     ],
     "buildPresets": [
@@ -398,6 +417,16 @@
         {
             "name": "gcc-static-analysis-release",
             "configurePreset": "gcc-static-analysis-release",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-debug",
+            "configurePreset": "msvc-debug",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-release",
+            "configurePreset": "msvc-release",
             "inherits": "base"
         }
     ],
@@ -537,6 +566,16 @@
         {
             "name": "gcc-static-analysis-release",
             "configurePreset": "gcc-static-analysis-release",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-debug",
+            "configurePreset": "msvc-debug",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-release",
+            "configurePreset": "msvc-release",
             "inherits": "base"
         }
     ]

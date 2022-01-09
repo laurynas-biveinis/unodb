@@ -307,12 +307,20 @@ class [[nodiscard]] olc_inode_4 final
   }
 };
 
-// 48 == sizeof(inode_4)
+// 48 (or 56) == sizeof(inode_4)
+#ifndef _MSC_VER
 #ifdef NDEBUG
 static_assert(sizeof(olc_inode_4) == 48 + 8);
 #else
 static_assert(sizeof(olc_inode_4) == 48 + 24);
 #endif
+#else  // #ifndef _MSC_VER
+#ifdef NDEBUG
+static_assert(sizeof(olc_inode_4) == 56 + 8);
+#else
+static_assert(sizeof(olc_inode_4) == 56 + 24);
+#endif
+#endif  // #ifndef _MSC_VER
 
 class [[nodiscard]] olc_inode_16 final
     : public unodb::detail::basic_inode_16<olc_art_policy> {
@@ -766,6 +774,8 @@ template <class INode>
 
 namespace unodb {
 
+// FIXME(laurynas): why UNODB_DETAIL_USED_IN_DEBUG does not work?
+UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
 template <class INode>
 constexpr void olc_db::decrement_inode_count() noexcept {
   static_assert(olc_inode_defs::is_inode<INode>());
@@ -776,6 +786,7 @@ constexpr void olc_db::decrement_inode_count() noexcept {
 
   decrease_memory_use(sizeof(INode));
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <node_type NodeType>
 constexpr void olc_db::account_growing_inode() noexcept {

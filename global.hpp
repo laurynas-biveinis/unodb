@@ -26,13 +26,19 @@
 #define _GLIBCXX_SANITIZE_VECTOR 1
 #endif
 
+#ifdef _MSC_VER
+#define NOMINMAX
+#endif
+
 // Architecture
 
-#ifdef __x86_64
+#if defined(__x86_64) || (defined(_MSC_VER) && defined(_M_X64))
 #define UNODB_DETAIL_X86_64
 #endif
 
 // Compiler
+
+#ifndef _MSC_VER
 
 #define UNODB_DETAIL_LIKELY(x) __builtin_expect(x, 1)
 #define UNODB_DETAIL_UNLIKELY(x) __builtin_expect(x, 0)
@@ -42,6 +48,19 @@
 #define UNODB_DETAIL_FORCE_INLINE __attribute__((always_inline))
 #define UNODB_DETAIL_NOINLINE __attribute__((noinline))
 #define UNODB_DETAIL_UNREACHABLE() __builtin_unreachable()
+#define UNODB_DETAIL_CONSTEXPR_NOT_MSVC constexpr
+
+#else  // #ifndef _MSC_VER
+
+#define UNODB_DETAIL_LIKELY(x) (!!(x))
+#define UNODB_DETAIL_UNLIKELY(x) (!!(x))
+#define UNODB_DETAIL_UNUSED [[maybe_unused]]
+#define UNODB_DETAIL_FORCE_INLINE __forceinline
+#define UNODB_DETAIL_NOINLINE __declspec(noinline)
+#define UNODB_DETAIL_UNREACHABLE() __assume(0)
+#define UNODB_DETAIL_CONSTEXPR_NOT_MSVC inline
+
+#endif  // #ifndef _MSC_VER
 
 // Sanitizers
 
@@ -57,11 +76,25 @@
 
 #define UNODB_DETAIL_DO_PRAGMA(x) _Pragma(#x)
 
+#ifndef _MSC_VER
+
 #define UNODB_DETAIL_DISABLE_WARNING(x) \
   _Pragma("GCC diagnostic push")        \
       UNODB_DETAIL_DO_PRAGMA(GCC diagnostic ignored x)
 
 #define UNODB_DETAIL_RESTORE_WARNINGS() _Pragma("GCC diagnostic pop")
+
+#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)
+#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+#else
+
+#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x) \
+  _Pragma("warning(push)") UNODB_DETAIL_DO_PRAGMA(warning(disable : x))
+
+#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS() _Pragma("warning(pop)")
+
+#endif
 
 #ifdef __clang__
 #define UNODB_DETAIL_DISABLE_CLANG_WARNING(x) UNODB_DETAIL_DISABLE_WARNING(x)

@@ -92,7 +92,13 @@ class [[nodiscard]] inode_4 final
   }
 };
 
+#ifndef _MSC_VER
 static_assert(sizeof(inode_4) == 48);
+#else
+// MSVC pads the first field to 8 byte boundary even though its natural
+// alignment is 4 bytes, maybe due to parent class sizeof
+static_assert(sizeof(inode_4) == 56);
+#endif
 
 class [[nodiscard]] inode_16 final
     : public unodb::detail::basic_inode_16<art_policy> {

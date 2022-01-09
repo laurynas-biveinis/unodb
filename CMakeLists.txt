@@ -69,7 +69,20 @@ set(GCC_GE_11_CXX_WARNING_FLAGS
   "-Wctad-maybe-unsupported" "-Wdeprecated-enum-enum-conversion"
   "-Wdeprecated-enum-float-conversion" "-Wvexing-parse")
 
-list(APPEND CXX_FLAGS "-g" "-msse4.1")
+set(GCC_CLANG_CXX_FLAGS "-g" "-msse4.1")
+
+if(MSVC)
+  string(REGEX REPLACE "/Zi" "/ZI /INCREMENTAL" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+  # Remove it once CMake minimum is bumped to 3.15 or greater
+  string(REGEX REPLACE "/W3" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif()
+
+# For MSVC, disable the following warnings:
+# - "warning C4324: '...': structure was padded due to alignment specifier"
+# - "warning C5030: attribute '...' is not recognized"
+set(MSVC_CXX_WARNING_FLAGS "/W4" "/wd4324" "/wd5030")
+
+set(MSVC_CXX_FLAGS "/external:anglebrackets" "/external:W0" "/arch:AVX")
 
 option(COVERAGE "Enable code coverage reporting")
 if(COVERAGE)
@@ -192,6 +205,8 @@ string(REPLACE ";" " " LD_FLAGS_FOR_SUBDIR_STR "${SANITIZER_LD_FLAGS}")
 string(APPEND CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
 string(APPEND CMAKE_MODULE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
 string(APPEND CMAKE_SHARED_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 add_subdirectory(3rd_party/googletest)
 
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark tests"
@@ -216,10 +231,11 @@ endif()
 
 add_subdirectory(3rd_party/benchmark)
 
-# Do not build DeepState with GCC under macOS due to
-# https://github.com/trailofbits/deepstate/issues/374
+# Do not build DeepState:
+# - under MSVC as it's not supported
+# - with GCC under macOS due to https://github.com/trailofbits/deepstate/issues/374
 if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}"
-      STREQUAL "Darwin"))
+      STREQUAL "Darwin") AND NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"))
   # ThreadSanitizer is not compatible with libfuzzer and LLVM 11 linker crashes
   # on libfuzzer release build
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT("${CMAKE_BUILD_TYPE}"
@@ -246,7 +262,7 @@ if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}"
   add_dependencies(deepstate 3rd_party_deepstate)
   target_include_directories(deepstate INTERFACE "${SOURCE_DIR}/src/include/")
   set_target_properties(deepstate PROPERTIES IMPORTED_LOCATION
-    "${BINARY_DIR}/libdeepstate.a")
+    "${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}deepstate${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
   if(LIBFUZZER_AVAILABLE)
     add_library(deepstate_lf STATIC IMPORTED)
@@ -350,14 +366,17 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   target_compile_definitions(${TARGET} PRIVATE
     "$<$<AND:$<CONFIG:Debug>,$<BOOL:${VALGRIND_CLIENT}>>:VALGRIND_CLIENT_REQUESTS>")
   target_compile_options(${TARGET} PRIVATE
-    "$<$<BOOL:${FATAL_WARNINGS}>:-Werror>"
+    "$<$<CXX_COMPILER_ID:MSVC>:${MSVC_CXX_FLAGS}>"
+    "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:${GCC_CLANG_CXX_FLAGS}>"
+    "$<$<BOOL:${FATAL_WARNINGS}>:$<IF:$<CXX_COMPILER_ID:MSVC>,/WX,-Werror>>"
+    "$<$<CXX_COMPILER_ID:MSVC>:${MSVC_CXX_WARNING_FLAGS}>"
     "$<$<CXX_COMPILER_ID:AppleClang,Clang>:${CLANG_CXX_WARNING_FLAGS}>"
     "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>>:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
     "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>>:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
     "$<$<CXX_COMPILER_ID:GNU>:${GCC_CXX_WARNING_FLAGS}>"
     "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:${GCC_GE_11_CXX_WARNING_FLAGS}>"
-    "$<$<CONFIG:Debug>:-O0>"
-    "$<$<CONFIG:Release>:$<IF:$<BOOL:${COVERAGE}>,-O0,-O3>>"
+    "$<$<CONFIG:Debug>:$<IF:$<CXX_COMPILER_ID:MSVC>,/Od,-O0>>"
+    "$<$<AND:$<CONFIG:Release>,$<NOT:$<CXX_COMPILER_ID:MSVC>>>:$<IF:$<BOOL:${COVERAGE}>,-O0,-O3>>"
     "$<$<BOOL:${COVERAGE}>:--coverage>")
   target_compile_options(${TARGET} PRIVATE "${CXX_FLAGS}")
   target_compile_options(${TARGET} PRIVATE "${SANITIZER_CXX_FLAGS}")
@@ -460,6 +479,12 @@ if(TARGET deepstate)
 endif()
 add_subdirectory(test)
 
-execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-  ${CMAKE_BINARY_DIR}/compile_commands.json
-  ${CMAKE_SOURCE_DIR}/compile_commands.json)
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_BINARY_DIR}/compile_commands.json
+    ${CMAKE_SOURCE_DIR}/compile_commands.json)
+else()
+  execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+    ${CMAKE_BINARY_DIR}/compile_commands.json
+    ${CMAKE_SOURCE_DIR}/compile_commands.json)
+endif()

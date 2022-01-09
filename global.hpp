@@ -85,6 +85,7 @@
 #define UNODB_DETAIL_LIKELY(x) __builtin_expect(x, 1)
 #define UNODB_DETAIL_UNLIKELY(x) __builtin_expect(x, 0)
 #define UNODB_DETAIL_UNUSED __attribute__((unused))
+#define UNODB_DETAIL_FORCE_INLINE __attribute__((always_inline))
 #define UNODB_DETAIL_NOINLINE __attribute__((noinline))
 
 #ifdef NDEBUG

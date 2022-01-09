@@ -90,7 +90,7 @@ class [[nodiscard]] optimistic_lock final {
       return *this;
     }
 
-    [[nodiscard, gnu::always_inline, gnu::flatten]] bool try_read_unlock()
+    [[nodiscard, gnu::flatten]] UNODB_DETAIL_FORCE_INLINE bool try_read_unlock()
         UNODB_DETAIL_RELEASE_CONST noexcept {
       const auto result = lock->try_read_unlock(version);
 #ifndef NDEBUG
@@ -243,7 +243,7 @@ class [[nodiscard]] optimistic_lock final {
     return UNODB_DETAIL_LIKELY(result);
   }
 
-  [[nodiscard, gnu::always_inline, gnu::flatten]] bool try_read_unlock(
+  [[nodiscard, gnu::flatten]] UNODB_DETAIL_FORCE_INLINE bool try_read_unlock(
       version_type locked_version) const noexcept {
     const auto result{check(locked_version)};
 #ifndef NDEBUG

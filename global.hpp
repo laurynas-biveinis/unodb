@@ -32,6 +32,19 @@
 #define UNODB_DETAIL_X86_64
 #endif
 
+// Compiler
+
+#define UNODB_DETAIL_LIKELY(x) __builtin_expect(x, 1)
+#define UNODB_DETAIL_UNLIKELY(x) __builtin_expect(x, 0)
+// Cannot do [[gnu::unused]], as that does not play well with structured
+// bindings when compiling with GCC.
+#define UNODB_DETAIL_UNUSED __attribute__((unused))
+#define UNODB_DETAIL_FORCE_INLINE __attribute__((always_inline))
+#define UNODB_DETAIL_NOINLINE __attribute__((noinline))
+#define UNODB_DETAIL_UNREACHABLE() __builtin_unreachable()
+
+// Sanitizers
+
 #if defined(__has_feature)
 #if __has_feature(thread_sanitizer)
 #define UNODB_DETAIL_THREAD_SANITIZER 1
@@ -39,6 +52,8 @@
 #elif defined(__SANITIZE_THREAD__)
 #define UNODB_DETAIL_THREAD_SANITIZER 1
 #endif
+
+// Warnings
 
 #define UNODB_DETAIL_DO_PRAGMA(x) _Pragma(#x)
 
@@ -82,29 +97,18 @@
 #define UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
 #endif  // defined(__GNUG__) && !defined(__clang__)
 
-#define UNODB_DETAIL_LIKELY(x) __builtin_expect(x, 1)
-#define UNODB_DETAIL_UNLIKELY(x) __builtin_expect(x, 0)
-#define UNODB_DETAIL_UNUSED __attribute__((unused))
-#define UNODB_DETAIL_FORCE_INLINE __attribute__((always_inline))
-#define UNODB_DETAIL_NOINLINE __attribute__((noinline))
-#define UNODB_DETAIL_UNREACHABLE() __builtin_unreachable()
-
-#ifdef NDEBUG
-// Cannot do [[gnu::unused]], as that does not play well with structured
-// bindings when compiling with GCC.
-#define UNODB_DETAIL_USED_IN_DEBUG __attribute__((unused))
-#else
-#define UNODB_DETAIL_USED_IN_DEBUG
-#endif
+// Debug or release build
 
 #ifdef NDEBUG
 #define UNODB_DETAIL_RELEASE_CONSTEXPR constexpr
 #define UNODB_DETAIL_RELEASE_CONST const
 #define UNODB_DETAIL_RELEASE_EXPLICIT explicit
+#define UNODB_DETAIL_USED_IN_DEBUG UNODB_DETAIL_UNUSED
 #else
 #define UNODB_DETAIL_RELEASE_CONSTEXPR
 #define UNODB_DETAIL_RELEASE_CONST
 #define UNODB_DETAIL_RELEASE_EXPLICIT
+#define UNODB_DETAIL_USED_IN_DEBUG
 #endif
 
 #endif  // UNODB_DETAIL_GLOBAL_HPP

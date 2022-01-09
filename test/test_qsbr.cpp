@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Laurynas Biveinis
+// Copyright 2020-2022 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -63,12 +63,11 @@ class QSBR : public ::testing::Test {
   }
 
 #ifndef NDEBUG
-  UNODB_DETAIL_DISABLE_WARNING("-Wunused-variable")
   static void check_ptr_on_qsbr_dealloc(const void *ptr) noexcept {
     // The pointer must be readable
-    static volatile char sink = *static_cast<const char *>(ptr);
+    static volatile char UNODB_DETAIL_UNUSED sink =
+        *static_cast<const char *>(ptr);
   }
-  UNODB_DETAIL_RESTORE_WARNINGS()
 #endif
 
   static void qsbr_deallocate(void *ptr) {

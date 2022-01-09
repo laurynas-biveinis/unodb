@@ -7,10 +7,10 @@
 #include <cstddef>
 #include <new>
 
+namespace unodb::detail {
+
 #if !defined(__cpp_lib_hardware_interference_size) || \
     __cpp_lib_hardware_interference_size < 201703
-
-namespace unodb::detail {
 
 #ifdef UNODB_DETAIL_X86_64
 inline constexpr std::size_t hardware_constructive_interference_size = 64;
@@ -26,13 +26,13 @@ static_assert(hardware_constructive_interference_size >=
 static_assert(hardware_destructive_interference_size >=
               alignof(std::max_align_t));
 
-}  // namespace unodb::detail
-
 #else
 
 using std::hardware_constructive_interference_size;
 using std::hardware_destructive_interference_size;
 
 #endif
+
+}  // namespace unodb::detail
 
 #endif

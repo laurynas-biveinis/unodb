@@ -176,7 +176,6 @@ class olc_db final {
     node_counts[as_i<node_type::LEAF>].fetch_add(1, std::memory_order_relaxed);
   }
 
-  // FIXME(laurynas): why UNODB_DETAIL_USED_IN_DEBUG does not work?
   UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
   void decrement_leaf_count(std::size_t leaf_size) noexcept {
     decrease_memory_use(leaf_size);

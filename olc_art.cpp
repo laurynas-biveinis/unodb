@@ -774,7 +774,6 @@ template <class INode>
 
 namespace unodb {
 
-// FIXME(laurynas): why UNODB_DETAIL_USED_IN_DEBUG does not work?
 UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
 template <class INode>
 constexpr void olc_db::decrement_inode_count() noexcept {

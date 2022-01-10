@@ -385,7 +385,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   # Change to target_link_options on 3.13 minimum CMake version
   target_link_libraries(${TARGET} PRIVATE "${SANITIZER_LD_FLAGS}")
   target_link_libraries(${TARGET} INTERFACE "$<$<BOOL:${COVERAGE}>:--coverage>")
-  target_link_libraries(${TARGET} PRIVATE "$<$<AND:$<CONFIG:Debug,$<PLATFORM_ID:Linux>,$<CXX_COMPILER_ID:GNU>>>:${CMAKE_DL_LIBS}>")
+  target_link_libraries(${TARGET} PRIVATE "$<$<AND:$<CONFIG:Debug>,$<PLATFORM_ID:Linux>,$<CXX_COMPILER_ID:GNU>>:${CMAKE_DL_LIBS}>")
   target_link_libraries(${TARGET} PRIVATE
     "$<$<AND:$<CONFIG:Debug>,$<PLATFORM_ID:Linux>,$<CXX_COMPILER_ID:GNU>>:backtrace>")
   if(IPO_SUPPORTED)

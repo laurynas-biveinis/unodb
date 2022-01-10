@@ -17,6 +17,8 @@
 #ifdef UNODB_DETAIL_X86_64
 #include <emmintrin.h>
 #include <smmintrin.h>
+#elif defined(__aarch64__)
+#include <arm_neon.h>
 #endif
 
 #include <gsl/gsl_util>
@@ -51,6 +53,21 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 [[nodiscard, gnu::const]] inline auto _mm_cmple_epu8(__m128i x,
                                                      __m128i y) noexcept {
   return _mm_cmpeq_epi8(_mm_max_epu8(y, x), y);
+}
+
+#elif defined(__aarch64__)
+
+// https://stackoverflow.com/a/58381188/80458
+[[nodiscard, gnu::const]] inline int vmovmaskq_u8(uint8x16_t x) noexcept {
+  uint16x8_t high_bits = vreinterpretq_u16_u8(vshrq_n_u8(x, 7));
+  uint32x4_t paired16 =
+      vreinterpretq_u32_u16(vsraq_n_u16(high_bits, high_bits, 7));
+  uint64x2_t paired32 =
+      vreinterpretq_u64_u32(vsraq_n_u32(paired16, paired16, 14));
+  uint8x16_t paired64 =
+      vreinterpretq_u8_u64(vsraq_n_u64(paired32, paired32, 28));
+  return vgetq_lane_u8(paired64, 0) |
+         (static_cast<int>(vgetq_lane_u8(paired64, 8)) << 8);
 }
 
 #else  // #ifdef UNODB_DETAIL_X86_64
@@ -912,6 +929,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 #ifdef UNODB_DETAIL_X86_64
     const auto mask = (1U << children_count_) - 1;
     const auto insert_pos_index = get_insert_pos(key_byte, mask);
+#elif defined(__aarch64__)
+    const auto mask = (1U << children_count_) - 1;
+    const auto insert_pos_index = get_insert_pos(key_byte, mask);
 #else
     const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
     const auto second_lt = (((keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
@@ -955,7 +975,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       keys.byte_array[i] = keys.byte_array[i + 1];
       children[i] = children[i + 1];
     }
-#ifndef UNODB_DETAIL_X86_64
+#if !defined(UNODB_DETAIL_X86_64) && !defined(__aarch64__)
     keys.byte_array[i] = empty_child;
 #endif
 
@@ -998,6 +1018,23 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto mask = (1U << this->children_count.load()) - 1;
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
+    if (bit_field != 0) {
+      const auto i = detail::ctz(bit_field);
+      return std::make_pair(
+          i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
+    }
+    return std::make_pair(0xFF, nullptr);
+#elif defined(__aarch64__)
+    const auto replicated_search_key =
+        vdupq_n_u8(static_cast<std::uint8_t>(key_byte));
+    const auto keys_in_neon_reg = vreinterpretq_u8_u32(
+        vsetq_lane_u32(keys.integer.load(), vdupq_n_u32(0), 0));
+    const auto matching_key_positions =
+        vceqq_u8(replicated_search_key, keys_in_neon_reg);
+    const auto mask = (1U << this->children_count) - 1;
+    const auto bit_field =
+        static_cast<unsigned>(detail::vmovmaskq_u8(matching_key_positions)) &
+        mask;
     if (bit_field != 0) {
       const auto i = detail::ctz(bit_field);
       return std::make_pair(
@@ -1060,7 +1097,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     children[key1_i] = child1;
     keys.byte_array[key2_i] = key2;
     children[key2_i] = node_ptr{child2.release(), node_type::LEAF};
-#ifndef UNODB_DETAIL_X86_64
+#if !defined(UNODB_DETAIL_X86_64) && !defined(__aarch64__)
     keys.byte_array[2] = empty_child;
     keys.byte_array[3] = empty_child;
 #endif
@@ -1107,6 +1144,22 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
         node_key_mask;
     return detail::popcount(bit_field);
   }
+#elif defined(__aarch64__)
+  [[nodiscard]] auto get_insert_pos(std::uint8_t insert_key_byte,
+                                    unsigned node_key_mask) const noexcept {
+    UNODB_DETAIL_ASSERT(node_key_mask ==
+                        (1U << this->children_count.load()) - 1);
+
+    const auto replicated_insert_key_byte = vdupq_n_u8(insert_key_byte);
+    const auto node_keys_in_neon_reg = vreinterpretq_u8_u32(
+        vsetq_lane_u32(keys.integer.load(), vdupq_n_u32(0), 0));
+    const auto lt_node_key_positions =
+        vcltq_u8(node_keys_in_neon_reg, replicated_insert_key_byte);
+    const auto bit_field =
+        static_cast<unsigned>(detail::vmovmaskq_u8(lt_node_key_positions)) &
+        node_key_mask;
+    return detail::popcount(bit_field);
+  }
 #else
   // Non-x86_64 implementation reads children bytes past current node size
   static constexpr std::byte empty_child{0xFF};
@@ -1148,6 +1201,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
 
 #ifdef UNODB_DETAIL_X86_64
+    const auto insert_pos_index = source_node->get_insert_pos(key_byte, 0xFU);
+#elif defined(__aarch64__)
     const auto insert_pos_index = source_node->get_insert_pos(key_byte, 0xFU);
 #else
     const auto keys_integer = source_node->keys.integer.load();
@@ -1276,6 +1331,21 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
           i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
     return std::make_pair(0xFF, nullptr);
+#elif defined(__aarch64__)
+    const auto replicated_search_key =
+        vdupq_n_u8(static_cast<std::uint8_t>(key_byte));
+    const auto matching_key_positions =
+        vceqq_u8(replicated_search_key, keys.byte_vector);
+    const auto mask = (1U << this->children_count) - 1;
+    const auto bit_field =
+        static_cast<unsigned>(detail::vmovmaskq_u8(matching_key_positions)) &
+        mask;
+    if (bit_field != 0) {
+      const auto i = detail::ctz(bit_field);
+      return std::make_pair(
+          i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
+    }
+    return std::make_pair(0xFF, nullptr);
 #else
     for (size_t i = 0; i < this->children_count.load(); ++i)
       if (key_byte == keys.byte_array[i])
@@ -1342,9 +1412,15 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   union key_union {
     std::array<critical_section_policy<std::byte>, basic_inode_16::capacity>
         byte_array;
+
 #ifdef UNODB_DETAIL_X86_64
     __m128i byte_vector;
+#elif defined(__aarch64__)
+    uint8x16_t byte_vector;
+#else
+#error Needs porting
 #endif
+
     key_union() noexcept {}
   } keys;
   std::array<critical_section_policy<node_ptr>, basic_inode_16::capacity>

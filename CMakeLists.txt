@@ -72,7 +72,7 @@ set(GCC_GE_11_CXX_WARNING_FLAGS
 set(GCC_CLANG_CXX_FLAGS "-g" "-msse4.1")
 
 if(MSVC)
-  string(REGEX REPLACE "/Zi" "/ZI /INCREMENTAL" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+  string(REGEX REPLACE "/Zi" "/ZI" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
   # Remove it once CMake minimum is bumped to 3.15 or greater
   string(REGEX REPLACE "/W3" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()

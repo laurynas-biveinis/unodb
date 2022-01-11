@@ -1262,7 +1262,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto replicated_search_key =
         _mm_set1_epi8(static_cast<char>(key_byte));
     const auto matching_key_positions =
-        _mm_cmpeq_epi8(replicated_search_key, keys.sse);
+        _mm_cmpeq_epi8(replicated_search_key, keys.byte_vector);
     const auto mask = (1U << this->children_count) - 1;
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
@@ -1311,7 +1311,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto replicated_insert_key =
         _mm_set1_epi8(static_cast<char>(key_byte));
     const auto lesser_key_positions =
-        _mm_cmple_epu8(replicated_insert_key, keys.sse);
+        _mm_cmple_epu8(replicated_insert_key, keys.byte_vector);
     const auto mask = (1U << children_count_) - 1;
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(lesser_key_positions)) & mask;
@@ -1333,7 +1333,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   union key_union {
     std::array<critical_section_policy<std::byte>, basic_inode_16::capacity>
         byte_array;
-    __m128i sse;
+    __m128i byte_vector;
 
     key_union() noexcept {}
   } keys;

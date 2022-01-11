@@ -384,10 +384,8 @@ class [[nodiscard]] olc_inode_16 final
       if (keys.byte_array[i] == key_byte)
         return std::make_pair(i, &children[i]);
     return std::make_pair(0xFF, nullptr);
-#elif defined(UNODB_DETAIL_X86_64)
-    return basic_inode_16::find_child(key_byte);
 #else
-#error Needs porting
+    return basic_inode_16::find_child(key_byte);
 #endif
   }
 

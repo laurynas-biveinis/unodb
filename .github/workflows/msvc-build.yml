@@ -13,6 +13,9 @@ jobs:
           - name: MSVC Release
             preset: "msvc-release"
 
+          - name: MSVC Release with ASan
+            preset: "msvc-release-asan"
+
           - name: MSVC Debug
             preset: "msvc-debug"
 
@@ -41,4 +44,4 @@ jobs:
         run: cmake --build --preset "${{ matrix.preset }}"
 
       - name: Test
-        run: ctest --preset "${{ matrix.preset }}"
+        run: ctest -V --preset "${{ matrix.preset }}"

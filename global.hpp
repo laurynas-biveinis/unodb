@@ -28,6 +28,12 @@
 
 #ifdef _MSC_VER
 #define NOMINMAX
+#if !defined(NDEBUG) && defined(__SANITIZE_ADDRESS__)
+// Workaround bug of _aligned_free not being hooked for ASan under MSVC debug
+// build -
+// https://developercommunity.visualstudio.com/t/asan-check-failed-using-aligned-free-in-debug-buil/1406956
+#undef _CRTDBG_MAP_ALLOC
+#endif
 #endif
 
 // Architecture

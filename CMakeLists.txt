@@ -76,11 +76,13 @@ if(MSVC)
   # Remove it once CMake minimum is bumped to 3.15 or greater
   string(REGEX REPLACE "/W3" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
-
-# For MSVC, disable the following warnings:
-# - "warning C4324: '...': structure was padded due to alignment specifier"
-# - "warning C5030: attribute '...' is not recognized"
-set(MSVC_CXX_WARNING_FLAGS "/W4" "/wd4324" "/wd5030")
+  
+# Disable the following warnings for MSVC:
+# - "C4324: '...': structure was padded due to alignment specifier"
+# - "C5030: attribute '...' is not recognized"
+# - "C5072, ASAN enabled without debug information emission" - triggered by
+# msvc-release-asan preset
+set(MSVC_CXX_WARNING_FLAGS "/W4" "/wd4324" "/wd5030" "/wd5072")
 
 set(MSVC_CXX_FLAGS "/external:anglebrackets" "/external:W0" "/arch:AVX")
 
@@ -135,24 +137,29 @@ macro(ADD_TO_GNU_SANITIZER_FLAGS)
 endmacro()
 
 macro(SET_COMMON_SANITIZER_FLAGS)
-  list(APPEND SANITIZER_CXX_FLAGS "-fno-omit-frame-pointer"
-    "-fno-optimize-sibling-calls")
+  if(NOT MSVC)
+    list(APPEND SANITIZER_CXX_FLAGS "-fno-omit-frame-pointer"
+        "-fno-optimize-sibling-calls")
+  endif()
 endmacro()
 
 option(SANITIZE_ADDRESS "Enable AddressSanitizer runtime checks")
 if(SANITIZE_ADDRESS)
   set_common_sanitizer_flags()
-  list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=address")
-  list(APPEND SANITIZER_LD_FLAGS "-fsanitize=address")
-  add_to_gnu_sanitizer_flags("-fsanitize=leak"
-    "-fsanitize-address-use-after-scope" "-fsanitize=pointer-compare"
-    "-fsanitize=pointer-subtract")
+  if(MSVC)
+    list(APPEND SANITIZER_CXX_FLAGS "/fsanitize=address")
+  else()
+    list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=address")
+    list(APPEND SANITIZER_LD_FLAGS "-fsanitize=address")
+    add_to_gnu_sanitizer_flags("-fsanitize=leak"
+        "-fsanitize-address-use-after-scope" "-fsanitize=pointer-compare"
+        "-fsanitize=pointer-subtract")
+  endif()
   string(CONCAT ASAN_ENV "ASAN_OPTIONS="
     "check_initialization_order=true:detect_stack_use_after_return=true:"
     "alloc_dealloc_mismatch=true:strict_string_checks=true")
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
-      OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    # Not for GCC, up to version 10 at least, because:
+  if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # Not for GCC, up to version 11 at least, because:
     # 1) AddressSanitizer CHECK failed:
     # ../../../../src/libsanitizer/asan/asan_thread.cpp:369 "((bottom)) != (0)"
     # (0x0, 0x0)
@@ -164,7 +171,8 @@ if(SANITIZE_ADDRESS)
     # /usr/include/c++/8/sstream:173
     string(APPEND ASAN_ENV ":detect_invalid_pointer_pairs=2")
   endif()
-  if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+      OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     string(APPEND ASAN_ENV ":detect_leaks=1")
   endif()
   set(SANITIZER_ENV ${ASAN_ENV})
@@ -199,8 +207,17 @@ find_package(Threads REQUIRED)
 
 find_package(Boost REQUIRED)
 
+set(ORIG_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+set(ORIG_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
+set(ORIG_CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS})
+set(ORIG_CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS})
+
 string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
 string(APPEND CMAKE_CXX_FLAGS ${CXX_FLAGS_FOR_SUBDIR_STR})
+if(MSVC)
+  string(REPLACE ";" " " WARNING_FLAGS_FOR_SUBDIR_STR "${MSVC_CXX_WARNING_FLAGS}")
+  string(APPEND CMAKE_CXX_FLAGS " " ${WARNING_FLAGS_FOR_SUBDIR_STR})
+endif()
 string(REPLACE ";" " " LD_FLAGS_FOR_SUBDIR_STR "${SANITIZER_LD_FLAGS}")
 string(APPEND CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
 string(APPEND CMAKE_MODULE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
@@ -208,6 +225,11 @@ string(APPEND CMAKE_SHARED_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 add_subdirectory(3rd_party/googletest)
+
+set(CMAKE_CXX_FLAGS ${ORIG_CMAKE_CXX_FLAGS})
+set(CMAKE_EXE_LINKER_FLAGS ${ORIG_CMAKE_EXE_LINKER_FLAGS})
+set(CMAKE_MODULE_LINKER_FLAGS ${ORIG_CMAKE_MODULE_LINKER_FLAGS})
+set(CMAKE_SHARED_LINKER_FLAGS ${ORIG_CMAKE_SHARED_LINKER_FLAGS})
 
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark tests"
   FORCE)

@@ -276,11 +276,33 @@
         },
         {
             "name": "msvc-debug",
-            "inherits": [ "base-msvc", "debug" ]
+            "inherits": [
+                "base-msvc",
+                "debug"
+            ]
         },
         {
             "name": "msvc-release",
-            "inherits": [ "base-msvc", "release" ]
+            "inherits": [
+                "base-msvc",
+                "release"
+            ]
+        },
+        {
+            "name": "msvc-debug-asan",
+            "inherits": [
+                "base-msvc",
+                "debug",
+                "asan"
+            ]
+        },
+        {
+            "name": "msvc-release-asan",
+            "inherits": [
+                "base-msvc",
+                "release",
+                "asan"
+            ]
         }
     ],
     "buildPresets": [
@@ -427,6 +449,16 @@
         {
             "name": "msvc-release",
             "configurePreset": "msvc-release",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-debug-asan",
+            "configurePreset": "msvc-debug-asan",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-release-asan",
+            "configurePreset": "msvc-release-asan",
             "inherits": "base"
         }
     ],
@@ -576,6 +608,16 @@
         {
             "name": "msvc-release",
             "configurePreset": "msvc-release",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-debug-asan",
+            "configurePreset": "msvc-debug-asan",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-release-asan",
+            "configurePreset": "msvc-release-asan",
             "inherits": "base"
         }
     ]

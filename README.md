@@ -149,7 +149,7 @@ using non-XCode clang for build in debug configuration and ThreadSanitizer is
 not enabled.
 
 There are several Make targets for fuzzing. For time-based brute-force fuzzing
-of all components, use on of `deepstate_5s`, `deepstate_1m`, `deepstate_20m`,
+of all components, use on of `deepstate_2s`, `deepstate_1m`, `deepstate_20m`,
 and `deepstate_8h`. Individual fuzzers can be used by inserting `art` or `qsbr`,
 i.e. `deepstate_qsbr_20m` or `deepstate_art_8h`. Running fuzzer under Valgrind
 is available through `valgrind_deepstate` for everything or

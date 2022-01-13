@@ -19,6 +19,9 @@ jobs:
           - name: MSVC Debug
             preset: "msvc-debug"
 
+          - name: MSVC Debug with ASan
+            preset: "msvc-debug-asan"
+
     steps:
       - uses: actions/checkout@v2
         with:

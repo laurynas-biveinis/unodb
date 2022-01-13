@@ -165,27 +165,27 @@ if(SANITIZE_ADDRESS)
         "-fsanitize-address-use-after-scope" "-fsanitize=pointer-compare"
         "-fsanitize=pointer-subtract")
   endif()
-  string(CONCAT ASAN_ENV "ASAN_OPTIONS="
-    "check_initialization_order=true:detect_stack_use_after_return=true:"
-    "alloc_dealloc_mismatch=true:strict_string_checks=true")
-  if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    # Not for GCC, up to version 11 at least, because:
-    # 1) AddressSanitizer CHECK failed:
-    # ../../../../src/libsanitizer/asan/asan_thread.cpp:369 "((bottom)) != (0)"
-    # (0x0, 0x0)
-    # https://bugs.llvm.org/show_bug.cgi?id=47626
-    # 2) ERROR: AddressSanitizer: invalid-pointer-pair: 0x7fffe8404697
-    # 0x000000000000
-    # #0 0x55d21abf7a40 in std::__cxx11::basic_stringbuf<char,
-    # std::char_traits<char>, std::allocator<char> >::str() const
-    # /usr/include/c++/8/sstream:173
-    string(APPEND ASAN_ENV ":detect_invalid_pointer_pairs=2")
-  endif()
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
-      OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    string(APPEND ASAN_ENV ":detect_leaks=1")
-  endif()
-  set(SANITIZER_ENV ${ASAN_ENV})
+  # string(CONCAT ASAN_ENV "ASAN_OPTIONS="
+  #   "check_initialization_order=true:detect_stack_use_after_return=true:"
+  #   "alloc_dealloc_mismatch=true:strict_string_checks=true")
+  # if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  #   # Not for GCC, up to version 11 at least, because:
+  #   # 1) AddressSanitizer CHECK failed:
+  #   # ../../../../src/libsanitizer/asan/asan_thread.cpp:369 "((bottom)) != (0)"
+  #   # (0x0, 0x0)
+  #   # https://bugs.llvm.org/show_bug.cgi?id=47626
+  #   # 2) ERROR: AddressSanitizer: invalid-pointer-pair: 0x7fffe8404697
+  #   # 0x000000000000
+  #   # #0 0x55d21abf7a40 in std::__cxx11::basic_stringbuf<char,
+  #   # std::char_traits<char>, std::allocator<char> >::str() const
+  #   # /usr/include/c++/8/sstream:173
+  #   string(APPEND ASAN_ENV ":detect_invalid_pointer_pairs=2")
+  # endif()
+  # if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+  #     OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  #   string(APPEND ASAN_ENV ":detect_leaks=1")
+  # endif()
+  # set(SANITIZER_ENV ${ASAN_ENV})
 else()
   if(MSVC)
     string(REGEX REPLACE "/Zi" "/ZI" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")

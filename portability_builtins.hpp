@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-#ifdef _MSC_VER
+#ifdef UNODB_DETAIL_MSVC
 #include <intrin.h>
 #include <gsl/gsl_util>
 #endif
@@ -15,7 +15,7 @@ namespace unodb::detail {
 
 [[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint64_t bswap(
     std::uint64_t x) noexcept {
-#ifndef _MSC_VER
+#ifndef UNODB_DETAIL_MSVC
   return __builtin_bswap64(x);
 #else
   return _byteswap_uint64(x);
@@ -24,7 +24,7 @@ namespace unodb::detail {
 
 [[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned ctz(
     unsigned x) noexcept {
-#ifndef _MSC_VER
+#ifndef UNODB_DETAIL_MSVC
   return static_cast<unsigned>(__builtin_ctz(x));
 #else
   unsigned long result;  // NOLINT(runtime/int)
@@ -35,7 +35,7 @@ namespace unodb::detail {
 
 [[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned ctz64(
     std::uint64_t x) noexcept {
-#ifndef _MSC_VER
+#ifndef UNODB_DETAIL_MSVC
   return static_cast<unsigned>(__builtin_ctzll(x));
 #else
   unsigned long result;  // NOLINT(runtime/int)
@@ -46,7 +46,7 @@ namespace unodb::detail {
 
 [[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned popcount(
     unsigned x) noexcept {
-#ifndef _MSC_VER
+#ifndef UNODB_DETAIL_MSVC
   return static_cast<unsigned>(__builtin_popcount(x));
 #else
   return static_cast<unsigned>(__popcnt(x));

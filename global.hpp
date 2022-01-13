@@ -44,7 +44,12 @@
 
 // Compiler
 
-#ifndef _MSC_VER
+#if defined(_MSC_VER) && !defined(__clang__)
+// MSVC with the MSVC frontend, not the LLVM one
+#define UNODB_DETAIL_MSVC
+#endif
+
+#ifndef UNODB_DETAIL_MSVC
 
 #define UNODB_DETAIL_LIKELY(x) __builtin_expect(x, 1)
 #define UNODB_DETAIL_UNLIKELY(x) __builtin_expect(x, 0)
@@ -56,7 +61,7 @@
 #define UNODB_DETAIL_UNREACHABLE() __builtin_unreachable()
 #define UNODB_DETAIL_CONSTEXPR_NOT_MSVC constexpr
 
-#else  // #ifndef _MSC_VER
+#else  // #ifndef UNODB_DETAIL_MSVC
 
 #define UNODB_DETAIL_LIKELY(x) (!!(x))
 #define UNODB_DETAIL_UNLIKELY(x) (!!(x))
@@ -66,7 +71,7 @@
 #define UNODB_DETAIL_UNREACHABLE() __assume(0)
 #define UNODB_DETAIL_CONSTEXPR_NOT_MSVC inline
 
-#endif  // #ifndef _MSC_VER
+#endif  // #ifndef UNODB_DETAIL_MSVC
 
 // Sanitizers
 
@@ -82,7 +87,7 @@
 
 #define UNODB_DETAIL_DO_PRAGMA(x) _Pragma(#x)
 
-#ifndef _MSC_VER
+#ifndef UNODB_DETAIL_MSVC
 
 #define UNODB_DETAIL_DISABLE_WARNING(x) \
   _Pragma("GCC diagnostic push")        \
@@ -93,14 +98,14 @@
 #define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)
 #define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-#else
+#else  // #ifndef UNODB_DETAIL_MSVC
 
 #define UNODB_DETAIL_DISABLE_MSVC_WARNING(x) \
   _Pragma("warning(push)") UNODB_DETAIL_DO_PRAGMA(warning(disable : x))
 
 #define UNODB_DETAIL_RESTORE_MSVC_WARNINGS() _Pragma("warning(pop)")
 
-#endif
+#endif  // #ifndef UNODB_DETAIL_MSVC
 
 #ifdef __clang__
 #define UNODB_DETAIL_DISABLE_CLANG_WARNING(x) UNODB_DETAIL_DISABLE_WARNING(x)

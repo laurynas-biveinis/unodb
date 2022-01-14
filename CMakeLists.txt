@@ -72,7 +72,6 @@ set(GCC_GE_11_CXX_WARNING_FLAGS
 set(GCC_CLANG_CXX_FLAGS "-g" "-msse4.1")
 
 if(MSVC)
-  string(REGEX REPLACE "/Zi" "/ZI" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
   # Remove it once CMake minimum is bumped to 3.15 or greater
   string(REGEX REPLACE "/W3" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
@@ -148,6 +147,17 @@ if(SANITIZE_ADDRESS)
   set_common_sanitizer_flags()
   if(MSVC)
     list(APPEND SANITIZER_CXX_FLAGS "/fsanitize=address")
+    # Documented to be incompatible with ASan
+    string(REGEX REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG 
+        "${CMAKE_CXX_FLAGS_DEBUG}")
+    string(REGEX REPLACE "/INCREMENTAL" "/INCREMENTAL:NO"
+        CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
+    string(REGEX REPLACE "/INCREMENTAL" "/INCREMENTAL:NO" 
+        CMAKE_MODULE_LINKER_FLAGS_DEBUG "${CMAKE_MODULE_LINKER_FLAGS_DEBUG}")
+    string(REGEX REPLACE "/INCREMENTAL" "/INCREMENTAL:NO" 
+        CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
+    string(REGEX REPLACE "/INCREMENTAL" "/INCREMENTAL:NO" 
+        CMAKE_STATIC_LINKER_FLAGS_DEBUG "${CMAKE_STATIC_LINKER_FLAGS_DEBUG}")
   else()
     list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=address")
     list(APPEND SANITIZER_LD_FLAGS "-fsanitize=address")
@@ -177,6 +187,9 @@ if(SANITIZE_ADDRESS)
   endif()
   set(SANITIZER_ENV ${ASAN_ENV})
 else()
+  if(MSVC)
+    string(REGEX REPLACE "/Zi" "/ZI" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+  endif()
   set(ASAN_ENV "")
 endif()
 

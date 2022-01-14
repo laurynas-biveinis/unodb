@@ -514,12 +514,14 @@ if(TARGET deepstate)
 endif()
 add_subdirectory(test)
 
+set(BIN_DIR_CDB "${CMAKE_BINARY_DIR}/compile_commands.json")
+set(SRC_DIR_CDB "${CMAKE_SOURCE_DIR}/compile_commands.json")
+
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_BINARY_DIR}/compile_commands.json
-    ${CMAKE_SOURCE_DIR}/compile_commands.json)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${BIN_DIR_CDB})
+  execute_process(COMMAND ${CMAKE_COMMAND} -E copy 
+      ${BIN_DIR_CDB} ${SRC_DIR_CDB})
 else()
   execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-    ${CMAKE_BINARY_DIR}/compile_commands.json
-    ${CMAKE_SOURCE_DIR}/compile_commands.json)
+      ${BIN_DIR_CDB} ${SRC_DIR_CDB})
 endif()

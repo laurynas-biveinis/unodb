@@ -69,7 +69,7 @@ set(GCC_GE_11_CXX_WARNING_FLAGS
   "-Wctad-maybe-unsupported" "-Wdeprecated-enum-enum-conversion"
   "-Wdeprecated-enum-float-conversion" "-Wvexing-parse")
 
-set(GCC_CLANG_CXX_FLAGS "-g" "-msse4.1")
+set(UNIX_CXX_FLAGS "-g" "-msse4.1")
 
 if(MSVC)
   # Remove it once CMake minimum is bumped to 3.15 or greater
@@ -83,7 +83,10 @@ endif()
 # msvc-release-asan preset
 set(MSVC_CXX_WARNING_FLAGS "/W4" "/wd4324" "/wd5030" "/wd5072")
 
-set(MSVC_CXX_FLAGS "/external:anglebrackets" "/external:W0" "/arch:AVX")
+set(MSVC_CLANG_CXX_FLAGS "/arch:AVX")
+
+# cl flags that clang-cl does not understand
+set(MSVC_CXX_FLAGS "/external:anglebrackets" "/external:W0")
 
 option(COVERAGE "Enable code coverage reporting")
 if(COVERAGE)
@@ -117,12 +120,16 @@ else()
   set(VALGRIND_CLIENT OFF)
 endif()
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
-if(IPO_SUPPORTED)
-  message(STATUS "Enabling IPO/LTO for release config")
+if(NOT (MSVC AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
+  if(IPO_SUPPORTED)
+    message(STATUS "Enabling IPO/LTO for release config")
+  else()
+    message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
+  endif()
 else()
-  message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
+  message(STATUS "Not enabling IPO/LTO due to MSVC LLVM not supporting it")
 endif()
 
 set(SANITIZER_CXX_FLAGS "")
@@ -187,7 +194,7 @@ if(SANITIZE_ADDRESS)
   endif()
   set(SANITIZER_ENV ${ASAN_ENV})
 else()
-  if(MSVC)
+  if(MSVC AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     string(REGEX REPLACE "/Zi" "/ZI" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
   endif()
   set(ASAN_ENV "")
@@ -322,6 +329,8 @@ if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
     AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
   message(STATUS "Not using clang-tidy due to non-clang compiler being used")
   set(DO_CLANG_TIDY "")
+elseif(MSVC)
+  message(STATUS "Not using clang-tidy due to broken (?) MSVC support")
 else()
   find_program(CLANG_TIDY_EXE NAMES "clang-tidy"
     DOC "Path to clang-tidy executable")
@@ -402,16 +411,20 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<$<AND:$<CONFIG:Debug>,$<BOOL:${VALGRIND_CLIENT}>>:VALGRIND_CLIENT_REQUESTS>")
   target_compile_options(${TARGET} PRIVATE
     "$<$<CXX_COMPILER_ID:MSVC>:${MSVC_CXX_FLAGS}>"
-    "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:${GCC_CLANG_CXX_FLAGS}>"
-    "$<$<BOOL:${FATAL_WARNINGS}>:$<IF:$<CXX_COMPILER_ID:MSVC>,/WX,-Werror>>"
-    "$<$<CXX_COMPILER_ID:MSVC>:${MSVC_CXX_WARNING_FLAGS}>"
-    "$<$<CXX_COMPILER_ID:AppleClang,Clang>:${CLANG_CXX_WARNING_FLAGS}>"
-    "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>>:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
-    "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>>:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
+    # Many conditions below are incorrect due to clang-cl having clang compiler
+    # ID but taking MSVC flags. Change to CMAKE_CXX_COMPILER_FRONTEND_VARIANT 
+    # on 3.14.
+    "$<$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>:${MSVC_CLANG_CXX_FLAGS}>"
+    "$<$<NOT:$<PLATFORM_ID:Windows>>:${UNIX_CXX_FLAGS}>"
+    "$<$<BOOL:${FATAL_WARNINGS}>:$<IF:$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>,/WX,-Werror>>"
+    "$<$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>:${MSVC_CXX_WARNING_FLAGS}>"
+    "$<$<AND:$<CXX_COMPILER_ID:AppleClang,Clang>,$<NOT:$<PLATFORM_ID:Windows>>>:${CLANG_CXX_WARNING_FLAGS}>"
+    "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>,$<NOT:$<PLATFORM_ID:Windows>>>:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
+    "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>,$<NOT:$<PLATFORM_ID:Windows>>>:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
     "$<$<CXX_COMPILER_ID:GNU>:${GCC_CXX_WARNING_FLAGS}>"
     "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:${GCC_GE_11_CXX_WARNING_FLAGS}>"
-    "$<$<CONFIG:Debug>:$<IF:$<CXX_COMPILER_ID:MSVC>,/Od,-O0>>"
-    "$<$<AND:$<CONFIG:Release>,$<NOT:$<CXX_COMPILER_ID:MSVC>>>:$<IF:$<BOOL:${COVERAGE}>,-O0,-O3>>"
+    "$<$<CONFIG:Debug>:$<IF:$<PLATFORM_ID:Windows>,/Od,-O0>>"
+    "$<$<AND:$<CONFIG:Release>,$<NOT:$<PLATFORM_ID:Windows>>>:$<IF:$<BOOL:${COVERAGE}>,-O0,-O3>>"
     "$<$<BOOL:${COVERAGE}>:--coverage>")
   target_compile_options(${TARGET} PRIVATE "${CXX_FLAGS}")
   target_compile_options(${TARGET} PRIVATE "${SANITIZER_CXX_FLAGS}")

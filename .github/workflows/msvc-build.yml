@@ -49,5 +49,9 @@ jobs:
       - name: Build
         run: cmake --build --preset "${{ matrix.preset }}"
 
-      - name: Test
+      - name: Correctness test
         run: ctest -V --preset "${{ matrix.preset }}"
+
+      - name: Benchmark correctness test
+        run: |
+          cmake --build --preset "${{ matrix.preset }}" --target quick_benchmarks

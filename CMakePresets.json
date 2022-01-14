@@ -27,6 +27,20 @@
             "generator": "Ninja"
         },
         {
+            "name": "base-msvc-llvm",
+            "hidden": true,
+            "inherits": "base-msvc",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-cl",
+                "CMAKE_CXX_COMPILER": "clang-cl"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "intelliSenseMode": "windows-clang-x64"
+                }
+            }
+        },
+        {
             "name": "asan",
             "hidden": true,
             "cacheVariables": {
@@ -303,6 +317,20 @@
                 "release",
                 "asan"
             ]
+        },
+        {
+            "name": "msvc-llvm-debug",
+            "inherits": [
+                "base-msvc-llvm",
+                "debug"
+            ]
+        },
+        {
+            "name": "msvc-llvm-release",
+            "inherits": [
+                "base-msvc-llvm",
+                "release"
+            ]
         }
     ],
     "buildPresets": [
@@ -459,6 +487,16 @@
         {
             "name": "msvc-release-asan",
             "configurePreset": "msvc-release-asan",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-llvm-debug",
+            "configurePreset": "msvc-llvm-debug",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-llvm-release",
+            "configurePreset": "msvc-llvm-release",
             "inherits": "base"
         }
     ],
@@ -618,6 +656,16 @@
         {
             "name": "msvc-release-asan",
             "configurePreset": "msvc-release-asan",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-llvm-debug",
+            "configurePreset": "msvc-llvm-debug",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-llvm-release",
+            "configurePreset": "msvc-llvm-release",
             "inherits": "base"
         }
     ]

@@ -72,7 +72,7 @@ set(GCC_GE_11_CXX_WARNING_FLAGS
 set(UNIX_CXX_FLAGS "-g")
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-  list(APPEND "-msse4.1")
+  list(APPEND UNIX_CXX_FLAGS "-msse4.1")
 endif()
 
 if(MSVC)

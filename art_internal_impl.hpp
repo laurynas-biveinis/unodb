@@ -1333,8 +1333,9 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   union key_union {
     std::array<critical_section_policy<std::byte>, basic_inode_16::capacity>
         byte_array;
+#ifdef UNODB_DETAIL_X86_64
     __m128i byte_vector;
-
+#endif
     key_union() noexcept {}
   } keys;
   std::array<critical_section_policy<node_ptr>, basic_inode_16::capacity>

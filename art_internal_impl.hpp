@@ -1295,7 +1295,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   }
 
  private:
-  [[nodiscard]] constexpr auto get_sorted_key_array_insert_position(
+  [[nodiscard, gnu::pure]] constexpr auto get_sorted_key_array_insert_position(
       std::byte key_byte) noexcept {
     const auto children_count_ = this->children_count.load();
 

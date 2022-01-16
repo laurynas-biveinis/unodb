@@ -1013,7 +1013,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     //          0x80                0x8                0
     //           0x0                0x0        not found
     const auto result =
-        static_cast<decltype(keys.byte_array.load())::size_type>(
+        static_cast<typename decltype(keys.byte_array)::size_type>(
             // __builtin_ffs takes signed argument:
             // NOLINTNEXTLINE(hicpp-signed-bitwise)
             __builtin_ffs(static_cast<std::int32_t>(

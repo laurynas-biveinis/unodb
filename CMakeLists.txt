@@ -75,7 +75,7 @@ if(MSVC)
   # Remove it once CMake minimum is bumped to 3.15 or greater
   string(REGEX REPLACE "/W3" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
-  
+
 # Disable the following warnings for MSVC:
 # - "C4324: '...': structure was padded due to alignment specifier"
 # - "C5030: attribute '...' is not recognized"

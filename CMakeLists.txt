@@ -69,7 +69,11 @@ set(GCC_GE_11_CXX_WARNING_FLAGS
   "-Wctad-maybe-unsupported" "-Wdeprecated-enum-enum-conversion"
   "-Wdeprecated-enum-float-conversion" "-Wvexing-parse")
 
-set(UNIX_CXX_FLAGS "-g" "-msse4.1")
+set(UNIX_CXX_FLAGS "-g")
+
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+  list(APPEND "-msse4.1")
+endif()
 
 if(MSVC)
   # Remove it once CMake minimum is bumped to 3.15 or greater

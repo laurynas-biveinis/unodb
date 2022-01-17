@@ -1273,7 +1273,11 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     }
     return std::make_pair(0xFF, nullptr);
 #else
-#error Needs porting
+    for (size_t i = 0; i < this->children_count.load(); ++i)
+      if (key_byte == keys.byte_array[i])
+        return std::make_pair(
+            i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
+    return std::make_pair(0xFF, nullptr);
 #endif
   }
 

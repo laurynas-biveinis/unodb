@@ -396,12 +396,21 @@ class [[nodiscard]] olc_inode_16 final
   }
 };
 
+// TODO(laurynas): why ARM is different?
 // 160 == sizeof(inode_16)
 #ifdef NDEBUG
+#ifdef __aarch64__
+static_assert(sizeof(olc_inode_16) == 160 + 8);
+#else   // #ifdef __aarch64__
 static_assert(sizeof(olc_inode_16) == 160 + 16);
-#else
+#endif  // #ifdef __aarch64__
+#else   // #ifdef NDEBUG
+#ifdef __aarch64__
+static_assert(sizeof(olc_inode_16) == 160 + 24);
+#else   // #ifdef __aarch64__
 static_assert(sizeof(olc_inode_16) == 160 + 32);
-#endif
+#endif  // #ifdef __aarch64__
+#endif  // #ifdef NDEBUG
 
 olc_inode_4::olc_inode_4(
     db_inode16_reclaimable_ptr &&source_node,
@@ -490,11 +499,20 @@ class [[nodiscard]] olc_inode_48 final
   }
 };
 
+// TODO(laurynas): why ARM is different?
 // 656 == sizeof(inode_48)
 #ifdef NDEBUG
+#ifdef __aarch64__
+static_assert(sizeof(olc_inode_48) == 656 + 8);
+#else   // #ifdef __aarch64__
 static_assert(sizeof(olc_inode_48) == 656 + 16);
+#endif  // #ifdef __aarch64__
 #else
+#ifdef __aarch64__
+static_assert(sizeof(olc_inode_48) == 656 + 24);
+#else   // #ifdef __aarch64__
 static_assert(sizeof(olc_inode_48) == 656 + 32);
+#endif  // #ifdef __aarch64__
 #endif
 
 [[nodiscard]] inline olc_inode_16::db_inode16_unique_ptr olc_inode_16::create(

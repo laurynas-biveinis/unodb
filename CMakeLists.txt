@@ -279,9 +279,11 @@ add_subdirectory(3rd_party/benchmark)
 
 # Do not build DeepState:
 # - under Windows as it's not supported
+# - on ARM
 # - with GCC under macOS due to https://github.com/trailofbits/deepstate/issues/374
 if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}"
-      STREQUAL "Darwin") AND NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"))
+      STREQUAL "Darwin") AND NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+    AND NOT ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64"))
   # ThreadSanitizer is not compatible with libfuzzer and LLVM 11 linker crashes
   # on libfuzzer release build
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT("${CMAKE_BUILD_TYPE}"

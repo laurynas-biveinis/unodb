@@ -29,6 +29,8 @@ inline void spin_wait_loop_body() noexcept {
 #elif defined(UNODB_DETAIL_X86_64)
   // Dear reader, please don't make fun of this just yet
   _mm_pause();
+#elif defined(__aarch64__)
+  __asm__ __volatile__("yield\n");
 #else
 #error Needs porting
 #endif

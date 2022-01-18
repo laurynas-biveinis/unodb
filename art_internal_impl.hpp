@@ -17,6 +17,8 @@
 #ifdef UNODB_DETAIL_X86_64
 #include <emmintrin.h>
 #include <smmintrin.h>
+#elif defined(__aarch64__)
+#include <arm_neon.h>
 #endif
 
 #include <gsl/gsl_util>
@@ -54,6 +56,23 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 }
 
 #else  // #ifdef UNODB_DETAIL_X86_64
+
+#ifdef __aarch64__
+
+// https://stackoverflow.com/a/58381188/80458
+[[nodiscard, gnu::const]] inline int vmovmaskq_u8(uint8x16_t x) noexcept {
+  uint16x8_t high_bits = vreinterpretq_u16_u8(vshrq_n_u8(x, 7));
+  uint32x4_t paired16 =
+      vreinterpretq_u32_u16(vsraq_n_u16(high_bits, high_bits, 7));
+  uint64x2_t paired32 =
+      vreinterpretq_u64_u32(vsraq_n_u32(paired16, paired16, 14));
+  uint8x16_t paired64 =
+      vreinterpretq_u8_u64(vsraq_n_u64(paired32, paired32, 28));
+  return vgetq_lane_u8(paired64, 0) |
+         (static_cast<int>(vgetq_lane_u8(paired64, 8)) << 8);
+}
+
+#endif  // #ifdef __aarch64__
 
 // From public domain
 // https://graphics.stanford.edu/~seander/bithacks.html
@@ -912,6 +931,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 #ifdef UNODB_DETAIL_X86_64
     const auto mask = (1U << children_count_) - 1;
     const auto insert_pos_index = get_insert_pos(key_byte, mask);
+#elif defined(__aarch64__)
+    const auto mask = (1U << children_count_) - 1;
+    const auto insert_pos_index = get_insert_pos(key_byte, mask);
 #else
     const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
     const auto second_lt = (((keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
@@ -955,7 +977,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       keys.byte_array[i] = keys.byte_array[i + 1];
       children[i] = children[i + 1];
     }
-#ifndef UNODB_DETAIL_X86_64
+#if !defined(UNODB_DETAIL_X86_64) && !defined(__aarch64__)
     keys.byte_array[i] = unused_key_byte;
 #endif
 
@@ -1060,7 +1082,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     children[key1_i] = child1;
     keys.byte_array[key2_i] = key2;
     children[key2_i] = node_ptr{child2.release(), node_type::LEAF};
-#ifndef UNODB_DETAIL_X86_64
+#if !defined(UNODB_DETAIL_X86_64) && !defined(__aarch64__)
     keys.byte_array[2] = unused_key_byte;
     keys.byte_array[3] = unused_key_byte;
 #endif
@@ -1104,6 +1126,22 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
         _mm_cmple_epu8(node_keys_in_sse_reg, replicated_insert_key_byte);
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(lt_node_key_positions)) &
+        node_key_mask;
+    return detail::popcount(bit_field);
+  }
+#elif defined(__aarch64__)
+  [[nodiscard]] auto get_insert_pos(std::uint8_t insert_key_byte,
+                                    unsigned node_key_mask) const noexcept {
+    UNODB_DETAIL_ASSERT(node_key_mask ==
+                        (1U << this->children_count.load()) - 1);
+
+    const auto replicated_insert_key_byte = vdupq_n_u8(insert_key_byte);
+    const auto node_keys_in_neon_reg = vreinterpretq_u8_u32(
+        vsetq_lane_u32(keys.integer.load(), vdupq_n_u32(0), 0));
+    const auto lt_node_key_positions =
+        vcltq_u8(node_keys_in_neon_reg, replicated_insert_key_byte);
+    const auto bit_field =
+        static_cast<unsigned>(detail::vmovmaskq_u8(lt_node_key_positions)) &
         node_key_mask;
     return detail::popcount(bit_field);
   }

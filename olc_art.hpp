@@ -41,6 +41,20 @@ template <class Header, class Db>
 
 struct olc_impl_helpers;
 
+template <class AtomicArray>
+using non_atomic_array =
+    std::array<typename AtomicArray::value_type::value_type,
+               std::tuple_size<AtomicArray>::value>;
+
+template <class T>
+inline non_atomic_array<T> copy_atomic_to_nonatomic(T &atomic_array) noexcept {
+  non_atomic_array<T> result;
+  for (typename decltype(result)::size_type i = 0; i < result.size(); ++i) {
+    result[i] = atomic_array[i].load(std::memory_order_relaxed);
+  }
+  return result;
+}
+
 }  // namespace detail
 
 using qsbr_value_view = qsbr_ptr_span<const std::byte>;
@@ -86,16 +100,9 @@ class olc_db final {
     return node_counts[as_i<NodeType>].load(std::memory_order_relaxed);
   }
 
-  // warning C4701: potentially uninitialized local variable '...' used
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(4701)
   [[nodiscard]] auto get_node_counts() const noexcept {
-    node_type_counter_array result;
-    for (decltype(node_counts)::size_type i = 0; i < node_counts.size(); ++i) {
-      result[i] = node_counts[i].load(std::memory_order_relaxed);
-    }
-    return result;
+    return detail::copy_atomic_to_nonatomic(node_counts);
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <node_type NodeType>
   [[nodiscard]] auto get_growing_inode_count() const noexcept {
@@ -103,17 +110,9 @@ class olc_db final {
         std::memory_order_relaxed);
   }
 
-  // warning C4701: potentially uninitialized local variable '...' used
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(4701)
   [[nodiscard]] auto get_growing_inode_counts() const noexcept {
-    inode_type_counter_array result;
-    for (decltype(growing_inode_counts)::size_type i = 0;
-         i < growing_inode_counts.size(); ++i) {
-      result[i] = growing_inode_counts[i].load(std::memory_order_relaxed);
-    }
-    return result;
+    return detail::copy_atomic_to_nonatomic(growing_inode_counts);
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <node_type NodeType>
   [[nodiscard]] auto get_shrinking_inode_count() const noexcept {
@@ -121,17 +120,9 @@ class olc_db final {
         std::memory_order_relaxed);
   }
 
-  // warning C4701: potentially uninitialized local variable '...' used
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(4701)
   [[nodiscard]] auto get_shrinking_inode_counts() const noexcept {
-    inode_type_counter_array result;
-    for (decltype(shrinking_inode_counts)::size_type i = 0;
-         i < shrinking_inode_counts.size(); ++i) {
-      result[i] = shrinking_inode_counts[i].load(std::memory_order_relaxed);
-    }
-    return result;
+    return detail::copy_atomic_to_nonatomic(shrinking_inode_counts);
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard]] auto get_key_prefix_splits() const noexcept {
     return key_prefix_splits.load(std::memory_order_relaxed);

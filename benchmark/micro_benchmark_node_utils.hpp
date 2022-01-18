@@ -248,26 +248,28 @@ generate_random_keys_over_full_smaller_tree(unodb::key key_limit) {
   union {
     std::uint64_t as_int;
     std::array<std::uint8_t, 8> as_bytes;
-  } key;
+  } constructed_key;
 
   for (std::uint8_t i = 0; i < NumByteValues; ++i) {
-    key.as_bytes[7] = static_cast<std::uint8_t>(i * 2 + 1);
+    constructed_key.as_bytes[7] = static_cast<std::uint8_t>(i * 2 + 1);
     for (std::uint8_t i2 = 0; i2 < NumByteValues; ++i2) {
-      key.as_bytes[6] = static_cast<std::uint8_t>(i2 * 2 + 1);
+      constructed_key.as_bytes[6] = static_cast<std::uint8_t>(i2 * 2 + 1);
       for (std::uint8_t i3 = 0; i3 < NumByteValues; ++i3) {
-        key.as_bytes[5] = static_cast<std::uint8_t>(i3 * 2 + 1);
+        constructed_key.as_bytes[5] = static_cast<std::uint8_t>(i3 * 2 + 1);
         for (std::uint8_t i4 = 0; i4 < NumByteValues; ++i4) {
-          key.as_bytes[4] = static_cast<std::uint8_t>(i4 * 2 + 1);
+          constructed_key.as_bytes[4] = static_cast<std::uint8_t>(i4 * 2 + 1);
           for (std::uint8_t i5 = 0; i5 < NumByteValues; ++i5) {
-            key.as_bytes[3] = static_cast<std::uint8_t>(i5 * 2 + 1);
+            constructed_key.as_bytes[3] = static_cast<std::uint8_t>(i5 * 2 + 1);
             for (std::uint8_t i6 = 0; i6 < NumByteValues; ++i6) {
-              key.as_bytes[2] = static_cast<std::uint8_t>(i6 * 2 + 1);
+              constructed_key.as_bytes[2] =
+                  static_cast<std::uint8_t>(i6 * 2 + 1);
               for (std::uint8_t i7 = 0; i7 < NumByteValues; ++i7) {
-                key.as_bytes[1] = static_cast<std::uint8_t>(i7 * 2 + 1);
-                key.as_bytes[0] = static_cast<std::uint8_t>(
+                constructed_key.as_bytes[1] =
+                    static_cast<std::uint8_t>(i7 * 2 + 1);
+                constructed_key.as_bytes[0] = static_cast<std::uint8_t>(
                     prng_byte_values(unodb::benchmark::get_prng()) * 2);
 
-                const unodb::key k = key.as_int;
+                const unodb::key k = constructed_key.as_int;
                 if (k > key_limit) {
                   result.shrink_to_fit();
                   std::shuffle(result.begin(), result.end(),

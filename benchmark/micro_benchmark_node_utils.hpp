@@ -590,12 +590,18 @@ template <class Db, unsigned SmallerNodeSize>
 
 #ifndef NDEBUG
   assert_growing_nodes<Db, SmallerNodeSize>(db, keys_inserted);
-  const auto final_growing_inode_counts = db.get_growing_inode_counts();
-  for (auto node_type_i = as_i<node_type::I4>;
-       node_type_i < as_i<node_size_to_node_type<SmallerNodeSize>()>;
-       ++node_type_i) {
-    UNODB_DETAIL_ASSERT(initial_growing_inode_counts[node_type_i] ==
-                        final_growing_inode_counts[node_type_i]);
+
+  constexpr auto smallest_inode_type = as_i<node_type::I4>;
+  constexpr auto smallest_changed_inode_type =
+      as_i<node_size_to_node_type<SmallerNodeSize>()>;
+
+  if constexpr (smallest_inode_type < smallest_changed_inode_type) {
+    const auto final_growing_inode_counts = db.get_growing_inode_counts();
+    for (auto node_type_i = smallest_inode_type;
+         node_type_i < smallest_changed_inode_type; ++node_type_i) {
+      UNODB_DETAIL_ASSERT(initial_growing_inode_counts[node_type_i] ==
+                          final_growing_inode_counts[node_type_i]);
+    }
   }
 #endif
 

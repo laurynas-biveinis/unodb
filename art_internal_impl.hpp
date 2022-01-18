@@ -1165,6 +1165,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       children[i] = source_node->children[i];
     }
 
+    UNODB_DETAIL_ASSUME(i < parent_class::capacity);
+
     keys.byte_array[i] = static_cast<std::byte>(key_byte);
     children[i] = node_ptr{child.release(), node_type::LEAF};
     ++i;
@@ -1402,7 +1404,10 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
     const auto key_byte =
         static_cast<std::uint8_t>(child_ptr->get_key()[depth]);
+
     UNODB_DETAIL_ASSERT(child_indexes[key_byte] == empty_child);
+    UNODB_DETAIL_ASSUME(i < parent_class::capacity);
+
     child_indexes[key_byte] = i;
     children.pointer_array[i] = node_ptr{child_ptr, node_type::LEAF};
     for (i = this->children_count; i < basic_inode_48::capacity; i++) {

@@ -1217,8 +1217,11 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(key_byte);
+
     if (insert_pos_index != children_count_) {
+      UNODB_DETAIL_ASSERT(insert_pos_index < children_count_);
       UNODB_DETAIL_ASSERT(keys.byte_array[insert_pos_index] != key_byte);
+
       std::copy_backward(keys.byte_array.cbegin() + insert_pos_index,
                          keys.byte_array.cbegin() + children_count_,
                          keys.byte_array.begin() + children_count_ + 1);
@@ -1226,6 +1229,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                          children.begin() + children_count_,
                          children.begin() + children_count_ + 1);
     }
+
     keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = node_ptr{child.release(), node_type::LEAF};
     ++children_count_;
@@ -1328,8 +1332,9 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         keys.byte_array.cbegin());
 #endif
 
-    UNODB_DETAIL_ASSERT(result == children_count_ ||
-                        keys.byte_array[result] != key_byte);
+    UNODB_DETAIL_ASSERT(
+        result == children_count_ ||
+        (result < children_count_ && keys.byte_array[result] != key_byte));
     return result;
   }
 
@@ -1474,7 +1479,10 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       ++i;
     }
 #endif  // #ifdef UNODB_DETAIL_X86_64
+
+    UNODB_DETAIL_ASSERT(i < parent_class::capacity);
     UNODB_DETAIL_ASSERT(children.pointer_array[i] == nullptr);
+
     child_indexes[key_byte] = gsl::narrow_cast<std::uint8_t>(i);
     children.pointer_array[i] = node_ptr{child.release(), node_type::LEAF};
     this->children_count = children_count_ + 1;

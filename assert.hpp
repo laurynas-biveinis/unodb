@@ -5,6 +5,7 @@
 #include "global.hpp"
 
 #ifndef NDEBUG
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -75,6 +76,12 @@ namespace unodb::detail {
 #define UNODB_DETAIL_ASSERT(condition) ((void)0)
 
 #endif  // #ifndef NDEBUG
+
+#define UNODB_DETAIL_ASSUME(x)      \
+  do {                              \
+    UNODB_DETAIL_ASSERT(x);         \
+    UNODB_DETAIL_BUILTIN_ASSUME(x); \
+  } while (0)
 
 #define UNODB_DETAIL_CANNOT_HAPPEN() \
   unodb::detail::cannot_happen(__FILE__, __LINE__, __func__)

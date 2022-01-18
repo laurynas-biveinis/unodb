@@ -51,6 +51,19 @@
 
 #ifndef UNODB_DETAIL_MSVC
 
+#ifdef __clang__
+
+#define UNODB_DETAIL_BUILTIN_ASSUME(x) __builtin_assume(x)
+
+#else
+
+#define UNODB_DETAIL_BUILTIN_ASSUME(x) \
+  do {                                 \
+    if (!(x)) __builtin_unreachable(); \
+  } while (0)
+
+#endif
+
 #define UNODB_DETAIL_LIKELY(x) __builtin_expect(x, 1)
 #define UNODB_DETAIL_UNLIKELY(x) __builtin_expect(x, 0)
 // Cannot do [[gnu::unused]], as that does not play well with structured
@@ -63,6 +76,7 @@
 
 #else  // #ifndef UNODB_DETAIL_MSVC
 
+#define UNODB_DETAIL_BUILTIN_ASSUME(x) __assume(x)
 #define UNODB_DETAIL_LIKELY(x) (!!(x))
 #define UNODB_DETAIL_UNLIKELY(x) (!!(x))
 #define UNODB_DETAIL_UNUSED [[maybe_unused]]

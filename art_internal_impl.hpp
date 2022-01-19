@@ -956,7 +956,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       children[i] = children[i + 1];
     }
 #ifndef UNODB_DETAIL_X86_64
-    keys.byte_array[i] = empty_child;
+    keys.byte_array[i] = unused_key_byte;
 #endif
 
     --children_count_;
@@ -1061,8 +1061,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     keys.byte_array[key2_i] = key2;
     children[key2_i] = node_ptr{child2.release(), node_type::LEAF};
 #ifndef UNODB_DETAIL_X86_64
-    keys.byte_array[2] = empty_child;
-    keys.byte_array[3] = empty_child;
+    keys.byte_array[2] = unused_key_byte;
+    keys.byte_array[3] = unused_key_byte;
 #endif
 
     UNODB_DETAIL_ASSERT(
@@ -1108,8 +1108,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     return detail::popcount(bit_field);
   }
 #else
-  // Non-x86_64 implementation reads children bytes past current node size
-  static constexpr std::byte empty_child{0xFF};
+  // The baseline implementation compares key bytes with less-than past the
+  // current node size
+  static constexpr std::byte unused_key_byte{0xFF};
 #endif
 
   template <class>

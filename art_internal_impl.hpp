@@ -913,6 +913,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto mask = (1U << children_count_) - 1;
     const auto insert_pos_index = get_insert_pos(key_byte, mask);
 #else
+    // This is also currently the best ARM implementation. The straightforward
+    // translation of x86_64 get_insert_pos to NEON is slower, maybe due to
+    // requiring synthesized _mm_movemask_epi8 equivalent.
     const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
     const auto second_lt = (((keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
     const auto third_lt = ((keys.integer >> 16U) & 0xFFU) < key_byte ? 1 : 0;

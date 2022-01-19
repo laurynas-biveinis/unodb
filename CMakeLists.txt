@@ -92,6 +92,8 @@ set(MSVC_CLANG_CXX_FLAGS "/arch:AVX")
 # cl flags that clang-cl does not understand
 set(MSVC_CXX_FLAGS "/external:anglebrackets" "/external:W0")
 
+set(MSVC_STATIC_ANALYSIS_FLAGS "/analyze" "/analyze:external-")
+
 option(COVERAGE "Enable code coverage reporting")
 if(COVERAGE)
   if(MSVC)
@@ -466,7 +468,10 @@ function(COMMON_TARGET_PROPERTIES TARGET)
       set_target_properties(${TARGET} PROPERTIES CXX_INCLUDE_WHAT_YOU_USE "${DO_IWYU}")
     endif()
     if(STATIC_ANALYSIS)
-      target_compile_options(${TARGET} PRIVATE "-fanalyzer")
+      # The condition below is incorrect due to clang-cl having clang compiler
+      # ID but taking MSVC flags. Change to CMAKE_CXX_COMPILER_FRONTEND_VARIANT 
+      # on 3.14.
+      target_compile_options(${TARGET} PRIVATE "$<IF:$<CXX_COMPILER_ID:MSVC>,${MSVC_STATIC_ANALYSIS_FLAGS},-fanalyzer>")
       # GCC 11 -fanalyzer not fully ready for C++ yet
       target_compile_options(${TARGET} PRIVATE
         "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:-Wno-analyzer-possible-null-dereference>")

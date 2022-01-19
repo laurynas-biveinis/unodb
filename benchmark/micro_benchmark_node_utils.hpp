@@ -235,6 +235,9 @@ template <typename NumberToKeyFn>
   return result;
 }
 
+// warning C6001: Using uninitialized memory 'constructed_key'
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6001)
+
 template <std::uint8_t NumByteValues>
 [[nodiscard]] std::vector<unodb::key>
 generate_random_keys_over_full_smaller_tree(unodb::key key_limit) {
@@ -286,6 +289,8 @@ generate_random_keys_over_full_smaller_tree(unodb::key key_limit) {
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace detail
 

@@ -43,6 +43,9 @@ class QSBR : public ::testing::Test {
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
   }
 
+  // warning C6326: Potential comparison of a constant with another constant.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+
   void check_epoch_advanced() {
     const auto current_epoch =
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
@@ -55,6 +58,8 @@ class QSBR : public ::testing::Test {
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
     EXPECT_EQ(last_epoch, current_epoch);
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   // Allocation and deallocation
 
@@ -112,6 +117,9 @@ void active_pointer_ops(void *raw_ptr) noexcept {
   active_ptr2 = std::move(active_ptr3);  // -V1001
 }
 
+// warning C6326: Potential comparison of a constant with another constant.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+
 TEST_F(QSBR, SingleThreadQuitPaused) {
   ASSERT_FALSE(unodb::this_thread().is_qsbr_paused());
   unodb::this_thread().qsbr_pause();
@@ -134,10 +142,15 @@ TEST_F(QSBR, TwoThreads) {
   ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
 TEST_F(QSBR, TwoThreadsSecondQuitPaused) {
   unodb::qsbr_thread second_thread([] { unodb::this_thread().qsbr_pause(); });
   second_thread.join();
 }
+
+// warning C6326: Potential comparison of a constant with another constant.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
 TEST_F(QSBR, TwoThreadsSecondPaused) {
   unodb::qsbr_thread second_thread([] {
@@ -259,6 +272,8 @@ TEST_F(QSBR, ThreeThreadsInitialPaused) {
   ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
 TEST_F(QSBR, SingleThreadOneAllocation) {
   auto *ptr = static_cast<char *>(allocate());
   touch_memory(ptr);
@@ -297,12 +312,17 @@ TEST_F(QSBR, ActivePointersBeforePause) {
 
 #ifndef NDEBUG
 
+// warning C6326: Potential comparison of a constant with another constant.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+
 TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
   auto *ptr = allocate();
   unodb::qsbr_ptr<void> active_ptr{ptr};
   UNODB_ASSERT_DEATH({ unodb::this_thread().quiescent(); }, "");
   qsbr_deallocate(ptr);
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #endif
 
@@ -786,6 +806,9 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
   second_thread.join();
 }
 
+// warning C6326: Potential comparison of a constant with another constant.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+
 TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
   mark_epoch();
   auto *const ptr = static_cast<char *>(allocate());
@@ -894,6 +917,8 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
 
   second_thread.join();
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 // TODO(laurynas): stat tests
 // TODO(laurynas): quiescent_state_on_scope_exit tests?

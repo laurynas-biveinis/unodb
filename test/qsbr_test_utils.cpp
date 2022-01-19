@@ -10,6 +10,9 @@
 
 namespace unodb::test {
 
+// warning C6326: Potential comparison of a constant with another constant.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+
 void expect_idle_qsbr() {
   const auto state = unodb::qsbr::instance().get_state();
   EXPECT_TRUE(qsbr_state::single_thread_mode(state));
@@ -23,5 +26,7 @@ void expect_idle_qsbr() {
   EXPECT_EQ(thread_count, 1);
   EXPECT_EQ(threads_in_previous_epoch, 1);
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace unodb::test

@@ -331,6 +331,22 @@
                 "base-msvc-llvm",
                 "release"
             ]
+        },
+        {
+            "name": "msvc-static-analysis-debug",
+            "inherits": [
+                "base-msvc",
+                "debug",
+                "static-analysis"
+            ]
+        },
+        {
+            "name": "msvc-static-analysis-release",
+            "inherits": [
+                "base-msvc",
+                "release",
+                "static-analysis"
+            ]
         }
     ],
     "buildPresets": [
@@ -497,6 +513,16 @@
         {
             "name": "msvc-llvm-release",
             "configurePreset": "msvc-llvm-release",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-static-analysis-debug",
+            "configurePreset": "msvc-static-analysis-debug",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-static-analysis-release",
+            "configurePreset": "msvc-static-analysis-release",
             "inherits": "base"
         }
     ],

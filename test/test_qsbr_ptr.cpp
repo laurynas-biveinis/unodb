@@ -25,6 +25,8 @@ const gsl::span<const char> gsl_span{two_chars};
 const std::array<const char, 3> three_chars = {'C', 'D', 'E'};
 const gsl::span<const char> gsl_span2{three_chars};
 
+// warning C6326: Potential comparison of a constant with another constant.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TEST(QSBRPtr, Ctor) {
   unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
   ASSERT_EQ(*ptr, x);
@@ -203,5 +205,6 @@ TEST(QSBRPtrSpan, Cend) {
   // Do not write &two_chars[2] directly or the libstdc++ debug assertions fire
   ASSERT_EQ(span.cend().get(), &two_chars[1] + 1);
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace

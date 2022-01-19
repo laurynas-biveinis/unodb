@@ -1286,6 +1286,9 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     }
     return std::make_pair(0xFF, nullptr);
 #else
+    // This is also the best current ARM implementation, same reasoning as with
+    // basic_inode_4::add_to_nonfull.
+
     for (size_t i = 0; i < this->children_count.load(); ++i)
       if (key_byte == keys.byte_array[i])
         return std::make_pair(

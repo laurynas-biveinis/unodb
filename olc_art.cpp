@@ -399,11 +399,7 @@ class [[nodiscard]] olc_inode_16 final
 // TODO(laurynas): why ARM is different?
 // 160 == sizeof(inode_16)
 #ifdef NDEBUG
-#ifdef __aarch64__
-static_assert(sizeof(olc_inode_16) == 160 + 8);
-#else   // #ifdef __aarch64__
 static_assert(sizeof(olc_inode_16) == 160 + 16);
-#endif  // #ifdef __aarch64__
 #else   // #ifdef NDEBUG
 #ifdef __aarch64__
 static_assert(sizeof(olc_inode_16) == 160 + 24);

@@ -17,6 +17,8 @@
 #ifdef UNODB_DETAIL_X86_64
 #include <emmintrin.h>
 #include <smmintrin.h>
+#elif defined(__aarch64__)
+#include <arm_neon.h>
 #endif
 
 #include <gsl/gsl_util>
@@ -51,6 +53,21 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 [[nodiscard, gnu::const]] inline auto _mm_cmple_epu8(__m128i x,
                                                      __m128i y) noexcept {
   return _mm_cmpeq_epi8(_mm_max_epu8(y, x), y);
+}
+
+#elif defined(__aarch64__)
+
+// https://stackoverflow.com/a/58381188/80458
+[[nodiscard, gnu::const]] inline int vmovmaskq_u8(uint8x16_t x) noexcept {
+  uint16x8_t high_bits = vreinterpretq_u16_u8(vshrq_n_u8(x, 7));
+  uint32x4_t paired16 =
+      vreinterpretq_u32_u16(vsraq_n_u16(high_bits, high_bits, 7));
+  uint64x2_t paired32 =
+      vreinterpretq_u64_u32(vsraq_n_u32(paired16, paired16, 14));
+  uint8x16_t paired64 =
+      vreinterpretq_u8_u64(vsraq_n_u64(paired32, paired32, 28));
+  return vgetq_lane_u8(paired64, 0) |
+      (static_cast<int>(vgetq_lane_u8(paired64, 8)) << 8);
 }
 
 #else  // #ifdef UNODB_DETAIL_X86_64
@@ -1001,6 +1018,23 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto mask = (1U << this->children_count.load()) - 1;
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
+    if (bit_field != 0) {
+      const auto i = detail::ctz(bit_field);
+      return std::make_pair(
+          i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
+    }
+    return std::make_pair(0xFF, nullptr);
+#elif defined(__aarch64__)
+    const auto replicated_search_key =
+        vdupq_n_u8(static_cast<std::uint8_t>(key_byte));
+    const auto keys_in_neon_reg = vreinterpretq_u8_u32(
+        vsetq_lane_u32(keys.integer.load(), vdupq_n_u32(0), 0));
+    const auto matching_key_positions =
+        vceqq_u8(replicated_search_key, keys_in_neon_reg);
+    const auto mask = (1U << this->children_count) - 1;
+    const auto bit_field =
+        static_cast<unsigned>(detail::vmovmaskq_u8(matching_key_positions)) &
+        mask;
     if (bit_field != 0) {
       const auto i = detail::ctz(bit_field);
       return std::make_pair(

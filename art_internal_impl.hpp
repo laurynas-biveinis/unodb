@@ -1008,6 +1008,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     }
     return std::make_pair(0xFF, nullptr);
 #else   // #ifdef UNODB_DETAIL_X86_64
+    // This is also the best current ARM implementation, same reasoning as with
+    // add_to_nonfull.
+
     // Bit twiddling:
     // contains_byte:     __builtin_ffs:   for key index:
     //    0x80000000               0x20                3

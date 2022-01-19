@@ -55,6 +55,9 @@ TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeNonemptyValue) {
   verifier.check_absent_keys({0, 2});
 }
 
+// warning C6326: Potential comparison of a constant with another constant.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+
 TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
   std::byte fake_val{0x00};
   unodb::value_view too_long{
@@ -71,6 +74,8 @@ TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
   verifier.assert_growing_inodes({0, 0, 0, 0});
 }
 
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
 TYPED_TEST(ARTCorrectnessTest, ExpandLeafToNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
@@ -86,6 +91,9 @@ TYPED_TEST(ARTCorrectnessTest, ExpandLeafToNode4) {
   verifier.check_absent_keys({2});
 }
 
+// warning C6326: Potential comparison of a constant with another constant.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+
 TYPED_TEST(ARTCorrectnessTest, DuplicateKey) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
@@ -100,6 +108,8 @@ TYPED_TEST(ARTCorrectnessTest, DuplicateKey) {
   verifier.assert_growing_inodes({0, 0, 0, 0});
   verifier.check_present_values();
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 TYPED_TEST(ARTCorrectnessTest, InsertToFullNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
@@ -688,6 +698,9 @@ TYPED_TEST(ARTCorrectnessTest, MissingKeyMatchingInodePath) {
   verifier.attempt_remove_missing_keys({0x0101, 0x0202});
 }
 
+// warning C6326: Potential comparison of a constant with another constant.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+
 TYPED_TEST(ARTCorrectnessTest, MemoryAccountingDuplicateKeyInsert) {
   unodb::test::tree_verifier<TypeParam> verifier;
   verifier.insert(0, unodb::test::test_values[0]);
@@ -695,6 +708,8 @@ TYPED_TEST(ARTCorrectnessTest, MemoryAccountingDuplicateKeyInsert) {
   verifier.remove(0);
   ASSERT_EQ(verifier.get_db().get_current_memory_use(), 0);
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 TYPED_TEST(ARTCorrectnessTest, Node48InsertIntoDeletedSlot) {
   unodb::test::tree_verifier<TypeParam> verifier;

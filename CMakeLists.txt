@@ -563,7 +563,7 @@ if(LIBFUZZER_AVAILABLE)
 endif()
 
 set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"
-  "--trace-children=yes")
+  "--trace-children=yes" "--suppressions=${CMAKE_SOURCE_DIR}/valgrind.supp")
 
 add_custom_target(valgrind DEPENDS valgrind_tests valgrind_benchmarks)
 

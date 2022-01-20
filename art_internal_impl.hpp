@@ -63,9 +63,20 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
   return ((v - 0x01010101UL) & ~v & 0x80808080UL);
 }
 
+[[nodiscard, gnu::const]] constexpr std::uint64_t has_zero_byte(
+    std::uint64_t v) noexcept {
+  return ((v - 0x01010101'01010101ULL) & ~v & 0x80808080'80808080ULL);
+}
+
 [[nodiscard, gnu::const]] constexpr std::uint32_t contains_byte(
     std::uint32_t v, std::byte b) noexcept {
   return has_zero_byte(v ^ (~0U / 255 * static_cast<std::uint8_t>(b)));
+}
+
+[[nodiscard, gnu::const]] constexpr std::uint64_t contains_byte(
+    std::uint64_t v, std::byte b) noexcept {
+  return has_zero_byte(v ^ static_cast<std::uint64_t>(
+                               ~0ULL / 255 * static_cast<std::uint8_t>(b)));
 }
 
 #endif  // #ifdef UNODB_DETAIL_X86_64
@@ -1325,11 +1336,32 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     // This is also the best current ARM implementation, same reasoning as with
     // basic_inode_4::add_to_nonfull.
 
-    for (size_t i = 0; i < this->children_count.load(); ++i)
-      if (key_byte == keys.byte_array[i])
-        return std::make_pair(
-            i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
-    return parent_class::child_not_found;
+    const auto shifted_i0 =
+        static_cast<typename decltype(keys.byte_array)::size_type>(
+            // __builtin_ffs takes signed argument:
+            // NOLINTNEXTLINE(hicpp-signed-bitwise)
+            __builtin_ffsl(static_cast<std::int64_t>(
+                contains_byte(keys.word_array[0], key_byte))));
+    const auto shifted_i1 =
+        static_cast<typename decltype(keys.byte_array)::size_type>(
+            // __builtin_ffs takes signed argument:
+            // NOLINTNEXTLINE(hicpp-signed-bitwise)
+            __builtin_ffsl(static_cast<std::int64_t>(
+                contains_byte(keys.word_array[1], key_byte))));
+    const auto i0_zero = (shifted_i0 == 0);
+    const auto i1_zero = (shifted_i1 == 0);
+    const auto i0_zero_i1_zero = i0_zero && i1_zero;
+    auto shifted_i = shifted_i0;
+    shifted_i += i0_zero ? (shifted_i1 + 64) : 0;
+    shifted_i -= i0_zero_i1_zero ? 64 : 0;
+    const auto i = shifted_i >> 3;
+
+    if (i == 0 || i > this->children_count.load())
+      return std::make_pair(0xFF, nullptr);
+
+    return std::make_pair(
+        i - 1,
+        static_cast<critical_section_policy<node_ptr> *>(&children[i - 1]));
 #endif
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -1397,9 +1429,13 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   union key_union {
     std::array<critical_section_policy<std::byte>, basic_inode_16::capacity>
         byte_array;
+
 #ifdef UNODB_DETAIL_X86_64
     __m128i byte_vector;
+#else
+    std::array<std::uint64_t, 2> word_array;
 #endif
+
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
     key_union() noexcept {}
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()

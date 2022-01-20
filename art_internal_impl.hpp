@@ -1338,6 +1338,9 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto result = static_cast<std::uint8_t>(
         (bit_field != 0) ? detail::ctz(bit_field) : children_count_);
 #else
+    // This is also the best current ARM implementation, same reasoning as with
+    // basic_inode_4::add_to_nonfull.
+
     const auto result = static_cast<std::uint8_t>(
         std::lower_bound(keys.byte_array.cbegin(),
                          keys.byte_array.cbegin() + children_count_, key_byte) -

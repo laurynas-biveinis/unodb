@@ -1489,6 +1489,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       i += 4;
     }
 #else   // #ifdef UNODB_DETAIL_X86_64
+    // This is also the current best ARM implementation
     node_ptr child_ptr;
     while (true) {
       child_ptr = children.pointer_array[i];

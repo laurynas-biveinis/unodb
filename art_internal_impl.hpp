@@ -17,6 +17,8 @@
 #ifdef UNODB_DETAIL_X86_64
 #include <emmintrin.h>
 #include <smmintrin.h>
+#elif defined(__aarch64__)
+#include <arm_neon.h>
 #endif
 
 #include <gsl/gsl_util>
@@ -54,6 +56,21 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
 }
 
 #else  // #ifdef UNODB_DETAIL_X86_64
+
+#ifdef __aarch64__
+
+// https://stackoverflow.com/a/58381188/80458
+[[nodiscard, gnu::const]] inline int vmovmaskq_u16(uint16x8_t x) noexcept {
+  uint32x4_t high_bits = vreinterpretq_u32_u16(vshrq_n_u16(x, 15));
+  uint64x2_t paired32 =
+      vreinterpretq_u64_u32(vsraq_n_u32(high_bits, high_bits, 14));
+  uint8x16_t paired64 =
+      vreinterpretq_u8_u64(vsraq_n_u64(paired32, paired32, 28));
+  return vgetq_lane_u8(paired64, 0) |
+         (static_cast<int>(vgetq_lane_u8(paired64, 8)) << 8);
+}
+
+#endif  // #ifdef __aarch64__
 
 // From public domain
 // https://graphics.stanford.edu/~seander/bithacks.html
@@ -1485,6 +1502,33 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       }
       i += 4;
     }
+#elif defined(__aarch64__)
+    while (true) {
+      const auto ptr_vec0 = children.pointer_vector[i];
+      const auto ptr_vec1 = children.pointer_vector[i + 1];
+      const auto ptr_vec2 = children.pointer_vector[i + 2];
+      const auto ptr_vec3 = children.pointer_vector[i + 3];
+      const auto vec0_cmp = vceqzq_u64(ptr_vec0);
+      const auto vec1_cmp = vceqzq_u64(ptr_vec1);
+      const auto vec2_cmp = vceqzq_u64(ptr_vec2);
+      const auto vec3_cmp = vceqzq_u64(ptr_vec3);
+      const auto vec0_narrow_cmp = vqmovn_u64(vec0_cmp);
+      const auto vec1_narrow_cmp = vqmovn_u64(vec1_cmp);
+      const auto vec2_narrow_cmp = vqmovn_u64(vec2_cmp);
+      const auto vec3_narrow_cmp = vqmovn_u64(vec3_cmp);
+      const auto vec01_cmp = vcombine_u32(vec0_narrow_cmp, vec1_narrow_cmp);
+      const auto vec23_cmp = vcombine_u32(vec2_narrow_cmp, vec3_narrow_cmp);
+      const auto vec01_narrow_cmp = vqmovn_u32(vec01_cmp);
+      const auto vec23_narrow_cmp = vqmovn_u32(vec23_cmp);
+      const auto vec_cmp = vcombine_u16(vec01_narrow_cmp, vec23_narrow_cmp);
+      const auto cmp_mask =
+          static_cast<std::uint64_t>(detail::vmovmaskq_u16(vec_cmp));
+      if (cmp_mask != 0) {
+        i = (i << 1U) + (((detail::ctz64(cmp_mask)) + 1) >> 1U);
+        break;
+      }
+      i += 4;
+    }
 #else   // #ifdef UNODB_DETAIL_X86_64
     node_ptr child_ptr;
     while (true) {
@@ -1647,6 +1691,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   union children_union {
     std::array<critical_section_policy<node_ptr>, basic_inode_48::capacity>
         pointer_array;
+
 #ifdef UNODB_DETAIL_X86_64
     static_assert(basic_inode_48::capacity % 2 == 0);
     static_assert((basic_inode_48::capacity / 2) % 4 == 0,
@@ -1654,6 +1699,14 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     // No std::array below because it would ignore the alignment attribute
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     __m128i
+        pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)
+#elif defined(__aarch64__)
+    static_assert(basic_inode_48::capacity % 2 == 0);
+    static_assert((basic_inode_48::capacity / 2) % 4 == 0,
+                  "Node48 capacity must support unrolling without remainder");
+    // No std::array below because it would ignore the alignment attribute
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    uint64x2_t
         pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)
 #endif
 

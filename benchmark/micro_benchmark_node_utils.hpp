@@ -1003,7 +1003,7 @@ void minimal_tree_random_gets(::benchmark::State &state) {
       key_limit);
   const auto tree_size = test_db.get_current_memory_use();
   batched_prng random_key_positions{
-      node_count * detail::node_capacity_to_minimum_size<16>() - 1};
+      node_count * detail::node_capacity_to_minimum_size<NodeSize>() - 1};
   std::int64_t items_processed = 0;
 
   for (auto _ : state) {

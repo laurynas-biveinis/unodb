@@ -858,12 +858,14 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     auto *const source_inode{static_cast<inode_type *>(source_node.ptr())};
     auto &source_key_prefix = source_inode->get_key_prefix();
     UNODB_DETAIL_ASSERT(len < source_key_prefix.length());
-    UNODB_DETAIL_ASSERT(static_cast<decltype(art_key::size)>(depth) + len <
-                        art_key::size);
+
+    const auto diff_key_byte_i =
+        static_cast<decltype(art_key::size)>(depth) + len;
+    UNODB_DETAIL_ASSERT(diff_key_byte_i < art_key::size);
 
     const auto source_node_key_byte = source_key_prefix.byte_at(len);
     source_key_prefix.cut(len + 1);
-    const auto new_key_byte = child1->get_key()[depth + len];
+    const auto new_key_byte = child1->get_key()[diff_key_byte_i];
     add_two_to_empty(source_node_key_byte, source_node, new_key_byte,
                      std::move(child1));
   }

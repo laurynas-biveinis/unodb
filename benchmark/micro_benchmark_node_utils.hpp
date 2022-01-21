@@ -189,7 +189,9 @@ template <unsigned NodeSize>
 number_to_full_leaf_over_minimal_tree_key(std::uint64_t i) noexcept {
   constexpr auto min = node_capacity_to_minimum_size<NodeSize>();
   constexpr auto delta = node_capacity_over_minimum<NodeSize>();
-  UNODB_DETAIL_ASSERT(i / (delta * min * min * min * min * min * min) < min);
+  UNODB_DETAIL_ASSERT(i / (static_cast<std::uint64_t>(delta) * min * min * min *
+                           min * min * min) <
+                      min);
   return ((i % delta) + min) |
          number_to_minimal_node_size_tree_key<NodeSize>(i / delta) << 8U;
 }

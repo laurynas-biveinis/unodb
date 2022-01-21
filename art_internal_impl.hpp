@@ -12,6 +12,7 @@
 #include <limits>
 #include <memory>
 #include <stdexcept>
+#include <type_traits>
 #include <utility>
 
 #ifdef UNODB_DETAIL_X86_64
@@ -860,7 +861,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(len < source_key_prefix.length());
 
     const auto diff_key_byte_i =
-        static_cast<decltype(art_key::size)>(depth) + len;
+        static_cast<std::remove_cv_t<decltype(art_key::size)>>(depth) + len;
     UNODB_DETAIL_ASSERT(diff_key_byte_i < art_key::size);
 
     const auto source_node_key_byte = source_key_prefix.byte_at(len);

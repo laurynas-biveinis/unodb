@@ -130,7 +130,7 @@ class olc_inode : public olc_inode_base {};
 
 [[nodiscard]] auto &node_ptr_lock(
     const unodb::detail::olc_node_ptr &node) noexcept {
-  return node.ptr()->lock();
+  return node.ptr<unodb::detail::olc_node_header *>()->lock();
 }
 
 #ifndef NDEBUG
@@ -720,7 +720,7 @@ template <class INode>
     return true;
   }
 
-  const auto *const leaf{static_cast<::leaf *>(child->ptr())};
+  const auto *const leaf{child->ptr<::leaf *>()};
   if (!leaf->matches(k)) {
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return {};  // LCOV_EXCL_LINE
@@ -878,7 +878,7 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
-      const auto *const leaf{static_cast<::leaf *>(node.ptr())};
+      const auto *const leaf{node.ptr<::leaf *>()};
       if (leaf->matches(k)) {
         const auto val_view{leaf->get_value_view()};
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -890,7 +890,7 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
       return std::make_optional<get_result>(std::nullopt);
     }
 
-    auto *const inode{static_cast<olc_inode *>(node.ptr())};
+    auto *const inode{node.ptr<olc_inode *>()};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_key_prefix_length{
@@ -981,7 +981,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
-      auto *const leaf{static_cast<::leaf *>(node.ptr())};
+      auto *const leaf{node.ptr<::leaf *>()};
       const auto existing_key{leaf->get_key()};
       if (UNODB_DETAIL_UNLIKELY(k == existing_key)) {
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
@@ -1014,7 +1014,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
     UNODB_DETAIL_ASSERT(depth < detail::art_key::size);
 
-    auto *const inode{static_cast<olc_inode *>(node.ptr())};
+    auto *const inode{node.ptr<olc_inode *>()};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_length{
@@ -1111,7 +1111,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
   auto node_type = node.type();
 
   if (node_type == node_type::LEAF) {
-    auto *const leaf{static_cast<::leaf *>(node.ptr())};
+    auto *const leaf{node.ptr<::leaf *>()};
     if (leaf->matches(k)) {
       optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
@@ -1143,7 +1143,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
     UNODB_DETAIL_ASSERT(depth < detail::art_key::size);
 
-    auto *const inode{static_cast<olc_inode *>(node.ptr())};
+    auto *const inode{node.ptr<olc_inode *>()};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_length{

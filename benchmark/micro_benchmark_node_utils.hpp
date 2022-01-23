@@ -994,16 +994,17 @@ void minimal_tree_full_scan(::benchmark::State &state) {
 template <class Db, unsigned NodeSize>
 void minimal_tree_random_gets(::benchmark::State &state) {
   const auto node_count = static_cast<unsigned>(state.range(0));
+  const auto key_count = static_cast<std::uint64_t>(node_count) *
+                             detail::node_capacity_to_minimum_size<NodeSize>() -
+                         1;
+
   Db test_db;
   const auto key_limit UNODB_DETAIL_USED_IN_DEBUG =
       detail::make_minimal_node_size_tree<Db, NodeSize>(test_db, node_count);
-  UNODB_DETAIL_ASSERT(
-      detail::number_to_minimal_node_size_tree_key<NodeSize>(
-          node_count * detail::node_capacity_to_minimum_size<NodeSize>() - 1) ==
-      key_limit);
+  UNODB_DETAIL_ASSERT(detail::number_to_minimal_node_size_tree_key<NodeSize>(
+                          key_count) == key_limit);
   const auto tree_size = test_db.get_current_memory_use();
-  batched_prng random_key_positions{
-      node_count * detail::node_capacity_to_minimum_size<NodeSize>() - 1};
+  batched_prng random_key_positions{key_count};
   std::int64_t items_processed = 0;
 
   for (auto _ : state) {

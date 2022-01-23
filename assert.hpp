@@ -31,7 +31,8 @@ namespace unodb::detail {
 }
 
 [[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void assert_failure(
-    const char *file, int line, const char *func, const char *condition) {
+    const char *file, int line, const char *func,
+    const char *condition) noexcept {
   std::ostringstream buf;
   buf << "Assertion \"" << condition << "\" failed at " << file << ':' << line
       << ", function \"" << func << "\", thread " << std::this_thread::get_id()
@@ -40,7 +41,7 @@ namespace unodb::detail {
 }
 
 [[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void crash(
-    const char *file, int line, const char *func) {
+    const char *file, int line, const char *func) noexcept {
   std::ostringstream buf;
   buf << "Crash requested at " << file << ':' << line << ", function \"" << func
       << "\", thread " << std::this_thread::get_id() << '\n';
@@ -48,7 +49,7 @@ namespace unodb::detail {
 }
 
 [[noreturn]] inline void cannot_happen(const char *file, int line,
-                                       const char *func) {
+                                       const char *func) noexcept {
   std::ostringstream buf;
   buf << "Execution reached an unreachable point at " << file << ':' << line
       << ": function \"" << func << "\", thread " << std::this_thread::get_id()
@@ -67,7 +68,8 @@ namespace unodb::detail {
 
 namespace unodb::detail {
 
-[[noreturn]] inline void cannot_happen(const char *, int, const char *) {
+[[noreturn]] inline void cannot_happen(const char *, int,
+                                       const char *) noexcept {
   UNODB_DETAIL_UNREACHABLE();
 }
 

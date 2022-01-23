@@ -35,39 +35,15 @@ struct [[nodiscard]] basic_art_key final {
   UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(KeyType key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  [[nodiscard]] static constexpr auto create(const std::byte from[]) noexcept {
-    struct basic_art_key result;
-    std::memcpy(&result, from, size);
-    return result;
-  }
-
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  constexpr void copy_to(std::byte to[]) const noexcept {
-    std::memcpy(to, &key, size);
-  }
-
-  [[nodiscard, gnu::pure]] constexpr bool operator==(
-      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-      const std::byte key2[]) const noexcept {
-    return !std::memcmp(&key, key2, size);
-  }
-
   [[nodiscard, gnu::pure]] constexpr bool operator==(
       basic_art_key<KeyType> key2) const noexcept {
     return !std::memcmp(&key, &key2.key, size);
   }
 
-  [[nodiscard, gnu::pure]] constexpr bool operator!=(
-      basic_art_key<KeyType> key2) const noexcept {
-    return std::memcmp(&key, &key2.key, size);
-  }
-
   [[nodiscard, gnu::pure]] constexpr auto operator[](
       std::size_t index) const noexcept {
     UNODB_DETAIL_ASSERT(index < size);
-    // cppcheck-suppress objectIndex
-    return (reinterpret_cast<const std::byte *>(&key))[index];
+    return key_bytes[index];
   }
 
   [[nodiscard, gnu::pure]] constexpr explicit operator KeyType()
@@ -79,9 +55,12 @@ struct [[nodiscard]] basic_art_key final {
     key >>= (num_bytes * 8);
   }
 
-  KeyType key;
-
   static constexpr auto size = sizeof(KeyType);
+
+  union {
+    KeyType key;
+    std::array<std::byte, size> key_bytes;
+  };
 
   static void static_asserts() {
     static_assert(std::is_trivially_copyable_v<basic_art_key<KeyType>>);

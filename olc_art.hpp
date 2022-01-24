@@ -86,7 +86,7 @@ class olc_db final {
   [[nodiscard]] bool remove(key remove_key);
 
   // Only legal in single-threaded context, as destructor
-  void clear();
+  void clear() noexcept;
 
   // Stats
 
@@ -159,7 +159,7 @@ class olc_db final {
 
   void delete_root_subtree() noexcept;
 
-  void increase_memory_use(std::size_t delta);
+  void increase_memory_use(std::size_t delta) noexcept;
   void decrease_memory_use(std::size_t delta) noexcept;
 
   void increment_leaf_count(std::size_t leaf_size) noexcept {

@@ -416,7 +416,7 @@ void db::delete_root_subtree() noexcept {
   UNODB_DETAIL_ASSERT(node_counts[as_i<node_type::LEAF>] == 0);
 }
 
-void db::clear() {
+void db::clear() noexcept {
   delete_root_subtree();
 
   root = nullptr;

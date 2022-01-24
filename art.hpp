@@ -61,7 +61,7 @@ class db final {
 
   [[nodiscard]] bool remove(key remove_key);
 
-  void clear();
+  void clear() noexcept;
 
   // Stats
 

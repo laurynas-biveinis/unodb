@@ -230,8 +230,8 @@ struct basic_art_policy final {
                                                               db_instance);
   }
 
-  [[nodiscard]] static auto reclaim_leaf_on_scope_exit(leaf_type *leaf,
-                                                       Db &db_instance) {
+  [[nodiscard]] static auto reclaim_leaf_on_scope_exit(
+      leaf_type *leaf, Db &db_instance) noexcept {
     return leaf_reclaimable_ptr{leaf,
                                 LeafReclamator<header_type, Db>{db_instance}};
   }
@@ -250,14 +250,15 @@ struct basic_art_policy final {
   UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
 
   template <class INode>
-  [[nodiscard]] static auto make_db_inode_unique_ptr(Db &db_instance,
-                                                     INode *inode_ptr) {
+  [[nodiscard]] static auto make_db_inode_unique_ptr(
+      Db &db_instance, INode *inode_ptr) noexcept {
     return db_inode_unique_ptr<INode>{inode_ptr,
                                       db_inode_deleter<INode>{db_instance}};
   }
 
  private:
-  [[nodiscard]] static auto make_db_leaf_ptr(Db &db_instance, leaf_type *leaf) {
+  [[nodiscard]] static auto make_db_leaf_ptr(Db &db_instance,
+                                             leaf_type *leaf) noexcept {
     return basic_db_leaf_unique_ptr<header_type, Db>{
         leaf, basic_db_leaf_deleter<header_type, Db>{db_instance}};
   }

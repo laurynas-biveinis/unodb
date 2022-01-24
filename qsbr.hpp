@@ -13,6 +13,7 @@
 #include <iostream>
 #include <mutex>  // IWYU pragma: keep
 #include <thread>
+#include <tuple>
 #include <type_traits>
 #ifndef NDEBUG
 #include <unordered_set>
@@ -497,7 +498,7 @@ class [[nodiscard]] qsbr_per_thread final {
 
 inline void construct_current_thread_reclamator() {
   // An ODR-use ensures that the constructor gets called
-  (void)this_thread();
+  std::ignore = this_thread();
 }
 
 namespace boost_acc = boost::accumulators;

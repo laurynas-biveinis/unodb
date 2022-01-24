@@ -12,6 +12,7 @@
 #include <iterator>
 #include <optional>
 #include <thread>
+#include <tuple>
 #include <type_traits>
 
 #ifdef UNODB_DETAIL_X86_64
@@ -117,7 +118,7 @@ class [[nodiscard]] optimistic_lock final {
     // moved-from lock fields in the move and write_guard constructors.
     ~read_critical_section() {
 #ifndef NDEBUG
-      if (lock != nullptr) (void)lock->try_read_unlock(version);
+      if (lock != nullptr) std::ignore = lock->try_read_unlock(version);
 #endif
     }
 

@@ -153,12 +153,12 @@ class [[nodiscard]] optimistic_lock final {
       return UNODB_DETAIL_UNLIKELY(lock == nullptr);
     }
 
-    void unlock_and_obsolete() {
+    void unlock_and_obsolete() noexcept {
       lock->write_unlock_and_obsolete();
       lock = nullptr;
     }
 
-    void unlock() {
+    void unlock() noexcept {
       lock->write_unlock();
       lock = nullptr;
     }

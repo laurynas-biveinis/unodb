@@ -99,7 +99,7 @@ namespace {
 
 template <class INode>
 [[nodiscard]] auto make_db_inode_reclaimable_ptr(unodb::olc_db &db_instance,
-                                                 INode *inode_ptr) {
+                                                 INode *inode_ptr) noexcept {
   return std::unique_ptr<INode, unodb::detail::db_inode_qsbr_deleter<INode>>{
       inode_ptr, unodb::detail::db_inode_qsbr_deleter<INode>{db_instance}};
 }
@@ -1202,7 +1202,7 @@ void olc_db::delete_root_subtree() noexcept {
       node_counts[as_i<node_type::LEAF>].load(std::memory_order_relaxed) == 0);
 }
 
-void olc_db::clear() {
+void olc_db::clear() noexcept {
   UNODB_DETAIL_ASSERT(
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
 
@@ -1219,7 +1219,7 @@ void olc_db::clear() {
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
-void olc_db::increase_memory_use(std::size_t delta) {
+void olc_db::increase_memory_use(std::size_t delta) noexcept {
   if (delta == 0) return;
 
   current_memory_use.fetch_add(delta, std::memory_order_relaxed);

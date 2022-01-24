@@ -62,14 +62,14 @@ UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 #ifndef NDEBUG
 
-void qsbr_per_thread::register_active_ptr(const void *ptr) {
+void qsbr_per_thread::register_active_ptr(const void *ptr) noexcept {
   UNODB_DETAIL_ASSERT(ptr != nullptr);
   UNODB_DETAIL_ASSERT(!is_qsbr_paused());
 
   active_ptrs.insert(ptr);
 }
 
-void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
+void qsbr_per_thread::unregister_active_ptr(const void *ptr) noexcept {
   UNODB_DETAIL_ASSERT(ptr != nullptr);
   UNODB_DETAIL_ASSERT(!is_qsbr_paused());
 

@@ -153,7 +153,7 @@ class [[nodiscard]] basic_node_ptr {
   explicit basic_node_ptr(std::nullptr_t) noexcept
       : tagged_ptr{reinterpret_cast<std::uintptr_t>(nullptr)} {}
 
-  basic_node_ptr(header_type *ptr, unodb::node_type type)
+  basic_node_ptr(header_type *ptr, unodb::node_type type) noexcept
       : tagged_ptr{tag_ptr(ptr, type)} {}
 
   basic_node_ptr<Header> &operator=(std::nullptr_t) noexcept {
@@ -187,7 +187,7 @@ class [[nodiscard]] basic_node_ptr {
   std::uintptr_t tagged_ptr;
 
   [[nodiscard, gnu::const]] static std::uintptr_t tag_ptr(
-      Header *ptr_, unodb::node_type tag) {
+      Header *ptr_, unodb::node_type tag) noexcept {
     const auto uintptr = reinterpret_cast<std::uintptr_t>(ptr_);
     const auto result =
         uintptr | static_cast<std::underlying_type_t<decltype(tag)>>(tag);
@@ -196,7 +196,7 @@ class [[nodiscard]] basic_node_ptr {
   }
 
   [[nodiscard, gnu::const]] static constexpr unsigned mask_bits_needed(
-      unsigned count) {
+      unsigned count) noexcept {
     return count < 2 ? 1 : 1 + mask_bits_needed(count >> 1U);
   }
 

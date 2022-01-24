@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Laurynas Biveinis
+// Copyright (C) 2021-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_QSBR_PTR_HPP
 #define UNODB_DETAIL_QSBR_PTR_HPP
 
@@ -17,8 +17,8 @@ namespace detail {
 class qsbr_ptr_base {
 #ifndef NDEBUG
  protected:
-  static void register_active_ptr(const void *ptr);
-  static void unregister_active_ptr(const void *ptr);
+  static void register_active_ptr(const void *ptr) noexcept;
+  static void unregister_active_ptr(const void *ptr) noexcept;
 #endif
 };
 
@@ -145,7 +145,7 @@ template <class T>
 class qsbr_ptr_span {
  public:
   UNODB_DETAIL_RELEASE_CONSTEXPR explicit qsbr_ptr_span(
-      const gsl::span<T> &other)
+      const gsl::span<T> &other) noexcept
       : start{other.data()}, length{static_cast<std::size_t>(other.size())} {}
 
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span(

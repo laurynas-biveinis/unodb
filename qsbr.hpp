@@ -456,8 +456,8 @@ class [[nodiscard]] qsbr_per_thread final {
   qsbr_per_thread &operator=(qsbr_per_thread &&) = delete;
 
 #ifndef NDEBUG
-  void register_active_ptr(const void *ptr);
-  void unregister_active_ptr(const void *ptr);
+  void register_active_ptr(const void *ptr) noexcept;
+  void unregister_active_ptr(const void *ptr) noexcept;
 #endif
 
  private:
@@ -490,12 +490,12 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
 };
 
-[[nodiscard]] inline qsbr_per_thread &this_thread() {
+[[nodiscard]] inline qsbr_per_thread &this_thread() noexcept {
   thread_local static qsbr_per_thread current_thread_reclamator_instance;
   return current_thread_reclamator_instance;
 }
 
-inline void construct_current_thread_reclamator() {
+inline void construct_current_thread_reclamator() noexcept {
   // An ODR-use ensures that the constructor gets called
   (void)this_thread();
 }

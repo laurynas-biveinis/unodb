@@ -11,6 +11,7 @@
 #include <initializer_list>
 #include <iostream>
 #include <thread>
+#include <tuple>
 #include <type_traits>
 #include <unordered_map>
 
@@ -216,7 +217,7 @@ class [[nodiscard]] tree_verifier final {
   }
 
   void try_insert(unodb::key k, unodb::value_view v) {
-    (void)test_db.insert(k, v);
+    std::ignore = test_db.insert(k, v);
   }
 
   // warning C6326: Potential comparison of a constant with another constant.
@@ -243,7 +244,7 @@ class [[nodiscard]] tree_verifier final {
     do_remove(k, bypass_verifier);
   }
 
-  void try_remove(unodb::key k) { (void)test_db.remove(k); }
+  void try_remove(unodb::key k) { std::ignore = test_db.remove(k); }
 
   // warning C6326: Potential comparison of a constant with another constant.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
@@ -265,7 +266,7 @@ class [[nodiscard]] tree_verifier final {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  void try_get(unodb::key k) const noexcept { (void)test_db.get(k); }
+  void try_get(unodb::key k) const noexcept { std::ignore = test_db.get(k); }
 
   void check_present_values() const noexcept {
     for (const auto &[key, value] : values) {
@@ -370,7 +371,7 @@ inline void tree_verifier<unodb::olc_db>::remove(unodb::key k,
 template <>
 inline void tree_verifier<unodb::olc_db>::try_remove(unodb::key k) {
   quiescent_state_on_scope_exit qsbr_after_get{};
-  (void)test_db.remove(k);
+  std::ignore = test_db.remove(k);
 }
 
 // warning C6326: Potential comparison of a constant with another constant.
@@ -388,7 +389,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 template <>
 inline void tree_verifier<unodb::olc_db>::try_get(unodb::key k) const noexcept {
   quiescent_state_on_scope_exit qsbr_after_get{};
-  (void)test_db.get(k);
+  std::ignore = test_db.get(k);
 }
 
 extern template class tree_verifier<unodb::db>;

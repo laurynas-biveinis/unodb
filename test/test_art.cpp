@@ -67,7 +67,8 @@ TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
 
   unodb::test::tree_verifier<TypeParam> verifier;
 
-  ASSERT_THROW((void)verifier.get_db().insert(1, too_long), std::length_error);
+  ASSERT_THROW(std::ignore = verifier.get_db().insert(1, too_long),
+               std::length_error);
 
   verifier.check_absent_keys({1});
   verifier.assert_empty();

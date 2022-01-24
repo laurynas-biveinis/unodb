@@ -487,7 +487,7 @@ union [[nodiscard]] key_prefix {
     return detail::ctz64(clamped) >> 3U;
   }
 
-  [[nodiscard, gnu::const]] static std::uint64_t make_u64(
+  [[nodiscard, gnu::const]] static constexpr std::uint64_t make_u64(
       art_key k1, art_key shifted_k2, tree_depth depth) noexcept {
     k1.shift_right(depth);
 

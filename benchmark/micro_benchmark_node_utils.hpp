@@ -515,7 +515,7 @@ template <class Db, typename NumberToKeyFn>
                                         NumberToKeyFn number_to_key_fn) {
   std::uint64_t i{0};
   while (true) {
-    unodb::key key = number_to_key_fn(i);
+    const unodb::key key = number_to_key_fn(i);
     if (key > key_limit) break;
     insert_key(db, key, unodb::value_view{value100});
     ++i;
@@ -650,7 +650,7 @@ void full_node_scan_benchmark(::benchmark::State &state) {
   if constexpr (detail::node_size_has_key_zero_bits<NodeSize>()) {
     const auto key_limit UNODB_DETAIL_USED_IN_DEBUG =
         detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
-    for (auto _ : state) {
+    for (const auto _ : state) {
       unodb::key k = 0;
       for (std::uint64_t j = 0; j < key_count; ++j) {
         UNODB_DETAIL_ASSERT(k <= key_limit);
@@ -683,7 +683,7 @@ void full_node_random_get_benchmark(::benchmark::State &state) {
 
   batched_prng random_key_positions{key_count - 1};
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     for (std::uint64_t i = 0; i < key_count; ++i) {
       const auto key_index = random_key_positions.get(state);
       const auto key =
@@ -742,10 +742,10 @@ void grow_node_sequentially_benchmark(::benchmark::State &state) {
   const auto smaller_node_count = static_cast<unsigned>(state.range(0));
   std::uint64_t benchmark_keys_inserted{0};
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
-    unodb::key key_limit =
+    const unodb::key key_limit =
         detail::make_full_node_size_tree<Db, SmallerNodeSize>(
             test_db, smaller_node_count * SmallerNodeSize);
     ::benchmark::ClobberMemory();
@@ -788,7 +788,7 @@ void grow_node_randomly_benchmark(::benchmark::State &state) {
   const auto smaller_node_count = static_cast<unsigned>(state.range(0));
   std::uint64_t benchmark_keys_inserted{0};
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     const auto key_limit = detail::insert_n_keys_to_empty_tree<
@@ -835,10 +835,10 @@ void shrink_node_sequentially_benchmark(::benchmark::State &state) {
 
   const auto smaller_node_count = static_cast<unsigned>(state.range(0));
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
-    unodb::key key_limit =
+    const unodb::key key_limit =
         detail::make_full_node_size_tree<Db, SmallerNodeSize>(
             test_db, smaller_node_count * SmallerNodeSize);
 
@@ -876,7 +876,7 @@ void shrink_node_randomly_benchmark(::benchmark::State &state) {
 
   const auto smaller_node_count = static_cast<unsigned>(state.range(0));
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     const auto key_limit = detail::insert_n_keys_to_empty_tree<
@@ -915,7 +915,7 @@ void sequential_add_benchmark(::benchmark::State &state) {
   const auto node_count = static_cast<unsigned>(state.range(0));
   std::uint64_t benchmark_keys_inserted{0};
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     auto [key_limit, tree_shape] =
@@ -946,7 +946,7 @@ void random_add_benchmark(::benchmark::State &state) {
   const auto node_count = static_cast<unsigned>(state.range(0));
   std::int64_t benchmark_keys_inserted{0};
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     auto [key_limit, tree_shape] =
@@ -981,7 +981,7 @@ void minimal_tree_full_scan(::benchmark::State &state) {
   const auto tree_size = test_db.get_current_memory_use();
 
   std::int64_t items_processed = 0;
-  for (auto _ : state) {
+  for (const auto _ : state) {
     items_processed += detail::get_key_loop(
         test_db, key_limit,
         detail::number_to_minimal_node_size_tree_key<NodeSize>);
@@ -1007,7 +1007,7 @@ void minimal_tree_random_gets(::benchmark::State &state) {
   batched_prng random_key_positions{key_count};
   std::int64_t items_processed = 0;
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     const auto key_index = random_key_positions.get(state);
     const auto key =
         detail::number_to_minimal_node_size_tree_key<NodeSize>(key_index);
@@ -1025,7 +1025,7 @@ void sequential_delete_benchmark(::benchmark::State &state) {
   int i{0};
   std::size_t tree_size{0};
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     const auto key_limit =
@@ -1060,7 +1060,7 @@ void random_delete_benchmark(::benchmark::State &state) {
   std::size_t tree_size{0};
   std::size_t remove_key_count{0};
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     const auto key_limit =

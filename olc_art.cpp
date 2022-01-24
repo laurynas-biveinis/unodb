@@ -692,7 +692,7 @@ template <class INode>
     in_critical_section<olc_node_ptr> **child_in_parent,
     optimistic_lock::read_critical_section *child_critical_section,
     node_type *child_type, olc_node_ptr *child) {
-  auto [child_i, found_child]{inode.find_child(key_byte)};
+  const auto [child_i, found_child]{inode.find_child(key_byte)};
 
   if (found_child == nullptr) {
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))

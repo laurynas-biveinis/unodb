@@ -85,7 +85,7 @@ void unpredictable_get_shared_length(benchmark::State &state) {
     search_keys.push_back(second_not_found_key);
   }
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     std::shuffle(search_keys.begin(), search_keys.end(),
                  unodb::benchmark::get_prng());
@@ -169,7 +169,7 @@ template <class Db>
 void do_insert_benchmark(benchmark::State &state,
                          const std::vector<unodb::key> &prepare_keys,
                          std::vector<unodb::key> &benchmark_keys) {
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     insert_keys(test_db, prepare_keys);
@@ -405,7 +405,7 @@ void unpredictable_prepend_key_prefix(benchmark::State &state) {
     benchmark_keys.push_back(third_key);
   }
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     insert_keys(test_db, prepare_keys);

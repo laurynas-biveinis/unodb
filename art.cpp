@@ -204,7 +204,7 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
   if (child_ptr_val.type() != node_type::LEAF)
     return reinterpret_cast<detail::node_ptr *>(child_ptr);
 
-  const auto *const leaf{static_cast<::leaf *>(child_ptr_val.ptr())};
+  const auto *const leaf{child_ptr_val.template ptr<::leaf *>()};
   if (!leaf->matches(k)) return {};
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
@@ -277,14 +277,14 @@ db::get_result db::get(key search_key) const noexcept {
   while (true) {
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
-      const auto *const leaf{static_cast<::leaf *>(node.ptr())};
+      const auto *const leaf{node.ptr<::leaf *>()};
       if (leaf->matches(k)) return leaf->get_value_view();
       return {};
     }
 
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
 
-    auto *const inode{static_cast<::inode *>(node.ptr())};
+    auto *const inode{node.ptr<::inode *>()};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     if (key_prefix.get_shared_length(remaining_key) < key_prefix_length)
@@ -315,7 +315,7 @@ bool db::insert(key insert_key, value_view v) {
   while (true) {
     const auto node_type = node->type();
     if (node_type == node_type::LEAF) {
-      auto *const leaf{static_cast<::leaf *>(node->ptr())};
+      auto *const leaf{node->ptr<::leaf *>()};
       const auto existing_key{leaf->get_key()};
       if (UNODB_DETAIL_UNLIKELY(k == existing_key)) return false;
 
@@ -330,7 +330,7 @@ bool db::insert(key insert_key, value_view v) {
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
     UNODB_DETAIL_ASSERT(depth < detail::art_key::size);
 
-    auto *const inode{static_cast<::inode *>(node->ptr())};
+    auto *const inode{node->ptr<::inode *>()};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
@@ -366,7 +366,7 @@ bool db::remove(key remove_key) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
 
   if (root.type() == node_type::LEAF) {
-    auto *const root_leaf{static_cast<leaf *>(root.ptr())};
+    auto *const root_leaf{root.ptr<leaf *>()};
     if (root_leaf->matches(k)) {
       const auto r{art_policy::reclaim_leaf_on_scope_exit(root_leaf, *this)};
       root = nullptr;
@@ -384,7 +384,7 @@ bool db::remove(key remove_key) {
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
     UNODB_DETAIL_ASSERT(depth < detail::art_key::size);
 
-    auto *const inode{static_cast<::inode *>(node->ptr())};
+    auto *const inode{node->ptr<::inode *>()};
     const auto &key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};

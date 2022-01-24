@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Laurynas Biveinis
+// Copyright 2020-2022 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -53,7 +53,7 @@ void node4_sequential_insert(benchmark::State &state) {
   unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   std::size_t tree_size = 0;
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     benchmark::ClobberMemory();
@@ -89,7 +89,7 @@ void node4_random_insert(benchmark::State &state) {
   auto keys =
       make_n_key_sequence<NodeSize>(static_cast<std::size_t>(state.range(0)));
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     std::shuffle(keys.begin(), keys.end(), unodb::benchmark::get_prng());
     Db test_db;
@@ -135,7 +135,7 @@ void node4_sequential_delete_benchmark(benchmark::State &state,
   int keys_deleted{0};
   std::size_t tree_size{0};
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     const auto key_limit =
@@ -169,7 +169,7 @@ void node4_random_delete_benchmark(benchmark::State &state,
   const auto key_count = static_cast<unsigned>(state.range(0));
   std::size_t tree_size{0};
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     const auto key_limit =

@@ -157,7 +157,7 @@ void do_get_key(const Db &db, unodb::key k) {
 
 template <class Db>
 void do_get_existing_key(const Db &db, unodb::key k) {
-  auto result = db.get(k);
+  const auto result = db.get(k);
 
 #ifndef NDEBUG
   if (!Db::key_found(result)) {

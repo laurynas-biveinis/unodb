@@ -331,6 +331,19 @@ class [[nodiscard]] optimistic_lock final {
 
 static_assert(std::is_standard_layout_v<optimistic_lock>);
 
+namespace detail {
+
+inline void assert_inactive(
+    const optimistic_lock::write_guard &guard) noexcept {
+#ifdef NDEBUG
+  std::ignore = guard;
+#else
+  UNODB_DETAIL_ASSERT(!guard.active());
+#endif
+}
+
+}  // namespace detail
+
 #ifdef NDEBUG
 static_assert(sizeof(optimistic_lock) == 8);
 #else

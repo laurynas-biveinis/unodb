@@ -160,6 +160,13 @@ class [[nodiscard]] inode_256 final
 
 static_assert(sizeof(inode_256) == 2064);
 
+// Because we cannot dereference, load(), & take address of - it is a temporary
+// by then
+inline auto *unwrap_fake_critical_section(
+    unodb::in_fake_critical_section<unodb::detail::node_ptr> *ptr) noexcept {
+  return reinterpret_cast<unodb::detail::node_ptr *>(ptr);
+}
+
 }  // namespace
 
 namespace unodb::detail {
@@ -168,7 +175,7 @@ template <class INode>
 detail::node_ptr *impl_helpers::add_or_choose_subtree(
     INode &inode, std::byte key_byte, art_key k, value_view v, db &db_instance,
     tree_depth depth, detail::node_ptr *node_in_parent) {
-  auto *const child = reinterpret_cast<node_ptr *>(
+  auto *const child = unwrap_fake_critical_section(
       static_cast<INode &>(inode).find_child(key_byte).second);
   if (child == nullptr) {
     auto leaf = art_policy::make_db_leaf_ptr(k, v, db_instance);
@@ -202,7 +209,7 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
 
   const auto child_ptr_val{child_ptr->load()};
   if (child_ptr_val.type() != node_type::LEAF)
-    return reinterpret_cast<detail::node_ptr *>(child_ptr);
+    return unwrap_fake_critical_section(child_ptr);
 
   const auto *const leaf{child_ptr_val.template ptr<::leaf *>()};
   if (!leaf->matches(k)) return {};

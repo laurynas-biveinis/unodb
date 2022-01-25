@@ -171,8 +171,7 @@ class [[nodiscard]] basic_node_ptr {
 
   template <class T>
   [[nodiscard, gnu::pure]] auto *ptr() const noexcept {
-    return static_cast<T>(
-        reinterpret_cast<Header *>(tagged_ptr & ptr_bit_mask));
+    return reinterpret_cast<T>(tagged_ptr & ptr_bit_mask);
   }
 
   [[nodiscard, gnu::pure]] auto operator==(std::nullptr_t) const noexcept {

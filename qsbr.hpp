@@ -948,17 +948,12 @@ class [[nodiscard]] qsbr_thread : public std::thread {
  public:
   using thread::thread;
 
-  qsbr_thread(qsbr_thread &&other) noexcept
-      : std::thread{std::move(static_cast<std::thread &&>(other))} {}
-  qsbr_thread(const qsbr_thread &) = delete;
-
-  qsbr_thread &operator=(qsbr_thread &&other) noexcept {
-    thread::operator=(std::move(static_cast<std::thread &&>(other)));
-    return *this;
-  }
+  qsbr_thread(qsbr_thread &&other) noexcept = default;
+  qsbr_thread &operator=(qsbr_thread &&other) noexcept = default;
 
   ~qsbr_thread() = default;
 
+  qsbr_thread(const qsbr_thread &) = delete;
   qsbr_thread &operator=(const qsbr_thread &) = delete;
 
   template <typename Function, typename... Args,

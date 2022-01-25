@@ -4,7 +4,6 @@
 # false positives under clang-tidy.
 # -bugprone-easily-swappable-parameters: too many suppressions for otherwise
 # unfixable signatures
-# -clang-analyzer-cplusplus.Move: moved-from object states are asserted
 # -cppcoreguidelines-avoid-c-arrays: duplicated by modernize-avoid-c-arrays
 # -cppcoreguidelines-macro-usage: does not respect __LINE__ in macro definition
 # -cppcoreguidelines-pro-bounds-pointer-arithmetic: because leaf nodes are

@@ -13,10 +13,10 @@
 
 namespace {
 
-const char x = 'X';  // -V707
+constexpr char x = 'X';  // -V707
 const char* const raw_ptr_x = &x;
 
-const char y = 'Y';  // -V707
+constexpr char y = 'Y';  // -V707
 const char* const raw_ptr_y = &y;
 
 const std::array<const char, 2> two_chars = {'A', 'B'};

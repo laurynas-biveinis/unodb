@@ -82,7 +82,7 @@ void do_assert_result_eq(const Db &db, unodb::key key,
   std::ostringstream msg;
   unodb::detail::dump_key(msg, key);
   testing::ScopedTrace trace(file, line, msg.str());
-  auto result = db.get(key);
+  const auto result = db.get(key);
   if (!Db::key_found(result)) {
     // LCOV_EXCL_START
     std::cerr << "db.get did not find ";
@@ -107,7 +107,7 @@ template <>
 inline void assert_result_eq(const unodb::olc_db &db, unodb::key key,
                              unodb::value_view expected, const char *file,
                              int line) noexcept {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   do_assert_result_eq(db, key, expected, file, line);
 }
 
@@ -355,7 +355,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 template <>
 inline void tree_verifier<unodb::olc_db>::do_insert(unodb::key k,
                                                     unodb::value_view v) {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   ASSERT_TRUE(test_db.insert(k, v));
 }
 
@@ -364,13 +364,13 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 template <>
 inline void tree_verifier<unodb::olc_db>::remove(unodb::key k,
                                                  bool bypass_verifier) {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   do_remove(k, bypass_verifier);
 }
 
 template <>
 inline void tree_verifier<unodb::olc_db>::try_remove(unodb::key k) {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   std::ignore = test_db.remove(k);
 }
 
@@ -380,7 +380,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 template <>
 inline void tree_verifier<unodb::olc_db>::do_try_remove_missing_key(
     unodb::key absent_key) {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   ASSERT_FALSE(test_db.remove(absent_key));
 }
 
@@ -388,7 +388,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <>
 inline void tree_verifier<unodb::olc_db>::try_get(unodb::key k) const noexcept {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   std::ignore = test_db.get(k);
 }
 

@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -59,8 +59,8 @@ TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeNonemptyValue) {
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
 TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
-  std::byte fake_val{0x00};
-  unodb::value_view too_long{
+  constexpr std::byte fake_val{0x00};
+  const unodb::value_view too_long{
       &fake_val,
       static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max()) +
           1U};

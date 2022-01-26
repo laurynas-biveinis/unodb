@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Laurynas Biveinis
+// Copyright 2020-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_MICRO_BENCHMARK_CONCURRENCY_HPP
 #define UNODB_DETAIL_MICRO_BENCHMARK_CONCURRENCY_HPP
 
@@ -65,7 +65,7 @@ class [[nodiscard]] concurrent_benchmark {
     for (unodb::key i = 0; i < tree_size; ++i)
       insert_key(*test_db, i, values[i % values.size()]);
 
-    for (auto _ : state) {
+    for (const auto _ : state) {
       state.PauseTiming();
       do_parallel_test(*test_db, num_of_threads, tree_size, parallel_get_worker,
                        state);
@@ -79,7 +79,7 @@ class [[nodiscard]] concurrent_benchmark {
     const auto num_of_threads = static_cast<std::size_t>(state.range(0));
     const auto tree_size = static_cast<unodb::key>(state.range(1));
 
-    for (auto _ : state) {
+    for (const auto _ : state) {
       state.PauseTiming();
       test_db = std::make_unique<Db>();
 
@@ -97,7 +97,7 @@ class [[nodiscard]] concurrent_benchmark {
     const auto num_of_threads = static_cast<std::size_t>(state.range(0));
     const auto tree_size = static_cast<unodb::key>(state.range(1));
 
-    for (auto _ : state) {
+    for (const auto _ : state) {
       state.PauseTiming();
 
       test_db = std::make_unique<Db>();

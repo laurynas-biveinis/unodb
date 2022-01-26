@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -23,7 +23,7 @@ void dense_insert(benchmark::State &state) {
   unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   std::size_t tree_size = 0;
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     benchmark::ClobberMemory();
@@ -51,7 +51,7 @@ void sparse_insert_dups_allowed(benchmark::State &state) {
   unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   std::size_t tree_size = 0;
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     benchmark::ClobberMemory();
@@ -85,9 +85,9 @@ void dense_full_scan(benchmark::State &state) {
   for (unodb::key i = 0; i < key_limit; ++i)
     unodb::benchmark::insert_key(test_db, i,
                                  unodb::value_view{unodb::benchmark::value100});
-  std::size_t tree_size = test_db.get_current_memory_use();
+  const auto tree_size = test_db.get_current_memory_use();
 
-  for (auto _ : state)
+  for (const auto _ : state)
     for (auto i = 0; i < full_scan_multiplier; ++i)
       for (unodb::key j = 0; j < key_limit; ++j)
         unodb::benchmark::get_existing_key(test_db, j);
@@ -112,7 +112,7 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
   std::uint64_t start_leaf_count = 0;
   std::uint64_t end_leaf_count = 0;
 
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     unodb::benchmark::batched_prng random_keys{
         static_cast<std::uint64_t>(state.range(0) - 1)};
@@ -146,7 +146,7 @@ constexpr auto dense_tree_increasing_keys_delete_insert_pairs = 1000000;
 
 template <class Db>
 void dense_tree_increasing_keys(benchmark::State &state) {
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     unodb::key key_to_insert;
@@ -187,7 +187,7 @@ void dense_insert_value_lengths_args(benchmark::internal::Benchmark *b) {
 template <class Db>
 void dense_insert_value_lengths(benchmark::State &state) {
   std::size_t tree_size = 0;
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     benchmark::ClobberMemory();
@@ -212,7 +212,7 @@ void dense_insert_value_lengths(benchmark::State &state) {
 
 template <class Db>
 void dense_insert_dup_attempts(benchmark::State &state) {
-  for (auto _ : state) {
+  for (const auto _ : state) {
     state.PauseTiming();
     const auto key_limit = static_cast<unodb::key>(state.range(0));
     Db test_db;

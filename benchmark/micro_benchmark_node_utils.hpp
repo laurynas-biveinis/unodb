@@ -662,7 +662,7 @@ void full_node_scan_benchmark(::benchmark::State &state) {
   } else {
     const auto key_limit =
         detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
-    for (auto _ : state) {
+    for (const auto _ : state) {
       items_processed += detail::get_key_loop(
           test_db, key_limit,
           detail::number_to_full_node_size_tree_key<NodeSize>);

@@ -1,0 +1,4 @@
+---
+rules:
+  line-length:
+    allow-non-breakable-words: true

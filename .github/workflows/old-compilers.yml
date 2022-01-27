@@ -1,3 +1,4 @@
+---
 name: build-with-old-compilers
 
 on: [push]
@@ -198,7 +199,8 @@ jobs:
           if [[ $COMPILER == "clang" ]]; then
             curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
               | sudo apt-key add -
-            echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-${VERSION} main" \
+            echo "deb http://apt.llvm.org/focal/ \
+                    llvm-toolchain-focal-${VERSION} main" \
               | sudo tee -a /etc/apt/sources.list
           fi
           sudo add-apt-repository -y 'ppa:mhier/libboost-latest'

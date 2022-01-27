@@ -1,3 +1,4 @@
+---
 name: Super-Linter
 
 # Run this workflow every time a new commit pushed to your repository
@@ -24,4 +25,3 @@ jobs:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_NATURAL_LANGUAGE: false
-

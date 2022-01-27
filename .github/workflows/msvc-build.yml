@@ -1,3 +1,4 @@
+---
 name: msvc-build
 
 on: [push]
@@ -54,4 +55,5 @@ jobs:
 
       - name: Benchmark correctness test
         run: |
-          cmake --build --preset "${{ matrix.preset }}" --target quick_benchmarks
+          $Env:P = "${{ matrix.preset }}"
+          cmake --build --preset "$env:P" --target quick_benchmarks

@@ -254,7 +254,7 @@ class [[nodiscard]] tree_verifier final {
     const auto mem_use_before =
         parallel_test ? 0 : test_db.get_current_memory_use();
 
-    for (const auto &absent_key : absent_keys) {
+    for (const auto absent_key : absent_keys) {
       const auto remove_result = values.erase(absent_key);
       ASSERT_EQ(remove_result, 0);
       do_try_remove_missing_key(absent_key);
@@ -271,7 +271,7 @@ class [[nodiscard]] tree_verifier final {
   }
 
   void check_present_values() const {
-    for (const auto &[key, value] : values) {
+    for (const auto [key, value] : values) {
       ASSERT_VALUE_FOR_KEY(test_db, key, value);
     }
   }
@@ -281,7 +281,7 @@ class [[nodiscard]] tree_verifier final {
 
   void check_absent_keys(std::initializer_list<unodb::key> absent_keys) const
       noexcept(noexcept(try_get(0))) {
-    for (const auto &absent_key : absent_keys) {
+    for (const auto absent_key : absent_keys) {
       ASSERT_EQ(values.find(absent_key), values.cend());
       try_get(absent_key);
     }

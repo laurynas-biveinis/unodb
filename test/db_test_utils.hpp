@@ -271,7 +271,7 @@ class [[nodiscard]] tree_verifier final {
   }
 
   void check_present_values() const {
-    for (const auto [key, value] : values) {
+    for (const auto &[key, value] : values) {
       ASSERT_VALUE_FOR_KEY(test_db, key, value);
     }
   }

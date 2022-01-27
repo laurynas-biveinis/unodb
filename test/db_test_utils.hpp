@@ -164,7 +164,7 @@ class [[nodiscard]] tree_verifier final {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  public:
-  explicit constexpr tree_verifier(bool parallel_test_ = false) noexcept
+  explicit tree_verifier(bool parallel_test_ = false)
       : parallel_test{parallel_test_} {
     assert_empty();
     assert_growing_inodes({0, 0, 0, 0});
@@ -289,7 +289,7 @@ class [[nodiscard]] tree_verifier final {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  constexpr void assert_empty() const noexcept {
+  void assert_empty() const {
     ASSERT_TRUE(test_db.empty());
 
     ASSERT_EQ(test_db.get_current_memory_use(), 0);
@@ -301,7 +301,7 @@ class [[nodiscard]] tree_verifier final {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
   void assert_node_counts(
-      const node_type_counter_array &expected_node_counts) const noexcept {
+      const node_type_counter_array &expected_node_counts) const {
     // Dump the tree to a string. Do not attempt to check the dump format, only
     // that dumping does not crash
     std::stringstream dump_sink;
@@ -334,7 +334,7 @@ class [[nodiscard]] tree_verifier final {
     ASSERT_EQ(test_db.get_key_prefix_splits(), splits);
   }
 
-  void clear() noexcept {
+  void clear() {
     test_db.clear();
     assert_empty();
 

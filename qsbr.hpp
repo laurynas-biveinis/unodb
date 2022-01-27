@@ -948,14 +948,6 @@ class [[nodiscard]] qsbr_thread : public std::thread {
  public:
   using thread::thread;
 
-  qsbr_thread(qsbr_thread &&other) noexcept = default;
-  qsbr_thread &operator=(qsbr_thread &&other) noexcept = default;
-
-  ~qsbr_thread() = default;
-
-  qsbr_thread(const qsbr_thread &) = delete;
-  qsbr_thread &operator=(const qsbr_thread &) = delete;
-
   template <typename Function, typename... Args,
             class = std::enable_if_t<
                 !std::is_same_v<remove_cvref_t<Function>, qsbr_thread>>>

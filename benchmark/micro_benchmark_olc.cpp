@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -23,7 +23,7 @@ class [[nodiscard]] concurrent_benchmark_olc final
     unodb::this_thread().quiescent();
   }
 
-  void teardown() override { unodb::qsbr::instance().assert_idle(); }
+  void teardown() noexcept override { unodb::qsbr::instance().assert_idle(); }
 };
 
 concurrent_benchmark_olc benchmark_fixture;

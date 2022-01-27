@@ -1,4 +1,4 @@
-// Copyright 2021 Laurynas Biveinis
+// Copyright 2021-2022 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -13,7 +13,7 @@ namespace unodb::test {
 // warning C6326: Potential comparison of a constant with another constant.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
-void expect_idle_qsbr() {
+void expect_idle_qsbr() noexcept {
   const auto state = unodb::qsbr::instance().get_state();
   EXPECT_TRUE(qsbr_state::single_thread_mode(state));
   EXPECT_TRUE(

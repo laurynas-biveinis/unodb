@@ -60,7 +60,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
 template <class Db>
 void assert_value_eq(const typename Db::get_result &result,
-                     unodb::value_view expected) {
+                     unodb::value_view expected) noexcept {
   if constexpr (std::is_same_v<Db, unodb::mutex_db>) {
     UNODB_DETAIL_ASSERT(result.second.owns_lock());
     UNODB_DETAIL_ASSERT(result.first.has_value());

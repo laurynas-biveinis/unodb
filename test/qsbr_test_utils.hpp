@@ -1,4 +1,4 @@
-// Copyright 2021 Laurynas Biveinis
+// Copyright 2021-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_QSBR_TEST_UTILS_HPP
 #define UNODB_DETAIL_QSBR_TEST_UTILS_HPP
 
@@ -6,7 +6,7 @@
 
 namespace unodb::test {
 
-void expect_idle_qsbr();
+void expect_idle_qsbr() noexcept;
 
 }  // namespace unodb::test
 

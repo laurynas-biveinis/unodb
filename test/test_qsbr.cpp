@@ -46,14 +46,14 @@ class QSBR : public ::testing::Test {
   // warning C6326: Potential comparison of a constant with another constant.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
-  void check_epoch_advanced() {
+  void check_epoch_advanced() noexcept {
     const auto current_epoch =
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
     EXPECT_EQ(last_epoch.next(), current_epoch);
     last_epoch = current_epoch;
   }
 
-  void check_epoch_same() const {
+  void check_epoch_same() const noexcept {
     const auto current_epoch =
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
     EXPECT_EQ(last_epoch, current_epoch);
@@ -84,7 +84,7 @@ class QSBR : public ::testing::Test {
     );
   }
 
-  static void touch_memory(char *ptr, char opt_val = '\0') {
+  static void touch_memory(char *ptr, char opt_val = '\0') noexcept {
     if (opt_val != '\0') {
       *ptr = opt_val;
     } else {
@@ -137,7 +137,7 @@ TEST_F(QSBR, SingleThreadPauseResume) {
 TEST_F(QSBR, TwoThreads) {
   ASSERT_EQ(get_qsbr_thread_count(), 1);
   unodb::qsbr_thread second_thread(
-      [] { EXPECT_EQ(get_qsbr_thread_count(), 2); });
+      []() noexcept { EXPECT_EQ(get_qsbr_thread_count(), 2); });
   second_thread.join();
   ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
@@ -145,7 +145,8 @@ TEST_F(QSBR, TwoThreads) {
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 TEST_F(QSBR, TwoThreadsSecondQuitPaused) {
-  unodb::qsbr_thread second_thread([] { unodb::this_thread().qsbr_pause(); });
+  unodb::qsbr_thread second_thread(
+      []() noexcept { unodb::this_thread().qsbr_pause(); });
   second_thread.join();
 }
 
@@ -203,7 +204,7 @@ TEST_F(QSBR, TwoThreadsSequential) {
   unodb::this_thread().qsbr_pause();
   ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::qsbr_thread second_thread(
-      [] { ASSERT_EQ(get_qsbr_thread_count(), 1); });
+      []() noexcept { ASSERT_EQ(get_qsbr_thread_count(), 1); });
   second_thread.join();
   ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
@@ -214,8 +215,8 @@ TEST_F(QSBR, TwoThreadsDefaultCtor) {
   unodb::this_thread().qsbr_pause();
   unodb::qsbr_thread second_thread{};
   ASSERT_EQ(get_qsbr_thread_count(), 0);
-  second_thread =
-      unodb::qsbr_thread{[] { ASSERT_EQ(get_qsbr_thread_count(), 1); }};
+  second_thread = unodb::qsbr_thread{
+      []() noexcept { ASSERT_EQ(get_qsbr_thread_count(), 1); }};
   second_thread.join();
   ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
@@ -226,7 +227,7 @@ TEST_F(QSBR, SecondThreadAddedWhileFirstPaused) {
   ASSERT_EQ(get_qsbr_thread_count(), 0);
 
   unodb::qsbr_thread second_thread(
-      [] { ASSERT_EQ(get_qsbr_thread_count(), 1); });
+      []() noexcept { ASSERT_EQ(get_qsbr_thread_count(), 1); });
   second_thread.join();
 
   ASSERT_EQ(get_qsbr_thread_count(), 0);

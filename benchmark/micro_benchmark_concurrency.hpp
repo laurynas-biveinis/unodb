@@ -49,7 +49,7 @@ class [[nodiscard]] concurrent_benchmark {
 
   virtual void end_workload_in_main_thread() {}
 
-  virtual void teardown() {}
+  virtual void teardown() noexcept {}
   UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
  public:

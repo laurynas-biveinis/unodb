@@ -17,19 +17,20 @@
 namespace {
 
 class QSBR : public ::testing::Test {
+ public:
+  ~QSBR() noexcept override {
+    if (unodb::this_thread().is_qsbr_paused())
+      unodb::this_thread().qsbr_resume();
+    unodb::this_thread().quiescent();
+    unodb::test::expect_idle_qsbr();
+  }
+
  protected:
   QSBR() noexcept {
     if (unodb::this_thread().is_qsbr_paused())
       unodb::this_thread().qsbr_resume();
     unodb::test::expect_idle_qsbr();
     unodb::qsbr::instance().reset_stats();
-  }
-
-  ~QSBR() noexcept override {
-    if (unodb::this_thread().is_qsbr_paused())
-      unodb::this_thread().qsbr_resume();
-    unodb::this_thread().quiescent();
-    unodb::test::expect_idle_qsbr();
   }
 
   [[nodiscard]] static auto get_qsbr_thread_count() noexcept {

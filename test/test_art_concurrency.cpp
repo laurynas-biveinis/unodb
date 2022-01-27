@@ -21,17 +21,18 @@ namespace {
 
 template <class Db>
 class ARTConcurrencyTest : public ::testing::Test {
- protected:
-  ARTConcurrencyTest() noexcept {
-    if constexpr (std::is_same_v<Db, unodb::olc_db>)
-      unodb::test::expect_idle_qsbr();
-  }
-
+ public:
   ~ARTConcurrencyTest() noexcept override {
     if constexpr (std::is_same_v<Db, unodb::olc_db>) {
       unodb::this_thread().quiescent();
       unodb::test::expect_idle_qsbr();
     }
+  }
+
+ protected:
+  ARTConcurrencyTest() noexcept {
+    if constexpr (std::is_same_v<Db, unodb::olc_db>)
+      unodb::test::expect_idle_qsbr();
   }
 
   template <std::size_t ThreadCount, std::size_t OpsPerThread, typename TestFn>

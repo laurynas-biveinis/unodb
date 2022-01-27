@@ -17,7 +17,7 @@ class [[nodiscard]] thread_sync final {
   thread_sync() noexcept = default;
   ~thread_sync() noexcept { UNODB_DETAIL_ASSERT(is_reset()); }
 
-  [[nodiscard]] bool is_reset() const noexcept {
+  [[nodiscard]] bool is_reset() const {
     std::lock_guard lock{sync_mutex};
     return !flag;
   }

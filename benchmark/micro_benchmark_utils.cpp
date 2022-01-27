@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Laurynas Biveinis
+// Copyright 2020-2022 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -15,18 +15,17 @@ namespace unodb::benchmark {
 // Teardown
 
 template <class Db>
-void destroy_tree(Db &db, ::benchmark::State &state) noexcept {
+void destroy_tree(Db &db, ::benchmark::State &state) {
   // Timer must be stopped on entry
   db.clear();
   ::benchmark::ClobberMemory();
   state.ResumeTiming();
 }
 
-template void destroy_tree<unodb::db>(unodb::db &,
-                                      ::benchmark::State &) noexcept;
+template void destroy_tree<unodb::db>(unodb::db &, ::benchmark::State &);
 template void destroy_tree<unodb::mutex_db>(unodb::mutex_db &,
-                                            ::benchmark::State &) noexcept;
+                                            ::benchmark::State &);
 template void destroy_tree<unodb::olc_db>(unodb::olc_db &,
-                                          ::benchmark::State &) noexcept;
+                                          ::benchmark::State &);
 
 }  // namespace unodb::benchmark

@@ -93,7 +93,7 @@ namespace {
 
 void add_to_orphan_list(
     std::atomic<detail::dealloc_vector_list_node *> &orphan_list,
-    std::unique_ptr<detail::dealloc_request_vector> &&requests) noexcept {
+    std::unique_ptr<detail::dealloc_request_vector> &&requests) {
   if (requests->empty()) {
     requests.reset();
     return;

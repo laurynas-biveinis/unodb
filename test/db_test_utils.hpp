@@ -78,7 +78,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 template <class Db>
 void do_assert_result_eq(const Db &db, unodb::key key,
                          unodb::value_view expected, const char *file,
-                         int line) noexcept {
+                         int line) {
   std::ostringstream msg;
   unodb::detail::dump_key(msg, key);
   testing::ScopedTrace trace(file, line, msg.str());
@@ -99,14 +99,14 @@ UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
 template <class Db>
 void assert_result_eq(const Db &db, unodb::key key, unodb::value_view expected,
-                      const char *file, int line) noexcept {
+                      const char *file, int line) {
   do_assert_result_eq(db, key, expected, file, line);
 }
 
 template <>
 inline void assert_result_eq(const unodb::olc_db &db, unodb::key key,
                              unodb::value_view expected, const char *file,
-                             int line) noexcept {
+                             int line) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   do_assert_result_eq(db, key, expected, file, line);
 }
@@ -250,7 +250,7 @@ class [[nodiscard]] tree_verifier final {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
   void attempt_remove_missing_keys(
-      std::initializer_list<unodb::key> absent_keys) noexcept {
+      std::initializer_list<unodb::key> absent_keys) {
     const auto mem_use_before =
         parallel_test ? 0 : test_db.get_current_memory_use();
 
@@ -266,9 +266,11 @@ class [[nodiscard]] tree_verifier final {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  void try_get(unodb::key k) const noexcept { std::ignore = test_db.get(k); }
+  void try_get(unodb::key k) const noexcept(noexcept(test_db.get(k))) {
+    std::ignore = test_db.get(k);
+  }
 
-  void check_present_values() const noexcept {
+  void check_present_values() const {
     for (const auto &[key, value] : values) {
       ASSERT_VALUE_FOR_KEY(test_db, key, value);
     }
@@ -277,8 +279,8 @@ class [[nodiscard]] tree_verifier final {
   // warning C6326: Potential comparison of a constant with another constant.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
-  void check_absent_keys(
-      std::initializer_list<unodb::key> absent_keys) const noexcept {
+  void check_absent_keys(std::initializer_list<unodb::key> absent_keys) const
+      noexcept(noexcept(try_get(0))) {
     for (const auto &absent_key : absent_keys) {
       ASSERT_TRUE(values.find(absent_key) == values.cend());
       try_get(absent_key);

@@ -24,7 +24,7 @@ class mutex_db final {
   mutex_db() noexcept = default;
 
   // Querying
-  [[nodiscard]] auto get(key k) const noexcept {
+  [[nodiscard]] auto get(key k) const {
     std::unique_lock guard{mutex};
     const auto db_get_result{db_.get(k)};
     if (!db_get_result) {
@@ -34,7 +34,7 @@ class mutex_db final {
     return std::make_pair(db_get_result, std::move(guard));
   }
 
-  [[nodiscard]] auto empty() const noexcept {
+  [[nodiscard]] auto empty() const {
     const std::lock_guard guard{mutex};
     return db_.empty();
   }
@@ -57,45 +57,45 @@ class mutex_db final {
   }
 
   // Stats
-  [[nodiscard]] auto get_current_memory_use() const noexcept {
+  [[nodiscard]] auto get_current_memory_use() const {
     const std::lock_guard guard{mutex};
     return db_.get_current_memory_use();
   }
 
   template <node_type NodeType>
-  [[nodiscard]] auto get_node_count() const noexcept {
+  [[nodiscard]] auto get_node_count() const {
     const std::lock_guard guard{mutex};
     return db_.get_node_count<NodeType>();
   }
 
-  [[nodiscard]] auto get_node_counts() const noexcept {
+  [[nodiscard]] auto get_node_counts() const {
     const std::lock_guard guard{mutex};
     return db_.get_node_counts();
   }
 
   template <node_type NodeType>
-  [[nodiscard]] auto get_growing_inode_count() const noexcept {
+  [[nodiscard]] auto get_growing_inode_count() const {
     const std::lock_guard guard{mutex};
     return db_.get_growing_inode_count<NodeType>();
   }
 
-  [[nodiscard]] auto get_growing_inode_counts() const noexcept {
+  [[nodiscard]] auto get_growing_inode_counts() const {
     const std::lock_guard guard{mutex};
     return db_.get_growing_inode_counts();
   }
 
   template <node_type NodeType>
-  [[nodiscard]] auto get_shrinking_inode_count() const noexcept {
+  [[nodiscard]] auto get_shrinking_inode_count() const {
     const std::lock_guard guard{mutex};
     return db_.get_shrinking_inode_count<NodeType>();
   }
 
-  [[nodiscard]] auto get_shrinking_inode_counts() const noexcept {
+  [[nodiscard]] auto get_shrinking_inode_counts() const {
     const std::lock_guard guard{mutex};
     return db_.get_shrinking_inode_counts();
   }
 
-  [[nodiscard]] auto get_key_prefix_splits() const noexcept {
+  [[nodiscard]] auto get_key_prefix_splits() const {
     const std::lock_guard guard{mutex};
     return db_.get_key_prefix_splits();
   }

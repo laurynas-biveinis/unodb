@@ -198,14 +198,13 @@ inline void get_existing_key(const unodb::olc_db &db, unodb::key k) {
 // Teardown
 
 template <class Db>
-void destroy_tree(Db &db, ::benchmark::State &state) noexcept;
+void destroy_tree(Db &db, ::benchmark::State &state);
 
-extern template void destroy_tree<unodb::db>(unodb::db &,
-                                             ::benchmark::State &) noexcept;
-extern template void destroy_tree<unodb::mutex_db>(
-    unodb::mutex_db &, ::benchmark::State &) noexcept;
+extern template void destroy_tree<unodb::db>(unodb::db &, ::benchmark::State &);
+extern template void destroy_tree<unodb::mutex_db>(unodb::mutex_db &,
+                                                   ::benchmark::State &);
 extern template void destroy_tree<unodb::olc_db>(unodb::olc_db &,
-                                                 ::benchmark::State &) noexcept;
+                                                 ::benchmark::State &);
 
 }  // namespace unodb::benchmark
 

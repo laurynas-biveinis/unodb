@@ -149,7 +149,7 @@ class [[nodiscard]] tree_verifier final {
 
     if (!parallel_test) {
       const auto mem_use_after = test_db.get_current_memory_use();
-      ASSERT_TRUE(mem_use_after < mem_use_before);
+      ASSERT_LT(mem_use_after, mem_use_before);
 
       const auto leaf_count_after =
           test_db.template get_node_count<::unodb::node_type::LEAF>();
@@ -282,7 +282,7 @@ class [[nodiscard]] tree_verifier final {
   void check_absent_keys(std::initializer_list<unodb::key> absent_keys) const
       noexcept(noexcept(try_get(0))) {
     for (const auto &absent_key : absent_keys) {
-      ASSERT_TRUE(values.find(absent_key) == values.cend());
+      ASSERT_EQ(values.find(absent_key), values.cend());
       try_get(absent_key);
     }
   }

@@ -334,7 +334,7 @@ class [[nodiscard]] olc_inode_16 final
       : parent_class{
             obsolete_and_move(source_node, std::move(source_node_guard)),
             std::move(child), depth} {
-    unodb::detail::assert_inactive(source_node_guard);
+    UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
   }
 
   olc_inode_16(db_inode48_reclaimable_ptr &&source_node,
@@ -420,8 +420,8 @@ olc_inode_4::olc_inode_4(
     : parent_class{
           obsolete_and_move(source_node, std::move(source_node_guard)),
           obsolete_child_by_index(child_to_delete, std::move(child_guard))} {
-  unodb::detail::assert_inactive(source_node_guard);
-  unodb::detail::assert_inactive(child_guard);
+  UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
+  UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
 }
 
 [[nodiscard]] inline olc_inode_4::db_inode4_unique_ptr olc_inode_4::create(
@@ -449,7 +449,7 @@ class [[nodiscard]] olc_inode_48 final
       : parent_class{
             obsolete_and_move(source_node, std::move(source_node_guard)),
             std::move(child), depth} {
-    unodb::detail::assert_inactive(source_node_guard);
+    UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
   }
 
   [[nodiscard]] static auto create(
@@ -536,8 +536,8 @@ olc_inode_16::olc_inode_16(
     : parent_class{
           obsolete_and_move(source_node, std::move(source_node_guard)),
           obsolete_child_by_index(child_to_delete, std::move(child_guard))} {
-  unodb::detail::assert_inactive(source_node_guard);
-  unodb::detail::assert_inactive(child_guard);
+  UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
+  UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
 }
 
 class [[nodiscard]] olc_inode_256 final
@@ -552,7 +552,7 @@ class [[nodiscard]] olc_inode_256 final
       : parent_class{
             obsolete_and_move(source_node, std::move(source_node_guard)),
             std::move(child), depth} {
-    unodb::detail::assert_inactive(source_node_guard);
+    UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
   }
 
   [[nodiscard]] static auto create(
@@ -619,8 +619,8 @@ olc_inode_48::olc_inode_48(
     : parent_class{
           obsolete_and_move(source_node, std::move(source_node_guard)),
           obsolete_child_by_index(child_to_delete, std::move(child_guard))} {
-  unodb::detail::assert_inactive(source_node_guard);
-  unodb::detail::assert_inactive(child_guard);
+  UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
+  UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
 }
 
 }  // namespace
@@ -664,7 +664,7 @@ olc_impl_helpers::add_or_choose_subtree(
         // TODO(laurynas): account outside of write_guard critical sections
         db_instance.account_growing_inode<INode::larger_derived_type::type>();
 
-        unodb::detail::assert_inactive(node_write_guard);
+        UNODB_DETAIL_ASSERT_INACTIVE(node_write_guard);
 
         return child_in_parent;
       }
@@ -779,8 +779,8 @@ template <class INode>
   // TODO(laurynas): account after write unlocks?
   db_instance.template account_shrinking_inode<INode::type>();
 
-  unodb::detail::assert_inactive(node_guard);
-  unodb::detail::assert_inactive(child_guard);
+  UNODB_DETAIL_ASSERT_INACTIVE(node_guard);
+  UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
 
   *child_in_parent = nullptr;
   return true;

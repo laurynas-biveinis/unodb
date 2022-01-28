@@ -15,8 +15,10 @@ namespace unodb {
 namespace detail {
 
 class qsbr_ptr_base {
-#ifndef NDEBUG
  protected:
+  qsbr_ptr_base() = default;
+
+#ifndef NDEBUG
   static void register_active_ptr(const void *ptr);
   static void unregister_active_ptr(const void *ptr);
 #endif

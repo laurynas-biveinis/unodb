@@ -1,3 +1,4 @@
+---
 name: msvc-static-analysis
 
 on: [push]

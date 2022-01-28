@@ -331,18 +331,13 @@ class [[nodiscard]] optimistic_lock final {
 
 static_assert(std::is_standard_layout_v<optimistic_lock>);
 
-namespace detail {
-
-inline void assert_inactive(
-    const optimistic_lock::write_guard &guard) noexcept {
-#ifdef NDEBUG
-  std::ignore = guard;
-#else
-  UNODB_DETAIL_ASSERT(!guard.active());
-#endif
-}
-
-}  // namespace detail
+// warning 26800: Use of a moved from object '...' (lifetime.1)
+#define UNODB_DETAIL_ASSERT_INACTIVE(guard)   \
+  do {                                        \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26800); \
+    UNODB_DETAIL_ASSERT(!(guard).active());   \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS();     \
+  } while (0)
 
 #ifdef NDEBUG
 static_assert(sizeof(optimistic_lock) == 8);

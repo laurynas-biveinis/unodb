@@ -490,12 +490,12 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
 };
 
-[[nodiscard]] inline qsbr_per_thread &this_thread() noexcept {
+[[nodiscard]] inline qsbr_per_thread &this_thread() {
   thread_local static qsbr_per_thread current_thread_reclamator_instance;
   return current_thread_reclamator_instance;
 }
 
-inline void construct_current_thread_reclamator() noexcept {
+inline void construct_current_thread_reclamator() {
   // An ODR-use ensures that the constructor gets called
   std::ignore = this_thread();
 }
@@ -948,8 +948,8 @@ class [[nodiscard]] qsbr_thread : public std::thread {
   template <typename Function, typename... Args,
             class = std::enable_if_t<
                 !std::is_same_v<remove_cvref_t<Function>, qsbr_thread>>>
-  explicit qsbr_thread(Function &&f, Args &&...args) noexcept
-      : std::thread{[](auto &&f2, auto &&...args2) noexcept {
+  explicit qsbr_thread(Function &&f, Args &&...args)
+      : std::thread{[](auto &&f2, auto &&...args2) {
                       construct_current_thread_reclamator();
                       f2(std::forward<Args>(args2)...);
                     },

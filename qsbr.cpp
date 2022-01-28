@@ -4,6 +4,8 @@
 
 #include "qsbr.hpp"
 
+#include <iostream>
+
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
 #include <sanitizer/tsan_interface.h>
 #endif
@@ -14,7 +16,21 @@ namespace {
 
 struct run_tls_ctor_in_main_thread {
   run_tls_ctor_in_main_thread() noexcept {
-    unodb::construct_current_thread_reclamator();
+    try {
+      unodb::construct_current_thread_reclamator();
+    }
+    // LCOV_EXCL_START
+    catch (const std::bad_alloc &e) {
+      std::cerr << "Allocation failure: " << e.what() << '\n';
+      UNODB_DETAIL_CRASH();
+    } catch (const std::exception &e) {
+      std::cerr << "Unexpected exception: " << e.what() << '\n';
+      UNODB_DETAIL_CRASH();
+    } catch (...) {
+      std::cerr << "Unexpected exception\n";
+      UNODB_DETAIL_CRASH();
+    }
+    // LCOV_EXCL_STOP
   }
 };
 

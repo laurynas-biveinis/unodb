@@ -4,8 +4,6 @@
 
 #include "global.hpp"
 
-#ifndef NDEBUG
-
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -30,6 +28,16 @@ namespace unodb::detail {
   std::abort();
 }
 
+[[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void crash(
+    const char *file, int line, const char *func) noexcept {
+  std::ostringstream buf;
+  buf << "Crash requested at " << file << ':' << line << ", function \"" << func
+      << "\", thread " << std::this_thread::get_id() << '\n';
+  msg_stacktrace_abort(buf.str());
+}
+
+#ifndef NDEBUG
+
 [[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void assert_failure(
     const char *file, int line, const char *func,
     const char *condition) noexcept {
@@ -37,14 +45,6 @@ namespace unodb::detail {
   buf << "Assertion \"" << condition << "\" failed at " << file << ':' << line
       << ", function \"" << func << "\", thread " << std::this_thread::get_id()
       << '\n';
-  msg_stacktrace_abort(buf.str());
-}
-
-[[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void crash(
-    const char *file, int line, const char *func) noexcept {
-  std::ostringstream buf;
-  buf << "Crash requested at " << file << ':' << line << ", function \"" << func
-      << "\", thread " << std::this_thread::get_id() << '\n';
   msg_stacktrace_abort(buf.str());
 }
 
@@ -62,22 +62,18 @@ namespace unodb::detail {
   ? unodb::detail::assert_failure(__FILE__, __LINE__, __func__, #condition) \
   : ((void)0)
 
-}  // namespace unodb::detail
-
 #else  // #ifndef NDEBUG
-
-namespace unodb::detail {
 
 [[noreturn]] inline void cannot_happen(const char *, int,
                                        const char *) noexcept {
   UNODB_DETAIL_UNREACHABLE();
 }
 
-}  // namespace unodb::detail
-
 #define UNODB_DETAIL_ASSERT(condition) ((void)0)
 
 #endif  // #ifndef NDEBUG
+
+}  // namespace unodb::detail
 
 #define UNODB_DETAIL_ASSUME(x)      \
   do {                              \

@@ -62,14 +62,14 @@ UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 #ifndef NDEBUG
 
-void qsbr_per_thread::register_active_ptr(const void *ptr) noexcept {
+void qsbr_per_thread::register_active_ptr(const void *ptr) {
   UNODB_DETAIL_ASSERT(ptr != nullptr);
   UNODB_DETAIL_ASSERT(!is_qsbr_paused());
 
   active_ptrs.insert(ptr);
 }
 
-void qsbr_per_thread::unregister_active_ptr(const void *ptr) noexcept {
+void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
   UNODB_DETAIL_ASSERT(ptr != nullptr);
   UNODB_DETAIL_ASSERT(!is_qsbr_paused());
 
@@ -139,7 +139,7 @@ void free_orphan_list(detail::dealloc_vector_list_node *list
 
 }  // namespace
 
-void qsbr_per_thread::orphan_deferred_requests() noexcept {
+void qsbr_per_thread::orphan_deferred_requests() {
   add_to_orphan_list(
       qsbr::instance().orphaned_previous_interval_dealloc_requests,
       std::move(previous_interval_dealloc_requests));
@@ -202,7 +202,7 @@ qsbr_epoch qsbr::register_thread() noexcept {
 
 void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                              qsbr_epoch thread_epoch,
-                             qsbr_per_thread &qsbr_thread) noexcept {
+                             qsbr_per_thread &qsbr_thread) {
   bool global_requests_updated_for_epoch_change = false;
   auto old_state = state.load(std::memory_order_acquire);
 
@@ -279,7 +279,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
   }
 }
 
-void qsbr::reset_stats() noexcept {
+void qsbr::reset_stats() {
   // Stats can only be reset on idle QSBR - best-effort check as nothing
   // prevents to leaving idle state at any time
   assert_idle();

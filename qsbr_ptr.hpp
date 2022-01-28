@@ -17,8 +17,8 @@ namespace detail {
 class qsbr_ptr_base {
 #ifndef NDEBUG
  protected:
-  static void register_active_ptr(const void *ptr) noexcept;
-  static void unregister_active_ptr(const void *ptr) noexcept;
+  static void register_active_ptr(const void *ptr);
+  static void unregister_active_ptr(const void *ptr);
 #endif
 };
 
@@ -51,7 +51,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     other.ptr = nullptr;
   }
 
-  ~qsbr_ptr() {
+  ~qsbr_ptr() noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
 #endif

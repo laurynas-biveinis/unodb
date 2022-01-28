@@ -22,7 +22,7 @@ namespace {
 template <class Db>
 class ARTConcurrencyTest : public ::testing::Test {
  public:
-  ~ARTConcurrencyTest() noexcept override {
+  ~ARTConcurrencyTest() override {
     if constexpr (std::is_same_v<Db, unodb::olc_db>) {
       unodb::this_thread().quiescent();
       unodb::test::expect_idle_qsbr();

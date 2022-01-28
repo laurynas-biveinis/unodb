@@ -18,7 +18,7 @@ namespace {
 
 class QSBR : public ::testing::Test {
  public:
-  ~QSBR() noexcept override {
+  ~QSBR() override {
     if (unodb::this_thread().is_qsbr_paused())
       unodb::this_thread().qsbr_resume();
     unodb::this_thread().quiescent();
@@ -26,7 +26,7 @@ class QSBR : public ::testing::Test {
   }
 
  protected:
-  QSBR() noexcept {
+  QSBR() {
     if (unodb::this_thread().is_qsbr_paused())
       unodb::this_thread().qsbr_resume();
     unodb::test::expect_idle_qsbr();

@@ -62,6 +62,8 @@ namespace unodb::detail {
   ? unodb::detail::assert_failure(__FILE__, __LINE__, __func__, #condition) \
   : ((void)0)
 
+#define UNODB_DETAIL_DEBUG_CRASH() UNODB_DETAIL_CRASH()
+
 #else  // #ifndef NDEBUG
 
 [[noreturn]] inline void cannot_happen(const char *, int,
@@ -70,6 +72,8 @@ namespace unodb::detail {
 }
 
 #define UNODB_DETAIL_ASSERT(condition) ((void)0)
+
+#define UNODB_DETAIL_DEBUG_CRASH()
 
 #endif  // #ifndef NDEBUG
 

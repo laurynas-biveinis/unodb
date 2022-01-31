@@ -96,27 +96,19 @@ void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
 
 #endif  // !NDEBUG
 
-namespace detail {
-
-struct dealloc_vector_list_node {
-  std::unique_ptr<detail::dealloc_request_vector> requests;
-  dealloc_vector_list_node *next;
-};
-
-}  // namespace detail
-
 namespace {
 
 void add_to_orphan_list(
     std::atomic<detail::dealloc_vector_list_node *> &orphan_list,
-    std::unique_ptr<detail::dealloc_request_vector> &&requests) {
+    std::unique_ptr<detail::dealloc_request_vector> &&requests,
+    std::unique_ptr<detail::dealloc_vector_list_node>
+        orphan_list_node) noexcept {
   if (requests->empty()) {
     requests.reset();
     return;
   }
 
-  auto list_node = std::make_unique<detail::dealloc_vector_list_node>();
-  auto *const list_node_ptr = list_node.release();
+  auto *const list_node_ptr = orphan_list_node.release();
 
   list_node_ptr->requests = std::move(requests);
   list_node_ptr->next = orphan_list.load(std::memory_order_acquire);
@@ -155,16 +147,20 @@ void free_orphan_list(detail::dealloc_vector_list_node *list
 
 }  // namespace
 
-void qsbr_per_thread::orphan_deferred_requests() {
+void qsbr_per_thread::orphan_deferred_requests() noexcept {
   add_to_orphan_list(
       qsbr::instance().orphaned_previous_interval_dealloc_requests,
-      std::move(previous_interval_dealloc_requests));
+      std::move(previous_interval_dealloc_requests),
+      std::move(previous_interval_orphan_list_node));
   add_to_orphan_list(
       qsbr::instance().orphaned_current_interval_dealloc_requests,
-      std::move(current_interval_dealloc_requests));
+      std::move(current_interval_dealloc_requests),
+      std::move(current_interval_orphan_list_node));
 
   UNODB_DETAIL_ASSERT(previous_interval_dealloc_requests == nullptr);
+  UNODB_DETAIL_ASSERT(previous_interval_orphan_list_node == nullptr);
   UNODB_DETAIL_ASSERT(current_interval_dealloc_requests == nullptr);
+  UNODB_DETAIL_ASSERT(current_interval_orphan_list_node == nullptr);
 }
 
 qsbr_epoch qsbr::register_thread() noexcept {

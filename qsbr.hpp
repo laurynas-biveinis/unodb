@@ -7,11 +7,14 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <exception>
 #ifndef NDEBUG
 #include <functional>  // IWYU pragma: keep
 #endif
 #include <iostream>
 #include <mutex>  // IWYU pragma: keep
+#include <new>
+#include <system_error>
 #include <thread>
 #include <tuple>
 #include <type_traits>
@@ -415,14 +418,39 @@ class [[nodiscard]] deferred_requests final {
 #endif
 };
 
+struct dealloc_vector_list_node {
+  std::unique_ptr<detail::dealloc_request_vector> requests;
+  dealloc_vector_list_node *next;
+};
+
 }  // namespace detail
 
 class [[nodiscard]] qsbr_per_thread final {
  public:
   qsbr_per_thread();
 
-  ~qsbr_per_thread() {
-    if (!is_qsbr_paused()) qsbr_pause();
+  ~qsbr_per_thread() noexcept {
+    if (!is_qsbr_paused()) {
+      try {
+        qsbr_pause();
+      }
+      // The QSBR destructor can only throw std::system_error from the stats
+      // mutex lock. Eat this exception, and eat any other unexpected exceptions
+      // too, except for the debug build.
+      // LCOV_EXCL_START
+      catch (const std::system_error &e) {
+        std::cerr << "Failed to register QSBR stats for the quitting thread: "
+                  << e.what() << '\n';
+      } catch (const std::exception &e) {
+        std::cerr << "Unknown exception in the QSBR thread destructor: "
+                  << e.what() << '\n';
+        UNODB_DETAIL_DEBUG_CRASH();
+      } catch (...) {
+        std::cerr << "Unknown exception in the QSBR thread destructor";
+        UNODB_DETAIL_DEBUG_CRASH();
+      }
+      // LCOV_EXCL_STOP
+    }
   }
 
   void on_next_epoch_deallocate(
@@ -470,20 +498,33 @@ class [[nodiscard]] qsbr_per_thread final {
   qsbr_epoch last_seen_epoch;
 
   std::unique_ptr<detail::dealloc_request_vector>
-      previous_interval_dealloc_requests;
+      previous_interval_dealloc_requests{
+          std::make_unique<detail::dealloc_request_vector>()};
 
   std::unique_ptr<detail::dealloc_request_vector>
-      current_interval_dealloc_requests;
+      current_interval_dealloc_requests{
+          std::make_unique<detail::dealloc_request_vector>()};
+
   std::size_t current_interval_total_dealloc_size{0};
 
   bool paused{true};
 
+  std::unique_ptr<detail::dealloc_vector_list_node>
+      previous_interval_orphan_list_node{
+          std::make_unique<detail::dealloc_vector_list_node>()};
+
+  std::unique_ptr<detail::dealloc_vector_list_node>
+      current_interval_orphan_list_node{
+          std::make_unique<detail::dealloc_vector_list_node>()};
+
   void advance_last_seen_epoch(bool single_thread_mode,
-                               qsbr_epoch new_seen_epoch);
+                               qsbr_epoch new_seen_epoch,
+                               bool thread_unregistering = false);
 
-  void update_requests(bool single_thread_mode, qsbr_epoch dealloc_epoch);
+  void update_requests(bool single_thread_mode, qsbr_epoch dealloc_epoch,
+                       bool thread_unregistering = false);
 
-  void orphan_deferred_requests();
+  void orphan_deferred_requests() noexcept;
 
 #ifndef NDEBUG
   std::unordered_multiset<const void *> active_ptrs;
@@ -501,12 +542,6 @@ inline void construct_current_thread_reclamator() {
 }
 
 namespace boost_acc = boost::accumulators;
-
-namespace detail {
-
-struct dealloc_vector_list_node;
-
-}  // namespace detail
 
 class qsbr final {
  public:
@@ -718,11 +753,7 @@ static_assert(std::atomic<double>::is_always_lock_free);
 // cppcheck-suppress uninitMemberVar
 inline qsbr_per_thread::qsbr_per_thread()
     : last_seen_quiescent_state_epoch{qsbr::instance().register_thread()},
-      last_seen_epoch{last_seen_quiescent_state_epoch},
-      previous_interval_dealloc_requests{
-          std::make_unique<detail::dealloc_request_vector>()},
-      current_interval_dealloc_requests{
-          std::make_unique<detail::dealloc_request_vector>()} {
+      last_seen_epoch{last_seen_quiescent_state_epoch} {
   UNODB_DETAIL_ASSERT(paused);
   paused = false;
 }
@@ -765,7 +796,8 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
 }
 
 inline void qsbr_per_thread::advance_last_seen_epoch(
-    bool single_thread_mode, qsbr_epoch new_seen_epoch) {
+    bool single_thread_mode, qsbr_epoch new_seen_epoch,
+    bool thread_unregistering) {
   if (new_seen_epoch == last_seen_epoch) return;
 
   UNODB_DETAIL_ASSERT(new_seen_epoch == last_seen_epoch.next()
@@ -773,11 +805,13 @@ inline void qsbr_per_thread::advance_last_seen_epoch(
                       // the current epoch yet; 3) it quitting will cause an
                       // epoch advance
                       || new_seen_epoch == last_seen_epoch.next().next());
-  update_requests(single_thread_mode, new_seen_epoch);
+  update_requests(single_thread_mode, new_seen_epoch, thread_unregistering);
 }
 
+// Will not throw if thread_unregistering
 inline void qsbr_per_thread::update_requests(bool single_thread_mode,
-                                             qsbr_epoch dealloc_epoch) {
+                                             qsbr_epoch dealloc_epoch,
+                                             bool thread_unregistering) {
   last_seen_epoch = dealloc_epoch;
 
   detail::deferred_requests requests_to_deallocate{
@@ -798,8 +832,10 @@ inline void qsbr_per_thread::update_requests(bool single_thread_mode,
     previous_interval_dealloc_requests =
         std::move(current_interval_dealloc_requests);
   } else {
-    previous_interval_dealloc_requests =
-        std::make_unique<detail::dealloc_request_vector>();
+    if (!thread_unregistering) {
+      previous_interval_dealloc_requests =
+          std::make_unique<detail::dealloc_request_vector>();
+    }
     detail::deferred_requests additional_requests_to_deallocate{
         std::move(current_interval_dealloc_requests)
 #ifndef NDEBUG
@@ -808,8 +844,10 @@ inline void qsbr_per_thread::update_requests(bool single_thread_mode,
 #endif
     };
   }
-  current_interval_dealloc_requests =
-      std::make_unique<detail::dealloc_request_vector>();
+  if (!thread_unregistering) {
+    current_interval_dealloc_requests =
+        std::make_unique<detail::dealloc_request_vector>();
+  }
 }
 
 inline void qsbr_per_thread::quiescent() {
@@ -897,7 +935,9 @@ inline void qsbr_per_thread::qsbr_pause() {
   paused = true;
 
   UNODB_DETAIL_ASSERT(previous_interval_dealloc_requests == nullptr);
+  UNODB_DETAIL_ASSERT(previous_interval_orphan_list_node == nullptr);
   UNODB_DETAIL_ASSERT(current_interval_dealloc_requests == nullptr);
+  UNODB_DETAIL_ASSERT(current_interval_orphan_list_node == nullptr);
 }
 
 inline void qsbr_per_thread::qsbr_resume() {
@@ -913,6 +953,10 @@ inline void qsbr_per_thread::qsbr_resume() {
       std::make_unique<detail::dealloc_request_vector>();
   current_interval_dealloc_requests =
       std::make_unique<detail::dealloc_request_vector>();
+  previous_interval_orphan_list_node =
+      std::make_unique<detail::dealloc_vector_list_node>();
+  current_interval_orphan_list_node =
+      std::make_unique<detail::dealloc_vector_list_node>();
   quiescent_states_since_epoch_change = 0;
   paused = false;
 }
@@ -949,11 +993,28 @@ class [[nodiscard]] qsbr_thread : public std::thread {
             class = std::enable_if_t<
                 !std::is_same_v<remove_cvref_t<Function>, qsbr_thread>>>
   explicit qsbr_thread(Function &&f, Args &&...args)
-      : std::thread{[](auto &&f2, auto &&...args2) {
-                      construct_current_thread_reclamator();
-                      f2(std::forward<Args>(args2)...);
-                    },
-                    std::forward<Function>(f), std::forward<Args>(args)...} {}
+      : std ::thread{
+            [](auto &&f2, auto &&...args2) {
+              try {
+                construct_current_thread_reclamator();
+                // LCOV_EXCL_START
+              } catch (const std::bad_alloc &e) {
+                std::cerr << "QSBR thread startup memory allocation failure: "
+                          << e.what() << '\n';
+                return;
+              } catch (const std::exception &e) {
+                std::cerr << "QSBR thread startup exception: " << e.what()
+                          << '\n';
+                return;
+              } catch (...) {
+                std::cerr << "QSBR thread startup unknown exception\n";
+                UNODB_DETAIL_DEBUG_CRASH();
+                return;
+                // LCOV_EXCL_STOP
+              }
+              f2(std::forward<Args>(args2)...);
+            },
+            std::forward<Function>(f), std::forward<Args>(args)...} {}
 };
 
 }  // namespace unodb

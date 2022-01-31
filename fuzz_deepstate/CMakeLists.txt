@@ -22,7 +22,7 @@ set(DEEPSTATE_OPTIONS "--fuzz" "--no_fork" "--output_test_dir"
 # The shortest run is special in that it is a smoke test, and a part of the
 # default testsuite. On a completely broken code stop immediately instead of
 # accumulating millions of testcases.
-set(DEEPSTATE_2S_OPTIONS "--exit_on_fail" ${DEEPSTATE_OPTIONS})
+set(DEEPSTATE_2S_OPTIONS "--abort_on_fail" ${DEEPSTATE_OPTIONS})
 
 if(LIBFUZZER_AVAILABLE)
   set(DEEPSTATE_LF_OPTIONS "-use_value_profile=1" "-detect_leaks=0")

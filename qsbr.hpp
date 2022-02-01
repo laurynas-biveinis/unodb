@@ -971,7 +971,34 @@ struct quiescent_state_on_scope_exit final {
   quiescent_state_on_scope_exit &operator=(quiescent_state_on_scope_exit &&) =
       delete;
 
-  ~quiescent_state_on_scope_exit() noexcept { this_thread().quiescent(); }
+  ~quiescent_state_on_scope_exit() noexcept(false) {
+    try {
+      this_thread().quiescent();
+    }
+    // LCOV_EXCL_START
+    catch (const std::bad_alloc &e) {
+      // cppcheck-suppress exceptThrowInDestructor
+      if (exceptions_at_ctor == std::uncaught_exceptions()) throw;
+      std::cerr << "QSBR quiescent state failed to allocate memory: "
+                << e.what() << '\n';
+    } catch (const std::system_error &e) {
+      if (exceptions_at_ctor == std::uncaught_exceptions()) throw;
+      std::cerr << "QSBR quiescent state failed to register QSBR stats: "
+                << e.what() << '\n';
+    } catch (const std::exception &e) {
+      if (exceptions_at_ctor == std::uncaught_exceptions()) throw;
+      std::cerr << "QSBR quiescent state exception: " << e.what() << '\n';
+      UNODB_DETAIL_DEBUG_CRASH();
+    } catch (...) {
+      if (exceptions_at_ctor == std::uncaught_exceptions()) throw;
+      std::cerr << "QSBR quiescent state unknown exception\n";
+      UNODB_DETAIL_DEBUG_CRASH();
+    }
+    // LCOV_EXCL_STOP
+  }
+
+ private:
+  const int exceptions_at_ctor{std::uncaught_exceptions()};
 };
 
 // Replace with C++20 std::remove_cvref once it's available

@@ -434,6 +434,10 @@ class [[nodiscard]] qsbr_per_thread final {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   ~qsbr_per_thread() noexcept {
     if (!is_qsbr_paused()) {
+      // TODO(laurynas): to avoid try/catch below:
+      // - replace std::mutex with noexcept synchronization, realistically only
+      // spinlock fits, which might not be good enough;
+      // - replace Boost.Accumulator with own noexcept stats.
       try {
         qsbr_pause();
       }
@@ -980,6 +984,8 @@ struct quiescent_state_on_scope_exit final {
       delete;
 
   ~quiescent_state_on_scope_exit() noexcept(false) {
+    // TODO(laurynas): to avoid try/catch, see the TODO at the previous
+    // try/catch.
     try {
       this_thread().quiescent();
     }

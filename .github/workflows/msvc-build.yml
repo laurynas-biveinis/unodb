@@ -26,6 +26,12 @@ jobs:
           - name: MSVC LLVM Debug
             preset: "msvc-llvm-debug"
 
+          - name: MSVC Static Analysis Release
+            preset: "msvc-static-analysis-release"
+
+          - name: MSVC Static Analysis Debug
+            preset: "msvc-static-analysis-debug"
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -50,10 +56,36 @@ jobs:
       - name: Build
         run: cmake --build --preset "${{ matrix.preset }}"
 
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: |
+            ${{github.workspace}}\build\${{matrix.preset}}\msvc.sarif
+        if: >
+            always()
+            && (matrix.preset == 'msvc-static-analysis-release'
+              || matrix.preset == 'msvc-static-analysis-debug')
+
+      - name: Upload SARIF as an Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sarif-file
+          path: "${{github.workspace}}\\build\\${{matrix.preset}}\\msvc.sarif"
+        if: >
+            always()
+            && (matrix.preset == 'msvc-static-analysis-release'
+              || matrix.preset == 'msvc-static-analysis-debug')
+
       - name: Correctness test
         run: ctest -V --preset "${{ matrix.preset }}"
+        if: >
+            (matrix.preset != 'msvc-static-analysis-release')
+            && (matrix.preset != 'msvc-static-analysis-debug')
 
       - name: Benchmark correctness test
         run: |
           $Env:P = "${{ matrix.preset }}"
           cmake --build --preset "$env:P" --target quick_benchmarks
+        if: >
+            (matrix.preset != 'msvc-static-analysis-release')
+            && (matrix.preset != 'msvc-static-analysis-debug')

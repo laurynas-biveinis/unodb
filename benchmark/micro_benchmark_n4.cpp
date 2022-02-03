@@ -221,6 +221,8 @@ void shrink_node16_to_n4_randomly(benchmark::State &state) {
 
 }  // namespace
 
+UNODB_START_BENCHMARKS()
+
 // A maximum Node4-only tree can hold 65K values
 BENCHMARK_TEMPLATE(full_n4_sequential_insert, unodb::db)
     ->Range(100, 65535)

@@ -63,6 +63,8 @@ void full_n256_tree_random_delete(benchmark::State &state) {
 
 }  // namespace
 
+UNODB_START_BENCHMARKS()
+
 BENCHMARK_TEMPLATE(grow_n48_to_n256_sequentially, unodb::db)
     ->Range(2, 2048)
     ->Unit(benchmark::kMicrosecond);

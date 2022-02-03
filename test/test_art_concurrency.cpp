@@ -22,12 +22,14 @@ namespace {
 template <class Db>
 class ARTConcurrencyTest : public ::testing::Test {
  public:
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   ~ARTConcurrencyTest() override {
     if constexpr (std::is_same_v<Db, unodb::olc_db>) {
       unodb::this_thread().quiescent();
       unodb::test::expect_idle_qsbr();
     }
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  protected:
   ARTConcurrencyTest() noexcept {
@@ -99,6 +101,7 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
   static void random_op_thread(unodb::test::tree_verifier<Db> *verifier,
                                std::size_t thread_i,
                                std::size_t ops_per_thread) {
@@ -122,6 +125,7 @@ class ARTConcurrencyTest : public ::testing::Test {
       }
     }
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   unodb::test::tree_verifier<Db> verifier{true};
 

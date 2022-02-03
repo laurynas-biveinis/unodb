@@ -418,10 +418,12 @@ class [[nodiscard]] deferred_requests final {
 #endif
 };
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
 struct dealloc_vector_list_node {
   std::unique_ptr<detail::dealloc_request_vector> requests;
   dealloc_vector_list_node *next;
 };
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace detail
 
@@ -429,6 +431,7 @@ class [[nodiscard]] qsbr_per_thread final {
  public:
   qsbr_per_thread();
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   ~qsbr_per_thread() noexcept {
     if (!is_qsbr_paused()) {
       try {
@@ -452,6 +455,7 @@ class [[nodiscard]] qsbr_per_thread final {
       // LCOV_EXCL_STOP
     }
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   void on_next_epoch_deallocate(
       void *pointer, std::size_t size
@@ -559,6 +563,7 @@ class qsbr final {
   friend struct detail::deallocation_request;
   friend class qsbr_per_thread;
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   static void deallocate(
       void *pointer
 #ifndef NDEBUG
@@ -571,6 +576,7 @@ class qsbr final {
 #endif
     detail::free_aligned(pointer);
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  public:
   [[nodiscard]] qsbr_epoch remove_thread_from_previous_epoch(
@@ -751,12 +757,14 @@ static_assert(std::atomic<std::size_t>::is_always_lock_free);
 static_assert(std::atomic<double>::is_always_lock_free);
 
 // cppcheck-suppress uninitMemberVar
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
 inline qsbr_per_thread::qsbr_per_thread()
     : last_seen_quiescent_state_epoch{qsbr::instance().register_thread()},
       last_seen_epoch{last_seen_quiescent_state_epoch} {
   UNODB_DETAIL_ASSERT(paused);
   paused = false;
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 inline void qsbr_per_thread::on_next_epoch_deallocate(
     void *pointer, std::size_t size

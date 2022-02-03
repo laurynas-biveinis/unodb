@@ -18,18 +18,108 @@
   TYPED_TEST_SUITE(Suite, Types);                                           \
   UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
+#define UNODB_START_TESTS()                \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26409) \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26426) \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440) \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
+
 // Because Google thinks
 // error: 'void {anonymous}::ARTCorrectnessTest_single_node_tree_empty_value_
 // Test<gtest_TypeParam_>::TestBody() [with gtest_TypeParam_ = unodb::db]'
 // can be marked override [-Werror=suggest-override] is not a bug:
 // https://github.com/google/googletest/issues/1063
 #define UNODB_START_TYPED_TESTS() \
+  UNODB_START_TESTS()             \
   UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-override")
 
-#define UNODB_ASSERT_DEATH(statement, regex)                     \
-  UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wused-but-marked-unused") \
-  UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wcovered-switch-default") \
-  ASSERT_DEATH(statement, regex)                                 \
-  UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
+#define UNODB_ASSERT_DEATH(statement, regex)                       \
+  do {                                                             \
+    UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wused-but-marked-unused") \
+    UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wcovered-switch-default") \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)                       \
+    ASSERT_DEATH(statement, regex);                                \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()                           \
+    UNODB_DETAIL_RESTORE_CLANG_WARNINGS()                          \
+  } while (0)
+
+#define UNODB_TEST(Suite, Test)            \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26409) \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26426) \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440) \
+  TEST((Suite), (Test))                    \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+#define UNODB_ASSERT_EQ(x, y)                \
+  do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+    ASSERT_EQ((x), (y));                     \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  } while (0)
+
+#define UNODB_ASSERT_FALSE(cond)             \
+  do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+    ASSERT_FALSE(cond);                      \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  } while (0)
+
+#define UNODB_ASSERT_GT(val1, val2)          \
+  do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+    ASSERT_GT((val1), (val2));               \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  } while (0)
+
+#define UNODB_ASSERT_LE(val1, val2)          \
+  do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+    ASSERT_LE((val1), (val2));               \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  } while (0)
+
+#define UNODB_ASSERT_LT(val1, val2)          \
+  do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+    ASSERT_LT((val1), (val2));               \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  } while (0)
+
+#define UNODB_ASSERT_THAT(value, matcher)    \
+  do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+    ASSERT_THAT((value), (matcher));         \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  } while (0)
+
+#define UNODB_ASSERT_THROW(statement, expected_exception) \
+  do {                                                    \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)              \
+    ASSERT_THROW(statement, expected_exception);          \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()                  \
+  } while (0)
+
+#define UNODB_ASSERT_TRUE(cond)              \
+  do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+    ASSERT_TRUE(cond);                       \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  } while (0)
+
+#define UNODB_EXPECT_EQ(x, y)                \
+  do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+    EXPECT_EQ((x), (y));                     \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  } while (0)
+
+#define UNODB_EXPECT_TRUE(cond)              \
+  do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+    EXPECT_TRUE(cond);                       \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  } while (0)
 
 #endif  // UNODB_DETAIL_GTEST_UTILS_HPP

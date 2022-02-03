@@ -20,6 +20,8 @@ namespace unodb::detail {
 
 // LCOV_EXCL_START
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
+
 [[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void msg_stacktrace_abort(
     const std::string &msg) noexcept {
   std::ostringstream buf;
@@ -56,6 +58,8 @@ namespace unodb::detail {
       << '\n';
   msg_stacktrace_abort(buf.str());
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #define UNODB_DETAIL_ASSERT(condition)                                      \
   UNODB_DETAIL_UNLIKELY(!(condition))                                       \

@@ -60,11 +60,13 @@ class [[nodiscard]] batched_prng final {
   using result_type = std::uint64_t;
 
  public:
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
   explicit batched_prng(
       result_type max_value = std::numeric_limits<result_type>::max())
       : random_key_dist{0ULL, max_value} {
     refill();
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard]] auto get(::benchmark::State &state) {
     if (random_key_ptr == random_keys.cend()) {
@@ -237,8 +239,8 @@ template <typename NumberToKeyFn>
   return result;
 }
 
-// warning C6001: Using uninitialized memory 'constructed_key'
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6001)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
 
 template <std::uint8_t NumByteValues>
 [[nodiscard]] std::vector<unodb::key>
@@ -291,13 +293,14 @@ generate_random_keys_over_full_smaller_tree(unodb::key key_limit) {
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
-
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace detail
 
 // Stats
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
 template <class Db>
 struct [[nodiscard]] tree_stats final {
   constexpr tree_stats() noexcept = default;
@@ -336,6 +339,7 @@ struct [[nodiscard]] tree_stats final {
   inode_type_counter_array growing_inode_counts;
   std::uint64_t key_prefix_splits{0};
 };
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <class Db>
 class [[nodiscard]] growing_tree_node_stats final {
@@ -394,6 +398,7 @@ inline void set_size_counter(::benchmark::State &state,
 
 // Asserts
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 template <class Db, node_type DominatingINodeType>
 void assert_dominating_inode_tree(
     const Db &test_db UNODB_DETAIL_USED_IN_DEBUG) noexcept {
@@ -416,6 +421,7 @@ void assert_dominating_inode_tree(
   }
 #endif
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 namespace detail {
 
@@ -423,6 +429,8 @@ template <class Db, unsigned NodeSize>
 void assert_dominating_inode_size_tree(const Db &test_db) noexcept {
   assert_dominating_inode_tree<Db, node_size_to_node_type<NodeSize>()>(test_db);
 }
+
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 template <class Db, unsigned SmallerNodeSize>
 void assert_growing_nodes(
@@ -456,6 +464,8 @@ void assert_shrinking_nodes(
   assert_dominating_inode_size_tree<Db, SmallerNodeSize>(test_db);
 #endif
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <class Db>
 class [[nodiscard]] tree_shape_snapshot final {

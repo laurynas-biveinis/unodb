@@ -18,6 +18,10 @@
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 
+#define UNODB_START_BENCHMARKS()           \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26409) \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26426)
+
 namespace unodb {
 class db;        // IWYU pragma: keep
 class mutex_db;  // IWYU pragma: keep

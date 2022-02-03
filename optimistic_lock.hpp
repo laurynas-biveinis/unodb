@@ -331,7 +331,6 @@ class [[nodiscard]] optimistic_lock final {
 
 static_assert(std::is_standard_layout_v<optimistic_lock>);
 
-// warning 26800: Use of a moved from object '...' (lifetime.1)
 #define UNODB_DETAIL_ASSERT_INACTIVE(guard)   \
   do {                                        \
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26800); \

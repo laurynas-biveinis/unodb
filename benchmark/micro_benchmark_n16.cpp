@@ -73,6 +73,8 @@ void shrink_n48_to_n16_randomly(benchmark::State &state) {
 
 }  // namespace
 
+UNODB_START_BENCHMARKS()
+
 BENCHMARK_TEMPLATE(grow_n4_to_n16_sequentially, unodb::db)
     ->Range(20, 16383)
     ->Unit(benchmark::kMicrosecond);

@@ -333,6 +333,22 @@
             ]
         },
         {
+            "name": "msvc-llvm-debug-asan",
+            "inherits": [
+                "base-msvc-llvm",
+                "debug",
+                "asan"
+            ]
+        },
+        {
+            "name": "msvc-llvm-release-asan",
+            "inherits": [
+                "base-msvc-llvm",
+                "release",
+                "asan"
+            ]
+        },
+        {
             "name": "msvc-static-analysis-debug",
             "inherits": [
                 "base-msvc",

@@ -182,7 +182,11 @@ option(SANITIZE_ADDRESS "Enable AddressSanitizer runtime checks")
 if(SANITIZE_ADDRESS)
   set_common_sanitizer_flags()
   if(MSVC)
-    list(APPEND SANITIZER_CXX_FLAGS "/fsanitize=address")
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+      list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=address")
+    else()
+      list(APPEND SANITIZER_CXX_FLAGS "/fsanitize=address")
+    endif()
     # Documented to be incompatible with ASan
     string(REGEX REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG 
         "${CMAKE_CXX_FLAGS_DEBUG}")

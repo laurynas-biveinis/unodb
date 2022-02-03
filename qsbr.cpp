@@ -102,13 +102,10 @@ namespace {
 
 void add_to_orphan_list(
     std::atomic<detail::dealloc_vector_list_node *> &orphan_list,
-    std::unique_ptr<detail::dealloc_request_vector> &&requests,
+    detail::dealloc_request_vector &&requests,
     std::unique_ptr<detail::dealloc_vector_list_node>
         orphan_list_node) noexcept {
-  if (requests->empty()) {
-    requests.reset();
-    return;
-  }
+  if (requests.empty()) return;
 
   auto *const list_node_ptr = orphan_list_node.release();
 
@@ -159,9 +156,10 @@ void qsbr_per_thread::orphan_deferred_requests() noexcept {
       std::move(current_interval_dealloc_requests),
       std::move(current_interval_orphan_list_node));
 
-  UNODB_DETAIL_ASSERT(previous_interval_dealloc_requests == nullptr);
+  previous_interval_dealloc_requests.clear();
+  current_interval_dealloc_requests.clear();
+
   UNODB_DETAIL_ASSERT(previous_interval_orphan_list_node == nullptr);
-  UNODB_DETAIL_ASSERT(current_interval_dealloc_requests == nullptr);
   UNODB_DETAIL_ASSERT(current_interval_orphan_list_node == nullptr);
 }
 
@@ -394,14 +392,14 @@ void qsbr::epoch_change_update_requests(bool single_thread_mode
 #ifndef NDEBUG
   if (orphaned_previous_requests != nullptr) {
     const auto request_epoch =
-        (*orphaned_previous_requests->requests)[0].request_epoch;
+        (orphaned_previous_requests->requests)[0].request_epoch;
     UNODB_DETAIL_ASSERT(request_epoch.next() == dealloc_epoch ||
                         request_epoch.next().next() == dealloc_epoch ||
                         request_epoch.next().next().next() == dealloc_epoch);
   }
   if (orphaned_current_requests != nullptr) {
     const auto request_epoch =
-        (*orphaned_current_requests->requests)[0].request_epoch;
+        (orphaned_current_requests->requests)[0].request_epoch;
     UNODB_DETAIL_ASSERT(request_epoch.next() == dealloc_epoch ||
                         request_epoch.next().next() == dealloc_epoch);
   }

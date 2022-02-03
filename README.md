@@ -24,8 +24,8 @@ in the case of MSVC. This is in contrast to the original ART paper needing SSE2
 only.
 
 Note: since this is my personal project, it only supports GCC 10, 11, LLVM 11 to
-13, and XCode 12.2 compilers. Drop me a note if you want to try this and need a
-lower supported compiler version.
+13, XCode 13.2, and MSVC 2022 (17.0) compilers. Drop me a note if you want to
+try this and need a lower supported compiler version.
 
 ## Usage
 
@@ -112,18 +112,20 @@ clang-tidy, cppcheck, and cpplint will be invoked automatically during build if
 found. Currently the diagnostic level for them as well as for compiler warnings
 is set very high, and can be relaxed, especially for clang-tidy, as need arises.
 
-To enable AddressSanitizer and LeakSanitizers, add `-DSANITIZE_ADDRESS=ON` CMake
-option. It is incompatible with `-DSANITIZE_THREAD=ON`.
+To enable AddressSanitizer and LeakSanitizer (the latter if available), add
+`-DSANITIZE_ADDRESS=ON` CMake option. It is incompatible with
+`-DSANITIZE_THREAD=ON`.
 
 To enable ThreadSanitizer, add `-DSANITIZE_THREAD=ON` CMake option. It is
 incompatible with `-DSANITIZE_ADDRESS=ON`. It is also incompatible with
-libfuzzer, and will disable its support if specified.
+libfuzzer, and will disable its support if specified. Not available under MSVC.
 
 To enable UndefinedBehaviorSanitizer, add `-DSANITIZE_UB=ON` CMake option. It is
 compatible with both `-DSANITIZE_ADDRESS=ON` and `-DSANITIZE_THREAD=ON` options,
-although some [false positives][sanitizer-combination-bug] might occur.
+although some [false positives][sanitizer-combination-bug] might occur. Not
+available under MSVC.
 
-To enable GCC 10+ compiler static analysis, add `-DSTATIC_ANALYSIS=ON` CMake
+To enable GCC or MSVC compiler static analysis, add `-DSTATIC_ANALYSIS=ON` CMake
 option. For LLVM static analysis, no special CMake option is needed, and you
 have to prepend `scan-build` to `make` instead.
 
@@ -144,9 +146,10 @@ built-in fuzzer are supported.
 
 There are fuzzer tests for `unodb::db` and QSBR components in the
 `fuzz_deepstate` subdirectory. The tests use DeepState with either brute force
-or libfuzzer-based backend. The former is always built, the latter is built if
-using non-XCode clang for build in debug configuration and ThreadSanitizer is
-not enabled.
+or libfuzzer-based backend. Not all platforms and configurations support them,
+i.e. MSVC build completely skips them, and libfuzzer-based tests are skipped if
+ThreadSanitizer is enabled, or if building non-XCode clang release
+configuration.
 
 There are several Make targets for fuzzing. For time-based brute-force fuzzing
 of all components, use on of `deepstate_2s`, `deepstate_1m`, `deepstate_20m`,

@@ -15,6 +15,7 @@
 namespace {
 
 struct run_tls_ctor_in_main_thread {
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   run_tls_ctor_in_main_thread() noexcept {
     try {
       unodb::construct_current_thread_reclamator();
@@ -32,6 +33,7 @@ struct run_tls_ctor_in_main_thread {
     }
     // LCOV_EXCL_STOP
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 // NOLINTNEXTLINE(fuchsia-statically-constructed-objects)

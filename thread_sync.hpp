@@ -15,7 +15,10 @@ namespace unodb::detail {
 class [[nodiscard]] thread_sync final {
  public:
   thread_sync() noexcept = default;
+
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   ~thread_sync() noexcept { UNODB_DETAIL_ASSERT(is_reset()); }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard]] bool is_reset() const {
     std::lock_guard lock{sync_mutex};

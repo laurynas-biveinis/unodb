@@ -356,6 +356,11 @@
             "jobs": 5
         },
         {
+            "name": "msvc-static-analysis",
+            "hidden": true,
+            "environment": {"caexcludepath": "${sourceDir}/3rd_party"}
+        },
+        {
             "name": "release",
             "configurePreset": "release",
             "inherits": "base"
@@ -518,12 +523,18 @@
         {
             "name": "msvc-static-analysis-debug",
             "configurePreset": "msvc-static-analysis-debug",
-            "inherits": "base"
+            "inherits": [
+                "base",
+                "msvc-static-analysis"
+            ]
         },
         {
             "name": "msvc-static-analysis-release",
             "configurePreset": "msvc-static-analysis-release",
-            "inherits": "base"
+            "inherits": [
+                "base",
+                "msvc-static-analysis"
+            ]
         }
     ],
     "testPresets": [

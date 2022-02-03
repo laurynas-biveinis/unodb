@@ -427,6 +427,8 @@ void unpredictable_prepend_key_prefix(benchmark::State &state) {
 
 }  // namespace
 
+UNODB_START_BENCHMARKS()
+
 BENCHMARK_TEMPLATE(unpredictable_get_shared_length, unodb::db)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(unpredictable_get_shared_length, unodb::mutex_db)

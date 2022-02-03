@@ -31,6 +31,8 @@ void parallel_delete_disjoint_ranges(benchmark::State &state) {
 
 }  // namespace
 
+UNODB_START_BENCHMARKS()
+
 BENCHMARK(parallel_get)
     ->Apply(unodb::benchmark::concurrency_ranges16)
     ->Unit(benchmark::kMillisecond)

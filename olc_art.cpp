@@ -79,6 +79,7 @@ class db_inode_qsbr_deleter : public db_inode_qsbr_deleter_parent<INode> {
  public:
   using db_inode_qsbr_deleter_parent<INode>::db_inode_qsbr_deleter_parent;
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
   void operator()(INode *inode_ptr) {
     static_assert(std::is_trivially_destructible_v<INode>);
 
@@ -91,6 +92,7 @@ class db_inode_qsbr_deleter : public db_inode_qsbr_deleter_parent<INode> {
 
     this->get_db().template decrement_inode_count<INode>();
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 }  // namespace unodb::detail
@@ -285,6 +287,8 @@ class [[nodiscard]] olc_inode_4 final
         *this, std::forward<Args>(args)...);
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
+
   void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(::lock(*this).is_write_locked());
 
@@ -305,6 +309,8 @@ class [[nodiscard]] olc_inode_4 final
     ::lock(*this).dump(os);
     basic_inode_4::dump(os);
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 // 48 (or 56) == sizeof(inode_4)
@@ -371,6 +377,8 @@ class [[nodiscard]] olc_inode_16 final
         *this, std::forward<Args>(args)...);
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
+
   void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(::lock(*this).is_write_locked());
 
@@ -394,6 +402,8 @@ class [[nodiscard]] olc_inode_16 final
     ::lock(*this).dump(os);
     basic_inode_16::dump(os);
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 // TODO(laurynas): why ARM is different?
@@ -486,6 +496,8 @@ class [[nodiscard]] olc_inode_48 final
         *this, std::forward<Args>(args)...);
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
+
   void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(::lock(*this).is_write_locked());
 
@@ -497,6 +509,8 @@ class [[nodiscard]] olc_inode_48 final
     ::lock(*this).dump(os);
     basic_inode_48::dump(os);
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 // TODO(laurynas): why ARM is different?
@@ -578,6 +592,8 @@ class [[nodiscard]] olc_inode_256 final
         *this, std::forward<Args>(args)...);
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
+
   void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(::lock(*this).is_write_locked());
 
@@ -589,6 +605,8 @@ class [[nodiscard]] olc_inode_256 final
     ::lock(*this).dump(os);
     basic_inode_256::dump(os);
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 // 2064 == sizeof(inode_256)
@@ -627,6 +645,7 @@ olc_inode_48::olc_inode_48(
 
 namespace unodb::detail {
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
 template <class INode>
 [[nodiscard]] std::optional<in_critical_section<olc_node_ptr> *>
 olc_impl_helpers::add_or_choose_subtree(
@@ -682,6 +701,7 @@ olc_impl_helpers::add_or_choose_subtree(
 
   return child_in_parent;
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <class INode>
 [[nodiscard]] std::optional<bool> olc_impl_helpers::remove_or_choose_subtree(

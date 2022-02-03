@@ -18,6 +18,8 @@
 #include <gmock/gmock.h>  // IWYU pragma: keep
 #include <gtest/gtest.h>  // IWYU pragma: keep
 
+#include "gtest_utils.hpp"
+
 #include "art.hpp"
 #include "art_common.hpp"
 #include "assert.hpp"
@@ -51,28 +53,23 @@ constexpr std::array<unodb::value_view, 6> test_values = {
 
 namespace detail {
 
-// warning: 'ScopedTrace' was marked unused but was used
-// [-Wused-but-marked-unused]
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
 
-// warning C6326: Potential comparison of a constant with another constant.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
 template <class Db>
 void assert_value_eq(const typename Db::get_result &result,
                      unodb::value_view expected) noexcept {
   if constexpr (std::is_same_v<Db, unodb::mutex_db>) {
     UNODB_DETAIL_ASSERT(result.second.owns_lock());
     UNODB_DETAIL_ASSERT(result.first.has_value());
-    ASSERT_TRUE(std::equal(result.first->cbegin(), result.first->cend(),
-                           expected.cbegin(), expected.cend()));
+    UNODB_ASSERT_TRUE(std::equal(result.first->cbegin(), result.first->cend(),
+                                 expected.cbegin(), expected.cend()));
   } else {
     UNODB_DETAIL_ASSERT(result.has_value());
-    ASSERT_TRUE(std::equal(result->cbegin(), result->cend(), expected.cbegin(),
-                           expected.cend()));
+    UNODB_ASSERT_TRUE(std::equal(result->cbegin(), result->cend(),
+                                 expected.cbegin(), expected.cend()));
   }
 }
-
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <class Db>
@@ -119,23 +116,24 @@ inline void assert_result_eq(const unodb::olc_db &db, unodb::key key,
 template <class Db>
 class [[nodiscard]] tree_verifier final {
  private:
-  // warning C6326: Potential comparison of a constant with another constant.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
   void do_insert(unodb::key k, unodb::value_view v) {
-    ASSERT_TRUE(test_db.insert(k, v));
+    UNODB_ASSERT_TRUE(test_db.insert(k, v));
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   void do_remove(unodb::key k, bool bypass_verifier) {
     if (!bypass_verifier) {
       const auto remove_result = values.erase(k);
-      ASSERT_EQ(remove_result, 1);
+      UNODB_ASSERT_EQ(remove_result, 1);
     }
     const auto leaf_count_before =
         test_db.template get_node_count<::unodb::node_type::LEAF>();
     const auto mem_use_before = test_db.get_current_memory_use();
-    ASSERT_GT(leaf_count_before, 0);
-    ASSERT_GT(mem_use_before, 0);
+    UNODB_ASSERT_GT(leaf_count_before, 0);
+    UNODB_ASSERT_GT(mem_use_before, 0);
 
     if (!test_db.remove(k)) {
       // LCOV_EXCL_START
@@ -149,21 +147,22 @@ class [[nodiscard]] tree_verifier final {
 
     if (!parallel_test) {
       const auto mem_use_after = test_db.get_current_memory_use();
-      ASSERT_LT(mem_use_after, mem_use_before);
+      UNODB_ASSERT_LT(mem_use_after, mem_use_before);
 
       const auto leaf_count_after =
           test_db.template get_node_count<::unodb::node_type::LEAF>();
-      ASSERT_EQ(leaf_count_before - 1, leaf_count_after);
+      UNODB_ASSERT_EQ(leaf_count_before - 1, leaf_count_after);
     }
   }
 
   void do_try_remove_missing_key(unodb::key absent_key) {
-    ASSERT_FALSE(test_db.remove(absent_key));
+    UNODB_ASSERT_FALSE(test_db.remove(absent_key));
   }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  public:
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
   explicit tree_verifier(bool parallel_test_ = false)
       : parallel_test{parallel_test_} {
     assert_empty();
@@ -171,10 +170,9 @@ class [[nodiscard]] tree_verifier final {
     assert_shrinking_inodes({0, 0, 0, 0});
     assert_key_prefix_splits(0);
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  // warning C6326: Potential comparison of a constant with another constant.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
   void insert(unodb::key k, unodb::value_view v, bool bypass_verifier = false) {
     const auto mem_use_before =
         parallel_test ? 0 : test_db.get_current_memory_use();
@@ -185,28 +183,27 @@ class [[nodiscard]] tree_verifier final {
 
     do_insert(k, v);
 
-    ASSERT_FALSE(test_db.empty());
+    UNODB_ASSERT_FALSE(test_db.empty());
 
     const auto mem_use_after = test_db.get_current_memory_use();
     if (parallel_test)
-      ASSERT_GT(mem_use_after, 0);
+      UNODB_ASSERT_GT(mem_use_after, 0);
     else
-      ASSERT_LT(mem_use_before, mem_use_after);
+      UNODB_ASSERT_LT(mem_use_before, mem_use_after);
 
     const auto leaf_count_after =
         test_db.template get_node_count<unodb::node_type::LEAF>();
     if (parallel_test)
-      ASSERT_GT(leaf_count_after, 0);
+      UNODB_ASSERT_GT(leaf_count_after, 0);
     else
-      ASSERT_EQ(leaf_count_after, leaf_count_before + 1);
+      UNODB_ASSERT_EQ(leaf_count_after, leaf_count_before + 1);
 
     if (!bypass_verifier) {
       const auto UNODB_DETAIL_UNUSED[pos, insert_succeeded] =
           values.try_emplace(k, v);
-      ASSERT_TRUE(insert_succeeded);
+      UNODB_ASSERT_TRUE(insert_succeeded);
     }
   }
-
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   void insert_key_range(unodb::key start_key, std::size_t count,
@@ -220,18 +217,15 @@ class [[nodiscard]] tree_verifier final {
     std::ignore = test_db.insert(k, v);
   }
 
-  // warning C6326: Potential comparison of a constant with another constant.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
   void preinsert_key_range_to_verifier_only(unodb::key start_key,
                                             std::size_t count) {
     for (auto key = start_key; key < start_key + count; ++key) {
       const auto UNODB_DETAIL_UNUSED[pos, insert_succeeded] =
           values.try_emplace(key, test_values[key % test_values.size()]);
-      ASSERT_TRUE(insert_succeeded);
+      UNODB_ASSERT_TRUE(insert_succeeded);
     }
   }
-
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   void insert_preinserted_key_range(unodb::key start_key, std::size_t count) {
@@ -246,9 +240,7 @@ class [[nodiscard]] tree_verifier final {
 
   void try_remove(unodb::key k) { std::ignore = test_db.remove(k); }
 
-  // warning C6326: Potential comparison of a constant with another constant.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
   void attempt_remove_missing_keys(
       std::initializer_list<unodb::key> absent_keys) {
     const auto mem_use_before =
@@ -256,50 +248,46 @@ class [[nodiscard]] tree_verifier final {
 
     for (const auto absent_key : absent_keys) {
       const auto remove_result = values.erase(absent_key);
-      ASSERT_EQ(remove_result, 0);
+      UNODB_ASSERT_EQ(remove_result, 0);
       do_try_remove_missing_key(absent_key);
       if (!parallel_test) {
-        ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
+        UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
       }
     }
   }
-
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   void try_get(unodb::key k) const noexcept(noexcept(test_db.get(k))) {
     std::ignore = test_db.get(k);
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
   void check_present_values() const {
     for (const auto &[key, value] : values) {
       ASSERT_VALUE_FOR_KEY(test_db, key, value);
     }
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  // warning C6326: Potential comparison of a constant with another constant.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
   void check_absent_keys(std::initializer_list<unodb::key> absent_keys) const
       noexcept(noexcept(try_get(0))) {
     for (const auto absent_key : absent_keys) {
-      ASSERT_EQ(values.find(absent_key), values.cend());
+      UNODB_ASSERT_EQ(values.find(absent_key), values.cend());
       try_get(absent_key);
     }
   }
-
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   void assert_empty() const {
-    ASSERT_TRUE(test_db.empty());
+    UNODB_ASSERT_TRUE(test_db.empty());
 
-    ASSERT_EQ(test_db.get_current_memory_use(), 0);
+    UNODB_ASSERT_EQ(test_db.get_current_memory_use(), 0);
 
     assert_node_counts({0, 0, 0, 0, 0});
   }
 
-  // warning C6326: Potential comparison of a constant with another constant.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
   void assert_node_counts(
       const node_type_counter_array &expected_node_counts) const {
     // Dump the tree to a string. Do not attempt to check the dump format, only
@@ -308,30 +296,31 @@ class [[nodiscard]] tree_verifier final {
     test_db.dump(dump_sink);
 
     const auto actual_node_counts = test_db.get_node_counts();
-    ASSERT_THAT(actual_node_counts,
-                ::testing::ElementsAreArray(expected_node_counts));
+    UNODB_ASSERT_THAT(actual_node_counts,
+                      ::testing::ElementsAreArray(expected_node_counts));
   }
-
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void assert_growing_inodes(
       const inode_type_counter_array &expected_growing_inode_counts)
       const noexcept {
     const auto actual_growing_inode_counts = test_db.get_growing_inode_counts();
-    ASSERT_THAT(actual_growing_inode_counts,
-                ::testing::ElementsAreArray(expected_growing_inode_counts));
+    UNODB_ASSERT_THAT(
+        actual_growing_inode_counts,
+        ::testing::ElementsAreArray(expected_growing_inode_counts));
   }
 
   constexpr void assert_shrinking_inodes(
       const inode_type_counter_array &expected_shrinking_inode_counts) {
     const auto actual_shrinking_inode_counts =
         test_db.get_shrinking_inode_counts();
-    ASSERT_THAT(actual_shrinking_inode_counts,
-                ::testing::ElementsAreArray(expected_shrinking_inode_counts));
+    UNODB_ASSERT_THAT(
+        actual_shrinking_inode_counts,
+        ::testing::ElementsAreArray(expected_shrinking_inode_counts));
   }
 
   constexpr void assert_key_prefix_splits(std::uint64_t splits) const noexcept {
-    ASSERT_EQ(test_db.get_key_prefix_splits(), splits);
+    UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(), splits);
   }
 
   void clear() {
@@ -351,16 +340,13 @@ class [[nodiscard]] tree_verifier final {
   const bool parallel_test;
 };
 
-// warning C6326: Potential comparison of a constant with another constant.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
 template <>
 inline void tree_verifier<unodb::olc_db>::do_insert(unodb::key k,
                                                     unodb::value_view v) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
-  ASSERT_TRUE(test_db.insert(k, v));
+  UNODB_ASSERT_TRUE(test_db.insert(k, v));
 }
-
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <>
@@ -376,16 +362,13 @@ inline void tree_verifier<unodb::olc_db>::try_remove(unodb::key k) {
   std::ignore = test_db.remove(k);
 }
 
-// warning C6326: Potential comparison of a constant with another constant.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
 template <>
 inline void tree_verifier<unodb::olc_db>::do_try_remove_missing_key(
     unodb::key absent_key) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
-  ASSERT_FALSE(test_db.remove(absent_key));
+  UNODB_ASSERT_FALSE(test_db.remove(absent_key));
 }
-
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <>

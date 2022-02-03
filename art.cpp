@@ -162,10 +162,12 @@ static_assert(sizeof(inode_256) == 2064);
 
 // Because we cannot dereference, load(), & take address of - it is a temporary
 // by then
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 inline auto *unwrap_fake_critical_section(
     unodb::in_fake_critical_section<unodb::detail::node_ptr> *ptr) noexcept {
   return reinterpret_cast<unodb::detail::node_ptr *>(ptr);
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace
 
@@ -306,6 +308,7 @@ db::get_result db::get(key search_key) const noexcept {
   }
 }
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
 bool db::insert(key insert_key, value_view v) {
   const auto k = detail::art_key{insert_key};
 
@@ -366,6 +369,7 @@ bool db::insert(key insert_key, value_view v) {
     remaining_key.shift_right(1);
   }
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 bool db::remove(key remove_key) {
   const auto k = detail::art_key{remove_key};

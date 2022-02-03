@@ -235,6 +235,8 @@ void dense_insert_dup_attempts(benchmark::State &state) {
 
 }  // namespace
 
+UNODB_START_BENCHMARKS()
+
 // TODO(laurynas): only dense Node256 trees have reasonable coverage, need
 // to handle sparse Node16/Node48 trees too
 BENCHMARK_TEMPLATE(dense_insert, unodb::db)

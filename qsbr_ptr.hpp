@@ -35,6 +35,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
  public:
   using pointer_type = T *;
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
+
   UNODB_DETAIL_RELEASE_CONSTEXPR explicit qsbr_ptr(pointer_type ptr_) noexcept
       : ptr{ptr_} {
 #ifndef NDEBUG
@@ -49,15 +51,21 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 #endif
   }
 
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
   constexpr qsbr_ptr(qsbr_ptr<T> &&other) noexcept : ptr{other.ptr} {
     other.ptr = nullptr;
   }
+
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
   ~qsbr_ptr() noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
 #endif
   }
+
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26456)
 
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr<T> &operator=(
       const qsbr_ptr<T> &other) noexcept {
@@ -82,11 +90,15 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     return *this;
   }
 
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
   [[nodiscard, gnu::pure]] constexpr std::add_lvalue_reference_t<T> operator*()
       const {
     return *ptr;
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
   constexpr qsbr_ptr<T> &operator++() noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
@@ -97,6 +109,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 #endif
     return *this;
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard, gnu::pure]] constexpr std::ptrdiff_t operator-(
       qsbr_ptr<T> other) const noexcept {
@@ -164,9 +177,11 @@ class qsbr_ptr_span {
     return start;
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
   [[nodiscard, gnu::pure]] constexpr qsbr_ptr<const T> cend() const noexcept {
     return qsbr_ptr<const T>{start.get() + length};
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  private:
   qsbr_ptr<T> start;

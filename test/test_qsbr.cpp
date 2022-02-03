@@ -18,20 +18,24 @@ namespace {
 
 class QSBR : public ::testing::Test {
  public:
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   ~QSBR() override {
     if (unodb::this_thread().is_qsbr_paused())
       unodb::this_thread().qsbr_resume();
     unodb::this_thread().quiescent();
     unodb::test::expect_idle_qsbr();
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  protected:
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
   QSBR() {
     if (unodb::this_thread().is_qsbr_paused())
       unodb::this_thread().qsbr_resume();
     unodb::test::expect_idle_qsbr();
     unodb::qsbr::instance().reset_stats();
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard]] static auto get_qsbr_thread_count() noexcept {
     return unodb::qsbr_state::get_thread_count(
@@ -44,20 +48,19 @@ class QSBR : public ::testing::Test {
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
   }
 
-  // warning C6326: Potential comparison of a constant with another constant.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
   void check_epoch_advanced() noexcept {
     const auto current_epoch =
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
-    EXPECT_EQ(last_epoch.next(), current_epoch);
+    UNODB_EXPECT_EQ(last_epoch.next(), current_epoch);
     last_epoch = current_epoch;
   }
 
   void check_epoch_same() const noexcept {
     const auto current_epoch =
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
-    EXPECT_EQ(last_epoch, current_epoch);
+    UNODB_EXPECT_EQ(last_epoch, current_epoch);
   }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -118,79 +121,78 @@ void active_pointer_ops(void *raw_ptr) noexcept {
   active_ptr2 = std::move(active_ptr3);  // -V1001
 }
 
-// warning C6326: Potential comparison of a constant with another constant.
+UNODB_START_TESTS()
+
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
 TEST_F(QSBR, SingleThreadQuitPaused) {
-  ASSERT_FALSE(unodb::this_thread().is_qsbr_paused());
+  UNODB_ASSERT_FALSE(unodb::this_thread().is_qsbr_paused());
   unodb::this_thread().qsbr_pause();
-  ASSERT_TRUE(unodb::this_thread().is_qsbr_paused());
+  UNODB_ASSERT_TRUE(unodb::this_thread().is_qsbr_paused());
 }
 
 TEST_F(QSBR, SingleThreadPauseResume) {
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, TwoThreads) {
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
   unodb::qsbr_thread second_thread(
-      []() noexcept { EXPECT_EQ(get_qsbr_thread_count(), 2); });
+      []() noexcept { UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2); });
   second_thread.join();
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 TEST_F(QSBR, TwoThreadsSecondQuitPaused) {
-  unodb::qsbr_thread second_thread(
-      []() noexcept { unodb::this_thread().qsbr_pause(); });
+  unodb::qsbr_thread second_thread([]() { unodb::this_thread().qsbr_pause(); });
   second_thread.join();
 }
 
-// warning C6326: Potential comparison of a constant with another constant.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
 TEST_F(QSBR, TwoThreadsSecondPaused) {
   unodb::qsbr_thread second_thread([] {
-    EXPECT_EQ(get_qsbr_thread_count(), 2);
-    ASSERT_FALSE(unodb::this_thread().is_qsbr_paused());
+    UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2);
+    UNODB_ASSERT_FALSE(unodb::this_thread().is_qsbr_paused());
     unodb::this_thread().qsbr_pause();
-    ASSERT_TRUE(unodb::this_thread().is_qsbr_paused());
-    EXPECT_EQ(get_qsbr_thread_count(), 1);
+    UNODB_ASSERT_TRUE(unodb::this_thread().is_qsbr_paused());
+    UNODB_EXPECT_EQ(get_qsbr_thread_count(), 1);
     unodb::this_thread().qsbr_resume();
-    EXPECT_EQ(get_qsbr_thread_count(), 2);
+    UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2);
   });
   second_thread.join();
 }
 
 TEST_F(QSBR, TwoThreadsFirstPaused) {
   unodb::qsbr_thread second_thread([] {
-    EXPECT_EQ(get_qsbr_thread_count(), 2);
+    UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2);
     thread_syncs[0].notify();
     thread_syncs[1].wait();
   });
 
   thread_syncs[0].wait();
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
   thread_syncs[1].notify();
   second_thread.join();
-  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, TwoThreadsBothPaused) {
   unodb::qsbr_thread second_thread([] {
-    EXPECT_EQ(get_qsbr_thread_count(), 2);
+    UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2);
     thread_syncs[0].notify();
     unodb::this_thread().qsbr_pause();
     thread_syncs[1].wait();
-    EXPECT_EQ(get_qsbr_thread_count(), 0);
+    UNODB_EXPECT_EQ(get_qsbr_thread_count(), 0);
     unodb::this_thread().qsbr_resume();
   });
   thread_syncs[0].wait();
@@ -198,80 +200,80 @@ TEST_F(QSBR, TwoThreadsBothPaused) {
   thread_syncs[1].notify();
   second_thread.join();
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, TwoThreadsSequential) {
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::qsbr_thread second_thread(
-      []() noexcept { ASSERT_EQ(get_qsbr_thread_count(), 1); });
+      []() noexcept { UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1); });
   second_thread.join();
-  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, TwoThreadsDefaultCtor) {
   unodb::this_thread().qsbr_pause();
   unodb::qsbr_thread second_thread{};
-  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   second_thread = unodb::qsbr_thread{
-      []() noexcept { ASSERT_EQ(get_qsbr_thread_count(), 1); }};
+      []() noexcept { UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1); }};
   second_thread.join();
-  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
 }
 
 TEST_F(QSBR, SecondThreadAddedWhileFirstPaused) {
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
 
   unodb::qsbr_thread second_thread(
-      []() noexcept { ASSERT_EQ(get_qsbr_thread_count(), 1); });
+      []() noexcept { UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1); });
   second_thread.join();
 
-  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, SecondThreadAddedWhileFirstPausedBothRun) {
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
 
   unodb::qsbr_thread second_thread([] {
-    ASSERT_EQ(get_qsbr_thread_count(), 1);
+    UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
     thread_syncs[0].notify();
     thread_syncs[1].wait();
   });
   thread_syncs[0].wait();
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(get_qsbr_thread_count(), 2);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 2);
   thread_syncs[1].notify();
   second_thread.join();
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, ThreeThreadsInitialPaused) {
   unodb::this_thread().qsbr_pause();
-  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::qsbr_thread second_thread([] {
-    ASSERT_EQ(get_qsbr_thread_count(), 1);
+    UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
     thread_syncs[0].notify();
     thread_syncs[1].wait();
   });
   thread_syncs[0].wait();
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
   unodb::qsbr_thread third_thread([] {
-    ASSERT_EQ(get_qsbr_thread_count(), 2);
+    UNODB_ASSERT_EQ(get_qsbr_thread_count(), 2);
     thread_syncs[1].notify();
   });
   second_thread.join();
   third_thread.join();
-  ASSERT_EQ(get_qsbr_thread_count(), 0);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
-  ASSERT_EQ(get_qsbr_thread_count(), 1);
+  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -314,7 +316,6 @@ TEST_F(QSBR, ActivePointersBeforePause) {
 
 #ifndef NDEBUG
 
-// warning C6326: Potential comparison of a constant with another constant.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
 TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
@@ -808,7 +809,6 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
   second_thread.join();
 }
 
-// warning C6326: Potential comparison of a constant with another constant.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
 TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
@@ -840,7 +840,7 @@ TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
 
     check_epoch_advanced();
 
-    ASSERT_EQ(*active_ptr, 'A');
+    UNODB_ASSERT_EQ(*active_ptr, 'A');
   }
 
   unodb::this_thread().quiescent();
@@ -868,21 +868,24 @@ TEST_F(QSBR, ResetStats) {
   thread_syncs[1].notify();  // 2 ->
   second_thread.join();
 
-  ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 2);
-  ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 1);
-  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 2);
-  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(), 1);
-  ASSERT_EQ(unodb::qsbr::instance()
-                .get_mean_quiescent_states_per_thread_between_epoch_changes(),
-            1.0);
+  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 2);
+  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 1);
+  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 2);
+  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(),
+                  1);
+  UNODB_ASSERT_EQ(
+      unodb::qsbr::instance()
+          .get_mean_quiescent_states_per_thread_between_epoch_changes(),
+      1.0);
 
   unodb::qsbr::instance().reset_stats();
 
-  ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 0);
-  ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 0);
-  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 0);
-  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(), 0);
-  ASSERT_TRUE(std::isnan(
+  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 0);
+  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 0);
+  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 0);
+  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(),
+                  0);
+  UNODB_ASSERT_TRUE(std::isnan(
       unodb::qsbr::instance()
           .get_mean_quiescent_states_per_thread_between_epoch_changes()));
 }
@@ -893,22 +896,23 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
 
     thread_syncs[0].notify();  // 1 -> & v
 
-    ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 0);
-    ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 0);
-    ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 0);
-    ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(), 0);
-    volatile auto force_load [[maybe_unused]] =
+    UNODB_ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 0);
+    UNODB_ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 0);
+    UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 0);
+    UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(),
+                    0);
+    const volatile auto force_load [[maybe_unused]] =
         unodb::qsbr::instance()
             .get_mean_quiescent_states_per_thread_between_epoch_changes();
-    ASSERT_TRUE(
+    UNODB_ASSERT_TRUE(
         unodb::qsbr::instance().previous_interval_orphaned_requests_empty());
-    ASSERT_TRUE(
+    UNODB_ASSERT_TRUE(
         unodb::qsbr::instance().current_interval_orphaned_requests_empty());
     const auto current_qsbr_state = unodb::qsbr::instance().get_state();
-    ASSERT_LE(
+    UNODB_ASSERT_LE(
         unodb::qsbr_state::get_threads_in_previous_epoch(current_qsbr_state),
         2);
-    volatile auto force_load3 [[maybe_unused]] =
+    const volatile auto force_load3 [[maybe_unused]] =
         unodb::qsbr::instance().get_epoch_change_count();
   }};
 

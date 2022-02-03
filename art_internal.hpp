@@ -143,6 +143,7 @@ class basic_db_inode_deleter {
   Db &db;
 };
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 template <class Header>
 class [[nodiscard]] basic_node_ptr {
  public:
@@ -209,6 +210,7 @@ class [[nodiscard]] basic_node_ptr {
     static_assert(alignof(header_type) - 1 > lowest_non_tag_bit);
   }
 };
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace unodb::detail
 

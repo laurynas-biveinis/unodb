@@ -45,11 +45,17 @@ template <class Db, class Thread>
 class [[nodiscard]] concurrent_benchmark {
  protected:
   UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-final-methods")
+
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+
   virtual void setup() {}
 
   virtual void end_workload_in_main_thread() {}
 
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
   virtual void teardown() noexcept {}
+
   UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
  public:

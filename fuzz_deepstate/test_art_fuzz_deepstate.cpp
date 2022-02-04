@@ -13,7 +13,7 @@
 #include <vector>
 
 #include <deepstate/DeepState.hpp>
-#include <gsl/gsl_util>
+#include <gsl/util>
 
 #include "art.hpp"
 #include "art_common.hpp"
@@ -153,9 +153,10 @@ TEST(ART, DeepStateFuzz) {
             ASSERT(!test_db.empty());
             ASSERT(oracle_search_result != oracle.cend())
                 << "If search found a key, oracle must contain that key";
-            ASSERT(std::equal(search_result->cbegin(), search_result->cend(),
-                              oracle_search_result->second.cbegin(),
-                              oracle_search_result->second.cend()))
+            ASSERT(std::equal(std::cbegin(*search_result),
+                              std::cend(*search_result),
+                              std::cbegin(oracle_search_result->second),
+                              std::cend(oracle_search_result->second)))
                 << "Values stored in ART and in oracle must match";
           } else {
             ASSERT(oracle_search_result == oracle.cend())

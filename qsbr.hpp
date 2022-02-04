@@ -24,7 +24,7 @@
 #include <utility>  // IWYU pragma: keep
 #include <vector>
 
-#include <gsl/gsl_util>
+#include <gsl/util>
 
 #include <boost/accumulators/accumulators.hpp>  // IWYU pragma: keep
 #include <boost/accumulators/statistics/max.hpp>

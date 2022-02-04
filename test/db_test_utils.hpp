@@ -62,12 +62,13 @@ void assert_value_eq(const typename Db::get_result &result,
   if constexpr (std::is_same_v<Db, unodb::mutex_db>) {
     UNODB_DETAIL_ASSERT(result.second.owns_lock());
     UNODB_DETAIL_ASSERT(result.first.has_value());
-    UNODB_ASSERT_TRUE(std::equal(result.first->cbegin(), result.first->cend(),
-                                 expected.cbegin(), expected.cend()));
+    UNODB_ASSERT_TRUE(std::equal(std::cbegin(*result.first),
+                                 std::cend(*result.first),
+                                 std::cbegin(expected), std::cend(expected)));
   } else {
     UNODB_DETAIL_ASSERT(result.has_value());
-    UNODB_ASSERT_TRUE(std::equal(result->cbegin(), result->cend(),
-                                 expected.cbegin(), expected.cend()));
+    UNODB_ASSERT_TRUE(std::equal(std::cbegin(*result), std::cend(*result),
+                                 std::cbegin(expected), std::cend(expected)));
   }
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()

@@ -20,7 +20,7 @@
 #include <smmintrin.h>
 #endif
 
-#include <gsl/gsl_util>
+#include <gsl/util>
 
 #include "art_common.hpp"
 #include "art_internal.hpp"
@@ -78,7 +78,7 @@ class [[nodiscard]] basic_leaf final : public Header {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
   constexpr basic_leaf(art_key k, value_view v) noexcept
       : key{k}, value_size{gsl::narrow_cast<value_size_type>(v.size())} {
-    UNODB_DETAIL_ASSERT(static_cast<std::size_t>(v.size()) <= max_value_size);
+    UNODB_DETAIL_ASSERT(v.size() <= max_value_size);
 
     if (!v.empty()) std::memcpy(&value_start[0], &v[0], value_size);
   }
@@ -123,8 +123,7 @@ template <class Header, class Db>
 [[nodiscard]] auto make_db_leaf_ptr(art_key k, value_view v, Db &db) {
   using leaf_type = basic_leaf<Header>;
 
-  if (UNODB_DETAIL_UNLIKELY(static_cast<std::size_t>(v.size()) >
-                            leaf_type::max_value_size)) {
+  if (UNODB_DETAIL_UNLIKELY(v.size() > leaf_type::max_value_size)) {
     throw std::length_error("Value length must fit in std::uint32_t");
   }
 

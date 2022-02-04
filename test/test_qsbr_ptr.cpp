@@ -148,25 +148,25 @@ TEST(QSBRPtr, Get) {
 TEST(QSBRPtrSpan, CopyGslSpanCtor) {
   unodb::qsbr_ptr_span span{gsl_span};
 
-  UNODB_ASSERT_TRUE(std::equal(span.cbegin(), span.cend(), gsl_span.cbegin(),
-                               gsl_span.cend()));
+  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span), std::cend(span),
+                               std::cbegin(gsl_span), std::cend(gsl_span)));
 }
 
 TEST(QSBRPtrSpan, CopyCtor) {
   unodb::qsbr_ptr_span span{gsl_span};
   unodb::qsbr_ptr_span span2{span};
 
-  UNODB_ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span.cbegin(),
-                               gsl_span.cend()));
+  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
+                               std::cbegin(gsl_span), std::cend(gsl_span)));
 }
 
 TEST(QSBRPtrSpan, MoveCtor) {
   unodb::qsbr_ptr_span span{gsl_span};
   unodb::qsbr_ptr_span span2{std::move(span)};
 
-  UNODB_ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span.cbegin(),
-                               gsl_span.cend()));
-  UNODB_ASSERT_EQ(span.cbegin().get(), nullptr);
+  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
+                               std::cbegin(gsl_span), std::cend(gsl_span)));
+  UNODB_ASSERT_EQ(std::cbegin(span).get(), nullptr);
 }
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
@@ -174,15 +174,15 @@ TEST(QSBRPtrSpan, CopyAssignment) {
   unodb::qsbr_ptr_span span{gsl_span};
   unodb::qsbr_ptr_span span2{gsl_span2};
 
-  UNODB_ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span2.cbegin(),
-                               gsl_span2.cend()));
+  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
+                               std::cbegin(gsl_span2), std::cend(gsl_span2)));
   span2 = span;
-  UNODB_ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span.cbegin(),
-                               gsl_span.cend()));
+  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
+                               std::cbegin(gsl_span), std::cend(gsl_span)));
 
   span2 = span2;  // -V570
-  UNODB_ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span.cbegin(),
-                               gsl_span.cend()));
+  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
+                               std::cbegin(gsl_span), std::cend(gsl_span)));
 }
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
@@ -190,23 +190,23 @@ TEST(QSBRPtrSpan, MoveAssignment) {
   unodb::qsbr_ptr_span span{gsl_span};
   unodb::qsbr_ptr_span span2{gsl_span2};
 
-  UNODB_ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span2.cbegin(),
-                               gsl_span2.cend()));
+  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
+                               std::cbegin(gsl_span2), std::cend(gsl_span2)));
   span2 = std::move(span);
-  UNODB_ASSERT_TRUE(std::equal(span2.cbegin(), span2.cend(), gsl_span.cbegin(),
-                               gsl_span.cend()));
-  UNODB_ASSERT_EQ(span.cbegin().get(), nullptr);
+  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
+                               std::cbegin(gsl_span), std::cend(gsl_span)));
+  UNODB_ASSERT_EQ(std::cbegin(span).get(), nullptr);
 }
 
 TEST(QSBRPtrSpan, Cbegin) {
   unodb::qsbr_ptr_span span{gsl_span};
-  UNODB_ASSERT_EQ(span.cbegin().get(), &two_chars[0]);
+  UNODB_ASSERT_EQ(std::cbegin(span).get(), &two_chars[0]);
 }
 
 TEST(QSBRPtrSpan, Cend) {
   unodb::qsbr_ptr_span span{gsl_span};
   // Do not write &two_chars[2] directly or the libstdc++ debug assertions fire
-  UNODB_ASSERT_EQ(span.cend().get(), &two_chars[1] + 1);
+  UNODB_ASSERT_EQ(std::cend(span).get(), &two_chars[1] + 1);
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 

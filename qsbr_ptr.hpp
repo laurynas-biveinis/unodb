@@ -173,13 +173,13 @@ class qsbr_ptr_span {
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span<T> &operator=(
       qsbr_ptr_span<T> &&) noexcept = default;
 
-  [[nodiscard, gnu::pure]] constexpr qsbr_ptr<const T> cbegin() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr qsbr_ptr<T> begin() const noexcept {
     return start;
   }
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
-  [[nodiscard, gnu::pure]] constexpr qsbr_ptr<const T> cend() const noexcept {
-    return qsbr_ptr<const T>{start.get() + length};
+  [[nodiscard, gnu::pure]] constexpr qsbr_ptr<T> end() const noexcept {
+    return qsbr_ptr<T>{start.get() + length};
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 

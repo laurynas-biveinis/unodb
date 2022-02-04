@@ -32,100 +32,100 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: GCC 11 Release
-            os: ubuntu-20.04
-            BUILD_TYPE: Release
+          # - name: GCC 11 Release
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Release
 
-          - name: GCC 11 Release with ASan
-            os: ubuntu-20.04
-            BUILD_TYPE: Release
-            SANITIZE_ADDRESS: ON
+          # - name: GCC 11 Release with ASan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Release
+          #   SANITIZE_ADDRESS: ON
 
-          - name: GCC 11 Release with TSan
-            os: ubuntu-20.04
-            BUILD_TYPE: Release
-            SANITIZE_THREAD: ON
+          # - name: GCC 11 Release with TSan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Release
+          #   SANITIZE_THREAD: ON
 
-          - name: GCC 11 Release with UBSan
-            os: ubuntu-20.04
-            BUILD_TYPE: Release
-            SANITIZE_UB: ON
+          # - name: GCC 11 Release with UBSan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Release
+          #   SANITIZE_UB: ON
 
-          - name: GCC 11 Debug
-            os: ubuntu-20.04
-            BUILD_TYPE: Debug
+          # - name: GCC 11 Debug
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Debug
 
-          - name: GCC 11 Debug with ASan
-            os: ubuntu-20.04
-            BUILD_TYPE: Debug
-            SANITIZE_ADDRESS: ON
+          # - name: GCC 11 Debug with ASan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Debug
+          #   SANITIZE_ADDRESS: ON
 
-          - name: GCC 11 Debug with TSan
-            os: ubuntu-20.04
-            BUILD_TYPE: Debug
-            SANITIZE_THREAD: ON
+          # - name: GCC 11 Debug with TSan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Debug
+          #   SANITIZE_THREAD: ON
 
-          - name: GCC 11 Debug with UBSan
-            os: ubuntu-20.04
-            BUILD_TYPE: Debug
-            SANITIZE_UB: ON
+          # - name: GCC 11 Debug with UBSan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Debug
+          #   SANITIZE_UB: ON
 
-          - name: GCC 11 Release static analysis & cpplint
-            os: ubuntu-20.04
-            BUILD_TYPE: Release
-            STATIC_ANALYSIS: ON
-            CPPLINT: ON
+          # - name: GCC 11 Release static analysis & cpplint
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Release
+          #   STATIC_ANALYSIS: ON
+          #   CPPLINT: ON
 
-          - name: GCC 11 Debug static analysis
-            os: ubuntu-20.04
-            BUILD_TYPE: Debug
-            STATIC_ANALYSIS: ON
+          # - name: GCC 11 Debug static analysis
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Debug
+          #   STATIC_ANALYSIS: ON
 
-          - name: clang 13 Release
-            os: ubuntu-20.04
-            BUILD_TYPE: Release
-            COMPILER: clang
+          # - name: clang 13 Release
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Release
+          #   COMPILER: clang
 
-          - name: clang 13 Release with ASan
-            os: ubuntu-20.04
-            BUILD_TYPE: Release
-            SANITIZE_ADDRESS: ON
-            COMPILER: clang
+          # - name: clang 13 Release with ASan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Release
+          #   SANITIZE_ADDRESS: ON
+          #   COMPILER: clang
 
-          - name: clang 13 Release with TSan
-            os: ubuntu-20.04
-            BUILD_TYPE: Release
-            SANITIZE_THREAD: ON
-            COMPILER: clang
+          # - name: clang 13 Release with TSan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Release
+          #   SANITIZE_THREAD: ON
+          #   COMPILER: clang
 
-          - name: clang 13 Release with UBSan
-            os: ubuntu-20.04
-            BUILD_TYPE: Release
-            SANITIZE_UB: ON
-            COMPILER: clang
+          # - name: clang 13 Release with UBSan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Release
+          #   SANITIZE_UB: ON
+          #   COMPILER: clang
 
-          - name: clang 13 Debug
-            os: ubuntu-20.04
-            BUILD_TYPE: Debug
-            COMPILER: clang
+          # - name: clang 13 Debug
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Debug
+          #   COMPILER: clang
 
-          - name: clang 13 Debug with ASan
-            os: ubuntu-20.04
-            BUILD_TYPE: Debug
-            SANITIZE_ADDRESS: ON
-            COMPILER: clang
+          # - name: clang 13 Debug with ASan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Debug
+          #   SANITIZE_ADDRESS: ON
+          #   COMPILER: clang
 
-          - name: clang 13 Debug with TSan
-            os: ubuntu-20.04
-            BUILD_TYPE: Debug
-            SANITIZE_THREAD: ON
-            COMPILER: clang
+          # - name: clang 13 Debug with TSan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Debug
+          #   SANITIZE_THREAD: ON
+          #   COMPILER: clang
 
-          - name: clang 13 Debug with UBSan
-            os: ubuntu-20.04
-            BUILD_TYPE: Debug
-            SANITIZE_UB: ON
-            COMPILER: clang
+          # - name: clang 13 Debug with UBSan
+          #   os: ubuntu-20.04
+          #   BUILD_TYPE: Debug
+          #   SANITIZE_UB: ON
+          #   COMPILER: clang
 
           - name: clang 13 Release static analysis
             os: ubuntu-20.04
@@ -139,64 +139,64 @@ jobs:
             COMPILER: clang
             STATIC_ANALYSIS: ON
 
-          - name: XCode Release
-            os: macos-latest
-            BUILD_TYPE: Release
-            COMPILER: macos-clang
+          # - name: XCode Release
+          #   os: macos-latest
+          #   BUILD_TYPE: Release
+          #   COMPILER: macos-clang
 
-          - name: XCode Release with ASan
-            os: macos-latest
-            BUILD_TYPE: Release
-            COMPILER: macos-clang
-            SANITIZE_ADDRESS: ON
+          # - name: XCode Release with ASan
+          #   os: macos-latest
+          #   BUILD_TYPE: Release
+          #   COMPILER: macos-clang
+          #   SANITIZE_ADDRESS: ON
 
-          - name: XCode Release with TSan
-            os: macos-latest
-            BUILD_TYPE: Release
-            COMPILER: macos-clang
-            SANITIZE_THREAD: ON
+          # - name: XCode Release with TSan
+          #   os: macos-latest
+          #   BUILD_TYPE: Release
+          #   COMPILER: macos-clang
+          #   SANITIZE_THREAD: ON
 
-          - name: XCode Release with UBSan
-            os: macos-latest
-            BUILD_TYPE: Release
-            COMPILER: macos-clang
-            SANITIZE_UB: ON
+          # - name: XCode Release with UBSan
+          #   os: macos-latest
+          #   BUILD_TYPE: Release
+          #   COMPILER: macos-clang
+          #   SANITIZE_UB: ON
 
-          - name: XCode Debug with cppcheck
-            os: macos-latest
-            BUILD_TYPE: Debug
-            COMPILER: macos-clang
-            CPPCHECK: ON
+          # - name: XCode Debug with cppcheck
+          #   os: macos-latest
+          #   BUILD_TYPE: Debug
+          #   COMPILER: macos-clang
+          #   CPPCHECK: ON
 
-          - name: XCode Debug with ASan
-            os: macos-latest
-            BUILD_TYPE: Debug
-            COMPILER: macos-clang
-            SANITIZE_ADDRESS: ON
+          # - name: XCode Debug with ASan
+          #   os: macos-latest
+          #   BUILD_TYPE: Debug
+          #   COMPILER: macos-clang
+          #   SANITIZE_ADDRESS: ON
 
-          - name: XCode Debug with TSan
-            os: macos-latest
-            BUILD_TYPE: Debug
-            COMPILER: macos-clang
-            SANITIZE_THREAD: ON
+          # - name: XCode Debug with TSan
+          #   os: macos-latest
+          #   BUILD_TYPE: Debug
+          #   COMPILER: macos-clang
+          #   SANITIZE_THREAD: ON
 
-          - name: XCode Debug with UBSan
-            os: macos-latest
-            BUILD_TYPE: Debug
-            COMPILER: macos-clang
-            SANITIZE_UB: ON
+          # - name: XCode Debug with UBSan
+          #   os: macos-latest
+          #   BUILD_TYPE: Debug
+          #   COMPILER: macos-clang
+          #   SANITIZE_UB: ON
 
-          - name: Debug coverage
-            os: macos-latest
-            BUILD_TYPE: Debug
-            COMPILER: gcc
-            COVERAGE: ON
+          # - name: Debug coverage
+          #   os: macos-latest
+          #   BUILD_TYPE: Debug
+          #   COMPILER: gcc
+          #   COVERAGE: ON
 
-          - name: Release coverage
-            os: macos-latest
-            BUILD_TYPE: Release
-            COMPILER: gcc
-            COVERAGE: ON
+          # - name: Release coverage
+          #   os: macos-latest
+          #   BUILD_TYPE: Release
+          #   COMPILER: gcc
+          #   COVERAGE: ON
 
     steps:
       - uses: actions/checkout@v2
@@ -321,11 +321,26 @@ jobs:
           COMPILER="${COMPILER:-$DEFAULT_COMPILER}"
           STATIC_ANALYSIS="${STATIC_ANALYSIS:-$DEFAULT_STATIC_ANALYSIS}"
           if [[ $STATIC_ANALYSIS == "ON" && $COMPILER == "clang" ]]; then
-            /usr/bin/scan-build-13 --status-bugs -stats -analyze-headers \
-              --force-analyze-debug-code make -j3;
+            /usr/bin/scan-build-13 -sarif -o clang.sarif --status-bugs -stats \
+              -analyze-headers --force-analyze-debug-code make -j3 VERBOSE=1;
           else
             make -j3
           fi
+          ls -alR clang.sarif
+
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ${{github.workspace}}/build/clang.sarif/
+          category: "${{env.COMPILER}}-static-analysis-${{env.BUILD_TYPE}}"
+        if: always() && (env.STATIC_ANALYSIS == 'ON')
+
+      - name: Upload SARIF as an Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sarif-file
+          path: "${{github.workspace}}/build/clang.sarif/"
+        if: always() && (env.STATIC_ANALYSIS == 'ON')
 
       - name: Correctness test
         working-directory: ${{github.workspace}}/build

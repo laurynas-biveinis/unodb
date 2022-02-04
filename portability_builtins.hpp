@@ -8,7 +8,7 @@
 
 #ifdef UNODB_DETAIL_MSVC
 #include <intrin.h>
-#include <gsl/gsl_util>
+#include <gsl/util>
 #endif
 
 namespace unodb::detail {

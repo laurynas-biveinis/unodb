@@ -12,13 +12,16 @@
 
 #include "assert.hpp"
 
-namespace {
+namespace unodb::detail {
 
-struct run_tls_ctor_in_main_thread {
+struct set_qsbr_per_thread_in_main_thread {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
-  run_tls_ctor_in_main_thread() noexcept {
+  set_qsbr_per_thread_in_main_thread() noexcept {
     try {
-      unodb::construct_current_thread_reclamator();
+      auto main_thread_qsbr_reclamator_instance =
+          std::make_unique<unodb::qsbr_per_thread>();
+      unodb::qsbr_per_thread::set_instance(
+          std::move(main_thread_qsbr_reclamator_instance));
     }
     // LCOV_EXCL_START
     catch (const std::bad_alloc &e) {
@@ -36,12 +39,20 @@ struct run_tls_ctor_in_main_thread {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
+}  // namespace unodb::detail
+
+namespace {
+
 // NOLINTNEXTLINE(fuchsia-statically-constructed-objects)
-const run_tls_ctor_in_main_thread do_it;
+const unodb::detail::set_qsbr_per_thread_in_main_thread do_it;
 
 }  // namespace
 
 namespace unodb {
+
+thread_local std::unique_ptr<qsbr_per_thread>
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+    qsbr_per_thread::current_thread_instance;
 
 // LCOV_EXCL_START
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr_epoch::dump(

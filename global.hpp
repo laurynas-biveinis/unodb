@@ -44,10 +44,14 @@
 
 // Compiler
 
-#if defined(_MSC_VER) && !defined(__clang__)
+#if defined(_MSC_VER)
+#if !defined(__clang__)
 // MSVC with the MSVC frontend, not the LLVM one
 #define UNODB_DETAIL_MSVC
-#endif
+#else  // #if !defined(__clang__)
+#define UNODB_DETAIL_MSVC_CLANG
+#endif  // #if !defined(__clang__)
+#endif  // #if defined(_MSC_VER)
 
 #ifndef UNODB_DETAIL_MSVC
 

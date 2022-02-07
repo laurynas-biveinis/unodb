@@ -1556,7 +1556,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     if (child_indexes[static_cast<std::uint8_t>(key_byte)] != empty_child) {
       const auto child_i =
           child_indexes[static_cast<std::uint8_t>(key_byte)].load();
-      UNODB_DETAIL_ASSERT(child_i < parent_class::capacity);
       return std::make_pair(static_cast<std::uint8_t>(key_byte),
                             &children.pointer_array[child_i]);
     }

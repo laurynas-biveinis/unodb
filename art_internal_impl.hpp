@@ -1453,7 +1453,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         static_cast<std::uint8_t>(child_ptr->get_key()[depth]);
 
     UNODB_DETAIL_ASSERT(child_indexes[key_byte] == empty_child);
-    UNODB_DETAIL_ASSUME(i < parent_class::capacity);
+    UNODB_DETAIL_ASSUME(i == inode16_type::capacity);
 
     child_indexes[key_byte] = i;
     children.pointer_array[i] = node_ptr{child_ptr, node_type::LEAF};
@@ -1485,10 +1485,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
           source_node_ptr->children[child_i].load();
       ++next_child;
 
-      if (next_child == basic_inode_48::capacity) break;
+      if (next_child == basic_inode_48::capacity) return;
     }
-
-    UNODB_DETAIL_ASSERT(this->children_count == basic_inode_48::capacity);
   }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -1496,6 +1494,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count_) noexcept {
     UNODB_DETAIL_ASSERT(this->children_count == children_count_);
+    UNODB_DETAIL_ASSERT(children_count_ >= parent_class::min_size);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
 
     const auto key_byte = static_cast<uint8_t>(child->get_key()[depth]);
@@ -1557,6 +1556,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     if (child_indexes[static_cast<std::uint8_t>(key_byte)] != empty_child) {
       const auto child_i =
           child_indexes[static_cast<std::uint8_t>(key_byte)].load();
+      UNODB_DETAIL_ASSERT(child_i < parent_class::capacity);
       return std::make_pair(static_cast<std::uint8_t>(key_byte),
                             &children.pointer_array[child_i]);
     }

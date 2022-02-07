@@ -1553,9 +1553,9 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
   [[nodiscard]] constexpr typename basic_inode_48::find_result find_child(
       std::byte key_byte) noexcept {
-    if (child_indexes[static_cast<std::uint8_t>(key_byte)] != empty_child) {
-      const auto child_i =
-          child_indexes[static_cast<std::uint8_t>(key_byte)].load();
+    const auto child_i =
+        child_indexes[static_cast<std::uint8_t>(key_byte)].load();
+    if (child_i != empty_child) {
       return std::make_pair(static_cast<std::uint8_t>(key_byte),
                             &children.pointer_array[child_i]);
     }

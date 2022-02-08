@@ -424,6 +424,30 @@ struct dealloc_vector_list_node {
 };
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+struct set_qsbr_per_thread_in_main_thread;
+
+#ifndef UNODB_DETAIL_MSVC_CLANG
+
+template <typename Func>
+void on_thread_exit(Func fn) noexcept {
+  struct thread_exiter {
+    explicit thread_exiter(Func func_) noexcept : func{func_} {}
+    ~thread_exiter() noexcept { func(); }
+
+    thread_exiter(const thread_exiter &) = delete;
+    thread_exiter(thread_exiter &&) = delete;
+    thread_exiter &operator=(const thread_exiter &) = delete;
+    thread_exiter &operator=(thread_exiter &&) = delete;
+
+   private:
+    Func func;
+  };
+
+  thread_local static thread_exiter exiter{fn};
+}
+
+#endif  // #ifndef UNODB_DETAIL_MSVC_CLANG
+
 }  // namespace detail
 
 class [[nodiscard]] qsbr_per_thread final {
@@ -498,6 +522,28 @@ class [[nodiscard]] qsbr_per_thread final {
 
  private:
   friend class qsbr;
+  friend class qsbr_thread;
+  friend qsbr_per_thread &this_thread() noexcept;
+  friend struct detail::set_qsbr_per_thread_in_main_thread;
+
+  [[nodiscard]] static auto &get_instance() noexcept {
+    return *current_thread_instance;
+  }
+
+  static void set_instance(
+      std::unique_ptr<qsbr_per_thread> new_instance) noexcept {
+    current_thread_instance = std::move(new_instance);
+#ifndef UNODB_DETAIL_MSVC_CLANG
+    // Force qsbr_per_thread destructor to run on thread exit. It already runs
+    // without this kludge on most configurations, except with gcc --coverage on
+    // macOS, and it seems it is not guaranteed -
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61991
+    detail::on_thread_exit([]() noexcept { current_thread_instance.reset(); });
+#endif
+  }
+
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+  thread_local static std::unique_ptr<qsbr_per_thread> current_thread_instance;
 
   std::uint64_t quiescent_states_since_epoch_change{0};
   qsbr_epoch last_seen_quiescent_state_epoch;
@@ -531,14 +577,8 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
 };
 
-[[nodiscard]] inline qsbr_per_thread &this_thread() {
-  thread_local static qsbr_per_thread current_thread_reclamator_instance;
-  return current_thread_reclamator_instance;
-}
-
-inline void construct_current_thread_reclamator() {
-  // An ODR-use ensures that the constructor gets called
-  std::ignore = this_thread();
+[[nodiscard]] inline qsbr_per_thread &this_thread() noexcept {
+  return qsbr_per_thread::get_instance();
 }
 
 namespace boost_acc = boost::accumulators;
@@ -1009,28 +1049,24 @@ class [[nodiscard]] qsbr_thread : public std::thread {
             class = std::enable_if_t<
                 !std::is_same_v<remove_cvref_t<Function>, qsbr_thread>>>
   explicit qsbr_thread(Function &&f, Args &&...args)
-      : std ::thread{
-            [](auto &&f2, auto &&...args2) {
-              try {
-                construct_current_thread_reclamator();
-                // LCOV_EXCL_START
-              } catch (const std::bad_alloc &e) {
-                std::cerr << "QSBR thread startup memory allocation failure: "
-                          << e.what() << '\n';
-                return;
-              } catch (const std::exception &e) {
-                std::cerr << "QSBR thread startup exception: " << e.what()
-                          << '\n';
-                return;
-              } catch (...) {
-                std::cerr << "QSBR thread startup unknown exception\n";
-                UNODB_DETAIL_DEBUG_CRASH();
-                return;
-                // LCOV_EXCL_STOP
-              }
-              f2(std::forward<Args>(args2)...);
-            },
-            std::forward<Function>(f), std::forward<Args>(args)...} {}
+      : std::thread{make_qsbr_thread(std::forward<Function>(f),
+                                     std::forward<Args>(args)...)} {}
+
+ private:
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
+  template <typename Function, typename... Args>
+  [[nodiscard]] static std::thread make_qsbr_thread(Function &&f,
+                                                    Args &&...args) {
+    auto new_qsbr_thread_reclamator = std::make_unique<qsbr_per_thread>();
+    return std::thread{
+        [new_qsbr_thread_reclamator = move(new_qsbr_thread_reclamator)](
+            auto &&f2, auto &&...args2) mutable noexcept(noexcept(f2)) {
+          qsbr_per_thread::set_instance(std::move(new_qsbr_thread_reclamator));
+          f2(std::forward<Args>(args2)...);
+        },
+        std::forward<Function>(f), std::forward<Args>(args)...};
+  }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 }  // namespace unodb

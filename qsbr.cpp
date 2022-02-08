@@ -256,7 +256,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
 
       if (old_threads_in_previous_epoch == 1) {
         qsbr_thread.advance_last_seen_epoch(
-            qsbr_state::single_thread_mode(old_state), old_epoch.next());
+            qsbr_state::single_thread_mode(old_state), old_epoch.advance());
         // Request epoch invariants become fuzzy at this point - the current
         // interval moved to previous but the epoch not advanced yet. Any new
         // requests until CAS will get the old epoch.
@@ -266,7 +266,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
           epoch_change_update_requests(qsbr_state::single_thread_mode(old_state)
 #ifndef NDEBUG
                                            ,
-                                       old_epoch.next()
+                                       old_epoch.advance()
 #endif
           );
           global_requests_updated_for_epoch_change = true;
@@ -355,14 +355,14 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
   // first time in this epoch.
   UNODB_DETAIL_ASSERT(current_global_epoch == qsbr_state::get_epoch(old_state));
   UNODB_DETAIL_ASSERT(thread_epoch == current_global_epoch ||
-                      thread_epoch.next() == current_global_epoch);
+                      thread_epoch.advance() == current_global_epoch);
 
   if (old_threads_in_previous_epoch > 1) return current_global_epoch;
 
   const auto new_epoch =
       change_epoch(current_global_epoch, old_single_thread_mode);
 
-  UNODB_DETAIL_ASSERT(current_global_epoch.next() == new_epoch);
+  UNODB_DETAIL_ASSERT(current_global_epoch.advance() == new_epoch);
 
   return new_epoch;
 }
@@ -393,15 +393,15 @@ void qsbr::epoch_change_update_requests(bool single_thread_mode
   if (orphaned_previous_requests != nullptr) {
     const auto request_epoch =
         (orphaned_previous_requests->requests)[0].request_epoch;
-    UNODB_DETAIL_ASSERT(request_epoch.next() == dealloc_epoch ||
-                        request_epoch.next().next() == dealloc_epoch ||
-                        request_epoch.next().next().next() == dealloc_epoch);
+    UNODB_DETAIL_ASSERT(request_epoch.advance() == dealloc_epoch ||
+                        request_epoch.advance(2) == dealloc_epoch ||
+                        request_epoch.advance(3) == dealloc_epoch);
   }
   if (orphaned_current_requests != nullptr) {
     const auto request_epoch =
         (orphaned_current_requests->requests)[0].request_epoch;
-    UNODB_DETAIL_ASSERT(request_epoch.next() == dealloc_epoch ||
-                        request_epoch.next().next() == dealloc_epoch);
+    UNODB_DETAIL_ASSERT(request_epoch.advance() == dealloc_epoch ||
+                        request_epoch.advance(2) == dealloc_epoch);
   }
 #endif
 
@@ -443,7 +443,7 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
   epoch_change_update_requests(single_thread_mode
 #ifndef NDEBUG
                                ,
-                               current_global_epoch.next()
+                               current_global_epoch.advance()
 #endif
   );
 
@@ -456,10 +456,10 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
     if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
             old_state, new_state, std::memory_order_acq_rel,
             std::memory_order_acquire))) {
-      UNODB_DETAIL_ASSERT(current_global_epoch.next() ==
+      UNODB_DETAIL_ASSERT(current_global_epoch.advance() ==
                           qsbr_state::get_epoch(new_state));
 
-      return current_global_epoch.next();
+      return current_global_epoch.advance();
     }
 
     // Nobody else can change epoch nor threads in the previous epoch, only

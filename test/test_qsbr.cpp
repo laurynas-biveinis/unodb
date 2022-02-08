@@ -53,7 +53,7 @@ class QSBR : public ::testing::Test {
   void check_epoch_advanced() noexcept {
     const auto current_epoch =
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
-    UNODB_EXPECT_EQ(last_epoch.next(), current_epoch);
+    UNODB_EXPECT_EQ(last_epoch.advance(), current_epoch);
     last_epoch = current_epoch;
   }
 

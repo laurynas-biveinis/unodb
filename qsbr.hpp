@@ -74,11 +74,11 @@ class [[nodiscard]] qsbr_epoch final {
     assert_invariant();
   }
 
-  [[nodiscard]] constexpr qsbr_epoch next() const noexcept {
+  [[nodiscard]] constexpr qsbr_epoch advance(unsigned by = 1) const noexcept {
     assert_invariant();
 
     return qsbr_epoch{
-        gsl::narrow_cast<epoch_type>((epoch_val + 1) % max_count)};
+        gsl::narrow_cast<epoch_type>((epoch_val + by) % max_count)};
   }
 
   [[nodiscard]] constexpr bool operator==(qsbr_epoch other) const noexcept {
@@ -239,14 +239,14 @@ struct qsbr_state {
     UNODB_DETAIL_ASSERT(get_threads_in_previous_epoch(word) == 0);
 
     const auto old_epoch = get_epoch(word);
-    const auto new_epoch_in_word = make_from_epoch(old_epoch.next());
+    const auto new_epoch_in_word = make_from_epoch(old_epoch.advance());
     const auto new_thread_count_in_word = word & thread_count_in_word_mask;
     const auto new_threads_in_previous = (word >> thread_count_in_word_offset) &
                                          threads_in_previous_epoch_in_word_mask;
     const auto result =
         new_epoch_in_word | new_thread_count_in_word | new_threads_in_previous;
 
-    UNODB_DETAIL_ASSERT(get_epoch(result) == old_epoch.next());
+    UNODB_DETAIL_ASSERT(get_epoch(result) == old_epoch.advance());
     UNODB_DETAIL_ASSERT(get_thread_count(result) == get_thread_count(word));
     UNODB_DETAIL_ASSERT(get_threads_in_previous_epoch(result) ==
                         get_thread_count(result));
@@ -262,7 +262,7 @@ struct qsbr_state {
     UNODB_DETAIL_ASSERT(old_thread_count > 0);
     UNODB_DETAIL_ASSERT(get_threads_in_previous_epoch(word) == 1);
 
-    const auto new_word_with_epoch = make_from_epoch(get_epoch(word).next());
+    const auto new_word_with_epoch = make_from_epoch(get_epoch(word).advance());
     const auto new_thread_count = old_thread_count - 1;
     const auto new_word_with_thread_count = static_cast<type>(new_thread_count)
                                             << thread_count_in_word_offset;
@@ -270,7 +270,7 @@ struct qsbr_state {
     const auto result = new_word_with_epoch | new_word_with_thread_count |
                         new_threads_in_previous;
 
-    UNODB_DETAIL_ASSERT(get_epoch(word).next() == get_epoch(result));
+    UNODB_DETAIL_ASSERT(get_epoch(word).advance() == get_epoch(result));
     UNODB_DETAIL_ASSERT(get_thread_count(word) - 1 == get_thread_count(result));
     UNODB_DETAIL_ASSERT(get_threads_in_previous_epoch(result) ==
                         get_thread_count(result));
@@ -843,11 +843,11 @@ inline void qsbr_per_thread::advance_last_seen_epoch(
     bool single_thread_mode, qsbr_epoch new_seen_epoch) {
   if (new_seen_epoch == last_seen_epoch) return;
 
-  UNODB_DETAIL_ASSERT(new_seen_epoch == last_seen_epoch.next()
+  UNODB_DETAIL_ASSERT(new_seen_epoch == last_seen_epoch.advance()
                       // The current thread is 1) quitting; 2) not having seen
                       // the current epoch yet; 3) it quitting will cause an
                       // epoch advance
-                      || new_seen_epoch == last_seen_epoch.next().next());
+                      || new_seen_epoch == last_seen_epoch.advance(2));
   update_requests(single_thread_mode, new_seen_epoch);
 }
 
@@ -897,7 +897,7 @@ inline void qsbr_per_thread::quiescent() {
 
   if (current_global_epoch != last_seen_quiescent_state_epoch) {
     UNODB_DETAIL_ASSERT(current_global_epoch ==
-                        last_seen_quiescent_state_epoch.next());
+                        last_seen_quiescent_state_epoch.advance());
 
     last_seen_quiescent_state_epoch = current_global_epoch;
     qsbr::instance().register_quiescent_states_per_thread_between_epoch_changes(
@@ -917,12 +917,12 @@ inline void qsbr_per_thread::quiescent() {
         );
     UNODB_DETAIL_ASSERT(new_global_epoch == last_seen_quiescent_state_epoch ||
                         new_global_epoch ==
-                            last_seen_quiescent_state_epoch.next());
+                            last_seen_quiescent_state_epoch.advance());
 
     if (new_global_epoch != last_seen_quiescent_state_epoch) {
       last_seen_quiescent_state_epoch = new_global_epoch;
 
-      UNODB_DETAIL_ASSERT(last_seen_epoch.next() == new_global_epoch);
+      UNODB_DETAIL_ASSERT(last_seen_epoch.advance() == new_global_epoch);
       update_requests(qsbr_state::single_thread_mode(state), new_global_epoch);
 
       qsbr::instance()
@@ -945,11 +945,11 @@ inline void deallocation_request::deallocate(
   // The assert cannot be stricter due to epoch changes by unregister_thread,
   // which moves requests between intervals not atomically with the epoch
   // change.
-  UNODB_DETAIL_ASSERT(dealloc_epoch == request_epoch.next() ||
-                      dealloc_epoch == request_epoch.next().next() ||
-                      (dealloc_epoch == request_epoch.next().next().next()) ||
+  UNODB_DETAIL_ASSERT(dealloc_epoch == request_epoch.advance() ||
+                      dealloc_epoch == request_epoch.advance(2) ||
+                      (dealloc_epoch == request_epoch.advance(3)) ||
                       (dealloc_epoch_single_thread_mode &&
-                       dealloc_epoch == request_epoch.next()));
+                       dealloc_epoch == request_epoch.advance()));
 
   qsbr::deallocate(pointer
 #ifndef NDEBUG

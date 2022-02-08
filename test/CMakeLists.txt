@@ -16,8 +16,8 @@ function(ADD_COVERAGE_TARGET)
     ${COV_DATA}
     COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '/Library/Developer/*'
     --output-file ${COV_DATA}
-    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA}
-    '/Applications/Xcode.app/*' --output-file ${COV_DATA}
+    COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '/Applications/Xcode*'
+    --output-file ${COV_DATA}
     COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA}
     '*/unodb/3rd_party/googletest/*' --output-file ${COV_DATA}
     COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '*/unodb/3rd_party/GSL/*'

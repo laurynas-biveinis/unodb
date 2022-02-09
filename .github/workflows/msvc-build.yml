@@ -56,17 +56,6 @@ jobs:
       - name: Build
         run: cmake --build --preset "${{ matrix.preset }}"
 
-      - name: Upload SARIF to GitHub
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: |
-            ${{github.workspace}}\build\${{matrix.preset}}\msvc.sarif
-          category: "${{matrix.preset}}"
-        if: >
-            always()
-            && (matrix.preset == 'msvc-static-analysis-release'
-              || matrix.preset == 'msvc-static-analysis-debug')
-
       - name: Upload SARIF as an Artifact
         uses: actions/upload-artifact@v2
         with:

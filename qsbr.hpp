@@ -54,14 +54,14 @@ namespace unodb {
 // safe destruction in concurrent containers" ever gets anywhere, consider
 // changing to its interface, like Stamp-it paper does.
 
-// Two-bit wrapping-around epoch counter. Two epochs can be compared for
+// Three-bit wrapping-around epoch counter. Two epochs can be compared for
 // equality but otherwise are unordered. One bit counter would be enough too,
-// but with two bits we can check more invariants.
+// but with three bits we can check more invariants.
 class [[nodiscard]] qsbr_epoch final {
  public:
   using epoch_type = std::uint8_t;
 
-  static constexpr epoch_type max = 3U;
+  static constexpr epoch_type max = 7U;
 
   qsbr_epoch() noexcept = default;
   qsbr_epoch(const qsbr_epoch &) noexcept = default;
@@ -119,18 +119,18 @@ class [[nodiscard]] qsbr_epoch final {
 }
 // LCOV_EXCL_STOP
 
-// The maximum allowed QSBR-managed thread count is 2^29-1, should be enough for
+// The maximum allowed QSBR-managed thread count is 2^28-1, should be enough for
 // everybody, let's not even bother checking the limit in the Release
 // configuration
 using qsbr_thread_count_type = std::uint32_t;
 
-inline constexpr qsbr_thread_count_type max_qsbr_threads = (2UL << 29U) - 1U;
+inline constexpr qsbr_thread_count_type max_qsbr_threads = (2UL << 28U) - 1U;
 
 // Bits are allocated as follows:
-// 0..29: number of threads in the previous epoch
-// 30..31: unused
-// 32..62: total number of threads
-// 63..64: wrapping-around epoch counter
+// 0..28: number of threads in the previous epoch
+// 29..31: unused
+// 32..61: total number of threads
+// 62..64: wrapping-around epoch counter
 // Special states: if a thread decrements the number of threads in the previous
 // epoch and observes zero while the total number of threads is greater than
 // zero, then this thread is responsible for the epoch change. The decrement of
@@ -306,7 +306,7 @@ struct qsbr_state {
       static_cast<std::uint64_t>(thread_count_mask)
       << thread_count_in_word_offset;
 
-  static constexpr auto epoch_in_word_offset = 62U;
+  static constexpr auto epoch_in_word_offset = 61U;
 
   static constexpr auto one_thread_in_count = 1ULL
                                               << thread_count_in_word_offset;
@@ -949,7 +949,10 @@ inline void deallocation_request::deallocate(
                       dealloc_epoch == request_epoch.advance(2) ||
                       (dealloc_epoch == request_epoch.advance(3)) ||
                       (dealloc_epoch_single_thread_mode &&
-                       dealloc_epoch == request_epoch.advance()));
+                       (dealloc_epoch == request_epoch.advance() ||
+                        dealloc_epoch == request_epoch.advance(2) ||
+                        dealloc_epoch == request_epoch.advance(3) ||
+                        dealloc_epoch == request_epoch.advance(4))));
 
   qsbr::deallocate(pointer
 #ifndef NDEBUG

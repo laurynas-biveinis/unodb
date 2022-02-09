@@ -406,13 +406,16 @@ void qsbr::epoch_change_update_requests(bool single_thread_mode
         (orphaned_previous_requests->requests)[0].request_epoch;
     UNODB_DETAIL_ASSERT(request_epoch.advance() == dealloc_epoch ||
                         request_epoch.advance(2) == dealloc_epoch ||
-                        request_epoch.advance(3) == dealloc_epoch);
+                        request_epoch.advance(3) == dealloc_epoch ||
+                        request_epoch.advance(4) == dealloc_epoch ||
+                        request_epoch.advance(5) == dealloc_epoch);
   }
   if (orphaned_current_requests != nullptr) {
     const auto request_epoch =
         (orphaned_current_requests->requests)[0].request_epoch;
     UNODB_DETAIL_ASSERT(request_epoch.advance() == dealloc_epoch ||
-                        request_epoch.advance(2) == dealloc_epoch);
+                        request_epoch.advance(2) == dealloc_epoch ||
+                        request_epoch.advance(3) == dealloc_epoch);
   }
 #endif
 

@@ -252,10 +252,12 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     const auto remove_thread_from_previous_epoch =
         (thread_epoch != old_epoch) ||
         (quiescent_states_since_epoch_change == 0);
+    const auto advance_epoch = remove_thread_from_previous_epoch &&
+                               (old_threads_in_previous_epoch == 1);
 
     const auto new_state =
         remove_thread_from_previous_epoch
-            ? (old_threads_in_previous_epoch == 1
+            ? (advance_epoch
                    ? qsbr_state::inc_epoch_dec_thread_count_reset_previous(
                          old_state)
                    : qsbr_state::dec_thread_count_and_threads_in_previous_epoch(
@@ -265,19 +267,22 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     if (remove_thread_from_previous_epoch) {
       thread_epoch_change_barrier();
 
-      if (old_threads_in_previous_epoch == 1) {
+      if (advance_epoch) {
         qsbr_thread.advance_last_seen_epoch(
             qsbr_state::single_thread_mode(old_state), old_epoch.advance());
         // Request epoch invariants become fuzzy at this point - the current
         // interval moved to previous but the epoch not advanced yet. Any new
         // requests until CAS will get the old epoch.
 
-        // Call epoch_change_update_requests only once for one epoch change
+        // Call epoch_change_update_requests only once for one epoch change. We
+        // cannot do this after setting the new state as then other threads may
+        // proceed with subsequent epoch changes.
         if (!global_requests_updated_for_epoch_change) {
-          epoch_change_update_requests(qsbr_state::single_thread_mode(old_state)
+          epoch_change_barrier_and_handle_orphans(
+              qsbr_state::single_thread_mode(old_state)
 #ifndef NDEBUG
-                                           ,
-                                       old_epoch.advance()
+                  ,
+              old_epoch.advance()
 #endif
           );
           global_requests_updated_for_epoch_change = true;
@@ -290,6 +295,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     if (UNODB_DETAIL_LIKELY(state.compare_exchange_strong(
             old_state, new_state, std::memory_order_acq_rel,
             std::memory_order_acquire))) {
+      if (advance_epoch) bump_epoch_change_count();
       qsbr_thread.orphan_deferred_requests();
 
       if (thread_epoch != old_epoch) {
@@ -378,16 +384,18 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
   return new_epoch;
 }
 
-void qsbr::epoch_change_update_requests(bool single_thread_mode
-#ifndef NDEBUG
-                                        ,
-                                        qsbr_epoch dealloc_epoch
-#endif
-                                        ) noexcept {
+void qsbr::bump_epoch_change_count() noexcept {
   const auto new_epoch_change_count =
       epoch_change_count.load(std::memory_order_relaxed) + 1;
   epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
+}
 
+void qsbr::epoch_change_barrier_and_handle_orphans(bool single_thread_mode
+#ifndef NDEBUG
+                                                   ,
+                                                   qsbr_epoch dealloc_epoch
+#endif
+                                                   ) noexcept {
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
   __tsan_acquire(&instance());
 #endif
@@ -399,22 +407,6 @@ void qsbr::epoch_change_update_requests(bool single_thread_mode
       take_orphan_list(orphaned_previous_interval_dealloc_requests);
   auto *orphaned_current_requests =
       take_orphan_list(orphaned_current_interval_dealloc_requests);
-
-#ifndef NDEBUG
-  if (orphaned_previous_requests != nullptr) {
-    const auto request_epoch =
-        (orphaned_previous_requests->requests)[0].request_epoch;
-    UNODB_DETAIL_ASSERT(request_epoch.advance() == dealloc_epoch ||
-                        request_epoch.advance(2) == dealloc_epoch ||
-                        request_epoch.advance(3) == dealloc_epoch);
-  }
-  if (orphaned_current_requests != nullptr) {
-    const auto request_epoch =
-        (orphaned_current_requests->requests)[0].request_epoch;
-    UNODB_DETAIL_ASSERT(request_epoch.advance() == dealloc_epoch ||
-                        request_epoch.advance(2) == dealloc_epoch);
-  }
-#endif
 
   free_orphan_list(orphaned_previous_requests
 #ifndef NDEBUG
@@ -451,10 +443,10 @@ void qsbr::epoch_change_update_requests(bool single_thread_mode
 
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
                               bool single_thread_mode) noexcept {
-  epoch_change_update_requests(single_thread_mode
+  epoch_change_barrier_and_handle_orphans(single_thread_mode
 #ifndef NDEBUG
-                               ,
-                               current_global_epoch.advance()
+                                          ,
+                                          current_global_epoch.advance()
 #endif
   );
 
@@ -470,6 +462,7 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
       UNODB_DETAIL_ASSERT(current_global_epoch.advance() ==
                           qsbr_state::get_epoch(new_state));
 
+      bump_epoch_change_count();
       return current_global_epoch.advance();
     }
 

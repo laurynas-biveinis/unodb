@@ -708,12 +708,14 @@ class qsbr final {
 
   static void thread_epoch_change_barrier() noexcept;
 
-  void epoch_change_update_requests(bool single_thread_mode
+  void bump_epoch_change_count() noexcept;
+
+  void epoch_change_barrier_and_handle_orphans(bool single_thread_mode
 #ifndef NDEBUG
-                                    ,
-                                    qsbr_epoch dealloc_epoch
+                                               ,
+                                               qsbr_epoch dealloc_epoch
 #endif
-                                    ) noexcept;
+                                               ) noexcept;
 
   qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
                           bool single_thread_mode) noexcept;

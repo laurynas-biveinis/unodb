@@ -120,11 +120,15 @@ class db final {
   void delete_root_subtree() noexcept;
 
   constexpr void increase_memory_use(std::size_t delta) noexcept {
+    UNODB_DETAIL_ASSERT(delta > 0);
+
     current_memory_use += delta;
   }
 
   constexpr void decrease_memory_use(std::size_t delta) noexcept {
+    UNODB_DETAIL_ASSERT(delta > 0);
     UNODB_DETAIL_ASSERT(delta <= current_memory_use);
+
     current_memory_use -= delta;
   }
 

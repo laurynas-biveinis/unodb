@@ -1240,7 +1240,7 @@ void olc_db::clear() noexcept {
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
 void olc_db::increase_memory_use(std::size_t delta) noexcept {
-  if (delta == 0) return;
+  UNODB_DETAIL_ASSERT(delta > 0);
 
   current_memory_use.fetch_add(delta, std::memory_order_relaxed);
 }
@@ -1248,10 +1248,10 @@ void olc_db::increase_memory_use(std::size_t delta) noexcept {
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 void olc_db::decrease_memory_use(std::size_t delta) noexcept {
-  if (delta == 0) return;
-
+  UNODB_DETAIL_ASSERT(delta > 0);
   UNODB_DETAIL_ASSERT(delta <=
                       current_memory_use.load(std::memory_order_relaxed));
+
   current_memory_use.fetch_sub(delta, std::memory_order_relaxed);
 }
 

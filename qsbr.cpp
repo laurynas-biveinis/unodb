@@ -236,6 +236,8 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
 
     if (UNODB_DETAIL_UNLIKELY(old_threads_in_previous_epoch == 0)) {
       // LCOV_EXCL_START
+      UNODB_DETAIL_ASSERT(thread_epoch == old_epoch);
+
       // Epoch change in progress - try to decrement the thread count only
       const auto new_state = qsbr_state::dec_thread_count(old_state);
       if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
@@ -256,18 +258,18 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                                (old_threads_in_previous_epoch == 1);
 
     const auto new_state =
-        remove_thread_from_previous_epoch
-            ? (advance_epoch
+        UNODB_DETAIL_UNLIKELY(remove_thread_from_previous_epoch)
+            ? (UNODB_DETAIL_UNLIKELY(advance_epoch)
                    ? qsbr_state::inc_epoch_dec_thread_count_reset_previous(
                          old_state)
                    : qsbr_state::dec_thread_count_and_threads_in_previous_epoch(
                          old_state))
             : qsbr_state::dec_thread_count(old_state);
 
-    if (remove_thread_from_previous_epoch) {
+    if (UNODB_DETAIL_UNLIKELY(remove_thread_from_previous_epoch)) {
       thread_epoch_change_barrier();
 
-      if (advance_epoch) {
+      if (UNODB_DETAIL_UNLIKELY(advance_epoch)) {
         qsbr_thread.advance_last_seen_epoch(
             qsbr_state::single_thread_mode(old_state), old_epoch.advance());
         // Request epoch invariants become fuzzy at this point - the current
@@ -277,7 +279,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
         // Call epoch_change_update_requests only once for one epoch change. We
         // cannot do this after setting the new state as then other threads may
         // proceed with subsequent epoch changes.
-        if (!global_requests_updated_for_epoch_change) {
+        if (UNODB_DETAIL_LIKELY(!global_requests_updated_for_epoch_change)) {
           epoch_change_barrier_and_handle_orphans(
               qsbr_state::single_thread_mode(old_state)
 #ifndef NDEBUG
@@ -295,10 +297,10 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     if (UNODB_DETAIL_LIKELY(state.compare_exchange_strong(
             old_state, new_state, std::memory_order_acq_rel,
             std::memory_order_acquire))) {
-      if (advance_epoch) bump_epoch_change_count();
+      if (UNODB_DETAIL_UNLIKELY(advance_epoch)) bump_epoch_change_count();
       qsbr_thread.orphan_deferred_requests();
 
-      if (thread_epoch != old_epoch) {
+      if (UNODB_DETAIL_UNLIKELY(thread_epoch != old_epoch)) {
         register_quiescent_states_per_thread_between_epoch_changes(
             quiescent_states_since_epoch_change);
       }

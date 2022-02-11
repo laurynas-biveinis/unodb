@@ -227,29 +227,31 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                              qsbr_epoch thread_epoch,
                              qsbr_per_thread &qsbr_thread) {
   bool global_requests_updated_for_epoch_change = false;
+
   auto old_state = state.load(std::memory_order_acquire);
+  auto old_threads_in_previous_epoch =
+      qsbr_state::get_threads_in_previous_epoch(old_state);
+
+  while (UNODB_DETAIL_UNLIKELY(old_threads_in_previous_epoch == 0)) {
+    // Epoch change in progress - try to decrement the thread count only
+    // LCOV_EXCL_START
+    UNODB_DETAIL_ASSERT(thread_epoch == qsbr_state::get_epoch(old_state));
+
+    const auto new_state = qsbr_state::dec_thread_count(old_state);
+    if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
+            old_state, new_state, std::memory_order_acq_rel,
+            std::memory_order_acquire))) {
+      qsbr_thread.orphan_deferred_requests();
+      return;
+    }
+    old_threads_in_previous_epoch =
+        qsbr_state::get_threads_in_previous_epoch(old_state);
+    // LCOV_EXCL_STOP
+  }
 
   while (true) {
-    const auto old_threads_in_previous_epoch =
-        qsbr_state::get_threads_in_previous_epoch(old_state);
-
-    if (UNODB_DETAIL_UNLIKELY(old_threads_in_previous_epoch == 0)) {
-      // LCOV_EXCL_START
-      UNODB_DETAIL_ASSERT(thread_epoch == qsbr_state::get_epoch(old_state));
-
-      // Epoch change in progress - try to decrement the thread count only
-      const auto new_state = qsbr_state::dec_thread_count(old_state);
-      if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
-              old_state, new_state, std::memory_order_acq_rel,
-              std::memory_order_acquire))) {
-        qsbr_thread.orphan_deferred_requests();
-        return;
-      }
-      continue;
-      // LCOV_EXCL_STOP
-    }
-
     UNODB_DETAIL_ASSERT(old_threads_in_previous_epoch > 0);
+
     const auto old_epoch = qsbr_state::get_epoch(old_state);
     const auto remove_thread_from_previous_epoch =
         (thread_epoch != old_epoch) ||
@@ -307,6 +309,9 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
 
       return;
     }
+
+    old_threads_in_previous_epoch =
+        qsbr_state::get_threads_in_previous_epoch(old_state);
   }
 }
 

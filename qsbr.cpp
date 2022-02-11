@@ -230,13 +230,12 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
   auto old_state = state.load(std::memory_order_acquire);
 
   while (true) {
-    const auto old_epoch = qsbr_state::get_epoch(old_state);
     const auto old_threads_in_previous_epoch =
         qsbr_state::get_threads_in_previous_epoch(old_state);
 
     if (UNODB_DETAIL_UNLIKELY(old_threads_in_previous_epoch == 0)) {
       // LCOV_EXCL_START
-      UNODB_DETAIL_ASSERT(thread_epoch == old_epoch);
+      UNODB_DETAIL_ASSERT(thread_epoch == qsbr_state::get_epoch(old_state));
 
       // Epoch change in progress - try to decrement the thread count only
       const auto new_state = qsbr_state::dec_thread_count(old_state);
@@ -251,6 +250,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     }
 
     UNODB_DETAIL_ASSERT(old_threads_in_previous_epoch > 0);
+    const auto old_epoch = qsbr_state::get_epoch(old_state);
     const auto remove_thread_from_previous_epoch =
         (thread_epoch != old_epoch) ||
         (quiescent_states_since_epoch_change == 0);

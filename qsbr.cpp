@@ -136,19 +136,16 @@ detail::dealloc_vector_list_node *take_orphan_list(
   return orphan_list.exchange(nullptr, std::memory_order_acq_rel);
 }
 
-void free_orphan_list(detail::dealloc_vector_list_node *list
-#ifndef NDEBUG
-                      ,
-                      qsbr_epoch dealloc_epoch, bool single_thread_mode
-#endif
-                      ) noexcept {
+void free_orphan_list(detail::dealloc_vector_list_node *list) noexcept {
   while (list != nullptr) {
     const std::unique_ptr<detail::dealloc_vector_list_node> list_ptr{list};
     detail::deferred_requests requests_to_deallocate{
         std::move(list_ptr->requests)
 #ifndef NDEBUG
             ,
-        dealloc_epoch, single_thread_mode
+        true,
+        {},
+        {}
 #endif
     };
     list = list_ptr->next;
@@ -281,12 +278,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
         // proceed with subsequent epoch changes.
         if (UNODB_DETAIL_LIKELY(!global_requests_updated_for_epoch_change)) {
           epoch_change_barrier_and_handle_orphans(
-              qsbr_state::single_thread_mode(old_state)
-#ifndef NDEBUG
-                  ,
-              old_epoch.advance()
-#endif
-          );
+              qsbr_state::single_thread_mode(old_state));
           global_requests_updated_for_epoch_change = true;
         }
       }
@@ -392,12 +384,8 @@ void qsbr::bump_epoch_change_count() noexcept {
   epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
 }
 
-void qsbr::epoch_change_barrier_and_handle_orphans(bool single_thread_mode
-#ifndef NDEBUG
-                                                   ,
-                                                   qsbr_epoch dealloc_epoch
-#endif
-                                                   ) noexcept {
+void qsbr::epoch_change_barrier_and_handle_orphans(
+    bool single_thread_mode) noexcept {
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
   __tsan_acquire(&instance());
 #endif
@@ -410,12 +398,7 @@ void qsbr::epoch_change_barrier_and_handle_orphans(bool single_thread_mode
   auto *orphaned_current_requests =
       take_orphan_list(orphaned_current_interval_dealloc_requests);
 
-  free_orphan_list(orphaned_previous_requests
-#ifndef NDEBUG
-                   ,
-                   dealloc_epoch, single_thread_mode
-#endif
-  );
+  free_orphan_list(orphaned_previous_requests);
 
   if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
     detail::dealloc_vector_list_node *new_previous_requests = nullptr;
@@ -434,23 +417,13 @@ void qsbr::epoch_change_barrier_and_handle_orphans(bool single_thread_mode
       new_previous_requests->next = orphaned_current_requests;
     }
   } else {
-    free_orphan_list(orphaned_current_requests
-#ifndef NDEBUG
-                     ,
-                     dealloc_epoch, single_thread_mode
-#endif
-    );
+    free_orphan_list(orphaned_current_requests);
   }
 }
 
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
                               bool single_thread_mode) noexcept {
-  epoch_change_barrier_and_handle_orphans(single_thread_mode
-#ifndef NDEBUG
-                                          ,
-                                          current_global_epoch.advance()
-#endif
-  );
+  epoch_change_barrier_and_handle_orphans(single_thread_mode);
 
   auto old_state = state.load(std::memory_order_acquire);
   while (true) {

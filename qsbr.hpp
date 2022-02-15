@@ -161,6 +161,9 @@ struct qsbr_state {
     return get_thread_count(word) < 2;
   }
 
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE static void dump(std::ostream &os,
+                                                       type word);
+
  private:
   friend class qsbr;
 
@@ -282,9 +285,6 @@ struct qsbr_state {
   [[nodiscard]] static type atomic_fetch_dec_threads_in_previous_epoch(
       std::atomic<type> &word) noexcept;
 
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE static void dump(std::ostream &os,
-                                                       type word);
-
   static constexpr void assert_invariants(
       type word UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
@@ -367,7 +367,8 @@ struct [[nodiscard]] deallocation_request final {
 
   void deallocate(
 #ifndef NDEBUG
-      qsbr_epoch dealloc_epoch, bool dealloc_epoch_single_thread_mode
+      bool orphan, qsbr_epoch dealloc_epoch,
+      bool dealloc_epoch_single_thread_mode
 #endif
   ) const noexcept;
 };
@@ -380,14 +381,16 @@ class [[nodiscard]] deferred_requests final {
       dealloc_request_vector &&requests_
 #ifndef NDEBUG
       ,
-      qsbr_epoch request_epoch_, bool dealloc_epoch_single_thread_mode_
+      bool orphaned_requests_, qsbr_epoch request_epoch_,
+      bool dealloc_epoch_single_thread_mode_
 #endif
       ) noexcept
       : requests {
     std::move(requests_)
   }
 #ifndef NDEBUG
-  , dealloc_epoch{request_epoch_}, dealloc_epoch_single_thread_mode {
+  , orphaned_requests{orphaned_requests_}, dealloc_epoch{request_epoch_},
+      dealloc_epoch_single_thread_mode {
     dealloc_epoch_single_thread_mode_
   }
 #endif
@@ -402,7 +405,7 @@ class [[nodiscard]] deferred_requests final {
     for (const auto &dealloc_request : requests) {
       dealloc_request.deallocate(
 #ifndef NDEBUG
-          dealloc_epoch, dealloc_epoch_single_thread_mode
+          orphaned_requests, dealloc_epoch, dealloc_epoch_single_thread_mode
 #endif
       );
     }
@@ -412,6 +415,7 @@ class [[nodiscard]] deferred_requests final {
   dealloc_request_vector requests;
 
 #ifndef NDEBUG
+  bool orphaned_requests;
   qsbr_epoch dealloc_epoch;
   bool dealloc_epoch_single_thread_mode;
 #endif
@@ -710,12 +714,8 @@ class qsbr final {
 
   void bump_epoch_change_count() noexcept;
 
-  void epoch_change_barrier_and_handle_orphans(bool single_thread_mode
-#ifndef NDEBUG
-                                               ,
-                                               qsbr_epoch dealloc_epoch
-#endif
-                                               ) noexcept;
+  void epoch_change_barrier_and_handle_orphans(
+      bool single_thread_mode) noexcept;
 
   qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
                           bool single_thread_mode) noexcept;
@@ -861,7 +861,7 @@ inline void qsbr_per_thread::update_requests(bool single_thread_mode,
       std::move(previous_interval_dealloc_requests)
 #ifndef NDEBUG
           ,
-      dealloc_epoch, single_thread_mode
+      false, dealloc_epoch, single_thread_mode
 #endif
   };
 
@@ -880,7 +880,7 @@ inline void qsbr_per_thread::update_requests(bool single_thread_mode,
         std::move(current_interval_dealloc_requests)
 #ifndef NDEBUG
             ,
-        dealloc_epoch, single_thread_mode
+        false, dealloc_epoch, single_thread_mode
 #endif
     };
   }
@@ -940,14 +940,14 @@ namespace detail {
 
 inline void deallocation_request::deallocate(
 #ifndef NDEBUG
-    qsbr_epoch dealloc_epoch, bool dealloc_epoch_single_thread_mode
+    bool orphan, qsbr_epoch dealloc_epoch, bool dealloc_epoch_single_thread_mode
 #endif
 ) const noexcept {
   // TODO(laurynas): count deallocation request instances, assert 0 in QSBR dtor
   // The assert cannot be stricter due to epoch changes by unregister_thread,
   // which moves requests between intervals not atomically with the epoch
   // change.
-  UNODB_DETAIL_ASSERT(dealloc_epoch == request_epoch.advance() ||
+  UNODB_DETAIL_ASSERT(orphan || dealloc_epoch == request_epoch.advance() ||
                       dealloc_epoch == request_epoch.advance(2) ||
                       (dealloc_epoch == request_epoch.advance(3)) ||
                       (dealloc_epoch_single_thread_mode &&

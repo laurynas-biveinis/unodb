@@ -223,7 +223,7 @@ qsbr_epoch qsbr::register_thread() noexcept {
 void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                              qsbr_epoch thread_epoch,
                              qsbr_per_thread &qsbr_thread) {
-  bool global_requests_updated_for_epoch_change = false;
+  bool epoch_change_prepared = false;
   auto old_state = state.load(std::memory_order_acquire);
 
   while (true) {
@@ -248,6 +248,9 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
 
     UNODB_DETAIL_ASSERT(old_threads_in_previous_epoch > 0);
     const auto old_epoch = qsbr_state::get_epoch(old_state);
+    const auto old_single_thread_mode =
+        qsbr_state::single_thread_mode(old_state);
+
     const auto remove_thread_from_previous_epoch =
         (thread_epoch != old_epoch) ||
         (quiescent_states_since_epoch_change == 0);
@@ -266,30 +269,24 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     if (UNODB_DETAIL_UNLIKELY(remove_thread_from_previous_epoch)) {
       thread_epoch_change_barrier();
 
-      if (UNODB_DETAIL_UNLIKELY(advance_epoch)) {
-        qsbr_thread.advance_last_seen_epoch(
-            qsbr_state::single_thread_mode(old_state), old_epoch.advance());
-        // Request epoch invariants become fuzzy at this point - the current
-        // interval moved to previous but the epoch not advanced yet. Any new
-        // requests until CAS will get the old epoch.
-
-        // Call epoch_change_update_requests only once for one epoch change. We
-        // cannot do this after setting the new state as then other threads may
-        // proceed with subsequent epoch changes.
-        if (UNODB_DETAIL_LIKELY(!global_requests_updated_for_epoch_change)) {
-          epoch_change_barrier_and_handle_orphans(
-              qsbr_state::single_thread_mode(old_state));
-          global_requests_updated_for_epoch_change = true;
-        }
+      if (UNODB_DETAIL_UNLIKELY(advance_epoch) &&
+          UNODB_DETAIL_LIKELY(!epoch_change_prepared)) {
+        // Handle global orphans only once for one epoch change. We cannot do
+        // this after setting the new state as then other threads may proceed
+        // with subsequent epoch changes.
+        epoch_change_barrier_and_handle_orphans(old_single_thread_mode);
+        epoch_change_prepared = true;
       }
     }
 
-    // Use the strong version because we cannot call
-    // epoch_change_update_requests the second time due to a spurious failure
-    if (UNODB_DETAIL_LIKELY(state.compare_exchange_strong(
+    if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
             old_state, new_state, std::memory_order_acq_rel,
             std::memory_order_acquire))) {
-      if (UNODB_DETAIL_UNLIKELY(advance_epoch)) bump_epoch_change_count();
+      if (UNODB_DETAIL_UNLIKELY(advance_epoch)) {
+        bump_epoch_change_count();
+        qsbr_thread.update_requests(old_single_thread_mode,
+                                    old_epoch.advance());
+      }
       qsbr_thread.orphan_deferred_requests();
 
       if (UNODB_DETAIL_UNLIKELY(thread_epoch != old_epoch)) {

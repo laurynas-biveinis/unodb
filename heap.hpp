@@ -62,7 +62,10 @@ template <typename T>
 #endif
 
   UNODB_DETAIL_ASSERT(err != EINVAL);
-  if (UNODB_DETAIL_UNLIKELY(err == ENOMEM)) throw std::bad_alloc{};
+  if (UNODB_DETAIL_UNLIKELY(result == nullptr)) {
+    UNODB_DETAIL_ASSERT(err == ENOMEM);
+    throw std::bad_alloc{};
+  }
 
   return result;
 }

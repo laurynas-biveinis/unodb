@@ -412,12 +412,12 @@ class [[nodiscard]] deferred_requests final {
   }
 
  private:
-  dealloc_request_vector requests;
+  const dealloc_request_vector requests;
 
 #ifndef NDEBUG
-  bool orphaned_requests;
-  qsbr_epoch dealloc_epoch;
-  bool dealloc_epoch_single_thread_mode;
+  const bool orphaned_requests;
+  const qsbr_epoch dealloc_epoch;
+  const bool dealloc_epoch_single_thread_mode;
 #endif
 };
 
@@ -925,11 +925,10 @@ inline void qsbr_per_thread::quiescent() {
       last_seen_quiescent_state_epoch = new_global_epoch;
 
       UNODB_DETAIL_ASSERT(last_seen_epoch.advance() == new_global_epoch);
-      update_requests(qsbr_state::single_thread_mode(state), new_global_epoch);
+      update_requests(single_thread_mode, new_global_epoch);
 
       qsbr::instance()
           .register_quiescent_states_per_thread_between_epoch_changes(1);
-      quiescent_states_since_epoch_change = 0;
       return;
     }
   }

@@ -59,8 +59,9 @@ template <typename T>
       posix_memalign(&result, alignment, size);
 #else
   result = _aligned_malloc(size, alignment);
-  const auto UNODB_DETAIL_USED_IN_DEBUG err =
-      UNODB_DETAIL_LIKELY(result != nullptr) ? 0 : errno;
+#ifndef NDEBUG
+  const auto err = UNODB_DETAIL_LIKELY(result != nullptr) ? 0 : errno;
+#endif
 #endif
 
   UNODB_DETAIL_ASSERT(err != EINVAL);

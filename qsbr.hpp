@@ -845,11 +845,12 @@ inline void qsbr_per_thread::advance_last_seen_epoch(
     bool single_thread_mode, qsbr_epoch new_seen_epoch) {
   if (new_seen_epoch == last_seen_epoch) return;
 
-  UNODB_DETAIL_ASSERT(new_seen_epoch == last_seen_epoch.advance()
-                      // The current thread is 1) quitting; 2) not having seen
-                      // the current epoch yet; 3) it quitting will cause an
-                      // epoch advance
-                      || new_seen_epoch == last_seen_epoch.advance(2));
+  UNODB_DETAIL_ASSERT(
+      new_seen_epoch == last_seen_epoch.advance()
+      // The current thread is 1) quitting; 2) not having seen
+      // the current epoch yet; 3) it quitting will cause an
+      // epoch advance
+      || (!single_thread_mode && new_seen_epoch == last_seen_epoch.advance(2)));
   update_requests(single_thread_mode, new_seen_epoch);
 }
 
@@ -943,14 +944,10 @@ inline void deallocation_request::deallocate(
 #endif
 ) const noexcept {
   // TODO(laurynas): count deallocation request instances, assert 0 in QSBR dtor
-  // The assert cannot be stricter due to epoch changes by unregister_thread,
-  // which moves requests between intervals not atomically with the epoch
-  // change.
-  UNODB_DETAIL_ASSERT(orphan || dealloc_epoch == request_epoch.advance() ||
-                      dealloc_epoch == request_epoch.advance(2) ||
-                      (dealloc_epoch == request_epoch.advance(3)) ||
+  UNODB_DETAIL_ASSERT(orphan ||
                       (dealloc_epoch_single_thread_mode &&
-                       dealloc_epoch == request_epoch.advance()));
+                       dealloc_epoch == request_epoch.advance()) ||
+                      dealloc_epoch == request_epoch.advance(2));
 
   qsbr::deallocate(pointer
 #ifndef NDEBUG

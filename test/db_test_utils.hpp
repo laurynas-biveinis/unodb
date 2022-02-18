@@ -181,8 +181,20 @@ class [[nodiscard]] tree_verifier final {
         parallel_test
             ? 0
             : test_db.template get_node_count<unodb::node_type::LEAF>();
+    const auto empty_before = test_db.empty();
 
-    do_insert(k, v);
+    try {
+      do_insert(k, v);
+    } catch (...) {
+      if (!parallel_test) {
+        UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
+        UNODB_ASSERT_EQ(
+            leaf_count_before,
+            test_db.template get_node_count<unodb::node_type::LEAF>());
+        UNODB_ASSERT_EQ(empty_before, test_db.empty());
+      }
+      throw;
+    }
 
     UNODB_ASSERT_FALSE(test_db.empty());
 

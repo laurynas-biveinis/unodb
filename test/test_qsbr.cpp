@@ -924,6 +924,47 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
   second_thread.join();
 }
 
+TEST_F(QSBR, DeallocEpochAssert) {
+  unodb::qsbr_thread second_thread{[] {
+    thread_syncs[0].notify();  // 1 ->
+
+    thread_syncs[1].wait();  // 5 <-
+  }};
+
+  thread_syncs[0].wait();  // 1 <-
+
+  auto *ptr = allocate();
+
+  unodb::qsbr_thread third_thread{[] {
+    thread_syncs[2].notify();  // 2 ->
+
+    thread_syncs[3].wait();  // 3 <-
+    unodb::this_thread().quiescent();
+    thread_syncs[0].notify();  // 4 ->
+
+    thread_syncs[2].wait();  // 6 <-
+  }};
+
+  thread_syncs[2].wait();  // 2 <-
+
+  unodb::this_thread().quiescent();
+
+  thread_syncs[3].notify();  // 3 ->
+  thread_syncs[0].wait();    // 4 <-
+
+  qsbr_deallocate(ptr);
+
+  thread_syncs[1].notify();  // 5 ->
+  second_thread.join();
+
+  unodb::this_thread().quiescent();
+
+  thread_syncs[2].notify();  // 6 ->
+  third_thread.join();
+
+  unodb::this_thread().qsbr_pause();
+}
+
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 // TODO(laurynas): stat tests

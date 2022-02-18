@@ -58,6 +58,14 @@
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   } while (0)
 
+#define UNODB_ASSERT_NEAR(x, y, e)           \
+  do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+    ASSERT_NEAR((x), (y), (e));              \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  } while (0)
+
 #define UNODB_ASSERT_FALSE(cond)             \
   do {                                       \
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \

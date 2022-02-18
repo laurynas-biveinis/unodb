@@ -869,10 +869,11 @@ TEST_F(QSBR, ResetStats) {
   second_thread.join();
 
   UNODB_ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 2);
-  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 1);
+  UNODB_ASSERT_NEAR(unodb::qsbr::instance().get_mean_backlog_bytes(), 0.666667,
+                    0.00001);
   UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 2);
-  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(),
-                  1);
+  UNODB_ASSERT_NEAR(unodb::qsbr::instance().get_epoch_callback_count_variance(),
+                    0.888889, 0.00001);
   UNODB_ASSERT_EQ(
       unodb::qsbr::instance()
           .get_mean_quiescent_states_per_thread_between_epoch_changes(),

@@ -282,6 +282,9 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
             old_state, new_state, std::memory_order_acq_rel,
             std::memory_order_acquire))) {
+      // Might be the first time the quitting thread saw the old epoch too, if a
+      // second-to-last thread quit before, advancing the epoch.
+      qsbr_thread.advance_last_seen_epoch(old_single_thread_mode, old_epoch);
       if (UNODB_DETAIL_UNLIKELY(advance_epoch)) {
         bump_epoch_change_count();
         qsbr_thread.update_requests(old_single_thread_mode,

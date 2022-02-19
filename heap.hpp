@@ -5,6 +5,9 @@
 #include "global.hpp"
 
 #include <algorithm>
+#ifndef NDEBUG
+#include <atomic>
+#endif
 #include <cstdlib>
 
 #ifdef _MSC_VER
@@ -42,6 +45,42 @@
 
 #include "assert.hpp"
 
+#ifndef NDEBUG
+
+namespace unodb::test {
+
+class allocation_failure_injector final {
+ public:
+  static void reset() noexcept {
+    fail_on_nth_allocation_ = 0;
+    allocation_counter.store(0, std::memory_order_release);
+  }
+
+  static void fail_on_nth_allocation(std::uint64_t n) noexcept {
+    fail_on_nth_allocation_ = n;
+  }
+
+  UNODB_DETAIL_DISABLE_GCC_WARNING("-Wanalyzer-malloc-leak")
+
+  static void maybe_fail() {
+    if (UNODB_DETAIL_UNLIKELY(fail_on_nth_allocation_ != 0) &&
+        (allocation_counter.fetch_add(1, std::memory_order_acq_rel) >=
+         fail_on_nth_allocation_ - 1)) {
+      throw std::bad_alloc{};
+    }
+  }
+
+  UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+
+ private:
+  static inline std::atomic<std::uint64_t> allocation_counter{0};
+  static inline std::uint64_t fail_on_nth_allocation_{0};
+};
+
+}  // namespace unodb::test
+
+#endif
+
 namespace unodb::detail {
 
 template <typename T>
@@ -50,10 +89,11 @@ template <typename T>
                   static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
 }
 
-[[nodiscard]] inline void* allocate_aligned(
+[[nodiscard]] inline void* allocate_aligned_nothrow(
     std::size_t size,
-    std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+    std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) noexcept {
   void* result;
+
 #ifndef _MSC_VER
   const auto UNODB_DETAIL_USED_IN_DEBUG err =
       posix_memalign(&result, alignment, size);
@@ -65,8 +105,21 @@ template <typename T>
 #endif
 
   UNODB_DETAIL_ASSERT(err != EINVAL);
+  UNODB_DETAIL_ASSERT(result != nullptr || err == ENOMEM);
+
+  return result;
+}
+
+[[nodiscard]] inline void* allocate_aligned(
+    std::size_t size,
+    std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+#ifndef NDEBUG
+  unodb::test::allocation_failure_injector::maybe_fail();
+#endif
+
+  void* result = allocate_aligned_nothrow(size, alignment);
+
   if (UNODB_DETAIL_UNLIKELY(result == nullptr)) {
-    UNODB_DETAIL_ASSERT(err == ENOMEM);
     throw std::bad_alloc{};
   }
 

@@ -38,8 +38,17 @@
 
 // Architecture
 
-#if defined(__x86_64) || (defined(_MSC_VER) && defined(_M_X64))
+#if defined(_MSC_VER) && defined(_M_X64)
+#define UNODB_DETAIL_MSVC_X86_64
+#endif
+
+#if defined(__x86_64) || defined(UNODB_DETAIL_MSVC_X86_64)
 #define UNODB_DETAIL_X86_64
+#endif
+
+#if defined(UNODB_DETAIL_X86_64) || \
+    defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define UNODB_DETAIL_LITTLE_ENDIAN
 #endif
 
 // Compiler

@@ -39,7 +39,7 @@ namespace unodb::detail {
 template <>
 [[nodiscard, gnu::const]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint64_t
 basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#ifdef UNODB_DETAIL_LITTLE_ENDIAN
   return bswap(k);
 #else
 #error Needs implementing

@@ -1365,8 +1365,9 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto mask = (1U << children_count_) - 1;
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(lesser_key_positions)) & mask;
-    const auto result = static_cast<std::uint8_t>(
-        (bit_field != 0) ? detail::ctz(bit_field) : children_count_);
+    const auto result = (bit_field != 0)
+                            ? detail::ctz(bit_field)
+                            : gsl::narrow_cast<std::uint8_t>(children_count_);
 #else
     // This is also the best current ARM implementation, same reasoning as with
     // basic_inode_4::add_to_nonfull.

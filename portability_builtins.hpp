@@ -6,9 +6,10 @@
 
 #include <cstdint>
 
+#include <gsl/util>
+
 #ifdef UNODB_DETAIL_MSVC
 #include <intrin.h>
-#include <gsl/util>
 #endif
 
 namespace unodb::detail {
@@ -22,14 +23,14 @@ namespace unodb::detail {
 #endif
 }
 
-[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned ctz(
+[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC auto ctz(
     unsigned x) noexcept {
 #ifndef UNODB_DETAIL_MSVC
-  return static_cast<unsigned>(__builtin_ctz(x));
+  return gsl::narrow_cast<std::uint8_t>(__builtin_ctz(x));
 #else
   unsigned long result;  // NOLINT(runtime/int)
   _BitScanForward(&result, x);
-  return gsl::narrow_cast<unsigned>(result);
+  return gsl::narrow_cast<std::uint8_t>(result);
 #endif
 }
 

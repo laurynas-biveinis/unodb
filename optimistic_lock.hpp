@@ -371,9 +371,9 @@ class [[nodiscard]] in_critical_section final {
 
   void operator=(in_critical_section<T> &&) = delete;
 
-  void operator++() noexcept { store(load() + 1); }
+  void operator++() noexcept { store(load() + 1U); }
 
-  void operator--() noexcept { store(load() - 1); }
+  void operator--() noexcept { store(load() - 1U); }
 
   // NOLINTNEXTLINE(cert-dcl21-cpp)
   T operator--(int) noexcept {

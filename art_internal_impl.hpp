@@ -994,7 +994,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(child_to_delete_ptr,
                                                        db_instance)};
 
-    const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1 : 0;
+    const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1U : 0U;
     const auto child_to_leave_ptr = children[child_to_leave].load();
     if (child_to_leave_ptr.type() != node_type::LEAF) {
       auto *const inode_to_leave_ptr{
@@ -1540,7 +1540,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
     child_indexes[key_byte] = gsl::narrow_cast<std::uint8_t>(i);
     children.pointer_array[i] = node_ptr{child.release(), node_type::LEAF};
-    this->children_count = children_count_ + 1;
+    this->children_count = children_count_ + 1U;
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
@@ -1769,7 +1769,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
     UNODB_DETAIL_ASSERT(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release(), node_type::LEAF};
-    this->children_count = children_count_ + 1;
+    this->children_count = children_count_ + 1U;
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {

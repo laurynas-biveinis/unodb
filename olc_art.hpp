@@ -171,7 +171,7 @@ class olc_db final {
   void decrement_leaf_count(std::size_t leaf_size) noexcept {
     decrease_memory_use(leaf_size);
 
-    const auto UNODB_DETAIL_USED_IN_DEBUG old_leaf_count =
+    const auto old_leaf_count UNODB_DETAIL_USED_IN_DEBUG =
         node_counts[as_i<node_type::LEAF>].fetch_sub(1,
                                                      std::memory_order_relaxed);
     UNODB_DETAIL_ASSERT(old_leaf_count > 0);

@@ -55,7 +55,7 @@ template <typename T>
     std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
   void* result;
 #ifndef _MSC_VER
-  const auto UNODB_DETAIL_USED_IN_DEBUG err =
+  const auto err UNODB_DETAIL_USED_IN_DEBUG =
       posix_memalign(&result, alignment, size);
 #else
   result = _aligned_malloc(size, alignment);

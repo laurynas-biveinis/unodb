@@ -38,7 +38,11 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   msg_stacktrace_abort(buf.str());
 }
 
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
 #ifndef NDEBUG
+
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 [[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void assert_failure(
     const char *file, int line, const char *func,

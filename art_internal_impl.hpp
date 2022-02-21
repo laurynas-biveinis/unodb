@@ -1079,8 +1079,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(key1 != key2);
     UNODB_DETAIL_ASSERT(this->children_count == 2);
 
-    const std::uint8_t key1_i = key1 < key2 ? 0 : 1;
-    const std::uint8_t key2_i = key1_i == 0 ? 1 : 0;
+    const std::uint8_t key1_i = key1 < key2 ? 0U : 1U;
+    const std::uint8_t key2_i = key1_i == 0 ? 1U : 0U;
     keys.byte_array[key1_i] = key1;
     children[key1_i] = child1;
     keys.byte_array[key2_i] = key2;
@@ -1284,7 +1284,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
         children[child_index].load().template ptr<leaf_type *>(), db_instance)};
 
-    for (unsigned i = child_index + 1; i < children_count_; ++i) {
+    for (unsigned i = child_index + 1U; i < children_count_; ++i) {
       keys.byte_array[i - 1] = keys.byte_array[i];
       children[i - 1] = children[i];
     }

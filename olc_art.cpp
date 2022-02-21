@@ -815,7 +815,7 @@ template <class INode>
 constexpr void olc_db::decrement_inode_count() noexcept {
   static_assert(olc_inode_defs::is_inode<INode>());
 
-  const auto UNODB_DETAIL_USED_IN_DEBUG old_inode_count =
+  const auto old_inode_count UNODB_DETAIL_USED_IN_DEBUG =
       node_counts[as_i<INode::type>].fetch_sub(1, std::memory_order_relaxed);
   UNODB_DETAIL_ASSERT(old_inode_count > 0);
 

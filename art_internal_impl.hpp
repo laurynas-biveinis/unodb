@@ -682,7 +682,11 @@ class basic_inode_impl : public ArtPolicy::header_type {
 
   critical_section_policy<std::uint8_t> children_count;
 
+  static constexpr std::uint8_t child_not_found_i = 0xFFU;
+
  protected:
+  static constexpr find_result child_not_found{child_not_found_i, nullptr};
+
   using leaf_type = basic_leaf<header_type>;
 
   friend class unodb::db;
@@ -1022,7 +1026,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       return std::make_pair(
           i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
-    return std::make_pair(0xFF, nullptr);
+    return parent_class::child_not_found;
 #else   // #ifdef UNODB_DETAIL_X86_64
     // This is also the best current ARM implementation, same reasoning as with
     // add_to_nonfull.
@@ -1043,7 +1047,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
             3);
 
     if ((result == 0) || (result > this->children_count.load()))
-      return std::make_pair(0xFF, nullptr);
+      return parent_class::child_not_found;
 
     return std::make_pair(result - 1,
                           static_cast<critical_section_policy<node_ptr> *>(
@@ -1311,7 +1315,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       return std::make_pair(
           i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
-    return std::make_pair(0xFF, nullptr);
+    return parent_class::child_not_found;
 #else
     // This is also the best current ARM implementation, same reasoning as with
     // basic_inode_4::add_to_nonfull.
@@ -1320,7 +1324,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       if (key_byte == keys.byte_array[i])
         return std::make_pair(
             i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
-    return std::make_pair(0xFF, nullptr);
+    return parent_class::child_not_found;
 #endif
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -1559,7 +1563,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       return std::make_pair(static_cast<std::uint8_t>(key_byte),
                             &children.pointer_array[child_i]);
     }
-    return std::make_pair(0xFF, nullptr);
+    return parent_class::child_not_found;
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
@@ -1786,7 +1790,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     const auto key_int_byte = static_cast<std::uint8_t>(key_byte);
     if (children[key_int_byte] != nullptr)
       return std::make_pair(key_int_byte, &children[key_int_byte]);
-    return std::make_pair(0xFF, nullptr);
+    return parent_class::child_not_found;
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 

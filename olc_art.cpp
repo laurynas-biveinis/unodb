@@ -391,7 +391,7 @@ class [[nodiscard]] olc_inode_16 final
     for (unsigned i = 0; i < children_count_; ++i)
       if (keys.byte_array[i] == key_byte)
         return std::make_pair(i, &children[i]);
-    return std::make_pair(0xFF, nullptr);
+    return parent_class::child_not_found;
 #else
     return basic_inode_16::find_child(key_byte);
 #endif

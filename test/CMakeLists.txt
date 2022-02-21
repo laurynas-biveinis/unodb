@@ -56,6 +56,16 @@ add_test_target(test_qsbr)
 target_link_libraries(test_qsbr PRIVATE qsbr_test_utils)
 add_db_test_target(test_art)
 add_db_test_target(test_art_concurrency)
+# - Google Test with MSVC standard library tries to allocate memory in the
+# exception-thrown-as-expected-path.
+# - clang analyzer diagnoses potential memory leak in Google Test matcher
+# - LLVM ASan/TSan do not work with replaced global new/delete:
+# https://github.com/llvm/llvm-project/issues/20034
+if (NOT MSVC AND NOT ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" OR
+        ${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang") AND
+      (STATIC_ANALYSIS OR SANITIZE_ADDRESS OR SANITIZE_THREAD)))
+  add_db_test_target(test_art_oom)
+endif()
 target_link_libraries(test_art_concurrency PRIVATE qsbr_test_utils)
 
 if(COVERAGE)

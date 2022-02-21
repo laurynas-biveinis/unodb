@@ -1,5 +1,5 @@
 {
-    "threshold": 13,
+    "threshold": 15,
     "reporters": [
         "consoleFull"
     ],

@@ -232,6 +232,28 @@ TYPED_TEST(ARTOOMTest, DbInsertNodeRecursion) {
       });
 }
 
+TYPED_TEST(ARTOOMTest, Node16) {
+  oom_test<TypeParam>(
+      3,
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert_key_range(0, 4);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert(5, unodb::test::test_values[0], true);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.check_present_values();
+        verifier.assert_node_counts({4, 1, 0, 0, 0});
+        verifier.assert_growing_inodes({1, 0, 0, 0});
+        verifier.check_absent_keys({5});
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.check_present_values();
+        verifier.assert_node_counts({5, 0, 1, 0, 0});
+        verifier.assert_growing_inodes({1, 1, 0, 0});
+      });
+}
+
 }  // namespace
 
 #endif  // #ifndef NDEBUG

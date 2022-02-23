@@ -185,10 +185,8 @@ detail::node_ptr *impl_helpers::add_or_choose_subtree(
 
     if constexpr (!std::is_same_v<INode, inode_256>) {
       if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
-        auto current_node{
-            art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
         auto larger_node{INode::larger_derived_type::create(
-            std::move(current_node), std::move(leaf), depth)};
+            db_instance, inode, std::move(leaf), depth)};
         *node_in_parent =
             node_ptr{larger_node.release(), INode::larger_derived_type::type};
         db_instance
@@ -217,13 +215,13 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
   if (!leaf->matches(k)) return {};
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
-    auto current_node{
-        art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
     if constexpr (std::is_same_v<INode, inode_4>) {
+      auto current_node{
+          art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
       *node_in_parent = current_node->leave_last_child(child_i, db_instance);
     } else {
-      auto new_node{INode::smaller_derived_type::create(std::move(current_node),
-                                                        child_i)};
+      auto new_node{
+          INode::smaller_derived_type::create(db_instance, inode, child_i)};
       *node_in_parent =
           node_ptr{new_node.release(), INode::smaller_derived_type::type};
     }
@@ -330,8 +328,8 @@ bool db::insert(key insert_key, value_view v) {
       if (UNODB_DETAIL_UNLIKELY(k == existing_key)) return false;
 
       auto new_leaf = art_policy::make_db_leaf_ptr(k, v, *this);
-      auto new_node{inode_4::create(existing_key, remaining_key, depth, leaf,
-                                    std::move(new_leaf))};
+      auto new_node{inode_4::create(*this, existing_key, remaining_key, depth,
+                                    leaf, std::move(new_leaf))};
       *node = detail::node_ptr{new_node.release(), node_type::I4};
       account_growing_inode<node_type::I4>();
       return true;
@@ -346,8 +344,8 @@ bool db::insert(key insert_key, value_view v) {
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) {
       auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
-      auto new_node =
-          inode_4::create(*node, shared_prefix_len, depth, std::move(leaf));
+      auto new_node = inode_4::create(*this, *node, shared_prefix_len, depth,
+                                      std::move(leaf));
       *node = detail::node_ptr{new_node.release(), node_type::I4};
       account_growing_inode<node_type::I4>();
       ++key_prefix_splits;

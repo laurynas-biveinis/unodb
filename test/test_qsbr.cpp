@@ -74,7 +74,7 @@ class QSBR : public ::testing::Test {
 #ifndef NDEBUG
   static void check_ptr_on_qsbr_dealloc(const void *ptr) noexcept {
     // The pointer must be readable
-    static volatile char UNODB_DETAIL_UNUSED sink =
+    static volatile char sink UNODB_DETAIL_UNUSED =
         *static_cast<const char *>(ptr);
   }
 #endif

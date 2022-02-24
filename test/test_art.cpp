@@ -769,4 +769,6 @@ TYPED_TEST(ARTCorrectnessTest, TwoInstances) {
   second_thread.join();
 }
 
+UNODB_END_TESTS()
+
 }  // namespace

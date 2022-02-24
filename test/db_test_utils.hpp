@@ -156,9 +156,11 @@ class [[nodiscard]] tree_verifier final {
     }
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
   void do_try_remove_missing_key(unodb::key absent_key) {
     UNODB_ASSERT_FALSE(test_db.remove(absent_key));
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 

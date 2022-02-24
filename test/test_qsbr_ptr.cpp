@@ -210,4 +210,6 @@ TEST(QSBRPtrSpan, Cend) {
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+UNODB_END_TESTS()
+
 }  // namespace

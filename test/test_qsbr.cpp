@@ -972,4 +972,6 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // TODO(laurynas): quiescent_state_on_scope_exit tests?
 // TODO(laurynas): qsbr::dump test
 
+UNODB_END_TESTS()
+
 }  // namespace

@@ -775,7 +775,7 @@ template <class INode>
 
   if constexpr (std::is_same_v<INode, olc_inode_4>) {
     auto current_node{
-        olc_art_policy::make_db_inode_reclaimable_ptr(db_instance, &inode)};
+        olc_art_policy::make_db_inode_reclaimable_ptr(&inode, db_instance)};
     node_guard.unlock_and_obsolete();
     child_guard.unlock_and_obsolete();
     *node_in_parent = current_node->leave_last_child(child_i, db_instance);

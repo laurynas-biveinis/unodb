@@ -249,22 +249,22 @@ struct basic_art_policy final {
   UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
 
   template <class INode>
-  [[nodiscard]] static auto make_db_inode_unique_ptr(
-      Db &db_instance, INode *inode_ptr) noexcept {
+  [[nodiscard]] static auto make_db_inode_unique_ptr(INode *inode_ptr,
+                                                     Db &db_instance) noexcept {
     return db_inode_unique_ptr<INode>{inode_ptr,
                                       db_inode_deleter<INode>{db_instance}};
   }
 
   template <class INode>
   [[nodiscard]] static auto make_db_inode_reclaimable_ptr(
-      Db &db_instance, INode *inode_ptr) noexcept {
+      INode *inode_ptr, Db &db_instance) noexcept {
     return db_inode_reclaimable_ptr<INode>{inode_ptr,
                                            INodeReclamator<INode>{db_instance}};
   }
 
  private:
-  [[nodiscard]] static auto make_db_leaf_ptr(Db &db_instance,
-                                             leaf_type *leaf) noexcept {
+  [[nodiscard]] static auto make_db_leaf_ptr(leaf_type *leaf,
+                                             Db &db_instance) noexcept {
     return basic_db_leaf_unique_ptr<header_type, Db>{
         leaf, basic_db_leaf_deleter<header_type, Db>{db_instance}};
   }
@@ -278,27 +278,27 @@ struct basic_art_policy final {
       switch (node_ptr.type()) {
         case node_type::LEAF: {
           const auto r{
-              make_db_leaf_ptr(db, node_ptr.template ptr<leaf_type *>())};
+              make_db_leaf_ptr(node_ptr.template ptr<leaf_type *>(), db)};
           return;
         }
         case node_type::I4: {
           const auto r{make_db_inode_unique_ptr(
-              db, node_ptr.template ptr<inode4_type *>())};
+              node_ptr.template ptr<inode4_type *>(), db)};
           return;
         }
         case node_type::I16: {
           const auto r{make_db_inode_unique_ptr(
-              db, node_ptr.template ptr<inode16_type *>())};
+              node_ptr.template ptr<inode16_type *>(), db)};
           return;
         }
         case node_type::I48: {
           const auto r{make_db_inode_unique_ptr(
-              db, node_ptr.template ptr<inode48_type *>())};
+              node_ptr.template ptr<inode48_type *>(), db)};
           return;
         }
         case node_type::I256: {
           const auto r{make_db_inode_unique_ptr(
-              db, node_ptr.template ptr<inode256_type *>())};
+              node_ptr.template ptr<inode256_type *>(), db)};
           return;
         }
       }
@@ -877,8 +877,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                           std::uint8_t child_to_delete)
       : parent_class{source_node} {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(db_instance,
-                                                          &source_node)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
+                                                          db_instance)};
     auto source_keys_itr = source_node.keys.byte_array.cbegin();
     auto keys_itr = keys.byte_array.begin();
     auto source_children_itr = source_node.children.cbegin();
@@ -1168,8 +1168,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                            db_leaf_unique_ptr child, tree_depth depth) noexcept
       : parent_class{source_node} {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(db_instance,
-                                                          &source_node)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
+                                                          db_instance)};
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
 
 #ifdef UNODB_DETAIL_X86_64
@@ -1207,8 +1207,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                            std::uint8_t child_to_delete) noexcept
       : parent_class{source_node} {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(db_instance,
-                                                          &source_node)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
+                                                          db_instance)};
     source_node.remove_child_pointer(child_to_delete, db_instance);
     source_node.child_indexes[child_to_delete] = inode48_type::empty_child;
 
@@ -1434,8 +1434,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
                            db_leaf_unique_ptr child, tree_depth depth) noexcept
       : parent_class{source_node} {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(db_instance,
-                                                          &source_node)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
+                                                          db_instance)};
     auto *const __restrict child_ptr = child.release();
 
     // TODO(laurynas): consider AVX512 scatter?
@@ -1466,8 +1466,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
                            std::uint8_t child_to_delete) noexcept
       : parent_class{source_node} {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(db_instance,
-                                                          &source_node)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
+                                                          db_instance)};
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
         source_node.children[child_to_delete]
             .load()
@@ -1738,8 +1738,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
                             db_leaf_unique_ptr child, tree_depth depth) noexcept
       : parent_class{source_node} {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(db_instance,
-                                                          &source_node)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
+                                                          db_instance)};
     unsigned children_copied = 0;
     unsigned i = 0;
     while (true) {

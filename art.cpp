@@ -217,7 +217,7 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
     if constexpr (std::is_same_v<INode, inode_4>) {
       auto current_node{
-          art_policy::make_db_inode_unique_ptr(db_instance, &inode)};
+          art_policy::make_db_inode_unique_ptr(&inode, db_instance)};
       *node_in_parent = current_node->leave_last_child(child_i, db_instance);
     } else {
       auto new_node{

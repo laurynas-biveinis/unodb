@@ -254,6 +254,56 @@ TYPED_TEST(ARTOOMTest, Node16) {
       });
 }
 
+TYPED_TEST(ARTOOMTest, Node16KeyPrefixSplit) {
+  oom_test<TypeParam>(
+      3,
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert_key_range(10, 5);
+        verifier.assert_node_counts({5, 0, 1, 0, 0});
+        verifier.assert_growing_inodes({1, 1, 0, 0});
+        verifier.assert_key_prefix_splits(0);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        // Insert a value that does share full prefix with the current Node16
+        verifier.insert(0x1020, unodb::test::test_values[0], true);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.check_present_values();
+        verifier.assert_node_counts({5, 0, 1, 0, 0});
+        verifier.assert_growing_inodes({1, 1, 0, 0});
+        verifier.check_absent_keys({0x1020});
+        verifier.assert_key_prefix_splits(0);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.check_present_values();
+        verifier.assert_node_counts({6, 1, 1, 0, 0});
+        verifier.assert_growing_inodes({2, 1, 0, 0});
+        verifier.assert_key_prefix_splits(1);
+      });
+}
+
+TYPED_TEST(ARTOOMTest, Node48) {
+  oom_test<TypeParam>(
+      3,
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert_key_range(0, 16);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert(16, unodb::test::test_values[0], true);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_node_counts({16, 0, 1, 0, 0});
+        verifier.assert_growing_inodes({1, 1, 0, 0});
+        verifier.check_present_values();
+        verifier.check_absent_keys({16});
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_node_counts({17, 0, 0, 1, 0});
+        verifier.assert_growing_inodes({1, 1, 1, 0});
+        verifier.check_present_values();
+      });
+}
+
 }  // namespace
 
 #endif  // #ifndef NDEBUG

@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Laurynas Biveinis
+// Copyright 2020-2022 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -165,4 +165,4 @@ BENCHMARK_TEMPLATE(full_n256_tree_random_delete, unodb::olc_db)
     ->Range(192, 196608)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_MAIN();
+UNODB_BENCHMARK_MAIN();

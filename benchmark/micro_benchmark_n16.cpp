@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Laurynas Biveinis
+// Copyright 2020-2022 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -195,4 +195,4 @@ BENCHMARK_TEMPLATE(shrink_n48_to_n16_randomly, unodb::olc_db)
     ->Range(4, 16383)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_MAIN();
+UNODB_BENCHMARK_MAIN();

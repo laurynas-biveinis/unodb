@@ -82,4 +82,4 @@ BENCHMARK(parallel_delete_disjoint_ranges)
     ->MeasureProcessCPUTime()
     ->UseRealTime();
 
-BENCHMARK_MAIN();
+UNODB_BENCHMARK_MAIN();

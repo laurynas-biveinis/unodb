@@ -457,4 +457,4 @@ BENCHMARK_TEMPLATE(unpredictable_prepend_key_prefix, unodb::mutex_db)
 BENCHMARK_TEMPLATE(unpredictable_prepend_key_prefix, unodb::olc_db)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_MAIN();
+UNODB_BENCHMARK_MAIN();

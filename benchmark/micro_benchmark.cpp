@@ -315,4 +315,4 @@ BENCHMARK_TEMPLATE(dense_insert_dup_attempts, unodb::olc_db)
     ->Range(100, 30000000)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_MAIN();
+UNODB_BENCHMARK_MAIN();

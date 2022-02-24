@@ -22,6 +22,11 @@
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26409) \
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26426)
 
+#define UNODB_BENCHMARK_MAIN()         \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS() \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS() \
+  BENCHMARK_MAIN()
+
 namespace unodb {
 class db;        // IWYU pragma: keep
 class mutex_db;  // IWYU pragma: keep

@@ -344,4 +344,4 @@ BENCHMARK_TEMPLATE(shrink_node16_to_n4_randomly, unodb::olc_db)
     ->Range(25, 16383)
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_MAIN();
+UNODB_BENCHMARK_MAIN();

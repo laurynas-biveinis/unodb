@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -49,4 +49,4 @@ BENCHMARK(parallel_delete_disjoint_ranges)
     ->MeasureProcessCPUTime()
     ->UseRealTime();
 
-BENCHMARK_MAIN();
+UNODB_BENCHMARK_MAIN();

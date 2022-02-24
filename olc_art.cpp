@@ -155,7 +155,7 @@ template <class T>
 }
 
 [[nodiscard]] inline auto obsolete_child_by_index(
-    std::uint8_t child, unodb::optimistic_lock::write_guard &&guard) noexcept {
+    std::uint8_t child, unodb::optimistic_lock::write_guard &guard) noexcept {
   guard.unlock_and_obsolete();
 
   return child;
@@ -238,13 +238,13 @@ class [[nodiscard]] olc_inode_4 final
   olc_inode_4(db &db_instance, olc_inode_16 &source_node,
               unodb::optimistic_lock::write_guard &source_node_guard,
               std::uint8_t child_to_delete,
-              unodb::optimistic_lock::write_guard &&child_guard) noexcept;
+              unodb::optimistic_lock::write_guard &child_guard) noexcept;
 
   [[nodiscard]] static db_inode4_unique_ptr create(
       db &db_instance, olc_inode_16 &source_node,
       unodb::optimistic_lock::write_guard &source_node_guard,
       std::uint8_t child_to_delete,
-      unodb::optimistic_lock::write_guard &&child_guard);
+      unodb::optimistic_lock::write_guard &child_guard);
 
   // Create a new node with two given child leaves
   [[nodiscard]] static auto create(db &db_instance, unodb::detail::art_key k1,
@@ -342,7 +342,7 @@ class [[nodiscard]] olc_inode_16 final
   olc_inode_16(db &db_instance, olc_inode_48 &source_node,
                unodb::optimistic_lock::write_guard &source_node_guard,
                std::uint8_t child_to_delete,
-               unodb::optimistic_lock::write_guard &&child_guard) noexcept;
+               unodb::optimistic_lock::write_guard &child_guard) noexcept;
 
   [[nodiscard]] static auto create(
       db &db_instance, olc_inode_4 &source_node,
@@ -358,7 +358,7 @@ class [[nodiscard]] olc_inode_16 final
       db &db_instance, olc_inode_48 &source_node,
       unodb::optimistic_lock::write_guard &source_node_guard,
       std::uint8_t child_to_delete,
-      unodb::optimistic_lock::write_guard &&child_guard);
+      unodb::optimistic_lock::write_guard &child_guard);
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
@@ -421,10 +421,9 @@ olc_inode_4::olc_inode_4(
     db &db_instance, olc_inode_16 &source_node,
     unodb::optimistic_lock::write_guard &source_node_guard,
     std::uint8_t child_to_delete,
-    unodb::optimistic_lock::write_guard &&child_guard) noexcept
-    : parent_class{
-          db_instance, obsolete(source_node, source_node_guard),
-          obsolete_child_by_index(child_to_delete, std::move(child_guard))} {
+    unodb::optimistic_lock::write_guard &child_guard) noexcept
+    : parent_class{db_instance, obsolete(source_node, source_node_guard),
+                   obsolete_child_by_index(child_to_delete, child_guard)} {
   UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
   UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
 }
@@ -433,13 +432,13 @@ olc_inode_4::olc_inode_4(
     db &db_instance, olc_inode_16 &source_node,
     unodb::optimistic_lock::write_guard &source_node_guard,
     std::uint8_t child_to_delete,
-    unodb::optimistic_lock::write_guard &&child_guard) {
+    unodb::optimistic_lock::write_guard &child_guard) {
   UNODB_DETAIL_ASSERT(source_node_guard.guards(::lock(source_node)));
   UNODB_DETAIL_ASSERT(child_guard.active());
 
   return olc_art_policy::make_db_inode_unique_ptr<olc_inode_4>(
       db_instance, source_node, source_node_guard, child_to_delete,
-      std::move(child_guard));
+      child_guard);
 }
 
 class [[nodiscard]] olc_inode_48 final
@@ -469,13 +468,13 @@ class [[nodiscard]] olc_inode_48 final
   olc_inode_48(db &db_instance, olc_inode_256 &source_node,
                unodb::optimistic_lock::write_guard &source_node_guard,
                std::uint8_t child_to_delete,
-               unodb::optimistic_lock::write_guard &&child_guard) noexcept;
+               unodb::optimistic_lock::write_guard &child_guard) noexcept;
 
   [[nodiscard]] static db_inode48_unique_ptr create(
       db &db_instance, olc_inode_256 &source_node,
       unodb::optimistic_lock::write_guard &source_node_guard,
       std::uint8_t child_to_delete,
-      unodb::optimistic_lock::write_guard &&child_guard);
+      unodb::optimistic_lock::write_guard &child_guard);
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args &&...args) {
@@ -526,23 +525,22 @@ static_assert(sizeof(olc_inode_48) == 656 + 32);
     db &db_instance, olc_inode_48 &source_node,
     unodb::optimistic_lock::write_guard &source_node_guard,
     std::uint8_t child_to_delete,
-    unodb::optimistic_lock::write_guard &&child_guard) {
+    unodb::optimistic_lock::write_guard &child_guard) {
   UNODB_DETAIL_ASSERT(source_node_guard.guards(::lock(source_node)));
   UNODB_DETAIL_ASSERT(child_guard.active());
 
   return olc_art_policy::make_db_inode_unique_ptr<olc_inode_16>(
       db_instance, source_node, source_node_guard, child_to_delete,
-      std::move(child_guard));
+      child_guard);
 }
 
 olc_inode_16::olc_inode_16(
     db &db_instance, olc_inode_48 &source_node,
     unodb::optimistic_lock::write_guard &source_node_guard,
     std::uint8_t child_to_delete,
-    unodb::optimistic_lock::write_guard &&child_guard) noexcept
-    : parent_class{
-          db_instance, obsolete(source_node, source_node_guard),
-          obsolete_child_by_index(child_to_delete, std::move(child_guard))} {
+    unodb::optimistic_lock::write_guard &child_guard) noexcept
+    : parent_class{db_instance, obsolete(source_node, source_node_guard),
+                   obsolete_child_by_index(child_to_delete, child_guard)} {
   UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
   UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
 }
@@ -611,23 +609,22 @@ static_assert(sizeof(olc_inode_256) == 2064 + 24);
     db &db_instance, olc_inode_256 &source_node,
     unodb::optimistic_lock::write_guard &source_node_guard,
     std::uint8_t child_to_delete,
-    unodb::optimistic_lock::write_guard &&child_guard) {
+    unodb::optimistic_lock::write_guard &child_guard) {
   UNODB_DETAIL_ASSERT(source_node_guard.guards(::lock(source_node)));
   UNODB_DETAIL_ASSERT(child_guard.active());
 
   return olc_art_policy::make_db_inode_unique_ptr<olc_inode_48>(
       db_instance, source_node, source_node_guard, child_to_delete,
-      std::move(child_guard));
+      child_guard);
 }
 
 olc_inode_48::olc_inode_48(
     db &db_instance, olc_inode_256 &source_node,
     unodb::optimistic_lock::write_guard &source_node_guard,
     std::uint8_t child_to_delete,
-    unodb::optimistic_lock::write_guard &&child_guard) noexcept
-    : parent_class{
-          db_instance, obsolete(source_node, source_node_guard),
-          obsolete_child_by_index(child_to_delete, std::move(child_guard))} {
+    unodb::optimistic_lock::write_guard &child_guard) noexcept
+    : parent_class{db_instance, obsolete(source_node, source_node_guard),
+                   obsolete_child_by_index(child_to_delete, child_guard)} {
   UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
   UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
 }
@@ -781,7 +778,7 @@ template <class INode>
     *node_in_parent = current_node->leave_last_child(child_i, db_instance);
   } else {
     auto new_node{INode::smaller_derived_type::create(
-        db_instance, inode, node_guard, child_i, std::move(child_guard))};
+        db_instance, inode, node_guard, child_i, child_guard)};
     *node_in_parent = detail::olc_node_ptr{new_node.release(),
                                            INode::smaller_derived_type::type};
   }

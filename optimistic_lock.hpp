@@ -373,7 +373,7 @@ class [[nodiscard]] in_critical_section final {
 
   void operator++() noexcept { store(load() + 1); }
 
-  void operator--() noexcept { store(load() - 1); }
+  void operator--() noexcept { store(static_cast<T>(load() - 1)); }
 
   // NOLINTNEXTLINE(cert-dcl21-cpp)
   T operator--(int) noexcept {

@@ -136,14 +136,24 @@ class [[nodiscard]] tree_verifier final {
     UNODB_ASSERT_GT(leaf_count_before, 0);
     UNODB_ASSERT_GT(mem_use_before, 0);
 
-    if (!test_db.remove(k)) {
-      // LCOV_EXCL_START
-      std::cerr << "test_db.remove failed for ";
-      unodb::detail::dump_key(std::cerr, k);
-      std::cerr << '\n';
-      test_db.dump(std::cerr);
-      FAIL();
-      // LCOV_EXCL_STOP
+    try {
+      if (!test_db.remove(k)) {
+        // LCOV_EXCL_START
+        std::cerr << "test_db.remove failed for ";
+        unodb::detail::dump_key(std::cerr, k);
+        std::cerr << '\n';
+        test_db.dump(std::cerr);
+        FAIL();
+        // LCOV_EXCL_STOP
+      }
+    } catch (...) {
+      if (!parallel_test) {
+        UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
+        UNODB_ASSERT_EQ(
+            leaf_count_before,
+            test_db.template get_node_count<unodb::node_type::LEAF>());
+      }
+      throw;
     }
 
     if (!parallel_test) {

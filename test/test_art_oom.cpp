@@ -516,6 +516,122 @@ TYPED_TEST(ARTOOMTest, Node16DeleteDoesNotAllocate) {
   verifier.assert_node_counts({15, 0, 1, 0, 0});
 }
 
+TYPED_TEST(ARTOOMTest, Node16ShrinkToNode4) {
+  oom_test<TypeParam>(
+      2,
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert_key_range(1, 5);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.remove(2);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_node_counts({5, 0, 1, 0, 0});
+        verifier.assert_shrinking_inodes({0, 0, 0, 0});
+        verifier.check_present_values();
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_shrinking_inodes({0, 1, 0, 0});
+        verifier.assert_node_counts({4, 1, 0, 0, 0});
+        verifier.check_present_values();
+        verifier.check_absent_keys({2});
+      });
+}
+
+TYPED_TEST(ARTOOMTest, Node16KeyPrefixMergeDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert_key_range(10, 5);
+  // Insert a value that does not share full prefix with the current Node16
+  verifier.insert(0x1020, unodb::test::test_values[0]);
+  verifier.assert_node_counts({6, 1, 1, 0, 0});
+  verifier.assert_key_prefix_splits(1);
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  // And delete it, so that upper level Node4 key prefix gets merged with
+  // Node16 one
+  verifier.remove(0x1020);
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.assert_shrinking_inodes({1, 0, 0, 0});
+  verifier.assert_node_counts({5, 0, 1, 0, 0});
+  verifier.check_present_values();
+  verifier.check_absent_keys({9, 16, 0x1020});
+}
+
+TYPED_TEST(ARTOOMTest, Node48DeleteDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert_key_range(1, 48);
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  verifier.remove(30);
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({30});
+  verifier.assert_node_counts({47, 0, 0, 1, 0});
+}
+
+TYPED_TEST(ARTOOMTest, Node48ShrinkToNode16) {
+  oom_test<TypeParam>(
+      2,
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert_key_range(0x80, 17);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.remove(0x85);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_node_counts({17, 0, 0, 1, 0});
+        verifier.assert_shrinking_inodes({0, 0, 0, 0});
+        verifier.check_present_values();
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_shrinking_inodes({0, 0, 1, 0});
+        verifier.assert_node_counts({16, 0, 1, 0, 0});
+        verifier.check_present_values();
+        verifier.check_absent_keys({0x85});
+      });
+}
+
+TYPED_TEST(ARTOOMTest, Node256DeleteDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert_key_range(1, 255);
+  verifier.assert_node_counts({255, 0, 0, 0, 1});
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  verifier.remove(180);
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({180});
+  verifier.assert_node_counts({254, 0, 0, 0, 1});
+}
+
+TYPED_TEST(ARTOOMTest, Node256ShrinkToNode48) {
+  oom_test<TypeParam>(
+      2,
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert_key_range(1, 49);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.remove(25);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_node_counts({49, 0, 0, 0, 1});
+        verifier.assert_shrinking_inodes({0, 0, 0, 0});
+        verifier.check_present_values();
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_shrinking_inodes({0, 0, 0, 1});
+        verifier.assert_node_counts({48, 0, 0, 1, 0});
+        verifier.check_present_values();
+        verifier.check_absent_keys({25});
+      });
+}
+
 }  // namespace
 
 #endif  // #ifndef NDEBUG

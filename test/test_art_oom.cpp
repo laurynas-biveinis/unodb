@@ -304,6 +304,218 @@ TYPED_TEST(ARTOOMTest, Node48) {
       });
 }
 
+TYPED_TEST(ARTOOMTest, Node48KeyPrefixSplit) {
+  oom_test<TypeParam>(
+      3,
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert_key_range(10, 17);
+        verifier.assert_node_counts({17, 0, 0, 1, 0});
+        verifier.assert_growing_inodes({1, 1, 1, 0});
+        verifier.assert_key_prefix_splits(0);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        // Insert a value that does share full prefix with the current Node48
+        verifier.insert(0x100020, unodb::test::test_values[0], true);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_node_counts({17, 0, 0, 1, 0});
+        verifier.assert_growing_inodes({1, 1, 1, 0});
+        verifier.assert_key_prefix_splits(0);
+        verifier.check_present_values();
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_node_counts({18, 1, 0, 1, 0});
+        verifier.assert_growing_inodes({2, 1, 1, 0});
+        verifier.assert_key_prefix_splits(1);
+        verifier.check_present_values();
+      });
+}
+
+TYPED_TEST(ARTOOMTest, Node256) {
+  oom_test<TypeParam>(
+      3,
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert_key_range(0, 48);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert(49, unodb::test::test_values[0], true);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_node_counts({48, 0, 0, 1, 0});
+        verifier.assert_growing_inodes({1, 1, 1, 0});
+        verifier.check_present_values();
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_node_counts({49, 0, 0, 0, 1});
+        verifier.assert_growing_inodes({1, 1, 1, 1});
+        verifier.check_present_values();
+      });
+}
+
+TYPED_TEST(ARTOOMTest, Node256KeyPrefixSplit) {
+  oom_test<TypeParam>(
+      3,
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.insert_key_range(20, 49);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        // Insert a value that does share full prefix with the current Node48
+        verifier.insert(0x100020, unodb::test::test_values[0], true);
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_node_counts({49, 0, 0, 0, 1});
+        verifier.assert_growing_inodes({1, 1, 1, 1});
+        verifier.assert_key_prefix_splits(0);
+        verifier.check_present_values();
+      },
+      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+        verifier.assert_node_counts({50, 1, 0, 0, 1});
+        verifier.assert_growing_inodes({2, 1, 1, 1});
+        verifier.assert_key_prefix_splits(1);
+        verifier.check_present_values();
+      });
+}
+
+TYPED_TEST(ARTOOMTest, DeleteFromEmptyDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  verifier.attempt_remove_missing_keys({1});
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.assert_empty();
+  verifier.check_absent_keys({1});
+}
+
+TYPED_TEST(ARTOOMTest, SingleNodeTreeDeleteDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert(1, unodb::test::test_values[0]);
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  verifier.remove(1);
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.assert_empty();
+  verifier.check_absent_keys({1});
+  verifier.attempt_remove_missing_keys({1});
+  verifier.check_absent_keys({1});
+}
+
+TYPED_TEST(ARTOOMTest, SingleNodeTreeAttemptDeleteAbsentDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert(2, unodb::test::test_values[1]);
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  verifier.attempt_remove_missing_keys({1, 3, 0xFF02});
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.check_present_values();
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
+  verifier.check_absent_keys({1, 3, 0xFF02});
+}
+
+TYPED_TEST(ARTOOMTest, Node4AttemptDeleteAbsentDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert_key_range(1, 4);
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  verifier.attempt_remove_missing_keys({0, 6, 0xFF000001});
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.assert_node_counts({4, 1, 0, 0, 0});
+  verifier.check_absent_keys({0, 6, 0xFF00000});
+}
+
+TYPED_TEST(ARTOOMTest, Node4DeleteDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert_key_range(1, 4);
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  verifier.remove(2);
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 2, 5});
+  verifier.assert_node_counts({3, 1, 0, 0, 0});
+}
+
+TYPED_TEST(ARTOOMTest, Node4ShrinkToSingleLeafDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert_key_range(1, 2);
+  verifier.assert_shrinking_inodes({0, 0, 0, 0});
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  verifier.remove(1);
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.assert_shrinking_inodes({1, 0, 0, 0});
+  verifier.check_present_values();
+  verifier.check_absent_keys({1});
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
+}
+
+TYPED_TEST(ARTOOMTest, Node4DeleteLowerNodeDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert_key_range(0, 2);
+  // Insert a value that does not share full prefix with the current Node4
+  verifier.insert(0xFF00, unodb::test::test_values[3]);
+  verifier.assert_shrinking_inodes({0, 0, 0, 0});
+  verifier.assert_key_prefix_splits(1);
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  // Make the lower Node4 shrink to a single value leaf
+  verifier.remove(0);
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.assert_shrinking_inodes({1, 0, 0, 0});
+  verifier.assert_key_prefix_splits(1);
+  verifier.check_present_values();
+  verifier.check_absent_keys({0, 2, 0xFF01});
+  verifier.assert_node_counts({2, 1, 0, 0, 0});
+}
+
+TYPED_TEST(ARTOOMTest, Node4DeleteKeyPrefixMergeDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert_key_range(0x8001, 2);
+  // Insert a value that does not share full prefix with the current Node4
+  verifier.insert(0x90AA, unodb::test::test_values[3]);
+  verifier.assert_key_prefix_splits(1);
+  verifier.assert_node_counts({3, 2, 0, 0, 0});
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  // And delete it
+  verifier.remove(0x90AA);
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.assert_key_prefix_splits(1);
+  verifier.assert_node_counts({2, 1, 0, 0, 0});
+  verifier.assert_shrinking_inodes({1, 0, 0, 0});
+  verifier.check_present_values();
+  verifier.check_absent_keys({0x90AA, 0x8003});
+  verifier.assert_node_counts({2, 1, 0, 0, 0});
+}
+
+TYPED_TEST(ARTOOMTest, Node16DeleteDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert_key_range(1, 16);
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  verifier.remove(5);
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.check_present_values();
+  verifier.check_absent_keys({5});
+  verifier.assert_node_counts({15, 0, 1, 0, 0});
+}
+
 }  // namespace
 
 #endif  // #ifndef NDEBUG

@@ -190,4 +190,6 @@ TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGet) {
       TestFixture::random_op_thread);
 }
 
+UNODB_END_TESTS()
+
 }  // namespace

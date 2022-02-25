@@ -1,4 +1,4 @@
-// Copyright 2021 Laurynas Biveinis
+// Copyright 2021-2022 Laurynas Biveinis
 #ifndef UNODB_DETAIL_GTEST_UTILS_HPP
 #define UNODB_DETAIL_GTEST_UTILS_HPP
 
@@ -24,6 +24,12 @@
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26440) \
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
 
+#define UNODB_END_TESTS()              \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS() \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS() \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS() \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
 // Because Google thinks
 // error: 'void {anonymous}::ARTCorrectnessTest_single_node_tree_empty_value_
 // Test<gtest_TypeParam_>::TestBody() [with gtest_TypeParam_ = unodb::db]'
@@ -48,6 +54,8 @@
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26426) \
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26440) \
   TEST((Suite), (Test))                    \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #define UNODB_ASSERT_EQ(x, y)                \
@@ -56,6 +64,7 @@
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
     ASSERT_EQ((x), (y));                     \
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   } while (0)
 
 #define UNODB_ASSERT_NEAR(x, y, e)           \
@@ -63,6 +72,7 @@
     UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
     ASSERT_NEAR((x), (y), (e));              \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   } while (0)
 
@@ -113,6 +123,7 @@
     UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
     ASSERT_TRUE(cond);                       \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   } while (0)
 

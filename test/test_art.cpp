@@ -436,8 +436,6 @@ TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge) {
 
   verifier.check_present_values();
   verifier.check_absent_keys({0x90AA, 0x8003});
-
-  verifier.assert_node_counts({2, 1, 0, 0, 0});
 }
 
 TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge2) {

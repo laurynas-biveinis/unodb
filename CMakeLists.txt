@@ -85,9 +85,17 @@ endif()
 # - "C5030: attribute '...' is not recognized"
 # - "C5072, ASAN enabled without debug information emission" - triggered by
 # msvc-release-asan preset
-set(MSVC_CXX_WARNING_FLAGS "/W4" "/wd4324" "/wd5030" "/wd5072")
+# - The other disabled warnings only activate on /Wall
+set(MSVC_CXX_WARNING_FLAGS "/Wall" "/wd4324" "/wd5030" "/wd5072" 
+  "/wd4623" "/wd4625" "/wd4626" "/wd4582" "/wd4820" "/wd4710" "/wd4711"
+  "/wd4868" "/wd5026" "/wd5027" "/wd5045")
 
-set(MSVC_CLANG_CXX_FLAGS "/arch:AVX")
+set(MSVC_CLANG_CXX_FLAGS "/arch:AVX" "/permissive-")
+
+# clang-cl warning flags that cl does not understand
+set(MSVC_CLANGS_ONLY_WARNING_FLAGS "-Wno-c++98-compat"
+  "-Wno-c++98-compat-pedantic" "-Wno-exit-time-destructors"
+  "-Wno-ctad-maybe-unsupported" "-Wno-global-constructors")
 
 # cl flags that clang-cl does not understand
 set(MSVC_CXX_FLAGS "/external:anglebrackets" "/external:W0")
@@ -271,7 +279,9 @@ string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
 string(APPEND CMAKE_CXX_FLAGS ${CXX_FLAGS_FOR_SUBDIR_STR})
 if(MSVC)
   string(REPLACE ";" " " WARNING_FLAGS_FOR_SUBDIR_STR "${MSVC_CXX_WARNING_FLAGS}")
-  string(APPEND CMAKE_CXX_FLAGS " " ${WARNING_FLAGS_FOR_SUBDIR_STR})
+  string(REPLACE "/Wall" "" WARNING_FLAGS_FOR_SUBDIR_STR2 
+      "${WARNING_FLAGS_FOR_SUBDIR_STR}")
+  string(APPEND CMAKE_CXX_FLAGS " " ${WARNING_FLAGS_FOR_SUBDIR_STR2})
 endif()
 string(REPLACE ";" " " LD_FLAGS_FOR_SUBDIR_STR "${SANITIZER_LD_FLAGS}")
 string(APPEND CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
@@ -455,6 +465,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<$<NOT:$<PLATFORM_ID:Windows>>:${UNIX_CXX_FLAGS}>"
     "$<$<BOOL:${FATAL_WARNINGS}>:$<IF:$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>,/WX,-Werror>>"
     "$<$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>:${MSVC_CXX_WARNING_FLAGS}>"
+    "$<$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>:${MSVC_CLANGS_ONLY_WARNING_FLAGS}>"
     "$<$<AND:$<CXX_COMPILER_ID:AppleClang,Clang>,$<NOT:$<PLATFORM_ID:Windows>>>:${CLANG_CXX_WARNING_FLAGS}>"
     "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>,$<NOT:$<PLATFORM_ID:Windows>>>:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
     "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>,$<NOT:$<PLATFORM_ID:Windows>>>:${CLANG_GE_13_CXX_WARNING_FLAGS}>"

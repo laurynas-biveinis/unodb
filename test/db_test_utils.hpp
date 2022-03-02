@@ -23,6 +23,7 @@
 #include "art.hpp"
 #include "art_common.hpp"
 #include "assert.hpp"
+#include "heap.hpp"
 #include "mutex_art.hpp"
 #include "node_type.hpp"
 #include "olc_art.hpp"
@@ -351,6 +352,8 @@ class [[nodiscard]] tree_verifier final {
 
   void clear() {
     test_db.clear();
+    // TODO(laurynas): refactor
+    allocation_failure_injector::reset();
     assert_empty();
 
     values.clear();

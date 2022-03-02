@@ -45,16 +45,18 @@
 
 #include "assert.hpp"
 
-#ifndef NDEBUG
-
 namespace unodb::test {
 
 class allocation_failure_injector final {
  public:
   static void reset() noexcept {
+#ifndef NDEBUG
     fail_on_nth_allocation_ = 0;
     allocation_counter.store(0, std::memory_order_release);
+#endif
   }
+
+#ifndef NDEBUG
 
   static void fail_on_nth_allocation(std::uint64_t n) noexcept {
     fail_on_nth_allocation_ = n;
@@ -75,11 +77,11 @@ class allocation_failure_injector final {
  private:
   static inline std::atomic<std::uint64_t> allocation_counter{0};
   static inline std::uint64_t fail_on_nth_allocation_{0};
+
+#endif  // #ifndef NDEBUG
 };
 
 }  // namespace unodb::test
-
-#endif
 
 namespace unodb::detail {
 

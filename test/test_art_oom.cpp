@@ -632,6 +632,20 @@ TYPED_TEST(ARTOOMTest, Node256ShrinkToNode48) {
       });
 }
 
+TYPED_TEST(ARTOOMTest, ClearDoesNotAllocate) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  verifier.insert(1, unodb::test::test_values[0]);
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
+
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  verifier.clear();
+  unodb::test::allocation_failure_injector::reset();
+
+  verifier.check_absent_keys({1});
+  verifier.assert_node_counts({0, 0, 0, 0, 0});
+}
+
 }  // namespace
 
 #endif  // #ifndef NDEBUG

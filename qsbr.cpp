@@ -329,7 +329,6 @@ void qsbr::reset_stats() {
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr::dump(std::ostream &out) const {
-  // TODO(laurynas): anyone using it all?
   out << state.load(std::memory_order_acquire) << '\n';
 }
 

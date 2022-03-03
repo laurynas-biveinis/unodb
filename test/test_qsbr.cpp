@@ -966,11 +966,15 @@ TEST_F(QSBR, DeallocEpochAssert) {
   unodb::this_thread().qsbr_pause();
 }
 
+TEST_F(QSBR, Dump) {
+  std::ostringstream buf;
+  unodb::qsbr::instance().dump(buf);
+}
+
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 // TODO(laurynas): stat tests
 // TODO(laurynas): quiescent_state_on_scope_exit tests?
-// TODO(laurynas): qsbr::dump test
 
 UNODB_END_TESTS()
 

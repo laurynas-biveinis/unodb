@@ -74,6 +74,7 @@ void oom_test(unsigned fail_limit, Init init, Test test,
     UNODB_ASSERT_THROW(test(verifier), std::bad_alloc);
     unodb::test::allocation_failure_injector::reset();
 
+    verifier.check_present_values();
     check_after_oom(verifier);
   }
 
@@ -84,6 +85,7 @@ void oom_test(unsigned fail_limit, Init init, Test test,
   test(verifier);
   unodb::test::allocation_failure_injector::reset();
 
+  verifier.check_present_values();
   check_after_success(verifier);
 }
 
@@ -151,13 +153,11 @@ TYPED_TEST(ARTOOMTest, ExpandLeafToNode4) {
         verifier.insert(1, unodb::test::test_values[2], true);
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
-        verifier.check_present_values();
         verifier.check_absent_keys({1});
         verifier.assert_node_counts({1, 0, 0, 0, 0});
         verifier.assert_growing_inodes({0, 0, 0, 0});
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
-        verifier.check_present_values();
         verifier.assert_node_counts({2, 1, 0, 0, 0});
         verifier.assert_growing_inodes({1, 0, 0, 0});
       });
@@ -190,14 +190,12 @@ TYPED_TEST(ARTOOMTest, TwoNode4) {
         verifier.insert(0xFF01, unodb::test::test_values[3], true);
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
-        verifier.check_present_values();
         verifier.check_absent_keys({0xFF01});
         verifier.assert_node_counts({2, 1, 0, 0, 0});
         verifier.assert_growing_inodes({1, 0, 0, 0});
         verifier.assert_key_prefix_splits(0);
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
-        verifier.check_present_values();
         verifier.assert_node_counts({3, 2, 0, 0, 0});
         verifier.assert_growing_inodes({2, 0, 0, 0});
         verifier.assert_key_prefix_splits(1);
@@ -221,12 +219,10 @@ TYPED_TEST(ARTOOMTest, DbInsertNodeRecursion) {
         verifier.insert(0xFF0101, unodb::test::test_values[1], true);
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
-        verifier.check_present_values();
         verifier.assert_node_counts({3, 2, 0, 0, 0});
         verifier.assert_growing_inodes({2, 0, 0, 0});
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
-        verifier.check_present_values();
         verifier.assert_node_counts({4, 3, 0, 0, 0});
         verifier.assert_growing_inodes({3, 0, 0, 0});
       });
@@ -242,13 +238,11 @@ TYPED_TEST(ARTOOMTest, Node16) {
         verifier.insert(5, unodb::test::test_values[0], true);
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
-        verifier.check_present_values();
         verifier.assert_node_counts({4, 1, 0, 0, 0});
         verifier.assert_growing_inodes({1, 0, 0, 0});
         verifier.check_absent_keys({5});
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
-        verifier.check_present_values();
         verifier.assert_node_counts({5, 0, 1, 0, 0});
         verifier.assert_growing_inodes({1, 1, 0, 0});
       });
@@ -268,14 +262,12 @@ TYPED_TEST(ARTOOMTest, Node16KeyPrefixSplit) {
         verifier.insert(0x1020, unodb::test::test_values[0], true);
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
-        verifier.check_present_values();
         verifier.assert_node_counts({5, 0, 1, 0, 0});
         verifier.assert_growing_inodes({1, 1, 0, 0});
         verifier.check_absent_keys({0x1020});
         verifier.assert_key_prefix_splits(0);
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
-        verifier.check_present_values();
         verifier.assert_node_counts({6, 1, 1, 0, 0});
         verifier.assert_growing_inodes({2, 1, 0, 0});
         verifier.assert_key_prefix_splits(1);
@@ -294,13 +286,11 @@ TYPED_TEST(ARTOOMTest, Node48) {
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_node_counts({16, 0, 1, 0, 0});
         verifier.assert_growing_inodes({1, 1, 0, 0});
-        verifier.check_present_values();
         verifier.check_absent_keys({16});
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_node_counts({17, 0, 0, 1, 0});
         verifier.assert_growing_inodes({1, 1, 1, 0});
-        verifier.check_present_values();
       });
 }
 
@@ -321,13 +311,11 @@ TYPED_TEST(ARTOOMTest, Node48KeyPrefixSplit) {
         verifier.assert_node_counts({17, 0, 0, 1, 0});
         verifier.assert_growing_inodes({1, 1, 1, 0});
         verifier.assert_key_prefix_splits(0);
-        verifier.check_present_values();
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_node_counts({18, 1, 0, 1, 0});
         verifier.assert_growing_inodes({2, 1, 1, 0});
         verifier.assert_key_prefix_splits(1);
-        verifier.check_present_values();
       });
 }
 
@@ -343,12 +331,10 @@ TYPED_TEST(ARTOOMTest, Node256) {
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_node_counts({48, 0, 0, 1, 0});
         verifier.assert_growing_inodes({1, 1, 1, 0});
-        verifier.check_present_values();
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_node_counts({49, 0, 0, 0, 1});
         verifier.assert_growing_inodes({1, 1, 1, 1});
-        verifier.check_present_values();
       });
 }
 
@@ -366,13 +352,11 @@ TYPED_TEST(ARTOOMTest, Node256KeyPrefixSplit) {
         verifier.assert_node_counts({49, 0, 0, 0, 1});
         verifier.assert_growing_inodes({1, 1, 1, 1});
         verifier.assert_key_prefix_splits(0);
-        verifier.check_present_values();
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_node_counts({50, 1, 0, 0, 1});
         verifier.assert_growing_inodes({2, 1, 1, 1});
         verifier.assert_key_prefix_splits(1);
-        verifier.check_present_values();
       });
 }
 
@@ -528,12 +512,10 @@ TYPED_TEST(ARTOOMTest, Node16ShrinkToNode4) {
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_node_counts({5, 0, 1, 0, 0});
         verifier.assert_shrinking_inodes({0, 0, 0, 0});
-        verifier.check_present_values();
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_shrinking_inodes({0, 1, 0, 0});
         verifier.assert_node_counts({4, 1, 0, 0, 0});
-        verifier.check_present_values();
         verifier.check_absent_keys({2});
       });
 }
@@ -585,12 +567,10 @@ TYPED_TEST(ARTOOMTest, Node48ShrinkToNode16) {
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_node_counts({17, 0, 0, 1, 0});
         verifier.assert_shrinking_inodes({0, 0, 0, 0});
-        verifier.check_present_values();
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_shrinking_inodes({0, 0, 1, 0});
         verifier.assert_node_counts({16, 0, 1, 0, 0});
-        verifier.check_present_values();
         verifier.check_absent_keys({0x85});
       });
 }
@@ -622,12 +602,10 @@ TYPED_TEST(ARTOOMTest, Node256ShrinkToNode48) {
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_node_counts({49, 0, 0, 0, 1});
         verifier.assert_shrinking_inodes({0, 0, 0, 0});
-        verifier.check_present_values();
       },
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.assert_shrinking_inodes({0, 0, 0, 1});
         verifier.assert_node_counts({48, 0, 0, 1, 0});
-        verifier.check_present_values();
         verifier.check_absent_keys({25});
       });
 }

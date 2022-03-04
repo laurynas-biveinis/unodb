@@ -458,8 +458,8 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<$<AND:$<CONFIG:Debug>,$<BOOL:${VALGRIND_CLIENT}>>:VALGRIND_CLIENT_REQUESTS>")
   target_compile_options(${TARGET} PRIVATE
     "$<$<CXX_COMPILER_ID:MSVC>:${MSVC_CXX_FLAGS}>"
-    # Many conditions below are incorrect due to clang-cl having clang compiler
-    # ID but taking MSVC flags. Change to CMAKE_CXX_COMPILER_FRONTEND_VARIANT 
+    # Many conditions below are incorrect due to clang-cl having clang compiler
+    # ID but taking MSVC flags. Change to CMAKE_CXX_COMPILER_FRONTEND_VARIANT
     # on 3.14.
     "$<$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>:${MSVC_CLANG_CXX_FLAGS}>"
     "$<$<NOT:$<PLATFORM_ID:Windows>>:${UNIX_CXX_FLAGS}>"
@@ -499,8 +499,8 @@ function(COMMON_TARGET_PROPERTIES TARGET)
       set_target_properties(${TARGET} PROPERTIES CXX_INCLUDE_WHAT_YOU_USE "${DO_IWYU}")
     endif()
     if(STATIC_ANALYSIS)
-      # The condition below is incorrect due to clang-cl having clang compiler
-      # ID but taking MSVC flags. Change to CMAKE_CXX_COMPILER_FRONTEND_VARIANT 
+      # The condition below is incorrect due to clang-cl having clang compiler
+      # ID but taking MSVC flags. Change to CMAKE_CXX_COMPILER_FRONTEND_VARIANT
       # on 3.14.
       target_compile_options(${TARGET} PRIVATE "$<IF:$<CXX_COMPILER_ID:MSVC>,${MSVC_STATIC_ANALYSIS_FLAGS},-fanalyzer>")
       # GCC 11 -fanalyzer not fully ready for C++ yet

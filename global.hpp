@@ -101,11 +101,19 @@
 // Sanitizers
 
 #if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#define UNODB_DETAIL_ADDRESS_SANITIZER 1
+#endif
 #if __has_feature(thread_sanitizer)
 #define UNODB_DETAIL_THREAD_SANITIZER 1
 #endif
-#elif defined(__SANITIZE_THREAD__)
+#else
+#ifdef __SANITIZE_ADDRESS__
+#define UNODB_DETAIL_ADDRESS_SANITIZER 1
+#endif
+#ifdef __SANITIZE_THREAD__
 #define UNODB_DETAIL_THREAD_SANITIZER 1
+#endif
 #endif
 
 // Warnings

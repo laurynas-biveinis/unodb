@@ -56,11 +56,14 @@ class allocation_failure_injector final {
 #endif
   }
 
+  static void fail_on_nth_allocation(
+      std::uint64_t n UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
-
-  static void fail_on_nth_allocation(std::uint64_t n) noexcept {
     fail_on_nth_allocation_ = n;
+#endif
   }
+
+#ifndef NDEBUG
 
   UNODB_DETAIL_DISABLE_GCC_WARNING("-Wanalyzer-malloc-leak")
 
@@ -75,8 +78,8 @@ class allocation_failure_injector final {
   UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
  private:
-  static inline std::atomic<std::uint64_t> allocation_counter{0};
-  static inline std::uint64_t fail_on_nth_allocation_{0};
+  static std::atomic<std::uint64_t> allocation_counter;
+  static std::uint64_t fail_on_nth_allocation_;
 
 #endif  // #ifndef NDEBUG
 };

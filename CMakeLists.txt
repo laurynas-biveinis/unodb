@@ -518,21 +518,9 @@ function(SET_CLANG_TIDY_OPTIONS TARGET COMMAND)
   endif()
 endfunction()
 
-add_library(unodb_util INTERFACE)
-# Move to add_library itself once CMake minimum version is 3.13
-target_sources(unodb_util INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/global.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/assert.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/portability_builtins.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/thread_sync.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/heap.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/portability_stdlib.hpp)
-target_include_directories(unodb_util INTERFACE ".")
-target_include_directories(unodb_util INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
-
 function(ADD_UNODB_LIBRARY LIB)
   add_library(${LIB} ${ARGN})
   common_target_properties(${LIB})
-  target_link_libraries(${LIB} PUBLIC unodb_util)
   target_include_directories(${LIB} SYSTEM PUBLIC "${GSL_INCLUDES}")
   set_clang_tidy_options(${LIB} "${DO_CLANG_TIDY}")
 
@@ -540,28 +528,38 @@ function(ADD_UNODB_LIBRARY LIB)
     set(LIB_LF "${LIB}_lf")
     add_library(${LIB_LF} ${ARGN})
     common_target_properties(${LIB_LF} SKIP_CHECKS)
-    target_link_libraries(${LIB_LF} PUBLIC unodb_util)
     target_include_directories(${LIB_LF} SYSTEM PUBLIC "${GSL_INCLUDES}")
     target_compile_options(${LIB_LF} PRIVATE "-fsanitize=fuzzer-no-link")
   endif()
 endfunction()
 
+add_unodb_library(unodb_util global.hpp assert.hpp portability_builtins.hpp
+  thread_sync.hpp heap.hpp heap.cpp portability_stdlib.hpp)
+target_include_directories(unodb_util INTERFACE ".")
+target_include_directories(unodb_util SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
+target_link_libraries(unodb_util PRIVATE "${Boost_LIBRARIES}")
+if(LIBFUZZER_AVAILABLE)
+  target_include_directories(unodb_util_lf INTERFACE ".")
+  target_include_directories(unodb_util_lf SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
+  target_link_libraries(unodb_util_lf PRIVATE "${Boost_LIBRARIES}")
+endif()
+
 add_unodb_library(unodb_qsbr qsbr.cpp qsbr.hpp qsbr_ptr.cpp qsbr_ptr.hpp)
 target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
 target_link_libraries(unodb_qsbr PRIVATE "${Boost_LIBRARIES}")
-target_link_libraries(unodb_qsbr PUBLIC Threads::Threads)
+target_link_libraries(unodb_qsbr PUBLIC unodb_util Threads::Threads)
 if(LIBFUZZER_AVAILABLE)
   target_include_directories(unodb_qsbr_lf SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
   target_link_libraries(unodb_qsbr_lf PRIVATE "${Boost_LIBRARIES}")
-  target_link_libraries(unodb_qsbr_lf PUBLIC Threads::Threads)
+  target_link_libraries(unodb_qsbr_lf PUBLIC unodb_util_lf Threads::Threads)
 endif()
 
 add_unodb_library(unodb art.cpp art.hpp art_common.cpp art_common.hpp
   mutex_art.hpp optimistic_lock.hpp art_internal_impl.hpp olc_art.hpp
   olc_art.cpp art_internal.cpp art_internal.hpp node_type.hpp)
-target_link_libraries(unodb PUBLIC unodb_qsbr)
+target_link_libraries(unodb PUBLIC unodb_util unodb_qsbr)
 if(LIBFUZZER_AVAILABLE)
-  target_link_libraries(unodb_lf PUBLIC unodb_qsbr_lf)
+  target_link_libraries(unodb_lf PUBLIC unodb_util_lf unodb_qsbr_lf)
 endif()
 
 set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"

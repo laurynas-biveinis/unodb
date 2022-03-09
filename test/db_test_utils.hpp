@@ -131,11 +131,13 @@ class [[nodiscard]] tree_verifier final {
       const auto remove_result = values.erase(k);
       UNODB_ASSERT_EQ(remove_result, 1);
     }
-    const auto leaf_count_before =
-        test_db.template get_node_count<::unodb::node_type::LEAF>();
+    const auto node_counts_before = test_db.get_node_counts();
     const auto mem_use_before = test_db.get_current_memory_use();
-    UNODB_ASSERT_GT(leaf_count_before, 0);
+    UNODB_ASSERT_GT(node_counts_before[as_i<unodb::node_type::LEAF>], 0);
     UNODB_ASSERT_GT(mem_use_before, 0);
+    const auto growing_inodes_before = test_db.get_growing_inode_counts();
+    const auto shrinking_inodes_before = test_db.get_shrinking_inode_counts();
+    const auto key_prefix_splits_before = test_db.get_key_prefix_splits();
 
     try {
       if (!test_db.remove(k)) {
@@ -150,9 +152,14 @@ class [[nodiscard]] tree_verifier final {
     } catch (...) {
       if (!parallel_test) {
         UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
-        UNODB_ASSERT_EQ(
-            leaf_count_before,
-            test_db.template get_node_count<unodb::node_type::LEAF>());
+        UNODB_ASSERT_THAT(test_db.get_node_counts(),
+                          ::testing::ElementsAreArray(node_counts_before));
+        UNODB_ASSERT_THAT(test_db.get_growing_inode_counts(),
+                          ::testing::ElementsAreArray(growing_inodes_before));
+        UNODB_ASSERT_THAT(test_db.get_shrinking_inode_counts(),
+                          ::testing::ElementsAreArray(shrinking_inodes_before));
+        UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(),
+                        key_prefix_splits_before);
       }
       throw;
     }
@@ -163,7 +170,8 @@ class [[nodiscard]] tree_verifier final {
 
       const auto leaf_count_after =
           test_db.template get_node_count<::unodb::node_type::LEAF>();
-      UNODB_ASSERT_EQ(leaf_count_before - 1, leaf_count_after);
+      UNODB_ASSERT_EQ(leaf_count_after,
+                      node_counts_before[as_i<unodb::node_type::LEAF>] - 1);
     }
   }
 
@@ -190,21 +198,26 @@ class [[nodiscard]] tree_verifier final {
   void insert(unodb::key k, unodb::value_view v, bool bypass_verifier = false) {
     const auto mem_use_before =
         parallel_test ? 0 : test_db.get_current_memory_use();
-    const auto leaf_count_before =
-        parallel_test
-            ? 0
-            : test_db.template get_node_count<unodb::node_type::LEAF>();
+    const auto node_counts_before = test_db.get_node_counts();
     const auto empty_before = test_db.empty();
+    const auto growing_inodes_before = test_db.get_growing_inode_counts();
+    const auto shrinking_inodes_before = test_db.get_shrinking_inode_counts();
+    const auto key_prefix_splits_before = test_db.get_key_prefix_splits();
 
     try {
       do_insert(k, v);
     } catch (...) {
       if (!parallel_test) {
         UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
-        UNODB_ASSERT_EQ(
-            leaf_count_before,
-            test_db.template get_node_count<unodb::node_type::LEAF>());
+        UNODB_ASSERT_THAT(test_db.get_node_counts(),
+                          ::testing::ElementsAreArray(node_counts_before));
         UNODB_ASSERT_EQ(empty_before, test_db.empty());
+        UNODB_ASSERT_THAT(test_db.get_growing_inode_counts(),
+                          ::testing::ElementsAreArray(growing_inodes_before));
+        UNODB_ASSERT_THAT(test_db.get_shrinking_inode_counts(),
+                          ::testing::ElementsAreArray(shrinking_inodes_before));
+        UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(),
+                        key_prefix_splits_before);
       }
       throw;
     }
@@ -222,7 +235,8 @@ class [[nodiscard]] tree_verifier final {
     if (parallel_test)
       UNODB_ASSERT_GT(leaf_count_after, 0);
     else
-      UNODB_ASSERT_EQ(leaf_count_after, leaf_count_before + 1);
+      UNODB_ASSERT_EQ(leaf_count_after,
+                      node_counts_before[as_i<unodb::node_type::LEAF>] + 1);
 
     if (!bypass_verifier) {
       const auto [pos, insert_succeeded] = values.try_emplace(k, v);

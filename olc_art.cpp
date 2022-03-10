@@ -653,23 +653,24 @@ olc_impl_helpers::add_or_choose_subtree(
       if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
         // TODO(laurynas): shorten the critical section by moving allocation
         // before it?
-        optimistic_lock::write_guard write_unlock_on_exit{
-            std::move(parent_critical_section)};
-        if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart()))
-          return {};  // LCOV_EXCL_LINE
+        {
+          optimistic_lock::write_guard write_unlock_on_exit{
+              std::move(parent_critical_section)};
+          if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart()))
+            return {};  // LCOV_EXCL_LINE
 
-        optimistic_lock::write_guard node_write_guard{
-            std::move(node_critical_section)};
-        if (UNODB_DETAIL_UNLIKELY(node_write_guard.must_restart())) return {};
+          optimistic_lock::write_guard node_write_guard{
+              std::move(node_critical_section)};
+          if (UNODB_DETAIL_UNLIKELY(node_write_guard.must_restart())) return {};
 
-        auto larger_node{INode::larger_derived_type::create(
-            db_instance, inode, node_write_guard, std::move(leaf), depth)};
-        *node_in_parent = detail::olc_node_ptr{
-            larger_node.release(), INode::larger_derived_type::type};
-        // TODO(laurynas): account outside of write_guard critical sections
+          auto larger_node{INode::larger_derived_type::create(
+              db_instance, inode, node_write_guard, std::move(leaf), depth)};
+          *node_in_parent = detail::olc_node_ptr{
+              larger_node.release(), INode::larger_derived_type::type};
+          UNODB_DETAIL_ASSERT_INACTIVE(node_write_guard);
+        }
+
         db_instance.account_growing_inode<INode::larger_derived_type::type>();
-
-        UNODB_DETAIL_ASSERT_INACTIVE(node_write_guard);
 
         return child_in_parent;
       }
@@ -761,34 +762,38 @@ template <class INode>
 
   UNODB_DETAIL_ASSERT(is_node_min_size);
 
-  optimistic_lock::write_guard parent_guard{std::move(parent_critical_section)};
-  if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+  {
+    optimistic_lock::write_guard parent_guard{
+        std::move(parent_critical_section)};
+    if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
-  optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
-  if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+    optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
+    if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
-  optimistic_lock::write_guard child_guard{std::move(*child_critical_section)};
-  if (UNODB_DETAIL_UNLIKELY(child_guard.must_restart())) return {};
+    optimistic_lock::write_guard child_guard{
+        std::move(*child_critical_section)};
+    if (UNODB_DETAIL_UNLIKELY(child_guard.must_restart())) return {};
 
-  if constexpr (std::is_same_v<INode, olc_inode_4>) {
-    auto current_node{
-        olc_art_policy::make_db_inode_reclaimable_ptr(&inode, db_instance)};
-    node_guard.unlock_and_obsolete();
-    child_guard.unlock_and_obsolete();
-    *node_in_parent = current_node->leave_last_child(child_i, db_instance);
-  } else {
-    auto new_node{INode::smaller_derived_type::create(
-        db_instance, inode, node_guard, child_i, child_guard)};
-    *node_in_parent = detail::olc_node_ptr{new_node.release(),
-                                           INode::smaller_derived_type::type};
+    if constexpr (std::is_same_v<INode, olc_inode_4>) {
+      auto current_node{
+          olc_art_policy::make_db_inode_reclaimable_ptr(&inode, db_instance)};
+      node_guard.unlock_and_obsolete();
+      child_guard.unlock_and_obsolete();
+      *node_in_parent = current_node->leave_last_child(child_i, db_instance);
+    } else {
+      auto new_node{INode::smaller_derived_type::create(
+          db_instance, inode, node_guard, child_i, child_guard)};
+      *node_in_parent = detail::olc_node_ptr{new_node.release(),
+                                             INode::smaller_derived_type::type};
+    }
+    UNODB_DETAIL_ASSERT_INACTIVE(node_guard);
+    UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
+
+    *child_in_parent = nullptr;
   }
-  // TODO(laurynas): account after write unlocks?
+
   db_instance.template account_shrinking_inode<INode::type>();
 
-  UNODB_DETAIL_ASSERT_INACTIVE(node_guard);
-  UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
-
-  *child_in_parent = nullptr;
   return true;
 }
 
@@ -1000,19 +1005,22 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
 
       auto new_leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
-      optimistic_lock::write_guard parent_guard{
-          std::move(parent_critical_section)};
-      if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+      {
+        optimistic_lock::write_guard parent_guard{
+            std::move(parent_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
-      optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
-      if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+        optimistic_lock::write_guard node_guard{
+            std::move(node_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
-      // TODO(laurynas): consider creating new lower version and replacing
-      // contents, to enable replacing parent write unlock with parent unlock
-      auto new_node{olc_inode_4::create(*this, existing_key, remaining_key,
-                                        depth, leaf, std::move(new_leaf))};
-      *node_in_parent = detail::olc_node_ptr{new_node.release(), node_type::I4};
-      // TODO(laurynas): account outside of write_guard critical sections
+        // TODO(laurynas): consider creating new lower version and replacing
+        // contents, to enable replacing parent write unlock with parent unlock
+        auto new_node{olc_inode_4::create(*this, existing_key, remaining_key,
+                                          depth, leaf, std::move(new_leaf))};
+        *node_in_parent =
+            detail::olc_node_ptr{new_node.release(), node_type::I4};
+      }
       account_growing_inode<node_type::I4>();
       return true;
     }
@@ -1029,19 +1037,24 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     if (shared_prefix_length < key_prefix_length) {
       auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
 
-      optimistic_lock::write_guard parent_guard{
-          std::move(parent_critical_section)};
-      if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+      {
+        optimistic_lock::write_guard parent_guard{
+            std::move(parent_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
-      optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
-      if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+        optimistic_lock::write_guard node_guard{
+            std::move(node_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
-      auto new_node = olc_inode_4::create(*this, node, shared_prefix_length,
-                                          depth, std::move(leaf));
-      *node_in_parent = detail::olc_node_ptr{new_node.release(), node_type::I4};
-      // TODO(laurynas): account outside of write_guard critical sections
+        auto new_node = olc_inode_4::create(*this, node, shared_prefix_length,
+                                            depth, std::move(leaf));
+        *node_in_parent =
+            detail::olc_node_ptr{new_node.release(), node_type::I4};
+      }
+
       account_growing_inode<node_type::I4>();
       key_prefix_splits.fetch_add(1, std::memory_order_relaxed);
+
       return true;
     }
 

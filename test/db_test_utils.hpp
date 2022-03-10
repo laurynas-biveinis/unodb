@@ -239,6 +239,7 @@ class [[nodiscard]] tree_verifier final {
                       node_counts_before[as_i<unodb::node_type::LEAF>] + 1);
 
     if (!bypass_verifier) {
+      allocation_failure_injector::reset();
       const auto [pos, insert_succeeded] = values.try_emplace(k, v);
       (void)pos;
       UNODB_ASSERT_TRUE(insert_succeeded);
@@ -366,7 +367,6 @@ class [[nodiscard]] tree_verifier final {
 
   void clear() {
     test_db.clear();
-    // TODO(laurynas): refactor
     allocation_failure_injector::reset();
     assert_empty();
 

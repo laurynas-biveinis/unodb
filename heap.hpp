@@ -51,7 +51,7 @@ class allocation_failure_injector final {
  public:
   static void reset() noexcept {
 #ifndef NDEBUG
-    fail_on_nth_allocation_ = 0;
+    fail_on_nth_allocation_.store(0, std::memory_order_relaxed);
     allocation_counter.store(0, std::memory_order_release);
 #endif
   }
@@ -59,7 +59,7 @@ class allocation_failure_injector final {
   static void fail_on_nth_allocation(
       std::uint64_t n UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
-    fail_on_nth_allocation_ = n;
+    fail_on_nth_allocation_.store(n, std::memory_order_release);
 #endif
   }
 
@@ -68,9 +68,11 @@ class allocation_failure_injector final {
   UNODB_DETAIL_DISABLE_GCC_WARNING("-Wanalyzer-malloc-leak")
 
   static void maybe_fail() {
-    if (UNODB_DETAIL_UNLIKELY(fail_on_nth_allocation_ != 0) &&
-        (allocation_counter.fetch_add(1, std::memory_order_acq_rel) >=
-         fail_on_nth_allocation_ - 1)) {
+    const auto fail_counter =
+        fail_on_nth_allocation_.load(std::memory_order_acquire);
+    if (UNODB_DETAIL_UNLIKELY(fail_counter != 0) &&
+        (allocation_counter.fetch_add(1, std::memory_order_relaxed) >=
+         fail_counter - 1)) {
       throw std::bad_alloc{};
     }
   }
@@ -79,7 +81,7 @@ class allocation_failure_injector final {
 
  private:
   static std::atomic<std::uint64_t> allocation_counter;
-  static std::uint64_t fail_on_nth_allocation_;
+  static std::atomic<std::uint64_t> fail_on_nth_allocation_;
 
 #endif  // #ifndef NDEBUG
 };

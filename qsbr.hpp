@@ -363,7 +363,11 @@ struct [[nodiscard]] deallocation_request final {
     request_epoch_
   }
 #endif
-  {}
+  {
+#ifndef NDEBUG
+    instance_count.fetch_add(1, std::memory_order_relaxed);
+#endif
+  }
 
   void deallocate(
 #ifndef NDEBUG
@@ -371,6 +375,15 @@ struct [[nodiscard]] deallocation_request final {
       bool dealloc_epoch_single_thread_mode
 #endif
   ) const noexcept;
+
+#ifndef NDEBUG
+  static void assert_zero_instances() noexcept {
+    UNODB_DETAIL_ASSERT(instance_count.load(std::memory_order_relaxed) == 0);
+  }
+
+ private:
+  static std::atomic<std::uint64_t> instance_count;
+#endif
 };
 
 using dealloc_request_vector = std::vector<deallocation_request>;
@@ -702,6 +715,7 @@ class qsbr final {
     UNODB_DETAIL_ASSERT(qsbr_state::get_thread_count(current_state) <= 1);
     UNODB_DETAIL_ASSERT(previous_interval_orphaned_requests_empty());
     UNODB_DETAIL_ASSERT(current_interval_orphaned_requests_empty());
+    detail::deallocation_request::assert_zero_instances();
 #endif
   }
 
@@ -943,7 +957,6 @@ inline void deallocation_request::deallocate(
     bool orphan, qsbr_epoch dealloc_epoch, bool dealloc_epoch_single_thread_mode
 #endif
 ) const noexcept {
-  // TODO(laurynas): count deallocation request instances, assert 0 in QSBR dtor
   UNODB_DETAIL_ASSERT(orphan ||
                       (dealloc_epoch_single_thread_mode &&
                        dealloc_epoch == request_epoch.advance()) ||
@@ -955,6 +968,10 @@ inline void deallocation_request::deallocate(
                    dealloc_callback
 #endif
   );
+
+#ifndef NDEBUG
+  instance_count.fetch_sub(1, std::memory_order_relaxed);
+#endif
 }
 
 }  // namespace detail

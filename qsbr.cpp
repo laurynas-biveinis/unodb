@@ -91,6 +91,13 @@ UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 #ifndef NDEBUG
 
+namespace detail {
+
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+std::atomic<std::uint64_t> deallocation_request::instance_count{0};
+
+}  // namespace detail
+
 void qsbr_per_thread::register_active_ptr(const void *ptr) {
   UNODB_DETAIL_ASSERT(ptr != nullptr);
   UNODB_DETAIL_ASSERT(!is_qsbr_paused());

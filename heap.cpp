@@ -16,7 +16,8 @@ namespace unodb::test {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 std::atomic<std::uint64_t> allocation_failure_injector::allocation_counter{0};
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-std::uint64_t allocation_failure_injector::fail_on_nth_allocation_{0};
+std::atomic<std::uint64_t> allocation_failure_injector::fail_on_nth_allocation_{
+    0};
 
 #endif  // #ifndef NDEBUG
 

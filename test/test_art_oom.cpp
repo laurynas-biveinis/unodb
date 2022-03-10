@@ -51,7 +51,7 @@ void oom_insert_test(unsigned fail_limit, Init init, unodb::key k,
   oom_test<TypeParam>(
       fail_limit, init,
       [k, v](unodb::test::tree_verifier<TypeParam>& verifier) {
-        verifier.insert(k, v, true);
+        verifier.insert(k, v);
       },
       [k](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.check_absent_keys({k});

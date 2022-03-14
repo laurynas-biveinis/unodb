@@ -879,6 +879,8 @@ TEST_F(QSBR, ResetStats) {
           .get_mean_quiescent_states_per_thread_between_epoch_changes(),
       1.0);
 
+  unodb::this_thread().quiescent();
+
   unodb::qsbr::instance().reset_stats();
 
   UNODB_ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 0);

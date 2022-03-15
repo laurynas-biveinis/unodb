@@ -20,6 +20,8 @@
 
 namespace unodb {
 
+class olc_db;
+
 namespace detail {
 
 template <class, template <class> class, class, class, template <class> class,
@@ -54,6 +56,9 @@ inline non_atomic_array<T> copy_atomic_to_nonatomic(T &atomic_array) noexcept {
   }
   return result;
 }
+
+using olc_leaf_unique_ptr =
+    detail::basic_db_leaf_unique_ptr<detail::olc_node_header, olc_db>;
 
 }  // namespace detail
 
@@ -152,8 +157,9 @@ class olc_db final {
 
   [[nodiscard]] try_get_result_type try_get(detail::art_key k) const noexcept;
 
-  [[nodiscard]] try_update_result_type try_insert(detail::art_key k,
-                                                  value_view v);
+  [[nodiscard]] try_update_result_type try_insert(
+      detail::art_key k, value_view v,
+      detail::olc_leaf_unique_ptr &cached_leaf);
 
   [[nodiscard]] try_update_result_type try_remove(detail::art_key k);
 

@@ -192,7 +192,8 @@ struct olc_impl_helpers {
       olc_db &db_instance, tree_depth depth,
       optimistic_lock::read_critical_section &node_critical_section,
       in_critical_section<olc_node_ptr> *node_in_parent,
-      optimistic_lock::read_critical_section &parent_critical_section);
+      optimistic_lock::read_critical_section &parent_critical_section,
+      olc_db_leaf_unique_ptr &cached_leaf);
 
   UNODB_DETAIL_RESTORE_GCC_10_WARNINGS()
 
@@ -629,6 +630,18 @@ olc_inode_48::olc_inode_48(
   UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
 }
 
+void create_leaf_if_needed(olc_db_leaf_unique_ptr &cached_leaf,
+                           unodb::detail::art_key k, unodb::value_view v,
+                           unodb::olc_db &db_instance) {
+  if (UNODB_DETAIL_LIKELY(cached_leaf == nullptr)) {
+    UNODB_DETAIL_ASSERT(&cached_leaf.get_deleter().get_db() == &db_instance);
+    // Do not assign because we do not need to assign the deleter
+    // NOLINTNEXTLINE(misc-uniqueptr-reset-release)
+    cached_leaf.reset(
+        olc_art_policy::make_db_leaf_ptr(k, v, db_instance).release());
+  }
+}
+
 }  // namespace
 
 namespace unodb::detail {
@@ -641,11 +654,12 @@ olc_impl_helpers::add_or_choose_subtree(
     olc_db &db_instance, tree_depth depth,
     optimistic_lock::read_critical_section &node_critical_section,
     in_critical_section<olc_node_ptr> *node_in_parent,
-    optimistic_lock::read_critical_section &parent_critical_section) {
+    optimistic_lock::read_critical_section &parent_critical_section,
+    olc_db_leaf_unique_ptr &cached_leaf) {
   auto *const child_in_parent = inode.find_child(key_byte).second;
 
   if (child_in_parent == nullptr) {
-    auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, db_instance)};
+    create_leaf_if_needed(cached_leaf, k, v, db_instance);
 
     const auto children_count = inode.get_children_count();
 
@@ -664,7 +678,8 @@ olc_impl_helpers::add_or_choose_subtree(
           if (UNODB_DETAIL_UNLIKELY(node_write_guard.must_restart())) return {};
 
           auto larger_node{INode::larger_derived_type::create(
-              db_instance, inode, node_write_guard, std::move(leaf), depth)};
+              db_instance, inode, node_write_guard, std::move(cached_leaf),
+              depth)};
           *node_in_parent = detail::olc_node_ptr{
               larger_node.release(), INode::larger_derived_type::type};
           UNODB_DETAIL_ASSERT_INACTIVE(node_write_guard);
@@ -683,7 +698,7 @@ olc_impl_helpers::add_or_choose_subtree(
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return {};  // LCOV_EXCL_LINE
 
-    inode.add_to_nonfull(std::move(leaf), depth, children_count);
+    inode.add_to_nonfull(std::move(cached_leaf), depth, children_count);
   }
 
   return child_in_parent;
@@ -940,15 +955,18 @@ bool olc_db::insert(key insert_key, value_view v) {
   const auto bin_comparable_key = detail::art_key{insert_key};
 
   try_update_result_type result;
+  olc_db_leaf_unique_ptr cached_leaf{
+      nullptr,
+      detail::basic_db_leaf_deleter<detail::olc_node_header, olc_db>{*this}};
   do {
-    result = try_insert(bin_comparable_key, v);
+    result = try_insert(bin_comparable_key, v, cached_leaf);
   } while (!result);
 
   return *result;
 }
 
-olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
-                                                  value_view v) {
+olc_db::try_update_result_type olc_db::try_insert(
+    detail::art_key k, value_view v, olc_db_leaf_unique_ptr &cached_leaf) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -960,8 +978,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
   auto node{root.load()};
 
   if (UNODB_DETAIL_UNLIKELY(node == nullptr)) {
-    // TODO(laurynas): cache the created leaves if need to restart
-    auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
+    create_leaf_if_needed(cached_leaf, k, v, *this);
 
     optimistic_lock::write_guard write_unlock_on_exit{
         std::move(parent_critical_section)};
@@ -970,7 +987,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
       return {};  // LCOV_EXCL_LINE
     }
 
-    root = detail::olc_node_ptr{leaf.release(), node_type::LEAF};
+    root = detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF};
     return true;
   }
 
@@ -1000,10 +1017,13 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
           return {};  // LCOV_EXCL_LINE
 
+        if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr)) {
+          cached_leaf.reset();  // LCOV_EXCL_LINE
+        }
         return false;
       }
 
-      auto new_leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
+      create_leaf_if_needed(cached_leaf, k, v, *this);
 
       {
         optimistic_lock::write_guard parent_guard{
@@ -1017,7 +1037,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
         // TODO(laurynas): consider creating new lower version and replacing
         // contents, to enable replacing parent write unlock with parent unlock
         auto new_node{olc_inode_4::create(*this, existing_key, remaining_key,
-                                          depth, leaf, std::move(new_leaf))};
+                                          depth, leaf, std::move(cached_leaf))};
         *node_in_parent =
             detail::olc_node_ptr{new_node.release(), node_type::I4};
       }
@@ -1035,7 +1055,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
         key_prefix.get_shared_length(remaining_key)};
 
     if (shared_prefix_length < key_prefix_length) {
-      auto leaf{olc_art_policy::make_db_leaf_ptr(k, v, *this)};
+      create_leaf_if_needed(cached_leaf, k, v, *this);
 
       {
         optimistic_lock::write_guard parent_guard{
@@ -1047,7 +1067,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
         if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
         auto new_node = olc_inode_4::create(*this, node, shared_prefix_length,
-                                            depth, std::move(leaf));
+                                            depth, std::move(cached_leaf));
         *node_in_parent =
             detail::olc_node_ptr{new_node.release(), node_type::I4};
       }
@@ -1066,7 +1086,7 @@ olc_db::try_update_result_type olc_db::try_insert(detail::art_key k,
     const auto add_result{inode->add_or_choose_subtree<
         std::optional<in_critical_section<detail::olc_node_ptr> *>>(
         node_type, remaining_key[0], k, v, *this, depth, node_critical_section,
-        node_in_parent, parent_critical_section)};
+        node_in_parent, parent_critical_section, cached_leaf)};
 
     if (UNODB_DETAIL_UNLIKELY(!add_result)) return {};
 

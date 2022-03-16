@@ -45,13 +45,13 @@ template <class Header, class Db>
 struct olc_impl_helpers;
 
 template <class AtomicArray>
-using non_atomic_array =
-    std::array<typename AtomicArray::value_type::value_type,
-               std::tuple_size<AtomicArray>::value>;
+using non_atomic_uint64_array =
+    std::array<std::uint64_t, std::tuple_size<AtomicArray>::value>;
 
 template <class T>
-inline non_atomic_array<T> copy_atomic_to_nonatomic(T &atomic_array) noexcept {
-  non_atomic_array<T> result;
+inline non_atomic_uint64_array<T> copy_atomic_to_nonatomic(
+    T &atomic_array) noexcept {
+  non_atomic_uint64_array<T> result;
   for (typename decltype(result)::size_type i = 0; i < result.size(); ++i) {
     result[i] = atomic_array[i].load(std::memory_order_relaxed);
   }
@@ -60,6 +60,43 @@ inline non_atomic_array<T> copy_atomic_to_nonatomic(T &atomic_array) noexcept {
 
 using olc_leaf_unique_ptr =
     detail::basic_db_leaf_unique_ptr<detail::olc_node_header, olc_db>;
+
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26812)
+
+struct alignas(detail::hardware_destructive_interference_size)
+    cache_line_atomic_uint64_t {
+  std::atomic<std::uint64_t> value;
+
+  std::uint64_t fetch_add(
+      std::uint64_t arg,
+      std::memory_order order = std::memory_order_seq_cst) noexcept {
+    return value.fetch_add(arg, order);
+  }
+
+  std::uint64_t fetch_sub(
+      std::uint64_t arg,
+      std::memory_order order = std::memory_order_seq_cst) noexcept {
+    return value.fetch_sub(arg, order);
+  }
+
+  std::uint64_t load(
+      std::memory_order order = std::memory_order_seq_cst) const noexcept {
+    return value.load(order);
+  }
+
+  void store(std::uint64_t new_val,
+             std::memory_order order = std::memory_order_seq_cst) noexcept {
+    return value.store(new_val, order);
+  }
+};
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+using node_type_atomic_counter_cache_line_array =
+    std::array<cache_line_atomic_uint64_t, detail::node_type_count>;
+
+using inode_type_atomic_counter_cache_line_array =
+    std::array<cache_line_atomic_uint64_t, detail::inode_type_count>;
 
 }  // namespace detail
 
@@ -216,16 +253,9 @@ class olc_db final {
   alignas(detail::hardware_destructive_interference_size)
       std::atomic<std::uint64_t> key_prefix_splits{0};
 
-  template <class T>
-  using atomic_array = std::array<std::atomic<typename T::value_type>,
-                                  std::tuple_size<T>::value>;
-
-  alignas(detail::hardware_destructive_interference_size)
-      atomic_array<node_type_counter_array> node_counts{};
-  alignas(detail::hardware_destructive_interference_size)
-      atomic_array<inode_type_counter_array> growing_inode_counts{};
-  alignas(detail::hardware_destructive_interference_size)
-      atomic_array<inode_type_counter_array> shrinking_inode_counts{};
+  detail::node_type_atomic_counter_cache_line_array node_counts{};
+  detail::inode_type_atomic_counter_cache_line_array growing_inode_counts{};
+  detail::inode_type_atomic_counter_cache_line_array shrinking_inode_counts{};
 
   friend auto detail::make_db_leaf_ptr<detail::olc_node_header, olc_db>(
       detail::art_key, value_view, olc_db &);

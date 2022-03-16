@@ -16,6 +16,7 @@
 #include "assert.hpp"
 #include "node_type.hpp"
 #include "optimistic_lock.hpp"
+#include "portability_stdlib.hpp"
 #include "qsbr_ptr.hpp"
 
 namespace unodb {
@@ -196,25 +197,35 @@ class olc_db final {
   template <node_type NodeType>
   constexpr void account_shrinking_inode() noexcept;
 
-  mutable optimistic_lock root_pointer_lock;
+  alignas(
+      detail::hardware_destructive_interference_size) mutable optimistic_lock
+      root_pointer_lock;
 
   in_critical_section<detail::olc_node_ptr> root{detail::olc_node_ptr{nullptr}};
+
+  static_assert(sizeof(root_pointer_lock) + sizeof(root) <=
+                detail::hardware_constructive_interference_size);
 
   // Current logically allocated memory that is not scheduled to be reclaimed.
   // The total memory currently allocated is this plus the QSBR deallocation
   // backlog (qsbr::previous_interval_total_dealloc_size +
   // qsbr::current_interval_total_dealloc_size).
-  std::atomic<std::size_t> current_memory_use{0};
+  alignas(detail::hardware_destructive_interference_size)
+      std::atomic<std::size_t> current_memory_use{0};
+
+  alignas(detail::hardware_destructive_interference_size)
+      std::atomic<std::uint64_t> key_prefix_splits{0};
 
   template <class T>
   using atomic_array = std::array<std::atomic<typename T::value_type>,
                                   std::tuple_size<T>::value>;
 
-  atomic_array<node_type_counter_array> node_counts{};
-  atomic_array<inode_type_counter_array> growing_inode_counts{};
-  atomic_array<inode_type_counter_array> shrinking_inode_counts{};
-
-  std::atomic<std::uint64_t> key_prefix_splits{0};
+  alignas(detail::hardware_destructive_interference_size)
+      atomic_array<node_type_counter_array> node_counts{};
+  alignas(detail::hardware_destructive_interference_size)
+      atomic_array<inode_type_counter_array> growing_inode_counts{};
+  alignas(detail::hardware_destructive_interference_size)
+      atomic_array<inode_type_counter_array> shrinking_inode_counts{};
 
   friend auto detail::make_db_leaf_ptr<detail::olc_node_header, olc_db>(
       detail::art_key, value_view, olc_db &);

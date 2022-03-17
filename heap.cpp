@@ -23,13 +23,13 @@ std::atomic<std::uint64_t> allocation_failure_injector::fail_on_nth_allocation_{
 
 }  // namespace unodb::test
 
-// - LLVM ASan/TSan do not work with replaced global new/delete:
+// - ASan/TSan do not work with replaced global new/delete:
 //   https://github.com/llvm/llvm-project/issues/20034
 // - Google Test with MSVC standard library tries to allocate memory in the
 //   exception-thrown-as-expected path
-#if !defined(NDEBUG) && !defined(_MSC_VER) &&                           \
-    !(defined(__clang__) && (defined(UNODB_DETAIL_ADDRESS_SANITIZER) || \
-                             defined(UNODB_DETAIL_THREAD_SANITIZER)))
+#if !defined(NDEBUG) && !defined(_MSC_VER) &&   \
+    !defined(UNODB_DETAIL_ADDRESS_SANITIZER) && \
+    !defined(UNODB_DETAIL_THREAD_SANITIZER)
 
 namespace {
 
@@ -73,6 +73,6 @@ void operator delete(void* ptr, std::align_val_t) noexcept {
   unodb::detail::free_aligned(ptr);
 }
 
-#endif  // #if !defined(NDEBUG) && !defined(_MSC_VER) &&
-        // !(defined(__clang__) && (defined(UNODB_DETAIL_ADDRESS_SANITIZER) ||
-        // defined(UNODB_DETAIL_THREAD_SANITIZER)))
+#endif  // !defined(NDEBUG) && !defined(_MSC_VER) &&
+        // !defined(UNODB_DETAIL_ADDRESS_SANITIZER) &&
+        // !defined(UNODB_DETAIL_THREAD_SANITIZER)

@@ -719,19 +719,10 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
   using typename basic_inode_impl<ArtPolicy>::db;
   using typename basic_inode_impl<ArtPolicy>::node_ptr;
 
-  [[nodiscard]] static constexpr auto create(db &db_instance,
-                                             LargerDerived &source_node,
-                                             std::uint8_t child_to_delete) {
+  template <typename... Args>
+  [[nodiscard]] static constexpr auto create(db &db_instance, Args &&...args) {
     return ArtPolicy::template make_db_inode_unique_ptr<Derived>(
-        db_instance, source_node, child_to_delete);
-  }
-
-  [[nodiscard]] static constexpr auto create(db &db_instance,
-                                             SmallerDerived &source_node,
-                                             db_leaf_unique_ptr &&child,
-                                             tree_depth depth) {
-    return ArtPolicy::template make_db_inode_unique_ptr<Derived>(
-        db_instance, source_node, std::move(child), depth);
+        db_instance, std::forward<Args>(args)...);
   }
 
   [[nodiscard]] static void *operator new(std::size_t size) {
@@ -781,13 +772,15 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
 
   explicit constexpr basic_inode(const SmallerDerived &source_node) noexcept
       : basic_inode_impl<ArtPolicy>{MinSize, source_node} {
-    UNODB_DETAIL_ASSERT(source_node.is_full_for_add());
+    // Cannot assert that source_node.is_full_for_add because we are creating
+    // this node optimistically in the case of OLC.
     UNODB_DETAIL_ASSERT(is_min_size());
   }
 
   explicit constexpr basic_inode(const LargerDerived &source_node) noexcept
       : basic_inode_impl<ArtPolicy>{Capacity, source_node} {
-    UNODB_DETAIL_ASSERT(source_node.is_min_size());
+    // Cannot assert that source_node.is_min_size because we are creating this
+    // node optimistically in the case of OLC.
     UNODB_DETAIL_ASSERT(is_full_for_add());
   }
 };
@@ -819,45 +812,42 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   using typename parent_class::leaf_type;
   using typename parent_class::node_ptr;
 
-  // Create a new node with two given child leaves
-  [[nodiscard]] static constexpr auto create(db &db_instance, art_key k1,
-                                             art_key shifted_k2,
-                                             tree_depth depth,
-                                             leaf_type *child1,
-                                             db_leaf_unique_ptr &&child2) {
-    return ArtPolicy::template make_db_inode_unique_ptr<inode4_type>(
-        db_instance, k1, shifted_k2, depth, child1, std::move(child2));
-  }
-
-  using parent_class::create;
-
-  // Create a new node, split the key prefix of an existing node, and make the
-  // new node contain that existing node and a given new node which caused this
-  // key prefix split.
-  [[nodiscard]] static constexpr auto create(db &db_instance,
-                                             node_ptr source_node, unsigned len,
-                                             tree_depth depth,
-                                             db_leaf_unique_ptr &&child1) {
-    return ArtPolicy::template make_db_inode_unique_ptr<inode4_type>(
-        db_instance, source_node, len, depth, std::move(child1));
-  }
-
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
+
+  constexpr basic_inode_4(db &, art_key k1, art_key shifted_k2,
+                          tree_depth depth) noexcept
+      : parent_class{k1, shifted_k2, depth} {}
 
   constexpr basic_inode_4(db &, art_key k1, art_key shifted_k2,
                           tree_depth depth, leaf_type *child1,
                           db_leaf_unique_ptr &&child2) noexcept
       : parent_class{k1, shifted_k2, depth} {
-    const auto k2_next_byte_depth = this->get_key_prefix().length();
-    const auto k1_next_byte_depth = k2_next_byte_depth + depth;
-    add_two_to_empty(k1[k1_next_byte_depth], node_ptr{child1, node_type::LEAF},
-                     shifted_k2[k2_next_byte_depth], std::move(child2));
+    init(k1, shifted_k2, depth, child1, std::move(child2));
   }
+
+  constexpr basic_inode_4(db &, node_ptr source_node, unsigned len) noexcept
+      : parent_class{len, *source_node.template ptr<inode_type *>()} {}
 
   constexpr basic_inode_4(db &, node_ptr source_node, unsigned len,
                           tree_depth depth,
                           db_leaf_unique_ptr &&child1) noexcept
       : parent_class{len, *source_node.template ptr<inode_type *>()} {
+    init(source_node, len, depth, std::move(child1));
+  }
+
+  constexpr basic_inode_4(db &, const inode16_type &source_node) noexcept
+      : parent_class{source_node} {}
+
+  constexpr basic_inode_4(db &db_instance, inode16_type &source_node,
+                          std::uint8_t child_to_delete)
+      : parent_class{source_node} {
+    init(db_instance, source_node, child_to_delete);
+  }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+  constexpr void init(node_ptr source_node, unsigned len, tree_depth depth,
+                      db_leaf_unique_ptr &&child1) {
     auto *const source_inode{source_node.template ptr<inode_type *>()};
     auto &source_key_prefix = source_inode->get_key_prefix();
     UNODB_DETAIL_ASSERT(len < source_key_prefix.length());
@@ -873,9 +863,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                      std::move(child1));
   }
 
-  constexpr basic_inode_4(db &db_instance, inode16_type &source_node,
-                          std::uint8_t child_to_delete)
-      : parent_class{source_node} {
+  constexpr void init(db &db_instance, inode16_type &source_node,
+                      std::uint8_t child_to_delete) {
     const auto reclaim_source_node{
         ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
                                                           db_instance)};
@@ -908,7 +897,13 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                        keys.byte_array.cbegin() + basic_inode_4::capacity));
   }
 
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  constexpr void init(art_key k1, art_key shifted_k2, tree_depth depth,
+                      leaf_type *child1, db_leaf_unique_ptr &&child2) noexcept {
+    const auto k2_next_byte_depth = this->get_key_prefix().length();
+    const auto k1_next_byte_depth = k2_next_byte_depth + depth;
+    add_two_to_empty(k1[k1_next_byte_depth], node_ptr{child1, node_type::LEAF},
+                     shifted_k2[k2_next_byte_depth], std::move(child2));
+  }
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count_) noexcept {
@@ -1164,9 +1159,31 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
+  constexpr basic_inode_16(db &, const inode4_type &source_node) noexcept
+      : parent_class{source_node} {}
+
+  constexpr basic_inode_16(db &, const inode48_type &source_node) noexcept
+      : parent_class{source_node} {}
+
   constexpr basic_inode_16(db &db_instance, inode4_type &source_node,
-                           db_leaf_unique_ptr child, tree_depth depth) noexcept
+                           db_leaf_unique_ptr &&child,
+                           tree_depth depth) noexcept
       : parent_class{source_node} {
+    init(db_instance, source_node, std::move(child), depth);
+  }
+
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
+  constexpr basic_inode_16(db &db_instance, inode48_type &source_node,
+                           std::uint8_t child_to_delete) noexcept
+      : parent_class{source_node} {
+    init(db_instance, source_node, child_to_delete);
+  }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+  constexpr void init(db &db_instance, inode4_type &source_node,
+                      db_leaf_unique_ptr child, tree_depth depth) noexcept {
     const auto reclaim_source_node{
         ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
                                                           db_instance)};
@@ -1202,10 +1219,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     }
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
-  constexpr basic_inode_16(db &db_instance, inode48_type &source_node,
-                           std::uint8_t child_to_delete) noexcept
-      : parent_class{source_node} {
+  constexpr void init(db &db_instance, inode48_type &source_node,
+                      std::uint8_t child_to_delete) noexcept {
     const auto reclaim_source_node{
         ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
                                                           db_instance)};
@@ -1235,9 +1250,6 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         std::is_sorted(keys.byte_array.cbegin(),
                        keys.byte_array.cbegin() + basic_inode_16::capacity));
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count_) noexcept {
@@ -1429,10 +1441,29 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
+  constexpr basic_inode_48(db &, const inode16_type &source_node) noexcept
+      : parent_class{source_node} {}
+
+  constexpr basic_inode_48(db &, const inode256_type &source_node) noexcept
+      : parent_class{source_node} {}
+
   constexpr basic_inode_48(db &db_instance,
                            inode16_type &__restrict source_node,
-                           db_leaf_unique_ptr child, tree_depth depth) noexcept
+                           db_leaf_unique_ptr &&child,
+                           tree_depth depth) noexcept
       : parent_class{source_node} {
+    init(db_instance, source_node, std::move(child), depth);
+  }
+
+  constexpr basic_inode_48(db &db_instance,
+                           inode256_type &__restrict source_node,
+                           std::uint8_t child_to_delete) noexcept
+      : parent_class{source_node} {
+    init(db_instance, source_node, child_to_delete);
+  }
+
+  constexpr void init(db &db_instance, inode16_type &__restrict source_node,
+                      db_leaf_unique_ptr child, tree_depth depth) noexcept {
     const auto reclaim_source_node{
         ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
                                                           db_instance)};
@@ -1461,10 +1492,10 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     }
   }
 
-  constexpr basic_inode_48(db &db_instance,
-                           inode256_type &__restrict source_node,
-                           std::uint8_t child_to_delete) noexcept
-      : parent_class{source_node} {
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+  constexpr void init(db &db_instance, inode256_type &__restrict source_node,
+                      std::uint8_t child_to_delete) noexcept {
     const auto reclaim_source_node{
         ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
                                                           db_instance)};
@@ -1488,8 +1519,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       if (next_child == basic_inode_48::capacity) return;
     }
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count_) noexcept {
@@ -1734,9 +1763,21 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   using typename parent_class::db_leaf_unique_ptr;
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
+
+  constexpr basic_inode_256(db &, const inode48_type &source_node) noexcept
+      : parent_class{source_node} {}
+
   constexpr basic_inode_256(db &db_instance, inode48_type &source_node,
-                            db_leaf_unique_ptr child, tree_depth depth) noexcept
+                            db_leaf_unique_ptr &&child,
+                            tree_depth depth) noexcept
       : parent_class{source_node} {
+    init(db_instance, source_node, std::move(child), depth);
+  }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+  constexpr void init(db &db_instance, inode48_type &__restrict source_node,
+                      db_leaf_unique_ptr child, tree_depth depth) noexcept {
     const auto reclaim_source_node{
         ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
                                                           db_instance)};
@@ -1761,7 +1802,6 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release(), node_type::LEAF};
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child, tree_depth depth,
                                 std::uint8_t children_count_) noexcept {

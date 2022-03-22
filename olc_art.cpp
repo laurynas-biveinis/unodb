@@ -975,8 +975,6 @@ olc_db::try_update_result_type olc_db::try_insert(
       }
 
       create_leaf_if_needed(cached_leaf, k, v, *this);
-      // TODO(laurynas): consider creating new lower version and replacing
-      // contents, to enable replacing parent write unlock with parent unlock
       auto new_node{
           olc_inode_4::create(*this, existing_key, remaining_key, depth)};
 

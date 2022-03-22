@@ -20,8 +20,7 @@ class QSBR : public ::testing::Test {
  public:
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   ~QSBR() override {
-    if (unodb::this_thread().is_qsbr_paused())
-      unodb::this_thread().qsbr_resume();
+    if (is_qsbr_paused()) unodb::this_thread().qsbr_resume();
     unodb::this_thread().quiescent();
     unodb::test::expect_idle_qsbr();
   }
@@ -30,17 +29,112 @@ class QSBR : public ::testing::Test {
  protected:
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
   QSBR() {
-    if (unodb::this_thread().is_qsbr_paused())
-      unodb::this_thread().qsbr_resume();
+    if (is_qsbr_paused()) unodb::this_thread().qsbr_resume();
     unodb::test::expect_idle_qsbr();
     unodb::qsbr::instance().reset_stats();
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  [[nodiscard]] static auto get_qsbr_thread_count() noexcept {
-    return unodb::qsbr_state::get_thread_count(
-        unodb::qsbr::instance().get_state());
+  // Thread operation wrappers
+
+  static void join(unodb::qsbr_thread &thread) {
+    unodb::test::must_not_allocate([&thread]() { thread.join(); });
   }
+
+  // QSBR operation wrappers
+ private:
+  template <typename F>
+  [[nodiscard]] static auto getter_must_not_allocate(F f) noexcept(
+      noexcept(f())) {
+    std::invoke_result_t<F> result;
+    unodb::test::must_not_allocate(
+        [&]() noexcept(noexcept(f())) { result = f(); });
+    return result;
+  }
+
+  [[nodiscard]] static auto get_qsbr_state() noexcept {
+    return getter_must_not_allocate(
+        []() noexcept { return unodb::qsbr::instance().get_state(); });
+  }
+
+ protected:
+  [[nodiscard]] static auto get_qsbr_thread_count() noexcept {
+    return getter_must_not_allocate([]() noexcept {
+      return unodb::qsbr_state::get_thread_count(get_qsbr_state());
+    });
+  }
+
+  [[nodiscard]] static auto get_qsbr_threads_in_previous_epoch() noexcept {
+    return getter_must_not_allocate([]() noexcept {
+      return unodb::qsbr_state::get_threads_in_previous_epoch(get_qsbr_state());
+    });
+  }
+
+  [[nodiscard]] static bool is_qsbr_paused() noexcept {
+    return getter_must_not_allocate(
+        []() noexcept { return unodb::this_thread().is_qsbr_paused(); });
+  }
+
+  static void qsbr_pause() {
+    unodb::test::must_not_allocate([]() { unodb::this_thread().qsbr_pause(); });
+  }
+
+  static void qsbr_reset_stats() {
+    unodb::test::must_not_allocate(
+        [] { unodb::qsbr::instance().reset_stats(); });
+  }
+
+  static auto qsbr_get_max_backlog_bytes() noexcept {
+    return getter_must_not_allocate([]() noexcept {
+      return unodb::qsbr::instance().get_max_backlog_bytes();
+    });
+  }
+
+  static auto qsbr_get_mean_backlog_bytes() noexcept {
+    return getter_must_not_allocate([]() noexcept {
+      return unodb::qsbr::instance().get_mean_backlog_bytes();
+    });
+  }
+
+  static auto qsbr_get_epoch_callback_count_max() noexcept {
+    return getter_must_not_allocate([]() noexcept {
+      return unodb::qsbr::instance().get_epoch_callback_count_max();
+    });
+  }
+
+  static auto qsbr_get_epoch_callback_count_variance() noexcept {
+    return getter_must_not_allocate([]() noexcept {
+      return unodb::qsbr::instance().get_epoch_callback_count_variance();
+    });
+  }
+
+  static auto
+  qsbr_get_mean_quiescent_states_per_thread_between_epoch_changes() noexcept {
+    return getter_must_not_allocate([]() noexcept {
+      return unodb::qsbr::instance()
+          .get_mean_quiescent_states_per_thread_between_epoch_changes();
+    });
+  }
+
+  static auto qsbr_previous_interval_orphaned_requests_empty() noexcept {
+    return getter_must_not_allocate([]() noexcept {
+      return unodb::qsbr::instance()
+          .previous_interval_orphaned_requests_empty();
+    });
+  }
+
+  static auto qsbr_current_interval_orphaned_requests_empty() noexcept {
+    return getter_must_not_allocate([]() noexcept {
+      return unodb::qsbr::instance().current_interval_orphaned_requests_empty();
+    });
+  }
+
+  static auto qsbr_get_epoch_change_count() noexcept {
+    return getter_must_not_allocate([]() noexcept {
+      return unodb::qsbr::instance().get_epoch_change_count();
+    });
+  }
+
   // Epochs
 
   void mark_epoch() noexcept {
@@ -126,14 +220,14 @@ UNODB_START_TESTS()
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
 TEST_F(QSBR, SingleThreadQuitPaused) {
-  UNODB_ASSERT_FALSE(unodb::this_thread().is_qsbr_paused());
-  unodb::this_thread().qsbr_pause();
-  UNODB_ASSERT_TRUE(unodb::this_thread().is_qsbr_paused());
+  UNODB_ASSERT_FALSE(is_qsbr_paused());
+  qsbr_pause();
+  UNODB_ASSERT_TRUE(is_qsbr_paused());
 }
 
 TEST_F(QSBR, SingleThreadPauseResume) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
@@ -143,15 +237,15 @@ TEST_F(QSBR, TwoThreads) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
   unodb::qsbr_thread second_thread(
       []() noexcept { UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2); });
-  second_thread.join();
+  join(second_thread);
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 TEST_F(QSBR, TwoThreadsSecondQuitPaused) {
-  unodb::qsbr_thread second_thread([]() { unodb::this_thread().qsbr_pause(); });
-  second_thread.join();
+  unodb::qsbr_thread second_thread([] { qsbr_pause(); });
+  join(second_thread);
 }
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
@@ -159,14 +253,14 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TEST_F(QSBR, TwoThreadsSecondPaused) {
   unodb::qsbr_thread second_thread([] {
     UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2);
-    UNODB_ASSERT_FALSE(unodb::this_thread().is_qsbr_paused());
-    unodb::this_thread().qsbr_pause();
-    UNODB_ASSERT_TRUE(unodb::this_thread().is_qsbr_paused());
+    UNODB_ASSERT_FALSE(is_qsbr_paused());
+    qsbr_pause();
+    UNODB_ASSERT_TRUE(is_qsbr_paused());
     UNODB_EXPECT_EQ(get_qsbr_thread_count(), 1);
     unodb::this_thread().qsbr_resume();
     UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2);
   });
-  second_thread.join();
+  join(second_thread);
 }
 
 TEST_F(QSBR, TwoThreadsFirstPaused) {
@@ -177,10 +271,10 @@ TEST_F(QSBR, TwoThreadsFirstPaused) {
   });
 
   thread_syncs[0].wait();
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
   thread_syncs[1].notify();
-  second_thread.join();
+  join(second_thread);
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
@@ -190,48 +284,48 @@ TEST_F(QSBR, TwoThreadsBothPaused) {
   unodb::qsbr_thread second_thread([] {
     UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2);
     thread_syncs[0].notify();
-    unodb::this_thread().qsbr_pause();
+    qsbr_pause();
     thread_syncs[1].wait();
     UNODB_EXPECT_EQ(get_qsbr_thread_count(), 0);
     unodb::this_thread().qsbr_resume();
   });
   thread_syncs[0].wait();
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
   thread_syncs[1].notify();
-  second_thread.join();
+  join(second_thread);
   unodb::this_thread().qsbr_resume();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, TwoThreadsSequential) {
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::qsbr_thread second_thread(
       []() noexcept { UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1); });
-  second_thread.join();
+  join(second_thread);
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, TwoThreadsDefaultCtor) {
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
   unodb::qsbr_thread second_thread{};
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   second_thread = unodb::qsbr_thread{
       []() noexcept { UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1); }};
-  second_thread.join();
+  join(second_thread);
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
 }
 
 TEST_F(QSBR, SecondThreadAddedWhileFirstPaused) {
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
 
   unodb::qsbr_thread second_thread(
       []() noexcept { UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1); });
-  second_thread.join();
+  join(second_thread);
 
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
@@ -239,7 +333,7 @@ TEST_F(QSBR, SecondThreadAddedWhileFirstPaused) {
 }
 
 TEST_F(QSBR, SecondThreadAddedWhileFirstPausedBothRun) {
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
 
   unodb::qsbr_thread second_thread([] {
@@ -251,12 +345,12 @@ TEST_F(QSBR, SecondThreadAddedWhileFirstPausedBothRun) {
   unodb::this_thread().qsbr_resume();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 2);
   thread_syncs[1].notify();
-  second_thread.join();
+  join(second_thread);
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
 TEST_F(QSBR, ThreeThreadsInitialPaused) {
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::qsbr_thread second_thread([] {
     UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
@@ -269,8 +363,8 @@ TEST_F(QSBR, ThreeThreadsInitialPaused) {
     UNODB_ASSERT_EQ(get_qsbr_thread_count(), 2);
     thread_syncs[1].notify();
   });
-  second_thread.join();
-  third_thread.join();
+  join(second_thread);
+  join(third_thread);
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::this_thread().qsbr_resume();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
@@ -311,7 +405,7 @@ TEST_F(QSBR, ActivePointersBeforePause) {
   auto *ptr = allocate();
   active_pointer_ops(ptr);
   qsbr_deallocate(ptr);
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
 }
 
 #ifndef NDEBUG
@@ -345,7 +439,7 @@ TEST_F(QSBR, TwoThreadEpochChangesSecondStartsQuiescent) {
   check_epoch_advanced();
 
   thread_syncs[1].notify();
-  second_thread.join();
+  join(second_thread);
 }
 
 TEST_F(QSBR, TwoThreadEpochChanges) {
@@ -375,7 +469,7 @@ TEST_F(QSBR, TwoThreadEpochChanges) {
 
   check_epoch_advanced();
 
-  second_thread.join();
+  join(second_thread);
 }
 
 TEST_F(QSBR, QuiescentThreadQuittingDoesNotAdvanceEpoch) {
@@ -417,15 +511,15 @@ TEST_F(QSBR, QuiescentThreadQuittingDoesNotAdvanceEpoch) {
   unodb::this_thread().quiescent();
 
   thread_syncs[3].notify();  // 4 ->
-  third_thread.join();       // 5 <-
+  join(third_thread);        // 5 <-
 
   thread_syncs[5].notify();  // 6 ->
-  fourth_thread.join();      // 7 <-
+  join(fourth_thread);       // 7 <-
 
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
 
   thread_syncs[1].notify();  // 8 ->
-  second_thread.join();
+  join(second_thread);
 
   check_epoch_advanced();
 }
@@ -467,7 +561,7 @@ TEST_F(QSBR, TwoThreadAllocations) {
   thread_syncs[0].wait();
 
   thread_syncs[1].notify();
-  second_thread.join();
+  join(second_thread);
 }
 
 TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
@@ -489,7 +583,7 @@ TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
   touch_memory(ptr);
 
   thread_syncs[1].notify();  // 2 ->
-  second_thread.join();
+  join(second_thread);
 
   touch_memory(ptr);
 
@@ -497,7 +591,7 @@ TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
 }
 
 TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
 
   unodb::qsbr_thread second_thread([] {
     auto *ptr = static_cast<char *>(allocate());
@@ -539,7 +633,7 @@ TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
   unodb::this_thread().quiescent();
   thread_syncs[1].notify();
 
-  second_thread.join();
+  join(second_thread);
 }
 
 TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
@@ -558,7 +652,7 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
   touch_memory(ptr);
 
   thread_syncs[1].notify();  // 2 ->
-  second_thread.join();
+  join(second_thread);
 
   touch_memory(ptr);
 
@@ -580,7 +674,7 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentStateBefore1stThreadQState) {
   touch_memory(ptr);
 
   thread_syncs[1].notify();
-  second_thread.join();
+  join(second_thread);
 
   unodb::this_thread().quiescent();
 }
@@ -598,7 +692,7 @@ TEST_F(QSBR, ToSingleThreadedModeDeallocationsByRemainingThread) {
   qsbr_deallocate(ptr);
 
   thread_syncs[1].notify();  // 2 ->
-  second_thread.join();
+  join(second_thread);
 
   unodb::this_thread().quiescent();
 }
@@ -659,7 +753,7 @@ TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
   check_epoch_advanced();
 
   thread_syncs[1].notify();
-  second_thread.join();
+  join(second_thread);
 }
 
 TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
@@ -694,7 +788,7 @@ TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   touch_memory(ptr2);
 
   thread_syncs[1].notify();  // 4 ->
-  second_thread.join();
+  join(second_thread);
 
   touch_memory(ptr);
   touch_memory(ptr2);
@@ -728,11 +822,11 @@ TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
     thread_syncs[0].notify();  // 5 ->
     thread_syncs[1].wait();    // 6 <-
 
-    unodb::this_thread().qsbr_pause();
-
-    thread_syncs[0].notify();  // 7 ->
+    qsbr_pause();
 
     unodb::this_thread().qsbr_resume();
+
+    thread_syncs[0].notify();  // 7 ->
   }};
 
   thread_syncs[0].wait();  // 1 <-
@@ -755,12 +849,12 @@ TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
   // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
   touch_memory(ptr_1_2);
 
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
 
   thread_syncs[1].notify();  // 6 ->
   thread_syncs[0].wait();    // 7 <-
 
-  second_thread.join();
+  join(second_thread);
 
   unodb::this_thread().qsbr_resume();
 }
@@ -768,8 +862,13 @@ TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
 TEST_F(QSBR, TwoThreadsDeallocateBeforeQuittingPointerStaysLive) {
   auto *ptr = static_cast<char *>(allocate());
 
-  unodb::qsbr_thread second_thread{[ptr] { qsbr_deallocate(ptr); }};
-  second_thread.join();
+  unodb::qsbr_thread second_thread{[ptr] {
+    qsbr_deallocate(ptr);
+    thread_syncs[0].notify();  // 1 ->
+  }};
+
+  thread_syncs[0].wait();  // 1 <-
+  join(second_thread);
 
   touch_memory(ptr);
 
@@ -806,7 +905,7 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
 
   thread_syncs[1].notify();  // 4 ->
 
-  second_thread.join();
+  join(second_thread);
 }
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
@@ -821,6 +920,8 @@ TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
     thread_syncs[1].wait();    // 2 <-
 
     qsbr_deallocate(ptr);
+
+    thread_syncs[0].notify();  // 3 ->
   }};
 
   thread_syncs[0].wait();  // 1 <-
@@ -835,8 +936,9 @@ TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
     unodb::qsbr_ptr<char> active_ptr{ptr};
 
     thread_syncs[1].notify();  // 2 ->
+    thread_syncs[0].wait();    // 3 <-
 
-    second_thread.join();
+    join(second_thread);
 
     check_epoch_advanced();
 
@@ -866,31 +968,26 @@ TEST_F(QSBR, ResetStats) {
   unodb::this_thread().quiescent();
 
   thread_syncs[1].notify();  // 2 ->
-  second_thread.join();
+  join(second_thread);
 
-  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 2);
-  UNODB_ASSERT_NEAR(unodb::qsbr::instance().get_mean_backlog_bytes(), 0.666667,
+  UNODB_ASSERT_EQ(qsbr_get_max_backlog_bytes(), 2);
+  UNODB_ASSERT_NEAR(qsbr_get_mean_backlog_bytes(), 0.666667, 0.00001);
+  UNODB_ASSERT_EQ(qsbr_get_epoch_callback_count_max(), 2);
+  UNODB_ASSERT_NEAR(qsbr_get_epoch_callback_count_variance(), 0.888889,
                     0.00001);
-  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 2);
-  UNODB_ASSERT_NEAR(unodb::qsbr::instance().get_epoch_callback_count_variance(),
-                    0.888889, 0.00001);
   UNODB_ASSERT_EQ(
-      unodb::qsbr::instance()
-          .get_mean_quiescent_states_per_thread_between_epoch_changes(),
-      1.0);
+      qsbr_get_mean_quiescent_states_per_thread_between_epoch_changes(), 1.0);
 
   unodb::this_thread().quiescent();
 
-  unodb::qsbr::instance().reset_stats();
+  qsbr_reset_stats();
 
-  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 0);
-  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 0);
-  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 0);
-  UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(),
-                  0);
+  UNODB_ASSERT_EQ(qsbr_get_max_backlog_bytes(), 0);
+  UNODB_ASSERT_EQ(qsbr_get_mean_backlog_bytes(), 0);
+  UNODB_ASSERT_EQ(qsbr_get_epoch_callback_count_max(), 0);
+  UNODB_ASSERT_EQ(qsbr_get_epoch_callback_count_variance(), 0);
   UNODB_ASSERT_TRUE(std::isnan(
-      unodb::qsbr::instance()
-          .get_mean_quiescent_states_per_thread_between_epoch_changes()));
+      qsbr_get_mean_quiescent_states_per_thread_between_epoch_changes()));
 }
 
 TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
@@ -899,24 +996,17 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
 
     thread_syncs[0].notify();  // 1 -> & v
 
-    UNODB_ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 0);
-    UNODB_ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 0);
-    UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 0);
-    UNODB_ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(),
-                    0);
+    UNODB_ASSERT_EQ(qsbr_get_max_backlog_bytes(), 0);
+    UNODB_ASSERT_EQ(qsbr_get_mean_backlog_bytes(), 0);
+    UNODB_ASSERT_EQ(qsbr_get_epoch_callback_count_max(), 0);
+    UNODB_ASSERT_EQ(qsbr_get_epoch_callback_count_variance(), 0);
     const volatile auto force_load [[maybe_unused]] =
-        unodb::qsbr::instance()
-            .get_mean_quiescent_states_per_thread_between_epoch_changes();
-    UNODB_ASSERT_TRUE(
-        unodb::qsbr::instance().previous_interval_orphaned_requests_empty());
-    UNODB_ASSERT_TRUE(
-        unodb::qsbr::instance().current_interval_orphaned_requests_empty());
-    const auto current_qsbr_state = unodb::qsbr::instance().get_state();
-    UNODB_ASSERT_LE(
-        unodb::qsbr_state::get_threads_in_previous_epoch(current_qsbr_state),
-        2);
+        qsbr_get_mean_quiescent_states_per_thread_between_epoch_changes();
+    UNODB_ASSERT_TRUE(qsbr_previous_interval_orphaned_requests_empty());
+    UNODB_ASSERT_TRUE(qsbr_current_interval_orphaned_requests_empty());
+    UNODB_ASSERT_LE(get_qsbr_threads_in_previous_epoch(), 2);
     const volatile auto force_load3 [[maybe_unused]] =
-        unodb::qsbr::instance().get_epoch_change_count();
+        qsbr_get_epoch_change_count();
   }};
 
   thread_syncs[0].wait();  // 1 <-
@@ -924,7 +1014,7 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
   unodb::this_thread().quiescent();
   unodb::this_thread().quiescent();
 
-  second_thread.join();
+  join(second_thread);
 }
 
 TEST_F(QSBR, DeallocEpochAssert) {
@@ -958,14 +1048,14 @@ TEST_F(QSBR, DeallocEpochAssert) {
   qsbr_deallocate(ptr);
 
   thread_syncs[1].notify();  // 5 ->
-  second_thread.join();
+  join(second_thread);
 
   unodb::this_thread().quiescent();
 
   thread_syncs[2].notify();  // 6 ->
-  third_thread.join();
+  join(third_thread);
 
-  unodb::this_thread().qsbr_pause();
+  qsbr_pause();
 }
 
 TEST_F(QSBR, Dump) {

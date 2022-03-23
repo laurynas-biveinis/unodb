@@ -26,7 +26,7 @@ jobs:
           command: |
             export CC=gcc-11
             export CXX=g++-11
-            cmake ..
+            cmake .. -DCMAKE_BUILD_TYPE=Debug
       - run:
           name: Build
           working_directory: build

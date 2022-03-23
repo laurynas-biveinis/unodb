@@ -86,6 +86,14 @@ class allocation_failure_injector final {
 #endif  // #ifndef NDEBUG
 };
 
+template <typename TestAction>
+void must_not_allocate(TestAction test_action) noexcept(
+    noexcept(test_action())) {
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+  test_action();
+  unodb::test::allocation_failure_injector::reset();
+}
+
 }  // namespace unodb::test
 
 namespace unodb::detail {

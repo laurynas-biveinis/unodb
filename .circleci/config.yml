@@ -15,7 +15,7 @@ jobs:
             sudo apt-get install -y boost1.74 g++-11
       - run:
           name: Create build environment
-          run: mkdir build
+          command: mkdir build
       - run:
           name: Configure CMake
           working-directory: build
@@ -26,12 +26,17 @@ jobs:
       - run:
           name: Build
           working-directory: build
-          run: make -j3
+          command: make -j3
       - run:
           name: Correctness test
           working-directory: build
-          run: ctest -j3 -V
+          command: ctest -j3 -V
       - run:
           name: Benchmark correctness test
           working-directory: build
-          run: make quick_benchmarks
+          command: make quick_benchmarks
+
+workflows:
+  build:
+    jobs:
+      - build

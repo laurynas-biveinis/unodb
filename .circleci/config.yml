@@ -21,23 +21,22 @@ jobs:
           command: mkdir build
       - run:
           name: Configure CMake
-          working-directory: build
+          working_directory: build
           command: |
             export CC=gcc-11
             export CXX=g++-11
-            pwd
             cmake ..
       - run:
           name: Build
-          working-directory: build
+          working_directory: build
           command: make -j3
       - run:
           name: Correctness test
-          working-directory: build
+          working_directory: build
           command: ctest -j3 -V
       - run:
           name: Benchmark correctness test
-          working-directory: build
+          working_directory: build
           command: make quick_benchmarks
 
 workflows:

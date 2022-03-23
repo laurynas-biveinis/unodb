@@ -1,0 +1,38 @@
+version: 2.1
+
+jobs:
+  build:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
+    steps:
+      - checkout
+      - run:
+          name: Installing dependencies
+          command: |
+            sudo add-apt-repository -y 'ppa:mhier/libboost-latest'
+            sudo apt-get update
+            sudo apt-get install -y boost1.74 g++-11
+      - run:
+          name: Create build environment
+          run: mkdir build
+      - run:
+          name: Configure CMake
+          working-directory: build
+          command: |
+            export CC=gcc-11
+            export CXX=g++-11
+            cmake ..
+      - run:
+          name: Build
+          working-directory: build
+          run: make -j3
+      - run:
+          name: Correctness test
+          working-directory: build
+          run: ctest -j3 -V
+      - run:
+          name: Benchmark correctness test
+          working-directory: build
+          run: make quick_benchmarks
+

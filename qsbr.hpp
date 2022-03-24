@@ -996,13 +996,13 @@ inline void qsbr_per_thread::qsbr_resume() {
   UNODB_DETAIL_ASSERT(previous_interval_requests_empty());
   UNODB_DETAIL_ASSERT(current_interval_requests_empty());
 
-  last_seen_quiescent_state_epoch = qsbr::instance().register_thread();
-  last_seen_epoch = last_seen_quiescent_state_epoch;
-
   previous_interval_orphan_list_node =
       std::make_unique<detail::dealloc_vector_list_node>();
   current_interval_orphan_list_node =
       std::make_unique<detail::dealloc_vector_list_node>();
+
+  last_seen_quiescent_state_epoch = qsbr::instance().register_thread();
+  last_seen_epoch = last_seen_quiescent_state_epoch;
   quiescent_states_since_epoch_change = 0;
   paused = false;
 }

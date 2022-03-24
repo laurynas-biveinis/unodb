@@ -29,7 +29,8 @@ jobs:
           command: |
             export CC=gcc-11
             export CXX=g++-11
-            cmake .. -DCMAKE_BUILD_TYPE=<< parameters.build_type >>
+            cmake .. -DCMAKE_BUILD_TYPE=<< parameters.build_type >> \
+              -DFATAL_WARNINGS=ON
       - run:
           name: Build
           working_directory: build

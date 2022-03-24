@@ -16,7 +16,7 @@ jobs:
             sudo add-apt-repository -y 'ppa:ubuntu-toolchain-r/test'
             sudo add-apt-repository -y 'ppa:mhier/libboost-latest'
             sudo apt-get update
-            sudo apt-get install -y boost1.74 g++-11
+            sudo apt-get install -y boost1.74 g++-11 valgrind
       - run:
           name: Create build environment
           command: mkdir build
@@ -39,6 +39,10 @@ jobs:
           name: Benchmark correctness test
           working_directory: build
           command: make quick_benchmarks
+      - run:
+          name: Valgrind test
+          working_directory: build
+          command: make valgrind
 
 workflows:
   build:

@@ -2,6 +2,9 @@ version: 2.1
 
 jobs:
   build:
+    parameters:
+      build_type:
+        type: string
     machine:
       image: ubuntu-2004:202101-01
     resource_class: arm.medium
@@ -26,7 +29,7 @@ jobs:
           command: |
             export CC=gcc-11
             export CXX=g++-11
-            cmake .. -DCMAKE_BUILD_TYPE=Debug
+            cmake .. -DCMAKE_BUILD_TYPE=<< parameters.build_type >>
       - run:
           name: Build
           working_directory: build
@@ -47,4 +50,9 @@ jobs:
 workflows:
   build:
     jobs:
-      - build
+      - build:
+          name: Debug
+          build_type: Debug
+      - build:
+          name: Release
+          build_type: Release

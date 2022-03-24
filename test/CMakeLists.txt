@@ -29,7 +29,8 @@ common_target_properties(db_test_utils)
 target_link_libraries(db_test_utils PUBLIC unodb gtest_main gmock_main)
 set_clang_tidy_options(db_test_utils "${DO_CLANG_TIDY}")
 
-add_library(qsbr_test_utils STATIC qsbr_test_utils.hpp qsbr_test_utils.cpp)
+add_library(qsbr_test_utils STATIC qsbr_test_utils.hpp qsbr_test_utils.cpp
+  qsbr_gtest_utils.hpp qsbr_gtest_utils.cpp)
 common_target_properties(qsbr_test_utils)
 target_link_libraries(qsbr_test_utils PUBLIC gtest_main)
 target_link_libraries(qsbr_test_utils PRIVATE unodb_qsbr)
@@ -65,6 +66,8 @@ if (NOT MSVC AND NOT SANITIZE_ADDRESS AND NOT SANITIZE_THREAD
     AND NOT ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" OR
         ${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang") AND STATIC_ANALYSIS))
   add_db_test_target(test_art_oom)
+  add_test_target(test_qsbr_oom)
+  target_link_libraries(test_qsbr_oom PRIVATE qsbr_test_utils)
 endif()
 target_link_libraries(test_art_concurrency PRIVATE qsbr_test_utils)
 

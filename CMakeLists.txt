@@ -417,7 +417,7 @@ else()
   message(STATUS
     "cppcheck found: ${CPPCHECK_EXE}, --version: ${CPPCHECK_VERSION_OUTPUT}")
   set(DO_CPPCHECK "${CPPCHECK_EXE}"
-    "--enable=warning,style,performance,portability" "-D__x86_64"
+    "--enable=warning,style,performance,portability" "-D__x86_64" "-D__GLIBCXX__"
     "--inline-suppr")
   list(APPEND DO_CPPCHECK "${CPPCHECK_ARGS}")
 endif()

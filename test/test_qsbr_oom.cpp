@@ -15,28 +15,66 @@
 
 namespace {
 
-using QSBROOMTest = unodb::test::QSBRTestBase;
+#ifdef __GLIBCXX__
+constexpr auto std_thread_thread_alloc_count = 1;
+#elif defined(__APPLE__)
+constexpr auto std_thread_thread_alloc_count = 3;
+#else
+#error Needs porting
+#endif
 
-}  // namespace
+template <typename Init, typename TestOOM, typename AfterOOM,
+          typename TestSuccess, typename AfterSuccess>
+void oom_test(unsigned fail_limit, Init init, TestOOM test_oom,
+              AfterOOM after_oom, TestSuccess test_success,
+              AfterSuccess after_success) {
+  init();
+  unsigned fail_n;
+  for (fail_n = 1; fail_n < fail_limit; ++fail_n) {
+    unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+    UNODB_ASSERT_THROW(test_oom(), std::bad_alloc);
+    unodb::test::allocation_failure_injector::reset();
+    after_oom();
+  }
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+  test_success();
+  unodb::test::allocation_failure_injector::reset();
+  after_success();
+}
+
+using QSBROOMTest = unodb::test::QSBRTestBase;
 
 UNODB_START_TESTS()
 
 TEST_F(QSBROOMTest, Resume) {
-  qsbr_pause();
-  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
-  unsigned fail_n;
-  for (fail_n = 1; fail_n < 3; ++fail_n) {
-    unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
-    UNODB_ASSERT_THROW(unodb::this_thread().qsbr_resume(), std::bad_alloc);
-    unodb::test::allocation_failure_injector::reset();
-    UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
-  }
-  unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
-  unodb::this_thread().qsbr_resume();
-  unodb::test::allocation_failure_injector::reset();
-  UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
+  oom_test(
+      3,
+      []() noexcept {
+        qsbr_pause();
+        UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
+      },
+      [] { unodb::this_thread().qsbr_resume(); },
+      []() noexcept { UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0); },
+      [] { unodb::this_thread().qsbr_resume(); },
+      []() noexcept { UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1); });
+}
+
+TEST_F(QSBROOMTest, StartThread) {
+  unodb::qsbr_thread second_thread;
+  oom_test(
+      4 + std_thread_thread_alloc_count,
+      []() noexcept { UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1); },
+      [] { unodb::qsbr_thread oom_thread{[]() noexcept {}}; },
+      []() noexcept { UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1); },
+      [&second_thread] {
+        second_thread = unodb::qsbr_thread{
+            []() noexcept { UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2); }};
+      },
+      [&second_thread] { join(second_thread); });
 }
 
 UNODB_END_TESTS()
+
+}  // namespace
 
 #endif  // #ifndef NDEBUG

@@ -562,6 +562,14 @@ class [[nodiscard]] qsbr_per_thread final {
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
   thread_local static std::unique_ptr<qsbr_per_thread> current_thread_instance;
 
+  std::unique_ptr<detail::dealloc_vector_list_node>
+      previous_interval_orphan_list_node{
+          std::make_unique<detail::dealloc_vector_list_node>()};
+
+  std::unique_ptr<detail::dealloc_vector_list_node>
+      current_interval_orphan_list_node{
+          std::make_unique<detail::dealloc_vector_list_node>()};
+
   std::uint64_t quiescent_states_since_epoch_change{0};
   qsbr_epoch last_seen_quiescent_state_epoch;
 
@@ -573,14 +581,6 @@ class [[nodiscard]] qsbr_per_thread final {
   std::size_t current_interval_total_dealloc_size{0};
 
   bool paused{true};
-
-  std::unique_ptr<detail::dealloc_vector_list_node>
-      previous_interval_orphan_list_node{
-          std::make_unique<detail::dealloc_vector_list_node>()};
-
-  std::unique_ptr<detail::dealloc_vector_list_node>
-      current_interval_orphan_list_node{
-          std::make_unique<detail::dealloc_vector_list_node>()};
 
   void advance_last_seen_epoch(bool single_thread_mode,
                                qsbr_epoch new_seen_epoch);

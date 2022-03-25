@@ -68,31 +68,31 @@ class QSBRTestBase : public ::testing::Test {
         [] { unodb::qsbr::instance().reset_stats(); });
   }
 
-  static auto qsbr_get_max_backlog_bytes() noexcept {
+  [[nodiscard]] static auto qsbr_get_max_backlog_bytes() noexcept {
     return getter_must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().get_max_backlog_bytes();
     });
   }
 
-  static auto qsbr_get_mean_backlog_bytes() noexcept {
+  [[nodiscard]] static auto qsbr_get_mean_backlog_bytes() noexcept {
     return getter_must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().get_mean_backlog_bytes();
     });
   }
 
-  static auto qsbr_get_epoch_callback_count_max() noexcept {
+  [[nodiscard]] static auto qsbr_get_epoch_callback_count_max() noexcept {
     return getter_must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().get_epoch_callback_count_max();
     });
   }
 
-  static auto qsbr_get_epoch_callback_count_variance() noexcept {
+  [[nodiscard]] static auto qsbr_get_epoch_callback_count_variance() noexcept {
     return getter_must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().get_epoch_callback_count_variance();
     });
   }
 
-  static auto
+  [[nodiscard]] static auto
   qsbr_get_mean_quiescent_states_per_thread_between_epoch_changes() noexcept {
     return getter_must_not_allocate([]() noexcept {
       return unodb::qsbr::instance()
@@ -100,20 +100,22 @@ class QSBRTestBase : public ::testing::Test {
     });
   }
 
-  static auto qsbr_previous_interval_orphaned_requests_empty() noexcept {
+  [[nodiscard]] static auto
+  qsbr_previous_interval_orphaned_requests_empty() noexcept {
     return getter_must_not_allocate([]() noexcept {
       return unodb::qsbr::instance()
           .previous_interval_orphaned_requests_empty();
     });
   }
 
-  static auto qsbr_current_interval_orphaned_requests_empty() noexcept {
+  [[nodiscard]] static auto
+  qsbr_current_interval_orphaned_requests_empty() noexcept {
     return getter_must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().current_interval_orphaned_requests_empty();
     });
   }
 
-  static auto qsbr_get_epoch_change_count() noexcept {
+  [[nodiscard]] static auto qsbr_get_epoch_change_count() noexcept {
     return getter_must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().get_epoch_change_count();
     });

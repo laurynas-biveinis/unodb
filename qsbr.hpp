@@ -848,8 +848,6 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
     return;
   }
 
-  current_interval_total_dealloc_size += size;
-
   current_interval_dealloc_requests.emplace_back(pointer
 #ifndef NDEBUG
                                                  ,
@@ -857,6 +855,8 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
                                                  std::move(dealloc_callback)
 #endif
   );
+
+  current_interval_total_dealloc_size += size;
 }
 
 inline void qsbr_per_thread::advance_last_seen_epoch(

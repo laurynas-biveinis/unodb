@@ -9,6 +9,9 @@ jobs:
       compiler:
         type: enum
         enum: ["clang", "gcc"]
+      asan:
+        type: boolean
+        default: false
     machine:
       image: ubuntu-2004:202101-01
     resource_class: arm.medium
@@ -33,7 +36,7 @@ jobs:
               sudo add-apt-repository -y 'ppa:ubuntu-toolchain-r/test'
             fi
             sudo apt-get update
-            sudo apt-get install -y boost1.74 valgrind
+            sudo apt-get install -y boost1.74
             if [[ $COMPILER == "clang" ]]; then
               sudo apt-get install -y clang-13 clang-tidy-13
               if [[ $BUILD_TYPE == "Release" ]]; then
@@ -51,6 +54,7 @@ jobs:
           command: |
             readonly BUILD_TYPE=<< parameters.build_type >>
             readonly COMPILER=<< parameters.compiler >>
+            readonly ASAN=<< parameters.asan >>
             if [[ $COMPILER == "gcc" ]]; then
               export CC=gcc-11
               export CXX=g++-11
@@ -70,7 +74,7 @@ jobs:
                   "-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-13")
             fi
             cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFATAL_WARNINGS=ON \
-              "${EXTRA_CMAKE_ARGS[@]}"
+              -DSANITIZE_ADDRESS=$ASAN "${EXTRA_CMAKE_ARGS[@]}"
       - run:
           name: Build
           working_directory: build
@@ -79,14 +83,27 @@ jobs:
           name: Correctness test
           working_directory: build
           command: ctest -j3 -V
-      - run:
-          name: Benchmark correctness test
-          working_directory: build
-          command: make quick_benchmarks
-      - run:
-          name: Valgrind test
-          working_directory: build
-          command: make valgrind
+      - when:
+          condition:
+            not:
+              and:
+                - << parameters.asan >>
+                - equal: [ "Debug", << parameters.build_type >> ]
+          steps:
+            - run:
+                name: Benchmark correctness test
+                working_directory: build
+                command: make quick_benchmarks
+      - when:
+          condition:
+            not: << parameters.asan >>
+          steps:
+            - run:
+                name: Valgrind test
+                working_directory: build
+                command: |
+                  sudo apt-get install -y valgrind
+                  make valgrind
 
 workflows:
   build:
@@ -96,14 +113,34 @@ workflows:
           build_type: Debug
           compiler: gcc
       - build:
+          name: GCC 11 Debug with ASan
+          build_type: Debug
+          compiler: gcc
+          asan: true
+      - build:
           name: GCC 11 Release
           build_type: Release
           compiler: gcc
+      - build:
+          name: GCC 11 Release with ASan
+          build_type: Release
+          compiler: gcc
+          asan: true
       - build:
           name: clang 13 Debug
           build_type: Debug
           compiler: clang
       - build:
+          name: clang 13 Debug with ASan
+          build_type: Debug
+          compiler: clang
+          asan: true
+      - build:
           name: clang 13 Release
           build_type: Release
           compiler: clang
+      - build:
+          name: clang 13 Release with ASan
+          build_type: Release
+          compiler: clang
+          asan: true

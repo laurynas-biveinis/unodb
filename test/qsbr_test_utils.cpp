@@ -15,6 +15,8 @@ namespace unodb::test {
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 void expect_idle_qsbr() noexcept {
   const auto state = unodb::qsbr::instance().get_state();
+  UNODB_EXPECT_EQ(
+      unodb::this_thread().get_current_interval_total_dealloc_size(), 0);
   UNODB_EXPECT_TRUE(qsbr_state::single_thread_mode(state));
   UNODB_EXPECT_TRUE(
       unodb::qsbr::instance().previous_interval_orphaned_requests_empty());

@@ -119,8 +119,16 @@ void quiescent_state(std::size_t thread_i) {
     release_active_pointer(thread_i);
     return;
   }
+
   LOG(TRACE) << "Quiescent state";
+  const auto current_interval_total_dealloc_size_before =
+      unodb::this_thread().get_current_interval_total_dealloc_size();
   unodb::this_thread().quiescent();
+  const auto current_interval_total_dealloc_size_after =
+      unodb::this_thread().get_current_interval_total_dealloc_size();
+  ASSERT(current_interval_total_dealloc_size_before ==
+             current_interval_total_dealloc_size_after ||
+         current_interval_total_dealloc_size_after == 0);
 }
 
 void allocate_pointer(std::size_t thread_i) {
@@ -150,12 +158,30 @@ void deallocate_pointer(std::uint64_t *ptr) {
   ASSERT(!unodb::this_thread().is_qsbr_paused());
   ASSERT(*ptr == object_mem);
 
+  const auto current_interval_total_dealloc_size_before =
+      unodb::this_thread().get_current_interval_total_dealloc_size();
+
   unodb::this_thread().on_next_epoch_deallocate(ptr, sizeof(object_mem)
 #ifndef NDEBUG
                                                          ,
                                                 check_qsbr_pointer_on_dealloc
 #endif
   );
+
+  const auto current_interval_total_dealloc_size_after =
+      unodb::this_thread().get_current_interval_total_dealloc_size();
+  const auto single_thread_mode = unodb::qsbr_state::single_thread_mode(
+      unodb::qsbr::instance().get_state());
+  if (single_thread_mode) {
+    ASSERT(current_interval_total_dealloc_size_before ==
+               current_interval_total_dealloc_size_after ||
+           current_interval_total_dealloc_size_after == 0);
+  } else {
+    ASSERT(current_interval_total_dealloc_size_after > 0);
+    ASSERT(current_interval_total_dealloc_size_after == sizeof(object_mem) ||
+           (current_interval_total_dealloc_size_after ==
+            current_interval_total_dealloc_size_before + sizeof(object_mem)));
+  }
 }
 
 void deallocate_pointer(std::size_t thread_i) {

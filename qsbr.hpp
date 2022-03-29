@@ -527,6 +527,10 @@ class [[nodiscard]] qsbr_per_thread final {
     return current_interval_dealloc_requests.empty();
   }
 
+  [[nodiscard]] auto get_current_interval_total_dealloc_size() const noexcept {
+    return current_interval_total_dealloc_size;
+  }
+
   qsbr_per_thread(const qsbr_per_thread &) = delete;
   qsbr_per_thread(qsbr_per_thread &&) = delete;
   qsbr_per_thread &operator=(const qsbr_per_thread &) = delete;

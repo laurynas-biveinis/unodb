@@ -4,9 +4,11 @@ jobs:
   build:
     parameters:
       build_type:
-        type: string
+        type: enum
+        enum: ["Debug", "Release"]
       compiler:
-        type: string
+        type: enum
+        enum: ["clang", "gcc"]
     machine:
       image: ubuntu-2004:202101-01
     resource_class: arm.medium

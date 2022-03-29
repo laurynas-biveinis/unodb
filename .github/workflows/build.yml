@@ -35,50 +35,60 @@ jobs:
           - name: GCC 11 Release
             os: ubuntu-20.04
             BUILD_TYPE: Release
+            COMPILER: gcc
 
           - name: GCC 11 Release with ASan
             os: ubuntu-20.04
             BUILD_TYPE: Release
+            COMPILER: gcc
             SANITIZE_ADDRESS: ON
 
           - name: GCC 11 Release with TSan
             os: ubuntu-20.04
             BUILD_TYPE: Release
+            COMPILER: gcc
             SANITIZE_THREAD: ON
 
           - name: GCC 11 Release with UBSan
             os: ubuntu-20.04
             BUILD_TYPE: Release
+            COMPILER: gcc
             SANITIZE_UB: ON
 
           - name: GCC 11 Debug
             os: ubuntu-20.04
             BUILD_TYPE: Debug
+            COMPILER: gcc
 
           - name: GCC 11 Debug with ASan
             os: ubuntu-20.04
             BUILD_TYPE: Debug
+            COMPILER: gcc
             SANITIZE_ADDRESS: ON
 
           - name: GCC 11 Debug with TSan
             os: ubuntu-20.04
             BUILD_TYPE: Debug
+            COMPILER: gcc
             SANITIZE_THREAD: ON
 
           - name: GCC 11 Debug with UBSan
             os: ubuntu-20.04
             BUILD_TYPE: Debug
+            COMPILER: gcc
             SANITIZE_UB: ON
 
           - name: GCC 11 Release static analysis & cpplint
             os: ubuntu-20.04
             BUILD_TYPE: Release
+            COMPILER: gcc
             STATIC_ANALYSIS: ON
             CPPLINT: ON
 
           - name: GCC 11 Debug static analysis
             os: ubuntu-20.04
             BUILD_TYPE: Debug
+            COMPILER: gcc
             STATIC_ANALYSIS: ON
 
           - name: clang 13 Release
@@ -203,52 +213,47 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup dependencies for Linux
+      - name: Setup common dependencies for Linux
         run: |
-          COMPILER="${COMPILER:-$DEFAULT_COMPILER}"
           CPPLINT="${CPPLINT:-$DEFAULT_CPPLINT}"
-          SANITIZE_ADDRESS="${SANITIZE_ADDRESS:-$DEFAULT_SANITIZE_ADDRESS}"
-          SANITIZE_THREAD="${SANITIZE_THREAD:-$DEFAULT_SANITIZE_THREAD}"
-          SANITIZE_UB="${SANITIZE_UB:-$DEFAULT_SANITIZE_UB}"
-          STATIC_ANALYSIS="${STATIC_ANALYSIS:-$DEFAULT_STATIC_ANALYSIS}"
-          if [[ $COMPILER == "clang" ]]; then
-            curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
-            | sudo apt-key add -
-            echo 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main' \
-            | sudo tee -a /etc/apt/sources.list
-          fi
           sudo add-apt-repository -y 'ppa:mhier/libboost-latest'
           sudo apt-get update
           sudo apt-get install -y boost1.74 libc6-dev-i386
-          if [[ $SANITIZE_ADDRESS != "ON" && $SANITIZE_THREAD != "ON" \
-              && $SANITIZE_UB != "ON" && $STATIC_ANALYSIS != "ON" ]]; then
-            sudo apt-get install -y valgrind
-          fi
-          if [[ $COMPILER == "gcc" ]]; then
-            sudo add-apt-repository -y 'ppa:ubuntu-toolchain-r/test'
-            sudo apt-get update
-            sudo apt-get install -y g++-11
-          elif [[ $COMPILER == "clang" ]]; then
-            sudo apt-get install -y clang-13
-            if [[ $BUILD_TYPE == "Release" ]]; then
-              sudo apt-get install -y libomp5-13 llvm-13 lld-13
-            fi
-            if [[ $STATIC_ANALYSIS == "ON" ]]; then
-              sudo apt-get install -y clang-tools-13
-            else
-              sudo apt-get install -y clang-tidy-13
-            fi
-          fi
           if [[ $CPPLINT == "ON" ]]; then
             pip install cpplint
           fi
         if: runner.os == 'Linux'
 
+      - name: Setup dependencies for GCC
+        run: |
+          sudo add-apt-repository -y 'ppa:ubuntu-toolchain-r/test'
+          sudo apt-get update
+          sudo apt-get install -y g++-11
+        if: runner.os == 'Linux' && env.COMPILER == 'gcc'
+
+      - name: Setup dependencies for Linux LLVM
+        run: |
+          STATIC_ANALYSIS="${STATIC_ANALYSIS:-$DEFAULT_STATIC_ANALYSIS}"
+          curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
+            | sudo apt-key add -
+          echo 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main' \
+            | sudo tee -a /etc/apt/sources.list
+          sudo apt-get update
+          sudo apt-get install -y clang-13
+          if [[ $BUILD_TYPE == "Release" ]]; then
+            sudo apt-get install -y libomp5-13 llvm-13 lld-13
+          fi
+          if [[ $STATIC_ANALYSIS == "ON" ]]; then
+            sudo apt-get install -y clang-tools-13
+          else
+            sudo apt-get install -y clang-tidy-13
+          fi
+        if: runner.os == 'Linux' && env.COMPILER == 'clang'
+
       - name: Set up dependencies for macOS
         run: |
           CPPCHECK="${CPPCHECK:-$DEFAULT_CPPCHECK}"
           COVERAGE="${COVERAGE:-$DEFAULT_COVERAGE}"
-          COMPILER="${COMPILER:-$DEFAULT_COMPILER}"
           if [[ $COVERAGE == "ON" ]]; then
             brew update
             brew upgrade gcc
@@ -352,7 +357,9 @@ jobs:
 
       - name: Valgrind test
         working-directory: ${{github.workspace}}/build
-        run: make valgrind
+        run: |
+          sudo apt-get install -y valgrind
+          make valgrind
         if: >
           env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'
           && env.SANITIZE_UB != 'ON' && env.STATIC_ANALYSIS != 'ON'

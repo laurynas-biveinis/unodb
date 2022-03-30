@@ -159,14 +159,45 @@ class QSBRTestBase : public ::testing::Test {
   }
 #endif
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+
   static void qsbr_deallocate(void *ptr) {
+    const auto current_interval_total_dealloc_size_before =
+        unodb::this_thread().get_current_interval_total_dealloc_size();
     unodb::this_thread().on_next_epoch_deallocate(ptr, 1
 #ifndef NDEBUG
                                                   ,
                                                   check_ptr_on_qsbr_dealloc
 #endif
     );
+    const auto current_interval_total_dealloc_size_after =
+        unodb::this_thread().get_current_interval_total_dealloc_size();
+    const auto single_thread_mode =
+        qsbr_state::single_thread_mode(qsbr::instance().get_state());
+    if (single_thread_mode) {
+      UNODB_EXPECT_TRUE(current_interval_total_dealloc_size_before ==
+                            current_interval_total_dealloc_size_after ||
+                        current_interval_total_dealloc_size_after == 0);
+    } else {
+      UNODB_EXPECT_GT(current_interval_total_dealloc_size_after, 0);
+      UNODB_EXPECT_TRUE(current_interval_total_dealloc_size_after == 1 ||
+                        (current_interval_total_dealloc_size_after ==
+                         current_interval_total_dealloc_size_before + 1));
+    }
   }
+
+  static void quiescent() {
+    const auto current_interval_total_dealloc_size_before =
+        unodb::this_thread().get_current_interval_total_dealloc_size();
+    unodb::this_thread().quiescent();
+    const auto current_interval_total_dealloc_size_after =
+        unodb::this_thread().get_current_interval_total_dealloc_size();
+    UNODB_EXPECT_TRUE(current_interval_total_dealloc_size_before ==
+                          current_interval_total_dealloc_size_after ||
+                      current_interval_total_dealloc_size_after == 0);
+  }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   static void touch_memory(char *ptr, char opt_val = '\0') noexcept {
     if (opt_val != '\0') {

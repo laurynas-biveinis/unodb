@@ -201,7 +201,7 @@ TEST_F(QSBR, SingleThreadAllocationAndEpochChange) {
 
   mark_epoch();
 
-  unodb::this_thread().quiescent();
+  quiescent();
 
   check_epoch_advanced();
 
@@ -214,7 +214,7 @@ TEST_F(QSBR, ActivePointersBeforeQuiescentState) {
   auto *ptr = allocate();
   active_pointer_ops(ptr);
   qsbr_deallocate(ptr);
-  unodb::this_thread().quiescent();
+  quiescent();
 }
 
 TEST_F(QSBR, ActivePointersBeforePause) {
@@ -231,7 +231,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
   auto *ptr = allocate();
   unodb::qsbr_ptr<void> active_ptr{ptr};
-  UNODB_ASSERT_DEATH({ unodb::this_thread().quiescent(); }, "");
+  UNODB_ASSERT_DEATH({ quiescent(); }, "");
   qsbr_deallocate(ptr);
 }
 
@@ -243,14 +243,14 @@ TEST_F(QSBR, TwoThreadEpochChangesSecondStartsQuiescent) {
   mark_epoch();
 
   unodb::qsbr_thread second_thread([] {
-    unodb::this_thread().quiescent();
+    quiescent();
     thread_syncs[0].notify();
     thread_syncs[1].wait();
   });
 
   thread_syncs[0].wait();
 
-  unodb::this_thread().quiescent();
+  quiescent();
 
   check_epoch_advanced();
 
@@ -261,14 +261,14 @@ TEST_F(QSBR, TwoThreadEpochChangesSecondStartsQuiescent) {
 TEST_F(QSBR, TwoThreadEpochChanges) {
   mark_epoch();
 
-  unodb::this_thread().quiescent();
+  quiescent();
 
   check_epoch_advanced();
 
   unodb::qsbr_thread second_thread([] {
     thread_syncs[0].notify();
     thread_syncs[1].wait();
-    unodb::this_thread().quiescent();
+    quiescent();
     thread_syncs[0].notify();
   });
 
@@ -276,7 +276,7 @@ TEST_F(QSBR, TwoThreadEpochChanges) {
 
   check_epoch_same();
 
-  unodb::this_thread().quiescent();
+  quiescent();
 
   check_epoch_same();
 
@@ -300,7 +300,7 @@ TEST_F(QSBR, QuiescentThreadQuittingDoesNotAdvanceEpoch) {
   thread_syncs[0].wait();  // 1 <-
 
   unodb::qsbr_thread third_thread{[] {
-    unodb::this_thread().quiescent();
+    quiescent();
 
     thread_syncs[2].notify();  // 2 ->
     thread_syncs[3].wait();    // 4 <-
@@ -313,18 +313,18 @@ TEST_F(QSBR, QuiescentThreadQuittingDoesNotAdvanceEpoch) {
     thread_syncs[4].notify();  // 3 ->
     thread_syncs[5].wait();    // 6 <-
 
-    unodb::this_thread().quiescent();
+    quiescent();
 
     mark_epoch();
 
-    unodb::this_thread().quiescent();
+    quiescent();
 
     // 7 ->
   }};
 
   thread_syncs[4].wait();  // 3 <-
 
-  unodb::this_thread().quiescent();
+  quiescent();
 
   thread_syncs[3].notify();  // 4 ->
   join(third_thread);        // 5 <-
@@ -347,11 +347,11 @@ TEST_F(QSBR, TwoThreadAllocations) {
     thread_syncs[0].notify();
     thread_syncs[1].wait();
 
-    unodb::this_thread().quiescent();
+    quiescent();
     thread_syncs[0].notify();
     thread_syncs[1].wait();
 
-    unodb::this_thread().quiescent();
+    quiescent();
     thread_syncs[0].notify();
     thread_syncs[1].wait();
   });
@@ -361,15 +361,15 @@ TEST_F(QSBR, TwoThreadAllocations) {
   // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
   touch_memory(ptr);
 
-  unodb::this_thread().quiescent();
-  unodb::this_thread().quiescent();
+  quiescent();
+  quiescent();
 
   touch_memory(ptr);
 
   thread_syncs[1].notify();
   thread_syncs[0].wait();
 
-  unodb::this_thread().quiescent();
+  quiescent();
 
   touch_memory(ptr);
 
@@ -393,8 +393,8 @@ TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
   // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
   touch_memory(ptr);
 
-  unodb::this_thread().quiescent();
-  unodb::this_thread().quiescent();
+  quiescent();
+  quiescent();
 
   touch_memory(ptr);
 
@@ -403,7 +403,7 @@ TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
 
   touch_memory(ptr);
 
-  unodb::this_thread().quiescent();
+  quiescent();
 }
 
 TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
@@ -422,14 +422,14 @@ TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
     // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
     touch_memory(ptr);
 
-    unodb::this_thread().quiescent();
+    quiescent();
 
     touch_memory(ptr);
 
     thread_syncs[0].notify();
     thread_syncs[1].wait();
 
-    unodb::this_thread().quiescent();
+    quiescent();
 
     touch_memory(ptr);
 
@@ -442,11 +442,11 @@ TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
   thread_syncs[1].notify();
 
   thread_syncs[0].wait();
-  unodb::this_thread().quiescent();
+  quiescent();
   thread_syncs[1].notify();
 
   thread_syncs[0].wait();
-  unodb::this_thread().quiescent();
+  quiescent();
   thread_syncs[1].notify();
 
   join(second_thread);
@@ -463,7 +463,7 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
   thread_syncs[0].wait();  // 1 <-
   qsbr_deallocate(ptr);
 
-  unodb::this_thread().quiescent();
+  quiescent();
   // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
   touch_memory(ptr);
 
@@ -472,7 +472,7 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
 
   touch_memory(ptr);
 
-  unodb::this_thread().quiescent();
+  quiescent();
 }
 
 TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentStateBefore1stThreadQState) {
@@ -492,10 +492,26 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentStateBefore1stThreadQState) {
   thread_syncs[1].notify();
   join(second_thread);
 
-  unodb::this_thread().quiescent();
+  quiescent();
 }
 
-TEST_F(QSBR, ToSingleThreadedModeDeallocationsByRemainingThread) {
+TEST_F(QSBR, ToSingleThreadedModeBeforeDeallocation) {
+  unodb::qsbr_thread second_thread{[] {
+    thread_syncs[0].notify();  // 1 ->
+    thread_syncs[1].wait();    // 2 <-
+  }};
+
+  thread_syncs[0].wait();  // 1 <-
+
+  auto *ptr = allocate();
+
+  thread_syncs[1].notify();  // 2 ->
+  join(second_thread);
+
+  qsbr_deallocate(ptr);
+}
+
+TEST_F(QSBR, ToSingleThreadedModeAfterDeallocation) {
   unodb::qsbr_thread second_thread{[] {
     thread_syncs[0].notify();  // 1 ->
     thread_syncs[1].wait();    // 2 <-
@@ -510,7 +526,46 @@ TEST_F(QSBR, ToSingleThreadedModeDeallocationsByRemainingThread) {
   thread_syncs[1].notify();  // 2 ->
   join(second_thread);
 
-  unodb::this_thread().quiescent();
+  quiescent();
+}
+
+TEST_F(QSBR, ToSingleThreadedModeAndAllocate) {
+  unodb::qsbr_thread second_thread{[] {
+    thread_syncs[0].notify();  // 1 ->
+    thread_syncs[1].wait();    // 2 <-
+  }};
+
+  thread_syncs[0].wait();  // 1 <-
+  auto *ptr = allocate();
+  qsbr_deallocate(ptr);
+
+  thread_syncs[1].notify();  // 2 ->
+  join(second_thread);
+
+  auto *ptr2 = allocate();
+  qsbr_deallocate(ptr2);
+}
+
+TEST_F(QSBR, ToSingleThreadedModeDeallocationSeesIt) {
+  auto *ptr = allocate();
+  auto *ptr2 = allocate();
+
+  unodb::qsbr_thread second_thread{[] {
+    thread_syncs[0].notify();  // 1 ->
+    thread_syncs[1].wait();    // 2 <-
+  }};
+
+  thread_syncs[0].wait();  // 1 <-
+  qsbr_deallocate(ptr);
+
+  quiescent();
+
+  thread_syncs[1].notify();  // 2 ->
+  join(second_thread);
+
+  auto *ptr3 = allocate();
+  qsbr_deallocate(ptr2);
+  qsbr_deallocate(ptr3);
 }
 
 TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
@@ -521,7 +576,7 @@ TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
     auto *ptr_2_1 = static_cast<char *>(allocate());
 
     qsbr_deallocate(ptr_2_1);
-    unodb::this_thread().quiescent();
+    quiescent();
     thread_syncs[0].notify();
     thread_syncs[1].wait();
 
@@ -529,14 +584,14 @@ TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
     touch_memory(ptr_2_1);
     auto *ptr_2_2 = static_cast<char *>(allocate());
     qsbr_deallocate(ptr_2_2);
-    unodb::this_thread().quiescent();
+    quiescent();
 
     thread_syncs[0].notify();
     thread_syncs[1].wait();
 
     // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
     touch_memory(ptr_2_2);
-    unodb::this_thread().quiescent();
+    quiescent();
 
     thread_syncs[0].notify();
     thread_syncs[1].wait();
@@ -544,7 +599,7 @@ TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
 
   thread_syncs[0].wait();
   qsbr_deallocate(ptr_1_1);
-  unodb::this_thread().quiescent();
+  quiescent();
 
   check_epoch_advanced();
 
@@ -552,7 +607,7 @@ TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
   touch_memory(ptr_1_1);
   auto *ptr_1_2 = static_cast<char *>(allocate());
   qsbr_deallocate(ptr_1_2);
-  unodb::this_thread().quiescent();
+  quiescent();
 
   thread_syncs[1].notify();
   thread_syncs[0].wait();
@@ -561,7 +616,7 @@ TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
 
   // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
   touch_memory(ptr_1_2);
-  unodb::this_thread().quiescent();
+  quiescent();
 
   thread_syncs[1].notify();
   thread_syncs[0].wait();
@@ -580,7 +635,7 @@ TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
     thread_syncs[0].notify();  // 1 ->
     thread_syncs[1].wait();    // 2 <-
 
-    unodb::this_thread().quiescent();
+    quiescent();
 
     thread_syncs[0].notify();  // 3 ->
     thread_syncs[1].wait();    // 4 <-
@@ -589,7 +644,7 @@ TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   thread_syncs[0].wait();  // 1 <-
   qsbr_deallocate(ptr);
 
-  unodb::this_thread().quiescent();
+  quiescent();
 
   thread_syncs[1].notify();  // 2 ->
   thread_syncs[0].wait();    // 3 <-
@@ -609,7 +664,7 @@ TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   touch_memory(ptr);
   touch_memory(ptr2);
 
-  unodb::this_thread().quiescent();
+  quiescent();
 }
 
 TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
@@ -623,7 +678,7 @@ TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
     thread_syncs[1].wait();    // 2 <-
 
     qsbr_deallocate(ptr_2_1);
-    unodb::this_thread().quiescent();
+    quiescent();
 
     thread_syncs[0].notify();  // 3 ->
     thread_syncs[1].wait();    // 4 <-
@@ -648,7 +703,7 @@ TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
   thread_syncs[0].wait();  // 1 <-
 
   qsbr_deallocate(ptr_1_1);
-  unodb::this_thread().quiescent();
+  quiescent();
 
   thread_syncs[1].notify();  // 2 ->
   thread_syncs[0].wait();    // 3 <-
@@ -688,7 +743,7 @@ TEST_F(QSBR, TwoThreadsDeallocateBeforeQuittingPointerStaysLive) {
 
   touch_memory(ptr);
 
-  unodb::this_thread().quiescent();
+  quiescent();
 }
 
 TEST_F(QSBR, ThreeDeallocationRequestSets) {
@@ -699,7 +754,7 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
     thread_syncs[0].notify();  // 1 ->
     thread_syncs[1].wait();    // 2 <-
 
-    unodb::this_thread().quiescent();
+    quiescent();
 
     thread_syncs[0].notify();  // 3 ->
     thread_syncs[1].wait();    // 4 <-
@@ -708,7 +763,7 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
   thread_syncs[0].wait();  // 1 <-
 
   qsbr_deallocate(ptr);
-  unodb::this_thread().quiescent();
+  quiescent();
 
   thread_syncs[1].notify();  // 2 ->
   thread_syncs[0].wait();    // 3 <-
@@ -717,7 +772,7 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
   touch_memory(ptr);
 
   check_epoch_advanced();
-  unodb::this_thread().quiescent();
+  quiescent();
 
   thread_syncs[1].notify();  // 4 ->
 
@@ -743,7 +798,7 @@ TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
   thread_syncs[0].wait();  // 1 <-
 
   // Wrote ptr to a shared data structure and done with it for now
-  unodb::this_thread().quiescent();
+  quiescent();
 
   check_epoch_same();
 
@@ -761,7 +816,7 @@ TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
     UNODB_ASSERT_EQ(*active_ptr, 'A');
   }
 
-  unodb::this_thread().quiescent();
+  quiescent();
 
   check_epoch_advanced();
 }
@@ -771,7 +826,7 @@ TEST_F(QSBR, ResetStats) {
   auto *ptr2 = allocate();
 
   unodb::qsbr_thread second_thread{[] {
-    unodb::this_thread().quiescent();
+    quiescent();
     thread_syncs[0].notify();  // 1 ->
     thread_syncs[1].wait();    // 2 <-
   }};
@@ -780,8 +835,8 @@ TEST_F(QSBR, ResetStats) {
   qsbr_deallocate(ptr);
   qsbr_deallocate(ptr2);
 
-  unodb::this_thread().quiescent();
-  unodb::this_thread().quiescent();
+  quiescent();
+  quiescent();
 
   thread_syncs[1].notify();  // 2 ->
   join(second_thread);
@@ -794,7 +849,7 @@ TEST_F(QSBR, ResetStats) {
   UNODB_ASSERT_EQ(
       qsbr_get_mean_quiescent_states_per_thread_between_epoch_changes(), 1.0);
 
-  unodb::this_thread().quiescent();
+  quiescent();
 
   qsbr_reset_stats();
 
@@ -808,7 +863,7 @@ TEST_F(QSBR, ResetStats) {
 
 TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
   unodb::qsbr_thread second_thread{[] {
-    unodb::this_thread().quiescent();
+    quiescent();
 
     thread_syncs[0].notify();  // 1 -> & v
 
@@ -827,8 +882,8 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
 
   thread_syncs[0].wait();  // 1 <-
 
-  unodb::this_thread().quiescent();
-  unodb::this_thread().quiescent();
+  quiescent();
+  quiescent();
 
   join(second_thread);
 }
@@ -848,7 +903,7 @@ TEST_F(QSBR, DeallocEpochAssert) {
     thread_syncs[2].notify();  // 2 ->
 
     thread_syncs[3].wait();  // 3 <-
-    unodb::this_thread().quiescent();
+    quiescent();
     thread_syncs[0].notify();  // 4 ->
 
     thread_syncs[2].wait();  // 6 <-
@@ -856,7 +911,7 @@ TEST_F(QSBR, DeallocEpochAssert) {
 
   thread_syncs[2].wait();  // 2 <-
 
-  unodb::this_thread().quiescent();
+  quiescent();
 
   thread_syncs[3].notify();  // 3 ->
   thread_syncs[0].wait();    // 4 <-
@@ -866,7 +921,7 @@ TEST_F(QSBR, DeallocEpochAssert) {
   thread_syncs[1].notify();  // 5 ->
   join(second_thread);
 
-  unodb::this_thread().quiescent();
+  quiescent();
 
   thread_syncs[2].notify();  // 6 ->
   join(third_thread);

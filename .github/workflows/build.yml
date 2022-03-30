@@ -215,14 +215,14 @@ jobs:
 
       - name: Setup common dependencies for Linux
         run: |
-          CPPLINT="${CPPLINT:-$DEFAULT_CPPLINT}"
           sudo add-apt-repository -y 'ppa:mhier/libboost-latest'
           sudo apt-get update
           sudo apt-get install -y boost1.74 libc6-dev-i386
-          if [[ $CPPLINT == "ON" ]]; then
-            pip install cpplint
-          fi
         if: runner.os == 'Linux'
+
+      - name: Setup dependencies for cpplint
+        run: pip install cpplint
+        if: env.CPPLINT == 'ON'
 
       - name: Setup dependencies for GCC
         run: |

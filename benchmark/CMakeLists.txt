@@ -5,7 +5,8 @@ set(micro_benchmark_n4_quick_arg "--benchmark_filter=\"/16$$|/25|/100\"")
 set(micro_benchmark_n16_quick_arg "--benchmark_filter=\"/64\"")
 set(micro_benchmark_n48_quick_arg "--benchmark_filter=\"/8$$|/128|/192\"")
 set(micro_benchmark_n256_quick_arg "--benchmark_filter=\"/8|/128|/192\"")
-set(micro_benchmark_quick_arg "--benchmark_filter=\".*/512$$|.*/800/|.*/1000/\"")
+set(micro_benchmark_quick_arg
+  "--benchmark_filter=\".*/100$$|.*/1000/.*:800$$|.*/100/.*:0$$\"")
 set(micro_benchmark_mutex_quick_arg "--benchmark_filter=\"/4/70000/\"")
 set(micro_benchmark_olc_quick_arg "--benchmark_filter=\"/4/70000/\"")
 

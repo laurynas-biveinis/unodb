@@ -12,6 +12,9 @@ jobs:
       asan:
         type: boolean
         default: false
+      tsan:
+        type: boolean
+        default: false
     machine:
       image: ubuntu-2004:202101-01
     resource_class: arm.medium
@@ -55,6 +58,7 @@ jobs:
             readonly BUILD_TYPE=<< parameters.build_type >>
             readonly COMPILER=<< parameters.compiler >>
             readonly ASAN=<< parameters.asan >>
+            readonly TSAN=<< parameters.tsan >>
             if [[ $COMPILER == "gcc" ]]; then
               export CC=gcc-11
               export CXX=g++-11
@@ -74,7 +78,8 @@ jobs:
                   "-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-13")
             fi
             cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFATAL_WARNINGS=ON \
-              -DSANITIZE_ADDRESS=$ASAN "${EXTRA_CMAKE_ARGS[@]}"
+              -DSANITIZE_ADDRESS=$ASAN -DSANITIZE_THREAD=$TSAN \
+              "${EXTRA_CMAKE_ARGS[@]}"
       - run:
           name: Build
           working_directory: build
@@ -96,7 +101,10 @@ jobs:
                 command: make quick_benchmarks
       - when:
           condition:
-            not: << parameters.asan >>
+            not:
+              or:
+                - << parameters.asan >>
+                - << parameters.tsan >>
           steps:
             - run:
                 name: Valgrind test
@@ -118,6 +126,11 @@ workflows:
           compiler: gcc
           asan: true
       - build:
+          name: GCC 11 Debug with TSan
+          build_type: Debug
+          compiler: gcc
+          tsan: true
+      - build:
           name: GCC 11 Release
           build_type: Release
           compiler: gcc
@@ -126,6 +139,11 @@ workflows:
           build_type: Release
           compiler: gcc
           asan: true
+      - build:
+          name: GCC 11 Release with TSan
+          build_type: Release
+          compiler: gcc
+          tsan: true
       - build:
           name: clang 13 Debug
           build_type: Debug
@@ -136,6 +154,11 @@ workflows:
           compiler: clang
           asan: true
       - build:
+          name: clang 13 Debug with TSan
+          build_type: Debug
+          compiler: clang
+          tsan: true
+      - build:
           name: clang 13 Release
           build_type: Release
           compiler: clang
@@ -144,3 +167,8 @@ workflows:
           build_type: Release
           compiler: clang
           asan: true
+      - build:
+          name: clang 13 Release with TSan
+          build_type: Release
+          compiler: clang
+          tsan: true

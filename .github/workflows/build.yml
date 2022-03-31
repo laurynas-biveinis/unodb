@@ -322,15 +322,15 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
+        run: make -j3
+        if: ${{ !(env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang') }}
+
+      - name: clang static analysis
+        working-directory: ${{github.workspace}}/build
         run: |
-          COMPILER="${COMPILER:-$DEFAULT_COMPILER}"
-          STATIC_ANALYSIS="${STATIC_ANALYSIS:-$DEFAULT_STATIC_ANALYSIS}"
-          if [[ $STATIC_ANALYSIS == "ON" && $COMPILER == "clang" ]]; then
-            /usr/bin/scan-build-13 --status-bugs -stats -analyze-headers \
-              --force-analyze-debug-code make -j3;
-          else
-            make -j3
-          fi
+          /usr/bin/scan-build-13 --status-bugs -stats -analyze-headers \
+            --force-analyze-debug-code make -j3;
+        if: env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang'
 
       - name: Correctness test
         working-directory: ${{github.workspace}}/build

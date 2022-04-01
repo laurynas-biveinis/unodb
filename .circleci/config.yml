@@ -15,6 +15,9 @@ jobs:
       tsan:
         type: boolean
         default: false
+      ubsan:
+        type: boolean
+        default: false
     machine:
       image: ubuntu-2004:202101-01
     resource_class: arm.medium
@@ -59,6 +62,7 @@ jobs:
             readonly COMPILER=<< parameters.compiler >>
             readonly ASAN=<< parameters.asan >>
             readonly TSAN=<< parameters.tsan >>
+            readonly UBSAN=<< parameters.ubsan >>
             if [[ $COMPILER == "gcc" ]]; then
               export CC=gcc-11
               export CXX=g++-11
@@ -79,7 +83,7 @@ jobs:
             fi
             cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFATAL_WARNINGS=ON \
               -DSANITIZE_ADDRESS=$ASAN -DSANITIZE_THREAD=$TSAN \
-              "${EXTRA_CMAKE_ARGS[@]}"
+              -DSANITIZE_UB=$UBSAN "${EXTRA_CMAKE_ARGS[@]}"
       - run:
           name: Build
           working_directory: build
@@ -105,6 +109,7 @@ jobs:
               or:
                 - << parameters.asan >>
                 - << parameters.tsan >>
+                - << parameters.ubsan >>
           steps:
             - run:
                 name: Valgrind test
@@ -131,6 +136,11 @@ workflows:
           compiler: gcc
           tsan: true
       - build:
+          name: GCC 11 Debug with UBSan
+          build_type: Debug
+          compiler: gcc
+          ubsan: true
+      - build:
           name: GCC 11 Release
           build_type: Release
           compiler: gcc
@@ -144,6 +154,11 @@ workflows:
           build_type: Release
           compiler: gcc
           tsan: true
+      - build:
+          name: GCC 11 Release with UBSan
+          build_type: Release
+          compiler: gcc
+          ubsan: true
       - build:
           name: clang 13 Debug
           build_type: Debug
@@ -159,6 +174,11 @@ workflows:
           compiler: clang
           tsan: true
       - build:
+          name: clang 13 Debug with UBSan
+          build_type: Debug
+          compiler: clang
+          ubsan: true
+      - build:
           name: clang 13 Release
           build_type: Release
           compiler: clang
@@ -172,3 +192,8 @@ workflows:
           build_type: Release
           compiler: clang
           tsan: true
+      - build:
+          name: clang 13 Release with UBSan
+          build_type: Release
+          compiler: clang
+          ubsan: true

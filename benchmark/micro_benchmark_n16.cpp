@@ -6,6 +6,7 @@
 
 #include "art.hpp"
 #include "micro_benchmark_node_utils.hpp"
+#include "micro_benchmark_utils.hpp"
 #include "mutex_art.hpp"
 #include "olc_art.hpp"
 

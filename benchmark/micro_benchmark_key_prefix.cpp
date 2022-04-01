@@ -1,6 +1,6 @@
 // Copyright 2020-2022 Laurynas Biveinis
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 #include <algorithm>  // IWYU pragma: keep
 #include <cstdint>

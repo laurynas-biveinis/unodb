@@ -1,13 +1,18 @@
 // Copyright 2022 Laurynas Biveinis
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 #include "heap.hpp"
 
+#ifndef NDEBUG
 #include <atomic>
 #include <cstdint>
+#if !defined(_MSC_VER) && !defined(UNODB_DETAIL_ADDRESS_SANITIZER) && \
+    !defined(UNODB_DETAIL_THREAD_SANITIZER)
 #include <cstdlib>
 #include <new>
+#endif
+#endif
 
 namespace unodb::test {
 

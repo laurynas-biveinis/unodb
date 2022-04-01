@@ -4,6 +4,8 @@
 
 #include "qsbr_gtest_utils.hpp"
 
+#include "qsbr_test_utils.hpp"
+
 namespace unodb::test {
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)

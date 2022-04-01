@@ -3,16 +3,15 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <cmath>
+#include <sstream>
 #include <utility>  // IWYU pragma: keep
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
 
 #include "gtest_utils.hpp"  // IWYU pragma: keep
-#include "heap.hpp"
 #include "qsbr.hpp"
 #include "qsbr_gtest_utils.hpp"
 #include "qsbr_ptr.hpp"
-#include "qsbr_test_utils.hpp"
 #include "thread_sync.hpp"
 
 namespace {

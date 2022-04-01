@@ -4,11 +4,13 @@
 
 #include "global.hpp"
 
-#include <algorithm>
+#include <algorithm>  // IWYU pragma: keep
 #ifndef NDEBUG
 #include <atomic>
+#include <cstdint>
 #endif
 #include <cstdlib>
+#include <new>
 
 #ifdef _MSC_VER
 #include <malloc.h>

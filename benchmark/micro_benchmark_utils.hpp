@@ -14,7 +14,9 @@
 #include <benchmark/benchmark.h>
 
 #include "art_common.hpp"
+#ifndef NDEBUG
 #include "assert.hpp"
+#endif
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 

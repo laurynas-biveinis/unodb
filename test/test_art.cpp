@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <limits>
 #include <stdexcept>
+#include <tuple>
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
 

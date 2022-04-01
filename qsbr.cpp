@@ -4,7 +4,9 @@
 
 #include "qsbr.hpp"
 
+#include <exception>
 #include <iostream>
+#include <new>
 
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
 #include <sanitizer/tsan_interface.h>

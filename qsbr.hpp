@@ -13,10 +13,8 @@
 #endif
 #include <iostream>
 #include <mutex>  // IWYU pragma: keep
-#include <new>
 #include <system_error>
 #include <thread>
-#include <tuple>
 #include <type_traits>
 #ifndef NDEBUG
 #include <unordered_set>

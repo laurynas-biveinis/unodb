@@ -2,11 +2,11 @@
 
 #ifndef NDEBUG
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 #include <new>
 
-#include <gtest/gtest.h>
+#include <gtest/gtest.h>  // IWYU pragma: keep
 
 #include "gtest_utils.hpp"
 #include "heap.hpp"

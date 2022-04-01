@@ -6,7 +6,7 @@
 
 #include <type_traits>
 
-#include <gtest/gtest.h>
+#include <gtest/gtest.h>  // IWYU pragma: keep
 
 #include "gtest_utils.hpp"
 #include "heap.hpp"

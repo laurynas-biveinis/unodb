@@ -274,7 +274,7 @@ struct basic_art_policy final {
                                                         Db &db_) noexcept
         : node_ptr{node_ptr_}, db{db_} {}
 
-    ~delete_db_node_ptr_at_scope_exit() {
+    ~delete_db_node_ptr_at_scope_exit() noexcept {
       switch (node_ptr.type()) {
         case node_type::LEAF: {
           const auto r{

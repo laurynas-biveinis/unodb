@@ -116,7 +116,7 @@ class [[nodiscard]] optimistic_lock final {
 
     // If the destructor ever starts doing something in the release build, reset
     // moved-from lock fields in the move and write_guard constructors.
-    ~read_critical_section() {
+    ~read_critical_section() noexcept {
 #ifndef NDEBUG
       if (lock != nullptr) std::ignore = lock->try_read_unlock(version);
 #endif
@@ -145,7 +145,7 @@ class [[nodiscard]] optimistic_lock final {
       if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;  // LCOV_EXCL_LINE
     }
 
-    ~write_guard() {
+    ~write_guard() noexcept {
       if (lock == nullptr) return;
       lock->write_unlock();
     }
@@ -188,7 +188,7 @@ class [[nodiscard]] optimistic_lock final {
   optimistic_lock &operator=(const optimistic_lock &) = delete;
   optimistic_lock &operator=(optimistic_lock &&) = delete;
 
-  ~optimistic_lock() = default;
+  ~optimistic_lock() noexcept = default;
 
   [[nodiscard]] read_critical_section try_read_lock() noexcept {
     while (true) {

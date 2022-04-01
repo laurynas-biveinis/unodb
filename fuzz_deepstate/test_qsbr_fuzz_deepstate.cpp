@@ -58,7 +58,7 @@ struct [[nodiscard]] thread_info final {
 
   thread_info(const thread_info &) = delete;
 
-  ~thread_info() = default;
+  ~thread_info() noexcept = default;
 
   thread_info &operator=(thread_info &&other) noexcept = default;
 

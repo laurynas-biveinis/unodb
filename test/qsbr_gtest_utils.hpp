@@ -14,7 +14,7 @@ namespace unodb::test {
 
 class QSBRTestBase : public ::testing::Test {
  public:
-  ~QSBRTestBase() override;
+  ~QSBRTestBase() noexcept override;
 
  protected:
   QSBRTestBase();

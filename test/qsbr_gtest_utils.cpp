@@ -15,7 +15,7 @@ QSBRTestBase::QSBRTestBase() {
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
-QSBRTestBase::~QSBRTestBase() {
+QSBRTestBase::~QSBRTestBase() noexcept {
   if (is_qsbr_paused()) unodb::this_thread().qsbr_resume();
   unodb::this_thread().quiescent();
   unodb::test::expect_idle_qsbr();

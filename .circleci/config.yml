@@ -92,6 +92,10 @@ jobs:
           name: Correctness test
           working_directory: build
           command: ctest -j3 -V
+      - run:
+          name: DeepState 1 minute fuzzing
+          working_directory: build
+          command: make -j2 deepstate_1m
       - when:
           condition:
             not:

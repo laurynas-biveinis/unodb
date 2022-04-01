@@ -231,24 +231,33 @@ jobs:
           sudo apt-get install -y g++-11
         if: runner.os == 'Linux' && env.COMPILER == 'gcc'
 
-      - name: Setup dependencies for Linux LLVM
+      - name: Setup dependencies for Linux LLVM (common)
         run: |
-          STATIC_ANALYSIS="${STATIC_ANALYSIS:-$DEFAULT_STATIC_ANALYSIS}"
           curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
             | sudo apt-key add -
           echo 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main' \
             | sudo tee -a /etc/apt/sources.list
           sudo apt-get update
           sudo apt-get install -y clang-13
-          if [[ $BUILD_TYPE == "Release" ]]; then
-            sudo apt-get install -y libomp5-13 llvm-13 lld-13
-          fi
-          if [[ $STATIC_ANALYSIS == "ON" ]]; then
-            sudo apt-get install -y clang-tools-13
-          else
-            sudo apt-get install -y clang-tidy-13
-          fi
         if: runner.os == 'Linux' && env.COMPILER == 'clang'
+
+      - name: Setup dependencies for Linux LLVM (Release)
+        run: sudo apt-get install -y libomp5-13 llvm-13 lld-13
+        if: >
+          runner.os == 'Linux' && env.COMPILER == 'clang'
+          && env.BUILD_TYPE == 'Release'
+
+      - name: Setup dependencies for Linux LLVM (static analysis)
+        run: sudo apt-get install -y clang-tools-13
+        if: >
+          runner.os == 'Linux' && env.COMPILER == 'clang'
+          && env.STATIC_ANALYSIS == 'ON'
+
+      - name: Setup dependencies for Linux LLVM (not static analysis)
+        run: sudo apt-get install -y clang-tidy-13
+        if: >
+          runner.os == 'Linux' && env.COMPILER == 'clang'
+          && env.STATIC_ANALYSIS != 'ON'
 
       - name: Set up dependencies for macOS
         run: |

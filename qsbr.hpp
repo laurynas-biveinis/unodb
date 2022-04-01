@@ -414,7 +414,7 @@ class [[nodiscard]] deferred_requests final {
   deferred_requests &operator=(const deferred_requests &) noexcept = delete;
   deferred_requests &operator=(deferred_requests &&) noexcept = delete;
 
-  ~deferred_requests() {
+  ~deferred_requests() noexcept {
     for (const auto &dealloc_request : requests) {
       dealloc_request.deallocate(
 #ifndef NDEBUG

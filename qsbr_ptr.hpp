@@ -166,7 +166,7 @@ class qsbr_ptr_span {
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span(
       const qsbr_ptr_span<T> &) noexcept = default;
   constexpr qsbr_ptr_span(qsbr_ptr_span<T> &&) noexcept = default;
-  ~qsbr_ptr_span() = default;
+  ~qsbr_ptr_span() noexcept = default;
 
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span<T> &operator=(
       const qsbr_ptr_span<T> &) noexcept = default;

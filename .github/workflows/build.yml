@@ -10,7 +10,6 @@ env:
   DEFAULT_SANITIZE_UB: OFF
   DEFAULT_STATIC_ANALYSIS: OFF
   DEFAULT_CPPLINT: OFF
-  DEFAULT_CPPCHECK: OFF
   DEFAULT_COVERAGE: OFF
 
 jobs:
@@ -259,21 +258,22 @@ jobs:
           runner.os == 'Linux' && env.COMPILER == 'clang'
           && env.STATIC_ANALYSIS != 'ON'
 
-      - name: Set up dependencies for macOS
+      - name: Set up dependencies for macOS (common)
         run: |
-          CPPCHECK="${CPPCHECK:-$DEFAULT_CPPCHECK}"
-          COVERAGE="${COVERAGE:-$DEFAULT_COVERAGE}"
-          if [[ $COVERAGE == "ON" ]]; then
+          brew install boost
+        if: runner.os == 'macOS'
+
+      - name: Set up dependencies for macOS (coverage)
+        run: |
             brew update
             brew upgrade gcc
             brew install cpanm lcov
             sudo cpanm install JSON
-          fi
-          if [[ $CPPCHECK == "ON" ]]; then
-            brew install cppcheck
-          fi
-          brew install boost
-        if: runner.os == 'macOS'
+        if: runner.os == 'macOS' && env.COVERAGE == 'ON'
+
+      - name: Set up dependencies for macOS (cppcheck)
+        run: brew install cppcheck
+        if: runner.os == 'macOS' && env.CPPCHECK == 'ON'
 
       - name: Create build environment
         run: mkdir ${{github.workspace}}/build

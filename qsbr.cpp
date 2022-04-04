@@ -64,8 +64,7 @@ thread_local std::unique_ptr<qsbr_per_thread>
 }
 // LCOV_EXCL_STOP
 
-[[nodiscard]] qsbr_state::type
-qsbr_state::atomic_fetch_dec_threads_in_previous_epoch(
+[[nodiscard]] auto qsbr_state::atomic_fetch_dec_threads_in_previous_epoch(
     std::atomic<qsbr_state::type> &word) noexcept {
   const auto old_word = word.fetch_sub(1, std::memory_order_acq_rel);
 

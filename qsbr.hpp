@@ -72,21 +72,21 @@ class [[nodiscard]] qsbr_epoch final {
     assert_invariant();
   }
 
-  [[nodiscard]] constexpr qsbr_epoch advance(unsigned by = 1) const noexcept {
+  [[nodiscard]] constexpr auto advance(unsigned by = 1) const noexcept {
     assert_invariant();
 
     return qsbr_epoch{
         gsl::narrow_cast<epoch_type>((epoch_val + by) % max_count)};
   }
 
-  [[nodiscard]] constexpr bool operator==(qsbr_epoch other) const noexcept {
+  [[nodiscard]] constexpr auto operator==(qsbr_epoch other) const noexcept {
     assert_invariant();
     other.assert_invariant();
 
     return epoch_val == other.epoch_val;
   }
 
-  [[nodiscard]] constexpr bool operator!=(qsbr_epoch other) const noexcept {
+  [[nodiscard]] constexpr auto operator!=(qsbr_epoch other) const noexcept {
     assert_invariant();
     other.assert_invariant();
 
@@ -110,8 +110,7 @@ class [[nodiscard]] qsbr_epoch final {
 };
 
 // LCOV_EXCL_START
-[[gnu::cold]] inline std::ostream &operator<<(std::ostream &os,
-                                              qsbr_epoch value) {
+[[gnu::cold]] inline auto &operator<<(std::ostream &os, qsbr_epoch value) {
   value.dump(os);
   return os;
 }
@@ -138,24 +137,45 @@ inline constexpr qsbr_thread_count_type max_qsbr_threads = (2UL << 29U) - 1U;
 struct qsbr_state {
   using type = std::uint64_t;
 
-  [[nodiscard]] static constexpr qsbr_epoch get_epoch(type word) noexcept {
+ private:
+  [[nodiscard]] static constexpr auto do_get_epoch(type word) noexcept {
+    return qsbr_epoch{
+        gsl::narrow_cast<qsbr_epoch::epoch_type>(word >> epoch_in_word_offset)};
+  }
+
+  [[nodiscard]] static constexpr auto do_get_thread_count(type word) noexcept {
+    const auto result = gsl::narrow_cast<qsbr_thread_count_type>(
+        (word & thread_count_in_word_mask) >> thread_count_in_word_offset);
+    UNODB_DETAIL_ASSERT(result <= max_qsbr_threads);
+    return result;
+  }
+
+  [[nodiscard]] static constexpr auto do_get_threads_in_previous_epoch(
+      type word) noexcept {
+    const auto result = gsl::narrow_cast<qsbr_thread_count_type>(
+        word & threads_in_previous_epoch_in_word_mask);
+    UNODB_DETAIL_ASSERT(result <= max_qsbr_threads);
+    return result;
+  }
+
+ public:
+  [[nodiscard]] static constexpr auto get_epoch(type word) noexcept {
     assert_invariants(word);
     return do_get_epoch(word);
   }
 
-  [[nodiscard]] static constexpr qsbr_thread_count_type get_thread_count(
-      type word) noexcept {
+  [[nodiscard]] static constexpr auto get_thread_count(type word) noexcept {
     assert_invariants(word);
     return do_get_thread_count(word);
   }
 
-  [[nodiscard]] static constexpr qsbr_thread_count_type
-  get_threads_in_previous_epoch(type word) noexcept {
+  [[nodiscard]] static constexpr auto get_threads_in_previous_epoch(
+      type word) noexcept {
     assert_invariants(word);
     return do_get_threads_in_previous_epoch(word);
   }
 
-  [[nodiscard]] static constexpr bool single_thread_mode(type word) noexcept {
+  [[nodiscard]] static constexpr auto single_thread_mode(type word) noexcept {
     return get_thread_count(word) < 2;
   }
 
@@ -165,7 +185,7 @@ struct qsbr_state {
  private:
   friend class qsbr;
 
-  [[nodiscard]] static constexpr type make_from_epoch(
+  [[nodiscard]] static constexpr auto make_from_epoch(
       qsbr_epoch epoch) noexcept {
     const auto result = static_cast<type>(epoch.epoch_val)
                         << epoch_in_word_offset;
@@ -173,7 +193,7 @@ struct qsbr_state {
     return result;
   }
 
-  [[nodiscard]] static constexpr type inc_thread_count(type word) noexcept {
+  [[nodiscard]] static constexpr auto inc_thread_count(type word) noexcept {
     assert_invariants(word);
 
     const auto result = word + one_thread_in_count;
@@ -187,7 +207,7 @@ struct qsbr_state {
     return result;
   }
 
-  [[nodiscard]] static constexpr type dec_thread_count(type word) noexcept {
+  [[nodiscard]] static constexpr auto dec_thread_count(type word) noexcept {
     assert_invariants(word);
     UNODB_DETAIL_ASSERT(get_thread_count(word) > 0);
 
@@ -202,7 +222,7 @@ struct qsbr_state {
     return result;
   }
 
-  [[nodiscard]] static constexpr type
+  [[nodiscard]] static constexpr auto
   inc_thread_count_and_threads_in_previous_epoch(type word) noexcept {
     assert_invariants(word);
 
@@ -217,7 +237,7 @@ struct qsbr_state {
     return result;
   }
 
-  [[nodiscard]] static constexpr type
+  [[nodiscard]] static constexpr auto
   dec_thread_count_and_threads_in_previous_epoch(type word) noexcept {
     assert_invariants(word);
     UNODB_DETAIL_ASSERT(get_thread_count(word) > 0);
@@ -234,7 +254,7 @@ struct qsbr_state {
     return result;
   }
 
-  [[nodiscard]] static constexpr type inc_epoch_reset_previous(
+  [[nodiscard]] static constexpr auto inc_epoch_reset_previous(
       type word) noexcept {
     assert_invariants(word);
     UNODB_DETAIL_ASSERT(get_threads_in_previous_epoch(word) == 0);
@@ -256,7 +276,7 @@ struct qsbr_state {
     return result;
   }
 
-  [[nodiscard]] static constexpr type inc_epoch_dec_thread_count_reset_previous(
+  [[nodiscard]] static constexpr auto inc_epoch_dec_thread_count_reset_previous(
       type word) noexcept {
     assert_invariants(word);
     const auto old_thread_count = get_thread_count(word);
@@ -280,7 +300,7 @@ struct qsbr_state {
     return result;
   }
 
-  [[nodiscard]] static type atomic_fetch_dec_threads_in_previous_epoch(
+  [[nodiscard]] static auto atomic_fetch_dec_threads_in_previous_epoch(
       std::atomic<type> &word) noexcept;
 
   static constexpr void assert_invariants(
@@ -310,27 +330,6 @@ struct qsbr_state {
                                               << thread_count_in_word_offset;
   static constexpr auto one_thread_and_one_in_previous =
       one_thread_in_count | 1U;
-
-  [[nodiscard]] static constexpr qsbr_epoch do_get_epoch(type word) noexcept {
-    return qsbr_epoch{
-        gsl::narrow_cast<qsbr_epoch::epoch_type>(word >> epoch_in_word_offset)};
-  }
-
-  [[nodiscard]] static constexpr qsbr_thread_count_type do_get_thread_count(
-      type word) noexcept {
-    const auto result = gsl::narrow_cast<qsbr_thread_count_type>(
-        (word & thread_count_in_word_mask) >> thread_count_in_word_offset);
-    UNODB_DETAIL_ASSERT(result <= max_qsbr_threads);
-    return result;
-  }
-
-  [[nodiscard]] static constexpr qsbr_thread_count_type
-  do_get_threads_in_previous_epoch(type word) noexcept {
-    const auto result = gsl::narrow_cast<qsbr_thread_count_type>(
-        word & threads_in_previous_epoch_in_word_mask);
-    UNODB_DETAIL_ASSERT(result <= max_qsbr_threads);
-    return result;
-  }
 };
 
 namespace detail {
@@ -467,6 +466,10 @@ void on_thread_exit(Func fn) noexcept {
 
 class [[nodiscard]] qsbr_per_thread final {
  public:
+  [[nodiscard, gnu::pure]] auto is_qsbr_paused() const noexcept {
+    return paused;
+  }
+
   qsbr_per_thread();
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
@@ -513,15 +516,11 @@ class [[nodiscard]] qsbr_per_thread final {
 
   void qsbr_resume();
 
-  [[nodiscard, gnu::pure]] bool is_qsbr_paused() const noexcept {
-    return paused;
-  }
-
-  [[nodiscard]] bool previous_interval_requests_empty() const noexcept {
+  [[nodiscard]] auto previous_interval_requests_empty() const noexcept {
     return previous_interval_dealloc_requests.empty();
   }
 
-  [[nodiscard]] bool current_interval_requests_empty() const noexcept {
+  [[nodiscard]] auto current_interval_requests_empty() const noexcept {
     return current_interval_dealloc_requests.empty();
   }
 
@@ -542,7 +541,7 @@ class [[nodiscard]] qsbr_per_thread final {
  private:
   friend class qsbr;
   friend class qsbr_thread;
-  friend qsbr_per_thread &this_thread() noexcept;
+  friend auto &this_thread() noexcept;
   friend struct detail::set_qsbr_per_thread_in_main_thread;
 
   [[nodiscard]] static auto &get_instance() noexcept {
@@ -596,7 +595,7 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
 };
 
-[[nodiscard]] inline qsbr_per_thread &this_thread() noexcept {
+[[nodiscard]] inline auto &this_thread() noexcept {
   return qsbr_per_thread::get_instance();
 }
 
@@ -604,7 +603,7 @@ namespace boost_acc = boost::accumulators;
 
 class qsbr final {
  public:
-  [[nodiscard]] static qsbr &instance() noexcept {
+  [[nodiscard]] static auto &instance() noexcept {
     static qsbr instance;
     return instance;
   }
@@ -682,7 +681,7 @@ class qsbr final {
         std::memory_order_acquire);
   }
 
-  [[nodiscard]] std::uint64_t get_epoch_change_count() const noexcept {
+  [[nodiscard]] auto get_epoch_change_count() const noexcept {
     return epoch_change_count.load(std::memory_order_acquire);
   }
 
@@ -695,17 +694,17 @@ class qsbr final {
   }
 
   // Made public for tests and asserts
-  [[nodiscard]] qsbr_state::type get_state() const noexcept {
+  [[nodiscard]] auto get_state() const noexcept {
     return state.load(std::memory_order_acquire);
   }
 
-  [[nodiscard]] bool previous_interval_orphaned_requests_empty()
+  [[nodiscard]] auto previous_interval_orphaned_requests_empty()
       const noexcept {
     return orphaned_previous_interval_dealloc_requests.load(
                std::memory_order_acquire) == nullptr;
   }
 
-  [[nodiscard]] bool current_interval_orphaned_requests_empty() const noexcept {
+  [[nodiscard]] auto current_interval_orphaned_requests_empty() const noexcept {
     return orphaned_current_interval_dealloc_requests.load(
                std::memory_order_acquire) == nullptr;
   }
@@ -1072,8 +1071,7 @@ class [[nodiscard]] qsbr_thread : public std::thread {
  private:
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   template <typename Function, typename... Args>
-  [[nodiscard]] static std::thread make_qsbr_thread(Function &&f,
-                                                    Args &&...args) {
+  [[nodiscard]] static auto make_qsbr_thread(Function &&f, Args &&...args) {
     auto new_qsbr_thread_reclamator = std::make_unique<qsbr_per_thread>();
     return std::thread{
         [new_qsbr_thread_reclamator = move(new_qsbr_thread_reclamator)](

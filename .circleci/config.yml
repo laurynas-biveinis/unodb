@@ -27,30 +27,45 @@ jobs:
           name: Checkout submodules
           command: git submodule update --init
       - run:
-          name: Installing dependencies
+          name: Installing dependencies (common)
           command: |
-            readonly BUILD_TYPE=<< parameters.build_type >>
-            readonly COMPILER=<< parameters.compiler >>
             sudo add-apt-repository -y 'ppa:mhier/libboost-latest'
-            if [[ $COMPILER == "clang" ]]; then
-              curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
-              | sudo apt-key add -
-              echo \
-                'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main' \
-              | sudo tee -a /etc/apt/sources.list
-            elif [[ $COMPILER == "gcc" ]]; then
-              sudo add-apt-repository -y 'ppa:ubuntu-toolchain-r/test'
-            fi
             sudo apt-get update
             sudo apt-get install -y boost1.74
-            if [[ $COMPILER == "clang" ]]; then
-              sudo apt-get install -y clang-13 clang-tidy-13
-              if [[ $BUILD_TYPE == "Release" ]]; then
-                sudo apt-get install -y libomp5-13 llvm-13 lld-13
-              fi
-            elif [[ $COMPILER == "gcc" ]]; then
-              sudo apt-get install -y g++-11
-            fi
+      - when:
+          condition:
+            equal: [ "gcc", << parameters.compiler >> ]
+          steps:
+            - run:
+                name: Installing dependencies (GCC)
+                command: |
+                  sudo add-apt-repository -y 'ppa:ubuntu-toolchain-r/test'
+                  sudo apt-get update
+                  sudo apt-get install -y g++-11
+      - when:
+          condition:
+            equal: [ "clang", << parameters.compiler >> ]
+          steps:
+            - run:
+                name: Installing dependencies (LLVM common)
+                command: |
+                  curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
+                    | sudo apt-key add -
+                  echo \
+                    'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main' \
+                    | sudo tee -a /etc/apt/sources.list
+                  sudo apt-get update
+                  sudo apt-get install -y clang-13 clang-tidy-13
+      - when:
+          condition:
+            and:
+              - equal: [ "clang", << parameters.compiler >> ]
+              - equal: [ "Release", << parameters.build_type >> ]
+          steps:
+            - run:
+                name: Installing dependencies (LLVM Release)
+                command: |
+                  sudo apt-get install -y libomp5-13 llvm-13 lld-13
       - run:
           name: Create build environment
           command: mkdir build

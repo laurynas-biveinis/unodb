@@ -53,6 +53,7 @@ struct [[nodiscard]] basic_art_key final {
   }
 
   constexpr void shift_right(const std::size_t num_bytes) noexcept {
+    UNODB_DETAIL_ASSERT(num_bytes <= size);
     key >>= (num_bytes * 8);
   }
 

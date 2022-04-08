@@ -1,4 +1,4 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2022 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -8,6 +8,7 @@
 #include <limits>
 #include <new>
 #include <sstream>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>  // IWYU pragma: keep
 #include <vector>
@@ -30,6 +31,8 @@ constexpr auto test_length = 480;
 using dynamic_value = std::vector<std::byte>;
 
 using values_type = std::vector<dynamic_value>;
+
+using oracle_type = std::unordered_map<unodb::key, unodb::value_view>;
 
 [[nodiscard]] auto make_random_value(dynamic_value::size_type length) {
   dynamic_value result{length};
@@ -80,10 +83,11 @@ void dump_tree(const unodb::db &tree) {
   tree.dump(dump_sink);
 }
 
-void assert_unchanged_tree_after_failed_insert(
+void assert_unchanged_tree_after_failed_op(
     const unodb::db &test_db, std::size_t mem_use_before,
     const unodb::node_type_counter_array &node_counts_before,
     const unodb::inode_type_counter_array &growing_inode_counts_before,
+    const unodb::inode_type_counter_array &shrinking_inode_counts_before,
     std::size_t key_prefix_splits_before) {
   const auto mem_use_after = test_db.get_current_memory_use();
   ASSERT(mem_use_after == mem_use_before);
@@ -91,8 +95,78 @@ void assert_unchanged_tree_after_failed_insert(
   ASSERT(node_counts_before == node_counts_after);
   const auto growing_inode_counts_after = test_db.get_growing_inode_counts();
   ASSERT(growing_inode_counts_before == growing_inode_counts_after);
+  const auto shrinking_inode_counts_after =
+      test_db.get_shrinking_inode_counts();
+  ASSERT(shrinking_inode_counts_before == shrinking_inode_counts_after);
   const auto key_prefix_splits_after = test_db.get_key_prefix_splits();
   ASSERT(key_prefix_splits_before == key_prefix_splits_after);
+}
+
+void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
+                      unodb::db &test_db, bool insert, unodb::key key,
+                      std::optional<unodb::value_view> value) {
+  UNODB_DETAIL_ASSERT(insert == value.has_value());
+
+  const auto mem_use_before = test_db.get_current_memory_use();
+  const auto node_counts_before = test_db.get_node_counts();
+  const auto growing_inode_counts_before = test_db.get_growing_inode_counts();
+  const auto shrinking_inode_counts_before =
+      test_db.get_shrinking_inode_counts();
+  const auto key_prefix_splits_before = test_db.get_key_prefix_splits();
+
+  bool op_result;
+  unsigned fail_n = 1;
+  bool op_completed;
+
+  do {
+    unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+    try {
+      op_result = insert ? test_db.insert(key, *value) : test_db.remove(key);
+      op_completed = true;
+    } catch (const std::bad_alloc &) {
+      const auto search_result = test_db.get(key).has_value();
+      ASSERT(search_result == (oracle.find(key) != oracle.cend()));
+      assert_unchanged_tree_after_failed_op(
+          test_db, mem_use_before, node_counts_before,
+          growing_inode_counts_before, shrinking_inode_counts_before,
+          key_prefix_splits_before);
+      unodb::test::allocation_failure_injector::reset();
+      ++fail_n;
+      op_completed = false;
+    }
+  } while (!op_completed);
+
+  if (op_result) {
+    const auto mem_use_after = test_db.get_current_memory_use();
+    if (insert) {
+      ASSERT(mem_use_after > mem_use_before);
+      unodb::test::allocation_failure_injector::reset();
+      LOG(TRACE) << "Inserted key" << key;
+      const auto [insert_itr, insert_ok] = oracle.try_emplace(key, *value);
+      std::ignore = insert_itr;
+      ASSERT(insert_ok);
+      keys.emplace_back(key);
+    } else {
+      ASSERT(mem_use_after < mem_use_before);
+      unodb::test::allocation_failure_injector::reset();
+      LOG(TRACE) << "Deleted key " << key;
+      const auto oracle_delete_result = oracle.erase(key);
+      ASSERT(oracle_delete_result == 1);
+    }
+  } else {
+    assert_unchanged_tree_after_failed_op(
+        test_db, mem_use_before, node_counts_before,
+        growing_inode_counts_before, shrinking_inode_counts_before,
+        key_prefix_splits_before);
+    ASSERT((oracle.find(key) == oracle.cend()) == !insert);
+    unodb::test::allocation_failure_injector::reset();
+    LOG(TRACE) << (insert ? "Tried inserting duplicated key "
+                          : "Tried deleting missing key ")
+               << key;
+  }
+
+  dump_tree(test_db);
+  LOG(TRACE) << "Current mem use: " << test_db.get_current_memory_use();
 }
 
 }  // namespace
@@ -125,7 +199,7 @@ TEST(ART, DeepStateFuzz) {
 
   std::vector<unodb::key> keys;
   values_type values;
-  std::unordered_map<unodb::key, unodb::value_view> oracle;
+  oracle_type oracle;
 
   for (auto i = 0; i < test_length; i++) {
     LOG(TRACE) << "Iteration " << i;
@@ -134,67 +208,12 @@ TEST(ART, DeepStateFuzz) {
         [&] {
           const auto key = DeepState_UInt64InRange(0, max_key_value);
           const auto value = get_value(max_value_length, values);
-
-          const auto mem_use_before = test_db.get_current_memory_use();
-          const auto node_counts_before = test_db.get_node_counts();
-          const auto growing_inode_counts_before =
-              test_db.get_growing_inode_counts();
-          const auto shrinking_inode_counts_before =
-              test_db.get_shrinking_inode_counts();
-          const auto key_prefix_splits_before = test_db.get_key_prefix_splits();
-
-          bool insert_result;
-          unsigned fail_n = 0;
-          bool insert_completed;
-          do {
-            unodb::test::allocation_failure_injector::fail_on_nth_allocation(
-                fail_n);
-
-            try {
-              insert_result = test_db.insert(key, value);
-              insert_completed = true;
-            } catch (const std::bad_alloc &) {
-              insert_completed = false;
-
-              const auto search_result = test_db.get(key).has_value();
-              ASSERT(search_result == (oracle.find(key) != oracle.cend()));
-              assert_unchanged_tree_after_failed_insert(
-                  test_db, mem_use_before, node_counts_before,
-                  growing_inode_counts_before, key_prefix_splits_before);
-
-              unodb::test::allocation_failure_injector::reset();
-              ++fail_n;
-            }
-          } while (!insert_completed);
-          unodb::test::allocation_failure_injector::reset();
-
-          if (insert_result) {
-            LOG(TRACE) << "Inserted key " << key;
-            ASSERT(!test_db.empty());
-            const auto mem_use_after = test_db.get_current_memory_use();
-            ASSERT(mem_use_after > mem_use_before);
-            const auto oracle_insert_result = oracle.emplace(key, value);
-            ASSERT(oracle_insert_result.second)
-                << "If insert suceeded, oracle insert must succeed";
-            keys.emplace_back(key);
-          } else {
-            LOG(TRACE) << "Tried to insert duplicate key " << key;
-            assert_unchanged_tree_after_failed_insert(
-                test_db, mem_use_before, node_counts_before,
-                growing_inode_counts_before, key_prefix_splits_before);
-            ASSERT(oracle.find(key) != oracle.cend())
-                << "If insert returned failure, oracle must contain that key";
-          }
-
-          const auto shrinking_inode_counts_after =
-              test_db.get_shrinking_inode_counts();
-          ASSERT(shrinking_inode_counts_before == shrinking_inode_counts_after);
-
-          dump_tree(test_db);
-          LOG(TRACE) << "Current mem use: " << test_db.get_current_memory_use();
+          LOG(TRACE) << "Inserting key " << key;
+          op_with_oom_test(oracle, keys, test_db, true, key, value);
         },
         // Query
         [&] {
+          unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
           const auto key = get_key(max_key_value, keys);
           LOG(TRACE) << "Searching for key " << key;
           const auto search_result = test_db.get(key);
@@ -212,6 +231,7 @@ TEST(ART, DeepStateFuzz) {
             ASSERT(oracle_search_result == oracle.cend())
                 << "If search did not find a key, oracle must not find it too ";
           }
+          unodb::test::allocation_failure_injector::reset();
         },
         // Delete
         [&] {
@@ -219,29 +239,18 @@ TEST(ART, DeepStateFuzz) {
           const auto clear = (DeepState_UIntInRange(0, 999) == 0);
           if (clear) {
             LOG(TRACE) << "Clearing the tree";
+            unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
             test_db.clear();
             oracle.clear();
             ASSERT(test_db.get_current_memory_use() == 0);
             ASSERT(test_db.empty());
+            unodb::test::allocation_failure_injector::reset();
             return;
           }
+
           const auto key = get_key(max_key_value, keys);
           LOG(TRACE) << "Deleting key " << key;
-          const auto mem_use_before = test_db.get_current_memory_use();
-          const auto delete_result = test_db.remove(key);
-          const auto mem_use_after = test_db.get_current_memory_use();
-          const auto oracle_delete_result = oracle.erase(key);
-          if (delete_result) {
-            ASSERT(mem_use_after < mem_use_before);
-            ASSERT(oracle_delete_result == 1)
-                << "If delete succeeded, oracle delete must succeed too";
-          } else {
-            ASSERT(mem_use_after == mem_use_before);
-            ASSERT(oracle_delete_result == 0)
-                << "If delete failed, oracle delete must fail too";
-          }
-          dump_tree(test_db);
-          LOG(TRACE) << "Current mem use: " << test_db.get_current_memory_use();
+          op_with_oom_test(oracle, keys, test_db, false, key, {});
         });
   }
 

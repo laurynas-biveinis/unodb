@@ -95,11 +95,34 @@ randomly_advanced_pos_and_iterator(T &container) {
 void resume_thread(std::size_t thread_i) {
   ASSERT(threads[thread_i].is_paused == unodb::this_thread().is_qsbr_paused());
   ASSERT(threads[thread_i].is_paused);
-
   LOG(TRACE) << "Resuming thread";
-  unodb::this_thread().qsbr_resume();
+
+  const auto thread_count_before =
+      unodb::qsbr_state::get_thread_count(unodb::qsbr::instance().get_state());
+
+  unsigned fail_n = 1;
+  bool op_completed;
+  do {
+    unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+    try {
+      unodb::this_thread().qsbr_resume();
+      op_completed = true;
+    } catch (const std::bad_alloc &) {
+      ASSERT(unodb::this_thread().is_qsbr_paused());
+      const auto thread_count_after = unodb::qsbr_state::get_thread_count(
+          unodb::qsbr::instance().get_state());
+      ASSERT(thread_count_before == thread_count_after);
+      unodb::test::allocation_failure_injector::reset();
+      ++fail_n;
+      op_completed = false;
+    }
+  } while (!op_completed);
+  const auto thread_count_after =
+      unodb::qsbr_state::get_thread_count(unodb::qsbr::instance().get_state());
+  ASSERT(thread_count_before + 1 == thread_count_after);
   ASSERT(unodb::this_thread().previous_interval_requests_empty());
   ASSERT(unodb::this_thread().current_interval_requests_empty());
+  unodb::test::allocation_failure_injector::reset();
   threads[thread_i].is_paused = false;
 }
 

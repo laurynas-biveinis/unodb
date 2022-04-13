@@ -77,8 +77,6 @@ TEST_F(QSBROOMTest, StartThread) {
 TEST_F(QSBROOMTest, DeferredDeallocation) {
   auto *ptr = static_cast<char *>(allocate());
   unodb::qsbr_thread second_thread;
-  const auto current_interval_total_dealloc_size_before =
-      unodb::this_thread().get_current_interval_total_dealloc_size();
   oom_test(
       2,
       [&second_thread]() noexcept {
@@ -91,14 +89,7 @@ TEST_F(QSBROOMTest, DeferredDeallocation) {
 
         unodb::detail::thread_syncs[0].wait();
       },
-      [ptr] { qsbr_deallocate(ptr); },
-      [ptr, current_interval_total_dealloc_size_before]() noexcept {
-        touch_memory(ptr);
-        const auto current_interval_total_dealloc_size_after =
-            unodb::this_thread().get_current_interval_total_dealloc_size();
-        UNODB_ASSERT_EQ(current_interval_total_dealloc_size_before,
-                        current_interval_total_dealloc_size_after);
-      },
+      [ptr] { qsbr_deallocate(ptr); }, [ptr]() noexcept { touch_memory(ptr); },
       [ptr] { qsbr_deallocate(ptr); },
       [&second_thread] {
         unodb::detail::thread_syncs[1].notify();

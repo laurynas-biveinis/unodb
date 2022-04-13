@@ -166,16 +166,42 @@ class QSBRTestBase : public ::testing::Test {
   static void qsbr_deallocate(void *ptr) {
     const auto current_interval_total_dealloc_size_before =
         unodb::this_thread().get_current_interval_total_dealloc_size();
-    unodb::this_thread().on_next_epoch_deallocate(ptr, 1
+    const auto previous_interval_empty_before =
+        unodb::this_thread().previous_interval_requests_empty();
+    const auto current_interval_empty_before =
+        unodb::this_thread().current_interval_requests_empty();
+
+    try {
+      unodb::this_thread().on_next_epoch_deallocate(ptr, 1
 #ifndef NDEBUG
-                                                  ,
-                                                  check_ptr_on_qsbr_dealloc
+                                                    ,
+                                                    check_ptr_on_qsbr_dealloc
 #endif
-    );
+      );
+    } catch (...) {
+      const auto current_interval_total_dealloc_size_after =
+          unodb::this_thread().get_current_interval_total_dealloc_size();
+      const auto previous_interval_empty_after =
+          unodb::this_thread().previous_interval_requests_empty();
+      const auto current_interval_empty_after =
+          unodb::this_thread().current_interval_requests_empty();
+      UNODB_EXPECT_EQ(current_interval_total_dealloc_size_before,
+                      current_interval_total_dealloc_size_after);
+      UNODB_EXPECT_EQ(previous_interval_empty_before,
+                      previous_interval_empty_after);
+      UNODB_EXPECT_EQ(current_interval_empty_before,
+                      current_interval_empty_after);
+      throw;
+    }
+
     const auto current_interval_total_dealloc_size_after =
         unodb::this_thread().get_current_interval_total_dealloc_size();
+    const auto current_interval_empty_after =
+        unodb::this_thread().current_interval_requests_empty();
     const auto single_thread_mode =
         qsbr_state::single_thread_mode(qsbr::instance().get_state());
+    UNODB_EXPECT_EQ(current_interval_empty_after,
+                    (current_interval_total_dealloc_size_after == 0));
     if (single_thread_mode) {
       UNODB_EXPECT_TRUE(current_interval_total_dealloc_size_before ==
                             current_interval_total_dealloc_size_after ||

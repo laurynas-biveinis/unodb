@@ -923,9 +923,14 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     // requiring synthesized _mm_movemask_epi8 equivalent.
     const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
     const auto second_lt = (((keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
+
     const auto third_lt = ((keys.integer >> 16U) & 0xFFU) < key_byte ? 1 : 0;
+    const auto currently_three_children = (children_count_ == 3) ? 1 : 0;
+    const auto consider_third_pos =
+        ((third_lt + currently_three_children) == 2) ? 1 : 0;
+
     const auto insert_pos_index =
-        static_cast<unsigned>(first_lt + second_lt + third_lt);
+        static_cast<unsigned>(first_lt + second_lt + consider_third_pos);
 #endif
 
     for (typename decltype(keys.byte_array)::size_type i = children_count_;
@@ -962,9 +967,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       keys.byte_array[i] = keys.byte_array[i + 1];
       children[i] = children[i + 1];
     }
-#ifndef UNODB_DETAIL_X86_64
-    keys.byte_array[i] = unused_key_byte;
-#endif
 
     --children_count_;
     this->children_count = children_count_;
@@ -1074,10 +1076,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     children[key1_i] = child1;
     keys.byte_array[key2_i] = key2;
     children[key2_i] = node_ptr{child2.release(), node_type::LEAF};
-#ifndef UNODB_DETAIL_X86_64
-    keys.byte_array[2] = unused_key_byte;
-    keys.byte_array[3] = unused_key_byte;
-#endif
 
     UNODB_DETAIL_ASSERT(
         std::is_sorted(keys.byte_array.cbegin(),
@@ -1123,10 +1121,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
         node_key_mask;
     return detail::popcount(bit_field);
   }
-#else
-  // The baseline implementation compares key bytes with less-than past the
-  // current node size
-  static constexpr std::byte unused_key_byte{0xFF};
 #endif
 
   template <class>

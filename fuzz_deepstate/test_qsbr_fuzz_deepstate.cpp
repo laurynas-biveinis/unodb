@@ -183,18 +183,47 @@ void deallocate_pointer(std::uint64_t *ptr) {
 
   const auto current_interval_total_dealloc_size_before =
       unodb::this_thread().get_current_interval_total_dealloc_size();
+  const auto previous_interval_empty_before =
+      unodb::this_thread().previous_interval_requests_empty();
+  const auto current_interval_empty_before =
+      unodb::this_thread().current_interval_requests_empty();
 
-  unodb::this_thread().on_next_epoch_deallocate(ptr, sizeof(object_mem)
+  unsigned fail_n = 1;
+  bool op_completed;
+  do {
+    unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+    try {
+      unodb::this_thread().on_next_epoch_deallocate(
+          ptr, sizeof(object_mem)
 #ifndef NDEBUG
-                                                         ,
-                                                check_qsbr_pointer_on_dealloc
+                   ,
+          check_qsbr_pointer_on_dealloc
 #endif
-  );
+      );
+      op_completed = true;
+    } catch (const std::bad_alloc &) {
+      const auto current_interval_total_dealloc_size_after =
+          unodb::this_thread().get_current_interval_total_dealloc_size();
+      ASSERT(current_interval_total_dealloc_size_before ==
+             current_interval_total_dealloc_size_after);
+      const auto previous_interval_empty_after =
+          unodb::this_thread().previous_interval_requests_empty();
+      ASSERT(previous_interval_empty_before == previous_interval_empty_after);
+      const auto current_interval_empty_after =
+          unodb::this_thread().current_interval_requests_empty();
+      ASSERT(current_interval_empty_before == current_interval_empty_after);
+
+      unodb::test::allocation_failure_injector::reset();
+      ++fail_n;
+      op_completed = false;
+    }
+  } while (!op_completed);
 
   const auto current_interval_total_dealloc_size_after =
       unodb::this_thread().get_current_interval_total_dealloc_size();
   const auto single_thread_mode = unodb::qsbr_state::single_thread_mode(
       unodb::qsbr::instance().get_state());
+  unodb::test::allocation_failure_injector::reset();
   if (single_thread_mode) {
     ASSERT(current_interval_total_dealloc_size_before ==
                current_interval_total_dealloc_size_after ||

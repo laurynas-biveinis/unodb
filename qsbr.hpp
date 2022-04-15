@@ -583,10 +583,13 @@ class [[nodiscard]] qsbr_per_thread final {
 
   bool paused{true};
 
-  void advance_last_seen_epoch(bool single_thread_mode,
-                               qsbr_epoch new_seen_epoch);
+  void advance_last_seen_epoch(
+      bool single_thread_mode, qsbr_epoch new_seen_epoch,
+      detail::dealloc_request_vector new_current_requests = {});
 
-  void update_requests(bool single_thread_mode, qsbr_epoch dealloc_epoch);
+  void update_requests(
+      bool single_thread_mode, qsbr_epoch dealloc_epoch,
+      detail::dealloc_request_vector new_current_requests = {});
 
   void orphan_deferred_requests() noexcept;
 
@@ -833,15 +836,31 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
   const auto single_thread_mode =
       qsbr_state::single_thread_mode(current_qsbr_state);
 
-  advance_last_seen_epoch(single_thread_mode, current_global_epoch);
-
   if (UNODB_DETAIL_UNLIKELY(single_thread_mode)) {
+    advance_last_seen_epoch(single_thread_mode, current_global_epoch);
     qsbr::deallocate(pointer
 #ifndef NDEBUG
                      ,
                      dealloc_callback
 #endif
     );
+    return;
+  }
+
+  if (last_seen_epoch != current_global_epoch) {
+    detail::dealloc_request_vector new_current_requests;
+    new_current_requests.emplace_back(pointer
+#ifndef NDEBUG
+                                      ,
+                                      current_global_epoch,
+                                      std::move(dealloc_callback)
+#endif
+    );
+    advance_last_seen_epoch(single_thread_mode, current_global_epoch,
+                            std::move(new_current_requests));
+    UNODB_DETAIL_ASSERT(current_interval_dealloc_requests.size() == 1);
+    UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size == 0);
+    current_interval_total_dealloc_size = size;
     return;
   }
 
@@ -852,12 +871,12 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
                                                  std::move(dealloc_callback)
 #endif
   );
-
   current_interval_total_dealloc_size += size;
 }
 
 inline void qsbr_per_thread::advance_last_seen_epoch(
-    bool single_thread_mode, qsbr_epoch new_seen_epoch) {
+    bool single_thread_mode, qsbr_epoch new_seen_epoch,
+    detail::dealloc_request_vector new_current_requests) {
   if (new_seen_epoch == last_seen_epoch) return;
 
   UNODB_DETAIL_ASSERT(
@@ -866,11 +885,13 @@ inline void qsbr_per_thread::advance_last_seen_epoch(
       // the current epoch yet; 3) it quitting will cause an
       // epoch advance
       || (!single_thread_mode && new_seen_epoch == last_seen_epoch.advance(2)));
-  update_requests(single_thread_mode, new_seen_epoch);
+  update_requests(single_thread_mode, new_seen_epoch,
+                  std::move(new_current_requests));
 }
 
-inline void qsbr_per_thread::update_requests(bool single_thread_mode,
-                                             qsbr_epoch dealloc_epoch) {
+inline void qsbr_per_thread::update_requests(
+    bool single_thread_mode, qsbr_epoch dealloc_epoch,
+    detail::dealloc_request_vector new_current_requests) {
   last_seen_epoch = dealloc_epoch;
 
   detail::deferred_requests requests_to_deallocate{
@@ -900,7 +921,7 @@ inline void qsbr_per_thread::update_requests(bool single_thread_mode,
 #endif
     };
   }
-  current_interval_dealloc_requests.clear();
+  current_interval_dealloc_requests = std::move(new_current_requests);
 }
 
 inline void qsbr_per_thread::quiescent() {

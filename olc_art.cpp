@@ -365,7 +365,6 @@ class [[nodiscard]] olc_inode_16 final
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
-// TODO(laurynas): why ARM is different?
 // 160 == sizeof(inode_16)
 #ifdef NDEBUG
 #ifdef __aarch64__
@@ -454,7 +453,6 @@ class [[nodiscard]] olc_inode_48 final
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
-// TODO(laurynas): why ARM is different?
 // 656 == sizeof(inode_48)
 #ifdef NDEBUG
 #ifdef __aarch64__

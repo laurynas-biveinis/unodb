@@ -379,6 +379,7 @@ struct [[nodiscard]] deallocation_request final {
   }
 
  private:
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
   static std::atomic<std::uint64_t> instance_count;
 #endif
 };

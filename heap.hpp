@@ -112,6 +112,7 @@ template <typename T>
   void* result;
 
 #ifndef _MSC_VER
+  // cppcheck-suppress unreadVariable
   const auto err UNODB_DETAIL_USED_IN_DEBUG =
       posix_memalign(&result, alignment, size);
 #else

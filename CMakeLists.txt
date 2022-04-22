@@ -71,13 +71,16 @@ set(GCC_GE_11_CXX_WARNING_FLAGS
 
 set(UNIX_CXX_FLAGS "-g")
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-  list(APPEND UNIX_CXX_FLAGS "-msse4.1")
+option(AVX2 "Enable AVX2 instructions on x86_64" ON)
+if(AVX2)
+  message(STATUS "Using AVX2 instructions on x86_64")
+else()
+  message(STATUS "Using SSE4.1 instructions on x86_64")
 endif()
 
 if(MSVC)
   # Remove it once CMake minimum is bumped to 3.15 or greater
-  string(REGEX REPLACE "/W3" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+      string(REGEX REPLACE "/W3" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
 # Disable the following warnings for MSVC:
@@ -463,6 +466,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     # on 3.14.
     "$<$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>:${MSVC_CLANG_CXX_FLAGS}>"
     "$<$<NOT:$<PLATFORM_ID:Windows>>:${UNIX_CXX_FLAGS}>"
+    "$<$<AND:$<NOT:$<PLATFORM_ID:Windows>>,$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>>:$<IF:$<BOOL:${AVX2}>,-mavx2,-msse4.1>>"
     "$<$<BOOL:${FATAL_WARNINGS}>:$<IF:$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>,/WX,-Werror>>"
     "$<$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>:${MSVC_CXX_WARNING_FLAGS}>"
     "$<$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>:${MSVC_CLANGS_ONLY_WARNING_FLAGS}>"
@@ -563,7 +567,7 @@ if(LIBFUZZER_AVAILABLE)
 endif()
 
 set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"
-  "--trace-children=yes")
+  "--trace-children=yes" "-v")
 
 add_custom_target(valgrind DEPENDS valgrind_tests valgrind_benchmarks)
 

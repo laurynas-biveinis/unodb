@@ -138,7 +138,11 @@ class [[nodiscard]] inode_48 final
   }
 };
 
+#ifdef UNODB_DETAIL_AVX2
+static_assert(sizeof(inode_48) == 672);
+#else
 static_assert(sizeof(inode_48) == 656);
+#endif
 
 class [[nodiscard]] inode_256 final
     : public unodb::detail::basic_inode_256<art_policy> {

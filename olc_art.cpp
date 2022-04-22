@@ -453,20 +453,22 @@ class [[nodiscard]] olc_inode_48 final
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
-// 656 == sizeof(inode_48)
+// sizeof(inode_48) == 672 on AVX2, 656 otherwise
 #ifdef NDEBUG
 #ifdef __aarch64__
 static_assert(sizeof(olc_inode_48) == 656 + 8);
-#else   // #ifdef __aarch64__
-static_assert(sizeof(olc_inode_48) == 656 + 16);
-#endif  // #ifdef __aarch64__
 #else
+static_assert(sizeof(olc_inode_48) == 656 + 16);  // AVX2 too. Padding?
+#endif
+#else  // #ifdef NDEBUG
 #ifdef __aarch64__
 static_assert(sizeof(olc_inode_48) == 656 + 24);
-#else   // #ifdef __aarch64__
+#elif defined(UNODB_DETAIL_AVX2)
+static_assert(sizeof(olc_inode_48) == 672 + 32);
+#else
 static_assert(sizeof(olc_inode_48) == 656 + 32);
-#endif  // #ifdef __aarch64__
 #endif
+#endif  // #ifdef NDEBUG
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 

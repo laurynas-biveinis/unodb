@@ -19,6 +19,9 @@
 #include <emmintrin.h>
 #include <smmintrin.h>
 #endif
+#ifdef UNODB_DETAIL_AVX2
+#include <immintrin.h>
+#endif
 
 #include <gsl/util>
 
@@ -1529,7 +1532,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     const auto key_byte = static_cast<uint8_t>(child->get_key()[depth]);
     UNODB_DETAIL_ASSERT(child_indexes[key_byte] == empty_child);
     unsigned i{0};
-#ifdef UNODB_DETAIL_X86_64
+#ifdef UNODB_DETAIL_SSE4_2
     const auto nullptr_vector = _mm_setzero_si128();
     while (true) {
       const auto ptr_vec0 = _mm_load_si128(&children.pointer_vector[i]);
@@ -1552,6 +1555,19 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         break;
       }
       i += 4;
+    }
+#elif defined(UNODB_DETAIL_AVX2)
+    const auto nullptr_vector = _mm256_setzero_si256();
+    while (true) {
+      const auto ptr_vec = _mm256_load_si256(&children.pointer_vector[i]);
+      const auto vec_cmp = _mm256_cmpeq_epi64(ptr_vec, nullptr_vector);
+      const auto cmp_mask =
+          static_cast<std::uint64_t>(_mm256_movemask_epi8(vec_cmp));
+      if (cmp_mask != 0) {
+        i = (i << 2U) + (detail::ctz64(cmp_mask) >> 3U);
+        break;
+      }
+      ++i;
     }
 #else   // #ifdef UNODB_DETAIL_X86_64
     // This is also the current best ARM implementation
@@ -1719,7 +1735,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   union children_union {
     std::array<critical_section_policy<node_ptr>, basic_inode_48::capacity>
         pointer_array;
-#ifdef UNODB_DETAIL_X86_64
+#ifdef UNODB_DETAIL_SSE4_2
     static_assert(basic_inode_48::capacity % 2 == 0);
     static_assert((basic_inode_48::capacity / 2) % 4 == 0,
                   "Node48 capacity must support unrolling without remainder");
@@ -1727,6 +1743,10 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     __m128i
         pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)
+#elif defined(UNODB_DETAIL_AVX2)
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    __m256i
+        pointer_vector[basic_inode_48::capacity / 4];  // NOLINT(runtime/arrays)
 #endif
 
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)

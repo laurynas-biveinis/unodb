@@ -11,6 +11,7 @@ env:
   DEFAULT_STATIC_ANALYSIS: OFF
   DEFAULT_CPPLINT: OFF
   DEFAULT_COVERAGE: OFF
+  DEFAULT_AVX2: ON
 
 jobs:
   build:
@@ -26,6 +27,7 @@ jobs:
       COMPILER: ${{matrix.COMPILER}}
       CPPLINT: ${{matrix.CPPLINT}}
       CPPCHECK: ${{matrix.CPPCHECK}}
+      AVX2: ${{matrix.AVX2}}
 
     strategy:
       fail-fast: false
@@ -76,6 +78,12 @@ jobs:
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_UB: ON
+
+          - name: GCC 11 Debug without AVX2
+            os: ubuntu-20.04
+            BUILD_TYPE: Debug
+            COMPILER: gcc
+            AVX2: OFF
 
           - name: GCC 11 Release static analysis & cpplint
             os: ubuntu-20.04
@@ -152,60 +160,70 @@ jobs:
             os: macos-latest
             BUILD_TYPE: Release
             COMPILER: macos-clang
+            AVX2: OFF
 
           - name: XCode Release with ASan
             os: macos-latest
             BUILD_TYPE: Release
             COMPILER: macos-clang
             SANITIZE_ADDRESS: ON
+            AVX2: OFF
 
           - name: XCode Release with TSan
             os: macos-latest
             BUILD_TYPE: Release
             COMPILER: macos-clang
             SANITIZE_THREAD: ON
+            AVX2: OFF
 
           - name: XCode Release with UBSan
             os: macos-latest
             BUILD_TYPE: Release
             COMPILER: macos-clang
             SANITIZE_UB: ON
+            AVX2: OFF
 
           - name: XCode Debug with cppcheck
             os: macos-latest
             BUILD_TYPE: Debug
             COMPILER: macos-clang
             CPPCHECK: ON
+            AVX2: OFF
 
           - name: XCode Debug with ASan
             os: macos-latest
             BUILD_TYPE: Debug
             COMPILER: macos-clang
             SANITIZE_ADDRESS: ON
+            AVX2: OFF
 
           - name: XCode Debug with TSan
             os: macos-latest
             BUILD_TYPE: Debug
             COMPILER: macos-clang
             SANITIZE_THREAD: ON
+            AVX2: OFF
 
           - name: XCode Debug with UBSan
             os: macos-latest
             BUILD_TYPE: Debug
             COMPILER: macos-clang
             SANITIZE_UB: ON
+            AVX2: OFF
 
           - name: Debug coverage
             os: macos-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             COVERAGE: ON
+            AVX2: OFF
 
           - name: Release coverage
             os: macos-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             COVERAGE: ON
+            AVX2: OFF
 
     steps:
       - uses: actions/checkout@v2
@@ -290,6 +308,7 @@ jobs:
           SANITIZE_UB="${SANITIZE_UB:-$DEFAULT_SANITIZE_UB}"
           STATIC_ANALYSIS="${STATIC_ANALYSIS:-$DEFAULT_STATIC_ANALYSIS}"
           COVERAGE="${COVERAGE:-$DEFAULT_COVERAGE}"
+          AVX2="${AVX2:-$DEFAULT_AVX2}"
           export PATH="$HOME/.local/bin:$PATH"
           if [[ $COMPILER == "gcc" ]]; then
             export CC=gcc-11
@@ -327,7 +346,7 @@ jobs:
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
               "-DSANITIZE_UB=${SANITIZE_UB}" \
               "-DSTATIC_ANALYSIS=${STATIC_ANALYSIS}" "-DCOVERAGE=${COVERAGE}" \
-              "${EXTRA_CMAKE_ARGS[@]}"
+              "-DAVX2=${AVX2}" "${EXTRA_CMAKE_ARGS[@]}"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -367,7 +386,8 @@ jobs:
       - name: Valgrind test
         working-directory: ${{github.workspace}}/build
         run: |
-          sudo apt-get install -y valgrind
+          sudo apt-get install -y libc6-dbg
+          sudo snap install --classic valgrind
           make valgrind
         if: >
           env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'

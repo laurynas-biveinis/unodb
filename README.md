@@ -19,8 +19,9 @@ and I am trying to describe some of the things I learned at my [blog](https://of
 
 ## Requirements
 
-The source code is C++17, using SSE4.1 intrinsics (Nehalem and higher) or AVX
-in the case of MSVC. This is in contrast to the original ART paper needing SSE2
+The source code is C++17, using SSE4.1 intrinsics (Nehalem and higher), AVX in
+the case of MSVC, with optional AVX2 support, if available. This is in contrast
+to the original ART paper needing SSE2
 only.
 
 Note: since this is my personal project, it only supports GCC 10, 11, LLVM 11 to
@@ -111,6 +112,8 @@ To make compiler warnings fatal, add `-DFATAL_WARNINGS=ON` CMake option.
 clang-tidy, cppcheck, and cpplint will be invoked automatically during build if
 found. Currently the diagnostic level for them as well as for compiler warnings
 is set very high, and can be relaxed, especially for clang-tidy, as need arises.
+
+To disable AVX2 intrinsics to use SSE4.1/AVX only, add `-DWITH_AVX2=OFF`.
 
 To enable AddressSanitizer and LeakSanitizer (the latter if available), add
 `-DSANITIZE_ADDRESS=ON` CMake option. It is incompatible with

@@ -46,6 +46,14 @@
 #define UNODB_DETAIL_X86_64
 #endif
 
+#ifdef UNODB_DETAIL_X86_64
+#ifdef __AVX2__
+#define UNODB_DETAIL_AVX2
+#else
+#define UNODB_DETAIL_SSE4_2
+#endif
+#endif
+
 #if defined(UNODB_DETAIL_X86_64) || \
     defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #define UNODB_DETAIL_LITTLE_ENDIAN

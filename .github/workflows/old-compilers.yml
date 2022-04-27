@@ -264,7 +264,8 @@ jobs:
       - name: Valgrind test
         working-directory: ${{github.workspace}}/build
         run: |
-          sudo apt-get install -y valgrind
+          sudo apt-get install -y libc6-dbg
+          sudo snap install --classic valgrind
           make valgrind
         if: >
           env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'

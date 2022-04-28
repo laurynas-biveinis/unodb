@@ -1548,9 +1548,9 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       const auto vec01_cmp = _mm_packs_epi32(vec0_cmp, vec1_cmp);
       const auto vec23_cmp = _mm_packs_epi32(vec2_cmp, vec3_cmp);
       const auto vec_cmp = _mm_packs_epi32(vec01_cmp, vec23_cmp);
-      const auto cmp_mask =
-          static_cast<std::uint64_t>(_mm_movemask_epi8(vec_cmp));
-      if (cmp_mask != 0) {
+      if (!_mm_testz_si128(vec_cmp, vec_cmp)) {
+        const auto cmp_mask =
+            static_cast<std::uint64_t>(_mm_movemask_epi8(vec_cmp));
         i = (i << 1U) + (((detail::ctz64(cmp_mask)) + 1) >> 1U);
         break;
       }

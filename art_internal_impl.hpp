@@ -1744,6 +1744,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     __m128i
         pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)
 #elif defined(UNODB_DETAIL_AVX2)
+    static_assert(basic_inode_48::capacity % 4 == 0);
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     __m256i
         pointer_vector[basic_inode_48::capacity / 4];  // NOLINT(runtime/arrays)

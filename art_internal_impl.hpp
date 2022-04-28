@@ -1736,18 +1736,11 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     std::array<critical_section_policy<node_ptr>, basic_inode_48::capacity>
         pointer_array;
 #ifdef UNODB_DETAIL_SSE4_2
-    static_assert(basic_inode_48::capacity % 2 == 0);
-    static_assert((basic_inode_48::capacity / 2) % 4 == 0,
-                  "Node48 capacity must support unrolling without remainder");
-    // No std::array below because it would ignore the alignment attribute
-    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    __m128i
-        pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)
+    static_assert(basic_inode_48::capacity % 8 == 0);
+    std::array<__m128i, basic_inode_48::capacity / 2> pointer_vector;
 #elif defined(UNODB_DETAIL_AVX2)
     static_assert(basic_inode_48::capacity % 4 == 0);
-    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    __m256i
-        pointer_vector[basic_inode_48::capacity / 4];  // NOLINT(runtime/arrays)
+    std::array<__m256i, basic_inode_48::capacity / 4> pointer_vector;
 #endif
 
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)

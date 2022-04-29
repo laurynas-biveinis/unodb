@@ -1559,15 +1559,20 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 #elif defined(UNODB_DETAIL_AVX2)
     const auto nullptr_vector = _mm256_setzero_si256();
     while (true) {
-      const auto ptr_vec = _mm256_load_si256(&children.pointer_vector[i]);
-      const auto vec_cmp = _mm256_cmpeq_epi64(ptr_vec, nullptr_vector);
-      const auto cmp_mask =
-          static_cast<std::uint64_t>(_mm256_movemask_epi8(vec_cmp));
-      if (cmp_mask != 0) {
-        i = (i << 2U) + (detail::ctz64(cmp_mask) >> 3U);
+      const auto ptr_vec0 = _mm256_load_si256(&children.pointer_vector[i]);
+      const auto ptr_vec1 = _mm256_load_si256(&children.pointer_vector[i + 1]);
+      const auto vec0_cmp = _mm256_cmpeq_epi64(ptr_vec0, nullptr_vector);
+      const auto vec1_cmp = _mm256_cmpeq_epi64(ptr_vec1, nullptr_vector);
+      const auto interleaved_vec_cmp = _mm256_packs_epi32(vec0_cmp, vec1_cmp);
+      if (!_mm256_testz_si256(interleaved_vec_cmp, interleaved_vec_cmp)) {
+        const auto vec_cmp =
+            _mm256_permute4x64_epi64(interleaved_vec_cmp, 0b11'01'10'00);
+        const auto cmp_mask =
+            static_cast<std::uint64_t>(_mm256_movemask_epi8(vec_cmp));
+        i = (i << 2U) + (detail::ctz64(cmp_mask) >> 2U);
         break;
       }
-      ++i;
+      i += 2;
     }
 #else   // #ifdef UNODB_DETAIL_X86_64
     // This is also the current best ARM implementation
@@ -1744,7 +1749,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     __m128i
         pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)
 #elif defined(UNODB_DETAIL_AVX2)
-    static_assert(basic_inode_48::capacity % 4 == 0);
+    static_assert(basic_inode_48::capacity % 8 == 0,
+                  "Node48 capacity must support unrolling without remainder");
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     __m256i
         pointer_vector[basic_inode_48::capacity / 4];  // NOLINT(runtime/arrays)

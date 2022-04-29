@@ -1561,9 +1561,9 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     while (true) {
       const auto ptr_vec = _mm256_load_si256(&children.pointer_vector[i]);
       const auto vec_cmp = _mm256_cmpeq_epi64(ptr_vec, nullptr_vector);
-      const auto cmp_mask =
-          static_cast<std::uint64_t>(_mm256_movemask_epi8(vec_cmp));
-      if (cmp_mask != 0) {
+      if (!_mm256_testz_si256(vec_cmp, vec_cmp)) {
+        const auto cmp_mask =
+            static_cast<std::uint64_t>(_mm256_movemask_epi8(vec_cmp));
         i = (i << 2U) + (detail::ctz64(cmp_mask) >> 3U);
         break;
       }

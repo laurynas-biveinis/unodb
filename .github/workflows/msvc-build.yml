@@ -26,6 +26,9 @@ jobs:
           - name: MSVC LLVM Debug
             preset: "msvc-llvm-debug"
 
+          - name: MSVC Debug without AVX2
+            preset: "msvc-debug-no-avx2"
+
           - name: MSVC Static Analysis Release
             preset: "msvc-static-analysis-release"
 

@@ -296,6 +296,16 @@
             ]
         },
         {
+            "name": "msvc-debug-no-avx2",
+            "inherits": [
+                "base-msvc",
+                "debug"
+            ],
+            "cacheVariables": {
+                "AVX2": "OFF"
+            }
+        },
+        {
             "name": "msvc-release",
             "inherits": [
                 "base-msvc",
@@ -496,6 +506,11 @@
             "inherits": "base"
         },
         {
+            "name": "msvc-debug-no-avx2",
+            "configurePreset": "msvc-debug-no-avx2",
+            "inherits": "base"
+        },
+        {
             "name": "msvc-release",
             "configurePreset": "msvc-release",
             "inherits": "base"
@@ -678,6 +693,11 @@
         {
             "name": "msvc-debug",
             "configurePreset": "msvc-debug",
+            "inherits": "base"
+        },
+        {
+            "name": "msvc-debug-no-avx2",
+            "configurePreset": "msvc-debug-no-avx2",
             "inherits": "base"
         },
         {

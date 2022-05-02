@@ -1561,6 +1561,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     while (true) {
       const auto ptr_vec0 = _mm256_load_si256(&children.pointer_vector[i]);
       const auto ptr_vec1 = _mm256_load_si256(&children.pointer_vector[i + 1]);
+      __builtin_prefetch(&children.pointer_vector[i + 2]);
+      __builtin_prefetch(&children.pointer_vector[i + 3]);
       const auto vec0_cmp = _mm256_cmpeq_epi64(ptr_vec0, nullptr_vector);
       const auto vec1_cmp = _mm256_cmpeq_epi64(ptr_vec1, nullptr_vector);
       const auto interleaved_vec_cmp = _mm256_packs_epi32(vec0_cmp, vec1_cmp);

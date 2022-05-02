@@ -1741,9 +1741,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     std::array<critical_section_policy<node_ptr>, basic_inode_48::capacity>
         pointer_array;
 #ifdef UNODB_DETAIL_SSE4_2
-    static_assert(basic_inode_48::capacity % 2 == 0);
-    static_assert((basic_inode_48::capacity / 2) % 4 == 0,
-                  "Node48 capacity must support unrolling without remainder");
+    static_assert(basic_inode_48::capacity % 8 == 0);
     // No std::array below because it would ignore the alignment attribute
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     __m128i

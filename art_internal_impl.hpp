@@ -1561,18 +1561,32 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     while (true) {
       const auto ptr_vec0 = _mm256_load_si256(&children.pointer_vector[i]);
       const auto ptr_vec1 = _mm256_load_si256(&children.pointer_vector[i + 1]);
+      const auto ptr_vec2 = _mm256_load_si256(&children.pointer_vector[i + 2]);
+      const auto ptr_vec3 = _mm256_load_si256(&children.pointer_vector[i + 3]);
       const auto vec0_cmp = _mm256_cmpeq_epi64(ptr_vec0, nullptr_vector);
       const auto vec1_cmp = _mm256_cmpeq_epi64(ptr_vec1, nullptr_vector);
-      const auto interleaved_vec_cmp = _mm256_packs_epi32(vec0_cmp, vec1_cmp);
-      if (!_mm256_testz_si256(interleaved_vec_cmp, interleaved_vec_cmp)) {
+      const auto vec2_cmp = _mm256_cmpeq_epi64(ptr_vec2, nullptr_vector);
+      const auto vec3_cmp = _mm256_cmpeq_epi64(ptr_vec3, nullptr_vector);
+      const auto interleaved_vec01_cmp = _mm256_packs_epi32(vec0_cmp, vec1_cmp);
+      const auto interleaved_vec23_cmp = _mm256_packs_epi32(vec2_cmp, vec3_cmp);
+      const auto doubly_interleaved_vec_cmp =
+          _mm256_packs_epi32(interleaved_vec01_cmp, interleaved_vec23_cmp);
+      if (!_mm256_testz_si256(doubly_interleaved_vec_cmp,
+                              doubly_interleaved_vec_cmp)) {
+        const auto vec01_cmp =
+            _mm256_permute4x64_epi64(interleaved_vec01_cmp, 0b11'01'10'00);
+        const auto vec23_cmp =
+            _mm256_permute4x64_epi64(interleaved_vec23_cmp, 0b11'01'10'00);
+        const auto interleaved_vec_cmp =
+            _mm256_packs_epi32(vec01_cmp, vec23_cmp);
         const auto vec_cmp =
             _mm256_permute4x64_epi64(interleaved_vec_cmp, 0b11'01'10'00);
         const auto cmp_mask =
             static_cast<std::uint64_t>(_mm256_movemask_epi8(vec_cmp));
-        i = (i << 2U) + (detail::ctz64(cmp_mask) >> 2U);
+        i = (i << 2U) + (detail::ctz64(cmp_mask) >> 1U);
         break;
       }
-      i += 2;
+      i += 4;
     }
 #else   // #ifdef UNODB_DETAIL_X86_64
     // This is also the current best ARM implementation
@@ -1747,8 +1761,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     __m128i
         pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)
 #elif defined(UNODB_DETAIL_AVX2)
-    static_assert(basic_inode_48::capacity % 8 == 0,
-                  "Node48 capacity must support unrolling without remainder");
+    static_assert(basic_inode_48::capacity % 16 == 0);
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     __m256i
         pointer_vector[basic_inode_48::capacity / 4];  // NOLINT(runtime/arrays)

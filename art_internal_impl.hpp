@@ -934,9 +934,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     for (typename decltype(keys.byte_array)::size_type i = children_count_;
          i > insert_pos_index; --i) {
       keys.byte_array[i] = keys.byte_array[i - 1];
-      // TODO(laurynas): Node4 children fit into a single YMM register on AVX
-      // onwards, see if it is possible to do shift/insert with it. Checked
-      // plain AVX, it seems that at least AVX2 is required.
       children[i] = children[i - 1];
     }
     keys.byte_array[insert_pos_index] = static_cast<std::byte>(key_byte);
@@ -961,7 +958,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
     typename decltype(keys.byte_array)::size_type i = child_index;
     for (; i < static_cast<unsigned>(children_count_ - 1); ++i) {
-      // TODO(laurynas): see the AVX2 TODO at add method
       keys.byte_array[i] = keys.byte_array[i + 1];
       children[i] = children[i + 1];
     }

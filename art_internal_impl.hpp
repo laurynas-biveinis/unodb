@@ -1068,7 +1068,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(this->children_count == 2);
 
     const std::uint8_t key1_i = key1 < key2 ? 0U : 1U;
-    const std::uint8_t key2_i = key1_i == 0 ? 1U : 0U;
+    const std::uint8_t key2_i = 1U - key1_i;
     keys.byte_array[key1_i] = key1;
     children[key1_i] = child1;
     keys.byte_array[key2_i] = key2;

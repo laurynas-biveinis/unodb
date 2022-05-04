@@ -1226,7 +1226,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     source_node.remove_child_pointer(child_to_delete, db_instance);
     source_node.child_indexes[child_to_delete] = inode48_type::empty_child;
 
-    // TODO(laurynas): consider AVX512 gather?
+    // TODO(laurynas): consider AVX2 gather?
     unsigned next_child = 0;
     unsigned i = 0;
     while (true) {

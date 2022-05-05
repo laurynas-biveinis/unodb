@@ -7,8 +7,9 @@
 #include <cstdint>
 #include <limits>
 #include <new>
+#include <optional>
 #include <sstream>
-#include <type_traits>
+#include <tuple>
 #include <unordered_map>
 #include <utility>  // IWYU pragma: keep
 #include <vector>
@@ -18,8 +19,10 @@
 
 #include "art.hpp"
 #include "art_common.hpp"
+#include "assert.hpp"
 #include "deepstate_utils.hpp"
 #include "heap.hpp"
+#include "node_type.hpp"
 
 namespace {
 

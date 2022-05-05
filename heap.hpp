@@ -7,8 +7,8 @@
 #include <algorithm>  // IWYU pragma: keep
 #ifndef NDEBUG
 #include <atomic>
-#include <cstdint>
 #endif
+#include <cstdint>
 #include <cstdlib>
 #include <new>
 

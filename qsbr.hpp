@@ -12,6 +12,7 @@
 #include <functional>  // IWYU pragma: keep
 #endif
 #include <iostream>
+#include <memory>
 #include <mutex>  // IWYU pragma: keep
 #include <system_error>
 #include <thread>

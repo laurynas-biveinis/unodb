@@ -16,7 +16,7 @@
 #include "assert.hpp"
 #include "node_type.hpp"
 #include "optimistic_lock.hpp"
-#include "portability_stdlib.hpp"
+#include "portability_arch.hpp"
 #include "qsbr_ptr.hpp"
 
 namespace unodb {

@@ -539,7 +539,7 @@ function(ADD_UNODB_LIBRARY LIB)
 endfunction()
 
 add_unodb_library(unodb_util global.hpp assert.hpp portability_builtins.hpp
-  thread_sync.hpp heap.hpp heap.cpp portability_stdlib.hpp)
+  thread_sync.hpp heap.hpp heap.cpp portability_arch.hpp)
 target_include_directories(unodb_util INTERFACE ".")
 target_include_directories(unodb_util SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
 target_link_libraries(unodb_util PRIVATE "${Boost_LIBRARIES}")

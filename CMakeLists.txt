@@ -87,11 +87,13 @@ endif()
 # - "C4324: '...': structure was padded due to alignment specifier"
 # - "C5030: attribute '...' is not recognized"
 # - "C5072, ASAN enabled without debug information emission" - triggered by
-# msvc-release-asan preset
+#   msvc-release-asan preset
+# - "C5246: '...': the initialization of a subobject should be wrapped in
+#   braces": billions of std::array false positives with 17.2.2.
 # - The other disabled warnings only activate on /Wall
 set(MSVC_CXX_WARNING_FLAGS "/Wall" "/wd4324" "/wd5030" "/wd5072" 
   "/wd4623" "/wd4625" "/wd4626" "/wd4582" "/wd4820" "/wd4710" "/wd4711"
-  "/wd4868" "/wd5026" "/wd5027" "/wd5045")
+  "/wd4868" "/wd5026" "/wd5027" "/wd5045" "/wd5246")
 
 set(MSVC_CLANG_CXX_FLAGS "/arch:AVX" "/permissive-")
 
@@ -273,31 +275,41 @@ find_package(Threads REQUIRED)
 
 find_package(Boost REQUIRED)
 
-set(ORIG_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-set(ORIG_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
-set(ORIG_CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS})
-set(ORIG_CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS})
-
 string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
-string(APPEND CMAKE_CXX_FLAGS ${CXX_FLAGS_FOR_SUBDIR_STR})
 if(MSVC)
-  string(REPLACE ";" " " WARNING_FLAGS_FOR_SUBDIR_STR "${MSVC_CXX_WARNING_FLAGS}")
-  string(REPLACE "/Wall" "" WARNING_FLAGS_FOR_SUBDIR_STR2 
-      "${WARNING_FLAGS_FOR_SUBDIR_STR}")
-  string(APPEND CMAKE_CXX_FLAGS " " ${WARNING_FLAGS_FOR_SUBDIR_STR2})
+  string(REPLACE ";" " " MSVC_WARNING_FLAGS_FOR_SUBDIR_STR_TMP "${MSVC_CXX_WARNING_FLAGS}")
+  string(REPLACE "/Wall" "" MSVC_WARNING_FLAGS_FOR_SUBDIR_STR
+    "${MSVC_WARNING_FLAGS_FOR_SUBDIR_STR_TMP}")
 endif()
 string(REPLACE ";" " " LD_FLAGS_FOR_SUBDIR_STR "${SANITIZER_LD_FLAGS}")
-string(APPEND CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
-string(APPEND CMAKE_MODULE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
-string(APPEND CMAKE_SHARED_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
+
+macro(ADD_CXX_FLAGS_FOR_SUBDIR)
+  set(ORIG_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+  set(ORIG_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
+  set(ORIG_CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS})
+  set(ORIG_CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS})
+  string(APPEND CMAKE_CXX_FLAGS " " "${CXX_FLAGS_FOR_SUBDIR_STR}")
+  if(MSVC)
+    string(APPEND CMAKE_CXX_FLAGS " " "${MSVC_WARNING_FLAGS_FOR_SUBDIR_STR}")
+  endif()
+  string(APPEND CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
+  string(APPEND CMAKE_MODULE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
+  string(APPEND CMAKE_SHARED_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
+endmacro()
+
+macro(RESTORE_CXX_FLAGS_FOR_SUBDIR)
+  set(CMAKE_CXX_FLAGS ${ORIG_CMAKE_CXX_FLAGS})
+  set(CMAKE_EXE_LINKER_FLAGS ${ORIG_CMAKE_EXE_LINKER_FLAGS})
+  set(CMAKE_MODULE_LINKER_FLAGS ${ORIG_CMAKE_MODULE_LINKER_FLAGS})
+  set(CMAKE_SHARED_LINKER_FLAGS ${ORIG_CMAKE_SHARED_LINKER_FLAGS})
+endmacro()
+
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-add_subdirectory(3rd_party/googletest)
 
-set(CMAKE_CXX_FLAGS ${ORIG_CMAKE_CXX_FLAGS})
-set(CMAKE_EXE_LINKER_FLAGS ${ORIG_CMAKE_EXE_LINKER_FLAGS})
-set(CMAKE_MODULE_LINKER_FLAGS ${ORIG_CMAKE_MODULE_LINKER_FLAGS})
-set(CMAKE_SHARED_LINKER_FLAGS ${ORIG_CMAKE_SHARED_LINKER_FLAGS})
+ADD_CXX_FLAGS_FOR_SUBDIR()
+add_subdirectory(3rd_party/googletest)
+RESTORE_CXX_FLAGS_FOR_SUBDIR()
 
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark tests"
   FORCE)
@@ -319,7 +331,9 @@ if(IPO_SUPPORTED)
   endif()
 endif()
 
+ADD_CXX_FLAGS_FOR_SUBDIR()
 add_subdirectory(3rd_party/benchmark)
+RESTORE_CXX_FLAGS_FOR_SUBDIR()
 
 # Do not build DeepState:
 # - under Windows as it's not supported

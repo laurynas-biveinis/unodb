@@ -175,19 +175,19 @@ template <unsigned B>
 }
 
 template <unsigned NodeSize>
-[[nodiscard, gnu::const]] constexpr auto number_to_full_node_size_tree_key(
-    std::uint64_t i) noexcept {
+[[nodiscard, gnu::const]] constexpr std::uint64_t
+number_to_full_node_size_tree_key(std::uint64_t i) noexcept {
   return to_base_n_value<NodeSize>(i);
 }
 
 template <unsigned NodeSize>
-[[nodiscard, gnu::const]] constexpr auto number_to_minimal_node_size_tree_key(
-    std::uint64_t i) noexcept {
+[[nodiscard, gnu::const]] constexpr std::uint64_t
+number_to_minimal_node_size_tree_key(std::uint64_t i) noexcept {
   return to_base_n_value<node_capacity_to_minimum_size<NodeSize>()>(i);
 }
 
 template <unsigned NodeSize>
-[[nodiscard, gnu::const]] constexpr auto
+[[nodiscard, gnu::const]] constexpr std::uint64_t
 number_to_full_leaf_over_minimal_tree_key(std::uint64_t i) noexcept {
   constexpr auto min = node_capacity_to_minimum_size<NodeSize>();
   constexpr auto delta = node_capacity_over_minimum<NodeSize>();
@@ -199,7 +199,7 @@ number_to_full_leaf_over_minimal_tree_key(std::uint64_t i) noexcept {
 }
 
 template <unsigned NodeSize>
-[[nodiscard, gnu::const]] constexpr auto
+[[nodiscard, gnu::const]] constexpr std::uint64_t
 number_to_minimal_leaf_over_smaller_node_tree(std::uint64_t i) noexcept {
   constexpr auto N = static_cast<std::uint64_t>(NodeSize);
   UNODB_DETAIL_ASSERT(i / (N * N * N * N * N * N) < N);
@@ -207,8 +207,8 @@ number_to_minimal_leaf_over_smaller_node_tree(std::uint64_t i) noexcept {
 }
 
 template <unsigned NodeSize>
-[[nodiscard, gnu::const]] constexpr auto number_to_full_node_tree_with_gaps_key(
-    std::uint64_t i) noexcept {
+[[nodiscard, gnu::const]] constexpr std::uint64_t
+number_to_full_node_tree_with_gaps_key(std::uint64_t i) noexcept {
   static_assert(NodeSize == 4 || NodeSize == 16 || NodeSize == 48);
   // Full Node4 tree keys with 1, 3, 5, & 7 as the different key byte values
   // so that a new byte could be inserted later at any position:

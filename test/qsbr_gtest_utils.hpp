@@ -244,7 +244,7 @@ class QSBRTestBase : public ::testing::Test {
   QSBRTestBase &operator=(QSBRTestBase &&) = delete;
 
  private:
-  unodb::qsbr_epoch last_epoch{};
+  unodb::qsbr_epoch last_epoch{0};
 };
 
 }  // namespace unodb::test

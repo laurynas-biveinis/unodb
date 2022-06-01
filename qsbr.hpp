@@ -14,6 +14,9 @@
 #include <iostream>
 #include <memory>  // IWYU pragma: keep
 #include <mutex>   // IWYU pragma: keep
+#ifndef NDEBUG
+#include <optional>
+#endif
 #include <system_error>
 #include <thread>
 #include <type_traits>
@@ -62,7 +65,6 @@ class [[nodiscard]] qsbr_epoch final {
 
   static constexpr epoch_type max = 3U;
 
-  qsbr_epoch() noexcept = default;
   qsbr_epoch(const qsbr_epoch &) noexcept = default;
   qsbr_epoch(qsbr_epoch &&) noexcept = default;
   qsbr_epoch &operator=(const qsbr_epoch &) noexcept = default;
@@ -97,6 +99,8 @@ class [[nodiscard]] qsbr_epoch final {
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;
 
   friend struct qsbr_state;
+
+  qsbr_epoch() noexcept = delete;
 
  private:
   static constexpr auto max_count = max + 1U;
@@ -369,8 +373,8 @@ struct [[nodiscard]] deallocation_request final {
 
   void deallocate(
 #ifndef NDEBUG
-      bool orphan, qsbr_epoch dealloc_epoch,
-      bool dealloc_epoch_single_thread_mode
+      bool orphan, std::optional<qsbr_epoch> dealloc_epoch,
+      std::optional<bool> dealloc_epoch_single_thread_mode
 #endif
   ) const noexcept;
 
@@ -393,8 +397,8 @@ class [[nodiscard]] deferred_requests final {
       dealloc_request_vector &&requests_
 #ifndef NDEBUG
       ,
-      bool orphaned_requests_, qsbr_epoch request_epoch_,
-      bool dealloc_epoch_single_thread_mode_
+      bool orphaned_requests_, std::optional<qsbr_epoch> request_epoch_,
+      std::optional<bool> dealloc_epoch_single_thread_mode_
 #endif
       ) noexcept
       : requests {
@@ -423,13 +427,15 @@ class [[nodiscard]] deferred_requests final {
     }
   }
 
+  deferred_requests() = delete;
+
  private:
   const dealloc_request_vector requests;
 
 #ifndef NDEBUG
   const bool orphaned_requests;
-  const qsbr_epoch dealloc_epoch;
-  const bool dealloc_epoch_single_thread_mode;
+  const std::optional<qsbr_epoch> dealloc_epoch;
+  const std::optional<bool> dealloc_epoch_single_thread_mode;
 #endif
 };
 
@@ -978,13 +984,17 @@ namespace detail {
 
 inline void deallocation_request::deallocate(
 #ifndef NDEBUG
-    bool orphan, qsbr_epoch dealloc_epoch, bool dealloc_epoch_single_thread_mode
+    bool orphan, std::optional<qsbr_epoch> dealloc_epoch,
+    std::optional<bool> dealloc_epoch_single_thread_mode
 #endif
 ) const noexcept {
-  UNODB_DETAIL_ASSERT(orphan ||
-                      (dealloc_epoch_single_thread_mode &&
-                       dealloc_epoch == request_epoch.advance()) ||
-                      dealloc_epoch == request_epoch.advance(2));
+  UNODB_DETAIL_ASSERT((orphan && !dealloc_epoch.has_value() &&
+                       !dealloc_epoch_single_thread_mode.has_value()) ||
+                      (!orphan && dealloc_epoch.has_value() &&
+                       dealloc_epoch_single_thread_mode.has_value() &&
+                       ((*dealloc_epoch_single_thread_mode &&
+                         *dealloc_epoch == request_epoch.advance()) ||
+                        *dealloc_epoch == request_epoch.advance(2))));
 
   qsbr::deallocate(pointer
 #ifndef NDEBUG

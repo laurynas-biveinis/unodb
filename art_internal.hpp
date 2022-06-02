@@ -151,6 +151,10 @@ class [[nodiscard]] basic_node_ptr {
  public:
   using header_type = Header;
 
+  // The default constructor does not initialize fields: it is used by
+  // std::array and we don't want to initialize to zero or any other value there
+  // at construction time.
+  // cppcheck-suppress uninitMemberVar
   constexpr basic_node_ptr() noexcept = default;
 
   explicit basic_node_ptr(std::nullptr_t) noexcept

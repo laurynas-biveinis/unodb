@@ -259,14 +259,14 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     const auto old_single_thread_mode =
         qsbr_state::single_thread_mode(old_state);
 
-    const auto remove_thread_from_previous_epoch =
+    const auto remove_thread_from_old_epoch =
         (thread_epoch != old_epoch) ||
         (quiescent_states_since_epoch_change == 0);
-    const auto advance_epoch = remove_thread_from_previous_epoch &&
-                               (old_threads_in_previous_epoch == 1);
+    const auto advance_epoch =
+        remove_thread_from_old_epoch && (old_threads_in_previous_epoch == 1);
 
     const auto new_state =
-        UNODB_DETAIL_UNLIKELY(remove_thread_from_previous_epoch)
+        UNODB_DETAIL_UNLIKELY(remove_thread_from_old_epoch)
             ? (UNODB_DETAIL_UNLIKELY(advance_epoch)
                    ? qsbr_state::inc_epoch_dec_thread_count_reset_previous(
                          old_state)
@@ -274,7 +274,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                          old_state))
             : qsbr_state::dec_thread_count(old_state);
 
-    if (UNODB_DETAIL_UNLIKELY(remove_thread_from_previous_epoch)) {
+    if (UNODB_DETAIL_UNLIKELY(remove_thread_from_old_epoch)) {
       thread_epoch_change_barrier();
 
       if (UNODB_DETAIL_UNLIKELY(advance_epoch) &&

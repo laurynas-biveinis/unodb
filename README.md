@@ -19,10 +19,9 @@ and I am trying to describe some of the things I learned at my [blog](https://of
 
 ## Requirements
 
-The source code is C++17, using SSE4.1 intrinsics (Nehalem and higher), AVX in
-the case of MSVC, with optional AVX2 support, if available. This is in contrast
-to the original ART paper needing SSE2
-only.
+The source code is C++17, using SSE4.1 intrinsics and CMPXCHG16B instruction
+(Nehalem and higher), AVX in the case of MSVC, with optional AVX2 support, if
+available. This is in contrast to the original ART paper needing SSE2 only.
 
 Note: since this is my personal project, it only supports GCC 10, 11, LLVM 11 to
 13, XCode 13.2, and MSVC 2022 (17.0) compilers. Drop me a note if you want to

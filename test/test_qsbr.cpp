@@ -840,24 +840,23 @@ TEST_F(QSBR, ResetStats) {
   thread_syncs[1].notify();  // 2 ->
   join(second_thread);
 
-  UNODB_ASSERT_EQ(qsbr_get_max_backlog_bytes(), 2);
-  UNODB_ASSERT_NEAR(qsbr_get_mean_backlog_bytes(), 0.666667, 0.00001);
-  UNODB_ASSERT_EQ(qsbr_get_epoch_callback_count_max(), 2);
-  UNODB_ASSERT_NEAR(qsbr_get_epoch_callback_count_variance(), 0.888889,
-                    0.00001);
-  UNODB_ASSERT_EQ(
-      qsbr_get_mean_quiescent_states_per_thread_between_epoch_changes(), 1.0);
+  ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 2);
+  ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 1);
+  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 2);
+  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(), 1);
+  ASSERT_EQ(unodb::qsbr::instance()
+                .get_mean_quiescent_states_per_thread_between_epoch_changes(),
+            1.0);
 
   quiescent();
 
-  qsbr_reset_stats();
-
-  UNODB_ASSERT_EQ(qsbr_get_max_backlog_bytes(), 0);
-  UNODB_ASSERT_EQ(qsbr_get_mean_backlog_bytes(), 0);
-  UNODB_ASSERT_EQ(qsbr_get_epoch_callback_count_max(), 0);
-  UNODB_ASSERT_EQ(qsbr_get_epoch_callback_count_variance(), 0);
-  UNODB_ASSERT_TRUE(std::isnan(
-      qsbr_get_mean_quiescent_states_per_thread_between_epoch_changes()));
+  ASSERT_EQ(unodb::qsbr::instance().get_max_backlog_bytes(), 0);
+  ASSERT_EQ(unodb::qsbr::instance().get_mean_backlog_bytes(), 0);
+  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_max(), 0);
+  ASSERT_EQ(unodb::qsbr::instance().get_epoch_callback_count_variance(), 0);
+  ASSERT_TRUE(std::isnan(
+      unodb::qsbr::instance()
+          .get_mean_quiescent_states_per_thread_between_epoch_changes()));
 }
 
 TEST_F(QSBR, GettersConcurrentWithQuiescentState) {

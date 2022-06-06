@@ -315,22 +315,9 @@ void qsbr::reset_stats() {
   // prevents to leaving idle state at any time
   assert_idle();
 
-  {
-    std::lock_guard guard{dealloc_stats_lock};
-
-    epoch_dealloc_per_thread_count_stats = {};
-    publish_epoch_callback_stats();
-
-    deallocation_size_per_thread_stats = {};
-    publish_deallocation_size_stats();
-  }
-
-  {
-    std::lock_guard guard{quiescent_state_stats_lock};
-
-    quiescent_states_per_thread_between_epoch_change_stats = {};
-    publish_quiescent_states_per_thread_between_epoch_change_stats();
-  }
+  quiescent_states_per_thread_between_epoch_change_stats.reset();
+  epoch_dealloc_per_thread_count_stats.reset();
+  deallocation_size_per_thread_stats.reset();
 }
 
 // Some GCC versions suggest cold attribute on already cold-marked functions

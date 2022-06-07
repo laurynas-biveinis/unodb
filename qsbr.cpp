@@ -60,7 +60,9 @@ thread_local std::unique_ptr<qsbr_per_thread>
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr_epoch::dump(
     std::ostream &os) const {
   os << "epoch = " << static_cast<std::uint64_t>(epoch_val);
+#ifndef NDEBUG
   assert_invariant();
+#endif
 }
 // LCOV_EXCL_STOP
 

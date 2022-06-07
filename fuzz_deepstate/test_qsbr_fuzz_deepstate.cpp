@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>  // IWYU pragma: keep
+#include <new>
 #include <sstream>
 #include <unordered_set>
 #include <utility>  // IWYU pragma: keep

@@ -72,26 +72,34 @@ class [[nodiscard]] qsbr_epoch final {
   ~qsbr_epoch() noexcept = default;
 
   constexpr explicit qsbr_epoch(epoch_type epoch_val_) : epoch_val{epoch_val_} {
+#ifndef NDEBUG
     assert_invariant();
+#endif
   }
 
   [[nodiscard]] constexpr auto advance(unsigned by = 1) const noexcept {
+#ifndef NDEBUG
     assert_invariant();
+#endif
 
     return qsbr_epoch{
         gsl::narrow_cast<epoch_type>((epoch_val + by) % max_count)};
   }
 
   [[nodiscard]] constexpr auto operator==(qsbr_epoch other) const noexcept {
+#ifndef NDEBUG
     assert_invariant();
     other.assert_invariant();
+#endif
 
     return epoch_val == other.epoch_val;
   }
 
   [[nodiscard]] constexpr auto operator!=(qsbr_epoch other) const noexcept {
+#ifndef NDEBUG
     assert_invariant();
     other.assert_invariant();
+#endif
 
     return epoch_val != other.epoch_val;
   }
@@ -106,12 +114,13 @@ class [[nodiscard]] qsbr_epoch final {
   static constexpr auto max_count = max + 1U;
   static_assert((max_count & (max_count - 1U)) == 0);
 
-  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+  epoch_type epoch_val;
+
+#ifndef NDEBUG
   constexpr void assert_invariant() const noexcept {
     UNODB_DETAIL_ASSERT(epoch_val <= max);
   }
-
-  epoch_type epoch_val;
+#endif
 };
 
 // LCOV_EXCL_START

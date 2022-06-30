@@ -1,9 +1,12 @@
-If:
-  PathMatch: .*\.hpp
-CompileFlags:
-  Add: -Wno-unused-function
----
 # -Wunused-member-function false positive:
 # https://github.com/clangd/clangd/issues/363
 CompileFlags:
   Add: [-Wno-unused-macros,-Wno-unused-function,-Wno-unused-member-function,-Wno-unused-template]
+Diagnostics:
+  UnusedIncludes: Strict
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+Hover:
+  ShowAKA: Yes

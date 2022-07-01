@@ -85,12 +85,21 @@
             }
         },
         {
-            "name": "llvm",
+            "name": "llvm-apple-intel",
             "hidden": true,
             "cacheVariables": {
                 "CMAKE_PREFIX_PATH": "/usr/local/opt/llvm",
                 "CMAKE_C_COMPILER": "/usr/local/opt/llvm/bin/clang",
                 "CMAKE_CXX_COMPILER": "/usr/local/opt/llvm/bin/clang++"
+            }
+        },
+        {
+            "name": "llvm-apple-silicon",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "/opt/homebrew/opt/llvm",
+                "CMAKE_C_COMPILER": "/opt/homebrew/opt/llvm/bin/clang",
+                "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++"
             }
         },
         {
@@ -235,40 +244,78 @@
             ]
         },
         {
-            "name": "llvm-release",
+            "name": "llvm-apple-intel-release",
             "inherits": [
                 "release",
-                "llvm"
+                "llvm-apple-intel"
             ]
         },
         {
-            "name": "llvm-release-tsan",
+            "name": "llvm-apple-intel-release-tsan",
             "inherits": [
                 "release",
-                "llvm",
+                "llvm-apple-intel",
                 "tsan"
             ]
         },
         {
-            "name": "llvm-debug",
+            "name": "llvm-apple-intel-debug",
             "inherits": [
                 "debug",
-                "llvm"
+                "llvm-apple-intel"
             ]
         },
         {
-            "name": "llvm-debug-asan",
+            "name": "llvm-apple-intel-debug-asan",
             "inherits": [
                 "debug",
-                "llvm",
+                "llvm-apple-intel",
                 "asan"
             ]
         },
         {
-            "name": "llvm-debug-tsan",
+            "name": "llvm-apple-intel-debug-tsan",
             "inherits": [
                 "debug",
-                "llvm",
+                "llvm-apple-intel",
+                "tsan"
+            ]
+        },
+        {
+            "name": "llvm-apple-silicon-release",
+            "inherits": [
+                "release",
+                "llvm-apple-silicon"
+            ]
+        },
+        {
+            "name": "llvm-apple-silicon-release-tsan",
+            "inherits": [
+                "release",
+                "llvm-apple-silicon",
+                "tsan"
+            ]
+        },
+        {
+            "name": "llvm-apple-silicon-debug",
+            "inherits": [
+                "debug",
+                "llvm-apple-silicon"
+            ]
+        },
+        {
+            "name": "llvm-apple-silicon-debug-asan",
+            "inherits": [
+                "debug",
+                "llvm-apple-silicon",
+                "asan"
+            ]
+        },
+        {
+            "name": "llvm-apple-silicon-debug-tsan",
+            "inherits": [
+                "debug",
+                "llvm-apple-silicon",
                 "tsan"
             ]
         },
@@ -466,28 +513,53 @@
             "inherits": "base"
         },
         {
-            "name": "llvm-release",
-            "configurePreset": "llvm-release",
+            "name": "llvm-apple-intel-release",
+            "configurePreset": "llvm-apple-intel-release",
             "inherits": "base"
         },
         {
-            "name": "llvm-release-tsan",
-            "configurePreset": "llvm-release-tsan",
+            "name": "llvm-apple-intel-release-tsan",
+            "configurePreset": "llvm-apple-intel-release-tsan",
             "inherits": "base"
         },
         {
-            "name": "llvm-debug",
-            "configurePreset": "llvm-debug",
+            "name": "llvm-apple-intel-debug",
+            "configurePreset": "llvm-apple-intel-debug",
             "inherits": "base"
         },
         {
-            "name": "llvm-debug-asan",
-            "configurePreset": "llvm-debug-asan",
+            "name": "llvm-apple-intel-debug-asan",
+            "configurePreset": "llvm-apple-intel-debug-asan",
             "inherits": "base"
         },
         {
-            "name": "llvm-debug-tsan",
-            "configurePreset": "llvm-debug-tsan",
+            "name": "llvm-apple-intel-debug-tsan",
+            "configurePreset": "llvm-apple-intel-debug-tsan",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-silicon-release",
+            "configurePreset": "llvm-apple-silicon-release",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-silicon-release-tsan",
+            "configurePreset": "llvm-apple-silicon-release-tsan",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-silicon-debug",
+            "configurePreset": "llvm-apple-silicon-debug",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-silicon-debug-asan",
+            "configurePreset": "llvm-apple-silicon-debug-asan",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-silicon-debug-tsan",
+            "configurePreset": "llvm-apple-silicon-debug-tsan",
             "inherits": "base"
         },
         {
@@ -656,28 +728,53 @@
             "inherits": "base"
         },
         {
-            "name": "llvm-release",
-            "configurePreset": "llvm-release",
+            "name": "llvm-apple-intel-release",
+            "configurePreset": "llvm-apple-intel-release",
             "inherits": "base"
         },
         {
-            "name": "llvm-release-tsan",
-            "configurePreset": "llvm-release-tsan",
+            "name": "llvm-apple-intel-release-tsan",
+            "configurePreset": "llvm-apple-intel-release-tsan",
             "inherits": "base"
         },
         {
-            "name": "llvm-debug",
-            "configurePreset": "llvm-debug",
+            "name": "llvm-apple-intel-debug",
+            "configurePreset": "llvm-apple-intel-debug",
             "inherits": "base"
         },
         {
-            "name": "llvm-debug-asan",
-            "configurePreset": "llvm-debug-asan",
+            "name": "llvm-apple-intel-debug-asan",
+            "configurePreset": "llvm-apple-intel-debug-asan",
             "inherits": "base"
         },
         {
-            "name": "llvm-debug-tsan",
-            "configurePreset": "llvm-debug-tsan",
+            "name": "llvm-apple-intel-debug-tsan",
+            "configurePreset": "llvm-apple-intel-debug-tsan",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-silicon-release",
+            "configurePreset": "llvm-apple-silicon-release",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-silicon-release-tsan",
+            "configurePreset": "llvm-apple-silicon-release-tsan",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-silicon-debug",
+            "configurePreset": "llvm-apple-silicon-debug",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-silicon-debug-asan",
+            "configurePreset": "llvm-apple-silicon-debug-asan",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-silicon-debug-tsan",
+            "configurePreset": "llvm-apple-silicon-debug-tsan",
             "inherits": "base"
         },
         {

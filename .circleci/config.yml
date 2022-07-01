@@ -52,10 +52,10 @@ jobs:
                   curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
                     | sudo apt-key add -
                   echo \
-                    'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main' \
+                    'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main' \
                     | sudo tee -a /etc/apt/sources.list
                   sudo apt-get update
-                  sudo apt-get install -y clang-13 clang-tidy-13
+                  sudo apt-get install -y clang-14 clang-tidy-14
       - when:
           condition:
             and:
@@ -65,7 +65,7 @@ jobs:
             - run:
                 name: Installing dependencies (LLVM Release)
                 command: |
-                  sudo apt-get install -y libomp5-13 llvm-13 lld-13
+                  sudo apt-get install -y libomp5-14 llvm-14 lld-14
       - run:
           name: Create build environment
           command: mkdir build
@@ -83,18 +83,18 @@ jobs:
               export CXX=g++-11
               EXTRA_CMAKE_ARGS=()
             elif [[ $COMPILER == "clang" ]]; then
-              export CC=clang-13
-              export CXX=clang++-13
+              export CC=clang-14
+              export CXX=clang++-14
               if [[ $BUILD_TYPE == "Release" ]]; then
                 EXTRA_CMAKE_ARGS=(\
-                  "-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-13" \
-                  "-DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-13" \
-                  "-DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-13")
+                  "-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-14" \
+                  "-DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-14" \
+                  "-DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-14")
               else
                 EXTRA_CMAKE_ARGS=()
               fi
               EXTRA_CMAKE_ARGS=("${EXTRA_CMAKE_ARGS[@]}" \
-                  "-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-13")
+                  "-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-14")
             fi
             cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFATAL_WARNINGS=ON \
               -DSANITIZE_ADDRESS=$ASAN -DSANITIZE_THREAD=$TSAN \
@@ -175,40 +175,40 @@ workflows:
           compiler: gcc
           ubsan: true
       - build:
-          name: clang 13 Debug
+          name: clang 14 Debug
           build_type: Debug
           compiler: clang
       - build:
-          name: clang 13 Debug with ASan
+          name: clang 14 Debug with ASan
           build_type: Debug
           compiler: clang
           asan: true
       - build:
-          name: clang 13 Debug with TSan
+          name: clang 14 Debug with TSan
           build_type: Debug
           compiler: clang
           tsan: true
       - build:
-          name: clang 13 Debug with UBSan
+          name: clang 14 Debug with UBSan
           build_type: Debug
           compiler: clang
           ubsan: true
       - build:
-          name: clang 13 Release
+          name: clang 14 Release
           build_type: Release
           compiler: clang
       - build:
-          name: clang 13 Release with ASan
+          name: clang 14 Release with ASan
           build_type: Release
           compiler: clang
           asan: true
       - build:
-          name: clang 13 Release with TSan
+          name: clang 14 Release with TSan
           build_type: Release
           compiler: clang
           tsan: true
       - build:
-          name: clang 13 Release with UBSan
+          name: clang 14 Release with UBSan
           build_type: Release
           compiler: clang
           ubsan: true

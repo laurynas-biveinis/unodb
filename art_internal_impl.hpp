@@ -83,7 +83,7 @@ class [[nodiscard]] basic_leaf final : public Header {
       : key{k}, value_size{gsl::narrow_cast<value_size_type>(v.size())} {
     UNODB_DETAIL_ASSERT(v.size() <= max_value_size);
 
-    if (!v.empty()) std::memcpy(&value_start[0], &v[0], value_size);
+    if (!v.empty()) std::memcpy(&value_start[0], v.data(), value_size);
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 

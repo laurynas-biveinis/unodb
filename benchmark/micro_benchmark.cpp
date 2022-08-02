@@ -39,8 +39,7 @@ void dense_insert(benchmark::State &state) {
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
+  state.SetItemsProcessed(state.iterations() * state.range(0));
   growing_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
@@ -69,8 +68,7 @@ void sparse_insert_dups_allowed(benchmark::State &state) {
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
+  state.SetItemsProcessed(state.iterations() * state.range(0));
   growing_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
@@ -92,8 +90,8 @@ void dense_full_scan(benchmark::State &state) {
       for (unodb::key j = 0; j < key_limit; ++j)
         unodb::benchmark::get_existing_key(test_db, j);
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0) * full_scan_multiplier);
+  state.SetItemsProcessed(state.iterations() * state.range(0) *
+                          full_scan_multiplier);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 void dense_tree_sparse_deletes_args(benchmark::internal::Benchmark *b) {
@@ -134,8 +132,7 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
     end_leaf_count = test_db.template get_node_count<unodb::node_type::LEAF>();
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(1));
+  state.SetItemsProcessed(state.iterations() * state.range(1));
   unodb::benchmark::set_size_counter(state, "start size", start_tree_size);
   unodb::benchmark::set_size_counter(state, "end size", end_tree_size);
   state.counters["start L"] = static_cast<double>(start_leaf_count);
@@ -173,7 +170,7 @@ void dense_tree_increasing_keys(benchmark::State &state) {
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           dense_tree_increasing_keys_delete_insert_pairs * 2);
 }
 
@@ -205,7 +202,7 @@ void dense_insert_value_lengths(benchmark::State &state) {
   }
 
   state.SetBytesProcessed(
-      static_cast<std::int64_t>(state.iterations()) * state.range(0) *
+      state.iterations() * state.range(0) *
       (state.range(1) + static_cast<std::int64_t>(sizeof(unodb::key))));
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
@@ -229,8 +226,7 @@ void dense_insert_dup_attempts(benchmark::State &state) {
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
+  state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
 }  // namespace

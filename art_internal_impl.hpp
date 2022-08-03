@@ -21,6 +21,8 @@
 #endif
 #ifdef UNODB_DETAIL_AVX2
 #include <immintrin.h>
+#elif defined(__aarch64__)
+#include <arm_neon.h>
 #endif
 
 #include <gsl/util>
@@ -1009,10 +1011,26 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
           i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
     return parent_class::child_not_found;
-#else   // #ifdef UNODB_DETAIL_X86_64
-    // This is also the best current ARM implementation, same reasoning as with
-    // add_to_nonfull.
+#elif defined(__aarch64__)
+    const auto replicated_search_key =
+        vdupq_n_u8(static_cast<std::uint8_t>(key_byte));
+    const auto keys_in_neon_reg = vreinterpretq_u8_u32(
+        vsetq_lane_u32(keys.integer.load(), vdupq_n_u32(0), 0));
+    const auto mask = (1ULL << (this->children_count.load() << 3U)) - 1;
+    const auto matching_key_positions =
+        vceqq_u8(replicated_search_key, keys_in_neon_reg);
+    const auto u64_pos_in_vec =
+        vget_low_u64(vreinterpretq_u64_u8(matching_key_positions));
+    const auto pos_in_scalar = vget_lane_u64(u64_pos_in_vec, 0);
+    const auto masked_pos = pos_in_scalar & mask;
 
+    if (masked_pos == 0) return parent_class::child_not_found;
+
+    const auto i = gsl::narrow_cast<unsigned>(
+        detail::ctz(gsl::narrow_cast<unsigned>(masked_pos)) >> 3U);
+    return std::make_pair(
+        i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
+#else   // #ifdef UNODB_DETAIL_X86_64
     // Bit twiddling:
     // contains_byte:     __builtin_ffs:   for key index:
     //    0x80000000               0x20                3

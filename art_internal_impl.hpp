@@ -1030,6 +1030,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                 contains_byte(keys.integer, key_byte))) >>
             3);
 
+    // The second condition could be replaced with masking, but this seems to
+    // result in a benchmark regression
     if ((result == 0) || (result > this->children_count.load()))
       return parent_class::child_not_found;
 

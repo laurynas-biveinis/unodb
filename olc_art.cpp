@@ -367,17 +367,9 @@ class [[nodiscard]] olc_inode_16 final
 
 // 160 == sizeof(inode_16)
 #ifdef NDEBUG
-#ifdef __aarch64__
-static_assert(sizeof(olc_inode_16) == 160 + 8);
-#else   // #ifdef __aarch64__
 static_assert(sizeof(olc_inode_16) == 160 + 16);
-#endif  // #ifdef __aarch64__
 #else   // #ifdef NDEBUG
-#ifdef __aarch64__
-static_assert(sizeof(olc_inode_16) == 160 + 24);
-#else   // #ifdef __aarch64__
 static_assert(sizeof(olc_inode_16) == 160 + 32);
-#endif  // #ifdef __aarch64__
 #endif  // #ifdef NDEBUG
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)

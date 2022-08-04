@@ -1338,10 +1338,26 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
           i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
     return parent_class::child_not_found;
-#else
-    // This is also the best current ARM implementation, same reasoning as with
-    // basic_inode_4::add_to_nonfull.
+#elif defined(__aarch64__)
+    const auto replicated_search_key =
+        vdupq_n_u8(static_cast<std::uint8_t>(key_byte));
+    const auto matching_key_positions =
+        vceqq_u8(replicated_search_key, keys.byte_vector);
+    const auto narrowed_positions =
+        vshrn_n_u16(vreinterpretq_u16_u8(matching_key_positions), 4);
+    const auto scalar_pos =
+        vget_lane_u64(vreinterpret_u64_u8(narrowed_positions), 0);
+    const auto mask = gsl::narrow_cast<std::uint64_t>(
+        (static_cast<__uint128_t>(1U) << (this->children_count.load() << 2U)) -
+        1);
+    const auto masked_pos = scalar_pos & mask;
 
+    if (masked_pos == 0) return parent_class::child_not_found;
+
+    const auto i = detail::ctz64(masked_pos) >> 2U;
+    return std::make_pair(
+        i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
+#else
     for (size_t i = 0; i < this->children_count.load(); ++i)
       if (key_byte == keys.byte_array[i])
         return std::make_pair(
@@ -1416,6 +1432,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         byte_array;
 #ifdef UNODB_DETAIL_X86_64
     __m128i byte_vector;
+#elif defined(__aarch64__)
+    uint8x16_t byte_vector;
 #endif
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
     key_union() noexcept {}

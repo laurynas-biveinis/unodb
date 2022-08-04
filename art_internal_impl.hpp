@@ -1133,10 +1133,10 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
         _mm_cvtsi32_si128(static_cast<std::int32_t>(keys.integer.load()));
     // Since the existing and insert key values cannot be equal, it's OK to use
     // "<=" comparison as "<".
-    const auto lt_node_key_positions =
+    const auto le_node_key_positions =
         _mm_cmple_epu8(node_keys_in_sse_reg, replicated_insert_key_byte);
     const auto bit_field =
-        static_cast<unsigned>(_mm_movemask_epi8(lt_node_key_positions)) &
+        static_cast<unsigned>(_mm_movemask_epi8(le_node_key_positions)) &
         node_key_mask;
     return detail::popcount(bit_field);
   }

@@ -1410,10 +1410,21 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto result = (bit_field != 0)
                             ? detail::ctz(bit_field)
                             : gsl::narrow_cast<std::uint8_t>(children_count_);
+#elif defined(__aarch64__)
+    const auto replicated_insert_key =
+        vdupq_n_u8(static_cast<std::uint8_t>(key_byte));
+    const auto lesser_key_positions =
+        vcltq_u8(replicated_insert_key, keys.byte_vector);
+    const auto narrowed_positions =
+        vshrn_n_u16(vreinterpretq_u16_u8(lesser_key_positions), 4);
+    const auto scalar_pos =
+        vget_lane_u64(vreinterpret_u64_u8(narrowed_positions), 0);
+    const auto mask = (1ULL << (children_count_ << 2U)) - 1;
+    const auto masked_pos = scalar_pos & mask;
+    const auto result = (masked_pos != 0)
+                            ? detail::ctz64(masked_pos) >> 2U
+                            : gsl::narrow_cast<std::uint8_t>(children_count_);
 #else
-    // This is also the best current ARM implementation, same reasoning as with
-    // basic_inode_4::add_to_nonfull.
-
     const auto result = static_cast<std::uint8_t>(
         std::lower_bound(keys.byte_array.cbegin(),
                          keys.byte_array.cbegin() + children_count_, key_byte) -

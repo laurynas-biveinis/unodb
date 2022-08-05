@@ -447,15 +447,10 @@ class [[nodiscard]] olc_inode_48 final
 
 // sizeof(inode_48) == 672 on AVX2, 656 otherwise
 #ifdef NDEBUG
-#ifdef __aarch64__
-static_assert(sizeof(olc_inode_48) == 656 + 8);
-#else
-static_assert(sizeof(olc_inode_48) == 656 + 16);  // AVX2 too. Padding?
-#endif
+// AVX2 too. Padding?
+static_assert(sizeof(olc_inode_48) == 656 + 16);
 #else  // #ifdef NDEBUG
-#ifdef __aarch64__
-static_assert(sizeof(olc_inode_48) == 656 + 24);
-#elif defined(UNODB_DETAIL_AVX2)
+#if defined(UNODB_DETAIL_AVX2)
 static_assert(sizeof(olc_inode_48) == 672 + 32);
 #else
 static_assert(sizeof(olc_inode_48) == 656 + 32);

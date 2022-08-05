@@ -1347,9 +1347,9 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         vshrn_n_u16(vreinterpretq_u16_u8(matching_key_positions), 4);
     const auto scalar_pos =
         vget_lane_u64(vreinterpret_u64_u8(narrowed_positions), 0);
-    const auto mask = gsl::narrow_cast<std::uint64_t>(
-        (static_cast<__uint128_t>(1U) << (this->children_count.load() << 2U)) -
-        1);
+    const auto child_count = this->children_count.load();
+    const auto mask = (child_count == 16) ? 0xFFFFFFFF'FFFFFFFFULL
+                                          : (1ULL << (child_count << 2U)) - 1;
     const auto masked_pos = scalar_pos & mask;
 
     if (masked_pos == 0) return parent_class::child_not_found;

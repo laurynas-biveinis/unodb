@@ -310,11 +310,14 @@ jobs:
           AVX2="${AVX2:-$DEFAULT_AVX2}"
           export PATH="$HOME/.local/bin:$PATH"
           if [[ $COMPILER == "gcc" ]]; then
-            export CC=gcc-11
-            export CXX=g++-11
             if [[ $COVERAGE == "ON" ]]; then
-              EXTRA_CMAKE_ARGS=("-DGCOV_PATH=/usr/local/bin/gcov-11")
+              # Coverage jobs run on macOS
+              export CC=gcc-12
+              export CXX=g++-12
+              EXTRA_CMAKE_ARGS=("-DGCOV_PATH=/usr/local/bin/gcov-12")
             else
+              export CC=gcc-11
+              export CXX=g++-11
               EXTRA_CMAKE_ARGS=()
             fi
           elif [[ $COMPILER == "clang" ]]; then

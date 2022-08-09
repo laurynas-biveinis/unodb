@@ -496,7 +496,7 @@ union [[nodiscard]] key_prefix {
 
     const auto diff = k1 ^ k2;
     const auto clamped = diff | (1ULL << (clamp_byte_pos * 8U));
-    return detail::ctz64(clamped) >> 3U;
+    return static_cast<unsigned>(detail::ctz(clamped) >> 3U);
   }
 
   [[nodiscard, gnu::const]] static constexpr std::uint64_t make_u64(
@@ -1026,8 +1026,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
     if (masked_pos == 0) return parent_class::child_not_found;
 
-    const auto i = gsl::narrow_cast<unsigned>(
-        detail::ctz(gsl::narrow_cast<unsigned>(masked_pos)) >> 3U);
+    const auto i = static_cast<unsigned>(detail::ctz(masked_pos) >> 3U);
     return std::make_pair(
         i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
 #else   // #ifdef UNODB_DETAIL_X86_64
@@ -1354,7 +1353,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 
     if (masked_pos == 0) return parent_class::child_not_found;
 
-    const auto i = detail::ctz64(masked_pos) >> 2U;
+    const auto i = static_cast<unsigned>(detail::ctz(masked_pos) >> 2U);
     return std::make_pair(
         i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
 #else
@@ -1581,7 +1580,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       const auto cmp_mask =
           static_cast<std::uint64_t>(_mm_movemask_epi8(vec_cmp));
       if (cmp_mask != 0) {
-        i = (i << 1U) + (((detail::ctz64(cmp_mask)) + 1) >> 1U);
+        i = (i << 1U) + (((detail::ctz(cmp_mask)) + 1U) >> 1U);
         break;
       }
       i += 4;
@@ -1613,7 +1612,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
             _mm256_permute4x64_epi64(interleaved_vec_cmp, 0b11'01'10'00);
         const auto cmp_mask =
             static_cast<std::uint64_t>(_mm256_movemask_epi8(vec_cmp));
-        i = (i << 2U) + (detail::ctz64(cmp_mask) >> 1U);
+        i = (i << 2U) + (detail::ctz(cmp_mask) >> 1U);
         break;
       }
       i += 4;
@@ -1632,7 +1631,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       const auto scalar_pos =
           vget_lane_u64(vreinterpret_u64_u32(narrowed_cmp), 0);
       if (scalar_pos != 0) {
-        i = (i << 1U) + (detail::ctz64(scalar_pos) >> 4U);
+        i = (i << 1U) + static_cast<unsigned>(detail::ctz(scalar_pos) >> 4U);
         break;
       }
       i += 2;

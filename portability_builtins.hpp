@@ -23,26 +23,36 @@ namespace unodb::detail {
 #endif
 }
 
-[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC auto ctz(
-    unsigned x) noexcept {
+template <typename T>
+[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint8_t ctz(
+    T x) noexcept {
+  if constexpr (std::is_same_v<unsigned, T>) {
 #ifndef UNODB_DETAIL_MSVC
-  return gsl::narrow_cast<std::uint8_t>(__builtin_ctz(x));
+    return gsl::narrow_cast<std::uint8_t>(__builtin_ctz(x));
 #else
-  unsigned long result;  // NOLINT(runtime/int)
-  _BitScanForward(&result, x);
-  return gsl::narrow_cast<std::uint8_t>(result);
+    unsigned long result;  // NOLINT(runtime/int)
+    _BitScanForward(&result, x);
+    return gsl::narrow_cast<std::uint8_t>(result);
 #endif
-}
-
-[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned ctz64(
-    std::uint64_t x) noexcept {
+  }
+  if constexpr (std::is_same_v<unsigned long, T>) {  // NOLINT(runtime/int)
 #ifndef UNODB_DETAIL_MSVC
-  return static_cast<unsigned>(__builtin_ctzll(x));
+    return gsl::narrow_cast<std::uint8_t>(__builtin_ctzl(x));
 #else
-  unsigned long result;  // NOLINT(runtime/int)
-  _BitScanForward64(&result, x);
-  return gsl::narrow_cast<unsigned>(result);
+    unsigned long result;  // NOLINT(runtime/int)
+    _BitScanForward(&result, x);
+    return gsl::narrow_cast<std::uint8_t>(result);
 #endif
+  }
+  if constexpr (std::is_same_v<unsigned long long, T>) {  // NOLINT(runtime/int)
+#ifndef UNODB_DETAIL_MSVC
+    return gsl::narrow_cast<std::uint8_t>(__builtin_ctzll(x));
+#else
+    unsigned long result;  // NOLINT(runtime/int)
+    _BitScanForward64(&result, x);
+    return gsl::narrow_cast<std::uint8_t>(result);
+#endif
+  }
 }
 
 [[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned popcount(

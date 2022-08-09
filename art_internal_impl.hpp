@@ -1621,16 +1621,21 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 #elif defined(__aarch64__)
     const auto nullptr_vector = vdupq_n_u64(0);
     while (true) {
-      const auto ptr_vec = children.pointer_vector[i];
-      const auto vec_cmp = vceqq_u64(nullptr_vector, ptr_vec);
-      const auto narrowed_cmp = vshrn_n_u64(vec_cmp, 4);
+      const auto ptr_vec0 = children.pointer_vector[i];
+      const auto ptr_vec1 = children.pointer_vector[i + 1];
+      const auto vec0_cmp = vceqq_u64(nullptr_vector, ptr_vec0);
+      const auto vec1_cmp = vceqq_u64(nullptr_vector, ptr_vec1);
+      const auto narrowed_cmp0 = vshrn_n_u64(vec0_cmp, 4);
+      const auto narrowed_cmp1 = vshrn_n_u64(vec1_cmp, 4);
+      const auto cmp = vcombine_u32(narrowed_cmp0, narrowed_cmp1);
+      const auto narrowed_cmp = vshrn_n_u64(vreinterpretq_u64_u32(cmp), 4);
       const auto scalar_pos =
           vget_lane_u64(vreinterpret_u64_u32(narrowed_cmp), 0);
       if (scalar_pos != 0) {
-        i = (i << 1U) + static_cast<unsigned>(scalar_pos > 0xFFFFFFFFUL);
+        i = (i << 1U) + (detail::ctz64(scalar_pos) >> 4U);
         break;
       }
-      ++i;
+      i += 2;
     }
 #else   // #ifdef UNODB_DETAIL_X86_64
     node_ptr child_ptr;
@@ -1809,7 +1814,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     __m256i
         pointer_vector[basic_inode_48::capacity / 4];  // NOLINT(runtime/arrays)
 #elif defined(__aarch64__)
-    static_assert(basic_inode_48::capacity % 2 == 0);
+    static_assert(basic_inode_48::capacity % 4 == 0);
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     uint64x2_t
         pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)

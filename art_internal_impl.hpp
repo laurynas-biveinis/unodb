@@ -1646,8 +1646,12 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     }
 #endif  // #ifdef UNODB_DETAIL_X86_64
 
+#ifndef NDEBUG
     UNODB_DETAIL_ASSERT(i < parent_class::capacity);
     UNODB_DETAIL_ASSERT(children.pointer_array[i] == nullptr);
+    for (unsigned j = 0; j < i; ++j)
+      UNODB_DETAIL_ASSERT(children.pointer_array[j] != nullptr);
+#endif
 
     child_indexes[key_byte] = gsl::narrow_cast<std::uint8_t>(i);
     children.pointer_array[i] = node_ptr{child.release(), node_type::LEAF};

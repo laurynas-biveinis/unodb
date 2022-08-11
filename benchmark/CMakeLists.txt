@@ -58,6 +58,8 @@ add_custom_target(valgrind_benchmarks
 add_library(micro_benchmark_utils STATIC micro_benchmark_utils.cpp
   micro_benchmark_utils.hpp)
 common_target_properties(micro_benchmark_utils)
+target_compile_definitions(micro_benchmark_utils PRIVATE
+  BENCHMARK_STATIC_DEFINE)
 target_include_directories(micro_benchmark_utils PUBLIC ".")
 target_link_libraries(micro_benchmark_utils PUBLIC unodb)
 target_link_libraries(micro_benchmark_utils PUBLIC benchmark::benchmark)
@@ -68,6 +70,7 @@ set_clang_tidy_options(micro_benchmark_utils "${DO_CLANG_TIDY}")
 function(ADD_BENCHMARK_TARGET TARGET)
   add_executable("${TARGET}" "${TARGET}.cpp")
   common_target_properties("${TARGET}")
+  target_compile_definitions("${TARGET}" PRIVATE BENCHMARK_STATIC_DEFINE)
   target_link_libraries("${TARGET}" PRIVATE micro_benchmark_utils)
   add_dependencies(benchmarks "${TARGET}")
   add_dependencies(quick_benchmarks "${TARGET}")

@@ -93,8 +93,8 @@ void unpredictable_get_shared_length(benchmark::State &state) {
     for (const auto k : search_keys) unodb::benchmark::get_key(test_db, k);
   }
 
-  state.SetItemsProcessed(
-      static_cast<std::int64_t>(state.iterations() * search_keys.size()));
+  state.SetItemsProcessed(state.iterations() *
+                          static_cast<std::int64_t>(search_keys.size()));
 }
 
 /*
@@ -183,8 +183,8 @@ void do_insert_benchmark(benchmark::State &state,
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(
-      static_cast<std::int64_t>(state.iterations() * benchmark_keys.size()));
+  state.SetItemsProcessed(state.iterations() *
+                          static_cast<std::int64_t>(benchmark_keys.size()));
 }
 
 template <class Db>
@@ -421,8 +421,8 @@ void unpredictable_prepend_key_prefix(benchmark::State &state) {
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(
-      static_cast<std::int64_t>(state.iterations() * benchmark_keys.size()));
+  state.SetItemsProcessed(state.iterations() *
+                          static_cast<std::int64_t>(benchmark_keys.size()));
 }
 
 }  // namespace

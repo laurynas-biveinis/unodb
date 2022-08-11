@@ -68,8 +68,7 @@ void node4_sequential_insert(benchmark::State &state) {
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
+  state.SetItemsProcessed(state.iterations() * state.range(0));
   growing_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
@@ -104,8 +103,7 @@ void node4_random_insert(benchmark::State &state) {
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
+  state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
 template <class Db>
@@ -152,8 +150,7 @@ void node4_sequential_delete_benchmark(benchmark::State &state,
     }
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          keys_deleted);
+  state.SetItemsProcessed(state.iterations() * keys_deleted);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 
@@ -183,8 +180,7 @@ void node4_random_delete_benchmark(benchmark::State &state,
     unodb::benchmark::delete_keys(test_db, keys);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          state.range(0));
+  state.SetItemsProcessed(state.iterations() * state.range(0));
   unodb::benchmark::set_size_counter(state, "size", tree_size);
 }
 

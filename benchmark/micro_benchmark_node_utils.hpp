@@ -702,8 +702,7 @@ void full_node_random_get_benchmark(::benchmark::State &state) {
     }
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          key_count);
+  state.SetItemsProcessed(state.iterations() * key_count);
   set_size_counter(state, "size", tree_size);
 }
 
@@ -772,7 +771,7 @@ void grow_node_sequentially_benchmark(::benchmark::State &state) {
     destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(benchmark_keys_inserted));
   set_size_counter(state, "size", tree_size);
 }
@@ -823,7 +822,7 @@ void grow_node_randomly_benchmark(::benchmark::State &state) {
     destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(benchmark_keys_inserted));
   set_size_counter(state, "size", tree_size);
 }
@@ -874,8 +873,8 @@ void shrink_node_sequentially_benchmark(::benchmark::State &state) {
     destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(
-      static_cast<std::int64_t>(state.iterations() * removed_key_count));
+  state.SetItemsProcessed(state.iterations() *
+                          static_cast<std::int64_t>(removed_key_count));
   set_size_counter(state, "size", tree_size);
 }
 
@@ -914,8 +913,8 @@ void shrink_node_randomly_benchmark(::benchmark::State &state) {
     destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(
-      static_cast<std::int64_t>(state.iterations() * removed_key_count));
+  state.SetItemsProcessed(state.iterations() *
+                          static_cast<std::int64_t>(removed_key_count));
   set_size_counter(state, "size", tree_size);
 }
 
@@ -945,7 +944,7 @@ void sequential_add_benchmark(::benchmark::State &state) {
     destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(benchmark_keys_inserted));
   set_size_counter(state, "size", tree_size);
 }
@@ -976,8 +975,7 @@ void random_add_benchmark(::benchmark::State &state) {
     destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
-                          benchmark_keys_inserted);
+  state.SetItemsProcessed(state.iterations() * benchmark_keys_inserted);
   set_size_counter(state, "size", tree_size);
 }
 
@@ -1060,7 +1058,7 @@ void sequential_delete_benchmark(::benchmark::State &state) {
     destroy_tree(test_db, state);
   }
 
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) * i);
+  state.SetItemsProcessed(state.iterations() * i);
   set_size_counter(state, "size", tree_size);
 }
 
@@ -1090,7 +1088,7 @@ void random_delete_benchmark(::benchmark::State &state) {
     tree_shape.assert_internal_levels_same();
     destroy_tree(test_db, state);
   }
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(remove_key_count));
   set_size_counter(state, "size", tree_size);
 }

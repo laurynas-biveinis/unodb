@@ -1622,19 +1622,29 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     while (true) {
       const auto ptr_vec0 = children.pointer_vector[i];
       const auto ptr_vec1 = children.pointer_vector[i + 1];
+      const auto ptr_vec2 = children.pointer_vector[i + 2];
+      const auto ptr_vec3 = children.pointer_vector[i + 3];
       const auto vec0_cmp = vceqq_u64(nullptr_vector, ptr_vec0);
       const auto vec1_cmp = vceqq_u64(nullptr_vector, ptr_vec1);
+      const auto vec2_cmp = vceqq_u64(nullptr_vector, ptr_vec2);
+      const auto vec3_cmp = vceqq_u64(nullptr_vector, ptr_vec3);
       const auto narrowed_cmp0 = vshrn_n_u64(vec0_cmp, 4);
       const auto narrowed_cmp1 = vshrn_n_u64(vec1_cmp, 4);
-      const auto cmp = vcombine_u32(narrowed_cmp0, narrowed_cmp1);
-      const auto narrowed_cmp = vshrn_n_u64(vreinterpretq_u64_u32(cmp), 4);
+      const auto narrowed_cmp2 = vshrn_n_u64(vec2_cmp, 4);
+      const auto narrowed_cmp3 = vshrn_n_u64(vec3_cmp, 4);
+      const auto cmp01 = vcombine_u32(narrowed_cmp0, narrowed_cmp1);
+      const auto cmp23 = vcombine_u32(narrowed_cmp2, narrowed_cmp3);
+      const auto narrowed_cmp01 = vshrn_n_u32(cmp01, 4);
+      const auto narrowed_cmp23 = vshrn_n_u32(cmp23, 4);
+      const auto cmp = vcombine_u16(narrowed_cmp01, narrowed_cmp23);
+      const auto narrowed_cmp = vshrn_n_u16(cmp, 4);
       const auto scalar_pos =
-          vget_lane_u64(vreinterpret_u64_u32(narrowed_cmp), 0);
+          vget_lane_u64(vreinterpret_u64_u8(narrowed_cmp), 0);
       if (scalar_pos != 0) {
-        i = (i << 1U) + static_cast<unsigned>(detail::ctz(scalar_pos) >> 4U);
+        i = (i << 1U) + static_cast<unsigned>(detail::ctz(scalar_pos) >> 3U);
         break;
       }
-      i += 2;
+      i += 4;
     }
 #else   // #ifdef UNODB_DETAIL_X86_64
     node_ptr child_ptr;
@@ -1817,7 +1827,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     __m256i
         pointer_vector[basic_inode_48::capacity / 4];  // NOLINT(runtime/arrays)
 #elif defined(__aarch64__)
-    static_assert(basic_inode_48::capacity % 4 == 0);
+    static_assert(basic_inode_48::capacity % 8 == 0);
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     uint64x2_t
         pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)

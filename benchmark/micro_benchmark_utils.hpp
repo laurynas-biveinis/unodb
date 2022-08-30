@@ -9,7 +9,7 @@
 #ifndef NDEBUG
 #include <iostream>
 #endif
-#include <random>
+#include <random>  // IWYU pragma: keep
 
 #include <benchmark/benchmark.h>
 

@@ -4,7 +4,6 @@
 
 #include <algorithm>  // IWYU pragma: keep
 #include <cstdint>
-#include <random>
 #include <vector>
 
 #include <benchmark/benchmark.h>

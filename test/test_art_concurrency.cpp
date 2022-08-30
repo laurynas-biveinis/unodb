@@ -4,7 +4,7 @@
 
 #include <array>
 #include <cstddef>
-#include <random>
+#include <random>  // IWYU pragma: keep
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
 

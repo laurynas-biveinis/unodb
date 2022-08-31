@@ -32,6 +32,7 @@ class ARTConcurrencyTest : public ::testing::Test {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  protected:
+  // NOLINTNEXTLINE(bugprone-exception-escape)
   ARTConcurrencyTest() noexcept {
     if constexpr (std::is_same_v<Db, unodb::olc_db>)
       unodb::test::expect_idle_qsbr();

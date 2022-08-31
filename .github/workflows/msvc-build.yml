@@ -14,14 +14,16 @@ jobs:
           - name: MSVC Release
             preset: "msvc-release"
 
-          - name: MSVC Release with ASan
-            preset: "msvc-release-asan"
+          # FIXME(laurynas): Google Test 1.12.1 gets an ASan error on printing
+          # some of the test names
+          # - name: MSVC Release with ASan
+          #   preset: "msvc-release-asan"
 
           - name: MSVC Debug
             preset: "msvc-debug"
 
-          - name: MSVC Debug with ASan
-            preset: "msvc-debug-asan"
+          # - name: MSVC Debug with ASan
+          #   preset: "msvc-debug-asan"
 
           - name: MSVC LLVM Release
             preset: "msvc-llvm-release"

@@ -226,7 +226,7 @@ if(SANITIZE_ADDRESS)
     # 1) AddressSanitizer CHECK failed:
     # ../../../../src/libsanitizer/asan/asan_thread.cpp:369 "((bottom)) != (0)"
     # (0x0, 0x0)
-    # https://bugs.llvm.org/show_bug.cgi?id=47626
+    # https://github.com/llvm/llvm-project/issues/46970
     # 2) ERROR: AddressSanitizer: invalid-pointer-pair: 0x7fffe8404697
     # 0x000000000000
     # #0 0x55d21abf7a40 in std::__cxx11::basic_stringbuf<char,

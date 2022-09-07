@@ -149,7 +149,7 @@ detail::dealloc_vector_list_node *take_orphan_list(
 void free_orphan_list(detail::dealloc_vector_list_node *list) noexcept {
   while (list != nullptr) {
     const std::unique_ptr<detail::dealloc_vector_list_node> list_ptr{list};
-    detail::deferred_requests requests_to_deallocate{
+    const detail::deferred_requests requests_to_deallocate{
         std::move(list_ptr->requests)
 #ifndef NDEBUG
             ,
@@ -318,7 +318,7 @@ void qsbr::reset_stats() {
   assert_idle();
 
   {
-    std::lock_guard guard{dealloc_stats_lock};
+    const std::lock_guard guard{dealloc_stats_lock};
 
     epoch_dealloc_per_thread_count_stats = {};
     publish_epoch_callback_stats();
@@ -328,7 +328,7 @@ void qsbr::reset_stats() {
   }
 
   {
-    std::lock_guard guard{quiescent_state_stats_lock};
+    const std::lock_guard guard{quiescent_state_stats_lock};
 
     quiescent_states_per_thread_between_epoch_change_stats = {};
     publish_quiescent_states_per_thread_between_epoch_change_stats();

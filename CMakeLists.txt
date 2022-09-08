@@ -99,12 +99,13 @@ set(MSVC_CXX_WARNING_FLAGS "/Wall" "/wd4324" "/wd5030" "/wd5072"
   "/wd4623" "/wd4625" "/wd4626" "/wd4582" "/wd4820" "/wd4710" "/wd4711"
   "/wd4868" "/wd5026" "/wd5027" "/wd5045" "/wd5246")
 
-set(MSVC_CLANG_CXX_FLAGS "/arch:AVX" "/permissive-")
+# Flags for both MSVC cl and clang-cl compilers
+set(ANY_MSVC_CXX_FLAGS "/arch:AVX" "/permissive-")
 
 # clang-cl warning flags that cl does not understand
-set(MSVC_CLANGS_ONLY_WARNING_FLAGS "-Wno-c++98-compat"
-  "-Wno-c++98-compat-pedantic" "-Wno-exit-time-destructors"
-  "-Wno-ctad-maybe-unsupported" "-Wno-global-constructors")
+set(MSVC_CLANG_WARNING_FLAGS "-Wno-c++98-compat" "-Wno-c++98-compat-pedantic"
+  "-Wno-exit-time-destructors" "-Wno-ctad-maybe-unsupported"
+  "-Wno-global-constructors")
 
 # cl flags that clang-cl does not understand
 set(MSVC_CXX_FLAGS "/external:anglebrackets" "/external:W0")
@@ -389,8 +390,39 @@ if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}"
   endif()
 endif()
 
+# Generator expression helpers
+set(is_debug "$<CONFIG:Debug>")
+set(is_release "$<CONFIG:Release>")
+set(is_x86_64 "$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>")
+set(is_windows "$<PLATFORM_ID:Windows>")
+set(is_not_windows "$<NOT:${is_windows}>")
+set(is_x86_64_not_windows "$<AND:${is_not_windows},${is_x86_64}>")
+set(is_linux "$<PLATFORM_ID:Linux>")
+set(is_gxx "$<CXX_COMPILER_ID:GNU>")
+set(is_clang "$<CXX_COMPILER_ID:Clang>")
+set(is_any_clang "$<CXX_COMPILER_ID:AppleClang,Clang>")
+set(is_msvc "$<CXX_COMPILER_ID:MSVC>")
+# This condition is incorrect due to clang-cl having clang compiler ID but
+# taking MSVC flags. Change to CMAXE_CXX_COMPILER_FRONTEND_VARIANT on 3.14
+set(is_clang_cl "$<AND:${is_windows},${is_clang}>")
+set(is_any_msvc "$<OR:${is_msvc},${is_clang_cl}>")
+set(is_x86_64_any_msvc "$<AND:${is_any_msvc},${is_x86_64}>")
+set(is_clang_not_windows "$<AND:${is_clang},${is_not_windows}>")
+set(cxx_ge_11 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>")
+set(cxx_lt_13 "$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>")
+set(cxx_ge_13 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>")
+set(cxx_ge_14 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,14.0>")
+set(is_clang_lt_13_not_windows "$<AND:${is_clang_not_windows},${cxx_lt_13}>")
+set(is_clang_ge_13_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_13}>")
+set(is_clang_ge_14_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_14}>")
+set(is_gxx_ge_11 "$<AND:${is_gxx},${cxx_ge_11}>")
+set(has_valgrind_client "$<BOOL:${VALGRIND_CLIENT}>")
+set(has_avx2 "$<BOOL:${AVX2}>")
+set(fatal_warnings_on "$<BOOL:${FATAL_WARNINGS}>")
+set(coverage_on "$<BOOL:${COVERAGE}>")
+
 target_compile_definitions(benchmark PUBLIC
-  "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<CONFIG:Debug>>:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
+  "$<$<AND:${is_gxx},${is_debug}>:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
 
 # Add benchmark_include_dirs by target_include_directories(... SYSTEM ...)
 # before target_link_libraries so that benchmark headers are included through
@@ -480,39 +512,39 @@ set(GSL_INCLUDES "3rd_party/GSL/include")
 
 function(COMMON_TARGET_PROPERTIES TARGET)
   cmake_parse_arguments(PARSE_ARGV 1 CTP "SKIP_CHECKS" "" "")
-  target_compile_definitions(${TARGET} PRIVATE
-    "$<$<AND:$<CONFIG:Debug>,$<BOOL:${VALGRIND_CLIENT}>>:VALGRIND_CLIENT_REQUESTS>")
-  target_compile_options(${TARGET} PRIVATE
-    "$<$<CXX_COMPILER_ID:MSVC>:${MSVC_CXX_FLAGS}>"
-    # Many conditions below are incorrect due to clang-cl having clang compiler
-    # ID but taking MSVC flags. Change to CMAKE_CXX_COMPILER_FRONTEND_VARIANT
-    # on 3.14.
-    "$<$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>:${MSVC_CLANG_CXX_FLAGS}>"
-    "$<$<AND:$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>,$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>>:$<IF:$<BOOL:${AVX2}>,/arch:AVX2,/arch:AVX>>"
-    "$<$<NOT:$<PLATFORM_ID:Windows>>:${UNIX_CXX_FLAGS}>"
-    "$<$<AND:$<NOT:$<PLATFORM_ID:Windows>>,$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>>:$<IF:$<BOOL:${AVX2}>,-mavx2,-msse4.1>>"
-    "$<$<BOOL:${FATAL_WARNINGS}>:$<IF:$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>,/WX,-Werror>>"
-    "$<$<OR:$<CXX_COMPILER_ID:MSVC>,$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>>:${MSVC_CXX_WARNING_FLAGS}>"
-    "$<$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>>:${MSVC_CLANGS_ONLY_WARNING_FLAGS}>"
-    "$<$<AND:$<CXX_COMPILER_ID:AppleClang,Clang>,$<NOT:$<PLATFORM_ID:Windows>>>:${CLANG_CXX_WARNING_FLAGS}>"
-    "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>,$<NOT:$<PLATFORM_ID:Windows>>>:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
-    "$<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>,$<NOT:$<PLATFORM_ID:Windows>>>:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
-    "$<$<CXX_COMPILER_ID:GNU>:${GCC_CXX_WARNING_FLAGS}>"
-    "$<$<AND:$<NOT:$<PLATFORM_ID:Windows>>,$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,14.0>>:${CLANG_GE_14_CXX_FLAGS}>"
-    "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:${GCC_GE_11_CXX_WARNING_FLAGS}>"
-    "$<$<CONFIG:Debug>:$<IF:$<PLATFORM_ID:Windows>,/Od,-O0>>"
-    "$<$<AND:$<CONFIG:Release>,$<NOT:$<PLATFORM_ID:Windows>>>:$<IF:$<BOOL:${COVERAGE}>,-O0,-O3>>"
-    "$<$<BOOL:${COVERAGE}>:--coverage>")
-  target_compile_options(${TARGET} PRIVATE "${CXX_FLAGS}")
-  target_compile_options(${TARGET} PRIVATE "${SANITIZER_CXX_FLAGS}")
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
+  target_compile_definitions(${TARGET} PRIVATE
+    "$<$<AND:${is_debug},${has_valgrind_client}>:VALGRIND_CLIENT_REQUESTS>")
+  target_compile_options(${TARGET} PRIVATE
+    "${CXX_FLAGS}" "${SANITIZER_CXX_FLAGS}"
+    "$<${is_msvc}:${MSVC_CXX_FLAGS}>"
+    "$<${is_any_msvc}:${ANY_MSVC_CXX_FLAGS}>"
+    "$<${is_not_windows}:${UNIX_CXX_FLAGS}>"
+    "$<${is_clang_ge_14_not_windows}:${CLANG_GE_14_CXX_FLAGS}>"
+    # Architecture
+    "$<${is_x86_64_any_msvc}:$<IF:${has_avx2},/arch:AVX2,/arch:AVX>>"
+    "$<${is_x86_64_not_windows}:$<IF:${has_avx2},-mavx2,-msse4.1>>"
+    # Warnings
+    "$<${fatal_warnings_on}:$<IF:${is_any_msvc},/WX,-Werror>>"
+    "$<${is_any_msvc}:${MSVC_CXX_WARNING_FLAGS}>"
+    "$<${is_clang_cl}:${MSVC_CLANG_WARNING_FLAGS}>"
+    "$<$<AND:${is_any_clang},${is_not_windows}>:${CLANG_CXX_WARNING_FLAGS}>"
+    "$<${is_clang_lt_13_not_windows}:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
+    "$<${is_clang_ge_13_not_windows}:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
+    "$<${is_gxx}:${GCC_CXX_WARNING_FLAGS}>"
+    "$<${is_gxx_ge_11}:${GCC_GE_11_CXX_WARNING_FLAGS}>"
+    # Optimization
+    "$<${is_debug}:$<IF:${is_windows},/Od,-O0>>"
+    "$<$<AND:${is_release},${is_not_windows}>:$<IF:${coverage_on},-O0,-O3>>"
+    # Misc
+    "$<${coverage_on}:--coverage>")
   # Change to target_link_options on 3.13 minimum CMake version
-  target_link_libraries(${TARGET} PRIVATE "${SANITIZER_LD_FLAGS}")
-  target_link_libraries(${TARGET} INTERFACE "$<$<BOOL:${COVERAGE}>:--coverage>")
-  target_link_libraries(${TARGET} PRIVATE "$<$<PLATFORM_ID:Linux>:${CMAKE_DL_LIBS}>")
+  target_link_libraries(${TARGET} INTERFACE "$<${coverage_on}:--coverage>")
   target_link_libraries(${TARGET} PRIVATE
-    "$<$<AND:$<PLATFORM_ID:Linux>,$<CXX_COMPILER_ID:GNU>>:backtrace>")
+    "${SANITIZER_LD_FLAGS}"
+    "$<${is_linux}:${CMAKE_DL_LIBS}>"
+    "$<$<AND:${is_linux},${is_gxx}>:backtrace>")
   if(IPO_SUPPORTED)
     set_target_properties(${TARGET} PROPERTIES
       INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
@@ -531,13 +563,12 @@ function(COMMON_TARGET_PROPERTIES TARGET)
       # The condition below is incorrect due to clang-cl having clang compiler
       # ID but taking MSVC flags. Change to CMAKE_CXX_COMPILER_FRONTEND_VARIANT
       # on 3.14.
-      target_compile_options(${TARGET} PRIVATE "$<IF:$<CXX_COMPILER_ID:MSVC>,${MSVC_STATIC_ANALYSIS_FLAGS},-fanalyzer>")
-      # GCC 11 -fanalyzer not fully ready for C++ yet
       target_compile_options(${TARGET} PRIVATE
-        "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:-Wno-analyzer-possible-null-dereference>")
-      target_compile_options(${TARGET} PRIVATE
-        "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>>:-Wno-analyzer-possible-null-argument>")
-    endif()
+        "$<IF:${is_msvc},${MSVC_STATIC_ANALYSIS_FLAGS},-fanalyzer>"
+        # GCC 11 -fanalyzer not fully ready for C++ yet
+        "$<${is_gxx_ge_11}:-Wno-analyzer-possible-null-dereference>"
+        "$<${is_gxx_ge_11}:-Wno-analyzer-possible-null-argument>")
+  endif()
   endif()
 endfunction()
 

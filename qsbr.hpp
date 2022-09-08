@@ -1116,7 +1116,7 @@ class [[nodiscard]] qsbr_thread : public std::thread {
   [[nodiscard]] static auto make_qsbr_thread(Function &&f, Args &&...args) {
     auto new_qsbr_thread_reclamator = std::make_unique<qsbr_per_thread>();
     return std::thread{
-        [new_qsbr_thread_reclamator = move(new_qsbr_thread_reclamator)](
+        [new_qsbr_thread_reclamator = std::move(new_qsbr_thread_reclamator)](
             auto &&f2, auto &&...args2) mutable noexcept(noexcept(f2)) {
           qsbr_per_thread::set_instance(std::move(new_qsbr_thread_reclamator));
           f2(std::forward<Args>(args2)...);

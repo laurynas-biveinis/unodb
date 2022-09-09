@@ -590,7 +590,7 @@ olc_impl_helpers::add_or_choose_subtree(
         auto larger_node{
             INode::larger_derived_type::create(db_instance, inode)};
         {
-          optimistic_lock::write_guard write_unlock_on_exit{
+          const optimistic_lock::write_guard write_unlock_on_exit{
               std::move(parent_critical_section)};
           if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart()))
             return {};  // LCOV_EXCL_LINE
@@ -613,7 +613,7 @@ olc_impl_helpers::add_or_choose_subtree(
       }
     }
 
-    optimistic_lock::write_guard write_unlock_on_exit{
+    const optimistic_lock::write_guard write_unlock_on_exit{
         std::move(node_critical_section)};
     if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) return {};
 
@@ -682,7 +682,8 @@ template <class INode>
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return {};  // LCOV_EXCL_LINE
 
-    optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
+    const optimistic_lock::write_guard node_guard{
+        std::move(node_critical_section)};
     if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
     optimistic_lock::write_guard child_guard{
@@ -700,7 +701,7 @@ template <class INode>
   UNODB_DETAIL_ASSERT(is_node_min_size);
 
   if constexpr (std::is_same_v<INode, olc_inode_4>) {
-    optimistic_lock::write_guard parent_guard{
+    const optimistic_lock::write_guard parent_guard{
         std::move(parent_critical_section)};
     if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
@@ -724,7 +725,7 @@ template <class INode>
   } else {
     auto smaller_node{INode::smaller_derived_type::create(db_instance, inode)};
 
-    optimistic_lock::write_guard parent_guard{
+    const optimistic_lock::write_guard parent_guard{
         std::move(parent_critical_section)};
     if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
@@ -918,7 +919,7 @@ olc_db::try_update_result_type olc_db::try_insert(
   if (UNODB_DETAIL_UNLIKELY(node == nullptr)) {
     create_leaf_if_needed(cached_leaf, k, v, *this);
 
-    optimistic_lock::write_guard write_unlock_on_exit{
+    const optimistic_lock::write_guard write_unlock_on_exit{
         std::move(parent_critical_section)};
     if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {
       // Do not call spin_wait_loop_body here - creating the leaf took some time
@@ -966,11 +967,11 @@ olc_db::try_update_result_type olc_db::try_insert(
           olc_inode_4::create(*this, existing_key, remaining_key, depth)};
 
       {
-        optimistic_lock::write_guard parent_guard{
+        const optimistic_lock::write_guard parent_guard{
             std::move(parent_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
-        optimistic_lock::write_guard node_guard{
+        const optimistic_lock::write_guard node_guard{
             std::move(node_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
@@ -997,11 +998,11 @@ olc_db::try_update_result_type olc_db::try_insert(
       auto new_node{olc_inode_4::create(*this, node, shared_prefix_length)};
 
       {
-        optimistic_lock::write_guard parent_guard{
+        const optimistic_lock::write_guard parent_guard{
             std::move(parent_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
-        optimistic_lock::write_guard node_guard{
+        const optimistic_lock::write_guard node_guard{
             std::move(node_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
@@ -1091,7 +1092,7 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
   if (node_type == node_type::LEAF) {
     auto *const leaf{node.ptr<::leaf *>()};
     if (leaf->matches(k)) {
-      optimistic_lock::write_guard parent_guard{
+      const optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
       // Do not call spin_wait_loop_body from this point on - assume the above
       // took enough time

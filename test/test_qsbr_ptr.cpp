@@ -31,13 +31,13 @@ UNODB_START_TESTS()
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TEST(QSBRPtr, Ctor) {
-  unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
+  const unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
   UNODB_ASSERT_EQ(*ptr, x);
 }
 
 TEST(QSBRPtr, CopyCtor) {
-  unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
-  unodb::qsbr_ptr<const char> ptr2{ptr};
+  const unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
+  const unodb::qsbr_ptr<const char> ptr2{ptr};
 
   UNODB_ASSERT_EQ(*ptr2, x);
   UNODB_ASSERT_EQ(*ptr, x);
@@ -45,7 +45,7 @@ TEST(QSBRPtr, CopyCtor) {
 
 TEST(QSBRPtr, MoveCtor) {
   unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
-  unodb::qsbr_ptr<const char> ptr2{std::move(ptr)};
+  const unodb::qsbr_ptr<const char> ptr2{std::move(ptr)};
 
   UNODB_ASSERT_EQ(*ptr2, x);
   UNODB_ASSERT_EQ(ptr.get(), nullptr);
@@ -53,7 +53,7 @@ TEST(QSBRPtr, MoveCtor) {
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
 TEST(QSBRPtr, CopyAssignment) {
-  unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
+  const unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
   unodb::qsbr_ptr<const char> ptr2{raw_ptr_y};
 
   UNODB_ASSERT_EQ(*ptr, x);
@@ -80,7 +80,7 @@ TEST(QSBRPtr, MoveAssignment) {
 
 TEST(QSBRPtr, ModifyThroughDereference) {
   char obj = 'A';
-  unodb::qsbr_ptr<char> ptr{&obj};
+  const unodb::qsbr_ptr<char> ptr{&obj};
 
   UNODB_ASSERT_EQ(*ptr, 'A');
   *ptr = 'B';
@@ -99,7 +99,7 @@ TEST(QSBRPtr, Preincrement) {
 
 TEST(QSBRPtr, Subtraction) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
-  unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
+  const unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
 
   UNODB_ASSERT_EQ(ptr - ptr, 0);  // -V501
 
@@ -112,53 +112,53 @@ TEST(QSBRPtr, Subtraction) {
 }
 
 TEST(QSBRPtr, Equal) {
-  unodb::qsbr_ptr<const char> ptr{&x};
-  unodb::qsbr_ptr<const char> ptr2{&x};
+  const unodb::qsbr_ptr<const char> ptr{&x};
+  const unodb::qsbr_ptr<const char> ptr2{&x};
   UNODB_ASSERT_TRUE(ptr == ptr2);
 }
 
 TEST(QSBRPtr, NotEqual) {
-  unodb::qsbr_ptr<const char> ptr{&x};
+  const unodb::qsbr_ptr<const char> ptr{&x};
   UNODB_ASSERT_FALSE(ptr != ptr);  // -V501
 
-  unodb::qsbr_ptr<const char> ptr2{&x};
+  const unodb::qsbr_ptr<const char> ptr2{&x};
   UNODB_ASSERT_FALSE(ptr != ptr2);
 
-  unodb::qsbr_ptr<const char> ptr3{&y};
+  const unodb::qsbr_ptr<const char> ptr3{&y};
   UNODB_ASSERT_TRUE(ptr != ptr3);
   UNODB_ASSERT_TRUE(ptr != ptr3);
 }
 
 TEST(QSBRPtr, LessThanEqual) {
-  unodb::qsbr_ptr<const char> ptr{&x};
-  unodb::qsbr_ptr<const char> ptr2{&x};
+  const unodb::qsbr_ptr<const char> ptr{&x};
+  const unodb::qsbr_ptr<const char> ptr2{&x};
 
   UNODB_ASSERT_TRUE(ptr <= ptr2);
   UNODB_ASSERT_TRUE(ptr2 <= ptr);
 
   // NOLINTNEXTLINE(readability-container-data-pointer)
-  unodb::qsbr_ptr<const char> ptr3{&two_chars[0]};
+  const unodb::qsbr_ptr<const char> ptr3{&two_chars[0]};
   // NOLINTNEXTLINE(readability-container-data-pointer)
-  unodb::qsbr_ptr<const char> ptr4{&two_chars[1]};
+  const unodb::qsbr_ptr<const char> ptr4{&two_chars[1]};
   UNODB_ASSERT_TRUE(ptr3 <= ptr4);
   UNODB_ASSERT_FALSE(ptr4 <= ptr3);
 }
 
 TEST(QSBRPtr, Get) {
-  unodb::qsbr_ptr<const char> ptr{&x};
+  const unodb::qsbr_ptr<const char> ptr{&x};
   UNODB_ASSERT_EQ(ptr.get(), &x);
 }
 
 TEST(QSBRPtrSpan, CopyGslSpanCtor) {
-  unodb::qsbr_ptr_span span{gsl_span};
+  const unodb::qsbr_ptr_span span{gsl_span};
 
   UNODB_ASSERT_TRUE(std::equal(std::cbegin(span), std::cend(span),
                                std::cbegin(gsl_span), std::cend(gsl_span)));
 }
 
 TEST(QSBRPtrSpan, CopyCtor) {
-  unodb::qsbr_ptr_span span{gsl_span};
-  unodb::qsbr_ptr_span span2{span};
+  const unodb::qsbr_ptr_span span{gsl_span};
+  const unodb::qsbr_ptr_span span2{span};
 
   UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
                                std::cbegin(gsl_span), std::cend(gsl_span)));
@@ -166,7 +166,7 @@ TEST(QSBRPtrSpan, CopyCtor) {
 
 TEST(QSBRPtrSpan, MoveCtor) {
   unodb::qsbr_ptr_span span{gsl_span};
-  unodb::qsbr_ptr_span span2{std::move(span)};
+  const unodb::qsbr_ptr_span span2{std::move(span)};
 
   UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
                                std::cbegin(gsl_span), std::cend(gsl_span)));
@@ -175,7 +175,7 @@ TEST(QSBRPtrSpan, MoveCtor) {
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
 TEST(QSBRPtrSpan, CopyAssignment) {
-  unodb::qsbr_ptr_span span{gsl_span};
+  const unodb::qsbr_ptr_span span{gsl_span};
   unodb::qsbr_ptr_span span2{gsl_span2};
 
   UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
@@ -203,13 +203,13 @@ TEST(QSBRPtrSpan, MoveAssignment) {
 }
 
 TEST(QSBRPtrSpan, Cbegin) {
-  unodb::qsbr_ptr_span span{gsl_span};
+  const unodb::qsbr_ptr_span span{gsl_span};
   // NOLINTNEXTLINE(readability-container-data-pointer)
   UNODB_ASSERT_EQ(std::cbegin(span).get(), &two_chars[0]);
 }
 
 TEST(QSBRPtrSpan, Cend) {
-  unodb::qsbr_ptr_span span{gsl_span};
+  const unodb::qsbr_ptr_span span{gsl_span};
   // Do not write &two_chars[2] directly or the libstdc++ debug assertions fire
   UNODB_ASSERT_EQ(std::cend(span).get(), &two_chars[1] + 1);
 }

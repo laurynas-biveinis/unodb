@@ -229,7 +229,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
 TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
   auto *ptr = allocate();
-  unodb::qsbr_ptr<void> active_ptr{ptr};
+  const unodb::qsbr_ptr<void> active_ptr{ptr};
   UNODB_ASSERT_DEATH({ quiescent(); }, "");
   qsbr_deallocate(ptr);
 }
@@ -803,7 +803,7 @@ TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
 
   {
     // Reacquired ptr from a shared data structure
-    unodb::qsbr_ptr<char> active_ptr{ptr};
+    const unodb::qsbr_ptr<char> active_ptr{ptr};
 
     thread_syncs[1].notify();  // 2 ->
     thread_syncs[0].wait();    // 3 <-

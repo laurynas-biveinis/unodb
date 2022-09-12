@@ -1624,27 +1624,47 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       const auto ptr_vec1 = children.pointer_vector[i + 1];
       const auto ptr_vec2 = children.pointer_vector[i + 2];
       const auto ptr_vec3 = children.pointer_vector[i + 3];
+      const auto ptr_vec4 = children.pointer_vector[i + 4];
+      const auto ptr_vec5 = children.pointer_vector[i + 5];
+      const auto ptr_vec6 = children.pointer_vector[i + 6];
+      const auto ptr_vec7 = children.pointer_vector[i + 7];
       const auto vec0_cmp = vceqq_u64(nullptr_vector, ptr_vec0);
       const auto vec1_cmp = vceqq_u64(nullptr_vector, ptr_vec1);
       const auto vec2_cmp = vceqq_u64(nullptr_vector, ptr_vec2);
       const auto vec3_cmp = vceqq_u64(nullptr_vector, ptr_vec3);
+      const auto vec4_cmp = vceqq_u64(nullptr_vector, ptr_vec4);
+      const auto vec5_cmp = vceqq_u64(nullptr_vector, ptr_vec5);
+      const auto vec6_cmp = vceqq_u64(nullptr_vector, ptr_vec6);
+      const auto vec7_cmp = vceqq_u64(nullptr_vector, ptr_vec7);
       const auto narrowed_cmp0 = vshrn_n_u64(vec0_cmp, 4);
       const auto narrowed_cmp1 = vshrn_n_u64(vec1_cmp, 4);
       const auto narrowed_cmp2 = vshrn_n_u64(vec2_cmp, 4);
       const auto narrowed_cmp3 = vshrn_n_u64(vec3_cmp, 4);
+      const auto narrowed_cmp4 = vshrn_n_u64(vec4_cmp, 4);
+      const auto narrowed_cmp5 = vshrn_n_u64(vec5_cmp, 4);
+      const auto narrowed_cmp6 = vshrn_n_u64(vec6_cmp, 4);
+      const auto narrowed_cmp7 = vshrn_n_u64(vec7_cmp, 4);
       const auto cmp01 = vcombine_u32(narrowed_cmp0, narrowed_cmp1);
       const auto cmp23 = vcombine_u32(narrowed_cmp2, narrowed_cmp3);
+      const auto cmp45 = vcombine_u32(narrowed_cmp4, narrowed_cmp5);
+      const auto cmp67 = vcombine_u32(narrowed_cmp6, narrowed_cmp7);
       const auto narrowed_cmp01 = vshrn_n_u32(cmp01, 4);
       const auto narrowed_cmp23 = vshrn_n_u32(cmp23, 4);
-      const auto cmp = vcombine_u16(narrowed_cmp01, narrowed_cmp23);
-      const auto narrowed_cmp = vshrn_n_u16(cmp, 4);
+      const auto narrowed_cmp45 = vshrn_n_u32(cmp45, 4);
+      const auto narrowed_cmp67 = vshrn_n_u32(cmp67, 4);
+      const auto cmp03 = vcombine_u16(narrowed_cmp01, narrowed_cmp23);
+      const auto cmp47 = vcombine_u16(narrowed_cmp45, narrowed_cmp67);
+      const auto narrowed_cmp03 = vshrn_n_u16(cmp03, 4);
+      const auto narrowed_cmp47 = vshrn_n_u16(cmp47, 4);
+      const auto cmp = vcombine_u8(narrowed_cmp03, narrowed_cmp47);
+      const auto narrowed_cmp = vshrn_n_u16(vreinterpretq_u16_u8(cmp), 4);
       const auto scalar_pos =
           vget_lane_u64(vreinterpret_u64_u8(narrowed_cmp), 0);
       if (scalar_pos != 0) {
-        i = (i << 1U) + static_cast<unsigned>(detail::ctz(scalar_pos) >> 3U);
+        i = (i << 1U) + static_cast<unsigned>(detail::ctz(scalar_pos) >> 2U);
         break;
       }
-      i += 4;
+      i += 8;
     }
 #else   // #ifdef UNODB_DETAIL_X86_64
     node_ptr child_ptr;
@@ -1827,7 +1847,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     __m256i
         pointer_vector[basic_inode_48::capacity / 4];  // NOLINT(runtime/arrays)
 #elif defined(__aarch64__)
-    static_assert(basic_inode_48::capacity % 8 == 0);
+    static_assert(basic_inode_48::capacity % 16 == 0);
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     uint64x2_t
         pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)

@@ -89,7 +89,7 @@ UNODB_START_TYPED_TESTS()
 
 TYPED_TEST(ARTOOMTest, CtorDoesNotAllocate) {
   unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
-  TypeParam tree;
+  const TypeParam tree;
   unodb::test::allocation_failure_injector::reset();
 }
 

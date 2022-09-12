@@ -368,7 +368,8 @@ if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}"
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rd_party/deepstate"
     BINARY_DIR "${CMAKE_BINARY_DIR}/3rd_party/deepstate"
     CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
-    "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}" "-DCMAKE_C_FLAGS=-w"
+    "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+    "-DCMAKE_C_FLAGS=-w -Wno-implicit-function-declaration"
     "-DCMAKE_CXX_FLAGS=-w" "${BUILD_DEEPSTATE_LIBFUZZER}"
     INSTALL_COMMAND "")
   ExternalProject_Get_property(3rd_party_deepstate SOURCE_DIR)

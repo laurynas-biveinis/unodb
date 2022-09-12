@@ -106,9 +106,9 @@ void assert_unchanged_tree_after_failed_op(
 }
 
 void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
-                      unodb::db &test_db, bool insert, unodb::key key,
+                      unodb::db &test_db, unodb::key key,
                       std::optional<unodb::value_view> value) {
-  UNODB_DETAIL_ASSERT(insert == value.has_value());
+  const auto do_insert = value.has_value();
 
   const auto mem_use_before = test_db.get_current_memory_use();
   const auto node_counts_before = test_db.get_node_counts();
@@ -124,7 +124,7 @@ void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
   do {
     unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
     try {
-      op_result = insert ? test_db.insert(key, *value) : test_db.remove(key);
+      op_result = do_insert ? test_db.insert(key, *value) : test_db.remove(key);
       op_completed = true;
     } catch (const std::bad_alloc &) {
       const auto search_result = test_db.get(key).has_value();
@@ -141,7 +141,7 @@ void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
 
   if (op_result) {
     const auto mem_use_after = test_db.get_current_memory_use();
-    if (insert) {
+    if (do_insert) {
       ASSERT(mem_use_after > mem_use_before);
       unodb::test::allocation_failure_injector::reset();
       LOG(TRACE) << "Inserted key" << key;
@@ -161,10 +161,10 @@ void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
         test_db, mem_use_before, node_counts_before,
         growing_inode_counts_before, shrinking_inode_counts_before,
         key_prefix_splits_before);
-    ASSERT((oracle.find(key) == oracle.cend()) == !insert);
+    ASSERT((oracle.find(key) == oracle.cend()) == !do_insert);
     unodb::test::allocation_failure_injector::reset();
-    LOG(TRACE) << (insert ? "Tried inserting duplicated key "
-                          : "Tried deleting missing key ")
+    LOG(TRACE) << (do_insert ? "Tried inserting duplicated key "
+                             : "Tried deleting missing key ")
                << key;
   }
 
@@ -212,7 +212,7 @@ TEST(ART, DeepStateFuzz) {
           const auto key = DeepState_UInt64InRange(0, max_key_value);
           const auto value = get_value(max_value_length, values);
           LOG(TRACE) << "Inserting key " << key;
-          op_with_oom_test(oracle, keys, test_db, true, key, value);
+          op_with_oom_test(oracle, keys, test_db, key, value);
         },
         // Query
         [&] {
@@ -253,7 +253,7 @@ TEST(ART, DeepStateFuzz) {
 
           const auto key = get_key(max_key_value, keys);
           LOG(TRACE) << "Deleting key " << key;
-          op_with_oom_test(oracle, keys, test_db, false, key, {});
+          op_with_oom_test(oracle, keys, test_db, key, {});
         });
   }
 

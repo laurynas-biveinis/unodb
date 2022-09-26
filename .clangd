@@ -1,8 +1,7 @@
-# -Wunused-member-function false positive:
-# https://github.com/clangd/clangd/issues/363
-CompileFlags:
-  Add: [-Wno-unused-macros,-Wno-unused-function,-Wno-unused-member-function,-Wno-unused-template]
 Diagnostics:
+  # -Wunused-member-function false positive:
+  # https://github.com/clangd/clangd/issues/363
+  Suppress: [-Wunused-macros,-Wunused-function,-Wunused-member-function,-Wunused-template]
   UnusedIncludes: Strict
 InlayHints:
   Enabled: Yes

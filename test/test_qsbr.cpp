@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <sstream>
+#include <system_error>
 #include <utility>  // IWYU pragma: keep
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
@@ -207,6 +208,31 @@ TEST_F(QSBR, SingleThreadAllocationAndEpochChange) {
   ptr = static_cast<char *>(allocate());
   touch_memory(ptr);
   qsbr_deallocate(ptr);
+}
+
+TEST_F(QSBR, SingleThreadAllocationAndEpochChangeOnScopeExit) {
+  {
+    const unodb::quiescent_state_on_scope_exit qsbr_after_deallocate;
+    auto *const ptr = static_cast<char *>(allocate());
+    touch_memory(ptr);
+    qsbr_deallocate(ptr);
+
+    mark_epoch();
+  }
+
+  check_epoch_advanced();
+
+  auto *const ptr2 = static_cast<char *>(allocate());
+  touch_memory(ptr2);
+  qsbr_deallocate(ptr2);
+}
+
+TEST_F(QSBR, QStateOnScopeExitInException) {
+  try {
+    const unodb::quiescent_state_on_scope_exit qsbr_on_scope_exit;
+    throw std::system_error(std::make_error_code(std::errc::invalid_argument));
+  } catch (const std::system_error &) {
+  }
 }
 
 TEST_F(QSBR, ActivePointersBeforeQuiescentState) {
@@ -934,9 +960,6 @@ TEST_F(QSBR, Dump) {
 }
 
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
-// TODO(laurynas): stat tests
-// TODO(laurynas): quiescent_state_on_scope_exit tests?
 
 UNODB_END_TESTS()
 

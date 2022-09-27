@@ -150,6 +150,7 @@ void quiescent_state(std::size_t thread_i) {
   unodb::this_thread().quiescent();
   const auto current_interval_total_dealloc_size_after =
       unodb::this_thread().get_current_interval_total_dealloc_size();
+  // NOLINTNEXTLINE(readability-simplify-boolean-expr)
   ASSERT(current_interval_total_dealloc_size_before ==
              current_interval_total_dealloc_size_after ||
          current_interval_total_dealloc_size_after == 0);
@@ -226,11 +227,13 @@ void deallocate_pointer(std::uint64_t *ptr) {
       unodb::qsbr::instance().get_state());
   unodb::test::allocation_failure_injector::reset();
   if (single_thread_mode) {
+    // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     ASSERT(current_interval_total_dealloc_size_before ==
                current_interval_total_dealloc_size_after ||
            current_interval_total_dealloc_size_after == 0);
   } else {
     ASSERT(current_interval_total_dealloc_size_after > 0);
+    // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     ASSERT(current_interval_total_dealloc_size_after == sizeof(object_mem) ||
            (current_interval_total_dealloc_size_after ==
             current_interval_total_dealloc_size_before + sizeof(object_mem)));

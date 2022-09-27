@@ -975,6 +975,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   [[nodiscard]] constexpr auto leave_last_child(std::uint8_t child_to_delete,
                                                 db &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(this->is_min_size());
+    // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     UNODB_DETAIL_ASSERT(child_to_delete == 0 || child_to_delete == 1);
 
     auto *const child_to_delete_ptr{
@@ -1015,12 +1016,14 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto replicated_search_key =
         vdupq_n_u8(static_cast<std::uint8_t>(key_byte));
     const auto keys_in_neon_reg = vreinterpretq_u8_u32(
+        // NOLINTNEXTLINE(misc-const-correctness)
         vsetq_lane_u32(keys.integer.load(), vdupq_n_u32(0), 0));
     const auto mask = (1ULL << (this->children_count.load() << 3U)) - 1;
     const auto matching_key_positions =
         vceqq_u8(replicated_search_key, keys_in_neon_reg);
     const auto u64_pos_in_vec =
         vget_low_u64(vreinterpretq_u64_u8(matching_key_positions));
+    // NOLINTNEXTLINE(misc-const-correctness)
     const auto pos_in_scalar = vget_lane_u64(u64_pos_in_vec, 0);
     const auto masked_pos = pos_in_scalar & mask;
 
@@ -1345,6 +1348,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto narrowed_positions =
         vshrn_n_u16(vreinterpretq_u16_u8(matching_key_positions), 4);
     const auto scalar_pos =
+        // NOLINTNEXTLINE(misc-const-correctness)
         vget_lane_u64(vreinterpret_u64_u8(narrowed_positions), 0);
     const auto child_count = this->children_count.load();
     const auto mask = (child_count == 16) ? 0xFFFFFFFF'FFFFFFFFULL
@@ -1634,11 +1638,15 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       const auto narrowed_cmp3 = vshrn_n_u64(vec3_cmp, 4);
       const auto cmp01 = vcombine_u32(narrowed_cmp0, narrowed_cmp1);
       const auto cmp23 = vcombine_u32(narrowed_cmp2, narrowed_cmp3);
+      // NOLINTNEXTLINE(misc-const-correctness)
       const auto narrowed_cmp01 = vshrn_n_u32(cmp01, 4);
+      // NOLINTNEXTLINE(misc-const-correctness)
       const auto narrowed_cmp23 = vshrn_n_u32(cmp23, 4);
       const auto cmp = vcombine_u16(narrowed_cmp01, narrowed_cmp23);
+      // NOLINTNEXTLINE(misc-const-correctness)
       const auto narrowed_cmp = vshrn_n_u16(cmp, 4);
       const auto scalar_pos =
+          // NOLINTNEXTLINE(misc-const-correctness)
           vget_lane_u64(vreinterpret_u64_u8(narrowed_cmp), 0);
       if (scalar_pos != 0) {
         i = (i << 1U) + static_cast<unsigned>(detail::ctz(scalar_pos) >> 3U);

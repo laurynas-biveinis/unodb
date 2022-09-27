@@ -92,7 +92,7 @@ void insert_key_ignore_dups(Db &db, unodb::key k, unodb::value_view v) {
 template <>
 inline void insert_key_ignore_dups(unodb::olc_db &db, unodb::key k,
                                    unodb::value_view v) {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_insert_key_ignore_dups(db, k, v);
 }
 
@@ -103,7 +103,7 @@ void insert_key(Db &db, unodb::key k, unodb::value_view v) {
 
 template <>
 inline void insert_key(unodb::olc_db &db, unodb::key k, unodb::value_view v) {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_insert_key(db, k, v);
 }
 
@@ -141,7 +141,7 @@ void delete_key_if_exists(Db &db, unodb::key k) {
 
 template <>
 inline void delete_key_if_exists(unodb::olc_db &db, unodb::key k) {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_delete_key_if_exists(db, k);
 }
 
@@ -152,7 +152,7 @@ void delete_key(Db &db, unodb::key k) {
 
 template <>
 inline void delete_key(unodb::olc_db &db, unodb::key k) {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_delete_key(db, k);
 }
 
@@ -191,7 +191,7 @@ void get_key(const Db &db, unodb::key k) {
 
 template <>
 inline void get_key(const unodb::olc_db &db, unodb::key k) {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_get_key(db, k);
 }
 
@@ -202,7 +202,7 @@ void get_existing_key(const Db &db, unodb::key k) {
 
 template <>
 inline void get_existing_key(const unodb::olc_db &db, unodb::key k) {
-  quiescent_state_on_scope_exit qsbr_after_get{};
+  const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_get_existing_key(db, k);
 }
 

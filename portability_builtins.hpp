@@ -35,6 +35,7 @@ template <typename T>
     return gsl::narrow_cast<std::uint8_t>(result);
 #endif
   }
+  // NOLINTNEXTLINE(google-runtime-int)
   if constexpr (std::is_same_v<unsigned long, T>) {  // NOLINT(runtime/int)
 #ifndef UNODB_DETAIL_MSVC
     return gsl::narrow_cast<std::uint8_t>(__builtin_ctzl(x));
@@ -44,6 +45,7 @@ template <typename T>
     return gsl::narrow_cast<std::uint8_t>(result);
 #endif
   }
+  // NOLINTNEXTLINE(google-runtime-int)
   if constexpr (std::is_same_v<unsigned long long, T>) {  // NOLINT(runtime/int)
 #ifndef UNODB_DETAIL_MSVC
     return gsl::narrow_cast<std::uint8_t>(__builtin_ctzll(x));

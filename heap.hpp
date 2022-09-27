@@ -83,7 +83,9 @@ class allocation_failure_injector final {
   UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
  private:
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
   static std::atomic<std::uint64_t> allocation_counter;
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
   static std::atomic<std::uint64_t> fail_on_nth_allocation_;
 
 #endif  // #ifndef NDEBUG
@@ -123,6 +125,7 @@ template <typename T>
 #endif
 
   UNODB_DETAIL_ASSERT(err != EINVAL);
+  // NOLINTNEXTLINE(readability-simplify-boolean-expr)
   UNODB_DETAIL_ASSERT(result != nullptr || err == ENOMEM);
 
   return result;

@@ -80,7 +80,7 @@ void do_assert_result_eq(const Db &db, unodb::key key,
                          int line) {
   std::ostringstream msg;
   unodb::detail::dump_key(msg, key);
-  testing::ScopedTrace trace(file, line, msg.str());
+  const testing::ScopedTrace trace(file, line, msg.str());
   const auto result = db.get(key);
   if (!Db::key_found(result)) {
     // LCOV_EXCL_START

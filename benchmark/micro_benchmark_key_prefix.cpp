@@ -290,10 +290,12 @@ void unpredictable_cut_key_prefix(benchmark::State &state) {
   static constexpr auto stride_len = 6U;
   static constexpr auto num_strides = 42;
   static constexpr auto num_top_bytes = stride_len * num_strides;
+  static constexpr auto vec_size =
+      static_cast<std::vector<unodb::key>::size_type>(num_top_bytes) * 2;
   static_assert(num_top_bytes < 256);
 
   std::vector<unodb::key> prepare_keys{};
-  prepare_keys.reserve(num_top_bytes * 2);
+  prepare_keys.reserve(vec_size);
   std::vector<unodb::key> benchmark_keys{};
   benchmark_keys.reserve(num_top_bytes);
   for (std::uint8_t top_byte = 0x00; top_byte < num_top_bytes; ++top_byte) {
@@ -386,10 +388,12 @@ void unpredictable_prepend_key_prefix(benchmark::State &state) {
   static constexpr auto stride_len = 6U;
   static constexpr auto num_strides = 42;
   static constexpr auto num_top_bytes = stride_len * num_strides;
+  static constexpr auto vec_size =
+      static_cast<std::vector<unodb::key>::size_type>(num_top_bytes) * 3;
   static_assert(num_top_bytes < 256);
 
   std::vector<unodb::key> prepare_keys{};
-  prepare_keys.reserve(num_top_bytes * 3);
+  prepare_keys.reserve(vec_size);
   std::vector<unodb::key> benchmark_keys{};
   benchmark_keys.reserve(num_top_bytes);
   for (std::uint8_t top_byte = 0x00; top_byte < num_top_bytes; ++top_byte) {

@@ -21,13 +21,13 @@ class [[nodiscard]] thread_sync final {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard]] bool is_reset() const {
-    std::lock_guard lock{sync_mutex};
+    const std::lock_guard lock{sync_mutex};
     return !flag;
   }
 
   void notify() {
     {
-      std::lock_guard lock{sync_mutex};
+      const std::lock_guard lock{sync_mutex};
       flag = true;
     }
     sync.notify_one();

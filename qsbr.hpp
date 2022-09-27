@@ -474,7 +474,7 @@ void on_thread_exit(Func fn) noexcept {
     Func func;
   };
 
-  thread_local static thread_exiter exiter{fn};
+  const thread_local static thread_exiter exiter{fn};
 }
 
 #endif  // #ifndef UNODB_DETAIL_MSVC_CLANG
@@ -672,14 +672,14 @@ class qsbr final {
 
   void register_quiescent_states_per_thread_between_epoch_changes(
       std::uint64_t states) {
-    std::lock_guard guard{quiescent_state_stats_lock};
+    const std::lock_guard guard{quiescent_state_stats_lock};
     quiescent_states_per_thread_between_epoch_change_stats(states);
     publish_quiescent_states_per_thread_between_epoch_change_stats();
   }
 
   void register_dealloc_stats_per_thread_between_epoch_changes(
       std::size_t total_size, std::size_t count) {
-    std::lock_guard guard{dealloc_stats_lock};
+    const std::lock_guard guard{dealloc_stats_lock};
     deallocation_size_per_thread_stats(total_size);
     publish_deallocation_size_stats();
     epoch_dealloc_per_thread_count_stats(count);
@@ -896,6 +896,7 @@ inline void qsbr_per_thread::advance_last_seen_epoch(
     detail::dealloc_request_vector new_current_requests) {
   if (new_seen_epoch == last_seen_epoch) return;
 
+  // NOLINTNEXTLINE(readability-simplify-boolean-expr)
   UNODB_DETAIL_ASSERT(
       new_seen_epoch == last_seen_epoch.advance()
       // The current thread is 1) quitting; 2) not having seen
@@ -911,7 +912,7 @@ inline void qsbr_per_thread::update_requests(
     detail::dealloc_request_vector new_current_requests) {
   last_seen_epoch = dealloc_epoch;
 
-  detail::deferred_requests requests_to_deallocate{
+  const detail::deferred_requests requests_to_deallocate{
       std::move(previous_interval_dealloc_requests)
 #ifndef NDEBUG
           ,
@@ -930,7 +931,7 @@ inline void qsbr_per_thread::update_requests(
         std::move(current_interval_dealloc_requests);
   } else {
     previous_interval_dealloc_requests.clear();
-    detail::deferred_requests additional_requests_to_deallocate{
+    const detail::deferred_requests additional_requests_to_deallocate{
         std::move(current_interval_dealloc_requests)
 #ifndef NDEBUG
             ,
@@ -997,6 +998,7 @@ inline void deallocation_request::deallocate(
     std::optional<bool> dealloc_epoch_single_thread_mode
 #endif
 ) const noexcept {
+  // NOLINTNEXTLINE(readability-simplify-boolean-expr)
   UNODB_DETAIL_ASSERT((orphan && !dealloc_epoch.has_value() &&
                        !dealloc_epoch_single_thread_mode.has_value()) ||
                       (!orphan && dealloc_epoch.has_value() &&

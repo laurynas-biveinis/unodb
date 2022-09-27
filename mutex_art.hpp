@@ -107,6 +107,7 @@ class mutex_db final {
   [[nodiscard]] static auto key_found(const get_result &result) noexcept {
 #ifndef NDEBUG
     const auto &lock{result.second};
+    // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     assert(!result.first || lock.owns_lock());
 #endif
 

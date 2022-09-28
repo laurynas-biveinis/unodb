@@ -86,7 +86,7 @@ Any macros starting with `UNODB_DETAIL_` are internal and should not be used.
 ## Dependencies
 
 * CMake, at least 3.12
-* Boost library. Currently tested with versions 1.74 and 1.75.
+* Boost library.
 * Guidelines Support Library for gsl::span, bundled as a git submodule.
 * Google Test for tests, bundled as a git submodule.
 * Google Benchmark for microbenchmarks, bundled, as a git submodule.

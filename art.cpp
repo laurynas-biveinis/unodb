@@ -183,23 +183,24 @@ detail::node_ptr *impl_helpers::add_or_choose_subtree(
     tree_depth depth, detail::node_ptr *node_in_parent) {
   auto *const child = unwrap_fake_critical_section(
       static_cast<INode &>(inode).find_child(key_byte).second);
-  if (child == nullptr) {
-    auto leaf = art_policy::make_db_leaf_ptr(k, v, db_instance);
-    const auto children_count = inode.get_children_count();
 
-    if constexpr (!std::is_same_v<INode, inode_256>) {
-      if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
-        auto larger_node{INode::larger_derived_type::create(
-            db_instance, inode, std::move(leaf), depth)};
-        *node_in_parent =
-            node_ptr{larger_node.release(), INode::larger_derived_type::type};
-        db_instance
-            .template account_growing_inode<INode::larger_derived_type::type>();
-        return child;
-      }
+  if (child != nullptr) return child;
+
+  auto leaf = art_policy::make_db_leaf_ptr(k, v, db_instance);
+  const auto children_count = inode.get_children_count();
+
+  if constexpr (!std::is_same_v<INode, inode_256>) {
+    if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
+      auto larger_node{INode::larger_derived_type::create(
+          db_instance, inode, std::move(leaf), depth)};
+      *node_in_parent =
+          node_ptr{larger_node.release(), INode::larger_derived_type::type};
+      db_instance
+          .template account_growing_inode<INode::larger_derived_type::type>();
+      return child;
     }
-    inode.add_to_nonfull(std::move(leaf), depth, children_count);
   }
+  inode.add_to_nonfull(std::move(leaf), depth, children_count);
   return child;
 }
 

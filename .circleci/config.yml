@@ -29,7 +29,7 @@ jobs:
       - run:
           name: Installing dependencies (common)
           command: |
-            sudo apt-get install -y libboost-dev
+            sudo apt-get install -y libboost-dev libjemalloc-dev
       - when:
           condition:
             equal: [ "gcc", << parameters.compiler >> ]

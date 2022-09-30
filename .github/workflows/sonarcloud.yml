@@ -37,7 +37,7 @@ jobs:
       - name: Setup dependencies
         run: |
           sudo add-apt-repository -y 'ppa:mhier/libboost-latest'
-          sudo apt-get install -y boost1.74
+          sudo apt-get install -y boost1.74 libjemalloc-dev
 
       - name: Produce Compilation Database
         shell: bash

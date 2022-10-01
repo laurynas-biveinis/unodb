@@ -69,6 +69,7 @@ set(GCC_CXX_WARNING_FLAGS
 set(GCC_GE_11_CXX_WARNING_FLAGS
   "-Wctad-maybe-unsupported" "-Wdeprecated-enum-enum-conversion"
   "-Wdeprecated-enum-float-conversion" "-Wvexing-parse")
+set(GCC_GE_12_CXX_WARNING_FLAGS "-Winterference-size")
 
 set(UNIX_CXX_FLAGS "-g")
 
@@ -410,6 +411,7 @@ set(is_any_msvc "$<OR:${is_msvc},${is_clang_cl}>")
 set(is_x86_64_any_msvc "$<AND:${is_any_msvc},${is_x86_64}>")
 set(is_clang_not_windows "$<AND:${is_clang},${is_not_windows}>")
 set(cxx_ge_11 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>")
+set(cxx_ge_12 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,12.0>")
 set(cxx_lt_13 "$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>")
 set(cxx_ge_13 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>")
 set(cxx_ge_14 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,14.0>")
@@ -417,6 +419,7 @@ set(is_clang_lt_13_not_windows "$<AND:${is_clang_not_windows},${cxx_lt_13}>")
 set(is_clang_ge_13_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_13}>")
 set(is_clang_ge_14_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_14}>")
 set(is_gxx_ge_11 "$<AND:${is_gxx},${cxx_ge_11}>")
+set(is_gxx_ge_12 "$<AND:${is_gxx},${cxx_ge_12}>")
 set(has_valgrind_client "$<BOOL:${VALGRIND_CLIENT}>")
 set(has_avx2 "$<BOOL:${AVX2}>")
 set(fatal_warnings_on "$<BOOL:${FATAL_WARNINGS}>")
@@ -535,6 +538,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<${is_clang_ge_13_not_windows}:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
     "$<${is_gxx}:${GCC_CXX_WARNING_FLAGS}>"
     "$<${is_gxx_ge_11}:${GCC_GE_11_CXX_WARNING_FLAGS}>"
+    "$<${is_gxx_ge_12}:${GCC_GE_12_CXX_WARNING_FLAGS}>"
     # Optimization
     "$<${is_debug}:$<IF:${is_windows},/Od,-O0>>"
     "$<$<AND:${is_release},${is_not_windows}>:$<IF:${coverage_on},-O0,-O3>>"
@@ -566,9 +570,12 @@ function(COMMON_TARGET_PROPERTIES TARGET)
       # on 3.14.
       target_compile_options(${TARGET} PRIVATE
         "$<IF:${is_msvc},${MSVC_STATIC_ANALYSIS_FLAGS},-fanalyzer>"
-        # GCC 11 -fanalyzer not fully ready for C++ yet
+        # GCC 12 -fanalyzer not fully ready for C++ yet
+        "$<${is_gxx_ge_11}:-Wno-analyzer-null-dereference>"
+        "$<${is_gxx_ge_11}:-Wno-analyzer-possible-null-argument>"
         "$<${is_gxx_ge_11}:-Wno-analyzer-possible-null-dereference>"
-        "$<${is_gxx_ge_11}:-Wno-analyzer-possible-null-argument>")
+        "$<${is_gxx_ge_11}:-Wno-analyzer-malloc-leak>"
+        "$<${is_gxx_ge_11}:-Wno-analyzer-null-argument>")
   endif()
   endif()
 endfunction()

@@ -24,9 +24,9 @@ the case of MSVC, with optional AVX2 support, if available. This is in contrast
 to the original ART paper needing SSE2
 only.
 
-Note: since this is my personal project, it only supports GCC 10, 11, LLVM 11 to
-13, XCode 13.2, and MSVC 2022 (17.0) compilers. Drop me a note if you want to
-try this and need a lower supported compiler version.
+Note: since this is my personal project, it only supports GCC 10 and later, 11,
+LLVM 11 and later, XCode 13.2, and MSVC 2022 compilers. Drop me a note if you
+want to try this and need a lower supported compiler version.
 
 ## Usage
 

@@ -37,7 +37,7 @@
 
 #endif
 
-#if !defined(NDEBUG) && defined(VALGRIND_CLIENT_REQUESTS)
+#if !defined(NDEBUG) && defined(UNODB_DETAIL_VALGRIND_CLIENT_REQUESTS)
 #include <valgrind/memcheck.h>
 #include <valgrind/valgrind.h>
 #else

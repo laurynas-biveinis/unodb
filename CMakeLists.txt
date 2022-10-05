@@ -518,7 +518,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
   target_compile_definitions(${TARGET} PRIVATE
-    "$<$<AND:${is_debug},${has_valgrind_client}>:VALGRIND_CLIENT_REQUESTS>")
+    "$<${has_valgrind_client}:UNODB_DETAIL_VALGRIND_CLIENT_REQUESTS>")
   target_compile_options(${TARGET} PRIVATE
     "${CXX_FLAGS}" "${SANITIZER_CXX_FLAGS}"
     "$<${is_msvc}:${MSVC_CXX_FLAGS}>"

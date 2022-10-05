@@ -11,31 +11,31 @@ set(micro_benchmark_mutex_quick_arg "--benchmark_filter=\"/4/70000/\"")
 set(micro_benchmark_olc_quick_arg "--benchmark_filter=\"/4/70000/\"")
 
 add_custom_target(benchmarks
-  env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_key_prefix
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_n4
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_n16
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_n48
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_n256
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_mutex
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV} ./micro_benchmark_olc)
+  env ${SANITIZER_ENV} ./micro_benchmark_key_prefix
+  COMMAND env ${SANITIZER_ENV} ./micro_benchmark_n4
+  COMMAND env ${SANITIZER_ENV} ./micro_benchmark_n16
+  COMMAND env ${SANITIZER_ENV} ./micro_benchmark_n48
+  COMMAND env ${SANITIZER_ENV} ./micro_benchmark_n256
+  COMMAND env ${SANITIZER_ENV} ./micro_benchmark
+  COMMAND env ${SANITIZER_ENV} ./micro_benchmark_mutex
+  COMMAND env ${SANITIZER_ENV} ./micro_benchmark_olc)
 
 add_custom_target(quick_benchmarks
-  env ${ASAN_ENV} ${UBSAN_ENV}
+  env ${SANITIZER_ENV}
   ./micro_benchmark_key_prefix ${micro_benchmark_key_prefix_quick_arg}
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+  COMMAND env ${SANITIZER_ENV}
   ./micro_benchmark_n4 ${micro_benchmark_n4_quick_arg}
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+  COMMAND env ${SANITIZER_ENV}
   ./micro_benchmark_n16 ${micro_benchmark_n16_quick_arg}
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+  COMMAND env ${SANITIZER_ENV}
   ./micro_benchmark_n48 ${micro_benchmark_n48_quick_arg}
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+  COMMAND env ${SANITIZER_ENV}
   ./micro_benchmark_n256 ${micro_benchmark_n256_quick_arg}
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+  COMMAND env ${SANITIZER_ENV}
   ./micro_benchmark ${micro_benchmark_quick_arg}
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+  COMMAND env ${SANITIZER_ENV}
   ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg}
-  COMMAND env ${ASAN_ENV} ${UBSAN_ENV}
+  COMMAND env ${SANITIZER_ENV}
   ./micro_benchmark_olc ${micro_benchmark_olc_quick_arg})
 
 add_custom_target(valgrind_benchmarks

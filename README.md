@@ -82,6 +82,7 @@ The are three ART classes available:
   (QSBR) was chosen.
 
 Any macros starting with `UNODB_DETAIL_` are internal and should not be used.
+Likewise for any declarations in `unodb::detail` and ``unodb::test`` namespaces.
 
 ## Dependencies
 
@@ -106,6 +107,11 @@ Source code is formatted with [Google C++ style][gc++style]. Automatic code
 formatting is configured through git  clean/fuzz filters. To enable it, do `git
 config --local include.path ../.gitconfig`. If for any reason you need to
 disable it temporarily, do `git config  --local --unset include.path`
+
+When building this project alone and not as a part of another project, add
+`-DSTANDALONE=ON` CMake option. It will enable extra global debug checks that
+require whole programs to be compiled with them. Currently this consists of
+libstdc+++ debug mode.
 
 To make compiler warnings fatal, add `-DFATAL_WARNINGS=ON` CMake option.
 

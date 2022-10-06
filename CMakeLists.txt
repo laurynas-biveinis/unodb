@@ -5,6 +5,9 @@ project(unodb VERSION 0.1
   DESCRIPTION "unodb key-value store library"
   HOMEPAGE_URL "https://github.com/laurynas-biveinis/unodb" LANGUAGES CXX)
 
+option(STANDALONE
+  "Build UnoDB not for linking with outside code. Enables extra global checks")
+
 option(FATAL_WARNINGS "Make warning diagnostics fatal")
 if(FATAL_WARNINGS)
   message(STATUS "Warning diagnostics are fatal")
@@ -423,9 +426,11 @@ set(has_valgrind_client "$<BOOL:${VALGRIND_CLIENT}>")
 set(has_avx2 "$<BOOL:${AVX2}>")
 set(fatal_warnings_on "$<BOOL:${FATAL_WARNINGS}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
+set(is_standalone "$<BOOL:${STANDALONE}>")
+set(is_gxx_debug_standalone $<AND:${is_gxx},${is_debug},${is_standalone}>)
 
 target_compile_definitions(benchmark PUBLIC
-  "$<$<AND:${is_gxx},${is_debug}>:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
+  "$<${is_gxx_debug_standalone}:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
 
 # Add benchmark_include_dirs by target_include_directories(... SYSTEM ...)
 # before target_link_libraries so that benchmark headers are included through
@@ -517,6 +522,8 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   cmake_parse_arguments(PARSE_ARGV 1 CTP "SKIP_CHECKS" "" "")
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
+  target_compile_definitions(${TARGET} PRIVATE
+    "$<${is_standalone}:UNODB_DETAIL_STANDALONE>")
   target_compile_definitions(${TARGET} PRIVATE
     "$<${has_valgrind_client}:UNODB_DETAIL_VALGRIND_CLIENT_REQUESTS>")
   target_compile_options(${TARGET} PRIVATE
@@ -654,6 +661,7 @@ if(NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 message(STATUS "User-set CMake options:")
+message(STATUS "STANDALONE: ${STANDALONE}")
 message(STATUS "FATAL_WARNINGS: ${FATAL_WARNINGS}")
 message(STATUS "AVX2: ${AVX2}")
 message(STATUS "COVERAGE: ${COVERAGE}")

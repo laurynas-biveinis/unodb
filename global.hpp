@@ -4,8 +4,9 @@
 
 // Defines that must precede includes
 
-#ifndef NDEBUG
-#ifndef __clang__
+#ifdef UNODB_DETAIL_STANDALONE
+
+#if !defined(NDEBUG) && !defined(__clang__)
 
 #ifndef _GLIBCXX_DEBUG
 #define _GLIBCXX_DEBUG
@@ -15,8 +16,7 @@
 #define _GLIBCXX_DEBUG_PEDANTIC
 #endif
 
-#endif  // #ifndef __clang__
-#endif  // #ifndef NDEBUG
+#endif  // !defined(NDEBUG) && !defined(__clang__)
 
 #if defined(__has_feature) && !defined(__clang__)
 #if __has_feature(address_sanitizer)
@@ -25,6 +25,8 @@
 #elif defined(__SANITIZE_ADDRESS__)
 #define _GLIBCXX_SANITIZE_VECTOR 1
 #endif
+
+#endif  // UNODB_DETAIL_STANDALONE
 
 #ifdef _MSC_VER
 #define NOMINMAX

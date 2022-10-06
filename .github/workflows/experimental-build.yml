@@ -14,10 +14,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: XCode Release include-what-you-use & aggressive cppcheck
+          - name: XCode Release iwyu, aggressive cppcheck, not standalone
             BUILD_TYPE: Release
 
-          - name: XCode Debug include-what-you-use & aggressive cppcheck
+          - name: XCode Debug iwyu, aggressive cppcheck, not standalone
             BUILD_TYPE: Debug
 
     steps:

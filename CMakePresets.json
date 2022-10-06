@@ -11,6 +11,7 @@
             "hidden": true,
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
+                "STANDALONE": "ON",
                 "FATAL_WARNINGS": "ON"
             }
         },

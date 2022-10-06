@@ -96,9 +96,10 @@ jobs:
               EXTRA_CMAKE_ARGS=("${EXTRA_CMAKE_ARGS[@]}" \
                   "-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-15")
             fi
-            cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFATAL_WARNINGS=ON \
-              -DSANITIZE_ADDRESS=$ASAN -DSANITIZE_THREAD=$TSAN \
-              -DSANITIZE_UB=$UBSAN "${EXTRA_CMAKE_ARGS[@]}"
+            cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSTANDALONE=ON \
+              -DFATAL_WARNINGS=ON -DSANITIZE_ADDRESS=$ASAN \
+              -DSANITIZE_THREAD=$TSAN -DSANITIZE_UB=$UBSAN \
+              "${EXTRA_CMAKE_ARGS[@]}"
       - run:
           name: Build
           working_directory: build

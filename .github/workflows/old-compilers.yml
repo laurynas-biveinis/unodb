@@ -412,7 +412,7 @@ jobs:
                   "-DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-${VERSION}")
             fi
           fi
-          cmake "$GITHUB_WORKSPACE" -DFATAL_WARNINGS=ON \
+          cmake "$GITHUB_WORKSPACE" -DSTANDALONE=ON -DFATAL_WARNINGS=ON \
               "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \

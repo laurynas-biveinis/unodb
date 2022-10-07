@@ -38,13 +38,17 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
 
   add_executable(${TEST_NAME} "${TEST_NAME}.cpp")
   common_deepstate_target_properties(${TEST_NAME})
-  add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} ${DEEPSTATE_2S_OPTIONS} 2)
+  add_sanitized_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME}
+    ${DEEPSTATE_2S_OPTIONS} 2)
 
   add_custom_target(${TEST_2S} DEPENDS ${TEST_NAME}
-    COMMAND ${TEST_NAME} ${DEEPSTATE_2S_OPTIONS} 2)
-  add_custom_target(${TEST_1M} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 60)
-  add_custom_target(${TEST_20M} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 1200)
-  add_custom_target(${TEST_8H} COMMAND ${TEST_NAME} ${DEEPSTATE_OPTIONS} 28800)
+    COMMAND env ${SANITIZER_ENV} "./${TEST_NAME}" ${DEEPSTATE_2S_OPTIONS} 2)
+  add_custom_target(${TEST_1M}
+    COMMAND env ${SANITIZER_ENV} "./${TEST_NAME}" ${DEEPSTATE_OPTIONS} 60)
+  add_custom_target(${TEST_20M}
+    COMMAND env ${SANITIZER_ENV} "./${TEST_NAME}" ${DEEPSTATE_OPTIONS} 1200)
+  add_custom_target(${TEST_8H}
+    COMMAND env ${SANITIZER_ENV} "./${TEST_NAME}" ${DEEPSTATE_OPTIONS} 28800)
 
   add_dependencies(deepstate_2s ${TEST_2S})
   add_dependencies(deepstate_1m ${TEST_1M})
@@ -60,7 +64,7 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
     set(SOURCE_NAME "test_${ID}_fuzz_deepstate.cpp")
     set(TEST_NAME "test_${ID}_fuzz_deepstate_lf")
     set(CORPUS_DIR "deepstate_lf_corpus_${ID}")
-    set(INVOCATION ${TEST_NAME} ${CORPUS_DIR} ${DEEPSTATE_LF_OPTIONS})
+    set(INVOCATION "./${TEST_NAME}" ${CORPUS_DIR} ${DEEPSTATE_LF_OPTIONS})
     set(TEST_2S "deepstate_lf_${ID}_2s")
     set(TEST_1M "deepstate_lf_${ID}_1m")
     set(TEST_20M "deepstate_lf_${ID}_20m")
@@ -71,13 +75,17 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
 
     add_executable(${TEST_NAME} "${SOURCE_NAME}")
     common_deepstate_target_properties(${TEST_NAME} WITH_LIBFUZZER)
-    add_test(NAME ${TEST_NAME} COMMAND ${INVOCATION} "-max_total_time=2")
+    add_sanitized_test(NAME ${TEST_NAME} COMMAND ${INVOCATION}
+      "-max_total_time=2")
 
     add_custom_target(${TEST_2S} DEPENDS ${TEST_NAME}
-      COMMAND ${INVOCATION} "-max-total-time=2")
-    add_custom_target(${TEST_1M} COMMAND ${INVOCATION} "-max_total_time=60")
-    add_custom_target(${TEST_20M} COMMAND ${INVOCATION} "-max_total_time=1200")
-    add_custom_target(${TEST_8H} COMMAND ${INVOCATION} "-max_total_time=28800")
+      COMMAND env ${SANITIZER_ENV} ${INVOCATION} "-max-total-time=2")
+    add_custom_target(${TEST_1M}
+      COMMAND env ${SANITIZER_ENV} ${INVOCATION} "-max_total_time=60")
+    add_custom_target(${TEST_20M}
+      COMMAND env ${SANITIZER_ENV} ${INVOCATION} "-max_total_time=1200")
+    add_custom_target(${TEST_8H}
+      COMMAND env ${SANITIZER_ENV} ${INVOCATION} "-max_total_time=28800")
 
     add_dependencies(deepstate_lf_2s ${TEST_2S})
     add_dependencies(deepstate_lf_1m ${TEST_1M})

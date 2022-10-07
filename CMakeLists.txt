@@ -643,6 +643,15 @@ add_custom_target(valgrind DEPENDS valgrind_tests valgrind_benchmarks)
 
 enable_testing()
 
+function(add_sanitized_test)
+  cmake_parse_arguments(AST "" "NAME" "COMMAND" ${ARGN})
+  add_test(NAME "${AST_NAME}" COMMAND ${AST_COMMAND})
+  if(SANITIZE_ADDRESS OR SANITIZE_THREAD OR SANITIZE_UB)
+    set_property(TEST "${AST_NAME}" APPEND PROPERTY ENVIRONMENT
+      "${SANITIZER_ENV}")
+  endif()
+endfunction()
+
 add_subdirectory(benchmark)
 if(TARGET deepstate)
   add_subdirectory(fuzz_deepstate)

@@ -582,7 +582,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
         "$<${is_gxx_ge_11}:-Wno-analyzer-possible-null-dereference>"
         "$<${is_gxx_ge_11}:-Wno-analyzer-malloc-leak>"
         "$<${is_gxx_ge_11}:-Wno-analyzer-null-argument>")
-  endif()
+    endif()
   endif()
 endfunction()
 

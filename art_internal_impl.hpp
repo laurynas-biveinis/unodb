@@ -640,19 +640,6 @@ class basic_inode_impl : public ArtPolicy::header_type {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  // inode must not be allocated directly on heap, concrete subclasses will
-  // define their own new and delete operators using node pools
-  [[nodiscard, gnu::cold]] UNODB_DETAIL_NOINLINE static void *operator new(
-      std::size_t) {
-    UNODB_DETAIL_CANNOT_HAPPEN();
-  }
-
-  UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wmissing-noreturn")
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE static void operator delete(void *) {
-    UNODB_DETAIL_CANNOT_HAPPEN();
-  }
-  UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
-
   constexpr basic_inode_impl(unsigned children_count_, art_key k1,
                              art_key shifted_k2, tree_depth depth) noexcept
       : k_prefix{k1, shifted_k2, depth},
@@ -737,7 +724,7 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
   }
 
   static void operator delete(void *) {
-    // Pool-allocated memory should not be released through operator delete.
+    // Must be deallocated through inode deleters
     UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
   }
 

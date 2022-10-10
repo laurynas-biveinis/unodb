@@ -227,16 +227,7 @@ if(SANITIZE_ADDRESS)
     "check_initialization_order=true:detect_stack_use_after_return=true:"
     "alloc_dealloc_mismatch=true:strict_string_checks=true")
   if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    # Not for GCC, up to version 11 at least, because:
-    # 1) AddressSanitizer CHECK failed:
-    # ../../../../src/libsanitizer/asan/asan_thread.cpp:369 "((bottom)) != (0)"
-    # (0x0, 0x0)
-    # https://github.com/llvm/llvm-project/issues/46970
-    # 2) ERROR: AddressSanitizer: invalid-pointer-pair: 0x7fffe8404697
-    # 0x000000000000
-    # #0 0x55d21abf7a40 in std::__cxx11::basic_stringbuf<char,
-    # std::char_traits<char>, std::allocator<char> >::str() const
-    # /usr/include/c++/8/sstream:173
+    # False positive on std::vector::capacity with GCC 12
     string(APPEND ASAN_ENV ":detect_invalid_pointer_pairs=2")
   endif()
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"

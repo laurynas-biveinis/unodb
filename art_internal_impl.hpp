@@ -30,7 +30,6 @@
 #include "art_common.hpp"
 #include "art_internal.hpp"
 #include "assert.hpp"
-#include "heap.hpp"
 #include "node_type.hpp"
 #include "portability_builtins.hpp"
 
@@ -135,8 +134,7 @@ template <class Header, class Db>
   const auto size = leaf_type::compute_size(
       gsl::narrow_cast<typename leaf_type::value_size_type>(v.size()));
 
-  auto *const leaf_mem = static_cast<std::byte *>(
-      allocate_aligned(size, alignment_for_new<leaf_type>()));
+  auto *const leaf_mem = static_cast<std::byte *>(::operator new(size));
 
   db.increment_leaf_count(size);
 
@@ -167,7 +165,7 @@ inline void basic_db_leaf_deleter<Header, Db>::operator()(
     leaf_type *to_delete) const noexcept {
   const auto leaf_size = to_delete->get_size();
 
-  free_aligned(to_delete);
+  ::operator delete(to_delete);
 
   db.decrement_leaf_count(leaf_size);
 }
@@ -177,7 +175,7 @@ inline void basic_db_inode_deleter<INode, Db>::operator()(
     INode *inode_ptr) noexcept {
   static_assert(std::is_trivially_destructible_v<INode>);
 
-  free_aligned(inode_ptr);
+  ::operator delete(inode_ptr);
 
   db.template decrement_inode_count<INode>();
 }
@@ -715,17 +713,6 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
   [[nodiscard]] static constexpr auto create(db &db_instance, Args &&...args) {
     return ArtPolicy::template make_db_inode_unique_ptr<Derived>(
         db_instance, std::forward<Args>(args)...);
-  }
-
-  [[nodiscard]] static void *operator new(std::size_t size) {
-    UNODB_DETAIL_ASSERT(size == sizeof(Derived));
-
-    return allocate_aligned(size, alignment_for_new<Derived>());
-  }
-
-  static void operator delete(void *) {
-    // Must be deallocated through inode deleters
-    UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
   }
 
 #ifndef NDEBUG

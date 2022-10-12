@@ -150,7 +150,7 @@ class QSBRTestBase : public ::testing::Test {
   // Allocation and deallocation
 
   [[nodiscard]] static void *allocate() {
-    return unodb::detail::allocate_aligned(1);
+    return ::operator new(1);
   }
 
 #ifndef NDEBUG

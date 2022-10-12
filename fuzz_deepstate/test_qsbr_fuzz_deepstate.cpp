@@ -167,10 +167,8 @@ void allocate_pointer(std::size_t thread_i) {
   }
 
   LOG(TRACE) << "Allocating pointer";
-  auto *const new_ptr{static_cast<std::uint64_t *>(
-      unodb::detail::allocate_aligned(sizeof(object_mem)))};
-  *new_ptr = object_mem;
-  allocated_pointers.insert(new_ptr);
+  auto new_ptr = std::make_unique<std::uint64_t>(object_mem);
+  allocated_pointers.insert(new_ptr.release());
 }
 
 #ifndef NDEBUG

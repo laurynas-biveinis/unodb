@@ -14,6 +14,7 @@
 #include <iostream>
 #include <memory>  // IWYU pragma: keep
 #include <mutex>   // IWYU pragma: keep
+#include <new>
 #ifndef NDEBUG
 #include <optional>
 #endif
@@ -35,7 +36,6 @@
 #include <boost/accumulators/statistics/variance.hpp>
 
 #include "assert.hpp"
-#include "heap.hpp"
 #include "portability_arch.hpp"
 
 namespace unodb {
@@ -48,6 +48,11 @@ namespace unodb {
 // constitute a quiescent period, and an epoch change happens at its boundary.
 // At that point all the pending deallocation requests queued before the
 // start of the just-finished quiescent period can be safely executed.
+
+// The managed memory must be allocated with operator new, idiomatic C++ is
+// fine, however the objects must be trivially destructible, as memory will be
+// released through void pointers using global operator delete, and destructors
+// will not run.
 
 // The implementation borrows some of the basic ideas from
 // https://preshing.com/20160726/using-quiescent-states-to-reclaim-memory/
@@ -648,7 +653,7 @@ class qsbr final {
 #ifndef NDEBUG
     if (debug_callback != nullptr) debug_callback(pointer);
 #endif
-    detail::free_aligned(pointer);
+    ::operator delete(pointer);
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 

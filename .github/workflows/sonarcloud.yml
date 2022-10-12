@@ -6,7 +6,7 @@ on: [push]
 jobs:
   sonarcloud:
     name: SonarCloud
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Cache SonarCloud packages
         uses: actions/cache@v1
@@ -17,11 +17,9 @@ jobs:
 
       - name: Download and set up sonar-scanner
         env:
-          # Find the latest version in the "Linux" link on this page:
-          # https://sonarcloud.io/documentation/analysis/scan/sonarscanner/
-          SONAR_SCANNER_VERSION: 4.6.1.2450
+          SONAR_SCANNER_VERSION: 4.7.0.2747
           SONAR_SCANNER_DOWNLOAD_URL: |
-            https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.1.2450-linux.zip
+            https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
         run: |
           mkdir -p "$HOME/.sonar"
           curl -sSLo "$HOME/.sonar/sonar-scanner.zip" \

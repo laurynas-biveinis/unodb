@@ -153,24 +153,6 @@ else()
   message(STATUS "Code coverage reporting not enabled")
 endif()
 
-find_path(VALGRIND_H_PATH valgrind.h PATH_SUFFIXES valgrind)
-if(VALGRIND_H_PATH)
-  find_path(MEMCHECK_H_PATH memcheck.h PATH_SUFFIXES valgrind)
-  if(MEMCHECK_H_PATH)
-    message(STATUS
-      "valgrind.h & memcheck.h found, enabling Valgrind client requests in debug config")
-    set(VALGRIND_CLIENT ON)
-  else()
-    message(STATUS
-      "valgrind.h found but memcheck.h not found, disabling Valgrind client requests in debug config")
-    set(VALGRIND_CLIENT OFF)
-  endif()
-else()
-  message(STATUS
-    "valgrind.h not found, disabling Valgrind client requests in debug config")
-  set(VALGRIND_CLIENT OFF)
-endif()
-
 if(NOT (MSVC AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
   include(CheckIPOSupported)
   check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
@@ -413,7 +395,6 @@ set(is_clang_ge_13_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_13}>")
 set(is_clang_ge_14_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_14}>")
 set(is_gxx_ge_11 "$<AND:${is_gxx},${cxx_ge_11}>")
 set(is_gxx_ge_12 "$<AND:${is_gxx},${cxx_ge_12}>")
-set(has_valgrind_client "$<BOOL:${VALGRIND_CLIENT}>")
 set(has_avx2 "$<BOOL:${AVX2}>")
 set(fatal_warnings_on "$<BOOL:${FATAL_WARNINGS}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
@@ -515,8 +496,6 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
   target_compile_definitions(${TARGET} PRIVATE
     "$<${is_standalone}:UNODB_DETAIL_STANDALONE>")
-  target_compile_definitions(${TARGET} PRIVATE
-    "$<${has_valgrind_client}:UNODB_DETAIL_VALGRIND_CLIENT_REQUESTS>")
   target_compile_options(${TARGET} PRIVATE
     "${CXX_FLAGS}" "${SANITIZER_CXX_FLAGS}"
     "$<${is_msvc}:${MSVC_CXX_FLAGS}>"

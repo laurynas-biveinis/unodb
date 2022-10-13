@@ -17,35 +17,6 @@
 #include <malloc.h>
 #endif
 
-// Do not try to use ASan interface under MSVC until the headers are added to
-// the default search paths:
-// https://developercommunity.visualstudio.com/t/ASan-API-headers-not-in-include-path-whe/1517192
-#ifndef UNODB_DETAIL_MSVC
-#if defined(__SANITIZE_ADDRESS__)
-#include <sanitizer/asan_interface.h>
-#elif defined(__has_feature)
-#if __has_feature(address_sanitizer)
-#include <sanitizer/asan_interface.h>
-#endif
-#endif
-#endif
-
-#ifndef ASAN_POISON_MEMORY_REGION
-
-#define ASAN_POISON_MEMORY_REGION(a, s)
-#define ASAN_UNPOISON_MEMORY_REGION(a, s)
-
-#endif
-
-#if !defined(NDEBUG) && defined(UNODB_DETAIL_VALGRIND_CLIENT_REQUESTS)
-#include <valgrind/memcheck.h>
-#include <valgrind/valgrind.h>
-#else
-#define VALGRIND_MALLOCLIKE_BLOCK(addr, sizeB, rzB, is_zeroed)
-#define VALGRIND_FREELIKE_BLOCK(addr, rzB)
-#define VALGRIND_MAKE_MEM_UNDEFINED(_qzz_addr, _qzz_len)
-#endif
-
 #include "assert.hpp"
 
 namespace unodb::test {

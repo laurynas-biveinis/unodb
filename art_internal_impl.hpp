@@ -242,13 +242,14 @@ struct basic_art_policy final {
   template <class INode, class... Args>
   [[nodiscard]] static auto make_db_inode_unique_ptr(Db &db_instance,
                                                      Args &&...args) {
-    db_inode_unique_ptr<INode> result{
-        new INode{db_instance, std::forward<Args>(args)...},
-        db_inode_deleter<INode>{db_instance}};
+    auto *const inode_mem = static_cast<std::byte *>(
+        allocate_aligned(sizeof(INode), alignment_for_new<INode>()));
 
     db_instance.template increment_inode_count<INode>();
 
-    return result;
+    return db_inode_unique_ptr<INode>{
+        new (inode_mem) INode{db_instance, std::forward<Args>(args)...},
+        db_inode_deleter<INode>{db_instance}};
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
@@ -715,17 +716,6 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
   [[nodiscard]] static constexpr auto create(db &db_instance, Args &&...args) {
     return ArtPolicy::template make_db_inode_unique_ptr<Derived>(
         db_instance, std::forward<Args>(args)...);
-  }
-
-  [[nodiscard]] static void *operator new(std::size_t size) {
-    UNODB_DETAIL_ASSERT(size == sizeof(Derived));
-
-    return allocate_aligned(size, alignment_for_new<Derived>());
-  }
-
-  static void operator delete(void *) {
-    // Must be deallocated through inode deleters
-    UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
   }
 
 #ifndef NDEBUG

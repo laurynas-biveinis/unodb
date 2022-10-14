@@ -51,11 +51,6 @@ void* do_new(Alloc alloc, std::size_t count, Args... args) {
 
 void* operator new(std::size_t count) { return do_new(&malloc, count); }
 
-void* operator new(std::size_t count, std::align_val_t al) {
-  return do_new(&unodb::detail::allocate_aligned_nothrow, count,
-                static_cast<std::size_t>(al));
-}
-
 void operator delete(void* ptr) noexcept {
   // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
   free(ptr);
@@ -67,10 +62,6 @@ void operator delete(void* ptr, std::size_t) noexcept {
   free(ptr);
 }
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
-
-void operator delete(void* ptr, std::align_val_t) noexcept {
-  unodb::detail::free_aligned(ptr);
-}
 
 #endif  // !defined(_MSC_VER) && !defined(UNODB_DETAIL_ADDRESS_SANITIZER) &&
         // !defined(UNODB_DETAIL_THREAD_SANITIZER)

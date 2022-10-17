@@ -577,16 +577,9 @@ function(ADD_UNODB_LIBRARY LIB)
   endif()
 endfunction()
 
-add_unodb_library(unodb_util global.hpp assert.hpp portability_builtins.hpp
-  thread_sync.hpp heap.hpp heap.cpp portability_arch.hpp)
+add_library(unodb_util INTERFACE)
 target_include_directories(unodb_util INTERFACE ".")
-target_include_directories(unodb_util SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
-target_link_libraries(unodb_util PRIVATE "${Boost_LIBRARIES}")
-if(LIBFUZZER_AVAILABLE)
-  target_include_directories(unodb_util_lf INTERFACE ".")
-  target_include_directories(unodb_util_lf SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
-  target_link_libraries(unodb_util_lf PRIVATE "${Boost_LIBRARIES}")
-endif()
+target_include_directories(unodb_util SYSTEM INTERFACE "${Boost_INCLUDE_DIRS}")
 
 add_unodb_library(unodb_qsbr qsbr.cpp qsbr.hpp qsbr_ptr.cpp qsbr_ptr.hpp)
 target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
@@ -595,7 +588,7 @@ target_link_libraries(unodb_qsbr PUBLIC unodb_util Threads::Threads)
 if(LIBFUZZER_AVAILABLE)
   target_include_directories(unodb_qsbr_lf SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
   target_link_libraries(unodb_qsbr_lf PRIVATE "${Boost_LIBRARIES}")
-  target_link_libraries(unodb_qsbr_lf PUBLIC unodb_util_lf Threads::Threads)
+  target_link_libraries(unodb_qsbr_lf PUBLIC unodb_util Threads::Threads)
 endif()
 
 add_unodb_library(unodb art.cpp art.hpp art_common.cpp art_common.hpp
@@ -603,7 +596,7 @@ add_unodb_library(unodb art.cpp art.hpp art_common.cpp art_common.hpp
   olc_art.cpp art_internal.cpp art_internal.hpp node_type.hpp)
 target_link_libraries(unodb PUBLIC unodb_util unodb_qsbr)
 if(LIBFUZZER_AVAILABLE)
-  target_link_libraries(unodb_lf PUBLIC unodb_util_lf unodb_qsbr_lf)
+  target_link_libraries(unodb_lf PUBLIC unodb_util unodb_qsbr_lf)
 endif()
 
 set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"
@@ -612,6 +605,10 @@ set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"
 add_custom_target(valgrind DEPENDS valgrind_tests valgrind_benchmarks)
 
 enable_testing()
+
+add_unodb_library(unodb_test test_heap.cpp)
+target_link_libraries(unodb_test PUBLIC unodb_util)
+target_link_libraries(unodb_test PRIVATE "${Boost_LIBRARIES}")
 
 function(add_sanitized_test)
   cmake_parse_arguments(AST "" "NAME" "COMMAND" ${ARGN})

@@ -55,9 +55,9 @@ class allocation_failure_injector final {
 
  private:
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-  static std::atomic<std::uint64_t> allocation_counter;
+  inline static std::atomic<std::uint64_t> allocation_counter{0};
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-  static std::atomic<std::uint64_t> fail_on_nth_allocation_;
+  inline static std::atomic<std::uint64_t> fail_on_nth_allocation_{0};
 
 #endif  // #ifndef NDEBUG
 };

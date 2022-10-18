@@ -350,8 +350,12 @@ namespace detail {
 
 struct [[nodiscard]] deallocation_request final {
   void *const pointer;
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+  std::size_t size;
+#endif
 
 #ifndef NDEBUG
+  // FIXME(laurynas): pass size too?
   using debug_callback = std::function<void(const void *)>;
 
   // Non-const to support move
@@ -360,19 +364,25 @@ struct [[nodiscard]] deallocation_request final {
 #endif
 
   explicit deallocation_request(void *pointer_
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+                                ,
+                                std::size_t size_
+#endif
 #ifndef NDEBUG
                                 ,
                                 qsbr_epoch request_epoch_,
                                 debug_callback dealloc_callback_
 #endif
                                 ) noexcept
-      : pointer {
-    pointer_
-  }
+      : pointer{pointer_}
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+        ,
+        size{size_}
+#endif
 #ifndef NDEBUG
-  , dealloc_callback{std::move(dealloc_callback_)}, request_epoch {
-    request_epoch_
-  }
+        ,
+        dealloc_callback{std::move(dealloc_callback_)},
+        request_epoch{request_epoch_}
 #endif
   {
 #ifndef NDEBUG
@@ -410,16 +420,15 @@ class [[nodiscard]] deferred_requests final {
       std::optional<bool> dealloc_epoch_single_thread_mode_
 #endif
       ) noexcept
-      : requests {
-    std::move(requests_)
-  }
+      : requests{std::move(requests_)}
 #ifndef NDEBUG
-  , orphaned_requests{orphaned_requests_}, dealloc_epoch{request_epoch_},
-      dealloc_epoch_single_thread_mode {
-    dealloc_epoch_single_thread_mode_
-  }
+        ,
+        orphaned_requests{orphaned_requests_},
+        dealloc_epoch{request_epoch_},
+        dealloc_epoch_single_thread_mode{dealloc_epoch_single_thread_mode_}
 #endif
-  {}
+  {
+  }
 
   deferred_requests(const deferred_requests &) noexcept = delete;
   deferred_requests(deferred_requests &&) noexcept = delete;
@@ -640,6 +649,10 @@ class qsbr final {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   static void deallocate(
       void *pointer
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+      ,
+      std::size_t size
+#endif
 #ifndef NDEBUG
       ,
       const detail::deallocation_request::debug_callback &debug_callback
@@ -648,7 +661,11 @@ class qsbr final {
 #ifndef NDEBUG
     if (debug_callback != nullptr) debug_callback(pointer);
 #endif
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+    detail::free_sized_aligned(pointer, size);
+#else
     detail::free_aligned(pointer);
+#endif
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
@@ -856,6 +873,10 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
   if (UNODB_DETAIL_UNLIKELY(single_thread_mode)) {
     advance_last_seen_epoch(single_thread_mode, current_global_epoch);
     qsbr::deallocate(pointer
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+                     ,
+                     size
+#endif
 #ifndef NDEBUG
                      ,
                      dealloc_callback
@@ -867,6 +888,10 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
   if (last_seen_epoch != current_global_epoch) {
     detail::dealloc_request_vector new_current_requests;
     new_current_requests.emplace_back(pointer
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+                                      ,
+                                      size
+#endif
 #ifndef NDEBUG
                                       ,
                                       current_global_epoch,
@@ -882,6 +907,10 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
   }
 
   current_interval_dealloc_requests.emplace_back(pointer
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+                                                 ,
+                                                 size
+#endif
 #ifndef NDEBUG
                                                  ,
                                                  last_seen_epoch,
@@ -1008,6 +1037,10 @@ inline void deallocation_request::deallocate(
                         *dealloc_epoch == request_epoch.advance(2))));
 
   qsbr::deallocate(pointer
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+                   ,
+                   size
+#endif
 #ifndef NDEBUG
                    ,
                    dealloc_callback

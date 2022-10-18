@@ -17,6 +17,10 @@
 #include <malloc.h>
 #endif
 
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+#include <jemalloc/jemalloc.h>
+#endif
+
 #include "assert.hpp"
 
 namespace unodb::test {
@@ -81,7 +85,7 @@ template <typename T>
 
   void* result;
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) || defined(UNODB_DETAIL_USE_JEMALLOC)
   const auto err = posix_memalign(&result, alignment, size);
   if (UNODB_DETAIL_UNLIKELY(err != 0)) result = nullptr;
 #else
@@ -102,12 +106,36 @@ template <typename T>
   return result;
 }
 
+#ifndef UNODB_DETAIL_USE_JEMALLOC
 inline void free_aligned(void* ptr) noexcept {
 #ifndef _MSC_VER
   // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
   free(ptr);
 #else
   _aligned_free(ptr);
+#endif
+}
+#endif  // !UNODB_DETAIL_USE_JEMALLOC
+
+inline void free_sized(void* ptr, std::size_t size) noexcept {
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+  sdallocx(ptr, size, 0);
+#else
+  (void)size;
+  // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
+  free(ptr);
+#endif
+}
+
+inline void free_sized_aligned(void* ptr, std::size_t size) noexcept {
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+  sdallocx(ptr, size, 0);
+#elif defined(_MSC_VER)
+  _aligned_free(ptr);
+#else
+  (void)size;
+  // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
+  free(ptr);
 #endif
 }
 

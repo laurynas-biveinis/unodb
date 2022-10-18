@@ -35,9 +35,13 @@ void operator delete(void* ptr) noexcept {
 }
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wmissing-prototypes")
-void operator delete(void* ptr, std::size_t) noexcept {
-  // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
+void operator delete(void* ptr, std::size_t size) noexcept {
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+  unodb::detail::free_sized(ptr, size);
+#else
+  (void)size;
   free(ptr);
+#endif
 }
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 

@@ -62,14 +62,6 @@ class allocation_failure_injector final {
 #endif  // #ifndef NDEBUG
 };
 
-template <typename TestAction>
-void must_not_allocate(TestAction test_action) noexcept(
-    noexcept(test_action())) {
-  unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
-  test_action();
-  unodb::test::allocation_failure_injector::reset();
-}
-
 }  // namespace unodb::test
 
 namespace unodb::detail {
@@ -80,9 +72,13 @@ template <typename T>
                   static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
 }
 
-[[nodiscard]] inline void* allocate_aligned_nothrow(
+[[nodiscard]] inline void* allocate_aligned(
     std::size_t size,
-    std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) noexcept {
+    std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+#ifndef NDEBUG
+  unodb::test::allocation_failure_injector::maybe_fail();
+#endif
+
   void* result;
 
 #ifndef _MSC_VER
@@ -98,18 +94,6 @@ template <typename T>
   UNODB_DETAIL_ASSERT(err != EINVAL);
   // NOLINTNEXTLINE(readability-simplify-boolean-expr)
   UNODB_DETAIL_ASSERT(result != nullptr || err == ENOMEM);
-
-  return result;
-}
-
-[[nodiscard]] inline void* allocate_aligned(
-    std::size_t size,
-    std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
-#ifndef NDEBUG
-  unodb::test::allocation_failure_injector::maybe_fail();
-#endif
-
-  void* result = allocate_aligned_nothrow(size, alignment);
 
   if (UNODB_DETAIL_UNLIKELY(result == nullptr)) {
     throw std::bad_alloc{};

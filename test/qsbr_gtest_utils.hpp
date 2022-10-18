@@ -11,6 +11,7 @@
 #include "gtest_utils.hpp"
 #include "heap.hpp"
 #include "qsbr.hpp"
+#include "test_utils.hpp"
 
 namespace unodb::test {
 

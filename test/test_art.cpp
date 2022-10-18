@@ -14,9 +14,9 @@
 #include "art_common.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
-#include "heap.hpp"
 #include "mutex_art.hpp"  // IWYU pragma: keep
 #include "olc_art.hpp"    // IWYU pragma: keep
+#include "test_utils.hpp"
 #include "thread_sync.hpp"
 
 namespace {

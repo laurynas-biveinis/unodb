@@ -256,6 +256,20 @@ find_package(Threads REQUIRED)
 
 find_package(Boost REQUIRED)
 
+if(NOT("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin"
+      AND "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64"))
+  set(USE_JEMALLOC ON)
+else()
+  set(USE_JEMALLOC OFF)
+endif()
+
+if(USE_JEMALLOC)
+  find_package(PkgConfig REQUIRED)
+
+  pkg_check_modules(JEMALLOC jemalloc)
+  pkg_search_module(JEMALLOC REQUIRED jemalloc)
+endif()
+
 string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
 if(MSVC)
   string(REPLACE ";" " " MSVC_WARNING_FLAGS_FOR_SUBDIR_STR_TMP "${MSVC_CXX_WARNING_FLAGS}")
@@ -395,6 +409,7 @@ set(is_clang_ge_13_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_13}>")
 set(is_clang_ge_14_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_14}>")
 set(is_gxx_ge_11 "$<AND:${is_gxx},${cxx_ge_11}>")
 set(is_gxx_ge_12 "$<AND:${is_gxx},${cxx_ge_12}>")
+set(has_jemalloc "$<BOOL:${USE_JEMALLOC}>")
 set(has_avx2 "$<BOOL:${AVX2}>")
 set(fatal_warnings_on "$<BOOL:${FATAL_WARNINGS}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
@@ -496,6 +511,9 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
   target_compile_definitions(${TARGET} PRIVATE
     "$<${is_standalone}:UNODB_DETAIL_STANDALONE>")
+  target_compile_definitions(${TARGET} PRIVATE
+    # FIXME(laurynas): UNODB_DETAIL_USE_SIZED_FREE
+    "$<${has_jemalloc}:UNODB_DETAIL_USE_JEMALLOC>")
   target_compile_options(${TARGET} PRIVATE
     "${CXX_FLAGS}" "${SANITIZER_CXX_FLAGS}"
     "$<${is_msvc}:${MSVC_CXX_FLAGS}>"
@@ -520,6 +538,8 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<$<AND:${is_release},${is_not_windows}>:$<IF:${coverage_on},-O0,-O3>>"
     # Misc
     "$<${coverage_on}:--coverage>")
+  target_link_libraries(${TARGET} PRIVATE
+    "$<${has_jemalloc}:${JEMALLOC_LDFLAGS}>")
   # Change to target_link_options on 3.13 minimum CMake version
   target_link_libraries(${TARGET} INTERFACE "$<${coverage_on}:--coverage>")
   target_link_libraries(${TARGET} PRIVATE

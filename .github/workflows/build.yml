@@ -225,7 +225,7 @@ jobs:
 
       - name: Setup common dependencies for Linux
         run: |
-          sudo apt-get install -y libboost-dev libc6-dev-i386
+          sudo apt-get install -y libboost-dev libc6-dev-i386 libjemalloc-dev
           sudo apt-get remove clang-tidy-11
         if: runner.os == 'Linux'
 
@@ -268,7 +268,7 @@ jobs:
 
       - name: Set up dependencies for macOS (common)
         run: |
-          brew install boost
+          brew install boost jemalloc
         if: runner.os == 'macOS'
 
       - name: Set up dependencies for macOS (coverage)

@@ -167,7 +167,11 @@ inline void basic_db_leaf_deleter<Header, Db>::operator()(
     leaf_type *to_delete) const noexcept {
   const auto leaf_size = to_delete->get_size();
 
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+  free_sized_aligned(to_delete, leaf_size);
+#else
   free_aligned(to_delete);
+#endif
 
   db.decrement_leaf_count(leaf_size);
 }
@@ -177,7 +181,11 @@ inline void basic_db_inode_deleter<INode, Db>::operator()(
     INode *inode_ptr) noexcept {
   static_assert(std::is_trivially_destructible_v<INode>);
 
+#ifdef UNODB_DETAIL_USE_JEMALLOC
+  free_sized_aligned(inode_ptr, sizeof(INode));
+#else
   free_aligned(inode_ptr);
+#endif
 
   db.template decrement_inode_count<INode>();
 }

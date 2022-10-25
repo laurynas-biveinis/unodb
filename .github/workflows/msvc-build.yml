@@ -53,11 +53,17 @@ jobs:
           platform_version: 2019
           toolset: msvc
 
+      - name: Install jemalloc
+        run: |
+          vcpkg install jemalloc
+
       - name: Setup command line tools
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Configure CMake
-        run: cmake --preset "${{ matrix.preset }}"
+        run: |
+          $env:PKG_CONFIG_PATH += ";C:\vcpkg\packages\jemalloc_x86-windows\lib\pkgconfig"
+          cmake --preset "${{ matrix.preset }}"
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 

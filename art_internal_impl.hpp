@@ -17,10 +17,11 @@
 
 #ifdef UNODB_DETAIL_X86_64
 #include <emmintrin.h>
-#include <smmintrin.h>
-#endif
 #ifdef UNODB_DETAIL_AVX2
 #include <immintrin.h>
+#elif defined(UNODB_DETAIL_SSE4_2)
+#include <smmintrin.h>
+#endif
 #elif defined(__aarch64__)
 #include <arm_neon.h>
 #endif

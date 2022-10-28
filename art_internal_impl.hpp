@@ -59,7 +59,7 @@ basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
   return _mm_cmpeq_epi8(_mm_max_epu8(y, x), y);
 }
 
-#else  // #ifdef UNODB_DETAIL_X86_64
+#elif !defined(__aarch64__)
 
 // From public domain
 // https://graphics.stanford.edu/~seander/bithacks.html

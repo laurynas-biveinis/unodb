@@ -273,10 +273,11 @@ jobs:
 
       - name: Set up dependencies for macOS (coverage)
         run: |
-            brew update
-            brew upgrade gcc
-            brew install cpanm lcov
-            sudo cpanm install JSON
+          sudo xcode-select -s /Applications/Xcode_13.4.1.app/Contents/Developer
+          brew update
+          brew upgrade gcc
+          brew install cpanm lcov
+          sudo cpanm install JSON
         if: runner.os == 'macOS' && env.COVERAGE == 'ON'
 
       - name: Set up dependencies for macOS (cppcheck)

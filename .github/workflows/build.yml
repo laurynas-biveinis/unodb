@@ -366,7 +366,10 @@ jobs:
       - name: DeepState 1 minute fuzzing
         working-directory: ${{github.workspace}}/build
         run: make -j2 deepstate_1m
-        if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+        if: >
+          env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+          && (runner.os != 'macOS'
+          || (env.SANITIZE_ADDRESS == 'OFF' && env.SANITIZE_THREAD == 'OFF'))
 
       - name: DeepState libfuzzer 1 minute fuzzing
         working-directory: ${{github.workspace}}/build

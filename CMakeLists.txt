@@ -325,8 +325,11 @@ RESTORE_CXX_FLAGS_FOR_SUBDIR()
 # - under Windows as it's not supported
 # - on ARM
 # - with GCC under macOS due to https://github.com/trailofbits/deepstate/issues/374
-if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}"
-      STREQUAL "Darwin") AND NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+# - under macOS with ASan or TSan enabled
+if(NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin"
+      AND ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
+        OR SANITIZE_ADDRESS OR SANITIZE_THREAD))
+    AND NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
     AND NOT ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
     AND NOT ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64"))
   # ThreadSanitizer is not compatible with libfuzzer and LLVM 11 linker crashes

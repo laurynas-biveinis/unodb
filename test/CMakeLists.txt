@@ -60,8 +60,7 @@ add_db_test_target(test_art_concurrency)
 # - ASan/TSan do not work with replaced global new/delete:
 # https://github.com/llvm/llvm-project/issues/20034
 if (NOT MSVC AND NOT SANITIZE_ADDRESS AND NOT SANITIZE_THREAD
-    AND NOT ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" OR
-        ${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang") AND STATIC_ANALYSIS))
+    AND NOT (is_any_clang AND STATIC_ANALYSIS))
   add_db_test_target(test_art_oom)
   add_test_target(test_qsbr_oom)
   target_link_libraries(test_qsbr_oom PRIVATE qsbr_test_utils)

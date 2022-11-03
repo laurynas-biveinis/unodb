@@ -5,6 +5,27 @@ project(unodb VERSION 0.1
   DESCRIPTION "unodb key-value store library"
   HOMEPAGE_URL "https://github.com/laurynas-biveinis/unodb" LANGUAGES CXX)
 
+# https://stackoverflow.com/a/62488003/80458
+macro(set_bool var)
+  if(${ARGN})
+    set(${var} ON)
+  else()
+    set(${var} OFF)
+  endif()
+endmacro()
+
+# Condition helpers
+set_bool(is_debug CMAKE_BUILD_TYPE STREQUAL "Debug")
+set_bool(is_release CMAKE_BUILD_TYPE STREQUAL "Release")
+set_bool(is_darwin CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+set_bool(is_windows CMAKE_SYSTEM_NAME STREQUAL "Windows")
+set_bool(is_arm "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64"
+  OR "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+set_bool(is_apple_clang "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+set_bool(is_clang "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+set_bool(is_gxx "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+set_bool(is_any_clang $is_apple_clang OR $is_clang)
+
 option(STANDALONE
   "Build UnoDB not for linking with outside code. Enables extra global checks")
 
@@ -153,7 +174,7 @@ else()
   message(STATUS "Code coverage reporting not enabled")
 endif()
 
-if(NOT (MSVC AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
+if(NOT (MSVC AND is_clang))
   include(CheckIPOSupported)
   check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
   if(IPO_SUPPORTED)
@@ -169,7 +190,7 @@ set(SANITIZER_CXX_FLAGS "")
 set(SANITIZER_LD_FLAGS "")
 
 macro(ADD_TO_GNU_SANITIZER_FLAGS)
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  if(is_gxx)
     list(APPEND SANITIZER_CXX_FLAGS ${ARGV})
     list(APPEND SANITIZER_LD_FLAGS ${ARGV})
   endif()
@@ -208,18 +229,17 @@ if(SANITIZE_ADDRESS)
   string(CONCAT ASAN_ENV "ASAN_OPTIONS="
     "check_initialization_order=true:detect_stack_use_after_return=true:"
     "alloc_dealloc_mismatch=true:strict_string_checks=true")
-  if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  if(NOT is_gxx)
     # False positive on std::vector::capacity with GCC 12
     string(APPEND ASAN_ENV ":detect_invalid_pointer_pairs=2")
   endif()
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
-      OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  if(is_clang OR is_gxx)
     string(APPEND ASAN_ENV ":detect_leaks=1")
   endif()
   set(SANITIZER_ENV ${ASAN_ENV})
   unset(ASAN_ENV)
 else()
-  if(MSVC AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  if(MSVC AND NOT is_clang)
     string(REGEX REPLACE "/Zi" "/ZI" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
   endif()
 endif()
@@ -274,7 +294,7 @@ macro(ADD_CXX_FLAGS_FOR_SUBDIR)
     string(APPEND CMAKE_CXX_FLAGS " " "${MSVC_WARNING_FLAGS_FOR_SUBDIR_STR}")
   endif()
   # Change to CMAKE_CXX_COMPILER_FRONTEND_VARIANT on  3.14.
-  if(NOT MSVC AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+  if(NOT MSVC AND is_clang
       AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14.0)
     string(APPEND CMAKE_CXX_FLAGS " " "${CLANG_GE_14_CXX_FLAGS}")
   endif()
@@ -303,11 +323,11 @@ set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL
   "Suppressing Google Benchmark installation" FORCE)
 
 if(IPO_SUPPORTED)
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  if(is_debug)
     # It seems that Google Benchmark does not support multi-configuration
     # generators if LTO is enabled
     message(STATUS "Disabling LTO for Google Benchmark due to debug build")
-  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  elseif(is_apple_clang)
     message(STATUS
       "Disabling LTO for Google Benchmark because Apple clang is not supported")
   else()
@@ -326,16 +346,11 @@ RESTORE_CXX_FLAGS_FOR_SUBDIR()
 # - on ARM
 # - with GCC under macOS due to https://github.com/trailofbits/deepstate/issues/374
 # - under macOS with ASan or TSan enabled
-if(NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin"
-      AND ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
-        OR SANITIZE_ADDRESS OR SANITIZE_THREAD))
-    AND NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-    AND NOT ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
-    AND NOT ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64"))
+if(NOT (is_darwin AND (is_gxx OR SANITIZE_ADDRESS OR SANITIZE_THREAD))
+    AND NOT is_windows AND NOT is_arm)
   # ThreadSanitizer is not compatible with libfuzzer and LLVM 11 linker crashes
   # on libfuzzer release build
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT("${CMAKE_BUILD_TYPE}"
-        STREQUAL "Release") AND NOT(SANITIZE_THREAD))
+  if(is_clang AND NOT(is_release) AND NOT(SANITIZE_THREAD))
     set(LIBFUZZER_AVAILABLE TRUE)
     set(BUILD_DEEPSTATE_LIBFUZZER "-DDEEPSTATE_LIBFUZZER=ON")
   else()
@@ -372,23 +387,23 @@ if(NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin"
 endif()
 
 # Generator expression helpers
-set(is_debug "$<CONFIG:Debug>")
-set(is_release "$<CONFIG:Release>")
+set(is_debug_genex "$<CONFIG:Debug>")
+set(is_release_genex "$<CONFIG:Release>")
 set(is_x86_64 "$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>")
-set(is_windows "$<PLATFORM_ID:Windows>")
-set(is_not_windows "$<NOT:${is_windows}>")
+set(is_windows_genex "$<PLATFORM_ID:Windows>")
+set(is_not_windows "$<NOT:${is_windows_genex}>")
 set(is_x86_64_not_windows "$<AND:${is_not_windows},${is_x86_64}>")
 set(is_linux "$<PLATFORM_ID:Linux>")
-set(is_gxx "$<CXX_COMPILER_ID:GNU>")
-set(is_clang "$<CXX_COMPILER_ID:Clang>")
-set(is_any_clang "$<CXX_COMPILER_ID:AppleClang,Clang>")
+set(is_gxx_genex "$<CXX_COMPILER_ID:GNU>")
+set(is_clang_genex "$<CXX_COMPILER_ID:Clang>")
+set(is_any_clang_genex "$<CXX_COMPILER_ID:AppleClang,Clang>")
 set(is_msvc "$<CXX_COMPILER_ID:MSVC>")
 # This condition is incorrect due to clang-cl having clang compiler ID but
 # taking MSVC flags. Change to CMAXE_CXX_COMPILER_FRONTEND_VARIANT on 3.14
-set(is_clang_cl "$<AND:${is_windows},${is_clang}>")
+set(is_clang_cl "$<AND:${is_windows_genex},${is_clang_genex}>")
 set(is_any_msvc "$<OR:${is_msvc},${is_clang_cl}>")
 set(is_x86_64_any_msvc "$<AND:${is_any_msvc},${is_x86_64}>")
-set(is_clang_not_windows "$<AND:${is_clang},${is_not_windows}>")
+set(is_clang_not_windows "$<AND:${is_clang_genex},${is_not_windows}>")
 set(cxx_ge_11 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>")
 set(cxx_ge_12 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,12.0>")
 set(cxx_lt_13 "$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>")
@@ -397,13 +412,13 @@ set(cxx_ge_14 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,14.0>")
 set(is_clang_lt_13_not_windows "$<AND:${is_clang_not_windows},${cxx_lt_13}>")
 set(is_clang_ge_13_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_13}>")
 set(is_clang_ge_14_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_14}>")
-set(is_gxx_ge_11 "$<AND:${is_gxx},${cxx_ge_11}>")
-set(is_gxx_ge_12 "$<AND:${is_gxx},${cxx_ge_12}>")
+set(is_gxx_ge_11 "$<AND:${is_gxx_genex},${cxx_ge_11}>")
+set(is_gxx_ge_12 "$<AND:${is_gxx_genex},${cxx_ge_12}>")
 set(has_avx2 "$<BOOL:${AVX2}>")
 set(fatal_warnings_on "$<BOOL:${FATAL_WARNINGS}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
 set(is_standalone "$<BOOL:${STANDALONE}>")
-set(is_gxx_debug_standalone $<AND:${is_gxx},${is_debug},${is_standalone}>)
+set(is_gxx_debug_standalone $<AND:${is_gxx_genex},${is_debug_genex},${is_standalone}>)
 
 target_compile_definitions(benchmark PUBLIC
   "$<${is_gxx_debug_standalone}:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
@@ -414,8 +429,7 @@ target_compile_definitions(benchmark PUBLIC
 get_target_property(benchmark_include_dirs benchmark::benchmark
   INTERFACE_INCLUDE_DIRECTORIES)
 
-if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
-    AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+if(NOT is_any_clang)
   message(STATUS "Not using clang-tidy due to non-clang compiler being used")
   set(DO_CLANG_TIDY "")
 elseif(MSVC)
@@ -473,8 +487,7 @@ endif()
 
 option(IWYU "Enable include-what-you-use checking")
 if(IWYU)
-  if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
-      AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  if(NOT is_any_clang)
     message(STATUS "Not using include-what-you-use due to non-clang compiler being used")
   else()
     find_program(IWYU_EXE NAMES "include-what-you-use"
@@ -513,15 +526,15 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<${fatal_warnings_on}:$<IF:${is_any_msvc},/WX,-Werror>>"
     "$<${is_any_msvc}:${MSVC_CXX_WARNING_FLAGS}>"
     "$<${is_clang_cl}:${MSVC_CLANG_WARNING_FLAGS}>"
-    "$<$<AND:${is_any_clang},${is_not_windows}>:${CLANG_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_any_clang_genex},${is_not_windows}>:${CLANG_CXX_WARNING_FLAGS}>"
     "$<${is_clang_lt_13_not_windows}:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
     "$<${is_clang_ge_13_not_windows}:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
-    "$<${is_gxx}:${GCC_CXX_WARNING_FLAGS}>"
+    "$<${is_gxx_genex}:${GCC_CXX_WARNING_FLAGS}>"
     "$<${is_gxx_ge_11}:${GCC_GE_11_CXX_WARNING_FLAGS}>"
     "$<${is_gxx_ge_12}:${GCC_GE_12_CXX_WARNING_FLAGS}>"
     # Optimization
-    "$<${is_debug}:$<IF:${is_windows},/Od,-O0>>"
-    "$<$<AND:${is_release},${is_not_windows}>:$<IF:${coverage_on},-O0,-O3>>"
+    "$<${is_debug_genex}:$<IF:${is_windows_genex},/Od,-O0>>"
+    "$<$<AND:${is_release_genex},${is_not_windows}>:$<IF:${coverage_on},-O0,-O3>>"
     # Misc
     "$<${coverage_on}:--coverage>")
   # Change to target_link_options on 3.13 minimum CMake version
@@ -529,7 +542,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   target_link_libraries(${TARGET} PRIVATE
     "${SANITIZER_LD_FLAGS}"
     "$<${is_linux}:${CMAKE_DL_LIBS}>"
-    "$<$<AND:${is_linux},${is_gxx}>:backtrace>")
+    "$<$<AND:${is_linux},${is_gxx_genex}>:backtrace>")
   if(IPO_SUPPORTED)
     set_target_properties(${TARGET} PROPERTIES
       INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)

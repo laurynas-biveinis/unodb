@@ -875,9 +875,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     }
 
     UNODB_DETAIL_ASSERT(this->children_count == basic_inode_4::capacity);
-    UNODB_DETAIL_ASSERT(
-        std::is_sorted(keys.byte_array.cbegin(),
-                       keys.byte_array.cbegin() + basic_inode_4::capacity));
   }
 
   constexpr void init(art_key k1, art_key shifted_k2, tree_depth depth,
@@ -892,62 +889,29 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                                 std::uint8_t children_count_) noexcept {
     UNODB_DETAIL_ASSERT(children_count_ == this->children_count);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
-    UNODB_DETAIL_ASSERT(std::is_sorted(
-        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
 
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
 
-#ifdef UNODB_DETAIL_X86_64
-    const auto mask = (1U << children_count_) - 1;
-    const auto insert_pos_index = get_insert_pos(key_byte, mask);
-#else
-    // This is also currently the best ARM implementation.
-    const auto first_lt = ((keys.integer & 0xFFU) < key_byte) ? 1 : 0;
-    const auto second_lt = (((keys.integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
-    const auto third_lt = ((keys.integer >> 16U) & 0xFFU) < key_byte ? 1 : 0;
-    const auto insert_pos_index =
-        static_cast<unsigned>(first_lt + second_lt + third_lt);
-#endif
-
-    for (typename decltype(keys.byte_array)::size_type i = children_count_;
-         i > insert_pos_index; --i) {
-      keys.byte_array[i] = keys.byte_array[i - 1];
-      children[i] = children[i - 1];
-    }
-    keys.byte_array[insert_pos_index] = static_cast<std::byte>(key_byte);
-    children[insert_pos_index] = node_ptr{child.release(), node_type::LEAF};
+    keys.byte_array[children_count_] = static_cast<std::byte>(key_byte);
+    children[children_count_] = node_ptr{child.release(), node_type::LEAF};
 
     ++children_count_;
     this->children_count = children_count_;
-
-    UNODB_DETAIL_ASSERT(std::is_sorted(
-        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     auto children_count_ = this->children_count.load();
 
     UNODB_DETAIL_ASSERT(child_index < children_count_);
-    UNODB_DETAIL_ASSERT(std::is_sorted(
-        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
         children[child_index].load().template ptr<leaf_type *>(), db_instance)};
 
-    typename decltype(keys.byte_array)::size_type i = child_index;
-    for (; i < static_cast<unsigned>(children_count_ - 1); ++i) {
-      keys.byte_array[i] = keys.byte_array[i + 1];
-      children[i] = children[i + 1];
-    }
-#ifndef UNODB_DETAIL_X86_64
-    keys.byte_array[i] = unused_key_byte;
-#endif
+    keys.byte_array[child_index] = keys.byte_array[children_count_ - 1U];
+    children[child_index] = children[children_count_ - 1U];
 
     --children_count_;
     this->children_count = children_count_;
-
-    UNODB_DETAIL_ASSERT(std::is_sorted(
-        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
   [[nodiscard]] constexpr auto leave_last_child(std::uint8_t child_to_delete,
@@ -1065,20 +1029,10 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(key1 != key2);
     UNODB_DETAIL_ASSERT(this->children_count == 2);
 
-    const std::uint8_t key1_i = key1 < key2 ? 0U : 1U;
-    const std::uint8_t key2_i = 1U - key1_i;
-    keys.byte_array[key1_i] = key1;
-    children[key1_i] = child1;
-    keys.byte_array[key2_i] = key2;
-    children[key2_i] = node_ptr{child2.release(), node_type::LEAF};
-#ifndef UNODB_DETAIL_X86_64
-    keys.byte_array[2] = unused_key_byte;
-    keys.byte_array[3] = unused_key_byte;
-#endif
-
-    UNODB_DETAIL_ASSERT(
-        std::is_sorted(keys.byte_array.cbegin(),
-                       keys.byte_array.cbegin() + this->children_count));
+    keys.byte_array[0] = key1;
+    children[0] = child1;
+    keys.byte_array[1] = key2;
+    children[1] = node_ptr{child2.release(), node_type::LEAF};
   }
 
   union key_union {
@@ -1101,31 +1055,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   static_assert(sizeof(children) == 32);
 
  private:
-#ifdef UNODB_DETAIL_X86_64
-  [[nodiscard]] auto get_insert_pos(std::uint8_t insert_key_byte,
-                                    unsigned node_key_mask) const noexcept {
-    UNODB_DETAIL_ASSERT(node_key_mask ==
-                        (1U << this->children_count.load()) - 1);
-
-    const auto replicated_insert_key_byte =
-        _mm_set1_epi8(static_cast<char>(insert_key_byte));
-    const auto node_keys_in_sse_reg =
-        _mm_cvtsi32_si128(static_cast<std::int32_t>(keys.integer.load()));
-    // Since the existing and insert key values cannot be equal, it's OK to use
-    // "<=" comparison as "<".
-    const auto le_node_key_positions =
-        _mm_cmple_epu8(node_keys_in_sse_reg, replicated_insert_key_byte);
-    const auto bit_field =
-        static_cast<unsigned>(_mm_movemask_epi8(le_node_key_positions)) &
-        node_key_mask;
-    return detail::popcount(bit_field);
-  }
-#else
-  // The baseline implementation compares key bytes with less-than past the
-  // current node size
-  static constexpr std::byte unused_key_byte{0xFF};
-#endif
-
   template <class>
   friend class basic_inode_16;
 };
@@ -1186,34 +1115,14 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                                                           db_instance)};
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
 
-#ifdef UNODB_DETAIL_X86_64
-    const auto insert_pos_index = source_node.get_insert_pos(key_byte, 0xFU);
-#else
-    const auto keys_integer = source_node.keys.integer.load();
-    const auto first_lt = ((keys_integer & 0xFFU) < key_byte) ? 1 : 0;
-    const auto second_lt = (((keys_integer >> 8U) & 0xFFU) < key_byte) ? 1 : 0;
-    const auto third_lt = (((keys_integer >> 16U) & 0xFFU) < key_byte) ? 1 : 0;
-    const auto fourth_lt = (((keys_integer >> 24U) & 0xFFU) < key_byte) ? 1 : 0;
-    const auto insert_pos_index =
-        static_cast<unsigned>(first_lt + second_lt + third_lt + fourth_lt);
-#endif
-
-    unsigned i = 0;
-    for (; i < insert_pos_index; ++i) {
+    for (unsigned i = 0; i < inode4_type::capacity; ++i) {
       keys.byte_array[i] = source_node.keys.byte_array[i];
       children[i] = source_node.children[i];
     }
 
-    UNODB_DETAIL_ASSUME(i < parent_class::capacity);
-
-    keys.byte_array[i] = static_cast<std::byte>(key_byte);
-    children[i] = node_ptr{child.release(), node_type::LEAF};
-    ++i;
-
-    for (; i <= inode4_type::capacity; ++i) {
-      keys.byte_array[i] = source_node.keys.byte_array[i - 1];
-      children[i] = source_node.children[i - 1];
-    }
+    keys.byte_array[inode4_type::capacity] = static_cast<std::byte>(key_byte);
+    children[inode4_type::capacity] =
+        node_ptr{child.release(), node_type::LEAF};
   }
 
   constexpr void init(db &db_instance, inode48_type &source_node,
@@ -1252,54 +1161,27 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                                 std::uint8_t children_count_) noexcept {
     UNODB_DETAIL_ASSERT(children_count_ == this->children_count);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
-    UNODB_DETAIL_ASSERT(std::is_sorted(
-        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
 
     const auto key_byte = child->get_key()[depth];
 
-    const auto insert_pos_index =
-        get_sorted_key_array_insert_position(key_byte);
-
-    if (insert_pos_index != children_count_) {
-      UNODB_DETAIL_ASSERT(insert_pos_index < children_count_);
-      UNODB_DETAIL_ASSERT(keys.byte_array[insert_pos_index] != key_byte);
-
-      std::copy_backward(keys.byte_array.cbegin() + insert_pos_index,
-                         keys.byte_array.cbegin() + children_count_,
-                         keys.byte_array.begin() + children_count_ + 1);
-      std::copy_backward(children.begin() + insert_pos_index,
-                         children.begin() + children_count_,
-                         children.begin() + children_count_ + 1);
-    }
-
-    keys.byte_array[insert_pos_index] = key_byte;
-    children[insert_pos_index] = node_ptr{child.release(), node_type::LEAF};
+    keys.byte_array[children_count_] = key_byte;
+    children[children_count_] = node_ptr{child.release(), node_type::LEAF};
     ++children_count_;
     this->children_count = children_count_;
-
-    UNODB_DETAIL_ASSERT(std::is_sorted(
-        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
     auto children_count_ = this->children_count.load();
     UNODB_DETAIL_ASSERT(child_index < children_count_);
-    UNODB_DETAIL_ASSERT(std::is_sorted(
-        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
 
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
         children[child_index].load().template ptr<leaf_type *>(), db_instance)};
 
-    for (unsigned i = child_index + 1U; i < children_count_; ++i) {
-      keys.byte_array[i - 1] = keys.byte_array[i];
-      children[i - 1] = children[i];
-    }
+    keys.byte_array[child_index] = keys.byte_array[children_count_ - 1U];
+    children[child_index] = children[children_count_ - 1U];
 
     --children_count_;
     this->children_count = children_count_;
-
-    UNODB_DETAIL_ASSERT(std::is_sorted(
-        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
@@ -1366,44 +1248,6 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       ArtPolicy::dump_node(os, children[i].load());
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
- private:
-  [[nodiscard, gnu::pure]] constexpr auto get_sorted_key_array_insert_position(
-      std::byte key_byte) noexcept {
-    const auto children_count_ = this->children_count.load();
-
-    UNODB_DETAIL_ASSERT(children_count_ < basic_inode_16::capacity);
-    UNODB_DETAIL_ASSERT(std::is_sorted(
-        keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
-    UNODB_DETAIL_ASSERT(
-        std::adjacent_find(keys.byte_array.cbegin(),
-                           keys.byte_array.cbegin() + children_count_) >=
-        keys.byte_array.cbegin() + children_count_);
-
-#ifdef UNODB_DETAIL_X86_64
-    const auto replicated_insert_key =
-        _mm_set1_epi8(static_cast<char>(key_byte));
-    const auto lesser_key_positions =
-        _mm_cmple_epu8(replicated_insert_key, keys.byte_vector);
-    const auto mask = (1U << children_count_) - 1;
-    const auto bit_field =
-        static_cast<unsigned>(_mm_movemask_epi8(lesser_key_positions)) & mask;
-    const auto result = (bit_field != 0)
-                            ? detail::ctz(bit_field)
-                            : gsl::narrow_cast<std::uint8_t>(children_count_);
-#else
-    // This is also the best current ARM implementation
-    const auto result = static_cast<std::uint8_t>(
-        std::lower_bound(keys.byte_array.cbegin(),
-                         keys.byte_array.cbegin() + children_count_, key_byte) -
-        keys.byte_array.cbegin());
-#endif
-
-    UNODB_DETAIL_ASSERT(
-        result == children_count_ ||
-        (result < children_count_ && keys.byte_array[result] != key_byte));
-    return result;
-  }
 
  protected:
   union key_union {

@@ -24,7 +24,7 @@ set_bool(is_arm "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64"
 set_bool(is_apple_clang "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 set_bool(is_clang "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 set_bool(is_gxx "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-set_bool(is_any_clang $is_apple_clang OR $is_clang)
+set_bool(is_any_clang ${is_apple_clang} OR ${is_clang})
 
 option(STANDALONE
   "Build UnoDB not for linking with outside code. Enables extra global checks")

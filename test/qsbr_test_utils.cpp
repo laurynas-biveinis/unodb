@@ -2,13 +2,9 @@
 
 #include "global.hpp"  // IWYU pragma: keep
 
-#include "qsbr_test_utils.hpp"
-
-#include <gtest/gtest.h>  // IWYU pragma: keep
-
 #include "gtest_utils.hpp"
-
 #include "qsbr.hpp"
+#include "qsbr_test_utils.hpp"
 
 namespace unodb::test {
 

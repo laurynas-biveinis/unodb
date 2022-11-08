@@ -1,8 +1,8 @@
 // Copyright 2019-2022 Laurynas Biveinis
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
-#include <algorithm>  // IWYU pragma: keep
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -11,7 +11,7 @@
 #include <sstream>
 #include <tuple>
 #include <unordered_map>
-#include <utility>  // IWYU pragma: keep
+#include <utility>
 #include <vector>
 
 #include <deepstate/DeepState.hpp>
@@ -19,7 +19,6 @@
 
 #include "art.hpp"
 #include "art_common.hpp"
-#include "assert.hpp"
 #include "deepstate_utils.hpp"
 #include "heap.hpp"
 #include "node_type.hpp"

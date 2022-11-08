@@ -3,7 +3,6 @@
 #include "global.hpp"
 
 #include "qsbr_gtest_utils.hpp"
-
 #include "qsbr_test_utils.hpp"
 
 namespace unodb::test {

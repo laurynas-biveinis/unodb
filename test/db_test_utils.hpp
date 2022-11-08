@@ -12,11 +12,11 @@
 #include <iostream>
 #include <thread>
 #include <tuple>
-#include <type_traits>
+#include <type_traits>  // IWYU pragma: keep
 #include <unordered_map>
 
 #include <gmock/gmock.h>  // IWYU pragma: keep
-#include <gtest/gtest.h>  // IWYU pragma: keep
+#include <gtest/gtest.h>
 
 #include "gtest_utils.hpp"
 

@@ -4,9 +4,7 @@
 
 #include "global.hpp"
 
-#include <type_traits>
-
-#include <gtest/gtest.h>  // IWYU pragma: keep
+#include <gtest/gtest.h>
 
 #include "gtest_utils.hpp"
 #include "heap.hpp"

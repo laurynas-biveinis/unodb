@@ -4,7 +4,7 @@
 
 #include "global.hpp"
 
-#include <algorithm>  // IWYU pragma: keep
+#include <algorithm>
 #ifndef NDEBUG
 #include <atomic>
 #include <cerrno>

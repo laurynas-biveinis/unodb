@@ -5,8 +5,8 @@
 #include "art.hpp"
 
 #include <iostream>
-#include <type_traits>
-#include <utility>  // IWYU pragma: keep
+#include <type_traits>  // IWYU pragma: keep
+#include <utility>      // IWYU pragma: keep
 
 #include "art_internal_impl.hpp"
 #include "assert.hpp"

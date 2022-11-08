@@ -5,8 +5,8 @@
 #include "global.hpp"
 
 #include <cstddef>
-#include <iterator>  // IWYU pragma: keep
-#include <type_traits>
+#include <iterator>     // IWYU pragma: keep
+#include <type_traits>  // IWYU pragma: keep
 
 #include <gsl/span>
 

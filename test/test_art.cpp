@@ -1,6 +1,6 @@
 // Copyright 2019-2022 Laurynas Biveinis
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <tuple>
 
-#include <gtest/gtest.h>  // IWYU pragma: keep
+#include <gtest/gtest.h>
 
 #include "art.hpp"  // IWYU pragma: keep
 #include "art_common.hpp"

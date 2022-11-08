@@ -6,7 +6,7 @@
 #include <array>
 #include <utility>  // IWYU pragma: keep
 
-#include <gtest/gtest.h>  // IWYU pragma: keep
+#include <gtest/gtest.h>
 #include <gsl/span>
 
 #include "gtest_utils.hpp"

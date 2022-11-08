@@ -19,7 +19,7 @@
 #endif
 #include <system_error>
 #include <thread>
-#include <type_traits>
+#include <type_traits>  // IWYU pragma: keep
 #ifndef NDEBUG
 #include <unordered_set>
 #endif
@@ -28,7 +28,9 @@
 
 #include <gsl/util>
 
-#include <boost/accumulators/accumulators.hpp>  // IWYU pragma: keep
+#include <boost/accumulators/accumulators_fwd.hpp>
+#include <boost/accumulators/framework/accumulator_set.hpp>
+#include <boost/accumulators/framework/extractor.hpp>
 #include <boost/accumulators/statistics/max.hpp>
 #include <boost/accumulators/statistics/mean.hpp>
 #include <boost/accumulators/statistics/stats.hpp>

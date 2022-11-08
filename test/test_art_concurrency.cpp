@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <random>  // IWYU pragma: keep
 
-#include <gtest/gtest.h>  // IWYU pragma: keep
+#include <gtest/gtest.h>
 
 #include "art_common.hpp"
 #include "assert.hpp"

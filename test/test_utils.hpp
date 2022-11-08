@@ -2,7 +2,7 @@
 #ifndef UNODB_DETAIL_TEST_UTILS_HPP
 #define UNODB_DETAIL_TEST_UTILS_HPP
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include "heap.hpp"
 

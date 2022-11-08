@@ -4,9 +4,9 @@
 
 #include "db_test_utils.hpp"
 
-#include "art.hpp"
-#include "mutex_art.hpp"
-#include "olc_art.hpp"
+#include "art.hpp"        // IWYU pragma: keep
+#include "mutex_art.hpp"  // IWYU pragma: keep
+#include "olc_art.hpp"    // IWYU pragma: keep
 
 namespace unodb::test {
 

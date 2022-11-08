@@ -2,15 +2,15 @@
 
 #include "global.hpp"
 
-#include <algorithm>  // IWYU pragma: keep
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <iterator>  // IWYU pragma: keep
+#include <iterator>
 #include <new>
 #include <sstream>
 #include <unordered_set>
-#include <utility>  // IWYU pragma: keep
+#include <utility>
 #include <vector>
 
 #include <deepstate/DeepState.hpp>

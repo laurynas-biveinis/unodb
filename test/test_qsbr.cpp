@@ -1,15 +1,15 @@
 // Copyright 2020-2022 Laurynas Biveinis
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <cmath>
 #include <sstream>
 #include <system_error>
 #include <utility>  // IWYU pragma: keep
 
-#include <gtest/gtest.h>  // IWYU pragma: keep
+#include <gtest/gtest.h>
 
-#include "gtest_utils.hpp"  // IWYU pragma: keep
+#include "gtest_utils.hpp"
 #include "qsbr.hpp"
 #include "qsbr_gtest_utils.hpp"
 #include "qsbr_ptr.hpp"

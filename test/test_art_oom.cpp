@@ -2,16 +2,18 @@
 
 #ifndef NDEBUG
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
+
+#include <new>
 
 #include <gtest/gtest.h>
 
-#include "art.hpp"
+#include "art.hpp"  // IWYU pragma: keep
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
 #include "heap.hpp"
-#include "mutex_art.hpp"
-#include "olc_art.hpp"
+#include "mutex_art.hpp"  // IWYU pragma: keep
+#include "olc_art.hpp"    // IWYU pragma: keep
 
 namespace {
 

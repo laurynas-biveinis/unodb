@@ -6,7 +6,7 @@
 
 #include <new>
 
-#include <gtest/gtest.h>  // IWYU pragma: keep
+#include <gtest/gtest.h>
 
 #include "gtest_utils.hpp"
 #include "heap.hpp"

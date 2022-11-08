@@ -1,6 +1,6 @@
 // Copyright 2022 Laurynas Biveinis
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 // - ASan/TSan do not work with replaced global new/delete:
 //   https://github.com/llvm/llvm-project/issues/20034
@@ -11,6 +11,7 @@
     !defined(UNODB_DETAIL_THREAD_SANITIZER)
 
 #include <cstddef>
+#include <cstdlib>
 #include <new>
 
 #include "heap.hpp"

@@ -2,7 +2,7 @@
 #ifndef UNODB_DETAIL_PORTABILITY_ARCH_HPP
 #define UNODB_DETAIL_PORTABILITY_ARCH_HPP
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 #include <cstddef>
 

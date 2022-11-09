@@ -91,6 +91,10 @@ jobs:
             STATIC_ANALYSIS: ON
             CPPLINT: ON
 
+          - name: GCC 12 default CMake configuration
+            os: ubuntu-22.04
+            COMPILER: gcc
+
           - name: clang 15 Release
             os: ubuntu-22.04
             BUILD_TYPE: Release
@@ -301,6 +305,11 @@ jobs:
           COVERAGE="${COVERAGE:-$DEFAULT_COVERAGE}"
           AVX2="${AVX2:-$DEFAULT_AVX2}"
           export PATH="$HOME/.local/bin:$PATH"
+          if [[ -n "$BUILD_TYPE" ]]; then
+            CBT="-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+          else
+            CBT=""
+          fi
           if [[ $COMPILER == "gcc" ]]; then
             if [[ $COVERAGE == "ON" ]]; then
               # Coverage jobs run on macOS
@@ -334,8 +343,7 @@ jobs:
             export CC=clang
             export CXX=clang++
           fi
-          cmake "$GITHUB_WORKSPACE" -DSTANDALONE=ON -DFATAL_WARNINGS=ON \
-              "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
+          cmake "$GITHUB_WORKSPACE" "$CBT" -DSTANDALONE=ON -DFATAL_WARNINGS=ON \
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
               "-DSANITIZE_UB=${SANITIZE_UB}" \

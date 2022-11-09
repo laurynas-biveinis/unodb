@@ -387,8 +387,8 @@ if(NOT (is_darwin AND (is_gxx OR SANITIZE_ADDRESS OR SANITIZE_THREAD))
 endif()
 
 # Generator expression helpers
-set(is_debug_genex "$<CONFIG:Debug>")
 set(is_release_genex "$<CONFIG:Release>")
+set(is_not_release_genex "$<NOT:${is_release_genex}>")
 set(is_x86_64 "$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>")
 set(is_windows_genex "$<PLATFORM_ID:Windows>")
 set(is_not_windows "$<NOT:${is_windows_genex}>")
@@ -418,10 +418,11 @@ set(has_avx2 "$<BOOL:${AVX2}>")
 set(fatal_warnings_on "$<BOOL:${FATAL_WARNINGS}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
 set(is_standalone "$<BOOL:${STANDALONE}>")
-set(is_gxx_debug_standalone $<AND:${is_gxx_genex},${is_debug_genex},${is_standalone}>)
+set(is_gxx_not_release_standalone
+  $<AND:${is_gxx_genex},${is_not_release_genex},${is_standalone}>)
 
 target_compile_definitions(benchmark PUBLIC
-  "$<${is_gxx_debug_standalone}:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
+  "$<${is_gxx_not_release_standalone}:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
 
 # Add benchmark_include_dirs by target_include_directories(... SYSTEM ...)
 # before target_link_libraries so that benchmark headers are included through
@@ -533,7 +534,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<${is_gxx_ge_11}:${GCC_GE_11_CXX_WARNING_FLAGS}>"
     "$<${is_gxx_ge_12}:${GCC_GE_12_CXX_WARNING_FLAGS}>"
     # Optimization
-    "$<${is_debug_genex}:$<IF:${is_windows_genex},/Od,-O0>>"
+    "$<${is_not_release_genex}:$<IF:${is_windows_genex},/Od,-O0>>"
     "$<$<AND:${is_release_genex},${is_not_windows}>:$<IF:${coverage_on},-O0,-O3>>"
     # Misc
     "$<${coverage_on}:--coverage>")

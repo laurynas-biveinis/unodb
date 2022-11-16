@@ -2,7 +2,7 @@
 #ifndef UNODB_DETAIL_IN_FAKE_CRITICAL_SECTION_HPP
 #define UNODB_DETAIL_IN_FAKE_CRITICAL_SECTION_HPP
 
-#include "global.hpp"
+#include "global.hpp"  // IWYU pragma: keep
 
 #include <cstddef>
 #include <type_traits>

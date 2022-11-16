@@ -71,17 +71,16 @@ set(GCC_CXX_WARNING_FLAGS
   # Warning groups
   "-Wall" "-Wextra" "-Wpedantic" "-Wunused" "-Wparentheses" "-Wconversion"
   # Individual warnings
-  # -Wmissing-include-dirs results in Google Benchmark v1.7.0 warnings
   "-Wabi-tag" "-Wcast-align=strict" "-Wcast-qual" "-Wcatch-value=3"
   "-Wctor-dtor-privacy" "-Wdouble-promotion" "-Wduplicated-branches"
   "-Wduplicated-cond" "-Wextra-semi" "-Wfloat-equal" "-Wformat-overflow=2"
   "-Wformat-signedness" "-Wformat-truncation=2" "-Wformat=2"
   "-Wimplicit-fallthrough=5" "-Winvalid-pch" "-Wlogical-op" "-Wmismatched-tags"
-  "-Wmissing-declarations" "-Wnoexcept" "-Wnon-virtual-dtor"
-  "-Wnull-dereference"  "-Wold-style-cast" "-Woverloaded-virtual" "-Wpacked"
-  "-Wplacement-new=2" "-Wredundant-decls" "-Wshadow=global" "-Wsign-conversion"
-  "-Wsign-promo" "-Wstrict-null-sentinel" "-Wstringop-truncation"
-  "-Wsuggest-attribute=cold" "-Wsuggest-attribute=const"
+  "-Wmissing-declarations" "-Wmissing-include-dirs" "-Wnoexcept"
+  "-Wnon-virtual-dtor" "-Wnull-dereference"  "-Wold-style-cast"
+  "-Woverloaded-virtual" "-Wpacked" "-Wplacement-new=2" "-Wredundant-decls"
+  "-Wshadow=global" "-Wsign-conversion" "-Wsign-promo" "-Wstrict-null-sentinel"
+  "-Wstringop-truncation" "-Wsuggest-attribute=cold" "-Wsuggest-attribute=const"
   "-Wsuggest-attribute=format" "-Wsuggest-attribute=malloc"
   "-Wsuggest-attribute=noreturn" "-Wsuggest-attribute=pure"
   "-Wsuggest-final-methods" "-Wsuggest-final-types" "-Wsuggest-override"

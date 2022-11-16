@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <iterator>     // IWYU pragma: keep
 #include <type_traits>  // IWYU pragma: keep
+#include <utility>
 
 #include <gsl/span>
 
@@ -53,9 +54,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  constexpr qsbr_ptr(qsbr_ptr<T> &&other) noexcept : ptr{other.ptr} {
-    other.ptr = nullptr;
-  }
+  constexpr qsbr_ptr(qsbr_ptr<T> &&other) noexcept
+      : ptr{std::exchange(other.ptr, nullptr)} {}
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
@@ -85,8 +85,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
 #endif
-    ptr = other.ptr;
-    other.ptr = nullptr;
+    ptr = std::exchange(other.ptr, nullptr);
     return *this;
   }
 

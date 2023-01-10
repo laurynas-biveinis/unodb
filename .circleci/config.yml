@@ -19,7 +19,7 @@ jobs:
         type: boolean
         default: false
     machine:
-      image: ubuntu-2204:2022.07.1
+      image: ubuntu-2004:current
     resource_class: arm.medium
     steps:
       - checkout
@@ -48,7 +48,7 @@ jobs:
                   curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
                     | sudo apt-key add -
                   echo \
-                    'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main' \
+                    'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-15 main' \
                     | sudo tee -a /etc/apt/sources.list
                   sudo apt-get update
                   sudo NEEDRESTART_MODE=a apt-get install -y clang-15 \

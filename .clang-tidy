@@ -21,3 +21,5 @@ WarningsAsErrors: '*'
 CheckOptions:
   - key: performance-unnecessary-value-param.AllowedTypes
     value: 'version_type'
+  - key: cppcoreguidelines-avoid-do-while.IgnoreMacros
+    value: true

@@ -177,7 +177,9 @@ void qsbr_per_thread::orphan_deferred_requests() noexcept {
   previous_interval_dealloc_requests.clear();
   current_interval_dealloc_requests.clear();
 
+  // cppcheck-suppress accessMoved
   UNODB_DETAIL_ASSERT(previous_interval_orphan_list_node == nullptr);
+  // cppcheck-suppress accessMoved
   UNODB_DETAIL_ASSERT(current_interval_orphan_list_node == nullptr);
 }
 

@@ -26,6 +26,12 @@ namespace unodb::detail {
 template <typename T>
 [[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint8_t ctz(
     T x) noexcept {
+  static_assert(std::is_same_v<unsigned, T> ||
+                // NOLINTNEXTLINE(google-runtime-int)
+                std::is_same_v<unsigned long, T> ||  // NOLINT(runtime/int)
+                // NOLINTNEXTLINE(google-runtime-int)
+                std::is_same_v<unsigned long long, T>);  // NOLINT(runtime/int)
+
   if constexpr (std::is_same_v<unsigned, T>) {
 #ifndef UNODB_DETAIL_MSVC
     return gsl::narrow_cast<std::uint8_t>(__builtin_ctz(x));
@@ -54,7 +60,7 @@ template <typename T>
     _BitScanForward64(&result, x);
     return gsl::narrow_cast<std::uint8_t>(result);
 #endif
-  }
+  }  // cppcheck-suppress missingReturn
 }
 
 [[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned popcount(

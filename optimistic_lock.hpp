@@ -349,6 +349,7 @@ class [[nodiscard]] in_critical_section final {
  public:
   constexpr in_critical_section() noexcept = default;
 
+  // cppcheck-suppress noExplicitConstructor
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   constexpr in_critical_section(T value_) noexcept : value{value_} {}
 

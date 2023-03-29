@@ -452,6 +452,8 @@ set(CPPCHECK_ARGS
   # False positive on Google Test TEST macro and compilers are much better
   # for syntax checking anyway
   "--suppress=syntaxError"
+  # Likewise
+  "--suppress=internalAstError"
   # False positives on structured bindings with 2.5
   "--suppress=unassignedVariable"
   "--suppress=unusedVariable")

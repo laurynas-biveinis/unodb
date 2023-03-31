@@ -19,7 +19,7 @@ jobs:
         type: boolean
         default: false
     machine:
-      image: ubuntu-2204:2022.07.1
+      image: ubuntu-2204:2023.02.1
     resource_class: arm.medium
     steps:
       - checkout

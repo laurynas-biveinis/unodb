@@ -370,7 +370,7 @@ jobs:
                 "clang-${VERSION}" "clang-tidy-${VERSION}"
         if: runner.os == 'Linux' && env.COMPILER == 'clang' && env.VERSION < 13
 
-      - name: Setup dependencies for Linux LLVM 13+
+      - name: Setup dependencies for Linux LLVM 13
         run: |
           curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
             | sudo apt-key add -
@@ -380,7 +380,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y "llvm-${VERSION}-linker-tools" \
                 "clang-${VERSION}" "clang-tidy-${VERSION}"
-        if: runner.os == 'Linux' && env.COMPILER == 'clang' && env.VERSION >= 13
+        if: runner.os == 'Linux' && env.COMPILER == 'clang' && env.VERSION == 13
 
       - name: Setup dependencies for Linux GCC (versioned package)
         run: |

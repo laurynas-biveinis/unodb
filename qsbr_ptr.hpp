@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2022 Laurynas Biveinis
+// Copyright (C) 2021-2023 Laurynas Biveinis
 #ifndef UNODB_DETAIL_QSBR_PTR_HPP
 #define UNODB_DETAIL_QSBR_PTR_HPP
 
@@ -38,7 +38,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
-  UNODB_DETAIL_RELEASE_CONSTEXPR explicit qsbr_ptr(pointer_type ptr_) noexcept
+  UNODB_DETAIL_RELEASE_CONSTEXPR explicit qsbr_ptr(
+      pointer_type ptr_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : ptr{ptr_} {
 #ifndef NDEBUG
     register_active_ptr(ptr);

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2022 Laurynas Biveinis
+// Copyright (C) 2019-2023 Laurynas Biveinis
 #ifndef UNODB_DETAIL_QSBR_HPP
 #define UNODB_DETAIL_QSBR_HPP
 
@@ -126,7 +126,8 @@ class [[nodiscard]] qsbr_epoch final {
 };
 
 // LCOV_EXCL_START
-[[gnu::cold]] inline auto &operator<<(std::ostream &os, qsbr_epoch value) {
+[[gnu::cold]] inline auto &operator<<(
+    std::ostream &os UNODB_DETAIL_LIFETIMEBOUND, qsbr_epoch value) {
   value.dump(os);
   return os;
 }
@@ -361,7 +362,7 @@ struct [[nodiscard]] deallocation_request final {
   qsbr_epoch request_epoch;
 #endif
 
-  explicit deallocation_request(void *pointer_
+  explicit deallocation_request(void *pointer_ UNODB_DETAIL_LIFETIMEBOUND
 #ifndef NDEBUG
                                 ,
                                 qsbr_epoch request_epoch_,
@@ -464,7 +465,8 @@ struct set_qsbr_per_thread_in_main_thread;
 template <typename Func>
 void on_thread_exit(Func fn) noexcept {
   struct thread_exiter {
-    explicit thread_exiter(Func func_) noexcept : func{func_} {}
+    explicit thread_exiter(Func func_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+        : func{func_} {}
     ~thread_exiter() noexcept { func(); }
 
     thread_exiter(const thread_exiter &) = delete;

@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2023 Laurynas Biveinis
 
 #include "art_internal.hpp"
 #include "global.hpp"
@@ -42,7 +42,8 @@ class db_leaf_qsbr_deleter {
   using leaf_type = basic_leaf<Header>;
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
-  constexpr explicit db_leaf_qsbr_deleter(Db &db_) noexcept
+  constexpr explicit db_leaf_qsbr_deleter(
+      Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db_instance{db_} {}
 
   void operator()(leaf_type *to_delete) const {
@@ -124,25 +125,28 @@ using olc_inode_base = unodb::detail::basic_inode_impl<olc_art_policy>;
 class olc_inode : public olc_inode_base {};
 
 [[nodiscard]] auto &node_ptr_lock(
-    const unodb::detail::olc_node_ptr &node) noexcept {
+    const unodb::detail::olc_node_ptr
+        &node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return node.ptr<unodb::detail::olc_node_header *>()->lock();
 }
 
 #ifndef NDEBUG
 
-[[nodiscard]] auto &node_ptr_lock(const leaf *const node) noexcept {
+[[nodiscard]] auto &node_ptr_lock(
+    const leaf *const node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return node->lock();
 }
 
 #endif
 
 template <class INode>
-[[nodiscard]] constexpr auto &lock(const INode &inode) noexcept {
+[[nodiscard]] constexpr auto &lock(
+    const INode &inode UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return inode.lock();
 }
 
 template <class T>
-[[nodiscard]] T &obsolete(T &t,
+[[nodiscard]] T &obsolete(T &t UNODB_DETAIL_LIFETIMEBOUND,
                           unodb::optimistic_lock::write_guard &guard) noexcept {
   UNODB_DETAIL_ASSERT(guard.guards(lock(t)));
 
@@ -155,7 +159,8 @@ template <class T>
 }
 
 [[nodiscard]] inline auto obsolete_child_by_index(
-    std::uint8_t child, unodb::optimistic_lock::write_guard &guard) noexcept {
+    std::uint8_t child UNODB_DETAIL_LIFETIMEBOUND,
+    unodb::optimistic_lock::write_guard &guard) noexcept {
   guard.unlock_and_obsolete();
 
   return child;

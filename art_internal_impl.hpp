@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2023 Laurynas Biveinis
 #ifndef UNODB_DETAIL_ART_INTERNAL_IMPL_HPP
 #define UNODB_DETAIL_ART_INTERNAL_IMPL_HPP
 
@@ -126,7 +126,8 @@ class [[nodiscard]] basic_leaf final : public Header {
 };
 
 template <class Header, class Db>
-[[nodiscard]] auto make_db_leaf_ptr(art_key k, value_view v, Db &db) {
+[[nodiscard]] auto make_db_leaf_ptr(art_key k, value_view v,
+                                    Db &db UNODB_DETAIL_LIFETIMEBOUND) {
   using leaf_type = basic_leaf<Header>;
 
   if (UNODB_DETAIL_UNLIKELY(v.size() > leaf_type::max_value_size)) {
@@ -226,14 +227,15 @@ struct basic_art_policy final {
 
   using db_leaf_unique_ptr = basic_db_leaf_unique_ptr<header_type, Db>;
 
-  [[nodiscard]] static auto make_db_leaf_ptr(art_key k, value_view v,
-                                             Db &db_instance) {
+  [[nodiscard]] static auto make_db_leaf_ptr(
+      art_key k, value_view v, Db &db_instance UNODB_DETAIL_LIFETIMEBOUND) {
     return ::unodb::detail::make_db_leaf_ptr<header_type, Db>(k, v,
                                                               db_instance);
   }
 
   [[nodiscard]] static auto reclaim_leaf_on_scope_exit(
-      leaf_type *leaf, Db &db_instance) noexcept {
+      leaf_type *leaf UNODB_DETAIL_LIFETIMEBOUND,
+      Db &db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
     return leaf_reclaimable_ptr{leaf,
                                 LeafReclamator<header_type, Db>{db_instance}};
   }
@@ -241,8 +243,8 @@ struct basic_art_policy final {
   UNODB_DETAIL_DISABLE_GCC_11_WARNING("-Wmismatched-new-delete")
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26409)
   template <class INode, class... Args>
-  [[nodiscard]] static auto make_db_inode_unique_ptr(Db &db_instance,
-                                                     Args &&...args) {
+  [[nodiscard]] static auto make_db_inode_unique_ptr(
+      Db &db_instance UNODB_DETAIL_LIFETIMEBOUND, Args &&...args) {
     auto *const inode_mem = static_cast<std::byte *>(
         allocate_aligned(sizeof(INode), alignment_for_new<INode>()));
 
@@ -256,29 +258,33 @@ struct basic_art_policy final {
   UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
 
   template <class INode>
-  [[nodiscard]] static auto make_db_inode_unique_ptr(INode *inode_ptr,
-                                                     Db &db_instance) noexcept {
+  [[nodiscard]] static auto make_db_inode_unique_ptr(
+      INode *inode_ptr UNODB_DETAIL_LIFETIMEBOUND,
+      Db &db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
     return db_inode_unique_ptr<INode>{inode_ptr,
                                       db_inode_deleter<INode>{db_instance}};
   }
 
   template <class INode>
   [[nodiscard]] static auto make_db_inode_reclaimable_ptr(
-      INode *inode_ptr, Db &db_instance) noexcept {
+      INode *inode_ptr UNODB_DETAIL_LIFETIMEBOUND,
+      Db &db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
     return db_inode_reclaimable_ptr<INode>{inode_ptr,
                                            INodeReclamator<INode>{db_instance}};
   }
 
  private:
-  [[nodiscard]] static auto make_db_leaf_ptr(leaf_type *leaf,
-                                             Db &db_instance) noexcept {
+  [[nodiscard]] static auto make_db_leaf_ptr(
+      leaf_type *leaf UNODB_DETAIL_LIFETIMEBOUND,
+      Db &db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
     return basic_db_leaf_unique_ptr<header_type, Db>{
         leaf, basic_db_leaf_deleter<header_type, Db>{db_instance}};
   }
 
   struct delete_db_node_ptr_at_scope_exit final {
-    constexpr explicit delete_db_node_ptr_at_scope_exit(NodePtr node_ptr_,
-                                                        Db &db_) noexcept
+    constexpr explicit delete_db_node_ptr_at_scope_exit(
+        NodePtr node_ptr_ UNODB_DETAIL_LIFETIMEBOUND,
+        Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
         : node_ptr{node_ptr_}, db{db_} {}
 
     ~delete_db_node_ptr_at_scope_exit() noexcept {

@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Laurynas Biveinis
+// Copyright 2021-2023 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -78,7 +78,7 @@ std::size_t new_thread_id{1};
 
 template <class T>
 [[nodiscard]] std::pair<typename T::difference_type, typename T::iterator>
-randomly_advanced_pos_and_iterator(T &container) {
+randomly_advanced_pos_and_iterator(T &container UNODB_DETAIL_LIFETIMEBOUND) {
   auto itr{container.begin()};
   auto i{static_cast<typename T::difference_type>(
       DeepState_ContainerIndex(container))};

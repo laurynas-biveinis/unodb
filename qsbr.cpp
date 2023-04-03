@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2022 Laurynas Biveinis
+// Copyright (C) 2019-2023 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -142,7 +142,8 @@ void add_to_orphan_list(
 }
 
 detail::dealloc_vector_list_node *take_orphan_list(
-    std::atomic<detail::dealloc_vector_list_node *> &orphan_list) noexcept {
+    std::atomic<detail::dealloc_vector_list_node *>
+        &orphan_list UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return orphan_list.exchange(nullptr, std::memory_order_acq_rel);
 }
 

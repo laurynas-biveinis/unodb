@@ -77,6 +77,7 @@
 #ifdef __clang__
 
 #define UNODB_DETAIL_BUILTIN_ASSUME(x) __builtin_assume(x)
+#define UNODB_DETAIL_LIFETIMEBOUND [[clang::lifetimebound]]
 
 #else
 
@@ -84,6 +85,8 @@
   do {                                 \
     if (!(x)) __builtin_unreachable(); \
   } while (0)
+
+#define UNODB_DETAIL_LIFETIMEBOUND
 
 #endif
 
@@ -105,6 +108,7 @@
 #define UNODB_DETAIL_NOINLINE __declspec(noinline)
 #define UNODB_DETAIL_UNREACHABLE() __assume(0)
 #define UNODB_DETAIL_CONSTEXPR_NOT_MSVC inline
+#define UNODB_DETAIL_LIFETIMEBOUND
 
 #endif  // #ifndef UNODB_DETAIL_MSVC
 

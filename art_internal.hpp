@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2023 Laurynas Biveinis
 #ifndef UNODB_DETAIL_ART_INTERNAL_HPP
 #define UNODB_DETAIL_ART_INTERNAL_HPP
 
@@ -75,8 +75,8 @@ using art_key = basic_art_key<unodb::key>;
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
                                                    std::byte byte);
 
-[[gnu::cold]] UNODB_DETAIL_NOINLINE std::ostream &operator<<(std::ostream &os,
-                                                             art_key key);
+[[gnu::cold]] UNODB_DETAIL_NOINLINE std::ostream &operator<<(
+    std::ostream &os UNODB_DETAIL_LIFETIMEBOUND, art_key key);
 
 class [[nodiscard]] tree_depth final {
  public:
@@ -115,7 +115,9 @@ class basic_db_leaf_deleter {
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
-  constexpr explicit basic_db_leaf_deleter(Db &db_) noexcept : db{db_} {}
+  constexpr explicit basic_db_leaf_deleter(
+      Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+      : db{db_} {}
 
   void operator()(leaf_type *to_delete) const noexcept;
 
@@ -135,7 +137,9 @@ struct dependent_false : std::false_type {};
 template <class INode, class Db>
 class basic_db_inode_deleter {
  public:
-  constexpr explicit basic_db_inode_deleter(Db &db_) noexcept : db{db_} {}
+  constexpr explicit basic_db_inode_deleter(
+      Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+      : db{db_} {}
 
   void operator()(INode *inode_ptr) noexcept;
 
@@ -160,7 +164,8 @@ class [[nodiscard]] basic_node_ptr {
   explicit basic_node_ptr(std::nullptr_t) noexcept
       : tagged_ptr{reinterpret_cast<std::uintptr_t>(nullptr)} {}
 
-  basic_node_ptr(header_type *ptr, unodb::node_type type) noexcept
+  basic_node_ptr(header_type *ptr UNODB_DETAIL_LIFETIMEBOUND,
+                 unodb::node_type type) noexcept
       : tagged_ptr{tag_ptr(ptr, type)} {}
 
   basic_node_ptr<Header> &operator=(std::nullptr_t) noexcept {

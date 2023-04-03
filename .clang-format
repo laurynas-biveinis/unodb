@@ -6,6 +6,7 @@ IncludeBlocks: Preserve
 AttributeMacros:
   - UNODB_DETAIL_UNUSED
   - UNODB_DETAIL_USED_IN_DEBUG
+  - UNODB_DETAIL_LIFETIMEBOUND
 StatementAttributeLikeMacros:
   - UNODB_DETAIL_USED_IN_DEBUG
   - UNODB_DETAIL_RELEASE_CONST

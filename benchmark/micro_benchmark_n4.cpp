@@ -1,4 +1,6 @@
-// Copyright 2020-2022 Laurynas Biveinis
+// Copyright 2020-2023 Laurynas Biveinis
+
+// IWYU pragma: no_include <__algorithm/shuffle.h>
 
 #include "global.hpp"  // IWYU pragma: keep
 

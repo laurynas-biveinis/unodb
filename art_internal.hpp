@@ -2,6 +2,10 @@
 #ifndef UNODB_DETAIL_ART_INTERNAL_HPP
 #define UNODB_DETAIL_ART_INTERNAL_HPP
 
+// IWYU pragma: no_include <__memory/unique_ptr.h>
+// IWYU pragma: no_include <__type_traits/integral_constant.h>
+// IWYU pragma: no_include <__type_traits/underlying_type.h>
+
 #include "global.hpp"
 
 #include <array>

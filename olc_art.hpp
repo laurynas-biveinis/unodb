@@ -1,6 +1,8 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2023 Laurynas Biveinis
 #ifndef UNODB_DETAIL_OLC_ART_HPP
 #define UNODB_DETAIL_OLC_ART_HPP
+
+// IWYU pragma: no_include <__tuple_dir/tuple_size.h>
 
 #include "global.hpp"
 

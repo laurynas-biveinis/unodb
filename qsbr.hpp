@@ -4,6 +4,16 @@
 
 #include "global.hpp"
 
+// IWYU pragma: no_include <__functional/function.h>
+// IWYU pragma: no_include <__memory/unique_ptr.h>
+// IWYU pragma: no_include <__type_traits/enable_if.h>
+// IWYU pragma: no_include <__type_traits/remove_cv.h>
+// IWYU pragma: no_include <__type_traits/remove_reference.h>
+// IWYU pragma: no_include <__utility/forward.h>
+// IWYU pragma: no_include <__utility/move.h>
+// IWYU pragma: no_include <__mutex_base>
+// IWYU pragma: no_include <boost/fusion/iterator/deref.hpp>
+
 #include <atomic>
 #include <cstddef>
 #include <cstdint>

@@ -2,12 +2,16 @@
 #ifndef UNODB_DETAIL_QSBR_PTR_HPP
 #define UNODB_DETAIL_QSBR_PTR_HPP
 
+// IWYU pragma: no_include <__iterator/iterator_traits.h>
+// IWYU pragma: no_include <__type_traits/add_lvalue_reference.h>
+// IWYU pragma: no_include <__utility/exchange.h>
+
 #include "global.hpp"
 
 #include <cstddef>
 #include <iterator>     // IWYU pragma: keep
 #include <type_traits>  // IWYU pragma: keep
-#include <utility>
+#include <utility>      // IWYU pragma: keep
 
 #include <gsl/span>
 

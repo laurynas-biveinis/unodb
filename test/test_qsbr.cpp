@@ -1,4 +1,10 @@
-// Copyright 2020-2022 Laurynas Biveinis
+// Copyright 2020-2023 Laurynas Biveinis
+
+// IWYU pragma: no_include <__utility/move.h>
+// IWYU pragma: no_include <__errc>
+// IWYU pragma: no_include <array>
+// IWYU pragma: no_include <string>
+// IWYU pragma: no_include "gtest/gtest.h"
 
 #include "global.hpp"
 

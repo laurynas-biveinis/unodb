@@ -1,4 +1,8 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2023 Laurynas Biveinis
+
+// IWYU pragma: no_include <__type_traits/is_empty.h>
+// IWYU pragma: no_include <__utility/forward.h>
+// IWYU pragma: no_include <__utility/move.h>
 
 #include "global.hpp"
 

@@ -1,6 +1,13 @@
-// Copyright 2022 Laurynas Biveinis
+// Copyright 2022-2023 Laurynas Biveinis
 
 #ifndef NDEBUG
+
+// IWYU pragma: no_forward_declare unodb::db
+// IWYU pragma: no_forward_declare unodb::mutex_db
+// IWYU pragma: no_forward_declare unodb::olc_db
+// IWYU pragma: no_include <array>
+// IWYU pragma: no_include "art_common.hpp"
+// IWYU pragma: no_include "gtest/gtest.h"
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -8,12 +15,12 @@
 
 #include <gtest/gtest.h>
 
-#include "art.hpp"  // IWYU pragma: keep
+#include "art.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
 #include "heap.hpp"
-#include "mutex_art.hpp"  // IWYU pragma: keep
-#include "olc_art.hpp"    // IWYU pragma: keep
+#include "mutex_art.hpp"
+#include "olc_art.hpp"
 
 namespace {
 

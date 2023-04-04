@@ -1,6 +1,9 @@
-// Copyright 2022 Laurynas Biveinis
+// Copyright 2022-2023 Laurynas Biveinis
 #ifndef UNODB_DETAIL_QSBR_GTEST_UTILS_HPP
 #define UNODB_DETAIL_QSBR_GTEST_UTILS_HPP
+
+// IWYU pragma: no_include <string>
+// IWYU pragma: no_include "gtest/gtest.h"
 
 #include "global.hpp"
 

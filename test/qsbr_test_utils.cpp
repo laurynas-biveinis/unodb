@@ -1,6 +1,9 @@
-// Copyright 2021-2022 Laurynas Biveinis
+// Copyright 2021-2023 Laurynas Biveinis
 
-#include "global.hpp"  // IWYU pragma: keep
+// IWYU pragma: no_include <string>
+// IWYU pragma: no_include "gtest/gtest.h"
+
+#include "global.hpp"
 
 #include "gtest_utils.hpp"
 #include "qsbr.hpp"

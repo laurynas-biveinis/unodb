@@ -1,5 +1,7 @@
 // Copyright (C) 2019-2023 Laurynas Biveinis
 
+// IWYU pragma: no_include <__hash_table>
+
 #include "global.hpp"
 
 #include "qsbr.hpp"

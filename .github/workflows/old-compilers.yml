@@ -382,6 +382,10 @@ jobs:
                 "clang-${VERSION}" "clang-tidy-${VERSION}"
         if: runner.os == 'Linux' && env.COMPILER == 'clang' && env.VERSION == 13
 
+      - name: Setup dependencies for Linux LLVM 13+
+        run: sudo apt-get install -y iwyu
+        if: runner.os == 'Linux' && env.COMPILER == 'clang' && env.VERSION >= 13
+
       - name: Setup dependencies for Linux GCC (versioned package)
         run: |
           sudo apt-get install -y "gcc-${VERSION}"
@@ -412,7 +416,7 @@ jobs:
           if [[ $COMPILER == "gcc" ]]; then
             export CC="gcc-${VERSION}"
             export CXX="g++-${VERSION}"
-            EXTRA_CMAKE_ARGS=()
+            EXTRA_CMAKE_ARGS=("-DMAINTAINER_MODE=ON")
           else
             export CC="clang-${VERSION}"
             export CXX="clang++-${VERSION}"
@@ -423,8 +427,11 @@ jobs:
                   "-DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-${VERSION}" \
                   "-DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-${VERSION}")
             fi
+            if [[ $VERSION -ge 13 ]]; then
+              EXTRA_CMAKE_ARGS=("${EXTRA_CMAKE_ARGS[@]}" "-DMAINTAINER_MODE=ON")
+            fi
           fi
-          cmake "$GITHUB_WORKSPACE" -DSTANDALONE=ON -DFATAL_WARNINGS=ON \
+          cmake "$GITHUB_WORKSPACE" -DSTANDALONE=ON \
               "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \

@@ -249,7 +249,7 @@ jobs:
           echo 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main' \
             | sudo tee -a /etc/apt/sources.list
           sudo apt-get update
-          sudo apt-get install -y clang-15
+          sudo apt-get install -y clang-15 iwyu
         if: runner.os == 'Linux' && env.COMPILER == 'clang'
 
       - name: Setup dependencies for Linux LLVM (Release)
@@ -272,7 +272,7 @@ jobs:
 
       - name: Set up dependencies for macOS (common)
         run: |
-          brew install boost
+          brew install boost include-what-you-use
         if: runner.os == 'macOS'
 
       - name: Set up dependencies for macOS (coverage)
@@ -343,7 +343,7 @@ jobs:
             export CC=clang
             export CXX=clang++
           fi
-          cmake "$GITHUB_WORKSPACE" "$CBT" -DSTANDALONE=ON -DFATAL_WARNINGS=ON \
+          cmake "$GITHUB_WORKSPACE" "$CBT" -DSTANDALONE=ON -DMAINTAINER_MODE=ON \
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
               "-DSANITIZE_UB=${SANITIZE_UB}" \

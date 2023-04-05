@@ -52,7 +52,7 @@ jobs:
                     | sudo tee -a /etc/apt/sources.list
                   sudo apt-get update
                   sudo NEEDRESTART_MODE=a apt-get install -y clang-15 \
-                    clang-tidy-15
+                    clang-tidy-15 iwyu
       - when:
           condition:
             and:
@@ -95,7 +95,7 @@ jobs:
                   "-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-15")
             fi
             cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSTANDALONE=ON \
-              -DFATAL_WARNINGS=ON -DSANITIZE_ADDRESS=$ASAN \
+              -DMAINTAINER_MODE=ON -DSANITIZE_ADDRESS=$ASAN \
               -DSANITIZE_THREAD=$TSAN -DSANITIZE_UB=$UBSAN \
               "${EXTRA_CMAKE_ARGS[@]}"
       - run:

@@ -113,7 +113,8 @@ When building this project alone and not as a part of another project, add
 require whole programs to be compiled with them. Currently this consists of
 libstdc+++ debug mode.
 
-To make compiler warnings fatal, add `-DFATAL_WARNINGS=ON` CMake option.
+To enable maintainer diagnostics, add `-DMAINTAINER_MODE=ON` CMake option.
+Currently it makes compilation and `include-what-you-use` warnings fatal.
 
 clang-tidy, cppcheck, and cpplint will be invoked automatically during build if
 found. Currently the diagnostic level for them as well as for compiler warnings

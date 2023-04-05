@@ -1,4 +1,4 @@
-# Copyright 2019-2022 Laurynas Biveinis
+# Copyright 2019-2023 Laurynas Biveinis
 cmake_minimum_required(VERSION 3.12)
 
 project(unodb VERSION 0.1
@@ -29,8 +29,9 @@ set_bool(is_any_clang ${is_apple_clang} OR ${is_clang})
 option(STANDALONE
   "Build UnoDB not for linking with outside code. Enables extra global checks")
 
-option(FATAL_WARNINGS "Make warning diagnostics fatal")
-if(FATAL_WARNINGS)
+option(MAINTAINER_MODE
+  "Maintainer mode: compiler warnings are fatal, IWYU required")
+if(MAINTAINER_MODE)
   message(STATUS "Warning diagnostics are fatal")
 else()
   message(STATUS "Warning diagnostics are not fatal")
@@ -416,7 +417,7 @@ set(is_clang_ge_14_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_14}>")
 set(is_gxx_ge_11 "$<AND:${is_gxx_genex},${cxx_ge_11}>")
 set(is_gxx_ge_12 "$<AND:${is_gxx_genex},${cxx_ge_12}>")
 set(has_avx2 "$<BOOL:${AVX2}>")
-set(fatal_warnings_on "$<BOOL:${FATAL_WARNINGS}>")
+set(fatal_warnings_on "$<BOOL:${MAINTAINER_MODE}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
 set(is_standalone "$<BOOL:${STANDALONE}>")
 set(is_gxx_not_release_standalone
@@ -462,7 +463,7 @@ option(CPPCHECK_AGGRESSIVE "Enable inconclusive cppcheck checks")
 if(CPPCHECK_AGGRESSIVE)
   list(APPEND CPPCHECK_ARGS "--inconclusive")
 endif()
-if(FATAL_WARNINGS)
+if(MAINTAINER_MODE)
   list(APPEND CPPCHECK_ARGS "--error-exitcode=2")
 else()
   list(APPEND CPPCHECK_ARGS "--error-exitcode=0")
@@ -490,14 +491,23 @@ else()
 endif()
 
 option(IWYU "Enable include-what-you-use checking")
-if(IWYU)
-  if(NOT is_any_clang)
-    message(STATUS "Not using include-what-you-use due to non-clang compiler being used")
+if(IWYU OR MAINTAINER_MODE)
+  if(NOT is_any_clang OR is_windows)
+    message(STATUS
+      "Not using include-what-you-use due to non-clang compiler or Windows being used")
   else()
+    if(MAINTAINER_MODE AND NOT IWYU)
+      message(STATUS
+        "Forcing include-what-you-use because maintainer mode is on")
+    endif()
     find_program(IWYU_EXE NAMES "include-what-you-use"
       DOC "Path to include-what-you-use executable")
     if(NOT IWYU_EXE)
-      message(STATUS "include-what-you-use not found")
+      if(MAINTAINER_MODE)
+        message(FATAL_ERROR "include-what-you-use not found")
+      else()
+        message(STATUS "include-what-you-use not found")
+      endif()
     else()
       execute_process(COMMAND "${IWYU_EXE}" "--version" OUTPUT_VARIABLE
         IWYU_VERSION_OUTPUT)
@@ -659,7 +669,7 @@ endif()
 
 message(STATUS "User-set CMake options:")
 message(STATUS "STANDALONE: ${STANDALONE}")
-message(STATUS "FATAL_WARNINGS: ${FATAL_WARNINGS}")
+message(STATUS "MAINTAINER_MODE: ${MAINTAINER_MODE}")
 message(STATUS "AVX2: ${AVX2}")
 message(STATUS "COVERAGE: ${COVERAGE}")
 message(STATUS "GCOV_PATH: ${GCOV_PATH}")

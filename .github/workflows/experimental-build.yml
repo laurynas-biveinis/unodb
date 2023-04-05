@@ -14,10 +14,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: XCode Release iwyu, aggressive cppcheck, not standalone
+          - name: XCode Release aggressive cppcheck, not standalone
             BUILD_TYPE: Release
 
-          - name: XCode Debug iwyu, aggressive cppcheck, not standalone
+          - name: XCode Debug aggressive cppcheck, not standalone
             BUILD_TYPE: Debug
 
     steps:
@@ -33,7 +33,7 @@ jobs:
           rm '/usr/local/bin/python3.11'
           rm '/usr/local/bin/python3.11-config'
           brew update
-          brew install boost cppcheck iwyu
+          brew install boost cppcheck
 
       - name: Create build environment
         run: mkdir ${{github.workspace}}/build
@@ -44,7 +44,7 @@ jobs:
         run: |
           export CC=clang
           export CXX=clang++
-          cmake "$GITHUB_WORKSPACE" "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" -DIWYU=ON \
+          cmake "$GITHUB_WORKSPACE" "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
             -DCPPCHECK_AGGRESSIVE=ON -Wdev --warn-uninitialized
 
       - name: Build

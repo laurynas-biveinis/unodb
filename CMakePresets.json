@@ -12,7 +12,7 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "STANDALONE": "ON",
-                "FATAL_WARNINGS": "ON"
+                "MAINTAINER_MODE": "ON"
             }
         },
         {
@@ -70,13 +70,6 @@
             }
         },
         {
-            "name": "iwyu",
-            "hidden": true,
-            "cacheVariables": {
-                "IWYU": "ON"
-            }
-        },
-        {
             "name": "gcc",
             "hidden": true,
             "cacheVariables": {
@@ -124,13 +117,6 @@
             ]
         },
         {
-            "name": "release-iwyu",
-            "inherits": [
-                "release",
-                "iwyu"
-            ]
-        },
-        {
             "name": "debug",
             "inherits": "base-unix",
             "cacheVariables": {
@@ -156,13 +142,6 @@
             "inherits": [
                 "debug",
                 "ubsan"
-            ]
-        },
-        {
-            "name": "debug-iwyu",
-            "inherits": [
-                "debug",
-                "iwyu"
             ]
         },
         {
@@ -401,11 +380,6 @@
             "inherits": "base"
         },
         {
-            "name": "release-iwyu",
-            "configurePreset": "release-iwyu",
-            "inherits": "base"
-        },
-        {
             "name": "debug",
             "configurePreset": "debug",
             "inherits": "base"
@@ -423,11 +397,6 @@
         {
             "name": "debug-ubsan",
             "configurePreset": "debug-ubsan",
-            "inherits": "base"
-        },
-        {
-            "name": "debug-iwyu",
-            "configurePreset": "debug-iwyu",
             "inherits": "base"
         },
         {

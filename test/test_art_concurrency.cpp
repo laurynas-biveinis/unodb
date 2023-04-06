@@ -28,6 +28,7 @@ template <class Db>
 class ARTConcurrencyTest : public ::testing::Test {
  public:
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
+  // NOLINTNEXTLINE(bugprone-exception-escape)
   ~ARTConcurrencyTest() noexcept override {
     if constexpr (std::is_same_v<Db, unodb::olc_db>) {
       unodb::this_thread().quiescent();

@@ -102,9 +102,9 @@ void resume_thread(std::size_t thread_i) {
       unodb::qsbr_state::get_thread_count(unodb::qsbr::instance().get_state());
 
   unsigned fail_n = 1;
-  bool op_completed;
-  do {
+  while (true) {
     unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+    bool op_completed;
     try {
       unodb::this_thread().qsbr_resume();
       op_completed = true;
@@ -117,7 +117,8 @@ void resume_thread(std::size_t thread_i) {
       ++fail_n;
       op_completed = false;
     }
-  } while (!op_completed);
+    if (op_completed) break;
+  }
   const auto thread_count_after =
       unodb::qsbr_state::get_thread_count(unodb::qsbr::instance().get_state());
   ASSERT(thread_count_before + 1 == thread_count_after);
@@ -191,9 +192,9 @@ void deallocate_pointer(std::uint64_t *ptr) {
       unodb::this_thread().current_interval_requests_empty();
 
   unsigned fail_n = 1;
-  bool op_completed;
-  do {
+  while (true) {
     unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+    bool op_completed;
     try {
       unodb::this_thread().on_next_epoch_deallocate(
           ptr, sizeof(object_mem)
@@ -219,7 +220,8 @@ void deallocate_pointer(std::uint64_t *ptr) {
       ++fail_n;
       op_completed = false;
     }
-  } while (!op_completed);
+    if (op_completed) break;
+  }
 
   const auto current_interval_total_dealloc_size_after =
       unodb::this_thread().get_current_interval_total_dealloc_size();

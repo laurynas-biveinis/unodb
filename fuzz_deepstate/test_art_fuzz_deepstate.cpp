@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2023 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -118,10 +118,10 @@ void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
 
   bool op_result;
   unsigned fail_n = 1;
-  bool op_completed;
 
-  do {
+  while (true) {
     unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+    bool op_completed;
     try {
       op_result = do_insert ? test_db.insert(key, *value) : test_db.remove(key);
       op_completed = true;
@@ -136,7 +136,8 @@ void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
       ++fail_n;
       op_completed = false;
     }
-  } while (!op_completed);
+    if (op_completed) break;
+  }
 
   if (op_result) {
     const auto mem_use_after = test_db.get_current_memory_use();

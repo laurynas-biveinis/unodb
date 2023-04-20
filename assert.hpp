@@ -1,4 +1,4 @@
-// Copyright 2022 Laurynas Biveinis
+// Copyright 2022-2023 Laurynas Biveinis
 #ifndef UNODB_DETAIL_ASSERT_HPP
 #define UNODB_DETAIL_ASSERT_HPP
 
@@ -16,6 +16,8 @@
 #endif
 #include <boost/stacktrace.hpp>
 
+#include "test_heap.hpp"
+
 namespace unodb::detail {
 
 // LCOV_EXCL_START
@@ -24,6 +26,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 [[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void msg_stacktrace_abort(
     const std::string &msg) noexcept {
+  UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(0);
   std::ostringstream buf;
   buf << msg << boost::stacktrace::stacktrace();
   std::cerr << buf.str();
@@ -32,6 +35,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 [[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void crash(
     const char *file, int line, const char *func) noexcept {
+  UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(0);
   std::ostringstream buf;
   buf << "Crash requested at " << file << ':' << line << ", function \"" << func
       << "\", thread " << std::this_thread::get_id() << '\n';
@@ -47,6 +51,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 [[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void assert_failure(
     const char *file, int line, const char *func,
     const char *condition) noexcept {
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(0);
   std::ostringstream buf;
   buf << "Assertion \"" << condition << "\" failed at " << file << ':' << line
       << ", function \"" << func << "\", thread " << std::this_thread::get_id()
@@ -56,6 +61,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 [[noreturn]] inline void cannot_happen(const char *file, int line,
                                        const char *func) noexcept {
+  unodb::test::allocation_failure_injector::fail_on_nth_allocation(0);
   std::ostringstream buf;
   buf << "Execution reached an unreachable point at " << file << ':' << line
       << ": function \"" << func << "\", thread " << std::this_thread::get_id()

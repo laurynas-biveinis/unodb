@@ -18,9 +18,9 @@
 #include "art.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
-#include "heap.hpp"
 #include "mutex_art.hpp"
 #include "olc_art.hpp"
+#include "test_heap.hpp"
 
 namespace {
 

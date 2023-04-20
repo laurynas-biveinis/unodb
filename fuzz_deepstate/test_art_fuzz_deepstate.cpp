@@ -117,10 +117,12 @@ void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
   const auto key_prefix_splits_before = test_db.get_key_prefix_splits();
 
   bool op_result;
+#ifndef NDEBUG
   unsigned fail_n = 1;
+#endif
 
   while (true) {
-    unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+    UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(fail_n);
     bool op_completed;
     try {
       op_result = do_insert ? test_db.insert(key, *value) : test_db.remove(key);
@@ -132,8 +134,10 @@ void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
           test_db, mem_use_before, node_counts_before,
           growing_inode_counts_before, shrinking_inode_counts_before,
           key_prefix_splits_before);
-      unodb::test::allocation_failure_injector::reset();
+      UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
+#ifndef NDEBUG
       ++fail_n;
+#endif
       op_completed = false;
     }
     if (op_completed) break;
@@ -143,7 +147,7 @@ void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
     const auto mem_use_after = test_db.get_current_memory_use();
     if (do_insert) {
       ASSERT(mem_use_after > mem_use_before);
-      unodb::test::allocation_failure_injector::reset();
+      UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
       LOG(TRACE) << "Inserted key" << key;
       const auto [insert_itr, insert_ok] = oracle.try_emplace(key, *value);
       std::ignore = insert_itr;
@@ -151,7 +155,7 @@ void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
       keys.emplace_back(key);
     } else {
       ASSERT(mem_use_after < mem_use_before);
-      unodb::test::allocation_failure_injector::reset();
+      UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
       LOG(TRACE) << "Deleted key " << key;
       const auto oracle_delete_result = oracle.erase(key);
       ASSERT(oracle_delete_result == 1);
@@ -162,7 +166,7 @@ void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
         growing_inode_counts_before, shrinking_inode_counts_before,
         key_prefix_splits_before);
     ASSERT((oracle.find(key) == oracle.cend()) == !do_insert);
-    unodb::test::allocation_failure_injector::reset();
+    UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
     LOG(TRACE) << (do_insert ? "Tried inserting duplicated key "
                              : "Tried deleting missing key ")
                << key;
@@ -216,7 +220,7 @@ TEST(ART, DeepStateFuzz) {
         },
         // Query
         [&] {
-          unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+          UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(1);
           const auto key = get_key(max_key_value, keys);
           LOG(TRACE) << "Searching for key " << key;
           const auto search_result = test_db.get(key);
@@ -234,7 +238,7 @@ TEST(ART, DeepStateFuzz) {
             ASSERT(oracle_search_result == oracle.cend())
                 << "If search did not find a key, oracle must not find it too ";
           }
-          unodb::test::allocation_failure_injector::reset();
+          UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
         },
         // Delete
         [&] {
@@ -242,12 +246,12 @@ TEST(ART, DeepStateFuzz) {
           const auto clear = (DeepState_UIntInRange(0, 999) == 0);
           if (clear) {
             LOG(TRACE) << "Clearing the tree";
-            unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
+            UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(1);
             test_db.clear();
             oracle.clear();
             ASSERT(test_db.get_current_memory_use() == 0);
             ASSERT(test_db.empty());
-            unodb::test::allocation_failure_injector::reset();
+            UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
             return;
           }
 

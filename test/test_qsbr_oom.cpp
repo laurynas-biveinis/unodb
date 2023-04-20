@@ -12,9 +12,9 @@
 #include <gtest/gtest.h>
 
 #include "gtest_utils.hpp"
-#include "heap.hpp"
 #include "qsbr.hpp"
 #include "qsbr_gtest_utils.hpp"
+#include "test_heap.hpp"
 #include "thread_sync.hpp"
 
 namespace {

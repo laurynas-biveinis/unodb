@@ -101,9 +101,11 @@ void resume_thread(std::size_t thread_i) {
   const auto thread_count_before =
       unodb::qsbr_state::get_thread_count(unodb::qsbr::instance().get_state());
 
+#ifndef NDEBUG
   unsigned fail_n = 1;
+#endif
   while (true) {
-    unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+    UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(fail_n);
     bool op_completed;
     try {
       unodb::this_thread().qsbr_resume();
@@ -113,8 +115,10 @@ void resume_thread(std::size_t thread_i) {
       const auto thread_count_after = unodb::qsbr_state::get_thread_count(
           unodb::qsbr::instance().get_state());
       ASSERT(thread_count_before == thread_count_after);
-      unodb::test::allocation_failure_injector::reset();
+      UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
+#ifndef NDEBUG
       ++fail_n;
+#endif
       op_completed = false;
     }
     if (op_completed) break;
@@ -124,7 +128,7 @@ void resume_thread(std::size_t thread_i) {
   ASSERT(thread_count_before + 1 == thread_count_after);
   ASSERT(unodb::this_thread().previous_interval_requests_empty());
   ASSERT(unodb::this_thread().current_interval_requests_empty());
-  unodb::test::allocation_failure_injector::reset();
+  UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
   threads[thread_i].is_paused = false;
 }
 
@@ -191,9 +195,11 @@ void deallocate_pointer(std::uint64_t *ptr) {
   const auto current_interval_empty_before =
       unodb::this_thread().current_interval_requests_empty();
 
+#ifndef NDEBUG
   unsigned fail_n = 1;
+#endif
   while (true) {
-    unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+    UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(fail_n);
     bool op_completed;
     try {
       unodb::this_thread().on_next_epoch_deallocate(
@@ -216,8 +222,10 @@ void deallocate_pointer(std::uint64_t *ptr) {
           unodb::this_thread().current_interval_requests_empty();
       ASSERT(current_interval_empty_before == current_interval_empty_after);
 
-      unodb::test::allocation_failure_injector::reset();
+      UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
+#ifndef NDEBUG
       ++fail_n;
+#endif
       op_completed = false;
     }
     if (op_completed) break;
@@ -227,7 +235,7 @@ void deallocate_pointer(std::uint64_t *ptr) {
       unodb::this_thread().get_current_interval_total_dealloc_size();
   const auto single_thread_mode = unodb::qsbr_state::single_thread_mode(
       unodb::qsbr::instance().get_state());
-  unodb::test::allocation_failure_injector::reset();
+  UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
   if (single_thread_mode) {
     // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     ASSERT(current_interval_total_dealloc_size_before ==

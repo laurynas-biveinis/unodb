@@ -30,11 +30,13 @@
 #include "art.hpp"
 #include "art_common.hpp"
 #include "assert.hpp"
-#include "heap.hpp"
 #include "mutex_art.hpp"
 #include "node_type.hpp"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
+#ifndef NDEBUG
+#include "test_heap.hpp"
+#endif
 
 namespace unodb::test {
 
@@ -246,7 +248,9 @@ class [[nodiscard]] tree_verifier final {
                       node_counts_before[as_i<unodb::node_type::LEAF>] + 1);
 
     if (!bypass_verifier) {
+#ifndef NDEBUG
       allocation_failure_injector::reset();
+#endif
       const auto [pos, insert_succeeded] = values.try_emplace(k, v);
       (void)pos;
       UNODB_ASSERT_TRUE(insert_succeeded);
@@ -374,7 +378,9 @@ class [[nodiscard]] tree_verifier final {
 
   void clear() {
     test_db.clear();
+#ifndef NDEBUG
     allocation_failure_injector::reset();
+#endif
     assert_empty();
 
     values.clear();

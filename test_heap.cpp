@@ -1,6 +1,8 @@
-// Copyright 2022 Laurynas Biveinis
+// Copyright 2022-2023 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
+
+#include "test_heap.hpp"
 
 // - ASan/TSan do not work with replaced global new/delete:
 //   https://github.com/llvm/llvm-project/issues/20034
@@ -13,8 +15,6 @@
 #include <cstddef>
 #include <cstdlib>
 #include <new>
-
-#include "heap.hpp"
 
 void* operator new(std::size_t count) {
   unodb::test::allocation_failure_injector::maybe_fail();

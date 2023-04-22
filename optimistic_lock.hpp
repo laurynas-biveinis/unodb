@@ -237,7 +237,9 @@ class [[nodiscard]] optimistic_lock final {
   [[nodiscard]] bool check(version_type locked_version) const noexcept {
     UNODB_DETAIL_ASSERT(read_lock_count.load(std::memory_order_acquire) > 0);
 
+#ifndef UNODB_DETAIL_THREAD_SANITIZER
     std::atomic_thread_fence(std::memory_order_acquire);
+#endif
     const auto result{locked_version ==
                       version.load(std::memory_order_relaxed)};
 #ifndef NDEBUG

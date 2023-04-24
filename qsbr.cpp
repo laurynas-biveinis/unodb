@@ -354,10 +354,11 @@ UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 void qsbr::thread_epoch_change_barrier() noexcept {
+#ifndef UNODB_DETAIL_THREAD_SANITIZER
   // No loads and stores can be reordered past this point, or the quiescent
   // state contract would be violated
   std::atomic_thread_fence(std::memory_order_release);
-#ifdef UNODB_DETAIL_THREAD_SANITIZER
+#else
   // I have no idea what I am doing
   __tsan_release(&instance());
 #endif
@@ -405,12 +406,13 @@ void qsbr::bump_epoch_change_count() noexcept {
 
 void qsbr::epoch_change_barrier_and_handle_orphans(
     bool single_thread_mode) noexcept {
-#ifdef UNODB_DETAIL_THREAD_SANITIZER
-  __tsan_acquire(&instance());
-#endif
+#ifndef UNODB_DETAIL_THREAD_SANITIZER
   // Acquire synchronizes-with atomic_thread_fence(std::memory_order_release)
   // in thread_epoch_change_barrier
   std::atomic_thread_fence(std::memory_order_acquire);
+#else
+  __tsan_acquire(&instance());
+#endif
 
   auto *orphaned_previous_requests =
       take_orphan_list(orphaned_previous_interval_dealloc_requests);

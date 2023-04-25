@@ -77,22 +77,24 @@ jobs:
             readonly TSAN=<< parameters.tsan >>
             readonly UBSAN=<< parameters.ubsan >>
             if [[ $COMPILER == "gcc" ]]; then
-              export CC=gcc-11
-              export CXX=g++-11
+              V=12
+              export CC=gcc-$V
+              export CXX=g++-$V
               EXTRA_CMAKE_ARGS=()
             elif [[ $COMPILER == "clang" ]]; then
-              export CC=clang-15
-              export CXX=clang++-15
+              V=15
+              export CC=clang-$V
+              export CXX=clang++-$V
               if [[ $BUILD_TYPE == "Release" ]]; then
                 EXTRA_CMAKE_ARGS=(\
-                  "-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-15" \
-                  "-DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-15" \
-                  "-DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-15")
+                  "-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-$V" \
+                  "-DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-$V" \
+                  "-DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-$V")
               else
                 EXTRA_CMAKE_ARGS=()
               fi
               EXTRA_CMAKE_ARGS=("${EXTRA_CMAKE_ARGS[@]}" \
-                  "-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-15")
+                  "-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-$V")
             fi
             cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSTANDALONE=ON \
               -DMAINTAINER_MODE=ON -DSANITIZE_ADDRESS=$ASAN \

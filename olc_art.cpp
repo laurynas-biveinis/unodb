@@ -30,7 +30,6 @@ struct [[nodiscard]] olc_node_header {
   }
 
 #ifndef NDEBUG
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   static void check_on_dealloc(const void *ptr) noexcept {
     static_cast<const olc_node_header *>(ptr)->m_lock.check_on_dealloc();
   }
@@ -161,7 +160,6 @@ template <class INode>
 }
 
 template <class T>
-// NOLINTNEXTLINE(bugprone-exception-escape)
 [[nodiscard]] T &obsolete(T &t UNODB_DETAIL_LIFETIMEBOUND,
                           unodb::optimistic_lock::write_guard &guard) noexcept {
   UNODB_DETAIL_ASSERT(guard.guards(lock(t)));
@@ -174,7 +172,6 @@ template <class T>
   return t;
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 [[nodiscard]] inline auto obsolete_child_by_index(
     std::uint8_t child UNODB_DETAIL_LIFETIMEBOUND,
     unodb::optimistic_lock::write_guard &guard) noexcept {
@@ -188,7 +185,6 @@ template <class T>
 namespace unodb {
 
 template <class INode>
-// NOLINTNEXTLINE(bugprone-exception-escape)
 constexpr void olc_db::increment_inode_count() noexcept {
   static_assert(olc_inode_defs::is_inode<INode>());
 
@@ -251,7 +247,6 @@ class [[nodiscard]] olc_inode_4 final
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   void init(unodb::detail::art_key k1, unodb::detail::art_key shifted_k2,
             unodb::detail::tree_depth depth, leaf *child1,
             olc_db_leaf_unique_ptr &&child2) noexcept {
@@ -283,14 +278,12 @@ class [[nodiscard]] olc_inode_4 final
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(::lock(*this).is_write_locked());
 
     basic_inode_4::remove(child_index, db_instance);
   }
 
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   [[nodiscard]] auto leave_last_child(std::uint8_t child_to_delete,
                                       unodb::olc_db &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(::lock(*this).is_obsoleted_by_this_thread());
@@ -333,7 +326,6 @@ class [[nodiscard]] olc_inode_16 final
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   void init(db &db_instance, olc_inode_4 &source_node,
             unodb::optimistic_lock::write_guard &source_node_guard,
             olc_db_leaf_unique_ptr &&child,
@@ -344,7 +336,6 @@ class [[nodiscard]] olc_inode_16 final
     UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
   }
 
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   void init(db &db_instance, olc_inode_48 &source_node,
             unodb::optimistic_lock::write_guard &source_node_guard,
             std::uint8_t child_to_delete,
@@ -366,7 +357,6 @@ class [[nodiscard]] olc_inode_16 final
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(::lock(*this).is_write_locked());
 
@@ -428,7 +418,6 @@ class [[nodiscard]] olc_inode_48 final
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   void init(db &db_instance, olc_inode_16 &source_node,
             unodb::optimistic_lock::write_guard &source_node_guard,
             olc_db_leaf_unique_ptr &&child,
@@ -439,7 +428,6 @@ class [[nodiscard]] olc_inode_48 final
     UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
   }
 
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   void init(db &db_instance, olc_inode_256 &source_node,
             unodb::optimistic_lock::write_guard &source_node_guard,
             std::uint8_t child_to_delete,
@@ -461,7 +449,6 @@ class [[nodiscard]] olc_inode_48 final
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(::lock(*this).is_write_locked());
 
@@ -491,7 +478,6 @@ static_assert(sizeof(olc_inode_48) == 656 + 32);
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void olc_inode_16::init(
     db &db_instance, olc_inode_48 &source_node,
     unodb::optimistic_lock::write_guard &source_node_guard,
@@ -518,7 +504,6 @@ class [[nodiscard]] olc_inode_256 final
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   void init(db &db_instance, olc_inode_48 &source_node,
             unodb::optimistic_lock::write_guard &source_node_guard,
             olc_db_leaf_unique_ptr &&child,
@@ -545,7 +530,6 @@ class [[nodiscard]] olc_inode_256 final
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-  // NOLINTNEXTLINE(bugprone-exception-escape)
   void remove(std::uint8_t child_index, unodb::olc_db &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(::lock(*this).is_write_locked());
 
@@ -570,7 +554,6 @@ static_assert(sizeof(olc_inode_256) == 2064 + 24);
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void olc_inode_48::init(
     db &db_instance, olc_inode_256 &source_node,
     unodb::optimistic_lock::write_guard &source_node_guard,
@@ -793,7 +776,6 @@ namespace unodb {
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
 template <class INode>
-// NOLINTNEXTLINE(bugprone-exception-escape)
 constexpr void olc_db::decrement_inode_count() noexcept {
   static_assert(olc_inode_defs::is_inode<INode>());
 
@@ -821,7 +803,6 @@ constexpr void olc_db::account_shrinking_inode() noexcept {
       1, std::memory_order_relaxed);
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 olc_db::~olc_db() noexcept {
   UNODB_DETAIL_ASSERT(
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
@@ -843,7 +824,6 @@ olc_db::get_result olc_db::get(key search_key) const noexcept {
   return *result;
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
@@ -1214,7 +1194,6 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
   }
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void olc_db::delete_root_subtree() noexcept {
   UNODB_DETAIL_ASSERT(
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
@@ -1226,7 +1205,6 @@ void olc_db::delete_root_subtree() noexcept {
       node_counts[as_i<node_type::LEAF>].load(std::memory_order_relaxed) == 0);
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void olc_db::clear() noexcept {
   UNODB_DETAIL_ASSERT(
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
@@ -1244,7 +1222,6 @@ void olc_db::clear() noexcept {
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void olc_db::increase_memory_use(std::size_t delta) noexcept {
   UNODB_DETAIL_ASSERT(delta > 0);
 
@@ -1253,7 +1230,6 @@ void olc_db::increase_memory_use(std::size_t delta) noexcept {
 
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void olc_db::decrease_memory_use(std::size_t delta) noexcept {
   UNODB_DETAIL_ASSERT(delta > 0);
   UNODB_DETAIL_ASSERT(delta <=

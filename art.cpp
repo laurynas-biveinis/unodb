@@ -246,11 +246,9 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
 
 namespace unodb {
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 db::~db() noexcept { delete_root_subtree(); }
 
 template <class INode>
-// NOLINTNEXTLINE(bugprone-exception-escape)
 constexpr void db::increment_inode_count() noexcept {
   static_assert(inode_defs::is_inode<INode>());
 
@@ -259,7 +257,6 @@ constexpr void db::increment_inode_count() noexcept {
 }
 
 template <class INode>
-// NOLINTNEXTLINE(bugprone-exception-escape)
 constexpr void db::decrement_inode_count() noexcept {
   static_assert(inode_defs::is_inode<INode>());
   UNODB_DETAIL_ASSERT(node_counts[as_i<INode::type>] > 0);
@@ -269,7 +266,6 @@ constexpr void db::decrement_inode_count() noexcept {
 }
 
 template <node_type NodeType>
-// NOLINTNEXTLINE(bugprone-exception-escape)
 constexpr void db::account_growing_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
@@ -279,7 +275,6 @@ constexpr void db::account_growing_inode() noexcept {
 }
 
 template <node_type NodeType>
-// NOLINTNEXTLINE(bugprone-exception-escape)
 constexpr void db::account_shrinking_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
@@ -288,7 +283,6 @@ constexpr void db::account_shrinking_inode() noexcept {
                       growing_inode_counts[internal_as_i<NodeType>]);
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 db::get_result db::get(key search_key) const noexcept {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
 
@@ -432,7 +426,6 @@ bool db::remove(key remove_key) {
   }
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void db::delete_root_subtree() noexcept {
   if (root != nullptr) art_policy::delete_subtree(root, *this);
 
@@ -441,7 +434,6 @@ void db::delete_root_subtree() noexcept {
   UNODB_DETAIL_ASSERT(node_counts[as_i<node_type::LEAF>] == 0);
 }
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void db::clear() noexcept {
   delete_root_subtree();
 

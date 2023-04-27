@@ -12,7 +12,6 @@
 namespace unodb::test {
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-// NOLINTNEXTLINE(bugprone-exception-escape)
 void expect_idle_qsbr() noexcept {
   const auto state = unodb::qsbr::instance().get_state();
   UNODB_EXPECT_EQ(

@@ -311,15 +311,16 @@ jobs:
             CBT=""
           fi
           if [[ $COMPILER == "gcc" ]]; then
-            V=12
-            export CC=gcc-$V
-            export CXX=g++-$V
             if [[ $COVERAGE == "ON" ]]; then
               # Coverage jobs run on macOS
+              V=13
               EXTRA_CMAKE_ARGS=("-DGCOV_PATH=/usr/local/bin/gcov-$V")
             else
+              V=12
               EXTRA_CMAKE_ARGS=()
             fi
+            export CC=gcc-$V
+            export CXX=g++-$V
           elif [[ $COMPILER == "clang" ]]; then
             V=16
             export CC=clang-$V

@@ -2,3 +2,6 @@ NOLINTNEXTLINE
 cppcoreguidelines
 hpp
 expr
+Nehalem
+AVX
+MSVC

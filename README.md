@@ -12,7 +12,7 @@ Super-Linter](https://github.com/laurynas-biveinis/unodb/workflows/Super-Linter/
 
 ## Introduction
 
-UnoDB is an library that implements of Adaptive Radix Tree (ART) data structure,
+UnoDB is a library that implements of Adaptive Radix Tree (ART) data structure,
 designed for efficient indexing in main-memory databases. The ART is a
 trie-based data structure that dynamically adapts to the distribution of keys,
 ensuring good search performance and memory usage. UnoDB offers two variants of
@@ -121,7 +121,7 @@ automatically reports the quiescent state when the scope is exited.
 * (optional) lcov
 * (optional) clang-tidy
 * (optional) clangd
-* (optional) cppcheck 2.5
+* (optional) cppcheck
 * (optional) cpplint
 * (optional) include-what-you-use
 * (optional) libfuzzer
@@ -129,48 +129,49 @@ automatically reports the quiescent state when the scope is exited.
 ## Development
 
 Source code is formatted with [Google C++ style][gc++style]. Automatic code
-formatting is configured through git  clean/fuzz filters. To enable it, do `git
-config --local include.path ../.gitconfig`. If for any reason you need to
-disable it temporarily, do `git config  --local --unset include.path`
+formatting is configured through git  clean/fuzz filters. To enable this
+feature, do `git config --local include.path ../.gitconfig`. If you need to
+temporarily disable it, run `git config  --local --unset include.path`.
 
-When building this project alone and not as a part of another project, add
+When building this project independently and not as part of another project, add
 `-DSTANDALONE=ON` CMake option. It will enable extra global debug checks that
-require whole programs to be compiled with them. Currently this consists of
-libstdc+++ debug mode.
+require entire programs to be compiled with them. Currently, this consists of
+the libstdc++ debug mode.
 
-To enable maintainer diagnostics, add `-DMAINTAINER_MODE=ON` CMake option.
-Currently it makes compilation and `include-what-you-use` warnings fatal.
+To enable maintainer diagnostics, add `-DMAINTAINER_MODE=ON` CMake option. This
+makes compilation and `include-what-you-use` warnings fatal.
 
-clang-tidy, cppcheck, and cpplint will be invoked automatically during build if
-found. Currently the diagnostic level for them as well as for compiler warnings
-is set very high, and can be relaxed, especially for clang-tidy, as need arises.
+clang-tidy, cppcheck, and cpplint will be invoked automatically during the build
+if found. The current diagnostic level for them, as well as for compiler
+warnings, is set very high and can be relaxed if needed.
 
 To disable AVX2 intrinsics to use SSE4.1/AVX only, add `-DWITH_AVX2=OFF`.
 
 To enable AddressSanitizer and LeakSanitizer (the latter if available), add
-`-DSANITIZE_ADDRESS=ON` CMake option. It is incompatible with
-`-DSANITIZE_THREAD=ON`.
+`-DSANITIZE_ADDRESS=ON` CMake option. It is incompatible with the
+`-DSANITIZE_THREAD=ON` option.
 
 To enable ThreadSanitizer, add `-DSANITIZE_THREAD=ON` CMake option. It is
-incompatible with `-DSANITIZE_ADDRESS=ON`. It is also incompatible with
-libfuzzer, and will disable its support if specified. Not available under MSVC.
+incompatible with the `-DSANITIZE_ADDRESS=ON` option and will disable libfuzzer
+support if specified. Not available under MSVC.
 
-To enable UndefinedBehaviorSanitizer, add `-DSANITIZE_UB=ON` CMake option. It is
-compatible with both `-DSANITIZE_ADDRESS=ON` and `-DSANITIZE_THREAD=ON` options,
-although some [false positives][sanitizer-combination-bug] might occur. Not
-available under MSVC.
+To enable UndefinedBehaviorSanitizer, add the `-DSANITIZE_UB=ON` CMake option.
+It is compatible with both `-DSANITIZE_ADDRESS=ON` and `-DSANITIZE_THREAD=ON`
+options, although some [false positives][sanitizer-combination-bug] might occur.
+Not available under MSVC.
 
-To enable GCC or MSVC compiler static analysis, add `-DSTATIC_ANALYSIS=ON` CMake
-option. For LLVM static analysis, no special CMake option is needed, and you
-have to prepend `scan-build` to `make` instead.
+To enable GCC or MSVC compiler static analysis, add the `-DSTATIC_ANALYSIS=ON`
+CMake option. For LLVM static analysis, no special CMake option is needed;
+instead prepend `scan-build` to `make`.
 
-To invoke include-what-you-use, add `-DIWYU=ON` CMake option. It will take
-effect if CMake configures to build project with clang.
+To invoke include-what-you-use without enabling the whole of maintainer mode,
+add the `-DIWYU=ON` CMake option. It will take effect if CMake configures to
+build project with clang.
 
-To enable inconclusive cppcheck diagnostics, add `-DCPPCHECK_AGGRESSIVE=ON`
+To enable inconclusive cppcheck diagnostics, add the `-DCPPCHECK_AGGRESSIVE=ON`
 CMake option. These diagnostics will not fail a build.
 
-To generate coverage reports on tests, fuzzers excluded, using lcov, add
+To generate coverage reports on tests, excluding fuzzers, using lcov, add the
 `-DCOVERAGE=ON` CMake option.
 
 Google Test and DeepState are used for testing. There will be no unit tests for
@@ -179,28 +180,29 @@ built-in fuzzer are supported.
 
 ## Fuzzing
 
-There are fuzzer tests for `unodb::db` and QSBR components in the
-`fuzz_deepstate` subdirectory. The tests use DeepState with either brute force
-or libfuzzer-based backend. Not all platforms and configurations support them,
-i.e. MSVC build completely skips them, and libfuzzer-based tests are skipped if
-ThreadSanitizer is enabled, or if building non-XCode clang release
+ Fuzzer tests for ART and QSBR components are located in the `fuzz_deepstate`
+subdirectory. The tests use DeepState with either a brute force or
+libfuzzer-based backend. However, not all platforms and configurations support
+them. For isntance, MSVC builds completely skip them, and libfuzzer-based tests
+are skipped if ThreadSanitizer is enabled or if building non-XCode clang release
 configuration.
 
-There are several Make targets for fuzzing. For time-based brute-force fuzzing
-of all components, use on of `deepstate_2s`, `deepstate_1m`, `deepstate_20m`,
-and `deepstate_8h`. Individual fuzzers can be used by inserting `art` or `qsbr`,
-i.e. `deepstate_qsbr_20m` or `deepstate_art_8h`. Running fuzzer under Valgrind
-is available through `valgrind_deepstate` for everything or
-`valgrind_{art|qsbr}_deepstate` for individual fuzzers.
+Several Make targets are available for fuzzing. For time-based brute-force
+fuzzing of all components, use one of the following: `deepstate_2s`,
+`deepstate_1m`, `deepstate_20m`, or `deepstate_8h`. To use individual fuzzers,
+insert `art` or `qsbr`, for example: `deepstate_qsbr_20m` or `deepstate_art_8h`.
+Running fuzzer under Valgrind is available through `valgrind_deepstate` for
+everything or `valgrind_{art|qsbr}_deepstate` for individual fuzzers.
 
 Fuzzers that use libfuzzer mirror the above by adding `_lf` before the time
-suffix, i.e. `deepstate_lf_8h`, `deepstate_qsbr_lf_20m`,
+suffix, such as `deepstate_lf_8h`, `deepstate_qsbr_lf_20m`,
 `valgrind_deepstate_lf`, and so on.
 
-## Related projects
+## Related Projects
 
 [art_map](https://github.com/justinasvd/art_map) is a C++14 template library
-providing `std::`-like interface over ART. It shares some code with UnoDB.
+providing `std::`-like interface over the ART data structure. It shares some
+code with UnoDB.
 
 ## Literature
 

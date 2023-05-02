@@ -12,77 +12,102 @@ Super-Linter](https://github.com/laurynas-biveinis/unodb/workflows/Super-Linter/
 
 ## Introduction
 
-UnoDB is an implementation of Adaptive Radix Tree in two flavors – a regular one
-and Optimistic Lock Coupling-based concurrent one with Quiescent State Based
-Reclamation (QSBR). It is done as my playground for various C++ tools and ideas,
-and I am trying to describe some of the things I learned at my [blog](https://of-code.blogspot.com/search/label/art).
+UnoDB is an library that implements of Adaptive Radix Tree (ART) data structure,
+designed for efficient indexing in main-memory databases. The ART is a
+trie-based data structure that dynamically adapts to the distribution of keys,
+ensuring good search performance and memory usage. UnoDB offers two variants of
+ART: a regular one and a concurrent one based on Optimistic Lock Coupling (OLC)
+with Quiescent State Based Reclamation (QSBR).
+
+This library serves as a playground for experimenting with various C++ tools and
+ideas. I am describing some of the things I learned at my [blog](https://of-code.blogspot.com/search/label/art).
 
 ## Requirements
 
-The source code is C++17, using SSE4.1 intrinsics (Nehalem and higher), AVX in
-the case of MSVC, with optional AVX2 support, if available. This is in contrast
-to the original ART paper needing SSE2
-only.
+UnoDB' source code is written in C++17, and relies on the following
+platform-specific features:
 
-Note: since this is my personal project, it only supports GCC 10 and later, 11,
-LLVM 11 and later, XCode 13.2, and MSVC 2022 compilers. Drop me a note if you
-want to try this and need a lower supported compiler version.
+* On Intel platforms, it requires SSE4.1 intrinsics (Nehalem and higher), AVX
+  for MSVC builds, and optional AVX2 support, when available. This differs from
+  the original ART paper, which only required SSE2.
+* On ARM, it uses NEON intrinsics.
+
+Please note that this personal project only supports the following compilers:
+GCC 10 and later, LLVM 11 and later, XCode 13.2, and MSVC 2022 compilers. If you
+require support for an earlier compiler version, feel free to drop me a note.
 
 ## Usage
 
 All the declarations live in the `unodb` namespace, which is omitted in the
-following.
+descriptions below.
 
-The only currently supported key type is `std::uint64_t`, aliased as `key`.
-However, adding new key types should be relatively easy by instantiating
-`art_key` type with the desired key type and specializing
-`art_key::make_binary_comparable` in accordance with the ART paper.
+The only currently supported key type is `std::uint64_t`, aliased as `key`. To
+add new key types, instantiate `art_key` type with the desired type, and
+specialize `art_key::make_binary_comparable` according to the ART paper.
 
 Values are treated opaquely. For `unodb::db`, they are passed as non-owning
-objects of `value_view`, which is `gsl::span<std::byte>`, and insertion copies
-them internally. The same applies for `get`: a non-owning `value_view` object is
-returned. For `unodb::olc_db`, `get` returns a `qsbr_value_view`, which is a
-`span` that is guaranteed to stay valid until the next time the current thread
-passes through a quiescent state.
+objects of `value_view` (a `gsl::span<std::byte>`), and insertion copies them
+internally. The same applies for `get`, which returns a non-owning `value_view`.
+For `unodb::olc_db`, `get` returns a `qsbr_value_view`, a `span` guaranteed to
+remain valid until the current thread passes through a quiescent state.
 
-All ART classes implement the same API:
+All ART classes share the same API:
 
 * constructor.
-* `get(key k)`, returning `get_result`, which is `std::optional<value_view>`.
-* `bool insert(key k, value_view v)`, returning whether insert was
-  successful (i.e. the key was not already present).
-* `bool remove(key k)`, returning whether delete was successful (i.e. the
-  key was found in the tree).
-* `clear`, making the tree empty. For `olc_db`, it is not a concurrent operation
-  and must be called from a single-threaded context.
-* `bool empty()`, returning whether the tree is empty.
-* `void dump(std::ostream &)`, dumping the tree representation into output
-  stream.
-* Several getters for assorted tree info, such as current memory use, and
-  counters of various internal tree  operations (i.e. number of times Node4 grew
-  to Node16, key prefix was split, etc - check the source code).
+* `get(key k)` returns `get_result` (a `std::optional<value_view>`).
+* `bool insert(key k, value_view v)` returns whether the insert was successful
+  (i.e. the key was not already present).
+* `bool remove(key k)` returns whether delete was successful (i.e. the key was
+  found in the tree).
+* `clear()` empties the tree. For `olc_db`, it must be called from a
+  single-threaded context.
+* `bool empty()` returns whether the tree is empty.
+* `void dump(std::ostream &)` outputs the tree representation.
+* Several getters provide tree info, such as current memory use, and internal
+  operation counters (e.g. number of times Node4 grew to Node16, key prefix was
+  split, etc - see the source code for details).
 
-The are three ART classes available:
+Three ART classes available:
 
-* `db`: unsychronized ART tree, to be used in single-thread context or with
-  external synchronization.
-* `mutex_db`: single global mutex-synchronized ART tree.
+* `db`: unsychronized ART tree, for single-thread contexts or with
+  external synchronization
+* `mutex_db`: ART tree with single global mutex synchronization
 * `olc_db`: a concurrent ART tree, implementing Optimistic Lock Coupling as
-  described by Leis et al. in the "The ART of Practical Synchronization" paper;
-  the nodes are versioned, the writers lock per-node so-called optimistic lock,
-  the readers don't lock anything, but check node versions and restart if they
-  change. The optimistic lock concept seems to be nearly identical to that of
-  [sequential locks][seqlock] as used in the Linux kernel, with the addition of
-  "obsolete" state. The lock implementation uses seqlock memory model
-  implementation as described by Boehm in "Can seqlocks get along with
-  programming language memory models?" 2012 paper. The OLC ART implementation
-  necessitates a memory reclamation scheme as required by lock-free data
-  structures (even though `olc_db` is not lock-free in the general sense, the
-  readers do not take locks), and for that a Quiescent State Based Reclamation
-  (QSBR) was chosen.
+  described in "The ART of Practical Synchronization" paper by Leis et al.;
+  nodes are versioned, writers lock per-node optimistic locks, readers don't
+  lock but check node versions and restart if they change.
 
-Any macros starting with `UNODB_DETAIL_` are internal and should not be used.
-Likewise for any declarations in `unodb::detail` and ``unodb::test`` namespaces.
+Do not use macros starting with `UNODB_DETAIL_` or declarations in
+`unodb::detail` and `unob::test` namespaces as they are internal and may change
+at any time.
+
+## Technical Details
+
+### Sequential Lock
+
+The optimistic lock concept seems to be nearly identical to that of [sequential
+locks][seqlock] as used in the Linux kernel, with the addition of "obsolete"
+state. The lock implementation uses the seqlock memory model implementation as
+described by Boehm in "Can seqlocks get along with programming language memory
+models?" 2012 paper.
+
+### Quiescent State-Based Reclamation (QSBR)
+
+The OLC ART implementation necessitates a memory reclamation scheme as required
+by lock-free data structures (even though `olc_db` is not lock-free in the
+general sense, the readers do not take locks), and for that a Quiescent State
+Based Reclamation (QSBR) was chosen. In QSBR, each thread periodically announces
+that it is not using any pointers to a shared data structures. After all the
+threads have done so, a new epoch starts, and the memory reclamation requests
+from two epochs ago are executed. To participate in QSBR, a thread must an
+instance of `unodb::qsbr_thread`, which derives from `std::thread`. A thread may
+temporarily or permanently stop its participation in QSBR by calling
+`unodb::this_thread().qsbr_pause()` and resume by calling
+`unodb::this_thread().qsbr_resume()`.
+
+The registered threads must periodically signal their quiescent states. They can
+do this by using the `unodb::quiescent_state_on_scope_exit` scope guard, which
+automatically reports the quiescent state when the scope is exited.
 
 ## Dependencies
 

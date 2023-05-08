@@ -68,13 +68,20 @@ namespace detail {
 
 template <class Db>
 void do_insert_key_ignore_dups(Db &db, unodb::key k, unodb::value_view v) {
-  const auto result = db.insert(k, v);
+  // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
+  // analyzer on that
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  auto result = db.insert(k, v);
   ::benchmark::DoNotOptimize(result);
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 }
 
 template <class Db>
 void do_insert_key(Db &db, unodb::key k, unodb::value_view v) {
-  const auto result = db.insert(k, v);
+  // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
+  // analyzer on that
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  auto result = db.insert(k, v);
 #ifndef NDEBUG
   if (!result) {
     std::cerr << "Failed to insert ";
@@ -85,6 +92,7 @@ void do_insert_key(Db &db, unodb::key k, unodb::value_view v) {
   }
 #endif
   ::benchmark::DoNotOptimize(result);
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 }
 
 }  // namespace detail
@@ -118,13 +126,20 @@ namespace detail {
 
 template <class Db>
 void do_delete_key_if_exists(Db &db, unodb::key k) {
-  const auto result = db.remove(k);
+  // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
+  // analyzer on that
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  auto result = db.remove(k);
   ::benchmark::DoNotOptimize(result);
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 }
 
 template <class Db>
 void do_delete_key(Db &db, unodb::key k) {
-  const auto result = db.remove(k);
+  // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
+  // analyzer on that
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  auto result = db.remove(k);
 #ifndef NDEBUG
   if (!result) {
     std::cerr << "Failed to delete existing ";
@@ -135,6 +150,7 @@ void do_delete_key(Db &db, unodb::key k) {
   }
 #endif
   ::benchmark::DoNotOptimize(result);
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 }
 
 }  // namespace detail
@@ -167,13 +183,20 @@ namespace detail {
 
 template <class Db>
 void do_get_key(const Db &db, unodb::key k) {
-  const auto result = db.get(k);
+  // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
+  // analyzer on that
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  auto result = db.get(k);
   ::benchmark::DoNotOptimize(result);
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 }
 
 template <class Db>
 void do_get_existing_key(const Db &db, unodb::key k) {
-  const auto result = db.get(k);
+  // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
+  // analyzer on that
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  auto result = db.get(k);
 
 #ifndef NDEBUG
   if (!Db::key_found(result)) {
@@ -185,6 +208,7 @@ void do_get_existing_key(const Db &db, unodb::key k) {
   }
 #endif
   ::benchmark::DoNotOptimize(result);
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 }
 
 }  // namespace detail

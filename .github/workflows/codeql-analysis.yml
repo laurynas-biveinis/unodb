@@ -43,6 +43,7 @@ jobs:
 
       - name: Setup dependencies for Linux
         run: |
+          sudo apt-get update
           sudo apt-get install -y libboost-dev libc6-dev-i386
           sudo ln -sf /usr/bin/g++-11 /usr/bin/g++
           sudo ln -sf /usr/bin/gcc-11 /usr/bin/gcc

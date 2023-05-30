@@ -409,6 +409,7 @@ jobs:
 
       - name: Setup common dependencies for Linux
         run: |
+          sudo apt-get update
           sudo apt-get install -y libboost-dev libc6-dev-i386
         if: runner.os == 'Linux'
 

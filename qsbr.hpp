@@ -495,6 +495,10 @@ void on_thread_exit(Func fn) noexcept {
 
 }  // namespace detail
 
+// Thread-local QSBR data structure. It has deallocation request lists for the
+// previous and current epoch, as well as the last seen global epoch by any
+// operation by this thread and the last seen global epoch by a quiescent state
+// of this thread.
 class [[nodiscard]] qsbr_per_thread final {
  public:
   [[nodiscard, gnu::pure]] auto is_qsbr_paused() const noexcept {
@@ -594,6 +598,8 @@ class [[nodiscard]] qsbr_per_thread final {
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
   thread_local static std::unique_ptr<qsbr_per_thread> current_thread_instance;
 
+  // Preallocated list nodes for orphaning the requests to avoid memory
+  // allocation on thread exit code path.
   std::unique_ptr<detail::dealloc_vector_list_node>
       previous_interval_orphan_list_node{
           std::make_unique<detail::dealloc_vector_list_node>()};
@@ -603,8 +609,11 @@ class [[nodiscard]] qsbr_per_thread final {
           std::make_unique<detail::dealloc_vector_list_node>()};
 
   std::uint64_t quiescent_states_since_epoch_change{0};
+
+  // Last seen global epoch by quiescent state for this thread
   qsbr_epoch last_seen_quiescent_state_epoch;
 
+  // Last seen global epoch by any operation for this thread
   qsbr_epoch last_seen_epoch;
 
   detail::dealloc_request_vector previous_interval_dealloc_requests;

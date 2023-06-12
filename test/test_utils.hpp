@@ -11,6 +11,11 @@ namespace unodb::test {
 // warning C26496: The variable 'result' does not change after construction,
 // mark it as const (con.4) - but that may preclude move on RVO.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+// While the purpose of the function is to test that the single given action
+// does not allocate heap memory, its implementation is global, and no other
+// threads may allocate at the same time. IMHO a simpler global state (and the
+// need to debug some racy testcases) is the right trade-off vs. thread local
+// allocation-forbidding state.
 template <typename TestAction>
 std::invoke_result_t<TestAction> must_not_allocate(
     TestAction test_action) noexcept(noexcept(test_action())) {

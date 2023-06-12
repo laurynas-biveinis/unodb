@@ -105,15 +105,17 @@ TEST_F(QSBR, TwoThreadsFirstPaused) {
 TEST_F(QSBR, TwoThreadsBothPaused) {
   unodb::qsbr_thread second_thread([] {
     UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2);
-    thread_syncs[0].notify();
+    thread_syncs[0].notify();  // 1 ->
     qsbr_pause();
-    thread_syncs[1].wait();
+    thread_syncs[1].wait();  // 2 <-
     UNODB_EXPECT_EQ(get_qsbr_thread_count(), 0);
     unodb::this_thread().qsbr_resume();
+    thread_syncs[0].notify();  // 3 ->
   });
-  thread_syncs[0].wait();
+  thread_syncs[0].wait();  // 1 <-
   qsbr_pause();
-  thread_syncs[1].notify();
+  thread_syncs[1].notify();  // 2 ->
+  thread_syncs[0].wait();    // 3 <-
   join(second_thread);
   unodb::this_thread().qsbr_resume();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);

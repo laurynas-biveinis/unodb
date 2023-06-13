@@ -209,14 +209,14 @@ jobs:
             AVX2: OFF
 
           - name: Debug coverage
-            os: macos-latest
+            os: ubuntu-22.04
             BUILD_TYPE: Debug
             COMPILER: gcc
             COVERAGE: ON
             AVX2: OFF
 
           - name: Release coverage
-            os: macos-latest
+            os: ubuntu-22.04
             BUILD_TYPE: Release
             COMPILER: gcc
             COVERAGE: ON
@@ -271,19 +271,16 @@ jobs:
           runner.os == 'Linux' && env.COMPILER == 'clang'
           && env.STATIC_ANALYSIS != 'ON'
 
+      - name: Set up dependencies for Linux (coverage)
+        run: |
+          sudo apt-get install lcov cpanminus
+          sudo cpanm install JSON
+        if: runner.os == 'Linux' && env.COVERAGE == 'ON'
+
       - name: Set up dependencies for macOS (common)
         run: |
           brew install boost include-what-you-use
         if: runner.os == 'macOS'
-
-      - name: Set up dependencies for macOS (coverage)
-        run: |
-          sudo xcode-select -s /Applications/Xcode_13.4.1.app/Contents/Developer
-          brew update
-          brew upgrade gcc
-          brew install cpanm lcov
-          sudo cpanm install JSON
-        if: runner.os == 'macOS' && env.COVERAGE == 'ON'
 
       - name: Set up dependencies for macOS (cppcheck)
         run: brew install cppcheck
@@ -312,12 +309,10 @@ jobs:
             CBT=""
           fi
           if [[ $COMPILER == "gcc" ]]; then
-            if [[ $COVERAGE == "ON" ]]; then
-              # Coverage jobs run on macOS
-              V=11
-              EXTRA_CMAKE_ARGS=("-DGCOV_PATH=/usr/local/bin/gcov-$V")
-            else
               V=12
+            if [[ $COVERAGE == "ON" ]]; then
+              EXTRA_CMAKE_ARGS=("-DGCOV_PATH=/usr/bin/gcov-$V")
+            else
               EXTRA_CMAKE_ARGS=()
             fi
             export CC=gcc-$V

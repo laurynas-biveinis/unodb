@@ -29,6 +29,7 @@ jobs:
       - run:
           name: Installing dependencies (common)
           command: |
+            sudo apt-get update
             sudo apt-get install -y libboost-dev
       - when:
           condition:

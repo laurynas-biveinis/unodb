@@ -455,6 +455,8 @@ set(CPPCHECK_ARGS
   "--suppress=syntaxError"
   # Likewise
   "--suppress=internalAstError"
+  # Leave it for the compilers to diagnose
+  "--suppress=unreadVariable"
   # False positives on structured bindings with 2.5
   "--suppress=unassignedVariable"
   "--suppress=unusedVariable")

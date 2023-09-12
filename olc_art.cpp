@@ -293,6 +293,7 @@ class [[nodiscard]] olc_inode_4 final
     return basic_inode_4::leave_last_child(child_to_delete, db_instance);
   }
 
+  // cppcheck-suppress duplInheritedMember
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     os << ", ";
     ::lock(*this).dump(os);
@@ -363,6 +364,7 @@ class [[nodiscard]] olc_inode_16 final
     basic_inode_16::remove(child_index, db_instance);
   }
 
+  // cppcheck-suppress duplInheritedMember
   [[nodiscard]] find_result find_child(std::byte key_byte) noexcept {
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
     const auto children_count_ = this->get_children_count();
@@ -375,6 +377,7 @@ class [[nodiscard]] olc_inode_16 final
 #endif
   }
 
+  // cppcheck-suppress duplInheritedMember
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     os << ", ";
     ::lock(*this).dump(os);
@@ -455,6 +458,7 @@ class [[nodiscard]] olc_inode_48 final
     basic_inode_48::remove(child_index, db_instance);
   }
 
+  // cppcheck-suppress duplInheritedMember
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     os << ", ";
     ::lock(*this).dump(os);
@@ -536,6 +540,7 @@ class [[nodiscard]] olc_inode_256 final
     basic_inode_256::remove(child_index, db_instance);
   }
 
+  // cppcheck-suppress duplInheritedMember
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     os << ", ";
     ::lock(*this).dump(os);

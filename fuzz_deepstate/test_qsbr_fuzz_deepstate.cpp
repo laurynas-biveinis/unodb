@@ -1,16 +1,25 @@
 // Copyright 2021-2023 Laurynas Biveinis
 
+// IWYU pragma: no_include <__algorithm/count_if.h>
+// IWYU pragma: no_include <__iterator/advance.h>
+// IWYU pragma: no_include <__utility/forward.h>
+// IWYU pragma: no_include <__utility/move.h>
+// IWYU pragma: no_include <__utility/pair.h>
+// IWYU pragma: no_include <deepstate/DeepState.h>
+// IWYU pragma: no_include <__hash_table>
+// IWYU pragma: no_include <deepstate/Stream.hpp>
+
 #include "global.hpp"
 
-#include <algorithm>
+#include <algorithm>  // IWYU pragma: keep
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <iterator>
+#include <iterator>  // IWYU pragma: keep
 #include <new>
 #include <sstream>
 #include <unordered_set>
-#include <utility>
+#include <utility>  // IWYU pragma: keep
 #include <vector>
 
 #include <deepstate/DeepState.hpp>
@@ -20,6 +29,7 @@
 #include "heap.hpp"
 #include "qsbr.hpp"
 #include "qsbr_ptr.hpp"
+#include "test_heap.hpp"
 #include "thread_sync.hpp"
 
 namespace {

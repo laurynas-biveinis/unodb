@@ -96,6 +96,13 @@
             }
         },
         {
+            "name": "avx2-off",
+            "hidden": true,
+            "cacheVariables": {
+                "WITH_AVX2": "OFF"
+            }
+        },
+        {
             "name": "release",
             "inherits": "base-unix",
             "cacheVariables": {
@@ -213,6 +220,14 @@
             ]
         },
         {
+            "name": "llvm-apple-intel-debug-no-avx2",
+            "inherits": [
+                "debug",
+                "llvm-apple-intel",
+                "avx2-off"
+            ]
+        },
+        {
             "name": "llvm-apple-intel-debug-asan",
             "inherits": [
                 "debug",
@@ -293,11 +308,9 @@
             "name": "msvc-debug-no-avx2",
             "inherits": [
                 "base-msvc",
-                "debug"
-            ],
-            "cacheVariables": {
-                "AVX2": "OFF"
-            }
+                "debug",
+                "avx2-off"
+            ]
         },
         {
             "name": "msvc-release",
@@ -442,6 +455,11 @@
         {
             "name": "llvm-apple-intel-debug",
             "configurePreset": "llvm-apple-intel-debug",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-intel-debug-no-avx2",
+            "configurePreset": "llvm-apple-intel-debug-no-avx2",
             "inherits": "base"
         },
         {
@@ -627,6 +645,11 @@
         {
             "name": "llvm-apple-intel-debug",
             "configurePreset": "llvm-apple-intel-debug",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-intel-debug-no-avx2",
+            "configurePreset": "llvm-apple-intel-debug-no-avx2",
             "inherits": "base"
         },
         {

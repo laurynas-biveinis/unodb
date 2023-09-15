@@ -2,7 +2,7 @@
 
 // IWYU pragma: no_include <memory>
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <thread>
 

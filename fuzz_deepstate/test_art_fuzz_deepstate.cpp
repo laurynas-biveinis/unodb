@@ -9,7 +9,7 @@
 // IWYU pragma: no_include <deepstate/Stream.hpp>
 // IWYU pragma: no_include <gsl/span>
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <algorithm>  // IWYU pragma: keep
 #include <cstddef>

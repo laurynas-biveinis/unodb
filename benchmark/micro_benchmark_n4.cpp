@@ -2,7 +2,7 @@
 
 // IWYU pragma: no_include <__algorithm/shuffle.h>
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <algorithm>  // IWYU pragma: keep
 #include <cstddef>

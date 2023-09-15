@@ -1,6 +1,6 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2023 Laurynas Biveinis
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include "db_test_utils.hpp"
 

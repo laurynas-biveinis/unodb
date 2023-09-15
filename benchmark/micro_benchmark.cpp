@@ -4,7 +4,7 @@
 // IWYU pragma: no_include <map>
 // IWYU pragma: no_include <string>
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <array>
 #include <cstddef>

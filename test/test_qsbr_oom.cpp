@@ -1,8 +1,8 @@
-// Copyright 2022-2024 Laurynas Biveinis
+// Copyright (C) 2022-2024 Laurynas Biveinis
 
 #ifndef NDEBUG
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>

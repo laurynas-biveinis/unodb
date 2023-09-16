@@ -99,7 +99,7 @@
             "name": "avx2-off",
             "hidden": true,
             "cacheVariables": {
-                "WITH_AVX2": "OFF"
+                "AVX2": "OFF"
             }
         },
         {

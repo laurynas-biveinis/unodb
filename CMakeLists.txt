@@ -132,7 +132,7 @@ set(ANY_MSVC_CXX_FLAGS "/arch:AVX" "/permissive-")
 # clang-cl warning flags that cl does not understand
 set(MSVC_CLANG_WARNING_FLAGS "-Wno-c++98-compat" "-Wno-c++98-compat-pedantic"
   "-Wno-exit-time-destructors" "-Wno-ctad-maybe-unsupported"
-  "-Wno-global-constructors")
+  "-Wno-global-constructors" "-Wno-unsafe-buffer-usage")
 
 # cl flags that clang-cl does not understand
 set(MSVC_CXX_FLAGS "/external:anglebrackets" "/external:W0")

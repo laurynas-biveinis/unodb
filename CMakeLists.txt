@@ -127,7 +127,7 @@ set(MSVC_CXX_WARNING_FLAGS "/Wall" "/wd4324" "/wd5030" "/wd5072"
   "/wd4868" "/wd5026" "/wd5027" "/wd5045" "/wd5246" "/wd5264")
 
 # Flags for both MSVC cl and clang-cl compilers
-set(ANY_MSVC_CXX_FLAGS "/arch:AVX" "/permissive-")
+set(ANY_MSVC_CXX_FLAGS "/permissive-")
 
 # clang-cl warning flags that cl does not understand
 set(MSVC_CLANG_WARNING_FLAGS "-Wno-c++98-compat" "-Wno-c++98-compat-pedantic"

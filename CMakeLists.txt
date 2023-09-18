@@ -391,10 +391,10 @@ endif()
 # Generator expression helpers
 set(is_release_genex "$<CONFIG:Release>")
 set(is_not_release_genex "$<NOT:${is_release_genex}>")
-set(is_x86_64 "$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>")
+set(is_not_windows_x86_64 "$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>")
+set(is_windows_x86_64 "$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},AMD64>")
 set(is_windows_genex "$<PLATFORM_ID:Windows>")
 set(is_not_windows "$<NOT:${is_windows_genex}>")
-set(is_x86_64_not_windows "$<AND:${is_not_windows},${is_x86_64}>")
 set(is_linux "$<PLATFORM_ID:Linux>")
 set(is_gxx_genex "$<CXX_COMPILER_ID:GNU>")
 set(is_clang_genex "$<CXX_COMPILER_ID:Clang>")
@@ -404,7 +404,7 @@ set(is_msvc "$<CXX_COMPILER_ID:MSVC>")
 # taking MSVC flags. Change to CMAXE_CXX_COMPILER_FRONTEND_VARIANT on 3.14
 set(is_clang_cl "$<AND:${is_windows_genex},${is_clang_genex}>")
 set(is_any_msvc "$<OR:${is_msvc},${is_clang_cl}>")
-set(is_x86_64_any_msvc "$<AND:${is_any_msvc},${is_x86_64}>")
+set(is_x86_64_any_msvc "$<AND:${is_any_msvc},${is_windows_x86_64}>")
 set(is_clang_not_windows "$<AND:${is_clang_genex},${is_not_windows}>")
 set(cxx_ge_11 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>")
 set(cxx_ge_12 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,12.0>")
@@ -537,7 +537,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<${is_clang_ge_14_not_windows}:${CLANG_GE_14_CXX_FLAGS}>"
     # Architecture
     "$<${is_x86_64_any_msvc}:$<IF:${has_avx2},/arch:AVX2,/arch:AVX>>"
-    "$<${is_x86_64_not_windows}:$<IF:${has_avx2},-mavx2,-msse4.1>>"
+    "$<${is_not_windows_x86_64}:$<IF:${has_avx2},-mavx2,-msse4.1>>"
     # Warnings
     "$<${fatal_warnings_on}:$<IF:${is_any_msvc},/WX,-Werror>>"
     "$<${is_any_msvc}:${MSVC_CXX_WARNING_FLAGS}>"

@@ -10,17 +10,22 @@
 
 #include "olc_art.hpp"
 
+#include <atomic>
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
-#include <memory>       // IWYU pragma: keep
+#include <memory>  // IWYU pragma: keep
+#include <optional>
 #include <type_traits>  // IWYU pragma: keep
 #include <utility>      // IWYU pragma: keep
 
+#include "art_common.hpp"
 #include "art_internal_impl.hpp"
 #include "assert.hpp"
 #include "node_type.hpp"
 #include "optimistic_lock.hpp"
 #include "qsbr.hpp"
+#include "qsbr_ptr.hpp"
 
 namespace unodb::detail {
 

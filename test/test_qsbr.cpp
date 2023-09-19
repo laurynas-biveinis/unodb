@@ -239,7 +239,7 @@ TEST_F(QSBR, QStateOnScopeExitInException) {
   try {
     const unodb::quiescent_state_on_scope_exit qsbr_on_scope_exit;
     throw std::system_error(std::make_error_code(std::errc::invalid_argument));
-  } catch (const std::system_error &) {
+  } catch (const std::system_error &) {  // NOLINT(bugprone-empty-catch)
   }
 }
 

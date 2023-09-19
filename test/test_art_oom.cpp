@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "art.hpp"
+#include "art_common.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
 #include "mutex_art.hpp"

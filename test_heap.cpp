@@ -2,7 +2,7 @@
 
 #include "global.hpp"  // IWYU pragma: keep
 
-#include "test_heap.hpp"
+#include "test_heap.hpp"  // IWYU pragma: keep
 
 // - ASan/TSan do not work with replaced global new/delete:
 //   https://github.com/llvm/llvm-project/issues/20034

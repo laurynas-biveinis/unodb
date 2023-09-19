@@ -4,7 +4,6 @@
 // IWYU pragma: no_include <__iterator/access.h>
 // IWYU pragma: no_include <__utility/move.h>
 // IWYU pragma: no_include <__utility/pair.h>
-// IWYU pragma: no_include <deepstate/DeepState.h>
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <deepstate/Stream.hpp>
 // IWYU pragma: no_include <gsl/span>
@@ -23,6 +22,7 @@
 #include <utility>  // IWYU pragma: keep
 #include <vector>
 
+#include <deepstate/DeepState.h>
 #include <deepstate/DeepState.hpp>
 #include <gsl/util>
 

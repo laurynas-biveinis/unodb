@@ -1,8 +1,10 @@
-// Copyright 2022 Laurynas Biveinis
+// Copyright 2022-2023 Laurynas Biveinis
 
 #include "global.hpp"
 
 #include "qsbr_gtest_utils.hpp"
+
+#include "qsbr.hpp"
 #include "qsbr_test_utils.hpp"
 
 namespace unodb::test {

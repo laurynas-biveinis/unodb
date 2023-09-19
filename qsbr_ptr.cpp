@@ -1,8 +1,8 @@
-// Copyright (C) 2021-2022 Laurynas Biveinis
+// Copyright (C) 2021-2023 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
-#include "qsbr_ptr.hpp"
+#include "qsbr_ptr.hpp"  // IWYU pragma: keep
 
 #ifndef NDEBUG
 #include "qsbr.hpp"

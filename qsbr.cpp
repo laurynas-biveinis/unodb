@@ -6,9 +6,14 @@
 
 #include "qsbr.hpp"
 
+#include <atomic>
+#include <cstdint>
 #include <exception>
 #include <iostream>
+#include <memory>
+#include <mutex>
 #include <new>
+#include <utility>
 
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
 #include <sanitizer/tsan_interface.h>

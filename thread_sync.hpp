@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Laurynas Biveinis
+// Copyright 2020-2023 Laurynas Biveinis
 #ifndef UNODB_DETAIL_THREAD_SYNC_HPP
 #define UNODB_DETAIL_THREAD_SYNC_HPP
 
@@ -36,7 +36,7 @@ class [[nodiscard]] thread_sync final {
   void wait() {
     std::unique_lock lock{sync_mutex};
     // cppcheck-suppress assignBoolToPointer
-    sync.wait(lock, [&flag = flag] { return flag; });
+    sync.wait(lock, [&inner_flag = flag] { return inner_flag; });
     flag = false;
     lock.unlock();
   }

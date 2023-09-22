@@ -5,6 +5,7 @@
 // IWYU pragma: no_include <__iterator/iterator_traits.h>
 // IWYU pragma: no_include <__type_traits/add_lvalue_reference.h>
 // IWYU pragma: no_include <__utility/exchange.h>
+// IWYU pragma: no_include <ext/type_traits>
 
 #include "global.hpp"
 

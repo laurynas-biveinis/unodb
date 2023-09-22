@@ -176,18 +176,6 @@ else()
   message(STATUS "Code coverage reporting not enabled")
 endif()
 
-if(NOT (MSVC AND is_clang))
-  include(CheckIPOSupported)
-  check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
-  if(IPO_SUPPORTED)
-    message(STATUS "Enabling IPO/LTO for release config")
-  else()
-    message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
-  endif()
-else()
-  message(STATUS "Not enabling IPO/LTO due to MSVC LLVM not supporting it")
-endif()
-
 set(SANITIZER_CXX_FLAGS "")
 set(SANITIZER_LD_FLAGS "")
 
@@ -271,6 +259,22 @@ if(SANITIZE_UB)
 endif()
 
 option(STATIC_ANALYSIS "Enable compiler static analysis")
+
+if(MSVC AND is_clang)
+  message(STATUS "Not enabling IPO/LTO due to MSVC LLVM not supporting it")
+elseif(is_clang AND SANITIZE_ADDRESS AND CMAKE_CXX_COMPILER_VERSION
+    VERSION_GREATER_EQUAL 17.0)
+  message(STATUS
+    "Not enabling IPO/LTO due to LLVM clang 17 w/ AddressSanitizer bug")
+else()
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
+  if(IPO_SUPPORTED)
+    message(STATUS "Enabling IPO/LTO for release config")
+  else()
+    message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
+  endif()
+endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 

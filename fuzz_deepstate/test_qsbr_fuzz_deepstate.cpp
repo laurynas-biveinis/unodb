@@ -5,7 +5,6 @@
 // IWYU pragma: no_include <__utility/forward.h>
 // IWYU pragma: no_include <__utility/move.h>
 // IWYU pragma: no_include <__utility/pair.h>
-// IWYU pragma: no_include <deepstate/DeepState.h>
 // IWYU pragma: no_include <__hash_table>
 // IWYU pragma: no_include <deepstate/Stream.hpp>
 
@@ -22,6 +21,7 @@
 #include <utility>  // IWYU pragma: keep
 #include <vector>
 
+#include <deepstate/DeepState.h>
 #include <deepstate/DeepState.hpp>
 
 #include "assert.hpp"

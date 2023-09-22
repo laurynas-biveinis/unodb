@@ -8,10 +8,14 @@
 
 #include "art.hpp"
 
+#include <cstddef>
 #include <iostream>
+#include <optional>
 #include <type_traits>  // IWYU pragma: keep
 #include <utility>      // IWYU pragma: keep
 
+#include "art_common.hpp"
+#include "art_internal.hpp"
 #include "art_internal_impl.hpp"
 #include "assert.hpp"
 #include "in_fake_critical_section.hpp"
@@ -81,6 +85,7 @@ namespace {
 class [[nodiscard]] inode_4 final
     : public unodb::detail::basic_inode_4<art_policy> {
  public:
+  // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using basic_inode_4::basic_inode_4;
 
   template <typename... Args>
@@ -107,6 +112,7 @@ static_assert(sizeof(inode_4) == 56);
 class [[nodiscard]] inode_16 final
     : public unodb::detail::basic_inode_16<art_policy> {
  public:
+  // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using basic_inode_16::basic_inode_16;
 
   template <typename... Args>
@@ -127,6 +133,7 @@ static_assert(sizeof(inode_16) == 160);
 class [[nodiscard]] inode_48 final
     : public unodb::detail::basic_inode_48<art_policy> {
  public:
+  // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using basic_inode_48::basic_inode_48;
 
   template <typename... Args>
@@ -151,6 +158,7 @@ static_assert(sizeof(inode_48) == 656);
 class [[nodiscard]] inode_256 final
     : public unodb::detail::basic_inode_256<art_policy> {
  public:
+  // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using basic_inode_256::basic_inode_256;
 
   template <typename... Args>

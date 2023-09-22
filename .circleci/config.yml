@@ -49,11 +49,11 @@ jobs:
                   curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
                     | sudo apt-key add -
                   echo \
-                    'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main' \
+                    'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main' \
                     | sudo tee -a /etc/apt/sources.list
                   sudo apt-get update
-                  sudo NEEDRESTART_MODE=a apt-get install -y clang-15 \
-                    clang-tidy-15 iwyu
+                  sudo NEEDRESTART_MODE=a apt-get install -y clang-17 \
+                    clang-tidy-17 iwyu
       - when:
           condition:
             and:
@@ -63,8 +63,8 @@ jobs:
             - run:
                 name: Installing dependencies (LLVM Release)
                 command: |
-                  sudo NEEDRESTART_MODE=a apt-get install -y libomp5-15 \
-                    llvm-15 lld-15
+                  sudo NEEDRESTART_MODE=a apt-get install -y libomp5-17 \
+                    llvm-17 lld-17
       - run:
           name: Create build environment
           command: mkdir build
@@ -83,7 +83,7 @@ jobs:
               export CXX=g++-$V
               EXTRA_CMAKE_ARGS=()
             elif [[ $COMPILER == "clang" ]]; then
-              V=15
+              V=17
               export CC=clang-$V
               export CXX=clang++-$V
               if [[ $BUILD_TYPE == "Release" ]]; then
@@ -177,40 +177,41 @@ workflows:
           compiler: gcc
           ubsan: true
       - build:
-          name: clang 15 Debug
+          name: clang 17 Debug
           build_type: Debug
           compiler: clang
       - build:
-          name: clang 15 Debug with ASan
+          name: clang 17 Debug with ASan
           build_type: Debug
           compiler: clang
           asan: true
       - build:
-          name: clang 15 Debug with TSan
+          name: clang 17 Debug with TSan
           build_type: Debug
           compiler: clang
           tsan: true
       - build:
-          name: clang 15 Debug with UBSan
+          name: clang 17 Debug with UBSan
           build_type: Debug
           compiler: clang
           ubsan: true
       - build:
-          name: clang 15 Release
+          name: clang 17 Release
           build_type: Release
           compiler: clang
+      # Test crashes that look like a codegen issue
+      # - build:
+      #     name: clang 17 Release with ASan
+      #     build_type: Release
+      #     compiler: clang
+      #     asan: true
       - build:
-          name: clang 15 Release with ASan
-          build_type: Release
-          compiler: clang
-          asan: true
-      - build:
-          name: clang 15 Release with TSan
+          name: clang 17 Release with TSan
           build_type: Release
           compiler: clang
           tsan: true
       - build:
-          name: clang 15 Release with UBSan
+          name: clang 17 Release with UBSan
           build_type: Release
           compiler: clang
           ubsan: true

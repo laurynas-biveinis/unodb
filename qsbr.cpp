@@ -10,10 +10,10 @@
 #include <cstdint>
 #include <exception>
 #include <iostream>
-#include <memory>
-#include <mutex>
+#include <memory>  // IWYU pragma: keep
+#include <mutex>   // IWYU pragma: keep
 #include <new>
-#include <utility>
+#include <utility>  // IWYU pragma: keep
 
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
 #include <sanitizer/tsan_interface.h>

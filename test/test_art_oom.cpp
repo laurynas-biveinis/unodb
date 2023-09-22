@@ -6,7 +6,6 @@
 // IWYU pragma: no_forward_declare unodb::mutex_db
 // IWYU pragma: no_forward_declare unodb::olc_db
 // IWYU pragma: no_include <array>
-// IWYU pragma: no_include "art_common.hpp"
 // IWYU pragma: no_include "gtest/gtest.h"
 
 #include "global.hpp"  // IWYU pragma: keep
@@ -16,7 +15,7 @@
 #include <gtest/gtest.h>
 
 #include "art.hpp"
-#include "art_common.hpp"
+#include "art_common.hpp"  // IWYU pragma: keep
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
 #include "mutex_art.hpp"

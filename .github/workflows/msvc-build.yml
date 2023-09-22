@@ -14,16 +14,14 @@ jobs:
           - name: MSVC Release
             preset: "msvc-release"
 
-          # FIXME(laurynas): Google Test 1.12.1 gets an ASan error on printing
-          # some of the test names
-          # - name: MSVC Release with ASan
-          #   preset: "msvc-release-asan"
+          - name: MSVC Release with ASan
+            preset: "msvc-release-asan"
 
           - name: MSVC Debug
             preset: "msvc-debug"
 
-          # - name: MSVC Debug with ASan
-          #   preset: "msvc-debug-asan"
+          - name: MSVC Debug with ASan
+            preset: "msvc-debug-asan"
 
           - name: MSVC LLVM Release
             preset: "msvc-llvm-release"
@@ -56,7 +54,7 @@ jobs:
       - name: Setup command line tools
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          toolset: 14.35
+          toolset: 14.37
 
       - name: Configure CMake
         run: cmake --preset "${{ matrix.preset }}"

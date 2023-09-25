@@ -5,23 +5,6 @@
 #   false positives under clang-tidy.
 # - bugprone-easily-swappable-parameters: too many suppressions for otherwise
 #   unfixable signatures
-# - bugprone-exception-escape: buggy, revisit after the following are fixed:
-#   - https://github.com/llvm/llvm-project/issues/55143 (clang-tidy:
-#     bugprone-exception-escape: explicitly defined move constructor may not
-#     thhrow)
-#   - https://github.com/llvm/llvm-project/issues/54956
-#     ([clang-tidy][ExceptionAnalyzer] Does not model noexcept bounds)
-#   - https://github.com/llvm/llvm-project/issues/54668 ([clang-tidy]
-#     bugprone-exception-escape reported for structs with std::string)
-#   - https://github.com/llvm/llvm-project/issues/51596
-#     (bugprone-exception-escape in std::variant::operator=())
-#   - https://github.com/llvm/llvm-project/issues/49151
-#     (bugprone-exception-escape reported for boost::beast::http::response)
-#   - https://github.com/llvm/llvm-project/issues/43667
-#     (bugprone-exception-escape false positive with is_nothrow_invokable)
-#   - https://github.com/llvm/llvm-project/issues/40583
-#     (bugprone-exception-escape generated for destructor marked with
-#     noexcept(false))
 # - cppcoreguidelines-avoid-c-arrays: duplicated by modernize-avoid-c-arrays
 # - cppcoreguidelines-macro-usage: does not respect __LINE__ in macro definition
 # - cppcoreguidelines-pro-bounds-pointer-arithmetic: because leaf nodes are
@@ -33,7 +16,7 @@
 # - hicpp-no-assembler: Valgrind client requests
 # - modernize-use-equals-default: until foo() noexcept = default is accepted by
 #   clang
-Checks: '*,-altera-id-dependent-backward-branch,-altera-struct-pack-align,-altera-unroll-loops,-bugprone-easily-swappable-parameters,-bugprone-exception-escape,-bugprone-use-after-move,-clang-diagnostic-error,-clang-analyzer-core.CallAndMessage,-clang-analyzer-core.NonNullParamChecker,-clang-analyzer-cplusplus.Move,-clang-analyzer-unix.Malloc,-cppcoreguidelines-avoid-c-arrays,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-init-variables,-cppcoreguidelines-macro-usage,-cppcoreguidelines-non-private-member-variables-in-classes,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-cppcoreguidelines-pro-bounds-constant-array-index,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cppcoreguidelines-pro-type-const-cast,-cppcoreguidelines-pro-type-cstyle-cast,-cppcoreguidelines-pro-type-member-init,-cppcoreguidelines-pro-type-reinterpret-cast,-cppcoreguidelines-pro-type-static-cast-downcast,-cppcoreguidelines-pro-type-union-access,-fuchsia-default-arguments-calls,-fuchsia-default-arguments-declarations,-fuchsia-overloaded-operator,-google-readability-braces-around-statements,-google-runtime-references,-hicpp-avoid-c-arrays,-hicpp-braces-around-statements,-hicpp-explicit-conversions,-hicpp-invalid-access-moved,-hicpp-member-init,-hicpp-named-parameter,-hicpp-no-array-decay,-hicpp-no-assembler,-hicpp-use-equals-default,-llvm-include-order,-llvmlibc*,-misc-no-recursion,-misc-non-private-member-variables-in-classes,-modernize-use-equals-default,-modernize-use-trailing-return-type,-portability-simd-intrinsics,-readability-braces-around-statements,-readability-function-cognitive-complexity,-readability-identifier-length,-readability-named-parameter,-readability-magic-numbers'
+Checks: '*,-altera-id-dependent-backward-branch,-altera-struct-pack-align,-altera-unroll-loops,-bugprone-easily-swappable-parameters,-bugprone-use-after-move,-clang-diagnostic-error,-clang-analyzer-core.CallAndMessage,-clang-analyzer-core.NonNullParamChecker,-clang-analyzer-cplusplus.Move,-clang-analyzer-unix.Malloc,-cppcoreguidelines-avoid-c-arrays,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-init-variables,-cppcoreguidelines-macro-usage,-cppcoreguidelines-non-private-member-variables-in-classes,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-cppcoreguidelines-pro-bounds-constant-array-index,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cppcoreguidelines-pro-type-const-cast,-cppcoreguidelines-pro-type-cstyle-cast,-cppcoreguidelines-pro-type-member-init,-cppcoreguidelines-pro-type-reinterpret-cast,-cppcoreguidelines-pro-type-static-cast-downcast,-cppcoreguidelines-pro-type-union-access,-fuchsia-default-arguments-calls,-fuchsia-default-arguments-declarations,-fuchsia-overloaded-operator,-google-readability-braces-around-statements,-google-runtime-references,-hicpp-avoid-c-arrays,-hicpp-braces-around-statements,-hicpp-explicit-conversions,-hicpp-invalid-access-moved,-hicpp-member-init,-hicpp-named-parameter,-hicpp-no-array-decay,-hicpp-no-assembler,-hicpp-use-equals-default,-llvm-include-order,-llvmlibc*,-misc-no-recursion,-misc-non-private-member-variables-in-classes,-modernize-use-equals-default,-modernize-use-trailing-return-type,-portability-simd-intrinsics,-readability-braces-around-statements,-readability-function-cognitive-complexity,-readability-identifier-length,-readability-named-parameter,-readability-magic-numbers'
 WarningsAsErrors: '*'
 CheckOptions:
   - key: performance-unnecessary-value-param.AllowedTypes

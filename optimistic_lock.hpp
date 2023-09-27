@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2022 Laurynas Biveinis
+// Copyright (C) 2019-2023 Laurynas Biveinis
 #ifndef UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
 #define UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
 
@@ -68,7 +68,89 @@ inline void spin_wait_loop_body() noexcept {
 // lock version change, which indicates the need to restart
 class [[nodiscard]] optimistic_lock final {
  private:
-  using version_type = std::uint64_t;
+  class [[nodiscard]] version_type final {
+   public:
+    explicit constexpr version_type(std::uint64_t version_val) noexcept
+        : version{version_val} {}
+
+    [[nodiscard, gnu::const]] constexpr bool is_write_locked() const noexcept {
+      return (version & 2U) != 0U;
+    }
+
+    [[nodiscard, gnu::const]] constexpr bool is_free() const noexcept {
+      return (version & 3U) == 0U;
+    }
+
+    [[nodiscard, gnu::const]] constexpr bool is_obsolete() const noexcept {
+      return (version & 1U) != 0U;
+    }
+
+    [[nodiscard, gnu::const]] constexpr version_type set_locked_bit()
+        const noexcept {
+      UNODB_DETAIL_ASSERT(is_free());
+      return version_type{version + 2};
+    }
+
+    [[nodiscard]] constexpr std::uint64_t get() const noexcept {
+      return version;
+    }
+
+    [[nodiscard]] constexpr bool operator==(version_type other) const noexcept {
+      return version == other.version;
+    }
+
+    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
+      os << "version = 0x" << std::hex << std::setfill('0') << std::setw(8)
+         << version << std::dec;
+      if (is_write_locked()) os << " (write locked)";
+      if (is_obsolete()) os << " (obsoleted)";
+    }
+
+   private:
+    std::uint64_t version{0};
+  };
+
+  class [[nodiscard]] atomic_version_type final {
+   public:
+    [[nodiscard]] version_type load() const noexcept {
+      return version_type{version.load(std::memory_order_acquire)};
+    }
+
+    [[nodiscard]] version_type load_relaxed() const noexcept {
+      return version_type{version.load(std::memory_order_relaxed)};
+    }
+
+    [[nodiscard]] bool cas(version_type expected,
+                           version_type new_val) noexcept {
+      auto expected_val = expected.get();
+      return UNODB_DETAIL_LIKELY(version.compare_exchange_strong(
+          expected_val, new_val.get(), std::memory_order_acquire,
+          std::memory_order_relaxed));
+    }
+
+    void write_unlock() noexcept {
+      UNODB_DETAIL_ASSERT(load().is_write_locked());
+
+      version.fetch_add(2, std::memory_order_release);
+    }
+
+    void write_unlock_and_obsolete() noexcept {
+      UNODB_DETAIL_ASSERT(load().is_write_locked());
+
+      version.fetch_add(3, std::memory_order_release);
+#ifndef NDEBUG
+      const auto current_version{load()};
+      UNODB_DETAIL_ASSERT(!current_version.is_write_locked());
+      UNODB_DETAIL_ASSERT(current_version.is_obsolete());
+#endif
+    }
+
+   private:
+    std::atomic<std::uint64_t> version;
+
+    static_assert(decltype(version)::is_always_lock_free,
+                  "Must use always lock-free atomics");
+  };
 
  public:
   class write_guard;
@@ -128,7 +210,7 @@ class [[nodiscard]] optimistic_lock final {
 
    private:
     optimistic_lock *lock{nullptr};
-    version_type version{};
+    version_type version{0};
 
     friend class write_guard;
   };
@@ -192,15 +274,15 @@ class [[nodiscard]] optimistic_lock final {
 
   [[nodiscard]] read_critical_section try_read_lock() noexcept {
     while (true) {
-      const auto current_version = version.load(std::memory_order_acquire);
-      if (UNODB_DETAIL_LIKELY(is_free(current_version))) {
+      const auto current_version = version.load();
+      if (UNODB_DETAIL_LIKELY(current_version.is_free())) {
         inc_read_lock_count();
         return read_critical_section{*this, current_version};
       }
       // LCOV_EXCL_START
-      if (UNODB_DETAIL_UNLIKELY(is_obsolete(current_version)))
+      if (UNODB_DETAIL_UNLIKELY(current_version.is_obsolete()))
         return read_critical_section{};
-      UNODB_DETAIL_ASSERT(is_write_locked(current_version));
+      UNODB_DETAIL_ASSERT(current_version.is_write_locked());
       spin_wait_loop_body();
       // LCOV_EXCL_STOP
     }
@@ -212,21 +294,19 @@ class [[nodiscard]] optimistic_lock final {
   }
 
   [[nodiscard]] bool is_obsoleted_by_this_thread() const noexcept {
-    return is_obsolete(version.load(std::memory_order_acquire)) &&
+    return version.load().is_obsolete() &&
            std::this_thread::get_id() == obsoleter_thread;
   }
 
   [[nodiscard]] bool is_write_locked() const noexcept {
-    return is_write_locked(version.load(std::memory_order_acquire));
+    return version.load().is_write_locked();
   }
 #endif
 
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
-    const auto dump_version = version.load(std::memory_order_acquire);
-    os << "lock: version = 0x" << std::hex << std::setfill('0') << std::setw(8)
-       << dump_version << std::dec;
-    if (is_write_locked(dump_version)) os << " (write locked)";
-    if (is_obsolete(dump_version)) os << " (obsoleted)";
+    const auto dump_version = version.load();
+    os << "lock: ";
+    dump_version.dump(os);
 #ifndef NDEBUG
     os << " current read lock count = "
        << read_lock_count.load(std::memory_order_acquire);
@@ -240,8 +320,7 @@ class [[nodiscard]] optimistic_lock final {
 #ifndef UNODB_DETAIL_THREAD_SANITIZER
     std::atomic_thread_fence(std::memory_order_acquire);
 #endif
-    const auto result{locked_version ==
-                      version.load(std::memory_order_relaxed)};
+    const auto result{locked_version == version.load_relaxed()};
 #ifndef NDEBUG
     if (UNODB_DETAIL_UNLIKELY(!result)) dec_read_lock_count();
 #endif
@@ -259,57 +338,22 @@ class [[nodiscard]] optimistic_lock final {
 
   [[nodiscard]] bool try_upgrade_to_write_lock(
       version_type locked_version) noexcept {
-    const auto result{version.compare_exchange_strong(
-        locked_version, set_locked_bit(locked_version),
-        std::memory_order_acquire)};
+    const auto result{
+        version.cas(locked_version, locked_version.set_locked_bit())};
     dec_read_lock_count();
     return UNODB_DETAIL_LIKELY(result);
   }
 
-  void write_unlock() noexcept {
-    UNODB_DETAIL_ASSERT(is_write_locked());
-
-    version.fetch_add(2, std::memory_order_release);
-  }
+  void write_unlock() noexcept { version.write_unlock(); }
 
   void write_unlock_and_obsolete() noexcept {
-    UNODB_DETAIL_ASSERT(is_write_locked());
-
-    version.fetch_add(3, std::memory_order_release);
+    version.write_unlock_and_obsolete();
 #ifndef NDEBUG
     obsoleter_thread = std::this_thread::get_id();
-
-    const auto current_version{version.load(std::memory_order_acquire)};
-    UNODB_DETAIL_ASSERT(!is_write_locked(current_version));
-    UNODB_DETAIL_ASSERT(is_obsolete(current_version));
 #endif
   }
 
-  [[nodiscard, gnu::const]] static constexpr bool is_write_locked(
-      version_type version) noexcept {
-    return (version & 2U) != 0U;
-  }
-
-  [[nodiscard, gnu::const]] static constexpr bool is_free(
-      version_type version) noexcept {
-    return (version & 3U) == 0U;
-  }
-
-  [[nodiscard, gnu::const]] static constexpr version_type set_locked_bit(
-      version_type version) noexcept {
-    UNODB_DETAIL_ASSERT(is_free(version));
-    return version + 2;
-  }
-
-  [[nodiscard, gnu::const]] static constexpr bool is_obsolete(
-      version_type version) noexcept {
-    return (version & 1U) != 0U;
-  }
-
-  std::atomic<version_type> version{0};
-
-  static_assert(decltype(version)::is_always_lock_free,
-                "Must use always lock-free atomics");
+  atomic_version_type version{};
 
 #ifndef NDEBUG
   mutable std::atomic<std::int64_t> read_lock_count{0};

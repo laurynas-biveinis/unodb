@@ -2,6 +2,7 @@
 
 // IWYU pragma: no_include <__algorithm/find.h>
 // IWYU pragma: no_include <__algorithm/shuffle.h>
+// IWYU pragma: no_include <random>
 
 #include "global.hpp"  // IWYU pragma: keep
 

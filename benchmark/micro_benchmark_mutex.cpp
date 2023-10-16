@@ -1,4 +1,6 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2023 Laurynas Biveinis
+
+// IWYU pragma: no_include <memory>
 
 #include "global.hpp"  // IWYU pragma: keep
 

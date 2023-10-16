@@ -81,7 +81,14 @@ class [[nodiscard]] optimistic_lock final {
       return (version & 3U) == 0U;
     }
 
-    [[nodiscard, gnu::const]] constexpr bool is_obsolete() const noexcept {
+    // Force inline because LLVM 14-17 and possibly later versions generate a
+    // call to outline version from optimistic_lock::try_lock in release build
+    // with UBSan. That same method is apparently miscompiled in that its loop
+    // only checks whether the lock is free but never if it's obsolete,
+    // resulting in hangs. Forcing to inline seems to make that issue to go away
+    // too.
+    [[nodiscard, gnu::const]] UNODB_DETAIL_FORCE_INLINE constexpr bool
+    is_obsolete() const noexcept {
       return (version & 1U) != 0U;
     }
 

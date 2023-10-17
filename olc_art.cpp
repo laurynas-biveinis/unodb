@@ -4,6 +4,7 @@
 // IWYU pragma: no_include <__type_traits/is_standard_layout.h>
 // IWYU pragma: no_include <__utility/forward.h>
 // IWYU pragma: no_include <__utility/move.h>
+// IWYU pragma: no_include <bits/utility.h>
 
 #include "art_internal.hpp"
 #include "global.hpp"

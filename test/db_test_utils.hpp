@@ -5,6 +5,7 @@
 // IWYU pragma: no_include <__algorithm/equal.h>
 // IWYU pragma: no_include <__iterator/access.h>
 // IWYU pragma: no_include <__type_traits/conditional.h>
+// IWYU pragma: no_include <iterator>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gmock/gmock.h"
 // IWYU pragma: no_include "gtest/gtest.h"

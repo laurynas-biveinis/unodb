@@ -3,6 +3,7 @@
 // IWYU pragma: no_include <__random/geometric_distribution.h>
 // IWYU pragma: no_include <__random/mersenne_twister_engine.h>
 // IWYU pragma: no_include <__random/random_device.h>
+// IWYU pragma: no_include <memory>
 // IWYU pragma: no_include "gtest/gtest.h"
 
 #include "global.hpp"

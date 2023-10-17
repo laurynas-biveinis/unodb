@@ -6,6 +6,7 @@
 // IWYU pragma: no_include <__utility/move.h>
 // IWYU pragma: no_include <__utility/pair.h>
 // IWYU pragma: no_include <__hash_table>
+// IWYU pragma: no_include <memory>
 // IWYU pragma: no_include <deepstate/Stream.hpp>
 
 #include "global.hpp"

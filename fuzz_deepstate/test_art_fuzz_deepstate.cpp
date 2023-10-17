@@ -5,6 +5,7 @@
 // IWYU pragma: no_include <__utility/move.h>
 // IWYU pragma: no_include <__utility/pair.h>
 // IWYU pragma: no_include <array>
+// IWYU pragma: no_include <iterator>
 // IWYU pragma: no_include <deepstate/Stream.hpp>
 // IWYU pragma: no_include <gsl/span>
 
@@ -15,11 +16,11 @@
 #include <cstdint>
 #include <limits>
 #include <new>
-#include <optional>
+#include <optional>  // IWYU pragma: keep
 #include <sstream>
 #include <tuple>
-#include <unordered_map>
-#include <utility>  // IWYU pragma: keep
+#include <unordered_map>  // IWYU pragma: keep
+#include <utility>        // IWYU pragma: keep
 #include <vector>
 
 #include <deepstate/DeepState.h>

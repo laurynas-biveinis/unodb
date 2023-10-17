@@ -3,6 +3,7 @@
 // IWYU pragma: no_include <__type_traits/is_empty.h>
 // IWYU pragma: no_include <__utility/forward.h>
 // IWYU pragma: no_include <__utility/move.h>
+// IWYU pragma: no_include <memory>
 
 #include "global.hpp"
 

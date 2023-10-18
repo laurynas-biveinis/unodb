@@ -53,7 +53,7 @@ class [[nodiscard]] thread_sync final {
   bool flag{false};
 };
 
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables,fuchsia-statically-constructed-objects)
+// NOLINTNEXTLINE(*-non-const-global-variables,*-statically-constructed-objects)
 inline std::array<thread_sync, 6> thread_syncs;
 
 }  // namespace unodb::detail

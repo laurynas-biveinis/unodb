@@ -19,7 +19,7 @@
 void* operator new(std::size_t count) {
   unodb::test::allocation_failure_injector::maybe_fail();
   while (true) {
-    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
+    // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
     void* const result = malloc(count);
     if (UNODB_DETAIL_LIKELY(result != nullptr)) return result;
     // LCOV_EXCL_START
@@ -31,13 +31,13 @@ void* operator new(std::size_t count) {
 }
 
 void operator delete(void* ptr) noexcept {
-  // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
+  // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
   free(ptr);
 }
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wmissing-prototypes")
 void operator delete(void* ptr, std::size_t) noexcept {
-  // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
+  // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
   free(ptr);
 }
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()

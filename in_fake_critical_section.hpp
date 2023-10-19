@@ -30,10 +30,10 @@ class [[nodiscard]] in_fake_critical_section final {
   in_fake_critical_section &operator=(in_fake_critical_section &&) = delete;
 
   // Return nothing as we never chain assignments for now.
-  // NOLINTNEXTLINE(*-assignment-signature,misc-unconventional-assign-operator)
+  // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
   constexpr void operator=(T new_value) noexcept { value = new_value; }
 
-  // NOLINTNEXTLINE(*-assignment-signature,misc-unconventional-assign-operator)
+  // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
   constexpr void operator=(in_fake_critical_section<T> new_value) noexcept {
     value = new_value;
   }

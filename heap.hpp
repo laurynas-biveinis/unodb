@@ -58,7 +58,7 @@ template <typename T>
 
 inline void free_aligned(void* ptr) noexcept {
 #ifndef _MSC_VER
-  // NOLINTNEXTLINE(*-no-malloc,cppcoreguidelines-owning-memory)
+  // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
   free(ptr);
 #else
   _aligned_free(ptr);

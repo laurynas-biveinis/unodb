@@ -281,6 +281,7 @@ jobs:
 
       - name: Set up dependencies for macOS (common)
         run: |
+          sudo -H pip install setuptools
           brew install boost include-what-you-use
         if: runner.os == 'macOS'
 

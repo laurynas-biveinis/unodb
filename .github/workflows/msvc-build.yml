@@ -54,7 +54,7 @@ jobs:
       - name: Setup command line tools
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          toolset: 14.35
+          toolset: 14.29
 
       - name: Configure CMake
         run: cmake --preset "${{ matrix.preset }}"

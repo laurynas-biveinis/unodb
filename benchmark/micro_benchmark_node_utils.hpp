@@ -673,6 +673,7 @@ void full_node_scan_benchmark(::benchmark::State &state) {
     const auto key_limit =
         detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
     for (const auto _ : state) {
+      // cppcheck-suppress useStlAlgorithm
       items_processed += detail::get_key_loop(
           test_db, key_limit,
           detail::number_to_full_node_size_tree_key<NodeSize>);
@@ -990,6 +991,7 @@ void minimal_tree_full_scan(::benchmark::State &state) {
 
   std::int64_t items_processed = 0;
   for (const auto _ : state) {
+    // cppcheck-suppress useStlAlgorithm
     items_processed += detail::get_key_loop(
         test_db, key_limit,
         detail::number_to_minimal_node_size_tree_key<NodeSize>);

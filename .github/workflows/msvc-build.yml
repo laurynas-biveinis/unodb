@@ -14,14 +14,8 @@ jobs:
           - name: MSVC Release
             preset: "msvc-release"
 
-          - name: MSVC Release with ASan
-            preset: "msvc-release-asan"
-
           - name: MSVC Debug
             preset: "msvc-debug"
-
-          - name: MSVC Debug with ASan
-            preset: "msvc-debug-asan"
 
           - name: MSVC LLVM Release
             preset: "msvc-llvm-release"

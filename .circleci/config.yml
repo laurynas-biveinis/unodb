@@ -201,13 +201,11 @@ workflows:
           name: clang 18 Release
           build_type: Release
           compiler: clang
-      # Test crashes that look like a codegen issue:
-      # https://github.com/laurynas-biveinis/unodb/issues/563
-      # - build:
-      #     name: clang 18 Release with ASan
-      #     build_type: Release
-      #     compiler: clang
-      #     asan: true
+      - build:
+          name: clang 18 Release with ASan
+          build_type: Release
+          compiler: clang
+          asan: true
       - build:
           name: clang 18 Release with TSan
           build_type: Release

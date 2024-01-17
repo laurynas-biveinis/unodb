@@ -6,38 +6,21 @@ on: [push]
 jobs:
   sonarcloud:
     name: SonarCloud
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Download and set up sonar-scanner
-        env:
-          SONAR_SCANNER_VERSION: 4.7.0.2747
-          SONAR_SCANNER_DOWNLOAD_URL: |
-            https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
-        run: |
-          mkdir -p "$HOME/.sonar"
-          curl -sSLo "$HOME/.sonar/sonar-scanner.zip" \
-              ${{ env.SONAR_SCANNER_DOWNLOAD_URL }}
-          unzip -o "$HOME/.sonar/sonar-scanner.zip" -d "$HOME/.sonar/"
-          SCANNER_DIR="sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-linux"
-          echo "$HOME/.sonar/$SCANNER_DIR/bin" >> "$GITHUB_PATH"
-
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
-          fetch-depth: 0  # Shallow clones should be disabled for a better
-          # relevancy of analysis
+          # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
 
       - name: Setup dependencies
         run: |
           sudo add-apt-repository -y 'ppa:mhier/libboost-latest'
           sudo apt-get install -y boost1.74
+
+      - name: Setup sonar-scanner
+        uses: sonarsource/sonarcloud-github-c-cpp@v2
 
       - name: Produce Compilation Database
         shell: bash
@@ -49,6 +32,6 @@ jobs:
           # Needed to get PR information, if any
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_SERVER_URL: "https://sonarcloud.io"
         run: |
-          sonar-scanner --define sonar.host.url="${{ env.SONAR_SERVER_URL }}"
+          sonar-scanner --define \
+          sonar.cfamily.compile-commands=compile_commands.json

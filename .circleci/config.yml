@@ -201,7 +201,8 @@ workflows:
           name: clang 17 Release
           build_type: Release
           compiler: clang
-      # Test crashes that look like a codegen issue
+      # Test crashes that look like a codegen issue:
+      # https://github.com/laurynas-biveinis/unodb/issues/563
       # - build:
       #     name: clang 17 Release with ASan
       #     build_type: Release

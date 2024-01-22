@@ -11,26 +11,32 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: MSVC Release
-            preset: "msvc-release"
-
           - name: MSVC Debug
             preset: "msvc-debug"
 
-          - name: MSVC LLVM Release
-            preset: "msvc-llvm-release"
+          - name: MSVC Release
+            preset: "msvc-release"
+
+          - name: MSVC Debug w/ ASan
+            preset: "msvc-debug-asan"
+
+          - name: MSVC Release w/ ASan
+            preset: "msvc-release-asan"
 
           - name: MSVC LLVM Debug
             preset: "msvc-llvm-debug"
 
+          - name: MSVC LLVM Release
+            preset: "msvc-llvm-release"
+
           - name: MSVC Debug without AVX2
             preset: "msvc-debug-no-avx2"
 
-          - name: MSVC Static Analysis Release
-            preset: "msvc-static-analysis-release"
-
           - name: MSVC Static Analysis Debug
             preset: "msvc-static-analysis-debug"
+
+          - name: MSVC Static Analysis Release
+            preset: "msvc-static-analysis-release"
 
     steps:
       - uses: actions/checkout@v3

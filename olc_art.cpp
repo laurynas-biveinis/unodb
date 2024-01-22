@@ -1,4 +1,4 @@
-// Copyright 2019-2023 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 
 // IWYU pragma: no_include <__memory/unique_ptr.h>
 // IWYU pragma: no_include <__type_traits/is_standard_layout.h>
@@ -1189,9 +1189,9 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
 
     if (UNODB_DETAIL_UNLIKELY(!opt_remove_result)) return {};
 
-    const auto remove_result{*opt_remove_result};
+    if (const auto remove_result{*opt_remove_result}; !remove_result)
+      return false;
 
-    if (!remove_result) return false;
     if (child_in_parent == nullptr) return true;
 
     parent_critical_section = std::move(node_critical_section);

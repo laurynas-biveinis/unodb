@@ -279,11 +279,9 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
 
     const auto new_state =
         UNODB_DETAIL_UNLIKELY(remove_thread_from_old_epoch)
-            ? (UNODB_DETAIL_UNLIKELY(advance_epoch)
-                   ? qsbr_state::inc_epoch_dec_thread_count_reset_previous(
-                         old_state)
-                   : qsbr_state::dec_thread_count_and_threads_in_previous_epoch(
-                         old_state))
+            ? qsbr_state::
+                  dec_thread_count_threads_in_previous_epoch_maybe_advance(
+                      old_state, advance_epoch)
             : qsbr_state::dec_thread_count(old_state);
 
     if (UNODB_DETAIL_UNLIKELY(remove_thread_from_old_epoch)) {

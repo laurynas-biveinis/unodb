@@ -328,6 +328,14 @@ struct qsbr_state {
     return result;
   }
 
+  [[nodiscard]] static constexpr auto
+  dec_thread_count_threads_in_previous_epoch_maybe_advance(
+      type word, bool advance_epoch) noexcept {
+    return UNODB_DETAIL_UNLIKELY(advance_epoch)
+               ? inc_epoch_dec_thread_count_reset_previous(word)
+               : dec_thread_count_and_threads_in_previous_epoch(word);
+  }
+
   [[nodiscard]] static auto atomic_fetch_dec_threads_in_previous_epoch(
       std::atomic<type> &word) noexcept;
 

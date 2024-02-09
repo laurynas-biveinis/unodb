@@ -2,7 +2,7 @@
 
 // IWYU pragma: no_include <map>
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <benchmark/benchmark.h>
 

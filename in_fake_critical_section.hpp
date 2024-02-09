@@ -1,8 +1,8 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2023 Laurynas Biveinis
 #ifndef UNODB_DETAIL_IN_FAKE_CRITICAL_SECTION_HPP
 #define UNODB_DETAIL_IN_FAKE_CRITICAL_SECTION_HPP
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <cstddef>
 #include <type_traits>

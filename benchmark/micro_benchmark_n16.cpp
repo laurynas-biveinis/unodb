@@ -3,7 +3,7 @@
 // IWYU pragma: no_include <algorithm>
 // IWYU pragma: no_include <vector>
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <benchmark/benchmark.h>
 

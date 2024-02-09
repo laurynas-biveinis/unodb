@@ -5,7 +5,7 @@
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gtest/gtest.h"
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 namespace unodb::test {
 

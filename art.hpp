@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_ART_HPP
 #define UNODB_DETAIL_ART_HPP
 
@@ -76,6 +76,7 @@ class db final {
     return node_counts[as_i<NodeType>];
   }
 
+  // cppcheck-suppress returnByReference
   [[nodiscard, gnu::pure]] constexpr auto get_node_counts() const noexcept {
     return node_counts;
   }
@@ -86,6 +87,7 @@ class db final {
     return growing_inode_counts[internal_as_i<NodeType>];
   }
 
+  // cppcheck-suppress returnByReference
   [[nodiscard, gnu::pure]] constexpr auto get_growing_inode_counts()
       const noexcept {
     return growing_inode_counts;
@@ -97,6 +99,7 @@ class db final {
     return shrinking_inode_counts[internal_as_i<NodeType>];
   }
 
+  // cppcheck-suppress returnByReference
   [[nodiscard, gnu::pure]] constexpr auto get_shrinking_inode_counts()
       const noexcept {
     return shrinking_inode_counts;

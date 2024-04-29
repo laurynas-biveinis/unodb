@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Laurynas Biveinis
+// Copyright (C) 2019-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_QSBR_HPP
 #define UNODB_DETAIL_QSBR_HPP
 
@@ -861,7 +861,6 @@ class qsbr final {
 static_assert(std::atomic<std::size_t>::is_always_lock_free);
 static_assert(std::atomic<double>::is_always_lock_free);
 
-// cppcheck-suppress uninitMemberVar
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
 inline qsbr_per_thread::qsbr_per_thread()
     : last_seen_quiescent_state_epoch{qsbr::instance().register_thread()},

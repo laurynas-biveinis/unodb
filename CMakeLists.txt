@@ -1,4 +1,4 @@
-# Copyright 2019-2023 Laurynas Biveinis
+# Copyright 2019-2024 Laurynas Biveinis
 cmake_minimum_required(VERSION 3.12)
 
 project(unodb VERSION 0.1
@@ -463,7 +463,10 @@ set(CPPCHECK_ARGS
   "--suppress=unreadVariable"
   # False positives on structured bindings with 2.5
   "--suppress=unassignedVariable"
-  "--suppress=unusedVariable")
+  "--suppress=unusedVariable"
+  # Informational message that fails the build. Remove once cppcheck 2.11 is the
+  # minimum
+  "--suppress=normalCheckLevelMaxBranches")
 
 option(CPPCHECK_AGGRESSIVE "Enable inconclusive cppcheck checks")
 if(CPPCHECK_AGGRESSIVE)

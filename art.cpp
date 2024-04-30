@@ -1,4 +1,4 @@
-// Copyright 2019-2023 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 
 // IWYU pragma: no_include <__type_traits/is_empty.h>
 // IWYU pragma: no_include <__utility/forward.h>
@@ -194,8 +194,8 @@ template <class INode>
 detail::node_ptr *impl_helpers::add_or_choose_subtree(
     INode &inode, std::byte key_byte, art_key k, value_view v, db &db_instance,
     tree_depth depth, detail::node_ptr *node_in_parent) {
-  auto *const child = unwrap_fake_critical_section(
-      static_cast<INode &>(inode).find_child(key_byte).second);
+  auto *const child =
+      unwrap_fake_critical_section(inode.find_child(key_byte).second);
 
   if (child != nullptr) return child;
 

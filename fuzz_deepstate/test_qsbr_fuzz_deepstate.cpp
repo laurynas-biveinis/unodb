@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Laurynas Biveinis
+// Copyright 2021-2024 Laurynas Biveinis
 
 // IWYU pragma: no_include <__algorithm/count_if.h>
 // IWYU pragma: no_include <__iterator/advance.h>
@@ -41,7 +41,7 @@ constexpr auto max_thread_id{102400};
 
 constexpr std::uint64_t object_mem = 0xAABBCCDD22446688ULL;
 
-enum class [[nodiscard]] thread_operation{
+enum class [[nodiscard]] thread_operation : std::uint8_t{
     ALLOCATE_POINTER,       DEALLOCATE_POINTER, TAKE_ACTIVE_POINTER,
     RELEASE_ACTIVE_POINTER, QUIESCENT_STATE,    QUIT_THREAD,
     PAUSE_THREAD,           RESUME_THREAD,      RESET_STATS};

@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2023 Laurynas Biveinis
+// Copyright (C) 2021-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_QSBR_PTR_HPP
 #define UNODB_DETAIL_QSBR_PTR_HPP
 
@@ -98,8 +98,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  [[nodiscard, gnu::pure]] constexpr std::add_lvalue_reference_t<T> operator*()
-      const {
+  [[nodiscard]] constexpr std::add_lvalue_reference_t<T> operator*() const {
     return *ptr;
   }
 

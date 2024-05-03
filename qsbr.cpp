@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Laurynas Biveinis
+// Copyright (C) 2019-2024 Laurynas Biveinis
 
 // IWYU pragma: no_include <__hash_table>
 
@@ -10,10 +10,10 @@
 #include <cstdint>
 #include <exception>
 #include <iostream>
-#include <memory>  // IWYU pragma: keep
-#include <mutex>   // IWYU pragma: keep
+#include <memory>
+#include <mutex>
 #include <new>
-#include <utility>  // IWYU pragma: keep
+#include <utility>
 
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
 #include <sanitizer/tsan_interface.h>

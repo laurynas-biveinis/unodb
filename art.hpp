@@ -4,9 +4,11 @@
 
 #include "global.hpp"
 
+// IWYU pragma: no_include <__fwd/ostream.h>
+
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
+#include <iosfwd>  // IWYU pragma: keep
 #include <optional>
 
 #include "art_common.hpp"

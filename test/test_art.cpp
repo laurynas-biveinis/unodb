@@ -1,4 +1,4 @@
-// Copyright 2019-2023 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>
@@ -14,12 +14,12 @@
 
 #include <gtest/gtest.h>
 
-#include "art.hpp"  // IWYU pragma: keep
+#include "art.hpp"
 #include "art_common.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
-#include "mutex_art.hpp"  // IWYU pragma: keep
-#include "olc_art.hpp"    // IWYU pragma: keep
+#include "mutex_art.hpp"
+#include "olc_art.hpp"
 #include "test_utils.hpp"
 #include "thread_sync.hpp"
 

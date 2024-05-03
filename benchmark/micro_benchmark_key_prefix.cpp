@@ -1,12 +1,10 @@
-// Copyright 2020-2023 Laurynas Biveinis
-
-// IWYU pragma: no_include <__algorithm/find.h>
-// IWYU pragma: no_include <__algorithm/shuffle.h>
-// IWYU pragma: no_include <random>
+// Copyright 2020-2024 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
-#include <algorithm>  // IWYU pragma: keep
+// IWYU pragma: no_include <string>
+
+#include <algorithm>
 #include <cstdint>
 #include <vector>
 

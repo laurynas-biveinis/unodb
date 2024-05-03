@@ -1,17 +1,14 @@
-// Copyright 2022-2023 Laurynas Biveinis
+// Copyright 2022-2024 Laurynas Biveinis
 
-// IWYU pragma: no_include <__algorithm/equal.h>
-// IWYU pragma: no_include <__iterator/access.h>
-// IWYU pragma: no_include <__utility/move.h>
+#include "global.hpp"
+
 // IWYU pragma: no_include <iterator>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gtest/gtest.h"
 
-#include "global.hpp"
-
-#include <algorithm>  // IWYU pragma: keep
+#include <algorithm>
 #include <array>
-#include <utility>  // IWYU pragma: keep
+#include <utility>
 
 #include <gtest/gtest.h>
 #include <gsl/span>

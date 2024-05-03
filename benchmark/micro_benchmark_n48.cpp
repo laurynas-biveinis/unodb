@@ -1,9 +1,8 @@
-// Copyright 2020-2023 Laurynas Biveinis
-
-// IWYU pragma: no_include <algorithm>
-// IWYU pragma: no_include <vector>
+// Copyright 2020-2024 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
+
+// IWYU pragma: no_include <string>
 
 #include <benchmark/benchmark.h>
 

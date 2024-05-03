@@ -1,12 +1,12 @@
-// Copyright 2019-2021 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
 #include "db_test_utils.hpp"
 
-#include "art.hpp"        // IWYU pragma: keep
-#include "mutex_art.hpp"  // IWYU pragma: keep
-#include "olc_art.hpp"    // IWYU pragma: keep
+#include "art.hpp"
+#include "mutex_art.hpp"
+#include "olc_art.hpp"
 
 namespace unodb::test {
 

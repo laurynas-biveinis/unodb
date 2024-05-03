@@ -1,13 +1,4 @@
-// Copyright 2019-2023 Laurynas Biveinis
-
-// IWYU pragma: no_include <__algorithm/equal.h>
-// IWYU pragma: no_include <__iterator/access.h>
-// IWYU pragma: no_include <__utility/move.h>
-// IWYU pragma: no_include <__utility/pair.h>
-// IWYU pragma: no_include <array>
-// IWYU pragma: no_include <iterator>
-// IWYU pragma: no_include <deepstate/Stream.hpp>
-// IWYU pragma: no_include <gsl/span>
+// Copyright 2019-2024 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -20,7 +11,7 @@
 #include <sstream>
 #include <tuple>
 #include <unordered_map>  // IWYU pragma: keep
-#include <utility>        // IWYU pragma: keep
+#include <utility>
 #include <vector>
 
 #include <deepstate/DeepState.h>

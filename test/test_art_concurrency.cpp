@@ -1,16 +1,14 @@
-// Copyright 2021-2023 Laurynas Biveinis
-
-// IWYU pragma: no_include <__random/geometric_distribution.h>
-// IWYU pragma: no_include <__random/mersenne_twister_engine.h>
-// IWYU pragma: no_include <__random/random_device.h>
-// IWYU pragma: no_include <memory>
-// IWYU pragma: no_include "gtest/gtest.h"
+// Copyright 2021-2024 Laurynas Biveinis
 
 #include "global.hpp"
 
+// IWYU pragma: no_include <string>
+// IWYU pragma: no_include <type_traits>
+// IWYU pragma: no_include "gtest/gtest.h"
+
 #include <array>
 #include <cstddef>
-#include <random>  // IWYU pragma: keep
+#include <random>
 
 #include <gtest/gtest.h>
 
@@ -18,8 +16,8 @@
 #include "assert.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
-#include "mutex_art.hpp"  // IWYU pragma: keep
-#include "olc_art.hpp"    // IWYU pragma: keep
+#include "mutex_art.hpp"
+#include "olc_art.hpp"
 #include "qsbr.hpp"
 #include "qsbr_test_utils.hpp"
 

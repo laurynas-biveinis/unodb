@@ -1,17 +1,18 @@
-// Copyright 2019-2023 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_OLC_ART_HPP
 #define UNODB_DETAIL_OLC_ART_HPP
 
-// IWYU pragma: no_include <__tuple_dir/tuple_size.h>
-
 #include "global.hpp"
+
+// IWYU pragma: no_include <__fwd/ostream.h>
 
 #include <array>
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
+#include <iosfwd>  // IWYU pragma: keep
 #include <optional>
+#include <tuple>
 
 #include "art_common.hpp"
 #include "art_internal.hpp"

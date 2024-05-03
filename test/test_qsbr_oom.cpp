@@ -1,11 +1,12 @@
-// Copyright 2022-2023 Laurynas Biveinis
+// Copyright 2022-2024 Laurynas Biveinis
 
 #ifndef NDEBUG
 
-// IWYU pragma: no_include <array>
-// IWYU pragma: no_include "gtest/gtest.h"
-
 #include "global.hpp"  // IWYU pragma: keep
+
+// IWYU pragma: no_include <array>
+// IWYU pragma: no_include <string>
+// IWYU pragma: no_include "gtest/gtest.h"
 
 #include <new>
 

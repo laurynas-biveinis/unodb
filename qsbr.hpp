@@ -4,15 +4,7 @@
 
 #include "global.hpp"
 
-// IWYU pragma: no_include <__functional/function.h>
-// IWYU pragma: no_include <__memory/unique_ptr.h>
-// IWYU pragma: no_include <__type_traits/enable_if.h>
-// IWYU pragma: no_include <__type_traits/remove_cv.h>
-// IWYU pragma: no_include <__type_traits/remove_reference.h>
-// IWYU pragma: no_include <__utility/forward.h>
-// IWYU pragma: no_include <__utility/move.h>
-// IWYU pragma: no_include <__mutex_base>
-// IWYU pragma: no_include <boost/cstdint.hpp>
+// IWYU pragma: no_include <__fwd/ostream.h>
 // IWYU pragma: no_include <boost/fusion/iterator/deref.hpp>
 
 #include <atomic>
@@ -20,26 +12,26 @@
 #include <cstdint>
 #include <exception>
 #ifndef NDEBUG
-#include <functional>  // IWYU pragma: keep
+#include <functional>
 #endif
 #include <iostream>
-#include <memory>  // IWYU pragma: keep
-#include <mutex>   // IWYU pragma: keep
+#include <memory>
+#include <mutex>
 #ifndef NDEBUG
 #include <optional>
 #endif
 #include <system_error>
 #include <thread>
-#include <type_traits>  // IWYU pragma: keep
+#include <type_traits>
 #ifndef NDEBUG
 #include <unordered_set>
 #endif
-#include <utility>  // IWYU pragma: keep
+#include <utility>
 #include <vector>
 
 #include <gsl/util>
 
-#include <boost/accumulators/accumulators_fwd.hpp>
+#include <boost/accumulators/accumulators_fwd.hpp>  // IWYU pragma: keep
 #include <boost/accumulators/framework/accumulator_set.hpp>
 #include <boost/accumulators/framework/extractor.hpp>
 #include <boost/accumulators/statistics/max.hpp>

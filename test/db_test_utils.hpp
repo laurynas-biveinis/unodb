@@ -1,26 +1,25 @@
-// Copyright 2019-2023 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_DB_TEST_UTILS_HPP
 #define UNODB_DETAIL_DB_TEST_UTILS_HPP
 
-// IWYU pragma: no_include <__algorithm/equal.h>
-// IWYU pragma: no_include <__iterator/access.h>
-// IWYU pragma: no_include <__type_traits/conditional.h>
+#include "global.hpp"
+
+// IWYU pragma: no_include <__fwd/sstream.h>
 // IWYU pragma: no_include <iterator>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gmock/gmock.h"
 // IWYU pragma: no_include "gtest/gtest.h"
 
-#include "global.hpp"
-
-#include <algorithm>  // IWYU pragma: keep
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
 #include <iostream>
+#include <sstream>
 #include <thread>
 #include <tuple>
-#include <type_traits>  // IWYU pragma: keep
+#include <type_traits>
 #include <unordered_map>
 
 #include <gmock/gmock.h>  // IWYU pragma: keep

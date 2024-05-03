@@ -1,12 +1,14 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_ART_COMMON_HPP
 #define UNODB_DETAIL_ART_COMMON_HPP
 
 #include "global.hpp"
 
+// IWYU pragma: no_include <__fwd/ostream.h>
+
 #include <cstddef>
 #include <cstdint>
-#include <iosfwd>
+#include <iosfwd>  // IWYU pragma: keep
 
 #include <gsl/span>
 

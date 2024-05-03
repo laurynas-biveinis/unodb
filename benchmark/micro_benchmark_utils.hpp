@@ -1,9 +1,6 @@
-// Copyright 2019-2023 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_MICRO_BENCHMARK_UTILS_HPP
 #define UNODB_DETAIL_MICRO_BENCHMARK_UTILS_HPP
-
-// IWYU pragma: no_include <__random/mersenne_twister_engine.h>
-// IWYU pragma: no_include <__random/random_device.h>
 
 #include "global.hpp"
 
@@ -12,7 +9,7 @@
 #ifndef NDEBUG
 #include <iostream>
 #endif
-#include <random>  // IWYU pragma: keep
+#include <random>
 
 #include <benchmark/benchmark.h>
 

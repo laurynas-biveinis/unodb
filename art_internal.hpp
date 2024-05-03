@@ -1,20 +1,18 @@
-// Copyright 2019-2023 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_ART_INTERNAL_HPP
 #define UNODB_DETAIL_ART_INTERNAL_HPP
 
-// IWYU pragma: no_include <__memory/unique_ptr.h>
-// IWYU pragma: no_include <__type_traits/integral_constant.h>
-// IWYU pragma: no_include <__type_traits/underlying_type.h>
-
 #include "global.hpp"
+
+// IWYU pragma: no_include <__fwd/ostream.h>
 
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <iosfwd>
-#include <memory>       // IWYU pragma: keep
-#include <type_traits>  // IWYU pragma: keep
+#include <iosfwd>  // IWYU pragma: keep
+#include <memory>
+#include <type_traits>
 
 #include "art_common.hpp"
 #include "assert.hpp"

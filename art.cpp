@@ -1,10 +1,5 @@
 // Copyright 2019-2024 Laurynas Biveinis
 
-// IWYU pragma: no_include <__type_traits/is_empty.h>
-// IWYU pragma: no_include <__utility/forward.h>
-// IWYU pragma: no_include <__utility/move.h>
-// IWYU pragma: no_include <memory>
-
 #include "global.hpp"
 
 #include "art.hpp"
@@ -12,8 +7,8 @@
 #include <cstddef>
 #include <iostream>
 #include <optional>
-#include <type_traits>  // IWYU pragma: keep
-#include <utility>      // IWYU pragma: keep
+#include <type_traits>
+#include <utility>
 
 #include "art_common.hpp"
 #include "art_internal.hpp"

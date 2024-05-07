@@ -410,8 +410,9 @@ jobs:
         if: env.COVERAGE == 'ON'
 
       - name: Upload coverage data
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v4
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{matrix.BUILD_TYPE}}
           fail_ci_if_error: true
           directory: ${{github.workspace}}/build

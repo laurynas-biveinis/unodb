@@ -416,5 +416,4 @@ jobs:
           flags: ${{matrix.BUILD_TYPE}}
           fail_ci_if_error: true
           directory: ${{github.workspace}}/build
-          functionalities: gcov
         if: env.COVERAGE == 'ON'

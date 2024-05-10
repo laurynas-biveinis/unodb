@@ -473,11 +473,11 @@ class [[nodiscard]] tree_shape_snapshot final {
   explicit constexpr tree_shape_snapshot(
       const Db &test_db UNODB_DETAIL_USED_IN_DEBUG) noexcept
 #ifndef NDEBUG
-      : db{test_db}, stats {
-    test_db
-  }
+      : db{test_db},
+        stats{test_db}
 #endif
-  {}
+  {
+  }
 
   constexpr void assert_internal_levels_same() const noexcept {
 #ifndef NDEBUG

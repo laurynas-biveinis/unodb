@@ -3,6 +3,8 @@ name: experimental-build
 
 on: [push]
 
+permissions: { }
+
 jobs:
   build:
     runs-on: macos-latest

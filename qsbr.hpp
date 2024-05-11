@@ -380,13 +380,11 @@ struct [[nodiscard]] deallocation_request final {
                                 debug_callback dealloc_callback_
 #endif
                                 ) noexcept
-      : pointer {
-    pointer_
-  }
+      : pointer{pointer_}
 #ifndef NDEBUG
-  , dealloc_callback{std::move(dealloc_callback_)}, request_epoch {
-    request_epoch_
-  }
+        ,
+        dealloc_callback{std::move(dealloc_callback_)},
+        request_epoch{request_epoch_}
 #endif
   {
 #ifndef NDEBUG
@@ -424,16 +422,15 @@ class [[nodiscard]] deferred_requests final {
       std::optional<bool> dealloc_epoch_single_thread_mode_
 #endif
       ) noexcept
-      : requests {
-    std::move(requests_)
-  }
+      : requests{std::move(requests_)}
 #ifndef NDEBUG
-  , orphaned_requests{orphaned_requests_}, dealloc_epoch{request_epoch_},
-      dealloc_epoch_single_thread_mode {
-    dealloc_epoch_single_thread_mode_
-  }
+        ,
+        orphaned_requests{orphaned_requests_},
+        dealloc_epoch{request_epoch_},
+        dealloc_epoch_single_thread_mode{dealloc_epoch_single_thread_mode_}
 #endif
-  {}
+  {
+  }
 
   deferred_requests(const deferred_requests &) noexcept = delete;
   deferred_requests(deferred_requests &&) noexcept = delete;

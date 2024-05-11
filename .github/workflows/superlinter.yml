@@ -4,23 +4,29 @@ name: Super-Linter
 # Run this workflow every time a new commit pushed to your repository
 on: push
 
+permissions: { }
+
 jobs:
-  # Set the job key. The key is displayed as the job name
-  # when a job name is not provided
   super-lint:
-    # Name the Job
-    name: Lint code base
-    # Set the type of machine to run on
-    runs-on: ubuntu-22.04
+    name: Lint
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      # To report GitHub Actions status checks
+      statuses: write
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # super-linter needs the full git history to get the
+          # list of files that changed across commits
+          fetch-depth: 0
 
-      # Runs the Super-Linter action
       - name: Run Super-Linter
-        uses: github/super-linter/slim@v4
+        uses: super-linter/super-linter/slim@v6.3.1
         env:
-          DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ANSIBLE: false

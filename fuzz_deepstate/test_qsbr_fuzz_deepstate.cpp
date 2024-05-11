@@ -32,10 +32,17 @@ constexpr auto max_thread_id{102400};
 
 constexpr std::uint64_t object_mem = 0xAABBCCDD22446688ULL;
 
-enum class [[nodiscard]] thread_operation : std::uint8_t{
-    ALLOCATE_POINTER,       DEALLOCATE_POINTER, TAKE_ACTIVE_POINTER,
-    RELEASE_ACTIVE_POINTER, QUIESCENT_STATE,    QUIT_THREAD,
-    PAUSE_THREAD,           RESUME_THREAD,      RESET_STATS};
+enum class [[nodiscard]] thread_operation : std::uint8_t {
+  ALLOCATE_POINTER,
+  DEALLOCATE_POINTER,
+  TAKE_ACTIVE_POINTER,
+  RELEASE_ACTIVE_POINTER,
+  QUIESCENT_STATE,
+  QUIT_THREAD,
+  PAUSE_THREAD,
+  RESUME_THREAD,
+  RESET_STATS
+};
 
 thread_operation thread_op;
 std::size_t op_thread_i;

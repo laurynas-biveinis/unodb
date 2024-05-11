@@ -8,6 +8,8 @@ env:
   DEFAULT_SANITIZE_THREAD: OFF
   DEFAULT_SANITIZE_UB: OFF
 
+permissions: { }
+
 jobs:
   build:
     runs-on: ${{matrix.os}}

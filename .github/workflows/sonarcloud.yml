@@ -3,6 +3,8 @@ name: sonarcloud
 
 on: [push]
 
+permissions: { }
+
 jobs:
   sonarcloud:
     name: SonarCloud

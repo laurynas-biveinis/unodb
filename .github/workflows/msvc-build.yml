@@ -3,6 +3,8 @@ name: msvc-build
 
 on: [push]
 
+permissions: { }
+
 jobs:
   build:
     runs-on: windows-2022

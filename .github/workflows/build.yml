@@ -12,6 +12,8 @@ env:
   DEFAULT_COVERAGE: OFF
   DEFAULT_AVX2: ON
 
+permissions: { }
+
 jobs:
   build:
     runs-on: ${{matrix.os}}

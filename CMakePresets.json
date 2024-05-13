@@ -251,6 +251,14 @@
             ]
         },
         {
+            "name": "llvm-apple-silicon-release-asan",
+            "inherits": [
+                "release",
+                "llvm-apple-silicon",
+                "asan"
+            ]
+        },
+        {
             "name": "llvm-apple-silicon-release-tsan",
             "inherits": [
                 "release",
@@ -478,6 +486,11 @@
             "inherits": "base"
         },
         {
+            "name": "llvm-apple-silicon-release-asan",
+            "configurePreset": "llvm-apple-silicon-release-asan",
+            "inherits": "base"
+        },
+        {
             "name": "llvm-apple-silicon-release-tsan",
             "configurePreset": "llvm-apple-silicon-release-tsan",
             "inherits": "base"
@@ -665,6 +678,11 @@
         {
             "name": "llvm-apple-silicon-release",
             "configurePreset": "llvm-apple-silicon-release",
+            "inherits": "base"
+        },
+        {
+            "name": "llvm-apple-silicon-release-asan",
+            "configurePreset": "llvm-apple-silicon-release-asan",
             "inherits": "base"
         },
         {

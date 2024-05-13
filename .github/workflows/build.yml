@@ -155,56 +155,111 @@ jobs:
             COMPILER: clang
             STATIC_ANALYSIS: ON
 
-          - name: XCode Release
+          - name: XCode Release (Intel)
             os: macos-latest
             BUILD_TYPE: Release
             COMPILER: macos-clang
             AVX2: OFF
 
-          - name: XCode Release with ASan
+          - name: XCode Release with ASan (Intel)
             os: macos-latest
             BUILD_TYPE: Release
             COMPILER: macos-clang
             SANITIZE_ADDRESS: ON
             AVX2: OFF
 
-          - name: XCode Release with TSan
+          - name: XCode Release with TSan (Intel)
             os: macos-latest
             BUILD_TYPE: Release
             COMPILER: macos-clang
             SANITIZE_THREAD: ON
             AVX2: OFF
 
-          - name: XCode Release with UBSan
+          - name: XCode Release with UBSan (Intel)
             os: macos-latest
             BUILD_TYPE: Release
             COMPILER: macos-clang
             SANITIZE_UB: ON
             AVX2: OFF
 
-          - name: XCode Debug with cppcheck
+          - name: XCode Debug with cppcheck (Intel)
             os: macos-latest
             BUILD_TYPE: Debug
             COMPILER: macos-clang
             CPPCHECK: ON
             AVX2: OFF
 
-          - name: XCode Debug with ASan
+          - name: XCode Debug with ASan (Intel)
             os: macos-latest
             BUILD_TYPE: Debug
             COMPILER: macos-clang
             SANITIZE_ADDRESS: ON
             AVX2: OFF
 
-          - name: XCode Debug with TSan
+          - name: XCode Debug with TSan (Intel)
             os: macos-latest
             BUILD_TYPE: Debug
             COMPILER: macos-clang
             SANITIZE_THREAD: ON
             AVX2: OFF
 
-          - name: XCode Debug with UBSan
+          - name: XCode Debug with UBSan (Intel)
             os: macos-latest
+            BUILD_TYPE: Debug
+            COMPILER: macos-clang
+            SANITIZE_UB: ON
+            AVX2: OFF
+
+          - name: XCode Release (Apple Silicon)
+            os: macos-14
+            BUILD_TYPE: Release
+            COMPILER: macos-clang
+            AVX2: OFF
+
+          - name: XCode Release with ASan (Apple Silicon)
+            os: macos-14
+            BUILD_TYPE: Release
+            COMPILER: macos-clang
+            SANITIZE_ADDRESS: ON
+            AVX2: OFF
+
+          - name: XCode Release with TSan (Apple Silicon)
+            os: macos-14
+            BUILD_TYPE: Release
+            COMPILER: macos-clang
+            SANITIZE_THREAD: ON
+            AVX2: OFF
+
+          - name: XCode Release with UBSan (Apple Silicon)
+            os: macos-14
+            BUILD_TYPE: Release
+            COMPILER: macos-clang
+            SANITIZE_UB: ON
+            AVX2: OFF
+
+          - name: XCode Debug with cppcheck (Apple Silicon)
+            os: macos-14
+            BUILD_TYPE: Debug
+            COMPILER: macos-clang
+            CPPCHECK: ON
+            AVX2: OFF
+
+          - name: XCode Debug with ASan (Apple Silicon)
+            os: macos-14
+            BUILD_TYPE: Debug
+            COMPILER: macos-clang
+            SANITIZE_ADDRESS: ON
+            AVX2: OFF
+
+          - name: XCode Debug with TSan (Apple Silicon)
+            os: macos-14
+            BUILD_TYPE: Debug
+            COMPILER: macos-clang
+            SANITIZE_THREAD: ON
+            AVX2: OFF
+
+          - name: XCode Debug with UBSan (Apple Silicon)
+            os: macos-14
             BUILD_TYPE: Debug
             COMPILER: macos-clang
             SANITIZE_UB: ON
@@ -283,8 +338,7 @@ jobs:
 
       - name: Set up dependencies for macOS (common)
         run: |
-          sudo -H pip install setuptools
-          brew install boost include-what-you-use
+          brew install boost include-what-you-use python-setuptools
         if: runner.os == 'macOS'
 
       - name: Set up dependencies for macOS (cppcheck)

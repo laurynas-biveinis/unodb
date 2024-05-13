@@ -263,7 +263,8 @@ option(STATIC_ANALYSIS "Enable compiler static analysis")
 if(MSVC AND is_clang)
   message(STATUS "Not enabling IPO/LTO due to MSVC LLVM not supporting it")
 elseif(is_clang AND SANITIZE_ADDRESS AND CMAKE_CXX_COMPILER_VERSION
-    VERSION_GREATER_EQUAL 17.0)
+    VERSION_GREATER_EQUAL 17.0 AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS_EQUAL 18.0)
   message(STATUS
     "Not enabling IPO/LTO due to LLVM clang 17 w/ AddressSanitizer bug")
 else()

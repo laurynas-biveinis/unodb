@@ -33,8 +33,10 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   std::abort();
 }
 
-[[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void crash(
-    const char *file, int line, const char *func) noexcept {
+[[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)
+    UNODB_DETAIL_C_STRING_ARG(3)
+        UNODB_DETAIL_NOINLINE inline void crash(const char *file, int line,
+                                                const char *func) noexcept {
   UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(0);
   std::ostringstream buf;
   buf << "Crash requested at " << file << ':' << line << ", function \"" << func
@@ -48,9 +50,11 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
-[[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE inline void assert_failure(
-    const char *file, int line, const char *func,
-    const char *condition) noexcept {
+[[noreturn, gnu::cold]] UNODB_DETAIL_NOINLINE UNODB_DETAIL_C_STRING_ARG(1)
+    UNODB_DETAIL_C_STRING_ARG(3)
+        UNODB_DETAIL_C_STRING_ARG(4) inline void assert_failure(
+            const char *file, int line, const char *func,
+            const char *condition) noexcept {
   unodb::test::allocation_failure_injector::fail_on_nth_allocation(0);
   std::ostringstream buf;
   buf << "Assertion \"" << condition << "\" failed at " << file << ':' << line
@@ -59,8 +63,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   msg_stacktrace_abort(buf.str());
 }
 
-[[noreturn]] inline void cannot_happen(const char *file, int line,
-                                       const char *func) noexcept {
+[[noreturn]] UNODB_DETAIL_C_STRING_ARG(1)
+    UNODB_DETAIL_C_STRING_ARG(3) inline void cannot_happen(
+        const char *file, int line, const char *func) noexcept {
   unodb::test::allocation_failure_injector::fail_on_nth_allocation(0);
   std::ostringstream buf;
   buf << "Execution reached an unreachable point at " << file << ':' << line
@@ -80,8 +85,8 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #else  // #ifndef NDEBUG
 
-[[noreturn]] inline void cannot_happen(const char *, int,
-                                       const char *) noexcept {
+[[noreturn]] UNODB_DETAIL_C_STRING_ARG(1) UNODB_DETAIL_C_STRING_ARG(
+    3) inline void cannot_happen(const char *, int, const char *) noexcept {
   UNODB_DETAIL_UNREACHABLE();
 }
 

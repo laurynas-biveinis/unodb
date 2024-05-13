@@ -78,6 +78,7 @@
 
 #define UNODB_DETAIL_BUILTIN_ASSUME(x) __builtin_assume(x)
 #define UNODB_DETAIL_LIFETIMEBOUND [[clang::lifetimebound]]
+#define UNODB_DETAIL_C_STRING_ARG(x)
 
 #else
 
@@ -87,6 +88,17 @@
   } while (0)
 
 #define UNODB_DETAIL_LIFETIMEBOUND
+
+#if __GNUG__ >= 14
+
+#define UNODB_DETAIL_C_STRING_ARG(x) \
+  __attribute__((null_terminated_string_arg(x)))
+
+#else
+
+#define UNODB_DETAIL_C_STRING_ARG(x)
+
+#endif
 
 #endif
 
@@ -109,6 +121,7 @@
 #define UNODB_DETAIL_UNREACHABLE() __assume(0)
 #define UNODB_DETAIL_CONSTEXPR_NOT_MSVC inline
 #define UNODB_DETAIL_LIFETIMEBOUND
+#define UNODB_DETAIL_C_STRING_ARG(x)
 
 #endif  // #ifndef UNODB_DETAIL_MSVC
 

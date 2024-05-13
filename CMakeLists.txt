@@ -94,6 +94,8 @@ set(GCC_GE_11_CXX_WARNING_FLAGS
   "-Wctad-maybe-unsupported" "-Wdeprecated-enum-enum-conversion"
   "-Wdeprecated-enum-float-conversion" "-Wvexing-parse")
 set(GCC_GE_12_CXX_WARNING_FLAGS "-Winterference-size")
+set(GCC_GE_14_CXX_WARNING_FLAGS "-Wnrvo" "-Welaborated-enum-base"
+  "-Wdangling-reference")
 
 set(UNIX_CXX_FLAGS "-g")
 
@@ -420,6 +422,7 @@ set(is_clang_ge_13_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_13}>")
 set(is_clang_ge_14_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_14}>")
 set(is_gxx_ge_11 "$<AND:${is_gxx_genex},${cxx_ge_11}>")
 set(is_gxx_ge_12 "$<AND:${is_gxx_genex},${cxx_ge_12}>")
+set(is_gxx_ge_14 "$<AND:${is_gxx_genex},${cxx_ge_14}>")
 set(has_avx2 "$<BOOL:${AVX2}>")
 set(fatal_warnings_on "$<BOOL:${MAINTAINER_MODE}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
@@ -555,6 +558,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<${is_gxx_genex}:${GCC_CXX_WARNING_FLAGS}>"
     "$<${is_gxx_ge_11}:${GCC_GE_11_CXX_WARNING_FLAGS}>"
     "$<${is_gxx_ge_12}:${GCC_GE_12_CXX_WARNING_FLAGS}>"
+    "$<${is_gxx_ge_14}:${GCC_GE_14_CXX_WARNING_FLAGS}>"
     # Optimization
     "$<${is_not_release_genex}:$<IF:${is_windows_genex},/Od,-O0>>"
     "$<$<AND:${is_release_genex},${is_not_windows}>:$<IF:${coverage_on},-O0,-O3>>"

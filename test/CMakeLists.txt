@@ -1,4 +1,4 @@
-# Copyright 2021-2022 Laurynas Biveinis
+# Copyright 2021-2024 Laurynas Biveinis
 
 enable_testing()
 
@@ -10,7 +10,7 @@ function(ADD_COVERAGE_TARGET)
     "${fn_multi_value_args}" ${ARGN})
   set(COV_DATA "coverage-${ARG_TARGET}.info")
   add_custom_target(${ARG_TARGET}
-    COMMAND lcov ${LCOV_GCOV_ARG} --capture --directory . --output-file
+    COMMAND lcov ${LCOV_GCOV_ARG} --capture --directory .. --output-file
     ${COV_DATA}
     COMMAND lcov ${LCOV_GCOV_ARG} --remove ${COV_DATA} '/usr/*' --output-file
     ${COV_DATA}
@@ -69,7 +69,8 @@ target_link_libraries(test_art_concurrency PRIVATE qsbr_test_utils)
 
 if(COVERAGE)
   add_custom_target(tests_for_coverage ctest -E
-    DEPENDS test_art test_art_concurrency test_qsbr_ptr test_qsbr)
+    DEPENDS test_art test_art_concurrency test_qsbr_ptr test_qsbr test_art_oom
+            test_qsbr_oom)
   add_coverage_target(TARGET coverage DEPENDENCY tests_for_coverage)
 endif()
 

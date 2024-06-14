@@ -1,8 +1,8 @@
-// Copyright 2022 Laurynas Biveinis
+// Copyright (C) 2022-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_PORTABILITY_ARCH_HPP
 #define UNODB_DETAIL_PORTABILITY_ARCH_HPP
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <cstddef>
 

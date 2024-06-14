@@ -1,8 +1,8 @@
-// Copyright 2021-2024 Laurynas Biveinis
+// Copyright (C) 2021-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_QSBR_TEST_UTILS_HPP
 #define UNODB_DETAIL_QSBR_TEST_UTILS_HPP
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 namespace unodb::test {
 

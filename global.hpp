@@ -1,6 +1,8 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright (C) 2019-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_GLOBAL_HPP
 #define UNODB_DETAIL_GLOBAL_HPP
+
+// IWYU pragma: always_keep
 
 // Defines that must precede includes
 

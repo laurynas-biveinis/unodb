@@ -1,8 +1,8 @@
-// Copyright 2023 Laurynas Biveinis
+// Copyright (C) 2023-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_TEST_HEAP_HPP
 #define UNODB_DETAIL_TEST_HEAP_HPP
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #ifndef NDEBUG
 

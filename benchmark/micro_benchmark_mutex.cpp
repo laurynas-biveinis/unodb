@@ -1,6 +1,6 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright (C) 2019-2024 Laurynas Biveinis
 
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 // IWYU pragma: no_include <string>
 

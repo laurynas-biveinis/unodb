@@ -106,7 +106,7 @@ jobs:
       - run:
           name: Build
           working_directory: build
-          command: make -j3
+          command: make -j2
       - run:
           name: Correctness test
           working_directory: build

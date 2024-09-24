@@ -97,59 +97,59 @@ jobs:
             os: ubuntu-22.04
             COMPILER: gcc
 
-          - name: clang 18 Release
+          - name: clang 19 Release
             os: ubuntu-22.04
             BUILD_TYPE: Release
             COMPILER: clang
 
-          - name: clang 18 Release with ASan
+          - name: clang 19 Release with ASan
             os: ubuntu-22.04
             BUILD_TYPE: Release
             SANITIZE_ADDRESS: ON
             COMPILER: clang
 
-          - name: clang 18 Release with TSan
+          - name: clang 19 Release with TSan
             os: ubuntu-22.04
             BUILD_TYPE: Release
             SANITIZE_THREAD: ON
             COMPILER: clang
 
-          - name: clang 18 Release with UBSan
+          - name: clang 19 Release with UBSan
             os: ubuntu-22.04
             BUILD_TYPE: Release
             SANITIZE_UB: ON
             COMPILER: clang
 
-          - name: clang 18 Debug
+          - name: clang 19 Debug
             os: ubuntu-22.04
             BUILD_TYPE: Debug
             COMPILER: clang
 
-          - name: clang 18 Debug with ASan
+          - name: clang 19 Debug with ASan
             os: ubuntu-22.04
             BUILD_TYPE: Debug
             SANITIZE_ADDRESS: ON
             COMPILER: clang
 
-          - name: clang 18 Debug with TSan
+          - name: clang 19 Debug with TSan
             os: ubuntu-22.04
             BUILD_TYPE: Debug
             SANITIZE_THREAD: ON
             COMPILER: clang
 
-          - name: clang 18 Debug with UBSan
+          - name: clang 19 Debug with UBSan
             os: ubuntu-22.04
             BUILD_TYPE: Debug
             SANITIZE_UB: ON
             COMPILER: clang
 
-          - name: clang 18 Release static analysis
+          - name: clang 19 Release static analysis
             os: ubuntu-22.04
             BUILD_TYPE: Release
             COMPILER: clang
             STATIC_ANALYSIS: ON
 
-          - name: clang 18 Debug static analysis
+          - name: clang 19 Debug static analysis
             os: ubuntu-22.04
             BUILD_TYPE: Debug
             COMPILER: clang
@@ -306,26 +306,26 @@ jobs:
         run: |
           curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
             | sudo apt-key add -
-          echo 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main' \
+          echo 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main' \
             | sudo tee -a /etc/apt/sources.list
           sudo apt-get update
-          sudo apt-get install -y clang-18 iwyu
+          sudo apt-get install -y clang-19 iwyu
         if: runner.os == 'Linux' && env.COMPILER == 'clang'
 
       - name: Setup dependencies for Linux LLVM (Release)
-        run: sudo apt-get install -y libomp5-18 llvm-18 lld-18
+        run: sudo apt-get install -y libomp5-19 llvm-19 lld-19
         if: >
           runner.os == 'Linux' && env.COMPILER == 'clang'
           && env.BUILD_TYPE == 'Release'
 
       - name: Setup dependencies for Linux LLVM (static analysis)
-        run: sudo apt-get install -y clang-tools-18
+        run: sudo apt-get install -y clang-tools-19
         if: >
           runner.os == 'Linux' && env.COMPILER == 'clang'
           && env.STATIC_ANALYSIS == 'ON'
 
       - name: Setup dependencies for Linux LLVM (not static analysis)
-        run: sudo apt-get install -y clang-tidy-18
+        run: sudo apt-get install -y clang-tidy-19
         if: >
           runner.os == 'Linux' && env.COMPILER == 'clang'
           && env.STATIC_ANALYSIS != 'ON'
@@ -377,7 +377,7 @@ jobs:
             export CC=gcc-$V
             export CXX=g++-$V
           elif [[ $COMPILER == "clang" ]]; then
-            V=18
+            V=19
             export CC=clang-$V
             export CXX=clang++-$V
             if [[ $BUILD_TYPE == "Release" ]]; then
@@ -418,7 +418,7 @@ jobs:
       - name: clang static analysis
         working-directory: ${{github.workspace}}/build
         run: |
-          /usr/bin/scan-build-18 --status-bugs -stats -analyze-headers \
+          /usr/bin/scan-build-19 --status-bugs -stats -analyze-headers \
             --force-analyze-debug-code make -j3;
         if: env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang'
 

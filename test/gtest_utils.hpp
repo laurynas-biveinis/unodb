@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Laurynas Biveinis
+// Copyright 2021-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_GTEST_UTILS_HPP
 #define UNODB_DETAIL_GTEST_UTILS_HPP
 
@@ -15,7 +15,9 @@
 // is not a bug: https://github.com/google/googletest/issues/2271
 #define UNODB_TYPED_TEST_SUITE(Suite, Types)                                \
   UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wgnu-zero-variadic-macro-arguments") \
+  UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wpedantic")                          \
   TYPED_TEST_SUITE(Suite, Types);                                           \
+  UNODB_DETAIL_RESTORE_CLANG_WARNINGS()                                     \
   UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
 #define UNODB_START_TESTS()                \

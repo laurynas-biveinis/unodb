@@ -1,4 +1,4 @@
-// Copyright 2019-2023 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_ART_INTERNAL_IMPL_HPP
 #define UNODB_DETAIL_ART_INTERNAL_IMPL_HPP
 
@@ -855,8 +855,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   constexpr void init(db &db_instance, inode16_type &source_node,
                       std::uint8_t child_to_delete) {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
-                                                          db_instance)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr<inode16_type>(
+            &source_node, db_instance)};
     auto source_keys_itr = source_node.keys.byte_array.cbegin();
     auto keys_itr = keys.byte_array.begin();
     auto source_children_itr = source_node.children.cbegin();
@@ -1188,8 +1188,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   constexpr void init(db &db_instance, inode4_type &source_node,
                       db_leaf_unique_ptr child, tree_depth depth) noexcept {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
-                                                          db_instance)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr<inode4_type>(
+            &source_node, db_instance)};
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
 
 #ifdef UNODB_DETAIL_X86_64
@@ -1225,8 +1225,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   constexpr void init(db &db_instance, inode48_type &source_node,
                       std::uint8_t child_to_delete) noexcept {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
-                                                          db_instance)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr<inode48_type>(
+            &source_node, db_instance)};
     source_node.remove_child_pointer(child_to_delete, db_instance);
     source_node.child_indexes[child_to_delete] = inode48_type::empty_child;
 
@@ -1485,8 +1485,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   constexpr void init(db &db_instance, inode16_type &__restrict source_node,
                       db_leaf_unique_ptr child, tree_depth depth) noexcept {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
-                                                          db_instance)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr<inode16_type>(
+            &source_node, db_instance)};
     auto *const __restrict child_ptr = child.release();
 
     // TODO(laurynas): consider AVX512 scatter?
@@ -1517,8 +1517,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   constexpr void init(db &db_instance, inode256_type &__restrict source_node,
                       std::uint8_t child_to_delete) noexcept {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
-                                                          db_instance)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr<inode256_type>(
+            &source_node, db_instance)};
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
         source_node.children[child_to_delete]
             .load()
@@ -1875,8 +1875,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   constexpr void init(db &db_instance, inode48_type &__restrict source_node,
                       db_leaf_unique_ptr child, tree_depth depth) noexcept {
     const auto reclaim_source_node{
-        ArtPolicy::template make_db_inode_reclaimable_ptr(&source_node,
-                                                          db_instance)};
+        ArtPolicy::template make_db_inode_reclaimable_ptr<inode48_type>(
+            &source_node, db_instance)};
     unsigned children_copied = 0;
     unsigned i = 0;
     while (true) {

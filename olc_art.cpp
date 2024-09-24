@@ -796,6 +796,7 @@ template <node_type NodeType>
 constexpr void olc_db::account_growing_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
+  // NOLINTNEXTLINE(google-readability-casting)
   growing_inode_counts[internal_as_i<NodeType>].fetch_add(
       1, std::memory_order_relaxed);
 }

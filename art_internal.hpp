@@ -5,6 +5,7 @@
 #include "global.hpp"
 
 // IWYU pragma: no_include <__fwd/ostream.h>
+// IWYU pragma: no_include <_string.h>
 
 #include <array>
 #include <cstddef>

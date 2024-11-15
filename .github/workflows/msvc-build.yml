@@ -60,7 +60,7 @@ jobs:
       - name: Setup command line tools
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          toolset: 14.40
+          toolset: 14.42
 
       - name: Configure CMake
         run: |

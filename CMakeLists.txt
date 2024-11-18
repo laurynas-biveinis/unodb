@@ -253,6 +253,15 @@ if(SANITIZE_UB)
   endif()
   set_common_sanitizer_flags()
   list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=undefined")
+  if(is_any_clang)
+    # It was interesting to try -fsanitize=implicit-conversion, but the expected
+    # conversions do not appear to be fully suppressable
+    list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=local-bounds"
+      "-fsanitize=nullability")
+    if(is_clang AND CMAKE_CXX_COMPILE_VERSION VERSION_GREATER_EQUAL 19.0)
+      list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=implicit-bitfield-conversion")
+    endif()
+  endif()
   set(SANITIZER_LD_FLAGS "-fsanitize=undefined")
   string(CONCAT UBSAN_ENV "UBSAN_OPTIONS="
     "print_stacktrace=1:halt_on_error=1:abort_on_error=1")

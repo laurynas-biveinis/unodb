@@ -1907,7 +1907,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
     UNODB_DETAIL_ASSERT(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release(), node_type::LEAF};
-    this->children_count = children_count_ + 1U;
+    this->children_count = gsl::narrow_cast<std::uint8_t>(children_count_ + 1U);
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {

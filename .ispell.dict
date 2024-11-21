@@ -5,3 +5,4 @@ expr
 Nehalem
 AVX
 MSVC
+intrinsics

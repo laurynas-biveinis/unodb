@@ -40,7 +40,7 @@ Some platform-specific notes:
 
 ### Amazon Linux 2023
 
-```
+```bash
 sudo dnf install git gcc g++ cmake boost-devel
 # Optional, if you want to use Boost.Stacktrace:
 git clone https://github.com/ianlancetaylor/libbacktrace

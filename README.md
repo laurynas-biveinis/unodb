@@ -36,6 +36,18 @@ Please note that this personal project only supports the following compilers:
 GCC 10 and later, LLVM 11 and later, XCode 13.2, and MSVC 2022 compilers. If you
 require support for an earlier compiler version, feel free to drop me a note.
 
+Some platform-specific notes:
+
+### Amazon Linux 2023
+
+```
+sudo dnf install git gcc g++ cmake boost-devel
+# Optional, if you want to use Boost.Stacktrace:
+git clone https://github.com/ianlancetaylor/libbacktrace
+(cd libbacktrace && ./configure && make && sudo make install)
+# Build as usual
+```
+
 ## Usage
 
 All the declarations live in the `unodb` namespace, which is omitted in the

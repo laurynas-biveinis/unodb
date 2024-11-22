@@ -19,8 +19,8 @@ set_bool(is_debug CMAKE_BUILD_TYPE STREQUAL "Debug")
 set_bool(is_release CMAKE_BUILD_TYPE STREQUAL "Release")
 set_bool(is_darwin CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 set_bool(is_windows CMAKE_SYSTEM_NAME STREQUAL "Windows")
-set_bool(is_arm "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64"
-  OR "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+set_bool(is_x86_64 "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "AMD64"
+  OR "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
 set_bool(is_apple_clang "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 set_bool(is_clang "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 set_bool(is_gxx "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -374,46 +374,55 @@ RESTORE_CXX_FLAGS_FOR_SUBDIR()
 
 # Do not build DeepState:
 # - under Windows as it's not supported
-# - on ARM
+# - on anything else than x86_64
+# - if 32-bit build is not possible
 # - with GCC under macOS due to https://github.com/trailofbits/deepstate/issues/374
 # - under macOS with ASan or TSan enabled
 if(NOT (is_darwin AND (is_gxx OR SANITIZE_ADDRESS OR SANITIZE_THREAD))
-    AND NOT is_windows AND NOT is_arm)
-  # ThreadSanitizer is not compatible with libfuzzer and LLVM 11 linker crashes
-  # on libfuzzer release build
-  if(is_clang AND NOT(is_release) AND NOT(SANITIZE_THREAD))
-    set(LIBFUZZER_AVAILABLE TRUE)
-    set(BUILD_DEEPSTATE_LIBFUZZER "-DDEEPSTATE_LIBFUZZER=ON")
+    AND NOT is_windows AND is_x86_64)
+  CHECK_INCLUDE_FILE(stdio.h CAN_BUILD_32BIT -m32)
+
+  if(CAN_BUILD_32BIT)
+    message(STATUS "32-bit compilation supported, building DeepState")
+
+    # ThreadSanitizer is not compatible with libfuzzer and LLVM 11 linker crashes
+    # on libfuzzer release build
+    if(is_clang AND NOT(is_release) AND NOT(SANITIZE_THREAD))
+      set(LIBFUZZER_AVAILABLE TRUE)
+      set(BUILD_DEEPSTATE_LIBFUZZER "-DDEEPSTATE_LIBFUZZER=ON")
+    else()
+      set(LIBFUZZER_AVAILABLE FALSE)
+      set(BUILD_DEEPSTATE_LIBFUZZER "-DDEEPSTATE_LIBFUZZER=OFF")
+    endif()
+
+    include(ExternalProject)
+    ExternalProject_Add(3rd_party_deepstate
+      SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rd_party/deepstate"
+      BINARY_DIR "${CMAKE_BINARY_DIR}/3rd_party/deepstate"
+      CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
+      "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+      "-DCMAKE_C_FLAGS=-w -Wno-implicit-function-declaration"
+      "-DCMAKE_CXX_FLAGS=-w" "${BUILD_DEEPSTATE_LIBFUZZER}"
+      INSTALL_COMMAND "")
+    ExternalProject_Get_property(3rd_party_deepstate SOURCE_DIR)
+    ExternalProject_Get_property(3rd_party_deepstate BINARY_DIR)
+
+    add_library(deepstate STATIC IMPORTED)
+    add_dependencies(deepstate 3rd_party_deepstate)
+    target_include_directories(deepstate INTERFACE "${SOURCE_DIR}/src/include/")
+    set_target_properties(deepstate PROPERTIES IMPORTED_LOCATION
+      "${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}deepstate${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
+    if(LIBFUZZER_AVAILABLE)
+      add_library(deepstate_lf STATIC IMPORTED)
+      add_dependencies(deepstate_lf 3rd_party_deepstate)
+      target_include_directories(deepstate_lf INTERFACE
+        "${SOURCE_DIR}/src/include/")
+      set_target_properties(deepstate_lf PROPERTIES IMPORTED_LOCATION
+        "${BINARY_DIR}/libdeepstate_LF.a")
+    endif()
   else()
-    set(LIBFUZZER_AVAILABLE FALSE)
-    set(BUILD_DEEPSTATE_LIBFUZZER "-DDEEPSTATE_LIBFUZZER=OFF")
-  endif()
-
-  include(ExternalProject)
-  ExternalProject_Add(3rd_party_deepstate
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rd_party/deepstate"
-    BINARY_DIR "${CMAKE_BINARY_DIR}/3rd_party/deepstate"
-    CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
-    "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-    "-DCMAKE_C_FLAGS=-w -Wno-implicit-function-declaration"
-    "-DCMAKE_CXX_FLAGS=-w" "${BUILD_DEEPSTATE_LIBFUZZER}"
-    INSTALL_COMMAND "")
-  ExternalProject_Get_property(3rd_party_deepstate SOURCE_DIR)
-  ExternalProject_Get_property(3rd_party_deepstate BINARY_DIR)
-
-  add_library(deepstate STATIC IMPORTED)
-  add_dependencies(deepstate 3rd_party_deepstate)
-  target_include_directories(deepstate INTERFACE "${SOURCE_DIR}/src/include/")
-  set_target_properties(deepstate PROPERTIES IMPORTED_LOCATION
-    "${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}deepstate${CMAKE_STATIC_LIBRARY_SUFFIX}")
-
-  if(LIBFUZZER_AVAILABLE)
-    add_library(deepstate_lf STATIC IMPORTED)
-    add_dependencies(deepstate_lf 3rd_party_deepstate)
-    target_include_directories(deepstate_lf INTERFACE
-      "${SOURCE_DIR}/src/include/")
-    set_target_properties(deepstate_lf PROPERTIES IMPORTED_LOCATION
-      "${BINARY_DIR}/libdeepstate_LF.a")
+    message(STATUS "32-bit compilation not supported, skipping DeepState build")
   endif()
 endif()
 

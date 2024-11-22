@@ -296,6 +296,16 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 find_package(Boost REQUIRED)
+# TODO(laurynas): once the minimum CMake version is at least 3.13, convert to a
+# find_package(Boost) component check
+find_file(HAS_BOOST_STACKTRACE_HPP boost/stacktrace.hpp
+  PATHS "${Boost_INCLUDE_DIRS}")
+
+if(HAS_BOOST_STACKTRACE_HPP)
+  message(STATUS "boost/stacktrace.hpp found, using Boost.Stacktrace")
+else()
+  message(STATUS "boost/stacktrace.hpp not found, not using Boost.Stacktrace")
+endif()
 
 string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
 if(MSVC)
@@ -437,6 +447,7 @@ set(is_gxx_ge_11 "$<AND:${is_gxx_genex},${cxx_ge_11}>")
 set(is_gxx_ge_12 "$<AND:${is_gxx_genex},${cxx_ge_12}>")
 set(is_gxx_ge_14 "$<AND:${is_gxx_genex},${cxx_ge_14}>")
 set(has_avx2 "$<BOOL:${AVX2}>")
+set(has_boost_stacktrace "$<BOOL:${HAS_BOOST_STACKTRACE_HPP}>")
 set(fatal_warnings_on "$<BOOL:${MAINTAINER_MODE}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
 set(is_standalone "$<BOOL:${STANDALONE}>")
@@ -551,7 +562,8 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
   target_compile_definitions(${TARGET} PRIVATE
-    "$<${is_standalone}:UNODB_DETAIL_STANDALONE>")
+    "$<${is_standalone}:UNODB_DETAIL_STANDALONE>"
+    "$<${has_boost_stacktrace}:UNODB_DETAIL_BOOST_STACKTRACE>")
   target_compile_options(${TARGET} PRIVATE
     "${CXX_FLAGS}" "${SANITIZER_CXX_FLAGS}"
     "$<${is_msvc}:${MSVC_CXX_FLAGS}>"
@@ -582,7 +594,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   target_link_libraries(${TARGET} PRIVATE
     "${SANITIZER_LD_FLAGS}"
     "$<${is_linux}:${CMAKE_DL_LIBS}>"
-    "$<$<AND:${is_linux},${is_gxx_genex}>:backtrace>")
+    "$<$<AND:${is_linux},${is_gxx_genex},${has_boost_stacktrace}>:backtrace>")
   if(IPO_SUPPORTED)
     set_target_properties(${TARGET} PROPERTIES
       INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)

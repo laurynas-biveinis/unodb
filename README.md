@@ -112,7 +112,7 @@ automatically reports the quiescent state when the scope is exited.
 ## Dependencies
 
 * CMake, at least 3.12
-* Boost library.
+* Boost library, specifically Boost.Accumulator and optional Boost.Stacktrace.
 * Guidelines Support Library for gsl::span, bundled as a git submodule.
 * Google Test for tests, bundled as a git submodule.
 * Google Benchmark for microbenchmarks, bundled, as a git submodule.

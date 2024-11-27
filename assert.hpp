@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Laurynas Biveinis
+// Copyright 2022-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_ASSERT_HPP
 #define UNODB_DETAIL_ASSERT_HPP
 

@@ -48,6 +48,13 @@ git clone https://github.com/ianlancetaylor/libbacktrace
 # Build as usual
 ```
 
+### Amazon Linux 2
+
+```bash
+sudo yum install git gcc10 gcc10-c++ cmake3 boost-devel
+# Pass -DCMAKE_C_COMPILER=gcc10-gcc -DCMAKE_CXX_COMPILER=gcc10-c++ to cmake3
+```
+
 ## Usage
 
 All the declarations live in the `unodb` namespace, which is omitted in the

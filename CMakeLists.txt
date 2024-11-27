@@ -302,7 +302,28 @@ find_file(HAS_BOOST_STACKTRACE_HPP boost/stacktrace.hpp
   PATHS "${Boost_INCLUDE_DIRS}")
 
 if(HAS_BOOST_STACKTRACE_HPP)
-  message(STATUS "boost/stacktrace.hpp found, using Boost.Stacktrace")
+  if (is_gxx AND NOT is_darwin)
+    set(ORIG_CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES})
+    set(ORIG_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
+    list(APPEND CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS})
+    list(APPEND CMAKE_REQUIRED_LIBRARIES ${Boost_LIBRARIES} backtrace)
+    check_cxx_source_compiles("
+#define BOOST_STACKTRACE_USE_BACKTRACE
+#include <boost/stacktrace.hpp>
+int main() {
+  boost::stacktrace::stacktrace st;
+  return st.size(); }" HAS_BOOST_STACKTRACE_USE_STACKTRACE)
+    set(CMAKE_REQUIRED_INCLUDES ${ORIG_CMAKE_REQUIRED_INCLUDES})
+    set(CMAKE_REQUIRED_LIBRARIES ${ORIG_CMAKE_REQUIRED_LIBRARIES})
+    if(HAS_BOOST_STACKTRACE_USE_STACKTRACE)
+      message(STATUS "boost/stacktrace.hpp found and Boost.Stacktrace built with libbacktrace support, using it.")
+    else()
+      message(STATUS "boost/stacktrace.hpp found but Boost.Stacktrace built without libbacktrace support, not using it.")
+      set(HAS_BOOST_STACKTRACE_HPP FALSE)
+    endif()
+  else()
+    message(STATUS "boost/stacktrace.hpp found, using Boost.Stacktrace")
+  endif()
 else()
   message(STATUS "boost/stacktrace.hpp not found, not using Boost.Stacktrace")
 endif()

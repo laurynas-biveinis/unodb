@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  build:
+  build-linux:
     parameters:
       build_type:
         type: enum
@@ -137,82 +137,175 @@ jobs:
                   sudo NEEDRESTART_MODE=a apt-get install -y valgrind
                   make valgrind
 
+  build-macos:
+    parameters:
+      build_type:
+        type: enum
+        enum: ["Debug", "Release"]
+      asan:
+        type: boolean
+        default: false
+      tsan:
+        type: boolean
+        default: false
+      ubsan:
+        type: boolean
+        default: false
+    macos:
+      xcode: 15.1.0
+    resource_class: macos.m1.medium.gen1
+    steps:
+      - checkout
+      - run:
+          name: Checkout submodules
+          command: git submodule update --init --recursive
+      - run:
+          name: Install dependencies
+          command: |
+            sudo -H pip install setuptools
+            brew install boost cmake
+      - run:
+          name: Create build environment
+          command: mkdir build
+      - run:
+          name: Configure CMake
+          working_directory: build
+          command: |
+            readonly BUILD_TYPE=<< parameters.build_type >>
+            readonly ASAN=<< parameters.asan >>
+            readonly TSAN=<< parameters.tsan >>
+            readonly UBSAN=<< parameters.ubsan >>
+            export CC=clang
+            export CXX=clang++
+            cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSTANDALONE=ON \
+              -DMAINTAINER_MODE=OFF -DSANITIZE_ADDRESS=$ASAN \
+              -DSANITIZE_THREAD=$TSAN -DSANITIZE_UB=$UBSAN
+      - run:
+          name: Build
+          working_directory: build
+          command: make -j3
+      - run:
+          name: Correctness test
+          working_directory: build
+          command: ctest -j3 -V
+      - when:
+          condition:
+            not:
+              and:
+                - << parameters.asan >>
+                - equal: [ "Debug", << parameters.build_type >> ]
+          steps:
+            - run:
+                name: Benchmark correctness test
+                working_directory: build
+                command: make quick_benchmarks
+
 workflows:
   build:
     jobs:
-      - build:
+      - build-linux:
           name: GCC 13 Debug
           build_type: Debug
           compiler: gcc
-      - build:
+      - build-linux:
           name: GCC 13 Debug with ASan
           build_type: Debug
           compiler: gcc
           asan: true
-      - build:
+      - build-linux:
           name: GCC 13 Debug with TSan
           build_type: Debug
           compiler: gcc
           tsan: true
-      - build:
+      - build-linux:
           name: GCC 13 Debug with UBSan
           build_type: Debug
           compiler: gcc
           ubsan: true
-      - build:
+      - build-linux:
           name: GCC 13 Release
           build_type: Release
           compiler: gcc
-      - build:
+      - build-linux:
           name: GCC 13 Release with ASan
           build_type: Release
           compiler: gcc
           asan: true
-      - build:
+      - build-linux:
           name: GCC 13 Release with TSan
           build_type: Release
           compiler: gcc
           tsan: true
-      - build:
+      - build-linux:
           name: GCC 13 Release with UBSan
           build_type: Release
           compiler: gcc
           ubsan: true
-      - build:
+      - build-linux:
           name: clang 19 Debug
           build_type: Debug
           compiler: clang
-      - build:
+      - build-linux:
           name: clang 19 Debug with ASan
           build_type: Debug
           compiler: clang
           asan: true
-      - build:
+      - build-linux:
           name: clang 19 Debug with TSan
           build_type: Debug
           compiler: clang
           tsan: true
-      - build:
+      - build-linux:
           name: clang 19 Debug with UBSan
           build_type: Debug
           compiler: clang
           ubsan: true
-      - build:
+      - build-linux:
           name: clang 19 Release
           build_type: Release
           compiler: clang
-      - build:
+      - build-linux:
           name: clang 19 Release with ASan
           build_type: Release
           compiler: clang
           asan: true
-      - build:
+      - build-linux:
           name: clang 19 Release with TSan
           build_type: Release
           compiler: clang
           tsan: true
-      - build:
+      - build-linux:
           name: clang 19 Release with UBSan
           build_type: Release
           compiler: clang
+          ubsan: true
+      - build-macos:
+          name: macOS Debug (Apple Silicon)
+          build_type: Debug
+      - build-macos:
+          name: macOS Debug with ASan (Apple Silicon)
+          build_type: Debug
+          asan: true
+      - build-macos:
+          name: macOS Debug with TSan (Apple Silicon)
+          build_type: Debug
+          tsan: true
+      - build-macos:
+          name: macOS Debug with UBSan (Apple Silicon)
+          build_type: Debug
+          ubsan: true
+      - build-macos:
+          name: macOS Release (Apple Silicon)
+          build_type: Release
+      - build-macos:
+          name: macOS Release with ASan (Apple Silicon)
+          build_type: Release
+          asan: true
+      - build-macos:
+          name: macOS Release with TSan (Apple Silicon)
+          build_type: Release
+          tsan: true
+      - build-macos:
+          name: macOS Release with UBSan (Apple Silicon)
+          build_type: Release
           ubsan: true

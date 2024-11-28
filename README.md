@@ -36,7 +36,21 @@ Please note that this personal project only supports the following compilers:
 GCC 10 and later, LLVM 11 and later, XCode 13.2, and MSVC 2022 compilers. If you
 require support for an earlier compiler version, feel free to drop me a note.
 
+Out-of-source builds are recommended. Before anything else, do
+
+``` bash
+# --recursive is not strictly required at the moment, but a good habit to have
+git submodule update --init --recursive
+```
+
 Some platform-specific notes:
+
+### Ubuntu 22.04
+
+``` bash
+# libc6-dev-i386 is for DeepState
+sudo apt-get install -y libboost-dev libc6-dev-i386
+```
 
 ### Amazon Linux 2023
 

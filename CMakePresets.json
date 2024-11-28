@@ -83,7 +83,8 @@
             "cacheVariables": {
                 "CMAKE_PREFIX_PATH": "/usr/local/opt/llvm",
                 "CMAKE_C_COMPILER": "/usr/local/opt/llvm/bin/clang",
-                "CMAKE_CXX_COMPILER": "/usr/local/opt/llvm/bin/clang++"
+                "CMAKE_CXX_COMPILER": "/usr/local/opt/llvm/bin/clang++",
+                "CMAKE_AR": "/usr/local/opt/llvm/bin/llvm-ar"
             }
         },
         {
@@ -92,7 +93,8 @@
             "cacheVariables": {
                 "CMAKE_PREFIX_PATH": "/opt/homebrew/opt/llvm",
                 "CMAKE_C_COMPILER": "/opt/homebrew/opt/llvm/bin/clang",
-                "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++"
+                "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++",
+                "CMAKE_AR": "/opt/homebrew/opt/llvm/bin/llvm-ar"
             }
         },
         {

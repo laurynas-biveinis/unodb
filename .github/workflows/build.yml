@@ -418,8 +418,24 @@ jobs:
       - name: clang static analysis
         working-directory: ${{github.workspace}}/build
         run: |
-          /usr/bin/scan-build-19 --status-bugs -stats -analyze-headers \
-            --force-analyze-debug-code make -j3;
+          /usr/bin/scan-build-19 -sarif -o clang.sarif --status-bugs -stats \
+            -analyze-headers --force-analyze-debug-code --keep-empty \
+            make -j3;
+          ls -alR clang.sarif
+        if: env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang'
+
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{github.workspace}}/build/clang.sarif/
+          category: "${{env.COMPILER}}-static-analysis-${{env.BUILD_TYPE}}"
+        if: env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang'
+
+      - name: Upload SARIF as an Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-file
+          path: "${{github.workspace}}/build/clang.sarif/"
         if: env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang'
 
       - name: Correctness test

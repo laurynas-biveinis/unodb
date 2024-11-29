@@ -274,13 +274,14 @@ option(STATIC_ANALYSIS "Enable compiler static analysis")
 if(MSVC AND is_clang)
   message(STATUS "Not enabling IPO/LTO due to MSVC LLVM not supporting it")
 elseif(is_clang AND SANITIZE_ADDRESS AND CMAKE_CXX_COMPILER_VERSION
-    VERSION_GREATER_EQUAL 17.0)
+    VERSION_GREATER_EQUAL 17.0 AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS_EQUAL 19.0)
   # /usr/bin/ld: error: Failed to link module
   # ../libunodb_qsbr.a.llvm.3080.qsbr.cpp: Expected at most one ThinLTO module
   # per bitcode file
   # ...
   message(STATUS
-    "Not enabling IPO/LTO due to LLVM clang 17 w/ AddressSanitizer bug")
+    "Not enabling IPO/LTO due to LLVM clang 17-18 w/ AddressSanitizer bug")
 else()
   include(CheckIPOSupported)
   check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)

@@ -320,29 +320,6 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
   }
 }
 
-void qsbr::reset_stats() {
-  // Stats can only be reset on idle QSBR - best-effort check as nothing
-  // prevents to leaving idle state at any time
-  assert_idle();
-
-  {
-    const std::lock_guard guard{dealloc_stats_lock};
-
-    epoch_dealloc_per_thread_count_stats = {};
-    publish_epoch_callback_stats();
-
-    deallocation_size_per_thread_stats = {};
-    publish_deallocation_size_stats();
-  }
-
-  {
-    const std::lock_guard guard{quiescent_state_stats_lock};
-
-    quiescent_states_per_thread_between_epoch_change_stats = {};
-    publish_quiescent_states_per_thread_between_epoch_change_stats();
-  }
-}
-
 // Some GCC versions suggest cold attribute on already cold-marked functions
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
@@ -394,12 +371,6 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
   UNODB_DETAIL_ASSERT(current_global_epoch.advance() == new_epoch);
 
   return new_epoch;
-}
-
-void qsbr::bump_epoch_change_count() noexcept {
-  const auto new_epoch_change_count =
-      epoch_change_count.load(std::memory_order_relaxed) + 1;
-  epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
 }
 
 void qsbr::epoch_change_barrier_and_handle_orphans(

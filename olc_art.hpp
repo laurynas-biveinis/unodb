@@ -100,41 +100,41 @@ class olc_db final {
   // Stats
 
   // Return current memory use by tree nodes in bytes
-  [[nodiscard]] auto get_current_memory_use() const noexcept {
-    return current_memory_use.load(std::memory_order_relaxed);
+  [[nodiscard]] std::size_t get_current_memory_use() const noexcept {
+    return 0;
   }
 
   template <node_type NodeType>
-  [[nodiscard]] auto get_node_count() const noexcept {
-    return node_counts[as_i<NodeType>].load(std::memory_order_relaxed);
+  [[nodiscard]] std::uint64_t get_node_count() const noexcept {
+    return 0;
   }
 
-  [[nodiscard]] auto get_node_counts() const noexcept {
-    return detail::copy_atomic_to_nonatomic(node_counts);
-  }
-
-  template <node_type NodeType>
-  [[nodiscard]] auto get_growing_inode_count() const noexcept {
-    return growing_inode_counts[internal_as_i<NodeType>].load(
-        std::memory_order_relaxed);
-  }
-
-  [[nodiscard]] auto get_growing_inode_counts() const noexcept {
-    return detail::copy_atomic_to_nonatomic(growing_inode_counts);
+  [[nodiscard]] node_type_counter_array get_node_counts() const noexcept {
+    return {};
   }
 
   template <node_type NodeType>
-  [[nodiscard]] auto get_shrinking_inode_count() const noexcept {
-    return shrinking_inode_counts[internal_as_i<NodeType>].load(
-        std::memory_order_relaxed);
+  [[nodiscard]] std::uint64_t get_growing_inode_count() const noexcept {
+    return 0;
   }
 
-  [[nodiscard]] auto get_shrinking_inode_counts() const noexcept {
-    return detail::copy_atomic_to_nonatomic(shrinking_inode_counts);
+  [[nodiscard]] inode_type_counter_array get_growing_inode_counts()
+      const noexcept {
+    return {};
   }
 
-  [[nodiscard]] auto get_key_prefix_splits() const noexcept {
-    return key_prefix_splits.load(std::memory_order_relaxed);
+  template <node_type NodeType>
+  [[nodiscard]] std::uint64_t get_shrinking_inode_count() const noexcept {
+    return 0;
+  }
+
+  [[nodiscard]] node_type_counter_array get_shrinking_inode_counts()
+      const noexcept {
+    return {};
+  }
+
+  [[nodiscard]] std::uint64_t get_key_prefix_splits() const noexcept {
+    return 0;
   }
 
   // Public utils
@@ -169,36 +169,24 @@ class olc_db final {
 
   void delete_root_subtree() noexcept;
 
-  void increase_memory_use(std::size_t delta) noexcept;
-  void decrease_memory_use(std::size_t delta) noexcept;
+  void increase_memory_use(std::size_t) noexcept {};
+  void decrease_memory_use(std::size_t) noexcept {};
 
-  void increment_leaf_count(std::size_t leaf_size) noexcept {
-    increase_memory_use(leaf_size);
-    node_counts[as_i<node_type::LEAF>].fetch_add(1, std::memory_order_relaxed);
-  }
+  void increment_leaf_count(std::size_t) noexcept {}
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
-  void decrement_leaf_count(std::size_t leaf_size) noexcept {
-    decrease_memory_use(leaf_size);
-
-    const auto old_leaf_count UNODB_DETAIL_USED_IN_DEBUG =
-        node_counts[as_i<node_type::LEAF>].fetch_sub(1,
-                                                     std::memory_order_relaxed);
-    UNODB_DETAIL_ASSERT(old_leaf_count > 0);
-  }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  void decrement_leaf_count(std::size_t) noexcept {}
 
   template <class INode>
-  constexpr void increment_inode_count() noexcept;
+  constexpr void increment_inode_count() noexcept {};
 
   template <class INode>
-  constexpr void decrement_inode_count() noexcept;
+  constexpr void decrement_inode_count() noexcept {};
 
   template <node_type NodeType>
-  constexpr void account_growing_inode() noexcept;
+  constexpr void account_growing_inode() noexcept {};
 
   template <node_type NodeType>
-  constexpr void account_shrinking_inode() noexcept;
+  constexpr void account_shrinking_inode() noexcept {};
 
   alignas(
       detail::hardware_destructive_interference_size) mutable optimistic_lock
@@ -208,27 +196,6 @@ class olc_db final {
 
   static_assert(sizeof(root_pointer_lock) + sizeof(root) <=
                 detail::hardware_constructive_interference_size);
-
-  // Current logically allocated memory that is not scheduled to be reclaimed.
-  // The total memory currently allocated is this plus the QSBR deallocation
-  // backlog (qsbr::previous_interval_total_dealloc_size +
-  // qsbr::current_interval_total_dealloc_size).
-  alignas(detail::hardware_destructive_interference_size)
-      std::atomic<std::size_t> current_memory_use{0};
-
-  alignas(detail::hardware_destructive_interference_size)
-      std::atomic<std::uint64_t> key_prefix_splits{0};
-
-  template <class T>
-  using atomic_array = std::array<std::atomic<typename T::value_type>,
-                                  std::tuple_size<T>::value>;
-
-  alignas(detail::hardware_destructive_interference_size)
-      atomic_array<node_type_counter_array> node_counts{};
-  alignas(detail::hardware_destructive_interference_size)
-      atomic_array<inode_type_counter_array> growing_inode_counts{};
-  alignas(detail::hardware_destructive_interference_size)
-      atomic_array<inode_type_counter_array> shrinking_inode_counts{};
 
   friend auto detail::make_db_leaf_ptr<detail::olc_node_header, olc_db>(
       detail::art_key, value_view, olc_db &);

@@ -31,14 +31,6 @@
 
 #include <gsl/util>
 
-#include <boost/accumulators/accumulators_fwd.hpp>  // IWYU pragma: keep
-#include <boost/accumulators/framework/accumulator_set.hpp>
-#include <boost/accumulators/framework/extractor.hpp>
-#include <boost/accumulators/statistics/max.hpp>
-#include <boost/accumulators/statistics/mean.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/variance.hpp>
-
 #include "assert.hpp"
 #include "heap.hpp"
 #include "portability_arch.hpp"
@@ -640,8 +632,6 @@ class [[nodiscard]] qsbr_per_thread final {
   return qsbr_per_thread::get_instance();
 }
 
-namespace boost_acc = boost::accumulators;
-
 class qsbr final {
  public:
   [[nodiscard]] static auto &instance() noexcept {
@@ -687,52 +677,32 @@ class qsbr final {
   void unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                          qsbr_epoch thread_epoch, qsbr_per_thread &qsbr_thread);
 
-  void reset_stats();
+  void reset_stats() {}
 
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &out) const;
 
   void register_quiescent_states_per_thread_between_epoch_changes(
-      std::uint64_t states) {
-    const std::lock_guard guard{quiescent_state_stats_lock};
-    quiescent_states_per_thread_between_epoch_change_stats(states);
-    publish_quiescent_states_per_thread_between_epoch_change_stats();
-  }
+      std::uint64_t) {  }
 
   void register_dealloc_stats_per_thread_between_epoch_changes(
-      std::size_t total_size, std::size_t count) {
-    const std::lock_guard guard{dealloc_stats_lock};
-    deallocation_size_per_thread_stats(total_size);
-    publish_deallocation_size_stats();
-    epoch_dealloc_per_thread_count_stats(count);
-    publish_epoch_callback_stats();
-  }
+      std::size_t, std::size_t) {  }
 
-  [[nodiscard]] auto get_epoch_callback_count_max() const noexcept {
-    return epoch_dealloc_per_thread_count_max.load(std::memory_order_acquire);
-  }
+  [[nodiscard]] auto get_epoch_callback_count_max() const noexcept { return 0; }
 
   [[nodiscard]] auto get_epoch_callback_count_variance() const noexcept {
-    return epoch_dealloc_per_thread_count_variance.load(
-        std::memory_order_acquire);
+    return 0.0;
   }
 
   [[nodiscard]] auto
   get_mean_quiescent_states_per_thread_between_epoch_changes() const noexcept {
-    return quiescent_states_per_thread_between_epoch_change_mean.load(
-        std::memory_order_acquire);
+    return 0.0;
   }
 
-  [[nodiscard]] auto get_epoch_change_count() const noexcept {
-    return epoch_change_count.load(std::memory_order_acquire);
-  }
+  [[nodiscard]] auto get_epoch_change_count() const noexcept { return 0; }
 
-  [[nodiscard]] auto get_max_backlog_bytes() const noexcept {
-    return deallocation_size_per_thread_max.load(std::memory_order_acquire);
-  }
+  [[nodiscard]] auto get_max_backlog_bytes() const noexcept { return 0; }
 
-  [[nodiscard]] auto get_mean_backlog_bytes() const noexcept {
-    return deallocation_size_per_thread_mean.load(std::memory_order_acquire);
-  }
+  [[nodiscard]] auto get_mean_backlog_bytes() const noexcept { return 0; }
 
   // Made public for tests and asserts
   [[nodiscard]] auto get_state() const noexcept {
@@ -768,7 +738,7 @@ class qsbr final {
 
   static void thread_epoch_change_barrier() noexcept;
 
-  void bump_epoch_change_count() noexcept;
+  void bump_epoch_change_count() noexcept {};
 
   void epoch_change_barrier_and_handle_orphans(
       bool single_thread_mode) noexcept;
@@ -777,75 +747,23 @@ class qsbr final {
                           bool single_thread_mode) noexcept;
 
   void publish_deallocation_size_stats() {
-    deallocation_size_per_thread_max.store(
-        boost_acc::max(deallocation_size_per_thread_stats),
-        std::memory_order_relaxed);
-    deallocation_size_per_thread_mean.store(
-        boost_acc::mean(deallocation_size_per_thread_stats),
-        std::memory_order_relaxed);
-    deallocation_size_per_thread_variance.store(
-        boost_acc::variance(deallocation_size_per_thread_stats),
-        std::memory_order_relaxed);
   }
 
   void publish_epoch_callback_stats() {
-    epoch_dealloc_per_thread_count_max.store(
-        boost_acc::max(epoch_dealloc_per_thread_count_stats),
-        std::memory_order_relaxed);
-    epoch_dealloc_per_thread_count_variance.store(
-        boost_acc::variance(epoch_dealloc_per_thread_count_stats),
-        std::memory_order_relaxed);
   }
 
   void publish_quiescent_states_per_thread_between_epoch_change_stats() {
-    quiescent_states_per_thread_between_epoch_change_mean.store(
-        boost_acc::mean(quiescent_states_per_thread_between_epoch_change_stats),
-        std::memory_order_relaxed);
   }
 
   alignas(detail::hardware_destructive_interference_size)
       std::atomic<qsbr_state::type> state;
-
-  std::atomic<std::uint64_t> epoch_change_count;
 
   std::atomic<detail::dealloc_vector_list_node *>
       orphaned_previous_interval_dealloc_requests;
 
   std::atomic<detail::dealloc_vector_list_node *>
       orphaned_current_interval_dealloc_requests;
-
-  static_assert(sizeof(state) + sizeof(epoch_change_count) +
-                    sizeof(orphaned_previous_interval_dealloc_requests) +
-                    sizeof(orphaned_current_interval_dealloc_requests) <=
-                detail::hardware_constructive_interference_size);
-
-  alignas(detail::hardware_destructive_interference_size) std::mutex
-      dealloc_stats_lock;
-
-  // TODO(laurynas): more interesting callback stats?
-  boost_acc::accumulator_set<
-      std::size_t,
-      boost_acc::stats<boost_acc::tag::max, boost_acc::tag::variance>>
-      epoch_dealloc_per_thread_count_stats;
-  std::atomic<std::size_t> epoch_dealloc_per_thread_count_max;
-  std::atomic<double> epoch_dealloc_per_thread_count_variance;
-
-  boost_acc::accumulator_set<
-      std::uint64_t,
-      boost_acc::stats<boost_acc::tag::max, boost_acc::tag::variance>>
-      deallocation_size_per_thread_stats;
-  std::atomic<std::uint64_t> deallocation_size_per_thread_max;
-  std::atomic<double> deallocation_size_per_thread_mean;
-  std::atomic<double> deallocation_size_per_thread_variance;
-
-  alignas(detail::hardware_destructive_interference_size) std::mutex
-      quiescent_state_stats_lock;
-
-  boost_acc::accumulator_set<std::uint64_t,
-                             boost_acc::stats<boost_acc::tag::mean>>
-      quiescent_states_per_thread_between_epoch_change_stats;
-  std::atomic<double> quiescent_states_per_thread_between_epoch_change_mean;
-};
+  };
 
 static_assert(std::atomic<std::size_t>::is_always_lock_free);
 static_assert(std::atomic<double>::is_always_lock_free);

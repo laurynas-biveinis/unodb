@@ -182,18 +182,6 @@ template <class T>
 
 }  // namespace
 
-namespace unodb {
-
-template <class INode>
-constexpr void olc_db::increment_inode_count() noexcept {
-  static_assert(olc_inode_defs::is_inode<INode>());
-
-  node_counts[as_i<INode::type>].fetch_add(1, std::memory_order_relaxed);
-  increase_memory_use(sizeof(INode));
-}
-
-}  // namespace unodb
-
 namespace unodb::detail {
 
 // Wrap olc_inode_add in a struct so that the latter and not the former could be
@@ -779,36 +767,6 @@ template <class INode>
 
 namespace unodb {
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
-template <class INode>
-constexpr void olc_db::decrement_inode_count() noexcept {
-  static_assert(olc_inode_defs::is_inode<INode>());
-
-  const auto old_inode_count UNODB_DETAIL_USED_IN_DEBUG =
-      node_counts[as_i<INode::type>].fetch_sub(1, std::memory_order_relaxed);
-  UNODB_DETAIL_ASSERT(old_inode_count > 0);
-
-  decrease_memory_use(sizeof(INode));
-}
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
-template <node_type NodeType>
-constexpr void olc_db::account_growing_inode() noexcept {
-  static_assert(NodeType != node_type::LEAF);
-
-  // NOLINTNEXTLINE(google-readability-casting)
-  growing_inode_counts[internal_as_i<NodeType>].fetch_add(
-      1, std::memory_order_relaxed);
-}
-
-template <node_type NodeType>
-constexpr void olc_db::account_shrinking_inode() noexcept {
-  static_assert(NodeType != node_type::LEAF);
-
-  shrinking_inode_counts[internal_as_i<NodeType>].fetch_add(
-      1, std::memory_order_relaxed);
-}
-
 olc_db::~olc_db() noexcept {
   UNODB_DETAIL_ASSERT(
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
@@ -1042,7 +1000,6 @@ olc_db::try_update_result_type olc_db::try_insert(
       }
 
       account_growing_inode<node_type::I4>();
-      key_prefix_splits.fetch_add(1, std::memory_order_relaxed);
 
       return true;
     }
@@ -1205,10 +1162,6 @@ void olc_db::delete_root_subtree() noexcept {
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
 
   if (root != nullptr) olc_art_policy::delete_subtree(root, *this);
-  // It is possible to reset the counter to zero instead of decrementing it for
-  // each leaf, but not sure the savings will be significant.
-  UNODB_DETAIL_ASSERT(
-      node_counts[as_i<node_type::LEAF>].load(std::memory_order_relaxed) == 0);
 }
 
 void olc_db::clear() noexcept {
@@ -1218,30 +1171,6 @@ void olc_db::clear() noexcept {
   delete_root_subtree();
 
   root = detail::olc_node_ptr{nullptr};
-  current_memory_use.store(0, std::memory_order_relaxed);
-
-  node_counts[as_i<node_type::I4>].store(0, std::memory_order_relaxed);
-  node_counts[as_i<node_type::I16>].store(0, std::memory_order_relaxed);
-  node_counts[as_i<node_type::I48>].store(0, std::memory_order_relaxed);
-  node_counts[as_i<node_type::I256>].store(0, std::memory_order_relaxed);
-}
-
-UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
-
-void olc_db::increase_memory_use(std::size_t delta) noexcept {
-  UNODB_DETAIL_ASSERT(delta > 0);
-
-  current_memory_use.fetch_add(delta, std::memory_order_relaxed);
-}
-
-UNODB_DETAIL_RESTORE_GCC_WARNINGS()
-
-void olc_db::decrease_memory_use(std::size_t delta) noexcept {
-  UNODB_DETAIL_ASSERT(delta > 0);
-  UNODB_DETAIL_ASSERT(delta <=
-                      current_memory_use.load(std::memory_order_relaxed));
-
-  current_memory_use.fetch_sub(delta, std::memory_order_relaxed);
 }
 
 void olc_db::dump(std::ostream &os) const {

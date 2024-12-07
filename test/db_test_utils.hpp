@@ -140,12 +140,8 @@ class [[nodiscard]] tree_verifier final {
       const auto remove_result = values.erase(k);
       UNODB_ASSERT_EQ(remove_result, 1);
     }
-    const auto node_counts_before = test_db.get_node_counts();
     const auto mem_use_before = test_db.get_current_memory_use();
-    UNODB_ASSERT_GT(node_counts_before[as_i<unodb::node_type::LEAF>], 0);
     UNODB_ASSERT_GT(mem_use_before, 0);
-    const auto growing_inodes_before = test_db.get_growing_inode_counts();
-    const auto shrinking_inodes_before = test_db.get_shrinking_inode_counts();
     const auto key_prefix_splits_before = test_db.get_key_prefix_splits();
 
     try {
@@ -161,12 +157,6 @@ class [[nodiscard]] tree_verifier final {
     } catch (...) {
       if (!parallel_test) {
         UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
-        UNODB_ASSERT_THAT(test_db.get_node_counts(),
-                          ::testing::ElementsAreArray(node_counts_before));
-        UNODB_ASSERT_THAT(test_db.get_growing_inode_counts(),
-                          ::testing::ElementsAreArray(growing_inodes_before));
-        UNODB_ASSERT_THAT(test_db.get_shrinking_inode_counts(),
-                          ::testing::ElementsAreArray(shrinking_inodes_before));
         UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(),
                         key_prefix_splits_before);
       }
@@ -176,11 +166,6 @@ class [[nodiscard]] tree_verifier final {
     if (!parallel_test) {
       const auto mem_use_after = test_db.get_current_memory_use();
       UNODB_ASSERT_LT(mem_use_after, mem_use_before);
-
-      const auto leaf_count_after =
-          test_db.template get_node_count<::unodb::node_type::LEAF>();
-      UNODB_ASSERT_EQ(leaf_count_after,
-                      node_counts_before[as_i<unodb::node_type::LEAF>] - 1);
     }
   }
 

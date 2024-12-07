@@ -78,6 +78,7 @@ class [[nodiscard]] concurrent_benchmark {
       state.ResumeTiming();
     }
 
+    state.SetItemsProcessed(state.range(1));
     test_db.reset(nullptr);
   }
 
@@ -96,6 +97,7 @@ class [[nodiscard]] concurrent_benchmark {
       state.ResumeTiming();
     }
 
+    state.SetItemsProcessed(state.range(1));
     test_db.reset(nullptr);
   }
 
@@ -116,6 +118,7 @@ class [[nodiscard]] concurrent_benchmark {
       state.ResumeTiming();
     }
 
+    state.SetItemsProcessed(state.range(1));
     test_db.reset(nullptr);
   }
 

@@ -67,6 +67,10 @@ git clone https://github.com/ianlancetaylor/libbacktrace
 ```bash
 sudo yum install git gcc10 gcc10-c++ cmake3 boost-devel
 # Pass -DCMAKE_C_COMPILER=gcc10-gcc -DCMAKE_CXX_COMPILER=gcc10-c++ to cmake3
+#
+# Benchmarking. For jemalloc, consider building a newer version from source.
+sudo amazon-linux-extras install -y epel
+sudo yum install jemalloc perf
 ```
 
 ## Usage

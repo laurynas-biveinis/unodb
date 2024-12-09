@@ -75,6 +75,8 @@ sudo yum install jemalloc perf
 
 ## Usage
 
+See `examples/` directory for simple usage examples.
+
 All the declarations live in the `unodb` namespace, which is omitted in the
 descriptions below.
 

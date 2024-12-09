@@ -473,6 +473,10 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: make -j3
 
+      - name: Examples
+        working-directory: ${{github.workspace}}/build
+        run: make examples
+
       - name: Correctness test
         working-directory: ${{github.workspace}}/build
         run: ctest -j3 -V

@@ -702,7 +702,8 @@ endif()
 set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"
   "--trace-children=yes" "-v")
 
-add_custom_target(valgrind DEPENDS valgrind_tests valgrind_benchmarks)
+add_custom_target(valgrind
+  DEPENDS valgrind_tests valgrind_benchmarks valgrind_examples)
 
 enable_testing()
 
@@ -720,6 +721,7 @@ function(add_sanitized_test)
 endfunction()
 
 add_subdirectory(benchmark)
+add_subdirectory(examples)
 if(TARGET deepstate)
   add_subdirectory(fuzz_deepstate)
   add_dependencies(valgrind valgrind_deepstate)

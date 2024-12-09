@@ -422,6 +422,11 @@ jobs:
             --force-analyze-debug-code make -j3;
         if: env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang'
 
+      - name: Examples
+        working-directory: ${{github.workspace}}/build
+        run: make examples
+        if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+
       - name: Correctness test
         working-directory: ${{github.workspace}}/build
         run: ctest -j3 -V

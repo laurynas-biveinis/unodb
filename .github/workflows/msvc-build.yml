@@ -87,6 +87,14 @@ jobs:
             && (matrix.preset == 'msvc-static-analysis-release'
               || matrix.preset == 'msvc-static-analysis-debug')
 
+      - name: Examples
+        run: |
+          $Env:P = "${{ matrix.preset }}"
+          cmake --build --preset "$env:P" --target examples
+        if: >
+            (matrix.preset != 'msvc-static-analysis-release')
+            && (matrix.preset != 'msvc-static-analysis-debug')
+
       - name: Correctness test
         run: ctest -V --preset "${{ matrix.preset }}"
         if: >

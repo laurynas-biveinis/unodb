@@ -108,6 +108,10 @@ jobs:
           working_directory: build
           command: make -j2
       - run:
+          name: Examples
+          working_directory: build
+          command: make examples
+      - run:
           name: Correctness test
           working_directory: build
           command: ctest -j3 -V
@@ -184,6 +188,10 @@ jobs:
           name: Build
           working_directory: build
           command: make -j3
+      - run:
+          name: Examples
+          working_directory: build
+          command: make examples
       - run:
           name: Correctness test
           working_directory: build

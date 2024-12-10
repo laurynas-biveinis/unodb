@@ -14,7 +14,6 @@
 #include <string_view>
 
 #include "art.hpp"
-#include "art_common.hpp"
 
 namespace {
 
@@ -43,6 +42,21 @@ int main() {
 
   insert_result = tree.insert(50, from_string_view(value_3));
   std::cerr << "Insert key 50 result: " << insert_result << '\n';
+
+  // visitor for scans.
+  auto fn = [](unodb::visitor<typename unodb::db::iterator>& v) {
+    const auto& val = v.get_value();
+    const std::string_view s( reinterpret_cast<const char*>(val.data()), val.size() );
+    std::cerr<<"{key="<<v.get_key()
+             <<",val=\""<<s<<"\""
+             <<"} ";
+    return false;  // do not halt
+  };
+
+  std::cerr<<"forward scan:: "; tree.scan( fn ); std::cerr<<std::endl;  // full forward scan
+  std::cerr<<"reverse scan:: "; tree.scan( fn, false ); std::cerr<<std::endl;  // full reverse scan
+  std::cerr<<"forward half-open key-range scan [10,50):: "; tree.scan_range( 10, 50, fn ); std::cerr<<std::endl; // forward range scan
+  std::cerr<<"reverse half-open key-range scan (50,5]:: "; tree.scan_range( 50, 10, fn ); std::cerr<<std::endl; // reverse range scan.
 
   auto get_result = tree.get(20);
   std::cerr << "Get key 20 result has value: " << get_result.has_value()

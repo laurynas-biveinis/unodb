@@ -31,17 +31,40 @@ class [[nodiscard]] basic_db_leaf_deleter;
 // Internal ART key in binary-comparable format
 template <typename KeyType>
 struct [[nodiscard]] basic_art_key final {
+
+  // Convert an external key into an internal key supporting
+  // lexicographic comparison.  This is only intended for key types
+  // for which simple conversions are possible.  For complex keys,
+  // including multiple key components or Unicode data, the
+  // application should use a gsl::space<std::byte> which already
+  // supports lexicographic comparison.
   [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
   make_binary_comparable(KeyType key) noexcept;
+
+  // Convert an internal key into an external key. This is only
+  // intended for key types for which simple conversions are possible.
+  // For complex keys, including multiple key components or Unicode
+  // data, the application should use a gsl::space<std::byte> which
+  // already supports lexicographic comparison.
+  [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
+  make_external(KeyType key) noexcept;
 
   constexpr basic_art_key() noexcept = default;
 
   UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(KeyType key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
+  // return true iff the two keys are equal.
   [[nodiscard, gnu::pure]] constexpr bool operator==(
       basic_art_key<KeyType> key2) const noexcept {
-    return !std::memcmp(&key, &key2.key, size);
+    return !std::memcmp(&key, &key2.key, size);  // FIXME This is wrong for variable length keys.  It needs to consider no more bytes than the shorter key and if the two keys have the same prefix, then they are != if one is longer (and for == we can just compare the size as a short cut for this).  Also needs unit tests for variable length keys.
+  }
+
+  // return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+  [[nodiscard, gnu::pure]] constexpr int cmp(
+      basic_art_key<KeyType> key2) const noexcept {
+    const size_t n = size <= key2.size ? size : key2.size;
+    return std::memcmp(&key, &key2.key, n);   // FIXME This is wrong for variable length keys.  It needs to consider no more bytes than the shorter key and if the two keys have the same prefix, then they are != if one is longer.  Also needs unit tests for variable length keys.
   }
 
   [[nodiscard, gnu::pure]] constexpr auto operator[](
@@ -53,6 +76,12 @@ struct [[nodiscard]] basic_art_key final {
   [[nodiscard, gnu::pure]] constexpr explicit operator KeyType()
       const noexcept {
     return key;
+  }
+
+  // return the decoded form of the key.
+  [[nodiscard, gnu::pure]] constexpr KeyType decode()
+      const noexcept {
+    return make_external(key);
   }
 
   constexpr void shift_right(const std::size_t num_bytes) noexcept {
@@ -71,7 +100,7 @@ struct [[nodiscard]] basic_art_key final {
     static_assert(std::is_trivially_copyable_v<basic_art_key<KeyType>>);
     static_assert(sizeof(basic_art_key<KeyType>) == sizeof(KeyType));
   }
-};
+}; // class basic_art_key
 
 using art_key = basic_art_key<unodb::key>;
 
@@ -152,6 +181,9 @@ class basic_db_inode_deleter {
   Db &db;
 };
 
+// basic_node_ptr is a tagged pointer (the tag is the node type).  You
+// have to know statically the target type, then call
+// node_ptr_var.ptr<target_type *>.ptr() to get target_type.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 template <class Header>
 class [[nodiscard]] basic_node_ptr {
@@ -167,9 +199,15 @@ class [[nodiscard]] basic_node_ptr {
   explicit basic_node_ptr(std::nullptr_t) noexcept
       : tagged_ptr{reinterpret_cast<std::uintptr_t>(nullptr)} {}
 
+  // construct a node pointer given a raw pointer and a node type.
   basic_node_ptr(header_type *ptr UNODB_DETAIL_LIFETIMEBOUND,
                  unodb::node_type type) noexcept
       : tagged_ptr{tag_ptr(ptr, type)} {}
+
+  // constructor casts away [const] for use when the node_ptr will be [const].
+  basic_node_ptr(const header_type *ptr UNODB_DETAIL_LIFETIMEBOUND,
+                 unodb::node_type type) noexcept
+      : tagged_ptr{tag_ptr(const_cast<header_type*>(ptr), type)} {}
 
   basic_node_ptr<Header> &operator=(std::nullptr_t) noexcept {
     tagged_ptr = reinterpret_cast<std::uintptr_t>(nullptr);
@@ -187,6 +225,11 @@ class [[nodiscard]] basic_node_ptr {
   template <class T>
   [[nodiscard, gnu::pure]] auto *ptr() const noexcept {
     return reinterpret_cast<T>(tagged_ptr & ptr_bit_mask);
+  }
+
+  // same raw_val means same type and same ptr.
+  [[nodiscard, gnu::pure]] auto operator==(const basic_node_ptr& other) const noexcept {
+    return tagged_ptr == other.tagged_ptr;
   }
 
   [[nodiscard, gnu::pure]] auto operator==(std::nullptr_t) const noexcept {
@@ -227,5 +270,26 @@ class [[nodiscard]] basic_node_ptr {
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace unodb::detail
+
+namespace unodb {
+
+class olc_db;
+class db;
+
+  // Alias for an object visited by the scan_api.
+  template <typename Iterator>
+  class visitor {
+    friend class olc_db;
+    friend class db;
+   protected:
+    Iterator& it;
+    inline visitor(Iterator& it_):it(it_){}
+   public:
+    inline auto get_key() noexcept {return it.get_key().value();}  // visit the key (may side-effect the iterator so not const).
+    inline auto get_value() const noexcept {return it.get_val().value();} // visit the value.
+    inline void dump(std::ostream& os) noexcept {it.dump(os);}  // TEST ONLY
+  };
+ 
+}
 
 #endif  // UNODB_DETAIL_ART_INTERNAL_HPP

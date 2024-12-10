@@ -55,6 +55,9 @@ inline void spin_wait_loop_body() noexcept {
 }
 // LCOV_EXCL_STOP
 
+// The bare data for the version information on a node.
+using version_tag = std::uint64_t;
+
 // Optimistic lock as described in V. Leis, F. Schneiber, A. Kemper and T.
 // Neumann, "The ART of Practical Synchronization," 2016 Proceedings of the 12th
 // International Workshop on Data Management on New Hardware(DaMoN), pages
@@ -84,10 +87,12 @@ inline void spin_wait_loop_body() noexcept {
 // All bool-returning try_ functions return true on success and false on
 // lock version change, which indicates the need to restart
 class [[nodiscard]] optimistic_lock final {
- private:
+ public:
+
+  // Class for operations with a version_tag.
   class [[nodiscard]] version_type final {
    public:
-    explicit constexpr version_type(std::uint64_t version_val) noexcept
+    explicit constexpr version_type(version_tag version_val) noexcept
         : version{version_val} {}
 
     [[nodiscard, gnu::const]] constexpr bool is_write_locked() const noexcept {
@@ -115,7 +120,8 @@ class [[nodiscard]] optimistic_lock final {
       return version_type{version + 2};
     }
 
-    [[nodiscard]] constexpr std::uint64_t get() const noexcept {
+    // Return the version_tag (just the data).
+    [[nodiscard]] constexpr version_tag get() const noexcept {
       return version;
     }
 
@@ -131,15 +137,20 @@ class [[nodiscard]] optimistic_lock final {
     }
 
    private:
-    std::uint64_t version{0};
-  };
+    version_tag version{0};
+  }; // class version_type
 
+ private:
+  
   class [[nodiscard]] atomic_version_type final {
    public:
+
+    // load-acquire
     [[nodiscard]] version_type load() const noexcept {
       return version_type{version.load(std::memory_order_acquire)};
     }
 
+    // load-relaxed
     [[nodiscard]] version_type load_relaxed() const noexcept {
       return version_type{version.load(std::memory_order_relaxed)};
     }
@@ -174,11 +185,13 @@ class [[nodiscard]] optimistic_lock final {
 
     static_assert(decltype(version)::is_always_lock_free,
                   "Must use always lock-free atomics");
-  };
+  }; // class atomic_version_type
 
  public:
   class write_guard;
 
+  // Encapsulates a lock on some node and the version information that
+  // was read for that lock.
   class [[nodiscard]] read_critical_section final {
    public:
     read_critical_section() noexcept = default;
@@ -199,8 +212,22 @@ class [[nodiscard]] optimistic_lock final {
       return *this;
     }
 
+    // Point to the same lock and have the same version for that lock.
+    bool operator==(const read_critical_section &other) const noexcept {
+      return lock == other.lock && version == other.version;
+    }
+
+    // Unlock iff it is not yet unlocked.
+    //
+    // Note: In a DEBUG build, this clears the [lock] pointer,
+    // rendering the RCS unusable, and decrements the read_lock_count.
+    //
+    // @return true iff the [version] on the optimistic_lock is still
+    // the version that was used to construct this
+    // read_critical_section.
     [[nodiscard, gnu::flatten]] UNODB_DETAIL_FORCE_INLINE bool try_read_unlock()
         UNODB_DETAIL_RELEASE_CONST noexcept {
+      //const auto result = ( lock == nullptr ?false :lock->try_read_unlock(version) ); // FIXME Prefer this version?  Avoids nullptr dereference.
       const auto result = lock->try_read_unlock(version);
 #ifndef NDEBUG
       lock = nullptr;
@@ -208,6 +235,18 @@ class [[nodiscard]] optimistic_lock final {
       return UNODB_DETAIL_LIKELY(result);
     }
 
+    // Return true iff the version on the optimistic lock is still the
+    // same version that was used to construct this
+    // read_critical_section.
+    //
+    // Note: By contract, it is not legal to call this method if the
+    // check has already failed.  To help catch such situations, in a
+    // DEBUG build, this will clear the [lock] pointer if the check
+    // fails.  A subsequent check() call will then dereference a
+    // nullptr and fault the process.
+    //
+    // @return true if the version is unchanged and false if the
+    // caller MUST restart because the version has been changed.
     [[nodiscard]] bool check() UNODB_DETAIL_RELEASE_CONST noexcept {
       const auto result = lock->check(version);
 #ifndef NDEBUG
@@ -216,6 +255,19 @@ class [[nodiscard]] optimistic_lock final {
       return UNODB_DETAIL_LIKELY(result);
     }
 
+    // FIXME This should be reviewed carefully.  The only case it can
+    // catch is when the lock ptr has been cleared.  However, other
+    // methods such as check do lock->check() without checking for
+    // whether the lock pointer has been cleared. This makes the code
+    // subject to null pointer dereference faults.  If the lock can be
+    // cleared to a null pointer, then we need to systematically guard
+    // against that.
+    //
+    // FIXME This method is invoked in at least one place (olc::get())
+    // where the read_critical_section has just been obtained and the
+    // lock can not be a nullptr.  We should look at all uses of
+    // must_restart() and figure out whether this is evolutionary
+    // cruft that needs to be cleaned up.
     [[nodiscard]] bool must_restart() const noexcept {
       return UNODB_DETAIL_UNLIKELY(lock == nullptr);
     }
@@ -228,16 +280,19 @@ class [[nodiscard]] optimistic_lock final {
 #endif
     }
 
+    // The version tag backing the read_critical_section.
+    [[nodiscard]] inline constexpr version_tag get() const noexcept {return version.get();}
+    
     read_critical_section(const read_critical_section &) = delete;
     read_critical_section(read_critical_section &&) = delete;
     read_critical_section &operator=(const read_critical_section &) = delete;
-
+    
    private:
     optimistic_lock *lock{nullptr};
     version_type version{0};
 
     friend class write_guard;
-  };
+  }; // class read_critical_section
 
   class [[nodiscard]] write_guard final {
    public:
@@ -285,7 +340,7 @@ class [[nodiscard]] optimistic_lock final {
 
    private:
     optimistic_lock *lock{nullptr};
-  };
+  }; // class write_guard
 
   optimistic_lock() noexcept = default;
 
@@ -296,6 +351,10 @@ class [[nodiscard]] optimistic_lock final {
 
   ~optimistic_lock() noexcept = default;
 
+  // Acquire and return a read_critical_section for some lock.  This
+  // is done without writing anything on the lock, but it can spin if
+  // the lock is in a transient state (e.g., locked by a writer). The
+  // returned read_critical_section MAY be marked [obsolete].
   [[nodiscard]] read_critical_section try_read_lock() noexcept {
     while (true) {
       const auto current_version = version.load();
@@ -312,6 +371,20 @@ class [[nodiscard]] optimistic_lock final {
     }
   }
 
+  // Return a read_critical_section for this optimistic_lock using a
+  // version_tag which had been obtained previously.  The use case for
+  // this is to fix up the optimistic_lock when a version_tag is read
+  // from the stack for an OLC itertor.  It bumps the read lock count
+  // to make the code happy but does not do any spin waits or even
+  // look at the current version_tag associated with the lock.  When
+  // the caller calls read_critical_section::check() on the returned
+  // lock they will figure out whether or not the version is still
+  // valid.
+  [[nodiscard]] read_critical_section rehydrate_read_lock(version_tag version_tag_) noexcept {
+    inc_read_lock_count();
+    return read_critical_section{*this, version_type( version_tag_ )};
+  }
+  
 #ifndef NDEBUG
   void check_on_dealloc() const noexcept {
     UNODB_DETAIL_ASSERT(read_lock_count.load(std::memory_order_acquire) == 0);
@@ -338,6 +411,7 @@ class [[nodiscard]] optimistic_lock final {
   }
 
  private:
+  // return true if the version has not changed.
   [[nodiscard]] bool check(version_type locked_version) const noexcept {
     UNODB_DETAIL_ASSERT(read_lock_count.load(std::memory_order_acquire) > 0);
 
@@ -397,7 +471,7 @@ class [[nodiscard]] optimistic_lock final {
     UNODB_DETAIL_ASSERT(old_value > 0);
 #endif
   }
-};
+}; // class optimistic_lock
 
 static_assert(std::is_standard_layout_v<optimistic_lock>);
 
@@ -414,6 +488,7 @@ static_assert(sizeof(optimistic_lock) == 8);
 static_assert(sizeof(optimistic_lock) == 24);
 #endif
 
+// A gloss for the atomic semantics used to guard loads and stores.
 template <typename T>
 class [[nodiscard]] in_critical_section final {
  public:
@@ -481,7 +556,7 @@ class [[nodiscard]] in_critical_section final {
 
   static_assert(std::atomic<T>::is_always_lock_free,
                 "Must use always lock-free atomics");
-};
+}; // class in_critical_section
 
 }  // namespace unodb
 

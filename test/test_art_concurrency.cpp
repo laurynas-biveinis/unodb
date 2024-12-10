@@ -23,6 +23,8 @@
 
 namespace {
 
+static inline bool odd(const unodb::key x) {return x % 2;}
+  
 template <class Db>
 class ARTConcurrencyTest : public ::testing::Test {
  public:
@@ -36,12 +38,15 @@ class ARTConcurrencyTest : public ::testing::Test {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  protected:
+
   // NOLINTNEXTLINE(bugprone-exception-escape)
   ARTConcurrencyTest() noexcept {
     if constexpr (std::is_same_v<Db, unodb::olc_db>)
       unodb::test::expect_idle_qsbr();
   }
 
+  //
+  // TestFn is void( unodb::test::tree_verifier<Db> *verifier, std::size_t thread_i, std::size_t ops_per_thread)
   template <std::size_t ThreadCount, std::size_t OpsPerThread, typename TestFn>
   void parallel_test(TestFn test_function) {
     if constexpr (std::is_same_v<Db, unodb::olc_db>)
@@ -60,8 +65,7 @@ class ARTConcurrencyTest : public ::testing::Test {
       unodb::this_thread().qsbr_resume();
   }
 
-  template <unsigned PreinsertLimit, std::size_t ThreadCount,
-            std::size_t OpsPerThread>
+  template <unsigned PreinsertLimit, std::size_t ThreadCount, std::size_t OpsPerThread>
   void key_range_op_test() {
     verifier.insert_key_range(0, PreinsertLimit, true);
 
@@ -87,9 +91,10 @@ class ARTConcurrencyTest : public ::testing::Test {
   static void key_range_op_thread(unodb::test::tree_verifier<Db> *verifier,
                                   std::size_t thread_i,
                                   std::size_t ops_per_thread) {
-    unodb::key key = thread_i / 3 * 3;
+    constexpr auto ntasks = 4;  // Note: 4 to enable scan tests.
+    unodb::key key = thread_i / ntasks * ntasks;
     for (decltype(ops_per_thread) i = 0; i < ops_per_thread; ++i) {
-      switch (thread_i % 3) {
+      switch (thread_i % ntasks) {
         case 0: /* insert */
           verifier->try_insert(key, unodb::test::test_value_1);
           break;
@@ -99,6 +104,25 @@ class ARTConcurrencyTest : public ::testing::Test {
         case 2: /* get */
           verifier->try_get(key);
           break;
+        case 3: { /* scan */
+          uint64_t n = 0;
+          uint64_t sum = 0;
+          auto fn = [&n,&sum](unodb::visitor<typename Db::iterator>& v) {
+            n++;
+            sum += v.get_key();
+            std::ignore = v.get_value();  // TODO Does this ensure that the value is read?
+            return false;
+          };
+          auto fromKey = ( key > 100 ) ? (key - 100) : key;
+          auto toKey = key + 100;
+          if ( odd( key ) ) {
+            verifier->get_db().scan_range( fromKey, toKey, fn); // forward scan
+          } else {
+            verifier->get_db().scan_range( toKey, fromKey, fn); // reverse scan
+          }
+          //std::cerr<<"scan: fromKey="<<fromKey<<", toKey="<<toKey<<", n="<<n<<", sum="<<sum<<std::endl;
+          break;
+        }
         default:
           UNODB_DETAIL_CANNOT_HAPPEN();
       }
@@ -113,9 +137,10 @@ class ARTConcurrencyTest : public ::testing::Test {
     std::random_device rd;
     std::mt19937 gen{rd()};
     std::geometric_distribution<unodb::key> key_generator{0.5};
+    constexpr auto ntasks = 4;  // Note: 4 to enable scan tests.
     for (decltype(ops_per_thread) i = 0; i < ops_per_thread; ++i) {
       const auto key{key_generator(gen)};
-      switch (thread_i % 3) {
+      switch (thread_i % ntasks) {
         case 0: /* insert */
           verifier->try_insert(key, unodb::test::test_value_2);
           break;
@@ -125,6 +150,25 @@ class ARTConcurrencyTest : public ::testing::Test {
         case 2: /* get */
           verifier->try_get(key);
           break;
+        case 3: { /* scan */
+          uint64_t n = 0;
+          uint64_t sum = 0;
+          auto fn = [&n,&sum](unodb::visitor<typename Db::iterator>& v) {
+            n++;
+            sum += v.get_key();
+            std::ignore = v.get_value();  // TODO Does this ensure that the value is read?
+            return false;
+          };
+          auto fromKey = ( key > 100 ) ? (key - 100) : key;
+          auto toKey = key + 100;
+          if ( odd( key ) ) {
+            verifier->get_db().scan_range( fromKey, toKey, fn); // forward scan
+          } else {
+            verifier->get_db().scan_range( toKey, fromKey, fn); // reverse scan
+          }
+          //std::cerr<<"scan: fromKey="<<fromKey<<", toKey="<<toKey<<", n="<<n<<", sum="<<sum<<std::endl;
+          break;
+        }
         default:
           UNODB_DETAIL_CANNOT_HAPPEN();
       }
@@ -181,14 +225,32 @@ TYPED_TEST(ARTConcurrencyTest, Node48ParallelOps) {
   this->template key_range_op_test<32, 9, 32>();
 }
 
+// FIXME Is the #of OpsPerThread related to the conditions under which
+// the node would be replaced by a different root node?  And does that
+// change once SCAN is introduced as an operation?  It would seem that
+// the test conditions would likely be Ok since fewer operations would
+// be performed and presumably the OpsPerThread is a maximum before a
+// structural modification would result.
 TYPED_TEST(ARTConcurrencyTest, Node256ParallelOps) {
   this->template key_range_op_test<152, 9, 208>();
 }
 
-TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGet) {
+TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan) {
   constexpr auto thread_count = 4 * 3;
   constexpr auto initial_keys = 2048;
-  constexpr auto ops_per_thread = 10000;
+  constexpr auto ops_per_thread = 10'000; // configured at 10'000 for normal builds.
+
+  this->verifier.insert_key_range(0, initial_keys, true);
+  this->template parallel_test<thread_count, ops_per_thread>(
+      TestFixture::random_op_thread);
+}
+
+// Optionally enable this for more confidence in debug builds and set
+// the thread_count for your machine.
+TYPED_TEST(ARTConcurrencyTest, DISABLED_ParallelRandomInsertDeleteGetScan_StressTest) {
+  constexpr auto thread_count = 48;
+  constexpr auto initial_keys = 1024; // fewer keys and more threads is more challenging
+  constexpr auto ops_per_thread = 1'000'000;  // Running at 1M gives you extra confidence in debug builds.
 
   this->verifier.insert_key_range(0, initial_keys, true);
   this->template parallel_test<thread_count, ops_per_thread>(

@@ -1,20 +1,27 @@
 // Copyright 2022-2024 Laurynas Biveinis
 
-#include "global.hpp"
+//
+// CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
+// HEADER FILES !!!
+//
+// This header defines _GLIBCXX_DEBUG and _GLIBCXX_DEBUG_PEDANTIC for
+// DEBUG builds.  If some standard headers are included before and
+// after those symbols are defined, then that results in different
+// container internal structure layouts and that is Not Good.
+#include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <iterator>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gtest/gtest.h"
 
+#include <gtest/gtest.h>
 #include <algorithm>
 #include <array>
-#include <utility>
-
-#include <gtest/gtest.h>
+#include <cstddef>
+#include <cstdint>
 #include <gsl/span>
-
+#include <utility>
 #include "gtest_utils.hpp"
-
 #include "qsbr_ptr.hpp"
 
 namespace {
@@ -217,6 +224,62 @@ TEST(QSBRPtrSpan, Cend) {
   // Do not write &two_chars[2] directly or the libstdc++ debug assertions fire
   UNODB_ASSERT_EQ(std::cend(span).get(), &two_chars[1] + 1);
 }
+
+TEST(QSBRPtrSpan, Equal) {
+  using T = std::uint64_t;
+  const auto vx{static_cast<T>(0x0102030405060708)};
+  const auto vx1{static_cast<T>(0x0102030405060708)};
+  const auto vy{static_cast<T>(0x0506070801020304)};
+  const unodb::qsbr_ptr<const T> ptrx{&vx};
+  const unodb::qsbr_ptr<const T> ptrx1{&vx1};  // different pointer, same data
+  const unodb::qsbr_ptr<const T> ptry{&vy};    // different data
+  const unodb::qsbr_ptr<const T> ptr_null{nullptr};  // nullptr
+  // Baseline expectations for qsbr_ptr vs self.
+  //
+  EXPECT_EQ(ptrx, ptrx);    // same ptr and len
+  EXPECT_EQ(ptrx1, ptrx1);  // same ptr and len
+  EXPECT_NE(ptrx, ptrx1);   // different data
+  EXPECT_EQ(ptr_null, ptr_null);
+  EXPECT_NE(ptrx, ptr_null);
+  EXPECT_NE(ptr_null, ptrx);
+  //
+  // Setup some gsl::span values.
+  //
+  const gsl::span<const T> spanx{&vx, 1};
+  const gsl::span<const T> spanx1{&vx1, 1};  // different ptr, same data
+  const gsl::span<const T> span_empty{       // non-null, but zero len.
+                                      &vx, static_cast<size_t>(0)};
+  const gsl::span<const T> span_null{
+      // nullptr and zero len.
+      static_cast<T*>(nullptr), static_cast<size_t>(0)};
+  // Note: illegal (causes a fault in the gsl::span() ctor).
+  // const gsl::span<const T> span_null1{  // nullptr and zero len.
+  //   static_cast<T*>(nullptr),
+  //   static_cast<size_t>(1)
+  // };
+  //
+  const std::array<const T, 2> two_values = {vx, vy};
+  const gsl::span<const T> span_two_values{two_values};
+  //
+  // Setup some qsbr_ptr_span values wrapping those gsl::span values.
+  //
+  const unodb::qsbr_ptr_span qspanx{spanx};
+  const unodb::qsbr_ptr_span qspan_empty{span_empty};
+  const unodb::qsbr_ptr_span qspan_null{span_null};
+  const unodb::qsbr_ptr_span qspan_null1{span_null};
+  const unodb::qsbr_ptr_span qspan_two_values{span_two_values};
+  //
+  // Now compare qsbr_ptr instances to gsl::span instances.
+  //
+  EXPECT_EQ(qspanx, spanx);                      // same ptr & len
+  EXPECT_EQ(qspanx, spanx1);                     // same data & len.
+  EXPECT_NE(qspanx, span_empty);                 // same ptr, different length.
+  EXPECT_NE(qspan_null, span_empty);             // null and zero-length span.
+  EXPECT_EQ(qspan_null, span_null);              // both null and zero-length.
+  EXPECT_EQ(qspan_two_values, span_two_values);  // same data & len
+  EXPECT_NE(qspan_two_values, spanx);            // different len, same 1st val
+}
+
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 UNODB_END_TESTS()

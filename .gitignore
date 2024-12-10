@@ -46,3 +46,9 @@
 # MSVC
 /.vs
 /out
+
+**/*~
+**/*#*
+
+run-cmake.sh
+loop-test.sh

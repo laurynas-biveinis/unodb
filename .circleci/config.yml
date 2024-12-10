@@ -106,11 +106,11 @@ jobs:
       - run:
           name: Build
           working_directory: build
-          command: make -j2
+          command: make -j2 -k
       - run:
           name: Examples
           working_directory: build
-          command: make examples
+          command: make -k examples
       - run:
           name: Correctness test
           working_directory: build
@@ -125,7 +125,7 @@ jobs:
             - run:
                 name: Benchmark correctness test
                 working_directory: build
-                command: make quick_benchmarks
+                command: make -k quick_benchmarks
       - when:
           condition:
             not:
@@ -139,7 +139,7 @@ jobs:
                 working_directory: build
                 command: |
                   sudo NEEDRESTART_MODE=a apt-get install -y valgrind
-                  make valgrind
+                  make -k valgrind
 
   build-macos:
     parameters:
@@ -187,11 +187,11 @@ jobs:
       - run:
           name: Build
           working_directory: build
-          command: make -j3
+          command: make -j3 -k
       - run:
           name: Examples
           working_directory: build
-          command: make examples
+          command: make -k examples
       - run:
           name: Correctness test
           working_directory: build
@@ -206,7 +206,7 @@ jobs:
             - run:
                 name: Benchmark correctness test
                 working_directory: build
-                command: make quick_benchmarks
+                command: make -k quick_benchmarks
 
 workflows:
   build:

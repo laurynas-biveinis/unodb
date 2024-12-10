@@ -1,4 +1,4 @@
-// Copyright 2024 Laurynas Biveinis
+// Copyright 2024-2025 Laurynas Biveinis
 
 // A simple example showing unodb::olc_db parallelism. For simplicity &
 // self-containedness does not concern with exception handling and refactoring
@@ -27,7 +27,6 @@
 #include <sstream>
 #include <string_view>
 
-#include "art_common.hpp"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 
@@ -125,6 +124,15 @@ int main() {
   threads[0].join();
   threads[1].join();
   threads[2].join();
+
+  // Quitting threads may race with epoch changes by design, resulting in
+  // previous epoch orphaned requests not being executed until epoch
+  // changes one more time. If that does not happen, some memory might be
+  // held too long. Thus users are advised to pass through Q state in the
+  // last thread a couple more times at the end.
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+  unodb::this_thread().quiescent();
 
 #ifdef UNODB_DETAIL_WITH_STATS
   std::cerr << "Final tree memory use: " << tree.get_current_memory_use()

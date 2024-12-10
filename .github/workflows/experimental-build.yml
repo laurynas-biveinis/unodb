@@ -1,7 +1,11 @@
 ---
 name: experimental-build
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 permissions: { }
 
@@ -51,5 +55,5 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: make -j3
+        run: make -j3 -k
         continue-on-error: true

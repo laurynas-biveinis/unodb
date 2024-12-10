@@ -1,7 +1,11 @@
 ---
 name: build-ubuntu-20.04
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 env:
   DEFAULT_SANITIZE_ADDRESS: OFF
@@ -226,11 +230,11 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: make -j3
+        run: make -j3 -k
 
       - name: Examples
         working-directory: ${{github.workspace}}/build
-        run: make examples
+        run: make -k examples
 
       - name: Correctness test
         working-directory: ${{github.workspace}}/build
@@ -238,14 +242,14 @@ jobs:
 
       - name: Benchmark correctness test
         working-directory: ${{github.workspace}}/build
-        run: make quick_benchmarks
+        run: make -k quick_benchmarks
 
       - name: Valgrind test
         working-directory: ${{github.workspace}}/build
         run: |
           sudo apt-get install -y libc6-dbg
           sudo snap install --classic valgrind
-          make valgrind
+          make -k valgrind
         if: >
           env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'
           && env.SANITIZE_UB != 'ON'

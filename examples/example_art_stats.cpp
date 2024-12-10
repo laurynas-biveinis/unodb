@@ -4,12 +4,17 @@
 // self-containedness does not concern with exception handling and refactoring
 // the duplicated code with other examples.
 
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
+
 #include "global.hpp"  // IWYU pragma: keep
 
+#include <cstddef>
 #include <iostream>
 #include <string_view>
 
 #include "art.hpp"
+#include "art_common.hpp"
+#include "node_type.hpp"
 
 namespace {
 

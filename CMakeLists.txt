@@ -109,6 +109,16 @@ else()
   message(STATUS "Using SSE4.1 instructions on x86_64")
 endif()
 
+set(SPINLOCK_LOOP "PAUSE" CACHE STRING "Spinlock loop implementation type")
+set_property(CACHE SPINLOCK_LOOP PROPERTY STRINGS PAUSE EMPTY)
+if(SPINLOCK_LOOP STREQUAL "PAUSE")
+  set(SPINLOCK_LOOP_VALUE 1)
+elseif(SPINLOCK_LOOP STREQUAL "EMPTY")
+  set(SPINLOCK_LOOP_VALUE 2)
+else()
+  message(FATAL_ERROR "SPINLOCK_LOOP must be one of: PAUSE, EMPTY")
+endif()
+
 if(MSVC)
   # Remove it once CMake minimum is bumped to 3.15 or greater
   string(REGEX REPLACE "/W3" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -594,7 +604,8 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
   target_compile_definitions(${TARGET} PRIVATE
     "$<${is_standalone}:UNODB_DETAIL_STANDALONE>"
-    "$<${has_boost_stacktrace}:UNODB_DETAIL_BOOST_STACKTRACE>")
+    "$<${has_boost_stacktrace}:UNODB_DETAIL_BOOST_STACKTRACE>"
+    "UNODB_SPINLOCK_LOOP_VALUE=${SPINLOCK_LOOP_VALUE}")
   target_compile_options(${TARGET} PRIVATE
     "${CXX_FLAGS}" "${SANITIZER_CXX_FLAGS}"
     "$<${is_msvc}:${MSVC_CXX_FLAGS}>"
@@ -742,6 +753,7 @@ message(STATUS "User-set CMake options:")
 message(STATUS "STANDALONE: ${STANDALONE}")
 message(STATUS "MAINTAINER_MODE: ${MAINTAINER_MODE}")
 message(STATUS "AVX2: ${AVX2}")
+message(STATUS "SPINLOCK_LOOP: ${SPINLOCK_LOOP}")
 message(STATUS "COVERAGE: ${COVERAGE}")
 message(STATUS "GCOV_PATH: ${GCOV_PATH}")
 message(STATUS "SANITIZE_ADDRESS: ${SANITIZE_ADDRESS}")

@@ -7,6 +7,7 @@ env:
   DEFAULT_SANITIZE_ADDRESS: OFF
   DEFAULT_SANITIZE_THREAD: OFF
   DEFAULT_SANITIZE_UB: OFF
+  DEFAULT_SPINLOCK_LOOP: PAUSE
 
 permissions: { }
 
@@ -21,6 +22,7 @@ jobs:
       SANITIZE_ADDRESS: ${{matrix.SANITIZE_ADDRESS}}
       SANITIZE_THREAD: ${{matrix.SANITIZE_THREAD}}
       SANITIZE_UB: ${{matrix.SANITIZE_UB}}
+      SPINLOCK_LOOP: ${{matrix.SPINLOCK_LOOP}}
 
     strategy:
       fail-fast: false
@@ -30,47 +32,55 @@ jobs:
             BUILD_TYPE: Release
             COMPILER: clang
             VERSION: 13
+            SPINLOCK_LOOP: EMPTY
 
           - name: clang 13 Release with ASan
             BUILD_TYPE: Release
             SANITIZE_ADDRESS: ON
             COMPILER: clang
             VERSION: 13
+            SPINLOCK_LOOP: EMPTY
 
           - name: clang 13 Release with TSan
             BUILD_TYPE: Release
             SANITIZE_THREAD: ON
             COMPILER: clang
             VERSION: 13
+            SPINLOCK_LOOP: EMPTY
 
           - name: clang 13 Release with UBSan
             BUILD_TYPE: Release
             SANITIZE_UB: ON
             COMPILER: clang
             VERSION: 13
+            SPINLOCK_LOOP: EMPTY
 
           - name: clang 13 Debug
             BUILD_TYPE: Debug
             COMPILER: clang
             VERSION: 13
+            SPINLOCK_LOOP: EMPTY
 
           - name: clang 13 Debug with ASan
             BUILD_TYPE: Debug
             SANITIZE_ADDRESS: ON
             COMPILER: clang
             VERSION: 13
+            SPINLOCK_LOOP: EMPTY
 
           - name: clang 13 Debug with TSan
             BUILD_TYPE: Debug
             SANITIZE_THREAD: ON
             COMPILER: clang
             VERSION: 13
+            SPINLOCK_LOOP: EMPTY
 
           - name: clang 13 Debug with UBSan
             BUILD_TYPE: Debug
             SANITIZE_UB: ON
             COMPILER: clang
             VERSION: 13
+            SPINLOCK_LOOP: EMPTY
 
           - name: clang 14 Release
             BUILD_TYPE: Release
@@ -306,47 +316,55 @@ jobs:
             BUILD_TYPE: Release
             COMPILER: gcc
             VERSION: 11
+            SPINLOCK_LOOP: EMPTY
 
           - name: GCC 11 Release with ASan
             BUILD_TYPE: Release
             SANITIZE_ADDRESS: ON
             COMPILER: gcc
             VERSION: 11
+            SPINLOCK_LOOP: EMPTY
 
           - name: GCC 11 Release with TSan
             BUILD_TYPE: Release
             SANITIZE_THREAD: ON
             COMPILER: gcc
             VERSION: 11
+            SPINLOCK_LOOP: EMPTY
 
           - name: GCC 11 Release with UBSan
             BUILD_TYPE: Release
             SANITIZE_UB: ON
             COMPILER: gcc
             VERSION: 11
+            SPINLOCK_LOOP: EMPTY
 
           - name: GCC 11 Debug
             BUILD_TYPE: Debug
             COMPILER: gcc
             VERSION: 11
+            SPINLOCK_LOOP: EMPTY
 
           - name: GCC 11 Debug with ASan
             BUILD_TYPE: Debug
             SANITIZE_ADDRESS: ON
             COMPILER: gcc
             VERSION: 11
+            SPINLOCK_LOOP: EMPTY
 
           - name: GCC 11 Debug with TSan
             BUILD_TYPE: Debug
             SANITIZE_THREAD: ON
             COMPILER: gcc
             VERSION: 11
+            SPINLOCK_LOOP: EMPTY
 
           - name: GCC 11 Debug with UBSan
             BUILD_TYPE: Debug
             SANITIZE_UB: ON
             COMPILER: gcc
             VERSION: 11
+            SPINLOCK_LOOP: EMPTY
 
           - name: GCC 12 Release
             BUILD_TYPE: Release
@@ -444,6 +462,7 @@ jobs:
           SANITIZE_ADDRESS="${SANITIZE_ADDRESS:-$DEFAULT_SANITIZE_ADDRESS}"
           SANITIZE_THREAD="${SANITIZE_THREAD:-$DEFAULT_SANITIZE_THREAD}"
           SANITIZE_UB="${SANITIZE_UB:-$DEFAULT_SANITIZE_UB}"
+          SPINLOCK_LOOP="${SPINLOCK_LOOP:-$DEFAULT_SPINLOCK_LOOP}"
           export PATH=$HOME/.local/bin:$PATH
           if [[ $COMPILER == "gcc" ]]; then
             export CC="gcc-${VERSION}"
@@ -467,7 +486,8 @@ jobs:
               "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
-              "-DSANITIZE_UB=${SANITIZE_UB}" "${EXTRA_CMAKE_ARGS[@]}"
+              "-DSANITIZE_UB=${SANITIZE_UB}" \
+              "-DSPINLOCK_LOOP=${SPINLOCK_LOOP}" "${EXTRA_CMAKE_ARGS[@]}"
 
       - name: Build
         working-directory: ${{github.workspace}}/build

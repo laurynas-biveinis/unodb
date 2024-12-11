@@ -43,6 +43,11 @@ Out-of-source builds are recommended. Before anything else, do
 git submodule update --init --recursive
 ```
 
+Currently there are two spinlock wait loop body implementation options: EMPTY,
+for a no-op loop, and PAUSE, that uses `PAUSE` instruction on x86_64. The latter
+is the default. To select the implementation, use the CMake option, i.e.
+`-DSPINLOCK_LOOP=EMPTY`.
+
 Some platform-specific notes:
 
 ### Ubuntu 22.04

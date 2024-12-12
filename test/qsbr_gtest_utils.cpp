@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Laurynas Biveinis
+// Copyright 2022-2024 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -13,7 +13,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
 QSBRTestBase::QSBRTestBase() {
   if (is_qsbr_paused()) unodb::this_thread().qsbr_resume();
   unodb::test::expect_idle_qsbr();
+#ifdef UNODB_DETAIL_WITH_STATS
   unodb::qsbr::instance().reset_stats();
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 

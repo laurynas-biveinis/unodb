@@ -159,15 +159,19 @@ void quiescent_state(std::size_t thread_i) {
   }
 
   LOG(TRACE) << "Quiescent state";
+#ifdef UNODB_DETAIL_WITH_STATS
   const auto current_interval_total_dealloc_size_before =
       unodb::this_thread().get_current_interval_total_dealloc_size();
+#endif  // UNODB_DETAIL_WITH_STATS
   unodb::this_thread().quiescent();
+#ifdef UNODB_DETAIL_WITH_STATS
   const auto current_interval_total_dealloc_size_after =
       unodb::this_thread().get_current_interval_total_dealloc_size();
   // NOLINTNEXTLINE(readability-simplify-boolean-expr)
   ASSERT(current_interval_total_dealloc_size_before ==
              current_interval_total_dealloc_size_after ||
          current_interval_total_dealloc_size_after == 0);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 void allocate_pointer(std::size_t thread_i) {
@@ -197,8 +201,10 @@ void deallocate_pointer(std::uint64_t *ptr) {
   ASSERT(!unodb::this_thread().is_qsbr_paused());
   ASSERT(*ptr == object_mem);
 
+#ifdef UNODB_DETAIL_WITH_STATS
   const auto current_interval_total_dealloc_size_before =
       unodb::this_thread().get_current_interval_total_dealloc_size();
+#endif  // UNODB_DETAIL_WITH_STATS
   const auto previous_interval_empty_before =
       unodb::this_thread().previous_interval_requests_empty();
   const auto current_interval_empty_before =
@@ -212,18 +218,24 @@ void deallocate_pointer(std::uint64_t *ptr) {
     bool op_completed;
     try {
       unodb::this_thread().on_next_epoch_deallocate(
-          ptr, sizeof(object_mem)
+          ptr
+#ifdef UNODB_DETAIL_WITH_STATS
+          ,
+          sizeof(object_mem)
+#endif
 #ifndef NDEBUG
-                   ,
+              ,
           check_qsbr_pointer_on_dealloc
 #endif
       );
       op_completed = true;
     } catch (const std::bad_alloc &) {
+#ifdef UNODB_DETAIL_WITH_STATS
       const auto current_interval_total_dealloc_size_after =
           unodb::this_thread().get_current_interval_total_dealloc_size();
       ASSERT(current_interval_total_dealloc_size_before ==
              current_interval_total_dealloc_size_after);
+#endif  // UNODB_DETAIL_WITH_STATS
       const auto previous_interval_empty_after =
           unodb::this_thread().previous_interval_requests_empty();
       ASSERT(previous_interval_empty_before == previous_interval_empty_after);
@@ -240,11 +252,16 @@ void deallocate_pointer(std::uint64_t *ptr) {
     if (op_completed) break;
   }
 
+#ifdef UNODB_DETAIL_WITH_STATS
   const auto current_interval_total_dealloc_size_after =
       unodb::this_thread().get_current_interval_total_dealloc_size();
   const auto single_thread_mode = unodb::qsbr_state::single_thread_mode(
       unodb::qsbr::instance().get_state());
+#endif  // UNODB_DETAIL_WITH_STATS
+
   UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
+
+#ifdef UNODB_DETAIL_WITH_STATS
   if (single_thread_mode) {
     // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     ASSERT(current_interval_total_dealloc_size_before ==
@@ -257,6 +274,7 @@ void deallocate_pointer(std::uint64_t *ptr) {
            (current_interval_total_dealloc_size_after ==
             current_interval_total_dealloc_size_before + sizeof(object_mem)));
   }
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 void deallocate_pointer(std::size_t thread_i) {
@@ -525,8 +543,10 @@ void reset_stats() {
       return;
     }
   }
+#ifdef UNODB_DETAIL_WITH_STATS
   LOG(TRACE) << "Resetting QSBR stats";
   unodb::qsbr::instance().reset_stats();
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 void do_op(std::size_t thread_i, thread_operation op) {
@@ -680,19 +700,21 @@ TEST(QSBR, DeepStateFuzz) {
     std::stringstream dump_sink;
     unodb::qsbr::instance().dump(dump_sink);
     // Check that getters do not crash
+    dump_sink << unodb::qsbr::instance().get_state();
+    dump_sink
+        << unodb::qsbr::instance().previous_interval_orphaned_requests_empty();
+    dump_sink
+        << unodb::qsbr::instance().current_interval_orphaned_requests_empty();
+#ifdef UNODB_DETAIL_WITH_STATS
     dump_sink << unodb::qsbr::instance().get_epoch_callback_count_max();
     dump_sink << unodb::qsbr::instance().get_epoch_callback_count_variance();
     dump_sink
         << unodb::qsbr::instance()
                .get_mean_quiescent_states_per_thread_between_epoch_changes();
-    dump_sink << unodb::qsbr::instance().get_state();
     dump_sink << unodb::qsbr::instance().get_epoch_change_count();
     dump_sink << unodb::qsbr::instance().get_max_backlog_bytes();
     dump_sink << unodb::qsbr::instance().get_mean_backlog_bytes();
-    dump_sink
-        << unodb::qsbr::instance().previous_interval_orphaned_requests_empty();
-    dump_sink
-        << unodb::qsbr::instance().current_interval_orphaned_requests_empty();
+#endif  // UNODB_DETAIL_WITH_STATS
   }
 
   for (std::size_t i = 0; i < threads.size(); ++i) {

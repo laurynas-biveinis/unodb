@@ -32,9 +32,10 @@ platform-specific features:
   the original ART paper, which only required SSE2.
 * On ARM, it uses NEON intrinsics.
 
-Please note that this personal project only supports the following compilers:
-GCC 10 and later, LLVM 11 and later, XCode 13.2, and MSVC 2022 compilers. If you
-require support for an earlier compiler version, feel free to drop me a note.
+Oldest supported compilers are GCC 10, LLVM 11, XCode 16.1, and MSVC 2022. Open
+an issue if you require support for an older version.
+
+## Building
 
 Out-of-source builds are recommended. Before anything else, do
 
@@ -43,12 +44,25 @@ Out-of-source builds are recommended. Before anything else, do
 git submodule update --init --recursive
 ```
 
-Currently there are two spinlock wait loop body implementation options: EMPTY,
-for a no-op loop, and PAUSE, that uses `PAUSE` instruction on x86_64. The latter
-is the default. To select the implementation, use the CMake option, i.e.
-`-DSPINLOCK_LOOP=EMPTY`.
+There are some CMake options for users:
 
-Some platform-specific notes:
+* `-DSTANDALONE=OFF` if you are building this as a part of another project, `ON`
+  if you work on UnoDB itself. It will enable extra global debug checks that
+  require entire programs to be compiled with them. Currently, this consists of
+  the libstdc++ debug mode. The default is `OFF`.
+* `-DSPINLOCK_LOOP=PAUSE|EMPTY` to choose the spinlock wait loop body
+  implementation for the optimistic lock. `EMPTY` may benchmark better as long
+  as there are fewer threads than available CPU cores. `PAUSE` will use that
+  instruction on x86_64, and something similar on ARM. The default is `PAUSE`.
+* `-DSTATS=OFF` if you want to compile away all the statistics counters. The
+  result will scale better in benchmarks. The current stats implementation is
+  global cache line-padded shared atomic counters. This option might be removed
+  in the future if the stats are reimplemented with less overhead.
+
+The rest of CMake options are mainly intended for UnoDB development itself and
+are discussed in the "Development" section below.
+
+## Platform-Specific Notes
 
 ### Ubuntu 22.04
 
@@ -176,11 +190,6 @@ Source code is formatted with [Google C++ style][gc++style]. Automatic code
 formatting is configured through git  clean/fuzz filters. To enable this
 feature, do `git config --local include.path ../.gitconfig`. If you need to
 temporarily disable it, run `git config  --local --unset include.path`.
-
-When building this project independently and not as part of another project, add
-`-DSTANDALONE=ON` CMake option. It will enable extra global debug checks that
-require entire programs to be compiled with them. Currently, this consists of
-the libstdc++ debug mode.
 
 To enable maintainer diagnostics, add `-DMAINTAINER_MODE=ON` CMake option. This
 makes compilation and `include-what-you-use` warnings fatal.

@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Laurynas Biveinis
+// Copyright 2022-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_QSBR_GTEST_UTILS_HPP
 #define UNODB_DETAIL_QSBR_GTEST_UTILS_HPP
 
@@ -55,8 +55,14 @@ class QSBRTestBase : public ::testing::Test {
   }
 
   static void qsbr_pause() {
-    unodb::test::must_not_allocate([]() { unodb::this_thread().qsbr_pause(); });
+    unodb::test::must_not_allocate([]()
+#ifndef UNODB_DETAIL_WITH_STATS
+                                       noexcept
+#endif
+                                   { unodb::this_thread().qsbr_pause(); });
   }
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
   static void qsbr_reset_stats() {
     unodb::test::must_not_allocate(
@@ -95,6 +101,14 @@ class QSBRTestBase : public ::testing::Test {
     });
   }
 
+  [[nodiscard]] static auto qsbr_get_epoch_change_count() noexcept {
+    return must_not_allocate([]() noexcept {
+      return unodb::qsbr::instance().get_epoch_change_count();
+    });
+  }
+
+#endif  // UNODB_DETAIL_WITH_STATS
+
   [[nodiscard]] static auto
   qsbr_previous_interval_orphaned_requests_empty() noexcept {
     return must_not_allocate([]() noexcept {
@@ -107,12 +121,6 @@ class QSBRTestBase : public ::testing::Test {
   qsbr_current_interval_orphaned_requests_empty() noexcept {
     return must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().current_interval_orphaned_requests_empty();
-    });
-  }
-
-  [[nodiscard]] static auto qsbr_get_epoch_change_count() noexcept {
-    return must_not_allocate([]() noexcept {
-      return unodb::qsbr::instance().get_epoch_change_count();
     });
   }
 
@@ -157,29 +165,37 @@ class QSBRTestBase : public ::testing::Test {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
   static void qsbr_deallocate(void *ptr) {
+#ifdef UNODB_DETAIL_WITH_STATS
     const auto current_interval_total_dealloc_size_before =
         unodb::this_thread().get_current_interval_total_dealloc_size();
+#endif  // UNODB_DETAIL_WITH_STATS
     const auto previous_interval_empty_before =
         unodb::this_thread().previous_interval_requests_empty();
     const auto current_interval_empty_before =
         unodb::this_thread().current_interval_requests_empty();
 
     try {
-      unodb::this_thread().on_next_epoch_deallocate(ptr, 1
+      unodb::this_thread().on_next_epoch_deallocate(ptr
+#ifdef UNODB_DETAIL_WITH_STATS
+                                                    ,
+                                                    1
+#endif
 #ifndef NDEBUG
                                                     ,
                                                     check_ptr_on_qsbr_dealloc
 #endif
       );
     } catch (...) {
-      const auto current_interval_total_dealloc_size_after =
-          unodb::this_thread().get_current_interval_total_dealloc_size();
       const auto previous_interval_empty_after =
           unodb::this_thread().previous_interval_requests_empty();
       const auto current_interval_empty_after =
           unodb::this_thread().current_interval_requests_empty();
+#ifdef UNODB_DETAIL_WITH_STATS
+      const auto current_interval_total_dealloc_size_after =
+          unodb::this_thread().get_current_interval_total_dealloc_size();
       UNODB_EXPECT_EQ(current_interval_total_dealloc_size_before,
                       current_interval_total_dealloc_size_after);
+#endif  // UNODB_DETAIL_WITH_STATS
       UNODB_EXPECT_EQ(previous_interval_empty_before,
                       previous_interval_empty_after);
       UNODB_EXPECT_EQ(current_interval_empty_before,
@@ -187,6 +203,7 @@ class QSBRTestBase : public ::testing::Test {
       throw;
     }
 
+#ifdef UNODB_DETAIL_WITH_STATS
     const auto current_interval_total_dealloc_size_after =
         unodb::this_thread().get_current_interval_total_dealloc_size();
     const auto current_interval_empty_after =
@@ -205,17 +222,24 @@ class QSBRTestBase : public ::testing::Test {
                         (current_interval_total_dealloc_size_after ==
                          current_interval_total_dealloc_size_before + 1));
     }
+#endif  // UNODB_DETAIL_WITH_STATS
   }
 
   static void quiescent() {
+#ifdef UNODB_DETAIL_WITH_STATS
     const auto current_interval_total_dealloc_size_before =
         unodb::this_thread().get_current_interval_total_dealloc_size();
+#endif  // UNODB_DETAIL_WITH_STATS
+
     unodb::this_thread().quiescent();
+
+#ifdef UNODB_DETAIL_WITH_STATS
     const auto current_interval_total_dealloc_size_after =
         unodb::this_thread().get_current_interval_total_dealloc_size();
     UNODB_EXPECT_TRUE(current_interval_total_dealloc_size_before ==
                           current_interval_total_dealloc_size_after ||
                       current_interval_total_dealloc_size_after == 0);
+#endif  // UNODB_DETAIL_WITH_STATS
   }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()

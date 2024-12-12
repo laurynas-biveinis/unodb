@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_MUTEX_ART_HPP
 #define UNODB_DETAIL_MUTEX_ART_HPP
 
@@ -57,6 +57,8 @@ class mutex_db final {
   }
 
   // Stats
+#ifdef UNODB_DETAIL_WITH_STATS
+
   [[nodiscard]] auto get_current_memory_use() const {
     const std::lock_guard guard{mutex};
     return db_.get_current_memory_use();
@@ -99,6 +101,8 @@ class mutex_db final {
     const std::lock_guard guard{mutex};
     return db_.get_key_prefix_splits();
   }
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
   // Public utils
 

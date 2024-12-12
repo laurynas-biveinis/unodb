@@ -203,8 +203,10 @@ detail::node_ptr *impl_helpers::add_or_choose_subtree(
           db_instance, inode, std::move(leaf), depth)};
       *node_in_parent =
           node_ptr{larger_node.release(), INode::larger_derived_type::type};
+#ifdef UNODB_DETAIL_WITH_STATS
       db_instance
           .template account_growing_inode<INode::larger_derived_type::type>();
+#endif  // UNODB_DETAIL_WITH_STATS
       return child;
     }
   }
@@ -238,7 +240,9 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
       *node_in_parent =
           node_ptr{new_node.release(), INode::smaller_derived_type::type};
     }
+#ifdef UNODB_DETAIL_WITH_STATS
     db_instance.template account_shrinking_inode<INode::type>();
+#endif  // UNODB_DETAIL_WITH_STATS
     return nullptr;
   }
 
@@ -251,6 +255,8 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
 namespace unodb {
 
 db::~db() noexcept { delete_root_subtree(); }
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
 template <class INode>
 constexpr void db::increment_inode_count() noexcept {
@@ -287,6 +293,8 @@ constexpr void db::account_shrinking_inode() noexcept {
   UNODB_DETAIL_ASSERT(shrinking_inode_counts[internal_as_i<NodeType>] <=
                       growing_inode_counts[internal_as_i<NodeType>]);
 }
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
 db::get_result db::get(key search_key) const noexcept {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
@@ -345,7 +353,9 @@ bool db::insert(key insert_key, value_view v) {
       auto new_node{inode_4::create(*this, existing_key, remaining_key, depth,
                                     leaf, std::move(new_leaf))};
       *node = detail::node_ptr{new_node.release(), node_type::I4};
+#ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
+#endif  // UNODB_DETAIL_WITH_STATS
       return true;
     }
 
@@ -361,10 +371,12 @@ bool db::insert(key insert_key, value_view v) {
       auto new_node = inode_4::create(*this, *node, shared_prefix_len, depth,
                                       std::move(leaf));
       *node = detail::node_ptr{new_node.release(), node_type::I4};
+#ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
       ++key_prefix_splits;
       UNODB_DETAIL_ASSERT(growing_inode_counts[internal_as_i<node_type::I4>] >
                           key_prefix_splits);
+#endif  // UNODB_DETAIL_WITH_STATS
       return true;
     }
 
@@ -434,24 +446,32 @@ bool db::remove(key remove_key) {
 void db::delete_root_subtree() noexcept {
   if (root != nullptr) art_policy::delete_subtree(root, *this);
 
+#ifdef UNODB_DETAIL_WITH_STATS
   // It is possible to reset the counter to zero instead of decrementing it for
   // each leaf, but not sure the savings will be significant.
   UNODB_DETAIL_ASSERT(node_counts[as_i<node_type::LEAF>] == 0);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 void db::clear() noexcept {
   delete_root_subtree();
 
   root = nullptr;
+#ifdef UNODB_DETAIL_WITH_STATS
   current_memory_use = 0;
   node_counts[as_i<node_type::I4>] = 0;
   node_counts[as_i<node_type::I16>] = 0;
   node_counts[as_i<node_type::I48>] = 0;
   node_counts[as_i<node_type::I256>] = 0;
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 void db::dump(std::ostream &os) const {
+#ifdef UNODB_DETAIL_WITH_STATS
   os << "db dump, current memory use = " << get_current_memory_use() << '\n';
+#else
+  os << "db dump\n";
+#endif  // UNODB_DETAIL_WITH_STATS
   art_policy::dump_node(os, root);
 }
 

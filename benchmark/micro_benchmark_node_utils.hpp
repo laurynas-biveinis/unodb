@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2024 Laurynas Biveinis
 #ifndef UNODB_DETAIL_MICRO_BENCHMARK_NODE_UTILS_HPP
 #define UNODB_DETAIL_MICRO_BENCHMARK_NODE_UTILS_HPP
 
@@ -299,6 +299,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 }  // namespace detail
 
 // Stats
+#ifdef UNODB_DETAIL_WITH_STATS
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
 template <class Db>
@@ -467,29 +468,42 @@ void assert_shrinking_nodes(
 
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+}  // namespace detail
+
+#endif  // UNODB_DETAIL_WITH_STATS
+
+namespace detail {
+
 template <class Db>
 class [[nodiscard]] tree_shape_snapshot final {
  public:
   explicit constexpr tree_shape_snapshot(
       const Db &test_db UNODB_DETAIL_USED_IN_DEBUG) noexcept
 #ifndef NDEBUG
-      : db{test_db},
+      : db{test_db}
+#ifdef UNODB_DETAIL_WITH_STATS
+        ,
         stats{test_db}
+#endif
 #endif
   {
   }
 
+#ifdef UNODB_DETAIL_WITH_STATS
   constexpr void assert_internal_levels_same() const noexcept {
 #ifndef NDEBUG
     const tree_stats<Db> current_stats{db};
     UNODB_DETAIL_ASSERT(stats.internal_levels_equal(current_stats));
-#endif
+#endif  // !NDEBUG
   }
+#endif  // UNODB_DETAIL_WITH_STATS
 
  private:
 #ifndef NDEBUG
   const Db &db;
+#ifdef UNODB_DETAIL_WITH_STATS
   const tree_stats<Db> stats;
+#endif  // UNODB_DETAIL_WITH_STATS
 #endif
 };
 
@@ -507,7 +521,9 @@ unodb::key insert_sequentially(Db &db, unsigned key_count) {
     ++i;
     k = next_key(k, node_size_to_key_zero_bits<NodeSize>());
   }
+#ifdef UNODB_DETAIL_WITH_STATS
   detail::assert_dominating_inode_size_tree<Db, NodeSize>(db);
+#endif  // UNODB_DETAIL_WITH_STATS
   return k;
 }
 
@@ -551,7 +567,9 @@ template <class Db, unsigned NodeSize, typename NumberToKeyFn>
                                                NumberToKeyFn number_to_key_fn) {
   UNODB_DETAIL_ASSERT(db.empty());
   const auto result = insert_n_keys(db, n, number_to_key_fn);
+#ifdef UNODB_DETAIL_WITH_STATS
   assert_dominating_inode_size_tree<Db, NodeSize>(db);
+#endif  // UNODB_DETAIL_WITH_STATS
   return result;
 }
 
@@ -594,10 +612,10 @@ template <class Db, unsigned SmallerNodeSize>
   static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16 ||
                 SmallerNodeSize == 48);
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(UNODB_DETAIL_WITH_STATS)
   assert_dominating_inode_size_tree<Db, SmallerNodeSize>(db);
   const auto initial_growing_inode_counts = db.get_growing_inode_counts();
-#endif
+#endif  // !defined(NDEBUG) && defined(UNODB_DETAIL_WITH_STATS)
 
   const auto keys_inserted = insert_keys_to_limit<
       Db,
@@ -605,7 +623,7 @@ template <class Db, unsigned SmallerNodeSize>
       db, key_limit,
       number_to_minimal_leaf_over_smaller_node_tree<SmallerNodeSize>);
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(UNODB_DETAIL_WITH_STATS)
   assert_growing_nodes<Db, SmallerNodeSize>(db, keys_inserted);
 
   constexpr auto smallest_inode_type = as_i<node_type::I4>;
@@ -620,7 +638,7 @@ template <class Db, unsigned SmallerNodeSize>
                           final_growing_inode_counts[node_type_i]);
     }
   }
-#endif
+#endif  // !defined(NDEBUG) && defined(UNODB_DETAIL_WITH_STATS)
 
   return keys_inserted;
 }
@@ -681,7 +699,9 @@ void full_node_scan_benchmark(::benchmark::State &state) {
   }
 
   state.SetItemsProcessed(items_processed);
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", test_db.get_current_memory_use());
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db, unsigned NodeSize>
@@ -690,7 +710,9 @@ void full_node_random_get_benchmark(::benchmark::State &state) {
   const auto key_count = static_cast<unsigned>(state.range(0));
 
   detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
+#ifdef UNODB_DETAIL_WITH_STATS
   const auto tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
 
   batched_prng random_key_positions{key_count - 1};
 
@@ -704,7 +726,9 @@ void full_node_random_get_benchmark(::benchmark::State &state) {
   }
 
   state.SetItemsProcessed(state.iterations() * key_count);
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 // Benchmark e.g. growing Node4 to Node16: insert to full Node4 tree first:
@@ -748,7 +772,9 @@ void full_node_random_get_benchmark(::benchmark::State &state) {
 // Do not bother with extern templates due to large parameter space
 template <class Db, unsigned SmallerNodeSize>
 void grow_node_sequentially_benchmark(::benchmark::State &state) {
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
+#endif  // UNODB_DETAIL_WITH_STATS
   const auto smaller_node_count = static_cast<unsigned>(state.range(0));
   std::uint64_t benchmark_keys_inserted{0};
 
@@ -766,15 +792,19 @@ void grow_node_sequentially_benchmark(::benchmark::State &state) {
             Db, SmallerNodeSize>(test_db, key_limit);
 
     state.PauseTiming();
+#ifdef UNODB_DETAIL_WITH_STATS
     detail::assert_growing_nodes<Db, SmallerNodeSize>(test_db,
                                                       benchmark_keys_inserted);
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
     destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(benchmark_keys_inserted));
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 // Benchmark e.g. growing Node4 to Node16: insert to full Node4 tree first. Use
@@ -794,7 +824,9 @@ void grow_node_sequentially_benchmark(::benchmark::State &state) {
 // Do not bother with extern templates due to large parameter space
 template <class Db, unsigned SmallerNodeSize>
 void grow_node_randomly_benchmark(::benchmark::State &state) {
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
+#endif  // UNODB_DETAIL_WITH_STATS
   const auto smaller_node_count = static_cast<unsigned>(state.range(0));
   std::uint64_t benchmark_keys_inserted{0};
 
@@ -817,15 +849,19 @@ void grow_node_randomly_benchmark(::benchmark::State &state) {
 
     state.PauseTiming();
     benchmark_keys_inserted = larger_tree_keys.size();
+#ifdef UNODB_DETAIL_WITH_STATS
     detail::assert_growing_nodes<Db, SmallerNodeSize>(test_db,
                                                       benchmark_keys_inserted);
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
     destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(benchmark_keys_inserted));
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 // Benchmark e.g. shrinking Node16 to Node4: insert to minimal Node16 first:
@@ -840,7 +876,9 @@ void grow_node_randomly_benchmark(::benchmark::State &state) {
 
 template <class Db, unsigned SmallerNodeSize>
 void shrink_node_sequentially_benchmark(::benchmark::State &state) {
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
+#endif  // UNODB_DETAIL_WITH_STATS
   std::uint64_t removed_key_count{0};
 
   const auto smaller_node_count = static_cast<unsigned>(state.range(0));
@@ -855,9 +893,11 @@ void shrink_node_sequentially_benchmark(::benchmark::State &state) {
     const auto node_growing_keys_inserted =
         detail::grow_full_node_tree_to_minimal_next_size_leaf_level<
             Db, SmallerNodeSize>(test_db, key_limit);
+#ifdef UNODB_DETAIL_WITH_STATS
     detail::assert_growing_nodes<Db, SmallerNodeSize>(
         test_db, node_growing_keys_inserted);
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
     state.ResumeTiming();
 
     for (removed_key_count = 0; removed_key_count < node_growing_keys_inserted;
@@ -869,19 +909,25 @@ void shrink_node_sequentially_benchmark(::benchmark::State &state) {
     }
 
     state.PauseTiming();
+#ifdef UNODB_DETAIL_WITH_STATS
     detail::assert_shrinking_nodes<Db, SmallerNodeSize>(test_db,
                                                         removed_key_count);
+#endif  // UNODB_DETAIL_WITH_STATS
     destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(removed_key_count));
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db, unsigned SmallerNodeSize>
 void shrink_node_randomly_benchmark(::benchmark::State &state) {
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
+#endif  // UNODB_DETAIL_WITH_STATS
   std::uint64_t removed_key_count{0};
 
   const auto smaller_node_count = static_cast<unsigned>(state.range(0));
@@ -900,28 +946,36 @@ void shrink_node_randomly_benchmark(::benchmark::State &state) {
         detail::generate_random_keys_over_full_smaller_tree<SmallerNodeSize>(
             key_limit);
     insert_keys(test_db, node_growing_keys);
+#ifdef UNODB_DETAIL_WITH_STATS
     detail::assert_growing_nodes<Db, SmallerNodeSize>(test_db,
                                                       node_growing_keys.size());
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
     state.ResumeTiming();
 
     delete_keys(test_db, node_growing_keys);
 
     state.PauseTiming();
     removed_key_count = node_growing_keys.size();
+#ifdef UNODB_DETAIL_WITH_STATS
     detail::assert_shrinking_nodes<Db, SmallerNodeSize>(test_db,
                                                         removed_key_count);
+#endif  // UNODB_DETAIL_WITH_STATS
     destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(removed_key_count));
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db, unsigned NodeSize>
 void sequential_add_benchmark(::benchmark::State &state) {
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
+#endif  // UNODB_DETAIL_WITH_STATS
   const auto node_count = static_cast<unsigned>(state.range(0));
   std::uint64_t benchmark_keys_inserted{0};
 
@@ -939,20 +993,26 @@ void sequential_add_benchmark(::benchmark::State &state) {
         detail::number_to_full_leaf_over_minimal_tree_key<NodeSize>);
 
     state.PauseTiming();
+#ifdef UNODB_DETAIL_WITH_STATS
     detail::assert_dominating_inode_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
     destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(benchmark_keys_inserted));
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db, unsigned NodeSize>
 void random_add_benchmark(::benchmark::State &state) {
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
+#endif  // UNODB_DETAIL_WITH_STATS
   const auto node_count = static_cast<unsigned>(state.range(0));
   std::int64_t benchmark_keys_inserted{0};
 
@@ -969,15 +1029,19 @@ void random_add_benchmark(::benchmark::State &state) {
     insert_keys(test_db, benchmark_keys);
 
     state.PauseTiming();
+#ifdef UNODB_DETAIL_WITH_STATS
     detail::assert_dominating_inode_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
     benchmark_keys_inserted = static_cast<std::int64_t>(benchmark_keys.size());
     destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(state.iterations() * benchmark_keys_inserted);
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db, unsigned NodeSize>
@@ -987,7 +1051,9 @@ void minimal_tree_full_scan(::benchmark::State &state) {
 
   const auto key_limit =
       detail::make_minimal_node_size_tree<Db, NodeSize>(test_db, key_count);
+#ifdef UNODB_DETAIL_WITH_STATS
   const auto tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
 
   std::int64_t items_processed = 0;
   for (const auto _ : state) {
@@ -998,7 +1064,9 @@ void minimal_tree_full_scan(::benchmark::State &state) {
   }
 
   state.SetItemsProcessed(items_processed);
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db, unsigned NodeSize>
@@ -1013,7 +1081,9 @@ void minimal_tree_random_gets(::benchmark::State &state) {
       detail::make_minimal_node_size_tree<Db, NodeSize>(test_db, node_count);
   UNODB_DETAIL_ASSERT(detail::number_to_minimal_node_size_tree_key<NodeSize>(
                           key_count) == key_limit);
+#ifdef UNODB_DETAIL_WITH_STATS
   const auto tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
   batched_prng random_key_positions{key_count};
   std::int64_t items_processed = 0;
 
@@ -1026,22 +1096,28 @@ void minimal_tree_random_gets(::benchmark::State &state) {
   }
 
   state.SetItemsProcessed(items_processed);
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db, unsigned NodeSize>
 void sequential_delete_benchmark(::benchmark::State &state) {
   const auto key_count = static_cast<unsigned>(state.range(0));
   int i{0};
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
+#endif  // UNODB_DETAIL_WITH_STATS
 
   for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     const auto key_limit =
         detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
+#ifdef UNODB_DETAIL_WITH_STATS
     tree_size = test_db.get_current_memory_use();
     const detail::tree_shape_snapshot<Db> tree_shape{test_db};
+#endif  // UNODB_DETAIL_WITH_STATS
     state.ResumeTiming();
 
     i = 0;
@@ -1055,19 +1131,25 @@ void sequential_delete_benchmark(::benchmark::State &state) {
     }
 
     state.PauseTiming();
+#ifdef UNODB_DETAIL_WITH_STATS
     detail::assert_dominating_inode_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
+#endif  // UNODB_DETAIL_WITH_STATS
     destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(state.iterations() * i);
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db, unsigned NodeSize>
 void random_delete_benchmark(::benchmark::State &state) {
   const auto key_count{static_cast<unsigned>(state.range(0))};
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
+#endif  // UNODB_DETAIL_WITH_STATS
   std::size_t remove_key_count{0};
 
   for (const auto _ : state) {
@@ -1075,8 +1157,10 @@ void random_delete_benchmark(::benchmark::State &state) {
     Db test_db;
     const auto key_limit =
         detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
+#ifdef UNODB_DETAIL_WITH_STATS
     tree_size = test_db.get_current_memory_use();
     const detail::tree_shape_snapshot<Db> tree_shape{test_db};
+#endif  // UNODB_DETAIL_WITH_STATS
     auto remove_keys = detail::generate_keys_to_limit(
         key_limit, detail::number_to_full_leaf_over_minimal_tree_key<NodeSize>);
     remove_key_count = remove_keys.size();
@@ -1086,13 +1170,17 @@ void random_delete_benchmark(::benchmark::State &state) {
     delete_keys(test_db, remove_keys);
 
     state.PauseTiming();
+#ifdef UNODB_DETAIL_WITH_STATS
     detail::assert_dominating_inode_size_tree<Db, NodeSize>(test_db);
     tree_shape.assert_internal_levels_same();
+#endif  // UNODB_DETAIL_WITH_STATS
     destroy_tree(test_db, state);
   }
   state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(remove_key_count));
+#ifdef UNODB_DETAIL_WITH_STATS
   set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 }  // namespace unodb::benchmark

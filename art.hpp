@@ -67,6 +67,8 @@ class db final {
 
   // Stats
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
   // Return current memory use by tree nodes in bytes.
   [[nodiscard, gnu::pure]] constexpr auto get_current_memory_use()
       const noexcept {
@@ -112,6 +114,8 @@ class db final {
     return key_prefix_splits;
   }
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
   // Public utils
   [[nodiscard, gnu::const]] static constexpr auto key_found(
       const get_result &result) noexcept {
@@ -123,6 +127,8 @@ class db final {
 
  private:
   void delete_root_subtree() noexcept;
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
   constexpr void increase_memory_use(std::size_t delta) noexcept {
     UNODB_DETAIL_ASSERT(delta > 0);
@@ -161,7 +167,11 @@ class db final {
   template <node_type NodeType>
   constexpr void account_shrinking_inode() noexcept;
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
   detail::node_ptr root{nullptr};
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
   std::size_t current_memory_use{0};
 
@@ -170,6 +180,8 @@ class db final {
   inode_type_counter_array shrinking_inode_counts{};
 
   std::uint64_t key_prefix_splits{0};
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
   friend auto detail::make_db_leaf_ptr<detail::node_header, db>(detail::art_key,
                                                                 value_view,

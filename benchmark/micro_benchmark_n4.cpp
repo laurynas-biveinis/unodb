@@ -52,8 +52,10 @@ template <unsigned NodeSize>
 
 template <class Db, unsigned NodeSize>
 void node4_sequential_insert(benchmark::State &state) {
+#ifdef UNODB_DETAIL_WITH_STATS
   unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   std::size_t tree_size = 0;
+#endif  // UNODB_DETAIL_WITH_STATS
 
   for (const auto _ : state) {
     state.PauseTiming();
@@ -65,14 +67,18 @@ void node4_sequential_insert(benchmark::State &state) {
         test_db, static_cast<unsigned>(state.range(0)));
 
     state.PauseTiming();
+#ifdef UNODB_DETAIL_WITH_STATS
     growing_tree_stats.get(test_db);
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(state.iterations() * state.range(0));
+#ifdef UNODB_DETAIL_WITH_STATS
   growing_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db>
@@ -100,8 +106,10 @@ void node4_random_insert(benchmark::State &state) {
     unodb::benchmark::insert_keys(test_db, keys);
 
     state.PauseTiming();
+#ifdef UNODB_DETAIL_WITH_STATS
     unodb::benchmark::assert_dominating_inode_tree<Db, unodb::node_type::I4>(
         test_db);
+#endif  // UNODB_DETAIL_WITH_STATS
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
@@ -133,14 +141,18 @@ void node4_sequential_delete_benchmark(benchmark::State &state,
                                        std::uint64_t delete_key_zero_bits) {
   const auto key_count = static_cast<unsigned>(state.range(0));
   int keys_deleted{0};
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
+#endif  // UNODB_DETAIL_WITH_STATS
 
   for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     const auto key_limit =
         unodb::benchmark::insert_sequentially<Db, NodeSize>(test_db, key_count);
+#ifdef UNODB_DETAIL_WITH_STATS
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
     state.ResumeTiming();
 
     unodb::key k = 0;
@@ -153,7 +165,9 @@ void node4_sequential_delete_benchmark(benchmark::State &state,
   }
 
   state.SetItemsProcessed(state.iterations() * keys_deleted);
+#ifdef UNODB_DETAIL_WITH_STATS
   unodb::benchmark::set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db>
@@ -166,14 +180,18 @@ template <class Db, unsigned NodeSize>
 void node4_random_delete_benchmark(benchmark::State &state,
                                    std::uint64_t delete_key_zero_bits) {
   const auto key_count = static_cast<unsigned>(state.range(0));
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
+#endif  // UNODB_DETAIL_WITH_STATS
 
   for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
     const auto key_limit =
         unodb::benchmark::insert_sequentially<Db, NodeSize>(test_db, key_count);
+#ifdef UNODB_DETAIL_WITH_STATS
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
 
     auto keys = make_limited_key_sequence(key_limit, delete_key_zero_bits);
     std::shuffle(keys.begin(), keys.end(), unodb::benchmark::get_prng());
@@ -183,7 +201,9 @@ void node4_random_delete_benchmark(benchmark::State &state,
   }
 
   state.SetItemsProcessed(state.iterations() * state.range(0));
+#ifdef UNODB_DETAIL_WITH_STATS
   unodb::benchmark::set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db>

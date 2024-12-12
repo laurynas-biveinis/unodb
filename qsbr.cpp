@@ -11,9 +11,12 @@
 #include <exception>
 #include <iostream>
 #include <memory>
-#include <mutex>
 #include <new>
 #include <utility>
+
+#ifdef UNODB_DETAIL_WITH_STATS
+#include <mutex>
+#endif  // UNODB_DETAIL_WITH_STATS
 
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
 #include <sanitizer/tsan_interface.h>
@@ -242,7 +245,11 @@ qsbr_epoch qsbr::register_thread() noexcept {
 
 void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                              qsbr_epoch thread_epoch,
-                             qsbr_per_thread &qsbr_thread) {
+                             qsbr_per_thread &qsbr_thread)
+#ifndef UNODB_DETAIL_WITH_STATS
+    noexcept
+#endif
+{
   bool epoch_change_prepared = false;
   auto old_state = state.load(std::memory_order_acquire);
 
@@ -304,21 +311,27 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
       // second-to-last thread quit before, advancing the epoch.
       qsbr_thread.advance_last_seen_epoch(old_single_thread_mode, old_epoch);
       if (UNODB_DETAIL_UNLIKELY(advance_epoch)) {
+#ifdef UNODB_DETAIL_WITH_STATS
         bump_epoch_change_count();
+#endif  // UNODB_DETAIL_WITH_STATS
         qsbr_thread.update_requests(old_single_thread_mode,
                                     old_epoch.advance());
       }
       qsbr_thread.orphan_deferred_requests();
 
+#ifdef UNODB_DETAIL_WITH_STATS
       if (UNODB_DETAIL_UNLIKELY(thread_epoch != old_epoch)) {
         register_quiescent_states_per_thread_between_epoch_changes(
             quiescent_states_since_epoch_change);
       }
+#endif  // UNODB_DETAIL_WITH_STATS
 
       return;
     }
   }
 }
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
 void qsbr::reset_stats() {
   // Stats can only be reset on idle QSBR - best-effort check as nothing
@@ -342,6 +355,8 @@ void qsbr::reset_stats() {
     publish_quiescent_states_per_thread_between_epoch_change_stats();
   }
 }
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
 // Some GCC versions suggest cold attribute on already cold-marked functions
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
@@ -396,11 +411,15 @@ qsbr_epoch qsbr::remove_thread_from_previous_epoch(
   return new_epoch;
 }
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
 void qsbr::bump_epoch_change_count() noexcept {
   const auto new_epoch_change_count =
       epoch_change_count.load(std::memory_order_relaxed) + 1;
   epoch_change_count.store(new_epoch_change_count, std::memory_order_relaxed);
 }
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
 void qsbr::epoch_change_barrier_and_handle_orphans(
     bool single_thread_mode) noexcept {
@@ -456,7 +475,9 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
       UNODB_DETAIL_ASSERT(current_global_epoch.advance() ==
                           qsbr_state::get_epoch(new_state));
 
+#ifdef UNODB_DETAIL_WITH_STATS
       bump_epoch_change_count();
+#endif  // UNODB_DETAIL_WITH_STATS
       return current_global_epoch.advance();
     }
 

@@ -140,6 +140,8 @@ class [[nodiscard]] tree_verifier final {
       const auto remove_result = values.erase(k);
       UNODB_ASSERT_EQ(remove_result, 1);
     }
+
+#ifdef UNODB_DETAIL_WITH_STATS
     const auto node_counts_before = test_db.get_node_counts();
     const auto mem_use_before = test_db.get_current_memory_use();
     UNODB_ASSERT_GT(node_counts_before[as_i<unodb::node_type::LEAF>], 0);
@@ -147,6 +149,7 @@ class [[nodiscard]] tree_verifier final {
     const auto growing_inodes_before = test_db.get_growing_inode_counts();
     const auto shrinking_inodes_before = test_db.get_shrinking_inode_counts();
     const auto key_prefix_splits_before = test_db.get_key_prefix_splits();
+#endif  // UNODB_DETAIL_WITH_STATS
 
     try {
       if (!test_db.remove(k)) {
@@ -159,6 +162,7 @@ class [[nodiscard]] tree_verifier final {
         // LCOV_EXCL_STOP
       }
     } catch (...) {
+#ifdef UNODB_DETAIL_WITH_STATS
       if (!parallel_test) {
         UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
         UNODB_ASSERT_THAT(test_db.get_node_counts(),
@@ -170,9 +174,11 @@ class [[nodiscard]] tree_verifier final {
         UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(),
                         key_prefix_splits_before);
       }
+#endif  // UNODB_DETAIL_WITH_STATS
       throw;
     }
 
+#ifdef UNODB_DETAIL_WITH_STATS
     if (!parallel_test) {
       const auto mem_use_after = test_db.get_current_memory_use();
       UNODB_ASSERT_LT(mem_use_after, mem_use_before);
@@ -182,6 +188,7 @@ class [[nodiscard]] tree_verifier final {
       UNODB_ASSERT_EQ(leaf_count_after,
                       node_counts_before[as_i<unodb::node_type::LEAF>] - 1);
     }
+#endif  // UNODB_DETAIL_WITH_STATS
   }
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
@@ -197,42 +204,49 @@ class [[nodiscard]] tree_verifier final {
   explicit tree_verifier(bool parallel_test_ = false)
       : parallel_test{parallel_test_} {
     assert_empty();
+#ifdef UNODB_DETAIL_WITH_STATS
     assert_growing_inodes({0, 0, 0, 0});
     assert_shrinking_inodes({0, 0, 0, 0});
     assert_key_prefix_splits(0);
+#endif  // UNODB_DETAIL_WITH_STATS
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   void insert(unodb::key k, unodb::value_view v, bool bypass_verifier = false) {
+    const auto empty_before = test_db.empty();
+#ifdef UNODB_DETAIL_WITH_STATS
     const auto mem_use_before =
         parallel_test ? 0 : test_db.get_current_memory_use();
     const auto node_counts_before = test_db.get_node_counts();
-    const auto empty_before = test_db.empty();
     const auto growing_inodes_before = test_db.get_growing_inode_counts();
     const auto shrinking_inodes_before = test_db.get_shrinking_inode_counts();
     const auto key_prefix_splits_before = test_db.get_key_prefix_splits();
+#endif  // UNODB_DETAIL_WITH_STATS
 
     try {
       do_insert(k, v);
     } catch (...) {
       if (!parallel_test) {
+        UNODB_ASSERT_EQ(empty_before, test_db.empty());
+#ifdef UNODB_DETAIL_WITH_STATS
         UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
         UNODB_ASSERT_THAT(test_db.get_node_counts(),
                           ::testing::ElementsAreArray(node_counts_before));
-        UNODB_ASSERT_EQ(empty_before, test_db.empty());
         UNODB_ASSERT_THAT(test_db.get_growing_inode_counts(),
                           ::testing::ElementsAreArray(growing_inodes_before));
         UNODB_ASSERT_THAT(test_db.get_shrinking_inode_counts(),
                           ::testing::ElementsAreArray(shrinking_inodes_before));
         UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(),
                         key_prefix_splits_before);
+#endif  // UNODB_DETAIL_WITH_STATS
       }
       throw;
     }
 
     UNODB_ASSERT_FALSE(test_db.empty());
 
+#ifdef UNODB_DETAIL_WITH_STATS
     const auto mem_use_after = test_db.get_current_memory_use();
     if (parallel_test)
       UNODB_ASSERT_GT(mem_use_after, 0);
@@ -246,6 +260,7 @@ class [[nodiscard]] tree_verifier final {
     else
       UNODB_ASSERT_EQ(leaf_count_after,
                       node_counts_before[as_i<unodb::node_type::LEAF>] + 1);
+#endif  // UNODB_DETAIL_WITH_STATS
 
     if (!bypass_verifier) {
 #ifndef NDEBUG
@@ -296,16 +311,20 @@ class [[nodiscard]] tree_verifier final {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   void attempt_remove_missing_keys(
       std::initializer_list<unodb::key> absent_keys) {
+#ifdef UNODB_DETAIL_WITH_STATS
     const auto mem_use_before =
         parallel_test ? 0 : test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
 
     for (const auto absent_key : absent_keys) {
       const auto remove_result = values.erase(absent_key);
       UNODB_ASSERT_EQ(remove_result, 0);
       do_try_remove_missing_key(absent_key);
+#ifdef UNODB_DETAIL_WITH_STATS
       if (!parallel_test) {
         UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
       }
+#endif  // UNODB_DETAIL_WITH_STATS
     }
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -335,10 +354,14 @@ class [[nodiscard]] tree_verifier final {
   void assert_empty() const {
     UNODB_ASSERT_TRUE(test_db.empty());
 
+#ifdef UNODB_DETAIL_WITH_STATS
     UNODB_ASSERT_EQ(test_db.get_current_memory_use(), 0);
 
     assert_node_counts({0, 0, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
   }
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   void assert_node_counts(
@@ -375,6 +398,8 @@ class [[nodiscard]] tree_verifier final {
   constexpr void assert_key_prefix_splits(std::uint64_t splits) const noexcept {
     UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(), splits);
   }
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
   void clear() {
     test_db.clear();

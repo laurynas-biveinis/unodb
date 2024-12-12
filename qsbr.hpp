@@ -16,7 +16,6 @@
 #endif
 #include <iostream>
 #include <memory>
-#include <mutex>
 #ifndef NDEBUG
 #include <optional>
 #endif
@@ -31,6 +30,10 @@
 
 #include <gsl/util>
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
+#include <mutex>
+
 #include <boost/accumulators/accumulators_fwd.hpp>  // IWYU pragma: keep
 #include <boost/accumulators/framework/accumulator_set.hpp>
 #include <boost/accumulators/framework/extractor.hpp>
@@ -38,6 +41,8 @@
 #include <boost/accumulators/statistics/mean.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
 #include "assert.hpp"
 #include "heap.hpp"
@@ -508,6 +513,7 @@ class [[nodiscard]] qsbr_per_thread final {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   ~qsbr_per_thread() noexcept {
     if (!is_qsbr_paused()) {
+#ifdef UNODB_DETAIL_WITH_STATS
       // TODO(laurynas): to avoid try/catch below:
       // - replace std::mutex with noexcept synchronization, realistically only
       // spinlock fits, which might not be good enough;
@@ -530,13 +536,20 @@ class [[nodiscard]] qsbr_per_thread final {
         std::cerr << "Unknown exception in the QSBR thread destructor";
         UNODB_DETAIL_DEBUG_CRASH();
       }
+#else
+      qsbr_pause();
+#endif
       // LCOV_EXCL_STOP
     }
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   void on_next_epoch_deallocate(
-      void *pointer, std::size_t size
+      void *pointer
+#ifdef UNODB_DETAIL_WITH_STATS
+      ,
+      std::size_t size
+#endif
 #ifndef NDEBUG
       ,
       detail::deallocation_request::debug_callback dealloc_callback
@@ -545,7 +558,11 @@ class [[nodiscard]] qsbr_per_thread final {
 
   void quiescent();
 
-  void qsbr_pause();
+  void qsbr_pause()
+#ifndef UNODB_DETAIL_WITH_STATS
+      noexcept
+#endif
+      ;
 
   void qsbr_resume();
 
@@ -557,9 +574,13 @@ class [[nodiscard]] qsbr_per_thread final {
     return current_interval_dealloc_requests.empty();
   }
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
   [[nodiscard]] auto get_current_interval_total_dealloc_size() const noexcept {
     return current_interval_total_dealloc_size;
   }
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
   qsbr_per_thread(const qsbr_per_thread &) = delete;
   qsbr_per_thread(qsbr_per_thread &&) = delete;
@@ -617,17 +638,26 @@ class [[nodiscard]] qsbr_per_thread final {
   detail::dealloc_request_vector previous_interval_dealloc_requests;
   detail::dealloc_request_vector current_interval_dealloc_requests;
 
-  std::size_t current_interval_total_dealloc_size{0};
-
   bool paused{true};
+
+#ifdef UNODB_DETAIL_WITH_STATS
+  std::size_t current_interval_total_dealloc_size{0};
+#endif  // UNODB_DETAIL_WITH_STATS
 
   void advance_last_seen_epoch(
       bool single_thread_mode, qsbr_epoch new_seen_epoch,
-      detail::dealloc_request_vector new_current_requests = {});
+      detail::dealloc_request_vector new_current_requests = {})
+#ifndef UNODB_DETAIL_WITH_STATS
+      noexcept
+#endif
+      ;
 
-  void update_requests(
-      bool single_thread_mode, qsbr_epoch dealloc_epoch,
-      detail::dealloc_request_vector new_current_requests = {});
+  void update_requests(bool single_thread_mode, qsbr_epoch dealloc_epoch,
+                       detail::dealloc_request_vector new_current_requests = {})
+#ifndef UNODB_DETAIL_WITH_STATS
+      noexcept
+#endif
+      ;
 
   void orphan_deferred_requests() noexcept;
 
@@ -640,7 +670,11 @@ class [[nodiscard]] qsbr_per_thread final {
   return qsbr_per_thread::get_instance();
 }
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
 namespace boost_acc = boost::accumulators;
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
 class qsbr final {
  public:
@@ -685,11 +719,17 @@ class qsbr final {
   [[nodiscard]] qsbr_epoch register_thread() noexcept;
 
   void unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
-                         qsbr_epoch thread_epoch, qsbr_per_thread &qsbr_thread);
-
-  void reset_stats();
+                         qsbr_epoch thread_epoch, qsbr_per_thread &qsbr_thread)
+#ifndef UNODB_DETAIL_WITH_STATS
+      noexcept
+#endif
+      ;
 
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &out) const;
+
+#ifdef UNODB_DETAIL_WITH_STATS
+
+  void reset_stats();
 
   void register_quiescent_states_per_thread_between_epoch_changes(
       std::uint64_t states) {
@@ -734,6 +774,8 @@ class qsbr final {
     return deallocation_size_per_thread_mean.load(std::memory_order_acquire);
   }
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
   // Made public for tests and asserts
   [[nodiscard]] auto get_state() const noexcept {
     return state.load(std::memory_order_acquire);
@@ -768,13 +810,15 @@ class qsbr final {
 
   static void thread_epoch_change_barrier() noexcept;
 
-  void bump_epoch_change_count() noexcept;
-
   void epoch_change_barrier_and_handle_orphans(
       bool single_thread_mode) noexcept;
 
   qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
                           bool single_thread_mode) noexcept;
+
+#ifdef UNODB_DETAIL_WITH_STATS
+
+  void bump_epoch_change_count() noexcept;
 
   void publish_deallocation_size_stats() {
     deallocation_size_per_thread_max.store(
@@ -803,10 +847,10 @@ class qsbr final {
         std::memory_order_relaxed);
   }
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
   alignas(detail::hardware_destructive_interference_size)
       std::atomic<qsbr_state::type> state;
-
-  std::atomic<std::uint64_t> epoch_change_count;
 
   std::atomic<detail::dealloc_vector_list_node *>
       orphaned_previous_interval_dealloc_requests;
@@ -814,10 +858,15 @@ class qsbr final {
   std::atomic<detail::dealloc_vector_list_node *>
       orphaned_current_interval_dealloc_requests;
 
-  static_assert(sizeof(state) + sizeof(epoch_change_count) +
+  static_assert(sizeof(state) +
                     sizeof(orphaned_previous_interval_dealloc_requests) +
                     sizeof(orphaned_current_interval_dealloc_requests) <=
                 detail::hardware_constructive_interference_size);
+
+#ifdef UNODB_DETAIL_WITH_STATS
+
+  alignas(detail::hardware_destructive_interference_size)
+      std::atomic<std::uint64_t> epoch_change_count;
 
   alignas(detail::hardware_destructive_interference_size) std::mutex
       dealloc_stats_lock;
@@ -845,6 +894,8 @@ class qsbr final {
                              boost_acc::stats<boost_acc::tag::mean>>
       quiescent_states_per_thread_between_epoch_change_stats;
   std::atomic<double> quiescent_states_per_thread_between_epoch_change_mean;
+
+#endif  // UNODB_DETAIL_WITH_STATS
 };
 
 static_assert(std::atomic<std::size_t>::is_always_lock_free);
@@ -860,7 +911,11 @@ inline qsbr_per_thread::qsbr_per_thread()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 inline void qsbr_per_thread::on_next_epoch_deallocate(
-    void *pointer, std::size_t size
+    void *pointer
+#ifdef UNODB_DETAIL_WITH_STATS
+    ,
+    std::size_t size
+#endif
 #ifndef NDEBUG
     ,
     detail::deallocation_request::debug_callback dealloc_callback
@@ -896,8 +951,10 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
     advance_last_seen_epoch(single_thread_mode, current_global_epoch,
                             std::move(new_current_requests));
     UNODB_DETAIL_ASSERT(current_interval_dealloc_requests.size() == 1);
+#ifdef UNODB_DETAIL_WITH_STATS
     UNODB_DETAIL_ASSERT(current_interval_total_dealloc_size == 0);
     current_interval_total_dealloc_size = size;
+#endif  // UNODB_DETAIL_WITH_STATS
     return;
   }
 
@@ -908,12 +965,18 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
                                                  std::move(dealloc_callback)
 #endif
   );
+#ifdef UNODB_DETAIL_WITH_STATS
   current_interval_total_dealloc_size += size;
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 inline void qsbr_per_thread::advance_last_seen_epoch(
     bool single_thread_mode, qsbr_epoch new_seen_epoch,
-    detail::dealloc_request_vector new_current_requests) {
+    detail::dealloc_request_vector new_current_requests)
+#ifndef UNODB_DETAIL_WITH_STATS
+    noexcept
+#endif
+{
   if (new_seen_epoch == last_seen_epoch) return;
 
   // NOLINTNEXTLINE(readability-simplify-boolean-expr)
@@ -929,7 +992,11 @@ inline void qsbr_per_thread::advance_last_seen_epoch(
 
 inline void qsbr_per_thread::update_requests(
     bool single_thread_mode, qsbr_epoch dealloc_epoch,
-    detail::dealloc_request_vector new_current_requests) {
+    detail::dealloc_request_vector new_current_requests)
+#ifndef UNODB_DETAIL_WITH_STATS
+    noexcept
+#endif
+{
   last_seen_epoch = dealloc_epoch;
 
   const detail::deferred_requests requests_to_deallocate{
@@ -940,11 +1007,12 @@ inline void qsbr_per_thread::update_requests(
 #endif
   };
 
+#ifdef UNODB_DETAIL_WITH_STATS
   qsbr::instance().register_dealloc_stats_per_thread_between_epoch_changes(
       current_interval_total_dealloc_size,
       current_interval_dealloc_requests.size());
-
   current_interval_total_dealloc_size = 0;
+#endif  // UNODB_DETAIL_WITH_STATS
 
   if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
     previous_interval_dealloc_requests =
@@ -977,8 +1045,10 @@ inline void qsbr_per_thread::quiescent() {
                         last_seen_quiescent_state_epoch.advance());
 
     last_seen_quiescent_state_epoch = current_global_epoch;
+#ifdef UNODB_DETAIL_WITH_STATS
     qsbr::instance().register_quiescent_states_per_thread_between_epoch_changes(
         quiescent_states_since_epoch_change);
+#endif  // UNODB_DETAIL_WITH_STATS
     quiescent_states_since_epoch_change = 0;
   }
 
@@ -1002,8 +1072,10 @@ inline void qsbr_per_thread::quiescent() {
       UNODB_DETAIL_ASSERT(last_seen_epoch.advance() == new_global_epoch);
       update_requests(single_thread_mode, new_global_epoch);
 
+#ifdef UNODB_DETAIL_WITH_STATS
       qsbr::instance()
           .register_quiescent_states_per_thread_between_epoch_changes(1);
+#endif  // UNODB_DETAIL_WITH_STATS
       return;
     }
   }
@@ -1041,7 +1113,11 @@ inline void deallocation_request::deallocate(
 
 }  // namespace detail
 
-inline void qsbr_per_thread::qsbr_pause() {
+inline void qsbr_per_thread::qsbr_pause()
+#ifndef UNODB_DETAIL_WITH_STATS
+    noexcept
+#endif
+{
   UNODB_DETAIL_ASSERT(!paused);
   UNODB_DETAIL_ASSERT(active_ptrs.empty());
 

@@ -99,6 +99,8 @@ class olc_db final {
 
   // Stats
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
   // Return current memory use by tree nodes in bytes
   [[nodiscard]] auto get_current_memory_use() const noexcept {
     return current_memory_use.load(std::memory_order_relaxed);
@@ -137,6 +139,8 @@ class olc_db final {
     return key_prefix_splits.load(std::memory_order_relaxed);
   }
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
   // Public utils
   [[nodiscard]] static constexpr auto key_found(
       const get_result &result) noexcept {
@@ -169,6 +173,7 @@ class olc_db final {
 
   void delete_root_subtree() noexcept;
 
+#ifdef UNODB_DETAIL_WITH_STATS
   void increase_memory_use(std::size_t delta) noexcept;
   void decrease_memory_use(std::size_t delta) noexcept;
 
@@ -200,6 +205,8 @@ class olc_db final {
   template <node_type NodeType>
   constexpr void account_shrinking_inode() noexcept;
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
   alignas(
       detail::hardware_destructive_interference_size) mutable optimistic_lock
       root_pointer_lock;
@@ -208,6 +215,8 @@ class olc_db final {
 
   static_assert(sizeof(root_pointer_lock) + sizeof(root) <=
                 detail::hardware_constructive_interference_size);
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
   // Current logically allocated memory that is not scheduled to be reclaimed.
   // The total memory currently allocated is this plus the QSBR deallocation
@@ -229,6 +238,8 @@ class olc_db final {
       atomic_array<inode_type_counter_array> growing_inode_counts{};
   alignas(detail::hardware_destructive_interference_size)
       atomic_array<inode_type_counter_array> shrinking_inode_counts{};
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
   friend auto detail::make_db_leaf_ptr<detail::olc_node_header, olc_db>(
       detail::art_key, value_view, olc_db &);

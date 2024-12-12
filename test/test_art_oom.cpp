@@ -103,28 +103,52 @@ TYPED_TEST(ARTOOMTest, CtorDoesNotAllocate) {
 TYPED_TEST(ARTOOMTest, SingleNodeTreeEmptyValue) {
   oom_insert_test<TypeParam>(
       2,
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({0, 0, 0, 0, 0});
         verifier.assert_growing_inodes({0, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       1, {},
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({1, 0, 0, 0, 0});
         verifier.assert_growing_inodes({0, 0, 0, 0});
+#endif
       });
 }
 
 TYPED_TEST(ARTOOMTest, SingleNodeTreeNonemptyValue) {
   oom_insert_test<TypeParam>(
       2,
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({0, 0, 0, 0, 0});
         verifier.assert_growing_inodes({0, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       1, unodb::test::test_values[2],
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({1, 0, 0, 0, 0});
         verifier.assert_growing_inodes({0, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -133,13 +157,21 @@ TYPED_TEST(ARTOOMTest, ExpandLeafToNode4) {
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.insert(0, unodb::test::test_values[1]);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({1, 0, 0, 0, 0});
         verifier.assert_growing_inodes({0, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       1, unodb::test::test_values[2],
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({2, 1, 0, 0, 0});
         verifier.assert_growing_inodes({1, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -149,16 +181,24 @@ TYPED_TEST(ARTOOMTest, TwoNode4) {
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.insert(1, unodb::test::test_values[0]);
         verifier.insert(3, unodb::test::test_values[2]);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_growing_inodes({1, 0, 0, 0});
         verifier.assert_node_counts({2, 1, 0, 0, 0});
         verifier.assert_key_prefix_splits(0);
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       // Insert a value that does not share full prefix with the current Node4
       0xFF01, unodb::test::test_values[3],
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({3, 2, 0, 0, 0});
         verifier.assert_growing_inodes({2, 0, 0, 0});
         verifier.assert_key_prefix_splits(1);
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -170,16 +210,24 @@ TYPED_TEST(ARTOOMTest, DbInsertNodeRecursion) {
         verifier.insert(3, unodb::test::test_values[2]);
         // Insert a value that does not share full prefix with the current Node4
         verifier.insert(0xFF0001, unodb::test::test_values[3]);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({3, 2, 0, 0, 0});
         verifier.assert_growing_inodes({2, 0, 0, 0});
         verifier.assert_key_prefix_splits(1);
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       // Then insert a value that shares full prefix with the above node and
       // will ask for a recursive insertion there
       0xFF0101, unodb::test::test_values[1],
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({4, 3, 0, 0, 0});
         verifier.assert_growing_inodes({3, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -188,13 +236,21 @@ TYPED_TEST(ARTOOMTest, Node16) {
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.insert_key_range(0, 4);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({4, 1, 0, 0, 0});
         verifier.assert_growing_inodes({1, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       5, unodb::test::test_values[0],
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({5, 0, 1, 0, 0});
         verifier.assert_growing_inodes({1, 1, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -203,16 +259,24 @@ TYPED_TEST(ARTOOMTest, Node16KeyPrefixSplit) {
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.insert_key_range(10, 5);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({5, 0, 1, 0, 0});
         verifier.assert_growing_inodes({1, 1, 0, 0});
         verifier.assert_key_prefix_splits(0);
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       // Insert a value that does share full prefix with the current Node16
       0x1020, unodb::test::test_values[0],
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({6, 1, 1, 0, 0});
         verifier.assert_growing_inodes({2, 1, 0, 0});
         verifier.assert_key_prefix_splits(1);
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -221,13 +285,21 @@ TYPED_TEST(ARTOOMTest, Node48) {
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.insert_key_range(0, 16);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({16, 0, 1, 0, 0});
         verifier.assert_growing_inodes({1, 1, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       16, unodb::test::test_values[0],
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({17, 0, 0, 1, 0});
         verifier.assert_growing_inodes({1, 1, 1, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -236,16 +308,24 @@ TYPED_TEST(ARTOOMTest, Node48KeyPrefixSplit) {
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.insert_key_range(10, 17);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({17, 0, 0, 1, 0});
         verifier.assert_growing_inodes({1, 1, 1, 0});
         verifier.assert_key_prefix_splits(0);
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       // Insert a value that does share full prefix with the current Node48
       0x100020, unodb::test::test_values[0],
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({18, 1, 0, 1, 0});
         verifier.assert_growing_inodes({2, 1, 1, 0});
         verifier.assert_key_prefix_splits(1);
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -254,13 +334,21 @@ TYPED_TEST(ARTOOMTest, Node256) {
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.insert_key_range(0, 48);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({48, 0, 0, 1, 0});
         verifier.assert_growing_inodes({1, 1, 1, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       49, unodb::test::test_values[0],
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({49, 0, 0, 0, 1});
         verifier.assert_growing_inodes({1, 1, 1, 1});
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -269,16 +357,24 @@ TYPED_TEST(ARTOOMTest, Node256KeyPrefixSplit) {
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.insert_key_range(20, 49);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({49, 0, 0, 0, 1});
         verifier.assert_growing_inodes({1, 1, 1, 1});
         verifier.assert_key_prefix_splits(0);
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       // Insert a value that does share full prefix with the current Node48
       0x100020, unodb::test::test_values[0],
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({50, 1, 0, 0, 1});
         verifier.assert_growing_inodes({2, 1, 1, 1});
         verifier.assert_key_prefix_splits(1);
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -287,13 +383,21 @@ TYPED_TEST(ARTOOMTest, Node16ShrinkToNode4) {
       2,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.insert_key_range(1, 5);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({5, 0, 1, 0, 0});
         verifier.assert_shrinking_inodes({0, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       2,
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_shrinking_inodes({0, 1, 0, 0});
         verifier.assert_node_counts({4, 1, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -302,13 +406,21 @@ TYPED_TEST(ARTOOMTest, Node48ShrinkToNode16) {
       2,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.insert_key_range(0x80, 17);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({17, 0, 0, 1, 0});
         verifier.assert_shrinking_inodes({0, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       0x85,
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_shrinking_inodes({0, 0, 1, 0});
         verifier.assert_node_counts({16, 0, 1, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 
@@ -317,13 +429,21 @@ TYPED_TEST(ARTOOMTest, Node256ShrinkToNode48) {
       2,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
         verifier.insert_key_range(1, 49);
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_node_counts({49, 0, 0, 0, 1});
         verifier.assert_shrinking_inodes({0, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       },
       25,
-      [](unodb::test::tree_verifier<TypeParam>& verifier) {
+      [](unodb::test::tree_verifier<TypeParam>&
+#ifdef UNODB_DETAIL_WITH_STATS
+             verifier
+#endif  // UNODB_DETAIL_WITH_STATS
+      ) {
+#ifdef UNODB_DETAIL_WITH_STATS
         verifier.assert_shrinking_inodes({0, 0, 0, 1});
         verifier.assert_node_counts({48, 0, 0, 1, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
       });
 }
 

@@ -102,9 +102,13 @@ class [[nodiscard]] basic_leaf final : public Header {
     return value_view{&value_start[0], value_size};
   }
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
   [[nodiscard, gnu::pure]] constexpr auto get_size() const noexcept {
     return compute_size(value_size);
   }
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     os << ", " << get_key() << ", value size: " << value_size << '\n';
@@ -140,7 +144,9 @@ template <class Header, class Db>
   auto *const leaf_mem = static_cast<std::byte *>(
       allocate_aligned(size, alignment_for_new<leaf_type>()));
 
+#ifdef UNODB_DETAIL_WITH_STATS
   db.increment_leaf_count(size);
+#endif  // UNODB_DETAIL_WITH_STATS
 
   return basic_db_leaf_unique_ptr<Header, Db>{
       new (leaf_mem) leaf_type{k, v}, basic_db_leaf_deleter<Header, Db>{db}};
@@ -167,11 +173,15 @@ struct basic_inode_def final {
 template <class Header, class Db>
 inline void basic_db_leaf_deleter<Header, Db>::operator()(
     leaf_type *to_delete) const noexcept {
+#ifdef UNODB_DETAIL_WITH_STATS
   const auto leaf_size = to_delete->get_size();
+#endif  // UNODB_DETAIL_WITH_STATS
 
   free_aligned(to_delete);
 
+#ifdef UNODB_DETAIL_WITH_STATS
   db.decrement_leaf_count(leaf_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class INode, class Db>
@@ -181,7 +191,9 @@ inline void basic_db_inode_deleter<INode, Db>::operator()(
 
   free_aligned(inode_ptr);
 
+#ifdef UNODB_DETAIL_WITH_STATS
   db.template decrement_inode_count<INode>();
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db, template <class> class CriticalSectionPolicy, class NodePtr,
@@ -248,7 +260,9 @@ struct basic_art_policy final {
     auto *const inode_mem = static_cast<std::byte *>(
         allocate_aligned(sizeof(INode), alignment_for_new<INode>()));
 
+#ifdef UNODB_DETAIL_WITH_STATS
     db_instance.template increment_inode_count<INode>();
+#endif  // UNODB_DETAIL_WITH_STATS
 
     return db_inode_unique_ptr<INode>{
         new (inode_mem) INode{db_instance, std::forward<Args>(args)...},

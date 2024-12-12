@@ -36,6 +36,9 @@ int main() {
   insert_result &= tree.insert(5, from_string_view(value));
 
   std::cerr << "All inserts succeeded: " << insert_result << '\n';
+
+  // This example does not make much sense without stats
+#ifdef UNODB_DETAIL_WITH_STATS
   const auto node_counts = tree.get_node_counts();
   std::cerr << "Current memory usage: " << tree.get_current_memory_use() << '\n'
             << "Key prefix splits: " << tree.get_key_prefix_splits() << '\n'
@@ -79,4 +82,5 @@ int main() {
       << "Demotions from I256: "
       << shrinking_inode_counts[unodb::internal_as_i<unodb::node_type::I256>]
       << '\n';
+#endif  // UNODB_DETAIL_WITH_STATS
 }

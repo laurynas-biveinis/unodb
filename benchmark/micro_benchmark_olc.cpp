@@ -19,7 +19,9 @@ class [[nodiscard]] concurrent_benchmark_olc final
  private:
   void setup() override {
     unodb::qsbr::instance().assert_idle();
+#ifdef UNODB_DETAIL_WITH_STATS
     unodb::qsbr::instance().reset_stats();
+#endif  // UNODB_DETAIL_WITH_STATS
   }
 
   void end_workload_in_main_thread() override {
@@ -31,6 +33,8 @@ class [[nodiscard]] concurrent_benchmark_olc final
 
 concurrent_benchmark_olc benchmark_fixture;
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
 void set_common_qsbr_counters(benchmark::State &state) {
   state.counters["epoch changes"] = unodb::benchmark::to_counter(
       unodb::qsbr::instance().get_epoch_change_count());
@@ -39,30 +43,38 @@ void set_common_qsbr_counters(benchmark::State &state) {
           .get_mean_quiescent_states_per_thread_between_epoch_changes());
 }
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
 void parallel_get(benchmark::State &state) {
   benchmark_fixture.parallel_get(state);
 
+#ifdef UNODB_DETAIL_WITH_STATS
   set_common_qsbr_counters(state);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 void parallel_insert_disjoint_ranges(benchmark::State &state) {
   benchmark_fixture.parallel_insert_disjoint_ranges(state);
 
+#ifdef UNODB_DETAIL_WITH_STATS
   state.counters["QSBR callback count max"] = unodb::benchmark::to_counter(
       unodb::qsbr::instance().get_epoch_callback_count_max());
   state.counters["callback count variance"] = benchmark::Counter(
       unodb::qsbr::instance().get_epoch_callback_count_variance());
   set_common_qsbr_counters(state);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 void parallel_delete_disjoint_ranges(benchmark::State &state) {
   benchmark_fixture.parallel_delete_disjoint_ranges(state);
 
+#ifdef UNODB_DETAIL_WITH_STATS
   state.counters["max backlog bytes"] = unodb::benchmark::to_counter(
       unodb::qsbr::instance().get_max_backlog_bytes());
   state.counters["mean backlog bytes"] =
       benchmark::Counter(unodb::qsbr::instance().get_mean_backlog_bytes());
   set_common_qsbr_counters(state);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 }  // namespace

@@ -119,6 +119,8 @@ else()
   message(FATAL_ERROR "SPINLOCK_LOOP must be one of: PAUSE, EMPTY")
 endif()
 
+option(STATS "Whether to compile in the statistics counters" ON)
+
 if(MSVC)
   # Remove it once CMake minimum is bumped to 3.15 or greater
   string(REGEX REPLACE "/W3" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -489,6 +491,7 @@ set(is_gxx_ge_12 "$<AND:${is_gxx_genex},${cxx_ge_12}>")
 set(is_gxx_ge_14 "$<AND:${is_gxx_genex},${cxx_ge_14}>")
 set(has_avx2 "$<BOOL:${AVX2}>")
 set(has_boost_stacktrace "$<BOOL:${HAS_BOOST_STACKTRACE_HPP}>")
+set(with_stats "$<BOOL:${STATS}>")
 set(fatal_warnings_on "$<BOOL:${MAINTAINER_MODE}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
 set(is_standalone "$<BOOL:${STANDALONE}>")
@@ -605,6 +608,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   target_compile_definitions(${TARGET} PRIVATE
     "$<${is_standalone}:UNODB_DETAIL_STANDALONE>"
     "$<${has_boost_stacktrace}:UNODB_DETAIL_BOOST_STACKTRACE>"
+    "$<${with_stats}:UNODB_DETAIL_WITH_STATS>"
     "UNODB_SPINLOCK_LOOP_VALUE=${SPINLOCK_LOOP_VALUE}")
   target_compile_options(${TARGET} PRIVATE
     "${CXX_FLAGS}" "${SANITIZER_CXX_FLAGS}"
@@ -754,6 +758,7 @@ message(STATUS "STANDALONE: ${STANDALONE}")
 message(STATUS "MAINTAINER_MODE: ${MAINTAINER_MODE}")
 message(STATUS "AVX2: ${AVX2}")
 message(STATUS "SPINLOCK_LOOP: ${SPINLOCK_LOOP}")
+message(STATUS "STATS: ${STATS}")
 message(STATUS "COVERAGE: ${COVERAGE}")
 message(STATUS "GCOV_PATH: ${GCOV_PATH}")
 message(STATUS "SANITIZE_ADDRESS: ${SANITIZE_ADDRESS}")

@@ -23,8 +23,10 @@ namespace {
 
 template <class Db>
 void dense_insert(benchmark::State &state) {
+#ifdef UNODB_DETAIL_WITH_STATS
   unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   std::size_t tree_size = 0;
+#endif  // UNODB_DETAIL_WITH_STATS
 
   for (const auto _ : state) {
     state.PauseTiming();
@@ -37,21 +39,27 @@ void dense_insert(benchmark::State &state) {
           test_db, i, unodb::value_view{unodb::benchmark::value100});
 
     state.PauseTiming();
+#ifdef UNODB_DETAIL_WITH_STATS
     growing_tree_stats.get(test_db);
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(state.iterations() * state.range(0));
+#ifdef UNODB_DETAIL_WITH_STATS
   growing_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db>
 void sparse_insert_dups_allowed(benchmark::State &state) {
   unodb::benchmark::batched_prng random_keys;
+#ifdef UNODB_DETAIL_WITH_STATS
   unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   std::size_t tree_size = 0;
+#endif  // UNODB_DETAIL_WITH_STATS
 
   for (const auto _ : state) {
     state.PauseTiming();
@@ -66,14 +74,18 @@ void sparse_insert_dups_allowed(benchmark::State &state) {
     }
 
     state.PauseTiming();
+#ifdef UNODB_DETAIL_WITH_STATS
     growing_tree_stats.get(test_db);
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
   state.SetItemsProcessed(state.iterations() * state.range(0));
+#ifdef UNODB_DETAIL_WITH_STATS
   growing_tree_stats.publish(state);
   unodb::benchmark::set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 constexpr auto full_scan_multiplier = 50;
@@ -86,7 +98,9 @@ void dense_full_scan(benchmark::State &state) {
   for (unodb::key i = 0; i < key_limit; ++i)
     unodb::benchmark::insert_key(test_db, i,
                                  unodb::value_view{unodb::benchmark::value100});
+#ifdef UNODB_DETAIL_WITH_STATS
   const auto tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
 
   for (const auto _ : state)
     for (auto i = 0; i < full_scan_multiplier; ++i)
@@ -95,8 +109,11 @@ void dense_full_scan(benchmark::State &state) {
 
   state.SetItemsProcessed(state.iterations() * state.range(0) *
                           full_scan_multiplier);
+#ifdef UNODB_DETAIL_WITH_STATS
   unodb::benchmark::set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
+
 void dense_tree_sparse_deletes_args(benchmark::internal::Benchmark *b) {
   for (auto i = 1000; i <= 5000000; i *= 8) {
     b->Args({i, 800});
@@ -108,10 +125,12 @@ template <class Db>
 void dense_tree_sparse_deletes(benchmark::State &state) {
   // Node shrinking stats almost always zero, thus this test only tests
   // non-shrinking Node256 delete
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t start_tree_size = 0;
   std::size_t end_tree_size = 0;
   std::uint64_t start_leaf_count = 0;
   std::uint64_t end_leaf_count = 0;
+#endif  // UNODB_DETAIL_WITH_STATS
 
   for (const auto _ : state) {
     state.PauseTiming();
@@ -121,9 +140,11 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
     for (unodb::key i = 0; i < static_cast<unodb::key>(state.range(0)); ++i)
       unodb::benchmark::insert_key(
           test_db, i, unodb::value_view{unodb::benchmark::value100});
+#ifdef UNODB_DETAIL_WITH_STATS
     start_tree_size = test_db.get_current_memory_use();
     start_leaf_count =
         test_db.template get_node_count<unodb::node_type::LEAF>();
+#endif  // UNODB_DETAIL_WITH_STATS
     state.ResumeTiming();
 
     for (auto j = 0; j < state.range(1); ++j) {
@@ -131,15 +152,19 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
       unodb::benchmark::delete_key_if_exists(test_db, random_key);
     }
 
+#ifdef UNODB_DETAIL_WITH_STATS
     end_tree_size = test_db.get_current_memory_use();
     end_leaf_count = test_db.template get_node_count<unodb::node_type::LEAF>();
+#endif  // UNODB_DETAIL_WITH_STATS
   }
 
   state.SetItemsProcessed(state.iterations() * state.range(1));
+#ifdef UNODB_DETAIL_WITH_STATS
   unodb::benchmark::set_size_counter(state, "start size", start_tree_size);
   unodb::benchmark::set_size_counter(state, "end size", end_tree_size);
   state.counters["start L"] = static_cast<double>(start_leaf_count);
   state.counters["end L"] = static_cast<double>(end_leaf_count);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 constexpr auto dense_tree_increasing_keys_delete_insert_pairs = 1000000;
@@ -186,7 +211,9 @@ void dense_insert_value_lengths_args(benchmark::internal::Benchmark *b) {
 
 template <class Db>
 void dense_insert_value_lengths(benchmark::State &state) {
+#ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size = 0;
+#endif  // UNODB_DETAIL_WITH_STATS
   for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
@@ -200,14 +227,18 @@ void dense_insert_value_lengths(benchmark::State &state) {
               decltype(unodb::benchmark::values)::size_type>(state.range(1))]);
 
     state.PauseTiming();
+#ifdef UNODB_DETAIL_WITH_STATS
     tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
     unodb::benchmark::destroy_tree(test_db, state);
   }
 
   state.SetBytesProcessed(
       state.iterations() * state.range(0) *
       (state.range(1) + static_cast<std::int64_t>(sizeof(unodb::key))));
+#ifdef UNODB_DETAIL_WITH_STATS
   unodb::benchmark::set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 template <class Db>

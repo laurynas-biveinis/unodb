@@ -126,10 +126,12 @@ int main() {
   threads[1].join();
   threads[2].join();
 
+#ifdef UNODB_DETAIL_WITH_STATS
   std::cerr << "Final tree memory use: " << tree.get_current_memory_use()
             << '\n';
   std::cerr << "QSBR epochs changed: "
             << unodb::qsbr::instance().get_epoch_change_count()
             << ", max bytes in the deallocation backlog: "
             << unodb::qsbr::instance().get_max_backlog_bytes() << '\n';
+#endif  // UNODB_DETAIL_WITH_STATS
 }

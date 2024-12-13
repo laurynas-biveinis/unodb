@@ -854,6 +854,8 @@ TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
   check_epoch_advanced();
 }
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
 TEST_F(QSBR, ResetStats) {
   auto *ptr = allocate();
   auto *ptr2 = allocate();
@@ -920,6 +922,8 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
 
   join(second_thread);
 }
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
 TEST_F(QSBR, DeallocEpochAssert) {
   unodb::qsbr_thread second_thread{[] {

@@ -5,7 +5,6 @@
 
 #include "olc_art.hpp"
 
-#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -13,6 +12,10 @@
 #include <optional>
 #include <type_traits>
 #include <utility>
+
+#ifdef UNODB_DETAIL_WITH_STATS
+#include <atomic>
+#endif
 
 #include "art_common.hpp"
 #include "art_internal_impl.hpp"
@@ -52,16 +55,24 @@ class db_leaf_qsbr_deleter {
       : db_instance{db_} {}
 
   void operator()(leaf_type *to_delete) const {
+#ifdef UNODB_DETAIL_WITH_STATS
     const auto leaf_size = to_delete->get_size();
+#endif  // UNODB_DETAIL_WITH_STATS
 
-    this_thread().on_next_epoch_deallocate(to_delete, leaf_size
+    this_thread().on_next_epoch_deallocate(to_delete
+#ifdef UNODB_DETAIL_WITH_STATS
+                                           ,
+                                           leaf_size
+#endif  // UNODB_DETAIL_WITH_STATS
 #ifndef NDEBUG
                                            ,
                                            olc_node_header::check_on_dealloc
 #endif
     );
 
+#ifdef UNODB_DETAIL_WITH_STATS
     db_instance.decrement_leaf_count(leaf_size);
+#endif  // UNODB_DETAIL_WITH_STATS
   }
 
   ~db_leaf_qsbr_deleter() = default;
@@ -98,14 +109,20 @@ class db_inode_qsbr_deleter : public db_inode_qsbr_deleter_parent<INode> {
   void operator()(INode *inode_ptr) {
     static_assert(std::is_trivially_destructible_v<INode>);
 
-    this_thread().on_next_epoch_deallocate(inode_ptr, sizeof(INode)
+    this_thread().on_next_epoch_deallocate(inode_ptr
+#ifdef UNODB_DETAIL_WITH_STATS
+                                           ,
+                                           sizeof(INode)
+#endif
 #ifndef NDEBUG
-                                                          ,
+                                               ,
                                            olc_node_header::check_on_dealloc
 #endif
     );
 
+#ifdef UNODB_DETAIL_WITH_STATS
     this->get_db().template decrement_inode_count<INode>();
+#endif  // UNODB_DETAIL_WITH_STATS
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
@@ -182,6 +199,8 @@ template <class T>
 
 }  // namespace
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
 namespace unodb {
 
 template <class INode>
@@ -193,6 +212,8 @@ constexpr void olc_db::increment_inode_count() noexcept {
 }
 
 }  // namespace unodb
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
 namespace unodb::detail {
 
@@ -631,7 +652,9 @@ olc_impl_helpers::add_or_choose_subtree(
           UNODB_DETAIL_ASSERT_INACTIVE(node_write_guard);
         }
 
+#ifdef UNODB_DETAIL_WITH_STATS
         db_instance.account_growing_inode<INode::larger_derived_type::type>();
+#endif  // UNODB_DETAIL_WITH_STATS
 
         return child_in_parent;
       }
@@ -770,7 +793,9 @@ template <class INode>
     *child_in_parent = nullptr;
   }
 
+#ifdef UNODB_DETAIL_WITH_STATS
   db_instance.template account_shrinking_inode<INode::type>();
+#endif  // UNODB_DETAIL_WITH_STATS
 
   return true;
 }
@@ -778,6 +803,8 @@ template <class INode>
 }  // namespace unodb::detail
 
 namespace unodb {
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
 template <class INode>
@@ -808,6 +835,8 @@ constexpr void olc_db::account_shrinking_inode() noexcept {
   shrinking_inode_counts[internal_as_i<NodeType>].fetch_add(
       1, std::memory_order_relaxed);
 }
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
 olc_db::~olc_db() noexcept {
   UNODB_DETAIL_ASSERT(
@@ -1009,7 +1038,9 @@ olc_db::try_update_result_type olc_db::try_insert(
         *node_in_parent =
             detail::olc_node_ptr{new_node.release(), node_type::I4};
       }
+#ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
+#endif  // UNODB_DETAIL_WITH_STATS
       return true;
     }
 
@@ -1041,8 +1072,10 @@ olc_db::try_update_result_type olc_db::try_insert(
             detail::olc_node_ptr{new_node.release(), node_type::I4};
       }
 
+#ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
       key_prefix_splits.fetch_add(1, std::memory_order_relaxed);
+#endif  // UNODB_DETAIL_WITH_STATS
 
       return true;
     }
@@ -1205,10 +1238,13 @@ void olc_db::delete_root_subtree() noexcept {
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
 
   if (root != nullptr) olc_art_policy::delete_subtree(root, *this);
+
+#ifdef UNODB_DETAIL_WITH_STATS
   // It is possible to reset the counter to zero instead of decrementing it for
   // each leaf, but not sure the savings will be significant.
   UNODB_DETAIL_ASSERT(
       node_counts[as_i<node_type::LEAF>].load(std::memory_order_relaxed) == 0);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 void olc_db::clear() noexcept {
@@ -1218,13 +1254,18 @@ void olc_db::clear() noexcept {
   delete_root_subtree();
 
   root = detail::olc_node_ptr{nullptr};
+
+#ifdef UNODB_DETAIL_WITH_STATS
   current_memory_use.store(0, std::memory_order_relaxed);
 
   node_counts[as_i<node_type::I4>].store(0, std::memory_order_relaxed);
   node_counts[as_i<node_type::I16>].store(0, std::memory_order_relaxed);
   node_counts[as_i<node_type::I48>].store(0, std::memory_order_relaxed);
   node_counts[as_i<node_type::I256>].store(0, std::memory_order_relaxed);
+#endif  // UNODB_DETAIL_WITH_STATS
 }
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
@@ -1244,8 +1285,15 @@ void olc_db::decrease_memory_use(std::size_t delta) noexcept {
   current_memory_use.fetch_sub(delta, std::memory_order_relaxed);
 }
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
 void olc_db::dump(std::ostream &os) const {
-  os << "olc_db dump, currently used = " << get_current_memory_use() << '\n';
+#ifdef UNODB_DETAIL_WITH_STATS
+  os << "olc_db dump, current memory use = " << get_current_memory_use()
+     << '\n';
+#else
+  os << "olc_db dump\n";
+#endif  // UNODB_DETAIL_WITH_STATS
   olc_art_policy::dump_node(os, root.load());
 }
 

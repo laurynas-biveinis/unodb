@@ -59,8 +59,8 @@ There are some CMake options for users:
   global cache line-padded shared atomic counters. This option might be removed
   in the future if the stats are reimplemented with less overhead.
 
-The rest of CMake options are mainly intended for UnoDB development itself and
-are discussed in the "Development" section below.
+The rest of the CMake options are mainly intended for UnoDB development itself
+and are discussed in the "Development" section below.
 
 ## Platform-Specific Notes
 

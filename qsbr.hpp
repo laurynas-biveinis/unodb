@@ -642,7 +642,7 @@ class [[nodiscard]] qsbr_per_thread final {
   detail::dealloc_request_vector previous_interval_dealloc_requests;
   detail::dealloc_request_vector current_interval_dealloc_requests;
 
-  bool paused{true};
+  bool paused{false};
 
 #ifdef UNODB_DETAIL_WITH_STATS
   std::size_t current_interval_total_dealloc_size{0};
@@ -908,10 +908,7 @@ static_assert(std::atomic<double>::is_always_lock_free);
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
 inline qsbr_per_thread::qsbr_per_thread()
     : last_seen_quiescent_state_epoch{qsbr::instance().register_thread()},
-      last_seen_epoch{last_seen_quiescent_state_epoch} {
-  UNODB_DETAIL_ASSERT(paused);
-  paused = false;
-}
+      last_seen_epoch{last_seen_quiescent_state_epoch} {}
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 inline void qsbr_per_thread::on_next_epoch_deallocate(

@@ -24,7 +24,7 @@ ideas. I am describing some of the things I learned at my [blog](https://of-code
 
 ## Requirements
 
-UnoDB' source code is written in C++17, and relies on the following
+UnoDB source code is written in C++17, and relies on the following
 platform-specific features:
 
 * On Intel platforms, it requires SSE4.1 intrinsics (Nehalem and higher), AVX
@@ -32,8 +32,30 @@ platform-specific features:
   the original ART paper, which only required SSE2.
 * On ARM, it uses NEON intrinsics.
 
-Oldest supported compilers are GCC 10, LLVM 11, XCode 16.1, and MSVC 2022. Open
-an issue if you require support for an older version.
+### Build dependencies
+
+* Earliest versions of supported compilers: GCC 10, LLVM 11, XCode 16.1,
+  MSVC 2022. Open an issue if you require support for an older version.
+* CMake, at least 3.12
+* Boost library, specifically Boost.Accumulator and optional Boost.Stacktrace.
+
+### Build dependencies, bundled as git submodules
+
+* Guidelines Support Library for `gsl::span`.
+* Google Test for tests.
+* Google Benchmark for microbenchmarks.
+* [DeepState][deepstate] for fuzzing tests.
+
+### Optional dependencies for development
+
+* clang-format
+* lcov
+* clang-tidy
+* clangd
+* cppcheck
+* cpplint
+* include-what-you-use
+* libfuzzer
 
 ## Building
 
@@ -166,23 +188,6 @@ temporarily or permanently stop its participation in QSBR by calling
 The registered threads must periodically signal their quiescent states. They can
 do this by using the `unodb::quiescent_state_on_scope_exit` scope guard, which
 automatically reports the quiescent state when the scope is exited.
-
-## Dependencies
-
-* CMake, at least 3.12
-* Boost library, specifically Boost.Accumulator and optional Boost.Stacktrace.
-* Guidelines Support Library for gsl::span, bundled as a git submodule.
-* Google Test for tests, bundled as a git submodule.
-* Google Benchmark for microbenchmarks, bundled, as a git submodule.
-* [DeepState][deepstate] for fuzzing tests, bundled as a git submodule.
-* (optional) clang-format
-* (optional) lcov
-* (optional) clang-tidy
-* (optional) clangd
-* (optional) cppcheck
-* (optional) cpplint
-* (optional) include-what-you-use
-* (optional) libfuzzer
 
 ## Development
 

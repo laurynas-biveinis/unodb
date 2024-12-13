@@ -132,6 +132,9 @@ class db final {
 
   constexpr void increase_memory_use(std::size_t delta) noexcept {
     UNODB_DETAIL_ASSERT(delta > 0);
+    UNODB_DETAIL_ASSERT(
+        std::numeric_limits<decltype(current_memory_use)>::max() - delta >=
+        current_memory_use);
 
     current_memory_use += delta;
   }

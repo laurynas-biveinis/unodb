@@ -163,6 +163,21 @@ at any time.
 
 ## Technical Details
 
+### Adaptive Radix Tree
+
+The implementation follows the paper description closely, with the following
+differences and design choices:
+
+* The paper algorithms are specified in SSE2 intrinsics. This implementation has
+  SSE4.2 as the minimal level, and AVX2 as the default one on Intel. On ARM,
+  NEON is used.
+* Different ways to implement leaf nodes are discussed in the paper
+  (single-value leaves, multi-value leaves, and combined pointer/value slots).
+  Here single-value leaves are implemented.
+* The paper discusses different choices in implementing search key path
+  compression. Here the pessimistic path compression is implemented, with up to
+  7 bytes of key data per internal node.
+
 ### Sequential Lock
 
 The optimistic lock concept seems to be nearly identical to that of [sequential

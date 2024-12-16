@@ -169,7 +169,7 @@ The implementation follows the paper description closely, with the following
 differences and design choices:
 
 * The paper algorithms are specified in SSE2 intrinsics. This implementation has
-  SSE4.2 as the minimal level, and AVX2 as the default one on Intel. On ARM,
+  SSE4.1 as the minimal level, and AVX2 as the default one on Intel. On ARM,
   NEON is used.
 * Different ways to implement leaf nodes are discussed in the paper
   (single-value leaves, multi-value leaves, and combined pointer/value slots).

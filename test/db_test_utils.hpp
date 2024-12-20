@@ -5,6 +5,7 @@
 #include "global.hpp"
 
 // IWYU pragma: no_include <__fwd/sstream.h>
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
 // IWYU pragma: no_include <iterator>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gmock/gmock.h"

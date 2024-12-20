@@ -2,10 +2,12 @@
 
 #include "global.hpp"
 
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
+
 #include "art.hpp"
 
 #include <cstddef>
-#include <iostream>
+#include <iostream>  // IWYU pragma: keep
 #include <optional>
 #include <type_traits>
 #include <utility>

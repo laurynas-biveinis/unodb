@@ -1,13 +1,14 @@
 // Copyright 2019-2024 Laurynas Biveinis
 
-#include "art_internal.hpp"
 #include "global.hpp"
+
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
 
 #include "olc_art.hpp"
 
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
+#include <iostream>  // IWYU pragma: keep
 #include <memory>
 #include <optional>
 #include <type_traits>

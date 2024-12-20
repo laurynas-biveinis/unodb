@@ -5,10 +5,12 @@
 #include "global.hpp"
 
 // IWYU pragma: no_include <__fwd/ostream.h>
+// IWYU pragma: no_include <ostream>
 
 #include <cstddef>
 #include <cstdint>
 #include <iosfwd>  // IWYU pragma: keep
+#include <limits>
 #include <optional>
 
 #include "art_common.hpp"

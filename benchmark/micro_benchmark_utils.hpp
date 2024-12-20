@@ -4,6 +4,8 @@
 
 #include "global.hpp"
 
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
+
 #include <array>
 #include <cstddef>
 #ifndef NDEBUG

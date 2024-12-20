@@ -554,9 +554,11 @@ class basic_inode_impl : public ArtPolicy::header_type {
 
   using db = typename ArtPolicy::db;
 
-  // The first element is the child index in the node, the 2nd is pointer
+  // The first element is the child index in the node, the 2nd one is pointer
   // to the child. If not present, the pointer is nullptr, and the index
-  // is undefined
+  // is undefined. The pointer element is indirect to support inserts needing to
+  // know the location of the child node in case it needs to be replaced in the
+  // parent.
   using find_result =
       std::pair<std::uint8_t, critical_section_policy<node_ptr> *>;
 

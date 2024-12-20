@@ -19,6 +19,7 @@
 #endif
 
 #include "art_common.hpp"
+#include "art_internal.hpp"
 #include "art_internal_impl.hpp"
 #include "assert.hpp"
 #include "node_type.hpp"

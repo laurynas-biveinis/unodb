@@ -18,7 +18,7 @@ inline std::optional<const key> db::iterator::get_key() noexcept {
   const auto& node = std::get<NP>( e );
   UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
   const auto *const leaf{ node.ptr<detail::leaf *>() }; // current leaf.
-  key_ = leaf->get_key().decode(); // decode the key into the iterator's buffer.
+  key_ = leaf->get_key().decode(); // decode key into buffer.
   return key_; // return pointer to the internal key buffer.
 }
 
@@ -32,15 +32,18 @@ inline std::optional<const value_view> db::iterator::get_val() const noexcept {
 }
 
 inline bool db::iterator::operator==(const iterator& other) const noexcept {
-  if ( &db_ != &other.db_ ) return false;                     // different tree?
-  if ( stack_.empty() != other.stack_.empty() ) return false; // one stack is empty and the other is not?
-  if ( stack_.empty() ) return true;                          // both empty.
+  if ( &db_ != &other.db_ ) return false;  // different tree?
+  if ( stack_.empty() != other.stack_.empty() )
+    return false;  // one stack is empty and the other is not?
+  if ( stack_.empty() ) return true;  // both empty.
   const auto& a = stack_.top();
   const auto& b = other.stack_.top();
   return a == b; // top of stack is same (inode, key, and child_index).
 }
 
-inline bool db::iterator::operator!=(const iterator& other) const noexcept { return !(*this == other); }
+inline bool db::iterator::operator!=(const iterator& other) const noexcept {
+  return !(*this == other);
+}
 
 template <typename FN>
 inline void db::scan(FN fn, bool fwd) noexcept {
@@ -92,7 +95,7 @@ inline void db::scan_range(const key fromKey_, const key toKey_, FN fn) noexcept
   const detail::art_key toKey{toKey_};      // convert to internal key
   const auto ret = fromKey.cmp( toKey );    // compare the internal keys.
   const bool fwd { ret < 0 };               // fromKey is less than toKey
-  if ( ret == 0 ) return;                   // NOP if fromKey == toKey since toKey is exclusive upper bound.
+  if ( ret == 0 ) return;                   // NOP.
   bool match {};
   if ( fwd ) {
     auto it1 { iterator(*this).seek( fromKey, match, true/*fwd*/ ) }; // lower bound

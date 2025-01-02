@@ -172,17 +172,14 @@ class db final {
     iterator& seek(const detail::art_key& search_key, bool& match, bool fwd = true) noexcept;
 
     // Iff the iterator is positioned on an index entry, then returns
-    // the key associated with that index entry.
-    //
-    // Note: std::optional does not allow reference types, hence going
-    // with pointer to buffer return semantics.
+    // the decoded key associated with that index entry.
     inline std::optional<const key> get_key() noexcept;
     
     // Iff the iterator is positioned on an index entry, then returns
     // the value associated with that index entry.
     inline std::optional<const value_view> get_val() const noexcept;
     
-    inline bool operator==(const iterator& other) const noexcept;    
+    inline bool operator==(const iterator& other) const noexcept;
     inline bool operator!=(const iterator& other) const noexcept;
 
     // Debugging

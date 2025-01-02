@@ -417,7 +417,8 @@ class [[nodiscard]] tree_verifier final {
  private:
   Db test_db{};
 
-  std::map<unodb::key, unodb::value_view> values;  // Note: Ordered map because of ordered iterator semantics.
+  // Note: Ordered map because of ordered iterator semantics.
+  std::map<unodb::key, unodb::value_view> values;
 
   const bool parallel_test;
 };

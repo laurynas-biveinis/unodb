@@ -53,10 +53,25 @@ int main() {
     return false;  // do not halt
   };
 
-  std::cerr<<"forward scan:: "; tree.scan( fn ); std::cerr<<std::endl;  // full forward scan
-  std::cerr<<"reverse scan:: "; tree.scan( fn, false ); std::cerr<<std::endl;  // full reverse scan
-  std::cerr<<"forward half-open key-range scan [10,50):: "; tree.scan_range( 10, 50, fn ); std::cerr<<std::endl; // forward range scan
-  std::cerr<<"reverse half-open key-range scan (50,5]:: "; tree.scan_range( 50, 10, fn ); std::cerr<<std::endl; // reverse range scan.
+  // full forward scan
+  std::cerr << "forward scan:: ";
+  tree.scan( fn );
+  std::cerr << std::endl;
+
+  // full reverse scan
+  std::cerr << "reverse scan:: ";
+  tree.scan( fn, false );
+  std::cerr << std::endl;
+
+  // forward range scan
+  std::cerr << "forward half-open key-range scan [10,50):: ";
+  tree.scan_range( 10, 50, fn );
+  std::cerr << std::endl;
+
+  // reverse range scan.
+  std::cerr << "reverse half-open key-range scan (50,5]:: ";
+  tree.scan_range( 50, 10, fn );
+  std::cerr << std::endl;
 
   auto get_result = tree.get(20);
   std::cerr << "Get key 20 result has value: " << get_result.has_value()

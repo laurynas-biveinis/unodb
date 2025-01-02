@@ -35,7 +35,8 @@ class ARTIteratorTest : public ::testing::Test {
 };
 
 //
-// aliases for db begin() and end() methods that would otherwise not be accessible to iterator friend tests.
+// aliases for db begin() and end() methods that would otherwise not
+// be accessible to iterator friend tests.
 //
 #define begin(db) db.__test_only_iterator__().first()
 #define last(db) db.__test_only_iterator__().last()
@@ -52,7 +53,7 @@ UNODB_START_TYPED_TESTS()
 // unit test with an empty tree.
 TYPED_TEST(ARTIteratorTest, empty_tree__forward_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   auto b = begin(db); // obtain iterators.
   const auto e = end(db);
   UNODB_EXPECT_TRUE( b == e );
@@ -63,7 +64,7 @@ TYPED_TEST(ARTIteratorTest, empty_tree__forward_scan) {
 // unit test with an empty tree.
 TYPED_TEST(ARTIteratorTest, empty_tree__reverse_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   auto b = last(db); // obtain iterators.
   const auto e = end(db);
   UNODB_EXPECT_TRUE( b == e );
@@ -74,7 +75,7 @@ TYPED_TEST(ARTIteratorTest, empty_tree__reverse_scan) {
 // unit test where the root is a single leaf.
 TYPED_TEST(ARTIteratorTest, single_leaf_iterator_one_value) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   verifier.insert( 0, unodb::test::test_values[0] );
   auto b = begin(db); // obtain iterators.
   const auto e = end(db);
@@ -89,7 +90,7 @@ TYPED_TEST(ARTIteratorTest, single_leaf_iterator_one_value) {
 // unit test where the root is an I4 with two leafs under it.
 TYPED_TEST(ARTIteratorTest, I4_and_two_leaves__forward_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   verifier.insert( 0, unodb::test::test_values[0] );
   verifier.insert( 1, unodb::test::test_values[1] );
   //std::cerr<<"db state::\n"; db.dump(std::cerr);
@@ -110,7 +111,7 @@ TYPED_TEST(ARTIteratorTest, I4_and_two_leaves__forward_scan) {
 // unit test where the root is an I4 with two leafs under it.
 TYPED_TEST(ARTIteratorTest, I4_and_two_leaves__reverse_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   verifier.insert( 0, unodb::test::test_values[0] );
   verifier.insert( 1, unodb::test::test_values[1] );
   //std::cerr<<"db state::\n"; db.dump(std::cerr);
@@ -128,14 +129,15 @@ TYPED_TEST(ARTIteratorTest, I4_and_two_leaves__reverse_scan) {
   //std::cerr<<"b.next()::\n"; b.dump(std::cerr);
 }
 
-// unit test for the following tree structure, which is setup by how we choose the keys.
+// unit test for the following tree structure, which is setup by how
+// we choose the keys.
 //
 //       I4
 //   I4     L2
 // L0 L1
 TYPED_TEST(ARTIteratorTest, iterator_three_values_left_axis_two_deep_right_axis_one_deep__forward_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   verifier.insert( 0xaa00, unodb::test::test_values[0] );
   verifier.insert( 0xaa01, unodb::test::test_values[1] );
   verifier.insert( 0xab00, unodb::test::test_values[2] );
@@ -153,14 +155,15 @@ TYPED_TEST(ARTIteratorTest, iterator_three_values_left_axis_two_deep_right_axis_
   UNODB_EXPECT_TRUE( b.next() == e ); // nothing more in the iterator.
 }
 
-// unit test for the following tree structure, which is setup by how we choose the keys.
+// unit test for the following tree structure, which is setup by how
+// we choose the keys.
 //
 //       I4
 //   I4     L2
 // L0 L1
 TYPED_TEST(ARTIteratorTest, iterator_three_values_left_axis_two_deep_right_axis_one_deep__reverse_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   verifier.insert( 0xaa00, unodb::test::test_values[0] );
   verifier.insert( 0xaa01, unodb::test::test_values[1] );
   verifier.insert( 0xab00, unodb::test::test_values[2] );
@@ -178,14 +181,15 @@ TYPED_TEST(ARTIteratorTest, iterator_three_values_left_axis_two_deep_right_axis_
   UNODB_EXPECT_TRUE( b.prior() == e ); // nothing more in the iterator.
 }
 
-// unit test for the following tree structure, which is setup by how we choose the keys.
+// unit test for the following tree structure, which is setup by how
+// we choose the keys.
 //
 //       I4
 //   L0     I4
 //        L1 L2
 TYPED_TEST(ARTIteratorTest, single_node_iterators_three_values_left_axis_one_deep_right_axis_two_deep__forward_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   verifier.insert( 0xaa00, unodb::test::test_values[0] );
   verifier.insert( 0xab0c, unodb::test::test_values[1] );
   verifier.insert( 0xab0d, unodb::test::test_values[2] );
@@ -210,7 +214,7 @@ TYPED_TEST(ARTIteratorTest, single_node_iterators_three_values_left_axis_one_dee
 //        L1 L2
 TYPED_TEST(ARTIteratorTest, single_node_iterators_three_values_left_axis_one_deep_right_axis_two_deep__reverse_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   verifier.insert( 0xaa00, unodb::test::test_values[0] );
   verifier.insert( 0xab0c, unodb::test::test_values[1] );
   verifier.insert( 0xab0d, unodb::test::test_values[2] );
@@ -235,7 +239,7 @@ TYPED_TEST(ARTIteratorTest, single_node_iterators_three_values_left_axis_one_dee
 // unit test with an empty tree.
 TYPED_TEST(ARTIteratorTest, empty_tree__seek) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   const auto e = end(db);
   bool match = false;
   UNODB_EXPECT_TRUE( end(db).seek( unodb::detail::art_key{0}, match, true/*fwd*/ ) == e );
@@ -247,7 +251,7 @@ TYPED_TEST(ARTIteratorTest, empty_tree__seek) {
 // unit test where the root is a single leaf.
 TYPED_TEST(ARTIteratorTest, single_leaf__seek) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   verifier.insert( 1, unodb::test::test_values[1] );
   //std::cerr<<"db state::\n"; db.dump(std::cerr);
   const auto e = end(db);
@@ -308,14 +312,15 @@ TYPED_TEST(ARTIteratorTest, single_leaf__seek) {
   }
 }
 
-// unit test for the following tree structure, which is setup by how we choose the keys.
+// unit test for the following tree structure, which is setup by how
+// we choose the keys.
 //
 //       I4
 //   I4     L2
 // L0 L1
 TYPED_TEST(ARTIteratorTest, seek_three_values_left_axis_two_deep_right_axis_one_deep) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db(); // reference to test db instance.
   const unodb::key k0 = 0xaa00;
   const unodb::key k1 = 0xaa10;
   const unodb::key k2 = 0xab10;
@@ -411,7 +416,8 @@ TYPED_TEST(ARTIteratorTest, seek_three_values_left_axis_two_deep_right_axis_one_
       UNODB_EXPECT_TRUE( it != e );
       UNODB_EXPECT_EQ( match, false );
       UNODB_EXPECT_TRUE( it.get_key() && it.get_key().value() == k2 );
-      UNODB_EXPECT_TRUE( it.get_val() && it.get_val().value() == unodb::test::test_values[2] );
+      UNODB_EXPECT_TRUE( it.get_val() &&
+                         it.get_val().value() == unodb::test::test_values[2] );
       UNODB_EXPECT_TRUE( it.next() == e ); // nothing more in the iterator.
     }
   }
@@ -423,7 +429,7 @@ TYPED_TEST(ARTIteratorTest, seek_three_values_left_axis_two_deep_right_axis_one_
 TYPED_TEST(ARTIteratorTest, seek_three_leaves_under_the_root) {
   constexpr bool debug = false;
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to the database instance under test.
+  TypeParam& db = verifier.get_db();
   const unodb::key k0 = 0xaa10;
   const unodb::key k1 = 0xaa20;
   const unodb::key k2 = 0xaa30;

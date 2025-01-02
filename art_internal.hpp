@@ -54,7 +54,7 @@ struct [[nodiscard]] basic_art_key final {
   UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(KeyType key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
-  // return true iff the two keys are equal.
+  // @return true iff the two keys are equal.
   [[nodiscard, gnu::pure]] constexpr bool operator==(
       basic_art_key<KeyType> key2) const noexcept {
     // FIXME This is wrong for variable length keys.  It needs to
@@ -65,7 +65,7 @@ struct [[nodiscard]] basic_art_key final {
     return !std::memcmp(&key, &key2.key, size);
   }
 
-  // return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+  // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
   [[nodiscard, gnu::pure]] constexpr int cmp(
       basic_art_key<KeyType> key2 ) const noexcept {
     const size_t n = size <= key2.size ? size : key2.size;
@@ -292,11 +292,14 @@ class db;
     friend class db;
    protected:
     Iterator& it;
-    inline visitor(Iterator& it_):it(it_){}
+    inline visitor(Iterator& it_) : it(it_) {}
    public:
-    inline auto get_key() noexcept {return it.get_key().value();}  // visit the key (may side-effect the iterator so not const).
-    inline auto get_value() const noexcept {return it.get_val().value();} // visit the value.
-    inline void dump(std::ostream& os) noexcept {it.dump(os);}  // TEST ONLY
+    // visit the (decoded) key.
+    inline auto get_key() const noexcept {return it.get_key().value();}
+    // visit the value.
+    inline auto get_value() const noexcept {return it.get_val().value();}
+    // TEST ONLY
+    inline void dump(std::ostream& os) noexcept {it.dump(os);}
   };
  
 }

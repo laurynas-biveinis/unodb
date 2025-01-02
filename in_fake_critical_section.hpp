@@ -35,7 +35,9 @@ class [[nodiscard]] fake_read_critical_section final {
 class [[nodiscard]] fake_lock final {
  public:
   // Acquire and return a fake critical section for a fake lock.
-  [[nodiscard]] fake_read_critical_section try_read_lock() noexcept {return fake_read_critical_section{};}
+  [[nodiscard]] fake_read_critical_section try_read_lock() noexcept {
+    return fake_read_critical_section{};
+  }
 }; // class fake_policy
 
 // Provide access to T with in_critical_section<T>-like interface, except that

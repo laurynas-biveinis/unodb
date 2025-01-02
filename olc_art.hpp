@@ -262,10 +262,7 @@ class olc_db final {
     iterator& seek(const detail::art_key& search_key, bool& match, bool fwd = true) noexcept;
 
     // Iff the iterator is positioned on an index entry, then returns
-    // the key associated with that index entry.
-    //
-    // Note: std::optional does not allow reference types, hence going
-    // with pointer to buffer return semantics.
+    // the decoded key associated with that index entry.
     inline std::optional<const key> get_key() noexcept {
       // Note: If the iterator is on a leaf, we return the key for that
       // leaf regardless of whether the leaf has been deleted.  This is
@@ -304,9 +301,10 @@ class olc_db final {
     }
     
     inline bool operator==(const iterator& other) const noexcept {
-      if ( &db_ != &other.db_ ) return false;                     // different tree?
-      if ( stack_.empty() != other.stack_.empty() ) return false; // one stack is empty and the other is not?
-      if ( stack_.empty() ) return true;                          // both empty.
+      if ( &db_ != &other.db_ ) return false;  // different tree?
+      if ( stack_.empty() != other.stack_.empty() )
+        return false; // one stack is empty and the other is not?
+      if ( stack_.empty() ) return true;  // both empty.
       // The main reason to compare iterators is to detect the end().
       //
       // This is looking at all components in the element on the top
@@ -316,7 +314,9 @@ class olc_db final {
       return a == b; // top of stack is same (inode, key, and child_index).
     }
     
-    inline bool operator!=(const iterator& other) const noexcept {return !(*this == other);}
+    inline bool operator!=(const iterator& other) const noexcept {
+      return !(*this == other);
+    }
 
     // Debugging
     [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;
@@ -554,13 +554,13 @@ class olc_db final {
     // TODO Explore a cheaper way to handle the exclusive bound case
     // when developing variable length key support based on the
     // maintained key buffer.
-    constexpr bool debug = false;  // set true to debug scan. FIXME REMOVE [debug]?
+    constexpr bool debug = false;  // set true to debug scan.
     if ( empty() ) return;
     const detail::art_key fromKey{fromKey_};  // convert to internal key
     const detail::art_key toKey{toKey_};      // convert to internal key
     const auto ret = fromKey.cmp( toKey );    // compare the internal keys.
     const bool fwd { ret < 0 };               // fromKey is less than toKey
-    if ( ret == 0 ) return;                   // NOP if fromKey == toKey since toKey is exclusive upper bound.
+    if ( ret == 0 ) return;                   // NOP
     bool match {};
     if ( fwd ) {
       auto it1 { iterator(*this).seek( fromKey, match, true/*fwd*/ ) }; // lower bound

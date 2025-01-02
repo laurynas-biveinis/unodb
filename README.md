@@ -145,7 +145,11 @@ All ART classes share the same API:
 * `clear()` empties the tree. For `olc_db`, it must be called from a
   single-threaded context.
 * `bool empty()` returns whether the tree is empty.
-* `template <FN> scan(), scan_from(...), scan_range()` a family of scan methods, including forward and reverse scans and scans with a fromKey and an exclusive upper bound toKey where fn is a lambda accepting a visitor and returning a bool indicating whether the scan should halt (bool halt).
+* `template <FN> scan(), scan_from(...), scan_range()` a family of
+  scan methods, including forward and reverse scans and scans with a
+  fromKey and an exclusive upper bound toKey where fn is a lambda
+  accepting a visitor and returning a bool indicating whether the scan
+  should halt (bool halt).  See `examples/examples_art.cpp`.
 * `void dump(std::ostream &)` outputs the tree representation.
 * Several getters provide tree info, such as current memory use, and internal
   operation counters (e.g. number of times Node4 grew to Node16, key prefix was

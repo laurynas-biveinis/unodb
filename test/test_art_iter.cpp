@@ -421,6 +421,7 @@ TYPED_TEST(ARTIteratorTest, seek_three_values_left_axis_two_deep_right_axis_one_
 // L0 L1 L2
 //
 TYPED_TEST(ARTIteratorTest, seek_three_leaves_under_the_root) {
+  constexpr bool debug = false;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db(); // reference to the database instance under test.
   const unodb::key k0 = 0xaa10;
@@ -429,7 +430,7 @@ TYPED_TEST(ARTIteratorTest, seek_three_leaves_under_the_root) {
   verifier.insert( k0, unodb::test::test_values[0] );
   verifier.insert( k1, unodb::test::test_values[1] );
   verifier.insert( k2, unodb::test::test_values[2] );
-  std::cerr<<"db state::\n"; db.dump(std::cerr);
+  if(debug) {std::cerr<<"db state::\n"; db.dump(std::cerr);}
   const auto e = end(db);
   if(true) { // exact match, forward traversal
     { // exact match, forward traversal (GTE), first key.
@@ -489,7 +490,7 @@ TYPED_TEST(ARTIteratorTest, seek_three_leaves_under_the_root) {
       // data.
       bool match = true;
       auto it = end(db).seek(unodb::detail::art_key{0}, match, true/*fwd*/ );
-      std::cerr<<"end(db).seek(0,&match,true)::\n"; it.dump(std::cerr);
+      if(debug) {std::cerr<<"end(db).seek(0,&match,true)::\n"; it.dump(std::cerr);}
       UNODB_EXPECT_TRUE( it != e );
       UNODB_EXPECT_EQ( match, false );
       UNODB_EXPECT_TRUE( it.get_key() && it.get_key().value() == k0 );
@@ -499,7 +500,7 @@ TYPED_TEST(ARTIteratorTest, seek_three_leaves_under_the_root) {
       // and iterator is positioned at end().
       bool match = true;
       auto it = end(db).seek(unodb::detail::art_key{0xffff}, match, true/*fwd*/ );
-      std::cerr<<"end(db).seek(0xffff,&match,true)::\n"; it.dump(std::cerr);
+      if(debug) {std::cerr<<"end(db).seek(0xffff,&match,true)::\n"; it.dump(std::cerr);}
       UNODB_EXPECT_TRUE( it == e );
       UNODB_EXPECT_EQ( match, false );
     }
@@ -508,7 +509,7 @@ TYPED_TEST(ARTIteratorTest, seek_three_leaves_under_the_root) {
         // match=false and iterator is positioned at end().
         bool match = true;
         auto it = end(db).seek(unodb::detail::art_key{0}, match, false/*fwd*/ );
-        std::cerr<<"end(db).seek(0,&match,true)::\n"; it.dump(std::cerr);
+        if(debug) {std::cerr<<"end(db).seek(0,&match,true)::\n"; it.dump(std::cerr);}
         UNODB_EXPECT_TRUE( it == e );
         UNODB_EXPECT_EQ( match, false );
       }
@@ -516,7 +517,7 @@ TYPED_TEST(ARTIteratorTest, seek_three_leaves_under_the_root) {
         // and iterator is positioned at the last key.
         bool match = true;
         auto it = end(db).seek(unodb::detail::art_key{0xffff}, match, false/*fwd*/ );
-        std::cerr<<"end(db).seek(0xffff,&match,false)::\n"; it.dump(std::cerr);
+        if(debug) {std::cerr<<"end(db).seek(0xffff,&match,false)::\n"; it.dump(std::cerr);}
         UNODB_EXPECT_TRUE( it != e );
         UNODB_EXPECT_EQ( match, false );
         UNODB_EXPECT_TRUE( it.get_key() && it.get_key().value() == k2 );

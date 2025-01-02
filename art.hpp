@@ -122,6 +122,15 @@ class db final {
     friend class db;
     template <class> friend class visitor;
 
+    static constexpr int NP = detail::inode_base::NP; // node pointer
+    static constexpr int KB = detail::inode_base::KB; // key byte (on descent from NP)
+    static constexpr int CI = detail::inode_base::CI; // child_index (on descent from NP)(
+    
+    // The element (0) is the key byte, element (1) is child index in
+    // the node, element (2) is the pointer to the child or nullptr if
+    // the iter_result is invalid (e.g., end()).
+    using stack_entry = detail::inode_base::iter_result;
+        
   protected:
 
     // Construct an empty iterator.
@@ -146,7 +155,7 @@ class db final {
     iterator& prior() noexcept;
 
     // Makes this the "end()" iterator (by clearing the stack).
-    inline iterator& end() noexcept {return invalidate();}
+    iterator& end() noexcept {return invalidate();}
     
     // Position the iterator on, before, or after the caller's key.
     // If the iterator can not be positioned, it will be set to end().
@@ -173,23 +182,20 @@ class db final {
 
     // Iff the iterator is positioned on an index entry, then returns
     // the decoded key associated with that index entry.
-    inline std::optional<const key> get_key() noexcept;
+    std::optional<const key> get_key() noexcept;
     
     // Iff the iterator is positioned on an index entry, then returns
     // the value associated with that index entry.
-    inline std::optional<const value_view> get_val() const noexcept;
+    std::optional<const value_view> get_val() const noexcept;
     
-    inline bool operator==(const iterator& other) const noexcept;
-    inline bool operator!=(const iterator& other) const noexcept;
+    bool operator==(const iterator& other) const noexcept;
+    bool operator!=(const iterator& other) const noexcept;
 
     // Debugging
-    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;
-
+    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;    
+    
    protected:
     
-    // Return true unless the stack is empty.
-    inline bool valid() const noexcept { return ! stack_.empty(); }
-
     // Push the given node onto the stack and traverse from the
     // caller's node to the left-most leaf under that node, pushing
     // nodes onto the stack as they are visited.
@@ -200,20 +206,11 @@ class db final {
     // descent.
     iterator& right_most_traversal(detail::node_ptr node) noexcept;
 
-    // Return the node on the top of the stack, which will wrap
-    // nullptr if the stack is empty.
-    inline detail::node_ptr current_node() noexcept {
-      return stack_.empty()
-          ? detail::node_ptr(nullptr)
-          : std::get<NP>( stack_.top() );
-      ;
-    }
-
     // Compare the given key (e.g., the to_key) to the current key in
     // the internal buffer.
     //
     // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
-    inline int cmp(const detail::art_key& akey) const noexcept {
+    int cmp(const detail::art_key& akey) const noexcept {
       // TODO Explore a cheaper way to handle the exclusive bound case
       // when developing variable length key support based on the
       // maintained key buffer.
@@ -223,24 +220,61 @@ class db final {
       const auto *const leaf{node.ptr<detail::leaf *>()};
       return leaf->get_key().cmp( akey );
     }
+
+    //
+    // stack access methods.
+    //
+    
+    // Return true unless the stack is empty.
+    bool valid() const noexcept { return ! stack_.empty(); }
+
+    // Return true iff the stack is empty.
+    bool empty() const noexcept { return stack_.empty(); }
+
+    // Push an entry onto the stack. TODO handle variable length keys here.
+    void push( stack_entry& e ) noexcept {
+      stack_.push( e );
+    }
+    
+    // Push an entry onto the stack. TODO handle variable length keys here.
+    void push( detail::node_ptr node, std::byte key_byte, std::uint8_t child_index ) noexcept {
+      stack_.push( { node, key_byte, child_index } );
+    }
+
+    // Push a leaf onto the stack.  TODO handle variable length keys here.
+    void push_leaf( detail::node_ptr aleaf ) noexcept {
+      // Mock up an iter_result for the leaf. The [key] and
+      // [child_index] are ignored for a leaf.
+      stack_.push(
+          { aleaf,
+            static_cast<std::byte>(0xFFU),
+            static_cast<std::uint8_t>(0xFFU)
+          } );
+    }
+
+    // Pop an entry from the stack. TODO handle variable length keys here.
+    void pop() noexcept {stack_.pop();}
+
+    // Return the entry (if any) on the top of the stack.
+    auto top() noexcept {return stack_.top();}
+    
+    // Return the node on the top of the stack and nullptr if the
+    // stack is empty (similar to top(), but handles an empty stack).
+    detail::node_ptr current_node() noexcept {
+      return stack_.empty()
+          ? detail::node_ptr(nullptr)
+          : std::get<NP>( stack_.top() );
+      ;
+    }
     
    private:
 
-    static constexpr int NP = detail::inode_base::NP; // node pointer
-    static constexpr int KB = detail::inode_base::KB; // key byte (on descent from NP)
-    static constexpr int CI = detail::inode_base::CI; // child_index (on descent from NP)(
-    
     // invalidate the iterator (pops everything off of the stack).
-    inline iterator& invalidate() noexcept {
+    iterator& invalidate() noexcept {
       while ( ! stack_.empty() ) stack_.pop(); // clear the stack
       return *this;
     }
 
-    // The element (0) is the key byte, element (1) is child index in
-    // the node, element (2) is the pointer to the child or nullptr if
-    // the iter_result is invalid (e.g., end()).
-    using stack_entry = detail::inode_base::iter_result;
-    
     // The outer db instance.
     db& db_;
 

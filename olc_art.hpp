@@ -212,120 +212,6 @@ class olc_db final {
     friend class olc_db;
     template <class> friend class visitor;
 
-   protected:
-    
-    // Construct an empty iterator.
-    explicit iterator(olc_db& tree) : db_( tree ) {}
-
-   public: // EXPOSED TO THE TESTS
-    
-    // Position the iterator on the first entry in the index.
-    iterator& first() noexcept;
-    
-    // Advance the iterator to next entry in the index.
-    iterator& next() noexcept;
-    
-    // Position the iterator on the last entry in the index, which can
-    // be used to initiate a reverse traversal.
-    //
-    // Note: This is NOT the same as end(), which does not position
-    // the iterator on anything.
-    iterator& last() noexcept;
-    
-    // Position the iterator on the previous entry in the index.
-    iterator& prior() noexcept;
-
-    // Makes this the "end()" iterator (by clearing the stack).
-    inline iterator& end() noexcept {return invalidate();}
-    
-    // Position the iterator on, before, or after the caller's key.
-    // If the iterator can not be positioned, it will be set to end().
-    // For example, if [fwd:=true] and the [search_key] is GT any key
-    // in the index then the iterator will be positioned to end()
-    // since there is no index entry greater than the search key.
-    // Likewise, if [fwd:=false] and the [search_key] is LT any key in
-    // the index, then the iterator will be positioned to end() since
-    // there is no index entry LT the search key.
-    //
-    // @param search_key The internal key used to position the iterator.
-    //
-    // @param match Will be set to true iff the search key is an exact
-    // match in the index data.  Otherwise, the match is not exact and
-    // the iterator is positioned either before or after the
-    // search_key.
-    //
-    // @param fwd When true, the iterator will be positioned first
-    // entry which orders GTE the search_key and end() if there is no
-    // such entry.  Otherwise, the iterator will be positioned on the
-    // last key which orders LTE the search_key and end() if there is
-    // no such entry.
-    iterator& seek(const detail::art_key search_key, bool& match, bool fwd = true) noexcept;
-
-    // Iff the iterator is positioned on an index entry, then returns
-    // the decoded key associated with that index entry.
-    inline std::optional<const key> get_key() noexcept;
-    
-    // Iff the iterator is positioned on an index entry, then returns
-    // the value associated with that index entry.
-    inline std::optional<const value_view> get_val() const noexcept;
-    
-    inline bool operator==(const iterator& other) const noexcept;
-    
-    inline bool operator!=(const iterator& other) const noexcept {
-      return !(*this == other);
-    }
-
-    // Debugging
-    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;
-
-   protected:
-    
-    // Return true unless the stack is empty.
-    inline bool valid() const noexcept { return ! stack_.empty(); }
-
-    // Return the node on the top of the stack, which will wrap
-    // nullptr if the stack is empty.
-    inline detail::olc_node_ptr current_node() noexcept {
-      return stack_.empty()
-          ? detail::olc_node_ptr(nullptr)
-          : std::get<NP>( stack_.top() );
-      ;
-    }
-
-    // Compare the given key (e.g., the to_key) to the current key in
-    // the internal buffer.
-    //
-    // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
-    inline int cmp(const detail::art_key& akey) const noexcept;
-    
-   private:
-
-    // invalidate the iterator (pops everything off of the stack).
-    inline iterator& invalidate() noexcept {
-      while ( ! stack_.empty() ) stack_.pop(); // clear the stack
-      return *this;
-    }     
-
-    bool try_first() noexcept; // Core logic invoked from retry loop.
-    bool try_last()  noexcept; // Core logic invoked from retry loop.
-    bool try_next()  noexcept; // Core logic invoked from retry loop.
-    bool try_prior() noexcept; // Core logic invoked from retry loop.
-
-    // Push the given node onto the stack and traverse from the
-    // caller's node to the left-most leaf under that node, pushing
-    // nodes onto the stack as they are visited.
-    bool try_left_most_traversal(detail::olc_node_ptr node,
-                                 optimistic_lock::read_critical_section& parent_critical_section) noexcept;
-
-    // Descend from the current state of the stack to the right most
-    // child leaf, updating the state of the iterator during the
-    // descent.
-    bool try_right_most_traversal(detail::olc_node_ptr node,
-                                  optimistic_lock::read_critical_section& parent_critical_section) noexcept;
-
-    // Core logic invoked from retry loop.
-    bool try_seek(const detail::art_key& search_key, bool& match, bool fwd) noexcept;
-    
     // The [node_ptr] is never [nullptr] and points to the internal
     // node or leaf for that step in the path from the root to some
     // leaf.  For the bottom of the stack, [node_ptr] is the root.
@@ -380,6 +266,162 @@ class olc_db final {
     static constexpr int CI = 2; // child_index  (along which the path steps down from that node)
     static constexpr int VT = 3; // version tag  (for that node when obtaining the key_byte and child_index).
 
+   protected:
+    
+    // Construct an empty iterator.
+    explicit iterator(olc_db& tree) : db_( tree ) {}
+
+   public: // EXPOSED TO THE TESTS
+    
+    // Position the iterator on the first entry in the index.
+    iterator& first() noexcept;
+    
+    // Advance the iterator to next entry in the index.
+    iterator& next() noexcept;
+    
+    // Position the iterator on the last entry in the index, which can
+    // be used to initiate a reverse traversal.
+    //
+    // Note: This is NOT the same as end(), which does not position
+    // the iterator on anything.
+    iterator& last() noexcept;
+    
+    // Position the iterator on the previous entry in the index.
+    iterator& prior() noexcept;
+
+    // Makes this the "end()" iterator (by clearing the stack).
+    iterator& end() noexcept {return invalidate();}
+    
+    // Position the iterator on, before, or after the caller's key.
+    // If the iterator can not be positioned, it will be set to end().
+    // For example, if [fwd:=true] and the [search_key] is GT any key
+    // in the index then the iterator will be positioned to end()
+    // since there is no index entry greater than the search key.
+    // Likewise, if [fwd:=false] and the [search_key] is LT any key in
+    // the index, then the iterator will be positioned to end() since
+    // there is no index entry LT the search key.
+    //
+    // @param search_key The internal key used to position the iterator.
+    //
+    // @param match Will be set to true iff the search key is an exact
+    // match in the index data.  Otherwise, the match is not exact and
+    // the iterator is positioned either before or after the
+    // search_key.
+    //
+    // @param fwd When true, the iterator will be positioned first
+    // entry which orders GTE the search_key and end() if there is no
+    // such entry.  Otherwise, the iterator will be positioned on the
+    // last key which orders LTE the search_key and end() if there is
+    // no such entry.
+    iterator& seek(const detail::art_key search_key, bool& match, bool fwd = true) noexcept;
+
+    // Iff the iterator is positioned on an index entry, then returns
+    // the decoded key associated with that index entry.
+    std::optional<const key> get_key() noexcept;
+    
+    // Iff the iterator is positioned on an index entry, then returns
+    // the value associated with that index entry.
+    std::optional<const value_view> get_val() const noexcept;
+    
+    bool operator==(const iterator& other) const noexcept;
+    
+    bool operator!=(const iterator& other) const noexcept {
+      return !(*this == other);
+    }
+
+    // Debugging
+    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;
+
+   protected:
+    
+    // Compare the given key (e.g., the to_key) to the current key in
+    // the internal buffer.
+    //
+    // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+    int cmp(const detail::art_key& akey) const noexcept;
+
+    //
+    // stack access methods.
+    //
+    
+    // Return true unless the stack is empty.
+    bool valid() const noexcept { return ! stack_.empty(); }
+
+    // Return true iff the stack is empty.
+    bool empty() const noexcept { return stack_.empty(); }
+
+    // Push an entry onto the stack. TODO handle variable length keys here.
+    void push( detail::olc_inode_base::iter_result& e,
+               optimistic_lock::read_critical_section& rcs
+               ) noexcept {
+      push( std::get<NP>(e), std::get<KB>(e), std::get<CI>(e), rcs );
+    }
+    
+    // Push an entry onto the stack. TODO handle variable length keys here.
+    void push( detail::olc_node_ptr node,
+               std::byte key_byte,
+               std::uint8_t child_index,
+               optimistic_lock::read_critical_section& rcs
+               ) noexcept {
+      stack_.push( { node, key_byte, child_index, rcs.get() } );
+    }
+
+    // Push a leaf onto the stack.  TODO handle variable length keys here.
+    void push_leaf( detail::olc_node_ptr aleaf,
+                    optimistic_lock::read_critical_section& rcs
+                    ) noexcept {
+      // Mock up an iter_result for the leaf. The [key] and
+      // [child_index] are ignored for a leaf.
+      push( aleaf,
+            static_cast<std::byte>(0xFFU),
+            static_cast<std::uint8_t>(0xFFU),
+            rcs
+            );
+    }
+
+    // Pop an entry from the stack. TODO handle variable length keys here.
+    void pop() noexcept {stack_.pop();}
+
+    // Return the entry (if any) on the top of the stack.
+    auto top() noexcept {return stack_.top();}
+    
+    // Return the node on the top of the stack and nullptr if the
+    // stack is empty (similar to top(), but handles an empty stack).
+    detail::olc_node_ptr current_node() noexcept {
+      return stack_.empty()
+          ? detail::olc_node_ptr(nullptr)
+          : std::get<NP>( stack_.top() );
+      ;
+    }
+
+   private:
+
+    // invalidate the iterator (pops everything off of the stack).
+    iterator& invalidate() noexcept {
+      while ( ! stack_.empty() ) stack_.pop(); // clear the stack
+      return *this;
+    }     
+
+    bool try_first() noexcept; // Core logic invoked from retry loop.
+    bool try_last()  noexcept; // Core logic invoked from retry loop.
+    bool try_next()  noexcept; // Core logic invoked from retry loop.
+    bool try_prior() noexcept; // Core logic invoked from retry loop.
+
+    // Push the given node onto the stack and traverse from the
+    // caller's node to the left-most leaf under that node, pushing
+    // nodes onto the stack as they are visited.
+    bool try_left_most_traversal(detail::olc_node_ptr node,
+                                 optimistic_lock::read_critical_section& parent_critical_section) noexcept;
+
+    // Descend from the current state of the stack to the right most
+    // child leaf, updating the state of the iterator during the
+    // descent.
+    bool try_right_most_traversal(detail::olc_node_ptr node,
+                                  optimistic_lock::read_critical_section& parent_critical_section) noexcept;
+
+    // Core logic invoked from retry loop.
+    bool try_seek(const detail::art_key& search_key, bool& match, bool fwd) noexcept;
+    
     // The outer db instance.
     olc_db& db_;
 

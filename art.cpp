@@ -455,7 +455,7 @@ void db::dump(std::ostream &os) const {
 ///
 
 void db::iterator::dump(std::ostream &os) const {
-  if ( stack_.empty() ) {
+  if ( empty() ) {
     os << "iter::stack:: empty\n";
     return;
   }
@@ -500,26 +500,26 @@ db::iterator& db::iterator::last() noexcept { // TODO reuse right_most_traversal
 
 // Position the iterator on the next leaf in the index.
 db::iterator& db::iterator::next() noexcept {
-  while ( ! stack_.empty() ) {
-    auto e = stack_.top();
+  while ( ! empty() ) {
+    auto e = top();
     auto node{ std::get<NP>( e ) };
     UNODB_DETAIL_ASSERT( node != nullptr );
     auto node_type = node.type();
     if ( node_type == node_type::LEAF ) {
-      stack_.pop(); // pop off the leaf
+      pop(); // pop off the leaf
       continue; // continue (if just a root leaf, we will fall through the loop since the stack will now be empty).
     }
     auto* inode{ node.ptr<detail::inode *>() };
     auto nxt = inode->next( node_type, std::get<CI>( e ) ); // next child of that parent.
     if ( ! nxt ) {
-      stack_.pop();  // Nothing more for that inode.
+      pop();  // Nothing more for that inode.
       continue;      // We will look for the right sibling of the parent inode.
     }
     { // Fix up stack for new parent node state and left-most descent.
       UNODB_DETAIL_ASSERT( nxt.has_value() );  // value exists for std::optional.
       auto e2 = nxt.value();
-      stack_.pop();
-      stack_.push( e2 );
+      pop();
+      push( e2 );
       auto child = inode->get_child( node_type, std::get<CI>( e2 ) );  // descend
       return left_most_traversal( child );
     }
@@ -530,26 +530,26 @@ db::iterator& db::iterator::next() noexcept {
 
 // Position the iterator on the prior leaf in the index.
 db::iterator& db::iterator::prior() noexcept {
-  while ( ! stack_.empty() ) {
-    auto e = stack_.top();
+  while ( ! empty() ) {
+    auto e = top();
     auto node{ std::get<NP>( e ) };
     UNODB_DETAIL_ASSERT( node != nullptr );
     auto node_type = node.type();
     if ( node_type == node_type::LEAF ) {
-      stack_.pop(); // pop off the leaf
+      pop(); // pop off the leaf
       continue; // continue (if just a root leaf, we will fall through the loop since the stack will now be empty).
     }
     auto* inode{ node.ptr<detail::inode *>() };
     auto nxt = inode->prior( node_type, std::get<CI>( e ) ); // previous child of that parent.
     if ( ! nxt ) {
-      stack_.pop();  // Nothing more for that inode.
-      continue;      // We will look for the left sibling of the parent inode.
+      pop();    // Nothing more for that inode.
+      continue; // We will look for the left sibling of the parent inode.
     }
     { // Fix up stack for new parent node state and right-most descent.
       UNODB_DETAIL_ASSERT( nxt );  // value exists for std::optional.
       auto e2 = nxt.value();
-      stack_.pop();
-      stack_.push( e2 );
+      pop();
+      push( e2 );
       auto child = inode->get_child( node_type, std::get<CI>( e2 ) );  // descend
       return right_most_traversal( child );
     }
@@ -566,14 +566,13 @@ inline db::iterator& db::iterator::left_most_traversal(detail::node_ptr node) no
     UNODB_DETAIL_ASSERT( node != nullptr );
     const auto node_type = node.type();
     if ( node_type == node_type::LEAF ) {
-      // Mock up an iter_result for the leaf. The [key] and [child_index] are ignored for a leaf.
-      stack_.push( { node, static_cast<std::byte>(0xFFU), static_cast<std::uint8_t>(0xFFU) } ); // push onto the stack.
+      push_leaf( node );
       return *this; // done
     }
     // recursive descent.
     auto *const inode{ node.ptr<detail::inode *>() };
     auto e = inode->begin( node_type );  // first child of the current internal node.
-    stack_.push( e );                    // push the entry on the stack.
+    push( e );  // push the entry on the stack.
     node = inode->get_child( node_type, std::get<CI>( e ) ); // get the child
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
@@ -587,14 +586,13 @@ inline db::iterator& db::iterator::right_most_traversal(detail::node_ptr node) n
     UNODB_DETAIL_ASSERT( node != nullptr );
     const auto node_type = node.type();
     if ( node_type == node_type::LEAF ) {
-      // Mock up an iter_result for the leaf. The [key] and [child_index] are ignored for a leaf.
-      stack_.push( { node, static_cast<std::byte>(0xFFU), static_cast<std::uint8_t>(0xFFU) } ); // push onto the stack.
+      push_leaf( node );
       return *this; // done
     }
     // recursive descent.
     auto *const inode{ node.ptr<detail::inode *>() };
     auto e = inode->last( node_type );  // first child of the current internal node.
-    stack_.push( e );                    // push the entry on the stack.
+    push( e );  // push the entry on the stack.
     node = inode->get_child( node_type, std::get<CI>( e ) ); // get the child
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
@@ -620,7 +618,7 @@ db::iterator& db::iterator::seek(const detail::art_key search_key, bool& match, 
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       const auto *const leaf{node.ptr<detail::leaf *>()};
-      stack_.push( { node, static_cast<std::byte>(0xFFU), static_cast<std::uint8_t>(0xFFU) } ); // push onto the stack.
+      push_leaf( node );
       const auto cmp = leaf->cmp( k );
       if ( cmp == 0 ) {
         match = true;
@@ -694,9 +692,9 @@ db::iterator& db::iterator::seek(const detail::art_key search_key, bool& match, 
           // do a left-most descent under that right-sibling. If there
           // is no such parent, we will wind up with an empty stack
           // (aka the end() iterator) and return that state.
-          if ( ! stack_.empty() ) stack_.pop();
-          while ( ! stack_.empty() ) {
-            const auto centry = stack_.top();
+          if ( ! empty() ) pop();
+          while ( ! empty() ) {
+            const auto centry = top();
             const auto cnode = std::get<NP>( centry );  // a possible parent from the stack
             auto *const icnode{cnode.ptr<detail::inode *>()};
             const auto cnxt = icnode->next( cnode.type(), std::get<CI>(centry) ); // right-sibling.
@@ -704,15 +702,15 @@ db::iterator& db::iterator::seek(const detail::art_key search_key, bool& match, 
               auto nchild = icnode->get_child( cnode.type(), std::get<CI>(centry) );
               return left_most_traversal( nchild );
             }
-            stack_.pop();
+            pop();
           }
           return *this; // stack is empty (aka end()).
         } else {
           auto tmp = nxt.value(); // unwrap.
           const auto child_index = std::get<CI>( tmp );
           const auto child = inode->get_child( node_type, child_index );
-          stack_.push( { node, std::get<KB>( tmp), child_index } );  // the path we took
-          return left_most_traversal( child );                       // left most traversal
+          push( node, std::get<KB>( tmp), child_index );  // the path we took
+          return left_most_traversal( child );  // left most traversal
         }
       } else {
         // REV: Take the prior child_index that is mapped and then do
@@ -724,9 +722,9 @@ db::iterator& db::iterator::seek(const detail::art_key search_key, bool& match, 
           // left-sibling and then do a right-most descent under that
           // left-sibling.  In the extreme case there is no such
           // previous entry and we will wind up with an empty stack.
-          if ( ! stack_.empty() ) stack_.pop();
-          while ( ! stack_.empty() ) {
-            const auto centry = stack_.top();
+          if ( ! empty() ) pop();
+          while ( ! empty() ) {
+            const auto centry = top();
             const auto cnode = std::get<NP>( centry );  // a possible parent from the stack
             auto *const icnode{cnode.ptr<detail::inode *>()};
             const auto cnxt = icnode->prior( cnode.type(), std::get<CI>(centry) ); // left-sibling.
@@ -734,14 +732,14 @@ db::iterator& db::iterator::seek(const detail::art_key search_key, bool& match, 
               auto nchild = icnode->get_child( cnode.type(), std::get<CI>(centry) );
               return right_most_traversal( nchild );
             }
-            stack_.pop();
+            pop();
           }
           return *this; // stack is empty (aka end()).
         } else {
           auto tmp = nxt.value();           // unwrap.
           const auto child_index = std::get<CI>( tmp );
           const auto child = inode->get_child( node_type, child_index );
-          stack_.push( { node, std::get<KB>( tmp), child_index } );  // the path we took
+          push( node, std::get<KB>( tmp), child_index );  // the path we took
           return right_most_traversal( child ); // right most traversal
         }
       }
@@ -750,7 +748,7 @@ db::iterator& db::iterator::seek(const detail::art_key search_key, bool& match, 
       // Simple case. There is a child for the current key byte.
       const auto child_index { res.first };
       const auto *const child { res.second };
-      stack_.push( { node, remaining_key[0], child_index } );
+      push( node, remaining_key[0], child_index );
       node = *child;
       remaining_key.shift_right(1);
     }

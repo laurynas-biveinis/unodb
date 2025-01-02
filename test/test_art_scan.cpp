@@ -492,12 +492,12 @@ TYPED_TEST(ARTScanTest, scan_from__fromKey_2__toKey_2__entries_1) {doScanTest<Ty
 //
 
 //
-// FIXME (***) DO GENERAL CHECKS FOR LARGER TREES. For example, we
-// could generate trees with a space between each pair of keys and use
-// that to examine the before/after semantics of seek() for both
-// forward and reverse traversal.  For this, make sure that we hit
-// enough cases to (a) test a variety of internal node types; and (b)
-// check a variety of key prefix length conditions.
+// FIXME DO GENERAL CHECKS FOR LARGER TREES. For example, we could
+// generate trees with a space between each pair of keys and use that
+// to examine the before/after semantics of seek() for both forward
+// and reverse traversal.  For this, make sure that we hit enough
+// cases to (a) test a variety of internal node types; and (b) check a
+// variety of key prefix length conditions.
 
 // fromKey is odd (exists); toKey is even (hence does not exist).
 TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_2__entries_5) {doScanTest<TypeParam>( 1, 2, 5 );}

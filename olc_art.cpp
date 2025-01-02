@@ -1272,9 +1272,8 @@ void olc_db::iterator::dump(std::ostream &os) const {
   // Create a new stack and copy everything there.  Using the new
   // stack, print out the stack in top-bottom order.  This avoids
   // modifications to the existing stack for the iterator.
-  std::stack<olc_db::iterator::stack_entry> tmp {};
-  tmp = stack_;
-  uint64_t level = tmp.size() - 1;
+  auto tmp = stack_;
+  auto level = tmp.size() - 1;
   while ( ! tmp.empty() ) {
     const auto& e = tmp.top();
     const auto np = std::get<NP>( e );
@@ -1345,7 +1344,7 @@ olc_db::iterator& olc_db::iterator::prior() noexcept {
   return *this;
 }
 
-olc_db::iterator& olc_db::iterator::seek(const detail::art_key& search_key, bool& match, bool fwd) noexcept {
+olc_db::iterator& olc_db::iterator::seek(const detail::art_key search_key, bool& match, bool fwd) noexcept {
   while ( ! try_seek( search_key, match, fwd ) ) { }
   return *this;
 }

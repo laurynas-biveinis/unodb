@@ -462,9 +462,8 @@ void db::iterator::dump(std::ostream &os) const {
   // Create a new stack and copy everything there.  Using the new
   // stack, print out the stack in top-bottom order.  This avoids
   // modifications to the existing stack for the iterator.
-  std::stack<detail::inode_base::iter_result> tmp {};
-  tmp = stack_;
-  uint64_t level = tmp.size() - 1;
+  auto tmp = stack_;
+  auto level = tmp.size() - 1;
   while ( ! tmp.empty() ) {
     const auto& e = tmp.top();
     const auto np = std::get<NP>( e );
@@ -517,7 +516,7 @@ db::iterator& db::iterator::next() noexcept {
       continue;      // We will look for the right sibling of the parent inode.
     }
     { // Fix up stack for new parent node state and left-most descent.
-      UNODB_DETAIL_ASSERT( nxt );  // value exists for std::optional.
+      UNODB_DETAIL_ASSERT( nxt.has_value() );  // value exists for std::optional.
       auto e2 = nxt.value();
       stack_.pop();
       stack_.push( e2 );
@@ -607,7 +606,7 @@ inline db::iterator& db::iterator::right_most_traversal(detail::node_ptr node) n
 // complicated when the search_key is not in the data and we have to
 // consider the cases for both forward traversal and reverse traversal
 // from a key that is not in the data.
-db::iterator& db::iterator::seek(const detail::art_key& search_key, bool& match, bool fwd) noexcept {
+db::iterator& db::iterator::seek(const detail::art_key search_key, bool& match, bool fwd) noexcept {
 
   invalidate();  // invalidate the iterator (clear the stack).
   match = false; // unless we wind up with an exact match.

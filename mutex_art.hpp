@@ -63,6 +63,7 @@ class mutex_db final {
   using iterator = unodb::db::iterator;
   
   // Scan the tree, applying the caller's lambda to each visited leaf.
+  // The tree remains locked for the duration of the scan.
   //
   // @param fn A function f(unodb::visitor<unodb::mutex_db::iterator>&)
   // returning [bool::halt].  The traversal will halt if the function
@@ -77,7 +78,8 @@ class mutex_db final {
   }
   
   // Scan in the indicated direction, applying the caller's lambda to
-  // each visited leaf.
+  // each visited leaf.  The tree remains locked for the duration of
+  // the scan.
   //
   // @param fromKey is an inclusive lower bound for the starting point
   // of the scan.
@@ -95,10 +97,11 @@ class mutex_db final {
   }
   
   // Scan a half-open key range, applying the caller's lambda to each
-  // visited leaf.  The scan will proceed in lexicographic order iff
-  // fromKey is less than toKey and in reverse lexicographic order iff
-  // toKey is less than fromKey.  When fromKey < toKey, the scan will
-  // visit all index entries in the half-open range [fromKey,toKey) in
+  // visited leaf.  The tree remains locked for the duration of the
+  // scan.  The scan will proceed in lexicographic order iff fromKey
+  // is less than toKey and in reverse lexicographic order iff toKey
+  // is less than fromKey.  When fromKey < toKey, the scan will visit
+  // all index entries in the half-open range [fromKey,toKey) in
   // forward order.  Otherwise the scan will visit all index entries
   // in the half-open range (fromKey,toKey] in reverse order.
   //

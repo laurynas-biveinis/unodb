@@ -125,7 +125,7 @@ class db final {
   protected:
 
     // Construct an empty iterator.
-    inline iterator(db& tree):db_(tree) {}
+    explicit iterator(db& tree) : db_( tree ) {}
 
    public: // EXPOSED TO THE TESTS
     
@@ -169,7 +169,7 @@ class db final {
     // such entry.  Otherwise, the iterator will be positioned on the
     // last key which orders LTE the search_key and end() if there is
     // no such entry.
-    iterator& seek(const detail::art_key& search_key, bool& match, bool fwd = true) noexcept;
+    iterator& seek(const detail::art_key search_key, bool& match, bool fwd = true) noexcept;
 
     // Iff the iterator is positioned on an index entry, then returns
     // the decoded key associated with that index entry.

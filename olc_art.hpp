@@ -334,6 +334,21 @@ class olc_db final {
           : std::get<NP>( stack_.top() );
       ;
     }
+
+    // Compare the given key (e.g., the toKey) to the current key in
+    // the internal buffer.
+    //
+    // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+    inline int cmp(const detail::art_key& akey) const noexcept {
+      // TODO Explore a cheaper way to handle the exclusive bound case
+      // when developing variable length key support based on the
+      // maintained key buffer.
+      UNODB_DETAIL_ASSERT( !stack_.empty() );
+      auto node = std::get<NP>( stack_.top() );
+      UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF);
+      const auto *const leaf{node.ptr<detail::olc_leaf *>()};
+      return leaf->get_key().cmp( akey );
+    }
     
    private:
 
@@ -536,11 +551,9 @@ class olc_db final {
   // returns [true].
   template <typename FN>
   inline void scan_range(const key fromKey_, const key toKey_, FN fn) noexcept {
-    // FIXME There should be a cheaper way to handle the exclusive bound
-    // case.  This relies on key decoding, which is expensive for variable
-    // length keys.  At a minimum, we could compare the internal keys to
-    // avoid the decoding.  But it would be nice to know the leaf that we
-    // will not visit and just halt when we get there.
+    // TODO Explore a cheaper way to handle the exclusive bound case
+    // when developing variable length key support based on the
+    // maintained key buffer.
     constexpr bool debug = false;  // set true to debug scan. FIXME REMOVE [debug]?
     if ( empty() ) return;
     const detail::art_key fromKey{fromKey_};  // convert to internal key
@@ -551,17 +564,13 @@ class olc_db final {
     bool match {};
     if ( fwd ) {
       auto it1 { iterator(*this).seek( fromKey, match, true/*fwd*/ ) }; // lower bound
-      // auto it2 { end().seek( toKey, match, true/*fwd*/ ) }; // upper bound
-      // if ( it2.get_key() == toKey_ ) it2.prior();  // back up one if the toKey exists (exclusive upper bound).
       if constexpr ( debug ) {
         std::cerr<<"scan:: fwd"<<std::endl;
         std::cerr<<"scan:: fromKey="<<fromKey_<<std::endl; it1.dump(std::cerr);
-        // std::cerr<<"scan:: toKey="<<toKey_<<std::endl; it2.dump(std::cerr);
       }
       visitor v { it1 };
-      while ( it1.valid() && it1.get_key() < toKey_ ) {
+      while ( it1.valid() && it1.cmp( toKey ) < 0 ) { // compares internal keys.
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
-        // if ( UNODB_DETAIL_UNLIKELY( it1.current_node() == it2.current_node() ) ) break;
         it1.next();
         if constexpr( debug ) {
           std::cerr<<"scan: next()"<<std::endl; it1.dump( std::cerr );
@@ -569,17 +578,13 @@ class olc_db final {
       }
     } else { // reverse traversal.
       auto it1 { iterator(*this).seek( fromKey, match, true/*fwd*/ ) }; // upper bound
-      // auto it2 { end().seek( toKey, match, false/*fwd*/ ) }; // lower bound
-      // if ( it2.get_key() == toKey_ ) it2.next();  // advance one if the toKey exists (exclusive lower bound during reverse traversal)
       if constexpr( debug ) {
         std::cerr<<"scan:: rev"<<std::endl;
-        std::cerr<<"scan:: fromKe   y="<<fromKey_<<std::endl; it1.dump(std::cerr);
-        // std::cerr<<"scan:: toKey="<<toKey_<<std::endl; it2.dump(std::cerr);
+        std::cerr<<"scan:: fromKey="<<fromKey_<<std::endl; it1.dump(std::cerr);
       }
       visitor v { it1 };
-      while ( it1.valid() && it1.get_key() > toKey_ ) {
+      while ( it1.valid() && it1.cmp( toKey ) < 0 ) { // compares internal keys.
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
-        // if ( UNODB_DETAIL_UNLIKELY( it1.current_node() == it2.current_node() ) ) break;
         it1.prior();
         if constexpr( debug ) {
           std::cerr<<"scan: prior()"<<std::endl; it1.dump( std::cerr );

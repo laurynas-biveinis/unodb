@@ -210,7 +210,22 @@ class db final {
           ? detail::node_ptr(nullptr)
           : std::get<NP>( stack_.top() );
       ;
-    }      
+    }
+
+    // Compare the given key (e.g., the toKey) to the current key in
+    // the internal buffer.
+    //
+    // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+    inline int cmp(const detail::art_key& akey) const noexcept {
+      // TODO Explore a cheaper way to handle the exclusive bound case
+      // when developing variable length key support based on the
+      // maintained key buffer.
+      UNODB_DETAIL_ASSERT( !stack_.empty() );
+      auto node = std::get<NP>( stack_.top() );
+      UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF);
+      const auto *const leaf{node.ptr<detail::leaf *>()};
+      return leaf->get_key().cmp( akey );
+    }
     
    private:
 

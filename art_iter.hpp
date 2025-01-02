@@ -35,12 +35,6 @@ inline bool db::iterator::operator==(const iterator& other) const noexcept {
   if ( &db_ != &other.db_ ) return false;                     // different tree?
   if ( stack_.empty() != other.stack_.empty() ) return false; // one stack is empty and the other is not?
   if ( stack_.empty() ) return true;                          // both empty.
-  // TODO Is this any different for OLC where there could be two
-  // different tree structures and hence two iterators that point
-  // at the same (key,val) in a leaf but there is a different
-  // inode path?  In that case, this would say that the iterators
-  // are not the same.  Which seems to be the correct answer. (The
-  // main reason to compare iterators is to detect the end().)
   const auto& a = stack_.top();
   const auto& b = other.stack_.top();
   return a == b; // top of stack is same (inode, key, and child_index).
@@ -90,14 +84,9 @@ inline void db::scan_from(const key fromKey_, FN fn, bool fwd) noexcept {
   }
 }
 
-// FIXME There should be a cheaper way to handle the exclusive bound
-// case.  This relies on key decoding, which is expensive for variable
-// length keys.  At a minimum, we could compare the internal keys to
-// avoid the decoding.  But it would be nice to know the leaf that we
-// will not visit and just halt when we get there.
 template <typename FN>
 inline void db::scan_range(const key fromKey_, const key toKey_, FN fn) noexcept {
-  constexpr bool debug = false;  // set true to debug scan. FIXME REMOVE [debug]?
+  constexpr bool debug = false;  // set true to debug scan.
   if ( empty() ) return;
   const detail::art_key fromKey{fromKey_};  // convert to internal key
   const detail::art_key toKey{toKey_};      // convert to internal key
@@ -107,17 +96,13 @@ inline void db::scan_range(const key fromKey_, const key toKey_, FN fn) noexcept
   bool match {};
   if ( fwd ) {
     auto it1 { iterator(*this).seek( fromKey, match, true/*fwd*/ ) }; // lower bound
-    // auto it2 { end().seek( toKey, match, true/*fwd*/ ) }; // upper bound
-    // if ( it2.get_key() == toKey_ ) it2.prior();  // back up one if the toKey exists (exclusive upper bound).
     if constexpr ( debug ) {
       std::cerr<<"scan:: fwd"<<std::endl;
       std::cerr<<"scan:: fromKey="<<fromKey_<<std::endl; it1.dump(std::cerr);
-      // std::cerr<<"scan:: toKey="<<toKey_<<std::endl; it2.dump(std::cerr);
     }
     visitor v { it1 };
-    while ( it1.valid() && it1.get_key() < toKey_ ) {
+    while ( it1.valid() && it1.cmp( toKey ) < 0 ) { // compares internal keys
       if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
-      // if ( UNODB_DETAIL_UNLIKELY( it1.current_node() == it2.current_node() ) ) break;
       it1.next();
       if constexpr( debug ) {
         std::cerr<<"scan: next()"<<std::endl; it1.dump( std::cerr );
@@ -125,15 +110,12 @@ inline void db::scan_range(const key fromKey_, const key toKey_, FN fn) noexcept
     }
   } else { // reverse traversal.
     auto it1 { iterator(*this).seek( fromKey, match, true/*fwd*/ ) }; // upper bound
-    // auto it2 { end().seek( toKey, match, false/*fwd*/ ) }; // lower bound
-    // if ( it2.get_key() == toKey_ ) it2.next();  // advance one if the toKey exists (exclusive lower bound during reverse traversal)
     if constexpr( debug ) {
       std::cerr<<"scan:: rev"<<std::endl;
-      std::cerr<<"scan:: fromKe   y="<<fromKey_<<std::endl; it1.dump(std::cerr);
-    // std::cerr<<"scan:: toKey="<<toKey_<<std::endl; it2.dump(std::cerr);
+      std::cerr<<"scan:: fromKey="<<fromKey_<<std::endl; it1.dump(std::cerr);
     }
     visitor v { it1 };
-    while ( it1.valid() && it1.get_key() > toKey_ ) {
+    while ( it1.valid() && it1.cmp( toKey ) < 0 ) { // compares internal keys.
       if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
       // if ( UNODB_DETAIL_UNLIKELY( it1.current_node() == it2.current_node() ) ) break;
       it1.prior();

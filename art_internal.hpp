@@ -57,14 +57,23 @@ struct [[nodiscard]] basic_art_key final {
   // return true iff the two keys are equal.
   [[nodiscard, gnu::pure]] constexpr bool operator==(
       basic_art_key<KeyType> key2) const noexcept {
-    return !std::memcmp(&key, &key2.key, size);  // FIXME This is wrong for variable length keys.  It needs to consider no more bytes than the shorter key and if the two keys have the same prefix, then they are != if one is longer (and for == we can just compare the size as a short cut for this).  Also needs unit tests for variable length keys.
+    // FIXME This is wrong for variable length keys.  It needs to
+    // consider no more bytes than the shorter key and if the two keys
+    // have the same prefix, then they are != if one is longer (and
+    // for == we can just compare the size as a short cut for this).
+    // Also needs unit tests for variable length keys.
+    return !std::memcmp(&key, &key2.key, size);
   }
 
   // return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
   [[nodiscard, gnu::pure]] constexpr int cmp(
-      basic_art_key<KeyType> key2) const noexcept {
+      basic_art_key<KeyType> key2 ) const noexcept {
     const size_t n = size <= key2.size ? size : key2.size;
-    return std::memcmp(&key, &key2.key, n);   // FIXME This is wrong for variable length keys.  It needs to consider no more bytes than the shorter key and if the two keys have the same prefix, then they are != if one is longer.  Also needs unit tests for variable length keys.
+    // FIXME This is wrong for variable length keys.  It needs to
+    // consider no more bytes than the shorter key and if the two keys
+    // have the same prefix, then they are != if one is longer.  Also
+    // needs unit tests for variable length keys.
+    return std::memcmp(&key, &key2.key, n);
   }
 
   [[nodiscard, gnu::pure]] constexpr auto operator[](

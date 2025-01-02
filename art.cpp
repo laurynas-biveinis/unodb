@@ -546,7 +546,7 @@ db::iterator& db::iterator::prior() noexcept {
       continue; // We will look for the left sibling of the parent inode.
     }
     { // Fix up stack for new parent node state and right-most descent.
-      UNODB_DETAIL_ASSERT( nxt );  // value exists for std::optional.
+      UNODB_DETAIL_ASSERT( nxt.has_value() );  // value exists for std::optional.
       auto e2 = nxt.value();
       pop();
       push( e2 );

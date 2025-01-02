@@ -38,7 +38,7 @@ class [[nodiscard]] fake_lock final {
   [[nodiscard]] fake_read_critical_section try_read_lock() noexcept {
     return fake_read_critical_section{};
   }
-}; // class fake_policy
+}; // class fake_lock
 
 // Provide access to T with in_critical_section<T>-like interface, except that
 // loads and stores are direct instead of relaxed atomic. It enables having a

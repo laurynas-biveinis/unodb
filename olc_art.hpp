@@ -215,7 +215,7 @@ class olc_db final {
    protected:
     
     // Construct an empty iterator.
-    inline iterator(olc_db& tree):db_(tree) {}
+    inline iterator(olc_db& tree) : db_(tree) {}
 
    public: // EXPOSED TO THE TESTS
     

@@ -637,24 +637,16 @@ class basic_inode_impl : public ArtPolicy::header_type {
   // Overflow for the child_index can only occur for N48 and N256.
   // When overflow happens, the iter_result is not defined and the
   // outer std::optional will return false.
-  //
-  // FIXME variable length keys: we need to track the prefix length
-  // that was consumed from the key during the descent so we know how
-  // much to pop off of the internal key buffer when popping something
-  // off of the stack.  For OLC, that information must be read when
-  // using the CS but you DO NOT check the CS for validity when
-  // popping something off of the key buffer since you need to pop off
-  // just as many bytes as were pushed on.
   using iter_result = std::tuple
-      < node_ptr        // node pointer (NP) TODO -- make this [const node_ptr]?
+      < node_ptr        // node pointer (NP)
       , std::byte       // key byte     (KB)
-      , std::uint8_t    // child-index  (CI) (index into children[] except for N48, which is index into the child_indexes[], aka the same as the key byte)
+      , std::uint8_t    // child-index  (CI)
       >;
   using iter_result_opt = std::optional< iter_result >;
   
-  static constexpr int NP = 0; // node pointer (to an internal node or leaf, can also be the root node or root leaf)
-  static constexpr int KB = 1; // key byte     (when stepping down from that node)
-  static constexpr int CI = 2; // child_index  (along which the path steps down from that node)
+  static constexpr int NP = 0; // node pointer
+  static constexpr int KB = 1; // key byte
+  static constexpr int CI = 2; // child_index
   
  protected:
   using inode_type = typename ArtPolicy::inode;
@@ -837,7 +829,7 @@ class basic_inode_impl : public ArtPolicy::header_type {
   // Always returns [end_result] which is a special value that does
   // not correspond to any position in the node (it is a
   // std::optional<iter_result> which evaluates to [false]).
-  [[nodiscard]] constexpr iter_result_opt end(node_type type) const noexcept {
+  [[nodiscard]] constexpr iter_result_opt end(node_type) const noexcept {
     UNODB_DETAIL_ASSERT(type != node_type::LEAF);
     return end_result;
   }
@@ -848,8 +840,11 @@ class basic_inode_impl : public ArtPolicy::header_type {
   //
   // @param child_index The current position within the that internal node.
   //
-  // @return A wrapped iter_result for the next child of this node iff such a child exists.
-  [[nodiscard]] constexpr iter_result_opt next(const node_type type, const std::uint8_t child_index) noexcept {
+  // @return A wrapped iter_result for the next child of this node iff
+  // such a child exists.
+  [[nodiscard]] constexpr iter_result_opt next(const node_type type,
+                                               const std::uint8_t child_index
+                                               ) noexcept {
     UNODB_DETAIL_ASSERT(type != node_type::LEAF);
     // Because of the parallel updates, the callees below may work on
     // inconsistent nodes and must not assert, just produce results, which are

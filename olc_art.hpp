@@ -148,7 +148,8 @@ class olc_db final {
 
   // Insert a value under a key iff there is no entry for that key.
   //
-  // Note: Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
+  // Note: Cannot be called during stack unwinding with
+  // std::uncaught_exceptions() > 0
   //
   // @return true if the key value pair was inserted.
   //
@@ -246,25 +247,17 @@ class olc_db final {
     // that must be valid to use the KB and CI data read from the NP.
     // The CS information is cached when when those data are read from
     // the NP along with the KB and CI values that were read.
-    //
-    // FIXME variable length keys: we need to track the prefix length
-    // that was consumed from the key during the descent so we know
-    // how much to pop off of the internal key buffer when popping
-    // something off of the stack.  For OLC, that information must be
-    // read when using the CS but you DO NOT check the CS for validity
-    // when popping something off of the key buffer since you need to
-    // pop off just as many bytes as were pushed on.
     using stack_entry = std::tuple
       < detail::olc_node_ptr  // node pointer (NP)
       , std::byte             // key byte     (KB)
-      , std::uint8_t          // child-index  (CI) (index into children[] except for N48, which is index into the child_indexes[], aka the same as the key byte)
-      , version_tag           // The NP version tag invariant when the KB and CI were read from the node.
+      , std::uint8_t          // child-index  (CI)
+      , version_tag           // The NP version tag invariant
       >;
   
-    static constexpr int NP = 0; // node pointer (to an internal node or leaf, can also be the root node or root leaf)
-    static constexpr int KB = 1; // key byte     (when stepping down from that node)
-    static constexpr int CI = 2; // child_index  (along which the path steps down from that node)
-    static constexpr int VT = 3; // version tag  (for that node when obtaining the key_byte and child_index).
+    static constexpr int NP = 0; // node pointer
+    static constexpr int KB = 1; // key byte
+    static constexpr int CI = 2; // child_index
+    static constexpr int VT = 3; // version tag
 
    protected:
     
@@ -313,7 +306,8 @@ class olc_db final {
     // such entry.  Otherwise, the iterator will be positioned on the
     // last key which orders LTE the search_key and end() if there is
     // no such entry.
-    iterator& seek(const detail::art_key search_key, bool& match, bool fwd = true) noexcept;
+    iterator& seek(const detail::art_key search_key,
+                   bool& match, bool fwd = true) noexcept;
 
     // Iff the iterator is positioned on an index entry, then returns
     // the decoded key associated with that index entry.
@@ -353,7 +347,7 @@ class olc_db final {
     // Push an entry onto the stack.
     //
     // TODO(thompson) handle variable length keys here.
-    void push( detail::olc_inode_base::iter_result& e,
+    void push( const detail::olc_inode_base::iter_result& e,
                optimistic_lock::read_critical_section& rcs
                ) noexcept {
       push( std::get<NP>(e), std::get<KB>(e), std::get<CI>(e), rcs );
@@ -414,17 +408,20 @@ class olc_db final {
     // Push the given node onto the stack and traverse from the
     // caller's node to the left-most leaf under that node, pushing
     // nodes onto the stack as they are visited.
-    bool try_left_most_traversal(detail::olc_node_ptr node,
-                                 optimistic_lock::read_critical_section& parent_critical_section) noexcept;
+    bool try_left_most_traversal
+    ( detail::olc_node_ptr node,
+      optimistic_lock::read_critical_section& parent_critical_section) noexcept;
 
     // Descend from the current state of the stack to the right most
     // child leaf, updating the state of the iterator during the
     // descent.
-    bool try_right_most_traversal(detail::olc_node_ptr node,
-                                  optimistic_lock::read_critical_section& parent_critical_section) noexcept;
+    bool try_right_most_traversal
+    ( detail::olc_node_ptr node,
+      optimistic_lock::read_critical_section& parent_critical_section) noexcept;
 
     // Core logic invoked from retry loop.
-    bool try_seek(const detail::art_key& search_key, bool& match, bool fwd) noexcept;
+    bool try_seek(const detail::art_key& search_key, bool& match,
+                  bool fwd) noexcept;
     
     // The outer db instance.
     olc_db& db_;
@@ -442,13 +439,13 @@ class olc_db final {
     // the appropriate lexicographic ordering.  The internal key needs
     // to be decoded to the external key.
     //
-    // FIXME The current implementation stores the entire key in the
-    // leaf. This works fine for simple primitive keys.  However, it
-    // needs to be modified when the implementation is modified to
-    // support variable length keys. In that situation, the full
-    // internal key needs to be constructed using the [key] byte from
-    // the path stack plus the prefix bytes from the internal nodes
-    // along that path.
+    // TODO(thompsonbry) The current implementation stores the entire
+    // key in the leaf. This works fine for simple primitive keys.
+    // However, it needs to be modified when the implementation is
+    // modified to support variable length keys. In that situation,
+    // the full internal key needs to be constructed using the [key]
+    // byte from the path stack plus the prefix bytes from the
+    // internal nodes along that path.
     key key_ {};
     
   }; // class iterator
@@ -550,7 +547,8 @@ class olc_db final {
   // returning [bool::halt].  The traversal will halt if the function
   // returns [true].
   template <typename FN>
-  inline void scan_range(const key from_key_, const key to_key_, FN fn) noexcept {
+  inline void scan_range(const key from_key_, const key to_key_, FN fn) noexcept
+  {
     // TODO(thompsonbry) Explore a cheaper way to handle the exclusive
     // bound case when developing variable length key support based on
     // the maintained key buffer.
@@ -563,27 +561,29 @@ class olc_db final {
     if ( ret == 0 ) return;                   // NOP
     bool match {};
     if ( fwd ) {
-      auto it1 { iterator(*this).seek( from_key, match, true/*fwd*/ ) }; // lower bound
+      auto it1 { iterator(*this).seek( from_key, match, true/*fwd*/ ) };
       if constexpr ( debug ) {
-        std::cerr<<"scan:: fwd"<<std::endl;
-        std::cerr<<"scan:: from_key="<<from_key_<<std::endl; it1.dump(std::cerr);
+        std::cerr<<"scan:: fwd" << std::endl;
+        std::cerr<<"scan:: from_key=" << from_key_ << std::endl;
+        it1.dump(std::cerr);
       }
       visitor v { it1 };
-      while ( it1.valid() && it1.cmp( to_key ) < 0 ) { // compares internal keys.
+      while ( it1.valid() && it1.cmp( to_key ) < 0 ) {
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
         it1.next();
         if constexpr( debug ) {
-          std::cerr<<"scan: next()"<<std::endl; it1.dump( std::cerr );
+          std::cerr<<"scan: next()" << std::endl; it1.dump( std::cerr );
         }
       }
     } else { // reverse traversal.
-      auto it1 { iterator(*this).seek( from_key, match, true/*fwd*/ ) }; // upper bound
+      auto it1 { iterator(*this).seek( from_key, match, true/*fwd*/ ) };
       if constexpr( debug ) {
-        std::cerr<<"scan:: rev"<<std::endl;
-        std::cerr<<"scan:: from_key="<<from_key_<<std::endl; it1.dump(std::cerr);
+        std::cerr<<"scan:: rev" << std::endl;
+        std::cerr<<"scan:: from_key=" << from_key_ << std::endl;
+        it1.dump(std::cerr);
       }
       visitor v { it1 };
-      while ( it1.valid() && it1.cmp( to_key ) < 0 ) { // compares internal keys.
+      while ( it1.valid() && it1.cmp( to_key ) < 0 ) {
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
         it1.prior();
         if constexpr( debug ) {
@@ -758,7 +758,8 @@ class olc_db final {
   template <class>
   friend class detail::db_inode_qsbr_deleter;
 
-  template <class, template <class> class, class, class, class, class, template <class> class,
+  template <class, template <class> class, class, class, class, class,
+            template <class> class,
             template <class, class> class>
   friend struct detail::basic_art_policy;
 
@@ -777,20 +778,21 @@ inline std::optional<const unodb::key> olc_db::iterator::get_key() noexcept {
   // leaf regardless of whether the leaf has been deleted.  This is
   // part of the design semantics for the OLC ART scan.
   //
-  // FIXME Eventually this will need to use the stack to reconstruct
-  // the key from the path from the root to this leaf.  Right now it
-  // is relying on the fact that simple fixed width keys are stored
-  // directly in the leaves.
+  // TODO(thompsonbry) Eventually this will need to use the stack to
+  // reconstruct the key from the path from the root to this leaf.
+  // Right now it is relying on the fact that simple fixed width keys
+  // are stored directly in the leaves.
   if ( ! valid() ) return {}; // not positioned on anything.
   const auto& e = stack_.top();
   const auto& node = std::get<NP>( e );
   UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
   const auto *const aleaf{ node.ptr<detail::olc_leaf *>() }; // current leaf.
-  key_ = aleaf->get_key().decode(); // decode the key into the iterator's buffer.
+  key_ = aleaf->get_key().decode(); // decode the key into the iterator's buffer
   return key_; // return pointer to the internal key buffer.
 }
 
-inline std::optional<const value_view> olc_db::iterator::get_val() const noexcept {
+inline std::optional<const value_view> olc_db::iterator::get_val()
+    const noexcept {
   // Note: If the iterator is on a leaf, we return the value for
   // that leaf regardless of whether the leaf has been deleted.
   // This is part of the design semantics for the OLC ART scan.
@@ -803,7 +805,8 @@ inline std::optional<const value_view> olc_db::iterator::get_val() const noexcep
   return aleaf->get_value_view();
 }
 
-inline bool olc_db::iterator::operator==(const iterator& other) const noexcept {
+inline bool olc_db::iterator::operator==(const iterator& other)
+    const noexcept {
   if ( &db_ != &other.db_ ) return false;  // different tree?
   if ( stack_.empty() != other.stack_.empty() )
     return false; // one stack is empty and the other is not?

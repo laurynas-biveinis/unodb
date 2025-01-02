@@ -626,16 +626,16 @@ db::iterator& db::iterator::seek(
     if (node_type == node_type::LEAF) {
       const auto *const leaf{node.ptr<detail::leaf *>()};
       push_leaf( node );
-      const auto cmp = leaf->cmp( k );
-      if ( cmp == 0 ) {
+      const auto cmp_ = leaf->cmp( k );
+      if ( cmp_ == 0 ) {
         match = true;
         return *this;
       } else if ( fwd ) { // GTE semantics
         // if search_key < leaf, use the leaf, else next().
-        return ( cmp < 0 ) ? *this :next();
+        return ( cmp_ < 0 ) ? *this :next();
       } else {  // LTE semantics
         // if search_key > leaf, use the leaf, else prior().
-        return ( cmp > 0 ) ? *this :prior();
+        return ( cmp_ > 0 ) ? *this :prior();
       }
       UNODB_DETAIL_CANNOT_HAPPEN();
     }
@@ -654,14 +654,11 @@ db::iterator& db::iterator::seek(
       // in common, we know that the next byte will tell us the
       // relative ordering of the key vs the prefix. So now we compare
       // prefix and key and the first byte where they differ.
-      const auto cmp = static_cast<int>(remaining_key[ shared_length ])
-                     - static_cast<int>(key_prefix   [ shared_length ]); 
-      //std::cerr<<"shared_length="<<shared_length<<",
-      //cmp(remaining_key,key_prefix)="<<cmp<<", fwd="<<fwd;
-      //key_prefix.dump(std::cerr); std::cerr<<std::endl;
-      UNODB_DETAIL_ASSERT( cmp != 0 );
+      const auto cmp_ = static_cast<int>(remaining_key[ shared_length ])
+                      - static_cast<int>(key_prefix   [ shared_length ]); 
+      UNODB_DETAIL_ASSERT( cmp_ != 0 );
       if ( fwd ) {
-        if ( cmp < 0 ) {
+        if ( cmp_ < 0 ) {
           // FWD and the search key is ordered before this node.  We
           // want the left-most leaf under the node.
           return left_most_traversal( node );
@@ -671,7 +668,7 @@ db::iterator& db::iterator::seek(
           return right_most_traversal( node ).next();
         }
       } else {  // reverse traversal
-        if ( cmp < 0 ) {
+        if ( cmp_ < 0 ) {
           // REV and the search key is ordered before this node.  We
           // want the preceeding key.
         return left_most_traversal( node ).prior();

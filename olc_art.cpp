@@ -1599,19 +1599,19 @@ bool olc_db::iterator::try_seek(const detail::art_key& search_key, bool& match, 
         return false;  // LCOV_EXCL_LINE
       const auto *const leaf{node.ptr<detail::olc_leaf *>()};
       push_leaf( node, node_critical_section );
-      const auto cmp = leaf->cmp( k );
+      const auto cmp_ = leaf->cmp( k );
       if (UNODB_DETAIL_UNLIKELY(
               !node_critical_section.try_read_unlock())) // unlock leaf
         return false;  // LCOV_EXCL_LINE
-      if ( cmp == 0 ) {
+      if ( cmp_ == 0 ) {
         match = true;
         return true; // done
       } else if ( fwd ) { // GTE semantics
         // if search_key < leaf, use leaf, else next().
-        return ( cmp < 0 ) ? true :try_next();
+        return ( cmp_ < 0 ) ? true :try_next();
       } else {  // LTE semantics
         // if search_key > leaf, use leaf, else prior().
-        return ( cmp > 0 ) ? true :try_prior();
+        return ( cmp_ > 0 ) ? true :try_prior();
       }
       UNODB_DETAIL_CANNOT_HAPPEN();
     }
@@ -1630,13 +1630,13 @@ bool olc_db::iterator::try_seek(const detail::art_key& search_key, bool& match, 
       // in common, we know that the next byte will tell us the
       // relative ordering of the key vs the prefix. So now we compare
       // prefix and key and the first byte where they differ.
-      const auto cmp = static_cast<int>(remaining_key[ shared_length ])
+      const auto cmp_ = static_cast<int>(remaining_key[ shared_length ])
                      - static_cast<int>(key_prefix   [ shared_length ]);
-      UNODB_DETAIL_ASSERT( cmp != 0 );
+      UNODB_DETAIL_ASSERT( cmp_ != 0 );
       if ( fwd ) {
         // Note: parent_critical_section is unlocked along all paths
         // by try_(left|right)_most_traversal
-        if ( cmp < 0 ) {
+        if ( cmp_ < 0 ) {
           // FWD and the search key is ordered before this node.  We
           // want the left-most leaf under the node.
           return UNLOCK( node_critical_section,
@@ -1651,7 +1651,7 @@ bool olc_db::iterator::try_seek(const detail::art_key& search_key, bool& match, 
               && try_next();
         }
       } else {  // reverse traversal
-        if ( cmp < 0 ) {
+        if ( cmp_ < 0 ) {
           // REV and the search key is ordered before this node.  We
           // want the preceeding key.
           return UNLOCK( node_critical_section,

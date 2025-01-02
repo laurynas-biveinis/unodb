@@ -232,7 +232,7 @@ class db final {
     bool empty() const noexcept { return stack_.empty(); }
 
     // Push an entry onto the stack.
-    void push( stack_entry& e ) noexcept {
+    void push( const stack_entry& e ) noexcept {
       stack_.push( e );
     }
     
@@ -635,39 +635,41 @@ inline void db::scan_from(const key from_key_, FN fn, bool fwd) noexcept {
 }
 
 template <typename FN>
-inline void db::scan_range(const key from_key_, const key to_key_, FN fn) noexcept {
+inline void db::scan_range(const key from_key, const key to_key, FN fn) noexcept
+{
   constexpr bool debug = false;  // set true to debug scan.
   if ( empty() ) return;
-  const detail::art_key from_key{from_key_};  // convert to internal key
-  const detail::art_key to_key{to_key_};      // convert to internal key
-  const auto ret = from_key.cmp( to_key );    // compare the internal keys.
-  const bool fwd { ret < 0 };               // from_key is less than to_key
-  if ( ret == 0 ) return;                   // NOP.
+  const detail::art_key from_key_{from_key}; // convert to internal key
+  const detail::art_key to_key_{to_key};     // convert to internal key
+  const auto ret = from_key_.cmp( to_key_ ); // compare the internal keys
+  const bool fwd { ret < 0 };                // from_key is less than to_key
+  if ( ret == 0 ) return;                    // NOP
   bool match {};
   if ( fwd ) {
-    auto it1 { iterator(*this).seek( from_key, match, true/*fwd*/ ) }; // lower bound
+    auto it1 { iterator(*this).seek( from_key_, match, true/*fwd*/ ) };
     if constexpr ( debug ) {
-      std::cerr<<"scan:: fwd"<<std::endl;
-      std::cerr<<"scan:: from_key="<<from_key_<<std::endl; it1.dump(std::cerr);
+      std::cerr<<"scan:: fwd" << std::endl;
+      std::cerr<<"scan:: from_key=" << from_key << std::endl;
+      it1.dump(std::cerr);
     }
     visitor v { it1 };
-    while ( it1.valid() && it1.cmp( to_key ) < 0 ) { // compares internal keys
+    while ( it1.valid() && it1.cmp( to_key_ ) < 0 ) {
       if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
       it1.next();
       if constexpr( debug ) {
-        std::cerr<<"scan: next()"<<std::endl; it1.dump( std::cerr );
+        std::cerr<<"scan: next()" << std::endl; it1.dump( std::cerr );
       }
     }
   } else { // reverse traversal.
-    auto it1 { iterator(*this).seek( from_key, match, true/*fwd*/ ) }; // upper bound
+    auto it1 { iterator(*this).seek( from_key_, match, true/*fwd*/ ) };
     if constexpr( debug ) {
       std::cerr<<"scan:: rev"<<std::endl;
-      std::cerr<<"scan:: from_key="<<from_key_<<std::endl; it1.dump(std::cerr);
+      std::cerr<<"scan:: from_key=" << from_key << std::endl;
+      it1.dump(std::cerr);
     }
     visitor v { it1 };
-    while ( it1.valid() && it1.cmp( to_key ) < 0 ) { // compares internal keys.
+    while ( it1.valid() && it1.cmp( to_key_ ) < 0 ) {
       if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
-      // if ( UNODB_DETAIL_UNLIKELY( it1.current_node() == it2.current_node() ) ) break;
       it1.prior();
       if constexpr( debug ) {
       std::cerr<<"scan: prior()"<<std::endl; it1.dump( std::cerr );

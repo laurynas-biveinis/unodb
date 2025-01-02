@@ -1,7 +1,7 @@
 ---
 name: experimental-build
 
-on: [push]
+on: [push, pull_request]
 
 permissions: { }
 

@@ -211,9 +211,9 @@ class db final {
     //
     // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
     int cmp(const detail::art_key& akey) const noexcept {
-      // TODO Explore a cheaper way to handle the exclusive bound case
-      // when developing variable length key support based on the
-      // maintained key buffer.
+      // TODO(thompsonbry) Explore a cheaper way to handle the
+      // exclusive bound case when developing variable length key
+      // support based on the maintained key buffer.
       UNODB_DETAIL_ASSERT( !stack_.empty() );
       auto node = std::get<NP>( stack_.top() );
       UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF);
@@ -231,28 +231,32 @@ class db final {
     // Return true iff the stack is empty.
     bool empty() const noexcept { return stack_.empty(); }
 
-    // Push an entry onto the stack. TODO handle variable length keys here.
+    // Push an entry onto the stack.
     void push( stack_entry& e ) noexcept {
       stack_.push( e );
     }
     
-    // Push an entry onto the stack. TODO handle variable length keys here.
-    void push( detail::node_ptr node, std::byte key_byte, std::uint8_t child_index ) noexcept {
+    // Push an entry onto the stack.
+    //
+    // TODO(thompsonbry) handle variable length keys here.
+    void push( detail::node_ptr node, std::byte key_byte,
+               std::uint8_t child_index ) noexcept {
       stack_.push( { node, key_byte, child_index } );
     }
 
-    // Push a leaf onto the stack.  TODO handle variable length keys here.
+    // Push a leaf onto the stack.
     void push_leaf( detail::node_ptr aleaf ) noexcept {
       // Mock up an iter_result for the leaf. The [key] and
       // [child_index] are ignored for a leaf.
-      stack_.push(
-          { aleaf,
+      push( aleaf,
             static_cast<std::byte>(0xFFU),
             static_cast<std::uint8_t>(0xFFU)
-          } );
+            );
     }
 
-    // Pop an entry from the stack. TODO handle variable length keys here.
+    // Pop an entry from the stack.
+    //
+    // TODO(thompsonbry) handle variable length keys here.
     void pop() noexcept {stack_.pop();}
 
     // Return the entry (if any) on the top of the stack.

@@ -290,7 +290,7 @@ class db;
     friend class db;
    protected:
     Iterator& it;
-    inline visitor(Iterator& it_) : it(it_) {}
+    explicit visitor(Iterator& it_) : it(it_) {}
    public:
     // visit the (decoded) key.
     inline auto get_key() const noexcept {return it.get_key().value();}

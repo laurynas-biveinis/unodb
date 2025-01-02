@@ -2149,10 +2149,12 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   // for the first mapped entry. That will be the smallest key mapped
   // by the N48 node.
   [[nodiscard]] constexpr typename basic_inode_48::iter_result begin() noexcept {
-    for ( std::uint64_t i = 0; i < 256; i++ ) { // TODO Is there a declared constant for the child_indexes[] capacity?
+    // TODO(thompsonbry) Is there a declared constant for the
+    // child_indexes[] capacity?
+    for ( std::uint64_t i = 0; i < 256; i++ ) {
       if ( child_indexes[ i ] != empty_child ) {
         const auto key = static_cast<std::byte>( i );
-        const auto child_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
+        const auto child_index = static_cast<std::uint8_t>( i );
         return { node_ptr{ this, node_type::I48 }, key, child_index };
       }
     }
@@ -2166,34 +2168,38 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   // looking for the last mapped entry. That will be the greatest key
   // mapped by the N48 node.
   [[nodiscard]] constexpr typename basic_inode_48::iter_result last() noexcept {
-    for ( std::int64_t i = 255; i >= 0; i-- ) { // TODO Is there a declared constant for the child_indexes[] capacity?
-      if ( child_indexes[ static_cast<std::uint8_t>( i ) ] != empty_child ) { // downcase is safe since in [0:255]
+    // TODO(thompsonbry) Is there a declared constant for the
+    // child_indexes[] capacity?
+    for ( std::int64_t i = 255; i >= 0; i-- ) {
+      if ( child_indexes[ static_cast<std::uint8_t>( i ) ] != empty_child ) {
         const auto key = static_cast<std::byte>( i );
-        const auto child_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
+        const auto child_index = static_cast<std::uint8_t>( i );
         return { node_ptr{ this, node_type::I48 }, key, child_index };
       }
     }
     UNODB_DETAIL_CANNOT_HAPPEN(); // because we always have at least 17 keys.
   }
   
-  [[nodiscard]] constexpr typename basic_inode_48::iter_result_opt next(const std::uint8_t child_index) noexcept {
+  [[nodiscard]] constexpr typename basic_inode_48::iter_result_opt next(
+      const std::uint8_t child_index) noexcept {
     // loop over the remaining byte values in lexical order.
     for ( auto i = static_cast<std::uint64_t>(child_index) + 1; i < 256; i++ ) {
       if ( child_indexes[ i ] != empty_child ) {
         const auto key = static_cast<std::byte>( i );
-        const auto next_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
+        const auto next_index = static_cast<std::uint8_t>( i );
         return { { node_ptr{ this, node_type::I48 }, key, next_index } };
       }
     }
     return parent_class::end_result;
   }
   
-  [[nodiscard]] constexpr typename basic_inode_48::iter_result_opt prior(const std::uint8_t child_index) noexcept {
+  [[nodiscard]] constexpr typename basic_inode_48::iter_result_opt prior(
+      const std::uint8_t child_index) noexcept {
     // loop over the prior byte values in lexical order.
     for ( auto i = static_cast<std::int64_t>(child_index) - 1; i >= 0; i-- ) {
-      if ( child_indexes[ static_cast<std::uint8_t>(i) ] != empty_child ) { // downcast ok since in [0:255]
+      if ( child_indexes[ static_cast<std::uint8_t>(i) ] != empty_child ) {
         const auto key = static_cast<std::byte>( i );
-        const auto next_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
+        const auto next_index = static_cast<std::uint8_t>( i );
         return { { node_ptr{ this, node_type::I48 }, key, next_index } };
       }
     }
@@ -2202,10 +2208,11 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
   // N48: This is nearly identical to prior() except that we start the
   // search on the [key_byte] rather than the position before that.
-  [[nodiscard]] constexpr typename basic_inode_48::iter_result_opt lte_key_byte(const std::byte key_byte) noexcept {
+  [[nodiscard]] constexpr typename basic_inode_48::iter_result_opt lte_key_byte(
+      const std::byte key_byte) noexcept {
     // loop over the prior byte values in lexical order.
     for ( auto i = static_cast<std::int64_t>(key_byte); i >= 0; i-- ) {
-      const auto child_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
+      const auto child_index = static_cast<std::uint8_t>( i );
       if ( child_indexes[ child_index ] != empty_child ) {
         const auto key = static_cast<std::byte>( i );
         return { { node_ptr{ this, node_type::I48 }, key, child_index } };
@@ -2216,10 +2223,11 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
   // N48: This is nearly identical to next() except that we start the
   // search on the [key_byte] rather than the position after that.
-  [[nodiscard]] constexpr typename basic_inode_48::iter_result_opt gte_key_byte(std::byte key_byte) noexcept {
+  [[nodiscard]] constexpr typename basic_inode_48::iter_result_opt gte_key_byte(
+      std::byte key_byte) noexcept {
     // loop over the remaining byte values in lexical order.
     for ( auto i = static_cast<std::uint64_t>(key_byte); i < 256; i++ ) {
-      const auto child_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
+      const auto child_index = static_cast<std::uint8_t>( i );
       if ( child_indexes[ child_index ] != empty_child ) {
         const auto key = static_cast<std::byte>( i );
         return { { node_ptr{ this, node_type::I48 }, key, child_index } };
@@ -2482,7 +2490,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  [[nodiscard]] constexpr node_ptr get_child(const std::uint8_t child_index) noexcept {
+  [[nodiscard]] constexpr node_ptr get_child(
+      const std::uint8_t child_index) noexcept {
     return children[ child_index ].load();
   }
   
@@ -2491,8 +2500,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   [[nodiscard]] constexpr typename basic_inode_256::iter_result begin() noexcept {
     for ( std::uint64_t i = 0; i < basic_inode_256::capacity; i++ ) {
       if ( children[ i ] != nullptr ) {
-        const auto key = static_cast<std::byte>( i ); // child_index is the key byte.
-        const auto child_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
+        const auto key = static_cast<std::byte>( i ); // child_index is key byte
+        const auto child_index = static_cast<std::uint8_t>( i );
         return { node_ptr{ this, node_type::I256 }, key, child_index };
       }
     }
@@ -2503,32 +2512,35 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   // order since it is directly indexed by a byte from the key.
   [[nodiscard]] constexpr typename basic_inode_256::iter_result last() noexcept {
     for ( std::int64_t i = basic_inode_256::capacity - 1; i >= 0; i-- ) {
-      if ( children[ static_cast<std::uint8_t>( i ) ] != nullptr ) { // downcast safe since in [0:255]
-        const auto key = static_cast<std::byte>( i ); // child_index is the key byte.
-        const auto child_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
+      if ( children[ static_cast<std::uint8_t>( i ) ] != nullptr ) {
+        const auto key = static_cast<std::byte>( i ); // child_index is key byte
+        const auto child_index = static_cast<std::uint8_t>( i );
         return { node_ptr{ this, node_type::I256 }, key, child_index };
       }
     }
     UNODB_DETAIL_CANNOT_HAPPEN(); // because we always have at least 49 keys.
   }
     
-  [[nodiscard]] constexpr typename basic_inode_256::iter_result_opt next(const std::uint8_t child_index) noexcept {
+  [[nodiscard]] constexpr typename basic_inode_256::iter_result_opt next(
+      const std::uint8_t child_index) noexcept {
     // loop over the remaining byte values in lexical order.
-    for ( auto i = static_cast<std::uint64_t>(child_index) + 1; i < basic_inode_256::capacity; i++ ) {
+    for ( auto i = static_cast<std::uint64_t>(child_index) + 1;
+          i < basic_inode_256::capacity; i++ ) {
       if ( children[ i ] != nullptr ) {
         const auto key = static_cast<std::byte>( i );
-        const auto next_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
+        const auto next_index = static_cast<std::uint8_t>( i );
         return { { node_ptr{ this, node_type::I256 }, key, next_index } };
       }
     }
     return parent_class::end_result;
   }  
 
-  [[nodiscard]] constexpr typename basic_inode_256::iter_result_opt prior(const std::uint8_t child_index) noexcept {
+  [[nodiscard]] constexpr typename basic_inode_256::iter_result_opt prior(
+      const std::uint8_t child_index) noexcept {
     // loop over the remaining byte values in lexical order.
     for ( auto i = static_cast<std::int64_t>(child_index) - 1; i >= 0; i-- ) {
-      const auto next_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
-      if ( children[ next_index ] != nullptr ) { // downcast is safe since in [0:255]
+      const auto next_index = static_cast<std::uint8_t>( i );
+      if ( children[ next_index ] != nullptr ) {
         const auto key = static_cast<std::byte>( i );
         return { { node_ptr{ this, node_type::I256 }, key, next_index } };
       }
@@ -2539,10 +2551,11 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   // N256: This is nearly identical to prior() except that we start
   // the search on the [key_byte] rather than the position before
   // that.
-  [[nodiscard]] constexpr typename basic_inode_256::iter_result_opt lte_key_byte(std::byte key_byte) noexcept {
+  [[nodiscard]] constexpr typename basic_inode_256::iter_result_opt
+  lte_key_byte(std::byte key_byte) noexcept {
     // loop over the prior byte values in lexical order.
     for ( auto i = static_cast<std::int64_t>(key_byte); i >= 0; i-- ) {
-      const auto child_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
+      const auto child_index = static_cast<std::uint8_t>( i );
       if ( children[ child_index ] != nullptr ) {
         const auto key = static_cast<std::byte>( i );
         return { { node_ptr{ this, node_type::I256 }, key, child_index } };
@@ -2553,10 +2566,12 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
 
   // N256: This is nearly identical to next() except that we start the
   // search on the [key_byte] rather than the position after that.
-  [[nodiscard]] constexpr typename basic_inode_256::iter_result_opt gte_key_byte(std::byte key_byte) noexcept {
+  [[nodiscard]] constexpr typename basic_inode_256::iter_result_opt
+  gte_key_byte(std::byte key_byte) noexcept {
     // loop over the remaining byte values in lexical order.
-    for ( auto i = static_cast<std::uint64_t>(key_byte); i < basic_inode_256::capacity; i++ ) {
-      const auto child_index = static_cast<std::uint8_t>( i ); // downcast is safe since in [0:255]
+    for ( auto i = static_cast<std::uint64_t>(key_byte);
+          i < basic_inode_256::capacity; i++ ) {
+      const auto child_index = static_cast<std::uint8_t>( i );
       if ( children[ child_index ] != nullptr ) {
         const auto key = static_cast<std::byte>( i );
         return { { node_ptr{ this, node_type::I48 }, key, child_index } };
@@ -2565,7 +2580,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     return parent_class::end_result;
   }
   
-  // TODO Lifting this out might help with iterator and lambda patterns.
+  // TODO(laurynas) Lifting this out might help with iterator and
+  // lambda patterns.
   template <typename Function>
   constexpr void for_each_child(Function func) const
       noexcept(noexcept(func(0, node_ptr{nullptr}))) {

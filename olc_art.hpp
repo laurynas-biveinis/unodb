@@ -255,7 +255,7 @@ class olc_db final {
     // when popping something off of the key buffer since you need to
     // pop off just as many bytes as were pushed on.
     using stack_entry = std::tuple
-      < detail::olc_node_ptr  // node pointer (NP) TODO -- make this [const node_ptr]?
+      < detail::olc_node_ptr  // node pointer (NP)
       , std::byte             // key byte     (KB)
       , std::uint8_t          // child-index  (CI) (index into children[] except for N48, which is index into the child_indexes[], aka the same as the key byte)
       , version_tag           // The NP version tag invariant when the KB and CI were read from the node.
@@ -350,14 +350,16 @@ class olc_db final {
     // Return true iff the stack is empty.
     bool empty() const noexcept { return stack_.empty(); }
 
-    // Push an entry onto the stack. TODO handle variable length keys here.
+    // Push an entry onto the stack.
+    //
+    // TODO(thompson) handle variable length keys here.
     void push( detail::olc_inode_base::iter_result& e,
                optimistic_lock::read_critical_section& rcs
                ) noexcept {
       push( std::get<NP>(e), std::get<KB>(e), std::get<CI>(e), rcs );
     }
     
-    // Push an entry onto the stack. TODO handle variable length keys here.
+    // Push an entry onto the stack.
     void push( detail::olc_node_ptr node,
                std::byte key_byte,
                std::uint8_t child_index,
@@ -366,7 +368,7 @@ class olc_db final {
       stack_.push( { node, key_byte, child_index, rcs.get() } );
     }
 
-    // Push a leaf onto the stack.  TODO handle variable length keys here.
+    // Push a leaf onto the stack.
     void push_leaf( detail::olc_node_ptr aleaf,
                     optimistic_lock::read_critical_section& rcs
                     ) noexcept {
@@ -379,7 +381,9 @@ class olc_db final {
             );
     }
 
-    // Pop an entry from the stack. TODO handle variable length keys here.
+    // Pop an entry from the stack.
+    //
+    // TODO(thompsonbry) handle variable length keys here.
     void pop() noexcept {stack_.pop();}
 
     // Return the entry (if any) on the top of the stack.
@@ -547,9 +551,9 @@ class olc_db final {
   // returns [true].
   template <typename FN>
   inline void scan_range(const key from_key_, const key to_key_, FN fn) noexcept {
-    // TODO Explore a cheaper way to handle the exclusive bound case
-    // when developing variable length key support based on the
-    // maintained key buffer.
+    // TODO(thompsonbry) Explore a cheaper way to handle the exclusive
+    // bound case when developing variable length key support based on
+    // the maintained key buffer.
     constexpr bool debug = false;  // set true to debug scan.
     if ( empty() ) return;
     const detail::art_key from_key{from_key_};  // convert to internal key
@@ -814,9 +818,9 @@ inline bool olc_db::iterator::operator==(const iterator& other) const noexcept {
 }
 
 inline int olc_db::iterator::cmp(const detail::art_key& akey) const noexcept {
-  // TODO Explore a cheaper way to handle the exclusive bound case
-  // when developing variable length key support based on the
-  // maintained key buffer.
+  // TODO(thompsonbry) Explore a cheaper way to handle the exclusive
+  // bound case when developing variable length key support based on
+  // the maintained key buffer.
   UNODB_DETAIL_ASSERT( !stack_.empty() );
   auto node = std::get<NP>( stack_.top() );
   UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF);

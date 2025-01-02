@@ -128,7 +128,8 @@ namespace {
 #ifndef NDEBUG
 
 [[nodiscard]] auto &node_ptr_lock(
-    const unodb::detail::olc_leaf *const node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+    const unodb::detail::olc_leaf *const node UNODB_DETAIL_LIFETIMEBOUND
+                                  ) noexcept {
   return node->lock();
 }
 
@@ -251,7 +252,8 @@ class [[nodiscard]] olc_inode_4 final
   }
 
   void init(unodb::detail::olc_node_ptr source_node, unsigned len,
-            unodb::detail::tree_depth depth, unodb::detail::olc_db_leaf_unique_ptr &&child1) {
+            unodb::detail::tree_depth depth,
+            unodb::detail::olc_db_leaf_unique_ptr &&child1) {
     UNODB_DETAIL_ASSERT(node_ptr_lock(source_node).is_write_locked());
 
     parent_class::init(source_node, len, depth, std::move(child1));
@@ -289,7 +291,8 @@ class [[nodiscard]] olc_inode_4 final
   }
 
   // cppcheck-suppress duplInheritedMember
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os, bool recursive) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os,
+                                                bool recursive) const {
     os << ", ";
     ::lock(*this).dump(os);
     basic_inode_4::dump(os, recursive);
@@ -373,7 +376,8 @@ class [[nodiscard]] olc_inode_16 final
   }
 
   // cppcheck-suppress duplInheritedMember
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os, bool recursive) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os,
+                                                bool recursive) const {
     os << ", ";
     ::lock(*this).dump(os);
     basic_inode_16::dump(os, recursive);
@@ -454,7 +458,8 @@ class [[nodiscard]] olc_inode_48 final
   }
 
   // cppcheck-suppress duplInheritedMember
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os, bool recursive) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os,
+                                                bool recursive) const {
     os << ", ";
     ::lock(*this).dump(os);
     basic_inode_48::dump(os, recursive);
@@ -536,7 +541,8 @@ class [[nodiscard]] olc_inode_256 final
   }
 
   // cppcheck-suppress duplInheritedMember
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os, bool recursive) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os,
+                                                bool recursive) const {
     os << ", ";
     ::lock(*this).dump(os);
     basic_inode_256::dump(os, recursive);
@@ -836,16 +842,18 @@ olc_db::get_result olc_db::get(key search_key) const noexcept {
 olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   detail::olc_node_ptr node{ root.load() };
-  if (UNODB_DETAIL_UNLIKELY(node == nullptr)) { // special path if the tree is empty.
-    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) return {}; // data race - retry.
-    return std::make_optional<get_result>(std::nullopt);  // return an empty result (breaks out of the while(true) {try_get();}
+  if (UNODB_DETAIL_UNLIKELY(node == nullptr)) { // special path if empty tree.
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+      return {}; // data race - retry.
+    // return an empty result (breaks out of the while(true) {try_get();}     
+    return std::make_optional<get_result>(std::nullopt);
   }
 
   auto remaining_key{k};
   while (true) {
+    // Lock version chaining (node and parent) 
     auto node_critical_section = node_ptr_lock(node).try_read_lock();
-    //if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) return {};
-    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) // Lock version chaining (node and parent)
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return {};  // LCOV_EXCL_LINE
 
     const auto node_type = node.type();
@@ -915,7 +923,8 @@ bool olc_db::insert(key insert_key, value_view v) {
 }
 
 olc_db::try_update_result_type olc_db::try_insert(
-    detail::art_key k, value_view v, unodb::detail::olc_db_leaf_unique_ptr &cached_leaf) {
+    detail::art_key k, value_view v,
+    unodb::detail::olc_db_leaf_unique_ptr &cached_leaf) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -974,7 +983,8 @@ olc_db::try_update_result_type olc_db::try_insert(
 
       create_leaf_if_needed(cached_leaf, k, v, *this);
       auto new_node{
-          unodb::detail::olc_inode_4::create(*this, existing_key, remaining_key, depth)};
+          unodb::detail::olc_inode_4::create(*this, existing_key, remaining_key,
+                                             depth)};
 
       {
         const optimistic_lock::write_guard parent_guard{
@@ -1007,7 +1017,8 @@ olc_db::try_update_result_type olc_db::try_insert(
 
     if (shared_prefix_length < key_prefix_length) {
       create_leaf_if_needed(cached_leaf, k, v, *this);
-      auto new_node{unodb::detail::olc_inode_4::create(*this, node, shared_prefix_length)};
+      auto new_node{unodb::detail::olc_inode_4::create(*this, node,
+                                                       shared_prefix_length)};
 
       {
         const optimistic_lock::write_guard parent_guard{
@@ -1109,8 +1120,8 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
     if (aleaf->matches(k)) {
       const optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
-      // Do not call spin_wait_loop_body from this point on - assume the above
-      // took enough time
+      // Do not call spin_wait_loop_body from this point on - assume
+      // the above took enough time
       if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
       optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
@@ -1118,7 +1129,8 @@ olc_db::try_update_result_type olc_db::try_remove(detail::art_key k) {
 
       node_guard.unlock_and_obsolete();
 
-      const auto r{detail::olc_art_policy::reclaim_leaf_on_scope_exit(aleaf, *this)};
+      const auto r{detail::olc_art_policy::reclaim_leaf_on_scope_exit(aleaf,
+                                                                      *this)};
       root = detail::olc_node_ptr{nullptr};
       return true;
     }
@@ -1267,8 +1279,10 @@ void olc_db::iterator::dump(std::ostream &os) const {
     const auto& e = tmp.top();
     const auto np = std::get<NP>( e );
     os << "iter::stack:: level = " << level
-       << ", key_byte=0x"<<std::hex<<std::setfill('0')<<std::setw(2)<<static_cast<uint64_t>(std::get<KB>( e ))<<std::dec
-       << ", child_index=0x"<<std::hex<<std::setfill('0')<<std::setw(2)<<static_cast<uint64_t>(std::get<CI>( e ))<<std::dec
+       << ", key_byte=0x" << std::hex << std::setfill('0') << std::setw(2)
+       << static_cast<uint64_t>(std::get<KB>( e )) << std::dec
+       <<  ", child_index=0x" << std::hex << std::setfill('0') << std::setw(2)
+       << static_cast<uint64_t>(std::get<CI>( e )) << std::dec
        << ", ";
     optimistic_lock::version_type( std::get<VT>( e ) ).dump( os );  // version tag.
     os << ", ";
@@ -1302,8 +1316,13 @@ olc_db::iterator& olc_db::iterator::next() noexcept {
     if ( try_next() ) return *this;
     while ( true ) {
       bool match {};
-      if ( ! try_seek( akey, match, true/*fwd*/ ) ) continue;  // seek to the current key (or its successor)
-      if ( ! match ) return *this;  // key no longer exists, so its successor is the next leaf and we are done.
+      // seek to the current key (or its successor).
+      if ( ! try_seek( akey, match, true/*fwd*/ ) ) continue;
+      if ( ! match ) {
+        // The key no longer exists, so its successor is the next leaf
+        // and we are done.
+        return *this;
+      }
       if ( ! try_next() ) continue; // seek to the successor
       return *this;                 // done.
     }
@@ -1324,10 +1343,15 @@ olc_db::iterator& olc_db::iterator::prior() noexcept {
     if ( try_prior() ) return *this;
     while ( true ) {
       bool match {};
-      if ( ! try_seek( akey, match, false/*fwd*/ ) ) continue;  // seek to the current key (or its predecessor)
-      if ( ! match ) return *this;  // key no longer exists, so its predecessor is the prior leaf and we are done.
+      // s  eek to the current key (or its predecessor)
+      if ( ! try_seek( akey, match, false/*fwd*/ ) ) continue;
+      if ( ! match ) {
+        // The key no longer exists, so its predecessor is the prior
+        // leaf and we are done.
+        return *this;
+      }
       if ( ! try_prior() ) continue; // seek to the predecessor
-      return *this;                 // done.
+      return *this;                  // done.
     }
   }
   return *this;
@@ -1341,12 +1365,13 @@ olc_db::iterator& olc_db::iterator::seek(const detail::art_key search_key, bool&
 // Traverse to the left-most leaf. The stack is cleared first and then
 // re-populated as we step down along the path to the left-most leaf.
 // If the tree is empty, then the result is the same as end().
-bool olc_db::iterator::try_first() noexcept {  // TODO reuse left_most_traversal() here?
+bool olc_db::iterator::try_first() noexcept {
   invalidate();  // clear the stack
   auto parent_critical_section = db_.root_pointer_lock.try_read_lock();
   auto node{ db_.root.load() };
   if (UNODB_DETAIL_UNLIKELY(node == nullptr)) {
-    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) return false; // data race - retry.
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+      return false; // data race - retry.
     return true; // empty tree.
   }
   return try_left_most_traversal( node, parent_critical_section );
@@ -1355,12 +1380,13 @@ bool olc_db::iterator::try_first() noexcept {  // TODO reuse left_most_traversal
 // Traverse to the right-most leaf. The stack is cleared first and then
 // re-populated as we step down along the path to the right-most leaf.
 // If the tree is empty, then the result is the same as end().
-bool olc_db::iterator::try_last() noexcept { // TODO reuse right_most_traversal() here?
+bool olc_db::iterator::try_last() noexcept {
   invalidate();  // clear the stack
   auto parent_critical_section = db_.root_pointer_lock.try_read_lock();
   auto node{ db_.root.load() };
   if (UNODB_DETAIL_UNLIKELY(node == nullptr)) {
-    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) return false; // data race - retry.
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+      return false; // data race - retry.
     return true; // empty tree.
   }
   return try_right_most_traversal( node, parent_critical_section );
@@ -1371,16 +1397,20 @@ bool olc_db::iterator::try_next() noexcept {
     auto e = top();
     auto node{ std::get<NP>( e ) };  // the node on the top of the stack.
     UNODB_DETAIL_ASSERT( node != nullptr );
-    auto node_critical_section( node_ptr_lock( node ).rehydrate_read_lock( std::get<VT>( e ) ) );
-    if ( ! node_critical_section.check() ) return false; // restart check (fails if node was modified after it was pushed onto the stack).
+    auto node_critical_section(
+        node_ptr_lock( node ).rehydrate_read_lock( std::get<VT>( e ) ) );
+    // Restart check (fails if node was modified after it was pushed
+    // onto the stack).
+    if ( ! node_critical_section.check() ) return false;
     auto node_type = node.type();
     if ( node_type == node_type::LEAF ) {
       pop(); // pop off the leaf
       if ( ! node_critical_section.try_read_unlock() ) return false; // unlock
-      continue; // continue (if just a root leaf, we will fall through the loop since the stack will now be empty).
+      continue; // falls through loop if just a root leaf since stack now empty.
     }
     auto* inode{ node.ptr<detail::olc_inode *>() };
-    auto nxt = inode->next( node_type, std::get<CI>( e ) ); // next child of that parent.
+    auto nxt = inode->next( node_type,
+                            std::get<CI>( e ) ); // next child of that parent.
     if ( ! node_critical_section.check() ) return false; // restart check
     if ( ! nxt ) {
       pop();  // Nothing more for that inode.
@@ -1392,8 +1422,9 @@ bool olc_db::iterator::try_next() noexcept {
       auto e2 = nxt.value();
       pop();
       push( e2, node_critical_section );
-      auto child = inode->get_child( node_type, std::get<CI>( e2 ) );  // descend
-      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) // before using [child]
+      auto child = inode->get_child( node_type, std::get<CI>( e2 ) ); // descend
+      if (UNODB_DETAIL_UNLIKELY(
+              ! node_critical_section.check())) // before using [child]
         return false;  // LCOV_EXCL_LINE
       return try_left_most_traversal( child, node_critical_section );
     }
@@ -1406,18 +1437,20 @@ bool olc_db::iterator::try_next() noexcept {
 bool olc_db::iterator::try_prior() noexcept {
   while ( ! empty() ) {
     auto e = top();
-    auto node{ std::get<NP>( e ) };  // the node on the top of the stack.
+    auto node{ std::get<NP>( e ) }; // the node on the top of the stack.
     UNODB_DETAIL_ASSERT( node != nullptr );
-    auto node_critical_section( node_ptr_lock( node ).rehydrate_read_lock( std::get<VT>( e ) ) );
+    auto node_critical_section(
+        node_ptr_lock( node ).rehydrate_read_lock( std::get<VT>( e ) ) );
     if ( ! node_critical_section.check() ) return false; // restart check
     auto node_type = node.type();
     if ( node_type == node_type::LEAF ) {
       pop(); // pop off the leaf
       if ( ! node_critical_section.try_read_unlock() ) return false; // unlock
-      continue; // continue (if just a root leaf, we will fall through the loop since the stack will now be empty).
+      continue; // falls through loop if just a root leaf since stack now empty
     }
     auto* inode{ node.ptr<detail::olc_inode *>() };
-    auto nxt = inode->prior( node_type, std::get<CI>( e ) ); // previous child of that parent.
+    auto nxt = inode->prior(
+        node_type, std::get<CI>( e ) ); // previous child of that parent.
     if ( ! node_critical_section.check() ) return false; // restart check
     if ( ! nxt ) {
       pop();  // Nothing more for that inode.
@@ -1429,8 +1462,10 @@ bool olc_db::iterator::try_prior() noexcept {
       auto e2 = nxt.value();
       pop();
       push( e2, node_critical_section );
-      auto child = inode->get_child( node_type, std::get<CI>( e2 ) );  // get the child
-      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) // before using [child]
+      auto child = inode->get_child(
+          node_type, std::get<CI>( e2 ) ); // get child
+      if ( UNODB_DETAIL_UNLIKELY(
+              ! node_critical_section.check() ) ) // before using [child]
         return false;  // LCOV_EXCL_LINE
       return try_right_most_traversal( child, node_critical_section );
     }
@@ -1444,13 +1479,15 @@ bool olc_db::iterator::try_prior() noexcept {
 // stack as they are visited.  An optimistic lock is obtained for the
 // caller's node and the parent critical section is then released
 // (lock chaining).  No optimistic locks are held on exit.
-inline bool olc_db::iterator::try_left_most_traversal( detail::olc_node_ptr node,
-                                                       optimistic_lock::read_critical_section& parent_critical_section
-                                                       ) noexcept {
+inline bool olc_db::iterator::try_left_most_traversal
+( detail::olc_node_ptr node,
+  optimistic_lock::read_critical_section& parent_critical_section
+  ) noexcept {
   while ( true ) {
     UNODB_DETAIL_ASSERT( node != nullptr );
-    auto node_critical_section = node_ptr_lock(node).try_read_lock(); // Lock version chaining (node and parent)
-    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) // parent invariant failed.
+    // Lock version chaining (node and parent) 
+    auto node_critical_section = node_ptr_lock(node).try_read_lock();
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return false;  // LCOV_EXCL_LINE
     const auto node_type = node.type();
     if ( node_type == node_type::LEAF ) {
@@ -1461,14 +1498,17 @@ inline bool olc_db::iterator::try_left_most_traversal( detail::olc_node_ptr node
     }
     // recursive descent.
     auto *const inode{ node.ptr<detail::olc_inode *>() };
-    auto t = inode->begin( node_type );  // first child index of the current internal node.
+    // first child index of the current internal node.
+    auto t = inode->begin( node_type );
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
       return false;  // LCOV_EXCL_LINE
     push( t, node_critical_section );
-    node = inode->get_child( node_type, std::get<CI>( t ) ); // get the child
-    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))  // before using [child]
+    node = inode->get_child( node_type, std::get<CI>( t ) ); // get child
+    if ( UNODB_DETAIL_UNLIKELY(
+            ! node_critical_section.check() ))  // before using [child]
       return false;  // LCOV_EXCL_LINE
-    parent_critical_section = std::move(node_critical_section); // move RCS (will check invariant at top of loop)
+    // Move RCS (will check invariant at top of loop)
+    parent_critical_section = std::move(node_critical_section);
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
@@ -1478,13 +1518,15 @@ inline bool olc_db::iterator::try_left_most_traversal( detail::olc_node_ptr node
 // stack as they are visited.  An optimistic lock is obtained for the
 // caller's node and the parent critical section is then released
 // (lock chaining). No optimistic locks are held on exit.
-inline bool olc_db::iterator::try_right_most_traversal( detail::olc_node_ptr node,
-                                                        optimistic_lock::read_critical_section& parent_critical_section
-                                                        ) noexcept {
+inline bool olc_db::iterator::try_right_most_traversal
+( detail::olc_node_ptr node,
+  optimistic_lock::read_critical_section& parent_critical_section
+  ) noexcept {
   while ( true ) {
     UNODB_DETAIL_ASSERT( node != nullptr );
-    auto node_critical_section = node_ptr_lock(node).try_read_lock(); // Lock version chaining (node and parent)
-    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) // parent invariant failed.
+    // Lock version chaining (node and parent)    
+    auto node_critical_section = node_ptr_lock(node).try_read_lock();
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return false;  // LCOV_EXCL_LINE
     const auto node_type = node.type();
     if ( node_type == node_type::LEAF ) {
@@ -1495,14 +1537,16 @@ inline bool olc_db::iterator::try_right_most_traversal( detail::olc_node_ptr nod
     }
     // recursive descent.
     auto *const inode{ node.ptr<detail::olc_inode *>() };
-    auto t = inode->last( node_type );  // first child of the current internal node.
+    auto t = inode->last( node_type );  // first child of current internal node
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
       return false;  // LCOV_EXCL_LINE
     push( t, node_critical_section );
     node = inode->get_child( node_type, std::get<CI>( t ) ); // get the child
-    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))  // before using [child]
+    if ( UNODB_DETAIL_UNLIKELY(
+            ! node_critical_section.check() ) )  // before using [child]
       return false;  // LCOV_EXCL_LINE
-    parent_critical_section = std::move(node_critical_section); // move RCS (will check invariant at top of loop)
+    // Move RCS (will check invariant at top of loop)    
+    parent_critical_section = std::move(node_critical_section);
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
@@ -1512,7 +1556,9 @@ inline bool olc_db::iterator::try_right_most_traversal( detail::olc_node_ptr nod
 //
 // @return the outcome of that computation and false if the
 // read_critical_section could not be unlocked.
-static inline bool UNLOCK( optimistic_lock::read_critical_section& cs, bool ret ) {
+static inline bool UNLOCK( optimistic_lock::read_critical_section& cs,
+                           bool ret )
+{
   return ( ! cs.try_read_unlock() ) ? false : ret;
 }
 
@@ -1531,33 +1577,41 @@ bool olc_db::iterator::try_seek(const detail::art_key& search_key, bool& match, 
   auto parent_critical_section = db_.root_pointer_lock.try_read_lock();
   auto node{ db_.root.load() };
   if (UNODB_DETAIL_UNLIKELY(node == nullptr)) {
-    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) return false; // data race - retry.
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+      return false; // data race - retry.
     return true; // empty tree.
   }
   const detail::art_key k = search_key;
   auto remaining_key{k};
   while ( true ) {
     UNODB_DETAIL_ASSERT( node != nullptr );
-    auto node_critical_section = node_ptr_lock(node).try_read_lock(); // Lock version chaining (node and parent)
-    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return false; // TODO Should be redundant.  Checked before entering the while() loop and at the bottom of the while() loop.
+    // Lock version chaining (node and parent)    
+    auto node_critical_section = node_ptr_lock(node).try_read_lock();
+    // TODO(thompsonbry) Should be redundant.  Checked before entering
+    // the while() loop and at the bottom of the while() loop.
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return false;
     // Note: We DO NOT unlock the parent_critical_section here.  It is
     // done below along all code paths.
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
-      if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) // unlock parent
+      if (UNODB_DETAIL_UNLIKELY(
+              !parent_critical_section.try_read_unlock())) // unlock parent
         return false;  // LCOV_EXCL_LINE
       const auto *const leaf{node.ptr<detail::olc_leaf *>()};
       push_leaf( node, node_critical_section );
       const auto cmp = leaf->cmp( k );
-      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock())) // unlock leaf
+      if (UNODB_DETAIL_UNLIKELY(
+              !node_critical_section.try_read_unlock())) // unlock leaf
         return false;  // LCOV_EXCL_LINE
       if ( cmp == 0 ) {
         match = true;
         return true; // done
       } else if ( fwd ) { // GTE semantics
-        return ( cmp < 0 ) ? true :try_next();  // if search_key < leaf, use the leaf, else next().
+        // if search_key < leaf, use leaf, else next().
+        return ( cmp < 0 ) ? true :try_next();
       } else {  // LTE semantics
-        return ( cmp > 0 ) ? true :try_prior(); // if search_key > leaf, use the leaf, else prior().
+        // if search_key > leaf, use leaf, else prior().
+        return ( cmp > 0 ) ? true :try_prior();
       }
       UNODB_DETAIL_CANNOT_HAPPEN();
     }
@@ -1565,7 +1619,8 @@ bool olc_db::iterator::try_seek(const detail::art_key& search_key, bool& match, 
     auto *const inode{node.ptr<detail::olc_inode *>()};  // some internal node.
     const auto &key_prefix{inode->get_key_prefix()}; // prefix for that node.
     const auto key_prefix_length{key_prefix.length()}; // length of that prefix.
-    const auto shared_length = key_prefix.get_shared_length( remaining_key ); // #of prefix bytes matched.
+    const auto shared_length = key_prefix.get_shared_length(
+        remaining_key ); // #of prefix bytes matched.
     if ( shared_length < key_prefix_length ) {
       // We have visited an internal node whose prefix is longer than
       // the bytes in the key that we need to match.  To figure out
@@ -1573,30 +1628,41 @@ bool olc_db::iterator::try_seek(const detail::art_key& search_key, bool& match, 
       // current internal node, we need to compare the respective key
       // spans lexicographically.  Since we have [shared_length] bytes
       // in common, we know that the next byte will tell us the
-      // relative ordering of the key vs the prefix.
-      const auto cmp = static_cast<std::int16_t>(remaining_key[ shared_length ])
-                     - static_cast<std::int16_t>(key_prefix   [ shared_length ]); // compare prefix and key and the first byte where they differ.
-      //std::cerr<<"shared_length="<<shared_length<<", cmp(remaining_key,key_prefix)="<<cmp<<", fwd="<<fwd; key_prefix.dump(std::cerr); std::cerr<<std::endl;
+      // relative ordering of the key vs the prefix. So now we compare
+      // prefix and key and the first byte where they differ.
+      const auto cmp = static_cast<int>(remaining_key[ shared_length ])
+                     - static_cast<int>(key_prefix   [ shared_length ]);
       UNODB_DETAIL_ASSERT( cmp != 0 );
       if ( fwd ) {
-        // Note: parent_critical_section is unlocked along all paths by try_(left|right)_most_traversal
+        // Note: parent_critical_section is unlocked along all paths
+        // by try_(left|right)_most_traversal
         if ( cmp < 0 ) {
           // FWD and the search key is ordered before this node.  We
           // want the left-most leaf under the node.
-          return UNLOCK( node_critical_section, try_left_most_traversal( node, parent_critical_section ) );
+          return UNLOCK( node_critical_section,
+                         try_left_most_traversal( node,
+                                                  parent_critical_section ) );
         } else {
           // FWD and the search key is ordered after this node.  Right
           // most descent and then next().
-          return UNLOCK( node_critical_section, try_right_most_traversal( node, parent_critical_section ) ) && try_next();
+          return UNLOCK( node_critical_section,
+                         try_right_most_traversal( node,
+                                                   parent_critical_section ) )
+              && try_next();
         }
       } else {  // reverse traversal
         if ( cmp < 0 ) {
           // REV and the search key is ordered before this node.  We
           // want the preceeding key.
-          return UNLOCK( node_critical_section, try_left_most_traversal( node, parent_critical_section ) ) && try_prior();
+          return UNLOCK( node_critical_section,
+                         try_left_most_traversal( node,
+                                                  parent_critical_section ) )
+              && try_prior();
         } else {
           // REV and the search key is ordered after this node. 
-          return UNLOCK( node_critical_section, try_right_most_traversal( node, parent_critical_section ) );
+          return UNLOCK( node_critical_section,
+                         try_right_most_traversal( node,
+                                                   parent_critical_section ) );
         }
       }
       UNODB_DETAIL_CANNOT_HAPPEN();
@@ -1617,28 +1683,36 @@ bool olc_db::iterator::try_seek(const detail::art_key& search_key, bool& match, 
         // always be the index the first entry whose key byte is
         // greater-than the probe value and [false] if there is no
         // such entry.
-        auto nxt = inode->gte_key_byte( node_type, remaining_key[0] ); // Note: [node] has not been pushed onto the stack yet!
+        //
+        // Note: [node] has not been pushed onto the stack yet!
+        auto nxt = inode->gte_key_byte( node_type, remaining_key[0] );
         if ( ! nxt ) {
           // Pop entries off the stack until we find one with a
           // right-sibling of the path we took to this node and then
           // do a left-most descent under that right-sibling. If there
           // is no such parent, we will wind up with an empty stack
           // (aka the end() iterator) and return that state.
-          if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) // unlock parent
+          if (UNODB_DETAIL_UNLIKELY(
+                  !parent_critical_section.try_read_unlock())) // unlock parent
             return false;  // LCOV_EXCL_LINE
-          if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock())) // unlock node
+          if (UNODB_DETAIL_UNLIKELY(
+                  !node_critical_section.try_read_unlock())) // unlock node
             return false;  // LCOV_EXCL_LINE
           if ( ! empty() ) pop();
           while ( ! empty() ) {
             const auto centry = top();
             const auto cnode = std::get<NP>( centry );  // a possible parent from the stack.
-            auto c_critical_section( node_ptr_lock( cnode ).rehydrate_read_lock( std::get<VT>( centry ) ) );
+            auto c_critical_section(
+                node_ptr_lock( cnode ).rehydrate_read_lock( std::get<VT>( centry ) ) );
             if ( ! c_critical_section.check() ) return false; // restart check
             auto *const icnode{cnode.ptr<detail::olc_inode *>()};
-            const auto cnxt = icnode->next( cnode.type(), std::get<CI>(centry) ); // right-sibling.
+            const auto cnxt = icnode->next(
+                cnode.type(), std::get<CI>(centry) ); // right-sibling.
             if ( cnxt ) {
-              auto nchild = icnode->get_child( cnode.type(), std::get<CI>(centry) ); // get the child
-              if (UNODB_DETAIL_UNLIKELY(!c_critical_section.check())) // before using [nchild]
+              auto nchild = icnode->get_child(
+                  cnode.type(), std::get<CI>(centry) ); // get the child
+              if (UNODB_DETAIL_UNLIKELY(
+                      !c_critical_section.check())) // before using [nchild]
                 return false;  // LCOV_EXCL_LINE
               return try_left_most_traversal( nchild, c_critical_section );
             }
@@ -1649,13 +1723,18 @@ bool olc_db::iterator::try_seek(const detail::art_key& search_key, bool& match, 
         } else {
           auto tmp = nxt.value(); // unwrap.
           const auto child_index = std::get<CI>( tmp );
-          const auto child = inode->get_child( node_type, child_index ); // get the child
-          if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) // before using [child]
+          const auto child = inode->get_child(
+              node_type, child_index ); // get child
+          if (UNODB_DETAIL_UNLIKELY(
+                  !node_critical_section.check())) // before using [child]
             return false;  // LCOV_EXCL_LINE
-          if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) // unlock parent
+          if (UNODB_DETAIL_UNLIKELY(
+                  !parent_critical_section.try_read_unlock())) // unlock parent
             return false;  // LCOV_EXCL_LINE
-          push( node, std::get<KB>( tmp), child_index, node_critical_section );  // the path we took
-          return try_left_most_traversal( child, node_critical_section ); // left most traversal
+          push( node, std::get<KB>( tmp), child_index, // push the path we took
+                node_critical_section );
+          // left most traversal
+          return try_left_most_traversal( child, node_critical_section );
         }
       } else {
         // REV: Take the prior child_index that is mapped and then do
@@ -1667,21 +1746,29 @@ bool olc_db::iterator::try_seek(const detail::art_key& search_key, bool& match, 
           // left-sibling and then do a right-most descent under that
           // left-sibling.  In the extreme case there is no such
           // previous entry and we will wind up with an empty stack.
-          if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) // unlock parent
+          if (UNODB_DETAIL_UNLIKELY(
+                  !parent_critical_section.try_read_unlock())) // unlock parent
             return false;  // LCOV_EXCL_LINE
-          if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock())) // unlock node
+          if (UNODB_DETAIL_UNLIKELY(
+                  !node_critical_section.try_read_unlock())) // unlock node
             return false;  // LCOV_EXCL_LINE
           if ( ! empty() ) pop();
           while ( ! empty() ) {
             const auto centry = top();
-            const auto cnode = std::get<NP>( centry );  // a possible parent from the stack
-            auto c_critical_section( node_ptr_lock( cnode ).rehydrate_read_lock( std::get<VT>( centry ) ) );
+            const auto cnode = std::get<NP>(
+                centry );  // a possible parent from the stack
+            auto c_critical_section(
+                node_ptr_lock( cnode ).rehydrate_read_lock(
+                    std::get<VT>( centry ) ) );
             if ( ! c_critical_section.check() ) return false; // restart check
             auto *const icnode{cnode.ptr<detail::olc_inode *>()};
-            const auto cnxt = icnode->prior( cnode.type(), std::get<CI>(centry) ); // left-sibling.
+            const auto cnxt = icnode->prior(
+                cnode.type(), std::get<CI>(centry) ); // left-sibling.
             if ( cnxt ) {
-              auto nchild = icnode->get_child( cnode.type(), std::get<CI>(centry) ); // get the child
-              if (UNODB_DETAIL_UNLIKELY(!c_critical_section.check())) // before using [nchild]
+              auto nchild = icnode->get_child(
+                  cnode.type(), std::get<CI>(centry) ); // get the child
+              if (UNODB_DETAIL_UNLIKELY(
+                      !c_critical_section.check())) // before using [nchild]
                 return false;  // LCOV_EXCL_LINE
               return try_right_most_traversal( nchild, c_critical_section );
             }
@@ -1692,13 +1779,18 @@ bool olc_db::iterator::try_seek(const detail::art_key& search_key, bool& match, 
         } else {
           auto tmp = nxt.value();  // unwrap.
           const auto child_index = std::get<CI>( tmp );
-          const auto child = inode->get_child( node_type, child_index ); // get the child
-          if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) // before using [child]
+          const auto child = inode->get_child(
+              node_type, child_index ); // get the child
+          if (UNODB_DETAIL_UNLIKELY(
+                  !node_critical_section.check())) // before using [child]
             return false;  // LCOV_EXCL_LINE
-          if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) // unlock parent
+          if (UNODB_DETAIL_UNLIKELY(
+                  !parent_critical_section.try_read_unlock())) // unlock parent
             return false;  // LCOV_EXCL_LINE
-          push( node, std::get<KB>( tmp), child_index, node_critical_section );  // the path we took
-          return try_right_most_traversal( child, node_critical_section ); // right most traversal
+          push( node, std::get<KB>( tmp), child_index, // push the path we took
+                node_critical_section );
+          // right most traversal          
+          return try_right_most_traversal( child, node_critical_section );
         }
       }
       UNODB_DETAIL_CANNOT_HAPPEN();
@@ -1709,9 +1801,11 @@ bool olc_db::iterator::try_seek(const detail::art_key& search_key, bool& match, 
       push( node, remaining_key[0], child_index, node_critical_section );
       node = *child;
       remaining_key.shift_right(1);
-      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))  // before using [child] and before we std::move() the RCS.
+      // check node before using [child] and before we std::move() the RCS.
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
         return false;  // LCOV_EXCL_LINE
-      parent_critical_section = std::move(node_critical_section); // move RCS (will check invariant at top of loop)
+      // Move RCS (will check invariant at top of loop)
+      parent_critical_section = std::move(node_critical_section);
     }
   } // while ( true )
   UNODB_DETAIL_CANNOT_HAPPEN();

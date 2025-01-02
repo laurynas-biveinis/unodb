@@ -26,7 +26,7 @@ class [[nodiscard]] fake_read_critical_section final {
     // Always returns true since the lock is never updated.
     [[nodiscard]] inline bool check() UNODB_DETAIL_RELEASE_CONST noexcept {return true;}
 
-    // ALways returns false.
+    // Always returns false.
     [[nodiscard]] inline bool must_restart() const noexcept {return false;}
     
 }; // class fake_read_critical_section

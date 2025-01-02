@@ -292,7 +292,7 @@ class olc_db final {
       ;
     }
 
-    // Compare the given key (e.g., the toKey) to the current key in
+    // Compare the given key (e.g., the to_key) to the current key in
     // the internal buffer.
     //
     // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
@@ -455,7 +455,7 @@ class olc_db final {
   // Scan in the indicated direction, applying the caller's lambda to
   // each visited leaf.
   //
-  // @param fromKey_ is an inclusive lower bound for the starting
+  // @param from_key_ is an inclusive lower bound for the starting
   // point of the scan.
   //
   // @param fn A function f(unodb::visitor<unodb::olc_db::iterator>&)
@@ -465,19 +465,19 @@ class olc_db final {
   // @param fwd When [true] perform a forward scan, otherwise perform
   // a reverse scan.
   template <typename FN>
-  inline void scan_from(const key fromKey_, FN fn, bool fwd = true) noexcept {
+  inline void scan_from(const key from_key_, FN fn, bool fwd = true) noexcept {
     if ( empty() ) return;
-    const detail::art_key fromKey{fromKey_};  // convert to internal key
+    const detail::art_key from_key{from_key_};  // convert to internal key
     bool match {};
     if ( fwd ) {
-      auto it { iterator(*this).seek( fromKey, match, true/*fwd*/ ) };
+      auto it { iterator(*this).seek( from_key, match, true/*fwd*/ ) };
       visitor v { it };
       while ( it.valid() ) {
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
         it.next();
       }
     } else {
-      auto it { iterator(*this).seek( fromKey, match, false/*fwd*/ ) };
+      auto it { iterator(*this).seek( from_key, match, false/*fwd*/ ) };
       visitor v { it };
       while ( it.valid() ) {
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
@@ -488,42 +488,42 @@ class olc_db final {
 
   // Scan a half-open key range, applying the caller's lambda to each
   // visited leaf.  The scan will proceed in lexicographic order iff
-  // fromKey is less than toKey and in reverse lexicographic order iff
-  // toKey is less than fromKey.  When fromKey < toKey, the scan will
-  // visit all index entries in the half-open range [fromKey,toKey) in
+  // from_key is less than to_key and in reverse lexicographic order iff
+  // to_key is less than from_key.  When from_key < to_key, the scan will
+  // visit all index entries in the half-open range [from_key,to_key) in
   // forward order.  Otherwise the scan will visit all index entries
-  // in the half-open range (fromKey,toKey] in reverse order.
+  // in the half-open range (from_key,to_key] in reverse order.
   //
-  // @param fromKey_ is an inclusive bound for the starting point of
+  // @param from_key_ is an inclusive bound for the starting point of
   // the scan.
   //
-  // @param toKey_ is an exclusive bound for the ending point of the
+  // @param to_key_ is an exclusive bound for the ending point of the
   // scan.
   //
   // @param fn A function f(unodb::visitor<unodb::olc_db::iterator>&)
   // returning [bool::halt].  The traversal will halt if the function
   // returns [true].
   template <typename FN>
-  inline void scan_range(const key fromKey_, const key toKey_, FN fn) noexcept {
+  inline void scan_range(const key from_key_, const key to_key_, FN fn) noexcept {
     // TODO Explore a cheaper way to handle the exclusive bound case
     // when developing variable length key support based on the
     // maintained key buffer.
     constexpr bool debug = false;  // set true to debug scan.
     if ( empty() ) return;
-    const detail::art_key fromKey{fromKey_};  // convert to internal key
-    const detail::art_key toKey{toKey_};      // convert to internal key
-    const auto ret = fromKey.cmp( toKey );    // compare the internal keys.
-    const bool fwd { ret < 0 };               // fromKey is less than toKey
+    const detail::art_key from_key{from_key_};  // convert to internal key
+    const detail::art_key to_key{to_key_};      // convert to internal key
+    const auto ret = from_key.cmp( to_key );    // compare the internal keys.
+    const bool fwd { ret < 0 };               // from_key is less than to_key
     if ( ret == 0 ) return;                   // NOP
     bool match {};
     if ( fwd ) {
-      auto it1 { iterator(*this).seek( fromKey, match, true/*fwd*/ ) }; // lower bound
+      auto it1 { iterator(*this).seek( from_key, match, true/*fwd*/ ) }; // lower bound
       if constexpr ( debug ) {
         std::cerr<<"scan:: fwd"<<std::endl;
-        std::cerr<<"scan:: fromKey="<<fromKey_<<std::endl; it1.dump(std::cerr);
+        std::cerr<<"scan:: from_key="<<from_key_<<std::endl; it1.dump(std::cerr);
       }
       visitor v { it1 };
-      while ( it1.valid() && it1.cmp( toKey ) < 0 ) { // compares internal keys.
+      while ( it1.valid() && it1.cmp( to_key ) < 0 ) { // compares internal keys.
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
         it1.next();
         if constexpr( debug ) {
@@ -531,13 +531,13 @@ class olc_db final {
         }
       }
     } else { // reverse traversal.
-      auto it1 { iterator(*this).seek( fromKey, match, true/*fwd*/ ) }; // upper bound
+      auto it1 { iterator(*this).seek( from_key, match, true/*fwd*/ ) }; // upper bound
       if constexpr( debug ) {
         std::cerr<<"scan:: rev"<<std::endl;
-        std::cerr<<"scan:: fromKey="<<fromKey_<<std::endl; it1.dump(std::cerr);
+        std::cerr<<"scan:: from_key="<<from_key_<<std::endl; it1.dump(std::cerr);
       }
       visitor v { it1 };
-      while ( it1.valid() && it1.cmp( toKey ) < 0 ) { // compares internal keys.
+      while ( it1.valid() && it1.cmp( to_key ) < 0 ) { // compares internal keys.
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
         it1.prior();
         if constexpr( debug ) {

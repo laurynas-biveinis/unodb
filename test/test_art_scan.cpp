@@ -29,15 +29,7 @@ using unodb::test::test_values;
 
 // Test suite for scan() API for the ART.
 //
-// FIXME There are three scan() variants.  Each of them needs to be
-// tested since they are independent.  The existing test coverage is
-// enough to make sure that each of them compiles.
-//
-// FIXME Tests which focus on scan_range(fromKey,toKey) and insure
-// proper upper bound and reordering of the keys to determine forward
-// or reverse traversal.
-//
-// FIXME unit tests for gsl::span<std::byte>
+// FIXME variable length keys: unit tests for gsl::span<std::byte>
 //
 template <class Db>
 class ARTScanTest : public ::testing::Test {
@@ -487,30 +479,27 @@ TYPED_TEST(ARTScanTest, scan_from__fromKey_2__toKey_3__entries_1) {doScanTest<Ty
 TYPED_TEST(ARTScanTest, scan_from__fromKey_0__toKey_2__entries_1) {doScanTest<TypeParam>( 0, 2, 1 );} // one key
 TYPED_TEST(ARTScanTest, scan_from__fromKey_2__toKey_2__entries_1) {doScanTest<TypeParam>( 2, 2, 1 );} // nothing
 
-//
-// TODO Do reverse traversal checks.
-//
-
-//
-// FIXME (***) DO GENERAL CHECKS FOR LARGER TREES. For example, we
-// could generate trees with a space between each pair of keys and use
-// that to examine the before/after semantics of seek() for both
-// forward and reverse traversal.  For this, make sure that we hit
-// enough cases to (a) test a variety of internal node types; and (b)
-// check a variety of key prefix length conditions.
-
 // fromKey is odd (exists); toKey is even (hence does not exist).
 TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_2__entries_5) {doScanTest<TypeParam>( 1, 2, 5 );}
 TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_4__entries_5) {doScanTest<TypeParam>( 1, 4, 5 );}
 TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_6__entries_5) {doScanTest<TypeParam>( 1, 6, 5 );}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_2__toKey_1__entries_5) {doScanTest<TypeParam>( 2, 1, 5 );}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_4__toKey_1__entries_5) {doScanTest<TypeParam>( 4, 1, 5 );}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_6__toKey_1__entries_5) {doScanTest<TypeParam>( 6, 1, 5 );}
 // fromKey is odd (exists); toKey is odd (exists).
 TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_1__entries_5) {doScanTest<TypeParam>( 1, 1, 5 );}
 TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_3__entries_5) {doScanTest<TypeParam>( 1, 3, 5 );}
 TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_5__entries_5) {doScanTest<TypeParam>( 1, 5, 5 );}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_3__toKey_1__entries_5) {doScanTest<TypeParam>( 3, 1, 5 );}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_5__toKey_1__entries_5) {doScanTest<TypeParam>( 5, 1, 5 );}
 
 TYPED_TEST(ARTScanTest, scan_from__fromKey_0__toKey_10__entries_10) {doScanTest<TypeParam>( 0, 10, 10 );}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_10__toKey_0__entries_10) {doScanTest<TypeParam>( 10, 0, 10 );}
 
 TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_1__toKey_999) {doScanTest<TypeParam>( 1, 999, 1000 );}
+TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_999__toKey_1) {doScanTest<TypeParam>( 999, 1, 1000 );}
+TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_247__toKey_823) {doScanTest<TypeParam>( 247, 823, 1000 );}
+TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_823__toKey_247) {doScanTest<TypeParam>( 823, 247, 1000 );}
 
 UNODB_END_TESTS()
 

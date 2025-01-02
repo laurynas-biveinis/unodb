@@ -263,56 +263,13 @@ class olc_db final {
 
     // Iff the iterator is positioned on an index entry, then returns
     // the decoded key associated with that index entry.
-    inline std::optional<const key> get_key() noexcept {
-      // Note: If the iterator is on a leaf, we return the key for that
-      // leaf regardless of whether the leaf has been deleted.  This is
-      // part of the design semantics for the OLC ART scan.
-      //
-      // FIXME Eventually this will need to use the stack to reconstruct
-      // the key from the path from the root to this leaf.  Right now it
-      // is relying on the fact that simple fixed width keys are stored
-      // directly in the leaves.
-      if ( ! valid() ) return {}; // not positioned on anything.
-      const auto& e = stack_.top();
-      const auto& node = std::get<NP>( e );
-      UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
-      const auto *const aleaf{ node.ptr<detail::olc_leaf *>() }; // current leaf.
-      key_ = aleaf->get_key().decode(); // decode the key into the iterator's buffer.
-      return key_; // return pointer to the internal key buffer.
-    }
+    inline std::optional<const key> get_key() noexcept;
     
     // Iff the iterator is positioned on an index entry, then returns
     // the value associated with that index entry.
-    //
-    // FIXME OLC THIS MUST BE A qsbr_value_view. See get_result!!!!
-    // (because in the general case the value is not something small
-    // and trivially copyable).
-    inline std::optional<const value_view> get_val() const noexcept {
-      // Note: If the iterator is on a leaf, we return the value for
-      // that leaf regardless of whether the leaf has been deleted.
-      // This is part of the design semantics for the OLC ART scan.
-      //
-      if ( ! valid() ) return {}; // not positioned on anything.
-      const auto& e = stack_.top();
-      const auto& node = std::get<NP>( e );
-      UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
-      const auto *const aleaf{ node.ptr<detail::olc_leaf *>() }; // current leaf.
-      return aleaf->get_value_view();
-    }
+    inline std::optional<const value_view> get_val() const noexcept;
     
-    inline bool operator==(const iterator& other) const noexcept {
-      if ( &db_ != &other.db_ ) return false;  // different tree?
-      if ( stack_.empty() != other.stack_.empty() )
-        return false; // one stack is empty and the other is not?
-      if ( stack_.empty() ) return true;  // both empty.
-      // The main reason to compare iterators is to detect the end().
-      //
-      // This is looking at all components in the element on the top
-      // of the stack (including the read_critical_section).
-      const auto& a = stack_.top();
-      const auto& b = other.stack_.top();
-      return a == b; // top of stack is same (inode, key, and child_index).
-    }
+    inline bool operator==(const iterator& other) const noexcept;
     
     inline bool operator!=(const iterator& other) const noexcept {
       return !(*this == other);
@@ -339,16 +296,7 @@ class olc_db final {
     // the internal buffer.
     //
     // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
-    inline int cmp(const detail::art_key& akey) const noexcept {
-      // TODO Explore a cheaper way to handle the exclusive bound case
-      // when developing variable length key support based on the
-      // maintained key buffer.
-      UNODB_DETAIL_ASSERT( !stack_.empty() );
-      auto node = std::get<NP>( stack_.top() );
-      UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF);
-      const auto *const leaf{node.ptr<detail::olc_leaf *>()};
-      return leaf->get_key().cmp( akey );
-    }
+    inline int cmp(const detail::art_key& akey) const noexcept;
     
    private:
 
@@ -362,15 +310,21 @@ class olc_db final {
     bool try_last()  noexcept; // Core logic invoked from retry loop.
     bool try_next()  noexcept; // Core logic invoked from retry loop.
     bool try_prior() noexcept; // Core logic invoked from retry loop.
+
     // Push the given node onto the stack and traverse from the
     // caller's node to the left-most leaf under that node, pushing
     // nodes onto the stack as they are visited.
-    bool try_left_most_traversal(detail::olc_node_ptr node, optimistic_lock::read_critical_section& parent_critical_section) noexcept;
+    bool try_left_most_traversal(detail::olc_node_ptr node,
+                                 optimistic_lock::read_critical_section& parent_critical_section) noexcept;
+
     // Descend from the current state of the stack to the right most
     // child leaf, updating the state of the iterator during the
     // descent.
-    bool try_right_most_traversal(detail::olc_node_ptr node, optimistic_lock::read_critical_section& parent_critical_section) noexcept;
-    bool try_seek(const detail::art_key& search_key, bool& match, bool fwd) noexcept; // Core logic invoked from retry loop.
+    bool try_right_most_traversal(detail::olc_node_ptr node,
+                                  optimistic_lock::read_critical_section& parent_critical_section) noexcept;
+
+    // Core logic invoked from retry loop.
+    bool try_seek(const detail::art_key& search_key, bool& match, bool fwd) noexcept;
     
     // The [node_ptr] is never [nullptr] and points to the internal
     // node or leaf for that step in the path from the root to some
@@ -767,6 +721,70 @@ class olc_db final {
 
   friend struct detail::olc_impl_helpers;
 };
+
+///
+/// ART iterator implementation.
+///
+
+inline std::optional<const unodb::key> olc_db::iterator::get_key() noexcept {
+  // Note: If the iterator is on a leaf, we return the key for that
+  // leaf regardless of whether the leaf has been deleted.  This is
+  // part of the design semantics for the OLC ART scan.
+  //
+  // FIXME Eventually this will need to use the stack to reconstruct
+  // the key from the path from the root to this leaf.  Right now it
+  // is relying on the fact that simple fixed width keys are stored
+  // directly in the leaves.
+  if ( ! valid() ) return {}; // not positioned on anything.
+  const auto& e = stack_.top();
+  const auto& node = std::get<NP>( e );
+  UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
+  const auto *const aleaf{ node.ptr<detail::olc_leaf *>() }; // current leaf.
+  key_ = aleaf->get_key().decode(); // decode the key into the iterator's buffer.
+  return key_; // return pointer to the internal key buffer.
+}
+
+inline std::optional<const value_view> olc_db::iterator::get_val() const noexcept {
+  // Note: If the iterator is on a leaf, we return the value for
+  // that leaf regardless of whether the leaf has been deleted.
+  // This is part of the design semantics for the OLC ART scan.
+  //
+  if ( ! valid() ) return {}; // not positioned on anything.
+  const auto& e = stack_.top();
+  const auto& node = std::get<NP>( e );
+  UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
+  const auto *const aleaf{ node.ptr<detail::olc_leaf *>() }; // current leaf.
+  return aleaf->get_value_view();
+}
+
+inline bool olc_db::iterator::operator==(const iterator& other) const noexcept {
+  if ( &db_ != &other.db_ ) return false;  // different tree?
+  if ( stack_.empty() != other.stack_.empty() )
+    return false; // one stack is empty and the other is not?
+  if ( stack_.empty() ) return true;  // both empty.
+  // The main reason to compare iterators is to detect the end().
+  //
+  // This is looking at all components in the element on the top
+  // of the stack (including the read_critical_section).
+  const auto& a = stack_.top();
+  const auto& b = other.stack_.top();
+  return a == b; // top of stack is same (inode, key, and child_index).
+}
+
+inline int olc_db::iterator::cmp(const detail::art_key& akey) const noexcept {
+  // TODO Explore a cheaper way to handle the exclusive bound case
+  // when developing variable length key support based on the
+  // maintained key buffer.
+  UNODB_DETAIL_ASSERT( !stack_.empty() );
+  auto node = std::get<NP>( stack_.top() );
+  UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF);
+  const auto *const leaf{node.ptr<detail::olc_leaf *>()};
+  return leaf->get_key().cmp( akey );
+}
+
+///
+/// OLC scan implementation
+///
 
 }  // namespace unodb
 

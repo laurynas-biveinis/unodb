@@ -826,14 +826,6 @@ class basic_inode_impl : public ArtPolicy::header_type {
     // LCOV_EXCL_STOP
   }
 
-  // Always returns [end_result] which is a special value that does
-  // not correspond to any position in the node (it is a
-  // std::optional<iter_result> which evaluates to [false]).
-  [[nodiscard]] constexpr iter_result_opt end(node_type) const noexcept {
-    UNODB_DETAIL_ASSERT(type != node_type::LEAF);
-    return end_result;
-  }
-
   // Dispatch logic for next()
   //
   // @param type The type of this internal node.

@@ -147,7 +147,7 @@ All ART classes share the same API:
 * `bool empty()` returns whether the tree is empty.
 * `template <FN> scan(), scan_from(...), scan_range()` a family of
   scan methods, including forward and reverse scans and scans with a
-  fromKey and an exclusive upper bound toKey where fn is a lambda
+  from_key and an exclusive upper bound to_key where fn is a lambda
   accepting a visitor and returning a bool indicating whether the scan
   should halt (bool halt).  See `examples/examples_art.cpp`.
 * `void dump(std::ostream &)` outputs the tree representation.

@@ -841,6 +841,12 @@ olc_db::get_result olc_db::get(key search_key) const noexcept {
 
 olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
+  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
   detail::olc_node_ptr node{ root.load() };
   if (UNODB_DETAIL_UNLIKELY(node == nullptr)) { // special path if empty tree.
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))

@@ -190,10 +190,22 @@ class [[nodiscard]] optimistic_lock final {
  public:
   class write_guard;
 
-  // Encapsulates a lock on some node and the version information that
-  // was read for that lock.
+  // A read_critical_section (RCS) encapsulates a lock on some node
+  // and the version information that was read for that lock.  There
+  // are three different states for an RCS.
+  //
+  // (1) The backing node was obsolete when the RCS was returned by
+  // optimistic_lock::try_read_lock().  This is currently signaled by
+  // [lock==nullptr] internally.
+  //
+  // (2) The RCS was acquired and is valid.
+  //
+  // (3) The RCS has been unlocked and is no longer valid.  Note that
+  // in a debug build this also sets [lock=nullptr].
   class [[nodiscard]] read_critical_section final {
    public:
+
+    // construct an RCS for an obsolete node.
     read_critical_section() noexcept = default;
 
     read_critical_section(optimistic_lock &lock_,
@@ -213,21 +225,23 @@ class [[nodiscard]] optimistic_lock final {
     }
 
     // Point to the same lock and have the same version for that lock.
-    bool operator==(const read_critical_section &other) const noexcept {
+    [[nodiscard]] bool operator==(const read_critical_section &other) const noexcept {
       return lock == other.lock && version == other.version;
     }
 
-    // Unlock iff it is not yet unlocked.
+    // Unlock iff it is not yet unlocked.  The read_critical_section
+    // is invalidated by this method and must not be used again by the
+    // caller.
     //
-    // Note: In a DEBUG build, this clears the [lock] pointer,
-    // rendering the RCS unusable, and decrements the read_lock_count.
+    // Note: In a DEBUG build, this clears the [lock] pointer, causing
+    // subsequent use of the RCS to result in a fault, and decrements
+    // the read_lock_count.
     //
     // @return true iff the [version] on the optimistic_lock is still
     // the version that was used to construct this
     // read_critical_section.
     [[nodiscard, gnu::flatten]] UNODB_DETAIL_FORCE_INLINE bool try_read_unlock()
         UNODB_DETAIL_RELEASE_CONST noexcept {
-      //const auto result = ( lock == nullptr ?false :lock->try_read_unlock(version) ); // FIXME Prefer this version?  Avoids nullptr dereference.
       const auto result = lock->try_read_unlock(version);
 #ifndef NDEBUG
       lock = nullptr;
@@ -237,7 +251,14 @@ class [[nodiscard]] optimistic_lock final {
 
     // Return true iff the version on the optimistic lock is still the
     // same version that was used to construct this
-    // read_critical_section.
+    // read_critical_section (RCS).
+    //
+    // Note: By contract, it is not legal to call this method if the
+    // RCS was marked obsolete when it was constructed.  You MUST
+    // detect this situation by calling must_restart() immediately on
+    // obtaining an RCS from optimistic_lock::try_read_lock(). A
+    // failure to do this can lead to the dereference of a nullptr for
+    // the [lock] when you call check().
     //
     // Note: By contract, it is not legal to call this method if the
     // check has already failed.  To help catch such situations, in a
@@ -255,19 +276,14 @@ class [[nodiscard]] optimistic_lock final {
       return UNODB_DETAIL_LIKELY(result);
     }
 
-    // FIXME This should be reviewed carefully.  The only case it can
-    // catch is when the lock ptr has been cleared.  However, other
-    // methods such as check do lock->check() without checking for
-    // whether the lock pointer has been cleared. This makes the code
-    // subject to null pointer dereference faults.  If the lock can be
-    // cleared to a null pointer, then we need to systematically guard
-    // against that.
+    // The optimistic_lock::try_read_lock() method MAY return a
+    // read_critical_section (RCS) for an obsolete node.  Upon
+    // obtaining the RCS, the caller MUST call this method to
+    // determine whether the node was obsolete and MUST restart if the
+    // method returns false.
     //
-    // FIXME This method is invoked in at least one place (olc::get())
-    // where the read_critical_section has just been obtained and the
-    // lock can not be a nullptr.  We should look at all uses of
-    // must_restart() and figure out whether this is evolutionary
-    // cruft that needs to be cleaned up.
+    // @return false if the node was obsolete at the time that the RCS
+    // was obtained.
     [[nodiscard]] bool must_restart() const noexcept {
       return UNODB_DETAIL_UNLIKELY(lock == nullptr);
     }
@@ -353,8 +369,16 @@ class [[nodiscard]] optimistic_lock final {
 
   // Acquire and return a read_critical_section for some lock.  This
   // is done without writing anything on the lock, but it can spin if
-  // the lock is in a transient state (e.g., locked by a writer). The
-  // returned read_critical_section MAY be marked [obsolete].
+  // the lock is in a transient state (e.g., locked by a writer).
+  //
+  // Note: The returned read_critical_section MAY be marked
+  // [obsolete].
+  //
+  // Note: The caller MUST call read_critical_section::must_restart()
+  // immediately on the result of this method in order to determine if
+  // the node is obsolete.
+  //
+  // @return a read_critical_section which MAY be invalid. 
   [[nodiscard]] read_critical_section try_read_lock() noexcept {
     while (true) {
       const auto current_version = version.load();

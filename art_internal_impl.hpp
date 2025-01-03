@@ -1350,14 +1350,14 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       
   // N4 - position on the first child (there is always at least one child for N4).
   [[nodiscard]] constexpr typename basic_inode_4::iter_result begin() noexcept {
-    const std::byte key = keys.byte_array[ 0 ].load();
+    const auto key = keys.byte_array[ 0 ].load();
     return { node_ptr{ this, node_type::I4 }, key, static_cast<uint8_t>(0) };
   }
 
   // N4 - position on the last child (there is always at least one child for N4).
   [[nodiscard]] constexpr typename basic_inode_4::iter_result last() noexcept {
     const std::uint8_t child_index = this->children_count.load() - 1;
-    const std::byte key = keys.byte_array[ child_index ].load();
+    const auto key = keys.byte_array[ child_index ].load();
     return { node_ptr{ this, node_type::I4 }, key, child_index };
   }
 
@@ -1366,7 +1366,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const std::uint8_t nchildren = this->children_count.load();
     const std::uint8_t next_index = child_index + 1;  // next child index
     if ( next_index >= nchildren ) return parent_class::end_result;
-    const std::byte key = keys.byte_array[ next_index ].load();
+    const auto key = keys.byte_array[ next_index ].load();
     return { { node_ptr{ this, node_type::I4 }, key, next_index } };
   }
   
@@ -1374,7 +1374,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   prior(std::uint8_t child_index) noexcept {
     if ( child_index == 0 ) return parent_class::end_result;
     const std::uint8_t next_index = child_index - 1;  // next child index
-    const std::byte key = keys.byte_array[ next_index ].load();
+    const auto key = keys.byte_array[ next_index ].load();
     return { { node_ptr{ this, node_type::I4 }, key, next_index } };
   }
 
@@ -1384,7 +1384,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   gte_key_byte(std::byte key_byte) noexcept {
     const auto children_count_ = this->children_count.load();
     for ( std::uint8_t i = 0; i < children_count_; ++i ) {
-      const std::byte key = keys.byte_array[ i ].load();
+      const auto key = keys.byte_array[ i ].load();
       if ( key >= key_byte ) {
         return { { node_ptr{ this, node_type::I4 }, key, i } };
       }
@@ -1402,7 +1402,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto children_count_ = this->children_count.load();
     for ( std::int64_t i = children_count_ - 1; i >= 0; i-- ) {
       const auto child_index = static_cast<std::uint8_t>( i );
-      const std::byte key = keys.byte_array[ child_index ].load();
+      const auto key = keys.byte_array[ child_index ].load();
       if ( key <= key_byte ) {
         return { { node_ptr{ this, node_type::I4 }, key, child_index } };
       }
@@ -1734,14 +1734,14 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       
   // N16 - position on the first child.
   [[nodiscard]] constexpr typename basic_inode_16::iter_result begin() noexcept {
-    const std::byte key = keys.byte_array[ 0 ].load();
+    const auto key = keys.byte_array[ 0 ].load();
     return { node_ptr{ this, node_type::I16 }, key, 0 };
   }
 
   // N16 - position on the last child.
   [[nodiscard]] constexpr typename basic_inode_16::iter_result last() noexcept {
     const std::uint8_t child_index = this->children_count.load() - 1;
-    const std::byte key = keys.byte_array[ child_index ].load();
+    const auto key = keys.byte_array[ child_index ].load();
     return { node_ptr{ this, node_type::I16 }, key, child_index };
   }
 
@@ -1749,14 +1749,14 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const std::uint8_t nchildren = this->children_count.load();
     const std::uint8_t next_index = child_index + 1;  // next child index
     if ( next_index >= nchildren ) return parent_class::end_result;
-    const std::byte key = keys.byte_array[ next_index ].load();
+    const auto key = keys.byte_array[ next_index ].load();
     return { { node_ptr{ this, node_type::I16 }, key, next_index } };
   }
   
   [[nodiscard]] constexpr typename basic_inode_16::iter_result_opt prior(const std::uint8_t child_index) noexcept {
     if ( child_index == 0 ) return parent_class::end_result;
     const std::uint8_t next_index = child_index - 1;  // next child index
-    const std::byte key = keys.byte_array[ next_index ].load();
+    const auto key = keys.byte_array[ next_index ].load();
     return { { node_ptr{ this, node_type::I16 }, key, next_index } };
   }
   
@@ -1766,7 +1766,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const std::uint8_t children_count_ = this->children_count.load();
     for ( std::int64_t i = children_count_ - 1; i >= 0; i-- ) {
       const auto child_index = static_cast<std::uint8_t>( i );
-      const std::byte key = keys.byte_array[ child_index ].load();
+      const auto key = keys.byte_array[ child_index ].load();
       if ( key <= key_byte ) {
         return { { node_ptr{ this, node_type::I16 }, key, child_index } };
       }
@@ -1780,7 +1780,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   [[nodiscard]] constexpr typename basic_inode_16::iter_result_opt gte_key_byte(std::byte key_byte) noexcept {
     const auto children_count_ = this->children_count.load();
     for ( std::uint8_t i = 0; i < children_count_; ++i ) {
-      const std::byte key = keys.byte_array[ i ].load();
+      const auto key = keys.byte_array[ i ].load();
       if ( key >= key_byte ) {
         return { { node_ptr{ this, node_type::I16 }, key, i } };
       }

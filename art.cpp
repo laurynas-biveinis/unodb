@@ -324,8 +324,8 @@ bool db::insert(key insert_key, value_view v) {
       if (UNODB_DETAIL_UNLIKELY(k == existing_key)) return false;
 
       auto new_leaf = unodb::detail::art_policy::make_db_leaf_ptr(k, v, *this);
-      auto new_node{detail::inode_4::create(*this, existing_key, remaining_key, depth,
-                                            leaf, std::move(new_leaf))};
+      auto new_node{detail::inode_4::create(*this, existing_key, remaining_key,
+                                            depth, leaf, std::move(new_leaf))};
       *node = detail::node_ptr{new_node.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
@@ -342,8 +342,8 @@ bool db::insert(key insert_key, value_view v) {
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) {
       auto leaf = unodb::detail::art_policy::make_db_leaf_ptr(k, v, *this);
-      auto new_node = detail::inode_4::create(*this, *node, shared_prefix_len, depth,
-                                              std::move(leaf));
+      auto new_node = detail::inode_4::create(*this, *node, shared_prefix_len,
+                                              depth, std::move(leaf));
       *node = detail::node_ptr{new_node.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
@@ -378,7 +378,7 @@ bool db::remove(key remove_key) {
     auto *const root_leaf{root.ptr<leaf *>()};
     if (root_leaf->matches(k)) {
       const auto r{
-        detail::art_policy::reclaim_leaf_on_scope_exit(root_leaf, *this)};
+          detail::art_policy::reclaim_leaf_on_scope_exit(root_leaf, *this)};
       root = nullptr;
       return true;
     }
@@ -455,7 +455,7 @@ void db::dump(std::ostream &os) const {
 ///
 
 void db::iterator::dump(std::ostream &os) const {
-  if ( empty() ) {
+  if (empty()) {
     os << "iter::stack:: empty\n";
     return;
   }
@@ -464,17 +464,16 @@ void db::iterator::dump(std::ostream &os) const {
   // modifications to the existing stack for the iterator.
   auto tmp = stack_;
   auto level = tmp.size() - 1;
-  while ( !tmp.empty() ) {
-    const auto& e = tmp.top();
-    const auto& np = e.node;
-    os << "iter::stack:: level = " << level
-       << ", key_byte=0x" << std::hex << std::setfill('0') << std::setw(2)
-       << static_cast<uint64_t>( e.key_byte ) << std::dec
-       << ", child_index=0x" << std::hex << std::setfill('0') << std::setw(2)
-       << static_cast<uint64_t>( e.child_index ) << std::dec
+  while (!tmp.empty()) {
+    const auto &e = tmp.top();
+    const auto &np = e.node;
+    os << "iter::stack:: level = " << level << ", key_byte=0x" << std::hex
+       << std::setfill('0') << std::setw(2) << static_cast<uint64_t>(e.key_byte)
+       << std::dec << ", child_index=0x" << std::hex << std::setfill('0')
+       << std::setw(2) << static_cast<uint64_t>(e.child_index) << std::dec
        << ", ";
-    detail::art_policy::dump_node( os, np, false /*recursive*/ );
-    if ( np.type() != node_type::LEAF ) os << std::endl;
+    detail::art_policy::dump_node(os, np, false /*recursive*/);
+    if (np.type() != node_type::LEAF) os << std::endl;
     tmp.pop();
     level--;
   }
@@ -483,101 +482,103 @@ void db::iterator::dump(std::ostream &os) const {
 // Traverse to the left-most leaf. The stack is cleared first and then
 // re-populated as we step down along the path to the left-most leaf.
 // If the tree is empty, then the result is the same as end().
-db::iterator& db::iterator::first() noexcept {
+db::iterator &db::iterator::first() noexcept {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
-  auto node{ db_.root };
-  return left_most_traversal( node );
+  auto node{db_.root};
+  return left_most_traversal(node);
 }
 
 // Traverse to the right-most leaf. The stack is cleared first and then
 // re-populated as we step down along the path to the right-most leaf.
 // If the tree is empty, then the result is the same as end().
-db::iterator& db::iterator::last() noexcept {
+db::iterator &db::iterator::last() noexcept {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
-  auto node{ db_.root };
-  return right_most_traversal( node );
+  auto node{db_.root};
+  return right_most_traversal(node);
 }
 
 // Position the iterator on the next leaf in the index.
-db::iterator& db::iterator::next() noexcept {
-  while ( !empty() ) {
+db::iterator &db::iterator::next() noexcept {
+  while (!empty()) {
     auto e = top();
-    auto node{ e.node };
-    UNODB_DETAIL_ASSERT( node != nullptr );
+    auto node{e.node};
+    UNODB_DETAIL_ASSERT(node != nullptr);
     auto node_type = node.type();
-    if ( node_type == node_type::LEAF ) {
-      pop();  // pop off the leaf
-      continue; // falls through loop if just a root leaf since stack now empty.
+    if (node_type == node_type::LEAF) {
+      pop();     // pop off the leaf
+      continue;  // falls through loop if just a root leaf since stack now
+                 // empty.
     }
-    auto* inode{ node.ptr<detail::inode *>() };
-    auto nxt = inode->next( node_type,
-                            e.child_index );  // next child of that parent.
-    if ( !nxt ) {
-      pop();  // Nothing more for that inode.
-      continue; // We will look for the right sibling of the parent inode.
+    auto *inode{node.ptr<detail::inode *>()};
+    auto nxt = inode->next(node_type,
+                           e.child_index);  // next child of that parent.
+    if (!nxt) {
+      pop();     // Nothing more for that inode.
+      continue;  // We will look for the right sibling of the parent inode.
     }
-    { // Fix up stack for new parent node state and left-most descent.
-      UNODB_DETAIL_ASSERT( nxt.has_value() );  // value exists for std::optional
+    {  // Fix up stack for new parent node state and left-most descent.
+      UNODB_DETAIL_ASSERT(nxt.has_value());  // value exists for std::optional
       auto e2 = nxt.value();
       pop();
-      push( e2 );
-      auto child = inode->get_child( node_type, e2.child_index );  // descend
-      return left_most_traversal( child );
+      push(e2);
+      auto child = inode->get_child(node_type, e2.child_index);  // descend
+      return left_most_traversal(child);
     }
     UNODB_DETAIL_CANNOT_HAPPEN();
   }
-  return *this; // stack is empty, so iterator == end().
+  return *this;  // stack is empty, so iterator == end().
 }
 
 // Position the iterator on the prior leaf in the index.
-db::iterator& db::iterator::prior() noexcept {
-  while ( !empty() ) {
+db::iterator &db::iterator::prior() noexcept {
+  while (!empty()) {
     auto e = top();
-    auto node{ e.node };
-    UNODB_DETAIL_ASSERT( node != nullptr );
+    auto node{e.node};
+    UNODB_DETAIL_ASSERT(node != nullptr);
     auto node_type = node.type();
-    if ( node_type == node_type::LEAF ) {
-      pop();  // pop off the leaf
-      continue; // falls through loop if just a root leaf since stack now empty.
+    if (node_type == node_type::LEAF) {
+      pop();     // pop off the leaf
+      continue;  // falls through loop if just a root leaf since stack now
+                 // empty.
     }
-    auto* inode{ node.ptr<detail::inode *>() };
-    auto nxt = inode->prior( node_type, e.child_index );  // parent's prev child
-    if ( !nxt ) {
-      pop();    // Nothing more for that inode.
-      continue; // We will look for the left sibling of the parent inode.
+    auto *inode{node.ptr<detail::inode *>()};
+    auto nxt = inode->prior(node_type, e.child_index);  // parent's prev child
+    if (!nxt) {
+      pop();     // Nothing more for that inode.
+      continue;  // We will look for the left sibling of the parent inode.
     }
-    { // Fix up stack for new parent node state and right-most descent.
-      UNODB_DETAIL_ASSERT( nxt.has_value() );  // value exists for std::optional
+    {  // Fix up stack for new parent node state and right-most descent.
+      UNODB_DETAIL_ASSERT(nxt.has_value());  // value exists for std::optional
       auto e2 = nxt.value();
       pop();
-      push( e2 );
-      auto child = inode->get_child( node_type, e2.child_index );  // descend
-      return right_most_traversal( child );
+      push(e2);
+      auto child = inode->get_child(node_type, e2.child_index);  // descend
+      return right_most_traversal(child);
     }
     UNODB_DETAIL_CANNOT_HAPPEN();
   }
-  return *this; // stack is empty, so iterator == end().
+  return *this;  // stack is empty, so iterator == end().
 }
 
 // Push the given node onto the stack and traverse from the caller's
 // node to the left-most leaf under that node, pushing nodes onto the
 // stack as they are visited.
-inline db::iterator& db::iterator::left_most_traversal(
+inline db::iterator &db::iterator::left_most_traversal(
     detail::node_ptr node) noexcept {
-  while ( true ) {
-    UNODB_DETAIL_ASSERT( node != nullptr );
+  while (true) {
+    UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
-    if ( node_type == node_type::LEAF ) {
-      push_leaf( node );
-      return *this; // done
+    if (node_type == node_type::LEAF) {
+      push_leaf(node);
+      return *this;  // done
     }
     // recursive descent.
-    auto *const inode{ node.ptr<detail::inode *>() };
-    auto e = inode->begin( node_type );  // first child of current internal node
-    push( e );  // push the entry on the stack.
-    node = inode->get_child( node_type, e.child_index );  // get the child
+    auto *const inode{node.ptr<detail::inode *>()};
+    auto e = inode->begin(node_type);  // first child of current internal node
+    push(e);                           // push the entry on the stack.
+    node = inode->get_child(node_type, e.child_index);  // get the child
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
@@ -585,20 +586,20 @@ inline db::iterator& db::iterator::left_most_traversal(
 // Push the given node onto the stack and traverse from the caller's
 // node to the right-most leaf under that node, pushing nodes onto the
 // stack as they are visited.
-inline db::iterator& db::iterator::right_most_traversal(
+inline db::iterator &db::iterator::right_most_traversal(
     detail::node_ptr node) noexcept {
-  while ( true ) {
-    UNODB_DETAIL_ASSERT( node != nullptr );
+  while (true) {
+    UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
-    if ( node_type == node_type::LEAF ) {
-      push_leaf( node );
-      return *this; // done
+    if (node_type == node_type::LEAF) {
+      push_leaf(node);
+      return *this;  // done
     }
     // recursive descent.
-    auto *const inode{ node.ptr<detail::inode *>() };
-    auto e = inode->last( node_type );  // first child of current internal node
-    push( e );  // push the entry on the stack.
-    node = inode->get_child( node_type, e.child_index );  // get the child
+    auto *const inode{node.ptr<detail::inode *>()};
+    auto e = inode->last(node_type);  // first child of current internal node
+    push(e);                          // push the entry on the stack.
+    node = inode->get_child(node_type, e.child_index);  // get the child
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
@@ -609,12 +610,11 @@ inline db::iterator& db::iterator::right_most_traversal(
 // complicated when the search_key is not in the data and we have to
 // consider the cases for both forward traversal and reverse traversal
 // from a key that is not in the data.
-db::iterator& db::iterator::seek(
-    const detail::art_key search_key, bool& match, bool fwd) noexcept {
-
-  invalidate();  // invalidate the iterator (clear the stack).
-  match = false; // unless we wind up with an exact match.
-  if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this; // aka end()
+db::iterator &db::iterator::seek(const detail::art_key search_key, bool &match,
+                                 bool fwd) noexcept {
+  invalidate();   // invalidate the iterator (clear the stack).
+  match = false;  // unless we wind up with an exact match.
+  if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // aka end()
 
   auto node{db_.root};
   const detail::art_key k = search_key;
@@ -624,27 +624,28 @@ db::iterator& db::iterator::seek(
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       const auto *const leaf{node.ptr<detail::leaf *>()};
-      push_leaf( node );
-      const auto cmp_ = leaf->cmp( k );
-      if ( cmp_ == 0 ) {
+      push_leaf(node);
+      const auto cmp_ = leaf->cmp(k);
+      if (cmp_ == 0) {
         match = true;
         return *this;
-      } else if ( fwd ) { // GTE semantics
+      } else if (fwd) {  // GTE semantics
         // if search_key < leaf, use the leaf, else next().
-        return ( cmp_ < 0 ) ? *this :next();
+        return (cmp_ < 0) ? *this : next();
       } else {  // LTE semantics
         // if search_key > leaf, use the leaf, else prior().
-        return ( cmp_ > 0 ) ? *this :prior();
+        return (cmp_ > 0) ? *this : prior();
       }
       UNODB_DETAIL_CANNOT_HAPPEN();
     }
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    auto *const inode{node.ptr<detail::inode *>()};  // some internal node.
-    const auto &key_prefix{inode->get_key_prefix()}; // prefix for that node.
-    const auto key_prefix_length{key_prefix.length()}; // length of that prefix.
-    const auto shared_length = key_prefix.get_shared_length
-        ( remaining_key );  // #of prefix bytes matched.
-    if ( shared_length < key_prefix_length ) {
+    auto *const inode{node.ptr<detail::inode *>()};   // some internal node.
+    const auto &key_prefix{inode->get_key_prefix()};  // prefix for that node.
+    const auto key_prefix_length{
+        key_prefix.length()};  // length of that prefix.
+    const auto shared_length = key_prefix.get_shared_length(
+        remaining_key);  // #of prefix bytes matched.
+    if (shared_length < key_prefix_length) {
       // We have visited an internal node whose prefix is longer than
       // the bytes in the key that we need to match.  To figure out
       // whether the search key would be located before or after the
@@ -653,42 +654,42 @@ db::iterator& db::iterator::seek(
       // in common, we know that the next byte will tell us the
       // relative ordering of the key vs the prefix. So now we compare
       // prefix and key and the first byte where they differ.
-      const auto cmp_ = static_cast<int>(remaining_key[ shared_length ])
-                      - static_cast<int>(key_prefix   [ shared_length ]); 
-      UNODB_DETAIL_ASSERT( cmp_ != 0 );
-      if ( fwd ) {
-        if ( cmp_ < 0 ) {
+      const auto cmp_ = static_cast<int>(remaining_key[shared_length]) -
+                        static_cast<int>(key_prefix[shared_length]);
+      UNODB_DETAIL_ASSERT(cmp_ != 0);
+      if (fwd) {
+        if (cmp_ < 0) {
           // FWD and the search key is ordered before this node.  We
           // want the left-most leaf under the node.
-          return left_most_traversal( node );
+          return left_most_traversal(node);
         } else {
           // FWD and the search key is ordered after this node.  Right
           // most descent and then next().
-          return right_most_traversal( node ).next();
+          return right_most_traversal(node).next();
         }
       } else {  // reverse traversal
-        if ( cmp_ < 0 ) {
+        if (cmp_ < 0) {
           // REV and the search key is ordered before this node.  We
           // want the preceeding key.
-        return left_most_traversal( node ).prior();
+          return left_most_traversal(node).prior();
         } else {
-          // REV and the search key is ordered after this node. 
-          return right_most_traversal( node );
+          // REV and the search key is ordered after this node.
+          return right_most_traversal(node);
         }
       }
       UNODB_DETAIL_CANNOT_HAPPEN();
     }
     remaining_key.shift_right(key_prefix_length);
-    auto res = inode->find_child( node_type, remaining_key[0] );
-    if ( res.second == nullptr ) {
+    auto res = inode->find_child(node_type, remaining_key[0]);
+    if (res.second == nullptr) {
       // We are on a key byte during the descent that is not mapped by
       // the current node.  Where we go next depends on whether we are
       // doing forward or reverse traversal.
-      if ( fwd ) {
+      if (fwd) {
         // FWD: Take the next child_index that is mapped in the data
         // and then do a left-most descent to land on the key that is
         // the immediate successor of the desired key in the data.
-        //    
+        //
         // Note: We are probing with a key byte which does not appear
         // in our list of keys (this was verified above) so this will
         // always be the index the first entry whose key byte is
@@ -696,78 +697,76 @@ db::iterator& db::iterator::seek(
         // such entry.
         //
         // Note: [node] has not been pushed onto the stack yet!
-        auto nxt = inode->gte_key_byte( node_type, remaining_key[0] );
-        if ( !nxt ) {
+        auto nxt = inode->gte_key_byte(node_type, remaining_key[0]);
+        if (!nxt) {
           // Pop entries off the stack until we find one with a
           // right-sibling of the path we took to this node and then
           // do a left-most descent under that right-sibling. If there
           // is no such parent, we will wind up with an empty stack
           // (aka the end() iterator) and return that state.
-          if ( !empty() ) pop();
-          while ( !empty() ) {
+          if (!empty()) pop();
+          while (!empty()) {
             const auto centry = top();
             const auto cnode{centry.node};  // possible parent from the stack
             auto *const icnode{cnode.ptr<detail::inode *>()};
             const auto cnxt = icnode->next(
-                cnode.type(), centry.child_index );  // right-sibling.
-            if ( cnxt ) {
-              auto nchild = icnode->get_child(
-                  cnode.type(), centry.child_index );
-              return left_most_traversal( nchild );
+                cnode.type(), centry.child_index);  // right-sibling.
+            if (cnxt) {
+              auto nchild = icnode->get_child(cnode.type(), centry.child_index);
+              return left_most_traversal(nchild);
             }
             pop();
           }
-          return *this; // stack is empty (aka end()).
+          return *this;  // stack is empty (aka end()).
         } else {
           auto tmp = nxt.value();  // unwrap.
           const auto child_index = tmp.child_index;
-          const auto child = inode->get_child( node_type, child_index );
-          push( node, tmp.key_byte, child_index );  // the path we took
-          return left_most_traversal( child );  // left most traversal
+          const auto child = inode->get_child(node_type, child_index);
+          push(node, tmp.key_byte, child_index);  // the path we took
+          return left_most_traversal(child);      // left most traversal
         }
       } else {
         // REV: Take the prior child_index that is mapped and then do
         // a right-most descent to land on the key that is the
         // immediate precessor of the desired key in the data.
-        auto nxt = inode->lte_key_byte( node_type, remaining_key[0] );
-        if ( !nxt ) {
+        auto nxt = inode->lte_key_byte(node_type, remaining_key[0]);
+        if (!nxt) {
           // Pop off the current entry until we find one with a
           // left-sibling and then do a right-most descent under that
           // left-sibling.  In the extreme case there is no such
           // previous entry and we will wind up with an empty stack.
-          if ( !empty() ) pop();
-          while ( !empty() ) {
+          if (!empty()) pop();
+          while (!empty()) {
             const auto centry = top();
-            const auto cnode {centry.node};  // possible parent from stack
+            const auto cnode{centry.node};  // possible parent from stack
             auto *const icnode{cnode.ptr<detail::inode *>()};
             const auto cnxt = icnode->prior(
-                cnode.type(), centry.child_index );  // left-sibling.
-            if ( cnxt ) {
-              auto nchild = icnode->get_child(
-                  cnode.type(), centry.child_index );
-              return right_most_traversal( nchild );
+                cnode.type(), centry.child_index);  // left-sibling.
+            if (cnxt) {
+              auto nchild = icnode->get_child(cnode.type(), centry.child_index);
+              return right_most_traversal(nchild);
             }
             pop();
           }
-          return *this; // stack is empty (aka end()).
+          return *this;  // stack is empty (aka end()).
         } else {
-          auto tmp = nxt.value();           // unwrap.
-          const auto child_index { tmp.child_index};
-          const auto child = inode->get_child( node_type, child_index );
-          push( node, tmp.key_byte, child_index );  // the path we took
-          return right_most_traversal( child );  // right most traversal
+          auto tmp = nxt.value();  // unwrap.
+          const auto child_index{tmp.child_index};
+          const auto child = inode->get_child(node_type, child_index);
+          push(node, tmp.key_byte, child_index);  // the path we took
+          return right_most_traversal(child);     // right most traversal
         }
       }
       UNODB_DETAIL_CANNOT_HAPPEN();
     } else {
       // Simple case. There is a child for the current key byte.
-      const auto child_index { res.first };
-      const auto *const child { res.second };
-      push( node, remaining_key[0], child_index );
+      const auto child_index{res.first};
+      const auto *const child{res.second};
+      push(node, remaining_key[0], child_index);
       node = *child;
       remaining_key.shift_right(1);
     }
-  } // while ( true )
+  }  // while ( true )
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
 

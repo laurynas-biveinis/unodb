@@ -36,7 +36,7 @@ struct [[nodiscard]] node_header {};
 
 static_assert(std::is_empty_v<node_header>);
 
-template <class,  // Db
+template <class,                   // Db
           template <class> class,  // CriticalSectionPolicy
           class,                   // Fake lock implementation
           class,                   // Fake read_critical_section implementation
@@ -44,7 +44,7 @@ template <class,  // Db
           class,                   // INodeDefs
           template <class> class,  // INodeReclamator
           template <class, class> class>  // LeadReclamator
-struct basic_art_policy;  // IWYU pragma: keep
+struct basic_art_policy;                  // IWYU pragma: keep
 
 using node_ptr = basic_node_ptr<node_header>;
 
@@ -58,14 +58,9 @@ using db_inode_deleter =
     unodb::detail::basic_db_inode_deleter<INode, unodb::db>;
 
 using art_policy = unodb::detail::basic_art_policy<
-  unodb::db,
-  unodb::in_fake_critical_section,
-  unodb::fake_lock,
-  unodb::fake_read_critical_section,
-  unodb::detail::node_ptr,
-  inode_defs,
-  db_inode_deleter,
-  unodb::detail::basic_db_leaf_deleter>;
+    unodb::db, unodb::in_fake_critical_section, unodb::fake_lock,
+    unodb::fake_read_critical_section, unodb::detail::node_ptr, inode_defs,
+    db_inode_deleter, unodb::detail::basic_db_leaf_deleter>;
 
 using inode_base = unodb::detail::basic_inode_impl<art_policy>;
 
@@ -86,10 +81,10 @@ class db final {
   ~db() noexcept;
 
   // TODO(laurynas): implement copy and move operations
-  db(const db &) = delete;
-  db(db &&) = delete;
-  db &operator=(const db &) = delete;
-  db &operator=(db &&) = delete;
+  db(const db&) = delete;
+  db(db&&) = delete;
+  db& operator=(const db&) = delete;
+  db& operator=(db&&) = delete;
 
   // Querying for a value associated with a key.
   [[nodiscard, gnu::pure]] get_result get(key search_key) const noexcept;
@@ -101,7 +96,8 @@ class db final {
 
   // Insert a value under a key iff there is no entry for that key.
   //
-  // Note: Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
+  // Note: Cannot be called during stack unwinding with
+  // std::uncaught_exceptions() > 0
   //
   // @return true iff the key value pair was inserted.
   [[nodiscard]] bool insert(key insert_key, value_view v);
@@ -120,38 +116,37 @@ class db final {
   ///
   class iterator {
     friend class db;
-    template <class> friend class visitor;
-    
+    template <class>
+    friend class visitor;
+
     // The stack is made up of tuples containing the node pointer, the
     // key_byte, and the child_index.
     using stack_entry = detail::inode_base::iter_result;
-        
-  protected:
 
+   protected:
     // Construct an empty iterator.
-    explicit iterator(db& tree) : db_( tree ) {}
+    explicit iterator(db& tree) : db_(tree) {}
 
-   public: // EXPOSED TO THE TESTS
-    
+   public:  // EXPOSED TO THE TESTS
     // Position the iterator on the first entry in the index.
     iterator& first() noexcept;
-    
+
     // Advance the iterator to next entry in the index.
     iterator& next() noexcept;
-    
+
     // Position the iterator on the last entry in the index, which can
     // be used to initiate a reverse traversal.
     //
     // Note: This is NOT the same as end(), which does not position
     // the iterator on anything.
     iterator& last() noexcept;
-    
+
     // Position the iterator on the previous entry in the index.
     iterator& prior() noexcept;
 
     // Makes this the "end()" iterator (by clearing the stack).
-    iterator& end() noexcept {return invalidate();}
-    
+    iterator& end() noexcept { return invalidate(); }
+
     // Position the iterator on, before, or after the caller's key.
     // If the iterator can not be positioned, it will be set to end().
     // For example, if [fwd:=true] and the [search_key] is GT any key
@@ -173,24 +168,24 @@ class db final {
     // such entry.  Otherwise, the iterator will be positioned on the
     // last key which orders LTE the search_key and end() if there is
     // no such entry.
-    iterator& seek(const detail::art_key search_key, bool& match, bool fwd = true) noexcept;
+    iterator& seek(const detail::art_key search_key, bool& match,
+                   bool fwd = true) noexcept;
 
     // Iff the iterator is positioned on an index entry, then returns
     // the decoded key associated with that index entry.
     std::optional<const key> get_key() noexcept;
-    
+
     // Iff the iterator is positioned on an index entry, then returns
     // the value associated with that index entry.
     std::optional<const value_view> get_val() const noexcept;
-    
+
     bool operator==(const iterator& other) const noexcept;
     bool operator!=(const iterator& other) const noexcept;
 
     // Debugging
-    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;    
-    
+    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const;
+
    protected:
-    
     // Push the given node onto the stack and traverse from the
     // caller's node to the left-most leaf under that node, pushing
     // nodes onto the stack as they are visited.
@@ -209,68 +204,60 @@ class db final {
       // TODO(thompsonbry) Explore a cheaper way to handle the
       // exclusive bound case when developing variable length key
       // support based on the maintained key buffer.
-      UNODB_DETAIL_ASSERT( !stack_.empty() );
+      UNODB_DETAIL_ASSERT(!stack_.empty());
       auto& node = stack_.top().node;
-      UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF);
-      const auto *const leaf{node.ptr<detail::leaf *>()};
-      return leaf->get_key().cmp( akey );
+      UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+      const auto* const leaf{node.ptr<detail::leaf*>()};
+      return leaf->get_key().cmp(akey);
     }
 
     //
     // stack access methods.
     //
-    
+
     // Return true unless the stack is empty.
-    bool valid() const noexcept { return ! stack_.empty(); }
+    bool valid() const noexcept { return !stack_.empty(); }
 
     // Return true iff the stack is empty.
     bool empty() const noexcept { return stack_.empty(); }
 
     // Push an entry onto the stack.
-    void push( const stack_entry& e ) noexcept {
-      stack_.push( e );
-    }
-    
+    void push(const stack_entry& e) noexcept { stack_.push(e); }
+
     // Push an entry onto the stack.
     //
     // TODO(thompsonbry) handle variable length keys here.
-    void push( detail::node_ptr node, std::byte key_byte,
-               std::uint8_t child_index ) noexcept {
-      stack_.push( { node, key_byte, child_index } );
+    void push(detail::node_ptr node, std::byte key_byte,
+              std::uint8_t child_index) noexcept {
+      stack_.push({node, key_byte, child_index});
     }
 
     // Push a leaf onto the stack.
-    void push_leaf( detail::node_ptr aleaf ) noexcept {
+    void push_leaf(detail::node_ptr aleaf) noexcept {
       // Mock up a stack entry for the leaf. The [key] and
       // [child_index] are ignored for a leaf.
-      push( aleaf,
-            static_cast<std::byte>(0xFFU),
-            static_cast<std::uint8_t>(0xFFU)
-            );
+      push(aleaf, static_cast<std::byte>(0xFFU),
+           static_cast<std::uint8_t>(0xFFU));
     }
 
     // Pop an entry from the stack.
     //
     // TODO(thompsonbry) handle variable length keys here.
-    void pop() noexcept {stack_.pop();}
+    void pop() noexcept { stack_.pop(); }
 
     // Return the entry (if any) on the top of the stack.
-    auto top() noexcept {return stack_.top();}
-    
+    auto top() noexcept { return stack_.top(); }
+
     // Return the node on the top of the stack and nullptr if the
     // stack is empty (similar to top(), but handles an empty stack).
     detail::node_ptr current_node() noexcept {
-      return stack_.empty()
-          ? detail::node_ptr(nullptr)
-          : stack_.top().node
-      ;
+      return stack_.empty() ? detail::node_ptr(nullptr) : stack_.top().node;
     }
-    
-   private:
 
+   private:
     // invalidate the iterator (pops everything off of the stack).
     iterator& invalidate() noexcept {
-      while ( ! stack_.empty() ) stack_.pop(); // clear the stack
+      while (!stack_.empty()) stack_.pop();  // clear the stack
       return *this;
     }
 
@@ -313,7 +300,7 @@ class db final {
     // at the child_indexes[], find the next mapped key value greater
     // than the current one, and then look at its entry in the
     // children[].
-    std::stack<stack_entry> stack_ {};
+    std::stack<stack_entry> stack_{};
 
     // A buffer into which visited keys are decoded and materialized
     // by get_key().
@@ -329,16 +316,15 @@ class db final {
     // internal key needs to be constructed using the [key] byte from
     // the path stack plus the prefix bytes from the internal nodes
     // along that path.
-    key key_ {};
-    
-  }; // class iterator
-  
+    key key_{};
+
+  };  // class iterator
+
   //
   // end of the iterator API, which is an internal API.
   //
-  
+
  public:
-  
   ///
   /// public scan API
   ///
@@ -401,8 +387,8 @@ class db final {
   //
 
   // Used to write the iterator tests.
-  auto test_only_iterator() noexcept {return iterator(*this);}
-  
+  auto test_only_iterator() noexcept { return iterator(*this); }
+
   // Stats
 
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -456,12 +442,12 @@ class db final {
 
   // Public utils
   [[nodiscard, gnu::const]] static constexpr auto key_found(
-      const get_result &result) noexcept {
+      const get_result& result) noexcept {
     return static_cast<bool>(result);
   }
 
   // Debugging
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const;
 
  private:
   void delete_root_subtree() noexcept;
@@ -526,20 +512,19 @@ class db final {
 
   friend auto detail::make_db_leaf_ptr<detail::node_header, db>(detail::art_key,
                                                                 value_view,
-                                                                db &);
+                                                                db&);
 
   template <class, class>
   friend class detail::basic_db_leaf_deleter;
 
-  template <class, template <class> class, class, class, class, template <class> class,
-            template <class, class> class>
+  template <class, template <class> class, class, class, class,
+            template <class> class, template <class, class> class>
   friend struct detail::basic_art_policy;
 
   template <class, class>
   friend class detail::basic_db_inode_deleter;
 
   friend struct detail::impl_helpers;
-
 };
 
 ///
@@ -551,32 +536,32 @@ inline std::optional<const key> db::iterator::get_key() noexcept {
   // the key from the path from the root to this leaf.  Right now it
   // is relying on the fact that simple fixed width keys are stored
   // directly in the leaves.
-  if ( ! valid() ) return {}; // not positioned on anything.
+  if (!valid()) return {};  // not positioned on anything.
   const auto& e = stack_.top();
   const auto& node = e.node;
-  UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
-  const auto *const leaf{ node.ptr<detail::leaf *>() }; // current leaf.
-  key_ = leaf->get_key().decode(); // decode key into buffer.
-  return key_; // return pointer to the internal key buffer.
+  UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);  // On a leaf.
+  const auto* const leaf{node.ptr<detail::leaf*>()};    // current leaf.
+  key_ = leaf->get_key().decode();  // decode key into buffer.
+  return key_;  // return pointer to the internal key buffer.
 }
 
 inline std::optional<const value_view> db::iterator::get_val() const noexcept {
-  if ( ! valid() ) return {}; // not positioned on anything.
+  if (!valid()) return {};  // not positioned on anything.
   const auto& e = stack_.top();
   const auto& node = e.node;
-  UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
-  const auto *const leaf{ node.ptr<detail::leaf *>() }; // current leaf.
+  UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);  // On a leaf.
+  const auto* const leaf{node.ptr<detail::leaf*>()};    // current leaf.
   return leaf->get_value_view();
 }
 
 inline bool db::iterator::operator==(const iterator& other) const noexcept {
-  if ( &db_ != &other.db_ ) return false;  // different tree?
-  if ( stack_.empty() != other.stack_.empty() )
-    return false;  // one stack is empty and the other is not?
-  if ( stack_.empty() ) return true;  // both empty.
+  if (&db_ != &other.db_) return false;  // different tree?
+  if (stack_.empty() != other.stack_.empty())
+    return false;                   // one stack is empty and the other is not?
+  if (stack_.empty()) return true;  // both empty.
   const auto& a = stack_.top();
   const auto& b = other.stack_.top();
-  return a == b; // top of stack is same (inode, key, and child_index).
+  return a == b;  // top of stack is same (inode, key, and child_index).
 }
 
 inline bool db::iterator::operator!=(const iterator& other) const noexcept {
@@ -589,19 +574,19 @@ inline bool db::iterator::operator!=(const iterator& other) const noexcept {
 
 template <typename FN>
 inline void db::scan(FN fn, bool fwd) noexcept {
-  if ( empty() ) return;
-  if ( fwd ) {
-    auto it { iterator(*this).first() };
-    visitor v{ it };
-    while ( it.valid() ) {
-      if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
+  if (empty()) return;
+  if (fwd) {
+    auto it{iterator(*this).first()};
+    visitor v{it};
+    while (it.valid()) {
+      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it.next();
     }
   } else {
-    auto it { iterator(*this).last() };
-    visitor v { it };
-    while ( it.valid() ) {
-      if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
+    auto it{iterator(*this).last()};
+    visitor v{it};
+    while (it.valid()) {
+      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it.prior();
     }
   }
@@ -609,65 +594,67 @@ inline void db::scan(FN fn, bool fwd) noexcept {
 
 template <typename FN>
 inline void db::scan_from(const key from_key, FN fn, bool fwd) noexcept {
-  if ( empty() ) return;
+  if (empty()) return;
   const detail::art_key from_key_{from_key};  // convert to internal key
-  bool match {};
-  if ( fwd ) {
-    auto it { iterator(*this).seek( from_key_, match, true/*fwd*/ ) };
-    visitor v { it };
-    while ( it.valid() ) {
-      if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
+  bool match{};
+  if (fwd) {
+    auto it{iterator(*this).seek(from_key_, match, true /*fwd*/)};
+    visitor v{it};
+    while (it.valid()) {
+      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it.next();
     }
   } else {
-    auto it { iterator(*this).seek( from_key_, match, false/*fwd*/ ) };
-    visitor v { it };
-    while ( it.valid() ) {
-      if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
+    auto it{iterator(*this).seek(from_key_, match, false /*fwd*/)};
+    visitor v{it};
+    while (it.valid()) {
+      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it.prior();
     }
   }
 }
 
 template <typename FN>
-inline void db::scan_range(const key from_key, const key to_key, FN fn) noexcept
-{
+inline void db::scan_range(const key from_key, const key to_key,
+                           FN fn) noexcept {
   constexpr bool debug = false;  // set true to debug scan.
-  if ( empty() ) return;
-  const detail::art_key from_key_{from_key}; // convert to internal key
-  const detail::art_key to_key_{to_key};     // convert to internal key
-  const auto ret = from_key_.cmp( to_key_ ); // compare the internal keys
-  const bool fwd { ret < 0 };                // from_key is less than to_key
-  if ( ret == 0 ) return;                    // NOP
-  bool match {};
-  if ( fwd ) {
-    auto it1 { iterator(*this).seek( from_key_, match, true/*fwd*/ ) };
-    if constexpr ( debug ) {
-      std::cerr<<"scan:: fwd" << std::endl;
-      std::cerr<<"scan:: from_key=" << from_key << std::endl;
+  if (empty()) return;
+  const detail::art_key from_key_{from_key};  // convert to internal key
+  const detail::art_key to_key_{to_key};      // convert to internal key
+  const auto ret = from_key_.cmp(to_key_);    // compare the internal keys
+  const bool fwd{ret < 0};                    // from_key is less than to_key
+  if (ret == 0) return;                       // NOP
+  bool match{};
+  if (fwd) {
+    auto it1{iterator(*this).seek(from_key_, match, true /*fwd*/)};
+    if constexpr (debug) {
+      std::cerr << "scan:: fwd" << std::endl;
+      std::cerr << "scan:: from_key=" << from_key << std::endl;
       it1.dump(std::cerr);
     }
-    visitor v { it1 };
-    while ( it1.valid() && it1.cmp( to_key_ ) < 0 ) {
-      if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
+    visitor v{it1};
+    while (it1.valid() && it1.cmp(to_key_) < 0) {
+      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it1.next();
-      if constexpr( debug ) {
-        std::cerr<<"scan: next()" << std::endl; it1.dump( std::cerr );
+      if constexpr (debug) {
+        std::cerr << "scan: next()" << std::endl;
+        it1.dump(std::cerr);
       }
     }
-  } else { // reverse traversal.
-    auto it1 { iterator(*this).seek( from_key_, match, true/*fwd*/ ) };
-    if constexpr( debug ) {
-      std::cerr<<"scan:: rev"<<std::endl;
-      std::cerr<<"scan:: from_key=" << from_key << std::endl;
+  } else {  // reverse traversal.
+    auto it1{iterator(*this).seek(from_key_, match, true /*fwd*/)};
+    if constexpr (debug) {
+      std::cerr << "scan:: rev" << std::endl;
+      std::cerr << "scan:: from_key=" << from_key << std::endl;
       it1.dump(std::cerr);
     }
-    visitor v { it1 };
-    while ( it1.valid() && it1.cmp( to_key_ ) < 0 ) {
-      if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
+    visitor v{it1};
+    while (it1.valid() && it1.cmp(to_key_) < 0) {
+      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it1.prior();
-      if constexpr( debug ) {
-      std::cerr<<"scan: prior()"<<std::endl; it1.dump( std::cerr );
+      if constexpr (debug) {
+        std::cerr << "scan: prior()" << std::endl;
+        it1.dump(std::cerr);
       }
     }
   }

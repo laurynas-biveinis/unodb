@@ -133,12 +133,13 @@ void dense_iter_full_fwd_scan(benchmark::State &state) {
   for (const auto _ : state) {
     for (auto i = 0; i < full_scan_multiplier; ++i) {
       std::uint64_t sum = 0;
-      auto fn = [&sum](unodb::visitor<typename Db::iterator>& v) {
+      auto fn = [&sum](unodb::visitor<typename Db::iterator> &v) {
         sum += v.get_key();
-        std::ignore = v.get_value();  // TODO Does this ensure that the value is read?
+        std::ignore =
+            v.get_value();  // TODO Does this ensure that the value is read?
         return false;
       };
-      test_db.scan( fn );
+      test_db.scan(fn);
       ::benchmark::DoNotOptimize(sum);  // ensure that the keys were retrieved.
     }
   }
@@ -169,12 +170,14 @@ void dense_iter_keyrange_fwd_scan(benchmark::State &state) {
   for (const auto _ : state) {
     for (auto i = 0; i < full_scan_multiplier; ++i) {
       std::uint64_t sum = 0;
-      auto fn = [&sum](unodb::visitor<typename Db::iterator>& v) {
+      auto fn = [&sum](unodb::visitor<typename Db::iterator> &v) {
         sum += v.get_key();
-        std::ignore = v.get_value();  // TODO Does this ensure that the value is read?
+        std::ignore =
+            v.get_value();  // TODO Does this ensure that the value is read?
         return false;
       };
-      test_db.scan_range( 0, key_limit, fn );  // scan all keys, but using a key-range.
+      test_db.scan_range(0, key_limit,
+                         fn);           // scan all keys, but using a key-range.
       ::benchmark::DoNotOptimize(sum);  // ensure that the keys were retrieved.
     }
   }
@@ -372,23 +375,23 @@ BENCHMARK_TEMPLATE(dense_full_scan, unodb::olc_db)
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(dense_iter_full_fwd_scan, unodb::db)
-    ->Range(128, 1<<28)
+    ->Range(128, 1 << 28)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(dense_iter_full_fwd_scan, unodb::mutex_db)
-    ->Range(128, 1<<20)  // less scale since just not interesting.
+    ->Range(128, 1 << 20)  // less scale since just not interesting.
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(dense_iter_full_fwd_scan, unodb::olc_db)
-    ->Range(128, 1<<28)
+    ->Range(128, 1 << 28)
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(dense_iter_keyrange_fwd_scan, unodb::db)
-    ->Range(128, 1<<28)
+    ->Range(128, 1 << 28)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(dense_iter_keyrange_fwd_scan, unodb::mutex_db)
-    ->Range(128, 1<<20)  // less scale since just not interesting.
+    ->Range(128, 1 << 20)  // less scale since just not interesting.
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(dense_iter_keyrange_fwd_scan, unodb::olc_db)
-    ->Range(128, 1<<28)
+    ->Range(128, 1 << 28)
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(dense_tree_sparse_deletes, unodb::db)

@@ -17,11 +17,11 @@
 #include <cstdint>
 #include <initializer_list>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <thread>
 #include <tuple>
 #include <type_traits>
-#include <map>
 
 #include <gmock/gmock.h>  // IWYU pragma: keep
 #include <gtest/gtest.h>

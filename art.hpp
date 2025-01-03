@@ -517,8 +517,14 @@ class db final {
   template <class, class>
   friend class detail::basic_db_leaf_deleter;
 
-  template <class, template <class> class, class, class, class,
-            template <class> class, template <class, class> class>
+  template <class,                   // Db
+            template <class> class,  // CriticalSectionPolicy
+            class,                   // Fake lock implementation
+            class,  // Fake read_critical_section implementation
+            class,  // NodePtr
+            class,  // INodeDefs
+            template <class> class,         // INodeReclamator
+            template <class, class> class>  // LeadReclamator
   friend struct detail::basic_art_policy;
 
   template <class, class>

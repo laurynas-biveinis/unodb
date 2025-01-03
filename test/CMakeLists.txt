@@ -26,20 +26,32 @@ endfunction()
 
 add_library(db_test_utils STATIC db_test_utils.hpp db_test_utils.cpp)
 common_target_properties(db_test_utils)
-target_link_libraries(db_test_utils PUBLIC unodb gtest_main gmock_main)
+if(AWS_BUILD)
+  target_link_libraries(db_test_utils PUBLIC unodb Googletest::gtest Googletest::gtest_main Googlemock::gmock_main)
+else()
+  target_link_libraries(db_test_utils PUBLIC unodb gtest_main gmock_main)
+endif()
 set_clang_tidy_options(db_test_utils "${DO_CLANG_TIDY}")
 
 add_library(qsbr_test_utils STATIC qsbr_test_utils.hpp qsbr_test_utils.cpp
   qsbr_gtest_utils.hpp qsbr_gtest_utils.cpp)
 common_target_properties(qsbr_test_utils)
-target_link_libraries(qsbr_test_utils PUBLIC gtest_main)
+if(AWS_BUILD)
+  target_link_libraries(qsbr_test_utils PUBLIC Googletest::gtest Googletest::gtest_main)
+else()
+  target_link_libraries(qsbr_test_utils PUBLIC gtest_main)
+endif()
 target_link_libraries(qsbr_test_utils PRIVATE unodb_qsbr)
 set_clang_tidy_options(qsbr_test_utils "${DO_CLANG_TIDY}")
 
 function(ADD_TEST_TARGET TARGET)
   add_executable("${TARGET}" "${TARGET}.cpp")
   common_target_properties("${TARGET}")
-  target_link_libraries("${TARGET}" PRIVATE unodb_qsbr unodb_test gtest_main)
+  if(AWS_BUILD)
+    target_link_libraries("${TARGET}" PRIVATE unodb_qsbr unodb_test Googletest::gtest Googletest::gtest_main)
+  else()
+    target_link_libraries("${TARGET}" PRIVATE unodb_qsbr unodb_test gtest_main)
+  endif()
   set_clang_tidy_options("${TARGET}" "${DO_CLANG_TIDY}")
   add_sanitized_test(NAME "${TARGET}" COMMAND "${TARGET}")
 endfunction()
@@ -53,6 +65,8 @@ add_test_target(test_qsbr_ptr)
 add_test_target(test_qsbr)
 target_link_libraries(test_qsbr PRIVATE qsbr_test_utils)
 add_db_test_target(test_art)
+add_db_test_target(test_art_iter)
+add_db_test_target(test_art_scan)
 add_db_test_target(test_art_concurrency)
 # - Google Test with MSVC standard library tries to allocate memory in the
 # exception-thrown-as-expected-path.
@@ -69,7 +83,7 @@ target_link_libraries(test_art_concurrency PRIVATE qsbr_test_utils)
 
 if(COVERAGE)
   add_custom_target(tests_for_coverage ctest
-    DEPENDS test_art test_art_concurrency test_qsbr_ptr test_qsbr test_art_oom
+    DEPENDS test_art test_art_iter test_art_scan test_art_concurrency test_qsbr_ptr test_qsbr test_art_oom
             test_qsbr_oom)
   add_coverage_target(TARGET coverage DEPENDENCY tests_for_coverage)
 endif()
@@ -80,5 +94,7 @@ add_custom_target(valgrind_tests
   # not found a way to disable it.
   COMMAND ${VALGRIND_COMMAND} ./test_qsbr;
   COMMAND ${VALGRIND_COMMAND} ./test_art;
+  COMMAND ${VALGRIND_COMMAND} ./test_art_iter;
+  COMMAND ${VALGRIND_COMMAND} ./test_art_scan;
   COMMAND ${VALGRIND_COMMAND} ./test_art_concurrency
-  DEPENDS test_qsbr_ptr test_qsbr test_art test_art_concurrency)
+  DEPENDS test_qsbr_ptr test_qsbr test_art test_art_iter test_art_scan test_art_concurrency)

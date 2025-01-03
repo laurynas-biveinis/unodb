@@ -27,7 +27,6 @@
 #include <sstream>
 #include <string_view>
 
-#include "art_common.hpp"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 

@@ -46,3 +46,8 @@
 # MSVC
 /.vs
 /out
+
+**/*~
+**/*#*
+
+run-cmake.sh

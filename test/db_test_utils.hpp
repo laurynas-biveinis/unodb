@@ -17,11 +17,11 @@
 #include <cstdint>
 #include <initializer_list>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <thread>
 #include <tuple>
 #include <type_traits>
-#include <unordered_map>
 
 #include <gmock/gmock.h>  // IWYU pragma: keep
 #include <gtest/gtest.h>
@@ -417,7 +417,8 @@ class [[nodiscard]] tree_verifier final {
  private:
   Db test_db{};
 
-  std::unordered_map<unodb::key, unodb::value_view> values;
+  // Note: Ordered map because of ordered iterator semantics.
+  std::map<unodb::key, unodb::value_view> values;
 
   const bool parallel_test;
 };

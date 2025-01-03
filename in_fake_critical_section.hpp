@@ -9,6 +9,48 @@
 
 namespace unodb {
 
+// fake version of read_critical_section used to align unodb::db and
+// unodb::olc_db code.
+class [[nodiscard]] fake_read_critical_section final {
+ public:
+  fake_read_critical_section() noexcept = default;
+
+  [[nodiscard]] inline fake_read_critical_section &operator=(
+      fake_read_critical_section &&) noexcept {
+    return *this;
+  }
+
+  // Always equal.
+  [[nodiscard]] inline bool operator==(
+      const fake_read_critical_section &) const noexcept {
+    return true;
+  }
+
+  // Always succeeds.
+  [[nodiscard, gnu::flatten]] UNODB_DETAIL_FORCE_INLINE bool try_read_unlock()
+      const noexcept {
+    return true;
+  }
+
+  // Always returns true since the lock is never updated.
+  [[nodiscard]] inline bool check() UNODB_DETAIL_RELEASE_CONST noexcept {
+    return true;
+  }
+
+  // Always returns false.
+  [[nodiscard]] inline bool must_restart() const noexcept { return false; }
+
+};  // class fake_read_critical_section
+
+// fake class for taking a lock.
+class [[nodiscard]] fake_lock final {
+ public:
+  // Acquire and return a fake critical section for a fake lock.
+  [[nodiscard]] fake_read_critical_section try_read_lock() noexcept {
+    return fake_read_critical_section{};
+  }
+};  // class fake_policy
+
 // Provide access to T with in_critical_section<T>-like interface, except that
 // loads and stores are direct instead of relaxed atomic. It enables having a
 // common templatized implementation of single-threaded and OLC node algorithms.

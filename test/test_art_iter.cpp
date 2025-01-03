@@ -38,9 +38,9 @@ class ARTIteratorTest : public ::testing::Test {
 // aliases for db begin() and end() methods that would otherwise not
 // be accessible to iterator friend tests.
 //
-#define begin(db) db.__test_only_iterator__().first()
-#define last(db) db.__test_only_iterator__().last()
-#define end(db) db.__test_only_iterator__()
+#define begin(db) db.test_only_iterator().first()
+#define last(db) db.test_only_iterator().last()
+#define end(db) db.test_only_iterator()
 
 using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db, unodb::olc_db>;
 

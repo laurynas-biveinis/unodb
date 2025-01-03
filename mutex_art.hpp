@@ -125,7 +125,7 @@ class mutex_db final {
   //
 
   // Used to write the iterator tests.
-  auto __test_only_iterator__() noexcept {return db_.__test_only_iterator__();}
+  auto test_only_iterator() noexcept {return db_.test_only_iterator();}
   
   // Stats
 #ifdef UNODB_DETAIL_WITH_STATS

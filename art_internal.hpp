@@ -318,7 +318,7 @@ class visitor {
   inline auto get_value() const noexcept {return it.get_val().value();}
 
   // TEST ONLY
-  inline void dump(std::ostream& os) noexcept {it.dump(os);}
+  //inline void test_only_dump(std::ostream& os) noexcept {it.dump(os);}
 };
  
 }

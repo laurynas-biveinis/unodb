@@ -243,7 +243,7 @@ class olc_db final {
     // than the current one, and then look at its entry in the
     // children[].
     //
-    // The [tag] is the [version_tag_t] from the read_critical_section
+    // The [tag] is the [version_tag_type] from the read_critical_section
     // and contains the version information that must be valid to use
     // the [key_byte] and [child_index] data read from the [node].
     // The version tag is cached when when those data are read from
@@ -260,7 +260,7 @@ class olc_db final {
       // soon as it is moved onto the stack.  Hence, this is just the
       // data and the while loops continue to use the normal OLC
       // pattern for lock chaining.
-      version_tag_t version;
+      version_tag_type version;
       
       [[nodiscard]] inline bool operator==(const stack_entry& other) const noexcept {
         return node == other.node
@@ -609,7 +609,7 @@ class olc_db final {
   //
 
   // Used to write the iterator tests.
-  auto __test_only_iterator__() noexcept {return iterator(*this);}
+  auto test_only_iterator() noexcept {return iterator(*this);}
   
   // Stats
 

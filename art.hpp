@@ -401,7 +401,7 @@ class db final {
   //
 
   // Used to write the iterator tests.
-  auto __test_only_iterator__() noexcept {return iterator(*this);}
+  auto test_only_iterator() noexcept {return iterator(*this);}
   
   // Stats
 

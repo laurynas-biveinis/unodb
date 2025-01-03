@@ -170,7 +170,7 @@ namespace unodb {
 
 template <class INode>
 constexpr void olc_db::increment_inode_count() noexcept {
-  static_assert(olc_inode_defs::is_inode<INode>());
+  static_assert(detail::olc_inode_defs::is_inode<INode>());
 
   node_counts[as_i<INode::type>].fetch_add(1, std::memory_order_relaxed);
   increase_memory_use(sizeof(INode));
@@ -786,7 +786,7 @@ namespace unodb {
 UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
 template <class INode>
 constexpr void olc_db::decrement_inode_count() noexcept {
-  static_assert(olc_inode_defs::is_inode<INode>());
+  static_assert(detail::olc_inode_defs::is_inode<INode>());
 
   const auto old_inode_count UNODB_DETAIL_USED_IN_DEBUG =
       node_counts[as_i<INode::type>].fetch_sub(1, std::memory_order_relaxed);

@@ -88,7 +88,6 @@ using version_tag_type = std::uint64_t;
 // lock version change, which indicates the need to restart
 class [[nodiscard]] optimistic_lock final {
  public:
-
   // Class for operations with a version_tag_type.
   class [[nodiscard]] version_type final {
    public:
@@ -138,13 +137,11 @@ class [[nodiscard]] optimistic_lock final {
 
    private:
     version_tag_type version{0};
-  }; // class version_type
+  };  // class version_type
 
  private:
-  
   class [[nodiscard]] atomic_version_type final {
    public:
-
     // load-acquire
     [[nodiscard]] version_type load() const noexcept {
       return version_type{version.load(std::memory_order_acquire)};
@@ -185,7 +182,7 @@ class [[nodiscard]] optimistic_lock final {
 
     static_assert(decltype(version)::is_always_lock_free,
                   "Must use always lock-free atomics");
-  }; // class atomic_version_type
+  };  // class atomic_version_type
 
  public:
   class write_guard;
@@ -204,7 +201,6 @@ class [[nodiscard]] optimistic_lock final {
   // in a debug build this also sets [lock=nullptr].
   class [[nodiscard]] read_critical_section final {
    public:
-
     // construct an RCS for an obsolete node.
     read_critical_section() noexcept = default;
 
@@ -225,7 +221,8 @@ class [[nodiscard]] optimistic_lock final {
     }
 
     // Point to the same lock and have the same version for that lock.
-    [[nodiscard]] bool operator==(const read_critical_section &other) const noexcept {
+    [[nodiscard]] bool operator==(
+        const read_critical_section &other) const noexcept {
       return lock == other.lock && version == other.version;
     }
 
@@ -297,18 +294,20 @@ class [[nodiscard]] optimistic_lock final {
     }
 
     // The version tag backing the read_critical_section.
-    [[nodiscard]] inline constexpr version_tag_type get() const noexcept {return version.get();}
-    
+    [[nodiscard]] inline constexpr version_tag_type get() const noexcept {
+      return version.get();
+    }
+
     read_critical_section(const read_critical_section &) = delete;
     read_critical_section(read_critical_section &&) = delete;
     read_critical_section &operator=(const read_critical_section &) = delete;
-    
+
    private:
     optimistic_lock *lock{nullptr};
     version_type version{0};
 
     friend class write_guard;
-  }; // class read_critical_section
+  };  // class read_critical_section
 
   class [[nodiscard]] write_guard final {
    public:
@@ -356,7 +355,7 @@ class [[nodiscard]] optimistic_lock final {
 
    private:
     optimistic_lock *lock{nullptr};
-  }; // class write_guard
+  };  // class write_guard
 
   optimistic_lock() noexcept = default;
 
@@ -378,7 +377,7 @@ class [[nodiscard]] optimistic_lock final {
   // immediately on the result of this method in order to determine if
   // the node is obsolete.
   //
-  // @return a read_critical_section which MAY be invalid. 
+  // @return a read_critical_section which MAY be invalid.
   [[nodiscard]] read_critical_section try_read_lock() noexcept {
     while (true) {
       const auto current_version = version.load();
@@ -407,9 +406,9 @@ class [[nodiscard]] optimistic_lock final {
   [[nodiscard]] read_critical_section rehydrate_read_lock(
       version_tag_type version_tag) noexcept {
     inc_read_lock_count();
-    return read_critical_section{*this, version_type( version_tag )};
+    return read_critical_section{*this, version_type(version_tag)};
   }
-  
+
 #ifndef NDEBUG
   void check_on_dealloc() const noexcept {
     UNODB_DETAIL_ASSERT(read_lock_count.load(std::memory_order_acquire) == 0);
@@ -496,7 +495,7 @@ class [[nodiscard]] optimistic_lock final {
     UNODB_DETAIL_ASSERT(old_value > 0);
 #endif
   }
-}; // class optimistic_lock
+};  // class optimistic_lock
 
 static_assert(std::is_standard_layout_v<optimistic_lock>);
 
@@ -581,7 +580,7 @@ class [[nodiscard]] in_critical_section final {
 
   static_assert(std::atomic<T>::is_always_lock_free,
                 "Must use always lock-free atomics");
-}; // class in_critical_section
+};  // class in_critical_section
 
 }  // namespace unodb
 

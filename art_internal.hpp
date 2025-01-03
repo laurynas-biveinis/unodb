@@ -31,7 +31,6 @@ class [[nodiscard]] basic_db_leaf_deleter;
 // Internal ART key in binary-comparable format
 template <typename KeyType>
 struct [[nodiscard]] basic_art_key final {
-
   // Convert an external key into an internal key supporting
   // lexicographic comparison.  This is only intended for key types
   // for which simple conversions are possible.  For complex keys,
@@ -66,7 +65,7 @@ struct [[nodiscard]] basic_art_key final {
 
   // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
   [[nodiscard, gnu::pure]] constexpr int cmp(
-      basic_art_key<KeyType> key2 ) const noexcept {
+      basic_art_key<KeyType> key2) const noexcept {
     // FIXME This is wrong for variable length keys.  It needs to
     // consider no more bytes than the shorter key and if the two keys
     // have the same prefix, then they are != if one is longer.  Also
@@ -86,8 +85,7 @@ struct [[nodiscard]] basic_art_key final {
   }
 
   // return the decoded form of the key.
-  [[nodiscard, gnu::pure]] constexpr KeyType decode()
-      const noexcept {
+  [[nodiscard, gnu::pure]] constexpr KeyType decode() const noexcept {
     return make_external(key);
   }
 
@@ -107,7 +105,7 @@ struct [[nodiscard]] basic_art_key final {
     static_assert(std::is_trivially_copyable_v<basic_art_key<KeyType>>);
     static_assert(sizeof(basic_art_key<KeyType>) == sizeof(KeyType));
   }
-}; // class basic_art_key
+};  // class basic_art_key
 
 using art_key = basic_art_key<unodb::key>;
 
@@ -214,7 +212,7 @@ class [[nodiscard]] basic_node_ptr {
   // constructor casts away [const] for use when the node_ptr will be [const].
   basic_node_ptr(const header_type *ptr UNODB_DETAIL_LIFETIMEBOUND,
                  unodb::node_type type) noexcept
-      : tagged_ptr{tag_ptr(const_cast<header_type*>(ptr), type)} {}
+      : tagged_ptr{tag_ptr(const_cast<header_type *>(ptr), type)} {}
 
   basic_node_ptr<Header> &operator=(std::nullptr_t) noexcept {
     tagged_ptr = reinterpret_cast<std::uintptr_t>(nullptr);
@@ -235,7 +233,8 @@ class [[nodiscard]] basic_node_ptr {
   }
 
   // same raw_val means same type and same ptr.
-  [[nodiscard, gnu::pure]] auto operator==(const basic_node_ptr& other) const noexcept {
+  [[nodiscard, gnu::pure]] auto operator==(
+      const basic_node_ptr &other) const noexcept {
     return tagged_ptr == other.tagged_ptr;
   }
 
@@ -290,11 +289,12 @@ template <typename Iterator>
 class visitor {
   friend class olc_db;
   friend class db;
- protected:
-  Iterator& it;
-  explicit visitor(Iterator& it_) : it(it_) {}
- public:
 
+ protected:
+  Iterator &it;
+  explicit visitor(Iterator &it_) : it(it_) {}
+
+ public:
   // Visit the (decoded) key.
   //
   // Note: The lambda MUST NOT export a reference to the visited key.
@@ -308,19 +308,19 @@ class visitor {
   // TODO(thompsonbry) Variable length keys: We need to define a
   // visitor method to visit the internal key buffer without any
   // decoding.
-  inline auto get_key() const noexcept {return it.get_key().value();}
+  inline auto get_key() const noexcept { return it.get_key().value(); }
 
   // Visit the value.
   //
   // Note: The lambda MUST NOT export a reference to the visited
   // value.  If you to access the value outside of the scope of a
   // single lambda invocation, then you must make a copy of the data.
-  inline auto get_value() const noexcept {return it.get_val().value();}
+  inline auto get_value() const noexcept { return it.get_val().value(); }
 
   // TEST ONLY
-  //inline void test_only_dump(std::ostream& os) noexcept {it.dump(os);}
+  // inline void test_only_dump(std::ostream& os) noexcept {it.dump(os);}
 };
- 
-}
+
+}  // namespace unodb
 
 #endif  // UNODB_DETAIL_ART_INTERNAL_HPP

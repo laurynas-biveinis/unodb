@@ -61,7 +61,7 @@ class mutex_db final {
   //
 
   using iterator = unodb::db::iterator;
-  
+
   // Scan the tree, applying the caller's lambda to each visited leaf.
   // The tree remains locked for the duration of the scan.
   //
@@ -74,9 +74,9 @@ class mutex_db final {
   template <typename FN>
   inline void scan(FN fn, bool fwd = true) noexcept {
     const std::lock_guard guard{mutex};
-    db_.scan( fn, fwd );
+    db_.scan(fn, fwd);
   }
-  
+
   // Scan in the indicated direction, applying the caller's lambda to
   // each visited leaf.  The tree remains locked for the duration of
   // the scan.
@@ -93,9 +93,9 @@ class mutex_db final {
   template <typename FN>
   inline void scan_from(const key fromKey, FN fn, bool fwd = true) noexcept {
     const std::lock_guard guard{mutex};
-    db_.scan_from( fromKey, fn, fwd );
+    db_.scan_from(fromKey, fn, fwd);
   }
-  
+
   // Scan a half-open key range, applying the caller's lambda to each
   // visited leaf.  The tree remains locked for the duration of the
   // scan.  The scan will proceed in lexicographic order iff fromKey
@@ -117,16 +117,16 @@ class mutex_db final {
   template <typename FN>
   inline void scan_range(const key fromKey, const key toKey, FN fn) noexcept {
     const std::lock_guard guard{mutex};
-    db_.scan_range( fromKey, toKey, fn );
+    db_.scan_range(fromKey, toKey, fn);
   }
-  
+
   //
   // TEST ONLY METHODS
   //
 
   // Used to write the iterator tests.
-  auto test_only_iterator() noexcept {return db_.test_only_iterator();}
-  
+  auto test_only_iterator() noexcept { return db_.test_only_iterator(); }
+
   // Stats
 #ifdef UNODB_DETAIL_WITH_STATS
 

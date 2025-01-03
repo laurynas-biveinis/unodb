@@ -37,17 +37,17 @@ class ARTScanTest : public ::testing::Test {
   using Test::Test;
 };
 
-static inline bool odd(const unodb::key x) {return x % 2;}
-static inline bool even(const unodb::key x) {return ! odd( x );}
+static inline bool odd(const unodb::key x) { return x % 2; }
+static inline bool even(const unodb::key x) { return !odd(x); }
 
 static void dump(const std::vector<unodb::key>& x) {
-  std::cerr<<"[";
+  std::cerr << "[";
   auto it = x.begin();
-  while ( it != x.end() ) {
-      std::cerr<<*it<<" ";
-      it++;
+  while (it != x.end()) {
+    std::cerr << *it << " ";
+    it++;
   }
-  std::cerr<<"]"<<std::endl;
+  std::cerr << "]" << std::endl;
 }
 
 // Test help creates an index and populates it with the ODD keys in
@@ -65,53 +65,61 @@ static void dump(const std::vector<unodb::key>& x) {
 // @param limit The largest key to be installed (if EVEN, then the
 // largest key is limit-1).
 template <typename TypeParam>
-void doScanTest(const unodb::key fromKey, const unodb::key toKey, const uint64_t limit) {
+void doScanTest(const unodb::key fromKey, const unodb::key toKey,
+                const uint64_t limit) {
   constexpr bool debug = false;
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
   // Insert odd keys into the database and into an ordered container.
-  std::vector<unodb::key> expected {};
-  for ( uint64_t i = 1; i < limit; i+=2 ) {
-    verifier.insert( i, unodb::test::test_values[0] );
-    if ( i >= fromKey && i < toKey ) {
-      expected.push_back( i );
+  std::vector<unodb::key> expected{};
+  for (uint64_t i = 1; i < limit; i += 2) {
+    verifier.insert(i, unodb::test::test_values[0]);
+    if (i >= fromKey && i < toKey) {
+      expected.push_back(i);
     }
   }
-  if constexpr( debug ) {
-    std::cerr<<"db state::\n"; verifier.get_db().dump(std::cerr);
+  if constexpr (debug) {
+    std::cerr << "db state::\n";
+    verifier.get_db().dump(std::cerr);
   }
   const uint64_t nexpected = expected.size();
-  if constexpr( debug ) {
-    std::cerr<<"scan_test"
-           <<": fromKey="<<fromKey<<", toKey="<<toKey<<", limit="<<limit
-           <<", nexpected="<<nexpected<<", expected keys="; dump(expected);
+  if constexpr (debug) {
+    std::cerr << "scan_test"
+              << ": fromKey=" << fromKey << ", toKey=" << toKey
+              << ", limit=" << limit << ", nexpected=" << nexpected
+              << ", expected keys=";
+    dump(expected);
   }
-  uint64_t nactual { 0 };  // actual number visited.
+  uint64_t nactual{0};  // actual number visited.
   auto eit = expected.begin();
   auto eit2 = expected.end();
-  auto fn = [&nactual,&eit,eit2](unodb::visitor<typename TypeParam::iterator>& v) {
-    if ( eit == eit2 ) {
-      EXPECT_TRUE(false)<<"ART scan should have halted.";
+  auto fn = [&nactual, &eit,
+             eit2](unodb::visitor<typename TypeParam::iterator>& v) {
+    if (eit == eit2) {
+      EXPECT_TRUE(false) << "ART scan should have halted.";
       return true;  // halt early.
     }
-    const auto ekey = *eit;  // expected key to visit
-    const auto akey = v.get_key(); // actual key visited.
-    if constexpr( debug ) {
-      std::cerr<< "nactual="<<nactual<<", ekey="<<ekey<<", akey="<<akey<<std::endl;
+    const auto ekey = *eit;         // expected key to visit
+    const auto akey = v.get_key();  // actual key visited.
+    if constexpr (debug) {
+      std::cerr << "nactual=" << nactual << ", ekey=" << ekey
+                << ", akey=" << akey << std::endl;
       v.dump(std::cerr);
     }
-    if ( ekey != akey ) {
-      EXPECT_EQ( ekey, akey );
+    if (ekey != akey) {
+      EXPECT_EQ(ekey, akey);
       return true;  // halt early.
     }
-    nactual++;    // count #of visited keys.
-    eit++;        // advance iterator over the expected keys.
-    return false; // !halt (aka continue scan).
+    nactual++;     // count #of visited keys.
+    eit++;         // advance iterator over the expected keys.
+    return false;  // !halt (aka continue scan).
   };
-  db.scan_range( fromKey, toKey, fn );
-  EXPECT_TRUE( eit == eit2 )
-      << "Expected iterator should have been fully consumed, but was not (ART scan visited too little).";
-  EXPECT_EQ( nactual, nexpected )<<", fromKey="<<fromKey<<", toKey="<<toKey<<", limit="<<limit;
+  db.scan_range(fromKey, toKey, fn);
+  EXPECT_TRUE(eit == eit2)
+      << "Expected iterator should have been fully consumed, but was not (ART "
+         "scan visited too little).";
+  EXPECT_EQ(nactual, nexpected)
+      << ", fromKey=" << fromKey << ", toKey=" << toKey << ", limit=" << limit;
 }
 
 //
@@ -129,176 +137,188 @@ UNODB_START_TYPED_TESTS()
 
 TYPED_TEST(ARTScanTest, scan_forward__empty_tree_keys_and_values) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
   {
     uint64_t n = 0;
-    auto fn = [&n](unodb::visitor<typename TypeParam::iterator>&) {n++; return false;};
-    db.scan( fn );
-    UNODB_EXPECT_EQ( 0, n );
+    auto fn = [&n](unodb::visitor<typename TypeParam::iterator>&) {
+      n++;
+      return false;
+    };
+    db.scan(fn);
+    UNODB_EXPECT_EQ(0, n);
   }
   {
     uint64_t n = 0;
-    auto fn = [&n](unodb::visitor<typename TypeParam::iterator>&) {n++; return false;};
-    db.scan_from( 0x0000, fn );
-    UNODB_EXPECT_EQ( 0, n );
+    auto fn = [&n](unodb::visitor<typename TypeParam::iterator>&) {
+      n++;
+      return false;
+    };
+    db.scan_from(0x0000, fn);
+    UNODB_EXPECT_EQ(0, n);
   }
   {
     uint64_t n = 0;
-    auto fn = [&n](unodb::visitor<typename TypeParam::iterator>&) {n++; return false;};
-    db.scan_range( 0x0000, 0xffff, fn );
-    UNODB_EXPECT_EQ( 0, n );
+    auto fn = [&n](unodb::visitor<typename TypeParam::iterator>&) {
+      n++;
+      return false;
+    };
+    db.scan_range(0x0000, 0xffff, fn);
+    UNODB_EXPECT_EQ(0, n);
   }
 }
 
-// Scan one leaf, verifying that we visit the leaf and can access its key and value.
+// Scan one leaf, verifying that we visit the leaf and can access its key and
+// value.
 TYPED_TEST(ARTScanTest, scan_forward__one_leaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
   uint64_t n = 0;
   unodb::key visited_key{~0ULL};
   unodb::value_view visited_val{};
-  auto fn = [&n,&visited_key,&visited_val](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &visited_key,
+             &visited_val](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     visited_key = v.get_key();
     visited_val = v.get_value();
     return false;
   };
-  db.scan( fn );
-  UNODB_EXPECT_EQ( 1, n );
-  UNODB_EXPECT_EQ( 0, visited_key );
-  UNODB_EXPECT_EQ( unodb::test::test_values[0], visited_val );
+  db.scan(fn);
+  UNODB_EXPECT_EQ(1, n);
+  UNODB_EXPECT_EQ(0, visited_key);
+  UNODB_EXPECT_EQ(unodb::test::test_values[0], visited_val);
 }
 
 TYPED_TEST(ARTScanTest, scan_forward__two_leaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
-  verifier.insert( 1, unodb::test::test_values[1] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
+  verifier.insert(1, unodb::test::test_values[1]);
   uint64_t n = 0;
-  std::vector<std::pair<unodb::key,unodb::value_view>> visited {};
-  auto fn = [&n,&visited](unodb::visitor<typename TypeParam::iterator>& v) {
+  std::vector<std::pair<unodb::key, unodb::value_view>> visited{};
+  auto fn = [&n, &visited](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
-    visited.emplace_back( v.get_key(), v.get_value() );
+    visited.emplace_back(v.get_key(), v.get_value());
     return false;
   };
-  db.scan( fn, true/*fwd*/ );
-  UNODB_EXPECT_EQ( 2, n );
-  UNODB_EXPECT_EQ( 2, visited.size() );  
-  UNODB_EXPECT_EQ( 0, visited[0].first ); // verify visited in forward order.
-  UNODB_EXPECT_EQ( 1, visited[1].first );
+  db.scan(fn, true /*fwd*/);
+  UNODB_EXPECT_EQ(2, n);
+  UNODB_EXPECT_EQ(2, visited.size());
+  UNODB_EXPECT_EQ(0, visited[0].first);  // verify visited in forward order.
+  UNODB_EXPECT_EQ(1, visited[1].first);
 }
 
 TYPED_TEST(ARTScanTest, scan_forward__three_leaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
-  verifier.insert( 1, unodb::test::test_values[1] );
-  verifier.insert( 2, unodb::test::test_values[2] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
+  verifier.insert(1, unodb::test::test_values[1]);
+  verifier.insert(2, unodb::test::test_values[2]);
   uint64_t n = 0;
   uint64_t expected = 0;
-  auto fn = [&n,&expected](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &expected](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     auto key = v.get_key();
-    UNODB_EXPECT_EQ( expected, key );
+    UNODB_EXPECT_EQ(expected, key);
     expected++;
     return false;
   };
-  db.scan( fn, true/*fwd*/ );
-  UNODB_EXPECT_EQ( 3, n );
+  db.scan(fn, true /*fwd*/);
+  UNODB_EXPECT_EQ(3, n);
 }
 
 TYPED_TEST(ARTScanTest, scan_forward__four_leaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
-  verifier.insert( 1, unodb::test::test_values[1] );
-  verifier.insert( 2, unodb::test::test_values[2] );
-  verifier.insert( 3, unodb::test::test_values[3] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
+  verifier.insert(1, unodb::test::test_values[1]);
+  verifier.insert(2, unodb::test::test_values[2]);
+  verifier.insert(3, unodb::test::test_values[3]);
   uint64_t n = 0;
   uint64_t expected = 0;
-  auto fn = [&n,&expected](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &expected](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     auto key = v.get_key();
-    UNODB_EXPECT_EQ( expected, key );
+    UNODB_EXPECT_EQ(expected, key);
     expected++;
     return false;
   };
-  db.scan( fn );
-  UNODB_EXPECT_EQ( 4, n );
+  db.scan(fn);
+  UNODB_EXPECT_EQ(4, n);
 }
 
 TYPED_TEST(ARTScanTest, scan_forward__five_leaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
-  verifier.insert( 1, unodb::test::test_values[1] );
-  verifier.insert( 2, unodb::test::test_values[2] );
-  verifier.insert( 3, unodb::test::test_values[3] );
-  verifier.insert( 4, unodb::test::test_values[4] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
+  verifier.insert(1, unodb::test::test_values[1]);
+  verifier.insert(2, unodb::test::test_values[2]);
+  verifier.insert(3, unodb::test::test_values[3]);
+  verifier.insert(4, unodb::test::test_values[4]);
   uint64_t n = 0;
   uint64_t expected = 0;
-  auto fn = [&n,&expected](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &expected](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     auto key = v.get_key();
-    UNODB_EXPECT_EQ( expected, key );
+    UNODB_EXPECT_EQ(expected, key);
     expected++;
     return false;
   };
-  db.scan( fn );
-  UNODB_EXPECT_EQ( 5, n );
+  db.scan(fn);
+  UNODB_EXPECT_EQ(5, n);
 }
 
 TYPED_TEST(ARTScanTest, scan_forward__five_leaves_halt_early) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
-  verifier.insert( 1, unodb::test::test_values[1] );
-  verifier.insert( 2, unodb::test::test_values[2] );
-  verifier.insert( 3, unodb::test::test_values[3] );
-  verifier.insert( 4, unodb::test::test_values[4] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
+  verifier.insert(1, unodb::test::test_values[1]);
+  verifier.insert(2, unodb::test::test_values[2]);
+  verifier.insert(3, unodb::test::test_values[3]);
+  verifier.insert(4, unodb::test::test_values[4]);
   uint64_t n = 0;
   auto fn = [&n](unodb::visitor<typename TypeParam::iterator>&) {
-    n++; return n==1;  // halt early!
+    n++;
+    return n == 1;  // halt early!
   };
-  db.scan( fn );
-  UNODB_EXPECT_EQ( 1, n );
+  db.scan(fn);
+  UNODB_EXPECT_EQ(1, n);
 }
 
 // iterator scan test on a larger tree.
 TYPED_TEST(ARTScanTest, scan_forward__100_entries) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert_key_range( 0, 100 );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert_key_range(0, 100);
   uint64_t n = 0;
   uint64_t expected = 0;
-  auto fn = [&n,&expected](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &expected](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     auto key = v.get_key();
-    UNODB_EXPECT_EQ( expected, key );
+    UNODB_EXPECT_EQ(expected, key);
     expected++;
     return false;
   };
-  db.scan( fn );
-  UNODB_EXPECT_EQ( 100, n );
+  db.scan(fn);
+  UNODB_EXPECT_EQ(100, n);
 }
 
 // iterator scan test on a larger tree.
 TYPED_TEST(ARTScanTest, scan_forward__1000_entries) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert_key_range( 0, 1000 );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert_key_range(0, 1000);
   uint64_t n = 0;
   uint64_t expected = 0;
-  auto fn = [&n,&expected](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &expected](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     auto key = v.get_key();
-    UNODB_EXPECT_EQ( expected, key );
+    UNODB_EXPECT_EQ(expected, key);
     expected++;
     return false;
   };
-  db.scan( fn );
-  UNODB_EXPECT_EQ( 1000, n );
+  db.scan(fn);
+  UNODB_EXPECT_EQ(1000, n);
 }
 
 //
@@ -307,163 +327,168 @@ TYPED_TEST(ARTScanTest, scan_forward__1000_entries) {
 
 TYPED_TEST(ARTScanTest, scan_reverse__empty_tree) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
   uint64_t n = 0;
-  auto fn = [&n](unodb::visitor<typename TypeParam::iterator>&) {n++; return false;};
-  db.scan( fn, false/*fwd*/ );
-  UNODB_EXPECT_EQ( 0, n );
+  auto fn = [&n](unodb::visitor<typename TypeParam::iterator>&) {
+    n++;
+    return false;
+  };
+  db.scan(fn, false /*fwd*/);
+  UNODB_EXPECT_EQ(0, n);
 }
 
 // Scan one leaf, verifying that we visit the leaf and can access its
 // key and value.
 TYPED_TEST(ARTScanTest, scan_reverse__one_leaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
   uint64_t n = 0;
   unodb::key visited_key{~0ULL};
   unodb::value_view visited_val{};
-  auto fn = [&n,&visited_key,&visited_val](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &visited_key,
+             &visited_val](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     visited_key = v.get_key();
     visited_val = v.get_value();
     return false;
   };
-  db.scan( fn, false/*fwd*/ );
-  UNODB_EXPECT_EQ( 1, n );
-  UNODB_EXPECT_EQ( 0, visited_key );
-  UNODB_EXPECT_EQ( unodb::test::test_values[0], visited_val );
+  db.scan(fn, false /*fwd*/);
+  UNODB_EXPECT_EQ(1, n);
+  UNODB_EXPECT_EQ(0, visited_key);
+  UNODB_EXPECT_EQ(unodb::test::test_values[0], visited_val);
 }
 
 TYPED_TEST(ARTScanTest, scan_reverse__two_leaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
-  verifier.insert( 1, unodb::test::test_values[1] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
+  verifier.insert(1, unodb::test::test_values[1]);
   uint64_t n = 0;
-  std::vector<std::pair<unodb::key,unodb::value_view>> visited {};
-  auto fn = [&n,&visited](unodb::visitor<typename TypeParam::iterator>& v) {
+  std::vector<std::pair<unodb::key, unodb::value_view>> visited{};
+  auto fn = [&n, &visited](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
-    visited.emplace_back( v.get_key(), v.get_value() );
+    visited.emplace_back(v.get_key(), v.get_value());
     return false;
   };
-  db.scan( fn, false/*fwd*/ );
-  UNODB_EXPECT_EQ( 2, n );
-  UNODB_EXPECT_EQ( 2, visited.size() );  
-  UNODB_EXPECT_EQ( 1, visited[0].first ); // make sure visited in reverse order.
-  UNODB_EXPECT_EQ( 0, visited[1].first );
+  db.scan(fn, false /*fwd*/);
+  UNODB_EXPECT_EQ(2, n);
+  UNODB_EXPECT_EQ(2, visited.size());
+  UNODB_EXPECT_EQ(1, visited[0].first);  // make sure visited in reverse order.
+  UNODB_EXPECT_EQ(0, visited[1].first);
 }
 
 TYPED_TEST(ARTScanTest, scan_reverse__three_leaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
-  verifier.insert( 1, unodb::test::test_values[1] );
-  verifier.insert( 2, unodb::test::test_values[2] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
+  verifier.insert(1, unodb::test::test_values[1]);
+  verifier.insert(2, unodb::test::test_values[2]);
   uint64_t n = 0;
   uint64_t expected = 2;
-  auto fn = [&n,&expected](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &expected](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     auto key = v.get_key();
-    UNODB_EXPECT_EQ( expected, key );
+    UNODB_EXPECT_EQ(expected, key);
     expected--;
     return false;
   };
-  db.scan( fn, false/*fwd*/ );
-  UNODB_EXPECT_EQ( 3, n );
+  db.scan(fn, false /*fwd*/);
+  UNODB_EXPECT_EQ(3, n);
 }
 
 TYPED_TEST(ARTScanTest, scan_reverse__four_leaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
-  verifier.insert( 1, unodb::test::test_values[1] );
-  verifier.insert( 2, unodb::test::test_values[2] );
-  verifier.insert( 3, unodb::test::test_values[3] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
+  verifier.insert(1, unodb::test::test_values[1]);
+  verifier.insert(2, unodb::test::test_values[2]);
+  verifier.insert(3, unodb::test::test_values[3]);
   uint64_t n = 0;
   uint64_t expected = 3;
-  auto fn = [&n,&expected](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &expected](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     auto key = v.get_key();
-    UNODB_EXPECT_EQ( expected, key );
+    UNODB_EXPECT_EQ(expected, key);
     expected--;
     return false;
   };
-  db.scan( fn, false/*fwd*/ );
-  UNODB_EXPECT_EQ( 4, n );
+  db.scan(fn, false /*fwd*/);
+  UNODB_EXPECT_EQ(4, n);
 }
 
 TYPED_TEST(ARTScanTest, scan_reverse__five_leaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
-  verifier.insert( 1, unodb::test::test_values[1] );
-  verifier.insert( 2, unodb::test::test_values[2] );
-  verifier.insert( 3, unodb::test::test_values[3] );
-  verifier.insert( 4, unodb::test::test_values[4] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
+  verifier.insert(1, unodb::test::test_values[1]);
+  verifier.insert(2, unodb::test::test_values[2]);
+  verifier.insert(3, unodb::test::test_values[3]);
+  verifier.insert(4, unodb::test::test_values[4]);
   uint64_t n = 0;
   uint64_t expected = 4;
-  auto fn = [&n,&expected](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &expected](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     auto key = v.get_key();
-    UNODB_EXPECT_EQ( expected, key );
+    UNODB_EXPECT_EQ(expected, key);
     expected--;
     return false;
   };
-  db.scan( fn, false/*fwd*/ );
-  UNODB_EXPECT_EQ( 5, n );
+  db.scan(fn, false /*fwd*/);
+  UNODB_EXPECT_EQ(5, n);
 }
 
 TYPED_TEST(ARTScanTest, scan_reverse__five_leaves_halt_early) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert( 0, unodb::test::test_values[0] );
-  verifier.insert( 1, unodb::test::test_values[1] );
-  verifier.insert( 2, unodb::test::test_values[2] );
-  verifier.insert( 3, unodb::test::test_values[3] );
-  verifier.insert( 4, unodb::test::test_values[4] );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert(0, unodb::test::test_values[0]);
+  verifier.insert(1, unodb::test::test_values[1]);
+  verifier.insert(2, unodb::test::test_values[2]);
+  verifier.insert(3, unodb::test::test_values[3]);
+  verifier.insert(4, unodb::test::test_values[4]);
   uint64_t n = 0;
   auto fn = [&n](unodb::visitor<typename TypeParam::iterator>&) {
-    n++; return n==1;  // halt early!
+    n++;
+    return n == 1;  // halt early!
   };
-  db.scan( fn, false/*fwd*/ );
-  UNODB_EXPECT_EQ( 1, n );
+  db.scan(fn, false /*fwd*/);
+  UNODB_EXPECT_EQ(1, n);
 }
 
 // iterator scan test on a larger tree.
 TYPED_TEST(ARTScanTest, scan_reverse__100_entries) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert_key_range( 0, 100 );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert_key_range(0, 100);
   uint64_t n = 0;
   uint64_t expected = 99;
-  auto fn = [&n,&expected](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &expected](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     auto key = v.get_key();
-    UNODB_EXPECT_EQ( expected, key );
+    UNODB_EXPECT_EQ(expected, key);
     expected--;
     return false;
   };
-  db.scan( fn, false/*fwd*/ );
-  UNODB_EXPECT_EQ( 100, n );
+  db.scan(fn, false /*fwd*/);
+  UNODB_EXPECT_EQ(100, n);
 }
 
 // iterator scan test on a larger tree.
 TYPED_TEST(ARTScanTest, scan_reverse__1000_entries) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  TypeParam& db = verifier.get_db(); // reference to test db instance.
-  verifier.insert_key_range( 0, 1000 );
+  TypeParam& db = verifier.get_db();  // reference to test db instance.
+  verifier.insert_key_range(0, 1000);
   uint64_t n = 0;
   uint64_t expected = 999;
-  auto fn = [&n,&expected](unodb::visitor<typename TypeParam::iterator>& v) {
+  auto fn = [&n, &expected](unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
     auto key = v.get_key();
-    UNODB_EXPECT_EQ( expected, key );
+    UNODB_EXPECT_EQ(expected, key);
     expected--;
     return false;
   };
-  db.scan( fn, false/*fwd*/ );
-  UNODB_EXPECT_EQ( 1000, n );
+  db.scan(fn, false /*fwd*/);
+  UNODB_EXPECT_EQ(1000, n);
 }
 
 // Tests for edge cases for scan() including first key missing, last
@@ -473,33 +498,77 @@ TYPED_TEST(ARTScanTest, scan_reverse__1000_entries) {
 // Check the edge conditions for the single leaf iterator (limit=1, so
 // only ONE (1) is installed into the ART index).  Check all iterator
 // flavors for this.
-TYPED_TEST(ARTScanTest, scan_from__fromKey_0__toKey_1__entries_1) {doScanTest<TypeParam>( 0, 1, 1 );} // nothing
-TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_2__entries_1) {doScanTest<TypeParam>( 1, 2, 1 );} // one key
-TYPED_TEST(ARTScanTest, scan_from__fromKey_2__toKey_3__entries_1) {doScanTest<TypeParam>( 2, 3, 1 );} // nothing
-TYPED_TEST(ARTScanTest, scan_from__fromKey_0__toKey_2__entries_1) {doScanTest<TypeParam>( 0, 2, 1 );} // one key
-TYPED_TEST(ARTScanTest, scan_from__fromKey_2__toKey_2__entries_1) {doScanTest<TypeParam>( 2, 2, 1 );} // nothing
+TYPED_TEST(ARTScanTest, scan_from__fromKey_0__toKey_1__entries_1) {
+  doScanTest<TypeParam>(0, 1, 1);
+}  // nothing
+TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_2__entries_1) {
+  doScanTest<TypeParam>(1, 2, 1);
+}  // one key
+TYPED_TEST(ARTScanTest, scan_from__fromKey_2__toKey_3__entries_1) {
+  doScanTest<TypeParam>(2, 3, 1);
+}  // nothing
+TYPED_TEST(ARTScanTest, scan_from__fromKey_0__toKey_2__entries_1) {
+  doScanTest<TypeParam>(0, 2, 1);
+}  // one key
+TYPED_TEST(ARTScanTest, scan_from__fromKey_2__toKey_2__entries_1) {
+  doScanTest<TypeParam>(2, 2, 1);
+}  // nothing
 
 // fromKey is odd (exists); toKey is even (hence does not exist).
-TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_2__entries_5) {doScanTest<TypeParam>( 1, 2, 5 );}
-TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_4__entries_5) {doScanTest<TypeParam>( 1, 4, 5 );}
-TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_6__entries_5) {doScanTest<TypeParam>( 1, 6, 5 );}
-TYPED_TEST(ARTScanTest, scan_from__fromKey_2__toKey_1__entries_5) {doScanTest<TypeParam>( 2, 1, 5 );}
-TYPED_TEST(ARTScanTest, scan_from__fromKey_4__toKey_1__entries_5) {doScanTest<TypeParam>( 4, 1, 5 );}
-TYPED_TEST(ARTScanTest, scan_from__fromKey_6__toKey_1__entries_5) {doScanTest<TypeParam>( 6, 1, 5 );}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_2__entries_5) {
+  doScanTest<TypeParam>(1, 2, 5);
+}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_4__entries_5) {
+  doScanTest<TypeParam>(1, 4, 5);
+}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_6__entries_5) {
+  doScanTest<TypeParam>(1, 6, 5);
+}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_2__toKey_1__entries_5) {
+  doScanTest<TypeParam>(2, 1, 5);
+}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_4__toKey_1__entries_5) {
+  doScanTest<TypeParam>(4, 1, 5);
+}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_6__toKey_1__entries_5) {
+  doScanTest<TypeParam>(6, 1, 5);
+}
 // fromKey is odd (exists); toKey is odd (exists).
-TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_1__entries_5) {doScanTest<TypeParam>( 1, 1, 5 );}
-TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_3__entries_5) {doScanTest<TypeParam>( 1, 3, 5 );}
-TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_5__entries_5) {doScanTest<TypeParam>( 1, 5, 5 );}
-TYPED_TEST(ARTScanTest, scan_from__fromKey_3__toKey_1__entries_5) {doScanTest<TypeParam>( 3, 1, 5 );}
-TYPED_TEST(ARTScanTest, scan_from__fromKey_5__toKey_1__entries_5) {doScanTest<TypeParam>( 5, 1, 5 );}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_1__entries_5) {
+  doScanTest<TypeParam>(1, 1, 5);
+}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_3__entries_5) {
+  doScanTest<TypeParam>(1, 3, 5);
+}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_1__toKey_5__entries_5) {
+  doScanTest<TypeParam>(1, 5, 5);
+}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_3__toKey_1__entries_5) {
+  doScanTest<TypeParam>(3, 1, 5);
+}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_5__toKey_1__entries_5) {
+  doScanTest<TypeParam>(5, 1, 5);
+}
 
-TYPED_TEST(ARTScanTest, scan_from__fromKey_0__toKey_10__entries_10) {doScanTest<TypeParam>( 0, 10, 10 );}
-TYPED_TEST(ARTScanTest, scan_from__fromKey_10__toKey_0__entries_10) {doScanTest<TypeParam>( 10, 0, 10 );}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_0__toKey_10__entries_10) {
+  doScanTest<TypeParam>(0, 10, 10);
+}
+TYPED_TEST(ARTScanTest, scan_from__fromKey_10__toKey_0__entries_10) {
+  doScanTest<TypeParam>(10, 0, 10);
+}
 
-TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_1__toKey_999) {doScanTest<TypeParam>( 1, 999, 1000 );}
-TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_999__toKey_1) {doScanTest<TypeParam>( 999, 1, 1000 );}
-TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_247__toKey_823) {doScanTest<TypeParam>( 247, 823, 1000 );}
-TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_823__toKey_247) {doScanTest<TypeParam>( 823, 247, 1000 );}
+TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_1__toKey_999) {
+  doScanTest<TypeParam>(1, 999, 1000);
+}
+TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_999__toKey_1) {
+  doScanTest<TypeParam>(999, 1, 1000);
+}
+TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_247__toKey_823) {
+  doScanTest<TypeParam>(247, 823, 1000);
+}
+TYPED_TEST(ARTScanTest, scan_from__1000_entries__fromKey_823__toKey_247) {
+  doScanTest<TypeParam>(823, 247, 1000);
+}
 
 UNODB_END_TESTS()
 

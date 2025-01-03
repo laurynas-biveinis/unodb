@@ -23,8 +23,8 @@
 
 namespace {
 
-static inline bool odd(const unodb::key x) {return x % 2;}
-  
+static inline bool odd(const unodb::key x) { return x % 2; }
+
 template <class Db>
 class ARTConcurrencyTest : public ::testing::Test {
  public:
@@ -38,7 +38,6 @@ class ARTConcurrencyTest : public ::testing::Test {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  protected:
-
   // NOLINTNEXTLINE(bugprone-exception-escape)
   ARTConcurrencyTest() noexcept {
     if constexpr (std::is_same_v<Db, unodb::olc_db>)
@@ -46,7 +45,8 @@ class ARTConcurrencyTest : public ::testing::Test {
   }
 
   //
-  // TestFn is void( unodb::test::tree_verifier<Db> *verifier, std::size_t thread_i, std::size_t ops_per_thread)
+  // TestFn is void( unodb::test::tree_verifier<Db> *verifier, std::size_t
+  // thread_i, std::size_t ops_per_thread)
   template <std::size_t ThreadCount, std::size_t OpsPerThread, typename TestFn>
   void parallel_test(TestFn test_function) {
     if constexpr (std::is_same_v<Db, unodb::olc_db>)
@@ -65,7 +65,8 @@ class ARTConcurrencyTest : public ::testing::Test {
       unodb::this_thread().qsbr_resume();
   }
 
-  template <unsigned PreinsertLimit, std::size_t ThreadCount, std::size_t OpsPerThread>
+  template <unsigned PreinsertLimit, std::size_t ThreadCount,
+            std::size_t OpsPerThread>
   void key_range_op_test() {
     verifier.insert_key_range(0, PreinsertLimit, true);
 
@@ -107,20 +108,22 @@ class ARTConcurrencyTest : public ::testing::Test {
         case 3: { /* scan */
           uint64_t n = 0;
           uint64_t sum = 0;
-          auto fn = [&n,&sum](unodb::visitor<typename Db::iterator>& v) {
+          auto fn = [&n, &sum](unodb::visitor<typename Db::iterator> &v) {
             n++;
             sum += v.get_key();
-            std::ignore = v.get_value();  // TODO Does this ensure that the value is read?
+            std::ignore =
+                v.get_value();  // TODO Does this ensure that the value is read?
             return false;
           };
-          auto fromKey = ( key > 100 ) ? (key - 100) : key;
+          auto fromKey = (key > 100) ? (key - 100) : key;
           auto toKey = key + 100;
-          if ( odd( key ) ) {
-            verifier->get_db().scan_range( fromKey, toKey, fn); // forward scan
+          if (odd(key)) {
+            verifier->get_db().scan_range(fromKey, toKey, fn);  // forward scan
           } else {
-            verifier->get_db().scan_range( toKey, fromKey, fn); // reverse scan
+            verifier->get_db().scan_range(toKey, fromKey, fn);  // reverse scan
           }
-          //std::cerr<<"scan: fromKey="<<fromKey<<", toKey="<<toKey<<", n="<<n<<", sum="<<sum<<std::endl;
+          // std::cerr<<"scan: fromKey="<<fromKey<<", toKey="<<toKey<<",
+          // n="<<n<<", sum="<<sum<<std::endl;
           break;
         }
         default:
@@ -153,20 +156,22 @@ class ARTConcurrencyTest : public ::testing::Test {
         case 3: { /* scan */
           uint64_t n = 0;
           uint64_t sum = 0;
-          auto fn = [&n,&sum](unodb::visitor<typename Db::iterator>& v) {
+          auto fn = [&n, &sum](unodb::visitor<typename Db::iterator> &v) {
             n++;
             sum += v.get_key();
-            std::ignore = v.get_value();  // TODO Does this ensure that the value is read?
+            std::ignore =
+                v.get_value();  // TODO Does this ensure that the value is read?
             return false;
           };
-          auto fromKey = ( key > 100 ) ? (key - 100) : key;
+          auto fromKey = (key > 100) ? (key - 100) : key;
           auto toKey = key + 100;
-          if ( odd( key ) ) {
-            verifier->get_db().scan_range( fromKey, toKey, fn); // forward scan
+          if (odd(key)) {
+            verifier->get_db().scan_range(fromKey, toKey, fn);  // forward scan
           } else {
-            verifier->get_db().scan_range( toKey, fromKey, fn); // reverse scan
+            verifier->get_db().scan_range(toKey, fromKey, fn);  // reverse scan
           }
-          //std::cerr<<"scan: fromKey="<<fromKey<<", toKey="<<toKey<<", n="<<n<<", sum="<<sum<<std::endl;
+          // std::cerr<<"scan: fromKey="<<fromKey<<", toKey="<<toKey<<",
+          // n="<<n<<", sum="<<sum<<std::endl;
           break;
         }
         default:
@@ -238,7 +243,8 @@ TYPED_TEST(ARTConcurrencyTest, Node256ParallelOps) {
 TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan) {
   constexpr auto thread_count = 4 * 3;
   constexpr auto initial_keys = 2048;
-  constexpr auto ops_per_thread = 10'000; // configured at 10'000 for normal builds.
+  constexpr auto ops_per_thread =
+      10'000;  // configured at 10'000 for normal builds.
 
   this->verifier.insert_key_range(0, initial_keys, true);
   this->template parallel_test<thread_count, ops_per_thread>(
@@ -247,10 +253,13 @@ TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan) {
 
 // Optionally enable this for more confidence in debug builds and set
 // the thread_count for your machine.
-TYPED_TEST(ARTConcurrencyTest, DISABLED_ParallelRandomInsertDeleteGetScan_StressTest) {
+TYPED_TEST(ARTConcurrencyTest,
+           DISABLED_ParallelRandomInsertDeleteGetScan_StressTest) {
   constexpr auto thread_count = 48;
-  constexpr auto initial_keys = 1024; // fewer keys and more threads is more challenging
-  constexpr auto ops_per_thread = 1'000'000;  // Running at 1M gives you extra confidence in debug builds.
+  constexpr auto initial_keys =
+      1024;  // fewer keys and more threads is more challenging
+  constexpr auto ops_per_thread =
+      1'000'000;  // Running at 1M gives you extra confidence in debug builds.
 
   this->verifier.insert_key_range(0, initial_keys, true);
   this->template parallel_test<thread_count, ops_per_thread>(

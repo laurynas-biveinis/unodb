@@ -130,9 +130,8 @@ TYPED_TEST(ARTIteratorTest, I4_and_two_leaves__reverse_scan) {
 //       I4
 //   I4     L2
 // L0 L1
-TYPED_TEST(
-    ARTIteratorTest,
-    iterator_three_values_left_axis_two_deep_right_axis_one_deep__forward_scan) {
+TYPED_TEST(ARTIteratorTest,
+           iterator_3_values_left_axis_two_deep_right_axis_one_deep__fwd_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0xaa00, unodb::test::test_values[0]);
@@ -161,9 +160,8 @@ TYPED_TEST(
 //       I4
 //   I4     L2
 // L0 L1
-TYPED_TEST(
-    ARTIteratorTest,
-    iterator_three_values_left_axis_two_deep_right_axis_one_deep__reverse_scan) {
+TYPED_TEST(ARTIteratorTest,
+           iterator_3_values_left_axis_two_deep_right_axis_one_deep__rev_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0xaa00, unodb::test::test_values[0]);
@@ -194,7 +192,7 @@ TYPED_TEST(
 //        L1 L2
 TYPED_TEST(
     ARTIteratorTest,
-    single_node_iterators_three_values_left_axis_one_deep_right_axis_two_deep__forward_scan) {
+    single_node_iter_3_values_left_axis_one_deep_right_axis_two_deep__fwd_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0xaa00, unodb::test::test_values[0]);
@@ -225,7 +223,7 @@ TYPED_TEST(
 //        L1 L2
 TYPED_TEST(
     ARTIteratorTest,
-    single_node_iterators_three_values_left_axis_one_deep_right_axis_two_deep__reverse_scan) {
+    single_node_iter_3_values_left_axis_one_deep_right_axis_two_deep__rev_scan) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0xaa00, unodb::test::test_values[0]);

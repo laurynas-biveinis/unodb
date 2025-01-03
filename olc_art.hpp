@@ -509,7 +509,7 @@ class olc_db final {
   // Scan in the indicated direction, applying the caller's lambda to
   // each visited leaf.
   //
-  // @param from_key_ is an inclusive lower bound for the starting
+  // @param from_key is an inclusive lower bound for the starting
   // point of the scan.
   //
   // @param fn A function f(unodb::visitor<unodb::olc_db::iterator>&)
@@ -519,19 +519,19 @@ class olc_db final {
   // @param fwd When [true] perform a forward scan, otherwise perform
   // a reverse scan.
   template <typename FN>
-  inline void scan_from(const key from_key_, FN fn, bool fwd = true) noexcept {
+  inline void scan_from(const key from_key, FN fn, bool fwd = true) noexcept {
     if ( empty() ) return;
-    const detail::art_key from_key{from_key_};  // convert to internal key
+    const detail::art_key from_key_{from_key};  // convert to internal key
     bool match {};
     if ( fwd ) {
-      auto it { iterator(*this).seek( from_key, match, true/*fwd*/ ) };
+      auto it { iterator(*this).seek( from_key_, match, true/*fwd*/ ) };
       visitor v { it };
       while ( it.valid() ) {
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
         it.next();
       }
     } else {
-      auto it { iterator(*this).seek( from_key, match, false/*fwd*/ ) };
+      auto it { iterator(*this).seek( from_key_, match, false/*fwd*/ ) };
       visitor v { it };
       while ( it.valid() ) {
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
@@ -548,38 +548,38 @@ class olc_db final {
   // forward order.  Otherwise the scan will visit all index entries
   // in the half-open range (from_key,to_key] in reverse order.
   //
-  // @param from_key_ is an inclusive bound for the starting point of
+  // @param from_key is an inclusive bound for the starting point of
   // the scan.
   //
-  // @param to_key_ is an exclusive bound for the ending point of the
+  // @param to_key is an exclusive bound for the ending point of the
   // scan.
   //
   // @param fn A function f(unodb::visitor<unodb::olc_db::iterator>&)
   // returning [bool::halt].  The traversal will halt if the function
   // returns [true].
   template <typename FN>
-  inline void scan_range(const key from_key_, const key to_key_, FN fn) noexcept
+  inline void scan_range(const key from_key, const key to_key, FN fn) noexcept
   {
     // TODO(thompsonbry) Explore a cheaper way to handle the exclusive
     // bound case when developing variable length key support based on
     // the maintained key buffer.
     constexpr bool debug = false;  // set true to debug scan.
     if ( empty() ) return;
-    const detail::art_key from_key{from_key_};  // convert to internal key
-    const detail::art_key to_key{to_key_};      // convert to internal key
-    const auto ret = from_key.cmp( to_key );    // compare the internal keys.
-    const bool fwd { ret < 0 };               // from_key is less than to_key
-    if ( ret == 0 ) return;                   // NOP
+    const detail::art_key from_key_{from_key};  // convert to internal key
+    const detail::art_key to_key_{to_key};      // convert to internal key
+    const auto ret = from_key_.cmp( to_key_ );  // compare the internal keys.
+    const bool fwd { ret < 0 };                 // from key is less than to key
+    if ( ret == 0 ) return;                     // NOP
     bool match {};
     if ( fwd ) {
-      auto it1 { iterator(*this).seek( from_key, match, true/*fwd*/ ) };
+      auto it1 { iterator(*this).seek( from_key_, match, true/*fwd*/ ) };
       if constexpr ( debug ) {
         std::cerr<<"scan:: fwd" << std::endl;
-        std::cerr<<"scan:: from_key=" << from_key_ << std::endl;
+        std::cerr<<"scan:: from_key=" << from_key << std::endl;
         it1.dump(std::cerr);
       }
       visitor v { it1 };
-      while ( it1.valid() && it1.cmp( to_key ) < 0 ) {
+      while ( it1.valid() && it1.cmp( to_key_ ) < 0 ) {
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
         it1.next();
         if constexpr( debug ) {
@@ -587,14 +587,14 @@ class olc_db final {
         }
       }
     } else { // reverse traversal.
-      auto it1 { iterator(*this).seek( from_key, match, true/*fwd*/ ) };
+      auto it1 { iterator(*this).seek( from_key_, match, true/*fwd*/ ) };
       if constexpr( debug ) {
         std::cerr<<"scan:: rev" << std::endl;
-        std::cerr<<"scan:: from_key=" << from_key_ << std::endl;
+        std::cerr<<"scan:: from_key=" << from_key << std::endl;
         it1.dump(std::cerr);
       }
       visitor v { it1 };
-      while ( it1.valid() && it1.cmp( to_key ) < 0 ) {
+      while ( it1.valid() && it1.cmp( to_key_ ) < 0 ) {
         if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
         it1.prior();
         if constexpr( debug ) {

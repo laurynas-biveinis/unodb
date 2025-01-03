@@ -608,19 +608,19 @@ inline void db::scan(FN fn, bool fwd) noexcept {
 }
 
 template <typename FN>
-inline void db::scan_from(const key from_key_, FN fn, bool fwd) noexcept {
+inline void db::scan_from(const key from_key, FN fn, bool fwd) noexcept {
   if ( empty() ) return;
-  const detail::art_key from_key{from_key_};  // convert to internal key
+  const detail::art_key from_key_{from_key};  // convert to internal key
   bool match {};
   if ( fwd ) {
-    auto it { iterator(*this).seek( from_key, match, true/*fwd*/ ) };
+    auto it { iterator(*this).seek( from_key_, match, true/*fwd*/ ) };
     visitor v { it };
     while ( it.valid() ) {
       if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;
       it.next();
     }
   } else {
-    auto it { iterator(*this).seek( from_key, match, false/*fwd*/ ) };
+    auto it { iterator(*this).seek( from_key_, match, false/*fwd*/ ) };
     visitor v { it };
     while ( it.valid() ) {
       if ( UNODB_DETAIL_UNLIKELY( fn( v ) ) ) break;

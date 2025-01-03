@@ -121,14 +121,9 @@ class db final {
   class iterator {
     friend class db;
     template <class> friend class visitor;
-
-    static constexpr int NP = detail::inode_base::NP; // node pointer
-    static constexpr int KB = detail::inode_base::KB; // key byte (on descent from NP)
-    static constexpr int CI = detail::inode_base::CI; // child_index (on descent from NP)(
     
-    // The element (0) is the key byte, element (1) is child index in
-    // the node, element (2) is the pointer to the child or nullptr if
-    // the iter_result is invalid (e.g., end()).
+    // The stack is made up of tuples containing the node pointer, the
+    // key_byte, and the child_index.
     using stack_entry = detail::inode_base::iter_result;
         
   protected:
@@ -215,7 +210,7 @@ class db final {
       // exclusive bound case when developing variable length key
       // support based on the maintained key buffer.
       UNODB_DETAIL_ASSERT( !stack_.empty() );
-      auto node = std::get<NP>( stack_.top() );
+      auto& node = stack_.top().node;
       UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF);
       const auto *const leaf{node.ptr<detail::leaf *>()};
       return leaf->get_key().cmp( akey );
@@ -246,7 +241,7 @@ class db final {
 
     // Push a leaf onto the stack.
     void push_leaf( detail::node_ptr aleaf ) noexcept {
-      // Mock up an iter_result for the leaf. The [key] and
+      // Mock up a stack entry for the leaf. The [key] and
       // [child_index] are ignored for a leaf.
       push( aleaf,
             static_cast<std::byte>(0xFFU),
@@ -267,7 +262,7 @@ class db final {
     detail::node_ptr current_node() noexcept {
       return stack_.empty()
           ? detail::node_ptr(nullptr)
-          : std::get<NP>( stack_.top() );
+          : stack_.top().node
       ;
     }
     
@@ -558,7 +553,7 @@ inline std::optional<const key> db::iterator::get_key() noexcept {
   // directly in the leaves.
   if ( ! valid() ) return {}; // not positioned on anything.
   const auto& e = stack_.top();
-  const auto& node = std::get<NP>( e );
+  const auto& node = e.node;
   UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
   const auto *const leaf{ node.ptr<detail::leaf *>() }; // current leaf.
   key_ = leaf->get_key().decode(); // decode key into buffer.
@@ -568,7 +563,7 @@ inline std::optional<const key> db::iterator::get_key() noexcept {
 inline std::optional<const value_view> db::iterator::get_val() const noexcept {
   if ( ! valid() ) return {}; // not positioned on anything.
   const auto& e = stack_.top();
-  const auto& node = std::get<NP>( e );
+  const auto& node = e.node;
   UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
   const auto *const leaf{ node.ptr<detail::leaf *>() }; // current leaf.
   return leaf->get_value_view();

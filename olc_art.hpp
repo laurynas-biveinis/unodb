@@ -243,22 +243,25 @@ class olc_db final {
     // than the current one, and then look at its entry in the
     // children[].
     //
-    // Note: The read_critical_section contains the version information
-    // that must be valid to use the KB and CI data read from the NP.
-    // The CS information is cached when when those data are read from
-    // the NP along with the KB and CI values that were read.
-    using stack_entry = std::tuple
-      < detail::olc_node_ptr  // node pointer (NP)
-      , std::byte             // key byte     (KB)
-      , std::uint8_t          // child-index  (CI)
-      , version_tag           // The NP version tag invariant
-      >;
-  
-    static constexpr int NP = 0; // node pointer
-    static constexpr int KB = 1; // key byte
-    static constexpr int CI = 2; // child_index
-    static constexpr int VT = 3; // version tag
+    // The [tag] is the [version_tag] from the read_critical_section
+    // and contains the version information that must be valid to use
+    // the [key_byte] and [child_index] data read from the [node].
+    // The version tag is cached when when those data are read from
+    // the node along with the [key_byte] and [child_index] values
+    // that were read.
+    struct stack_entry : public detail::olc_inode_base::iter_result {
 
+      // The version tag invariant for the node.
+      version_tag version;
+      
+      [[nodiscard]] inline bool operator==(const stack_entry& other) const noexcept {
+        return node == other.node
+            && key_byte == other.key_byte
+            && child_index == other.child_index
+            && version == other.version;
+      }
+    };
+  
    protected:
     
     // Construct an empty iterator.
@@ -350,7 +353,7 @@ class olc_db final {
     void push( const detail::olc_inode_base::iter_result& e,
                optimistic_lock::read_critical_section& rcs
                ) noexcept {
-      push( std::get<NP>(e), std::get<KB>(e), std::get<CI>(e), rcs );
+      push( e.node, e.key_byte, e.child_index, rcs );
     }
     
     // Push an entry onto the stack.
@@ -388,7 +391,7 @@ class olc_db final {
     detail::olc_node_ptr current_node() noexcept {
       return stack_.empty()
           ? detail::olc_node_ptr(nullptr)
-          : std::get<NP>( stack_.top() );
+          : stack_.top().node
       ;
     }
 
@@ -784,7 +787,7 @@ inline std::optional<const unodb::key> olc_db::iterator::get_key() noexcept {
   // are stored directly in the leaves.
   if ( ! valid() ) return {}; // not positioned on anything.
   const auto& e = stack_.top();
-  const auto& node = std::get<NP>( e );
+  const auto& node = e.node;
   UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
   const auto *const aleaf{ node.ptr<detail::olc_leaf *>() }; // current leaf.
   key_ = aleaf->get_key().decode(); // decode the key into the iterator's buffer
@@ -799,7 +802,7 @@ inline std::optional<const value_view> olc_db::iterator::get_val()
   //
   if ( ! valid() ) return {}; // not positioned on anything.
   const auto& e = stack_.top();
-  const auto& node = std::get<NP>( e );
+  const auto& node = e.node;
   UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF ); // On a leaf.
   const auto *const aleaf{ node.ptr<detail::olc_leaf *>() }; // current leaf.
   return aleaf->get_value_view();
@@ -825,7 +828,7 @@ inline int olc_db::iterator::cmp(const detail::art_key& akey) const noexcept {
   // bound case when developing variable length key support based on
   // the maintained key buffer.
   UNODB_DETAIL_ASSERT( !stack_.empty() );
-  auto node = std::get<NP>( stack_.top() );
+  auto& node = stack_.top().node;
   UNODB_DETAIL_ASSERT( node.type() == node_type::LEAF);
   const auto *const leaf{node.ptr<detail::olc_leaf *>()};
   return leaf->get_key().cmp( akey );

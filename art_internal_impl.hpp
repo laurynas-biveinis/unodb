@@ -14,7 +14,6 @@
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
-#include <tuple> // iter_result
 
 #ifdef UNODB_DETAIL_X86_64
 #include <emmintrin.h>
@@ -622,9 +621,9 @@ class basic_inode_impl : public ArtPolicy::header_type {
   // A tuple that is returned by the iterator visitation pattern which
   // represents the path in the tree for an internal node.
   //
-  // Note: The node pointer is either an internal node or a leaf.
+  // Note: The node is a pointer to either an internal node or a leaf.
   //
-  // Note: The key byte is the byte from the key that was consumed as
+  // Note: The key_byte is the byte from the key that was consumed as
   // you step down to the child node. This is the same as the child
   // index (if you convert std::uint8_t to std::byte) for N48 and
   // N256, but it is different for N4 and N16 since they use a sparse
@@ -637,16 +636,18 @@ class basic_inode_impl : public ArtPolicy::header_type {
   // Overflow for the child_index can only occur for N48 and N256.
   // When overflow happens, the iter_result is not defined and the
   // outer std::optional will return false.
-  using iter_result = std::tuple
-      < node_ptr        // node pointer (NP)
-      , std::byte       // key byte     (KB)
-      , std::uint8_t    // child-index  (CI)
-      >;
+  struct iter_result {
+    node_ptr node;             // node pointer
+    std::byte key_byte;        // key byte
+    std::uint8_t child_index;  // child-index
+    
+    [[nodiscard]] constexpr bool operator==(const iter_result& other) const noexcept {
+      return node == other.node
+          && key_byte == other.key_byte
+          && child_index == other.child_index;
+    }    
+  };
   using iter_result_opt = std::optional< iter_result >;
-  
-  static constexpr int NP = 0; // node pointer
-  static constexpr int KB = 1; // key byte
-  static constexpr int CI = 2; // child_index
   
  protected:
   using inode_type = typename ArtPolicy::inode;

@@ -283,22 +283,43 @@ namespace unodb {
 class olc_db;
 class db;
 
-  // Alias for an object visited by the scan_api.
-  template <typename Iterator>
-  class visitor {
-    friend class olc_db;
-    friend class db;
-   protected:
-    Iterator& it;
-    explicit visitor(Iterator& it_) : it(it_) {}
-   public:
-    // visit the (decoded) key.
-    inline auto get_key() const noexcept {return it.get_key().value();}
-    // visit the value.
-    inline auto get_value() const noexcept {return it.get_val().value();}
-    // TEST ONLY
-    inline void dump(std::ostream& os) noexcept {it.dump(os);}
-  };
+// An object visited by the scan API.  The visitor passed to the
+// caller's lambda by the scan for each index entry visited by the
+// scan.
+template <typename Iterator>
+class visitor {
+  friend class olc_db;
+  friend class db;
+ protected:
+  Iterator& it;
+  explicit visitor(Iterator& it_) : it(it_) {}
+ public:
+
+  // Visit the (decoded) key.
+  //
+  // Note: The lambda MUST NOT export a reference to the visited key.
+  // If you want to access the visited key outside of the scope of a
+  // single lambda invocation, then you must make a copy of the data.
+  //
+  // Note: Key decoding can be expensive and its utility is limited to
+  // simple primitive keys.  In particular, key decoding is not well
+  // defined for Unicode data in keys.
+  //
+  // TODO(thompsonbry) Variable length keys: We need to define a
+  // visitor method to visit the internal key buffer without any
+  // decoding.
+  inline auto get_key() const noexcept {return it.get_key().value();}
+
+  // Visit the value.
+  //
+  // Note: The lambda MUST NOT export a reference to the visited
+  // value.  If you to access the value outside of the scope of a
+  // single lambda invocation, then you must make a copy of the data.
+  inline auto get_value() const noexcept {return it.get_val().value();}
+
+  // TEST ONLY
+  inline void dump(std::ostream& os) noexcept {it.dump(os);}
+};
  
 }
 

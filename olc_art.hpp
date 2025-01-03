@@ -252,6 +252,14 @@ class olc_db final {
     struct stack_entry : public detail::olc_inode_base::iter_result {
 
       // The version tag invariant for the node.
+      //
+      // Note: This is just the data for the version_tag and not the
+      // read_critical_section (RCS).  Moving the RCS onto the stack
+      // creates problems in the while(...) loops that use parent and
+      // node lock chaining since the RCS in the loop is invalid as
+      // soon as it is moved onto the stack.  Hence, this is just the
+      // data and the while loops continue to use the normal OLC
+      // pattern for lock chaining.
       version_tag version;
       
       [[nodiscard]] inline bool operator==(const stack_entry& other) const noexcept {

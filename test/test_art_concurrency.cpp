@@ -111,8 +111,7 @@ class ARTConcurrencyTest : public ::testing::Test {
           auto fn = [&n, &sum](unodb::visitor<typename Db::iterator> &v) {
             n++;
             sum += v.get_key();
-            std::ignore =
-                v.get_value();  // TODO Does this ensure that the value is read?
+            std::ignore = v.get_value();
             return false;
           };
           auto fromKey = (key > 100) ? (key - 100) : key;
@@ -159,8 +158,7 @@ class ARTConcurrencyTest : public ::testing::Test {
           auto fn = [&n, &sum](unodb::visitor<typename Db::iterator> &v) {
             n++;
             sum += v.get_key();
-            std::ignore =
-                v.get_value();  // TODO Does this ensure that the value is read?
+            std::ignore = v.get_value();
             return false;
           };
           auto fromKey = (key > 100) ? (key - 100) : key;
@@ -170,8 +168,6 @@ class ARTConcurrencyTest : public ::testing::Test {
           } else {
             verifier->get_db().scan_range(toKey, fromKey, fn);  // reverse scan
           }
-          // std::cerr<<"scan: fromKey="<<fromKey<<", toKey="<<toKey<<",
-          // n="<<n<<", sum="<<sum<<std::endl;
           break;
         }
         default:

@@ -1,7 +1,11 @@
 ---
 name: build-with-old-compilers
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 env:
   DEFAULT_SANITIZE_ADDRESS: OFF

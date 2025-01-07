@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2024 Laurynas Biveinis
+// Copyright (C) 2019-2025 Laurynas Biveinis
 #ifndef UNODB_DETAIL_QSBR_HPP
 #define UNODB_DETAIL_QSBR_HPP
 
@@ -58,7 +58,9 @@ namespace unodb {
 // constitute a quiescent period, and an epoch change happens at its boundary.
 // At that point all the pending deallocation requests queued before the
 // start of the just-finished quiescent period can be safely executed.
-
+//
+// For a usage example, see example/example_olc_art.cpp.
+//
 // The implementation borrows some of the basic ideas from
 // https://preshing.com/20160726/using-quiescent-states-to-reclaim-memory/
 
@@ -801,6 +803,13 @@ class qsbr final {
     const auto current_state = get_state();
     qsbr_state::assert_invariants(current_state);
     UNODB_DETAIL_ASSERT(qsbr_state::get_thread_count(current_state) <= 1);
+    // Quitting threads may race with epoch changes by design, resulting in
+    // previous epoch orphaned requests not being executed until epoch
+    // changes one more time. If that does not happen, this assert may fire at
+    // the process exit time. While it is possible to handle this silently, by
+    // executing the requests then, this may also result in some memory being
+    // held too long. Thus users are advised to pass through Q state in the
+    // last thread a couple more times at the end.
     UNODB_DETAIL_ASSERT(previous_interval_orphaned_requests_empty());
     UNODB_DETAIL_ASSERT(current_interval_orphaned_requests_empty());
     detail::deallocation_request::assert_zero_instances();
@@ -983,10 +992,10 @@ inline void qsbr_per_thread::advance_last_seen_epoch(
   // NOLINTNEXTLINE(readability-simplify-boolean-expr)
   UNODB_DETAIL_ASSERT(
       new_seen_epoch == last_seen_epoch.advance()
-      // The current thread is 1) quitting; 2) not having seen
-      // the current epoch yet; 3) it quitting will cause an
-      // epoch advance
+      // The current thread is 1) quitting; 2) not having seen the current epoch
+      // yet; 3) it quitting will cause an epoch advance
       || (!single_thread_mode && new_seen_epoch == last_seen_epoch.advance(2)));
+
   update_requests(single_thread_mode, new_seen_epoch,
                   std::move(new_current_requests));
 }

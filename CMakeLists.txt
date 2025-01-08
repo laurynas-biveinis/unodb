@@ -308,11 +308,19 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_package(Threads REQUIRED)
 
-find_package(Boost REQUIRED)
 # TODO(laurynas): once the minimum CMake version is at least 3.13, convert to a
 # find_package(Boost) component check
-find_file(HAS_BOOST_STACKTRACE_HPP boost/stacktrace.hpp
-  PATHS "${Boost_INCLUDE_DIRS}")
+find_package(Boost)
+
+if(STATS AND NOT Boost_FOUND)
+  message(FATAL_ERROR
+    "Building with stats requires Boost, install it or use -DSTATS=OFF")
+endif()
+
+if(Boost_FOUND)
+  find_file(HAS_BOOST_STACKTRACE_HPP boost/stacktrace.hpp
+    PATHS "${Boost_INCLUDE_DIRS}")
+endif()
 
 if(HAS_BOOST_STACKTRACE_HPP)
   if (is_gxx AND NOT is_darwin)
@@ -694,15 +702,23 @@ endfunction()
 
 add_library(unodb_util INTERFACE)
 target_include_directories(unodb_util INTERFACE ".")
-target_include_directories(unodb_util SYSTEM INTERFACE "${Boost_INCLUDE_DIRS}")
+if(Boost_FOUND)
+  target_include_directories(unodb_util SYSTEM INTERFACE
+    "${Boost_INCLUDE_DIRS}")
+endif()
 
 add_unodb_library(unodb_qsbr qsbr.cpp qsbr.hpp qsbr_ptr.cpp qsbr_ptr.hpp)
-target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
-target_link_libraries(unodb_qsbr PRIVATE "${Boost_LIBRARIES}")
+if(Boost_FOUND)
+  target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
+  target_link_libraries(unodb_qsbr PRIVATE "${Boost_LIBRARIES}")
+endif()
 target_link_libraries(unodb_qsbr PUBLIC unodb_util Threads::Threads)
 if(LIBFUZZER_AVAILABLE)
-  target_include_directories(unodb_qsbr_lf SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
-  target_link_libraries(unodb_qsbr_lf PRIVATE "${Boost_LIBRARIES}")
+  if(Boost_FOUND)
+    target_include_directories(unodb_qsbr_lf SYSTEM PUBLIC
+      "${Boost_INCLUDE_DIRS}")
+    target_link_libraries(unodb_qsbr_lf PRIVATE "${Boost_LIBRARIES}")
+  endif()
   target_link_libraries(unodb_qsbr_lf PUBLIC unodb_util Threads::Threads)
 endif()
 

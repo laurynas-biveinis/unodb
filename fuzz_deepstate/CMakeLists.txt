@@ -1,4 +1,4 @@
-# Copyright 2021 Laurynas Biveinis
+# Copyright 2021-2025 Laurynas Biveinis
 
 enable_testing()
 
@@ -8,7 +8,7 @@ function(COMMON_DEEPSTATE_TARGET_PROPERTIES TARGET)
     common_target_properties(${TARGET} SKIP_CHECKS)
     target_link_libraries(${TARGET} PRIVATE deepstate_lf)
     target_compile_options(${TARGET} PRIVATE "-fsanitize=fuzzer-no-link")
-    target_link_libraries(${TARGET} PRIVATE "-fsanitize=fuzzer")
+    target_link_options(${TARGET} PRIVATE "-fsanitize=fuzzer")
   else()
     common_target_properties(${TARGET})
     target_link_libraries(${TARGET} PRIVATE deepstate)

@@ -1,5 +1,10 @@
-# Copyright 2019-2024 Laurynas Biveinis
-cmake_minimum_required(VERSION 3.12)
+# Copyright 2019-2025 Laurynas Biveinis
+cmake_minimum_required(VERSION 3.13)
+
+# Set to new once Boost 1.70 is the minimum oldest version
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 OLD)
+endif()
 
 project(unodb VERSION 0.1
   DESCRIPTION "unodb key-value store library"
@@ -308,45 +313,30 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_package(Threads REQUIRED)
 
-# TODO(laurynas): once the minimum CMake version is at least 3.13, convert to a
-# find_package(Boost) component check
-find_package(Boost)
+find_package(Boost
+  OPTIONAL_COMPONENTS stacktrace_basic stacktrace_backtrace stacktrace_windbg)
 
 if(STATS AND NOT Boost_FOUND)
   message(FATAL_ERROR
     "Building with stats requires Boost, install it or use -DSTATS=OFF")
 endif()
 
-if(Boost_FOUND)
-  find_file(HAS_BOOST_STACKTRACE_HPP boost/stacktrace.hpp
-    PATHS "${Boost_INCLUDE_DIRS}")
-endif()
-
-if(HAS_BOOST_STACKTRACE_HPP)
+if(Boost_STACKTRACE_BACKTRACE_FOUND)
+  message(STATUS "Boost.Stacktrace built with libbacktrace support, using it.")
+  set(USE_BOOST_STACKTRACE ON)
+elseif(Boost_STACKTRACE_WINDBG_FOUND)
+  message(STATUS "Boost.Stacktrace built with WinDbg support, using it.")
+  set(USE_BOOST_STACKTRACE ON)
+elseif(Boost_STACKTRACE_BASIC_FOUND)
   if (is_gxx AND NOT is_darwin)
-    set(ORIG_CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES})
-    set(ORIG_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
-    list(APPEND CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS})
-    list(APPEND CMAKE_REQUIRED_LIBRARIES ${Boost_LIBRARIES} backtrace)
-    check_cxx_source_compiles("
-#define BOOST_STACKTRACE_USE_BACKTRACE
-#include <boost/stacktrace.hpp>
-int main() {
-  boost::stacktrace::stacktrace st;
-  return st.size(); }" HAS_BOOST_STACKTRACE_USE_STACKTRACE)
-    set(CMAKE_REQUIRED_INCLUDES ${ORIG_CMAKE_REQUIRED_INCLUDES})
-    set(CMAKE_REQUIRED_LIBRARIES ${ORIG_CMAKE_REQUIRED_LIBRARIES})
-    if(HAS_BOOST_STACKTRACE_USE_STACKTRACE)
-      message(STATUS "boost/stacktrace.hpp found and Boost.Stacktrace built with libbacktrace support, using it.")
-    else()
-      message(STATUS "boost/stacktrace.hpp found but Boost.Stacktrace built without libbacktrace support, not using it.")
-      set(HAS_BOOST_STACKTRACE_HPP FALSE)
-    endif()
+    message(STATUS "Boost.Stacktrace built without libbacktrace support, not using it.")
+    set(USE_BOOST_STACKTRACE OFF)
   else()
-    message(STATUS "boost/stacktrace.hpp found, using Boost.Stacktrace")
+    message(STATUS "Using Boost.Stacktrace without libbacktrace support.")
+    set(USE_BOOST_STACKTRACE ON)
   endif()
 else()
-  message(STATUS "boost/stacktrace.hpp not found, not using Boost.Stacktrace")
+  set(USE_BOOST_STACKTRACE OFF)
 endif()
 
 string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
@@ -498,7 +488,7 @@ set(is_gxx_ge_11 "$<AND:${is_gxx_genex},${cxx_ge_11}>")
 set(is_gxx_ge_12 "$<AND:${is_gxx_genex},${cxx_ge_12}>")
 set(is_gxx_ge_14 "$<AND:${is_gxx_genex},${cxx_ge_14}>")
 set(has_avx2 "$<BOOL:${AVX2}>")
-set(has_boost_stacktrace "$<BOOL:${HAS_BOOST_STACKTRACE_HPP}>")
+set(use_boost_stacktrace "$<BOOL:${USE_BOOST_STACKTRACE}>")
 set(with_stats "$<BOOL:${STATS}>")
 set(fatal_warnings_on "$<BOOL:${MAINTAINER_MODE}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
@@ -615,7 +605,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
   target_compile_definitions(${TARGET} PRIVATE
     "$<${is_standalone}:UNODB_DETAIL_STANDALONE>"
-    "$<${has_boost_stacktrace}:UNODB_DETAIL_BOOST_STACKTRACE>"
+    "$<${use_boost_stacktrace}:UNODB_DETAIL_BOOST_STACKTRACE>"
     "$<${with_stats}:UNODB_DETAIL_WITH_STATS>"
     "UNODB_SPINLOCK_LOOP_VALUE=${SPINLOCK_LOOP_VALUE}")
   target_compile_options(${TARGET} PRIVATE
@@ -643,12 +633,11 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<$<AND:${is_release_genex},${is_not_windows}>:$<IF:${coverage_on},-O0,-O3>>"
     # Misc
     "$<${coverage_on}:--coverage>")
-  # Change to target_link_options on 3.13 minimum CMake version
-  target_link_libraries(${TARGET} INTERFACE "$<${coverage_on}:--coverage>")
+  target_link_options(${TARGET} INTERFACE "$<${coverage_on}:--coverage>")
+  target_link_options(${TARGET} PRIVATE "${SANITIZER_LD_FLAGS}")
   target_link_libraries(${TARGET} PRIVATE
-    "${SANITIZER_LD_FLAGS}"
     "$<${is_linux}:${CMAKE_DL_LIBS}>"
-    "$<$<AND:${is_linux},${is_gxx_genex},${has_boost_stacktrace}>:backtrace>")
+    "$<$<AND:${is_linux},${is_gxx_genex},${use_boost_stacktrace}>:backtrace>")
   if(IPO_SUPPORTED)
     set_target_properties(${TARGET} PROPERTIES
       INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
@@ -703,21 +692,20 @@ endfunction()
 add_library(unodb_util INTERFACE)
 target_include_directories(unodb_util INTERFACE ".")
 if(Boost_FOUND)
-  target_include_directories(unodb_util SYSTEM INTERFACE
-    "${Boost_INCLUDE_DIRS}")
+  target_include_directories(unodb_util SYSTEM INTERFACE ${Boost_INCLUDE_DIRS})
 endif()
 
 add_unodb_library(unodb_qsbr qsbr.cpp qsbr.hpp qsbr_ptr.cpp qsbr_ptr.hpp)
 if(Boost_FOUND)
-  target_include_directories(unodb_qsbr SYSTEM PUBLIC "${Boost_INCLUDE_DIRS}")
-  target_link_libraries(unodb_qsbr PRIVATE "${Boost_LIBRARIES}")
+  target_include_directories(unodb_qsbr SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
+  target_link_libraries(unodb_qsbr PRIVATE ${Boost_LIBRARIES})
 endif()
 target_link_libraries(unodb_qsbr PUBLIC unodb_util Threads::Threads)
 if(LIBFUZZER_AVAILABLE)
   if(Boost_FOUND)
     target_include_directories(unodb_qsbr_lf SYSTEM PUBLIC
-      "${Boost_INCLUDE_DIRS}")
-    target_link_libraries(unodb_qsbr_lf PRIVATE "${Boost_LIBRARIES}")
+      ${Boost_INCLUDE_DIRS})
+    target_link_libraries(unodb_qsbr_lf PRIVATE ${Boost_LIBRARIES})
   endif()
   target_link_libraries(unodb_qsbr_lf PUBLIC unodb_util Threads::Threads)
 endif()
@@ -740,7 +728,7 @@ enable_testing()
 
 add_unodb_library(unodb_test test_heap.cpp)
 target_link_libraries(unodb_test PUBLIC unodb_util)
-target_link_libraries(unodb_test PRIVATE "${Boost_LIBRARIES}")
+target_link_libraries(unodb_test PRIVATE ${Boost_LIBRARIES})
 
 function(add_sanitized_test)
   cmake_parse_arguments(AST "" "NAME" "COMMAND" ${ARGN})

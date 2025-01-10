@@ -416,34 +416,36 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: make -j3
+        run: make -j3 -k
         if: env.STATIC_ANALYSIS != 'ON' || env.COMPILER != 'clang'
 
       - name: clang static analysis
         working-directory: ${{github.workspace}}/build
         run: |
           /usr/bin/scan-build-19 --status-bugs -stats -analyze-headers \
-            --force-analyze-debug-code make -j3;
+            --force-analyze-debug-code make -j3 -k;
         if: env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang'
 
       - name: Examples
         working-directory: ${{github.workspace}}/build
-        run: make examples
+        run: make -k examples
         if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
 
       - name: Correctness test
         working-directory: ${{github.workspace}}/build
+        env:
+          GTEST_ALSO_RUN_DISABLED_TESTS: 1
         run: ctest -j3 -V
         if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
 
       - name: Benchmark correctness test
         working-directory: ${{github.workspace}}/build
-        run: make quick_benchmarks
+        run: make -k quick_benchmarks
         if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
 
       - name: DeepState 1 minute fuzzing
         working-directory: ${{github.workspace}}/build
-        run: make -j2 deepstate_1m
+        run: make -k -j2 deepstate_1m
         if: >
           env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
           && (runner.os != 'macOS'
@@ -451,7 +453,7 @@ jobs:
 
       - name: DeepState libfuzzer 1 minute fuzzing
         working-directory: ${{github.workspace}}/build
-        run: make -j2 deepstate_lf_1m
+        run: make -k -j2 deepstate_lf_1m
         if: >
           env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
           && env.COMPILER == 'clang' && env.BUILD_TYPE != 'Release'
@@ -462,7 +464,7 @@ jobs:
         run: |
           sudo apt-get install -y libc6-dbg
           sudo snap install --classic valgrind
-          make valgrind
+          make -k valgrind
         if: >
           env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'
           && env.SANITIZE_UB != 'ON' && env.STATIC_ANALYSIS != 'ON'
@@ -471,7 +473,7 @@ jobs:
       - name: Gather coverage data
         working-directory: ${{github.workspace}}/build
         run: |
-          make -j3 coverage
+          make -k -j3 coverage
         if: env.COVERAGE == 'ON'
 
       - name: Upload coverage data

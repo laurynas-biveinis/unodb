@@ -1,4 +1,4 @@
-// Copyright 2021-2024 Laurynas Biveinis
+// Copyright 2021-2025 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -91,7 +91,9 @@ class ARTConcurrencyTest : public ::testing::Test {
     for (decltype(ops_per_thread) i = 0; i < ops_per_thread; ++i) {
       switch (thread_i % 3) {
         case 0: /* insert */
-          verifier->try_insert(key, unodb::test::test_value_1);
+          verifier->try_insert(
+              key,
+              unodb::test::test_values[key % unodb::test::test_values.size()]);
           break;
         case 1: /* remove */
           verifier->try_remove(key);
@@ -99,8 +101,10 @@ class ARTConcurrencyTest : public ::testing::Test {
         case 2: /* get */
           verifier->try_get(key);
           break;
+          // LCOV_EXCL_START
         default:
           UNODB_DETAIL_CANNOT_HAPPEN();
+          // LCOV_EXCL_STOP
       }
       key++;
     }
@@ -117,7 +121,9 @@ class ARTConcurrencyTest : public ::testing::Test {
       const auto key{key_generator(gen)};
       switch (thread_i % 3) {
         case 0: /* insert */
-          verifier->try_insert(key, unodb::test::test_value_2);
+          verifier->try_insert(
+              key,
+              unodb::test::test_values[key % unodb::test::test_values.size()]);
           break;
         case 1: /* remove */
           verifier->try_remove(key);
@@ -125,8 +131,10 @@ class ARTConcurrencyTest : public ::testing::Test {
         case 2: /* get */
           verifier->try_get(key);
           break;
+          // LCOV_EXCL_START
         default:
           UNODB_DETAIL_CANNOT_HAPPEN();
+          // LCOV_EXCL_STOP
       }
     }
   }
@@ -188,7 +196,18 @@ TYPED_TEST(ARTConcurrencyTest, Node256ParallelOps) {
 TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGet) {
   constexpr auto thread_count = 4 * 3;
   constexpr auto initial_keys = 2048;
-  constexpr auto ops_per_thread = 10000;
+  constexpr auto ops_per_thread = 10'000;
+
+  this->verifier.insert_key_range(0, initial_keys, true);
+  this->template parallel_test<thread_count, ops_per_thread>(
+      TestFixture::random_op_thread);
+}
+
+// Disabled by default to keep local test runs quick. CI runs this test.
+TYPED_TEST(ARTConcurrencyTest, DISABLED_ParallelRandomInsertDeleteStressGet) {
+  constexpr auto thread_count = 16 * 3;
+  constexpr auto initial_keys = 152;
+  constexpr auto ops_per_thread = 1'000'000;
 
   this->verifier.insert_key_range(0, initial_keys, true);
   this->template parallel_test<thread_count, ops_per_thread>(

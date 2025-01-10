@@ -100,6 +100,8 @@ jobs:
             && (matrix.preset != 'msvc-static-analysis-debug')
 
       - name: Correctness test
+        env:
+          GTEST_ALSO_RUN_DISABLED_TESTS: 1
         run: ctest -V --preset "${{ matrix.preset }}"
         if: >
             (matrix.preset != 'msvc-static-analysis-release')

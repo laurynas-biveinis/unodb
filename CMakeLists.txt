@@ -1,5 +1,5 @@
 # Copyright 2019-2025 Laurynas Biveinis
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.14)
 
 # Set to new once Boost 1.70 is the minimum oldest version
 if(POLICY CMP0167)
@@ -30,6 +30,17 @@ set_bool(is_apple_clang "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 set_bool(is_clang "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 set_bool(is_gxx "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 set_bool(is_any_clang ${is_apple_clang} OR ${is_clang})
+
+# Cannot push the top level condition to set_bool because an empty variable
+# would expand to an empty token
+if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT)
+  set_bool(is_msvc_clang ${is_clang}
+    AND ("${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"))
+else()
+  set(is_msvc_clang OFF)
+endif()
+
+set_bool(is_not_msvc_clang ${is_clang} AND NOT ${is_msvc_clang})
 
 option(STANDALONE
   "Build UnoDB not for linking with outside code. Enables extra global checks")
@@ -356,9 +367,7 @@ macro(ADD_CXX_FLAGS_FOR_SUBDIR)
   if(MSVC)
     string(APPEND CMAKE_CXX_FLAGS " " "${MSVC_WARNING_FLAGS_FOR_SUBDIR_STR}")
   endif()
-  # Change to CMAKE_CXX_COMPILER_FRONTEND_VARIANT on  3.14.
-  if(NOT MSVC AND is_clang
-      AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14.0)
+  if(is_not_msvc_clang AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14.0)
     string(APPEND CMAKE_CXX_FLAGS " " "${CLANG_GE_14_CXX_FLAGS}")
   endif()
   string(APPEND CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
@@ -471,7 +480,7 @@ set(is_clang_genex "$<CXX_COMPILER_ID:Clang>")
 set(is_any_clang_genex "$<CXX_COMPILER_ID:AppleClang,Clang>")
 set(is_msvc "$<CXX_COMPILER_ID:MSVC>")
 # This condition is incorrect due to clang-cl having clang compiler ID but
-# taking MSVC flags. Change to CMAXE_CXX_COMPILER_FRONTEND_VARIANT on 3.14
+# taking MSVC flags. Change to use $<CXX_COMPILER_FRONTEND_VARIANT> on 3.30
 set(is_clang_cl "$<AND:${is_windows_genex},${is_clang_genex}>")
 set(is_any_msvc "$<OR:${is_msvc},${is_clang_cl}>")
 set(is_x86_64_any_msvc "$<AND:${is_any_msvc},${is_windows_x86_64}>")
@@ -654,8 +663,8 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     endif()
     if(STATIC_ANALYSIS)
       # The condition below is incorrect due to clang-cl having clang compiler
-      # ID but taking MSVC flags. Change to CMAKE_CXX_COMPILER_FRONTEND_VARIANT
-      # on 3.14.
+      # ID but taking MSVC flags. Change to $<CXX_COMPILER_FRONTEND_VARIANT>
+      # on 3.30.
       target_compile_options(${TARGET} PRIVATE
         "$<IF:${is_msvc},${MSVC_STATIC_ANALYSIS_FLAGS},-fanalyzer>"
         # GCC 12 -fanalyzer not fully ready for C++ yet

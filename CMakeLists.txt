@@ -1,5 +1,5 @@
 # Copyright 2019-2025 Laurynas Biveinis
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.15)
 
 # Set to new once Boost 1.70 is the minimum oldest version
 if(POLICY CMP0167)
@@ -136,11 +136,6 @@ else()
 endif()
 
 option(STATS "Whether to compile in the statistics counters" ON)
-
-if(MSVC)
-  # Remove it once CMake minimum is bumped to 3.15 or greater
-  string(REGEX REPLACE "/W3" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-endif()
 
 # Disable the following warnings for MSVC:
 # - "C4324: '...': structure was padded due to alignment specifier"

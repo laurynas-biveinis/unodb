@@ -1,5 +1,5 @@
 # Copyright 2019-2025 Laurynas Biveinis
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.16)
 
 # Set to new once Boost 1.70 is the minimum oldest version
 if(POLICY CMP0167)

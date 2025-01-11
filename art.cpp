@@ -459,6 +459,10 @@ void db::dump(std::ostream &os) const {
   detail::art_policy::dump_node(os, root);
 }
 
+// LCOV_EXCL_START
+void db::dump() const { dump(std::cerr); }
+// LCOV_EXCL_STOP
+
 ///
 /// unodb::db::iterator
 ///
@@ -488,6 +492,8 @@ void db::iterator::dump(std::ostream &os) const {
     level--;
   }
 }
+
+void db::iterator::dump() const { dump(std::cerr); }
 // LCOV_EXCL_STOP
 
 // Traverse to the left-most leaf. The stack is cleared first and then

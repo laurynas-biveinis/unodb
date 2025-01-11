@@ -42,11 +42,12 @@ class ARTScanTest : public ::testing::Test {
 // used with conditional compilation for debug.
 //
 // LCOV_EXCL_START
-[[maybe_unused]] void dump(const std::vector<unodb::key>& x) {
+[[maybe_unused]] void dump(
+    const std::vector<std::pair<unodb::key, unodb::value_view>>& x) {
   std::cerr << "[";
   auto it = x.begin();
   while (it != x.end()) {
-    std::cerr << *it << " ";
+    std::cerr << "(" << (*it).first << ") ";
     it++;
   }
   std::cerr << "]\n";
@@ -77,20 +78,24 @@ void do_scan_range_test(const unodb::key from_key, const unodb::key to_key,
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   // Insert odd keys into the database and into an ordered container.
-  std::vector<unodb::key> expected{};
+  std::vector<std::pair<unodb::key, unodb::value_view>> expected{};
   if (from_key < to_key) {
     for (uint64_t i = 1; i < limit; i += 2) {
-      verifier.insert(i, unodb::test::test_values[0]);
+      const auto val =
+          unodb::test::test_values[i % unodb::test::test_values.size()];
+      verifier.insert(i, val);
       if (i >= from_key && i < to_key) {
-        expected.push_back(i);
+        expected.emplace_back(i, val);
       }
     }
   } else {  // reverse scan
     for (auto i = static_cast<std::int64_t>(limit); i >= 0; i -= 2) {
       const auto j = static_cast<std::uint64_t>(i);
-      verifier.insert(j, unodb::test::test_values[0]);
+      const auto val =
+          unodb::test::test_values[j % unodb::test::test_values.size()];
+      verifier.insert(j, val);
       if (j <= from_key && j > to_key) {
-        expected.push_back(j);
+        expected.emplace_back(j, val);
       }
     }
   }
@@ -117,18 +122,21 @@ void do_scan_range_test(const unodb::key from_key, const unodb::key to_key,
       return true;  // halt early.
       // LCOV_EXCL_STOP
     }
-    const auto ekey = *eit;         // expected key to visit
-    const auto akey = v.get_key();  // actual key visited.
+    const auto ekey = (*eit).first;   // expected key to visit
+    const auto eval = (*eit).second;  // expected val to visit
+    const auto akey = v.get_key();    // actual key visited.
+    const auto aval = v.get_value();  // actual val visited.
     if constexpr (debug) {
       std::cerr << "nactual=" << nactual << ", ekey=" << ekey
                 << ", akey=" << akey << "\n";
     }
-    if (ekey != akey) {
+    if (akey != ekey) {
       // LCOV_EXCL_START
-      EXPECT_EQ(ekey, akey);
+      EXPECT_EQ(akey, ekey);
       return true;  // halt early.
       // LCOV_EXCL_STOP
     }
+    EXPECT_TRUE(unodb::test::SAME_SPAN(aval, eval));
     nactual++;     // count #of visited keys.
     eit++;         // advance iterator over the expected keys.
     return false;  // !halt (aka continue scan).

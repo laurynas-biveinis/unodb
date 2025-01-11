@@ -197,6 +197,7 @@ class qsbr_ptr_span {
   [[nodiscard]] constexpr bool operator==(gsl::span<T> other) const noexcept {
     if (length != other.size()) return false;      // element count differs?
     if (start.get() == other.data()) return true;  // same ptr and #of elements
+    if (length == 0) return true;                  // both empty (before ptrs)
     if (start.get() == nullptr || other.data() == nullptr) return false;
     return std::memcmp(start.get(), other.data(), length * sizeof(T)) == 0;
   }

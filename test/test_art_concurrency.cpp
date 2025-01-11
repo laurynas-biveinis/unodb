@@ -111,17 +111,11 @@ class ARTConcurrencyTest : public ::testing::Test {
       n++;
       const auto &akey = v.get_key();  // actual visited key.
       sum += akey;
-      // const auto expected =  // Note: same value formula as insert().
-      //     unodb::test::test_values[akey %
-      //                              unodb::test::test_values.size()];
-      // const auto actual = v.get_value();
-      // // LCOV_EXCL_START
-      // EXPECT_EQ(actual, expected)
-      //     << "fwd=" << fwd << ", key=" << akey
-      //     << ", k0=" << k0 << ", k1=" << k1
-      //     << ", expected=" << expected
-      //     << ", actual=" << actual
-      //     ;
+      const auto expected =  // Note: same value formula as insert().
+          unodb::test::test_values[akey % unodb::test::test_values.size()];
+      const auto actual = v.get_value();
+      // LCOV_EXCL_START
+      EXPECT_TRUE(unodb::test::SAME_SPAN(actual, expected));
       std::ignore = v.get_value();
       if (fwd) {  // [k0,k1) -- k0 is from_key, k1 is to_key
         EXPECT_TRUE(akey >= k0 && akey < k1)

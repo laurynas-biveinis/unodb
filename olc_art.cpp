@@ -1287,6 +1287,10 @@ void olc_db::dump(std::ostream &os) const {
   detail::olc_art_policy::dump_node(os, root.load());
 }
 
+// LCOV_EXCL_START
+void olc_db::dump() const { dump(std::cerr); }
+// LCOV_EXCL_STOP
+
 ///
 /// unodb::olc_db::iterator
 ///
@@ -1319,6 +1323,8 @@ void olc_db::iterator::dump(std::ostream &os) const {
     level--;
   }
 }
+
+void olc_db::iterator::dump() const { dump(std::cerr); }
 // LCOV_EXCL_STOP
 
 olc_db::iterator &olc_db::iterator::first() {

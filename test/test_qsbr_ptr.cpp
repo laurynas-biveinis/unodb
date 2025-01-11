@@ -249,6 +249,8 @@ TEST(QSBRPtrSpan, Equal) {
   const gsl::span<const T> spanx1{&vx1, 1};  // different ptr, same data
   const gsl::span<const T> span_empty{       // non-null, but zero len.
                                       &vx, static_cast<size_t>(0)};
+  const gsl::span<const T> span_empty2{// non-null, but zero len.
+                                       &vy, static_cast<size_t>(0)};
   const gsl::span<const T> span_null{
       // nullptr and zero len.
       static_cast<T*>(nullptr), static_cast<size_t>(0)};
@@ -265,17 +267,21 @@ TEST(QSBRPtrSpan, Equal) {
   //
   const unodb::qsbr_ptr_span qspanx{spanx};
   const unodb::qsbr_ptr_span qspan_empty{span_empty};
+  const unodb::qsbr_ptr_span qspan_empty2{span_empty2};
   const unodb::qsbr_ptr_span qspan_null{span_null};
   const unodb::qsbr_ptr_span qspan_null1{span_null};
   const unodb::qsbr_ptr_span qspan_two_values{span_two_values};
   //
   // Now compare qsbr_ptr instances to gsl::span instances.
   //
-  EXPECT_EQ(qspanx, spanx);                      // same ptr & len
-  EXPECT_EQ(qspanx, spanx1);                     // same data & len.
-  EXPECT_NE(qspanx, span_empty);                 // same ptr, different length.
-  EXPECT_NE(qspan_null, span_empty);             // null and zero-length span.
-  EXPECT_EQ(qspan_null, span_null);              // both null and zero-length.
+  EXPECT_EQ(qspanx, spanx);             // same ptr & len
+  EXPECT_EQ(qspanx, spanx1);            // same data & len.
+  EXPECT_NE(qspanx, span_empty);        // same ptr, different length.
+  EXPECT_EQ(qspan_empty, span_empty);   // same ptr, same length (empty)
+  EXPECT_EQ(qspan_empty, span_empty2);  // diff ptr, same length (empty)
+  EXPECT_EQ(qspan_empty2, span_empty);  // diff ptr, same length (empty).
+  EXPECT_EQ(qspan_null, span_empty);    // null and zero-length span.
+  EXPECT_EQ(qspan_null, span_null);     // both null and zero-length.
   EXPECT_EQ(qspan_two_values, span_two_values);  // same data & len
   EXPECT_NE(qspan_two_values, spanx);            // different len, same 1st val
 }

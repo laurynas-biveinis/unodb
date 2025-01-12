@@ -27,7 +27,7 @@ namespace unodb {
 inline void spin_wait_loop_body() noexcept {
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
 
-  std::this_thread::yield();
+  // std::this_thread::yield();
 
 #else  // UNODB_DETAIL_THREAD_SANITIZER
 

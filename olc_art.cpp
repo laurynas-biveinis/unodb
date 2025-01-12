@@ -884,12 +884,12 @@ olc_db::try_get_result_type olc_db::try_get(detail::art_key k) const noexcept {
 
   auto remaining_key{k};
 
-  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) {
-    // LCOV_EXCL_START
-    spin_wait_loop_body();
-    return {};
-    // LCOV_EXCL_STOP
-  }
+  // if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) {
+  //   // LCOV_EXCL_START
+  //   spin_wait_loop_body();
+  //   return {};
+  //   // LCOV_EXCL_STOP
+  // }
 
   while (true) {
     auto node_critical_section = node_ptr_lock(node).try_read_lock();

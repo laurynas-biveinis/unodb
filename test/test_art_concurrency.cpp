@@ -91,7 +91,9 @@ class ARTConcurrencyTest : public ::testing::Test {
     for (decltype(ops_per_thread) i = 0; i < ops_per_thread; ++i) {
       switch (thread_i % 3) {
         case 0: /* insert */
-          verifier->try_insert(key, unodb::test::test_value_1);
+          verifier->try_insert(
+              key,
+              unodb::test::test_values[key % unodb::test::test_values.size()]);
           break;
         case 1: /* remove */
           verifier->try_remove(key);
@@ -117,7 +119,9 @@ class ARTConcurrencyTest : public ::testing::Test {
       const auto key{key_generator(gen)};
       switch (thread_i % 3) {
         case 0: /* insert */
-          verifier->try_insert(key, unodb::test::test_value_2);
+          verifier->try_insert(
+              key,
+              unodb::test::test_values[key % unodb::test::test_values.size()]);
           break;
         case 1: /* remove */
           verifier->try_remove(key);
@@ -181,19 +185,68 @@ TYPED_TEST(ARTConcurrencyTest, Node48ParallelOps) {
   this->template key_range_op_test<32, 9, 32>();
 }
 
+// FIXME Is the #of OpsPerThread related to the conditions under which
+// the node would be replaced by a different root node?  And does that
+// change once SCAN is introduced as an operation?  It would seem that
+// the test conditions would likely be Ok since fewer operations would
+// be performed and presumably the OpsPerThread is a maximum before a
+// structural modification would result.
 TYPED_TEST(ARTConcurrencyTest, Node256ParallelOps) {
   this->template key_range_op_test<152, 9, 208>();
 }
 
-TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGet) {
+TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan) {
   constexpr auto thread_count = 4 * 3;
   constexpr auto initial_keys = 2048;
-  constexpr auto ops_per_thread = 10000;
+  constexpr auto ops_per_thread = 10'000;
 
   this->verifier.insert_key_range(0, initial_keys, true);
   this->template parallel_test<thread_count, ops_per_thread>(
       TestFixture::random_op_thread);
 }
+
+// A more challenging test using a smaller key range and the same
+// number of threads and operations per thread.  The goal of this test
+// is to try an increase coverage of the N256 case.
+TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan2) {
+  constexpr auto thread_count = 4 * 3;
+  constexpr auto initial_keys = 152;
+  constexpr auto ops_per_thread = 100'000;
+
+  this->verifier.insert_key_range(0, initial_keys, true);
+  this->template parallel_test<thread_count, ops_per_thread>(
+      TestFixture::random_op_thread);
+}
+
+// A more challenging test using an even smaller key range and the
+// same number of threads and operations per thread.  The goal of this
+// test is to try an increase coverage of the N48 case.
+TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan3) {
+  constexpr auto thread_count = 4 * 3;
+  constexpr auto initial_keys = 32;
+  constexpr auto ops_per_thread = 100'000;
+
+  this->verifier.insert_key_range(0, initial_keys, true);
+  this->template parallel_test<thread_count, ops_per_thread>(
+      TestFixture::random_op_thread);
+}
+
+// Optionally enable this for more confidence in debug builds. Set the
+// thread_count for your machine.  Fewer keys, more threads, and more
+// operations per thread is more challenging.
+//
+// LCOV_EXCL_START
+TYPED_TEST(ARTConcurrencyTest,
+           DISABLED_ParallelRandomInsertDeleteGetScanStressTest) {
+  constexpr auto thread_count = 48;
+  constexpr auto initial_keys = 152;
+  constexpr auto ops_per_thread = 10'000'000;
+
+  this->verifier.insert_key_range(0, initial_keys, true);
+  this->template parallel_test<thread_count, ops_per_thread>(
+      TestFixture::random_op_thread);
+}
+// LCOV_EXCL_STOP
 
 UNODB_END_TESTS()
 

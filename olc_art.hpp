@@ -138,36 +138,101 @@ class olc_db final {
   using value_view = unodb::qsbr_value_view;
   using get_result = std::optional<value_view>;
 
-  // Creation and destruction
-  olc_db() noexcept = default;
-
-  ~olc_db() noexcept;
-
-  // Querying for a value given a key.
-  [[nodiscard]] get_result get(key search_key) const noexcept;
-
-  // Return true iff the tree is empty (no root leaf).
-  [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
+ protected:
+  // Query for a value associated with a key.
+  [[nodiscard, gnu::pure]] get_result get0(
+      detail::art_key search_key) const noexcept;
 
   // Insert a value under a key iff there is no entry for that key.
   //
   // Note: Cannot be called during stack unwinding with
   // std::uncaught_exceptions() > 0
   //
-  // @return true if the key value pair was inserted.
-  //
-  // FIXME There should be a lambda variant of this to handle
-  // conflicts and support upsert or delete-upsert semantics. This
-  // would call the caller's lambda once the method was positioned on
-  // the leaf.  The caller could then update the value or perhaps
-  // delete the entry under the key.
-  [[nodiscard]] bool insert(key insert_key, unodb::value_view v);
+  // @return true iff the key value pair was inserted.
+  [[nodiscard]] bool insert0(detail::art_key insert_key, unodb::value_view v);
 
   // Remove the entry associated with the key.
   //
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
-  [[nodiscard]] bool remove(key remove_key);
+  [[nodiscard]] bool remove0(detail::art_key remove_key);
+
+ public:
+  // Creation and destruction
+  olc_db() noexcept = default;
+
+  ~olc_db() noexcept;
+
+  // Query for a value associated with a binary comparable key.
+  [[nodiscard, gnu::pure]] get_result get(key_view search_key) const noexcept {
+    detail::art_key k{search_key};
+    return get0(k);
+  }
+
+  // Query for a value associated with an external key.  The key is
+  // converted to a binary comparable key.
+  [[nodiscard, gnu::pure]]
+  typename std::enable_if<std::is_integral<key>::value, get_result>::type
+  get(key search_key) const noexcept {
+    const detail::art_key k{search_key};  // fast path conversion.
+    return get0(k);
+  }
+
+  // Return true iff the tree is empty (no root leaf).
+  [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
+
+  // Insert a value under a binary comparable key iff there is no
+  // entry for that key.
+  //
+  // Note: Cannot be called during stack unwinding with
+  // std::uncaught_exceptions() > 0
+  //
+  // @return true iff the key value pair was inserted.
+  //
+  // TODO(thompsonbry) There should be a lambda variant of this to
+  // handle conflicts and support upsert or delete-upsert
+  // semantics. This would call the caller's lambda once the method
+  // was positioned on the leaf.  The caller could then update the
+  // value or perhaps delete the entry under the key.
+  [[nodiscard, gnu::pure]] bool insert(key_view insert_key,
+                                       unodb::value_view v) {
+    detail::art_key k{insert_key};
+    return insert0(k, v);
+  }
+
+  // Insert a value under the key.  The key is converted to a binary
+  // comparable key.
+  //
+  // Note: Cannot be called during stack unwinding with
+  // std::uncaught_exceptions() > 0
+  //
+  // @return true iff the key value pair was inserted.
+  [[nodiscard, gnu::pure]]
+  typename std::enable_if<std::is_integral<key>::value, bool>::type
+  insert(key insert_key, unodb::value_view v) {
+    const detail::art_key k{insert_key};  // fast path conversion.
+    return insert0(k, v);
+  }
+
+  // Remove the entry associated with the binary comparable key.
+  //
+  // @return true if the delete was successful (i.e. the key was found
+  // in the tree and the associated index entry was removed).
+  [[nodiscard, gnu::pure]] bool remove(key_view search_key) {
+    detail::art_key k{search_key};
+    return remove0(k);
+  }
+
+  // Remove the entry associated with the key.
+  //
+  // @return true if the delete was successful (i.e. the key was found
+  // in the tree and the associated index entry was removed).
+  [[nodiscard, gnu::pure]]
+  typename std::enable_if<std::is_integral<key>::value, bool>::type
+  remove(key search_key) {
+    const detail::art_key k{search_key};  // fast path conversion.
+    return remove0(k);
+  }
 
   // Removes all entries in the index.
   //
@@ -258,6 +323,14 @@ class olc_db final {
     // the node along with the [key_byte] and [child_index] values
     // that were read.
     struct stack_entry : public detail::olc_inode_base::iter_result {
+      // The [prefix_len] is the number of bytes in the key prefix for
+      // [node].  When the node is pushed onto the stack, we also push
+      // [prefix_bytes] plus the [key_byte] onto a key_buffer.  We
+      // track how many bytes were pushed here (not including the
+      // key_byte) so we can pop off the correct number of bytes
+      // later.
+      detail::key_prefix_size prefix_len;
+
       // The version tag invariant for the node.
       //
       // Note: This is just the data for the version tag and not the
@@ -324,14 +397,17 @@ class olc_db final {
     // !valid() if there is no such entry.
     iterator& seek(detail::art_key search_key, bool& match, bool fwd = true);
 
-    // Iff the iterator is positioned on an index entry, then returns
-    // the decoded key associated with that index entry.
-    [[nodiscard]] std::optional<const key> get_key();
+    // Return the key_view associated with the current position of the
+    // iterator.
+    //
+    // Precondition: The iterator MUST be valid().
+    [[nodiscard]] key_view get_key();
 
-    // Iff the iterator is positioned on an index entry, then returns
-    // the value associated with that index entry.
-    [[nodiscard, gnu::pure]] std::optional<const qsbr_value_view> get_val()
-        const;
+    // Return the value_view associated with the current position of
+    // the iterator.
+    //
+    // Precondition: The iterator MUST be valid().
+    [[nodiscard, gnu::pure]] const qsbr_value_view get_val() const;
 
     // Debugging
     [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const;
@@ -355,33 +431,66 @@ class olc_db final {
     [[nodiscard]] bool empty() const { return stack_.empty(); }
 
     // Push an entry onto the stack.
-    //
-    // TODO(thompsonbry) handle variable length keys here.
-    void push(const detail::olc_inode_base::iter_result& e,
-              const optimistic_lock::read_critical_section& rcs) {
-      push(e.node, e.key_byte, e.child_index, rcs);
-    }
-
-    // Push an entry onto the stack.
-    void push(detail::olc_node_ptr node, std::byte key_byte,
-              std::uint8_t child_index,
-              const optimistic_lock::read_critical_section& rcs) {
-      stack_.push({{node, key_byte, child_index}, rcs.get()});
+    bool try_push(detail::olc_node_ptr node, std::byte key_byte,
+                  std::uint8_t child_index,
+                  optimistic_lock::read_critical_section& rcs) {
+      // For variable length keys we need to know the number of bytes
+      // associated with the node's key_prefix.  In addition there is
+      // one byte for the descent to the child node along the
+      // child_index.  That information needs to be stored on the
+      // stack so we can pop off the right number of bytes even for
+      // OLC where the node might be concurrently modified.
+      UNODB_DETAIL_ASSERT(node.type() != node_type::LEAF);
+      auto* inode{node.ptr<detail::olc_inode*>()};
+      auto prefix{inode->get_key_prefix().get_snapshot()};
+      // Check the RCS to make sure the snapshot of the key prefix is valid.
+      if (UNODB_DETAIL_UNLIKELY(!rcs.check())) {
+        return false;  // LCOV_EXCL_LINE
+      }
+      stack_.push({{node, key_byte, child_index}, prefix.size(), rcs.get()});
+      keybuf_.push(prefix.get_key_view());
+      keybuf_.push(key_byte);
+      return true;
     }
 
     // Push a leaf onto the stack.
-    void push_leaf(detail::olc_node_ptr aleaf,
-                   const optimistic_lock::read_critical_section& rcs) {
-      // Mock up an iter_result for the leaf. The [key] and
-      // [child_index] are ignored for a leaf.
-      push(aleaf, static_cast<std::byte>(0xFFU),
-           static_cast<std::uint8_t>(0xFFU), rcs);
+    bool try_push_leaf(detail::olc_node_ptr aleaf,
+                       optimistic_lock::read_critical_section& rcs) {
+      // The [key], [child_index] and [prefix_len] are ignored for a
+      // leaf.
+      //
+      // TODO(thompsonbry) variable length keys - we will need to
+      // handle a final variable length key prefix on the leaf here.
+      stack_.push({{aleaf,
+                    static_cast<std::byte>(0xFFU),      // key_byte
+                    static_cast<std::uint8_t>(0xFFU)},  // child_index
+                   0,                                   // prefix_len
+                   rcs.get()});
+      return true;
     }
 
-    // Pop an entry from the stack.
-    //
-    // TODO(thompsonbry) handle variable length keys here.
-    void pop() { stack_.pop(); }
+    // Push an entry onto the stack.
+    bool try_push(const detail::olc_inode_base::iter_result& e,
+                  optimistic_lock::read_critical_section& rcs) {
+      const auto node_type = e.node.type();
+      if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
+        return try_push_leaf(e.node, rcs);
+      }
+      return try_push(e.node, e.key_byte, e.child_index, rcs);
+    }
+
+    // Pop an entry from the stack and the corresponding bytes from
+    // the key_buffer.
+    void pop() {
+      // Note: We DO NOT need to check the RCS here.  The prefix_len
+      // on the stack is known to be valid at the time that the entry
+      // was pushed onto the stack and the stack and the keybuf are in
+      // sync with one another.  So we can just do a simple POP for
+      // each of them.
+      const auto prefix_len = top().prefix_len;
+      stack_.pop();
+      keybuf_.pop(prefix_len);
+    }
 
     // Return the entry (if any) on the top of the stack.
     [[nodiscard]] stack_entry& top() { return stack_.top(); }
@@ -438,21 +547,12 @@ class olc_db final {
     //
     std::stack<stack_entry> stack_{};
 
-    // A buffer into which visited keys are decoded and materialized
-    // by get_key().
-    //
-    // Note: The internal key is a sequence of unsigned bytes having
-    // the appropriate lexicographic ordering.  The internal key needs
-    // to be decoded to the external key.
-    //
-    // TODO(thompsonbry) The current implementation stores the entire
-    // key in the leaf. This works fine for simple primitive keys.
-    // However, it needs to be modified when the implementation is
-    // modified to support variable length keys. In that situation,
-    // the full internal key needs to be constructed using the [key]
-    // byte from the path stack plus the prefix bytes from the
-    // internal nodes along that path.
-    key key_{};
+    // A buffer into which visited encoded (binary comparable) keys
+    // are materialized by during the iterator traversal.  Bytes are
+    // pushed onto this buffer when we push something onto the
+    // iterator stack and popped off of this buffer when we pop
+    // something off of the iterator stack.
+    key_buffer keybuf_{};
   };  // class iterator
 
   //
@@ -554,9 +654,9 @@ class olc_db final {
   // returns [true].
   template <typename FN>
   inline void scan_range(key from_key, key to_key, FN fn) noexcept {
-    // TODO(thompsonbry) Explore a cheaper way to handle the exclusive
-    // bound case when developing variable length key support based on
-    // the maintained key buffer.
+    // TODO(thompsonbry) : variable length keys. Explore a cheaper way
+    // to handle the exclusive bound case when developing variable
+    // length key support based on the maintained key buffer.
     constexpr bool debug = false;               // set true to debug scan.
     const detail::art_key from_key_{from_key};  // convert to internal key
     const detail::art_key to_key_{to_key};      // convert to internal key
@@ -781,29 +881,35 @@ class olc_db final {
 /// ART iterator implementation.
 ///
 
-inline std::optional<const unodb::key> olc_db::iterator::get_key() {
+inline key_view olc_db::iterator::get_key() {
   // Note: If the iterator is on a leaf, we return the key for that
   // leaf regardless of whether the leaf has been deleted.  This is
   // part of the design semantics for the OLC ART scan.
   //
-  // TODO(thompsonbry) Eventually this will need to use the stack to
-  // reconstruct the key from the path from the root to this leaf.
-  // Right now it is relying on the fact that simple fixed width keys
-  // are stored directly in the leaves.
-  if (!valid()) return {};  // not positioned on anything.
+  // TODO(thompsonbry) : variable length keys.  Eventually this will
+  // need to use the stack to reconstruct the key from the path from
+  // the root to this leaf.  Right now it is relying on the fact that
+  // simple fixed width keys are stored directly in the leaves.
+  //
+  // Note: We can not simplify this until the leaf has a variable
+  // length prefix consisting of the suffix of the key (the part not
+  // already matched by the inode path).
+  //
+  // return keybuf_.get_key_view();
+  //
+  UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);     // On a leaf.
   const auto* const aleaf{node.ptr<detail::olc_leaf*>()};  // current leaf.
-  key_ = aleaf->get_key().decode();  // decode key into iterator's buffer.
-  return key_;  // return pointer to the internal key buffer.
+  return aleaf->get_key_view();
 }
 
-inline std::optional<const qsbr_value_view> olc_db::iterator::get_val() const {
+inline const qsbr_value_view olc_db::iterator::get_val() const {
   // Note: If the iterator is on a leaf, we return the value for
   // that leaf regardless of whether the leaf has been deleted.
   // This is part of the design semantics for the OLC ART scan.
-  if (!valid()) return {};  // not positioned on anything.
+  UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);     // On a leaf.
@@ -812,9 +918,9 @@ inline std::optional<const qsbr_value_view> olc_db::iterator::get_val() const {
 }
 
 inline int olc_db::iterator::cmp(const detail::art_key& akey) const {
-  // TODO(thompsonbry) Explore a cheaper way to handle the exclusive
-  // bound case when developing variable length key support based on
-  // the maintained key buffer.
+  // TODO(thompsonbry) : variable length keys. Explore a cheaper way
+  // to handle the exclusive bound case when developing variable
+  // length key support based on the maintained key buffer.
   UNODB_DETAIL_ASSERT(!stack_.empty());
   auto& node = stack_.top().node;
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);

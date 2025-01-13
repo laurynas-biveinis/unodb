@@ -24,6 +24,8 @@
 namespace unodb {
 
 // Key type for public API
+//
+// TODO(thompsonbry) : variable length keys. remove this.
 using key = std::uint64_t;
 
 namespace detail {
@@ -35,6 +37,10 @@ namespace detail {
 // Values are passed as non-owning pointers to memory with associated length
 // (std::span). The memory is copied upon insertion.
 using value_view = std::span<const std::byte>;
+
+// Keys are passed as non-owning pointers to memory with associated
+// length (gsl::span).
+using key_view = gsl::span<const std::byte>;
 
 }  // namespace unodb
 

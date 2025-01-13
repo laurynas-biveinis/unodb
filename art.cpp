@@ -279,11 +279,11 @@ constexpr void db::account_shrinking_inode() noexcept {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-db::get_result db::get(key search_key) const noexcept {
+db::get_result db::get0(const detail::art_key k) const noexcept {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
 
   auto node{root};
-  const detail::art_key k{search_key};
+  // const detail::art_key k{search_key};
   auto remaining_key{k};
 
   while (true) {
@@ -312,8 +312,8 @@ db::get_result db::get(key search_key) const noexcept {
 }
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
-bool db::insert(key insert_key, value_view v) {
-  const auto k = detail::art_key{insert_key};
+bool db::insert0(const detail::art_key k, value_view v) {
+  // const auto k = detail::art_key{insert_key};
 
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
     auto leaf = unodb::detail::art_policy::make_db_leaf_ptr(k, v, *this);
@@ -330,7 +330,7 @@ bool db::insert(key insert_key, value_view v) {
     if (node_type == node_type::LEAF) {
       auto *const leaf{node->ptr<::leaf *>()};
       const auto existing_key{leaf->get_key()};
-      if (UNODB_DETAIL_UNLIKELY(k == existing_key)) return false;
+      if (UNODB_DETAIL_UNLIKELY(k.cmp(existing_key) == 0)) return false;
 
       auto new_leaf = unodb::detail::art_policy::make_db_leaf_ptr(k, v, *this);
       auto new_node{detail::inode_4::create(*this, existing_key, remaining_key,
@@ -378,8 +378,8 @@ bool db::insert(key insert_key, value_view v) {
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-bool db::remove(key remove_key) {
-  const auto k = detail::art_key{remove_key};
+bool db::remove0(const detail::art_key k) {
+  // const auto k = detail::art_key{remove_key};
 
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
 

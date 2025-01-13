@@ -7,11 +7,21 @@ on:
       - master
   pull_request:
 
-permissions: { }
+permissions: {}
 
 jobs:
   build:
     runs-on: windows-2022
+
+    env:
+      EXAMPLE_PRESETS: >-
+        msvc-debug
+        msvc-release
+        msvc-llvm-debug
+        msvc-llvm-release
+      STATIC_ANALYSIS_PRESETS: >-
+        msvc-static-analysis-debug
+        msvc-static-analysis-release
 
     strategy:
       fail-fast: false
@@ -38,19 +48,19 @@ jobs:
           - name: MSVC Debug without AVX2
             preset: "msvc-debug-no-avx2"
 
-          # MSVC static analysis false positive regression in 17.11:
-          # optimistic_lock.hpp(171) : warning C26493: Don't use C-style casts
-          # (type.4).
-          # - name: MSVC Static Analysis Debug
-          #   preset: "msvc-static-analysis-debug"
+            # MSVC static analysis false positive regression in 17.11:
+            # optimistic_lock.hpp(171) : warning C26493: Don't use C-style casts
+            # (type.4).
+            # - name: MSVC Static Analysis Debug
+            #   preset: "msvc-static-analysis-debug"
 
-          # - name: MSVC Static Analysis Release
-          #   preset: "msvc-static-analysis-release"
+            # - name: MSVC Static Analysis Release
+            #   preset: "msvc-static-analysis-release"
 
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: false
 
       - name: Install Boost
         uses: MarkusJx/install-boost@v2.4.5
@@ -66,8 +76,35 @@ jobs:
         with:
           toolset: 14.42
 
-      - name: Configure CMake
+      - name: Install dependencies
         run: |
+          vcpkg install gtest benchmark
+
+      - name: Configure CMake (examples)
+        working-directory: examples
+        run: |
+          # Ensure that we use clang-cl from MSVC, not LLVM
+          $env:path = $env:path -split ';' -notmatch 'C:\\Program Files\\LLVM\\bin' -join ';'
+          cmake --preset "${{ matrix.preset }}"
+        env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+        if: contains(env.EXAMPLE_PRESETS, matrix.preset)
+
+      - name: Build (examples)
+        working-directory: examples
+        run: |
+          cmake --build --preset "${{ matrix.preset }}"
+        if: contains(env.EXAMPLE_PRESETS, matrix.preset)
+
+      - name: Run examples
+        working-directory: examples
+        run: |
+          cmake --build --preset "${{ matrix.preset }}" --target examples
+        if: contains(env.EXAMPLE_PRESETS, matrix.preset)
+
+      - name: Populate git submodules and configure CMake
+        run: |
+          git submodule update --init --recursive
           # Ensure that we use clang-cl from MSVC, not LLVM
           $env:path = $env:path -split ';' -notmatch 'C:\\Program Files\\LLVM\\bin' -join ';'
           cmake --preset "${{ matrix.preset }}"
@@ -86,29 +123,14 @@ jobs:
         with:
           name: sarif-file
           path: "${{github.workspace}}\\build\\${{matrix.preset}}\\msvc-${{matrix.preset}}.sarif"
-        if: >
-            always()
-            && (matrix.preset == 'msvc-static-analysis-release'
-              || matrix.preset == 'msvc-static-analysis-debug')
-
-      - name: Examples
-        run: |
-          $Env:P = "${{ matrix.preset }}"
-          cmake --build --preset "$env:P" --target examples
-        if: >
-            (matrix.preset != 'msvc-static-analysis-release')
-            && (matrix.preset != 'msvc-static-analysis-debug')
+        if: contains(env.STATIC_ANALYSIS_PRESETS, matrix.preset)
 
       - name: Correctness test
         run: ctest -V --preset "${{ matrix.preset }}"
-        if: >
-            (matrix.preset != 'msvc-static-analysis-release')
-            && (matrix.preset != 'msvc-static-analysis-debug')
+        if: "!contains(env.STATIC_ANALYSIS_PRESETS, matrix.preset)"
 
       - name: Benchmark correctness test
         run: |
           $Env:P = "${{ matrix.preset }}"
           cmake --build --preset "$env:P" --target quick_benchmarks
-        if: >
-            (matrix.preset != 'msvc-static-analysis-release')
-            && (matrix.preset != 'msvc-static-analysis-debug')
+        if: "!contains(env.STATIC_ANALYSIS_PRESETS, matrix.preset)"

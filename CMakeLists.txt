@@ -305,23 +305,26 @@ message(STATUS "SANITIZER_ENV: ${SANITIZER_ENV}")
 
 option(STATIC_ANALYSIS "Enable compiler static analysis")
 
-if(MSVC AND is_clang)
-  message(STATUS "Not enabling IPO/LTO due to MSVC LLVM not supporting it")
-elseif(is_clang AND SANITIZE_ADDRESS AND CMAKE_CXX_COMPILER_VERSION
-    VERSION_GREATER_EQUAL 17.0)
-  # /usr/bin/ld: error: Failed to link module
-  # ../libunodb_qsbr.a.llvm.3080.qsbr.cpp: Expected at most one ThinLTO module
-  # per bitcode file
-  # ...
-  message(STATUS
-    "Not enabling IPO/LTO due to LLVM clang 17 w/ AddressSanitizer bug")
-else()
-  include(CheckIPOSupported)
-  check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES CXX)
-  if(IPO_SUPPORTED)
-    message(STATUS "Enabling IPO/LTO for release config")
+if(STANDALONE)
+  if(MSVC AND is_clang)
+    message(STATUS "Not enabling IPO/LTO due to MSVC LLVM not supporting it")
+  elseif(is_clang AND SANITIZE_ADDRESS AND CMAKE_CXX_COMPILER_VERSION
+      VERSION_GREATER_EQUAL 17.0)
+    # /usr/bin/ld: error: Failed to link module
+    # ../libunodb_qsbr.a.llvm.3080.qsbr.cpp: Expected at most one ThinLTO module
+    # per bitcode file
+    # ...
+    message(STATUS
+      "Not enabling IPO/LTO due to LLVM clang 17 w/ AddressSanitizer bug")
   else()
-    message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_SUPPORT_ERROR LANGUAGES
+        CXX)
+    if(IPO_SUPPORTED)
+      message(STATUS "Enabling IPO/LTO for release config")
+    else()
+      message(STATUS "IPO/LTO is not supported: ${IPO_SUPPORT_ERROR}")
+    endif()
   endif()
 endif()
 
@@ -403,7 +406,8 @@ option(TESTS "Build tests, including fuzz ones if DeepState is available" ON)
 
 option(BENCHMARKS "Build benchmarks" ${STANDALONE})
 
-if(TESTS OR BENCHMARKS)
+if((STANDALONE OR NOT TARGET GTest::gtest_main
+    OR NOT TARGET benchmark::benchmark) AND (TESTS OR BENCHMARKS))
   string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
   if(MSVC)
     string(REPLACE ";" " " MSVC_WARNING_FLAGS_FOR_SUBDIR_STR_TMP
@@ -449,15 +453,18 @@ function(GLOBAL_CXX_TARGET_PROPERTIES TARGET)
 endfunction()
 
 if(TESTS)
-  # For Windows: Prevent overriding the parent project's compiler/linker settings
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  if (STANDALONE OR NOT TARGET GTest::gtest_main)
+    # For Windows: Prevent overriding the parent project's compiler/linker
+    # settings
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-  ADD_CXX_FLAGS_FOR_SUBDIR()
-  add_subdirectory(3rd_party/googletest)
-  RESTORE_CXX_FLAGS_FOR_SUBDIR()
+    ADD_CXX_FLAGS_FOR_SUBDIR()
+    add_subdirectory(3rd_party/googletest)
+    RESTORE_CXX_FLAGS_FOR_SUBDIR()
 
-  global_cxx_target_properties(gtest)
-  global_cxx_target_properties(gtest_main)
+    global_cxx_target_properties(gtest)
+    global_cxx_target_properties(gtest_main)
+  endif()
 
   # Do not build DeepState:
   # - under Windows as it's not supported
@@ -466,7 +473,8 @@ if(TESTS)
   # - with GCC under macOS due to
   #   https://github.com/trailofbits/deepstate/issues/374
   # - under macOS with ASan or TSan enabled
-  if(NOT (is_darwin AND (is_gxx OR SANITIZE_ADDRESS OR SANITIZE_THREAD))
+  if(STANDALONE
+      AND NOT (is_darwin AND (is_gxx OR SANITIZE_ADDRESS OR SANITIZE_THREAD))
       AND NOT is_windows AND is_x86_64)
     CHECK_INCLUDE_FILE(stdio.h CAN_BUILD_32BIT -m32)
 
@@ -517,33 +525,35 @@ if(TESTS)
 endif()
 
 if(BENCHMARKS)
-  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL
-    "Suppressing Google Benchmark tests" FORCE)
-  set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL
-    "Suppressing Google Benchmark installation" FORCE)
+  if(STANDALONE OR NOT TARGET benchmark::benchmark)
+    set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL
+      "Suppressing Google Benchmark tests" FORCE)
+    set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL
+      "Suppressing Google Benchmark installation" FORCE)
 
-  if(IPO_SUPPORTED)
-    if(is_debug)
-      # It seems that Google Benchmark does not support multi-configuration
-      # generators if LTO is enabled
-      message(STATUS "Disabling LTO for Google Benchmark due to debug build")
-    elseif(is_apple_clang)
-      message(STATUS
-        "Disabling LTO for Google Benchmark because Apple clang is not \
-         supported")
-    else()
-      set(BENCHMARK_ENABLE_LTO ON CACHE BOOL "Enabling LTO for Google Benchmark"
-        FORCE)
-      message(STATUS "Enabling LTO for Google Benchmark")
+    if(IPO_SUPPORTED)
+      if(is_debug)
+        # It seems that Google Benchmark does not support multi-configuration
+        # generators if LTO is enabled
+        message(STATUS "Disabling LTO for Google Benchmark due to debug build")
+      elseif(is_apple_clang)
+        message(STATUS
+          "Disabling LTO for Google Benchmark because Apple clang is not \
+           supported")
+      else()
+        set(BENCHMARK_ENABLE_LTO ON CACHE BOOL
+          "Enabling LTO for Google Benchmark" FORCE)
+        message(STATUS "Enabling LTO for Google Benchmark")
+      endif()
     endif()
+
+    ADD_CXX_FLAGS_FOR_SUBDIR()
+    add_subdirectory(3rd_party/benchmark)
+    RESTORE_CXX_FLAGS_FOR_SUBDIR()
+
+    global_cxx_target_properties(benchmark)
+    global_cxx_target_properties(benchmark_main)
   endif()
-
-  ADD_CXX_FLAGS_FOR_SUBDIR()
-  add_subdirectory(3rd_party/benchmark)
-  RESTORE_CXX_FLAGS_FOR_SUBDIR()
-
-  global_cxx_target_properties(benchmark)
-  global_cxx_target_properties(benchmark_main)
 
   # Add benchmark_include_dirs by target_include_directories(... SYSTEM ...)
   # before target_link_libraries so that benchmark headers are included through
@@ -643,19 +653,21 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
   global_cxx_target_properties(${TARGET})
   target_compile_definitions(${TARGET} PUBLIC
+    # Features
     "$<${is_standalone}:UNODB_DETAIL_STANDALONE>"
     "$<${use_boost_stacktrace}:UNODB_DETAIL_BOOST_STACKTRACE>"
     "$<${with_stats}:UNODB_DETAIL_WITH_STATS>"
     "UNODB_SPINLOCK_LOOP_VALUE=${SPINLOCK_LOOP_VALUE}")
+  target_compile_options(${TARGET} PUBLIC
+    # Architecture
+    "$<${is_x86_64_any_msvc}:$<IF:${has_avx2},/arch:AVX2,/arch:AVX>>"
+    "$<${is_not_windows_x86_64}:$<IF:${has_avx2},-mavx2,-msse4.1>>")
   target_compile_options(${TARGET} PRIVATE
     "${SANITIZER_CXX_FLAGS}"
     "$<${is_msvc}:${MSVC_CXX_FLAGS}>"
     "$<${is_any_msvc}:${ANY_MSVC_CXX_FLAGS}>"
     "$<${is_not_windows}:${UNIX_CXX_FLAGS}>"
     "$<${is_clang_ge_14_not_windows}:${CLANG_GE_14_CXX_FLAGS}>"
-    # Architecture
-    "$<${is_x86_64_any_msvc}:$<IF:${has_avx2},/arch:AVX2,/arch:AVX>>"
-    "$<${is_not_windows_x86_64}:$<IF:${has_avx2},-mavx2,-msse4.1>>"
     # Warnings
     "$<${fatal_warnings_on}:$<IF:${is_any_msvc},/WX,-Werror>>"
     "$<${is_any_msvc}:${MSVC_CXX_WARNING_FLAGS}>"
@@ -758,7 +770,9 @@ endif()
 set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"
   "--trace-children=yes" "-v")
 
-add_custom_target(valgrind DEPENDS valgrind_benchmarks valgrind_examples)
+# If tests and/or benchmarks are enabled, their Valgrind targets will become
+# dependencies of the main Valgrind target.
+add_custom_target(valgrind)
 
 if(TESTS)
   add_dependencies(valgrind valgrind_tests)
@@ -788,8 +802,6 @@ if(BENCHMARKS)
   add_dependencies(valgrind valgrind_benchmarks)
   add_subdirectory(benchmark)
 endif()
-
-add_subdirectory(examples)
 
 if(STANDALONE)
   set(BIN_DIR_CDB "${CMAKE_BINARY_DIR}/compile_commands.json")

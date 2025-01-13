@@ -48,28 +48,6 @@ class olc_db;
 
 namespace unodb::detail {
 
-// encode an external key into an internal key.
-template <>
-[[nodiscard, gnu::const]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint64_t
-basic_art_key<std::uint64_t>::make_binary_comparable(std::uint64_t k) noexcept {
-#ifdef UNODB_DETAIL_LITTLE_ENDIAN
-  return bswap(k);
-#else
-#error Needs implementing
-#endif
-}
-
-// decode an internal key into an external key.
-template <>
-[[nodiscard, gnu::const]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint64_t
-basic_art_key<std::uint64_t>::make_external(std::uint64_t k) noexcept {
-#ifdef UNODB_DETAIL_LITTLE_ENDIAN
-  return bswap(k);
-#else
-#error Needs implementing
-#endif
-}
-
 #ifdef UNODB_DETAIL_X86_64
 
 // Idea from https://stackoverflow.com/a/32945715/80458
@@ -108,17 +86,50 @@ class [[nodiscard]] basic_leaf final : public Header {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  // return the binary comparable key stored in the leaf (TODO This
-  // should be changed to a method comparing a caller's key suffix
-  // against the key suffix stored in the leaf).
+  // return the binary comparable key stored in the leaf
+  //
+  // TODO(thompsonbry) : variable length keys.  Where possible this
+  // must be changed to a method comparing a caller's key suffix
+  // against the key suffix stored in the leaf.  Calling contexts
+  // which assume that they can recover the entire key from the leaf
+  // are trouble for variable length keys.  Instead, the key must be
+  // buffered during the traversal down to the leaf and the leaf might
+  // have a tail fragment of the key.  That buffer can be wrapped and
+  // exposed as a gsl::span<const std::byte> (aka key_view).  If used,
+  // it should be renamed to get_key_view() and conditionally compiled
+  // depending on how we template the db, mutex_db, and olc_db (e.g.,
+  // iff they support storing the key in the leaf as a time over space
+  // optimization)
   [[nodiscard, gnu::pure]] constexpr auto get_key() const noexcept {
     return key;
   }
 
-  [[nodiscard, gnu::pure]] constexpr auto matches(art_key k) const noexcept {
-    return k == get_key();
+  // TODO(thompsonbry) : variable length keys.  This will go away. It
+  // is here as a shim.  The iterator needs to handle this and buffer
+  // the key during traversal.  get()/insert()/remove() need to do
+  // something similar.  The only time we can get the key_view from
+  // the leaf is if the binary comparable key is stored in the leaf as
+  // an optimization of time over space.
+  [[nodiscard, gnu::pure]] constexpr auto get_key_view() const noexcept {
+    return key.get_key_view();
   }
 
+  // Return true iff the two keys are the same.
+  //
+  // TODO(thompsonbry) : variable length keys.  This should be changed
+  // to a method comparing a caller's key suffix against the key
+  // suffix stored in the leaf.
+  [[nodiscard, gnu::pure]] constexpr auto matches(art_key k) const noexcept {
+    return cmp(k) == 0;
+  }
+
+  // Return LT ZERO (0) if this key is less than the caller's key.
+  // Return GT ZERO (0) if this key is greater than the caller's key.
+  // Return ZERO (0) if the two keys are the same.
+  //
+  // TODO(thompsonbry) : variable length keys.  This should be changed
+  // to a method comparing a caller's key suffix against the key
+  // suffix stored in the leaf.
   [[nodiscard, gnu::pure]] constexpr auto cmp(art_key k) const noexcept {
     return k.cmp(get_key());
   }
@@ -149,7 +160,8 @@ class [[nodiscard]] basic_leaf final : public Header {
       std::numeric_limits<value_size_type>::max();
 
  private:
-  const art_key key;
+  const art_key key;  // TODO(thompsonbry) : variable length keys.  The key
+                      // should be optional on the leaf.
   const value_size_type value_size;
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   std::byte value_start[1];
@@ -443,18 +455,47 @@ struct basic_art_policy final {
   basic_art_policy() = delete;
 };  // class basic_art_policy
 
-// The key_prefix is a sequence of bytes that are a prefix on the path
-// from the parent of some node to a child of that node (used for
-// prefix compression).
+using key_prefix_size = std::uint8_t;
+static constexpr key_prefix_size key_prefix_capacity = 7;
+
+// A helper class used to expose a consistent snapshot of the
+// key_prefix to the iterator for use in tracking the data on the
+// iterator's stack.  This method exposes a key_view over its internal
+// data.  We can't do that directly with the key_prefix due to (a)
+// thread safety; and (b) the key_view being a non-owned view. So the
+// data are atomically copied into this structure and it can expose
+// the key_view over those data.
+class key_prefix_snapshot {
+ private:
+  using key_prefix_data = std::array<std::byte, key_prefix_capacity>;
+  union {
+    struct {
+      key_prefix_data key_prefix;         // The prefix.
+      key_prefix_size key_prefix_length;  // The #of bytes in the prefix.
+    } f;
+    std::uint64_t u64;  // The same thing as a machine word.
+  };
+
+ public:
+  explicit key_prefix_snapshot(std::uint64_t v) : u64(v) {}
+  // Return a view onto the key_prefix.
+  [[nodiscard]] key_view get_key_view() const noexcept {
+    return key_view(f.key_prefix.data(), f.key_prefix_length);
+  }
+  // Return the length of the key_prefix.
+  [[nodiscard]] key_prefix_size size() const noexcept {
+    return f.key_prefix_length;
+  }
+};
+
+// The key_prefix is a sequence of zero or more bytes for a given node
+// that are a common prefix shared by all children of that node and
+// supports prefix compression in the index.
 template <template <class> class CriticalSectionPolicy>
 union [[nodiscard]] key_prefix {
  private:
   template <typename T>
   using critical_section_policy = CriticalSectionPolicy<T>;
-
-  using key_prefix_size = std::uint8_t;
-
-  static constexpr key_prefix_size key_prefix_capacity = 7;
 
   using key_prefix_data =
       std::array<critical_section_policy<std::byte>, key_prefix_capacity>;
@@ -485,7 +526,12 @@ union [[nodiscard]] key_prefix {
   // bytes already matched by the traversal path have been discarded.
   [[nodiscard]] constexpr auto get_shared_length(
       unodb::detail::art_key shifted_key) const noexcept {
-    return shared_len(static_cast<std::uint64_t>(shifted_key), u64, length());
+    return shared_len(shifted_key.get_internal_key(), u64, length());
+  }
+
+  // A snapshot of the key_prefix data.
+  [[nodiscard]] constexpr key_prefix_snapshot get_snapshot() const noexcept {
+    return key_prefix_snapshot(u64);
   }
 
   // The number of prefix bytes.
@@ -566,11 +612,11 @@ union [[nodiscard]] key_prefix {
       art_key k1, art_key shifted_k2, tree_depth depth) noexcept {
     k1.shift_right(depth);
 
-    const auto k1_u64 = static_cast<std::uint64_t>(k1) & key_bytes_mask;
+    const auto k1_u64 = k1.get_internal_key() & key_bytes_mask;
 
-    return k1_u64 | length_to_word(shared_len(
-                        k1_u64, static_cast<std::uint64_t>(shifted_k2),
-                        key_prefix_capacity));
+    return k1_u64 |
+           length_to_word(shared_len(k1_u64, shifted_k2.get_internal_key(),
+                                     key_prefix_capacity));
   }
 };  // class key_prefix
 
@@ -617,8 +663,8 @@ class basic_inode_impl : public ArtPolicy::header_type {
                                 critical_section_policy<node_ptr> *  // child
                                 >;
 
-  // A tuple that is returned by the iterator visitation pattern which
-  // represents the path in the tree for an internal node.
+  // A struct that is returned by the iterator visitation pattern
+  // which represents a path in the tree for an internal node.
   //
   // Note: The node is a pointer to either an internal node or a leaf.
   //
@@ -640,11 +686,11 @@ class basic_inode_impl : public ArtPolicy::header_type {
     std::byte key_byte;        // key byte
     std::uint8_t child_index;  // child-index
 
-    [[nodiscard]] constexpr bool operator==(
-        const iter_result &other) const noexcept {
-      return node == other.node && key_byte == other.key_byte &&
-             child_index == other.child_index;
-    }
+    // [[nodiscard]] constexpr bool operator==(
+    //     const iter_result &other) const noexcept {
+    //   return node == other.node && key_byte == other.key_byte &&
+    //          child_index == other.child_index;
+    // }
   };
   using iter_result_opt = std::optional<iter_result>;
 
@@ -987,7 +1033,7 @@ class basic_inode_impl : public ArtPolicy::header_type {
 
   template <class>
   friend class basic_inode_256;
-};
+};  // class basic_inode_impl
 
 // The class basic_inode is the last common ancestor (both for
 // templates and inheritance) for all inode types for both OLC and

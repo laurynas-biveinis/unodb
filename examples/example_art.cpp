@@ -46,11 +46,15 @@ int main() {
   std::cerr << "Insert key 50 result: " << insert_result << '\n';
 
   // visitor for scans.
-  auto fn = [](const unodb::visitor<typename unodb::db::iterator>& v) {
-    const auto& val = v.get_value();
-    const std::string_view s(reinterpret_cast<const char*>(val.data()),
+  auto fn = [](const unodb::visitor<typename unodb::db::iterator>& vis) {
+    const auto& key{vis.get_key()};
+    unodb::key_decoder dec{key};
+    std::uint64_t k;
+    dec.decode(k);
+    const auto& val{vis.get_value()};
+    const std::string_view v(reinterpret_cast<const char*>(val.data()),
                              val.size());
-    std::cerr << "{key=" << v.get_key() << ",val=\"" << s << "\""
+    std::cerr << "{key=" << k << ",val=\"" << v << "\""
               << "} ";
     return false;  // do not halt
   };

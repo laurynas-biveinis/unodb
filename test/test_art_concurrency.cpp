@@ -101,6 +101,14 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
   }
 
+  // decode a uint64_t key.
+  static inline std::uint64_t decode(unodb::key_view akey) {
+    unodb::key_decoder dec{akey};
+    std::uint64_t k;
+    dec.decode(k);
+    return k;
+  }
+
   // test helper for scan() verification.
   static void do_scan_verification(unodb::test::tree_verifier<Db> *verifier,
                                    unodb::key key) {
@@ -113,7 +121,7 @@ class ARTConcurrencyTest : public ::testing::Test {
     auto fn = [&n, &sum, &fwd, &k0, &k1,
                &prior](const unodb::visitor<typename Db::iterator> &v) {
       n++;
-      const auto &akey = v.get_key();  // actual visited key.
+      const auto &akey = decode(v.get_key());  // actual visited key.
       sum += akey;
       const auto expected =  // Note: same value formula as insert().
           unodb::test::test_values[akey % unodb::test::test_values.size()];

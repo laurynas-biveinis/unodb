@@ -52,4 +52,5 @@
 
 run-cmake.sh
 loop-test.sh
+compile1.sh
 /docs/

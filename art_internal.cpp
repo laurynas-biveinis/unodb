@@ -13,6 +13,7 @@
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
 
 #include "art_internal.hpp"
+#include "heap.hpp"
 
 #include <cstddef>
 #include <iomanip>
@@ -34,3 +35,26 @@ namespace unodb::detail {
 }
 
 }  // namespace unodb::detail
+
+namespace unodb {
+namespace detail {
+
+void ensure_capacity(std::byte *&buf, size_t &cap, size_t off,
+                     size_t min_capacity) {
+  // Find the allocation size in bytes which satisfies that minimum
+  // capacity.  We first look for the next power of two.  Then we
+  // adjust for the case where the [min_capacity] is already a power
+  // of two (a common edge case).
+  auto nsize = detail::NextPowerOfTwo(min_capacity);
+  auto asize = (min_capacity == (nsize >> 1)) ? min_capacity : nsize;
+  auto tmp = detail::allocate_aligned(asize);  // new allocation.
+  std::memcpy(tmp, buf, off);                  // copy over the data.
+  if (cap > INITIAL_BUFFER_CAPACITY) {         // free old buffer iff allocated
+    detail::free_aligned(buf);
+  }
+  buf = reinterpret_cast<std::byte *>(tmp);
+  cap = asize;
+}
+
+}  // namespace detail
+}  // namespace unodb

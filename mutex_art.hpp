@@ -13,6 +13,7 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <mutex>
+#include <type_traits>
 #include <utility>
 
 #include "art.hpp"
@@ -30,13 +31,11 @@ class mutex_db final {
   // undefined.
   using get_result = std::pair<db::get_result, std::unique_lock<std::mutex>>;
 
-  // Creation and destruction
-  mutex_db() noexcept = default;
-
+ protected:
   // Querying
-  [[nodiscard]] auto get(key k) const {
+  [[nodiscard]] auto get0(const detail::art_key k) const {
     std::unique_lock guard{mutex};
-    const auto db_get_result{db_.get(k)};
+    const auto db_get_result{db_.get0(k)};
     if (!db_get_result) {
       guard.unlock();
       return std::make_pair(db_get_result, std::unique_lock<std::mutex>{});
@@ -44,23 +43,89 @@ class mutex_db final {
     return std::make_pair(db_get_result, std::move(guard));
   }
 
+  // Modifying
+  // Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
+  [[nodiscard]] auto insert0(const detail::art_key k, value_view v) {
+    const std::lock_guard guard{mutex};
+    return db_.insert0(k, v);
+  }
+
+  [[nodiscard]] auto remove0(const detail::art_key k) {
+    const std::lock_guard guard{mutex};
+    return db_.remove0(k);
+  }
+
+ public:
+  // Creation and destruction
+  mutex_db() noexcept = default;
+
+  // Query for a value associated with a binary comparable key.
+  [[nodiscard, gnu::pure]] get_result get(key_view search_key) const noexcept {
+    detail::art_key k{search_key};
+    return get0(k);
+  }
+
+  // Querying for a value associated with an external key.  The key is
+  // converted to a binary comparable key.
+  [[nodiscard, gnu::pure]]
+  typename std::enable_if<std::is_integral<key>::value, get_result>::type
+  get(key search_key) const noexcept {
+    const detail::art_key k{search_key};  // fast path conversion.
+    return get0(k);
+  }
+
   [[nodiscard]] auto empty() const {
     const std::lock_guard guard{mutex};
     return db_.empty();
   }
 
-  // Modifying
-  // Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
-  [[nodiscard]] auto insert(key k, value_view v) {
-    const std::lock_guard guard{mutex};
-    return db_.insert(k, v);
+  // Insert a value under a binary comparable key iff there is no
+  // entry for that key.
+  //
+  // Note: Cannot be called during stack unwinding with
+  // std::uncaught_exceptions() > 0
+  //
+  // @return true iff the key value pair was inserted.
+  [[nodiscard, gnu::pure]] bool insert(key_view insert_key, value_view v) {
+    detail::art_key k{insert_key};
+    return insert0(k, v);
   }
 
-  [[nodiscard]] auto remove(key k) {
-    const std::lock_guard guard{mutex};
-    return db_.remove(k);
+  // Insert a value under the key.  The key is converted to a binary
+  // comparable key.
+  //
+  // Note: Cannot be called during stack unwinding with
+  // std::uncaught_exceptions() > 0
+  //
+  // @return true iff the key value pair was inserted.
+  [[nodiscard, gnu::pure]]
+  typename std::enable_if<std::is_integral<key>::value, bool>::type
+  insert(key insert_key, value_view v) {
+    const detail::art_key k{insert_key};  // fast path conversion.
+    return insert0(k, v);
   }
 
+  // Remove the entry associated with the binary comparable key.
+  //
+  // @return true if the delete was successful (i.e. the key was found
+  // in the tree and the associated index entry was removed).
+  [[nodiscard, gnu::pure]] bool remove(key_view search_key) {
+    detail::art_key k{search_key};
+    return remove0(k);
+  }
+
+  // Remove the entry associated with the key.
+  //
+  // @return true if the delete was successful (i.e. the key was found
+  // in the tree and the associated index entry was removed).
+  [[nodiscard, gnu::pure]]
+  typename std::enable_if<std::is_integral<key>::value, bool>::type
+  remove(key search_key) {
+    const detail::art_key k{search_key};  // fast path conversion.
+    return remove0(k);
+  }
+
+  // Removes all entries in the index.
   void clear() {
     const std::lock_guard guard{mutex};
     db_.clear();

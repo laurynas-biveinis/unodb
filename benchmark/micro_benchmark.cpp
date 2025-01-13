@@ -129,6 +129,14 @@ void dense_full_scan(benchmark::State &state) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
+// decode a uint64_t key.
+static inline std::uint64_t decode(unodb::key_view akey) {
+  unodb::key_decoder dec{akey};
+  std::uint64_t k;
+  dec.decode(k);
+  return k;
+}
+
 // inserts keys and a constant value and then scans all entries in the
 // tree using db::scan(), reading both the keys and the values.
 template <class Db>
@@ -147,7 +155,7 @@ void dense_iter_full_fwd_scan(benchmark::State &state) {
     for (auto i = 0; i < full_scan_multiplier; ++i) {
       std::uint64_t sum = 0;
       auto fn = [&sum](const unodb::visitor<typename Db::iterator> &v) {
-        sum += v.get_key();
+        sum += decode(v.get_key());
         std::ignore = v.get_value();
         return false;
       };
@@ -183,7 +191,7 @@ void dense_iter_keyrange_fwd_scan(benchmark::State &state) {
     for (auto i = 0; i < full_scan_multiplier; ++i) {
       std::uint64_t sum = 0;
       auto fn = [&sum](const unodb::visitor<typename Db::iterator> &v) {
-        sum += v.get_key();
+        sum += decode(v.get_key());
         std::ignore = v.get_value();
         return false;
       };

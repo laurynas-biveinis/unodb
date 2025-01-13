@@ -47,6 +47,9 @@ struct [[nodiscard]] olc_node_header {
   }
 
 #ifndef NDEBUG
+  // This is passed as a debug callback to QSBR deallocation to be
+  // checked at the physical deallocation time. This checks that the
+  // node being deallocated has no open RCS (read_critical_section).
   static void check_on_dealloc(const void* ptr) noexcept {
     static_cast<const olc_node_header*>(ptr)->m_lock.check_on_dealloc();
   }

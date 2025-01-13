@@ -124,8 +124,11 @@ All the declarations live in the `unodb` namespace, which is omitted in the
 descriptions below.
 
 The only currently supported key type is `std::uint64_t`, aliased as `key`. To
-add new key types, instantiate `art_key` type with the desired type, and
-specialize `art_key::make_binary_comparable` according to the ART paper.
+add a new simple key type, instantiate `art_key` type with the desired type, and
+specialize `art_key::make_binary_comparable` according to the ART paper. Compound
+keys or Unicode data should be handled by specifying gsl::span<std::byte> as the
+key type.  In this case, the application must provide a span suitably encoded for
+lexicographic comparisons (that is, one which is already binary compatible).
 
 Values are treated opaquely. For `unodb::db`, they are passed as non-owning
 objects of `value_view` (a `gsl::span<std::byte>`), and insertion copies them
@@ -144,6 +147,11 @@ All ART classes share the same API:
 * `clear()` empties the tree. For `olc_db`, it must be called from a
   single-threaded context.
 * `bool empty()` returns whether the tree is empty.
+* `template <FN> scan(), scan_from(...), scan_range()` a family of
+  scan methods, including forward and reverse scans and scans with a
+  from_key and an exclusive upper bound to_key where fn is a lambda
+  accepting a visitor and returning a bool indicating whether the scan
+  should halt (bool halt).  See `examples/examples_art.cpp`.
 * `void dump(std::ostream &)` outputs the tree representation.
 * Several getters provide tree info, such as current memory use, and internal
   operation counters (e.g. number of times Node4 grew to Node16, key prefix was

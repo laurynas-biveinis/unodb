@@ -14,7 +14,6 @@
 #include <string_view>
 
 #include "art.hpp"
-#include "art_common.hpp"
 
 namespace {
 
@@ -24,7 +23,7 @@ constexpr std::string_view value_3 = "A third value";
 
 [[nodiscard, gnu::pure]] unodb::value_view from_string_view(
     std::string_view sv) {
-  return {reinterpret_cast<const std::byte *>(sv.data()), sv.length()};
+  return {reinterpret_cast<const std::byte*>(sv.data()), sv.length()};
 }
 
 }  // namespace
@@ -43,6 +42,36 @@ int main() {
 
   insert_result = tree.insert(50, from_string_view(value_3));
   std::cerr << "Insert key 50 result: " << insert_result << '\n';
+
+  // visitor for scans.
+  auto fn = [](const unodb::visitor<typename unodb::db::iterator>& v) {
+    const auto& val = v.get_value();
+    const std::string_view s(reinterpret_cast<const char*>(val.data()),
+                             val.size());
+    std::cerr << "{key=" << v.get_key() << ",val=\"" << s << "\""
+              << "} ";
+    return false;  // do not halt
+  };
+
+  // full forward scan
+  std::cerr << "forward scan:: ";
+  tree.scan(fn);
+  std::cerr << "\n";
+
+  // full reverse scan
+  std::cerr << "reverse scan:: ";
+  tree.scan(fn, false);
+  std::cerr << "\n";
+
+  // forward range scan
+  std::cerr << "forward half-open key-range scan [10,50):: ";
+  tree.scan_range(10, 50, fn);
+  std::cerr << "\n";
+
+  // reverse range scan.
+  std::cerr << "reverse half-open key-range scan (50,10]:: ";
+  tree.scan_range(50, 10, fn);
+  std::cerr << "\n";
 
   auto get_result = tree.get(20);
   std::cerr << "Get key 20 result has value: " << get_result.has_value()

@@ -2,7 +2,15 @@
 #ifndef UNODB_DETAIL_DB_TEST_UTILS_HPP
 #define UNODB_DETAIL_DB_TEST_UTILS_HPP
 
-#include "global.hpp"
+//
+// CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
+// HEADER FILES !!!
+//
+// This header defines _GLIBCXX_DEBUG and _GLIBCXX_DEBUG_PEDANTIC for
+// DEBUG builds.  If some standard headers are included before and
+// after those symbols are defined, then that results in different
+// container internal structure layouts and that is Not Good.
+#include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <__fwd/sstream.h>
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
@@ -464,6 +472,26 @@ extern template class tree_verifier<unodb::mutex_db>;
 extern template class tree_verifier<unodb::olc_db>;
 
 using olc_tree_verifier = tree_verifier<unodb::olc_db>;
+
+// Note: gsl::span does not define equality (because in the general
+// case the data pointer do could be modified) but we rely on
+// comparing gsl::span values in the scan test.  Anyway....
+template <typename T>
+bool SAME_SPAN(const gsl::span<T> a, const gsl::span<T> b) {
+  if (a.size() != b.size()) return false;  // element count differs?
+  if (a.data() == b.data()) return true;   // same ptr and #of elements
+  if (a.size() == 0) return true;          // both empty (before ptrs).
+  if (a.data() == nullptr || b.data() == nullptr) return false;
+  return std::memcmp(a.data(), b.data(), a.size() * sizeof(T)) == 0;
+}
+
+// This version compares the visited values for the OLC scan with a
+// span.  You need this for the OLC tests and the version above for
+// the non-OLC tests.
+template <typename T>
+bool SAME_SPAN(const unodb::qsbr_ptr_span<T> a, const gsl::span<T> b) {
+  return a.operator==(b);
+}
 
 }  // namespace unodb::test
 

@@ -1,5 +1,13 @@
 // Copyright 2019-2024 Laurynas Biveinis
 
+//
+// CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
+// HEADER FILES !!!
+//
+// This header defines _GLIBCXX_DEBUG and _GLIBCXX_DEBUG_PEDANTIC for
+// DEBUG builds.  If some standard headers are included before and
+// after those symbols are defined, then that results in different
+// container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <string>
@@ -90,6 +98,8 @@ void sparse_insert_dups_allowed(benchmark::State &state) {
 
 constexpr auto full_scan_multiplier = 50;
 
+// inserts a sequences of keys and a fixed value then runs over the
+// tree fetching the each key.
 template <class Db>
 void dense_full_scan(benchmark::State &state) {
   Db test_db;
@@ -106,6 +116,77 @@ void dense_full_scan(benchmark::State &state) {
     for (auto i = 0; i < full_scan_multiplier; ++i)
       for (unodb::key j = 0; j < key_limit; ++j)
         unodb::benchmark::get_existing_key(test_db, j);
+
+  state.SetItemsProcessed(state.iterations() * state.range(0) *
+                          full_scan_multiplier);
+#ifdef UNODB_DETAIL_WITH_STATS
+  unodb::benchmark::set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
+}
+
+// inserts keys and a constant value and then scans all entries in the
+// tree using db::scan(), reading both the keys and the values.
+template <class Db>
+void dense_iter_full_fwd_scan(benchmark::State &state) {
+  Db test_db;
+  const auto key_limit = static_cast<unodb::key>(state.range(0));
+
+  for (unodb::key i = 0; i < key_limit; ++i)
+    unodb::benchmark::insert_key(test_db, i,
+                                 unodb::value_view{unodb::benchmark::value100});
+#ifdef UNODB_DETAIL_WITH_STATS
+  const auto tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
+
+  for (const auto _ : state) {
+    for (auto i = 0; i < full_scan_multiplier; ++i) {
+      std::uint64_t sum = 0;
+      auto fn = [&sum](const unodb::visitor<typename Db::iterator> &v) {
+        sum += v.get_key();
+        std::ignore = v.get_value();
+        return false;
+      };
+      test_db.scan(fn);
+      ::benchmark::DoNotOptimize(sum);  // ensure that the keys were retrieved.
+    }
+  }
+
+  state.SetItemsProcessed(state.iterations() * state.range(0) *
+                          full_scan_multiplier);
+#ifdef UNODB_DETAIL_WITH_STATS
+  unodb::benchmark::set_size_counter(state, "size", tree_size);
+#endif  // UNODB_DETAIL_WITH_STATS
+}
+
+// inserts keys and a constant value and scans the entries in a
+// key-range in the tree using db::scan(), reading both the keys and
+// the values (this variant has more overhead than a full scan since
+// it must check for the end of the range).
+template <class Db>
+void dense_iter_keyrange_fwd_scan(benchmark::State &state) {
+  Db test_db;
+  const auto key_limit = static_cast<unodb::key>(state.range(0));
+
+  for (unodb::key i = 0; i < key_limit; ++i)
+    unodb::benchmark::insert_key(test_db, i,
+                                 unodb::value_view{unodb::benchmark::value100});
+#ifdef UNODB_DETAIL_WITH_STATS
+  const auto tree_size = test_db.get_current_memory_use();
+#endif  // UNODB_DETAIL_WITH_STATS
+
+  for (const auto _ : state) {
+    for (auto i = 0; i < full_scan_multiplier; ++i) {
+      std::uint64_t sum = 0;
+      auto fn = [&sum](const unodb::visitor<typename Db::iterator> &v) {
+        sum += v.get_key();
+        std::ignore = v.get_value();
+        return false;
+      };
+      test_db.scan_range(0, key_limit,
+                         fn);           // scan all keys, but using a key-range.
+      ::benchmark::DoNotOptimize(sum);  // ensure that the keys were retrieved.
+    }
+  }
 
   state.SetItemsProcessed(state.iterations() * state.range(0) *
                           full_scan_multiplier);
@@ -297,6 +378,26 @@ BENCHMARK_TEMPLATE(dense_full_scan, unodb::mutex_db)
     ->Unit(benchmark::kMicrosecond);
 BENCHMARK_TEMPLATE(dense_full_scan, unodb::olc_db)
     ->Range(100, 20000000)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(dense_iter_full_fwd_scan, unodb::db)
+    ->Range(128, 1 << 28)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_iter_full_fwd_scan, unodb::mutex_db)
+    ->Range(128, 1 << 20)  // less scale since just not interesting.
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_iter_full_fwd_scan, unodb::olc_db)
+    ->Range(128, 1 << 28)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK_TEMPLATE(dense_iter_keyrange_fwd_scan, unodb::db)
+    ->Range(128, 1 << 28)
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_iter_keyrange_fwd_scan, unodb::mutex_db)
+    ->Range(128, 1 << 20)  // less scale since just not interesting.
+    ->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(dense_iter_keyrange_fwd_scan, unodb::olc_db)
+    ->Range(128, 1 << 28)
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_TEMPLATE(dense_tree_sparse_deletes, unodb::db)

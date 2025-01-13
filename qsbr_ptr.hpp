@@ -2,9 +2,18 @@
 #ifndef UNODB_DETAIL_QSBR_PTR_HPP
 #define UNODB_DETAIL_QSBR_PTR_HPP
 
-#include "global.hpp"
+//
+// CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
+// HEADER FILES !!!
+//
+// This header defines _GLIBCXX_DEBUG and _GLIBCXX_DEBUG_PEDANTIC for
+// DEBUG builds.  If some standard headers are included before and
+// after those symbols are defined, then that results in different
+// container internal structure layouts and that is Not Good.
+#include "global.hpp"  // IWYU pragma: keep
 
 #include <cstddef>
+#include <cstring>
 #include <iterator>
 #include <type_traits>
 #include <utility>
@@ -158,8 +167,11 @@ namespace unodb {
 template <class T>
 class qsbr_ptr_span {
  public:
-  UNODB_DETAIL_RELEASE_CONSTEXPR explicit qsbr_ptr_span(
-      const gsl::span<T> &other) noexcept
+  UNODB_DETAIL_RELEASE_CONSTEXPR
+  qsbr_ptr_span() noexcept : start{nullptr}, length{0} {}
+
+  UNODB_DETAIL_RELEASE_CONSTEXPR
+  explicit qsbr_ptr_span(const gsl::span<T> &other) noexcept
       : start{other.data()}, length{static_cast<std::size_t>(other.size())} {}
 
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span(
@@ -181,6 +193,18 @@ class qsbr_ptr_span {
     return qsbr_ptr<T>{start.get() + length};
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+  [[nodiscard]] constexpr bool operator==(gsl::span<T> other) const noexcept {
+    if (length != other.size()) return false;      // element count differs?
+    if (start.get() == other.data()) return true;  // same ptr and #of elements
+    if (length == 0) return true;                  // both empty (before ptrs)
+    if (start.get() == nullptr || other.data() == nullptr) return false;
+    return std::memcmp(start.get(), other.data(), length * sizeof(T)) == 0;
+  }
+
+  [[nodiscard]] constexpr bool operator!=(gsl::span<T> other) const noexcept {
+    return !this->operator==(other);
+  }
 
  private:
   qsbr_ptr<T> start;

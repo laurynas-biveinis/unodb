@@ -471,10 +471,6 @@ jobs:
           env.COMPILER == 'clang'
           && (env.VERSION == 13 || env.VERSION >= 15)
 
-      - name: Setup dependencies for LLVM 13+
-        run: sudo apt-get install -y iwyu
-        if: env.COMPILER == 'clang' && env.VERSION >= 13
-
       - name: Setup dependencies for GCC 12 (versioned package)
         run: |
           sudo apt-get install -y "gcc-${VERSION}"

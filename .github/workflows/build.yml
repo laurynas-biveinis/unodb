@@ -407,7 +407,8 @@ jobs:
             export CC=clang
             export CXX=clang++
           fi
-          cmake "$GITHUB_WORKSPACE" "$CBT" -DSTANDALONE=ON -DMAINTAINER_MODE=ON \
+          cmake "$GITHUB_WORKSPACE" "$CBT" -DSTANDALONE=ON \
+              -DMAINTAINER_MODE=ON -DIWYU=ON \
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
               "-DSANITIZE_UB=${SANITIZE_UB}" \

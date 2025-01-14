@@ -45,8 +45,7 @@ set_bool(is_not_msvc_clang ${is_clang} AND NOT ${is_msvc_clang})
 option(STANDALONE
   "Build UnoDB not for linking with outside code. Enables extra global checks")
 
-option(MAINTAINER_MODE
-  "Maintainer mode: compiler warnings are fatal, IWYU required")
+option(MAINTAINER_MODE "Maintainer mode: compiler warnings are fatal")
 if(MAINTAINER_MODE)
   message(STATUS "Warning diagnostics are fatal")
 else()
@@ -575,23 +574,15 @@ else()
 endif()
 
 option(IWYU "Enable include-what-you-use checking")
-if(IWYU OR MAINTAINER_MODE)
+if(IWYU)
   if(NOT is_any_clang OR is_windows)
     message(STATUS
       "Not using include-what-you-use due to non-clang compiler or Windows being used")
   else()
-    if(MAINTAINER_MODE AND NOT IWYU)
-      message(STATUS
-        "Forcing include-what-you-use because maintainer mode is on")
-    endif()
     find_program(IWYU_EXE NAMES "include-what-you-use"
       DOC "Path to include-what-you-use executable")
     if(NOT IWYU_EXE)
-      if(MAINTAINER_MODE)
-        message(FATAL_ERROR "include-what-you-use not found")
-      else()
-        message(STATUS "include-what-you-use not found")
-      endif()
+      message(FATAL_ERROR "include-what-you-use not found")
     else()
       execute_process(COMMAND "${IWYU_EXE}" "--version" OUTPUT_VARIABLE
         IWYU_VERSION_OUTPUT)

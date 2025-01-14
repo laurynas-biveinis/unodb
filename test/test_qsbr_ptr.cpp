@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Laurynas Biveinis
+// Copyright 2022-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -41,6 +41,12 @@ const gsl::span<const char> gsl_span2{three_chars};
 UNODB_START_TESTS()
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+
+TEST(QSBRPtr, DefaultCtor) {
+  const unodb::qsbr_ptr<const char> ptr;
+  UNODB_ASSERT_EQ(ptr.get(), nullptr);
+}
+
 TEST(QSBRPtr, Ctor) {
   const unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
   UNODB_ASSERT_EQ(*ptr, x);
@@ -98,6 +104,13 @@ TEST(QSBRPtr, ModifyThroughDereference) {
   UNODB_ASSERT_EQ(*ptr, 'B');
 }
 
+TEST(QSBRPtr, ArraySubscript) {
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  const unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
+  UNODB_ASSERT_EQ(ptr[0], two_chars[0]);
+  UNODB_ASSERT_EQ(ptr[1], two_chars[1]);
+}
+
 TEST(QSBRPtr, Preincrement) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
   unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
@@ -106,6 +119,99 @@ TEST(QSBRPtr, Preincrement) {
   ++ptr;
   UNODB_ASSERT_EQ(*ptr, two_chars[1]);
   UNODB_ASSERT_EQ(ptr.get(), &two_chars[1]);
+}
+
+TEST(QSBRPtr, Postincrement) {
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
+  const auto old_ptr = ptr++;
+
+  UNODB_ASSERT_EQ(*old_ptr, two_chars[0]);
+  UNODB_ASSERT_EQ(*ptr, two_chars[1]);
+  UNODB_ASSERT_EQ(ptr.get(), &two_chars[1]);
+}
+
+TEST(QSBRPtr, Predecrement) {
+  unodb::qsbr_ptr<const char> ptr{&two_chars[1]};
+  UNODB_ASSERT_EQ(*ptr, two_chars[1]);
+
+  --ptr;
+  UNODB_ASSERT_EQ(*ptr, two_chars[0]);
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  UNODB_ASSERT_EQ(ptr.get(), &two_chars[0]);
+}
+
+TEST(QSBRPtr, Postdecrement) {
+  unodb::qsbr_ptr<const char> ptr{&two_chars[1]};
+  const auto old_ptr = ptr--;
+
+  UNODB_ASSERT_EQ(*old_ptr, two_chars[1]);
+  UNODB_ASSERT_EQ(*ptr, two_chars[0]);
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  UNODB_ASSERT_EQ(ptr.get(), &two_chars[0]);
+}
+
+TEST(QSBRPtr, AdditionAssignment) {
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
+  ptr += 1;
+  UNODB_ASSERT_EQ(*ptr, two_chars[1]);
+  UNODB_ASSERT_EQ(ptr.get(), &two_chars[1]);
+
+  ptr += 0;
+  UNODB_ASSERT_EQ(*ptr, two_chars[1]);
+  UNODB_ASSERT_EQ(ptr.get(), &two_chars[1]);
+}
+
+TEST(QSBRPtr, Addition) {
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  const unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
+  auto result = ptr + 1;
+  UNODB_ASSERT_EQ(*result, two_chars[1]);
+  UNODB_ASSERT_EQ(result.get(), &two_chars[1]);
+
+  result = ptr + 0;
+  UNODB_ASSERT_EQ(*result, two_chars[0]);
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  UNODB_ASSERT_EQ(result.get(), &two_chars[0]);
+}
+
+TEST(QSBRPtr, FriendAddition) {
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  const unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
+  auto result = 1 + ptr;
+  UNODB_ASSERT_EQ(*result, two_chars[1]);
+  UNODB_ASSERT_EQ(result.get(), &two_chars[1]);
+
+  result = 0 + ptr;
+  UNODB_ASSERT_EQ(*result, two_chars[0]);
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  UNODB_ASSERT_EQ(result.get(), &two_chars[0]);
+}
+
+TEST(QSBRPtr, SubtractionAssignment) {
+  unodb::qsbr_ptr<const char> ptr{&two_chars[1]};
+  ptr -= 1;
+  UNODB_ASSERT_EQ(*ptr, two_chars[0]);
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  UNODB_ASSERT_EQ(ptr.get(), &two_chars[0]);
+
+  ptr -= 0;
+  UNODB_ASSERT_EQ(*ptr, two_chars[0]);
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  UNODB_ASSERT_EQ(ptr.get(), &two_chars[0]);
+}
+
+TEST(QSBRPtr, SubtractionOperator) {
+  const unodb::qsbr_ptr<const char> ptr{&two_chars[1]};
+  auto result = ptr - 1;
+  UNODB_ASSERT_EQ(*result, two_chars[0]);
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  UNODB_ASSERT_EQ(result.get(), &two_chars[0]);
+
+  result = ptr - 0;
+  UNODB_ASSERT_EQ(*result, two_chars[1]);
+  UNODB_ASSERT_EQ(result.get(), &two_chars[1]);
 }
 
 TEST(QSBRPtr, Subtraction) {
@@ -287,6 +393,36 @@ TEST(QSBRPtrSpan, Equal) {
 }
 
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+TEST(QSBRPtr, GreaterThan) {
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  const unodb::qsbr_ptr<const char> ptr1{&two_chars[0]};
+  const unodb::qsbr_ptr<const char> ptr2{&two_chars[1]};
+
+  UNODB_ASSERT_FALSE(ptr1 > ptr1);
+  UNODB_ASSERT_TRUE(ptr2 > ptr1);
+  UNODB_ASSERT_FALSE(ptr1 > ptr2);
+}
+
+TEST(QSBRPtr, GreaterThanEqual) {
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  const unodb::qsbr_ptr<const char> ptr1{&two_chars[0]};
+  const unodb::qsbr_ptr<const char> ptr2{&two_chars[1]};
+
+  UNODB_ASSERT_TRUE(ptr1 >= ptr1);
+  UNODB_ASSERT_TRUE(ptr2 >= ptr1);
+  UNODB_ASSERT_FALSE(ptr1 >= ptr2);
+}
+
+TEST(QSBRPtr, LessThan) {
+  // NOLINTNEXTLINE(readability-container-data-pointer)
+  const unodb::qsbr_ptr<const char> ptr1{&two_chars[0]};
+  const unodb::qsbr_ptr<const char> ptr2{&two_chars[1]};
+
+  UNODB_ASSERT_FALSE(ptr1 < ptr1);
+  UNODB_ASSERT_TRUE(ptr1 < ptr2);
+  UNODB_ASSERT_FALSE(ptr2 < ptr1);
+}
 
 UNODB_END_TESTS()
 

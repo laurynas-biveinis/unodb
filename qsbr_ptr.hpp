@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2024 Laurynas Biveinis
+// Copyright (C) 2021-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_QSBR_PTR_HPP
 #define UNODB_DETAIL_QSBR_PTR_HPP
 
@@ -11,6 +11,8 @@
 // after those symbols are defined, then that results in different
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
+
+// IWYU pragma: no_include <_string.h>
 
 #include <cstddef>
 #include <cstring>
@@ -43,19 +45,24 @@ class qsbr_ptr_base {
 template <class T>
 class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
  public:
-  using pointer_type = T *;
+  using value_type = T;
+  using pointer = T *;
+  using reference = std::add_lvalue_reference_t<T>;
+  using difference_type = std::ptrdiff_t;
+
+  qsbr_ptr() noexcept = default;
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
   UNODB_DETAIL_RELEASE_CONSTEXPR explicit qsbr_ptr(
-      pointer_type ptr_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+      pointer ptr_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : ptr{ptr_} {
 #ifndef NDEBUG
     register_active_ptr(ptr);
 #endif
   }
 
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr(const qsbr_ptr<T> &other) noexcept
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr(const qsbr_ptr &other) noexcept
       : ptr{other.ptr} {
 #ifndef NDEBUG
     register_active_ptr(ptr);
@@ -64,7 +71,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  constexpr qsbr_ptr(qsbr_ptr<T> &&other) noexcept
+  constexpr qsbr_ptr(qsbr_ptr &&other) noexcept
       : ptr{std::exchange(other.ptr, nullptr)} {}
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
@@ -77,8 +84,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26456)
 
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr<T> &operator=(
-      const qsbr_ptr<T> &other) noexcept {
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr &operator=(
+      const qsbr_ptr &other) noexcept {
 #ifndef NDEBUG
     if (this == &other) return *this;
     unregister_active_ptr(ptr);
@@ -90,8 +97,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     return *this;
   }
 
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr<T> &operator=(
-      qsbr_ptr<T> &&other) noexcept {
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr &operator=(
+      qsbr_ptr &&other) noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
 #endif
@@ -102,12 +109,15 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  [[nodiscard]] constexpr std::add_lvalue_reference_t<T> operator*() const {
-    return *ptr;
+  [[nodiscard]] constexpr reference operator*() const { return *ptr; }
+
+  [[nodiscard]] constexpr reference operator[](
+      difference_type n) const noexcept {
+    return ptr[n];
   }
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
-  constexpr qsbr_ptr<T> &operator++() noexcept {
+  constexpr qsbr_ptr &operator++() noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
 #endif
@@ -119,30 +129,109 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  [[nodiscard, gnu::pure]] constexpr std::ptrdiff_t operator-(
-      qsbr_ptr<T> other) const noexcept {
+  [[nodiscard]] constexpr qsbr_ptr operator++(int) noexcept {
+    const auto result = *this;
+    ++(*this);
+    return result;
+  }
+
+  constexpr qsbr_ptr &operator--() noexcept {
+#ifndef NDEBUG
+    unregister_active_ptr(ptr);
+#endif
+    --ptr;
+#ifndef NDEBUG
+    register_active_ptr(ptr);
+#endif
+    return *this;
+  }
+
+  [[nodiscard]] constexpr qsbr_ptr operator--(int) noexcept {
+    const auto result = *this;
+    --(*this);
+    return result;
+  }
+
+  constexpr qsbr_ptr &operator+=(difference_type n) noexcept {
+#ifndef NDEBUG
+    unregister_active_ptr(ptr);
+#endif
+    ptr += n;
+#ifndef NDEBUG
+    register_active_ptr(ptr);
+#endif
+    return *this;
+  }
+
+  [[nodiscard]] constexpr qsbr_ptr operator+(difference_type n) const noexcept {
+    auto result = *this;
+    result += n;
+    return result;
+  }
+
+  [[nodiscard]] friend constexpr qsbr_ptr operator+(difference_type n,
+                                                    qsbr_ptr other) {
+    return other + n;
+  }
+
+  constexpr qsbr_ptr &operator-=(difference_type n) noexcept {
+#ifndef NDEBUG
+    unregister_active_ptr(ptr);
+#endif
+    ptr -= n;
+#ifndef NDEBUG
+    register_active_ptr(ptr);
+#endif
+    return *this;
+  }
+
+  [[nodiscard]] constexpr qsbr_ptr operator-(difference_type n) const noexcept {
+    auto result = *this;
+    result -= n;
+    return result;
+  }
+
+  [[nodiscard, gnu::pure]] constexpr difference_type operator-(
+      qsbr_ptr other) const noexcept {
     return get() - other.get();
   }
 
   [[nodiscard, gnu::pure]] constexpr bool operator==(
-      qsbr_ptr<T> other) const noexcept {
+      qsbr_ptr other) const noexcept {
     return get() == other.get();
   }
 
   [[nodiscard, gnu::pure]] constexpr bool operator!=(
-      qsbr_ptr<T> other) const noexcept {
+      qsbr_ptr other) const noexcept {
     return get() != other.get();
   }
 
   [[nodiscard, gnu::pure]] constexpr bool operator<=(
-      qsbr_ptr<T> other) const noexcept {
+      qsbr_ptr other) const noexcept {
     return get() <= other.get();
   }
 
-  [[nodiscard, gnu::pure]] constexpr T *get() const noexcept { return ptr; }
+  [[nodiscard, gnu::pure]] constexpr bool operator>=(
+      qsbr_ptr other) const noexcept {
+    return get() >= other.get();
+  }
+
+  [[nodiscard, gnu::pure]] constexpr bool operator<(
+      qsbr_ptr other) const noexcept {
+    return get() < other.get();
+  }
+
+  [[nodiscard, gnu::pure]] constexpr bool operator>(
+      qsbr_ptr other) const noexcept {
+    return get() > other.get();
+  }
+
+  [[nodiscard, gnu::pure]] constexpr pointer get() const noexcept {
+    return ptr;
+  }
 
  private:
-  pointer_type ptr;
+  pointer ptr{nullptr};
 };
 
 }  // namespace unodb

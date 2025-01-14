@@ -230,12 +230,6 @@ class [[nodiscard]] optimistic_lock final {
       return *this;
     }
 
-    // Point to the same lock and have the same version for that lock.
-    [[nodiscard]] bool operator==(
-        const read_critical_section &other) const noexcept {
-      return lock == other.lock && version == other.version;
-    }
-
     // Unlock iff it is not yet unlocked.  The read_critical_section
     // is invalidated by this method and must not be used again by the
     // caller.

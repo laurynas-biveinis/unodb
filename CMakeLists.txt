@@ -60,8 +60,8 @@ set(CLANG_CXX_WARNING_FLAGS
   "-Wself-assign" "-Wshadow-all"
   # Individual warnings
   "-Wabstract-vbase-init" "-Warray-bounds-pointer-arithmetic" "-Wassign-enum"
-  "-Watomic-implicit-seq-cst" "-Wbad-function-cast" "-Wc++2a-compat"
-  "-Wc++2a-extensions" "-Wcast-align" "-Wcast-qual" "-Wclass-varargs" "-Wcomma"
+  "-Watomic-implicit-seq-cst" "-Wbad-function-cast"
+  "-Wcast-align" "-Wcast-qual" "-Wclass-varargs" "-Wcomma"
   "-Wconditional-uninitialized" "-Wcovered-switch-default" "-Wdate-time"
   "-Wdeprecated-implementations" "-Wdisabled-macro-expansion"
   "-Wdouble-promotion" "-Wduplicate-decl-specifier" "-Wduplicate-enum"
@@ -597,7 +597,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 function(COMMON_TARGET_PROPERTIES TARGET)
   cmake_parse_arguments(PARSE_ARGV 1 CTP "SKIP_CHECKS" "" "")
-  target_compile_features(${TARGET} PUBLIC cxx_std_17)
+  target_compile_features(${TARGET} PUBLIC cxx_std_20)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
   target_compile_definitions(${TARGET} PRIVATE
     "$<${is_standalone}:UNODB_DETAIL_STANDALONE>"

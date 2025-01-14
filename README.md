@@ -24,7 +24,7 @@ ideas. I am describing some of the things I learned at my [blog](https://of-code
 
 ## Requirements
 
-UnoDB source code is written in C++17, and relies on the following
+UnoDB source code is written in C++20, and relies on the following
 platform-specific features:
 
 * On Intel platforms, it requires SSE4.1 intrinsics (Nehalem and higher), AVX

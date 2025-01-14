@@ -222,7 +222,7 @@ feature, do `git config --local include.path ../.gitconfig`. If you need to
 temporarily disable it, run `git config  --local --unset include.path`.
 
 To enable maintainer diagnostics, add `-DMAINTAINER_MODE=ON` CMake option. This
-makes compilation and `include-what-you-use` warnings fatal.
+makes compilation warnings fatal.
 
 clang-tidy, cppcheck, and cpplint will be invoked automatically during the build
 if found. The current diagnostic level for them, as well as for compiler
@@ -247,9 +247,8 @@ To enable GCC or MSVC compiler static analysis, add the `-DSTATIC_ANALYSIS=ON`
 CMake option. For LLVM static analysis, no special CMake option is needed;
 instead prepend `scan-build` to `make`.
 
-To invoke include-what-you-use without enabling the whole of maintainer mode,
-add the `-DIWYU=ON` CMake option. It will take effect if CMake configures to
-build project with clang.
+To use include-what-you-use, add the `-DIWYU=ON` CMake option. It will take
+effect if CMake configures to build project with clang.
 
 To enable inconclusive cppcheck diagnostics, add the `-DCPPCHECK_AGGRESSIVE=ON`
 CMake option. These diagnostics will not fail a build.

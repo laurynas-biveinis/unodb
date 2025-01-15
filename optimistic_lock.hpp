@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Laurynas Biveinis
+// Copyright (C) 2019-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
 #define UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
 
@@ -33,12 +33,6 @@ namespace unodb {
 
 // LCOV_EXCL_START
 inline void spin_wait_loop_body() noexcept {
-#ifdef UNODB_DETAIL_THREAD_SANITIZER
-
-  std::this_thread::yield();
-
-#else  // UNODB_DETAIL_THREAD_SANITIZER
-
 #if UNODB_SPINLOCK_LOOP_VALUE == UNODB_DETAIL_SPINLOCK_LOOP_PAUSE
 
 #if defined(UNODB_DETAIL_X86_64)
@@ -58,8 +52,6 @@ inline void spin_wait_loop_body() noexcept {
 #error Unknown SPINLOCK_LOOP value in CMake
 
 #endif  // UNODB_SPINLOCK_LOOP_VALUE
-
-#endif  // UNODB_DETAIL_THREAD_SANITIZER
 }
 // LCOV_EXCL_STOP
 

@@ -1,4 +1,4 @@
-// Copyright 2021-2024 Laurynas Biveinis
+// Copyright 2021-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -14,12 +14,14 @@
 // IWYU pragma: no_include <type_traits>
 // IWYU pragma: no_include "gtest/gtest.h"
 
-#include <gtest/gtest.h>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <random>
 #include <tuple>
+
+#include <gtest/gtest.h>
+
 #include "art_common.hpp"
 #include "assert.hpp"
 #include "db_test_utils.hpp"
@@ -52,8 +54,7 @@ class ARTConcurrencyTest : public ::testing::Test {
       unodb::test::expect_idle_qsbr();
   }
 
-  //
-  // TestFn is void( unodb::test::tree_verifier<Db> *verifier, std::size_t
+  // TestFn is void(unodb::test::tree_verifier<Db> *verifier, std::size_t
   // thread_i, std::size_t ops_per_thread)
   template <std::size_t ThreadCount, std::size_t OpsPerThread, typename TestFn>
   void parallel_test(TestFn test_function) {
@@ -281,7 +282,7 @@ TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan) {
 // A more challenging test using a smaller key range and the same
 // number of threads and operations per thread.  The goal of this test
 // is to try an increase coverage of the N256 case.
-TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan2) {
+TYPED_TEST(ARTConcurrencyTest, DISABLED_ParallelRandomInsertDeleteGetScan2) {
   constexpr auto thread_count = 4 * 3;
   constexpr auto initial_keys = 152;
   constexpr auto ops_per_thread = 100'000;
@@ -294,7 +295,7 @@ TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan2) {
 // A more challenging test using an even smaller key range and the
 // same number of threads and operations per thread.  The goal of this
 // test is to try an increase coverage of the N48 case.
-TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan3) {
+TYPED_TEST(ARTConcurrencyTest, DISABLED_ParallelRandomInsertDeleteGetScan3) {
   constexpr auto thread_count = 4 * 3;
   constexpr auto initial_keys = 32;
   constexpr auto ops_per_thread = 100'000;

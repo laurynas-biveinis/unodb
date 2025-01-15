@@ -234,7 +234,7 @@ class [[nodiscard]] optimistic_lock final {
     // the version that was used to construct this
     // read_critical_section.
     [[nodiscard, gnu::flatten]] UNODB_DETAIL_FORCE_INLINE bool try_read_unlock()
-        UNODB_DETAIL_RELEASE_CONST noexcept {
+        const noexcept {
       const auto result = lock->try_read_unlock(version);
 #ifndef NDEBUG
       lock = nullptr;
@@ -261,7 +261,7 @@ class [[nodiscard]] optimistic_lock final {
     //
     // @return true if the version is unchanged and false if the
     // caller MUST restart because the version has been changed.
-    [[nodiscard]] bool check() UNODB_DETAIL_RELEASE_CONST noexcept {
+    [[nodiscard]] bool check() const noexcept {
       const auto result = lock->check(version);
 #ifndef NDEBUG
       if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;  // LCOV_EXCL_LINE
@@ -299,7 +299,11 @@ class [[nodiscard]] optimistic_lock final {
     read_critical_section &operator=(const read_critical_section &) = delete;
 
    private:
-    optimistic_lock *lock{nullptr};
+#ifndef NDEBUG
+    mutable
+#endif
+        optimistic_lock *lock{nullptr};
+
     version_type version{0};
 
     friend class write_guard;

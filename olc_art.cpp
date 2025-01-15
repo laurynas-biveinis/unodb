@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -94,9 +94,10 @@ using db_inode_qsbr_deleter_parent =
 //
 // @return the outcome of that computation and false if the
 // read_critical_section could not be unlocked.
-inline bool UNLOCK(unodb::optimistic_lock::read_critical_section &cs,
-                   bool ret) {
-  return (!cs.try_read_unlock()) ? false : ret;
+[[nodiscard]] inline bool unlock_and_return(
+    const unodb::optimistic_lock::read_critical_section &cs,
+    bool ret) noexcept {
+  return UNODB_DETAIL_LIKELY(cs.try_read_unlock()) ? ret : false;
 }
 
 }  // namespace
@@ -1718,12 +1719,13 @@ bool olc_db::iterator::try_seek(detail::art_key search_key, bool &match,
         if (cmp_ < 0) {
           // FWD and the search key is ordered before this node.  We
           // want the left-most leaf under the node.
-          return UNLOCK(node_critical_section,
-                        try_left_most_traversal(node, parent_critical_section));
+          return unlock_and_return(
+              node_critical_section,
+              try_left_most_traversal(node, parent_critical_section));
         }
         // FWD and the search key is ordered after this node.  Right
         // most descent and then next().
-        return UNLOCK(
+        return unlock_and_return(
                    node_critical_section,
                    try_right_most_traversal(node, parent_critical_section)) &&
                try_next();
@@ -1732,13 +1734,15 @@ bool olc_db::iterator::try_seek(detail::art_key search_key, bool &match,
       if (cmp_ < 0) {
         // REV and the search key is ordered before this node.  We
         // want the preceeding key.
-        return UNLOCK(node_critical_section,
-                      try_left_most_traversal(node, parent_critical_section)) &&
+        return unlock_and_return(
+                   node_critical_section,
+                   try_left_most_traversal(node, parent_critical_section)) &&
                try_prior();
       }
       // REV and the search key is ordered after this node.
-      return UNLOCK(node_critical_section,
-                    try_right_most_traversal(node, parent_critical_section));
+      return unlock_and_return(
+          node_critical_section,
+          try_right_most_traversal(node, parent_critical_section));
     }
     remaining_key.shift_right(key_prefix_length);
     auto res = inode->find_child(node_type, remaining_key[0]);

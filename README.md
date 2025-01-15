@@ -48,17 +48,6 @@ platform-specific features:
 * Google Benchmark for microbenchmarks.
 * [DeepState][deepstate] for fuzzing tests.
 
-### Optional dependencies for development
-
-* clang-format
-* lcov
-* clang-tidy
-* clangd
-* cppcheck
-* cpplint
-* include-what-you-use
-* libfuzzer
-
 ## Building
 
 Out-of-source builds are recommended. Before anything else, do
@@ -70,10 +59,6 @@ git submodule update --init --recursive
 
 There are some CMake options for users:
 
-* `-DSTANDALONE=OFF` if you are building this as a part of another project, `ON`
-  if you work on UnoDB itself. It will enable extra global debug checks that
-  require entire programs to be compiled with them. Currently, this consists of
-  the libstdc++ debug mode. The default is `OFF`.
 * `-DSPINLOCK_LOOP=PAUSE|EMPTY` to choose the spinlock wait loop body
   implementation for the optimistic lock. `EMPTY` may benchmark better as long
   as there are fewer threads than available CPU cores. `PAUSE` will use that
@@ -82,9 +67,10 @@ There are some CMake options for users:
   result will scale better in benchmarks. The current stats implementation is
   global cache line-padded shared atomic counters. This option might be removed
   in the future if the stats are reimplemented with less overhead.
+* `-DWITH_AVX2=OFF` to disable AVX2 intrinsics to use SSE4.1/AVX only.
 
-The rest of the CMake options are mainly intended for UnoDB development itself
-and are discussed in the "Development" section below.
+There are other CMake options that are mainly intended for UnoDB development
+itself and are discussed in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Platform-Specific Notes
 
@@ -214,77 +200,15 @@ The registered threads must periodically signal their quiescent states. They can
 do this by using the `unodb::quiescent_state_on_scope_exit` scope guard, which
 automatically reports the quiescent state when the scope is exited.
 
-## Development
-
-Source code is formatted with [Google C++ style][gc++style]. Automatic code
-formatting is configured through git  clean/fuzz filters. To enable this
-feature, do `git config --local include.path ../.gitconfig`. If you need to
-temporarily disable it, run `git config  --local --unset include.path`.
-
-To enable maintainer diagnostics, add `-DMAINTAINER_MODE=ON` CMake option. This
-makes compilation warnings fatal.
-
-clang-tidy, cppcheck, and cpplint will be invoked automatically during the build
-if found. The current diagnostic level for them, as well as for compiler
-warnings, is set very high and can be relaxed if needed.
-
-To disable AVX2 intrinsics to use SSE4.1/AVX only, add `-DWITH_AVX2=OFF`.
-
-To enable AddressSanitizer and LeakSanitizer (the latter if available), add
-`-DSANITIZE_ADDRESS=ON` CMake option. It is incompatible with the
-`-DSANITIZE_THREAD=ON` option.
-
-To enable ThreadSanitizer, add `-DSANITIZE_THREAD=ON` CMake option. It is
-incompatible with the `-DSANITIZE_ADDRESS=ON` option and will disable libfuzzer
-support if specified. Not available under MSVC.
-
-To enable UndefinedBehaviorSanitizer, add the `-DSANITIZE_UB=ON` CMake option.
-It is compatible with both `-DSANITIZE_ADDRESS=ON` and `-DSANITIZE_THREAD=ON`
-options, although some [false positives][sanitizer-combination-bug] might occur.
-Not available under MSVC.
-
-To enable GCC or MSVC compiler static analysis, add the `-DSTATIC_ANALYSIS=ON`
-CMake option. For LLVM static analysis, no special CMake option is needed;
-instead prepend `scan-build` to `make`.
-
-To use include-what-you-use, add the `-DIWYU=ON` CMake option. It will take
-effect if CMake configures to build project with clang.
-
-To enable inconclusive cppcheck diagnostics, add the `-DCPPCHECK_AGGRESSIVE=ON`
-CMake option. These diagnostics will not fail a build.
-
-To generate coverage reports on tests, excluding fuzzers, using lcov, add the
-`-DCOVERAGE=ON` CMake option.
-
-Google Test and DeepState are used for testing. There will be no unit tests for
-each private implementation class. For DeepState, both LLVM libfuzzer and
-built-in fuzzer are supported.
-
-## Fuzzing
-
- Fuzzer tests for ART and QSBR components are located in the `fuzz_deepstate`
-subdirectory. The tests use DeepState with either a brute force or
-libfuzzer-based backend. However, not all platforms and configurations support
-them. For isntance, MSVC builds completely skip them, and libfuzzer-based tests
-are skipped if ThreadSanitizer is enabled or if building non-XCode clang release
-configuration.
-
-Several Make targets are available for fuzzing. For time-based brute-force
-fuzzing of all components, use one of the following: `deepstate_2s`,
-`deepstate_1m`, `deepstate_20m`, or `deepstate_8h`. To use individual fuzzers,
-insert `art` or `qsbr`, for example: `deepstate_qsbr_20m` or `deepstate_art_8h`.
-Running fuzzer under Valgrind is available through `valgrind_deepstate` for
-everything or `valgrind_{art|qsbr}_deepstate` for individual fuzzers.
-
-Fuzzers that use libfuzzer mirror the above by adding `_lf` before the time
-suffix, such as `deepstate_lf_8h`, `deepstate_qsbr_lf_20m`,
-`valgrind_deepstate_lf`, and so on.
-
 ## Related Projects
 
 [art_map](https://github.com/justinasvd/art_map) is a C++14 template library
 providing `std::`-like interface over the ART data structure. It shares some
 code with UnoDB.
+
+## Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Literature
 
@@ -304,11 +228,6 @@ Systems, 1998, pages 509--518.
 *seqlock sync*: H-J. Boehm, "Can seqlocks get along with programming language
 memory models?," Proceedings of the 2012 ACM SIGPLAN Workshop on Memory Systems
 Performance and Correctness, June 2012, pages 12--21, 2012.
-
-[sanitizer-combination-bug]: https://github.com/google/sanitizers/issues/1106
-
-[gc++style]: https://google.github.io/styleguide/cppguide.html
-"Google C++ Style Guide"
 
 [deepstate]: https://github.com/trailofbits/deepstate "DeepState on GitHub"
 

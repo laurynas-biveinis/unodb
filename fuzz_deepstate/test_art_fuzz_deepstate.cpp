@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 Laurynas Biveinis
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -16,7 +16,6 @@
 
 #include <deepstate/DeepState.h>
 #include <deepstate/DeepState.hpp>
-#include <gsl/util>
 
 #include "art.hpp"
 #include "art_common.hpp"
@@ -43,7 +42,7 @@ using oracle_type = std::unordered_map<unodb::key, unodb::value_view>;
     // Ideally we would take random bytes from DeepState, but we'd end up
     // exhausting their default source len too soon. Do something deterministic
     // that has embedded zero bytes to shake out any C string API use
-    result[i] = gsl::narrow_cast<std::byte>(i % 256);
+    result[i] = static_cast<std::byte>(i % 256);
   }
   return result;
 }

@@ -12,7 +12,8 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "STANDALONE": "ON",
-                "MAINTAINER_MODE": "ON"
+                "MAINTAINER_MODE": "ON",
+                "IWYU": "ON"
             }
         },
         {

@@ -2,7 +2,7 @@
 
 # Contributing to UnoDB
 
-## Development dependencies
+## Optional development dependencies
 
 * clang-format
 * lcov
@@ -15,11 +15,16 @@
 
 ## Development CMake options
 
+The regular CMake option `-DCMAKE_BUILD_TYPE` is recognized. Setting it to
+`Debug` will enable a lot of assertions, which are useful during development.
+
+There also other development-specific options. All of them are `OFF` by default.
+
 * `-DSTANDALONE=ON` always should be given when working on UnoDB itself, whereas
   for users with UnoDB as a part of another project it should be `OFF`. When
   turned on, it will enable extra global debug checks that require entire
   programs to be compiled with them. Currently, this consists of the libstdc++
-  debug mode. The default is `OFF`.
+  debug mode.
 * `-DMAINTAINER_MODE=ON` to enable maintainer diagnostics. This makes
   compilation warnings fatal.
 * `-DSANITIZE_ADDRESS=ON` to enable AddressSanitizer and, if available,
@@ -45,10 +50,25 @@
 
 * The code should follow existing conventions, formatted with
   [Google C++ style][gc++style].
+* Identifiers should be `snake_case`.
+* The code is `noexcept`-maximalist. Every function and method that cannot throw
+  should be marked as `noexcept`. If the code does not throw in release build
+  but may throw in debug one, it should ignore the latter and be `noexcept`.
+* The code is `[[nodiscard]]`-maximalist. Every value-returning function and
+  method starts out as `[[nodiscard]]` by default, and is only changed if there
+  is a clear need to both handle and ignore the return value.
+* The code follows the Almost Always Auto guideline.
+* All C++ standard library symbols must be namespace-qualified, and this
+  includes symbols shared with C. For example `std::size_t`.
 * Automatic code formatting is configured through git clean/fuzz filters. To
   enable this feature, do `git config --local include.path ../.gitconfig`. If
   you need to temporarily disable it, run `git config --local --unset
   include.path`.
+* The code that cannot be possibly tested by short deterministic tests, for
+  example, because it handles rarely-occurring non-deterministic concurrency
+  conditions, should be excluded from coverage testing with `// LCOV_EXCL_LINE`
+  comment for a single line or with `// LCOV_EXCL_START`, `// LCOV_EXCL_STOP`
+  start and end markers for a block.
 
 ## Linting and static analysis
 
@@ -62,18 +82,23 @@ is needed; instead prepend `scan-build` to `make`.
 
 ## Testing
 
-Google Test and DeepState fuzzer are used for testing. There will be no unit
-tests for each private implementation class. For DeepState, both LLVM libfuzzer
-and built-in fuzzer are supported.
+Google Test and DeepState fuzzer are used for testing. For DeepState, both LLVM
+libfuzzer and built-in fuzzer are supported.
+
+To run the tests, do `ctest`. It is also useful to run tests in parallel with
+e.g. `ctest -j10`. For verbose test output add `-V`.
+
+Benchmarks can also serve as tests, especially under debug build and under
+sanitizers or Valgrind. For that, there is a CMake target `quick_benchmarks`,
+i.e. `make -j10 -k quick_benchmarks`.
 
 ## Fuzzing
 
 Fuzzer tests for ART and QSBR components are located in the `fuzz_deepstate`
 subdirectory. The tests use DeepState with either a brute force or
-libfuzzer-based backend. However, not all platforms and configurations support
-them. For isntance, MSVC builds completely skip them, and libfuzzer-based tests
-are skipped if ThreadSanitizer is enabled or if building non-XCode clang release
-configuration.
+libfuzzer-based backend. However, the only supported platforms are Linux (GCC &
+clang) and macOS (clang only, no AddressSanitizer and ThreadSanitizer) under
+x86_64 only.
 
 Several Make targets are available for fuzzing. For time-based brute-force
 fuzzing of all components, use one of the following: `deepstate_2s`,
@@ -98,12 +123,19 @@ suffix, such as `deepstate_lf_8h`, `deepstate_qsbr_lf_20m`,
 * Create one PR per feature or fix. If it is possible to split PR into
   independent smaller parts, do so.
 * Include documentation updates for the changes.
-* Code changes should be covered by small deterministic tests.
+* Code changes should be covered by small deterministic tests. The coverage
+  target is 100% (to the achievable extent), after non-deterministic code has
+  been annotated to be excluded from coverage as described in the "Style Guide"
+  section above.
+* A clean CI run is a prerequisite for merging the PR.
+* In the case of merge conflicts, rebase.
+* All commits should be squashed into logical units. If the PR has only one
+  feature or fix, as it should, there should be only one commit in it.
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under
-LICENSE terms.
+By contributing, you agree that your contributions will be licensed under the
+[LICENSE](LICENSE) terms.
 
 [gc++style]: https://google.github.io/styleguide/cppguide.html
 "Google C++ Style Guide"

@@ -60,7 +60,8 @@ There also other development-specific options. All of them are `OFF` by default.
 * The code follows the Almost Always Auto guideline.
 * All C++ standard library symbols must be namespace-qualified, and this
   includes symbols shared with C. For example `std::size_t`.
-* Automatic code formatting is configured through git clean/fuzz filters. To
+* Doxygen is used to produce source code documentation.
+* Automatic code formatting can be configured through git clean/fuzz filters. To
   enable this feature, do `git config --local include.path ../.gitconfig`. If
   you need to temporarily disable it, run `git config --local --unset
   include.path`.
@@ -122,7 +123,7 @@ suffix, such as `deepstate_lf_8h`, `deepstate_qsbr_lf_20m`,
 
 * Create one PR per feature or fix. If it is possible to split PR into
   independent smaller parts, do so.
-* Include documentation updates for the changes.
+* Include documentation updates for the changes, use Doxygen as needed.
 * Code changes should be covered by small deterministic tests. The coverage
   target is 100% (to the achievable extent), after non-deterministic code has
   been annotated to be excluded from coverage as described in the "Style Guide"

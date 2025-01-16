@@ -153,6 +153,10 @@ Three ART classes available:
   nodes are versioned, writers lock per-node optimistic locks, readers don't
   lock but check node versions and restart if they change.
 
+The full source code reference, including public API, is available at
+[https://laurynas-biveinis.github.io/unodb/](https://laurynas-biveinis.github.io/unodb/)
+(work in progress).
+
 Do not use macros starting with `UNODB_DETAIL_` or declarations in
 `unodb::detail` and `unob::test` namespaces as they are internal and may change
 at any time.

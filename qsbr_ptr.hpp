@@ -109,7 +109,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  [[nodiscard]] constexpr reference operator*() const { return *ptr; }
+  [[nodiscard]] constexpr reference operator*() const noexcept { return *ptr; }
 
   [[nodiscard]] constexpr reference operator[](
       difference_type n) const noexcept {
@@ -170,7 +170,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   }
 
   [[nodiscard]] friend constexpr qsbr_ptr operator+(difference_type n,
-                                                    qsbr_ptr other) {
+                                                    qsbr_ptr other) noexcept {
     return other + n;
   }
 

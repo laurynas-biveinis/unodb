@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Laurynas Biveinis
+// Copyright (C) 2019-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_QSBR_HPP
 #define UNODB_DETAIL_QSBR_HPP
 
@@ -35,8 +35,6 @@
 #endif
 #include <utility>
 #include <vector>
-
-#include <gsl/util>
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
@@ -102,8 +100,7 @@ class [[nodiscard]] qsbr_epoch final {
     assert_invariant();
 #endif
 
-    return qsbr_epoch{
-        gsl::narrow_cast<epoch_type>((epoch_val + by) % max_count)};
+    return qsbr_epoch{static_cast<epoch_type>((epoch_val + by) % max_count)};
   }
 
   [[nodiscard]] constexpr auto operator==(qsbr_epoch other) const noexcept {
@@ -175,11 +172,11 @@ struct qsbr_state {
  private:
   [[nodiscard]] static constexpr auto do_get_epoch(type word) noexcept {
     return qsbr_epoch{
-        gsl::narrow_cast<qsbr_epoch::epoch_type>(word >> epoch_in_word_offset)};
+        static_cast<qsbr_epoch::epoch_type>(word >> epoch_in_word_offset)};
   }
 
   [[nodiscard]] static constexpr auto do_get_thread_count(type word) noexcept {
-    const auto result = gsl::narrow_cast<qsbr_thread_count_type>(
+    const auto result = static_cast<qsbr_thread_count_type>(
         (word & thread_count_in_word_mask) >> thread_count_in_word_offset);
     UNODB_DETAIL_ASSERT(result <= max_qsbr_threads);
     return result;
@@ -187,7 +184,7 @@ struct qsbr_state {
 
   [[nodiscard]] static constexpr auto do_get_threads_in_previous_epoch(
       type word) noexcept {
-    const auto result = gsl::narrow_cast<qsbr_thread_count_type>(
+    const auto result = static_cast<qsbr_thread_count_type>(
         word & threads_in_previous_epoch_in_word_mask);
     UNODB_DETAIL_ASSERT(result <= max_qsbr_threads);
     return result;

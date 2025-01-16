@@ -1,4 +1,4 @@
-// Copyright 2022 Laurynas Biveinis
+// Copyright 2022-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_PORTABILITY_BUILTINS_HPP
 #define UNODB_DETAIL_PORTABILITY_BUILTINS_HPP
 
@@ -13,8 +13,7 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <cstdint>
-
-#include <gsl/util>
+#include <type_traits>
 
 #ifdef UNODB_DETAIL_MSVC
 #include <intrin.h>
@@ -42,31 +41,31 @@ template <typename T>
 
   if constexpr (std::is_same_v<unsigned, T>) {
 #ifndef UNODB_DETAIL_MSVC
-    return gsl::narrow_cast<std::uint8_t>(__builtin_ctz(x));
+    return static_cast<std::uint8_t>(__builtin_ctz(x));
 #else
     unsigned long result;  // NOLINT(runtime/int)
     _BitScanForward(&result, x);
-    return gsl::narrow_cast<std::uint8_t>(result);
+    return static_cast<std::uint8_t>(result);
 #endif
   }
   // NOLINTNEXTLINE(google-runtime-int)
   if constexpr (std::is_same_v<unsigned long, T>) {  // NOLINT(runtime/int)
 #ifndef UNODB_DETAIL_MSVC
-    return gsl::narrow_cast<std::uint8_t>(__builtin_ctzl(x));
+    return static_cast<std::uint8_t>(__builtin_ctzl(x));
 #else
     unsigned long result;  // NOLINT(runtime/int)
     _BitScanForward(&result, x);
-    return gsl::narrow_cast<std::uint8_t>(result);
+    return static_cast<std::uint8_t>(result);
 #endif
   }
   // NOLINTNEXTLINE(google-runtime-int)
   if constexpr (std::is_same_v<unsigned long long, T>) {  // NOLINT(runtime/int)
 #ifndef UNODB_DETAIL_MSVC
-    return gsl::narrow_cast<std::uint8_t>(__builtin_ctzll(x));
+    return static_cast<std::uint8_t>(__builtin_ctzll(x));
 #else
     unsigned long result;  // NOLINT(runtime/int)
     _BitScanForward64(&result, x);
-    return gsl::narrow_cast<std::uint8_t>(result);
+    return static_cast<std::uint8_t>(result);
 #endif
   }  // cppcheck-suppress missingReturn
 }

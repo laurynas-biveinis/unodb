@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_ART_INTERNAL_IMPL_HPP
 #define UNODB_DETAIL_ART_INTERNAL_IMPL_HPP
 
@@ -33,8 +33,6 @@
 #elif defined(__aarch64__)
 #include <arm_neon.h>
 #endif
-
-#include <gsl/util>
 
 #include "art_common.hpp"
 #include "art_internal.hpp"
@@ -103,7 +101,7 @@ class [[nodiscard]] basic_leaf final : public Header {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
   constexpr basic_leaf(art_key k, value_view v) noexcept
-      : key{k}, value_size{gsl::narrow_cast<value_size_type>(v.size())} {
+      : key{k}, value_size{static_cast<value_size_type>(v.size())} {
     UNODB_DETAIL_ASSERT(v.size() <= max_value_size);
 
     if (!v.empty()) std::memcpy(&value_start[0], v.data(), value_size);
@@ -167,7 +165,7 @@ template <class Header, class Db>
   }
 
   const auto size = leaf_type::compute_size(
-      gsl::narrow_cast<typename leaf_type::value_size_type>(v.size()));
+      static_cast<typename leaf_type::value_size_type>(v.size()));
 
   auto *const leaf_mem = static_cast<std::byte *>(
       allocate_aligned(size, alignment_for_new<leaf_type>()));
@@ -933,17 +931,17 @@ class basic_inode_impl : public ArtPolicy::header_type {
   constexpr basic_inode_impl(unsigned children_count_, art_key k1,
                              art_key shifted_k2, tree_depth depth) noexcept
       : k_prefix{k1, shifted_k2, depth},
-        children_count{gsl::narrow_cast<std::uint8_t>(children_count_)} {}
+        children_count{static_cast<std::uint8_t>(children_count_)} {}
 
   constexpr basic_inode_impl(unsigned children_count_, unsigned key_prefix_len,
                              const inode_type &key_prefix_source_node) noexcept
       : k_prefix{key_prefix_len, key_prefix_source_node.get_key_prefix()},
-        children_count{gsl::narrow_cast<std::uint8_t>(children_count_)} {}
+        children_count{static_cast<std::uint8_t>(children_count_)} {}
 
   constexpr basic_inode_impl(unsigned children_count_,
                              const basic_inode_impl &other) noexcept
       : k_prefix{other.k_prefix},
-        children_count{gsl::narrow_cast<std::uint8_t>(children_count_)} {}
+        children_count{static_cast<std::uint8_t>(children_count_)} {}
 
  protected:
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os,
@@ -1621,7 +1619,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     while (true) {
       const auto source_child_i = source_node.child_indexes[i].load();
       if (source_child_i != inode48_type::empty_child) {
-        keys.byte_array[next_child] = gsl::narrow_cast<std::byte>(i);
+        keys.byte_array[next_child] = static_cast<std::byte>(i);
         const auto source_child_ptr =
             source_node.children.pointer_array[source_child_i].load();
         UNODB_DETAIL_ASSERT(source_child_ptr != nullptr);
@@ -1853,7 +1851,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         static_cast<unsigned>(_mm_movemask_epi8(lesser_key_positions)) & mask;
     const auto result = (bit_field != 0)
                             ? detail::ctz(bit_field)
-                            : gsl::narrow_cast<std::uint8_t>(children_count_);
+                            : static_cast<std::uint8_t>(children_count_);
 #else
     // This is also the best current ARM implementation
     const auto result = static_cast<std::uint8_t>(
@@ -2117,7 +2115,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       UNODB_DETAIL_ASSERT(children.pointer_array[j] != nullptr);
 #endif
 
-    child_indexes[key_byte] = gsl::narrow_cast<std::uint8_t>(i);
+    child_indexes[key_byte] = static_cast<std::uint8_t>(i);
     children.pointer_array[i] = node_ptr{child.release(), node_type::LEAF};
     this->children_count = children_count_ + 1U;
   }
@@ -2287,7 +2285,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     for (unsigned i = 0; i < 256; i++)
       if (child_indexes[i] != empty_child) {
         os << " ";
-        dump_byte(os, gsl::narrow_cast<std::byte>(i));
+        dump_byte(os, static_cast<std::byte>(i));
         os << ", child index = " << static_cast<unsigned>(child_indexes[i])
            << ": ";
         UNODB_DETAIL_ASSERT(children.pointer_array[child_indexes[i]] !=
@@ -2489,7 +2487,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
     UNODB_DETAIL_ASSERT(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release(), node_type::LEAF};
-    this->children_count = gsl::narrow_cast<std::uint8_t>(children_count_ + 1U);
+    this->children_count = static_cast<std::uint8_t>(children_count_ + 1U);
   }
 
   constexpr void remove(std::uint8_t child_index, db &db_instance) noexcept {
@@ -2641,7 +2639,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     os << ", key bytes & children:\n";
     for_each_child([&os, recursive](unsigned i, node_ptr child) {
       os << ' ';
-      dump_byte(os, gsl::narrow_cast<std::byte>(i));
+      dump_byte(os, static_cast<std::byte>(i));
       os << ' ';
       if (recursive) {
         ArtPolicy::dump_node(os, child);

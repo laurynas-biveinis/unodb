@@ -136,6 +136,7 @@ Style Guide</h2>
 <li>The code is <code>noexcept</code>-maximalist. Every function and method that cannot throw should be marked as <code>noexcept</code>. If the code does not throw in release build but may throw in debug one, it should ignore the latter and be <code>noexcept</code>.</li>
 <li>The code is <code>[[nodiscard]]</code>-maximalist. Every value-returning function and method starts out as <code>[[nodiscard]]</code> by default, and is only changed if there is a clear need to both handle and ignore the return value.</li>
 <li>The code follows the Almost Always Auto guideline.</li>
+<li><code>constexpr</code> should be applied everywhere it is legal to do so. Perhaps one day we will have compile-time Adaptive Radix Tree.</li>
 <li>All C++ standard library symbols must be namespace-qualified, and this includes symbols shared with C. For example <code>std::size_t</code>.</li>
 <li>Doxygen is used to produce source code documentation.</li>
 <li>Automatic code formatting can be configured through git clean/fuzz filters. To enable this feature, do <code>git config --local include.path ../.gitconfig</code>. If you need to temporarily disable it, run <code>git config --local --unset include.path</code>.</li>

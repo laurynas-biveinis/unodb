@@ -21,6 +21,12 @@
 
 namespace unodb::detail {
 
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os,
+                                                  unodb::key k) {
+  os << "key: 0x" << std::hex << std::setfill('0') << std::setw(sizeof(k)) << k
+     << std::dec;
+}
+
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
                                                    std::byte byte) {
   os << ' ' << std::hex << std::setfill('0') << std::setw(2)

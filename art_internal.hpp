@@ -80,8 +80,8 @@ class [[nodiscard]] basic_db_leaf_deleter;
 template <typename KeyType>
 struct [[nodiscard]] basic_art_key final {
  private:
-  // Convert a simple external key into an internal key supporting
-  // lexicographic comparison.
+  // ctor helper converts a simple external key into an internal key
+  // supporting lexicographic comparison.
   [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
   make_binary_comparable(KeyType k) noexcept {
 #ifdef UNODB_DETAIL_LITTLE_ENDIAN
@@ -91,8 +91,25 @@ struct [[nodiscard]] basic_art_key final {
 #endif
   }
 
+  // ctor helper stuffs a key_view into a KeyType.
+  [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
+  view2key(key_view key) noexcept {
+    if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
+      // Convert a key_view into a uint64_t.  The key_view must be
+      // small enough to fit.
+      UNODB_DETAIL_ASSERT(k.size_bytes() <= sizeof(std::uint64_t));
+      // first 64-bits.
+      std::uint64_t u{};
+      std::memcpy(&u, key.data(), std::min(key.size_bytes(), sizeof(u)));
+      return u;
+    } else {
+      // fast path
+      return key;
+    }
+  }
+
  public:
-  constexpr basic_art_key() noexcept = default;
+  // constexpr basic_art_key() noexcept = default;
 
   // Construct converts a fixed width primitive type into a
   // lexicographically ordered key.
@@ -104,12 +121,13 @@ struct [[nodiscard]] basic_art_key final {
   UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(KeyType key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
-  // TODO(thompsonbry) variable length keys -- THIS NEEDS TO BE REPLACED and WE
-  // MUST SUPPORT std::span for art_key.
-  UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(key_view) noexcept
-      : key{0ULL} {
-    UNODB_DETAIL_CANNOT_HAPPEN();
-  }
+  // Construct converts a key_view which must already be
+  // lexicographically ordered.
+  // template <typename U = KeyType,
+  //           typename std::enable_if<std::is_integral<U>::value, int>::type =
+  //           1>
+  UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(key_view key_) noexcept
+      : key{view2key(key_)} {}
 
   // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
   [[nodiscard, gnu::pure]] constexpr int cmp(
@@ -157,7 +175,9 @@ struct [[nodiscard]] basic_art_key final {
       return key;
     } else {
       // first 64-bits.
-      return *reinterpret_cast<std::uint64_t *>(key.data());
+      std::uint64_t u{};
+      std::memcpy(&u, key.data(), std::min(key.size_bytes(), sizeof(u)));
+      return u;
     }
   }
 
@@ -169,8 +189,13 @@ struct [[nodiscard]] basic_art_key final {
   //
   // 0x0011223344556677 shift_right(2) => 0x2233445566770000
   constexpr void shift_right(const std::size_t num_bytes) noexcept {
-    UNODB_DETAIL_ASSERT(num_bytes <= size);
-    key >>= (num_bytes * 8);
+    if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
+      UNODB_DETAIL_ASSERT(num_bytes <= size);
+      key >>= (num_bytes * 8);
+    } else {
+      UNODB_DETAIL_ASSERT(num_bytes <= key.size_bytes());
+      key = key.subspan(num_bytes);
+    }
   }
 
   static constexpr auto size = sizeof(KeyType);

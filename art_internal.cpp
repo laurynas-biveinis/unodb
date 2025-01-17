@@ -21,12 +21,6 @@
 
 namespace unodb::detail {
 
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os,
-                                                  unodb::key k) {
-  os << "key: 0x" << std::hex << std::setfill('0') << std::setw(sizeof(k)) << k
-     << std::dec;
-}
-
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
                                                    std::byte byte) {
   os << ' ' << std::hex << std::setfill('0') << std::setw(2)
@@ -39,6 +33,19 @@ namespace unodb::detail {
   for (std::size_t i = 0; i < sizeof(key); ++i) dump_byte(os, key[i]);
   return os;
 }
+
+template <typename T>
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os, T k) {
+  if constexpr (std::is_same_v<T, std::uint64_t>) {
+    os << "key: 0x" << std::hex << std::setfill('0') << std::setw(sizeof(k))
+       << k << std::dec;
+  } else {
+    os << "key: 0x";
+    for (std::size_t i = 0; i < k.size_bytes(); ++i) dump_byte(os, k[i]);
+  }
+}
+template void dump_key<std::uint64_t>(std::ostream &os, std::uint64_t k);
+template void dump_key<key_view>(std::ostream &os, key_view k);
 
 void ensure_capacity(std::byte *&buf, size_t &cap, size_t off,
                      size_t min_capacity) {

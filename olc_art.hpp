@@ -171,8 +171,9 @@ class olc_db final {
 
   // Query for a value associated with an external key.  The key is
   // converted to a binary comparable key.
+  template <typename T = key>
   [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<key>::value, get_result>::type
+  typename std::enable_if<std::is_integral<T>::value, get_result>::type
   get(key search_key) const noexcept {
     const detail::art_key k{search_key};  // fast path conversion.
     return get0(k);
@@ -207,8 +208,9 @@ class olc_db final {
   // std::uncaught_exceptions() > 0
   //
   // @return true iff the key value pair was inserted.
+  template <typename T = key>
   [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<key>::value, bool>::type
+  typename std::enable_if<std::is_integral<T>::value, bool>::type
   insert(key insert_key, unodb::value_view v) {
     const detail::art_key k{insert_key};  // fast path conversion.
     return insert0(k, v);
@@ -227,8 +229,9 @@ class olc_db final {
   //
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
+  template <typename T = key>
   [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<key>::value, bool>::type
+  typename std::enable_if<std::is_integral<T>::value, bool>::type
   remove(key search_key) {
     const detail::art_key k{search_key};  // fast path conversion.
     return remove0(k);
@@ -669,7 +672,8 @@ class olc_db final {
       it.seek(from_key_, match, true /*fwd*/);
       if constexpr (debug) {
         std::cerr << "scan_range:: fwd"
-                  << ", from_key=" << from_key << ", to_key=" << to_key << "\n";
+                  << ", from_key=" << from_key_ << ", to_key=" << to_key_
+                  << "\n";
         it.dump(std::cerr);
       }
       visitor<olc_db::iterator> v{it};
@@ -686,7 +690,8 @@ class olc_db final {
       it.seek(from_key_, match, false /*fwd*/);
       if constexpr (debug) {
         std::cerr << "scan_range:: rev"
-                  << ", from_key=" << from_key << ", to_key=" << to_key << "\n";
+                  << ", from_key=" << from_key_ << ", to_key=" << to_key_
+                  << "\n";
         it.dump(std::cerr);
       }
       visitor<olc_db::iterator> v{it};

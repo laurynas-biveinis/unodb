@@ -115,8 +115,9 @@ class db final {
 
   // Query for a value associated with an external key.  The key is
   // converted to a binary comparable key.
+  template <typename T = key>
   [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<key>::value, get_result>::type
+  typename std::enable_if<std::is_integral<T>::value, get_result>::type
   get(key search_key) const noexcept {
     const detail::art_key k{search_key};  // fast path conversion.
     return get0(k);
@@ -146,8 +147,9 @@ class db final {
   // std::uncaught_exceptions() > 0
   //
   // @return true iff the key value pair was inserted.
+  template <typename T = key>
   [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<key>::value, bool>::type
+  typename std::enable_if<std::is_integral<T>::value, bool>::type
   insert(key insert_key, value_view v) {
     const detail::art_key k{insert_key};  // fast path conversion.
     return insert0(k, v);
@@ -166,8 +168,9 @@ class db final {
   //
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
+  template <typename T = key>
   [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<key>::value, bool>::type
+  typename std::enable_if<std::is_integral<T>::value, bool>::type
   remove(key search_key) {
     const detail::art_key k{search_key};  // fast path conversion.
     return remove0(k);
@@ -336,9 +339,7 @@ class db final {
       // OLC where the node might be concurrently modified.
       UNODB_DETAIL_ASSERT(node.type() != node_type::LEAF);
       auto* inode{node.ptr<detail::inode*>()};
-      auto prefix{
-          inode->get_key_prefix().get_snapshot()};  // FIXME OLC must verify the
-                                                    // node version here!!!!
+      auto prefix{inode->get_key_prefix().get_snapshot()};
       stack_.push({node, key_byte, child_index, prefix.size()});
       keybuf_.push(prefix.get_key_view());
       keybuf_.push(key_byte);
@@ -750,7 +751,7 @@ inline void db::scan_range(key from_key, const key to_key, FN fn) {
     it.seek(from_key_, match, true /*fwd*/);
     if constexpr (debug) {
       std::cerr << "scan_range:: fwd"
-                << ", from_key=" << from_key << ", to_key=" << to_key << "\n";
+                << ", from_key=" << from_key_ << ", to_key=" << to_key_ << "\n";
       it.dump(std::cerr);
     }
     visitor<db::iterator> v{it};
@@ -767,7 +768,7 @@ inline void db::scan_range(key from_key, const key to_key, FN fn) {
     it.seek(from_key_, match, false /*fwd*/);
     if constexpr (debug) {
       std::cerr << "scan_range:: rev"
-                << ", from_key=" << from_key << ", to_key=" << to_key << "\n";
+                << ", from_key=" << from_key_ << ", to_key=" << to_key_ << "\n";
       it.dump(std::cerr);
     }
     visitor<db::iterator> v{it};

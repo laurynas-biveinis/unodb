@@ -67,8 +67,9 @@ class mutex_db final {
 
   // Querying for a value associated with an external key.  The key is
   // converted to a binary comparable key.
+  template <typename T = key>
   [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<key>::value, get_result>::type
+  typename std::enable_if<std::is_integral<T>::value, get_result>::type
   get(key search_key) const noexcept {
     const detail::art_key k{search_key};  // fast path conversion.
     return get0(k);
@@ -98,8 +99,9 @@ class mutex_db final {
   // std::uncaught_exceptions() > 0
   //
   // @return true iff the key value pair was inserted.
+  template <typename T = key>
   [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<key>::value, bool>::type
+  typename std::enable_if<std::is_integral<T>::value, bool>::type
   insert(key insert_key, value_view v) {
     const detail::art_key k{insert_key};  // fast path conversion.
     return insert0(k, v);
@@ -118,8 +120,9 @@ class mutex_db final {
   //
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
+  template <typename T = key>
   [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<key>::value, bool>::type
+  typename std::enable_if<std::is_integral<T>::value, bool>::type
   remove(key search_key) {
     const detail::art_key k{search_key};  // fast path conversion.
     return remove0(k);

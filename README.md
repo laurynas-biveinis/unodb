@@ -43,7 +43,6 @@ platform-specific features:
 
 ### Build dependencies, bundled as git submodules
 
-* Guidelines Support Library.
 * Google Test for tests.
 * Google Benchmark for microbenchmarks.
 * [DeepState][deepstate] for fuzzing tests.

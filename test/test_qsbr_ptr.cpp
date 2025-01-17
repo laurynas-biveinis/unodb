@@ -11,16 +11,12 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include "gtest/gtest.h"
 
 #include <algorithm>
 #include <array>
-#include <cstddef>
-#include <cstdint>
 #include <iterator>
+#include <span>
 #include <utility>
-
-#include <gsl/span>
 
 #include <gtest/gtest.h>
 
@@ -36,10 +32,10 @@ constexpr char y = 'Y';  // -V707
 const char* const raw_ptr_y = &y;
 
 const std::array<const char, 2> two_chars = {'A', 'B'};
-const gsl::span<const char> gsl_span{two_chars};
+const std::span<const char> std_span{two_chars};
 
 const std::array<const char, 3> three_chars = {'C', 'D', 'E'};
-const gsl::span<const char> gsl_span2{three_chars};
+const std::span<const char> std_span2{three_chars};
 
 UNODB_START_TESTS()
 
@@ -269,122 +265,61 @@ TEST(QSBRPtr, Get) {
   UNODB_ASSERT_EQ(ptr.get(), &x);
 }
 
-TEST(QSBRPtrSpan, CopyGslSpanCtor) {
-  const unodb::qsbr_ptr_span span{gsl_span};
+TEST(QSBRPtrSpan, CopyStdSpanCtor) {
+  const unodb::qsbr_ptr_span span{std_span};
 
-  UNODB_ASSERT_TRUE(std::ranges::equal(span, gsl_span));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span, std_span));
 }
 
 TEST(QSBRPtrSpan, CopyCtor) {
-  const unodb::qsbr_ptr_span span{gsl_span};
+  const unodb::qsbr_ptr_span span{std_span};
   const unodb::qsbr_ptr_span span2{span};
 
-  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span));
 }
 
 TEST(QSBRPtrSpan, MoveCtor) {
-  unodb::qsbr_ptr_span span{gsl_span};
+  unodb::qsbr_ptr_span span{std_span};
   const unodb::qsbr_ptr_span span2{std::move(span)};
 
-  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span));
   UNODB_ASSERT_EQ(std::cbegin(span).get(), nullptr);
 }
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
 TEST(QSBRPtrSpan, CopyAssignment) {
-  const unodb::qsbr_ptr_span span{gsl_span};
-  unodb::qsbr_ptr_span span2{gsl_span2};
+  const unodb::qsbr_ptr_span span{std_span};
+  unodb::qsbr_ptr_span span2{std_span2};
 
-  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span2));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span2));
   span2 = span;
-  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span));
 
   span2 = span2;  // -V570
-  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span));
 }
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
 TEST(QSBRPtrSpan, MoveAssignment) {
-  unodb::qsbr_ptr_span span{gsl_span};
-  unodb::qsbr_ptr_span span2{gsl_span2};
+  unodb::qsbr_ptr_span span{std_span};
+  unodb::qsbr_ptr_span span2{std_span2};
 
-  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span2));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span2));
   span2 = std::move(span);
-  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span));
   UNODB_ASSERT_EQ(std::cbegin(span).get(), nullptr);
 }
 
 TEST(QSBRPtrSpan, Cbegin) {
-  const unodb::qsbr_ptr_span span{gsl_span};
+  const unodb::qsbr_ptr_span span{std_span};
   // NOLINTNEXTLINE(readability-container-data-pointer)
   UNODB_ASSERT_EQ(std::cbegin(span).get(), &two_chars[0]);
 }
 
 TEST(QSBRPtrSpan, Cend) {
-  const unodb::qsbr_ptr_span span{gsl_span};
+  const unodb::qsbr_ptr_span span{std_span};
   // Do not write &two_chars[2] directly or the libstdc++ debug assertions fire
   UNODB_ASSERT_EQ(std::cend(span).get(), &two_chars[1] + 1);
-}
-
-TEST(QSBRPtrSpan, Equal) {
-  using T = std::uint64_t;
-  const auto vx{static_cast<T>(0x0102030405060708)};
-  const auto vx1{static_cast<T>(0x0102030405060708)};
-  const auto vy{static_cast<T>(0x0506070801020304)};
-  const unodb::qsbr_ptr<const T> ptrx{&vx};
-  const unodb::qsbr_ptr<const T> ptrx1{&vx1};  // different pointer, same data
-  const unodb::qsbr_ptr<const T> ptry{&vy};    // different data
-  const unodb::qsbr_ptr<const T> ptr_null{nullptr};  // nullptr
-  // Baseline expectations for qsbr_ptr vs self.
-  //
-  EXPECT_EQ(ptrx, ptrx);    // same ptr and len
-  EXPECT_EQ(ptrx1, ptrx1);  // same ptr and len
-  EXPECT_NE(ptrx, ptrx1);   // different data
-  EXPECT_EQ(ptr_null, ptr_null);
-  EXPECT_NE(ptrx, ptr_null);
-  EXPECT_NE(ptr_null, ptrx);
-  //
-  // Setup some gsl::span values.
-  //
-  const gsl::span<const T> spanx{&vx, 1};
-  const gsl::span<const T> spanx1{&vx1, 1};  // different ptr, same data
-  const gsl::span<const T> span_empty{       // non-null, but zero len.
-                                      &vx, static_cast<size_t>(0)};
-  const gsl::span<const T> span_empty2{// non-null, but zero len.
-                                       &vy, static_cast<size_t>(0)};
-  const gsl::span<const T> span_null{
-      // nullptr and zero len.
-      static_cast<T*>(nullptr), static_cast<size_t>(0)};
-  // Note: illegal (causes a fault in the gsl::span() ctor).
-  // const gsl::span<const T> span_null1{  // nullptr and zero len.
-  //   static_cast<T*>(nullptr),
-  //   static_cast<size_t>(1)
-  // };
-  //
-  const std::array<const T, 2> two_values = {vx, vy};
-  const gsl::span<const T> span_two_values{two_values};
-  //
-  // Setup some qsbr_ptr_span values wrapping those gsl::span values.
-  //
-  const unodb::qsbr_ptr_span qspanx{spanx};
-  const unodb::qsbr_ptr_span qspan_empty{span_empty};
-  const unodb::qsbr_ptr_span qspan_empty2{span_empty2};
-  const unodb::qsbr_ptr_span qspan_null{span_null};
-  const unodb::qsbr_ptr_span qspan_null1{span_null};
-  const unodb::qsbr_ptr_span qspan_two_values{span_two_values};
-  //
-  // Now compare qsbr_ptr instances to gsl::span instances.
-  //
-  EXPECT_EQ(qspanx, spanx);             // same ptr & len
-  EXPECT_EQ(qspanx, spanx1);            // same data & len.
-  EXPECT_NE(qspanx, span_empty);        // same ptr, different length.
-  EXPECT_EQ(qspan_empty, span_empty);   // same ptr, same length (empty)
-  EXPECT_EQ(qspan_empty, span_empty2);  // diff ptr, same length (empty)
-  EXPECT_EQ(qspan_empty2, span_empty);  // diff ptr, same length (empty).
-  EXPECT_EQ(qspan_null, span_empty);    // null and zero-length span.
-  EXPECT_EQ(qspan_null, span_null);     // both null and zero-length.
-  EXPECT_EQ(qspan_two_values, span_two_values);  // same data & len
-  EXPECT_NE(qspan_two_values, spanx);            // different len, same 1st val
 }
 
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()

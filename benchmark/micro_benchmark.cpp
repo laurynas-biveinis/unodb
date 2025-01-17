@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -11,21 +11,26 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <string>
+// IWYU pragma: no_include <tuple>
 // IWYU pragma: no_include <vector>
+// IWYU pragma: no_forward_declare unodb::visitor
 
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <utility>  // IWYU pragma: keep
 
 #include <benchmark/benchmark.h>
 
 #include "art.hpp"
 #include "art_common.hpp"
-#include "micro_benchmark_node_utils.hpp"
-#include "micro_benchmark_utils.hpp"
+#include "art_internal.hpp"
 #include "mutex_art.hpp"
 #include "node_type.hpp"
 #include "olc_art.hpp"
+
+#include "micro_benchmark_node_utils.hpp"
+#include "micro_benchmark_utils.hpp"
 
 namespace {
 

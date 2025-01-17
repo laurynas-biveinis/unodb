@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_ART_INTERNAL_HPP
 #define UNODB_DETAIL_ART_INTERNAL_HPP
 
@@ -14,6 +14,7 @@
 
 // IWYU pragma: no_include <__fwd/ostream.h>
 // IWYU pragma: no_include <_string.h>
+// IWYU pragma: no_include <ostream>
 
 #include <array>
 #include <cstddef>
@@ -39,20 +40,18 @@ class [[nodiscard]] basic_db_leaf_deleter;
 // Internal ART key in binary-comparable format
 template <typename KeyType>
 struct [[nodiscard]] basic_art_key final {
-  // Convert an external key into an internal key supporting
-  // lexicographic comparison.  This is only intended for key types
-  // for which simple conversions are possible.  For complex keys,
-  // including multiple key components or Unicode data, the
-  // application should use a gsl::space<std::byte> which already
-  // supports lexicographic comparison.
+  // Convert an external key into an internal key supporting lexicographic
+  // comparison. This is only intended for key types for which simple
+  // conversions are possible. For complex keys, including multiple key
+  // components or Unicode data, the application should use a
+  // std::span<std::byte> which already supports lexicographic comparison.
   [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
   make_binary_comparable(KeyType key) noexcept;
 
-  // Convert an internal key into an external key. This is only
-  // intended for key types for which simple conversions are possible.
-  // For complex keys, including multiple key components or Unicode
-  // data, the application should use a gsl::space<std::byte> which
-  // already supports lexicographic comparison.
+  // Convert an internal key into an external key. This is only intended for key
+  // types for which simple conversions are possible. For complex keys,
+  // including multiple key components or Unicode data, the application should
+  // use a std::span<std::byte> which already supports lexicographic comparison.
   [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
   make_external(KeyType key) noexcept;
 

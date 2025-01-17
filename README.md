@@ -43,7 +43,7 @@ platform-specific features:
 
 ### Build dependencies, bundled as git submodules
 
-* Guidelines Support Library for `gsl::span`.
+* Guidelines Support Library.
 * Google Test for tests.
 * Google Benchmark for microbenchmarks.
 * [DeepState][deepstate] for fuzzing tests.
@@ -111,13 +111,14 @@ descriptions below.
 
 The only currently supported key type is `std::uint64_t`, aliased as `key`. To
 add a new simple key type, instantiate `art_key` type with the desired type, and
-specialize `art_key::make_binary_comparable` according to the ART paper. Compound
-keys or Unicode data should be handled by specifying gsl::span<std::byte> as the
-key type.  In this case, the application must provide a span suitably encoded for
-lexicographic comparisons (that is, one which is already binary compatible).
+specialize `art_key::make_binary_comparable` according to the ART paper.
+Compound keys or Unicode data should be handled by specifying
+`std::span<std::byte>` as the key type. In this case, the application must
+provide a span suitably encoded for lexicographic comparisons (that is, one
+which is already binary compatible).
 
 Values are treated opaquely. For `unodb::db`, they are passed as non-owning
-objects of `value_view` (a `gsl::span<std::byte>`), and insertion copies them
+objects of `value_view` (a `std::span<std::byte>`), and insertion copies them
 internally. The same applies for `get`, which returns a non-owning `value_view`.
 For `unodb::olc_db`, `get` returns a `qsbr_value_view`, a `span` guaranteed to
 remain valid until the current thread passes through a quiescent state.

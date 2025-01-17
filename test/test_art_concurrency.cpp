@@ -11,24 +11,27 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include <type_traits>
-// IWYU pragma: no_include "gtest/gtest.h"
+// IWYU pragma: no_forward_declare unodb::visitor
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <random>
 #include <tuple>
+#include <type_traits>
 
 #include <gtest/gtest.h>
 
 #include "art_common.hpp"
+#include "art_internal.hpp"
 #include "assert.hpp"
-#include "db_test_utils.hpp"
-#include "gtest_utils.hpp"
 #include "mutex_art.hpp"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
+
+#include "db_test_utils.hpp"
+#include "gtest_utils.hpp"
 #include "qsbr_test_utils.hpp"
 
 namespace {
@@ -116,7 +119,7 @@ class ARTConcurrencyTest : public ::testing::Test {
           unodb::test::test_values[akey % unodb::test::test_values.size()];
       const auto actual = v.get_value();
       // LCOV_EXCL_START
-      EXPECT_TRUE(unodb::test::SAME_SPAN(actual, expected));
+      EXPECT_TRUE(std::ranges::equal(actual, expected));
       std::ignore = v.get_value();
       if (fwd) {  // [k0,k1) -- k0 is from_key, k1 is to_key
         EXPECT_TRUE(akey >= k0 && akey < k1)

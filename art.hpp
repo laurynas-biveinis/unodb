@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_ART_HPP
 #define UNODB_DETAIL_ART_HPP
 
@@ -12,15 +12,15 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
-// IWYU pragma: no_include <__fwd/ostream.h>
-// IWYU pragma: no_include <ostream>
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
 
 #include <cstddef>
 #include <cstdint>
-#include <iosfwd>  // IWYU pragma: keep
+#include <iostream>
 #include <limits>
 #include <optional>
 #include <stack>
+#include <type_traits>
 
 #include "art_common.hpp"
 #include "art_internal.hpp"
@@ -33,7 +33,7 @@ namespace unodb {
 
 namespace detail {
 
-class inode;
+class inode;  // IWYU pragma: keep
 
 class inode_4;
 class inode_16;
@@ -43,16 +43,6 @@ class inode_256;
 struct [[nodiscard]] node_header {};
 
 static_assert(std::is_empty_v<node_header>);
-
-template <class,                   // Db
-          template <class> class,  // CriticalSectionPolicy
-          class,                   // Fake lock implementation
-          class,                   // Fake read_critical_section implementation
-          class,                   // NodePtr
-          class,                   // INodeDefs
-          template <class> class,  // INodeReclamator
-          template <class, class> class>  // LeafReclamator
-struct basic_art_policy;                  // IWYU pragma: keep
 
 using node_ptr = basic_node_ptr<node_header>;
 

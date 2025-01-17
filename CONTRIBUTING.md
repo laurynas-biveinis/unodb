@@ -58,6 +58,8 @@ There also other development-specific options. All of them are `OFF` by default.
   method starts out as `[[nodiscard]]` by default, and is only changed if there
   is a clear need to both handle and ignore the return value.
 * The code follows the Almost Always Auto guideline.
+* `constexpr` should be applied everywhere it is legal to do so. Perhaps one day
+  we will have compile-time Adaptive Radix Tree.
 * All C++ standard library symbols must be namespace-qualified, and this
   includes symbols shared with C. For example `std::size_t`.
 * Doxygen is used to produce source code documentation.

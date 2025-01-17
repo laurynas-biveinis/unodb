@@ -1315,6 +1315,8 @@ void olc_db::iterator::dump(std::ostream &os) const {
   // Create a new stack and copy everything there.  Using the new
   // stack, print out the stack in top-bottom order.  This avoids
   // modifications to the existing stack for the iterator.
+  //
+  // TODO(thompsonbry) variable length keys- also log the actual prefix bytes.
   auto tmp = stack_;
   auto level = tmp.size() - 1;
   while (!tmp.empty()) {
@@ -1457,10 +1459,7 @@ bool olc_db::iterator::try_next() {
     auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       pop();  // pop off the leaf
-      if (UNODB_DETAIL_UNLIKELY(
-              !node_critical_section
-                   .try_read_unlock()))  // FIXME <==== SOME OF THESE TEST
-                                         // SENSES ARE WRONG!!!!
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
         return false;  // LCOV_EXCL_LINE
       continue;        // falls through loop if just a root leaf since stack now
                        // empty.
@@ -1482,13 +1481,11 @@ bool olc_db::iterator::try_next() {
     UNODB_DETAIL_ASSERT(nxt);  // value exists for std::optional.
     auto e2 = nxt.value();
     pop();
-    if (UNODB_DETAIL_UNLIKELY(!try_push(e2, node_critical_section))) {
-      return false;  // LCOV_EXCL_LINE
-    }
+    if (UNODB_DETAIL_UNLIKELY(!try_push(e2, node_critical_section)))
+      return false;                                            // LCOV_EXCL_LINE
     auto child = inode->get_child(node_type, e2.child_index);  // descend
-    if (UNODB_DETAIL_UNLIKELY(
-            !node_critical_section.check()))  // before using [child]
-      return false;                           // LCOV_EXCL_LINE
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))  // before using
+      return false;  // LCOV_EXCL_LINE
     return try_left_most_traversal(child, node_critical_section);
   }
   return true;  // stack is empty, so iterator == end().
@@ -1512,8 +1509,7 @@ bool olc_db::iterator::try_prior() {
       continue;  // falls through loop if just a root leaf since stack now empty
     }
     auto *inode{node.ptr<detail::olc_inode *>()};
-    auto nxt = inode->prior(node_type,
-                            e.child_index);  // previous child of that parent.
+    auto nxt = inode->prior(node_type, e.child_index);  // prev child of parent
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
       return false;  // LCOV_EXCL_LINE
     if (!nxt) {
@@ -1526,13 +1522,11 @@ bool olc_db::iterator::try_prior() {
     UNODB_DETAIL_ASSERT(nxt);  // value exists for std::optional.
     auto e2 = nxt.value();
     pop();
-    if (UNODB_DETAIL_UNLIKELY(!try_push(e2, node_critical_section))) {
-      return false;  // LCOV_EXCL_LINE
-    }
+    if (UNODB_DETAIL_UNLIKELY(!try_push(e2, node_critical_section)))
+      return false;                                            // LCOV_EXCL_LINE
     auto child = inode->get_child(node_type, e2.child_index);  // get child
-    if (UNODB_DETAIL_UNLIKELY(
-            !node_critical_section.check()))  // before using [child]
-      return false;                           // LCOV_EXCL_LINE
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))  // before using
+      return false;  // LCOV_EXCL_LINE
     return try_right_most_traversal(child, node_critical_section);
   }
   return true;  // stack is empty, so iterator == end().
@@ -1575,9 +1569,8 @@ inline bool olc_db::iterator::try_left_most_traversal(
     if (UNODB_DETAIL_UNLIKELY(!try_push(t, node_critical_section)))
       return false;                                     // LCOV_EXCL_LINE
     node = inode->get_child(node_type, t.child_index);  // get child
-    if (UNODB_DETAIL_UNLIKELY(
-            !node_critical_section.check()))  // before using [child]
-      return false;                           // LCOV_EXCL_LINE
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))  // before using
+      return false;  // LCOV_EXCL_LINE
     // Move RCS (will check invariant at top of loop)
     parent_critical_section = std::move(node_critical_section);
   }
@@ -1621,9 +1614,8 @@ inline bool olc_db::iterator::try_right_most_traversal(
     if (UNODB_DETAIL_UNLIKELY(!try_push(t, node_critical_section)))
       return false;                                     // LCOV_EXCL_LINE
     node = inode->get_child(node_type, t.child_index);  // get child
-    if (UNODB_DETAIL_UNLIKELY(
-            !node_critical_section.check()))  // before using [child]
-      return false;                           // LCOV_EXCL_LINE
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))  // before using
+      return false;  // LCOV_EXCL_LINE
     // Move RCS (will check invariant at top of loop)
     parent_critical_section = std::move(node_critical_section);
   }
@@ -1687,9 +1679,8 @@ bool olc_db::iterator::try_seek(detail::art_key search_key, bool &match,
       if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
         return false;  // LCOV_EXCL_LINE
       const auto cmp_ = leaf->cmp(k);
-      if (UNODB_DETAIL_UNLIKELY(
-              !node_critical_section.try_read_unlock()))  // unlock leaf
-        return false;                                     // LCOV_EXCL_LINE
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+        return false;  // LCOV_EXCL_LINE
       if (cmp_ == 0) {
         match = true;
         return true;  // done

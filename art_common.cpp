@@ -1,5 +1,5 @@
 // Copyright 2021-2025 UnoDB contributors
-
+#if 0
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
 // HEADER FILES !!!
@@ -17,12 +17,5 @@
 #include <iomanip>   // IWYU pragma: keep
 #include <iostream>  // IWYU pragma: keep
 
-namespace unodb::detail {
-
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os,
-                                                  unodb::key k) {
-  os << "key: 0x" << std::hex << std::setfill('0') << std::setw(sizeof(k)) << k
-     << std::dec;
-}
-
-}  // namespace unodb::detail
+// TODO(thompsonbry) art_common.cpp is now empty.  Get rid of it?
+#endif

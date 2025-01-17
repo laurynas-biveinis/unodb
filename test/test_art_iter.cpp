@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -10,12 +10,16 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include "gtest/gtest.h"
+// IWYU pragma: no_include "art_internal_impl.hpp"
+
+#include <algorithm>
+#include <iostream>
 
 #include <gtest/gtest.h>
-#include <iostream>
+
 #include "art.hpp"
 #include "art_common.hpp"
 #include "art_internal.hpp"
@@ -29,7 +33,7 @@ namespace unodb {
 // Test suite for an ART iterator.
 //
 // TODO(thompsonbry) variable length keys :: unit tests for
-// gsl::span<std::byte>
+// std::span<std::byte>
 template <class Db>
 class ARTIteratorTest : public ::testing::Test {
  public:
@@ -75,7 +79,8 @@ TYPED_TEST(ARTIteratorTest, singleLeafIteratorOneValue) {
   const auto k = b.get_key();
   const auto v = b.get_val();
   UNODB_EXPECT_TRUE(k && k.value() == 0);
-  UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+  UNODB_EXPECT_TRUE(v.has_value() &&
+                    std::ranges::equal(v.value(), unodb::test::test_values[0]));
   b.next();                       // advance.
   UNODB_EXPECT_FALSE(b.valid());  // nothing more in the iterator.
 }
@@ -93,7 +98,9 @@ TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesForwardScan) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[0]));
   }
   b.next();  // advance
   UNODB_EXPECT_TRUE(b.valid());
@@ -101,7 +108,9 @@ TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesForwardScan) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 1);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[1]));
   }
   b.next();                       // advance.
   UNODB_EXPECT_FALSE(b.valid());  // nothing more in the iterator.
@@ -120,7 +129,9 @@ TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesReverseScan) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 1);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[1]));
   }
   b.prior();
   UNODB_EXPECT_TRUE(b.valid());
@@ -128,7 +139,9 @@ TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesReverseScan) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[0]));
   }
   b.prior();
   UNODB_EXPECT_FALSE(b.valid());  // nothing more in the iterator.
@@ -153,7 +166,9 @@ TYPED_TEST(ARTIteratorTest, C0001) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xaa00);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[0]));
   }
   b.next();
   UNODB_EXPECT_TRUE(b.valid());
@@ -161,7 +176,9 @@ TYPED_TEST(ARTIteratorTest, C0001) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xaa01);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[1]));
   }
   b.next();
   UNODB_EXPECT_TRUE(b.valid());
@@ -169,7 +186,9 @@ TYPED_TEST(ARTIteratorTest, C0001) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xab00);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[2]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[2]));
   }
   b.next();
   UNODB_EXPECT_FALSE(b.valid());  // nothing more in the iterator.
@@ -194,7 +213,9 @@ TYPED_TEST(ARTIteratorTest, C0002) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xab00);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[2]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[2]));
   }
   b.prior();
   UNODB_EXPECT_TRUE(b.valid());
@@ -202,7 +223,9 @@ TYPED_TEST(ARTIteratorTest, C0002) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xaa01);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[1]));
   }
   b.prior();
   UNODB_EXPECT_TRUE(b.valid());
@@ -210,7 +233,9 @@ TYPED_TEST(ARTIteratorTest, C0002) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xaa00);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[0]));
   }
   b.prior();
   UNODB_EXPECT_FALSE(b.valid());  // nothing more in the iterator.
@@ -235,7 +260,9 @@ TYPED_TEST(ARTIteratorTest, C0003) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xaa00);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[0]));
   }
   b.next();
   UNODB_EXPECT_TRUE(b.valid());
@@ -243,7 +270,9 @@ TYPED_TEST(ARTIteratorTest, C0003) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xab0c);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[1]));
   }
   b.next();
   UNODB_EXPECT_TRUE(b.valid());
@@ -251,7 +280,9 @@ TYPED_TEST(ARTIteratorTest, C0003) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xab0d);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[2]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[2]));
   }
   b.next();
   UNODB_EXPECT_FALSE(b.valid());  // nothing more in the iterator.
@@ -276,7 +307,9 @@ TYPED_TEST(ARTIteratorTest, C0004) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xab0d);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[2]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[2]));
   }
   b.prior();
   UNODB_EXPECT_TRUE(b.valid());
@@ -284,7 +317,9 @@ TYPED_TEST(ARTIteratorTest, C0004) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xab0c);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[1]));
   }
   b.prior();
   UNODB_EXPECT_TRUE(b.valid());
@@ -292,7 +327,9 @@ TYPED_TEST(ARTIteratorTest, C0004) {
     const auto k = b.get_key();
     const auto v = b.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 0xaa00);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[0]));
   }
   b.prior();
   UNODB_EXPECT_FALSE(b.valid());
@@ -336,7 +373,9 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
     const auto k = it.get_key();
     const auto v = it.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 1);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[1]));
     it.next();
     UNODB_EXPECT_FALSE(it.valid());
   }
@@ -349,7 +388,9 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
     const auto k = it.get_key();
     const auto v = it.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 1);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[1]));
     it.next();
     UNODB_EXPECT_FALSE(it.valid());  // nothing more in the iterator.
   }
@@ -364,7 +405,9 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
     const auto k = it.get_key();
     const auto v = it.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 1);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[1]));
     it.next();
     UNODB_EXPECT_FALSE(it.valid());
   }
@@ -394,7 +437,9 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
     const auto k = it.get_key();
     const auto v = it.get_val();
     UNODB_EXPECT_TRUE(k && k.value() == 1);
-    UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+    UNODB_EXPECT_TRUE(
+        v.has_value() &&
+        std::ranges::equal(v.value(), unodb::test::test_values[1]));
     it.next();
     UNODB_EXPECT_FALSE(it.valid());
   }
@@ -425,7 +470,9 @@ TYPED_TEST(ARTIteratorTest, C101) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k0);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[0]));
     }
     {  // exact match, forward traversal (GTE), middle key.
       bool match = false;
@@ -436,7 +483,9 @@ TYPED_TEST(ARTIteratorTest, C101) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k1);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[1]));
     }
     {  // exact match, forward traversal (GTE), last key.
       bool match = false;
@@ -447,7 +496,9 @@ TYPED_TEST(ARTIteratorTest, C101) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k2);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[2]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[2]));
     }
   }
   {    // exact match, reverse traversal
@@ -460,7 +511,9 @@ TYPED_TEST(ARTIteratorTest, C101) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k0);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[0]));
     }
     {  // exact match, reverse traversal (LTE), middle key.
       bool match = false;
@@ -471,7 +524,9 @@ TYPED_TEST(ARTIteratorTest, C101) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k1);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[1]));
     }
     {  // exact match, reverse traversal (LTE), last key.
       bool match = false;
@@ -482,7 +537,9 @@ TYPED_TEST(ARTIteratorTest, C101) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k2);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[2]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[2]));
     }
   }
   {    // before and after the first and last key
@@ -497,7 +554,9 @@ TYPED_TEST(ARTIteratorTest, C101) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k0);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[0]));
     }
     {  // forward traversal, after the last key in the data.  match=false
       // and iterator is invalidated.
@@ -525,7 +584,9 @@ TYPED_TEST(ARTIteratorTest, C101) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k2);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[2]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[2]));
       it.next();
       UNODB_EXPECT_FALSE(it.valid());  // nothing more in the iterator.
     }
@@ -559,7 +620,9 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k0);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[0]));
     }
     {  // exact match, forward traversal (GTE), middle key.
       bool match = false;
@@ -570,7 +633,9 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k1);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[1]));
     }
     {  // exact match, forward traversal (GTE), last key.
       bool match = false;
@@ -581,7 +646,9 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k2);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[2]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[2]));
     }
   }
   {    // exact match, reverse traversal
@@ -594,7 +661,9 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k0);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[0]));
     }
     {  // exact match, reverse traversal (LTE), middle key.
       bool match = false;
@@ -605,7 +674,9 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k1);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[1]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[1]));
     }
     {  // exact match, reverse traversal (LTE), last key.
       bool match = false;
@@ -616,7 +687,9 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k2);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[2]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[2]));
     }
   }
   {    // before and after the first and last key
@@ -635,7 +708,9 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
       const auto k = it.get_key();
       const auto v = it.get_val();
       UNODB_EXPECT_TRUE(k && k.value() == k0);
-      UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[0]);
+      UNODB_EXPECT_TRUE(
+          v.has_value() &&
+          std::ranges::equal(v.value(), unodb::test::test_values[0]));
     }
     {  // forward traversal, after the last key in the data.
        // match=false and iterator is invalidated.
@@ -676,7 +751,9 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
         const auto k = it.get_key();
         const auto v = it.get_val();
         UNODB_EXPECT_TRUE(k && k.value() == k2);
-        UNODB_EXPECT_TRUE(v && v.value() == unodb::test::test_values[2]);
+        UNODB_EXPECT_TRUE(
+            v.has_value() &&
+            std::ranges::equal(v.value(), unodb::test::test_values[2]));
         it.next();
         UNODB_EXPECT_FALSE(it.valid());
       }

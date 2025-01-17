@@ -10,11 +10,13 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
+
 #include "art_internal.hpp"
 
 #include <cstddef>
 #include <iomanip>
-#include <iostream>
+#include <iostream>  // IWYU pragma: keep
 
 namespace unodb::detail {
 

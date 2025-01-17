@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_OLC_ART_HPP
 #define UNODB_DETAIL_OLC_ART_HPP
 
@@ -12,17 +12,17 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
-// IWYU pragma: no_include <__fwd/ostream.h>
-// IWYU pragma: no_include <ostream>
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
 
 #include <array>
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-#include <iosfwd>  // IWYU pragma: keep
+#include <iostream>
 #include <optional>
 #include <stack>
 #include <tuple>
+#include <type_traits>
 
 #include "art_common.hpp"
 #include "art_internal.hpp"

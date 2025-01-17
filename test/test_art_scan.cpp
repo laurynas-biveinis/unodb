@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -10,28 +10,35 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
 // IWYU pragma: no_include <array>
+// IWYU pragma: no_include <span>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include <iterator>
-// IWYU pragma: no_include "gtest/gtest.h"
+// IWYU pragma: no_forward_declare unodb::visitor
 
-#include <gtest/gtest.h>
+#include <algorithm>
 #include <cstdint>
 #include <iostream>
 #include <utility>
 #include <vector>
+
+#include <gtest/gtest.h>
+
 #include "art.hpp"
 #include "art_common.hpp"
-#include "db_test_utils.hpp"
-#include "gtest_utils.hpp"
+#include "art_internal.hpp"
 #include "mutex_art.hpp"
 #include "olc_art.hpp"
+
+#include "db_test_utils.hpp"
+#include "gtest_utils.hpp"
 
 namespace {
 
 // Test suite for scan() API for the ART.
 //
-// FIXME variable length keys: unit tests for gsl::span<std::byte>
+// FIXME variable length keys: unit tests for std::span<std::byte>
 //
 template <class Db>
 class ARTScanTest : public ::testing::Test {
@@ -136,7 +143,7 @@ void do_scan_range_test(const unodb::key from_key, const unodb::key to_key,
       return true;  // halt early.
       // LCOV_EXCL_STOP
     }
-    EXPECT_TRUE(unodb::test::SAME_SPAN(aval, eval));
+    EXPECT_TRUE(std::ranges::equal(aval, eval));
     nactual++;     // count #of visited keys.
     eit++;         // advance iterator over the expected keys.
     return false;  // !halt (aka continue scan).
@@ -215,7 +222,8 @@ TYPED_TEST(ARTScanTest, scanForwardOneLeaf) {
   db.scan(fn);
   UNODB_EXPECT_EQ(1, n);
   UNODB_EXPECT_EQ(visited_key, 0);
-  UNODB_EXPECT_EQ(visited_val, unodb::test::test_values[0]);
+  UNODB_EXPECT_TRUE(
+      std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
 TYPED_TEST(ARTScanTest, scanFromForwardOneLeaf) {
@@ -235,7 +243,8 @@ TYPED_TEST(ARTScanTest, scanFromForwardOneLeaf) {
   db.scan_from(0, fn);
   UNODB_EXPECT_EQ(1, n);
   UNODB_EXPECT_EQ(visited_key, 0);
-  UNODB_EXPECT_EQ(visited_val, unodb::test::test_values[0]);
+  UNODB_EXPECT_TRUE(
+      std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
 TYPED_TEST(ARTScanTest, scanRangeForwardOneLeaf) {
@@ -255,7 +264,8 @@ TYPED_TEST(ARTScanTest, scanRangeForwardOneLeaf) {
   db.scan_range(0, 1, fn);
   UNODB_EXPECT_EQ(1, n);
   UNODB_EXPECT_EQ(visited_key, 0);
-  UNODB_EXPECT_EQ(visited_val, unodb::test::test_values[0]);
+  UNODB_EXPECT_TRUE(
+      std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
 TYPED_TEST(ARTScanTest, scanForwardTwoLeaves) {
@@ -579,7 +589,8 @@ TYPED_TEST(ARTScanTest, scanReverseOneLeaf) {
   db.scan(fn, false /*fwd*/);
   UNODB_EXPECT_EQ(1, n);
   UNODB_EXPECT_EQ(visited_key, 0);
-  UNODB_EXPECT_EQ(visited_val, unodb::test::test_values[0]);
+  UNODB_EXPECT_TRUE(
+      std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
 TYPED_TEST(ARTScanTest, scanFromReverseOneLeaf) {
@@ -599,7 +610,8 @@ TYPED_TEST(ARTScanTest, scanFromReverseOneLeaf) {
   db.scan_from(0, fn, false /*fwd*/);
   UNODB_EXPECT_EQ(1, n);
   UNODB_EXPECT_EQ(visited_key, 0);
-  UNODB_EXPECT_EQ(visited_val, unodb::test::test_values[0]);
+  UNODB_EXPECT_TRUE(
+      std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
 TYPED_TEST(ARTScanTest, scanRangeReverseOneLeaf) {
@@ -619,7 +631,8 @@ TYPED_TEST(ARTScanTest, scanRangeReverseOneLeaf) {
   db.scan_range(1, 0, fn);
   UNODB_EXPECT_EQ(1, n);
   UNODB_EXPECT_EQ(visited_key, 1);
-  UNODB_EXPECT_EQ(visited_val, unodb::test::test_values[0]);
+  UNODB_EXPECT_TRUE(
+      std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
 TYPED_TEST(ARTScanTest, scanReverseTwoLeaves) {

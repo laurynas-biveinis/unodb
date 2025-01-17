@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_ART_COMMON_HPP
 #define UNODB_DETAIL_ART_COMMON_HPP
 
@@ -13,12 +13,13 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <__fwd/ostream.h>
+// IWYU pragma: no_include <ostream>
+// IWYU pragma: no_include <ostream.h>
 
 #include <cstddef>
 #include <cstdint>
 #include <iosfwd>  // IWYU pragma: keep
-
-#include <gsl/span>
+#include <span>
 
 namespace unodb {
 
@@ -32,8 +33,8 @@ namespace detail {
 }  // namespace detail
 
 // Values are passed as non-owning pointers to memory with associated length
-// (gsl::span). The memory is copied upon insertion.
-using value_view = gsl::span<const std::byte>;
+// (std::span). The memory is copied upon insertion.
+using value_view = std::span<const std::byte>;
 
 }  // namespace unodb
 

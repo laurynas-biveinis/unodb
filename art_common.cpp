@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Laurynas Biveinis
+// Copyright 2021-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -10,10 +10,12 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
+
 #include "art_common.hpp"
 
-#include <iomanip>
-#include <iostream>
+#include <iomanip>   // IWYU pragma: keep
+#include <iostream>  // IWYU pragma: keep
 
 namespace unodb::detail {
 

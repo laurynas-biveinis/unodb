@@ -12,16 +12,12 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
-// IWYU pragma: no_include <_string.h>
-
 #include <cstddef>
-#include <cstring>
 #include <iterator>
 #include <ranges>
+#include <span>
 #include <type_traits>
 #include <utility>
-
-#include <gsl/span>
 
 namespace unodb {
 
@@ -237,8 +233,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 
 static_assert(std::random_access_iterator<unodb::qsbr_ptr<std::byte>>);
 
-// A gsl::span (or std::span), but with qsbr_ptr instead of raw pointer.
-// Implemented bare minimum to get things to work, expand as necessary.
+// An std::span, but with qsbr_ptr instead of a raw pointer.
+// Implemented the bare minimum to get things to work, expand as necessary.
 template <class T>
 class qsbr_ptr_span : public std::ranges::view_base {
  public:
@@ -246,7 +242,7 @@ class qsbr_ptr_span : public std::ranges::view_base {
   qsbr_ptr_span() noexcept : start{nullptr}, length{0} {}
 
   UNODB_DETAIL_RELEASE_CONSTEXPR
-  explicit qsbr_ptr_span(const gsl::span<T> &other) noexcept
+  explicit qsbr_ptr_span(const std::span<T> &other) noexcept
       : start{other.data()}, length{static_cast<std::size_t>(other.size())} {}
 
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span(
@@ -269,25 +265,13 @@ class qsbr_ptr_span : public std::ranges::view_base {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  [[nodiscard]] constexpr bool operator==(gsl::span<T> other) const noexcept {
-    if (length != other.size()) return false;      // element count differs?
-    if (start.get() == other.data()) return true;  // same ptr and #of elements
-    if (length == 0) return true;                  // both empty (before ptrs)
-    if (start.get() == nullptr || other.data() == nullptr) return false;
-    return std::memcmp(start.get(), other.data(), length * sizeof(T)) == 0;
-  }
-
-  [[nodiscard]] constexpr bool operator!=(gsl::span<T> other) const noexcept {
-    return !this->operator==(other);
-  }
-
  private:
   qsbr_ptr<T> start;
   std::size_t length;
 };
 
 template <class T>
-qsbr_ptr_span(const gsl::span<T> &) -> qsbr_ptr_span<T>;
+qsbr_ptr_span(const std::span<T> &) -> qsbr_ptr_span<T>;
 
 static_assert(
     std::ranges::random_access_range<unodb::qsbr_ptr_span<std::byte>>);

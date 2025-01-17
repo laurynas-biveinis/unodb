@@ -1,11 +1,11 @@
-// Copyright 2024 Laurynas Biveinis
+// Copyright 2024-2025 UnoDB contributors
 
 // A simple CRUD example for unodb::db. For simplicity &
 // self-containedness does not concern with exception handling and refactoring
 // the duplicated code with other examples.
 
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
-// IWYU pragma: no_include <gsl/span>
+// IWYU pragma: no_include <span>
 
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -14,6 +14,8 @@
 #include <string_view>
 
 #include "art.hpp"
+#include "art_common.hpp"
+#include "art_internal.hpp"
 
 namespace {
 

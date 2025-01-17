@@ -39,8 +39,8 @@ namespace detail {
 using value_view = std::span<const std::byte>;
 
 // Keys are passed as non-owning pointers to memory with associated
-// length (gsl::span).
-using key_view = gsl::span<const std::byte>;
+// length (std::span).
+using key_view = std::span<const std::byte>;
 
 }  // namespace unodb
 

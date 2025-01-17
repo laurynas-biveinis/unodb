@@ -95,7 +95,7 @@ class [[nodiscard]] basic_leaf final : public Header {
   // are trouble for variable length keys.  Instead, the key must be
   // buffered during the traversal down to the leaf and the leaf might
   // have a tail fragment of the key.  That buffer can be wrapped and
-  // exposed as a gsl::span<const std::byte> (aka key_view).  If used,
+  // exposed as a std::span<const std::byte> (aka key_view).  If used,
   // it should be renamed to get_key_view() and conditionally compiled
   // depending on how we template the db, mutex_db, and olc_db (e.g.,
   // iff they support storing the key in the leaf as a time over space

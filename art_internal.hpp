@@ -118,7 +118,7 @@ struct [[nodiscard]] basic_art_key final {
       : key{make_binary_comparable(key_)} {}
 
   // TODO(thompsonbry) variable length keys -- THIS NEEDS TO BE REPLACED and WE
-  // MUST SUPPORT gsl::span for art_key.
+  // MUST SUPPORT std::span for art_key.
   UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(key_view) noexcept
       : key{0ULL} {
     UNODB_DETAIL_CANNOT_HAPPEN();
@@ -159,7 +159,7 @@ struct [[nodiscard]] basic_art_key final {
   // (3) places by key_prefix.  Those uses need to be cleaned up and
   // this removed since it completely breaks encapsulation.  Also,
   // this method really can't be written for variable length keys
-  // unless we are returning a gsl::span.  I've changed this from a
+  // unless we are returning a std::span.  I've changed this from a
   // cast operator to something more explicit to make it easier to
   // track and fix this up.
   [[nodiscard, gnu::pure]] constexpr std::uint64_t get_internal_key()

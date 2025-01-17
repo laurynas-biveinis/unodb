@@ -81,7 +81,6 @@ var hierarchy =
     [ "unodb::detail::qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", [
       [ "unodb::qsbr_ptr< T >", "classunodb_1_1qsbr__ptr.html", null ]
     ] ],
-    [ "unodb::qsbr_ptr_span< T >", "classunodb_1_1qsbr__ptr__span.html", null ],
     [ "unodb::qsbr_state", "structunodb_1_1qsbr__state.html", null ],
     [ "unodb::quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", null ],
     [ "unodb::optimistic_lock::read_critical_section", "classunodb_1_1optimistic__lock_1_1read__critical__section.html", null ],
@@ -98,5 +97,8 @@ var hierarchy =
     [ "unodb::detail::tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ],
     [ "unodb::test::tree_verifier< Db >", "classunodb_1_1test_1_1tree__verifier.html", null ],
     [ "unodb::optimistic_lock::version_type", "classunodb_1_1optimistic__lock_1_1version__type.html", null ],
+    [ "std::ranges::view_base", null, [
+      [ "unodb::qsbr_ptr_span< T >", "classunodb_1_1qsbr__ptr__span.html", null ]
+    ] ],
     [ "unodb::optimistic_lock::write_guard", "classunodb_1_1optimistic__lock_1_1write__guard.html", null ]
 ];

@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <cstring>
 #include <iterator>
+#include <ranges>
 #include <type_traits>
 #include <utility>
 
@@ -234,27 +235,12 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   pointer ptr{nullptr};
 };
 
-}  // namespace unodb
-
-namespace std {
-
-template <typename T>
-struct iterator_traits<unodb::qsbr_ptr<T>> {
-  using difference_type = ptrdiff_t;
-  using value_type = T;
-  using pointer = T *;
-  using reference = T &;
-  using iterator_category = random_access_iterator_tag;
-};
-
-}  // namespace std
-
-namespace unodb {
+static_assert(std::random_access_iterator<unodb::qsbr_ptr<std::byte>>);
 
 // A gsl::span (or std::span), but with qsbr_ptr instead of raw pointer.
 // Implemented bare minimum to get things to work, expand as necessary.
 template <class T>
-class qsbr_ptr_span {
+class qsbr_ptr_span : public std::ranges::view_base {
  public:
   UNODB_DETAIL_RELEASE_CONSTEXPR
   qsbr_ptr_span() noexcept : start{nullptr}, length{0} {}
@@ -302,6 +288,11 @@ class qsbr_ptr_span {
 
 template <class T>
 qsbr_ptr_span(const gsl::span<T> &) -> qsbr_ptr_span<T>;
+
+static_assert(
+    std::ranges::random_access_range<unodb::qsbr_ptr_span<std::byte>>);
+static_assert(std::ranges::common_range<unodb::qsbr_ptr_span<std::byte>>);
+static_assert(std::ranges::view<unodb::qsbr_ptr_span<std::byte>>);
 
 }  // namespace unodb
 

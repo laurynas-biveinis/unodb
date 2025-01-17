@@ -10,17 +10,20 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
-// IWYU pragma: no_include <iterator>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gtest/gtest.h"
 
-#include <gtest/gtest.h>
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <gsl/span>
+#include <iterator>
 #include <utility>
+
+#include <gsl/span>
+
+#include <gtest/gtest.h>
+
 #include "gtest_utils.hpp"
 #include "qsbr_ptr.hpp"
 
@@ -269,24 +272,21 @@ TEST(QSBRPtr, Get) {
 TEST(QSBRPtrSpan, CopyGslSpanCtor) {
   const unodb::qsbr_ptr_span span{gsl_span};
 
-  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span), std::cend(span),
-                               std::cbegin(gsl_span), std::cend(gsl_span)));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span, gsl_span));
 }
 
 TEST(QSBRPtrSpan, CopyCtor) {
   const unodb::qsbr_ptr_span span{gsl_span};
   const unodb::qsbr_ptr_span span2{span};
 
-  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
-                               std::cbegin(gsl_span), std::cend(gsl_span)));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span));
 }
 
 TEST(QSBRPtrSpan, MoveCtor) {
   unodb::qsbr_ptr_span span{gsl_span};
   const unodb::qsbr_ptr_span span2{std::move(span)};
 
-  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
-                               std::cbegin(gsl_span), std::cend(gsl_span)));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span));
   UNODB_ASSERT_EQ(std::cbegin(span).get(), nullptr);
 }
 
@@ -295,15 +295,12 @@ TEST(QSBRPtrSpan, CopyAssignment) {
   const unodb::qsbr_ptr_span span{gsl_span};
   unodb::qsbr_ptr_span span2{gsl_span2};
 
-  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
-                               std::cbegin(gsl_span2), std::cend(gsl_span2)));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span2));
   span2 = span;
-  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
-                               std::cbegin(gsl_span), std::cend(gsl_span)));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span));
 
   span2 = span2;  // -V570
-  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
-                               std::cbegin(gsl_span), std::cend(gsl_span)));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span));
 }
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
@@ -311,11 +308,9 @@ TEST(QSBRPtrSpan, MoveAssignment) {
   unodb::qsbr_ptr_span span{gsl_span};
   unodb::qsbr_ptr_span span2{gsl_span2};
 
-  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
-                               std::cbegin(gsl_span2), std::cend(gsl_span2)));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span2));
   span2 = std::move(span);
-  UNODB_ASSERT_TRUE(std::equal(std::cbegin(span2), std::cend(span2),
-                               std::cbegin(gsl_span), std::cend(gsl_span)));
+  UNODB_ASSERT_TRUE(std::ranges::equal(span2, gsl_span));
   UNODB_ASSERT_EQ(std::cbegin(span).get(), nullptr);
 }
 

@@ -270,6 +270,10 @@ class qsbr_ptr_span : public std::ranges::view_base {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  [[nodiscard, gnu::pure]] constexpr std::size_t size() const noexcept {
+    return length;
+  }
+
  private:
   qsbr_ptr<T> start;
   std::size_t length;
@@ -289,6 +293,7 @@ static_assert(
 static_assert(std::ranges::borrowed_range<unodb::qsbr_ptr_span<std::byte>>);
 static_assert(std::ranges::contiguous_range<unodb::qsbr_ptr_span<std::byte>>);
 static_assert(std::ranges::common_range<unodb::qsbr_ptr_span<std::byte>>);
+static_assert(std::ranges::sized_range<unodb::qsbr_ptr_span<std::byte>>);
 static_assert(std::ranges::view<unodb::qsbr_ptr_span<std::byte>>);
 
 #endif  // UNODB_DETAIL_QSBR_PTR_HPP

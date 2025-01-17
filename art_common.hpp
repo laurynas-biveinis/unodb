@@ -31,36 +31,7 @@ namespace unodb {
 // TODO(thompsonbry) : variable length keys. should become a template
 // parameter for db, olc_db, mutex_db.
 using key = std::uint64_t;
-
-namespace detail {
-
-// A constant determining the initial capacity for the key_encoder and
-// other similar internal buffers.  This should be set high enough
-// that such objects DO NOT allocate for commonly used key lengths.
-// These objects use an internal buffer of this capacity and then
-// switch over to an explicitly allocated buffer if the capacity would
-// be exceeded.
-//
-// If you are only using fixed width keys, then this can be sizeof(T).
-// But in typical scenarios these objects are on the stack and there
-// is little if any penalty to having a larger initial capacity for
-// these buffers.
-//
-// TODO(thompsonbry) variable length keys - lift out as template argument.
-static constexpr size_t INITIAL_BUFFER_CAPACITY = 256;
-
-// TODO(thompsonbry) variable length keys - change dump_key() to key_view.
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os, key k);
-
-// Utility class for power of two expansion of buffers (internal API,
-// forward declaration).
-void ensure_capacity(std::byte *&buf,     // buffer to resize
-                     size_t &cap,         // current buffer capacity
-                     size_t off,          // current #of used bytes
-                     size_t min_capacity  // desired new minimum capacity
-);
-
-}  // namespace detail
+// using key = std::span<const std::byte>;
 
 // Values are passed as non-owning pointers to memory with associated length
 // (std::span). The memory is copied upon insertion.
@@ -110,6 +81,37 @@ class visitor {
   // single lambda invocation, then you must make a copy of the data.
   inline auto get_value() const noexcept { return it.get_val(); }
 };  // class visitor
+
+namespace detail {
+
+// A constant determining the initial capacity for the key_encoder and
+// other similar internal buffers.  This should be set high enough
+// that such objects DO NOT allocate for commonly used key lengths.
+// These objects use an internal buffer of this capacity and then
+// switch over to an explicitly allocated buffer if the capacity would
+// be exceeded.
+//
+// If you are only using fixed width keys, then this can be sizeof(T).
+// But in typical scenarios these objects are on the stack and there
+// is little if any penalty to having a larger initial capacity for
+// these buffers.
+//
+// TODO(thompsonbry) variable length keys - lift out as template argument.
+static constexpr size_t INITIAL_BUFFER_CAPACITY = 256;
+
+// Dump the encoded key as a sequence of bytes.
+template <typename T>
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os, T k);
+
+// Utility class for power of two expansion of buffers (internal API,
+// forward declaration).
+void ensure_capacity(std::byte *&buf,     // buffer to resize
+                     size_t &cap,         // current buffer capacity
+                     size_t off,          // current #of used bytes
+                     size_t min_capacity  // desired new minimum capacity
+);
+
+}  // namespace detail
 
 ///
 /// Key encodes and key decoder

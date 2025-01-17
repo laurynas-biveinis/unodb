@@ -270,12 +270,6 @@ TYPED_TEST(ARTConcurrencyTest, Node48ParallelOps) {
   this->template key_range_op_test<32, 9, 32>();
 }
 
-// FIXME Is the #of OpsPerThread related to the conditions under which
-// the node would be replaced by a different root node?  And does that
-// change once SCAN is introduced as an operation?  It would seem that
-// the test conditions would likely be Ok since fewer operations would
-// be performed and presumably the OpsPerThread is a maximum before a
-// structural modification would result.
 TYPED_TEST(ARTConcurrencyTest, Node256ParallelOps) {
   this->template key_range_op_test<152, 9, 208>();
 }

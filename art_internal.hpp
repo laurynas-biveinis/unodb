@@ -140,7 +140,13 @@ struct [[nodiscard]] basic_art_key final {
   [[nodiscard, gnu::pure]] constexpr auto operator[](
       std::size_t index) const noexcept {
     UNODB_DETAIL_ASSERT(index < size);
-    return key_bytes[index];
+    if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
+      // u64 fast path
+      return key_bytes[index];
+    } else {
+      // use the key_view.
+      return key[index];
+    }
   }
 
   // Return the backing key_view.
@@ -154,30 +160,18 @@ struct [[nodiscard]] basic_art_key final {
     return key_view(reinterpret_cast<const std::byte *>(&key), sizeof(key));
   }
 
-  // TODO(thompsonbry) variable length keys.  This returns the
-  // internal key rather than decoding the key.  It is used in THREE
-  // (3) places by key_prefix.  Those uses need to be cleaned up and
-  // this removed since it completely breaks encapsulation.  Also,
-  // this method really can't be written for variable length keys
-  // unless we are returning a std::span.  I've changed this from a
-  // cast operator to something more explicit to make it easier to
-  // track and fix this up.
-  [[nodiscard, gnu::pure]] constexpr std::uint64_t get_internal_key()
-      const noexcept {
-    return key;
-  }
-
-  // Return the decoded form of the key.
-  //
-  // TODO(thompsonbry) variable length keys. pull decode() out into a
-  // key decoder.  Note that key decoding is best effort only. This is
-  // ONLY used by the iterator::visitor::get_key() method.
-  [[nodiscard, gnu::pure]] constexpr KeyType decode() const noexcept {
-#ifdef UNODB_DETAIL_LITTLE_ENDIAN
-    return bswap(key);
-#else
-#error Needs implementing
-#endif
+  // Return the first 64-bits (max) of the encoded key.  This is used
+  // by the prefix compression logic to identify some number of bytes
+  // that are in common between the art_key and an inode having some
+  // key_prefix.
+  [[nodiscard, gnu::pure]] constexpr std::uint64_t get_u64() const noexcept {
+    if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
+      // fast path
+      return key;
+    } else {
+      // first 64-bits.
+      return *reinterpret_cast<std::uint64_t *>(key.data());
+    }
   }
 
   // Shift the internal key some number of bytes to the right, causing
@@ -195,7 +189,7 @@ struct [[nodiscard]] basic_art_key final {
   static constexpr auto size = sizeof(KeyType);
 
   union {
-    KeyType key;
+    KeyType key;  // Note: When KeyType == std::span, this is all you need.
     std::array<std::byte, size> key_bytes;
   };
 

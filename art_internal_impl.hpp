@@ -522,11 +522,12 @@ union [[nodiscard]] key_prefix {
   ~key_prefix() noexcept = default;
 
   // Return the number of bytes in common between this key_prefix and
-  // a view of some internal key (shifted_key) from which any leading
-  // bytes already matched by the traversal path have been discarded.
+  // a view of the next 64-bits (max) of some the shifted_key from
+  // which any leading bytes already matched by the traversal path
+  // have been discarded.
   [[nodiscard]] constexpr auto get_shared_length(
       unodb::detail::art_key shifted_key) const noexcept {
-    return shared_len(shifted_key.get_internal_key(), u64, length());
+    return shared_len(shifted_key.get_u64(), u64, length());
   }
 
   // A snapshot of the key_prefix data.
@@ -612,11 +613,10 @@ union [[nodiscard]] key_prefix {
       art_key k1, art_key shifted_k2, tree_depth depth) noexcept {
     k1.shift_right(depth);
 
-    const auto k1_u64 = k1.get_internal_key() & key_bytes_mask;
+    const auto k1_u64 = k1.get_u64() & key_bytes_mask;
 
-    return k1_u64 |
-           length_to_word(shared_len(k1_u64, shifted_k2.get_internal_key(),
-                                     key_prefix_capacity));
+    return k1_u64 | length_to_word(shared_len(k1_u64, shifted_k2.get_u64(),
+                                              key_prefix_capacity));
   }
 };  // class key_prefix
 

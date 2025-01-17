@@ -45,6 +45,14 @@ using ARTTypes = ::testing::Types<unodb::detail::basic_art_key<std::uint64_t>
                                   //  , gsl::span<const std::byte>
                                   >;
 
+// decode a uint64_t key.
+inline std::uint64_t decode(unodb::key_view akey) {
+  unodb::key_decoder dec{akey};
+  std::uint64_t k;
+  dec.decode(k);
+  return k;
+}
+
 UNODB_TYPED_TEST_SUITE(ARTKeyTest, ARTTypes)
 
 UNODB_START_TYPED_TESTS()
@@ -53,9 +61,9 @@ UNODB_START_TYPED_TESTS()
 // the key_encoder tests, but this covers the historical case for
 // uint64_t keys and sets us up for testing shift_right(), etc.
 TYPED_TEST(ARTKeyTest, basic_art_key_C0001) {
-  const std::uint64_t ekey = 0x0102030405060708;  // external key
-  const TypeParam ikey(ekey);                     // encode
-  const std::uint64_t akey = ikey.decode();       // decode
+  const std::uint64_t ekey = 0x0102030405060708;           // external key
+  const TypeParam ikey(ekey);                              // encode
+  const std::uint64_t akey = decode(ikey.get_key_view());  // decode
   EXPECT_EQ(ekey, akey);
   // operator[] on art_key
   EXPECT_EQ(static_cast<std::byte>(0x01), ikey[0]);
@@ -70,11 +78,11 @@ TYPED_TEST(ARTKeyTest, basic_art_key_C0001) {
 
 // checks shift_right
 TYPED_TEST(ARTKeyTest, basic_art_key_C0010) {
-  const std::uint64_t ekey1 = 0x0102030405060708;  // external key
-  const std::uint64_t ekey2 = 0x0304050607080000;  // external key
-  const TypeParam ikey1(ekey1);                    // encode
-  const TypeParam ikey2(ekey2);                    // encode
-  const std::uint64_t akey2 = ikey2.decode();      // round trip
+  const std::uint64_t ekey1 = 0x0102030405060708;            // external key
+  const std::uint64_t ekey2 = 0x0304050607080000;            // external key
+  const TypeParam ikey1(ekey1);                              // encode
+  const TypeParam ikey2(ekey2);                              // encode
+  const std::uint64_t akey2 = decode(ikey2.get_key_view());  // round trip
   EXPECT_EQ(ekey2, akey2);
 }
 

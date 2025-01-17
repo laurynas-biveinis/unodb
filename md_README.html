@@ -123,7 +123,7 @@ Build dependencies</h3>
 <h3><a class="anchor" id="autotoc_md14"></a>
 Build dependencies, bundled as git submodules</h3>
 <ul>
-<li>Guidelines Support Library for <code>gsl::span</code>.</li>
+<li>Guidelines Support Library.</li>
 <li>Google Test for tests.</li>
 <li>Google Benchmark for microbenchmarks.</li>
 <li><a href="https://github.com/trailofbits/deepstate" title="DeepState on GitHub">DeepState</a> for fuzzing tests.</li>
@@ -167,8 +167,8 @@ Amazon Linux 2</h3>
 Usage</h2>
 <p>See <code>examples/</code> directory for simple usage examples.</p>
 <p>All the declarations live in the <code>unodb</code> namespace, which is omitted in the descriptions below.</p>
-<p>The only currently supported key type is <code>std::uint64_t</code>, aliased as <code>key</code>. To add a new simple key type, instantiate <code>art_key</code> type with the desired type, and specialize <code>art_key::make_binary_comparable</code> according to the ART paper. Compound keys or Unicode data should be handled by specifying gsl::span&lt;std::byte&gt; as the key type. In this case, the application must provide a span suitably encoded for lexicographic comparisons (that is, one which is already binary compatible).</p>
-<p>Values are treated opaquely. For <code><a class="el" href="classunodb_1_1db.html">unodb::db</a></code>, they are passed as non-owning objects of <code>value_view</code> (a <code>gsl::span&lt;std::byte&gt;</code>), and insertion copies them internally. The same applies for <code>get</code>, which returns a non-owning <code>value_view</code>. For <code><a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a></code>, <code>get</code> returns a <code>qsbr_value_view</code>, a <code>span</code> guaranteed to remain valid until the current thread passes through a quiescent state.</p>
+<p>The only currently supported key type is <code>std::uint64_t</code>, aliased as <code>key</code>. To add a new simple key type, instantiate <code>art_key</code> type with the desired type, and specialize <code>art_key::make_binary_comparable</code> according to the ART paper. Compound keys or Unicode data should be handled by specifying <code>std::span&lt;std::byte&gt;</code> as the key type. In this case, the application must provide a span suitably encoded for lexicographic comparisons (that is, one which is already binary compatible).</p>
+<p>Values are treated opaquely. For <code><a class="el" href="classunodb_1_1db.html">unodb::db</a></code>, they are passed as non-owning objects of <code>value_view</code> (a <code>std::span&lt;std::byte&gt;</code>), and insertion copies them internally. The same applies for <code>get</code>, which returns a non-owning <code>value_view</code>. For <code><a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a></code>, <code>get</code> returns a <code>qsbr_value_view</code>, a <code>span</code> guaranteed to remain valid until the current thread passes through a quiescent state.</p>
 <p>All ART classes share the same API:</p>
 <ul>
 <li>constructor.</li>

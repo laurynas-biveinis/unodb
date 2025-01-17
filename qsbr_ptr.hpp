@@ -50,6 +50,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   using pointer = T *;
   using reference = std::add_lvalue_reference_t<T>;
   using difference_type = std::ptrdiff_t;
+  using iterator_category = std::contiguous_iterator_tag;
 
   qsbr_ptr() noexcept = default;
 
@@ -115,6 +116,10 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   [[nodiscard]] constexpr reference operator[](
       difference_type n) const noexcept {
     return ptr[n];
+  }
+
+  [[nodiscard, gnu::pure]] constexpr T *operator->() const noexcept {
+    return ptr;
   }
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
@@ -235,7 +240,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   pointer ptr{nullptr};
 };
 
-static_assert(std::random_access_iterator<unodb::qsbr_ptr<std::byte>>);
+static_assert(std::contiguous_iterator<unodb::qsbr_ptr<std::byte>>);
 
 // A gsl::span (or std::span), but with qsbr_ptr instead of raw pointer.
 // Implemented bare minimum to get things to work, expand as necessary.
@@ -289,11 +294,17 @@ class qsbr_ptr_span : public std::ranges::view_base {
 template <class T>
 qsbr_ptr_span(const gsl::span<T> &) -> qsbr_ptr_span<T>;
 
+}  // namespace unodb
+
+template <typename T>
+constexpr bool std::ranges::enable_borrowed_range<unodb::qsbr_ptr_span<T>> =
+    true;
+
 static_assert(
     std::ranges::random_access_range<unodb::qsbr_ptr_span<std::byte>>);
+static_assert(std::ranges::borrowed_range<unodb::qsbr_ptr_span<std::byte>>);
+static_assert(std::ranges::contiguous_range<unodb::qsbr_ptr_span<std::byte>>);
 static_assert(std::ranges::common_range<unodb::qsbr_ptr_span<std::byte>>);
 static_assert(std::ranges::view<unodb::qsbr_ptr_span<std::byte>>);
-
-}  // namespace unodb
 
 #endif  // UNODB_DETAIL_QSBR_PTR_HPP

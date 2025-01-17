@@ -552,7 +552,7 @@ class olc_db final {
     // pushed onto this buffer when we push something onto the
     // iterator stack and popped off of this buffer when we pop
     // something off of the iterator stack.
-    key_buffer keybuf_{};
+    detail::key_buffer keybuf_{};
   };  // class iterator
 
   //

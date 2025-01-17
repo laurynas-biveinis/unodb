@@ -34,11 +34,6 @@ namespace unodb::detail {
   return os;
 }
 
-}  // namespace unodb::detail
-
-namespace unodb {
-namespace detail {
-
 void ensure_capacity(std::byte *&buf, size_t &cap, size_t off,
                      size_t min_capacity) {
   // Find the allocation size in bytes which satisfies that minimum
@@ -56,5 +51,4 @@ void ensure_capacity(std::byte *&buf, size_t &cap, size_t off,
   cap = asize;
 }
 
-}  // namespace detail
-}  // namespace unodb
+}  // namespace unodb::detail

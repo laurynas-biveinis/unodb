@@ -265,6 +265,12 @@ TEST(QSBRPtr, Get) {
   UNODB_ASSERT_EQ(ptr.get(), &x);
 }
 
+TEST(QSBRPtrSpan, DefaultCtor) {
+  const unodb::qsbr_ptr_span<const char> span{};
+  UNODB_ASSERT_EQ(std::cbegin(span).get(), nullptr);
+  UNODB_ASSERT_EQ(span.size(), 0);
+}
+
 TEST(QSBRPtrSpan, CopyStdSpanCtor) {
   const unodb::qsbr_ptr_span span{std_span};
 
@@ -283,7 +289,6 @@ TEST(QSBRPtrSpan, MoveCtor) {
   const unodb::qsbr_ptr_span span2{std::move(span)};
 
   UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span));
-  UNODB_ASSERT_EQ(std::cbegin(span).get(), nullptr);
 }
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
@@ -307,7 +312,6 @@ TEST(QSBRPtrSpan, MoveAssignment) {
   UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span2));
   span2 = std::move(span);
   UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span));
-  UNODB_ASSERT_EQ(std::cbegin(span).get(), nullptr);
 }
 
 TEST(QSBRPtrSpan, Cbegin) {
@@ -323,6 +327,13 @@ TEST(QSBRPtrSpan, Cend) {
 }
 
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+TEST(QSBRPtrSpan, Size) {
+  const unodb::qsbr_ptr_span span{std_span};
+  UNODB_ASSERT_EQ(span.size(), std_span.size());
+  const unodb::qsbr_ptr_span span2{std_span2};
+  UNODB_ASSERT_EQ(span2.size(), std_span2.size());
+}
 
 TEST(QSBRPtr, GreaterThan) {
   // NOLINTNEXTLINE(readability-container-data-pointer)

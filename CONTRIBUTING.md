@@ -49,7 +49,8 @@ There also other development-specific options. All of them are `OFF` by default.
 ## Style Guide
 
 * The code should follow existing conventions, formatted with
-  [Google C++ style][gc++style].
+  [Google C++ style][gc++style]. This is enforced by GitHub Actions SuperLinter
+  running clang-format, currently version 17.
 * Identifiers should be `snake_case`.
 * The code is `noexcept`-maximalist. Every function and method that cannot throw
   should be marked as `noexcept`. If the code does not throw in release build

@@ -131,7 +131,7 @@ Development CMake options</h2>
 <h2><a class="anchor" id="autotoc_md3"></a>
 Style Guide</h2>
 <ul>
-<li>The code should follow existing conventions, formatted with <a href="https://google.github.io/styleguide/cppguide.html" title="Google C++ Style Guide">Google C++ style</a>.</li>
+<li>The code should follow existing conventions, formatted with <a href="https://google.github.io/styleguide/cppguide.html" title="Google C++ Style Guide">Google C++ style</a>. This is enforced by GitHub Actions SuperLinter running clang-format, currently version 17.</li>
 <li>Identifiers should be <code>snake_case</code>.</li>
 <li>The code is <code>noexcept</code>-maximalist. Every function and method that cannot throw should be marked as <code>noexcept</code>. If the code does not throw in release build but may throw in debug one, it should ignore the latter and be <code>noexcept</code>.</li>
 <li>The code is <code>[[nodiscard]]</code>-maximalist. Every value-returning function and method starts out as <code>[[nodiscard]]</code> by default, and is only changed if there is a clear need to both handle and ignore the return value.</li>

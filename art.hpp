@@ -573,7 +573,8 @@ inline void db::scan(FN fn, bool fwd) {
     it.first();
     visitor<db::iterator> v{it};
     while (it.valid()) {
-      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+      if (fn(v)) [[unlikely]]
+        break;
       it.next();
     }
   } else {
@@ -581,7 +582,8 @@ inline void db::scan(FN fn, bool fwd) {
     it.last();
     visitor<db::iterator> v{it};
     while (it.valid()) {
-      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+      if (fn(v)) [[unlikely]]
+        break;
       it.prior();
     }
   }
@@ -596,7 +598,8 @@ inline void db::scan_from(key from_key, FN fn, bool fwd) {
     it.seek(from_key_, match, true /*fwd*/);
     visitor<db::iterator> v{it};
     while (it.valid()) {
-      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+      if (fn(v)) [[unlikely]]
+        break;
       it.next();
     }
   } else {
@@ -604,7 +607,8 @@ inline void db::scan_from(key from_key, FN fn, bool fwd) {
     it.seek(from_key_, match, false /*fwd*/);
     visitor<db::iterator> v{it};
     while (it.valid()) {
-      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+      if (fn(v)) [[unlikely]]
+        break;
       it.prior();
     }
   }
@@ -629,7 +633,8 @@ inline void db::scan_range(key from_key, const key to_key, FN fn) {
     }
     visitor<db::iterator> v{it};
     while (it.valid() && it.cmp(to_key_) < 0) {
-      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+      if (fn(v)) [[unlikely]]
+        break;
       it.next();
       if constexpr (debug) {
         std::cerr << "scan_range:: next()\n";
@@ -646,7 +651,8 @@ inline void db::scan_range(key from_key, const key to_key, FN fn) {
     }
     visitor<db::iterator> v{it};
     while (it.valid() && it.cmp(to_key_) > 0) {
-      if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+      if (fn(v)) [[unlikely]]
+        break;
       it.prior();
       if constexpr (debug) {
         std::cerr << "scan_range:: prior()\n";

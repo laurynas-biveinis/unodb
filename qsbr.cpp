@@ -152,9 +152,9 @@ void add_to_orphan_list(
   list_node_ptr->next = orphan_list.load(std::memory_order_acquire);
 
   while (true) {
-    if (UNODB_DETAIL_LIKELY(orphan_list.compare_exchange_weak(
-            list_node_ptr->next, list_node_ptr, std::memory_order_acq_rel,
-            std::memory_order_acquire)))
+    if (orphan_list.compare_exchange_weak(list_node_ptr->next, list_node_ptr,
+                                          std::memory_order_acq_rel,
+                                          std::memory_order_acquire)) [[likely]]
       return;
   }
 }
@@ -211,14 +211,13 @@ qsbr_epoch qsbr::register_thread() noexcept {
     const auto old_threads_in_previous_epoch =
         qsbr_state::get_threads_in_previous_epoch(old_state);
 
-    if (UNODB_DETAIL_LIKELY(old_threads_in_previous_epoch > 0 ||
-                            old_thread_count == 0)) {
+    if (old_threads_in_previous_epoch > 0 || old_thread_count == 0) [[likely]] {
       const auto new_state =
           qsbr_state::inc_thread_count_and_threads_in_previous_epoch(old_state);
 
-      if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
-              old_state, new_state, std::memory_order_acq_rel,
-              std::memory_order_acquire)))
+      if (state.compare_exchange_weak(old_state, new_state,
+                                      std::memory_order_acq_rel,
+                                      std::memory_order_acquire)) [[likely]]
         return old_epoch;
 
       // LCOV_EXCL_START
@@ -234,9 +233,9 @@ qsbr_epoch qsbr::register_thread() noexcept {
     // Epoch change in progress - try to bump the thread count only
     const auto new_state = qsbr_state::inc_thread_count(old_state);
 
-    if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
-            old_state, new_state, std::memory_order_acq_rel,
-            std::memory_order_acquire))) {
+    if (state.compare_exchange_weak(old_state, new_state,
+                                    std::memory_order_acq_rel,
+                                    std::memory_order_acquire)) [[likely]] {
       // Spin until the epoch change completes. An alternative would be to
       // return the new epoch early, and then handle seeing it in quiescent
       // state as a no-op, but that trades spinning here for more work in a
@@ -265,15 +264,15 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
     const auto old_threads_in_previous_epoch =
         qsbr_state::get_threads_in_previous_epoch(old_state);
 
-    if (UNODB_DETAIL_UNLIKELY(old_threads_in_previous_epoch == 0)) {
+    if (old_threads_in_previous_epoch == 0) [[unlikely]] {
       // LCOV_EXCL_START
       UNODB_DETAIL_ASSERT(thread_epoch == qsbr_state::get_epoch(old_state));
 
       // Epoch change in progress - try to decrement the thread count only
       const auto new_state = qsbr_state::dec_thread_count(old_state);
-      if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
-              old_state, new_state, std::memory_order_acq_rel,
-              std::memory_order_acquire))) {
+      if (state.compare_exchange_weak(old_state, new_state,
+                                      std::memory_order_acq_rel,
+                                      std::memory_order_acquire)) [[likely]] {
         qsbr_thread.orphan_deferred_requests();
         return;
       }
@@ -299,7 +298,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                       old_state, advance_epoch)
             : qsbr_state::dec_thread_count(old_state);
 
-    if (UNODB_DETAIL_UNLIKELY(remove_thread_from_old_epoch)) {
+    if (remove_thread_from_old_epoch) [[unlikely]] {
       thread_epoch_change_barrier();
 
       if (UNODB_DETAIL_UNLIKELY(advance_epoch) &&
@@ -312,13 +311,13 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
       }
     }
 
-    if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
-            old_state, new_state, std::memory_order_acq_rel,
-            std::memory_order_acquire))) {
+    if (state.compare_exchange_weak(old_state, new_state,
+                                    std::memory_order_acq_rel,
+                                    std::memory_order_acquire)) [[likely]] {
       // Might be the first time the quitting thread saw the old epoch too, if a
       // second-to-last thread quit before, advancing the epoch.
       qsbr_thread.advance_last_seen_epoch(old_single_thread_mode, old_epoch);
-      if (UNODB_DETAIL_UNLIKELY(advance_epoch)) {
+      if (advance_epoch) [[unlikely]] {
 #ifdef UNODB_DETAIL_WITH_STATS
         bump_epoch_change_count();
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -328,7 +327,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
       qsbr_thread.orphan_deferred_requests();
 
 #ifdef UNODB_DETAIL_WITH_STATS
-      if (UNODB_DETAIL_UNLIKELY(thread_epoch != old_epoch)) {
+      if (thread_epoch != old_epoch) [[unlikely]] {
         register_quiescent_states_per_thread_between_epoch_changes(
             quiescent_states_since_epoch_change);
       }
@@ -446,13 +445,12 @@ void qsbr::epoch_change_barrier_and_handle_orphans(
 
   free_orphan_list(orphaned_previous_requests);
 
-  if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
+  if (!single_thread_mode) [[likely]] {
     detail::dealloc_vector_list_node *new_previous_requests = nullptr;
-    if (UNODB_DETAIL_UNLIKELY(
-            !orphaned_previous_interval_dealloc_requests
-                 .compare_exchange_strong(
-                     new_previous_requests, orphaned_current_requests,
-                     std::memory_order_acq_rel, std::memory_order_acquire))) {
+    if (!orphaned_previous_interval_dealloc_requests.compare_exchange_strong(
+            new_previous_requests, orphaned_current_requests,
+            std::memory_order_acq_rel, std::memory_order_acquire))
+        [[unlikely]] {
       // Someone added new previous requests since we took the previous batch
       // above. Append ours at the tail then, only one thread can do this, as
       // everybody else add at the list head. The list should be short in
@@ -477,9 +475,9 @@ qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
                         qsbr_state::get_epoch(old_state));
 
     const auto new_state = qsbr_state::inc_epoch_reset_previous(old_state);
-    if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
-            old_state, new_state, std::memory_order_acq_rel,
-            std::memory_order_acquire))) {
+    if (state.compare_exchange_weak(old_state, new_state,
+                                    std::memory_order_acq_rel,
+                                    std::memory_order_acquire)) [[likely]] {
       UNODB_DETAIL_ASSERT(current_global_epoch.advance() ==
                           qsbr_state::get_epoch(new_state));
 

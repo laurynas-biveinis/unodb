@@ -29,7 +29,8 @@ void* operator new(std::size_t count) {
   while (true) {
     // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
     void* const result = malloc(count);
-    if (UNODB_DETAIL_LIKELY(result != nullptr)) return result;
+    if (result != nullptr) [[likely]]
+      return result;
     // LCOV_EXCL_START
     auto* new_handler = std::get_new_handler();
     if (new_handler == nullptr) throw std::bad_alloc{};

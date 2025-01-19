@@ -1,7 +1,4 @@
-// Copyright 2021-2024 Laurynas Biveinis
-
-// IWYU pragma: no_include <string>
-// IWYU pragma: no_include "gtest/gtest.h"
+// Copyright 2021-2025 Laurynas Biveinis
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -12,6 +9,10 @@
 // after those symbols are defined, then that results in different
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
+
+// IWYU pragma: no_include <string>
+// IWYU pragma: no_include <gtest/gtest.h>
+// IWYU pragma: no_include "gtest/gtest.h"
 
 #include "gtest_utils.hpp"
 #include "qsbr.hpp"

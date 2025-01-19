@@ -486,7 +486,8 @@ class olc_db final {
       it.first();
       visitor<olc_db::iterator> v{it};
       while (it.valid()) {
-        if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+        if (fn(v)) [[unlikely]]
+          break;
         it.next();
       }
     } else {
@@ -494,7 +495,8 @@ class olc_db final {
       it.last();
       visitor<olc_db::iterator> v{it};
       while (it.valid()) {
-        if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+        if (fn(v)) [[unlikely]]
+          break;
         it.prior();
       }
     }
@@ -521,7 +523,8 @@ class olc_db final {
       it.seek(from_key_, match, true /*fwd*/);
       visitor<olc_db::iterator> v{it};
       while (it.valid()) {
-        if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+        if (fn(v)) [[unlikely]]
+          break;
         it.next();
       }
     } else {
@@ -529,7 +532,8 @@ class olc_db final {
       it.seek(from_key_, match, false /*fwd*/);
       visitor<olc_db::iterator> v{it};
       while (it.valid()) {
-        if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+        if (fn(v)) [[unlikely]]
+          break;
         it.prior();
       }
     }
@@ -574,7 +578,8 @@ class olc_db final {
       }
       visitor<olc_db::iterator> v{it};
       while (it.valid() && it.cmp(to_key_) < 0) {
-        if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+        if (fn(v)) [[unlikely]]
+          break;
         it.next();
         if constexpr (debug) {
           std::cerr << "scan: next()\n";
@@ -591,7 +596,8 @@ class olc_db final {
       }
       visitor<olc_db::iterator> v{it};
       while (it.valid() && it.cmp(to_key_) > 0) {
-        if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
+        if (fn(v)) [[unlikely]]
+          break;
         it.prior();
         if constexpr (debug) {
           std::cerr << "scan: prior()\n";

@@ -264,7 +264,8 @@ class [[nodiscard]] optimistic_lock final {
     [[nodiscard]] bool check() const noexcept {
       const auto result = lock->check(version);
 #ifndef NDEBUG
-      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;  // LCOV_EXCL_LINE
+      if (!result) [[unlikely]]
+        lock = nullptr;  // LCOV_EXCL_LINE
 #endif
       return UNODB_DETAIL_LIKELY(result);
     }
@@ -318,7 +319,8 @@ class [[nodiscard]] optimistic_lock final {
 #endif
       const auto result =
           lock->try_upgrade_to_write_lock(critical_section.version);
-      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;  // LCOV_EXCL_LINE
+      if (!result) [[unlikely]]
+        lock = nullptr;  // LCOV_EXCL_LINE
     }
 
     ~write_guard() noexcept {
@@ -381,12 +383,12 @@ class [[nodiscard]] optimistic_lock final {
   [[nodiscard]] read_critical_section try_read_lock() noexcept {
     while (true) {
       const auto current_version = version.load();
-      if (UNODB_DETAIL_LIKELY(current_version.is_free())) {
+      if (current_version.is_free()) [[likely]] {
         inc_read_lock_count();
         return read_critical_section{*this, current_version};
       }
       // LCOV_EXCL_START
-      if (UNODB_DETAIL_UNLIKELY(current_version.is_obsolete()))
+      if (current_version.is_obsolete()) [[unlikely]]
         return read_critical_section{};
       UNODB_DETAIL_ASSERT(current_version.is_write_locked());
       spin_wait_loop_body();
@@ -448,7 +450,8 @@ class [[nodiscard]] optimistic_lock final {
 #endif
     const auto result{locked_version == version.load_relaxed()};
 #ifndef NDEBUG
-    if (UNODB_DETAIL_UNLIKELY(!result)) dec_read_lock_count();
+    if (!result) [[unlikely]]
+      dec_read_lock_count();  // LCOV_EXCL_LINE
 #endif
     return UNODB_DETAIL_LIKELY(result);
   }
@@ -457,7 +460,8 @@ class [[nodiscard]] optimistic_lock final {
       version_type locked_version) const noexcept {
     const auto result{check(locked_version)};
 #ifndef NDEBUG
-    if (UNODB_DETAIL_LIKELY(result)) dec_read_lock_count();
+    if (result) [[likely]]
+      dec_read_lock_count();  // LCOV_EXCL_LINE
 #endif
     return UNODB_DETAIL_LIKELY(result);
   }

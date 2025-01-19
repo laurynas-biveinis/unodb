@@ -181,7 +181,7 @@ detail::node_ptr *impl_helpers::add_or_choose_subtree(
   const auto children_count = inode.get_children_count();
 
   if constexpr (!std::is_same_v<INode, inode_256>) {
-    if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
+    if (children_count == INode::capacity) [[unlikely]] {
       auto larger_node{INode::larger_derived_type::create(
           db_instance, inode, std::move(aleaf), depth)};
       *node_in_parent =
@@ -212,7 +212,7 @@ std::optional<detail::node_ptr *> impl_helpers::remove_or_choose_subtree(
   const auto *const aleaf{child_ptr_val.template ptr<::leaf *>()};
   if (!aleaf->matches(k)) return {};
 
-  if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
+  if (inode.is_min_size()) [[unlikely]] {
     if constexpr (std::is_same_v<INode, inode_4>) {
       auto current_node{
           art_policy::make_db_inode_unique_ptr(&inode, db_instance)};
@@ -280,7 +280,8 @@ constexpr void db::account_shrinking_inode() noexcept {
 #endif  // UNODB_DETAIL_WITH_STATS
 
 db::get_result db::get(key search_key) const noexcept {
-  if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
+  if (root == nullptr) [[unlikely]]
+    return {};
 
   auto node{root};
   const detail::art_key k{search_key};
@@ -315,7 +316,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
 bool db::insert(key insert_key, value_view v) {
   const auto k = detail::art_key{insert_key};
 
-  if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
+  if (root == nullptr) [[unlikely]] {
     auto leaf = unodb::detail::art_policy::make_db_leaf_ptr(k, v, *this);
     root = detail::node_ptr{leaf.release(), node_type::LEAF};
     return true;
@@ -330,7 +331,8 @@ bool db::insert(key insert_key, value_view v) {
     if (node_type == node_type::LEAF) {
       auto *const leaf{node->ptr<::leaf *>()};
       const auto existing_key{leaf->get_key()};
-      if (UNODB_DETAIL_UNLIKELY(k == existing_key)) return false;
+      if (k == existing_key) [[unlikely]]
+        return false;
 
       auto new_leaf = unodb::detail::art_policy::make_db_leaf_ptr(k, v, *this);
       auto new_node{detail::inode_4::create(*this, existing_key, remaining_key,
@@ -381,7 +383,8 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 bool db::remove(key remove_key) {
   const auto k = detail::art_key{remove_key};
 
-  if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
+  if (root == nullptr) [[unlikely]]
+    return false;
 
   if (root.type() == node_type::LEAF) {
     auto *const root_leaf{root.ptr<leaf *>()};
@@ -416,7 +419,8 @@ bool db::remove(key remove_key) {
     const auto remove_result{
         inode->remove_or_choose_subtree<std::optional<detail::node_ptr *>>(
             node_type, remaining_key[0], k, *this, node)};
-    if (UNODB_DETAIL_UNLIKELY(!remove_result)) return false;
+    if (!remove_result) [[unlikely]]
+      return false;
 
     auto *const child_ptr{*remove_result};
     if (child_ptr == nullptr) return true;
@@ -501,7 +505,8 @@ void db::iterator::dump() const { dump(std::cerr); }
 // If the tree is empty, then the result is the same as end().
 db::iterator &db::iterator::first() {
   invalidate();  // clear the stack
-  if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
+  if (db_.root == nullptr) [[unlikely]]
+    return *this;  // empty tree.
   auto node{db_.root};
   return left_most_traversal(node);
 }
@@ -511,7 +516,8 @@ db::iterator &db::iterator::first() {
 // If the tree is empty, then the result is the same as end().
 db::iterator &db::iterator::last() {
   invalidate();  // clear the stack
-  if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
+  if (db_.root == nullptr) [[unlikely]]
+    return *this;  // empty tree.
   auto node{db_.root};
   return right_most_traversal(node);
 }
@@ -625,7 +631,8 @@ db::iterator &db::iterator::seek(detail::art_key search_key, bool &match,
                                  bool fwd) {
   invalidate();   // invalidate the iterator (clear the stack).
   match = false;  // unless we wind up with an exact match.
-  if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // aka end()
+  if (db_.root == nullptr) [[unlikely]]
+    return *this;  // aka end()
 
   auto node{db_.root};
   const detail::art_key k = search_key;

@@ -160,7 +160,7 @@ template <class Header, class Db>
                                     Db &db UNODB_DETAIL_LIFETIMEBOUND) {
   using leaf_type = basic_leaf<Header>;
 
-  if (UNODB_DETAIL_UNLIKELY(v.size() > leaf_type::max_value_size)) {
+  if (v.size() > leaf_type::max_value_size) [[unlikely]] {
     throw std::length_error("Value length must fit in std::uint32_t");
   }
 

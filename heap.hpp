@@ -45,7 +45,8 @@ template <typename T>
 
 #ifndef _MSC_VER
   const auto err = posix_memalign(&result, alignment, size);
-  if (UNODB_DETAIL_UNLIKELY(err != 0)) result = nullptr;
+  if (err != 0) [[unlikely]]
+    result = nullptr;  // LCOV_EXCL_LINE
 #else
   result = _aligned_malloc(size, alignment);
 #ifndef NDEBUG
@@ -57,8 +58,8 @@ template <typename T>
   // NOLINTNEXTLINE(readability-simplify-boolean-expr)
   UNODB_DETAIL_ASSERT(result != nullptr || err == ENOMEM);
 
-  if (UNODB_DETAIL_UNLIKELY(result == nullptr)) {
-    throw std::bad_alloc{};
+  if (result == nullptr) [[unlikely]] {
+    throw std::bad_alloc{};  // LCOV_EXCL_LINE
   }
 
   return result;

@@ -13,6 +13,12 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <__fwd/ostream.h>
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
+// IWYU pragma: no_include <boost/fusion/algorithm/iteration/for_each.hpp>
+// IWYU pragma: no_include <boost/fusion/algorithm/query/find_if.hpp>
+// IWYU pragma: no_include <boost/fusion/iterator/next.hpp>
+// IWYU pragma: no_include <boost/fusion/sequence/intrinsic/begin.hpp>
+// IWYU pragma: no_include <boost/fusion/sequence/intrinsic/end.hpp>
 // IWYU pragma: no_include <boost/fusion/iterator/deref.hpp>
 
 #include <atomic>
@@ -943,7 +949,7 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
   const auto single_thread_mode =
       qsbr_state::single_thread_mode(current_qsbr_state);
 
-  if (UNODB_DETAIL_UNLIKELY(single_thread_mode)) {
+  if (single_thread_mode) [[unlikely]] {
     advance_last_seen_epoch(single_thread_mode, current_global_epoch);
     qsbr::deallocate(pointer
 #ifndef NDEBUG
@@ -1029,7 +1035,7 @@ inline void qsbr_per_thread::update_requests(
   current_interval_total_dealloc_size = 0;
 #endif  // UNODB_DETAIL_WITH_STATS
 
-  if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
+  if (!single_thread_mode) [[likely]] {
     previous_interval_dealloc_requests =
         std::move(current_interval_dealloc_requests);
   } else {

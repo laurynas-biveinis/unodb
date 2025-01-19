@@ -286,7 +286,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: false
 
       - name: Setup common dependencies for Linux
         run: |
@@ -349,15 +349,57 @@ jobs:
         run: brew install cppcheck
         if: runner.os == 'macOS' && env.CPPCHECK == 'ON'
 
-      - name: Create build environment
-        run: mkdir ${{github.workspace}}/build
+      - name: Configure CMake (examples)
+        # Use a bash shell so we can use the same syntax for environment
+        # variable access regardless of the host operating system
+        shell: bash
+        run: |
+          mkdir ${{github.workspace}}/build-examples
+          cd ${{github.workspace}}/build-examples
+          COMPILER="${COMPILER:-$DEFAULT_COMPILER}"
+          export PATH="$HOME/.local/bin:$PATH"
+          if [[ -n "$BUILD_TYPE" ]]; then
+            CBT="-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+          else
+            CBT=""
+          fi
+          if [[ $COMPILER == "gcc" ]]; then
+            V=13
+            export CC=gcc-$V
+            export CXX=g++-$V
+          elif [[ $COMPILER == "clang" ]]; then
+            V=19
+            export CC=clang-$V
+            export CXX=clang++-$V
+          elif [[ $COMPILER == "macos-clang" ]]; then
+            export CC=clang
+            export CXX=clang++
+          fi
+          cmake "$GITHUB_WORKSPACE/examples" "$CBT"
+        if: >
+          env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'
+          && env.SANITIZE_UB != 'ON' && env.STATIC_ANALYSIS != 'ON'
+          && env.COVERAGE != 'ON'
+
+      - name: Examples
+        working-directory: ${{github.workspace}}/build-examples
+        run: make -j3 -k examples
+        if: >
+          env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'
+          && env.SANITIZE_UB != 'ON' && env.STATIC_ANALYSIS != 'ON'
+          && env.COVERAGE != 'ON'
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment
         # variable access regardless of the host operating system
         shell: bash
-        working-directory: ${{github.workspace}}/build
         run: |
+          mkdir ${{github.workspace}}/build
+          cd ${{github.workspace}}/build
           COMPILER="${COMPILER:-$DEFAULT_COMPILER}"
           SANITIZE_ADDRESS="${SANITIZE_ADDRESS:-$DEFAULT_SANITIZE_ADDRESS}"
           SANITIZE_THREAD="${SANITIZE_THREAD:-$DEFAULT_SANITIZE_THREAD}"
@@ -426,11 +468,6 @@ jobs:
           /usr/bin/scan-build-19 --status-bugs -stats -analyze-headers \
             --force-analyze-debug-code make -j3 -k;
         if: env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang'
-
-      - name: Examples
-        working-directory: ${{github.workspace}}/build
-        run: make -k examples
-        if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
 
       - name: Correctness test
         working-directory: ${{github.workspace}}/build

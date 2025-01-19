@@ -1,25 +1,27 @@
-# Copyright 2024 Laurynas Biveinis
+# Copyright 2024-2025 Laurynas Biveinis
+cmake_minimum_required(VERSION 3.16)
+
+# This is a top-level CMake script and not an include of ../CMakeLists.txt. In
+# fact, this one includes the one in the parent directory to show how another
+# project can integrate UnoDB in its build.
+
+project(unodb-examples VERSION 0.1
+  DESCRIPTION "unodb key-value store library examples"
+  HOMEPAGE_URL "https://github.com/laurynas-biveinis/unodb" LANGUAGES CXX)
+
+add_subdirectory(.. unodb)
 
 add_executable(example_art example_art.cpp)
-common_target_properties(example_art)
 target_link_libraries(example_art PRIVATE unodb)
 
 add_executable(example_art_stats example_art_stats.cpp)
-common_target_properties(example_art_stats)
 target_link_libraries(example_art_stats PRIVATE unodb)
 
 add_executable(example_olc_art example_olc_art.cpp)
-common_target_properties(example_olc_art)
 target_link_libraries(example_olc_art PRIVATE unodb)
 
 add_custom_target(examples
-  env ${SANITIZER_ENV} ./example_art
-  COMMAND env ${SANITIZER_ENV} ./example_art_stats
-  COMMAND env ${SANITIZER_ENV} ./example_olc_art
-  DEPENDS example_art example_art_stats example_olc_art)
-
-add_custom_target(valgrind_examples
-  COMMAND ${VALGRIND_COMMAND} ./example_art
-  COMMAND ${VALGRIND_COMMAND} ./example_art_stats
-  COMMAND ${VALGRIND_COMMAND} ./example_olc_art
+  env ./example_art
+  COMMAND env ./example_art_stats
+  COMMAND env ./example_olc_art
   DEPENDS example_art example_art_stats example_olc_art)

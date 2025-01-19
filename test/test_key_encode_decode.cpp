@@ -154,7 +154,49 @@ void do_encode_decode_test(const T ekey,
   EXPECT_EQ(akey, ekey);
 }
 
-// TODO(thompsonbry) variable length keys - int8, uint8
+TEST(ARTKeyEncodeDecodeTest, std_int8_C00010) {
+  using T = std::int8_t;
+  // Check the encoder byte order.
+  std::array<const std::byte, sizeof(T)> ikey{static_cast<std::byte>(0x81)};
+  do_encode_decode_test(static_cast<T>(0x01LL), ikey);
+  // round-trip tests.
+  do_encode_decode_test(static_cast<T>(0));
+  do_encode_decode_test(static_cast<T>(~0));
+  do_encode_decode_test(static_cast<T>(0 + 1));
+  do_encode_decode_test(static_cast<T>(0 - 1));
+  do_encode_decode_test(static_cast<T>(~0 + 1));
+  do_encode_decode_test(static_cast<T>(~0 - 1));
+  // check lexicographic ordering for std::uint8_t pairs.
+  do_encode_decode_order_test(static_cast<T>(0), static_cast<T>(1));
+  do_encode_decode_order_test(static_cast<T>(5), static_cast<T>(7));
+  using U = T;
+  static_assert(sizeof(U) == sizeof(T));
+  do_encode_decode_order_test(
+      std::numeric_limits<U>::min(),
+      static_cast<U>(std::numeric_limits<U>::min() + static_cast<U>(1)));
+  do_encode_decode_order_test(
+      static_cast<U>(std::numeric_limits<U>::max() - static_cast<U>(1)),
+      std::numeric_limits<U>::max());
+}
+
+TEST(ARTKeyEncodeDecodeTest, std_uint8_C00010) {
+  using T = std::uint8_t;
+  // Check the encoder byte order.
+  std::array<const std::byte, sizeof(T)> ikey{static_cast<std::byte>(0x01)};
+  do_encode_decode_test(static_cast<T>(0x01ull), ikey);
+  // round-trip tests.
+  do_encode_decode_test(static_cast<T>(0));
+  do_encode_decode_test(static_cast<T>(~0));
+  do_encode_decode_test(static_cast<T>(0 + 1));
+  do_encode_decode_test(static_cast<T>(0 - 1));
+  do_encode_decode_test(static_cast<T>(~0 + 1));
+  do_encode_decode_test(static_cast<T>(~0 - 1));
+  // check lexicographic ordering for std::uint8_t pairs.
+  do_encode_decode_order_test(static_cast<T>(0x01ull), static_cast<T>(0x09ull));
+  do_encode_decode_order_test(static_cast<T>(0), static_cast<T>(1));
+  do_encode_decode_order_test(static_cast<T>(0x7Full), static_cast<T>(0x80ull));
+  do_encode_decode_order_test(static_cast<T>(0xFEull), static_cast<T>(~0));
+}
 
 TEST(ARTKeyEncodeDecodeTest, std_uint16_C00010) {
   using T = std::uint16_t;

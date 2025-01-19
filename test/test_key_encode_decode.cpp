@@ -82,9 +82,6 @@ void do_encode_decode_order_test(const T ekey1, const T ekey2) {
 UNODB_START_TESTS()
 
 // basic memory management - initial buffer case.
-//
-// TODO(thompsonbry) lift this out for the ensure_capacity() method
-// and use it with a simple test structure.
 TEST(ARTKeyEncodeDecodeTest, C00001) {
   my_key_encoder enc{};
   EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
@@ -157,6 +154,107 @@ void do_encode_decode_test(const T ekey,
   EXPECT_EQ(akey, ekey);
 }
 
+// TODO(thompsonbry) variable length keys - int8, uint8
+
+TEST(ARTKeyEncodeDecodeTest, std_uint16_C00010) {
+  using T = std::uint16_t;
+  // Check the encoder byte order.
+  std::array<const std::byte, sizeof(T)> ikey{static_cast<std::byte>(0x01),
+                                              static_cast<std::byte>(0x02)};
+  do_encode_decode_test(static_cast<T>(0x0102ull), ikey);
+  // round-trip tests.
+  do_encode_decode_test(static_cast<T>(0));
+  do_encode_decode_test(static_cast<T>(~0));
+  do_encode_decode_test(static_cast<T>(0 + 1));
+  do_encode_decode_test(static_cast<T>(0 - 1));
+  do_encode_decode_test(static_cast<T>(~0 + 1));
+  do_encode_decode_test(static_cast<T>(~0 - 1));
+  // check lexicographic ordering for std::uint16_t pairs.
+  do_encode_decode_order_test(static_cast<T>(0x0102ull),
+                              static_cast<T>(0x090Aull));
+  do_encode_decode_order_test(static_cast<T>(0), static_cast<T>(1));
+  do_encode_decode_order_test(static_cast<T>(0x7FFFull),
+                              static_cast<T>(0x8000ull));
+  do_encode_decode_order_test(static_cast<T>(0xFFFEull), static_cast<T>(~0));
+}
+
+TEST(ARTKeyEncodeDecodeTest, std_int16_C00010) {
+  using T = std::int16_t;
+  // Check the encoder byte order.
+  std::array<const std::byte, sizeof(T)> ikey{static_cast<std::byte>(0x81),
+                                              static_cast<std::byte>(0x02)};
+  do_encode_decode_test(static_cast<T>(0x0102LL), ikey);
+  // round-trip tests.
+  do_encode_decode_test(static_cast<T>(0));
+  do_encode_decode_test(static_cast<T>(~0));
+  do_encode_decode_test(static_cast<T>(0 + 1));
+  do_encode_decode_test(static_cast<T>(0 - 1));
+  do_encode_decode_test(static_cast<T>(~0 + 1));
+  do_encode_decode_test(static_cast<T>(~0 - 1));
+  // check lexicographic ordering for std::uint16_t pairs.
+  do_encode_decode_order_test(static_cast<T>(0), static_cast<T>(1));
+  do_encode_decode_order_test(static_cast<T>(5), static_cast<T>(7));
+  using U = short;
+  static_assert(sizeof(U) == sizeof(short));
+  do_encode_decode_order_test(
+      std::numeric_limits<U>::min(),
+      static_cast<U>(std::numeric_limits<U>::min() + static_cast<U>(1)));
+  do_encode_decode_order_test(
+      static_cast<U>(std::numeric_limits<U>::max() - static_cast<U>(1)),
+      std::numeric_limits<U>::max());
+}
+
+TEST(ARTKeyEncodeDecodeTest, std_uint32_C00010) {
+  using T = std::uint32_t;
+  // Check the encoder byte order.
+  std::array<const std::byte, sizeof(T)> ikey{
+      static_cast<std::byte>(0x01), static_cast<std::byte>(0x02),
+      static_cast<std::byte>(0x03), static_cast<std::byte>(0x04)};
+  do_encode_decode_test(static_cast<T>(0x01020304), ikey);
+  // round-trip tests.
+  do_encode_decode_test(static_cast<T>(0));
+  do_encode_decode_test(static_cast<T>(~0));
+  do_encode_decode_test(static_cast<T>(0 + 1));
+  do_encode_decode_test(static_cast<T>(0 - 1));
+  do_encode_decode_test(static_cast<T>(~0 + 1));
+  do_encode_decode_test(static_cast<T>(~0 - 1));
+  // check lexicographic ordering for std::uint32_t pairs.
+  do_encode_decode_order_test(static_cast<T>(0x01020304ull),
+                              static_cast<T>(0x090A0B0Cull));
+  do_encode_decode_order_test(static_cast<T>(0), static_cast<T>(1));
+  do_encode_decode_order_test(static_cast<T>(0x7FFFFFFFull),
+                              static_cast<T>(0x80000000ull));
+  do_encode_decode_order_test(static_cast<T>(0xFFFFFFFEull),
+                              static_cast<T>(~0));
+}
+
+TEST(ARTKeyEncodeDecodeTest, std_int32_C00010) {
+  using T = std::int32_t;
+  // Check the encoder byte order.
+  std::array<const std::byte, sizeof(T)> ikey{
+      static_cast<std::byte>(0x81), static_cast<std::byte>(0x02),
+      static_cast<std::byte>(0x03), static_cast<std::byte>(0x04)};
+  do_encode_decode_test(static_cast<T>(0x01020304LL), ikey);
+  // round-trip tests.
+  //
+  // Note: 0, 1, ~0, etc. are already std::int32_t.  If that is not
+  // true universally, then we need conditional compilation here to
+  // avoid "warning useless cast" errors in the compiler.
+  do_encode_decode_test(0);
+  do_encode_decode_test(~0);
+  do_encode_decode_test(0 + 1);
+  do_encode_decode_test(0 - 1);
+  do_encode_decode_test(~0 + 1);
+  do_encode_decode_test(~0 - 1);
+  // check lexicographic ordering for std::uint32_t pairs.
+  do_encode_decode_order_test(0, 1);
+  do_encode_decode_order_test(5, 7);
+  do_encode_decode_order_test(std::numeric_limits<T>::min(),
+                              std::numeric_limits<T>::min() + 1);
+  do_encode_decode_order_test(std::numeric_limits<T>::max() - 1,
+                              std::numeric_limits<T>::max());
+}
+
 TEST(ARTKeyEncodeDecodeTest, std_uint64_C00010) {
   using T = std::uint64_t;
   // Check the encoder byte order.
@@ -174,12 +272,12 @@ TEST(ARTKeyEncodeDecodeTest, std_uint64_C00010) {
   do_encode_decode_test(static_cast<T>(~0 + 1));
   do_encode_decode_test(static_cast<T>(~0 - 1));
   // check lexicographic ordering for std::uint64_t pairs.
-  do_encode_decode_order_test(static_cast<T>(0x0102030405060708ULL),
-                              static_cast<T>(0x090A0B0C0D0F1011ULL));
+  do_encode_decode_order_test(static_cast<T>(0x0102030405060708ull),
+                              static_cast<T>(0x090A0B0C0D0F1011ull));
   do_encode_decode_order_test(static_cast<T>(0), static_cast<T>(1));
-  do_encode_decode_order_test(static_cast<T>(0x7FFFFFFFFFFFFFFFULL),
-                              static_cast<T>(0x8000000000000000ULL));
-  do_encode_decode_order_test(static_cast<T>(0xFFFFFFFFFFFFFFFEULL),
+  do_encode_decode_order_test(static_cast<T>(0x7FFFFFFFFFFFFFFFull),
+                              static_cast<T>(0x8000000000000000ull));
+  do_encode_decode_order_test(static_cast<T>(0xFFFFFFFFFFFFFFFEull),
                               static_cast<T>(~0));
 }
 

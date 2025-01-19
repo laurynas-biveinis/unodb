@@ -121,26 +121,29 @@ void ensure_capacity(std::byte *&buf,     // buffer to resize
 // of key components.  This class supports the various kinds of
 // primitive data types and provides support for the caller to pass
 // through Unicode sort keys.
+//
+// TODO(thompsonbry) - variable length keys - handle integer types
+// TODO(thompsonbry) - variable length keys - handle floating point types
+// TODO(thompsonbry) - variable length keys - handle successors
+//
+// TODO(thompsonbry) - variable length keys - handle unicode sort keys
+// (caller must normalize, generate the sort key, and pad?)
+//
+// TODO(thompsonbry) - variable length keys - simply - try to use
+// templates for msb, bswap, and encode/decode of unsigned values.
 class key_encoder {
  protected:
-  // The initial capacity of the key encoder.  This much data can fit
-  // into the encoder without allocating a buffer on the heap.
-  static constexpr uint64_t msb = 1ull << 63;
+  // highest bit for various data types.
+  static constexpr uint64_t msb8 = 1ull << 7;
+  static constexpr uint64_t msb16 = 1ull << 15;
+  static constexpr uint64_t msb32 = 1ull << 31;
+  static constexpr uint64_t msb64 = 1ull << 63;
 
+  // the current capacity of the buffer.
   size_t capacity() const noexcept { return cap; }
 
   // the number of bytes of data in the internal buffer.
   size_t size_bytes() const noexcept { return off; }
-
-  // // a pointer to the start of the internal buffer.
-  // template<typename T> T* data() noexcept {
-  //   return reinterpret_cast<T*>(buf);
-  // }
-
-  // // a pointer to the start of the internal buffer.
-  // template<typename T> const T* data() const noexcept {
-  //   return reinterpret_cast<const T*>(buf);
-  // }
 
   // ensure that the buffer can hold at least [req] additional bytes.
   void ensure_available(size_t req) {
@@ -171,21 +174,76 @@ class key_encoder {
     return key_view(buf, off);
   }
 
-  key_encoder &encode(std::int64_t v) {
-    const uint64_t u = (v >= 0) ? msb + static_cast<uint64_t>(v)
-                                : msb - static_cast<uint64_t>(-v);
+  /// signed integers
+
+  key_encoder &encode(std::int8_t v) {
+    const uint8_t u = (v >= 0) ? msb8 + static_cast<uint8_t>(v)
+                               : msb8 - static_cast<uint8_t>(-v);
     return encode(u);
+  }
+
+  key_encoder &encode(std::int16_t v) {
+    const uint16_t u = (v >= 0) ? msb16 + static_cast<uint16_t>(v)
+                                : msb16 - static_cast<uint16_t>(-v);
+    return encode(u);
+  }
+
+  key_encoder &encode(std::int32_t v) {
+    const uint32_t u = (v >= 0) ? msb32 + static_cast<uint32_t>(v)
+                                : msb32 - static_cast<uint32_t>(-v);
+    return encode(u);
+  }
+
+  key_encoder &encode(std::int64_t v) {
+    const uint64_t u = (v >= 0) ? msb64 + static_cast<uint64_t>(v)
+                                : msb64 - static_cast<uint64_t>(-v);
+    return encode(u);
+  }
+
+  /// unsigned integers
+
+  key_encoder &encode(std::uint8_t v) {
+    ensure_available(sizeof(v));
+    buf[off++] = reinterpret_cast<const std::byte &>(v);
+    return *this;
+  }
+
+  key_encoder &encode(std::uint16_t v) {
+    ensure_available(sizeof(v));
+#ifdef UNODB_DETAIL_LITTLE_ENDIAN
+    const auto u = unodb::detail::bswap16(v);
+#else
+    const auto u = v;
+#endif
+    UNODB_DETAIL_ASSERT(sizeof(u) == sizeof(v));
+    std::memcpy(buf + off, &u, sizeof(v));
+    off += sizeof(v);
+    return *this;
+  }
+
+  key_encoder &encode(std::uint32_t v) {
+    ensure_available(sizeof(v));
+#ifdef UNODB_DETAIL_LITTLE_ENDIAN
+    const auto u = unodb::detail::bswap32(v);
+#else
+    const auto u = v;
+#endif
+    UNODB_DETAIL_ASSERT(sizeof(u) == sizeof(v));
+    std::memcpy(buf + off, &u, sizeof(v));
+    off += sizeof(v);
+    return *this;
   }
 
   key_encoder &encode(std::uint64_t v) {
     ensure_available(sizeof(v));
 #ifdef UNODB_DETAIL_LITTLE_ENDIAN
-    const auto u = unodb::detail::bswap(v);
+    const auto u = unodb::detail::bswap64(v);
 #else
     const auto u = v;
 #endif
-    std::memcpy(buf + off, &u, sizeof(u));
-    off += 8;
+    UNODB_DETAIL_ASSERT(sizeof(u) == sizeof(v));
+    std::memcpy(buf + off, &u, sizeof(v));
+    off += sizeof(v);
     return *this;
   }
 
@@ -217,19 +275,86 @@ class key_decoder {
   const size_t cap;      // #of bytes in that buffer.
   size_t off{};          // the byte offset into that data.
 
-  static constexpr uint64_t msb = 1ull << 63;
+  // highest bit for various data types.
+  static constexpr uint64_t msb8 = 1ull << 7;
+  static constexpr uint64_t msb16 = 1ull << 15;
+  static constexpr uint64_t msb32 = 1ull << 31;
+  static constexpr uint64_t msb64 = 1ull << 63;
 
  public:
   // Build a decoder for the key_view.
   key_decoder(const key_view kv)
       : buf(kv.data()), cap(kv.size_bytes()), off(0) {}
 
+  /// signed integers
+
+  // Decode a component of the indicated type from the key.
+  key_decoder &decode(std::int8_t &v) {
+    std::uint8_t u;
+    decode(u);
+    v = (u >= msb8) ? static_cast<int8_t>(u - msb8)
+                    : -static_cast<int8_t>(msb8 - u);
+    return *this;
+  }
+
+  // Decode a component of the indicated type from the key.
+  key_decoder &decode(std::int16_t &v) {
+    std::uint16_t u;
+    decode(u);
+    v = (u >= msb16) ? static_cast<int16_t>(u - msb16)
+                     : -static_cast<int16_t>(msb16 - u);
+    return *this;
+  }
+
+  // Decode a component of the indicated type from the key.
+  key_decoder &decode(std::int32_t &v) {
+    std::uint32_t u;
+    decode(u);
+    v = (u >= msb32) ? static_cast<int32_t>(u - msb32)
+                     : -static_cast<int32_t>(msb32 - u);
+    return *this;
+  }
+
   // Decode a component of the indicated type from the key.
   key_decoder &decode(std::int64_t &v) {
     std::uint64_t u;
     decode(u);
-    v = (u >= msb) ? static_cast<int64_t>(u - msb)
-                   : -static_cast<int64_t>(msb - u);
+    v = (u >= msb64) ? static_cast<int64_t>(u - msb64)
+                     : -static_cast<int64_t>(msb64 - u);
+    return *this;
+  }
+
+  /// unsigned integers
+
+  // Decode a component of the indicated type from the key.
+  key_decoder &decode(std::uint8_t &v) {
+    v = reinterpret_cast<const std::uint8_t &>(buf[off++]);
+    return *this;
+  }
+
+  // Decode a component of the indicated type from the key.
+  key_decoder &decode(std::uint16_t &v) {
+    std::uint16_t u;
+    std::memcpy(&u, buf + off, sizeof(u));
+#ifdef UNODB_DETAIL_LITTLE_ENDIAN
+    v = unodb::detail::bswap16(u);
+#else
+    v = u;
+#endif
+    off += sizeof(u);
+    return *this;
+  }
+
+  // Decode a component of the indicated type from the key.
+  key_decoder &decode(std::uint32_t &v) {
+    std::uint32_t u;
+    std::memcpy(&u, buf + off, sizeof(u));
+#ifdef UNODB_DETAIL_LITTLE_ENDIAN
+    v = unodb::detail::bswap32(u);
+#else
+    v = u;
+#endif
+    off += sizeof(u);
     return *this;
   }
 
@@ -238,11 +363,11 @@ class key_decoder {
     std::uint64_t u;
     std::memcpy(&u, buf + off, sizeof(u));
 #ifdef UNODB_DETAIL_LITTLE_ENDIAN
-    v = unodb::detail::bswap(u);
+    v = unodb::detail::bswap64(u);
 #else
     v = u;
 #endif
-    off += 8;
+    off += sizeof(u);
     return *this;
   }
 

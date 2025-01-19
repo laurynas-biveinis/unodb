@@ -82,10 +82,13 @@ struct [[nodiscard]] basic_art_key final {
  private:
   // ctor helper converts a simple external key into an internal key
   // supporting lexicographic comparison.
+  //
+  // TODO(thompsonbry) key templating - This never supported anything
+  // except u64 keys due to bswap() being u64 specific.
   [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
   make_binary_comparable(KeyType k) noexcept {
 #ifdef UNODB_DETAIL_LITTLE_ENDIAN
-    return bswap(k);
+    return bswap64(k);
 #else
 #error Needs implementing
 #endif

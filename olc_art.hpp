@@ -436,7 +436,7 @@ class olc_db final {
     // Push an entry onto the stack.
     bool try_push(detail::olc_node_ptr node, std::byte key_byte,
                   std::uint8_t child_index,
-                  optimistic_lock::read_critical_section& rcs) {
+                  const optimistic_lock::read_critical_section& rcs) {
       // For variable length keys we need to know the number of bytes
       // associated with the node's key_prefix.  In addition there is
       // one byte for the descent to the child node along the
@@ -458,7 +458,7 @@ class olc_db final {
 
     // Push a leaf onto the stack.
     bool try_push_leaf(detail::olc_node_ptr aleaf,
-                       optimistic_lock::read_critical_section& rcs) {
+                       const optimistic_lock::read_critical_section& rcs) {
       // The [key], [child_index] and [prefix_len] are ignored for a
       // leaf.
       //

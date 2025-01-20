@@ -13,6 +13,12 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <__fwd/ostream.h>
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
+// IWYU pragma: no_include <boost/fusion/algorithm/iteration/for_each.hpp>
+// IWYU pragma: no_include <boost/fusion/algorithm/query/find_if.hpp>
+// IWYU pragma: no_include <boost/fusion/iterator/next.hpp>
+// IWYU pragma: no_include <boost/fusion/sequence/intrinsic/begin.hpp>
+// IWYU pragma: no_include <boost/fusion/sequence/intrinsic/end.hpp>
 // IWYU pragma: no_include <boost/fusion/iterator/deref.hpp>
 
 #include <atomic>

@@ -135,6 +135,7 @@ suffix, such as `deepstate_lf_8h`, `deepstate_qsbr_lf_20m`,
 * In the case of merge conflicts, rebase.
 * All commits should be squashed into logical units. If the PR has only one
   feature or fix, as it should, there should be only one commit in it.
+* Very obvious changes may be pushed directly.
 
 ## License
 

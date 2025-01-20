@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Laurynas Biveinis
+// Copyright 2019-2025 Laurynas Biveinis
 #ifndef UNODB_DETAIL_GLOBAL_HPP
 #define UNODB_DETAIL_GLOBAL_HPP
 
@@ -102,8 +102,11 @@
 
 #endif
 
+// Migrate most uses to C++20 [[likely]] and [[unlikely]] once clang 12 is the
+// oldest supported clang version
 #define UNODB_DETAIL_LIKELY(x) __builtin_expect(x, 1)
 #define UNODB_DETAIL_UNLIKELY(x) __builtin_expect(x, 0)
+
 #define UNODB_DETAIL_UNUSED [[gnu::unused]]
 #define UNODB_DETAIL_FORCE_INLINE __attribute__((always_inline))
 #define UNODB_DETAIL_NOINLINE __attribute__((noinline))
@@ -113,8 +116,12 @@
 #else  // #ifndef UNODB_DETAIL_MSVC
 
 #define UNODB_DETAIL_BUILTIN_ASSUME(x) __assume(x)
+
+// Migrate most uses to C++20 [[likely]] and [[unlikely]] once clang 12 is the
+// oldest supported clang version
 #define UNODB_DETAIL_LIKELY(x) (!!(x))
 #define UNODB_DETAIL_UNLIKELY(x) (!!(x))
+
 #define UNODB_DETAIL_UNUSED [[maybe_unused]]
 #define UNODB_DETAIL_FORCE_INLINE __forceinline
 #define UNODB_DETAIL_NOINLINE __declspec(noinline)

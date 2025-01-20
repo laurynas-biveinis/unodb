@@ -264,7 +264,7 @@ class [[nodiscard]] optimistic_lock final {
     [[nodiscard]] bool check() const noexcept {
       const auto result = lock->check(version);
 #ifndef NDEBUG
-      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;  // LCOV_EXCL_LINE
+      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;
 #endif
       return UNODB_DETAIL_LIKELY(result);
     }
@@ -318,7 +318,7 @@ class [[nodiscard]] optimistic_lock final {
 #endif
       const auto result =
           lock->try_upgrade_to_write_lock(critical_section.version);
-      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;  // LCOV_EXCL_LINE
+      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;
     }
 
     ~write_guard() noexcept {

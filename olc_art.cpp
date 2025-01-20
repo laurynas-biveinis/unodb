@@ -1458,11 +1458,11 @@ bool olc_db::iterator::try_next() {
         node_ptr_lock(node).rehydrate_read_lock(e.version));
     // Restart check (fails if node was modified after it was pushed
     // onto the stack).
-    if (!UNODB_DETAIL_UNLIKELY(node_critical_section.check())) return false;
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return false;
     auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       pop();  // pop off the leaf
-      if (!UNODB_DETAIL_UNLIKELY(node_critical_section.try_read_unlock()))
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
         return false;  // LCOV_EXCL_LINE
       continue;        // falls through loop if just a root leaf since stack now
                        // empty.
@@ -1470,13 +1470,13 @@ bool olc_db::iterator::try_next() {
     auto *inode{node.ptr<detail::olc_inode *>()};
     auto nxt = inode->next(node_type,
                            e.child_index);  // next child of that parent.
-    if (!UNODB_DETAIL_UNLIKELY(node_critical_section.check())) {
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) {
       // restart check
       return false;  // LCOV_EXCL_LINE
     }
     if (!nxt) {
       pop();  // Nothing more for that inode.
-      if (!UNODB_DETAIL_UNLIKELY(node_critical_section.try_read_unlock()))
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
         return false;  // LCOV_EXCL_LINE
       continue;  // We will look for the right sibling of the parent inode.
     }
@@ -1502,23 +1502,23 @@ bool olc_db::iterator::try_prior() {
     UNODB_DETAIL_ASSERT(node != nullptr);
     auto node_critical_section(
         node_ptr_lock(node).rehydrate_read_lock(e.version));
-    if (!UNODB_DETAIL_UNLIKELY(node_critical_section.check()))
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
       return false;  // LCOV_EXCL_LINE
     auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       pop();  // pop off the leaf
-      if (!UNODB_DETAIL_UNLIKELY(node_critical_section.try_read_unlock()))
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
         return false;  // LCOV_EXCL_LINE
       continue;  // falls through loop if just a root leaf since stack now empty
     }
     auto *inode{node.ptr<detail::olc_inode *>()};
     auto nxt = inode->prior(node_type,
                             e.child_index);  // previous child of that parent.
-    if (!UNODB_DETAIL_UNLIKELY(node_critical_section.check()))
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
       return false;  // LCOV_EXCL_LINE
     if (!nxt) {
       pop();  // Nothing more for that inode.
-      if (!UNODB_DETAIL_UNLIKELY(node_critical_section.try_read_unlock()))
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
         return false;  // LCOV_EXCL_LINE
       continue;        // We will look for the left sibling of the parent inode.
     }
@@ -1556,7 +1556,7 @@ inline bool olc_db::iterator::try_left_most_traversal(
     // Lock version chaining (node and parent)
     auto node_critical_section = node_ptr_lock(node).try_read_lock();
     if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart()))
-      return false;
+      return false;  // LCOV_EXCL_LINE
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return false;  // LCOV_EXCL_LINE
     const auto node_type = node.type();
@@ -1657,7 +1657,7 @@ bool olc_db::iterator::try_seek(detail::art_key search_key, bool &match,
   if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) {
     // LCOV_EXCL_START
     spin_wait_loop_body();
-    return {};
+    return false;
     // LCOV_EXCL_STOP
   }
   const detail::art_key k = search_key;
@@ -1667,7 +1667,7 @@ bool olc_db::iterator::try_seek(detail::art_key search_key, bool &match,
     // Lock version chaining (node and parent)
     auto node_critical_section = node_ptr_lock(node).try_read_lock();
     if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart()))
-      return false;
+      return false;  // LCOV_EXCL_LINE
     // TODO(thompsonbry) Should be redundant.  Checked before entering
     // the while() loop and at the bottom of the while() loop.
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return false;
@@ -1781,8 +1781,8 @@ bool olc_db::iterator::try_seek(detail::art_key search_key, bool &match,
             const auto cnode{centry.node};  // a possible parent from the stack.
             auto c_critical_section(
                 node_ptr_lock(cnode).rehydrate_read_lock(centry.version));
-            if (!UNODB_DETAIL_UNLIKELY(c_critical_section.check()))
-              return false;  // restart check
+            if (UNODB_DETAIL_UNLIKELY(!c_critical_section.check()))
+              return false;  // LCOV_EXCL_LINE
             auto *const icnode{cnode.ptr<detail::olc_inode *>()};
             const auto cnxt = icnode->next(
                 cnode.type(), centry.child_index);  // right-sibling.
@@ -1795,8 +1795,8 @@ bool olc_db::iterator::try_seek(detail::art_key search_key, bool &match,
               return try_left_most_traversal(nchild, c_critical_section);
             }
             pop();
-            if (!UNODB_DETAIL_UNLIKELY(c_critical_section.try_read_unlock()))
-              return false;
+            if (UNODB_DETAIL_UNLIKELY(!c_critical_section.try_read_unlock()))
+              return false;  // LCOV_EXCL_LINE
           }
           return true;  // stack is empty (aka end()).
         }
@@ -1835,8 +1835,8 @@ bool olc_db::iterator::try_seek(detail::art_key search_key, bool &match,
           const auto cnode{centry.node};  // a possible parent from stack
           auto c_critical_section(
               node_ptr_lock(cnode).rehydrate_read_lock(centry.version));
-          if (!UNODB_DETAIL_UNLIKELY(c_critical_section.check()))
-            return false;  // restart check
+          if (UNODB_DETAIL_UNLIKELY(!c_critical_section.check()))
+            return false;  // LCOV_EXCL_LINE
           auto *const icnode{cnode.ptr<detail::olc_inode *>()};
           const auto cnxt =
               icnode->prior(cnode.type(), centry.child_index);  // left-sibling.
@@ -1849,8 +1849,8 @@ bool olc_db::iterator::try_seek(detail::art_key search_key, bool &match,
             return try_right_most_traversal(nchild, c_critical_section);
           }
           pop();
-          if (!UNODB_DETAIL_UNLIKELY(c_critical_section.try_read_unlock()))
-            return false;
+          if (UNODB_DETAIL_UNLIKELY(!c_critical_section.try_read_unlock()))
+            return false;  // LCOV_EXCL_LINE
         }
         return true;  // stack is empty (aka end()).
       }

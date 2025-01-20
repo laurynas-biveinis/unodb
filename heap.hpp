@@ -1,4 +1,4 @@
-// Copyright 2020-2023 Laurynas Biveinis
+// Copyright 2020-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_HEAP_HPP
 #define UNODB_DETAIL_HEAP_HPP
 
@@ -58,7 +58,7 @@ template <typename T>
   UNODB_DETAIL_ASSERT(result != nullptr || err == ENOMEM);
 
   if (UNODB_DETAIL_UNLIKELY(result == nullptr)) {
-    throw std::bad_alloc{};
+    throw std::bad_alloc{};  // LCOV_EXCL_LINE
   }
 
   return result;

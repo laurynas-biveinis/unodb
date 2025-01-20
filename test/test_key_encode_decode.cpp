@@ -65,11 +65,11 @@ void do_encode_decode_order_test(const T ekey1, const T ekey2) {
   unodb::key_encoder enc2{};  // separate decoder (backed by different span).
   const auto ikey1 = enc1.encode(ekey1).get_key_view();  // into encoder buf!
   const auto ikey2 = enc2.encode(ekey2).get_key_view();  // into encoder buf!
-  EXPECT_TRUE(compare(ikey1, ikey1) == 0);
-  EXPECT_TRUE(compare(ikey2, ikey2) == 0);
-  EXPECT_TRUE(compare(ikey1, ikey2) != 0);
-  EXPECT_TRUE(compare(ikey1, ikey2) < 0);
-  EXPECT_TRUE(compare(ikey2, ikey1) > 0);
+  EXPECT_EQ(compare(ikey1, ikey1), 0);
+  EXPECT_EQ(compare(ikey2, ikey2), 0);
+  EXPECT_NE(compare(ikey1, ikey2), 0);
+  EXPECT_LT(compare(ikey1, ikey2), 0);
+  EXPECT_GT(compare(ikey2, ikey1), 0);
   unodb::key_decoder dec1{ikey1};
   unodb::key_decoder dec2{ikey2};
   T akey1, akey2;
@@ -237,7 +237,6 @@ TEST(ARTKeyEncodeDecodeTest, std_int16_C00010) {
   do_encode_decode_order_test(static_cast<T>(0), static_cast<T>(1));
   do_encode_decode_order_test(static_cast<T>(5), static_cast<T>(7));
   using U = short;
-  static_assert(sizeof(U) == sizeof(short));
   do_encode_decode_order_test(
       std::numeric_limits<U>::min(),
       static_cast<U>(std::numeric_limits<U>::min() + static_cast<U>(1)));
@@ -314,13 +313,13 @@ TEST(ARTKeyEncodeDecodeTest, std_uint64_C00010) {
   do_encode_decode_test(static_cast<T>(~0 + 1));
   do_encode_decode_test(static_cast<T>(~0 - 1));
   // check lexicographic ordering for std::uint64_t pairs.
-  do_encode_decode_order_test(static_cast<T>(0x0102030405060708ull),
-                              static_cast<T>(0x090A0B0C0D0F1011ull));
+  do_encode_decode_order_test<T>(0x0102030405060708ull,
+                                 0x090A0B0C0D0F1011ull);
   do_encode_decode_order_test(static_cast<T>(0), static_cast<T>(1));
-  do_encode_decode_order_test(static_cast<T>(0x7FFFFFFFFFFFFFFFull),
-                              static_cast<T>(0x8000000000000000ull));
-  do_encode_decode_order_test(static_cast<T>(0xFFFFFFFFFFFFFFFEull),
-                              static_cast<T>(~0));
+  do_encode_decode_order_test<T>(0x7FFFFFFFFFFFFFFFull,
+                                 0x8000000000000000ull);
+  do_encode_decode_order_test<T>(0xFFFFFFFFFFFFFFFEull,
+                                 static_cast<T>(~0));
 }
 
 TEST(ARTKeyEncodeDecodeTest, std_int64_C00010) {
@@ -331,7 +330,7 @@ TEST(ARTKeyEncodeDecodeTest, std_int64_C00010) {
       static_cast<std::byte>(0x03), static_cast<std::byte>(0x04),
       static_cast<std::byte>(0x05), static_cast<std::byte>(0x06),
       static_cast<std::byte>(0x07), static_cast<std::byte>(0x08)};
-  do_encode_decode_test(static_cast<T>(0x0102030405060708LL), ikey);
+  do_encode_decode_test<T>(0x0102030405060708LL, ikey);
   // round-trip tests.
   do_encode_decode_test(static_cast<T>(0));
   do_encode_decode_test(static_cast<T>(~0));

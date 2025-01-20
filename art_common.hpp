@@ -283,7 +283,7 @@ class key_decoder {
 
  public:
   // Build a decoder for the key_view.
-  key_decoder(const key_view kv)
+  explicit key_decoder(const key_view kv)
       : buf(kv.data()), cap(kv.size_bytes()), off(0) {}
 
   /// signed integers

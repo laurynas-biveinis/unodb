@@ -100,7 +100,7 @@ struct [[nodiscard]] basic_art_key final {
     if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
       // Convert a key_view into a uint64_t.  The key_view must be
       // small enough to fit.
-      UNODB_DETAIL_ASSERT(k.size_bytes() <= sizeof(std::uint64_t));
+      UNODB_DETAIL_ASSERT(key.size_bytes() <= sizeof(std::uint64_t));
       // first 64-bits.
       std::uint64_t u{};
       std::memcpy(&u, key.data(), std::min(key.size_bytes(), sizeof(u)));

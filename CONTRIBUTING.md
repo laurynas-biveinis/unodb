@@ -13,6 +13,11 @@
 * include-what-you-use
 * libfuzzer
 
+## General workflow
+
+Clone the repo, create your feature or fix branches, work on them, commit, open
+a pull request to this repo.
+
 ## Development CMake options
 
 The regular CMake option `-DCMAKE_BUILD_TYPE` is recognized. Setting it to
@@ -46,15 +51,36 @@ There also other development-specific options. All of them are `OFF` by default.
 * `-DCOVERAGE=ON` to generate coverage reports on tests, excluding fuzzers,
   using lcov.
 
+## Code organization
+
+Header files can be public and internal. The internal ones have "internal"
+somewhere in their name.
+
+Public API must be introduced in `unodb` namespace, and any such declarations
+should appear in a public header. It is OK for the implementation of a public
+declaration to be in a private header, but see below. All the private
+declarations for implementation details should live in `unodb::detail`
+namespace. Thus, private headers may contain both `unodb` and `unodb::detail`
+code, but rethink the header split if the former becomes a majority in a header.
+
+Macros should not be a part of public API, and may be used internally only when
+unavoidable. If a macro has to be introduced, its name must be prefixed with
+`UNODB_DETAIL_`.
+
 ## Style Guide
 
 * The code should follow existing conventions, formatted with
   [Google C++ style][gc++style]. This is enforced by GitHub Actions SuperLinter
   running clang-format, currently version 17.
+* Each source file must `#include "global.hpp"` first thing.
 * Identifiers should be `snake_case`.
 * The code is `noexcept`-maximalist. Every function and method that cannot throw
   should be marked as `noexcept`. If the code does not throw in release build
   but may throw in debug one, it should ignore the latter and be `noexcept`.
+* The code is exception-safe, with strong exception guarantee. This is actually
+  tested by [test/test_art_oom.cpp](test/test_art_oom.cpp) injecting
+  `std::bad_alloc` into heap allocations. New code should exception-safe too,
+  with OOM tests expanded as necessary.
 * The code is `[[nodiscard]]`-maximalist. Every value-returning function and
   method starts out as `[[nodiscard]]` by default, and is only changed if there
   is a clear need to both handle and ignore the return value.
@@ -94,7 +120,10 @@ e.g. `ctest -j10`. For verbose test output add `-V`.
 
 Benchmarks can also serve as tests, especially under debug build and under
 sanitizers or Valgrind. For that, there is a CMake target `quick_benchmarks`,
-i.e. `make -j10 -k quick_benchmarks`.
+i.e. `make -j10 -k quick_benchmarks`. CI runs this target too.
+
+To run everything (tests and quick benchmarks) under Valgrind, use `valgrind`
+CMake target.
 
 ## Fuzzing
 

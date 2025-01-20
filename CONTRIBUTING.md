@@ -15,8 +15,8 @@
 
 ## General workflow
 
-Clone the repo, create your feature or fix branches, work on them, commit, open
-a pull request to this repo.
+Clone the repository, create your feature or fix branches, work on them, commit,
+open a pull request to this repository.
 
 ## Development CMake options
 

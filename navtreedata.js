@@ -28,38 +28,40 @@ var NAVTREE =
     [ "CONTRIBUTING", "md_CONTRIBUTING.html", [
       [ "Contributing to UnoDB", "md_CONTRIBUTING.html#autotoc_md0", [
         [ "Optional development dependencies", "md_CONTRIBUTING.html#autotoc_md1", null ],
-        [ "Development CMake options", "md_CONTRIBUTING.html#autotoc_md2", null ],
-        [ "Style Guide", "md_CONTRIBUTING.html#autotoc_md3", null ],
-        [ "Linting and static analysis", "md_CONTRIBUTING.html#autotoc_md4", null ],
-        [ "Testing", "md_CONTRIBUTING.html#autotoc_md5", null ],
-        [ "Fuzzing", "md_CONTRIBUTING.html#autotoc_md6", null ],
-        [ "Commit messages", "md_CONTRIBUTING.html#autotoc_md7", null ],
-        [ "Pull Requests", "md_CONTRIBUTING.html#autotoc_md8", null ],
-        [ "License", "md_CONTRIBUTING.html#autotoc_md9", null ]
+        [ "General workflow", "md_CONTRIBUTING.html#autotoc_md2", null ],
+        [ "Development CMake options", "md_CONTRIBUTING.html#autotoc_md3", null ],
+        [ "Code organization", "md_CONTRIBUTING.html#autotoc_md4", null ],
+        [ "Style Guide", "md_CONTRIBUTING.html#autotoc_md5", null ],
+        [ "Linting and static analysis", "md_CONTRIBUTING.html#autotoc_md6", null ],
+        [ "Testing", "md_CONTRIBUTING.html#autotoc_md7", null ],
+        [ "Fuzzing", "md_CONTRIBUTING.html#autotoc_md8", null ],
+        [ "Commit messages", "md_CONTRIBUTING.html#autotoc_md9", null ],
+        [ "Pull Requests", "md_CONTRIBUTING.html#autotoc_md10", null ],
+        [ "License", "md_CONTRIBUTING.html#autotoc_md11", null ]
       ] ]
     ] ],
     [ "README", "md_README.html", [
-      [ "unodb", "md_README.html#autotoc_md10", [
-        [ "Introduction", "md_README.html#autotoc_md11", null ],
-        [ "Requirements", "md_README.html#autotoc_md12", [
-          [ "Build dependencies", "md_README.html#autotoc_md13", null ],
-          [ "Build dependencies, bundled as git submodules", "md_README.html#autotoc_md14", null ]
+      [ "unodb", "md_README.html#autotoc_md12", [
+        [ "Introduction", "md_README.html#autotoc_md13", null ],
+        [ "Requirements", "md_README.html#autotoc_md14", [
+          [ "Build dependencies", "md_README.html#autotoc_md15", null ],
+          [ "Build dependencies, bundled as git submodules", "md_README.html#autotoc_md16", null ]
         ] ],
-        [ "Building", "md_README.html#autotoc_md15", null ],
-        [ "Platform-Specific Notes", "md_README.html#autotoc_md16", [
-          [ "Ubuntu 22.04", "md_README.html#autotoc_md17", null ],
-          [ "Amazon Linux 2023", "md_README.html#autotoc_md18", null ],
-          [ "Amazon Linux 2", "md_README.html#autotoc_md19", null ]
+        [ "Building", "md_README.html#autotoc_md17", null ],
+        [ "Platform-Specific Notes", "md_README.html#autotoc_md18", [
+          [ "Ubuntu 22.04", "md_README.html#autotoc_md19", null ],
+          [ "Amazon Linux 2023", "md_README.html#autotoc_md20", null ],
+          [ "Amazon Linux 2", "md_README.html#autotoc_md21", null ]
         ] ],
-        [ "Usage", "md_README.html#autotoc_md20", null ],
-        [ "Technical Details", "md_README.html#autotoc_md21", [
-          [ "Adaptive Radix Tree", "md_README.html#autotoc_md22", null ],
-          [ "Sequential Lock", "md_README.html#autotoc_md23", null ],
-          [ "Quiescent State-Based Reclamation (QSBR)", "md_README.html#autotoc_md24", null ]
+        [ "Usage", "md_README.html#autotoc_md22", null ],
+        [ "Technical Details", "md_README.html#autotoc_md23", [
+          [ "Adaptive Radix Tree", "md_README.html#autotoc_md24", null ],
+          [ "Sequential Lock", "md_README.html#autotoc_md25", null ],
+          [ "Quiescent State-Based Reclamation (QSBR)", "md_README.html#autotoc_md26", null ]
         ] ],
-        [ "Related Projects", "md_README.html#autotoc_md25", null ],
-        [ "Contributing", "md_README.html#autotoc_md26", null ],
-        [ "Literature", "md_README.html#autotoc_md27", null ]
+        [ "Related Projects", "md_README.html#autotoc_md27", null ],
+        [ "Contributing", "md_README.html#autotoc_md28", null ],
+        [ "Literature", "md_README.html#autotoc_md29", null ]
       ] ]
     ] ],
     [ "Classes", "annotated.html", [

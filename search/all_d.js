@@ -10,5 +10,6 @@ var searchData=
   ['olc_5fnode_5fheader_7',['olc_node_header',['../structunodb_1_1detail_1_1olc__node__header.html',1,'unodb::detail']]],
   ['optimistic_5flock_8',['optimistic_lock',['../classunodb_1_1optimistic__lock.html',1,'unodb']]],
   ['optional_20development_20dependencies_9',['Optional development dependencies',['../md_CONTRIBUTING.html#autotoc_md1',1,'']]],
-  ['options_10',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md2',1,'']]]
+  ['options_10',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
+  ['organization_11',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]]
 ];

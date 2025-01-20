@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['based_20reclamation_20qsbr_0',['Quiescent State-Based Reclamation (QSBR)',['../md_README.html#autotoc_md24',1,'']]],
+  ['based_20reclamation_20qsbr_0',['Quiescent State-Based Reclamation (QSBR)',['../md_README.html#autotoc_md26',1,'']]],
   ['basic_5fart_5fkey_1',['basic_art_key',['../structunodb_1_1detail_1_1basic__art__key.html',1,'unodb::detail']]],
   ['basic_5fart_5fpolicy_2',['basic_art_policy',['../structunodb_1_1detail_1_1basic__art__policy.html',1,'unodb::detail']]],
   ['basic_5fdb_5finode_5fdeleter_3',['basic_db_inode_deleter',['../classunodb_1_1detail_1_1basic__db__inode__deleter.html',1,'unodb::detail']]],
@@ -23,8 +23,8 @@ var searchData=
   ['basic_5fleaf_20',['basic_leaf',['../classunodb_1_1detail_1_1basic__leaf.html',1,'unodb::detail']]],
   ['basic_5fnode_5fptr_21',['basic_node_ptr',['../classunodb_1_1detail_1_1basic__node__ptr.html',1,'unodb::detail']]],
   ['batched_5fprng_22',['batched_prng',['../classunodb_1_1benchmark_1_1batched__prng.html',1,'unodb::benchmark']]],
-  ['build_20dependencies_23',['Build dependencies',['../md_README.html#autotoc_md13',1,'']]],
-  ['build_20dependencies_20bundled_20as_20git_20submodules_24',['Build dependencies, bundled as git submodules',['../md_README.html#autotoc_md14',1,'']]],
-  ['building_25',['Building',['../md_README.html#autotoc_md15',1,'']]],
-  ['bundled_20as_20git_20submodules_26',['Build dependencies, bundled as git submodules',['../md_README.html#autotoc_md14',1,'']]]
+  ['build_20dependencies_23',['Build dependencies',['../md_README.html#autotoc_md15',1,'']]],
+  ['build_20dependencies_20bundled_20as_20git_20submodules_24',['Build dependencies, bundled as git submodules',['../md_README.html#autotoc_md16',1,'']]],
+  ['building_25',['Building',['../md_README.html#autotoc_md17',1,'']]],
+  ['bundled_20as_20git_20submodules_26',['Build dependencies, bundled as git submodules',['../md_README.html#autotoc_md16',1,'']]]
 ];

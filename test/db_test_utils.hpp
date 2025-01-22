@@ -383,13 +383,13 @@ class [[nodiscard]] tree_verifier final {
 
   template <class Db2 = Db>
   std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void> try_get(
-      key_type k) const noexcept(noexcept(test_db.get(k))) {
+      key_type k) const noexcept(noexcept(this->test_db.get(k))) {
     std::ignore = test_db.get(k);
   }
 
   template <class Db2 = Db>
   std::enable_if_t<std::is_same_v<Db2, unodb::olc_db<key_type>>, void> try_get(
-      key_type k) const noexcept(noexcept(test_db.get(k))) {
+      key_type k) const noexcept(noexcept(this->test_db.get(k))) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     std::ignore = test_db.get(k);
   }

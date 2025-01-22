@@ -471,8 +471,6 @@ extern template class tree_verifier<unodb::db>;
 extern template class tree_verifier<unodb::mutex_db>;
 extern template class tree_verifier<unodb::olc_db>;
 
-using olc_tree_verifier = tree_verifier<unodb::olc_db>;
-
 }  // namespace unodb::test
 
 #endif  // UNODB_DETAIL_DB_TEST_UTILS_HPP

@@ -444,7 +444,7 @@ class olc_db final {
     // the internal buffer.
     //
     // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
-    [[nodiscard]] int cmp(const art_key_type& akey) const;
+    [[nodiscard, gnu::pure]] int cmp(const art_key_type& akey) const;
 
     //
     // stack access methods.

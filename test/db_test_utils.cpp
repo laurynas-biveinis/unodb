@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -16,10 +16,14 @@
 #include "mutex_art.hpp"
 #include "olc_art.hpp"
 
+template class unodb::db<std::uint64_t>;
+template class unodb::mutex_db<std::uint64_t>;
+template class unodb::olc_db<std::uint64_t>;
+
 namespace unodb::test {
 
-template class tree_verifier<unodb::db>;
-template class tree_verifier<unodb::mutex_db>;
-template class tree_verifier<unodb::olc_db>;
+template class tree_verifier<u64_db>;
+template class tree_verifier<u64_mutex_db>;
+template class tree_verifier<u64_olc_db>;
 
 }  // namespace unodb::test

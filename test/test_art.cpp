@@ -41,7 +41,9 @@ class ARTCorrectnessTest : public ::testing::Test {
   using Test::Test;
 };
 
-using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db, unodb::olc_db>;
+using ARTTypes =
+    ::testing::Types<unodb::test::u64_db, unodb::test::u64_mutex_db,
+                     unodb::test::u64_olc_db>;
 
 UNODB_TYPED_TEST_SUITE(ARTCorrectnessTest, ARTTypes)
 

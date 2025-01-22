@@ -21,19 +21,24 @@
 
 namespace unodb {
 
+template <typename Key>
 class mutex_db final {
  public:
+  using key_type = Key;
   using value_view = unodb::value_view;
 
   // If the search key was found, that is, the first pair member has a value,
   // then the second member is a locked tree mutex which must be released ASAP
   // after reading the first pair member. Otherwise, the second member is
   // undefined.
-  using get_result = std::pair<db::get_result, std::unique_lock<std::mutex>>;
+  using get_result =
+      std::pair<typename db<Key>::get_result, std::unique_lock<std::mutex>>;
 
  protected:
+  using art_key_type = detail::basic_art_key<Key>;
+
   // Querying
-  [[nodiscard]] auto get0(const detail::art_key k) const {
+  [[nodiscard]] auto get0(art_key_type k) const {
     std::unique_lock guard{mutex};
     const auto db_get_result{db_.get0(k)};
     if (!db_get_result) {
@@ -45,12 +50,12 @@ class mutex_db final {
 
   // Modifying
   // Cannot be called during stack unwinding with std::uncaught_exceptions() > 0
-  [[nodiscard]] auto insert0(const detail::art_key k, value_view v) {
+  [[nodiscard]] auto insert0(art_key_type k, value_view v) {
     const std::lock_guard guard{mutex};
     return db_.insert0(k, v);
   }
 
-  [[nodiscard]] auto remove0(const detail::art_key k) {
+  [[nodiscard]] auto remove0(art_key_type k) {
     const std::lock_guard guard{mutex};
     return db_.remove0(k);
   }
@@ -61,17 +66,15 @@ class mutex_db final {
 
   // Query for a value associated with a binary comparable key.
   [[nodiscard, gnu::pure]] get_result get(key_view search_key) const noexcept {
-    detail::art_key k{search_key};
+    art_key_type k{search_key};
     return get0(k);
   }
 
   // Querying for a value associated with an external key.  The key is
   // converted to a binary comparable key.
-  template <typename T = key>
   [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<T>::value, get_result>::type
-  get(key search_key) const noexcept {
-    const detail::art_key k{search_key};  // fast path conversion.
+  mutex_db::get_result get(Key search_key) const noexcept {
+    const auto k = art_key_type{search_key};  // fast path conversion.
     return get0(k);
   }
 
@@ -88,7 +91,7 @@ class mutex_db final {
   //
   // @return true iff the key value pair was inserted.
   [[nodiscard, gnu::pure]] bool insert(key_view insert_key, value_view v) {
-    detail::art_key k{insert_key};
+    const auto k = art_key_type{insert_key};
     return insert0(k, v);
   }
 
@@ -99,11 +102,8 @@ class mutex_db final {
   // std::uncaught_exceptions() > 0
   //
   // @return true iff the key value pair was inserted.
-  template <typename T = key>
-  [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<T>::value, bool>::type
-  insert(key insert_key, value_view v) {
-    const detail::art_key k{insert_key};  // fast path conversion.
+  [[nodiscard, gnu::pure]] bool insert(Key insert_key, value_view v) {
+    const auto k = art_key_type{insert_key};  // fast path conversion.
     return insert0(k, v);
   }
 
@@ -112,7 +112,7 @@ class mutex_db final {
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
   [[nodiscard, gnu::pure]] bool remove(key_view search_key) {
-    detail::art_key k{search_key};
+    const auto k = art_key_type{search_key};
     return remove0(k);
   }
 
@@ -120,11 +120,9 @@ class mutex_db final {
   //
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
-  template <typename T = key>
   [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<T>::value, bool>::type
-  remove(key search_key) {
-    const detail::art_key k{search_key};  // fast path conversion.
+  bool remove(Key search_key) {
+    const auto k = art_key_type{search_key};  // fast path conversion.
     return remove0(k);
   }
 
@@ -138,7 +136,7 @@ class mutex_db final {
   // scan API.
   //
 
-  using iterator = unodb::db::iterator;
+  using iterator = unodb::db<Key>::iterator;
 
   // Scan the tree, applying the caller's lambda to each visited leaf.
   // The tree remains locked for the duration of the scan.
@@ -169,9 +167,9 @@ class mutex_db final {
   // @param fwd When [true] perform a forward scan, otherwise perform
   // a reverse scan.
   template <typename FN>
-  inline void scan_from(const key fromKey, FN fn, bool fwd = true) noexcept {
+  void scan_from(Key from_key, FN fn, bool fwd = true) noexcept {
     const std::lock_guard guard{mutex};
-    db_.scan_from(fromKey, fn, fwd);
+    db_.scan_from(from_key, fn, fwd);
   }
 
   // Scan a half-open key range, applying the caller's lambda to each
@@ -193,9 +191,9 @@ class mutex_db final {
   // returning [bool::halt].  The traversal will halt if the function
   // returns [true].
   template <typename FN>
-  inline void scan_range(const key fromKey, const key toKey, FN fn) noexcept {
+  inline void scan_range(Key from_key, Key to_key, FN fn) noexcept {
     const std::lock_guard guard{mutex};
-    db_.scan_range(fromKey, toKey, fn);
+    db_.scan_range(from_key, to_key, fn);
   }
 
   //
@@ -216,7 +214,7 @@ class mutex_db final {
   template <node_type NodeType>
   [[nodiscard]] auto get_node_count() const {
     const std::lock_guard guard{mutex};
-    return db_.get_node_count<NodeType>();
+    return db_.template get_node_count<NodeType>();
   }
 
   [[nodiscard]] auto get_node_counts() const {
@@ -227,7 +225,7 @@ class mutex_db final {
   template <node_type NodeType>
   [[nodiscard]] auto get_growing_inode_count() const {
     const std::lock_guard guard{mutex};
-    return db_.get_growing_inode_count<NodeType>();
+    return db_.template get_growing_inode_count<NodeType>();
   }
 
   [[nodiscard]] auto get_growing_inode_counts() const {
@@ -238,7 +236,7 @@ class mutex_db final {
   template <node_type NodeType>
   [[nodiscard]] auto get_shrinking_inode_count() const {
     const std::lock_guard guard{mutex};
-    return db_.get_shrinking_inode_count<NodeType>();
+    return db_.template get_shrinking_inode_count<NodeType>();
   }
 
   [[nodiscard]] auto get_shrinking_inode_counts() const {
@@ -274,7 +272,7 @@ class mutex_db final {
   }
 
  private:
-  db db_;
+  db<Key> db_;
   mutable std::mutex mutex;
 };
 

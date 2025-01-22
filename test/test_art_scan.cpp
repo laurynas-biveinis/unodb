@@ -58,7 +58,7 @@ inline std::uint64_t decode(unodb::key_view akey) {
 //
 // LCOV_EXCL_START
 [[maybe_unused]] void dump(
-    const std::vector<std::pair<unodb::key, unodb::value_view>>& x) {
+    const std::vector<std::pair<std::uint64_t, unodb::value_view>>& x) {
   std::cerr << "[";
   auto it = x.begin();
   while (it != x.end()) {
@@ -83,8 +83,8 @@ inline std::uint64_t decode(unodb::key_view akey) {
 //
 // @param limit The largest key to be installed (ODD).
 template <typename TypeParam>
-void do_scan_range_test(const unodb::key from_key, const unodb::key to_key,
-                        const uint32_t limit) {
+void do_scan_range_test(std::uint64_t from_key, std::uint64_t to_key,
+                        std::uint32_t limit) {
   constexpr bool debug = false;
   if (!(limit % 2)) FAIL() << "limit=" << limit << " must be odd";
   if (debug)
@@ -93,7 +93,7 @@ void do_scan_range_test(const unodb::key from_key, const unodb::key to_key,
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   // Insert odd keys into the database and into an ordered container.
-  std::vector<std::pair<unodb::key, unodb::value_view>> expected{};
+  std::vector<std::pair<std::uint64_t, unodb::value_view>> expected{};
   if (from_key < to_key) {
     for (uint64_t i = 1; i < limit; i += 2) {
       const auto val =
@@ -169,7 +169,9 @@ void do_scan_range_test(const unodb::key from_key, const unodb::key to_key,
 //
 // template meta parameters.
 //
-using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db, unodb::olc_db>;
+using ARTTypes =
+    ::testing::Types<unodb::test::u64_db, unodb::test::u64_mutex_db,
+                     unodb::test::u64_olc_db>;
 
 UNODB_TYPED_TEST_SUITE(ARTScanTest, ARTTypes)
 
@@ -218,7 +220,7 @@ TYPED_TEST(ARTScanTest, scanForwardOneLeaf) {
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
   uint64_t n = 0;
-  unodb::key visited_key{~0ULL};
+  std::uint64_t visited_key{~0ULL};
   typename TypeParam::value_view visited_val{};
   auto fn = [&n, &visited_key, &visited_val](
                 const unodb::visitor<typename TypeParam::iterator>& v) {
@@ -239,7 +241,7 @@ TYPED_TEST(ARTScanTest, scanFromForwardOneLeaf) {
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
   uint64_t n = 0;
-  unodb::key visited_key{~0ULL};
+  std::uint64_t visited_key{~0ULL};
   typename TypeParam::value_view visited_val{};
   auto fn = [&n, &visited_key, &visited_val](
                 const unodb::visitor<typename TypeParam::iterator>& v) {
@@ -260,7 +262,7 @@ TYPED_TEST(ARTScanTest, scanRangeForwardOneLeaf) {
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
   uint64_t n = 0;
-  unodb::key visited_key{~0ULL};
+  std::uint64_t visited_key{~0ULL};
   typename TypeParam::value_view visited_val{};
   auto fn = [&n, &visited_key, &visited_val](
                 const unodb::visitor<typename TypeParam::iterator>& v) {
@@ -282,7 +284,8 @@ TYPED_TEST(ARTScanTest, scanForwardTwoLeaves) {
   verifier.insert(0, unodb::test::test_values[0]);
   verifier.insert(1, unodb::test::test_values[1]);
   uint64_t n = 0;
-  std::vector<std::pair<unodb::key, typename TypeParam::value_view>> visited{};
+  std::vector<std::pair<std::uint64_t, typename TypeParam::value_view>>
+      visited{};
   auto fn = [&n,
              &visited](const unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
@@ -302,7 +305,8 @@ TYPED_TEST(ARTScanTest, scanFromForwardTwoLeaves) {
   verifier.insert(0, unodb::test::test_values[0]);
   verifier.insert(1, unodb::test::test_values[1]);
   uint64_t n = 0;
-  std::vector<std::pair<unodb::key, typename TypeParam::value_view>> visited{};
+  std::vector<std::pair<std::uint64_t, typename TypeParam::value_view>>
+      visited{};
   auto fn = [&n,
              &visited](const unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
@@ -322,7 +326,8 @@ TYPED_TEST(ARTScanTest, scanRangeForwardTwoLeaves) {
   verifier.insert(0, unodb::test::test_values[0]);
   verifier.insert(1, unodb::test::test_values[1]);
   uint64_t n = 0;
-  std::vector<std::pair<unodb::key, typename TypeParam::value_view>> visited{};
+  std::vector<std::pair<std::uint64_t, typename TypeParam::value_view>>
+      visited{};
   auto fn = [&n,
              &visited](const unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
@@ -585,7 +590,7 @@ TYPED_TEST(ARTScanTest, scanReverseOneLeaf) {
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
   uint64_t n = 0;
-  unodb::key visited_key{~0ULL};
+  std::uint64_t visited_key{~0ULL};
   typename TypeParam::value_view visited_val{};
   auto fn = [&n, &visited_key, &visited_val](
                 const unodb::visitor<typename TypeParam::iterator>& v) {
@@ -606,7 +611,7 @@ TYPED_TEST(ARTScanTest, scanFromReverseOneLeaf) {
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
   uint64_t n = 0;
-  unodb::key visited_key{~0ULL};
+  std::uint64_t visited_key{~0ULL};
   typename TypeParam::value_view visited_val{};
   auto fn = [&n, &visited_key, &visited_val](
                 const unodb::visitor<typename TypeParam::iterator>& v) {
@@ -627,7 +632,7 @@ TYPED_TEST(ARTScanTest, scanRangeReverseOneLeaf) {
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(1, unodb::test::test_values[0]);
   uint64_t n = 0;
-  unodb::key visited_key{~1ULL};
+  std::uint64_t visited_key{~1ULL};
   typename TypeParam::value_view visited_val{};
   auto fn = [&n, &visited_key, &visited_val](
                 const unodb::visitor<typename TypeParam::iterator>& v) {
@@ -649,7 +654,8 @@ TYPED_TEST(ARTScanTest, scanReverseTwoLeaves) {
   verifier.insert(1, unodb::test::test_values[0]);
   verifier.insert(2, unodb::test::test_values[1]);
   uint64_t n = 0;
-  std::vector<std::pair<unodb::key, typename TypeParam::value_view>> visited{};
+  std::vector<std::pair<std::uint64_t, typename TypeParam::value_view>>
+      visited{};
   auto fn = [&n,
              &visited](const unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
@@ -669,7 +675,8 @@ TYPED_TEST(ARTScanTest, scanFromReverseTwoLeaves) {
   verifier.insert(1, unodb::test::test_values[0]);
   verifier.insert(2, unodb::test::test_values[1]);
   uint64_t n = 0;
-  std::vector<std::pair<unodb::key, typename TypeParam::value_view>> visited{};
+  std::vector<std::pair<std::uint64_t, typename TypeParam::value_view>>
+      visited{};
   auto fn = [&n,
              &visited](const unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
@@ -689,7 +696,8 @@ TYPED_TEST(ARTScanTest, scanRangeReverseTwoLeaves) {
   verifier.insert(1, unodb::test::test_values[0]);
   verifier.insert(2, unodb::test::test_values[1]);
   uint64_t n = 0;
-  std::vector<std::pair<unodb::key, typename TypeParam::value_view>> visited{};
+  std::vector<std::pair<std::uint64_t, typename TypeParam::value_view>>
+      visited{};
   auto fn = [&n,
              &visited](const unodb::visitor<typename TypeParam::iterator>& v) {
     n++;

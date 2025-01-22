@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Laurynas Biveinis
+// Copyright 2020-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_MICRO_BENCHMARK_CONCURRENCY_HPP
 #define UNODB_DETAIL_MICRO_BENCHMARK_CONCURRENCY_HPP
 
@@ -72,11 +72,11 @@ class [[nodiscard]] concurrent_benchmark {
 
   void parallel_get(::benchmark::State &state) {
     const auto num_of_threads = static_cast<std::size_t>(state.range(0));
-    const auto tree_size = static_cast<unodb::key>(state.range(1));
+    const auto tree_size = static_cast<std::uint64_t>(state.range(1));
 
     test_db = std::make_unique<Db>();
 
-    for (unodb::key i = 0; i < tree_size; ++i)
+    for (std::uint64_t i = 0; i < tree_size; ++i)
       insert_key(*test_db, i, values[i % values.size()]);
 
     for (const auto _ : state) {
@@ -92,7 +92,7 @@ class [[nodiscard]] concurrent_benchmark {
 
   void parallel_insert_disjoint_ranges(::benchmark::State &state) {
     const auto num_of_threads = static_cast<std::size_t>(state.range(0));
-    const auto tree_size = static_cast<unodb::key>(state.range(1));
+    const auto tree_size = static_cast<std::uint64_t>(state.range(1));
 
     for (const auto _ : state) {
       state.PauseTiming();
@@ -111,13 +111,13 @@ class [[nodiscard]] concurrent_benchmark {
 
   void parallel_delete_disjoint_ranges(::benchmark::State &state) {
     const auto num_of_threads = static_cast<std::size_t>(state.range(0));
-    const auto tree_size = static_cast<unodb::key>(state.range(1));
+    const auto tree_size = static_cast<std::uint64_t>(state.range(1));
 
     for (const auto _ : state) {
       state.PauseTiming();
 
       test_db = std::make_unique<Db>();
-      for (unodb::key i = 0; i < tree_size; ++i)
+      for (std::uint64_t i = 0; i < tree_size; ++i)
         insert_key(*test_db, i, values[i % values.size()]);
 
       do_parallel_test(*test_db, num_of_threads, tree_size,
@@ -139,22 +139,22 @@ class [[nodiscard]] concurrent_benchmark {
 
  private:
   template <typename Worker>
-  void do_parallel_test(Db &db, std::size_t num_of_threads,
+  void do_parallel_test(Db &instance, std::size_t num_of_threads,
                         std::size_t tree_size, Worker worker,
                         ::benchmark::State &state) {
     setup();
 
     std::vector<Thread> threads{num_of_threads - 1};
-    const unodb::key length{tree_size / num_of_threads};
+    const std::uint64_t length{tree_size / num_of_threads};
 
     state.ResumeTiming();
 
     for (std::size_t i = 1; i < num_of_threads; ++i) {
-      const unodb::key start = i * length;
-      threads[i - 1] = Thread{worker, std::ref(db), start, length};
+      const std::uint64_t start = i * length;
+      threads[i - 1] = Thread{worker, std::ref(instance), start, length};
     }
 
-    worker(db, 0, length);
+    worker(instance, 0, length);
 
     for (std::size_t i = 1; i < num_of_threads; ++i) {
       threads[i - 1].join();
@@ -167,21 +167,22 @@ class [[nodiscard]] concurrent_benchmark {
     teardown();
   }
 
-  static void parallel_get_worker(const Db &test_db, unodb::key start,
-                                  unodb::key length) {
-    for (unodb::key i = start; i < start + length; ++i)
+  static void parallel_get_worker(const Db &test_db, std::uint64_t start,
+                                  std::uint64_t length) {
+    for (std::uint64_t i = start; i < start + length; ++i)
       get_existing_key(test_db, i);
   }
 
-  static void parallel_insert_worker(Db &test_db, unodb::key start,
-                                     unodb::key length) {
-    for (unodb::key i = start; i < start + length; ++i)
+  static void parallel_insert_worker(Db &test_db, std::uint64_t start,
+                                     std::uint64_t length) {
+    for (std::uint64_t i = start; i < start + length; ++i)
       insert_key(test_db, i, values[i % values.size()]);
   }
 
-  static void parallel_delete_worker(Db &test_db, unodb::key start,
-                                     unodb::key length) {
-    for (unodb::key i = start; i < start + length; ++i) delete_key(test_db, i);
+  static void parallel_delete_worker(Db &test_db, std::uint64_t start,
+                                     std::uint64_t length) {
+    for (std::uint64_t i = start; i < start + length; ++i)
+      delete_key(test_db, i);
   }
 
   std::unique_ptr<Db> test_db;

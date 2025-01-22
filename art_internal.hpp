@@ -12,16 +12,15 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
-// IWYU pragma: no_include <__fwd/ostream.h>
 // IWYU pragma: no_include <_string.h>
-// IWYU pragma: no_include <ostream>
 
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <iosfwd>  // IWYU pragma: keep
+#include <iomanip>
+#include <iostream>
 #include <memory>
 #include <type_traits>
 
@@ -34,10 +33,10 @@
 namespace unodb::detail {
 
 // Forward declarations to use in unodb::db and its siblings
-template <class>
+template <class, class>
 class [[nodiscard]] basic_leaf;
 
-template <class, class>
+template <typename, class, template <class> class>
 class [[nodiscard]] basic_db_leaf_deleter;
 
 // Lexicographic comparison of bytes.
@@ -212,86 +211,101 @@ struct [[nodiscard]] basic_art_key final {
     static_assert(std::is_trivially_copyable_v<basic_art_key<KeyType>>);
     static_assert(sizeof(basic_art_key<KeyType>) == sizeof(KeyType));
   }
-};  // class basic_art_key
 
-using art_key = basic_art_key<unodb::key>;
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
+    if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
+      os << "key: 0x" << std::hex << std::setfill('0') << std::setw(sizeof(key))
+         << key << std::dec;
+    } else {
+      os << "key: 0x";
+      for (std::size_t i = 0; i < size; ++i) dump_byte(os, key_bytes[i]);
+    }
+  }
+
+  friend std::ostream &operator<<(std ::ostream &os, const basic_art_key &k) {
+    k.dump(os);
+    return os;
+  }
+  };  // class basic_art_key
 
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
                                                    std::byte byte);
 
-[[gnu::cold]] UNODB_DETAIL_NOINLINE std::ostream &operator<<(
-    std::ostream &os UNODB_DETAIL_LIFETIMEBOUND, art_key key);
-
 // typed class representing the depth of the tree.
+template <typename ArtKey>
 class [[nodiscard]] tree_depth final {
  public:
   using value_type = unsigned;
 
   explicit constexpr tree_depth(value_type value_ = 0) noexcept
       : value{value_} {
-    UNODB_DETAIL_ASSERT(value <= art_key::size);
+    UNODB_DETAIL_ASSERT(value <= ArtKey::size);
   }
 
   // NOLINTNEXTLINE(google-explicit-constructor)
   [[nodiscard, gnu::pure]] constexpr operator value_type() const noexcept {
-    UNODB_DETAIL_ASSERT(value <= art_key::size);
+    UNODB_DETAIL_ASSERT(value <= ArtKey::size);
     return value;
   }
 
   constexpr tree_depth &operator++() noexcept {
     ++value;
-    UNODB_DETAIL_ASSERT(value <= art_key::size);
+    UNODB_DETAIL_ASSERT(value <= ArtKey::size);
     return *this;
   }
 
   constexpr void operator+=(value_type delta) noexcept {
     value += delta;
-    UNODB_DETAIL_ASSERT(value <= art_key::size);
+    UNODB_DETAIL_ASSERT(value <= ArtKey::size);
   }
 
  private:
   value_type value;
 };
 
-template <class Header, class Db>
+template <typename Key, class Header, template <class> class Db>
 class basic_db_leaf_deleter {
  public:
-  using leaf_type = basic_leaf<Header>;
+  using db_type = Db<Key>;
+  using leaf_type = basic_leaf<Key, Header>;
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
-  constexpr explicit basic_db_leaf_deleter(
-      Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  constexpr explicit basic_db_leaf_deleter(db_type &db_
+                                           UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   void operator()(leaf_type *to_delete) const noexcept;
 
-  [[nodiscard, gnu::pure]] Db &get_db() const noexcept { return db; }
+  [[nodiscard, gnu::pure]] db_type &get_db() const noexcept { return db; }
 
  private:
-  Db &db;
+  db_type &db;
 };
 
-template <class Header, class Db>
+template <typename Key, class Header, template <class> class Db>
 using basic_db_leaf_unique_ptr =
-    std::unique_ptr<basic_leaf<Header>, basic_db_leaf_deleter<Header, Db>>;
+    std::unique_ptr<basic_leaf<Key, Header>,
+                    basic_db_leaf_deleter<Key, Header, Db>>;
 
 template <class T>
 struct dependent_false : std::false_type {};
 
-template <class INode, class Db>
+template <typename Key, class INode, template <class> class Db>
 class basic_db_inode_deleter {
  public:
-  constexpr explicit basic_db_inode_deleter(
-      Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  using db_type = Db<Key>;
+
+  constexpr explicit basic_db_inode_deleter(db_type &db_
+                                            UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   void operator()(INode *inode_ptr) noexcept;
 
-  [[nodiscard, gnu::pure]] Db &get_db() noexcept { return db; }
+  [[nodiscard, gnu::pure]] db_type &get_db() noexcept { return db; }
 
  private:
-  Db &db;
+  db_type &db;
 };
 
 // basic_node_ptr is a tagged pointer (the tag is the node type).  You

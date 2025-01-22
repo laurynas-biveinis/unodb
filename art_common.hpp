@@ -21,20 +21,22 @@
 #include <cstring>
 #include <iosfwd>  // IWYU pragma: keep
 #include <span>
+
 #include "heap.hpp"
 #include "portability_builtins.hpp"
 
 namespace unodb {
 
-// Key type for public API
-//
-// TODO(thompsonbry) : variable length keys. should become a template
-// parameter for db, olc_db, mutex_db.
-using key = std::uint64_t;
+template <typename Key>
+class db;
+
+template <typename Key>
+class olc_db;
+
 // using key = std::span<const std::byte>;
 
-// Values are passed as non-owning pointers to memory with associated length
-// (std::span). The memory is copied upon insertion.
+// Values are passed as non-owning pointers to memory with associated
+// length (std::span). The memory is copied upon insertion.
 using value_view = std::span<const std::byte>;
 
 // Keys are passed as non-owning pointers to memory with associated
@@ -46,14 +48,12 @@ using key_view = std::span<const std::byte>;
 // scan.
 template <typename Iterator>
 class visitor {
-  friend class olc_db;
-  friend class db;
-
  protected:
   Iterator &it;
   explicit visitor(Iterator &it_) : it(it_) {}
 
  public:
+  using key_type = typename Iterator::key_type;
   // Visit the encoded key.
   //
   // Note: The lambda MUST NOT export a reference to the visited key.
@@ -80,6 +80,10 @@ class visitor {
   // value.  If you to access the value outside of the scope of a
   // single lambda invocation, then you must make a copy of the data.
   inline auto get_value() const noexcept { return it.get_val(); }
+
+ private:
+  friend class olc_db<key_type>;
+  friend class db<key_type>;
 };  // class visitor
 
 namespace detail {

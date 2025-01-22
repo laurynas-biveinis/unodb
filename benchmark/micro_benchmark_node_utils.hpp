@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 #ifndef UNODB_DETAIL_MICRO_BENCHMARK_NODE_UTILS_HPP
 #define UNODB_DETAIL_MICRO_BENCHMARK_NODE_UTILS_HPP
 
@@ -50,7 +50,7 @@ template <unsigned NodeSize>
   }
 }
 
-[[nodiscard]] constexpr auto next_key(unodb::key k,
+[[nodiscard]] constexpr auto next_key(std::uint64_t k,
                                       std::uint64_t key_zero_bits) noexcept {
   UNODB_DETAIL_ASSERT((k & key_zero_bits) == 0);
 
@@ -234,9 +234,9 @@ number_to_full_node_tree_with_gaps_key(std::uint64_t i) noexcept {
 // Key vectors
 
 template <typename NumberToKeyFn>
-[[nodiscard]] auto generate_keys_to_limit(unodb::key key_limit,
+[[nodiscard]] auto generate_keys_to_limit(std::uint64_t key_limit,
                                           NumberToKeyFn number_to_key_fn) {
-  std::vector<unodb::key> result;
+  std::vector<std::uint64_t> result;
   std::uint64_t i = 0;
   while (true) {
     const auto key = number_to_key_fn(i);
@@ -251,15 +251,15 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(6001)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
 
 template <std::uint8_t NumByteValues>
-[[nodiscard]] std::vector<unodb::key>
-generate_random_keys_over_full_smaller_tree(unodb::key key_limit) {
+[[nodiscard]] std::vector<std::uint64_t>
+generate_random_keys_over_full_smaller_tree(std::uint64_t key_limit) {
   // The last byte at the limit will be randomly-generated and may happen to
   // fall above or below the limit. Reset the limit so that any byte value will
   // pass.
   key_limit |= 0xFFU;
   std::uniform_int_distribution<unsigned> prng_byte_values{0, NumByteValues};
 
-  std::vector<unodb::key> result;
+  std::vector<std::uint64_t> result;
   union {
     std::uint64_t as_int;
     std::array<std::uint8_t, 8> as_bytes;
@@ -284,7 +284,7 @@ generate_random_keys_over_full_smaller_tree(unodb::key key_limit) {
                 constructed_key.as_bytes[0] = static_cast<std::uint8_t>(
                     prng_byte_values(unodb::benchmark::get_prng()) * 2);
 
-                const unodb::key k = constructed_key.as_int;
+                const std::uint64_t k = constructed_key.as_int;
                 if (k > key_limit) {
                   result.shrink_to_fit();
                   std::shuffle(result.begin(), result.end(),
@@ -409,8 +409,8 @@ inline void set_size_counter(::benchmark::State &state,
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 template <class Db, node_type DominatingINodeType>
-void assert_dominating_inode_tree(
-    const Db &test_db UNODB_DETAIL_USED_IN_DEBUG) noexcept {
+void assert_dominating_inode_tree(const Db &test_db
+                                  UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   static_assert(DominatingINodeType != node_type::LEAF);
   const auto node_counts{test_db.get_node_counts()};
@@ -442,10 +442,9 @@ void assert_dominating_inode_size_tree(const Db &test_db) noexcept {
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 template <class Db, unsigned SmallerNodeSize>
-void assert_growing_nodes(
-    const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
-    std::uint64_t
-        expected_number_of_nodes UNODB_DETAIL_USED_IN_DEBUG) noexcept {
+void assert_growing_nodes(const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
+                          std::uint64_t expected_number_of_nodes
+                          UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   constexpr auto larger_node_type =
       node_size_to_larger_node_type<SmallerNodeSize>();
@@ -460,10 +459,9 @@ void assert_growing_nodes(
 }
 
 template <class Db, unsigned SmallerNodeSize>
-void assert_shrinking_nodes(
-    const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
-    std::uint64_t
-        expected_number_of_nodes UNODB_DETAIL_USED_IN_DEBUG) noexcept {
+void assert_shrinking_nodes(const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
+                            std::uint64_t expected_number_of_nodes
+                            UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   constexpr auto larger_node_type =
       node_size_to_larger_node_type<SmallerNodeSize>();
@@ -485,8 +483,8 @@ namespace detail {
 template <class Db>
 class [[nodiscard]] tree_shape_snapshot final {
  public:
-  explicit constexpr tree_shape_snapshot(
-      const Db &test_db UNODB_DETAIL_USED_IN_DEBUG) noexcept
+  explicit constexpr tree_shape_snapshot(const Db &test_db
+                                         UNODB_DETAIL_USED_IN_DEBUG) noexcept
 #ifndef NDEBUG
       : db{test_db}
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -520,36 +518,36 @@ class [[nodiscard]] tree_shape_snapshot final {
 // Insertion
 
 template <class Db, unsigned NodeSize>
-unodb::key insert_sequentially(Db &db, unsigned key_count) {
-  unodb::key k = 0;
+std::uint64_t insert_sequentially(Db &instance, unsigned key_count) {
+  std::uint64_t k = 0;
   decltype(key_count) i = 0;
   while (true) {
-    insert_key(db, k, unodb::value_view{value100});
+    insert_key(instance, k, unodb::value_view{value100});
     if (i == key_count) break;
     ++i;
     k = next_key(k, node_size_to_key_zero_bits<NodeSize>());
   }
 #ifdef UNODB_DETAIL_WITH_STATS
-  detail::assert_dominating_inode_size_tree<Db, NodeSize>(db);
+  detail::assert_dominating_inode_size_tree<Db, NodeSize>(instance);
 #endif  // UNODB_DETAIL_WITH_STATS
   return k;
 }
 
 template <class Db>
-void insert_keys(Db &db, const std::vector<unodb::key> &keys) {
+void insert_keys(Db &instance, const std::vector<std::uint64_t> &keys) {
   for (const auto k : keys) {
-    insert_key(db, k, unodb::value_view{value100});
+    insert_key(instance, k, unodb::value_view{value100});
   }
 }
 
 namespace detail {
 
 template <class Db, typename NumberToKeyFn>
-[[nodiscard]] auto insert_keys_to_limit(Db &db, unodb::key key_limit,
+[[nodiscard]] auto insert_keys_to_limit(Db &db, std::uint64_t key_limit,
                                         NumberToKeyFn number_to_key_fn) {
   std::uint64_t i{0};
   while (true) {
-    const unodb::key key = number_to_key_fn(i);
+    const std::uint64_t key = number_to_key_fn(i);
     if (key > key_limit) break;
     insert_key(db, key, unodb::value_view{value100});
     ++i;
@@ -560,7 +558,7 @@ template <class Db, typename NumberToKeyFn>
 template <class Db, typename NumberToKeyFn>
 [[nodiscard]] auto insert_n_keys(Db &db, unsigned n,
                                  NumberToKeyFn number_to_key_fn) {
-  unodb::key last_inserted_key{0};
+  std::uint64_t last_inserted_key{0};
 
   for (decltype(n) i = 0; i < n; ++i) {
     last_inserted_key = number_to_key_fn(i);
@@ -596,7 +594,7 @@ auto make_full_node_size_tree(Db &db, unsigned key_count) {
 }
 
 template <class Db, unsigned NodeCapacity>
-[[nodiscard]] std::tuple<unodb::key, const tree_shape_snapshot<Db>>
+[[nodiscard]] std::tuple<std::uint64_t, const tree_shape_snapshot<Db>>
 make_base_tree_for_add(Db &test_db, unsigned node_count) {
   const auto key_limit = insert_n_keys_to_empty_tree<
       Db, NodeCapacity,
@@ -616,7 +614,7 @@ template <class Db, unsigned NodeSize>
 
 template <class Db, unsigned SmallerNodeSize>
 [[nodiscard]] auto grow_full_node_tree_to_minimal_next_size_leaf_level(
-    Db &db, unodb::key key_limit) {
+    Db &db, std::uint64_t key_limit) {
   static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16 ||
                 SmallerNodeSize == 48);
 
@@ -654,7 +652,7 @@ template <class Db, unsigned SmallerNodeSize>
 // Gets
 
 template <class Db, typename NumberToKeyFn>
-[[nodiscard]] auto get_key_loop(Db &db, unodb::key key_limit,
+[[nodiscard]] auto get_key_loop(Db &db, std::uint64_t key_limit,
                                 NumberToKeyFn number_to_key_fn) {
   std::uint64_t i{0};
   while (true) {
@@ -671,8 +669,8 @@ template <class Db, typename NumberToKeyFn>
 // Deletes
 
 template <class Db>
-void delete_keys(Db &db, const std::vector<unodb::key> &keys) {
-  for (const auto k : keys) delete_key(db, k);
+void delete_keys(Db &instance, const std::vector<std::uint64_t> &keys) {
+  for (const auto k : keys) delete_key(instance, k);
 }
 
 // Benchmarks
@@ -687,7 +685,7 @@ void full_node_scan_benchmark(::benchmark::State &state) {
     const auto key_limit UNODB_DETAIL_USED_IN_DEBUG =
         detail::make_full_node_size_tree<Db, NodeSize>(test_db, key_count);
     for (const auto _ : state) {
-      unodb::key k = 0;
+      std::uint64_t k = 0;
       for (std::uint64_t j = 0; j < key_count; ++j) {
         UNODB_DETAIL_ASSERT(k <= key_limit);
         get_existing_key(test_db, k);
@@ -789,7 +787,7 @@ void grow_node_sequentially_benchmark(::benchmark::State &state) {
   for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
-    const unodb::key key_limit =
+    const std::uint64_t key_limit =
         detail::make_full_node_size_tree<Db, SmallerNodeSize>(
             test_db, smaller_node_count * SmallerNodeSize);
     ::benchmark::ClobberMemory();
@@ -894,7 +892,7 @@ void shrink_node_sequentially_benchmark(::benchmark::State &state) {
   for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
-    const unodb::key key_limit =
+    const std::uint64_t key_limit =
         detail::make_full_node_size_tree<Db, SmallerNodeSize>(
             test_db, smaller_node_count * SmallerNodeSize);
 

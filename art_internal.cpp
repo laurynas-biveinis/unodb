@@ -27,13 +27,6 @@ namespace unodb::detail {
      << static_cast<unsigned>(byte) << std::dec;
 }
 
-[[gnu::cold]] UNODB_DETAIL_NOINLINE std::ostream &operator<<(std::ostream &os,
-                                                             art_key key) {
-  os << "binary-comparable key:";
-  for (std::size_t i = 0; i < sizeof(key); ++i) dump_byte(os, key[i]);
-  return os;
-}
-
 template <typename T>
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os, T k) {
   if constexpr (std::is_same_v<T, std::uint64_t>) {

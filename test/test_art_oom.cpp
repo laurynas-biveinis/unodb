@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Laurynas Biveinis
+// Copyright 2022-2025 UnoDB contributors
 
 #ifndef NDEBUG
 
@@ -61,7 +61,7 @@ void oom_test(unsigned fail_limit, Init init, Test test,
 }
 
 template <class TypeParam, typename Init, typename CheckAfterSuccess>
-void oom_insert_test(unsigned fail_limit, Init init, unodb::key k,
+void oom_insert_test(unsigned fail_limit, Init init, std::uint64_t k,
                      unodb::value_view v,
                      CheckAfterSuccess check_after_success) {
   oom_test<TypeParam>(
@@ -76,7 +76,7 @@ void oom_insert_test(unsigned fail_limit, Init init, unodb::key k,
 }
 
 template <class TypeParam, typename Init, typename CheckAfterSuccess>
-void oom_remove_test(unsigned fail_limit, Init init, unodb::key k,
+void oom_remove_test(unsigned fail_limit, Init init, std::uint64_t k,
                      CheckAfterSuccess check_after_success) {
   oom_test<TypeParam>(
       fail_limit, init,
@@ -97,7 +97,9 @@ class ARTOOMTest : public ::testing::Test {
   using Test::Test;
 };
 
-using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db, unodb::olc_db>;
+using ARTTypes =
+    ::testing::Types<unodb::test::u64_db, unodb::test::u64_mutex_db,
+                     unodb::test::u64_olc_db>;
 
 UNODB_TYPED_TEST_SUITE(ARTOOMTest, ARTTypes)
 

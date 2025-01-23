@@ -72,8 +72,13 @@ unavoidable. If a macro has to be introduced, its name must be prefixed with
 * The code should follow existing conventions, formatted with
   [Google C++ style][gc++style]. This is enforced by GitHub Actions SuperLinter
   running clang-format, currently version 17.
+* Each source file must have a `// Copyright <file-intro-year>-<last-edit-year>
+  UnoDB contributors` as the first line.
 * Each source file must `#include "global.hpp"` first thing.
 * Identifiers should be `snake_case`.
+* Type names should either have no suffix, or `_type` when declaring types from
+  template parameters and other identifiers. It cannot be `_t` as this suffix is
+  reserved by POSIX.
 * The code is `noexcept`-maximalist. Every function and method that cannot throw
   should be marked as `noexcept`. If the code does not throw in release build
   but may throw in debug one, it should ignore the latter and be `noexcept`.
@@ -85,8 +90,17 @@ unavoidable. If a macro has to be introduced, its name must be prefixed with
   method starts out as `[[nodiscard]]` by default, and is only changed if there
   is a clear need to both handle and ignore the return value.
 * The code follows the Almost Always Auto guideline.
+* `const` should be used everywhere it is possible to do so, with the exception
+  of by-value function parameters and class fields that support moving from.
 * `constexpr` should be applied everywhere it is legal to do so. Perhaps one day
   we will have compile-time Adaptive Radix Tree.
+* The code should be commented, but without comments repeating already obvious
+  code.
+* `TODO` comments may be used for future tasks. `FIXME` comments should be used
+  for things that must be fixed before the code lands in the master branch,
+  however sometimes they land there. In both cases they should have an username
+  in parentheses, i.e. `TOOD(alice)`, `FIXME(bob)`. It indicates the comment
+  author, not necessarily who should address it.
 * All C++ standard library symbols must be namespace-qualified, and this
   includes symbols shared with C. For example `std::size_t`.
 * Doxygen is used to produce source code documentation.

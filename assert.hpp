@@ -21,7 +21,7 @@
 
 #include <iostream>
 #include <sstream>
-#include <string>
+#include <string_view>
 #include <thread>
 
 #ifdef UNODB_DETAIL_BOOST_STACKTRACE
@@ -43,14 +43,14 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 /// Print a message and a stacktrace to std::cerr, then abort.
 [[noreturn, gnu::cold]] UNODB_DETAIL_HEADER_NOINLINE void msg_stacktrace_abort(
-    const std::string &msg) noexcept {
+    std::string_view msg) noexcept {
   UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(0);
   std::ostringstream buf;
   buf << msg;
 #ifdef UNODB_DETAIL_BOOST_STACKTRACE
   buf << boost::stacktrace::stacktrace();
 #else
-  std::cerr << "(stacktrace not available, not compiled with Boost.Stacktrace)";
+  buf << "(stacktrace not available, not compiled with Boost.Stacktrace)\n";
 #endif
   std::cerr << buf.str();
   std::abort();

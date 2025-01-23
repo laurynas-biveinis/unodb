@@ -181,18 +181,14 @@ class olc_db final {
 
   ~olc_db() noexcept;
 
-  // Query for a value associated with a binary comparable key.
-  [[nodiscard, gnu::pure]] get_result get(key_view search_key) const noexcept {
+  // Query for a value associated with a key.
+  //
+  // @param search_key If Key is a simple primitive type, then it is
+  // converted into a binary comparable key.  If Key is key_value,
+  // then it is assumed to already be a binary comparable key, e.g.,
+  // as produced by unodb::key_encoder.
+  [[nodiscard, gnu::pure]] get_result get(Key search_key) const noexcept {
     const auto k = art_key_type{search_key};
-    return get0(k);
-  }
-
-  // Query for a value associated with an external key.  The key is
-  // converted to a binary comparable key.
-  [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<Key>::value, get_result>::type get(
-      Key search_key) const noexcept {
-    const auto k = art_key_type{search_key};  // fast path conversion.
     return get0(k);
   }
 
@@ -205,6 +201,11 @@ class olc_db final {
   // Note: Cannot be called during stack unwinding with
   // std::uncaught_exceptions() > 0
   //
+  // @param insert_key If Key is a simple primitive type, then it is
+  // converted into a binary comparable key.  If Key is key_value,
+  // then it is assumed to already be a binary comparable key, e.g.,
+  // as produced by unodb::key_encoder.
+  // 
   // @return true iff the key value pair was inserted.
   //
   // TODO(thompsonbry) There should be a lambda variant of this to
@@ -212,41 +213,22 @@ class olc_db final {
   // semantics. This would call the caller's lambda once the method
   // was positioned on the leaf.  The caller could then update the
   // value or perhaps delete the entry under the key.
-  [[nodiscard, gnu::pure]] bool insert(key_view insert_key,
+  [[nodiscard, gnu::pure]] bool insert(Key insert_key,
                                        unodb::value_view v) {
     const auto k = art_key_type{insert_key};
     return insert0(k, v);
   }
 
-  // Insert a value under the key.  The key is converted to a binary
-  // comparable key.
-  //
-  // Note: Cannot be called during stack unwinding with
-  // std::uncaught_exceptions() > 0
-  //
-  // @return true iff the key value pair was inserted.
-  [[nodiscard, gnu::pure]]
-  typename std::enable_if<std::is_integral<Key>::value, bool>::type insert(
-      Key insert_key, unodb::value_view v) {
-    const auto k = art_key_type{insert_key};  // fast path conversion.
-    return insert0(k, v);
-  }
-
-  // Remove the entry associated with the binary comparable key.
-  //
-  // @return true if the delete was successful (i.e. the key was found
-  // in the tree and the associated index entry was removed).
-  [[nodiscard, gnu::pure]] bool remove(key_view search_key) {
-    const auto k = art_key_type{search_key};
-    return remove0(k);
-  }
-
   // Remove the entry associated with the key.
   //
+  // @param search_key If Key is a simple primitive type, then it is
+  // converted into a binary comparable key.  If Key is key_value,
+  // then it is assumed to already be a binary comparable key, e.g.,
+  // as produced by unodb::key_encoder.
+  // 
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
-  [[nodiscard, gnu::pure]]
-  bool remove(Key search_key) {
+  [[nodiscard, gnu::pure]] bool remove(Key search_key) {
     const auto k = art_key_type{search_key};  // fast path conversion.
     return remove0(k);
   }

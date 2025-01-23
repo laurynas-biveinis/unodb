@@ -64,17 +64,14 @@ class mutex_db final {
   // Creation and destruction
   mutex_db() noexcept = default;
 
-  // Query for a value associated with a binary comparable key.
-  [[nodiscard, gnu::pure]] get_result get(key_view search_key) const noexcept {
+  // Query for a value associated with a key.
+  //
+  // @param search_key If Key is a simple primitive type, then it is
+  // converted into a binary comparable key.  If Key is key_value,
+  // then it is assumed to already be a binary comparable key, e.g.,
+  // as produced by unodb::key_encoder.
+  [[nodiscard, gnu::pure]] get_result get(Key search_key) const noexcept {
     art_key_type k{search_key};
-    return get0(k);
-  }
-
-  // Querying for a value associated with an external key.  The key is
-  // converted to a binary comparable key.
-  [[nodiscard, gnu::pure]]
-  mutex_db::get_result get(Key search_key) const noexcept {
-    const auto k = art_key_type{search_key};  // fast path conversion.
     return get0(k);
   }
 
@@ -83,46 +80,30 @@ class mutex_db final {
     return db_.empty();
   }
 
-  // Insert a value under a binary comparable key iff there is no
-  // entry for that key.
+  // Insert a value under a key iff there is no entry for that key.
   //
   // Note: Cannot be called during stack unwinding with
   // std::uncaught_exceptions() > 0
   //
-  // @return true iff the key value pair was inserted.
-  [[nodiscard, gnu::pure]] bool insert(key_view insert_key, value_view v) {
-    const auto k = art_key_type{insert_key};
-    return insert0(k, v);
-  }
-
-  // Insert a value under the key.  The key is converted to a binary
-  // comparable key.
-  //
-  // Note: Cannot be called during stack unwinding with
-  // std::uncaught_exceptions() > 0
-  //
+  // @param insert_key If Key is a simple primitive type, then it is
+  // converted into a binary comparable key.  If Key is key_value,
+  // then it is assumed to already be a binary comparable key, e.g.,
+  // as produced by unodb::key_encoder.
+  // 
   // @return true iff the key value pair was inserted.
   [[nodiscard, gnu::pure]] bool insert(Key insert_key, value_view v) {
-    const auto k = art_key_type{insert_key};  // fast path conversion.
+    const art_key_type k{insert_key};
     return insert0(k, v);
-  }
-
-  // Remove the entry associated with the binary comparable key.
-  //
-  // @return true if the delete was successful (i.e. the key was found
-  // in the tree and the associated index entry was removed).
-  [[nodiscard, gnu::pure]] bool remove(key_view search_key) {
-    const auto k = art_key_type{search_key};
-    return remove0(k);
   }
 
   // Remove the entry associated with the key.
   //
-  // @return true if the delete was successful (i.e. the key was found
-  // in the tree and the associated index entry was removed).
-  [[nodiscard, gnu::pure]]
-  bool remove(Key search_key) {
-    const auto k = art_key_type{search_key};  // fast path conversion.
+  // @param search_key If Key is a simple primitive type, then it is
+  // converted into a binary comparable key.  If Key is key_value,
+  // then it is assumed to already be a binary comparable key, e.g.,
+  // as produced by unodb::key_encoder.
+  [[nodiscard, gnu::pure]] bool remove(Key search_key) {
+    const auto k = art_key_type{search_key};
     return remove0(k);
   }
 

@@ -130,16 +130,13 @@ class db final {
   db& operator=(const db&) = delete;
   db& operator=(db&&) = delete;
 
-  // Query for a value associated with a binary comparable key.
-  [[nodiscard, gnu::pure]] get_result get(key_view search_key) const noexcept {
-    art_key_type k{search_key};
-    return get0(k);
-  }
-
-  // Query for a value associated with an external key.  The key is
-  // converted to a binary comparable key.
-  [[nodiscard, gnu::pure]]
-  get_result get(Key search_key) const noexcept {
+  // Query for a value associated with a key.
+  //
+  // @param search_key If Key is a simple primitive type, then it is
+  // converted into a binary comparable key.  If Key is key_value,
+  // then it is assumed to already be a binary comparable key, e.g.,
+  // as produced by unodb::key_encoder.
+  [[nodiscard, gnu::pure]] get_result get(Key search_key) const noexcept {
     const art_key_type k{search_key};  // fast path conversion.
     return get0(k);
   }
@@ -149,46 +146,32 @@ class db final {
     return root == nullptr;
   }
 
-  // Insert a value under a binary comparable key iff there is no
-  // entry for that key.
+  // Insert a value under a key iff there is no entry for that key.
   //
   // Note: Cannot be called during stack unwinding with
   // std::uncaught_exceptions() > 0
   //
+  // @param insert_key If Key is a simple primitive type, then it is
+  // converted into a binary comparable key.  If Key is key_value,
+  // then it is assumed to already be a binary comparable key, e.g.,
+  // as produced by unodb::key_encoder.
+  // 
   // @return true iff the key value pair was inserted.
-  [[nodiscard, gnu::pure]] bool insert(key_view insert_key, value_view v) {
-    art_key_type k{insert_key};
+  [[nodiscard, gnu::pure]] bool insert(Key insert_key, value_view v) {
+    const art_key_type k{insert_key};
     return insert0(k, v);
   }
-
-  // Insert a value under the key.  The key is converted to a binary
-  // comparable key.
-  //
-  // Note: Cannot be called during stack unwinding with
-  // std::uncaught_exceptions() > 0
-  //
-  // @return true iff the key value pair was inserted.
-  [[nodiscard, gnu::pure]]
-  bool insert(Key insert_key, value_view v) {
-    art_key_type k{insert_key};  // fast path conversion.
-    return insert0(k, v);
-  }
-
-  // Remove the entry associated with the binary comparable key.
-  //
-  // @return true if the delete was successful (i.e. the key was found
-  // in the tree and the associated index entry was removed).
-  [[nodiscard, gnu::pure]] bool remove(key_view search_key) {
-    art_key_type k{search_key};
-    return remove0(k);
-  }
-
+  
   // Remove the entry associated with the key.
   //
+  // @param search_key If Key is a simple primitive type, then it is
+  // converted into a binary comparable key.  If Key is key_value,
+  // then it is assumed to already be a binary comparable key, e.g.,
+  // as produced by unodb::key_encoder.
+  // 
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
-  [[nodiscard, gnu::pure]]
-  bool remove(Key search_key) {
+  [[nodiscard, gnu::pure]] bool remove(Key search_key) {
     art_key_type k{search_key};  // fast path conversion.
     return remove0(k);
   }

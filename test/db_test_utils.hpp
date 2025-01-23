@@ -404,7 +404,7 @@ class [[nodiscard]] tree_verifier final {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   void check_absent_keys(std::initializer_list<key_type> absent_keys) const
-      noexcept(noexcept(try_get(0))) {
+      noexcept(noexcept(this->try_get(0))) {
     for (const auto absent_key : absent_keys) {
       UNODB_ASSERT_EQ(values.find(absent_key), values.cend());
       try_get(absent_key);

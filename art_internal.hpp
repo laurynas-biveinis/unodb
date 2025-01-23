@@ -39,6 +39,9 @@ class [[nodiscard]] basic_leaf;
 template <typename, class, template <class> class>
 class [[nodiscard]] basic_db_leaf_deleter;
 
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
+                                                   std::byte byte);
+
 // Lexicographic comparison of bytes.
 //
 // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
@@ -227,9 +230,6 @@ struct [[nodiscard]] basic_art_key final {
     return os;
   }
   };  // class basic_art_key
-
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
-                                                   std::byte byte);
 
 // typed class representing the depth of the tree.
 template <typename ArtKey>

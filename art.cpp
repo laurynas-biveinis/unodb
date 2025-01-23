@@ -64,3 +64,7 @@ void db<Key>::iterator::dump() const {
 // LCOV_EXCL_STOP
 
 }  // namespace unodb
+
+// Unroll unodb::db templates here.
+template class unodb::db<std::uint64_t>;
+template class unodb::db<unodb::key_view>;

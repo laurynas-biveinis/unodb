@@ -10,19 +10,8 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
-#include "db_test_utils.hpp"
-
-#include "art.hpp"
 #include "mutex_art.hpp"
-#include "olc_art.hpp"
 
-// TODO(thompsonbry) variable length keys -- add to mutex_art.cpp
+// Unroll unodb::mutex_db templates here.
 template class unodb::mutex_db<std::uint64_t>;
-
-namespace unodb::test {
-
-template class tree_verifier<u64_db>;
-template class tree_verifier<u64_mutex_db>;
-template class tree_verifier<u64_olc_db>;
-
-}  // namespace unodb::test
+template class unodb::mutex_db<unodb::key_view>;

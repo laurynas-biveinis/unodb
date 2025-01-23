@@ -109,7 +109,7 @@ $(document).ready(function(){initNavTree('assert_8hpp.html',''); initResizable()
 <div class="textblock"><code>#include &quot;<a class="el" href="global_8hpp_source.html">global.hpp</a>&quot;</code><br />
 <code>#include &lt;iostream&gt;</code><br />
 <code>#include &lt;sstream&gt;</code><br />
-<code>#include &lt;string&gt;</code><br />
+<code>#include &lt;string_view&gt;</code><br />
 <code>#include &lt;thread&gt;</code><br />
 <code>#include &quot;test_heap.hpp&quot;</code><br />
 </div>
@@ -133,10 +133,10 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a6fd7d4de1380541570ae66900322badd" id="r_a6fd7d4de1380541570ae66900322badd"><td class="memItemLeft" align="right" valign="top"><a id="a6fd7d4de1380541570ae66900322badd" name="a6fd7d4de1380541570ae66900322badd"></a>
-<a class="el" href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::msg_stacktrace_abort</b> (const std::string &amp;msg) noexcept</td></tr>
-<tr class="memdesc:a6fd7d4de1380541570ae66900322badd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print a message and a stacktrace to std::cerr, then abort. <br /></td></tr>
-<tr class="separator:a6fd7d4de1380541570ae66900322badd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2916f4ec569e87aedeb08329d975cdc6" id="r_a2916f4ec569e87aedeb08329d975cdc6"><td class="memItemLeft" align="right" valign="top"><a id="a2916f4ec569e87aedeb08329d975cdc6" name="a2916f4ec569e87aedeb08329d975cdc6"></a>
+<a class="el" href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::msg_stacktrace_abort</b> (std::string_view msg) noexcept</td></tr>
+<tr class="memdesc:a2916f4ec569e87aedeb08329d975cdc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print a message and a stacktrace to std::cerr, then abort. <br /></td></tr>
+<tr class="separator:a2916f4ec569e87aedeb08329d975cdc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ee91956195d7e9c352a4a22f45eecaf" id="r_a3ee91956195d7e9c352a4a22f45eecaf"><td class="memItemLeft" align="right" valign="top"><a id="a3ee91956195d7e9c352a4a22f45eecaf" name="a3ee91956195d7e9c352a4a22f45eecaf"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::UNODB_DETAIL_C_STRING_ARG</b> (1) UNODB_DETAIL_C_STRING_ARG(3) <a class="el" href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a> void crash(const char *file</td></tr>
 <tr class="memdesc:a3ee91956195d7e9c352a4a22f45eecaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intentionally crash from a given source location. <br /></td></tr>

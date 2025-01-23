@@ -116,7 +116,7 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &lt;iostream&gt;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &lt;sstream&gt;</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &lt;string_view&gt;</span></div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#include &lt;thread&gt;</span></div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#ifdef UNODB_DETAIL_BOOST_STACKTRACE</span></div>
@@ -138,15 +138,15 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
 <div class="foldopen" id="foldopen00045" data-start="{" data-end="}">
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="assert_8hpp.html#a6fd7d4de1380541570ae66900322badd">   45</a></span>[[noreturn, gnu::cold]] <a class="code hl_define" href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a> <span class="keywordtype">void</span> <a class="code hl_function" href="assert_8hpp.html#a6fd7d4de1380541570ae66900322badd">msg_stacktrace_abort</a>(</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keyword">const</span> std::string &amp;msg) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="assert_8hpp.html#a2916f4ec569e87aedeb08329d975cdc6">   45</a></span>[[noreturn, gnu::cold]] <a class="code hl_define" href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a> <span class="keywordtype">void</span> <a class="code hl_function" href="assert_8hpp.html#a2916f4ec569e87aedeb08329d975cdc6">msg_stacktrace_abort</a>(</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    std::string_view msg) <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(0);</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  std::ostringstream buf;</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  buf &lt;&lt; msg;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="preprocessor">#ifdef UNODB_DETAIL_BOOST_STACKTRACE</span></div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  buf &lt;&lt; boost::stacktrace::stacktrace();</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  std::cerr &lt;&lt; <span class="stringliteral">&quot;(stacktrace not available, not compiled with Boost.Stacktrace)&quot;</span>;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  buf &lt;&lt; <span class="stringliteral">&quot;(stacktrace not available, not compiled with Boost.Stacktrace)\n&quot;</span>;</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  std::cerr &lt;&lt; buf.str();</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  std::abort();</div>
@@ -160,7 +160,7 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  std::ostringstream buf;</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>  buf &lt;&lt; <span class="stringliteral">&quot;Crash requested at &quot;</span> &lt;&lt; file &lt;&lt; <span class="charliteral">&#39;:&#39;</span> &lt;&lt; line &lt;&lt; <span class="stringliteral">&quot;, function \&quot;&quot;</span> &lt;&lt; func</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>      &lt;&lt; <span class="stringliteral">&quot;\&quot;, thread &quot;</span> &lt;&lt; std::this_thread::get_id() &lt;&lt; <span class="charliteral">&#39;\n&#39;</span>;</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <a class="code hl_function" href="assert_8hpp.html#a6fd7d4de1380541570ae66900322badd">msg_stacktrace_abort</a>(buf.str());</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <a class="code hl_function" href="assert_8hpp.html#a2916f4ec569e87aedeb08329d975cdc6">msg_stacktrace_abort</a>(buf.str());</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>}</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div>
@@ -224,7 +224,7 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>  buf &lt;&lt; <span class="stringliteral">&quot;Assertion \&quot;&quot;</span> &lt;&lt; condition &lt;&lt; <span class="stringliteral">&quot;\&quot; failed at &quot;</span> &lt;&lt; file &lt;&lt; <span class="charliteral">&#39;:&#39;</span> &lt;&lt; line</div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>      &lt;&lt; <span class="stringliteral">&quot;, function \&quot;&quot;</span> &lt;&lt; func &lt;&lt; <span class="stringliteral">&quot;\&quot;, thread &quot;</span> &lt;&lt; std::this_thread::get_id()</div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>      &lt;&lt; <span class="charliteral">&#39;\n&#39;</span>;</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>  <a class="code hl_function" href="assert_8hpp.html#a6fd7d4de1380541570ae66900322badd">msg_stacktrace_abort</a>(buf.str());</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>  <a class="code hl_function" href="assert_8hpp.html#a2916f4ec569e87aedeb08329d975cdc6">msg_stacktrace_abort</a>(buf.str());</div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>}</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
 <div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div>
@@ -259,7 +259,7 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="comment">// LCOV_EXCL_STOP</span></div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="aassert_8hpp_html_a6fd7d4de1380541570ae66900322badd"><div class="ttname"><a href="assert_8hpp.html#a6fd7d4de1380541570ae66900322badd">unodb::detail::msg_stacktrace_abort</a></div><div class="ttdeci">UNODB_DETAIL_HEADER_NOINLINE void msg_stacktrace_abort(const std::string &amp;msg) noexcept</div><div class="ttdoc">Print a message and a stacktrace to std::cerr, then abort.</div><div class="ttdef"><b>Definition</b> assert.hpp:45</div></div>
+<div class="ttc" id="aassert_8hpp_html_a2916f4ec569e87aedeb08329d975cdc6"><div class="ttname"><a href="assert_8hpp.html#a2916f4ec569e87aedeb08329d975cdc6">unodb::detail::msg_stacktrace_abort</a></div><div class="ttdeci">UNODB_DETAIL_HEADER_NOINLINE void msg_stacktrace_abort(std::string_view msg) noexcept</div><div class="ttdoc">Print a message and a stacktrace to std::cerr, then abort.</div><div class="ttdef"><b>Definition</b> assert.hpp:45</div></div>
 <div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines.</div></div>
 <div class="ttc" id="aglobal_8hpp_html_aafb52805dfbf125a141afc869e64715d"><div class="ttname"><a href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_HEADER_NOINLINE</div><div class="ttdef"><b>Definition</b> global.hpp:145</div></div>
 </div><!-- fragment --></div><!-- contents -->

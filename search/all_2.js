@@ -7,5 +7,6 @@ var searchData=
   ['analysis_4',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md6',1,'']]],
   ['and_20static_20analysis_5',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md6',1,'']]],
   ['artiteratortest_6',['ARTIteratorTest',['../classunodb_1_1ARTIteratorTest.html',1,'unodb']]],
-  ['as_20git_20submodules_7',['Build dependencies, bundled as git submodules',['../md_README.html#autotoc_md16',1,'']]]
+  ['as_20git_20submodules_7',['Build dependencies, bundled as git submodules',['../md_README.html#autotoc_md16',1,'']]],
+  ['assert_2ehpp_8',['assert.hpp',['../assert_8hpp.html',1,'']]]
 ];

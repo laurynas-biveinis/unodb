@@ -2,7 +2,11 @@
 #ifndef UNODB_DETAIL_GLOBAL_HPP
 #define UNODB_DETAIL_GLOBAL_HPP
 
-// Defines that must precede includes
+/// \file global.hpp
+/// \brief Global defines
+///
+/// Defines that must precede every other include directive in all the source
+/// files.
 
 #ifdef UNODB_DETAIL_STANDALONE
 
@@ -131,6 +135,14 @@
 #define UNODB_DETAIL_C_STRING_ARG(x)
 
 #endif  // #ifndef UNODB_DETAIL_MSVC
+
+/// Define in a header a function that should not be inlined.
+///
+/// This is a pair of two seemingly conflicting intentions: "noinline" and
+/// "inline". However, only the "noinline" has anything to do with inlining. The
+/// "inline" has nothing to do with inlining and is required for functions
+/// declared in headers.
+#define UNODB_DETAIL_HEADER_NOINLINE UNODB_DETAIL_NOINLINE inline
 
 // Sanitizers
 

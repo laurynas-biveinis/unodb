@@ -213,7 +213,7 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="comment">// only checks whether the lock is free but never if it&#39;s obsolete,</span></div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="comment">// resulting in hangs. Forcing to inline seems to make that issue to go away</span></div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="comment">// too.</span></div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    [[nodiscard, gnu::const]] UNODB_DETAIL_FORCE_INLINE <span class="keyword">constexpr</span> <span class="keywordtype">bool</span></div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    [[nodiscard, gnu::const]] <a class="code hl_define" href="global_8hpp.html#af5a41e323936137cb87fdb25e5acd652">UNODB_DETAIL_FORCE_INLINE</a> <span class="keyword">constexpr</span> <span class="keywordtype">bool</span></div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    is_obsolete() <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>      <span class="keywordflow">return</span> (version &amp; 1U) != 0U;</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    }</div>
@@ -233,7 +233,7 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>      <span class="keywordflow">return</span> version == other.version;</div>
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    }</div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    [[gnu::cold]] UNODB_DETAIL_NOINLINE <span class="keywordtype">void</span> dump(std::ostream &amp;os)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    [[gnu::cold]] <a class="code hl_define" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream &amp;os)<span class="keyword"> const </span>{</div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>      os &lt;&lt; <span class="stringliteral">&quot;version = 0x&quot;</span> &lt;&lt; std::hex &lt;&lt; std::setfill(<span class="charliteral">&#39;0&#39;</span>) &lt;&lt; std::setw(8)</div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>         &lt;&lt; version &lt;&lt; std::dec;</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>      <span class="keywordflow">if</span> (is_write_locked()) os &lt;&lt; <span class="stringliteral">&quot; (write locked)&quot;</span>;</div>
@@ -261,7 +261,7 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    [[nodiscard]] <span class="keywordtype">bool</span> cas(version_type expected,</div>
 <div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>                           version_type new_val) <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>      <span class="keyword">auto</span> expected_val = expected.get();</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>      <span class="keywordflow">return</span> UNODB_DETAIL_LIKELY(version.compare_exchange_strong(</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>      <span class="keywordflow">return</span> <a class="code hl_define" href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a>(version.compare_exchange_strong(</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>          expected_val, new_val.get(), std::memory_order_acquire,</div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>          std::memory_order_relaxed));</div>
 <div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    }</div>
@@ -338,13 +338,13 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="comment">// @return true iff the [version] on the optimistic_lock is still</span></div>
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="comment">// the version that was used to construct this</span></div>
 <div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    <span class="comment">// read_critical_section.</span></div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    [[nodiscard, gnu::flatten]] UNODB_DETAIL_FORCE_INLINE <span class="keywordtype">bool</span> try_read_unlock()</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    [[nodiscard, gnu::flatten]] <a class="code hl_define" href="global_8hpp.html#af5a41e323936137cb87fdb25e5acd652">UNODB_DETAIL_FORCE_INLINE</a> <span class="keywordtype">bool</span> try_read_unlock()</div>
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>        <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>      <span class="keyword">const</span> <span class="keyword">auto</span> result = lock-&gt;try_read_unlock(version);</div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span><span class="preprocessor">#ifndef NDEBUG</span></div>
 <div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>      lock = <span class="keyword">nullptr</span>;</div>
 <div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>      <span class="keywordflow">return</span> UNODB_DETAIL_LIKELY(result);</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>      <span class="keywordflow">return</span> <a class="code hl_define" href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a>(result);</div>
 <div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    }</div>
 <div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span> </div>
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="comment">// Return true iff the version on the optimistic lock is still the</span></div>
@@ -369,9 +369,9 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    [[nodiscard]] <span class="keywordtype">bool</span> check() <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>      <span class="keyword">const</span> <span class="keyword">auto</span> result = lock-&gt;check(version);</div>
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>      <span class="keywordflow">if</span> (UNODB_DETAIL_UNLIKELY(!result)) lock = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(!result)) lock = <span class="keyword">nullptr</span>;</div>
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>      <span class="keywordflow">return</span> UNODB_DETAIL_LIKELY(result);</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>      <span class="keywordflow">return</span> <a class="code hl_define" href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a>(result);</div>
 <div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    }</div>
 <div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span> </div>
 <div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    <span class="comment">// The optimistic_lock::try_read_lock() method MAY return a</span></div>
@@ -383,7 +383,7 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="comment">// @return false if the node was obsolete at the time that the RCS</span></div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <span class="comment">// was obtained.</span></div>
 <div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    [[nodiscard]] <span class="keywordtype">bool</span> must_restart() <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>      <span class="keywordflow">return</span> UNODB_DETAIL_UNLIKELY(lock == <span class="keyword">nullptr</span>);</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>      <span class="keywordflow">return</span> <a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(lock == <span class="keyword">nullptr</span>);</div>
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    }</div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
 <div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="comment">// If the destructor ever starts doing something in the release build, reset</span></div>
@@ -425,7 +425,7 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>      <span class="keyword">const</span> <span class="keyword">auto</span> result =</div>
 <div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>          lock-&gt;try_upgrade_to_write_lock(critical_section.version);</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>      <span class="keywordflow">if</span> (UNODB_DETAIL_UNLIKELY(!result)) lock = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(!result)) lock = <span class="keyword">nullptr</span>;</div>
 <div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    }</div>
 <div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
 <div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <a class="code hl_class" href="classunodb_1_1optimistic__lock_1_1write__guard.html">~write_guard</a>() <span class="keyword">noexcept</span> {</div>
@@ -434,7 +434,7 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    }</div>
 <div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span> </div>
 <div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    [[nodiscard]] <span class="keywordtype">bool</span> must_restart() <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>      <span class="keywordflow">return</span> UNODB_DETAIL_UNLIKELY(lock == <span class="keyword">nullptr</span>);</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>      <span class="keywordflow">return</span> <a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(lock == <span class="keyword">nullptr</span>);</div>
 <div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    }</div>
 <div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span> </div>
 <div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>    <span class="keywordtype">void</span> unlock_and_obsolete() <span class="keyword">noexcept</span> {</div>
@@ -489,12 +489,12 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>  [[nodiscard]] <a class="code hl_class" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> try_read_lock() noexcept {</div>
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>    <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>      <span class="keyword">const</span> <span class="keyword">auto</span> current_version = version.load();</div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>      <span class="keywordflow">if</span> (UNODB_DETAIL_LIKELY(current_version.is_free())) {</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a>(current_version.is_free())) {</div>
 <div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>        inc_read_lock_count();</div>
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>        <span class="keywordflow">return</span> <a class="code hl_class" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a>{*<span class="keyword">this</span>, current_version};</div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>      }</div>
 <div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>      <span class="comment">// LCOV_EXCL_START</span></div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>      <span class="keywordflow">if</span> (UNODB_DETAIL_UNLIKELY(current_version.is_obsolete()))</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(current_version.is_obsolete()))</div>
 <div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>        <span class="keywordflow">return</span> read_critical_section{};</div>
 <div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>      UNODB_DETAIL_ASSERT(current_version.is_write_locked());</div>
 <div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>      spin_wait_loop_body();</div>
@@ -536,7 +536,7 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>  }</div>
 <div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span> </div>
-<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>  [[gnu::cold]] UNODB_DETAIL_NOINLINE <span class="keywordtype">void</span> dump(std::ostream &amp;os)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>  [[gnu::cold]] <a class="code hl_define" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream &amp;os)<span class="keyword"> const </span>{</div>
 <div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    <span class="keyword">const</span> <span class="keyword">auto</span> dump_version = version.load();</div>
 <div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>    os &lt;&lt; <span class="stringliteral">&quot;lock: &quot;</span>;</div>
 <div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>    dump_version.dump(os);</div>
@@ -556,18 +556,18 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>    <span class="keyword">const</span> <span class="keyword">auto</span> result{locked_version == version.load_relaxed()};</div>
 <div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>    <span class="keywordflow">if</span> (UNODB_DETAIL_UNLIKELY(!result)) dec_read_lock_count();</div>
+<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>    <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(!result)) dec_read_lock_count();</div>
 <div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span>    <span class="keywordflow">return</span> UNODB_DETAIL_LIKELY(result);</div>
+<div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span>    <span class="keywordflow">return</span> <a class="code hl_define" href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a>(result);</div>
 <div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span>  }</div>
 <div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span> </div>
-<div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span>  [[nodiscard, gnu::flatten]] UNODB_DETAIL_FORCE_INLINE <span class="keywordtype">bool</span> try_read_unlock(</div>
+<div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span>  [[nodiscard, gnu::flatten]] <a class="code hl_define" href="global_8hpp.html#af5a41e323936137cb87fdb25e5acd652">UNODB_DETAIL_FORCE_INLINE</a> <span class="keywordtype">bool</span> try_read_unlock(</div>
 <div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span>      version_type locked_version) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span>    <span class="keyword">const</span> <span class="keyword">auto</span> result{check(locked_version)};</div>
 <div class="line"><a id="l00459" name="l00459"></a><span class="lineno">  459</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span>    <span class="keywordflow">if</span> (UNODB_DETAIL_LIKELY(result)) dec_read_lock_count();</div>
+<div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span>    <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a>(result)) dec_read_lock_count();</div>
 <div class="line"><a id="l00461" name="l00461"></a><span class="lineno">  461</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span>    <span class="keywordflow">return</span> UNODB_DETAIL_LIKELY(result);</div>
+<div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span>    <span class="keywordflow">return</span> <a class="code hl_define" href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a>(result);</div>
 <div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>  }</div>
 <div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span> </div>
 <div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span>  [[nodiscard]] <span class="keywordtype">bool</span> try_upgrade_to_write_lock(</div>
@@ -575,7 +575,7 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span>    <span class="keyword">const</span> <span class="keyword">auto</span> result{</div>
 <div class="line"><a id="l00468" name="l00468"></a><span class="lineno">  468</span>        version.cas(locked_version, locked_version.set_locked_bit())};</div>
 <div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span>    dec_read_lock_count();</div>
-<div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>    <span class="keywordflow">return</span> UNODB_DETAIL_LIKELY(result);</div>
+<div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>    <span class="keywordflow">return</span> <a class="code hl_define" href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a>(result);</div>
 <div class="line"><a id="l00471" name="l00471"></a><span class="lineno">  471</span>  }</div>
 <div class="line"><a id="l00472" name="l00472"></a><span class="lineno">  472</span> </div>
 <div class="line"><a id="l00473" name="l00473"></a><span class="lineno">  473</span>  <span class="keywordtype">void</span> write_unlock() noexcept { version.write_unlock(); }</div>
@@ -706,7 +706,11 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1version__type_html"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1version__type.html">unodb::optimistic_lock::version_type</a></div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:94</div></div>
 <div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1write__guard_html"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a></div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:312</div></div>
 <div class="ttc" id="aclassunodb_1_1optimistic__lock_html"><div class="ttname"><a href="classunodb_1_1optimistic__lock.html">unodb::optimistic_lock</a></div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:91</div></div>
-<div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines.</div></div>
+<div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
+<div class="ttc" id="aglobal_8hpp_html_a179146ac5b62703d8069468266dd7ea7"><div class="ttname"><a href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a></div><div class="ttdeci">#define UNODB_DETAIL_UNLIKELY(condition)</div><div class="ttdoc">Hint the compiler that the condition is likely false.</div><div class="ttdef"><b>Definition</b> global.hpp:278</div></div>
+<div class="ttc" id="aglobal_8hpp_html_a5b23fa8d0f373d55f1cd77b698f74d33"><div class="ttname"><a href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_NOINLINE</div><div class="ttdoc">Ask the compiler to not inline the function.</div><div class="ttdef"><b>Definition</b> global.hpp:282</div></div>
+<div class="ttc" id="aglobal_8hpp_html_a8d13685712ac14fa6a261cb5f0dfc618"><div class="ttname"><a href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a></div><div class="ttdeci">#define UNODB_DETAIL_LIKELY(condition)</div><div class="ttdoc">Hint the compiler that the condition is likely true.</div><div class="ttdef"><b>Definition</b> global.hpp:277</div></div>
+<div class="ttc" id="aglobal_8hpp_html_af5a41e323936137cb87fdb25e5acd652"><div class="ttname"><a href="global_8hpp.html#af5a41e323936137cb87fdb25e5acd652">UNODB_DETAIL_FORCE_INLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_FORCE_INLINE</div><div class="ttdoc">Provide the strongest available hint to the compiler to inline the function.</div><div class="ttdef"><b>Definition</b> global.hpp:281</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

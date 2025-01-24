@@ -147,19 +147,19 @@ $(document).ready(function(){initNavTree('art__internal_8hpp_source.html',''); i
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <span class="comment">// conversions are possible. For complex keys, including multiple key</span></div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  <span class="comment">// components or Unicode data, the application should use a</span></div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  <span class="comment">// std::span&lt;std::byte&gt; which already supports lexicographic comparison.</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  [[nodiscard, gnu::const]] <span class="keyword">static</span> UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  [[nodiscard, gnu::const]] <span class="keyword">static</span> <a class="code hl_define" href="global_8hpp.html#aa49373011416798a490491db77a42849">UNODB_DETAIL_CONSTEXPR_NOT_MSVC</a> KeyType</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  make_binary_comparable(KeyType key) <span class="keyword">noexcept</span>;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  <span class="comment">// Convert an internal key into an external key. This is only intended for key</span></div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  <span class="comment">// types for which simple conversions are possible. For complex keys,</span></div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  <span class="comment">// including multiple key components or Unicode data, the application should</span></div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  <span class="comment">// use a std::span&lt;std::byte&gt; which already supports lexicographic comparison.</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  [[nodiscard, gnu::const]] <span class="keyword">static</span> UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  [[nodiscard, gnu::const]] <span class="keyword">static</span> <a class="code hl_define" href="global_8hpp.html#aa49373011416798a490491db77a42849">UNODB_DETAIL_CONSTEXPR_NOT_MSVC</a> KeyType</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  make_external(KeyType key) <span class="keyword">noexcept</span>;</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  <span class="keyword">constexpr</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>() <span class="keyword">noexcept</span> = <span class="keywordflow">default</span>;</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  UNODB_DETAIL_CONSTEXPR_NOT_MSVC <span class="keyword">explicit</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>(KeyType key_) noexcept</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <a class="code hl_define" href="global_8hpp.html#aa49373011416798a490491db77a42849">UNODB_DETAIL_CONSTEXPR_NOT_MSVC</a> <span class="keyword">explicit</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>(KeyType key_) noexcept</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>      : key{make_binary_comparable(key_)} {}</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> operator==(</div>
@@ -219,11 +219,11 @@ $(document).ready(function(){initNavTree('art__internal_8hpp_source.html',''); i
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="keyword">using </span><a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> = <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key&lt;unodb::key&gt;</a>;</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>[[gnu::cold]] UNODB_DETAIL_NOINLINE <span class="keywordtype">void</span> dump_byte(std::ostream &amp;os,</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>[[gnu::cold]] <a class="code hl_define" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump_byte(std::ostream &amp;os,</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>                                                   std::byte <span class="keywordtype">byte</span>);</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>[[gnu::cold]] UNODB_DETAIL_NOINLINE std::ostream &amp;operator&lt;&lt;(</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    std::ostream &amp;os UNODB_DETAIL_LIFETIMEBOUND, <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> key);</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>[[gnu::cold]] <a class="code hl_define" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> std::ostream &amp;operator&lt;&lt;(</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    std::ostream &amp;os <a class="code hl_define" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> key);</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
 <div class="foldopen" id="foldopen00125" data-start="{" data-end="};">
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno"><a class="line" href="classunodb_1_1detail_1_1tree__depth.html">  125</a></span><span class="keyword">class </span>[[nodiscard]] <a class="code hl_class" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a> final {</div>
@@ -266,7 +266,7 @@ $(document).ready(function(){initNavTree('art__internal_8hpp_source.html',''); i
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>  <span class="keyword">static_assert</span>(std::is_trivially_destructible_v&lt;leaf_type&gt;);</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>  <span class="keyword">constexpr</span> <span class="keyword">explicit</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html">basic_db_leaf_deleter</a>(</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>      Db &amp;db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>      Db &amp;db_ <a class="code hl_define" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>      : <a class="code hl_class" href="classunodb_1_1db.html">db</a>{db_} {}</div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>  <span class="keywordtype">void</span> operator()(<a class="code hl_class" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a> *to_delete) <span class="keyword">const</span> <span class="keyword">noexcept</span>;</div>
@@ -290,7 +290,7 @@ $(document).ready(function(){initNavTree('art__internal_8hpp_source.html',''); i
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno"><a class="line" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">  182</a></span><span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">basic_db_inode_deleter</a> {</div>
 <div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span> <span class="keyword">public</span>:</div>
 <div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>  <span class="keyword">constexpr</span> <span class="keyword">explicit</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">basic_db_inode_deleter</a>(</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>      Db &amp;db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>      Db &amp;db_ <a class="code hl_define" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</div>
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>      : <a class="code hl_class" href="classunodb_1_1db.html">db</a>{db_} {}</div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>  <span class="keywordtype">void</span> operator()(INode *inode_ptr) <span class="keyword">noexcept</span>;</div>
@@ -305,7 +305,7 @@ $(document).ready(function(){initNavTree('art__internal_8hpp_source.html',''); i
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="comment">// basic_node_ptr is a tagged pointer (the tag is the node type).  You</span></div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="comment">// have to know statically the target type, then call</span></div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="comment">// node_ptr_var.ptr&lt;target_type *&gt;.ptr() to get target_type.</span></div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><a class="code hl_define" href="global_8hpp.html#a6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26490)</div>
 <div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>template &lt;class Header&gt;</div>
 <div class="foldopen" id="foldopen00201" data-start="{" data-end="};">
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno"><a class="line" href="classunodb_1_1detail_1_1basic__node__ptr.html">  201</a></span>class [[nodiscard]] <a class="code hl_class" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a> {</div>
@@ -325,7 +325,7 @@ $(document).ready(function(){initNavTree('art__internal_8hpp_source.html',''); i
 <div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>  <span class="comment">//</span></div>
 <div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>  <span class="comment">// Note: The constructor casts away [const] for use when the</span></div>
 <div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>  <span class="comment">// node_ptr will be [const].</span></div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>  <a class="code hl_class" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>(<span class="keyword">const</span> header_type *ptr UNODB_DETAIL_LIFETIMEBOUND,</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>  <a class="code hl_class" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>(<span class="keyword">const</span> header_type *ptr <a class="code hl_define" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>,</div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>                 unodb::node_type type) noexcept</div>
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>      : tagged_ptr{tag_ptr(<span class="keyword">const_cast&lt;</span>header_type *<span class="keyword">&gt;</span>(ptr), type)} {}</div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span> </div>
@@ -389,7 +389,7 @@ $(document).ready(function(){initNavTree('art__internal_8hpp_source.html',''); i
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>  }</div>
 <div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>};</div>
 </div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><a class="code hl_define" href="global_8hpp.html#acd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>}  <span class="comment">// namespace unodb::detail</span></div>
 <div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span> </div>
@@ -442,7 +442,12 @@ $(document).ready(function(){initNavTree('art__internal_8hpp_source.html',''); i
 <div class="ttc" id="aclassunodb_1_1detail_1_1basic__node__ptr_html"><div class="ttname"><a href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a></div><div class="ttdef"><b>Definition</b> art_internal.hpp:201</div></div>
 <div class="ttc" id="aclassunodb_1_1detail_1_1tree__depth_html"><div class="ttname"><a href="classunodb_1_1detail_1_1tree__depth.html">unodb::detail::tree_depth</a></div><div class="ttdef"><b>Definition</b> art_internal.hpp:125</div></div>
 <div class="ttc" id="aclassunodb_1_1olc__db_html"><div class="ttname"><a href="classunodb_1_1olc__db.html">unodb::olc_db</a></div><div class="ttdef"><b>Definition</b> olc_art.hpp:136</div></div>
-<div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines.</div></div>
+<div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
+<div class="ttc" id="aglobal_8hpp_html_a5b23fa8d0f373d55f1cd77b698f74d33"><div class="ttname"><a href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_NOINLINE</div><div class="ttdoc">Ask the compiler to not inline the function.</div><div class="ttdef"><b>Definition</b> global.hpp:282</div></div>
+<div class="ttc" id="aglobal_8hpp_html_a5e11cdd5f7dc641ab4d60165ddb5297d"><div class="ttname"><a href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a></div><div class="ttdeci">#define UNODB_DETAIL_LIFETIMEBOUND</div><div class="ttdoc">Indicate that a reference parameter lifetime is bound to that of the return value.</div><div class="ttdef"><b>Definition</b> global.hpp:252</div></div>
+<div class="ttc" id="aglobal_8hpp_html_a6979215c90d6f2280a56d80eb67c6c83"><div class="ttname"><a href="global_8hpp.html#a6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)</div><div class="ttdoc">Disable an MSVC warning x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:348</div></div>
+<div class="ttc" id="aglobal_8hpp_html_aa49373011416798a490491db77a42849"><div class="ttname"><a href="global_8hpp.html#aa49373011416798a490491db77a42849">UNODB_DETAIL_CONSTEXPR_NOT_MSVC</a></div><div class="ttdeci">#define UNODB_DETAIL_CONSTEXPR_NOT_MSVC</div><div class="ttdoc">Expand to constexpr with all compilers except for MSVC.</div><div class="ttdef"><b>Definition</b> global.hpp:284</div></div>
+<div class="ttc" id="aglobal_8hpp_html_acd9e44918f8725b066b33afc500ce938"><div class="ttname"><a href="global_8hpp.html#acd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:349</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1basic__art__key_html"><div class="ttname"><a href="structunodb_1_1detail_1_1basic__art__key.html">unodb::detail::basic_art_key</a></div><div class="ttdef"><b>Definition</b> art_internal.hpp:42</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1dependent__false_html"><div class="ttname"><a href="structunodb_1_1detail_1_1dependent__false.html">unodb::detail::dependent_false</a></div><div class="ttdef"><b>Definition</b> art_internal.hpp:179</div></div>
 </div><!-- fragment --></div><!-- contents -->

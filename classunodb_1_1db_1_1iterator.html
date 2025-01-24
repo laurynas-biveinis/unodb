@@ -105,6 +105,9 @@ $(document).ready(function(){initNavTree('classunodb_1_1db_1_1iterator.html','')
 </div><!--header-->
 <div class="contents">
 
+<p>iterator (the iterator is an internal API, the public API is <a class="el" href="classunodb_1_1db.html#a19264d6e93a2c7bbbef1cea58b679a89" title="public scan API">scan()</a>).  
+ <a href="classunodb_1_1db_1_1iterator.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="art_8hpp_source.html">art.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -124,12 +127,16 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a758fd1d797e77900f77eeaad00a37a05" id="r_a758fd1d797e77900f77eeaad00a37a05"><td class="memItemLeft" align="right" valign="top"><a id="a758fd1d797e77900f77eeaad00a37a05" name="a758fd1d797e77900f77eeaad00a37a05"></a>
 <a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>seek</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">detail::art_key</a> search_key, bool &amp;match, bool fwd=true)</td></tr>
 <tr class="separator:a758fd1d797e77900f77eeaad00a37a05"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29a88ed844cec38077e91eacd43ee5d2" id="r_a29a88ed844cec38077e91eacd43ee5d2"><td class="memItemLeft" align="right" valign="top">std::optional&lt; const key &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a29a88ed844cec38077e91eacd43ee5d2">get_key</a> ()</td></tr>
+<tr class="memitem:a29a88ed844cec38077e91eacd43ee5d2" id="r_a29a88ed844cec38077e91eacd43ee5d2"><td class="memItemLeft" align="right" valign="top"><a id="a29a88ed844cec38077e91eacd43ee5d2" name="a29a88ed844cec38077e91eacd43ee5d2"></a>
+std::optional&lt; const key &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_key</b> ()</td></tr>
+<tr class="memdesc:a29a88ed844cec38077e91eacd43ee5d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">ART Iterator Implementation. <br /></td></tr>
 <tr class="separator:a29a88ed844cec38077e91eacd43ee5d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a125c6663b152b6762e6cecce8057c7bd" id="r_a125c6663b152b6762e6cecce8057c7bd"><td class="memItemLeft" align="right" valign="top"><a id="a125c6663b152b6762e6cecce8057c7bd" name="a125c6663b152b6762e6cecce8057c7bd"></a>
 std::optional&lt; const value_view &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_val</b> () const</td></tr>
 <tr class="separator:a125c6663b152b6762e6cecce8057c7bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af982044ade01c2fb5378aaea1e676e53" id="r_af982044ade01c2fb5378aaea1e676e53"><td class="memItemLeft" align="right" valign="top">UNODB_DETAIL_NOINLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#af982044ade01c2fb5378aaea1e676e53">dump</a> (std::ostream &amp;os) const</td></tr>
+<tr class="memitem:af982044ade01c2fb5378aaea1e676e53" id="r_af982044ade01c2fb5378aaea1e676e53"><td class="memItemLeft" align="right" valign="top"><a id="af982044ade01c2fb5378aaea1e676e53" name="af982044ade01c2fb5378aaea1e676e53"></a>
+<a class="el" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
+<tr class="memdesc:af982044ade01c2fb5378aaea1e676e53"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classunodb_1_1db_1_1iterator.html" title="iterator (the iterator is an internal API, the public API is scan()).">unodb::db::iterator</a> <br /></td></tr>
 <tr class="separator:af982044ade01c2fb5378aaea1e676e53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a06feb45f4ccff3899df221d31c0da14d" id="r_a06feb45f4ccff3899df221d31c0da14d"><td class="memItemLeft" align="right" valign="top"><a id="a06feb45f4ccff3899df221d31c0da14d" name="a06feb45f4ccff3899df221d31c0da14d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> () const</td></tr>
@@ -194,54 +201,8 @@ template&lt;class &gt; </td></tr>
 <tr class="separator:a69425d2551186ea0330b08fc394bd0f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>iterator (the iterator is an internal API, the public API is <a class="el" href="classunodb_1_1db.html#a19264d6e93a2c7bbbef1cea58b679a89">scan()</a>). </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="af982044ade01c2fb5378aaea1e676e53" name="af982044ade01c2fb5378aaea1e676e53"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af982044ade01c2fb5378aaea1e676e53">&#9670;&#160;</a></span>dump()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void unodb::db::iterator::dump </td>
-          <td>(</td>
-          <td class="paramtype">std::ostream &amp;&#160;</td>
-          <td class="paramname"><em>os</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p><a class="el" href="classunodb_1_1db_1_1iterator.html">unodb::db::iterator</a> </p>
-
-</div>
-</div>
-<a id="a29a88ed844cec38077e91eacd43ee5d2" name="a29a88ed844cec38077e91eacd43ee5d2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a29a88ed844cec38077e91eacd43ee5d2">&#9670;&#160;</a></span>get_key()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::optional&lt; const key &gt; unodb::db::iterator::get_key </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>ART Iterator Implementation </p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<div class="textblock"><p>iterator (the iterator is an internal API, the public API is <a class="el" href="classunodb_1_1db.html#a19264d6e93a2c7bbbef1cea58b679a89" title="public scan API">scan()</a>). </p>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="art_8hpp_source.html">art.hpp</a></li>
 <li><b>art.cpp</b></li>
 </ul>

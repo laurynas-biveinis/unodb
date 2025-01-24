@@ -20,6 +20,7 @@ var hierarchy =
     [ "std::false_type", null, [
       [ "unodb::detail::dependent_false< T >", "structunodb_1_1detail_1_1dependent__false.html", null ]
     ] ],
+    [ "unodb::benchmark::growing_tree_node_stats< Db >", "classunodb_1_1benchmark_1_1growing__tree__node__stats.html", null ],
     [ "Header", null, [
       [ "unodb::detail::basic_leaf< Header >", "classunodb_1_1detail_1_1basic__leaf.html", null ]
     ] ],
@@ -95,6 +96,7 @@ var hierarchy =
     ] ],
     [ "unodb::detail::thread_sync", "classunodb_1_1detail_1_1thread__sync.html", null ],
     [ "unodb::detail::tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ],
+    [ "unodb::benchmark::tree_stats< Db >", "structunodb_1_1benchmark_1_1tree__stats.html", null ],
     [ "unodb::test::tree_verifier< Db >", "classunodb_1_1test_1_1tree__verifier.html", null ],
     [ "unodb::optimistic_lock::version_type", "classunodb_1_1optimistic__lock_1_1version__type.html", null ],
     [ "std::ranges::view_base", null, [

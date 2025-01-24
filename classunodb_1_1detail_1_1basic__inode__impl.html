@@ -184,7 +184,9 @@ template&lt;typename ReturnType , typename... Args&gt; </td></tr>
 template&lt;typename ReturnType , typename... Args&gt; </td></tr>
 <tr class="memitem:a7584548d5ba624949bf1047ab2ebec3f"><td class="memTemplItemLeft" align="right" valign="top">ReturnType&#160;</td><td class="memTemplItemRight" valign="bottom"><b>remove_or_choose_subtree</b> (node_type type, Args &amp;&amp;...args)</td></tr>
 <tr class="separator:a7584548d5ba624949bf1047ab2ebec3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9199d94a15fedd493387941042e577f3" id="r_a9199d94a15fedd493387941042e577f3"><td class="memItemLeft" align="right" valign="top">constexpr find_result&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a9199d94a15fedd493387941042e577f3">find_child</a> (node_type type, std::byte key_byte) noexcept</td></tr>
+<tr class="memitem:a9199d94a15fedd493387941042e577f3" id="r_a9199d94a15fedd493387941042e577f3"><td class="memItemLeft" align="right" valign="top"><a id="a9199d94a15fedd493387941042e577f3" name="a9199d94a15fedd493387941042e577f3"></a>
+constexpr find_result&#160;</td><td class="memItemRight" valign="bottom"><b>find_child</b> (node_type type, std::byte key_byte) noexcept</td></tr>
+<tr class="memdesc:a9199d94a15fedd493387941042e577f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">access methods <br /></td></tr>
 <tr class="separator:a9199d94a15fedd493387941042e577f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a019ffed4db192a8d88a7d5d8e921dc72" id="r_a019ffed4db192a8d88a7d5d8e921dc72"><td class="memItemLeft" align="right" valign="top"><a id="a019ffed4db192a8d88a7d5d8e921dc72" name="a019ffed4db192a8d88a7d5d8e921dc72"></a>
 constexpr node_ptr&#160;</td><td class="memItemRight" valign="bottom"><b>get_child</b> (node_type type, std::uint8_t child_index) noexcept</td></tr>
@@ -238,7 +240,7 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_type</b> = <a c
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:a7fdaaa43b9b0565f8b7b2937768495d3" id="r_a7fdaaa43b9b0565f8b7b2937768495d3"><td class="memItemLeft" align="right" valign="top"><a id="a7fdaaa43b9b0565f8b7b2937768495d3" name="a7fdaaa43b9b0565f8b7b2937768495d3"></a>
-UNODB_DETAIL_NOINLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os, bool) const</td></tr>
+<a class="el" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os, bool) const</td></tr>
 <tr class="separator:a7fdaaa43b9b0565f8b7b2937768495d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-static-attribs" name="pro-static-attribs"></a>
@@ -282,46 +284,6 @@ template&lt;class &gt; </td></tr>
 <tr class="memitem:ab9fceb5f7e0766ab440ade144f07dfff"><td class="memTemplItemLeft" align="right" valign="top">class&#160;</td><td class="memTemplItemRight" valign="bottom"><b>basic_inode_256</b></td></tr>
 <tr class="separator:ab9fceb5f7e0766ab440ade144f07dfff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="a9199d94a15fedd493387941042e577f3" name="a9199d94a15fedd493387941042e577f3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9199d94a15fedd493387941042e577f3">&#9670;&#160;</a></span>find_child()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class ArtPolicy &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr find_result <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">unodb::detail::basic_inode_impl</a>&lt; ArtPolicy &gt;::find_child </td>
-          <td>(</td>
-          <td class="paramtype">node_type&#160;</td>
-          <td class="paramname"><em>type</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::byte&#160;</td>
-          <td class="paramname"><em>key_byte</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>access methods </p>
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>
 </ul>

@@ -102,107 +102,194 @@ $(document).ready(function(){initNavTree('global_8hpp.html',''); initResizable()
 </div><!--header-->
 <div class="contents">
 
-<p>Global defines.  
+<p>Global defines that must precede every other include directive in all the source files.  
 <a href="#details">More...</a></p>
 
 <p><a href="global_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a6bc68ff136c4af9da90aa8503489900a" id="r_a6bc68ff136c4af9da90aa8503489900a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#a6bc68ff136c4af9da90aa8503489900a">UNODB_DETAIL_BUILTIN_ASSUME</a>(x)</td></tr>
-<tr class="separator:a6bc68ff136c4af9da90aa8503489900a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5e11cdd5f7dc641ab4d60165ddb5297d" id="r_a5e11cdd5f7dc641ab4d60165ddb5297d"><td class="memItemLeft" align="right" valign="top"><a id="a5e11cdd5f7dc641ab4d60165ddb5297d" name="a5e11cdd5f7dc641ab4d60165ddb5297d"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_LIFETIMEBOUND</b></td></tr>
-<tr class="separator:a5e11cdd5f7dc641ab4d60165ddb5297d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4db1e26ef37ef40446df97c4dc605129" id="r_a4db1e26ef37ef40446df97c4dc605129"><td class="memItemLeft" align="right" valign="top"><a id="a4db1e26ef37ef40446df97c4dc605129" name="a4db1e26ef37ef40446df97c4dc605129"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_C_STRING_ARG</b>(x)</td></tr>
-<tr class="separator:a4db1e26ef37ef40446df97c4dc605129"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5583b7b31b6dea67e34b7f65bfa20528" id="r_a5583b7b31b6dea67e34b7f65bfa20528"><td class="memItemLeft" align="right" valign="top"><a id="a5583b7b31b6dea67e34b7f65bfa20528" name="a5583b7b31b6dea67e34b7f65bfa20528"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_LIKELY</b>(x)&#160;&#160;&#160;__builtin_expect(x, 1)</td></tr>
-<tr class="separator:a5583b7b31b6dea67e34b7f65bfa20528"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac349784b7ab0db906cd5512507ea2868" id="r_ac349784b7ab0db906cd5512507ea2868"><td class="memItemLeft" align="right" valign="top"><a id="ac349784b7ab0db906cd5512507ea2868" name="ac349784b7ab0db906cd5512507ea2868"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_UNLIKELY</b>(x)&#160;&#160;&#160;__builtin_expect(x, 0)</td></tr>
-<tr class="separator:ac349784b7ab0db906cd5512507ea2868"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee0e862fc042519ca2923ba9be4e237f" id="r_aee0e862fc042519ca2923ba9be4e237f"><td class="memItemLeft" align="right" valign="top"><a id="aee0e862fc042519ca2923ba9be4e237f" name="aee0e862fc042519ca2923ba9be4e237f"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_UNUSED</b>&#160;&#160;&#160;[[gnu::unused]]</td></tr>
-<tr class="separator:aee0e862fc042519ca2923ba9be4e237f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af5a41e323936137cb87fdb25e5acd652" id="r_af5a41e323936137cb87fdb25e5acd652"><td class="memItemLeft" align="right" valign="top"><a id="af5a41e323936137cb87fdb25e5acd652" name="af5a41e323936137cb87fdb25e5acd652"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_FORCE_INLINE</b>&#160;&#160;&#160;__attribute__((always_inline))</td></tr>
-<tr class="separator:af5a41e323936137cb87fdb25e5acd652"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b23fa8d0f373d55f1cd77b698f74d33" id="r_a5b23fa8d0f373d55f1cd77b698f74d33"><td class="memItemLeft" align="right" valign="top"><a id="a5b23fa8d0f373d55f1cd77b698f74d33" name="a5b23fa8d0f373d55f1cd77b698f74d33"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_NOINLINE</b>&#160;&#160;&#160;__attribute__((noinline))</td></tr>
-<tr class="separator:a5b23fa8d0f373d55f1cd77b698f74d33"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a597f18c76f2d7b0e86e9a164bc8f0a80" id="r_a597f18c76f2d7b0e86e9a164bc8f0a80"><td class="memItemLeft" align="right" valign="top"><a id="a597f18c76f2d7b0e86e9a164bc8f0a80" name="a597f18c76f2d7b0e86e9a164bc8f0a80"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_UNREACHABLE</b>()&#160;&#160;&#160;__builtin_unreachable()</td></tr>
-<tr class="separator:a597f18c76f2d7b0e86e9a164bc8f0a80"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa49373011416798a490491db77a42849" id="r_aa49373011416798a490491db77a42849"><td class="memItemLeft" align="right" valign="top"><a id="aa49373011416798a490491db77a42849" name="aa49373011416798a490491db77a42849"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_CONSTEXPR_NOT_MSVC</b>&#160;&#160;&#160;constexpr</td></tr>
-<tr class="separator:aa49373011416798a490491db77a42849"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aafb52805dfbf125a141afc869e64715d" id="r_aafb52805dfbf125a141afc869e64715d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a>&#160;&#160;&#160;UNODB_DETAIL_NOINLINE inline</td></tr>
+<tr class="memitem:a9f918755b601cf4bffca775992e6fb90" id="r_a9f918755b601cf4bffca775992e6fb90"><td class="memItemLeft" align="right" valign="top"><a id="a9f918755b601cf4bffca775992e6fb90" name="a9f918755b601cf4bffca775992e6fb90"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>NOMINMAX</b></td></tr>
+<tr class="memdesc:a9f918755b601cf4bffca775992e6fb90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined under MSVC to stop redefining <code>min</code> and <code>max</code> if windows.h is included later. <br /></td></tr>
+<tr class="separator:a9f918755b601cf4bffca775992e6fb90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aafb52805dfbf125a141afc869e64715d" id="r_aafb52805dfbf125a141afc869e64715d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a></td></tr>
+<tr class="memdesc:aafb52805dfbf125a141afc869e64715d"><td class="mdescLeft">&#160;</td><td class="mdescRight">A declaration specifier for a function in a header file that should not be inlined.  <br /></td></tr>
 <tr class="separator:aafb52805dfbf125a141afc869e64715d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c790adfd72099b9c3d6982c4459ae31" id="r_a5c790adfd72099b9c3d6982c4459ae31"><td class="memItemLeft" align="right" valign="top"><a id="a5c790adfd72099b9c3d6982c4459ae31" name="a5c790adfd72099b9c3d6982c4459ae31"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_DO_PRAGMA</b>(x)&#160;&#160;&#160;_Pragma(#x)</td></tr>
+<tr class="memdesc:a5c790adfd72099b9c3d6982c4459ae31"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper macro for creating pragma directives. <br /></td></tr>
 <tr class="separator:a5c790adfd72099b9c3d6982c4459ae31"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">CMake macros</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Macros set by CMake. </p>
+</div></td></tr>
+<tr class="memitem:a093186c4e0abef2f361e06fb9ca5430e" id="r_a093186c4e0abef2f361e06fb9ca5430e"><td class="memItemLeft" align="right" valign="top"><a id="a093186c4e0abef2f361e06fb9ca5430e" name="a093186c4e0abef2f361e06fb9ca5430e"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_STANDALONE</b></td></tr>
+<tr class="memdesc:a093186c4e0abef2f361e06fb9ca5430e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined when UnoDB is built as a standalone project rather than as a part of another project. <br /></td></tr>
+<tr class="separator:a093186c4e0abef2f361e06fb9ca5430e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ec8bd41c6ee401f40edc11b624cabe9" id="r_a9ec8bd41c6ee401f40edc11b624cabe9"><td class="memItemLeft" align="right" valign="top"><a id="a9ec8bd41c6ee401f40edc11b624cabe9" name="a9ec8bd41c6ee401f40edc11b624cabe9"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_WITH_STATS</b></td></tr>
+<tr class="memdesc:a9ec8bd41c6ee401f40edc11b624cabe9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined when UnoDB is compiled with the statistics counters. <br /></td></tr>
+<tr class="separator:a9ec8bd41c6ee401f40edc11b624cabe9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b2c8a0ea5ce80959a6227679230415f" id="r_a5b2c8a0ea5ce80959a6227679230415f"><td class="memItemLeft" align="right" valign="top"><a id="a5b2c8a0ea5ce80959a6227679230415f" name="a5b2c8a0ea5ce80959a6227679230415f"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_BOOST_STACKTRACE</b></td></tr>
+<tr class="memdesc:a5b2c8a0ea5ce80959a6227679230415f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined when UnoDB is compiled with Boost.Stacktrace. <br /></td></tr>
+<tr class="separator:a5b2c8a0ea5ce80959a6227679230415f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf4ff9d84f77f57cc9388953b62e52fb" id="r_abf4ff9d84f77f57cc9388953b62e52fb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#abf4ff9d84f77f57cc9388953b62e52fb">UNODB_DETAIL_SPINLOCK_LOOP_VALUE</a></td></tr>
+<tr class="memdesc:abf4ff9d84f77f57cc9388953b62e52fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined to the selected value of the optimistic spin lock wait algorithm implementation.  <br /></td></tr>
+<tr class="separator:abf4ff9d84f77f57cc9388953b62e52fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Architecture</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Macros for the CPU architecture, instruction set level, endianness. </p>
+</div></td></tr>
+<tr class="memitem:acbc17a405e7adc3cedfa0de24ea26d6a" id="r_acbc17a405e7adc3cedfa0de24ea26d6a"><td class="memItemLeft" align="right" valign="top"><a id="acbc17a405e7adc3cedfa0de24ea26d6a" name="acbc17a405e7adc3cedfa0de24ea26d6a"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_MSVC_X86_64</b></td></tr>
+<tr class="memdesc:acbc17a405e7adc3cedfa0de24ea26d6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined when compiling with MSVC on x86-64. <br /></td></tr>
+<tr class="separator:acbc17a405e7adc3cedfa0de24ea26d6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7496e03d41dc595453e75e3e66157007" id="r_a7496e03d41dc595453e75e3e66157007"><td class="memItemLeft" align="right" valign="top"><a id="a7496e03d41dc595453e75e3e66157007" name="a7496e03d41dc595453e75e3e66157007"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_X86_64</b></td></tr>
+<tr class="memdesc:a7496e03d41dc595453e75e3e66157007"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined when compiling on x86_64. <br /></td></tr>
+<tr class="separator:a7496e03d41dc595453e75e3e66157007"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41954950ab79cb8b8c89dc99888c9842" id="r_a41954950ab79cb8b8c89dc99888c9842"><td class="memItemLeft" align="right" valign="top"><a id="a41954950ab79cb8b8c89dc99888c9842" name="a41954950ab79cb8b8c89dc99888c9842"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_SSE4_2</b></td></tr>
+<tr class="memdesc:a41954950ab79cb8b8c89dc99888c9842"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined when compiling with SSE4.2 and not AVX2 instructions on x86-64. <br /></td></tr>
+<tr class="separator:a41954950ab79cb8b8c89dc99888c9842"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20640c91e5b5f07eea4a6d7a2e360d4e" id="r_a20640c91e5b5f07eea4a6d7a2e360d4e"><td class="memItemLeft" align="right" valign="top"><a id="a20640c91e5b5f07eea4a6d7a2e360d4e" name="a20640c91e5b5f07eea4a6d7a2e360d4e"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_LITTLE_ENDIAN</b></td></tr>
+<tr class="memdesc:a20640c91e5b5f07eea4a6d7a2e360d4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined on little-endian architectures. <br /></td></tr>
+<tr class="separator:a20640c91e5b5f07eea4a6d7a2e360d4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Compiler</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Macros to hide compiler specifics </p>
+</div></td></tr>
+<tr class="memitem:ab168044b94b47b578ab04db2b059d3a9" id="r_ab168044b94b47b578ab04db2b059d3a9"><td class="memItemLeft" align="right" valign="top"><a id="ab168044b94b47b578ab04db2b059d3a9" name="ab168044b94b47b578ab04db2b059d3a9"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_MSVC_CLANG</b></td></tr>
+<tr class="memdesc:ab168044b94b47b578ab04db2b059d3a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined on MSVC with the LLVM frontend, not the MSVC one. <br /></td></tr>
+<tr class="separator:ab168044b94b47b578ab04db2b059d3a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb5ffe44a31aaf9faff0ce66115dc879" id="r_aeb5ffe44a31aaf9faff0ce66115dc879"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#aeb5ffe44a31aaf9faff0ce66115dc879">UNODB_DETAIL_BUILTIN_ASSUME</a>(condition)</td></tr>
+<tr class="memdesc:aeb5ffe44a31aaf9faff0ce66115dc879"><td class="mdescLeft">&#160;</td><td class="mdescRight">Low-level macro to hint the compiler that the <em>condition</em> is true.  <br /></td></tr>
+<tr class="separator:aeb5ffe44a31aaf9faff0ce66115dc879"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e11cdd5f7dc641ab4d60165ddb5297d" id="r_a5e11cdd5f7dc641ab4d60165ddb5297d"><td class="memItemLeft" align="right" valign="top"><a id="a5e11cdd5f7dc641ab4d60165ddb5297d" name="a5e11cdd5f7dc641ab4d60165ddb5297d"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_LIFETIMEBOUND</b>&#160;&#160;&#160;[[clang::lifetimebound]]</td></tr>
+<tr class="memdesc:a5e11cdd5f7dc641ab4d60165ddb5297d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicate that a reference parameter lifetime is bound to that of the return value. <br /></td></tr>
+<tr class="separator:a5e11cdd5f7dc641ab4d60165ddb5297d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4db1e26ef37ef40446df97c4dc605129" id="r_a4db1e26ef37ef40446df97c4dc605129"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#a4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a>(x)</td></tr>
+<tr class="memdesc:a4db1e26ef37ef40446df97c4dc605129"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark a parameter as a null-terminated C string.  <br /></td></tr>
+<tr class="separator:a4db1e26ef37ef40446df97c4dc605129"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d13685712ac14fa6a261cb5f0dfc618" id="r_a8d13685712ac14fa6a261cb5f0dfc618"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a>(condition)</td></tr>
+<tr class="memdesc:a8d13685712ac14fa6a261cb5f0dfc618"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hint the compiler that the <em>condition</em> is likely true.  <br /></td></tr>
+<tr class="separator:a8d13685712ac14fa6a261cb5f0dfc618"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a179146ac5b62703d8069468266dd7ea7" id="r_a179146ac5b62703d8069468266dd7ea7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(condition)</td></tr>
+<tr class="memdesc:a179146ac5b62703d8069468266dd7ea7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hint the compiler that the <em>condition</em> is likely false.  <br /></td></tr>
+<tr class="separator:a179146ac5b62703d8069468266dd7ea7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee0e862fc042519ca2923ba9be4e237f" id="r_aee0e862fc042519ca2923ba9be4e237f"><td class="memItemLeft" align="right" valign="top"><a id="aee0e862fc042519ca2923ba9be4e237f" name="aee0e862fc042519ca2923ba9be4e237f"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_UNUSED</b></td></tr>
+<tr class="memdesc:aee0e862fc042519ca2923ba9be4e237f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark a declaration as intentionally unused to suppress compiler warnings. <br /></td></tr>
+<tr class="separator:aee0e862fc042519ca2923ba9be4e237f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5a41e323936137cb87fdb25e5acd652" id="r_af5a41e323936137cb87fdb25e5acd652"><td class="memItemLeft" align="right" valign="top"><a id="af5a41e323936137cb87fdb25e5acd652" name="af5a41e323936137cb87fdb25e5acd652"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_FORCE_INLINE</b></td></tr>
+<tr class="memdesc:af5a41e323936137cb87fdb25e5acd652"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provide the strongest available hint to the compiler to inline the function. <br /></td></tr>
+<tr class="separator:af5a41e323936137cb87fdb25e5acd652"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b23fa8d0f373d55f1cd77b698f74d33" id="r_a5b23fa8d0f373d55f1cd77b698f74d33"><td class="memItemLeft" align="right" valign="top"><a id="a5b23fa8d0f373d55f1cd77b698f74d33" name="a5b23fa8d0f373d55f1cd77b698f74d33"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_NOINLINE</b></td></tr>
+<tr class="memdesc:a5b23fa8d0f373d55f1cd77b698f74d33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ask the compiler to not inline the function. <br /></td></tr>
+<tr class="separator:a5b23fa8d0f373d55f1cd77b698f74d33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a597f18c76f2d7b0e86e9a164bc8f0a80" id="r_a597f18c76f2d7b0e86e9a164bc8f0a80"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#a597f18c76f2d7b0e86e9a164bc8f0a80">UNODB_DETAIL_UNREACHABLE</a>()</td></tr>
+<tr class="memdesc:a597f18c76f2d7b0e86e9a164bc8f0a80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Low-level macro to indicate an unreachable code.  <br /></td></tr>
+<tr class="separator:a597f18c76f2d7b0e86e9a164bc8f0a80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa49373011416798a490491db77a42849" id="r_aa49373011416798a490491db77a42849"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#aa49373011416798a490491db77a42849">UNODB_DETAIL_CONSTEXPR_NOT_MSVC</a></td></tr>
+<tr class="memdesc:aa49373011416798a490491db77a42849"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expand to <code>constexpr</code> with all compilers except for MSVC.  <br /></td></tr>
+<tr class="separator:aa49373011416798a490491db77a42849"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Sanitizers</div></td></tr>
+<tr class="memitem:a7b07d99892b2d5fa3657675affb67a29" id="r_a7b07d99892b2d5fa3657675affb67a29"><td class="memItemLeft" align="right" valign="top"><a id="a7b07d99892b2d5fa3657675affb67a29" name="a7b07d99892b2d5fa3657675affb67a29"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_ADDRESS_SANITIZER</b></td></tr>
+<tr class="memdesc:a7b07d99892b2d5fa3657675affb67a29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined when compiling with AddressSanitizer. <br /></td></tr>
+<tr class="separator:a7b07d99892b2d5fa3657675affb67a29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d6abef96311c5c0ee0ec3e0cf7983f6" id="r_a4d6abef96311c5c0ee0ec3e0cf7983f6"><td class="memItemLeft" align="right" valign="top"><a id="a4d6abef96311c5c0ee0ec3e0cf7983f6" name="a4d6abef96311c5c0ee0ec3e0cf7983f6"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_THREAD_SANITIZER</b></td></tr>
+<tr class="memdesc:a4d6abef96311c5c0ee0ec3e0cf7983f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined when compiling with ThreadSanitizer. <br /></td></tr>
+<tr class="separator:a4d6abef96311c5c0ee0ec3e0cf7983f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Warnings</div></td></tr>
 <tr class="memitem:a47c67c226c2b36b3a1a9d4b2da87994a" id="r_a47c67c226c2b36b3a1a9d4b2da87994a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#a47c67c226c2b36b3a1a9d4b2da87994a">UNODB_DETAIL_DISABLE_WARNING</a>(x)</td></tr>
+<tr class="memdesc:a47c67c226c2b36b3a1a9d4b2da87994a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable a GCC or clang compiler warning <em>x</em> until <a class="el" href="global_8hpp.html#a46b21584db1b08bc7ff98fd05d6c15e0" title="Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_WARNING().">UNODB_DETAIL_RESTORE_WARNINGS()</a>.  <br /></td></tr>
 <tr class="separator:a47c67c226c2b36b3a1a9d4b2da87994a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a46b21584db1b08bc7ff98fd05d6c15e0" id="r_a46b21584db1b08bc7ff98fd05d6c15e0"><td class="memItemLeft" align="right" valign="top"><a id="a46b21584db1b08bc7ff98fd05d6c15e0" name="a46b21584db1b08bc7ff98fd05d6c15e0"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RESTORE_WARNINGS</b>()&#160;&#160;&#160;_Pragma(&quot;GCC diagnostic pop&quot;)</td></tr>
+<tr class="memdesc:a46b21584db1b08bc7ff98fd05d6c15e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-enable the warning that was previously disabled with <a class="el" href="global_8hpp.html#a47c67c226c2b36b3a1a9d4b2da87994a" title="Disable a GCC or clang compiler warning x until UNODB_DETAIL_RESTORE_WARNINGS().">UNODB_DETAIL_DISABLE_WARNING()</a>. <br /></td></tr>
 <tr class="separator:a46b21584db1b08bc7ff98fd05d6c15e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6979215c90d6f2280a56d80eb67c6c83" id="r_a6979215c90d6f2280a56d80eb67c6c83"><td class="memItemLeft" align="right" valign="top"><a id="a6979215c90d6f2280a56d80eb67c6c83" name="a6979215c90d6f2280a56d80eb67c6c83"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_DISABLE_MSVC_WARNING</b>(x)</td></tr>
+<tr class="memdesc:a6979215c90d6f2280a56d80eb67c6c83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable an MSVC warning <em>x</em> until <a class="el" href="global_8hpp.html#acd9e44918f8725b066b33afc500ce938" title="Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().">UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</a> <br /></td></tr>
 <tr class="separator:a6979215c90d6f2280a56d80eb67c6c83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd9e44918f8725b066b33afc500ce938" id="r_acd9e44918f8725b066b33afc500ce938"><td class="memItemLeft" align="right" valign="top"><a id="acd9e44918f8725b066b33afc500ce938" name="acd9e44918f8725b066b33afc500ce938"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RESTORE_MSVC_WARNINGS</b>()</td></tr>
+<tr class="memdesc:acd9e44918f8725b066b33afc500ce938"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-enable the warning that was previously disabled with <a class="el" href="global_8hpp.html#a6979215c90d6f2280a56d80eb67c6c83" title="Disable an MSVC warning x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()">UNODB_DETAIL_DISABLE_MSVC_WARNING()</a>. <br /></td></tr>
 <tr class="separator:acd9e44918f8725b066b33afc500ce938"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0a90689c5d97cbff1db22f127aa421d" id="r_aa0a90689c5d97cbff1db22f127aa421d"><td class="memItemLeft" align="right" valign="top"><a id="aa0a90689c5d97cbff1db22f127aa421d" name="aa0a90689c5d97cbff1db22f127aa421d"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_DISABLE_CLANG_WARNING</b>(x)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_DISABLE_CLANG_WARNING</b>(x)&#160;&#160;&#160;<a class="el" href="global_8hpp.html#a47c67c226c2b36b3a1a9d4b2da87994a">UNODB_DETAIL_DISABLE_WARNING</a>(x)</td></tr>
+<tr class="memdesc:aa0a90689c5d97cbff1db22f127aa421d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable a clang warning <em>x</em> until <a class="el" href="global_8hpp.html#a0fd98e261e52f4d94aaa37c5a136b8c5" title="Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_CLANG_WARNING().">UNODB_DETAIL_RESTORE_CLANG_WARNINGS()</a> <br /></td></tr>
 <tr class="separator:aa0a90689c5d97cbff1db22f127aa421d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0fd98e261e52f4d94aaa37c5a136b8c5" id="r_a0fd98e261e52f4d94aaa37c5a136b8c5"><td class="memItemLeft" align="right" valign="top"><a id="a0fd98e261e52f4d94aaa37c5a136b8c5" name="a0fd98e261e52f4d94aaa37c5a136b8c5"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RESTORE_CLANG_WARNINGS</b>()</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RESTORE_CLANG_WARNINGS</b>()&#160;&#160;&#160;<a class="el" href="global_8hpp.html#a46b21584db1b08bc7ff98fd05d6c15e0">UNODB_DETAIL_RESTORE_WARNINGS</a>()</td></tr>
+<tr class="memdesc:a0fd98e261e52f4d94aaa37c5a136b8c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-enable the warning that was previously disabled with <a class="el" href="global_8hpp.html#aa0a90689c5d97cbff1db22f127aa421d" title="Disable a clang warning x until UNODB_DETAIL_RESTORE_CLANG_WARNINGS()">UNODB_DETAIL_DISABLE_CLANG_WARNING()</a>. <br /></td></tr>
 <tr class="separator:a0fd98e261e52f4d94aaa37c5a136b8c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0f6f8a89806458251a357958666ba20" id="r_ab0f6f8a89806458251a357958666ba20"><td class="memItemLeft" align="right" valign="top"><a id="ab0f6f8a89806458251a357958666ba20" name="ab0f6f8a89806458251a357958666ba20"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_DISABLE_GCC_WARNING</b>(x)</td></tr>
+<tr class="memdesc:ab0f6f8a89806458251a357958666ba20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable a GCC warning <em>x</em> until <a class="el" href="global_8hpp.html#a65f7ea91faeb0e4cc6ff020017d0101d" title="Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_GCC_WARNING().">UNODB_DETAIL_RESTORE_GCC_WARNINGS()</a> <br /></td></tr>
 <tr class="separator:ab0f6f8a89806458251a357958666ba20"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65f7ea91faeb0e4cc6ff020017d0101d" id="r_a65f7ea91faeb0e4cc6ff020017d0101d"><td class="memItemLeft" align="right" valign="top"><a id="a65f7ea91faeb0e4cc6ff020017d0101d" name="a65f7ea91faeb0e4cc6ff020017d0101d"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RESTORE_GCC_WARNINGS</b>()</td></tr>
+<tr class="memdesc:a65f7ea91faeb0e4cc6ff020017d0101d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-enable the warning that was previously disabled with <a class="el" href="global_8hpp.html#ab0f6f8a89806458251a357958666ba20" title="Disable a GCC warning x until UNODB_DETAIL_RESTORE_GCC_WARNINGS()">UNODB_DETAIL_DISABLE_GCC_WARNING()</a>. <br /></td></tr>
 <tr class="separator:a65f7ea91faeb0e4cc6ff020017d0101d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a316e0815dd5fa22bd3028acadba6d2e2" id="r_a316e0815dd5fa22bd3028acadba6d2e2"><td class="memItemLeft" align="right" valign="top"><a id="a316e0815dd5fa22bd3028acadba6d2e2" name="a316e0815dd5fa22bd3028acadba6d2e2"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_DISABLE_GCC_10_WARNING</b>(x)</td></tr>
+<tr class="memdesc:a316e0815dd5fa22bd3028acadba6d2e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable a GCC version 10 warning <em>x</em> until <a class="el" href="global_8hpp.html#a65f7ea91faeb0e4cc6ff020017d0101d" title="Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_GCC_WARNING().">UNODB_DETAIL_RESTORE_GCC_WARNINGS()</a>. <br /></td></tr>
 <tr class="separator:a316e0815dd5fa22bd3028acadba6d2e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50f878c38ba0aa019be7d90feb15a093" id="r_a50f878c38ba0aa019be7d90feb15a093"><td class="memItemLeft" align="right" valign="top"><a id="a50f878c38ba0aa019be7d90feb15a093" name="a50f878c38ba0aa019be7d90feb15a093"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RESTORE_GCC_10_WARNINGS</b>()</td></tr>
+<tr class="memdesc:a50f878c38ba0aa019be7d90feb15a093"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-enable the warning that was previously disabled with <a class="el" href="global_8hpp.html#a316e0815dd5fa22bd3028acadba6d2e2" title="Disable a GCC version 10 warning x until UNODB_DETAIL_RESTORE_GCC_WARNINGS().">UNODB_DETAIL_DISABLE_GCC_10_WARNING()</a>. <br /></td></tr>
 <tr class="separator:a50f878c38ba0aa019be7d90feb15a093"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c47c060745e8461f22da709df7d736f" id="r_a9c47c060745e8461f22da709df7d736f"><td class="memItemLeft" align="right" valign="top"><a id="a9c47c060745e8461f22da709df7d736f" name="a9c47c060745e8461f22da709df7d736f"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_DISABLE_GCC_11_WARNING</b>(x)</td></tr>
+<tr class="memdesc:a9c47c060745e8461f22da709df7d736f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable a GCC version 11 or later warning <em>x</em> until <a class="el" href="global_8hpp.html#a65f7ea91faeb0e4cc6ff020017d0101d" title="Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_GCC_WARNING().">UNODB_DETAIL_RESTORE_GCC_WARNINGS()</a>. <br /></td></tr>
 <tr class="separator:a9c47c060745e8461f22da709df7d736f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad564cfad4e209ae80d3f840512f12b84" id="r_ad564cfad4e209ae80d3f840512f12b84"><td class="memItemLeft" align="right" valign="top"><a id="ad564cfad4e209ae80d3f840512f12b84" name="ad564cfad4e209ae80d3f840512f12b84"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RESTORE_GCC_11_WARNINGS</b>()</td></tr>
+<tr class="memdesc:ad564cfad4e209ae80d3f840512f12b84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-enable the warning that was previously disabled with <a class="el" href="global_8hpp.html#a9c47c060745e8461f22da709df7d736f" title="Disable a GCC version 11 or later warning x until UNODB_DETAIL_RESTORE_GCC_WARNINGS().">UNODB_DETAIL_DISABLE_GCC_11_WARNING()</a>. <br /></td></tr>
 <tr class="separator:ad564cfad4e209ae80d3f840512f12b84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Debug or release build</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Definitions conditional on the build type </p>
+</div></td></tr>
 <tr class="memitem:aa8aeacc5131f05ad1100686b1d5cbf1d" id="r_aa8aeacc5131f05ad1100686b1d5cbf1d"><td class="memItemLeft" align="right" valign="top"><a id="aa8aeacc5131f05ad1100686b1d5cbf1d" name="aa8aeacc5131f05ad1100686b1d5cbf1d"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RELEASE_CONSTEXPR</b></td></tr>
+<tr class="memdesc:aa8aeacc5131f05ad1100686b1d5cbf1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expands to <code>constexpr</code> in release builds, empty in debug builds. <br /></td></tr>
 <tr class="separator:aa8aeacc5131f05ad1100686b1d5cbf1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64906efb65be8598a955afeb9ec61eae" id="r_a64906efb65be8598a955afeb9ec61eae"><td class="memItemLeft" align="right" valign="top"><a id="a64906efb65be8598a955afeb9ec61eae" name="a64906efb65be8598a955afeb9ec61eae"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RELEASE_CONST</b></td></tr>
+<tr class="memdesc:a64906efb65be8598a955afeb9ec61eae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expands to <code>const</code> in release builds, empty in debug builds. <br /></td></tr>
 <tr class="separator:a64906efb65be8598a955afeb9ec61eae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afd4e412d2f7204ec7887d6d20cb7f53b" id="r_afd4e412d2f7204ec7887d6d20cb7f53b"><td class="memItemLeft" align="right" valign="top"><a id="afd4e412d2f7204ec7887d6d20cb7f53b" name="afd4e412d2f7204ec7887d6d20cb7f53b"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RELEASE_EXPLICIT</b></td></tr>
+<tr class="memdesc:afd4e412d2f7204ec7887d6d20cb7f53b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expands to <code>explicit</code> in release builds, empty in debug builds. <br /></td></tr>
 <tr class="separator:afd4e412d2f7204ec7887d6d20cb7f53b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a635640d5d3b202d11b61c3730f6c2988" id="r_a635640d5d3b202d11b61c3730f6c2988"><td class="memItemLeft" align="right" valign="top"><a id="a635640d5d3b202d11b61c3730f6c2988" name="a635640d5d3b202d11b61c3730f6c2988"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_USED_IN_DEBUG</b></td></tr>
+<tr class="memitem:a635640d5d3b202d11b61c3730f6c2988" id="r_a635640d5d3b202d11b61c3730f6c2988"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="global_8hpp.html#a635640d5d3b202d11b61c3730f6c2988">UNODB_DETAIL_USED_IN_DEBUG</a></td></tr>
+<tr class="memdesc:a635640d5d3b202d11b61c3730f6c2988"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks a declaration as intentionally unused in release builds, but used in debug ones.  <br /></td></tr>
 <tr class="separator:a635640d5d3b202d11b61c3730f6c2988"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Features</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Compile-time feature selection macros </p>
+</div></td></tr>
 <tr class="memitem:af8bc21678478a2f86632015e259d030f" id="r_af8bc21678478a2f86632015e259d030f"><td class="memItemLeft" align="right" valign="top"><a id="af8bc21678478a2f86632015e259d030f" name="af8bc21678478a2f86632015e259d030f"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_SPINLOCK_LOOP_PAUSE</b>&#160;&#160;&#160;1</td></tr>
+<tr class="memdesc:af8bc21678478a2f86632015e259d030f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spin lock wait loops use x86_64 PAUSE instruction or its closest equivalent on other architectures. <br /></td></tr>
 <tr class="separator:af8bc21678478a2f86632015e259d030f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa05832ec08c6799fc37651fbe272ff6b" id="r_aa05832ec08c6799fc37651fbe272ff6b"><td class="memItemLeft" align="right" valign="top"><a id="aa05832ec08c6799fc37651fbe272ff6b" name="aa05832ec08c6799fc37651fbe272ff6b"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_SPINLOCK_LOOP_EMPTY</b>&#160;&#160;&#160;2</td></tr>
+<tr class="memdesc:aa05832ec08c6799fc37651fbe272ff6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spin lock loop wait loops are empty, causing aggressive spinning. <br /></td></tr>
 <tr class="separator:aa05832ec08c6799fc37651fbe272ff6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Global defines. </p>
-<p>Defines that must precede every other include directive in all the source files. </p>
+<div class="textblock"><p>Global defines that must precede every other include directive in all the source files. </p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="a6bc68ff136c4af9da90aa8503489900a" name="a6bc68ff136c4af9da90aa8503489900a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6bc68ff136c4af9da90aa8503489900a">&#9670;&#160;</a></span>UNODB_DETAIL_BUILTIN_ASSUME</h2>
+<a id="aeb5ffe44a31aaf9faff0ce66115dc879" name="aeb5ffe44a31aaf9faff0ce66115dc879"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb5ffe44a31aaf9faff0ce66115dc879">&#9670;&#160;</a></span>UNODB_DETAIL_BUILTIN_ASSUME</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -211,15 +298,58 @@ Macros</h2></td></tr>
           <td class="memname">#define UNODB_DETAIL_BUILTIN_ASSUME</td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
+          <td class="paramname">condition</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Low-level macro to hint the compiler that the <em>condition</em> is true. </p>
+<p>Should not be used directly: use <a class="el" href="assert_8hpp.html#a8c8f61916e18317dc5db17d0dba38a6f" title="Provide an assumption for the compiler.">UNODB_DETAIL_ASSUME()</a> in <a class="el" href="assert_8hpp.html" title="Internal macros for assertions, assumptions &amp; intentional crashing.">assert.hpp</a> instead. </p>
+
+</div>
+</div>
+<a id="a4db1e26ef37ef40446df97c4dc605129" name="a4db1e26ef37ef40446df97c4dc605129"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4db1e26ef37ef40446df97c4dc605129">&#9670;&#160;</a></span>UNODB_DETAIL_C_STRING_ARG</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_DETAIL_C_STRING_ARG</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
           <td class="paramname">x</td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                 \</div>
-<div class="line">    if (!(x)) __builtin_unreachable(); \</div>
-<div class="line">  } <span class="keywordflow">while</span> (0)</div>
-</div><!-- fragment -->
+
+<p>Mark a parameter as a null-terminated C string. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>The 1-based parameter index to be marked </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa49373011416798a490491db77a42849" name="aa49373011416798a490491db77a42849"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa49373011416798a490491db77a42849">&#9670;&#160;</a></span>UNODB_DETAIL_CONSTEXPR_NOT_MSVC</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_DETAIL_CONSTEXPR_NOT_MSVC</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Expand to <code>constexpr</code> with all compilers except for MSVC. </p>
+<p>Use to mark <code>constexpr</code> declarations that are not supported by MSVC. </p>
+
 </div>
 </div>
 <a id="a47c67c226c2b36b3a1a9d4b2da87994a" name="a47c67c226c2b36b3a1a9d4b2da87994a"></a>
@@ -240,6 +370,8 @@ Macros</h2></td></tr>
 <b>Value:</b><div class="fragment"><div class="line">  _Pragma(<span class="stringliteral">&quot;GCC diagnostic push&quot;</span>)        \</div>
 <div class="line">      UNODB_DETAIL_DO_PRAGMA(GCC diagnostic ignored x)</div>
 </div><!-- fragment -->
+<p>Disable a GCC or clang compiler warning <em>x</em> until <a class="el" href="global_8hpp.html#a46b21584db1b08bc7ff98fd05d6c15e0" title="Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_WARNING().">UNODB_DETAIL_RESTORE_WARNINGS()</a>. </p>
+
 </div>
 </div>
 <a id="aafb52805dfbf125a141afc869e64715d" name="aafb52805dfbf125a141afc869e64715d"></a>
@@ -249,12 +381,109 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define UNODB_DETAIL_HEADER_NOINLINE&#160;&#160;&#160;UNODB_DETAIL_NOINLINE inline</td>
+          <td class="memname">#define UNODB_DETAIL_HEADER_NOINLINE</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Define in a header a function that should not be inlined.</p>
+
+<p>A declaration specifier for a function in a header file that should not be inlined. </p>
 <p>This is a pair of two seemingly conflicting intentions: "noinline" and "inline". However, only the "noinline" has anything to do with inlining. The "inline" has nothing to do with inlining and is required for functions declared in headers. </p>
+
+</div>
+</div>
+<a id="a8d13685712ac14fa6a261cb5f0dfc618" name="a8d13685712ac14fa6a261cb5f0dfc618"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d13685712ac14fa6a261cb5f0dfc618">&#9670;&#160;</a></span>UNODB_DETAIL_LIKELY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_DETAIL_LIKELY</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">condition</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hint the compiler that the <em>condition</em> is likely true. </p>
+<dl class="section note"><dt>Note</dt><dd>Once clang 12 is the minimum supported version, most uses should be migrated to C++20 <code>[[likely]]</code>. </dd></dl>
+
+</div>
+</div>
+<a id="abf4ff9d84f77f57cc9388953b62e52fb" name="abf4ff9d84f77f57cc9388953b62e52fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf4ff9d84f77f57cc9388953b62e52fb">&#9670;&#160;</a></span>UNODB_DETAIL_SPINLOCK_LOOP_VALUE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_DETAIL_SPINLOCK_LOOP_VALUE</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Defined to the selected value of the optimistic spin lock wait algorithm implementation. </p>
+<p>It is also used by the OLC ART algorithms restarting close to the start of their execution. The possible values are <a class="el" href="global_8hpp.html#af8bc21678478a2f86632015e259d030f" title="Spin lock wait loops use x86_64 PAUSE instruction or its closest equivalent on other architectures.">UNODB_DETAIL_SPINLOCK_LOOP_PAUSE</a> and <a class="el" href="global_8hpp.html#aa05832ec08c6799fc37651fbe272ff6b" title="Spin lock loop wait loops are empty, causing aggressive spinning.">UNODB_DETAIL_SPINLOCK_LOOP_EMPTY</a>. </p>
+
+</div>
+</div>
+<a id="a179146ac5b62703d8069468266dd7ea7" name="a179146ac5b62703d8069468266dd7ea7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a179146ac5b62703d8069468266dd7ea7">&#9670;&#160;</a></span>UNODB_DETAIL_UNLIKELY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_DETAIL_UNLIKELY</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">condition</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hint the compiler that the <em>condition</em> is likely false. </p>
+<dl class="section note"><dt>Note</dt><dd>Once clang 12 is the minimum supported version, most uses should be migrated to C++20 <code>[[unlikely]]</code>. </dd></dl>
+
+</div>
+</div>
+<a id="a597f18c76f2d7b0e86e9a164bc8f0a80" name="a597f18c76f2d7b0e86e9a164bc8f0a80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a597f18c76f2d7b0e86e9a164bc8f0a80">&#9670;&#160;</a></span>UNODB_DETAIL_UNREACHABLE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_DETAIL_UNREACHABLE</td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Low-level macro to indicate an unreachable code. </p>
+<p>Should not be used directly: use <a class="el" href="assert_8hpp.html#aa40fe4fe8238513be2c947f8779c04e4" title="Mark this source code location as unreachable.">UNODB_DETAIL_CANNOT_HAPPEN</a> in <a class="el" href="assert_8hpp.html" title="Internal macros for assertions, assumptions &amp; intentional crashing.">assert.hpp</a> instead. </p>
+
+</div>
+</div>
+<a id="a635640d5d3b202d11b61c3730f6c2988" name="a635640d5d3b202d11b61c3730f6c2988"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a635640d5d3b202d11b61c3730f6c2988">&#9670;&#160;</a></span>UNODB_DETAIL_USED_IN_DEBUG</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_DETAIL_USED_IN_DEBUG</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Marks a declaration as intentionally unused in release builds, but used in debug ones. </p>
+<p>Suppresses a compiler warning. </p>
 
 </div>
 </div>

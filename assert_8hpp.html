@@ -111,6 +111,7 @@ $(document).ready(function(){initNavTree('assert_8hpp.html',''); initResizable()
 <code>#include &lt;sstream&gt;</code><br />
 <code>#include &lt;string_view&gt;</code><br />
 <code>#include &lt;thread&gt;</code><br />
+<code>#include &lt;boost/stacktrace.hpp&gt;</code><br />
 <code>#include &quot;test_heap.hpp&quot;</code><br />
 </div>
 <p><a href="assert_8hpp_source.html">Go to the source code of this file.</a></p>
@@ -121,14 +122,15 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_DEBUG_CRASH</b>()&#160;&#160;&#160;UNODB_DETAIL_CRASH()</td></tr>
 <tr class="separator:a7207e99fa408f7072995cfa2a1d5a7a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a52a9cefb3bb7de4b4b2f11d5783a880d" id="r_a52a9cefb3bb7de4b4b2f11d5783a880d"><td class="memItemLeft" align="right" valign="top"><a id="a52a9cefb3bb7de4b4b2f11d5783a880d" name="a52a9cefb3bb7de4b4b2f11d5783a880d"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_CRASH</b>()&#160;&#160;&#160;std::abort()</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_CRASH</b>()&#160;&#160;&#160;unodb::detail::crash(__FILE__, __LINE__, __func__)</td></tr>
 <tr class="separator:a52a9cefb3bb7de4b4b2f11d5783a880d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a143793f205c69f573831b99b3dee1b9c" id="r_a143793f205c69f573831b99b3dee1b9c"><td class="memItemLeft" align="right" valign="top"><a id="a143793f205c69f573831b99b3dee1b9c" name="a143793f205c69f573831b99b3dee1b9c"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_ASSERT</b>(condition)&#160;&#160;&#160;assert(condition)</td></tr>
+<tr class="memitem:a143793f205c69f573831b99b3dee1b9c" id="r_a143793f205c69f573831b99b3dee1b9c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="assert_8hpp.html#a143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(condition)</td></tr>
 <tr class="separator:a143793f205c69f573831b99b3dee1b9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c8f61916e18317dc5db17d0dba38a6f" id="r_a8c8f61916e18317dc5db17d0dba38a6f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="assert_8hpp.html#a8c8f61916e18317dc5db17d0dba38a6f">UNODB_DETAIL_ASSUME</a>(x)</td></tr>
+<tr class="memdesc:a8c8f61916e18317dc5db17d0dba38a6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provide an assumption for the compiler.  <br /></td></tr>
 <tr class="separator:a8c8f61916e18317dc5db17d0dba38a6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa40fe4fe8238513be2c947f8779c04e4" id="r_aa40fe4fe8238513be2c947f8779c04e4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="assert_8hpp.html#aa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>()&#160;&#160;&#160;  unodb::detail::cannot_happen(__FILE__, __LINE__, __func__)</td></tr>
+<tr class="memdesc:aa40fe4fe8238513be2c947f8779c04e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark this source code location as unreachable.  <br /></td></tr>
 <tr class="separator:aa40fe4fe8238513be2c947f8779c04e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -155,8 +157,30 @@ std::ostringstream&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Internal macros for assertions, assumptions &amp; intentional crashing. </p>
-<p>If compiling as a part of another project, they will expand to C++ standard symbols (assert &amp; std::abort). Otherwise, custom implementations are used that will show stacktraces if Boost.Stacktrace is available. </p>
+<p>If compiling as a part of another project, they will expand to C++ standard symbols (<code>assert</code> &amp; <code>std::abort</code>). Otherwise, custom implementations are used that will show stacktraces if Boost.Stacktrace is available. </p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a143793f205c69f573831b99b3dee1b9c" name="a143793f205c69f573831b99b3dee1b9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a143793f205c69f573831b99b3dee1b9c">&#9670;&#160;</a></span>UNODB_DETAIL_ASSERT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_DETAIL_ASSERT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">condition</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(!(condition))                                       \</div>
+<div class="line">  ? unodb::detail::assert_failure(__FILE__, __LINE__, __func__, #condition) \</div>
+<div class="line">  : ((void)0)</div>
+<div class="ttc" id="aglobal_8hpp_html_a179146ac5b62703d8069468266dd7ea7"><div class="ttname"><a href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a></div><div class="ttdeci">#define UNODB_DETAIL_UNLIKELY(condition)</div><div class="ttdoc">Hint the compiler that the condition is likely false.</div><div class="ttdef"><b>Definition</b> global.hpp:278</div></div>
+</div><!-- fragment -->
+</div>
+</div>
 <a id="a8c8f61916e18317dc5db17d0dba38a6f" name="a8c8f61916e18317dc5db17d0dba38a6f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8c8f61916e18317dc5db17d0dba38a6f">&#9670;&#160;</a></span>UNODB_DETAIL_ASSUME</h2>
 
@@ -176,7 +200,8 @@ std::ostringstream&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::
 <div class="line">    UNODB_DETAIL_ASSERT(x);         \</div>
 <div class="line">    UNODB_DETAIL_BUILTIN_ASSUME(x); \</div>
 <div class="line">  } <span class="keywordflow">while</span> (0)</div>
-</div><!-- fragment --><p>Provide an assumption for the compiler.</p>
+</div><!-- fragment -->
+<p>Provide an assumption for the compiler. </p>
 <p>The assumption is expressed as a condition that always holds, i.e. an allowed value range for a variable, which may allow the compiler to e.g. optimize a redundant check away or silence a warning. Plain assertions should be used almost always instead, and replaced with assumptions only with provable effect on the diagnostics or generated code. </p>
 
 </div>
@@ -195,7 +220,8 @@ std::ostringstream&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Mark this source code location as unreachable.</p>
+
+<p>Mark this source code location as unreachable. </p>
 <p>Under release build the location is annotated for the compiler as unreachable, potentially enabling more optimizations. Under debug build, if execution comes here, it will crash with a stacktrace. </p>
 
 </div>

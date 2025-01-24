@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['thread_5fsync_0',['thread_sync',['../classunodb_1_1detail_1_1thread__sync.html',1,'unodb::detail']]],
-  ['tree_5fdepth_1',['tree_depth',['../classunodb_1_1detail_1_1tree__depth.html',1,'unodb::detail']]],
-  ['tree_5fverifier_2',['tree_verifier',['../classunodb_1_1test_1_1tree__verifier.html',1,'unodb::test']]]
+  ['set_5fqsbr_5fper_5fthread_5fin_5fmain_5fthread_0',['set_qsbr_per_thread_in_main_thread',['../structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html',1,'unodb::detail']]]
 ];

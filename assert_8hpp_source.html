@@ -134,7 +134,7 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="comment">// LCOV_EXCL_START</span></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><a class="code hl_define" href="global_8hpp.html#a6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26447)</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
 <div class="foldopen" id="foldopen00045" data-start="{" data-end="}">
@@ -153,8 +153,8 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>}</div>
 </div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="assert_8hpp.html#a3ee91956195d7e9c352a4a22f45eecaf">   60</a></span>[[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    UNODB_DETAIL_C_STRING_ARG(3) <a class="code hl_define" href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="assert_8hpp.html#a3ee91956195d7e9c352a4a22f45eecaf">   60</a></span>[[noreturn, gnu::cold]] <a class="code hl_define" href="global_8hpp.html#a4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a>(1)</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <a class="code hl_define" href="global_8hpp.html#a4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a>(3) <a class="code hl_define" href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a></div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">void</span> crash(const <span class="keywordtype">char</span> *file, <span class="keywordtype">int</span> line, const <span class="keywordtype">char</span> *func) noexcept {</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(0);</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  std::ostringstream buf;</div>
@@ -163,15 +163,15 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <a class="code hl_function" href="assert_8hpp.html#a2916f4ec569e87aedeb08329d975cdc6">msg_stacktrace_abort</a>(buf.str());</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>}</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><a class="code hl_define" href="global_8hpp.html#acd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="comment">// Definitions that only depend on Debug vs Release</span></div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="preprocessor">#ifndef NDEBUG</span></div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="preprocessor">#define UNODB_DETAIL_DEBUG_CRASH() UNODB_DETAIL_CRASH()</span></div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>[[noreturn]] UNODB_DETAIL_C_STRING_ARG(1)</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    UNODB_DETAIL_C_STRING_ARG(3) inline <span class="keywordtype">void</span> cannot_happen(</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>[[noreturn]] <a class="code hl_define" href="global_8hpp.html#a4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a>(1)</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <a class="code hl_define" href="global_8hpp.html#a4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a>(3) inline <span class="keywordtype">void</span> cannot_happen(</div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        const <span class="keywordtype">char</span> *file, <span class="keywordtype">int</span> line, const <span class="keywordtype">char</span> *func) noexcept {</div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>  unodb::test::allocation_failure_injector::fail_on_nth_allocation(0);</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>  std::ostringstream buf;</div>
@@ -185,9 +185,9 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="preprocessor">#define UNODB_DETAIL_DEBUG_CRASH()</span></div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>[[noreturn]] UNODB_DETAIL_C_STRING_ARG(1) UNODB_DETAIL_C_STRING_ARG(</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>[[noreturn]] <a class="code hl_define" href="global_8hpp.html#a4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a>(1) <a class="code hl_define" href="global_8hpp.html#a4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a>(</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    3) inline <span class="keywordtype">void</span> cannot_happen(const <span class="keywordtype">char</span> *, <span class="keywordtype">int</span>, const <span class="keywordtype">char</span> *) noexcept {</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>  UNODB_DETAIL_UNREACHABLE();</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>  <a class="code hl_define" href="global_8hpp.html#a597f18c76f2d7b0e86e9a164bc8f0a80">UNODB_DETAIL_UNREACHABLE</a>();</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>}</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="preprocessor">#endif  </span><span class="comment">// !NDEBUG</span></div>
@@ -211,12 +211,12 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span><span class="preprocessor">#elif !defined(NDEBUG)</span></div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><a class="code hl_define" href="global_8hpp.html#a6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26447)</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>[[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    UNODB_DETAIL_C_STRING_ARG(3)</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        UNODB_DETAIL_C_STRING_ARG(4) <a class="code hl_define" href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a></div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>[[noreturn, gnu::cold]] <a class="code hl_define" href="global_8hpp.html#a4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a>(1)</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <a class="code hl_define" href="global_8hpp.html#a4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a>(3)</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        <a class="code hl_define" href="global_8hpp.html#a4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a>(4) <a class="code hl_define" href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a></div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordtype">void</span> assert_failure(const <span class="keywordtype">char</span> *file, <span class="keywordtype">int</span> line, const <span class="keywordtype">char</span> *func,</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>                        const <span class="keywordtype">char</span> *condition) noexcept {</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>  unodb::test::allocation_failure_injector::fail_on_nth_allocation(0);</div>
@@ -227,7 +227,7 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>  <a class="code hl_function" href="assert_8hpp.html#a2916f4ec569e87aedeb08329d975cdc6">msg_stacktrace_abort</a>(buf.str());</div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>}</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span><a class="code hl_define" href="global_8hpp.html#acd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
 <div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
 <div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span><span class="preprocessor">#define UNODB_DETAIL_ASSERT(condition)                                      \</span></div>
@@ -260,8 +260,12 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aassert_8hpp_html_a2916f4ec569e87aedeb08329d975cdc6"><div class="ttname"><a href="assert_8hpp.html#a2916f4ec569e87aedeb08329d975cdc6">unodb::detail::msg_stacktrace_abort</a></div><div class="ttdeci">UNODB_DETAIL_HEADER_NOINLINE void msg_stacktrace_abort(std::string_view msg) noexcept</div><div class="ttdoc">Print a message and a stacktrace to std::cerr, then abort.</div><div class="ttdef"><b>Definition</b> assert.hpp:45</div></div>
-<div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines.</div></div>
-<div class="ttc" id="aglobal_8hpp_html_aafb52805dfbf125a141afc869e64715d"><div class="ttname"><a href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_HEADER_NOINLINE</div><div class="ttdef"><b>Definition</b> global.hpp:145</div></div>
+<div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
+<div class="ttc" id="aglobal_8hpp_html_a4db1e26ef37ef40446df97c4dc605129"><div class="ttname"><a href="global_8hpp.html#a4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a></div><div class="ttdeci">#define UNODB_DETAIL_C_STRING_ARG(x)</div><div class="ttdoc">Mark a parameter as a null-terminated C string.</div><div class="ttdef"><b>Definition</b> global.hpp:253</div></div>
+<div class="ttc" id="aglobal_8hpp_html_a597f18c76f2d7b0e86e9a164bc8f0a80"><div class="ttname"><a href="global_8hpp.html#a597f18c76f2d7b0e86e9a164bc8f0a80">UNODB_DETAIL_UNREACHABLE</a></div><div class="ttdeci">#define UNODB_DETAIL_UNREACHABLE()</div><div class="ttdoc">Low-level macro to indicate an unreachable code.</div><div class="ttdef"><b>Definition</b> global.hpp:283</div></div>
+<div class="ttc" id="aglobal_8hpp_html_a6979215c90d6f2280a56d80eb67c6c83"><div class="ttname"><a href="global_8hpp.html#a6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)</div><div class="ttdoc">Disable an MSVC warning x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:348</div></div>
+<div class="ttc" id="aglobal_8hpp_html_aafb52805dfbf125a141afc869e64715d"><div class="ttname"><a href="global_8hpp.html#aafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_HEADER_NOINLINE</div><div class="ttdoc">A declaration specifier for a function in a header file that should not be inlined.</div><div class="ttdef"><b>Definition</b> global.hpp:312</div></div>
+<div class="ttc" id="aglobal_8hpp_html_acd9e44918f8725b066b33afc500ce938"><div class="ttname"><a href="global_8hpp.html#acd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:349</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

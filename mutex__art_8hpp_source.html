@@ -302,7 +302,7 @@ $(document).ready(function(){initNavTree('mutex__art_8hpp_source.html',''); init
 <div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>  }</div>
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>  <span class="comment">// Debugging</span></div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>  [[gnu::cold]] UNODB_DETAIL_NOINLINE <span class="keywordtype">void</span> dump(std::ostream &amp;os)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>  [[gnu::cold]] <a class="code hl_define" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream &amp;os)<span class="keyword"> const </span>{</div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    db_.dump(os);</div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>  }</div>
@@ -316,11 +316,12 @@ $(document).ready(function(){initNavTree('mutex__art_8hpp_source.html',''); init
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>}  <span class="comment">// namespace unodb</span></div>
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
 <div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_MUTEX_ART_HPP</span></div>
-<div class="ttc" id="aclassunodb_1_1db_1_1iterator_html"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html">unodb::db::iterator</a></div><div class="ttdef"><b>Definition</b> art.hpp:120</div></div>
+<div class="ttc" id="aclassunodb_1_1db_1_1iterator_html"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html">unodb::db::iterator</a></div><div class="ttdoc">iterator (the iterator is an internal API, the public API is scan()).</div><div class="ttdef"><b>Definition</b> art.hpp:120</div></div>
 <div class="ttc" id="aclassunodb_1_1db_html"><div class="ttname"><a href="classunodb_1_1db.html">unodb::db</a></div><div class="ttdef"><b>Definition</b> art.hpp:72</div></div>
-<div class="ttc" id="aclassunodb_1_1db_html_a19264d6e93a2c7bbbef1cea58b679a89"><div class="ttname"><a href="classunodb_1_1db.html#a19264d6e93a2c7bbbef1cea58b679a89">unodb::db::scan</a></div><div class="ttdeci">void scan(FN fn, bool fwd=true)</div><div class="ttdef"><b>Definition</b> art.hpp:570</div></div>
+<div class="ttc" id="aclassunodb_1_1db_html_a19264d6e93a2c7bbbef1cea58b679a89"><div class="ttname"><a href="classunodb_1_1db.html#a19264d6e93a2c7bbbef1cea58b679a89">unodb::db::scan</a></div><div class="ttdeci">void scan(FN fn, bool fwd=true)</div><div class="ttdoc">public scan API</div><div class="ttdef"><b>Definition</b> art.hpp:570</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html"><div class="ttname"><a href="classunodb_1_1mutex__db.html">unodb::mutex_db</a></div><div class="ttdef"><b>Definition</b> mutex_art.hpp:23</div></div>
-<div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines.</div></div>
+<div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
+<div class="ttc" id="aglobal_8hpp_html_a5b23fa8d0f373d55f1cd77b698f74d33"><div class="ttname"><a href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_NOINLINE</div><div class="ttdoc">Ask the compiler to not inline the function.</div><div class="ttdef"><b>Definition</b> global.hpp:282</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

@@ -1082,6 +1082,15 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key> {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
+  // TODO(thompsonbry) varkeys - new path with key_view
+  void init(key_view k1, art_key_type shifted_k2, tree_depth_type depth,
+            leaf_type* child1, olc_db_leaf_unique_ptr_type&& child2) noexcept {
+    UNODB_DETAIL_ASSERT(node_ptr_lock<Key>(child1).is_write_locked());
+
+  parent_class::init(k1, shifted_k2, depth, child1, std::move(child2));
+  }
+
+  // TODO(thompsonbry) varkeys - old path unused?
   void init(art_key_type k1, art_key_type shifted_k2, tree_depth_type depth,
             leaf_type* child1, olc_db_leaf_unique_ptr_type&& child2) noexcept {
     UNODB_DETAIL_ASSERT(node_ptr_lock<Key>(child1).is_write_locked());
@@ -1868,7 +1877,7 @@ olc_db<Key>::try_update_result_type olc_db<Key>::try_insert(
 
     if (node_type == node_type::LEAF) {
       auto* const leaf{node.ptr<leaf_type*>()};
-      const auto existing_key{leaf->get_key()};
+      const auto existing_key{leaf->get_key_view()};
       if (UNODB_DETAIL_UNLIKELY(k.cmp(existing_key) == 0)) {
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
           return {};  // LCOV_EXCL_LINE
@@ -1878,7 +1887,7 @@ olc_db<Key>::try_update_result_type olc_db<Key>::try_insert(
         if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr)) {
           cached_leaf.reset();  // LCOV_EXCL_LINE
         }
-        return false;
+        return false;  // exists
       }
 
       create_leaf_if_needed(cached_leaf, k, v, *this);
@@ -1905,7 +1914,7 @@ olc_db<Key>::try_update_result_type olc_db<Key>::try_insert(
     }
 
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    UNODB_DETAIL_ASSERT(depth < art_key_type::size);
+    //UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
     auto* const inode{node.ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};
@@ -2043,7 +2052,7 @@ olc_db<Key>::try_update_result_type olc_db<Key>::try_remove(art_key_type k) {
 
   while (true) {
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    UNODB_DETAIL_ASSERT(depth < art_key_type::size);
+    //UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
     auto* const inode{node.ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};
@@ -2713,7 +2722,8 @@ int olc_db<Key>::iterator::cmp(const art_key_type& akey) const {
   auto& node = stack_.top().node;
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
   const auto* const leaf{node.template ptr<leaf_type*>()};
-  return leaf->get_key().cmp(akey);
+  return unodb::detail::compare( leaf->get_key_view(),
+                                 akey.get_key_view() );
 }
 
 ///

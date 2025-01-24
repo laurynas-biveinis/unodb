@@ -322,7 +322,9 @@ class db final {
       auto& node = stack_.top().node;
       UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
       const auto* const leaf{node.template ptr<leaf_type*>()};
-      return leaf->get_key().cmp(akey);
+      // return leaf->get_key().cmp(akey); // TODO(thompsonbry) try the key_view comparator
+      return unodb::detail::compare( leaf->get_key_view(),
+                                     akey.get_key_view() );
     }
 
     //
@@ -878,7 +880,6 @@ db<Key>::get_result db<Key>::get0(art_key_type k) const noexcept {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
 
   auto node{root};
-  // const detail::art_key k{search_key};
   auto remaining_key{k};
 
   while (true) {
@@ -909,7 +910,6 @@ db<Key>::get_result db<Key>::get0(art_key_type k) const noexcept {
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
 template <class Key>
 bool db<Key>::insert0(art_key_type k, value_view v) {
-  // const auto k = detail::art_key{insert_key};
 
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
     auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
@@ -925,9 +925,13 @@ bool db<Key>::insert0(art_key_type k, value_view v) {
     const auto node_type = node->type();
     if (node_type == node_type::LEAF) {
       auto* const leaf{node->ptr<leaf_type*>()};
-      const auto existing_key{leaf->get_key()};
-      if (UNODB_DETAIL_UNLIKELY(k.cmp(existing_key) == 0)) return false;
-
+      const auto existing_key{leaf->get_key_view()};
+      if (UNODB_DETAIL_UNLIKELY(k.cmp(existing_key) == 0)) {
+        return false;  // exists
+      }
+      // Replace the existing leaf with a new N4 and put the existing
+      // leaf and the a leaf for the caller's key and value under the
+      // new inode as its direct children.
       auto new_leaf = art_policy::make_db_leaf_ptr(k, v, *this);
       auto new_node{inode_4::create(*this, existing_key, remaining_key, depth,
                                     leaf, std::move(new_leaf))};
@@ -939,13 +943,17 @@ bool db<Key>::insert0(art_key_type k, value_view v) {
     }
 
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    UNODB_DETAIL_ASSERT(depth < art_key_type::size);
+    //UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
     auto* const inode{node->ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) {
+      // We have reached an existing inode whose key_prefix is greater
+      // than the desired match.  We need to split this inode into a
+      // new N4 whose children are the existing inode and a new child
+      // leaf.
       auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
       auto new_node = inode_4::create(*this, *node, shared_prefix_len, depth,
                                       std::move(leaf));
@@ -958,7 +966,8 @@ bool db<Key>::insert0(art_key_type k, value_view v) {
 #endif  // UNODB_DETAIL_WITH_STATS
       return true;
     }
-
+    // key_prefix bytes were absorbed during the descent.  Now we need
+    // to either descend along an existing child or create a new child.
     UNODB_DETAIL_ASSERT(shared_prefix_len == key_prefix_length);
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
@@ -976,7 +985,6 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <class Key>
 bool db<Key>::remove0(art_key_type k) {
-  // const auto k = detail::art_key{remove_key};
 
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
 
@@ -997,7 +1005,7 @@ bool db<Key>::remove0(art_key_type k) {
   while (true) {
     const auto node_type = node->type();
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    UNODB_DETAIL_ASSERT(depth < art_key_type::size);
+    //UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
     auto* const inode{node->ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};

@@ -88,31 +88,27 @@ class visitor {
 
 namespace detail {
 
-// A type alias determining the maximum size of a value that may be
-// stored in the index.
-using value_size_type = std::uint32_t;
-
-// A constant determining the initial capacity for the key_encoder and
-// other similar internal buffers.  This should be set high enough
-// that such objects DO NOT allocate for commonly used key lengths.
-// These objects use an internal buffer of this capacity and then
-// switch over to an explicitly allocated buffer if the capacity would
-// be exceeded.
-//
-// If you are only using fixed width keys, then this can be sizeof(T).
-// But in typical scenarios these objects are on the stack and there
-// is little if any penalty to having a larger initial capacity for
-// these buffers.
-//
-// TODO(thompsonbry) variable length keys - lift out as template argument.
+/// A constant determining the initial capacity for the key_encoder
+/// and other similar internal buffers.  This should be set high
+/// enough that such objects DO NOT allocate for commonly used key
+/// lengths.  These objects use an internal buffer of this capacity
+/// and then switch over to an explicitly allocated buffer if the
+/// capacity would be exceeded.
+///
+/// If you are only using fixed width keys, then this can be
+/// sizeof(T).  But in typical scenarios these objects are on the
+/// stack and there is little if any penalty to having a larger
+/// initial capacity for these buffers.
+///
+/// TODO(thompsonbry) variable length keys - lift out as template argument.
 static constexpr size_t INITIAL_BUFFER_CAPACITY = 256;
 
 // Dump the encoded key as a sequence of bytes.
 template <typename T>
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os, T k);
 
-// Utility class for power of two expansion of buffers (internal API,
-// forward declaration).
+/// Utility method for power of two expansion of buffers (internal
+/// API, forward declaration).
 void ensure_capacity(std::byte *&buf,     // buffer to resize
                      size_t &cap,         // current buffer capacity
                      size_t off,          // current #of used bytes

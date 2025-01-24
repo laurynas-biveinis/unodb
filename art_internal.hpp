@@ -62,6 +62,15 @@ class [[nodiscard]] basic_db_leaf_deleter;
   return compare(a.data(), a.size_bytes(), b.data(), b.size_bytes());
 }
 
+// Return the first 64-bits of the encoded key.  This is used by the
+// prefix compression logic to identify some number of bytes that are
+// in common between the art_key and an inode having some key_prefix.
+[[nodiscard, gnu::pure]] constexpr std::uint64_t get_u64(key_view key) noexcept {
+  std::uint64_t u{};  // will hold the first 64-bits.
+  std::memcpy(&u, key.data(), std::min(key.size_bytes(), sizeof(u)));
+  return u;
+}
+
 // Internal ART key in binary-comparable format.  Application keys may
 // be simple fixed width types (such as std::uint64_t) or variable
 // length keys.  For the former, there are convenience methods on db,
@@ -146,17 +155,28 @@ struct [[nodiscard]] basic_art_key final {
     }
   }
 
+  // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+  [[nodiscard, gnu::pure]] constexpr int cmp(key_view key2) const noexcept {
+    if constexpr (std::is_same_v<KeyType, unodb::key_view>) {
+      // variable length keys
+      return compare(key, key2);
+    } else {
+      // fixed width keys
+      return compare(&key, sizeof(KeyType), key2.data(), key2.size_bytes());
+    }
+  }
+
   // Return the byte at the specified index position in the binary
   // comparable key.
   [[nodiscard, gnu::pure]] constexpr auto operator[](
       std::size_t index) const noexcept {
-    UNODB_DETAIL_ASSERT(index < size);
-    if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
-      // u64 fast path
-      return key_bytes[index];
-    } else {
+    if constexpr (std::is_same_v<KeyType, key_view>) {
       // use the key_view.
       return key[index];
+    } else {
+      // u64 fast path
+      UNODB_DETAIL_ASSERT(index < sizeof(KeyType));
+      return key_bytes[index];
     }
   }
 
@@ -176,15 +196,12 @@ struct [[nodiscard]] basic_art_key final {
   // that are in common between the art_key and an inode having some
   // key_prefix.
   [[nodiscard, gnu::pure]] constexpr std::uint64_t get_u64() const noexcept {
-    if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
-      // fast path
-      return key;
+    if constexpr (std::is_same_v<KeyType, key_view>) {
+      return unodb::detail::get_u64( key );
     } else {
-      // first 64-bits.
-      std::uint64_t u{};
-      std::memcpy(&u, key.data(), std::min(key.size_bytes(), sizeof(u)));
-      return u;
-    }
+      // fast path - assumes KeyType is narrower and unsigned.
+      return static_cast<std::uint64_t>(key);
+    }      
   }
 
   // Shift the internal key some number of bytes to the right, causing
@@ -195,20 +212,27 @@ struct [[nodiscard]] basic_art_key final {
   //
   // 0x0011223344556677 shift_right(2) => 0x2233445566770000
   constexpr void shift_right(const std::size_t num_bytes) noexcept {
-    if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
-      UNODB_DETAIL_ASSERT(num_bytes <= size);
-      key >>= (num_bytes * 8);
-    } else {
+    if constexpr (std::is_same_v<KeyType, key_view>) {
       UNODB_DETAIL_ASSERT(num_bytes <= key.size_bytes());
       key = key.subspan(num_bytes);
+    } else {
+      UNODB_DETAIL_ASSERT(num_bytes <= sizeof(KeyType));
+      key >>= (num_bytes * 8);
     }
   }
 
-  static constexpr auto size = sizeof(KeyType);
+  /// Return the number of bytes required to represent the key.
+  constexpr size_t size() {
+    if constexpr (std::is_same_v<KeyType, unodb::key_view>) {
+      return key.size_bytes();
+    } else {
+      return sizeof(KeyType);
+    }
+  }
 
   union {
-    KeyType key;  // Note: When KeyType == std::span, this is all you need.
-    std::array<std::byte, size> key_bytes;
+    KeyType key;  // Note: When KeyType == key_view, this is all you need.
+    std::array<std::byte,sizeof(KeyType)> key_bytes;  // ignored if KeyType==key_view
   };
 
   static void static_asserts() {
@@ -235,34 +259,42 @@ struct [[nodiscard]] basic_art_key final {
     k.dump(os);
     return os;
   }
-  };  // class basic_art_key
+};  // class basic_art_key
 
-// typed class representing the depth of the tree.
+/// A typed class representing the number of key bytes consumed along
+/// some path in the tree.  In general, the unodb::detail::key_prefix
+/// consumes up to some fixed number of bytes and one byte is consumed
+/// based on the key_byte for each node as we descend along that byte
+/// value to some child index.
 template <typename ArtKey>
 class [[nodiscard]] tree_depth final {
  public:
-  using value_type = unsigned;
+  using value_type = std::uint32_t;  // explicitly since also used in leaf.
 
   explicit constexpr tree_depth(value_type value_ = 0) noexcept
       : value{value_} {
-    UNODB_DETAIL_ASSERT(value <= ArtKey::size);
+    // Note: removed these asserts in this class since tree depth is a
+    // function of the key length so the assert does not make sense
+    // for variable length keys.
+    //
+    //UNODB_DETAIL_ASSERT(value <= ArtKey::size);
   }
 
   // NOLINTNEXTLINE(google-explicit-constructor)
   [[nodiscard, gnu::pure]] constexpr operator value_type() const noexcept {
-    UNODB_DETAIL_ASSERT(value <= ArtKey::size);
+    //UNODB_DETAIL_ASSERT(value <= ArtKey::size);
     return value;
   }
 
   constexpr tree_depth &operator++() noexcept {
     ++value;
-    UNODB_DETAIL_ASSERT(value <= ArtKey::size);
+    //UNODB_DETAIL_ASSERT(value <= ArtKey::size);
     return *this;
   }
 
   constexpr void operator+=(value_type delta) noexcept {
     value += delta;
-    UNODB_DETAIL_ASSERT(value <= ArtKey::size);
+    //UNODB_DETAIL_ASSERT(value <= ArtKey::size);
   }
 
  private:

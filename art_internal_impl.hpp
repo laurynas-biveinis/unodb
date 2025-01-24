@@ -87,19 +87,37 @@ namespace unodb::detail {
 template <class Key, class Header>
 class [[nodiscard]] basic_leaf final : public Header {
  public:
-  using value_size_type = unodb::detail::value_size_type;
+  /// A type alias determining the maximum size of a value that may be
+  /// stored in the index.
+  using key_size_type = std::uint32_t;
+
+  /// A type alias determining the maximum size of a value that may be
+  /// stored in the index.
+  using value_size_type = std::uint32_t;
+
+  /// The maximum size of any key in bytes.
+  static constexpr std::size_t max_key_size =
+      std::numeric_limits<key_size_type>::max();
+
+  /// The maximum size of any value in bytes.
+  static constexpr std::size_t max_value_size =
+      std::numeric_limits<value_size_type>::max();
+
   using art_key_type = basic_art_key<Key>;
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
   constexpr basic_leaf(art_key_type k, value_view v) noexcept
-      : key{k}, value_size{static_cast<value_size_type>(v.size())} {
+  : key_size{static_cast<key_size_type>(k.size())},
+    value_size{static_cast<value_size_type>(v.size())} {
 
     // Note: This is just a debug assert.  There is no runtime-check
     // on the size of the value.  Bad Things can happen if the value
     // is larger than the value_size_type can express.
+    UNODB_DETAIL_ASSERT(k.size() <= max_key_size);
     UNODB_DETAIL_ASSERT(v.size() <= max_value_size);
-
-    if (!v.empty()) std::memcpy(&value_start[0], v.data(), value_size);
+    key_view tmp{k.get_key_view()};
+    std::memcpy(data, tmp.data(), key_size);
+    if (!v.empty()) std::memcpy(data+key_size, v.data(), value_size);
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
@@ -118,17 +136,23 @@ class [[nodiscard]] basic_leaf final : public Header {
   // iff they support storing the key in the leaf as a time over space
   // optimization)
   [[nodiscard, gnu::pure]] constexpr auto get_key() const noexcept {
-    return key;
+    if constexpr( std::is_same_v<Key, key_view> ) {
+      return art_key_type{key_view{ data, key_size }};
+    } else {
+      // Use memcpy since alignment is not guaranteed.
+      Key u{};
+      std::memcpy(&u, data, sizeof(u));
+      return art_key_type{u};
+    }
   }
 
-  // TODO(thompsonbry) : variable length keys.  This will go away. It
-  // is here as a shim.  The iterator needs to handle this and buffer
-  // the key during traversal.  get()/insert()/remove() need to do
-  // something similar.  The only time we can get the key_view from
-  // the leaf is if the binary comparable key is stored in the leaf as
-  // an optimization of time over space.
+  // TODO(thompsonbry) : variable length keys.  Right now we are
+  // storing the full key in the leaf.  However, this will be changed
+  // to store only the key_prefix.  Or if we do store full keys (e.g.,
+  // for a short fixed width key type), then in that case the key view
+  // could be onto the full key.
   [[nodiscard, gnu::pure]] constexpr auto get_key_view() const noexcept {
-    return key.get_key_view();
+    return key_view{ data, key_size };
   }
 
   // Return true iff the two keys are the same.
@@ -149,54 +173,70 @@ class [[nodiscard]] basic_leaf final : public Header {
   // to a method comparing a caller's key suffix against the key
   // suffix stored in the leaf.
   [[nodiscard, gnu::pure]] constexpr auto cmp(art_key_type k) const noexcept {
-    return k.cmp(get_key());
+    return k.cmp(get_key_view());
   }
 
   [[nodiscard, gnu::pure]] constexpr auto get_value_view() const noexcept {
-    return value_view{&value_start[0], value_size};
+    return value_view{data+key_size, value_size};
   }
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
   [[nodiscard, gnu::pure]] constexpr auto get_size() const noexcept {
-    return compute_size(value_size);
+    return compute_size(key_size, value_size);
   }
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os,
                                                 bool /*recursive*/) const {
-    os << ", " << get_key() << ", value size: " << value_size << '\n';
+    os << ", ";
+    dump_key( os, get_key_view() );
+    os << ", value size: " << value_size << '\n';
   }
 
+  /// @param key_size The size in bytes of the portion of the key stored in the leaf.
+  ///
+  /// @param val_size The size in bytes of the the value stored in the leaf.
   [[nodiscard, gnu::const]] static constexpr auto compute_size(
+      key_size_type key_size,
       value_size_type val_size) noexcept {
-    return sizeof(basic_leaf<Key, Header>) + val_size - 1;
+    return sizeof(basic_leaf<Key, Header>) + key_size + val_size
+        - 1  // because of the [1] byte on the end of the struct.
+        ;
   }
-
-  static constexpr std::size_t max_value_size =
-      std::numeric_limits<value_size_type>::max();
 
  private:
-  // TODO(thompsonbry) : variable length keys.  We need to store the
-  // byte length of the key. This would be a good opportunity for
-  // packing a long integer in a variable number of bytes to make it
-  // more space efficient to store shorter keys and values (which is
-  // presumably the expected case).  Change both when adding the key
-  // length.  The exception would be if we make the key on the leaf
-  // just an 8-byte key_prefix field, in which case the tree to the
-  // leaf needs to hold the full key except for that trailing 0-7
-  // bytes which is stored on the leaf.
+  // TODO(thompsonbry) : variable length keys.  Consider adding a
+  // key_prefix to the leaf in wwhich case the tree to the leaf needs
+  // to hold the full key except for that trailing 0-7 bytes which is
+  // stored on the leaf.
   //
   // TODO(thompsonbry) : variable length keys.  The key should be
   // optional on the leaf, except for perhaps a key_prefix.
-  const art_key_type key;
-  // The byte length of the value.
+  //
+  // TODO(thompsonbry) : variable length keys.  The key_size can be
+  // elided for fixed length keys.  The value size can be elided for
+  // fixed length values.  Both are common cases and should be handled
+  // via appropriate template specialization.  This is most important
+  // when the allocations are small and getting into a smaller power
+  // of two can result in significant space savings.  Further, the
+  // key_size and the value_size can be represented as variable length
+  // unsigned integers for a more compact data record.
+  
+  /// The byte length of the key.
+  const key_size_type key_size;
+  /// The byte length of the value.
   const value_size_type value_size;
+  /// The leaf's key and value data starts at data[0].  The key comes
+  /// first followed by the data.
+  //
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  std::byte value_start[1];  // The value starts at value_start[0].
+  std::byte data[1];
 };  // class basic_leaf
 
+/// Return a unique pointer for a new leaf initialized with the
+/// caller's key and value.
 template <class Key, class Header, template <class> class Db>
 [[nodiscard]] auto make_db_leaf_ptr(basic_art_key<Key> k, value_view v,
                                     Db<Key> &db UNODB_DETAIL_LIFETIMEBOUND) {
@@ -207,6 +247,7 @@ template <class Key, class Header, template <class> class Db>
   }
 
   const auto size = leaf_type::compute_size(
+      static_cast<typename leaf_type::key_size_type>(k.size()),
       static_cast<typename leaf_type::value_size_type>(v.size()));
 
   auto *const leaf_mem = static_cast<std::byte *>(
@@ -334,12 +375,16 @@ struct basic_art_policy final {
         leaf, LeafReclamator<Key, header_type, Db>{db_instance}};
   }
 
+  /// Allocates memory for a node inode and does a placement new
+  /// pattern to construct the new inode, returning a unique pointer
+  /// to that newly constructed inode.
   UNODB_DETAIL_DISABLE_GCC_11_WARNING("-Wmismatched-new-delete")
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26409)
   template <class INode, class... Args>
   [[nodiscard]] static auto make_db_inode_unique_ptr(db_type &db_instance
                                                      UNODB_DETAIL_LIFETIMEBOUND,
                                                      Args &&...args) {
+    // memory allocation
     auto *const inode_mem = static_cast<std::byte *>(
         allocate_aligned(sizeof(INode), alignment_for_new<INode>()));
 
@@ -347,6 +392,7 @@ struct basic_art_policy final {
     db_instance.template increment_inode_count<INode>();
 #endif  // UNODB_DETAIL_WITH_STATS
 
+    // placement new
     return db_inode_unique_ptr<INode>{
         new (inode_mem) INode{db_instance, std::forward<Args>(args)...},
         db_inode_deleter<INode>{db_instance}};
@@ -526,9 +572,9 @@ class key_prefix_snapshot {
   }
 };
 
-// The key_prefix is a sequence of zero or more bytes for a given node
-// that are a common prefix shared by all children of that node and
-// supports prefix compression in the index.
+/// The key_prefix is a sequence of zero or more bytes for a given node
+/// that are a common prefix shared by all children of that node and
+/// supports prefix compression in the index.
 template <typename ArtKey, template <class> class CriticalSectionPolicy>
 union [[nodiscard]] key_prefix {
  private:
@@ -545,6 +591,12 @@ union [[nodiscard]] key_prefix {
   critical_section_policy<std::uint64_t> u64;
 
  public:
+
+  // TODO(thompsonbry) varkeys - new ctor (key_view)
+  key_prefix(key_view k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept
+      : u64{make_u64(k1, shifted_k2, depth)} {}
+
+  // TODO(thompsonbry) varkeys - old ctor unused?
   key_prefix(ArtKey k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept
       : u64{make_u64(k1, shifted_k2, depth)} {}
 
@@ -647,6 +699,18 @@ union [[nodiscard]] key_prefix {
     return static_cast<unsigned>(detail::ctz(clamped) >> 3U);
   }
 
+  // TODO(thompsonbry) varkeys - new version (key_view)
+  [[nodiscard, gnu::const]] static constexpr std::uint64_t make_u64(
+      key_view k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept {
+    k1 = k1.subspan(depth);  // shift_right(depth)
+
+    const auto k1_u64 = get_u64(k1) & key_bytes_mask;
+
+    return k1_u64 | length_to_word(shared_len(k1_u64, shifted_k2.get_u64(),
+                                              key_prefix_capacity));
+  }
+  
+  // TODO(thompsonbry) varkeys - old version unused?
   [[nodiscard, gnu::const]] static constexpr std::uint64_t make_u64(
       ArtKey k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept {
     k1.shift_right(depth);
@@ -1023,6 +1087,14 @@ class basic_inode_impl : public ArtPolicy::header_type {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  // TODO(thompsonbry) varkeys - new key_view ctor.
+  constexpr basic_inode_impl(unsigned children_count_, key_view k1,
+                             art_key_type shifted_k2,
+                             tree_depth<art_key_type> depth) noexcept
+      : k_prefix{k1, shifted_k2, depth},
+        children_count{static_cast<std::uint8_t>(children_count_)} {}
+
+  // TODO(thompsonbry) varkeys - old ctor unused?
   constexpr basic_inode_impl(unsigned children_count_, art_key_type k1,
                              art_key_type shifted_k2,
                              tree_depth<art_key_type> depth) noexcept
@@ -1105,6 +1177,7 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
   using typename parent::db_type;
   using typename parent::node_ptr;
 
+  /// Templated factory for a unique pointer to a new internal node.
   template <typename... Args>
   [[nodiscard]] static constexpr auto create(db_type &db_instance,
                                              Args &&...args) {
@@ -1136,6 +1209,15 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
   using typename parent::art_key_type;
   using typename parent::tree_depth_type;
 
+  // TODO(thompsonbry) varkeys - new key_view ctor.
+  constexpr basic_inode(unodb::key_view k1, art_key_type shifted_k2,
+                        tree_depth<art_key_type> depth) noexcept
+      : parent{MinSize, k1, shifted_k2, depth} {
+    UNODB_DETAIL_ASSERT(is_min_size());
+  }
+
+  // TODO(thompsonbry) varkeys.  Unused?  Replaced by version where
+  // first arg is key_view?
   constexpr basic_inode(art_key_type k1, art_key_type shifted_k2,
                         tree_depth<art_key_type> depth) noexcept
       : parent{MinSize, k1, shifted_k2, depth} {
@@ -1199,10 +1281,27 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
+  // TODO(thompsonbry) varkeys - new key_view ctor.
+  constexpr basic_inode_4(db_type &, unodb::key_view k1, art_key_type shifted_k2,
+                          tree_depth_type depth) noexcept
+      : parent_class{k1, shifted_k2, depth} {}
+
+  // TODO(thompsonbry) varkeys.  Unused?  Was used by insert0(), but
+  // changed k1 to key_view and added the constructor version above
+  // for that.
   constexpr basic_inode_4(db_type &, art_key_type k1, art_key_type shifted_k2,
                           tree_depth_type depth) noexcept
       : parent_class{k1, shifted_k2, depth} {}
 
+  // TODO(thompsonbry) varkeys.  new key_view ctor.
+  constexpr basic_inode_4(db_type &, key_view k1, art_key_type shifted_k2,
+                          tree_depth_type depth, leaf_type *child1,
+                          db_leaf_unique_ptr &&child2) noexcept
+      : parent_class{k1, shifted_k2, depth} {
+    init(k1, shifted_k2, depth, child1, std::move(child2));
+  }
+
+  // TODO(thompsonbry) varkeys.  Unused?  Was used by insert0(), but
   constexpr basic_inode_4(db_type &, art_key_type k1, art_key_type shifted_k2,
                           tree_depth_type depth, leaf_type *child1,
                           db_leaf_unique_ptr &&child2) noexcept
@@ -1232,20 +1331,16 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  constexpr void init(node_ptr source_node, unsigned len, tree_depth_type depth,
-                      db_leaf_unique_ptr &&child1) {
+  constexpr void init(node_ptr source_node, unsigned shared_prefix_len,
+                      tree_depth_type depth, db_leaf_unique_ptr &&child1) {
     auto *const source_inode{source_node.template ptr<inode_type *>()};
     auto &source_key_prefix = source_inode->get_key_prefix();
-    UNODB_DETAIL_ASSERT(len < source_key_prefix.length());
+    UNODB_DETAIL_ASSERT(shared_prefix_len < source_key_prefix.length());
 
-    const auto diff_key_byte_i =
-        static_cast<std::remove_cv_t<decltype(art_key_type::size)>>(depth) +
-        len;
-    UNODB_DETAIL_ASSERT(diff_key_byte_i < art_key_type::size);
-
-    const auto source_node_key_byte = source_key_prefix[len];
-    source_key_prefix.cut(len + 1);
-    const auto new_key_byte = child1->get_key()[diff_key_byte_i];
+    const auto diff_key_byte_i = depth + shared_prefix_len;
+    const auto source_node_key_byte = source_key_prefix[shared_prefix_len];
+    source_key_prefix.cut(shared_prefix_len + 1);
+    const auto new_key_byte = child1->get_key_view()[diff_key_byte_i];
     add_two_to_empty(source_node_key_byte, source_node, new_key_byte,
                      std::move(child1));
   }
@@ -1284,6 +1379,17 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                        keys.byte_array.cbegin() + basic_inode_4::capacity));
   }
 
+  // TODO(thompsonbry) varkeys - new version with key_view - template?
+  constexpr void init(key_view k1, art_key_type shifted_k2,
+                      tree_depth_type depth, leaf_type *child1,
+                      db_leaf_unique_ptr &&child2) noexcept {
+    const auto k2_next_byte_depth = this->get_key_prefix().length();
+    const auto k1_next_byte_depth = k2_next_byte_depth + depth;
+    add_two_to_empty(k1[k1_next_byte_depth], node_ptr{child1, node_type::LEAF},
+                     shifted_k2[k2_next_byte_depth], std::move(child2));
+  }
+
+  // TODO(thompsonbry) varkeys - old version unused?
   constexpr void init(art_key_type k1, art_key_type shifted_k2,
                       tree_depth_type depth, leaf_type *child1,
                       db_leaf_unique_ptr &&child2) noexcept {
@@ -1301,7 +1407,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(std::is_sorted(
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
 
-    const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
+    const auto key_byte = static_cast<std::uint8_t>(child->get_key_view()[depth]);
 
 #ifdef UNODB_DETAIL_X86_64
     const auto mask = (1U << children_count_) - 1;
@@ -1683,7 +1789,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto reclaim_source_node{
         ArtPolicy::template make_db_inode_reclaimable_ptr<inode4_type>(
             &source_node, db_instance)};
-    const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
+    const auto key_byte = static_cast<std::uint8_t>(child->get_key_view()[depth]);
 
 #ifdef UNODB_DETAIL_X86_64
     const auto insert_pos_index = source_node.get_insert_pos(key_byte, 0xFU);
@@ -1755,7 +1861,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(std::is_sorted(
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
 
-    const auto key_byte = child->get_key()[depth];
+    const auto key_byte = child->get_key_view()[depth];
 
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(key_byte);
@@ -2075,7 +2181,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     }
 
     const auto key_byte =
-        static_cast<std::uint8_t>(child_ptr->get_key()[depth]);
+        static_cast<std::uint8_t>(child_ptr->get_key_view()[depth]);
 
     UNODB_DETAIL_ASSERT(child_indexes[key_byte] == empty_child);
     UNODB_DETAIL_ASSUME(i == inode16_type::capacity);
@@ -2123,7 +2229,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(children_count_ >= parent_class::min_size);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
 
-    const auto key_byte = static_cast<uint8_t>(child->get_key()[depth]);
+    const auto key_byte = static_cast<uint8_t>(child->get_key_view()[depth]);
     UNODB_DETAIL_ASSERT(child_indexes[key_byte] == empty_child);
     unsigned i{0};
 #ifdef UNODB_DETAIL_SSE4_2
@@ -2595,7 +2701,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     ++i;
     for (; i < basic_inode_256::capacity; ++i) children[i] = node_ptr{nullptr};
 
-    const auto key_byte = static_cast<uint8_t>(child->get_key()[depth]);
+    const auto key_byte = static_cast<uint8_t>(child->get_key_view()[depth]);
     UNODB_DETAIL_ASSERT(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release(), node_type::LEAF};
   }
@@ -2606,7 +2712,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(this->children_count == children_count_);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
 
-    const auto key_byte = static_cast<std::uint8_t>(child->get_key()[depth]);
+    const auto key_byte = static_cast<std::uint8_t>(child->get_key_view()[depth]);
     UNODB_DETAIL_ASSERT(children[key_byte] == nullptr);
     children[key_byte] = node_ptr{child.release(), node_type::LEAF};
     this->children_count = static_cast<std::uint8_t>(children_count_ + 1U);

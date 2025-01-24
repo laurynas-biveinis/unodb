@@ -116,7 +116,7 @@ class [[nodiscard]] basic_leaf final : public Header {
     UNODB_DETAIL_ASSERT(k.size() <= max_key_size);
     UNODB_DETAIL_ASSERT(v.size() <= max_value_size);
     key_view tmp{k.get_key_view()};
-    std::memcpy(data, tmp.data(), key_size);
+    std::memcpy(data, tmp.data(), key_size);  // store encoded key
     if (!v.empty()) std::memcpy(data+key_size, v.data(), value_size);
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -139,10 +139,14 @@ class [[nodiscard]] basic_leaf final : public Header {
     if constexpr( std::is_same_v<Key, key_view> ) {
       return art_key_type{key_view{ data, key_size }};
     } else {
-      // Use memcpy since alignment is not guaranteed.
+      // Use memcpy since alignment is not guaranteed because the
+      // [key] is not an explicit part of the leaf data structure.
       Key u{};
       std::memcpy(&u, data, sizeof(u));
-      return art_key_type{u};
+      // Note: The encoded key is stored in the leaf.  Since the
+      // art_key constructor encodes the key, we need to decode the
+      // key before calling the constructor.
+      return art_key_type{bswap64(u)};
     }
   }
 

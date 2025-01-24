@@ -67,7 +67,7 @@ Macros should not be a part of public API, and may be used internally only when
 unavoidable. If a macro has to be introduced, its name must be prefixed with
 `UNODB_DETAIL_`.
 
-## Style Guide
+## Code style guide
 
 * The code should follow existing conventions, formatted with
   [Google C++ style][gc++style]. This is enforced by GitHub Actions SuperLinter
@@ -94,16 +94,8 @@ unavoidable. If a macro has to be introduced, its name must be prefixed with
   of by-value function parameters and class fields that support moving from.
 * `constexpr` should be applied everywhere it is legal to do so. Perhaps one day
   we will have compile-time Adaptive Radix Tree.
-* The code should be commented, but without comments repeating already obvious
-  code.
-* `TODO` comments may be used for future tasks. `FIXME` comments should be used
-  for things that must be fixed before the code lands in the master branch,
-  however sometimes they land there. In both cases they should have an username
-  in parentheses, i.e. `TOOD(alice)`, `FIXME(bob)`. It indicates the comment
-  author, not necessarily who should address it.
 * All C++ standard library symbols must be namespace-qualified, and this
   includes symbols shared with C. For example `std::size_t`.
-* Doxygen is used to produce source code documentation.
 * Automatic code formatting can be configured through git clean/fuzz filters. To
   enable this feature, do `git config --local include.path ../.gitconfig`. If
   you need to temporarily disable it, run `git config --local --unset
@@ -113,6 +105,26 @@ unavoidable. If a macro has to be introduced, its name must be prefixed with
   conditions, should be excluded from coverage testing with `// LCOV_EXCL_LINE`
   comment for a single line or with `// LCOV_EXCL_START`, `// LCOV_EXCL_STOP`
   start and end markers for a block.
+
+## Documentation style guide
+
+* The code should be commented, but without comments repeating already obvious
+  code.
+* `TODO` comments may be used for future tasks. `FIXME` comments should be used
+  for things that must be fixed before the code lands in the master branch,
+  however sometimes they land there. In both cases they should have a username
+  in parentheses, i.e. `TODO(alice)`, `FIXME(bob)`. It indicates the comment
+  author, not necessarily who should address it.
+* Doxygen is used to produce source code documentation.
+* The preferred location of the comments is next to the declarations. An
+  exception is macros with multiple conditionally compiled declarations, in
+  which case a Doxygen comment with a `\def` for the macro should appear at the
+  top of its section or source file, and it should also have a
+  `\hideinitializer` tag.
+* Doxygen automatic brief description detection is enabled, thus explicit
+  `\brief` tags are not required, rather the first sentence in the Doxygen
+  comment block will be interpreted as the brief description.
+* Markdown markup is preferred, i.e. ```foo`` instead of `\c foo`.
 
 ## Linting and static analysis
 

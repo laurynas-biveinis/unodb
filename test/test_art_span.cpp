@@ -65,16 +65,49 @@ UNODB_TYPED_TEST_SUITE(ARTSpanCorrectnessTest, ARTTypes)
 
 UNODB_START_TYPED_TESTS()
 
-TYPED_TEST(ARTSpanCorrectnessTest, EmptyTree) {
+TYPED_TEST(ARTSpanCorrectnessTest, SingleKeyOperationsOnEmptyTree) {
   TypeParam db;
   EXPECT_FALSE( db.get(unodb::test::test_keys[1]));
+  {
+    uint64_t n = 0;
+    auto fn = [&n](const unodb::visitor<typename TypeParam::iterator>&) {
+      n++;           // LCOV_EXCL_LINE
+      return false;  // LCOV_EXCL_LINE
+    };
+    db.scan(fn);
+    UNODB_EXPECT_EQ(0, n);
+  }
   EXPECT_TRUE( db.insert(unodb::test::test_keys[1], unodb::test::test_keys[0]) );
   auto tmp = db.get(unodb::test::test_keys[1]);
   EXPECT_TRUE( tmp.has_value() );
   EXPECT_TRUE( std::ranges::equal( tmp.value(), unodb::test::test_keys[0] ) );
+  {
+    uint64_t n = 0;
+    std::vector<std::pair<unodb::key_view,unodb::value_view> > expected;
+    expected.emplace_back( unodb::test::test_keys[1], unodb::test::test_keys[0] );
+    auto fn = [&n,&expected](const unodb::visitor<typename TypeParam::iterator>& visitor) {
+      const auto& k = visitor.get_key();
+      const auto& v = visitor.get_value();
+      EXPECT_TRUE( std::ranges::equal( k, expected[n].first ) );
+      EXPECT_TRUE( std::ranges::equal( v, expected[n].second ) );
+      n++;           // LCOV_EXCL_LINE
+      return false;  // LCOV_EXCL_LINE
+    };
+    db.scan(fn);
+    UNODB_EXPECT_EQ(1, n);  // FIXME CHECK VISITED KEY/VAL
+  }
   EXPECT_TRUE( db.remove(unodb::test::test_keys[1]) );
   EXPECT_FALSE( db.get(unodb::test::test_keys[1]));
   EXPECT_FALSE( db.remove(unodb::test::test_keys[1]) );
+  {
+    uint64_t n = 0;
+    auto fn = [&n](const unodb::visitor<typename TypeParam::iterator>&) {
+      n++;           // LCOV_EXCL_LINE
+      return false;  // LCOV_EXCL_LINE
+    };
+    db.scan(fn);
+    UNODB_EXPECT_EQ(0, n);
+  }
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({1, 0, 0, 0, 0});

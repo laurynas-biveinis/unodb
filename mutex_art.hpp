@@ -15,8 +15,10 @@
 #include <mutex>
 #include <type_traits>
 #include <utility>
+#include <cassert>
 
 #include "art.hpp"
+#include "assert.hpp"
 #include "node_type.hpp"
 
 namespace unodb {

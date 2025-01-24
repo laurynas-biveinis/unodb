@@ -69,16 +69,17 @@ class [[nodiscard]] basic_db_leaf_deleter;
 // format.  For the latter, the application is responsible for
 // converting the data (e.g., certain columns in some ordering for a
 // row of some relation) into the internal binary comparable key
-// format.  A convenience class is offered to encode data.  The
-// encoding is always well defined and decoding exists for all simple
-// fixed width data types.  Unicode encoding is complex and out of
-// scope - use a quality library such as ICU to produce appropriate
-// Unicode sort keys for your application.  Unicode decoding is NOT
-// well defined.  Applications involving database records and Unicode
-// data will typically store the record identifier in a secondary
-// index (ART) as the value associated with the key.  Using the record
-// identifier, the original tuple can be discovered and the original
-// Unicode data recovered from that tuple.
+// format.  A convenience class (unodb::key_encoder) is offered to
+// encode data.  The encoding is always well defined and decoding
+// (unodb::key_decoder) exists for all simple fixed width data types.
+// Unicode encoding is complex and out of scope - use a quality
+// library such as ICU to produce appropriate Unicode sort keys for
+// your application.  Unicode decoding is NOT well defined.
+// Applications involving database records and Unicode data will
+// typically store the record identifier in a secondary index (ART) as
+// the value associated with the key.  Using the record identifier,
+// the original tuple can be discovered and the original Unicode data
+// recovered from that tuple.
 template <typename KeyType>
 struct [[nodiscard]] basic_art_key final {
  private:
@@ -225,6 +226,11 @@ struct [[nodiscard]] basic_art_key final {
     }
   }
 
+  // Helper for debugging, write on std::cerr.
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const {
+    dump(std::cerr);
+  }
+  
   friend std::ostream &operator<<(std ::ostream &os, const basic_art_key &k) {
     k.dump(os);
     return os;

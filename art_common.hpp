@@ -88,6 +88,10 @@ class visitor {
 
 namespace detail {
 
+// A type alias determining the maximum size of a value that may be
+// stored in the index.
+using value_size_type = std::uint32_t;
+
 // A constant determining the initial capacity for the key_encoder and
 // other similar internal buffers.  This should be set high enough
 // that such objects DO NOT allocate for commonly used key lengths.

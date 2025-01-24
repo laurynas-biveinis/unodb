@@ -77,15 +77,26 @@ namespace unodb::detail {
 
 #endif  // #ifdef UNODB_DETAIL_X86_64
 
+/// The basic_leaf handles most of the behavior of a leaf in the
+/// index.  It is specialized for OLC which includes additional
+/// information in the header.  The leaf contains a copy of the key
+/// and a copy of the value.
+///
+/// TODO(thompsonbry) variable length keys - update documentation
+/// about what is stored in the leaf once we have a clear decision.
 template <class Key, class Header>
 class [[nodiscard]] basic_leaf final : public Header {
  public:
-  using value_size_type = std::uint32_t;
+  using value_size_type = unodb::detail::value_size_type;
   using art_key_type = basic_art_key<Key>;
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
   constexpr basic_leaf(art_key_type k, value_view v) noexcept
       : key{k}, value_size{static_cast<value_size_type>(v.size())} {
+
+    // Note: This is just a debug assert.  There is no runtime-check
+    // on the size of the value.  Bad Things can happen if the value
+    // is larger than the value_size_type can express.
     UNODB_DETAIL_ASSERT(v.size() <= max_value_size);
 
     if (!v.empty()) std::memcpy(&value_start[0], v.data(), value_size);
@@ -167,11 +178,23 @@ class [[nodiscard]] basic_leaf final : public Header {
       std::numeric_limits<value_size_type>::max();
 
  private:
-  const art_key_type key;  // TODO(thompsonbry) : variable length keys.  The key
-  // should be optional on the leaf.
+  // TODO(thompsonbry) : variable length keys.  We need to store the
+  // byte length of the key. This would be a good opportunity for
+  // packing a long integer in a variable number of bytes to make it
+  // more space efficient to store shorter keys and values (which is
+  // presumably the expected case).  Change both when adding the key
+  // length.  The exception would be if we make the key on the leaf
+  // just an 8-byte key_prefix field, in which case the tree to the
+  // leaf needs to hold the full key except for that trailing 0-7
+  // bytes which is stored on the leaf.
+  //
+  // TODO(thompsonbry) : variable length keys.  The key should be
+  // optional on the leaf, except for perhaps a key_prefix.
+  const art_key_type key;
+  // The byte length of the value.
   const value_size_type value_size;
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  std::byte value_start[1];
+  std::byte value_start[1];  // The value starts at value_start[0].
 };  // class basic_leaf
 
 template <class Key, class Header, template <class> class Db>

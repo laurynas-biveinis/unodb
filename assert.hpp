@@ -3,10 +3,10 @@
 #define UNODB_DETAIL_ASSERT_HPP
 
 /// \file assert.hpp
-/// \brief Internal macros for assertions, assumptions & intentional crashing
+/// Internal macros for assertions, assumptions & intentional crashing.
 ///
 /// If compiling as a part of another project, they will expand to C++ standard
-/// symbols (assert & std::abort). Otherwise, custom implementations are
+/// symbols (`assert` & `std::abort`). Otherwise, custom implementations are
 /// used that will show stacktraces if Boost.Stacktrace is available.
 
 //

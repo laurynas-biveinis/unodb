@@ -3,20 +3,170 @@
 #define UNODB_DETAIL_GLOBAL_HPP
 
 /// \file global.hpp
-/// \brief Global defines
-///
-/// Defines that must precede every other include directive in all the source
-/// files.
+/// Global defines that must precede every other include directive in all the
+/// source files.
+
+// Macros that have multiple definitions are documented once.
+
+/// \def UNODB_DETAIL_BUILTIN_ASSUME(condition)
+/// \hideinitializer
+/// Low-level macro to hint the compiler that the \a condition is true.
+/// Should not be used directly: use UNODB_DETAIL_ASSUME() in assert.hpp
+/// instead.
+
+/// \def UNODB_DETAIL_LIFETIMEBOUND
+/// Indicate that a reference parameter lifetime is bound to that of the return
+/// value.
+
+/// \def UNODB_DETAIL_C_STRING_ARG(x)
+/// Mark a parameter as a null-terminated C string.
+/// \param x The 1-based parameter index to be marked
+
+/// \def UNODB_DETAIL_LIKELY(condition)
+/// \hideinitializer
+/// Hint the compiler that the \a condition is likely true.
+/// \note Once clang 12 is the minimum supported version, most uses should be
+/// migrated to C++20 `[[likely]]`.
+
+/// \def UNODB_DETAIL_UNLIKELY(condition)
+/// \hideinitializer
+/// Hint the compiler that the \a condition is likely false.
+/// \note Once clang 12 is the minimum supported version, most uses should be
+/// migrated to C++20 `[[unlikely]]`.
+
+/// \def UNODB_DETAIL_UNUSED
+/// \hideinitializer
+/// Mark a declaration as intentionally unused to suppress compiler warnings
+
+/// \def UNODB_DETAIL_FORCE_INLINE
+/// \hideinitializer
+/// Provide the strongest available hint to the compiler to inline the function
+
+/// \def UNODB_DETAIL_NOINLINE
+/// \hideinitializer
+/// Ask the compiler to not inline the function
+
+/// \def UNODB_DETAIL_UNREACHABLE
+/// \hideinitializer
+/// Low-level macro to indicate an unreachable code.
+/// Should not be used directly: use #UNODB_DETAIL_CANNOT_HAPPEN in
+/// assert.hpp instead.
+
+/// \def UNODB_DETAIL_CONSTEXPR_NOT_MSVC
+/// \hideinitializer
+/// Expand to `constexpr` with all compilers except for MSVC.
+/// Use to mark `constexpr` declarations that are not supported by MSVC.
+
+/// \def UNODB_DETAIL_ADDRESS_SANITIZER
+/// Defined when compiling with AddressSanitizer
+
+/// \def UNODB_DETAIL_THREAD_SANITIZER
+/// Defined when compiling with ThreadSanitizer
+
+/// \def UNODB_DETAIL_DO_PRAGMA(x)
+/// Helper macro for creating pragma directives
+
+/// \def UNODB_DETAIL_DISABLE_WARNING(x)
+/// Disable a GCC or clang compiler warning \a x until
+/// UNODB_DETAIL_RESTORE_WARNINGS().
+
+/// \def UNODB_DETAIL_RESTORE_WARNINGS()
+/// Re-enable the warning that was previously disabled with
+/// UNODB_DETAIL_DISABLE_WARNING().
+
+/// \def UNODB_DETAIL_DISABLE_MSVC_WARNING(x)
+/// Disable an MSVC warning \a x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+/// \def UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+/// Re-enable the warning that was previously disabled with
+/// UNODB_DETAIL_DISABLE_MSVC_WARNING().
+
+/// \def UNODB_DETAIL_DISABLE_CLANG_WARNING(x)
+/// Disable a clang warning \a x until UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
+
+/// \def UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
+/// Re-enable the warning that was previously disabled with
+/// UNODB_DETAIL_DISABLE_CLANG_WARNING().
+
+/// \def UNODB_DETAIL_DISABLE_GCC_WARNING(x)
+/// Disable a GCC warning \a x until UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+
+/// \def UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+/// Re-enable the warning that was previously disabled with
+/// UNODB_DETAIL_DISABLE_GCC_WARNING().
+
+/// \def UNODB_DETAIL_DISABLE_GCC_10_WARNING(x)
+/// Disable a GCC version 10 warning \a x until
+/// UNODB_DETAIL_RESTORE_GCC_WARNINGS().
+
+/// \def UNODB_DETAIL_RESTORE_GCC_10_WARNINGS()
+/// Re-enable the warning that was previously disabled with
+/// UNODB_DETAIL_DISABLE_GCC_10_WARNING().
+
+/// \def UNODB_DETAIL_DISABLE_GCC_11_WARNING(x)
+/// Disable a GCC version 11 or later warning \a x until
+/// UNODB_DETAIL_RESTORE_GCC_WARNINGS().
+
+/// \def UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
+/// Re-enable the warning that was previously disabled with
+/// UNODB_DETAIL_DISABLE_GCC_11_WARNING().
+
+/// \def UNODB_DETAIL_RELEASE_CONSTEXPR
+/// Expands to `constexpr` in release builds, empty in debug builds
+
+/// \def UNODB_DETAIL_RELEASE_CONST
+/// Expands to `const` in release builds, empty in debug builds
+
+/// \def UNODB_DETAIL_RELEASE_EXPLICIT
+/// Expands to `explicit` in release builds, empty in debug builds
+
+/// \def UNODB_DETAIL_USED_IN_DEBUG
+/// Marks a declaration as intentionally unused in release builds, but used in
+/// debug ones. Suppresses a compiler warning.
+
+/// \name CMake macros
+/// Macros set by CMake.
+///@{
+// This section is never compiled in, only processed by Doxygen
+#ifdef UNODB_DETAIL_DOXYGEN
+
+/// Defined when UnoDB is built as a standalone project rather than as a part of
+/// another project.
+#define UNODB_DETAIL_STANDALONE
+
+/// \def UNODB_DETAIL_WITH_STATS
+/// Defined when UnoDB is compiled with the statistics counters.
+#define UNODB_DETAIL_WITH_STATS
+
+/// \def UNODB_DETAIL_BOOST_STACKTRACE
+/// Defined when UnoDB is compiled with Boost.Stacktrace.
+#define UNODB_DETAIL_BOOST_STACKTRACE
+
+/// Defined to the selected value of the optimistic spin lock wait algorithm
+/// implementation. It is also used by the OLC ART algorithms restarting close
+/// to the start of their execution. The possible values are
+/// #UNODB_DETAIL_SPINLOCK_LOOP_PAUSE and #UNODB_DETAIL_SPINLOCK_LOOP_EMPTY.
+#define UNODB_DETAIL_SPINLOCK_LOOP_VALUE
+
+#endif  // UNODB_DETAIL_DOXYGEN
+
+///@}
 
 #ifdef UNODB_DETAIL_STANDALONE
 
+/// \name libstdc++ debug mode
+/// Defines to enable libstdc++ debug mode.
+/// Only defined in the standalone debug configuration with GCC.
+///@{
 #if !defined(NDEBUG) && !defined(__clang__)
 
 #ifndef _GLIBCXX_DEBUG
+/// Enables the libstdc++ debug mode.
 #define _GLIBCXX_DEBUG
 #endif
 
 #ifndef _GLIBCXX_DEBUG_PEDANTIC
+/// Enables erroring on the use of libstdc++-specific behaviors and extensions.
 #define _GLIBCXX_DEBUG_PEDANTIC
 #endif
 
@@ -24,6 +174,8 @@
 
 #if defined(__has_feature) && !defined(__clang__)
 #if __has_feature(address_sanitizer)
+/// Annotate `std::vector` for AddressSanitizer.
+/// Only defined if building with AddressSanitizer.
 #define _GLIBCXX_SANITIZE_VECTOR 1
 #endif
 #elif defined(__SANITIZE_ADDRESS__)
@@ -32,7 +184,11 @@
 
 #endif  // UNODB_DETAIL_STANDALONE
 
+///@}
+
 #ifdef _MSC_VER
+/// Defined under MSVC to stop redefining `min` and `max` if windows.h is
+/// included later.
 #define NOMINMAX
 #if !defined(NDEBUG) && defined(__SANITIZE_ADDRESS__)
 // Workaround bug of _aligned_free not being hooked for ASan under MSVC debug
@@ -42,36 +198,48 @@
 #endif
 #endif
 
-// Architecture
+/// \name Architecture
+/// Macros for the CPU architecture, instruction set level, endianness.
+///@{
 
 #if defined(_MSC_VER) && defined(_M_X64)
+/// Defined when compiling with MSVC on x86-64
 #define UNODB_DETAIL_MSVC_X86_64
 #endif
 
 #if defined(__x86_64) || defined(UNODB_DETAIL_MSVC_X86_64)
+/// Defined when compiling on x86_64
 #define UNODB_DETAIL_X86_64
 #endif
 
 #ifdef UNODB_DETAIL_X86_64
 #ifdef __AVX2__
+/// Defined when compiling with AVX2 instructions on x86-64
 #define UNODB_DETAIL_AVX2
 #else
+/// Defined when compiling with SSE4.2 and not AVX2 instructions on x86-64
 #define UNODB_DETAIL_SSE4_2
 #endif
 #endif
 
 #if defined(UNODB_DETAIL_X86_64) || \
     defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+/// Defined on little-endian architectures
 #define UNODB_DETAIL_LITTLE_ENDIAN
 #endif
 
-// Compiler
+///@}
+
+/// \name Compiler
+/// Macros to hide compiler specifics
+///@{
 
 #if defined(_MSC_VER)
 #if !defined(__clang__)
-// MSVC with the MSVC frontend, not the LLVM one
+/// Defined on MSVC with the MSVC frontend, not the LLVM one
 #define UNODB_DETAIL_MSVC
 #else  // #if !defined(__clang__)
+/// Defined on MSVC with the LLVM frontend, not the MSVC one
 #define UNODB_DETAIL_MSVC_CLANG
 #endif  // #if !defined(__clang__)
 #endif  // #if defined(_MSC_VER)
@@ -80,15 +248,15 @@
 
 #ifdef __clang__
 
-#define UNODB_DETAIL_BUILTIN_ASSUME(x) __builtin_assume(x)
+#define UNODB_DETAIL_BUILTIN_ASSUME(condition) __builtin_assume(condition)
 #define UNODB_DETAIL_LIFETIMEBOUND [[clang::lifetimebound]]
 #define UNODB_DETAIL_C_STRING_ARG(x)
 
 #else
 
-#define UNODB_DETAIL_BUILTIN_ASSUME(x) \
-  do {                                 \
-    if (!(x)) __builtin_unreachable(); \
+#define UNODB_DETAIL_BUILTIN_ASSUME(condition) \
+  do {                                         \
+    if (!(condition)) __builtin_unreachable(); \
   } while (0)
 
 #define UNODB_DETAIL_LIFETIMEBOUND
@@ -106,10 +274,8 @@
 
 #endif
 
-// Migrate most uses to C++20 [[likely]] and [[unlikely]] once clang 12 is the
-// oldest supported clang version
-#define UNODB_DETAIL_LIKELY(x) __builtin_expect(x, 1)
-#define UNODB_DETAIL_UNLIKELY(x) __builtin_expect(x, 0)
+#define UNODB_DETAIL_LIKELY(condition) __builtin_expect(condition, 1)
+#define UNODB_DETAIL_UNLIKELY(condition) __builtin_expect(condition, 0)
 
 #define UNODB_DETAIL_UNUSED [[gnu::unused]]
 #define UNODB_DETAIL_FORCE_INLINE __attribute__((always_inline))
@@ -119,12 +285,10 @@
 
 #else  // #ifndef UNODB_DETAIL_MSVC
 
-#define UNODB_DETAIL_BUILTIN_ASSUME(x) __assume(x)
+#define UNODB_DETAIL_BUILTIN_ASSUME(condition) __assume(condition)
 
-// Migrate most uses to C++20 [[likely]] and [[unlikely]] once clang 12 is the
-// oldest supported clang version
-#define UNODB_DETAIL_LIKELY(x) (!!(x))
-#define UNODB_DETAIL_UNLIKELY(x) (!!(x))
+#define UNODB_DETAIL_LIKELY(condition) (!!(condition))
+#define UNODB_DETAIL_UNLIKELY(condition) (!!(condition))
 
 #define UNODB_DETAIL_UNUSED [[maybe_unused]]
 #define UNODB_DETAIL_FORCE_INLINE __forceinline
@@ -136,35 +300,42 @@
 
 #endif  // #ifndef UNODB_DETAIL_MSVC
 
-/// Define in a header a function that should not be inlined.
-///
+///@}
+
+/// A declaration specifier for a function in a header file that should not be
+/// inlined.
+/// \hideinitializer
 /// This is a pair of two seemingly conflicting intentions: "noinline" and
 /// "inline". However, only the "noinline" has anything to do with inlining. The
 /// "inline" has nothing to do with inlining and is required for functions
 /// declared in headers.
 #define UNODB_DETAIL_HEADER_NOINLINE UNODB_DETAIL_NOINLINE inline
 
-// Sanitizers
+/// \name Sanitizers
+///@{
 
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
-#define UNODB_DETAIL_ADDRESS_SANITIZER 1
+#define UNODB_DETAIL_ADDRESS_SANITIZER
 #endif
 #if __has_feature(thread_sanitizer)
-#define UNODB_DETAIL_THREAD_SANITIZER 1
+#define UNODB_DETAIL_THREAD_SANITIZER
 #endif
 #else
 #ifdef __SANITIZE_ADDRESS__
-#define UNODB_DETAIL_ADDRESS_SANITIZER 1
+#define UNODB_DETAIL_ADDRESS_SANITIZER
 #endif
 #ifdef __SANITIZE_THREAD__
-#define UNODB_DETAIL_THREAD_SANITIZER 1
+#define UNODB_DETAIL_THREAD_SANITIZER
 #endif
 #endif
 
-// Warnings
+///@}
 
 #define UNODB_DETAIL_DO_PRAGMA(x) _Pragma(#x)
+
+/// \name Warnings
+///@{
 
 #ifndef UNODB_DETAIL_MSVC
 
@@ -220,7 +391,11 @@
 #define UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
 #endif  // defined(__GNUG__) && !defined(__clang__)
 
-// Debug or release build
+///@}
+
+/// \name Debug or release build
+/// Definitions conditional on the build type
+///@{
 
 #ifdef NDEBUG
 #define UNODB_DETAIL_RELEASE_CONSTEXPR constexpr
@@ -234,9 +409,19 @@
 #define UNODB_DETAIL_USED_IN_DEBUG
 #endif
 
-// Features
+///@}
 
+/// \name Features
+/// Compile-time feature selection macros
+///@{
+
+/// Spin lock wait loops use x86_64 PAUSE instruction or its closest equivalent
+/// on other architectures.
 #define UNODB_DETAIL_SPINLOCK_LOOP_PAUSE 1
+
+/// Spin lock loop wait loops are empty, causing aggressive spinning.
 #define UNODB_DETAIL_SPINLOCK_LOOP_EMPTY 2
+
+///@}
 
 #endif  // UNODB_DETAIL_GLOBAL_HPP

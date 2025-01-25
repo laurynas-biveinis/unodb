@@ -217,8 +217,16 @@ struct [[nodiscard]] basic_art_key final {
   }
 
   union {
-    KeyType key;  // Note: When KeyType == key_view, this is all you need.
-    std::array<std::byte,sizeof(KeyType)> key_bytes;  // ignored if KeyType==key_view
+    /// The lexicographic byte-wise comparable binary key.
+    ///
+    /// Note: When KeyType == key_view, this is all you need.
+    KeyType key;
+
+    /// Used iff the key is not a key_view.  This provides a mechanism
+    /// to index into the bytes in the key for operator[].  This is
+    /// ignored if KeyType==key_view as the key_view provides a
+    /// byte-wise index operator already.
+    std::array<std::byte,sizeof(KeyType)> key_bytes;
   };
 
   static void static_asserts() {
@@ -226,6 +234,7 @@ struct [[nodiscard]] basic_art_key final {
     static_assert(sizeof(basic_art_key<KeyType>) == sizeof(KeyType));
   }
 
+  /// dump the key in lexicographic byte-wise order.
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     if constexpr (std::is_same_v<KeyType, key_view>) {
       os << "key: 0x";
@@ -259,28 +268,20 @@ class [[nodiscard]] tree_depth final {
 
   explicit constexpr tree_depth(value_type value_ = 0) noexcept
       : value{value_} {
-    // Note: removed these asserts in this class since tree depth is a
-    // function of the key length so the assert does not make sense
-    // for variable length keys.
-    //
-    //UNODB_DETAIL_ASSERT(value <= ArtKey::size);
   }
 
   // NOLINTNEXTLINE(google-explicit-constructor)
   [[nodiscard, gnu::pure]] constexpr operator value_type() const noexcept {
-    //UNODB_DETAIL_ASSERT(value <= ArtKey::size);
     return value;
   }
 
   constexpr tree_depth &operator++() noexcept {
     ++value;
-    //UNODB_DETAIL_ASSERT(value <= ArtKey::size);
     return *this;
   }
 
   constexpr void operator+=(value_type delta) noexcept {
     value += delta;
-    //UNODB_DETAIL_ASSERT(value <= ArtKey::size);
   }
 
  private:
@@ -332,9 +333,9 @@ class basic_db_inode_deleter {
   db_type &db;
 };
 
-// basic_node_ptr is a tagged pointer (the tag is the node type).  You
-// have to know statically the target type, then call
-// node_ptr_var.ptr<target_type *>.ptr() to get target_type.
+/// basic_node_ptr is a tagged pointer (the tag is the node type).
+/// You have to know statically the target type, then call
+/// node_ptr_var.ptr<target_type *>.ptr() to get target_type.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 template <class Header>
 class [[nodiscard]] basic_node_ptr {

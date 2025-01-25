@@ -66,8 +66,10 @@ UNODB_TYPED_TEST_SUITE(ARTSpanCorrectnessTest, ARTTypes)
 UNODB_START_TYPED_TESTS()
 
 TYPED_TEST(ARTSpanCorrectnessTest, SingleKeyOperationsOnEmptyTree) {
+  const auto key = unodb::test::test_keys[1];  // 0x 00 02
+  const auto val = unodb::test::test_keys[2];  // 0x 03 00 01
   TypeParam db;
-  EXPECT_FALSE( db.get(unodb::test::test_keys[1]));
+  EXPECT_FALSE( db.get(key));
   {
     uint64_t n = 0;
     auto fn = [&n](const unodb::visitor<typename TypeParam::iterator>&) {
@@ -77,14 +79,14 @@ TYPED_TEST(ARTSpanCorrectnessTest, SingleKeyOperationsOnEmptyTree) {
     db.scan(fn);
     UNODB_EXPECT_EQ(0, n);
   }
-  EXPECT_TRUE( db.insert(unodb::test::test_keys[1], unodb::test::test_keys[0]) );
-  auto tmp = db.get(unodb::test::test_keys[1]);
+  EXPECT_TRUE( db.insert(key, val) );
+  auto tmp = db.get(key);
   EXPECT_TRUE( tmp.has_value() );
-  EXPECT_TRUE( std::ranges::equal( tmp.value(), unodb::test::test_keys[0] ) );
+  EXPECT_TRUE( std::ranges::equal( tmp.value(), val ) );
   {
     uint64_t n = 0;
     std::vector<std::pair<unodb::key_view,unodb::value_view> > expected;
-    expected.emplace_back( unodb::test::test_keys[1], unodb::test::test_keys[0] );
+    expected.emplace_back( key, val );  // key is already encoded.
     auto fn = [&n,&expected](const unodb::visitor<typename TypeParam::iterator>& visitor) {
       const auto& k = visitor.get_key();
       const auto& v = visitor.get_value();
@@ -96,9 +98,9 @@ TYPED_TEST(ARTSpanCorrectnessTest, SingleKeyOperationsOnEmptyTree) {
     db.scan(fn);
     UNODB_EXPECT_EQ(1, n);  // FIXME CHECK VISITED KEY/VAL
   }
-  EXPECT_TRUE( db.remove(unodb::test::test_keys[1]) );
-  EXPECT_FALSE( db.get(unodb::test::test_keys[1]));
-  EXPECT_FALSE( db.remove(unodb::test::test_keys[1]) );
+  EXPECT_TRUE( db.remove(key) );
+  EXPECT_FALSE( db.get(key));
+  EXPECT_FALSE( db.remove(key) );
   {
     uint64_t n = 0;
     auto fn = [&n](const unodb::visitor<typename TypeParam::iterator>&) {

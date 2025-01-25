@@ -42,9 +42,9 @@ class [[nodiscard]] basic_db_leaf_deleter;
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
                                                    std::byte byte);
 
-// Lexicographic comparison of bytes.
-//
-// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+/// Lexicographic comparison of bytes.
+///
+/// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
 [[nodiscard, gnu::pure]] constexpr int compare(const void *a, const size_t alen,
                                                const void *b,
                                                const size_t blen) {
@@ -54,49 +54,51 @@ class [[nodiscard]] basic_db_leaf_deleter;
   return ret;
 }
 
-// Lexicographic comparison of key_views.
-//
-// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+/// Lexicographic comparison of key_views.
+///
+/// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
 [[nodiscard, gnu::pure]] constexpr int compare(const unodb::key_view a,
                                                const unodb::key_view b) {
   return compare(a.data(), a.size_bytes(), b.data(), b.size_bytes());
 }
 
-// Return the first 64-bits of the encoded key.  This is used by the
-// prefix compression logic to identify some number of bytes that are
-// in common between the art_key and an inode having some key_prefix.
+/// Return the first 64-bits of the encoded key.  This is used by the
+/// prefix compression logic to identify some number of bytes that are
+/// in common between the art_key and an inode having some key_prefix.
 [[nodiscard, gnu::pure]] constexpr std::uint64_t get_u64(key_view key) noexcept {
   std::uint64_t u{};  // will hold the first 64-bits.
   std::memcpy(&u, key.data(), std::min(key.size_bytes(), sizeof(u)));
   return u;
 }
 
-// Internal ART key in binary-comparable format.  Application keys may
-// be simple fixed width types (such as std::uint64_t) or variable
-// length keys.  For the former, there are convenience methods on db,
-// olc_db, etc. to convert external keys into the binary compariable
-// format.  For the latter, the application is responsible for
-// converting the data (e.g., certain columns in some ordering for a
-// row of some relation) into the internal binary comparable key
-// format.  A convenience class (unodb::key_encoder) is offered to
-// encode data.  The encoding is always well defined and decoding
-// (unodb::key_decoder) exists for all simple fixed width data types.
-// Unicode encoding is complex and out of scope - use a quality
-// library such as ICU to produce appropriate Unicode sort keys for
-// your application.  Unicode decoding is NOT well defined.
-// Applications involving database records and Unicode data will
-// typically store the record identifier in a secondary index (ART) as
-// the value associated with the key.  Using the record identifier,
-// the original tuple can be discovered and the original Unicode data
-// recovered from that tuple.
+/// Internal ART key in binary-comparable format.  Application keys may
+/// be simple fixed width types (such as std::uint64_t) or variable
+/// length keys.  For the former, there are convenience methods on db,
+/// olc_db, etc. to convert external keys into the binary compariable
+/// format.  For the latter, the application is responsible for
+/// converting the data (e.g., certain columns in some ordering for a
+/// row of some relation) into the internal binary comparable key
+/// format.  A convenience class (unodb::key_encoder) is offered to
+/// encode data.  The encoding is always well defined and decoding
+/// (unodb::key_decoder) exists for all simple fixed width data types.
+/// Unicode encoding is complex and out of scope - use a quality
+/// library such as ICU to produce appropriate Unicode sort keys for
+/// your application.  Unicode decoding is NOT well defined.
+/// Applications involving database records and Unicode data will
+/// typically store the record identifier in a secondary index (ART) as
+/// the value associated with the key.  Using the record identifier,
+/// the original tuple can be discovered and the original Unicode data
+/// recovered from that tuple.
+//
+/// TODO(thompsonbry) key templating - This never supported anything
+/// except u64 keys due to bswap() being u64 specific.  Explicit tests
+/// need to be developed for other templated integeral key types.
 template <typename KeyType>
 struct [[nodiscard]] basic_art_key final {
  private:
-  // ctor helper converts a simple external key into an internal key
-  // supporting lexicographic comparison.
-  //
-  // TODO(thompsonbry) key templating - This never supported anything
-  // except u64 keys due to bswap() being u64 specific.
+  
+  /// ctor helper converts a simple external key into an internal key
+  /// supporting lexicographic comparison.
   [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
   make_binary_comparable(KeyType k) noexcept {
 #ifdef UNODB_DETAIL_LITTLE_ENDIAN
@@ -106,56 +108,34 @@ struct [[nodiscard]] basic_art_key final {
 #endif
   }
 
-  // ctor helper stuffs a key_view into a KeyType.
-  [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
-  view2key(key_view key) noexcept {
-    if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
-      // Convert a key_view into a uint64_t.  The key_view must be
-      // small enough to fit.
-      UNODB_DETAIL_ASSERT(key.size_bytes() <= sizeof(std::uint64_t));
-      // first 64-bits.
-      std::uint64_t u{};
-      std::memcpy(&u, key.data(), std::min(key.size_bytes(), sizeof(u)));
-      return u;
-    } else {
-      // fast path
-      return key;
-    }
-  }
-
  public:
-  // constexpr basic_art_key() noexcept = default;
-
-  // Construct converts a fixed width primitive type into a
-  // lexicographically ordered key.
-  //
-  // Note: Use a key_encoder for complex keys, including multiple key
-  // components or Unicode data.
+  /// Construct converts a fixed width primitive type into a
+  /// lexicographically ordered key.
+  ///
+  /// Note: Use a key_encoder for complex keys, including multiple key
+  /// components or Unicode data.
   template <typename U = KeyType,
             typename std::enable_if<std::is_integral<U>::value, int>::type = 0>
   UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(KeyType key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
-  // Construct converts a key_view which must already be
-  // lexicographically ordered.
-  // template <typename U = KeyType,
-  //           typename std::enable_if<std::is_integral<U>::value, int>::type =
-  //           1>
+  /// Construct converts a key_view which must already be
+  /// lexicographically ordered.
   UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(key_view key_) noexcept
-      : key{view2key(key_)} {}
+      : key{key_} {}
 
-  // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+  /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
   [[nodiscard, gnu::pure]] constexpr int cmp(
       basic_art_key<KeyType> key2) const noexcept {
-    if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
+    if constexpr (std::is_same_v<KeyType, key_view>) {
+      return compare(&key, sizeof(KeyType), &key2.key, sizeof(KeyType));
+    } else {
       // fast path
       return std::memcmp(&key, &key2.key, sizeof(KeyType));
-    } else {
-      return compare(&key, sizeof(KeyType), &key2.key, sizeof(KeyType));
     }
   }
 
-  // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+  /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
   [[nodiscard, gnu::pure]] constexpr int cmp(key_view key2) const noexcept {
     if constexpr (std::is_same_v<KeyType, unodb::key_view>) {
       // variable length keys
@@ -166,35 +146,41 @@ struct [[nodiscard]] basic_art_key final {
     }
   }
 
-  // Return the byte at the specified index position in the binary
-  // comparable key.
+  /// Return the byte at the specified index position in the binary
+  /// comparable key.
   [[nodiscard, gnu::pure]] constexpr auto operator[](
       std::size_t index) const noexcept {
     if constexpr (std::is_same_v<KeyType, key_view>) {
-      // use the key_view.
       return key[index];
     } else {
-      // u64 fast path
+      // The key_bytes[] provides access the different byte positions
+      // in the primitive type [Key key].
       UNODB_DETAIL_ASSERT(index < sizeof(KeyType));
       return key_bytes[index];
     }
   }
 
-  // Return the backing key_view.
-  //
-  // TODO(thompsonbry) variable length keys.  For uint64_t
-  // specialization, we keep this code and the caller needs to know
-  // that it is non-owned and will be invalid if this art_key goes out
-  // of scope.  For key_view keys, it would just return the key_view
-  // backing this art_key.
+  /// Return the backing key_view.
+  ///
+  /// Note: For integral keys, this is a non-owned view of the data in
+  /// the basic_art_key and will be invalid if that object goes out of
+  /// scope.
+  ///
+  /// Note: For key_view keys, this is the key_view backing this
+  /// art_key and its validity depends on the scope of the backing
+  /// byte array.
   [[nodiscard, gnu::pure]] constexpr key_view get_key_view() const noexcept {
-    return key_view(reinterpret_cast<const std::byte *>(&key), sizeof(key));
+    if constexpr (std::is_same_v<KeyType, key_view>) {
+      return key;
+    } else {
+      return key_view(reinterpret_cast<const std::byte *>(&key), sizeof(key));
+    }
   }
 
-  // Return the first 64-bits (max) of the encoded key.  This is used
-  // by the prefix compression logic to identify some number of bytes
-  // that are in common between the art_key and an inode having some
-  // key_prefix.
+  /// Return the first 64-bits (max) of the encoded key.  This is used
+  /// by the prefix compression logic to identify some number of bytes
+  /// that are in common between the art_key and an inode having some
+  /// key_prefix.
   [[nodiscard, gnu::pure]] constexpr std::uint64_t get_u64() const noexcept {
     if constexpr (std::is_same_v<KeyType, key_view>) {
       return unodb::detail::get_u64( key );
@@ -204,13 +190,13 @@ struct [[nodiscard]] basic_art_key final {
     }      
   }
 
-  // Shift the internal key some number of bytes to the right, causing
-  // the key to be shorter by that may bytes.
+  /// Shift the internal key some number of bytes to the right,
+  /// causing the key to be shorter by that may bytes.
   //
-  // Note: For a fixed width type, this causes the key to be logically
-  // zero filled as it becomes shorter.  E.g.
+  /// Note: For a fixed width type, this causes the key to be
+  /// logically zero filled as it becomes shorter.  E.g.
   //
-  // 0x0011223344556677 shift_right(2) => 0x2233445566770000
+  /// ```0x0011223344556677 shift_right(2) => 0x2233445566770000```
   constexpr void shift_right(const std::size_t num_bytes) noexcept {
     if constexpr (std::is_same_v<KeyType, key_view>) {
       UNODB_DETAIL_ASSERT(num_bytes <= key.size_bytes());
@@ -222,7 +208,7 @@ struct [[nodiscard]] basic_art_key final {
   }
 
   /// Return the number of bytes required to represent the key.
-  constexpr size_t size() {
+  constexpr size_t size() const noexcept {
     if constexpr (std::is_same_v<KeyType, unodb::key_view>) {
       return key.size_bytes();
     } else {
@@ -241,19 +227,19 @@ struct [[nodiscard]] basic_art_key final {
   }
 
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
-    if constexpr (std::is_same_v<KeyType, std::uint64_t>) {
+    if constexpr (std::is_same_v<KeyType, key_view>) {
+      os << "key: 0x";
+      const auto sz = size();
+      for (std::size_t i = 0; i < sz; ++i) dump_byte(os, key[i]);
+    } else {
       os << "key: 0x" << std::hex << std::setfill('0') << std::setw(sizeof(key))
          << key << std::dec;
-    } else {
-      os << "key: 0x";
-      for (std::size_t i = 0; i < size; ++i) dump_byte(os, key_bytes[i]);
     }
   }
 
-  // Helper for debugging, write on std::cerr.
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const {
-    dump(std::cerr);
-  }
+  /// Helper for debugging, writes on std::cerr.  Unrolled in
+  /// art_internal.cpp.
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const;
   
   friend std::ostream &operator<<(std ::ostream &os, const basic_art_key &k) {
     k.dump(os);

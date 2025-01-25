@@ -40,6 +40,16 @@ template <typename T>
 template void dump_key<std::uint64_t>(std::ostream &os, std::uint64_t k);
 template void dump_key<key_view>(std::ostream &os, key_view k);
 
+// Ensure unrolled in .cpp and therefore available to debugger.
+template<> [[gnu::cold]] UNODB_DETAIL_NOINLINE
+void basic_art_key<std::uint64_t>::dump() const {
+    dump(std::cerr);
+}
+template<> [[gnu::cold]] UNODB_DETAIL_NOINLINE
+void basic_art_key<unodb::key_view>::dump() const {
+    dump(std::cerr);
+}
+
 void ensure_capacity(std::byte *&buf, size_t &cap, size_t off,
                      size_t min_capacity) {
   // Find the allocation size in bytes which satisfies that minimum

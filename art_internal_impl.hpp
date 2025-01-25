@@ -137,10 +137,13 @@ class [[nodiscard]] basic_leaf final : public Header {
   // optimization)
   [[nodiscard, gnu::pure]] constexpr auto get_key() const noexcept {
     if constexpr( std::is_same_v<Key, key_view> ) {
-      return art_key_type{key_view{ data, key_size }};
+      return art_key_type{ get_key_view() };
     } else {
       // Use memcpy since alignment is not guaranteed because the
       // [key] is not an explicit part of the leaf data structure.
+      //
+      // TODO(thompsonbry) varkey - memory align leaf::data[0] to 8
+      // bytes?
       Key u{};
       std::memcpy(&u, data, sizeof(u));
       // Note: The encoded key is stored in the leaf.  Since the

@@ -29,7 +29,8 @@
 #include <thread>
 #include <tuple>
 #include <type_traits>
-#include <unordered_map>
+//#include <unordered_map>
+#include <map>
 
 #include <gmock/gmock.h>  // IWYU pragma: keep
 #include <gtest/gtest.h>
@@ -404,7 +405,7 @@ class [[nodiscard]] tree_verifier final {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   void check_absent_keys(std::initializer_list<key_type> absent_keys) const
-      noexcept(noexcept(this->try_get(0))) {
+      noexcept(noexcept(this->try_get(unused_key))) {
     for (const auto absent_key : absent_keys) {
       UNODB_ASSERT_EQ(values.find(absent_key), values.cend());
       try_get(absent_key);
@@ -475,10 +476,29 @@ class [[nodiscard]] tree_verifier final {
   [[nodiscard, gnu::pure]] constexpr Db &get_db() noexcept { return test_db; }
 
  private:
+
+  // Custom comparator is required for key_view.
+  struct comparator {
+    bool operator() (const key_type& lhs, const key_type& rhs) const {
+      if constexpr (std::is_same_v<key_type, unodb::key_view>) {
+        return unodb::detail::compare( lhs, rhs ) < 0;
+      } else {
+        return lhs < rhs;
+      }
+    }
+  };
+  
   Db test_db{};
 
-  std::unordered_map<key_type, unodb::value_view> values;
+  // Note: The hash map does not support key_view keys in the map.  So
+  // switching over to the slower red/black tree for the ground truth
+  // map.
+  std::map<key_type, unodb::value_view, comparator> values;
+  //std::unordered_map<key_type, unodb::value_view> values;
 
+  // replaces the use of try_get(0) with a parameterized key type.
+  key_type unused_key{};
+  
   const bool parallel_test;
 };
 

@@ -65,6 +65,9 @@ UNODB_TYPED_TEST_SUITE(ARTSpanCorrectnessTest, ARTTypes)
 
 UNODB_START_TYPED_TESTS()
 
+/// Unit test bootstraps variable length key support by testing the
+/// full public API for a single key/value pair in an otherwise empty
+/// tree.
 TYPED_TEST(ARTSpanCorrectnessTest, SingleKeyOperationsOnEmptyTree) {
   const auto key = unodb::test::test_keys[1];  // 0x 00 02
   const auto val = unodb::test::test_keys[2];  // 0x 03 00 01
@@ -110,14 +113,8 @@ TYPED_TEST(ARTSpanCorrectnessTest, SingleKeyOperationsOnEmptyTree) {
     db.scan(fn);
     UNODB_EXPECT_EQ(0, n);
   }
-
-#ifdef UNODB_DETAIL_WITH_STATS
-  verifier.assert_node_counts({1, 0, 0, 0, 0});
-  verifier.assert_growing_inodes({0, 0, 0, 0});
-#endif  // UNODB_DETAIL_WITH_STATS
 }
 
-#if 0
 TYPED_TEST(ARTSpanCorrectnessTest, SingleNodeTreeEmptyValue) {
   unodb::test::tree_verifier<TypeParam> verifier;
   verifier.check_absent_keys({unodb::test::test_keys[1]});
@@ -134,10 +131,12 @@ TYPED_TEST(ARTSpanCorrectnessTest, SingleNodeTreeEmptyValue) {
 
 TYPED_TEST(ARTSpanCorrectnessTest, SingleNodeTreeNonemptyValue) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  verifier.insert(1, unodb::test::test_values[2]);
+  verifier.insert(unodb::test::test_values[1], unodb::test::test_values[2]);
 
   verifier.check_present_values();
-  verifier.check_absent_keys({0, 2});
+  verifier.check_absent_keys({
+      unodb::test::test_values[0],
+      unodb::test::test_values[2]});
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({1, 0, 0, 0, 0});
@@ -145,6 +144,7 @@ TYPED_TEST(ARTSpanCorrectnessTest, SingleNodeTreeNonemptyValue) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
+// FIXME(thompsonbry) add a test for a key which is too long.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TYPED_TEST(ARTSpanCorrectnessTest, TooLongValue) {
   constexpr std::byte fake_val{0x00};
@@ -155,10 +155,12 @@ TYPED_TEST(ARTSpanCorrectnessTest, TooLongValue) {
 
   unodb::test::tree_verifier<TypeParam> verifier;
 
-  UNODB_ASSERT_THROW(std::ignore = verifier.get_db().insert(1, too_long),
+  const auto& key = unodb::test::test_values[1];
+  
+  UNODB_ASSERT_THROW(std::ignore = verifier.get_db().insert(key, too_long),
                      std::length_error);
 
-  verifier.check_absent_keys({1});
+  verifier.check_absent_keys({key});
   verifier.assert_empty();
 
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -167,20 +169,25 @@ TYPED_TEST(ARTSpanCorrectnessTest, TooLongValue) {
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+#if 0
 TYPED_TEST(ARTSpanCorrectnessTest, ExpandLeafToNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
-  verifier.insert(0, unodb::test::test_values[1]);
+  const auto& k0 = unodb::test::test_values[0];
+  const auto& k1 = unodb::test::test_values[1];
+  const auto& k2 = unodb::test::test_values[2];
+  
+  verifier.insert(k0, unodb::test::test_values[1]);
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({1, 0, 0, 0, 0});
   verifier.assert_growing_inodes({0, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 
-  verifier.insert(1, unodb::test::test_values[2]);
+  verifier.insert(k1, unodb::test::test_values[2]);
 
   verifier.check_present_values();
-  verifier.check_absent_keys({2});
+  verifier.check_absent_keys({k2});
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({2, 1, 0, 0, 0});

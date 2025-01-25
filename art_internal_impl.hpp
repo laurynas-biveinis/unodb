@@ -84,6 +84,23 @@ namespace unodb::detail {
 ///
 /// TODO(thompsonbry) variable length keys - update documentation
 /// about what is stored in the leaf once we have a clear decision.
+///
+/// TODO(thompsonbry) : variable length keys.  Consider adding a
+/// key_prefix to the leaf in which case the tree to the leaf needs to
+/// hold the full key except for that trailing 0-7 bytes which is
+/// stored on the leaf.
+///
+/// TODO(thompsonbry) : variable length keys.  The key should be
+/// optional on the leaf, except for perhaps a key_prefix.
+///
+/// TODO(thompsonbry) : variable length keys.  The key_size can be
+/// elided for fixed length keys.  The value size can be elided for
+/// fixed length values.  Both are common cases and should be handled
+/// via appropriate template specialization.  This is most important
+/// when the allocations are small and getting into a smaller power of
+/// two can result in significant space savings.  Further, the
+/// key_size and the value_size can be represented as variable length
+/// unsigned integers for a more compact data record.
 template <class Key, class Header>
 class [[nodiscard]] basic_leaf final : public Header {
  public:
@@ -110,18 +127,16 @@ class [[nodiscard]] basic_leaf final : public Header {
   : key_size{static_cast<key_size_type>(k.size())},
     value_size{static_cast<value_size_type>(v.size())} {
 
-    // Note: This is just a debug assert.  There is no runtime-check
-    // on the size of the value.  Bad Things can happen if the value
-    // is larger than the value_size_type can express.
     UNODB_DETAIL_ASSERT(k.size() <= max_key_size);
     UNODB_DETAIL_ASSERT(v.size() <= max_value_size);
+    
     key_view tmp{k.get_key_view()};
     std::memcpy(data, tmp.data(), key_size);  // store encoded key
     if (!v.empty()) std::memcpy(data+key_size, v.data(), value_size);
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  // return the binary comparable key stored in the leaf
+  /// Return the binary comparable key stored in the leaf
   //
   // TODO(thompsonbry) : variable length keys.  Where possible this
   // must be changed to a method comparing a caller's key suffix
@@ -153,6 +168,8 @@ class [[nodiscard]] basic_leaf final : public Header {
     }
   }
 
+  /// Return a view onto the key stored in the leaf.
+  //
   // TODO(thompsonbry) : variable length keys.  Right now we are
   // storing the full key in the leaf.  However, this will be changed
   // to store only the key_prefix.  Or if we do store full keys (e.g.,
@@ -162,7 +179,7 @@ class [[nodiscard]] basic_leaf final : public Header {
     return key_view{ data, key_size };
   }
 
-  // Return true iff the two keys are the same.
+  /// Return true iff the two keys are the same.
   //
   // TODO(thompsonbry) : variable length keys.  This should be changed
   // to a method comparing a caller's key suffix against the key
@@ -172,9 +189,9 @@ class [[nodiscard]] basic_leaf final : public Header {
     return cmp(k) == 0;
   }
 
-  // Return LT ZERO (0) if this key is less than the caller's key.
-  // Return GT ZERO (0) if this key is greater than the caller's key.
-  // Return ZERO (0) if the two keys are the same.
+  /// Return LT ZERO (0) if this key is less than the caller's key.
+  /// Return GT ZERO (0) if this key is greater than the caller's key.
+  /// Return ZERO (0) if the two keys are the same.
   //
   // TODO(thompsonbry) : variable length keys.  This should be changed
   // to a method comparing a caller's key suffix against the key
@@ -183,12 +200,14 @@ class [[nodiscard]] basic_leaf final : public Header {
     return k.cmp(get_key_view());
   }
 
+  /// Return a view onto the value stored in the leaf.
   [[nodiscard, gnu::pure]] constexpr auto get_value_view() const noexcept {
     return value_view{data+key_size, value_size};
   }
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
+  /// Return the byte size of the leaf data structure.
   [[nodiscard, gnu::pure]] constexpr auto get_size() const noexcept {
     return compute_size(key_size, value_size);
   }
@@ -202,9 +221,14 @@ class [[nodiscard]] basic_leaf final : public Header {
     os << ", value size: " << value_size << '\n';
   }
 
-  /// @param key_size The size in bytes of the portion of the key stored in the leaf.
+  /// Compute the required byte size of the leaf to hold the header,
+  /// key, and value.
   ///
-  /// @param val_size The size in bytes of the the value stored in the leaf.
+  /// @param key_size The size in bytes of the portion of the key
+  /// stored in the leaf.
+  ///
+  /// @param val_size The size in bytes of the the value stored in the
+  /// leaf.
   [[nodiscard, gnu::const]] static constexpr auto compute_size(
       key_size_type key_size,
       value_size_type val_size) noexcept {
@@ -214,23 +238,6 @@ class [[nodiscard]] basic_leaf final : public Header {
   }
 
  private:
-  // TODO(thompsonbry) : variable length keys.  Consider adding a
-  // key_prefix to the leaf in wwhich case the tree to the leaf needs
-  // to hold the full key except for that trailing 0-7 bytes which is
-  // stored on the leaf.
-  //
-  // TODO(thompsonbry) : variable length keys.  The key should be
-  // optional on the leaf, except for perhaps a key_prefix.
-  //
-  // TODO(thompsonbry) : variable length keys.  The key_size can be
-  // elided for fixed length keys.  The value size can be elided for
-  // fixed length values.  Both are common cases and should be handled
-  // via appropriate template specialization.  This is most important
-  // when the allocations are small and getting into a smaller power
-  // of two can result in significant space savings.  Further, the
-  // key_size and the value_size can be represented as variable length
-  // unsigned integers for a more compact data record.
-  
   /// The byte length of the key.
   const key_size_type key_size;
   /// The byte length of the value.

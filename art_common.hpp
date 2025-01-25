@@ -103,9 +103,13 @@ namespace detail {
 /// TODO(thompsonbry) variable length keys - lift out as template argument.
 static constexpr size_t INITIAL_BUFFER_CAPACITY = 256;
 
-// Dump the encoded key as a sequence of bytes.
+/// Dump the encoded key as a sequence of bytes.
 template <typename T>
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os, T k);
+
+/// Dump the value as a sequence of bytes.
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_val(std::ostream &os,
+                                                  unodb::value_view v);
 
 /// Utility method for power of two expansion of buffers (internal
 /// API, forward declaration).

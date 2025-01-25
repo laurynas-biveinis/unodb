@@ -189,24 +189,25 @@ TYPED_TEST(ARTSpanCorrectnessTest, TooLongKey) {
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-#if 0  // FIXME(thompsonbry) - this test fails.
 TYPED_TEST(ARTSpanCorrectnessTest, ExpandLeafToNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
-  const auto& k0 = unodb::test::test_values[0];
-  const auto& k1 = unodb::test::test_values[1];
-  const auto& k2 = unodb::test::test_values[2];
+  const auto& k0 = unodb::test::test_values[0];  // 00
+  const auto& k1 = unodb::test::test_values[1];  // 00 02
+  const auto& k2 = unodb::test::test_values[2];  // 03 00 01
   
   verifier.insert(k0, unodb::test::test_values[1]);
-
+  verifier.get_db().dump();  // FIXME REMOVE
+  
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({1, 0, 0, 0, 0});
   verifier.assert_growing_inodes({0, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 
   verifier.insert(k1, unodb::test::test_values[2]);
-
-  verifier.check_present_values();
+  verifier.get_db().dump(); // FIXME REMOVE
+  
+  verifier.check_present_values();  // FIXME FAILS HERE
   verifier.check_absent_keys({k2});
 
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -214,7 +215,6 @@ TYPED_TEST(ARTSpanCorrectnessTest, ExpandLeafToNode4) {
   verifier.assert_growing_inodes({1, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
-#endif
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TYPED_TEST(ARTSpanCorrectnessTest, DuplicateKey) {

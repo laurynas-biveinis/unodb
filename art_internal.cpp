@@ -33,12 +33,20 @@ template <typename T>
     os << "key: 0x" << std::hex << std::setfill('0') << std::setw(sizeof(k))
        << k << std::dec;
   } else {
-    os << "key: 0x";
-    for (std::size_t i = 0; i < k.size_bytes(); ++i) dump_byte(os, k[i]);
+    const auto sz = k.size_bytes();    
+    os << "key(" << sz << "): 0x";
+    for (std::size_t i = 0; i < sz; ++i) dump_byte(os, k[i]);
   }
 }
 template void dump_key<std::uint64_t>(std::ostream &os, std::uint64_t k);
 template void dump_key<key_view>(std::ostream &os, key_view k);
+
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_val(std::ostream &os,
+                                                  unodb::value_view v) {
+  const auto sz = v.size_bytes();
+  os << "val(" << sz << "): 0x";
+  for (std::size_t i = 0; i < sz; ++i) dump_byte(os, v[i]);
+}
 
 // Ensure unrolled in .cpp and therefore available to debugger.
 template<> [[gnu::cold]] UNODB_DETAIL_NOINLINE

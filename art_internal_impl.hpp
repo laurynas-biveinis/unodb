@@ -220,7 +220,9 @@ class [[nodiscard]] basic_leaf final : public Header {
                                                 bool /*recursive*/) const {
     os << ", ";
     dump_key( os, get_key_view() );
-    os << ", value size: " << value_size << '\n';
+    os << ", ";
+    dump_val( os, get_value_view() );
+    os << '\n';
   }
 
   /// Compute the required byte size of the leaf to hold the header,
@@ -695,9 +697,9 @@ union [[nodiscard]] key_prefix {
 
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     const auto len = length();
-    os << ", key prefix len = " << len;
+    os << ", prefix(" << len << ")";
     if (len > 0) {
-      os << ", key prefix =";
+      os << ": 0x";
       for (std::size_t i = 0; i < len; ++i) dump_byte(os, f.key_prefix[i]);
     }
   }
@@ -1670,7 +1672,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                                                 bool recursive) const {
     parent_class::dump(os, recursive);
     const auto children_count_ = this->children_count.load();
-    os << ", key bytes =";
+    os << ", key_bytes:";
     for (std::uint8_t i = 0; i < children_count_; i++)
       dump_byte(os, keys.byte_array[i]);
     if (recursive) {

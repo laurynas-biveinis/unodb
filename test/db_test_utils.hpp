@@ -72,9 +72,13 @@ constexpr auto test_value_5 =
 constexpr auto empty_test_value = std::array<std::byte, 0>{};
 
 constexpr std::array<unodb::value_view, 6> test_values = {
-    unodb::value_view{test_value_1}, unodb::value_view{test_value_2},
-    unodb::value_view{test_value_3}, unodb::value_view{test_value_4},
-    unodb::value_view{test_value_5}, unodb::value_view{empty_test_value}};
+    unodb::value_view{test_value_1},     // [0] { 00              }
+    unodb::value_view{test_value_2},     // [1] { 00 02           }
+    unodb::value_view{test_value_3},     // [2] { 03 00 01        }
+    unodb::value_view{test_value_4},     // [3] { 04 01 00 02     }
+    unodb::value_view{test_value_5},     // [4] { 05 F4 FF 00 01  }
+    unodb::value_view{empty_test_value}  // [5] {                 }
+};
 
 namespace detail {
 

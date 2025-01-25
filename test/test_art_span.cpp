@@ -144,7 +144,6 @@ TYPED_TEST(ARTSpanCorrectnessTest, SingleNodeTreeNonemptyValue) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-// FIXME(thompsonbry) add a test for a key which is too long.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TYPED_TEST(ARTSpanCorrectnessTest, TooLongValue) {
   constexpr std::byte fake_val{0x00};
@@ -169,7 +168,28 @@ TYPED_TEST(ARTSpanCorrectnessTest, TooLongValue) {
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-#if 0
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+TYPED_TEST(ARTSpanCorrectnessTest, TooLongKey) {
+  constexpr std::byte fake_val{0x00};
+  const unodb::key_view too_long{
+      &fake_val,
+      static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max()) +
+          1U};
+
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  UNODB_ASSERT_THROW(std::ignore = verifier.get_db().insert(too_long,{}),
+                     std::length_error);
+
+  verifier.assert_empty();
+
+#ifdef UNODB_DETAIL_WITH_STATS
+  verifier.assert_growing_inodes({0, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
+}
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+#if 0  // FIXME(thompsonbry) - this test fails.
 TYPED_TEST(ARTSpanCorrectnessTest, ExpandLeafToNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
@@ -194,12 +214,15 @@ TYPED_TEST(ARTSpanCorrectnessTest, ExpandLeafToNode4) {
   verifier.assert_growing_inodes({1, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
+#endif
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TYPED_TEST(ARTSpanCorrectnessTest, DuplicateKey) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
-  verifier.insert(0, unodb::test::test_values[0]);
+  const auto& k0 = unodb::test::test_values[0];
+  
+  verifier.insert(k0, unodb::test::test_values[0]);
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({1, 0, 0, 0, 0});
@@ -209,7 +232,7 @@ TYPED_TEST(ARTSpanCorrectnessTest, DuplicateKey) {
 
   unodb::test::must_not_allocate([&verifier] {
     UNODB_ASSERT_FALSE(
-        verifier.get_db().insert(0, unodb::test::test_values[3]));
+        verifier.get_db().insert(k0, unodb::test::test_values[3]));
   });
 
   verifier.check_present_values();
@@ -223,6 +246,7 @@ TYPED_TEST(ARTSpanCorrectnessTest, DuplicateKey) {
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+#if 0
 TYPED_TEST(ARTSpanCorrectnessTest, InsertToFullNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
 

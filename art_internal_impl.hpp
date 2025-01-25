@@ -127,6 +127,8 @@ class [[nodiscard]] basic_leaf final : public Header {
   : key_size{static_cast<key_size_type>(k.size())},
     value_size{static_cast<value_size_type>(v.size())} {
 
+    // Note: Runtime checks are handled upstream of this by
+    // make_db_leaf_ptr().
     UNODB_DETAIL_ASSERT(k.size() <= max_key_size);
     UNODB_DETAIL_ASSERT(v.size() <= max_value_size);
     
@@ -256,13 +258,22 @@ template <class Key, class Header, template <class> class Db>
                                     Db<Key> &db UNODB_DETAIL_LIFETIMEBOUND) {
   using leaf_type = basic_leaf<Key, Header>;
 
-  if (UNODB_DETAIL_UNLIKELY(v.size() > leaf_type::max_value_size)) {
+  // TODO(thompsonbry) We should have a discussion about limits.  To
+  // my mind, limits should be explicit configuration values, not
+  // uint32_t.
+  if constexpr( std::is_same_v<Key, key_view> ) {
+    if (UNODB_DETAIL_UNLIKELY(k.size() > leaf_type::max_key_size)) {
+      throw std::length_error("Key length must fit in std::uint32_t");
+    }
+  }
+
+  if (UNODB_DETAIL_UNLIKELY(v.size_bytes() > leaf_type::max_value_size)) {
     throw std::length_error("Value length must fit in std::uint32_t");
   }
 
   const auto size = leaf_type::compute_size(
       static_cast<typename leaf_type::key_size_type>(k.size()),
-      static_cast<typename leaf_type::value_size_type>(v.size()));
+      static_cast<typename leaf_type::value_size_type>(v.size_bytes()));
 
   auto *const leaf_mem = static_cast<std::byte *>(
       allocate_aligned(size, alignment_for_new<leaf_type>()));

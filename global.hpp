@@ -5,6 +5,10 @@
 /// \file global.hpp
 /// Global defines that must precede every other include directive in all the
 /// source files.
+/// \ingroup internal
+
+/// \addtogroup internal
+///@{
 
 // Macros that have multiple definitions are documented once.
 
@@ -198,7 +202,7 @@
 #endif
 #endif
 
-/// \name Architecture
+/// \name Architecture macros
 /// Macros for the CPU architecture, instruction set level, endianness.
 ///@{
 
@@ -230,7 +234,7 @@
 
 ///@}
 
-/// \name Compiler
+/// \name Compiler macros
 /// Macros to hide compiler specifics
 ///@{
 
@@ -311,7 +315,7 @@
 /// declared in headers.
 #define UNODB_DETAIL_HEADER_NOINLINE UNODB_DETAIL_NOINLINE inline
 
-/// \name Sanitizers
+/// \name Sanitizer macros
 ///@{
 
 #if defined(__has_feature)
@@ -334,7 +338,7 @@
 
 #define UNODB_DETAIL_DO_PRAGMA(x) _Pragma(#x)
 
-/// \name Warnings
+/// \name Warning macros
 ///@{
 
 #ifndef UNODB_DETAIL_MSVC
@@ -393,7 +397,7 @@
 
 ///@}
 
-/// \name Debug or release build
+/// \name Debug or release build macros
 /// Definitions conditional on the build type
 ///@{
 
@@ -411,7 +415,7 @@
 
 ///@}
 
-/// \name Features
+/// \name Feature macros
 /// Compile-time feature selection macros
 ///@{
 
@@ -421,6 +425,8 @@
 
 /// Spin lock loop wait loops are empty, causing aggressive spinning.
 #define UNODB_DETAIL_SPINLOCK_LOOP_EMPTY 2
+
+///@}
 
 ///@}
 

@@ -8,6 +8,32 @@
 /// If compiling as a part of another project, they will expand to C++ standard
 /// symbols (`assert` & `std::abort`). Otherwise, custom implementations are
 /// used that will show stacktraces if Boost.Stacktrace is available.
+/// \ingroup internal
+
+/// \addtogroup internal
+///@{
+
+// Macros that have multiple definitions are documented once.
+
+/// \name Assertion & assumption macros
+///@{
+
+/// \def UNODB_DETAIL_ASSERT(condition)
+/// \hideinitializer
+/// Assert a condition.
+///
+/// Should be used everywhere instead of the standard `assert` macro and will
+/// expand to it if building as a part of another project, thus using its
+/// replaced declaration, if any. If building standalone, will print a
+/// stacktrace on failures if Boost.Stacktrace is available.
+
+/// \def UNODB_DETAIL_CRASH
+/// \hideinitializer
+/// Intentionally crash.
+
+/// \def UNODB_DETAIL_DEBUG_CRASH()
+/// \hideinitializer
+/// Crash with a stacktrace on debug build, do nothing on release build.
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -19,10 +45,15 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
+#include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <string_view>
 #include <thread>
+
+#ifndef UNODB_DETAIL_STANDALONE
+#include <cassert>
+#endif
 
 #ifdef UNODB_DETAIL_BOOST_STACKTRACE
 #if defined(__linux__) && !defined(__clang__)
@@ -57,6 +88,8 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 }
 
 /// Intentionally crash from a given source location.
+///
+/// Should not be called directly - use UNODB_DETAIL_CRASH instead.
 [[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)
     UNODB_DETAIL_C_STRING_ARG(3) UNODB_DETAIL_HEADER_NOINLINE
     void crash(const char *file, int line, const char *func) noexcept {
@@ -72,10 +105,11 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // Definitions that only depend on Debug vs Release
 #ifndef NDEBUG
 
-/// Crash with a stacktrace on debug build, do nothing on release build.
 #define UNODB_DETAIL_DEBUG_CRASH() UNODB_DETAIL_CRASH()
 
 /// Implementation for marking a source code location as unreachable.
+///
+/// Should not be called directly - use UNODB_DETAIL_CANNOT_HAPPEN instead.
 [[noreturn]] UNODB_DETAIL_C_STRING_ARG(1)
     UNODB_DETAIL_C_STRING_ARG(3) inline void cannot_happen(
         const char *file, int line, const char *func) noexcept {
@@ -101,7 +135,6 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // Definitions that only depend on standalone vs part of another project
 #ifdef UNODB_DETAIL_STANDALONE
 
-/// Intentionally crash.
 #define UNODB_DETAIL_CRASH() unodb::detail::crash(__FILE__, __LINE__, __func__)
 
 #else  // UNODB_DETAIL_STANDALONE
@@ -121,6 +154,8 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 /// Assert failure implementation for standalone debug build.
+///
+/// Should not be called directly - used UNODB_DETAIL_ASSERT instead.
 [[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)
     UNODB_DETAIL_C_STRING_ARG(3)
         UNODB_DETAIL_C_STRING_ARG(4) UNODB_DETAIL_HEADER_NOINLINE
@@ -136,12 +171,6 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-/// Assert a condition.
-///
-/// Should be used everywhere instead of the standard assert macro and will
-/// expand to it if building as a part of another project, thus using its
-/// replaced declaration, if any. If building standalone, will print a
-/// stacktrace on failures if Boost.Stacktrace is available.
 #define UNODB_DETAIL_ASSERT(condition)                                      \
   UNODB_DETAIL_UNLIKELY(!(condition))                                       \
   ? unodb::detail::assert_failure(__FILE__, __LINE__, __func__, #condition) \
@@ -162,10 +191,10 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 /// optimize a redundant check away or silence a warning. Plain assertions
 /// should be used almost always instead, and replaced with assumptions only
 /// with provable effect on the diagnostics or generated code.
-#define UNODB_DETAIL_ASSUME(x)      \
-  do {                              \
-    UNODB_DETAIL_ASSERT(x);         \
-    UNODB_DETAIL_BUILTIN_ASSUME(x); \
+#define UNODB_DETAIL_ASSUME(assumption)      \
+  do {                                       \
+    UNODB_DETAIL_ASSERT(assumption);         \
+    UNODB_DETAIL_BUILTIN_ASSUME(assumption); \
   } while (0)
 
 /// Mark this source code location as unreachable.
@@ -177,5 +206,9 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   unodb::detail::cannot_happen(__FILE__, __LINE__, __func__)
 
 // LCOV_EXCL_STOP
+
+///@}
+
+///@}
 
 #endif

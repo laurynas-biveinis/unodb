@@ -99,6 +99,8 @@ $(document).ready(function(){initNavTree('classunodb_1_1optimistic__lock.html','
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="classunodb_1_1optimistic__lock-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::optimistic_lock Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
@@ -106,6 +108,8 @@ $(document).ready(function(){initNavTree('classunodb_1_1optimistic__lock.html','
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html">atomic_version_type</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a></td></tr>
@@ -143,8 +147,44 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_obsoleted_by_this_
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_write_locked</b> () const noexcept</td></tr>
 <tr class="separator:ad9696be3421cb1dd27566cfb352d870c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad387ee4d013f63bee0955d8e11b5f6a9" id="r_ad387ee4d013f63bee0955d8e11b5f6a9"><td class="memItemLeft" align="right" valign="top"><a id="ad387ee4d013f63bee0955d8e11b5f6a9" name="ad387ee4d013f63bee0955d8e11b5f6a9"></a>
-<a class="el" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
+<a class="el" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
 <tr class="separator:ad387ee4d013f63bee0955d8e11b5f6a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a87019ebcc11a4033acddd2b810adb490" id="r_a87019ebcc11a4033acddd2b810adb490"><td class="memItemLeft" align="right" valign="top"><a id="a87019ebcc11a4033acddd2b810adb490" name="a87019ebcc11a4033acddd2b810adb490"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>check</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> locked_version) const noexcept</td></tr>
+<tr class="separator:a87019ebcc11a4033acddd2b810adb490"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49ae5dd566a5fe8ca6ffe8d061bd6ac6" id="r_a49ae5dd566a5fe8ca6ffe8d061bd6ac6"><td class="memItemLeft" align="right" valign="top"><a id="a49ae5dd566a5fe8ca6ffe8d061bd6ac6" name="a49ae5dd566a5fe8ca6ffe8d061bd6ac6"></a>
+<a class="el" href="group__internal.html#gaf5a41e323936137cb87fdb25e5acd652">UNODB_DETAIL_FORCE_INLINE</a> bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_read_unlock</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> locked_version) const noexcept</td></tr>
+<tr class="separator:a49ae5dd566a5fe8ca6ffe8d061bd6ac6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a462a9f65f786f790dbbc1b8af92a9e37" id="r_a462a9f65f786f790dbbc1b8af92a9e37"><td class="memItemLeft" align="right" valign="top"><a id="a462a9f65f786f790dbbc1b8af92a9e37" name="a462a9f65f786f790dbbc1b8af92a9e37"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_upgrade_to_write_lock</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> locked_version) noexcept</td></tr>
+<tr class="separator:a462a9f65f786f790dbbc1b8af92a9e37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f579be6e903ef98b1fa9a3122ee636b" id="r_a0f579be6e903ef98b1fa9a3122ee636b"><td class="memItemLeft" align="right" valign="top"><a id="a0f579be6e903ef98b1fa9a3122ee636b" name="a0f579be6e903ef98b1fa9a3122ee636b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>write_unlock</b> () noexcept</td></tr>
+<tr class="separator:a0f579be6e903ef98b1fa9a3122ee636b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af296d16c2c9b99751a0c514149761241" id="r_af296d16c2c9b99751a0c514149761241"><td class="memItemLeft" align="right" valign="top"><a id="af296d16c2c9b99751a0c514149761241" name="af296d16c2c9b99751a0c514149761241"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>write_unlock_and_obsolete</b> () noexcept</td></tr>
+<tr class="separator:af296d16c2c9b99751a0c514149761241"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f037a7201745546fb1a1530280a166f" id="r_a5f037a7201745546fb1a1530280a166f"><td class="memItemLeft" align="right" valign="top"><a id="a5f037a7201745546fb1a1530280a166f" name="a5f037a7201745546fb1a1530280a166f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>inc_read_lock_count</b> () const noexcept</td></tr>
+<tr class="separator:a5f037a7201745546fb1a1530280a166f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a089b1cee3747f7a42618fca56db4b03b" id="r_a089b1cee3747f7a42618fca56db4b03b"><td class="memItemLeft" align="right" valign="top"><a id="a089b1cee3747f7a42618fca56db4b03b" name="a089b1cee3747f7a42618fca56db4b03b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>dec_read_lock_count</b> () const noexcept</td></tr>
+<tr class="separator:a089b1cee3747f7a42618fca56db4b03b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a87ca3251940e5e31314d2a59e760cb7e" id="r_a87ca3251940e5e31314d2a59e760cb7e"><td class="memItemLeft" align="right" valign="top"><a id="a87ca3251940e5e31314d2a59e760cb7e" name="a87ca3251940e5e31314d2a59e760cb7e"></a>
+<a class="el" href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html">atomic_version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>version</b> {}</td></tr>
+<tr class="separator:a87ca3251940e5e31314d2a59e760cb7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a533b7c85785d3da0427152ec1312d6ac" id="r_a533b7c85785d3da0427152ec1312d6ac"><td class="memItemLeft" align="right" valign="top"><a id="a533b7c85785d3da0427152ec1312d6ac" name="a533b7c85785d3da0427152ec1312d6ac"></a>
+std::atomic&lt; std::int64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>read_lock_count</b> {0}</td></tr>
+<tr class="separator:a533b7c85785d3da0427152ec1312d6ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7feae095aa3b9f62d93da82d4ce6909e" id="r_a7feae095aa3b9f62d93da82d4ce6909e"><td class="memItemLeft" align="right" valign="top"><a id="a7feae095aa3b9f62d93da82d4ce6909e" name="a7feae095aa3b9f62d93da82d4ce6909e"></a>
+std::thread::id&#160;</td><td class="memItemRight" valign="bottom"><b>obsoleter_thread</b> {}</td></tr>
+<tr class="separator:a7feae095aa3b9f62d93da82d4ce6909e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="optimistic__lock_8hpp_source.html">optimistic_lock.hpp</a></li>
@@ -154,7 +194,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_write_locked</b> (
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>unodb</b></li><li class="navelem"><a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a></li>
+    <li class="navelem"><a class="el" href="namespaceunodb.html">unodb</a></li><li class="navelem"><a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

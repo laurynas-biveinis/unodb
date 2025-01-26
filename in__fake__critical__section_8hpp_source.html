@@ -116,7 +116,7 @@ $(document).ready(function(){initNavTree('in__fake__critical__section_8hpp_sourc
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &lt;cstddef&gt;</span></div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &lt;type_traits&gt;</span></div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">namespace </span>unodb {</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb.html">unodb</a> {</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">// fake version of read_critical_section used to align unodb::db and</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment">// unodb::olc_db code.</span></div>
@@ -135,13 +135,13 @@ $(document).ready(function(){initNavTree('in__fake__critical__section_8hpp_sourc
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  }</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="comment">// Always succeeds.</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  [[nodiscard, gnu::flatten]] <a class="code hl_define" href="global_8hpp.html#af5a41e323936137cb87fdb25e5acd652">UNODB_DETAIL_FORCE_INLINE</a> <span class="keywordtype">bool</span> try_read_unlock()</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  [[nodiscard, gnu::flatten]] <a class="code hl_define" href="group__internal.html#gaf5a41e323936137cb87fdb25e5acd652">UNODB_DETAIL_FORCE_INLINE</a> <span class="keywordtype">bool</span> try_read_unlock()</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>      <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  }</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="comment">// Always returns true since the lock is never updated.</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  [[nodiscard]] <span class="keyword">inline</span> <span class="keywordtype">bool</span> check() <a class="code hl_define" href="global_8hpp.html#a64906efb65be8598a955afeb9ec61eae">UNODB_DETAIL_RELEASE_CONST</a> <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  [[nodiscard]] <span class="keyword">inline</span> <span class="keywordtype">bool</span> check() <a class="code hl_define" href="group__internal.html#ga64906efb65be8598a955afeb9ec61eae">UNODB_DETAIL_RELEASE_CONST</a> <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  }</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
@@ -229,8 +229,9 @@ $(document).ready(function(){initNavTree('in__fake__critical__section_8hpp_sourc
 <div class="ttc" id="aclassunodb_1_1fake__read__critical__section_html"><div class="ttname"><a href="classunodb_1_1fake__read__critical__section.html">unodb::fake_read_critical_section</a></div><div class="ttdef"><b>Definition</b> in_fake_critical_section.hpp:22</div></div>
 <div class="ttc" id="aclassunodb_1_1in__fake__critical__section_html"><div class="ttname"><a href="classunodb_1_1in__fake__critical__section.html">unodb::in_fake_critical_section</a></div><div class="ttdef"><b>Definition</b> in_fake_critical_section.hpp:63</div></div>
 <div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
-<div class="ttc" id="aglobal_8hpp_html_a64906efb65be8598a955afeb9ec61eae"><div class="ttname"><a href="global_8hpp.html#a64906efb65be8598a955afeb9ec61eae">UNODB_DETAIL_RELEASE_CONST</a></div><div class="ttdeci">#define UNODB_DETAIL_RELEASE_CONST</div><div class="ttdoc">Expands to const in release builds, empty in debug builds.</div><div class="ttdef"><b>Definition</b> global.hpp:407</div></div>
-<div class="ttc" id="aglobal_8hpp_html_af5a41e323936137cb87fdb25e5acd652"><div class="ttname"><a href="global_8hpp.html#af5a41e323936137cb87fdb25e5acd652">UNODB_DETAIL_FORCE_INLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_FORCE_INLINE</div><div class="ttdoc">Provide the strongest available hint to the compiler to inline the function.</div><div class="ttdef"><b>Definition</b> global.hpp:281</div></div>
+<div class="ttc" id="agroup__internal_html_ga64906efb65be8598a955afeb9ec61eae"><div class="ttname"><a href="group__internal.html#ga64906efb65be8598a955afeb9ec61eae">UNODB_DETAIL_RELEASE_CONST</a></div><div class="ttdeci">#define UNODB_DETAIL_RELEASE_CONST</div><div class="ttdoc">Expands to const in release builds, empty in debug builds.</div><div class="ttdef"><b>Definition</b> global.hpp:411</div></div>
+<div class="ttc" id="agroup__internal_html_gaf5a41e323936137cb87fdb25e5acd652"><div class="ttname"><a href="group__internal.html#gaf5a41e323936137cb87fdb25e5acd652">UNODB_DETAIL_FORCE_INLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_FORCE_INLINE</div><div class="ttdoc">Provide the strongest available hint to the compiler to inline the function.</div><div class="ttdef"><b>Definition</b> global.hpp:285</div></div>
+<div class="ttc" id="anamespaceunodb_html"><div class="ttname"><a href="namespaceunodb.html">unodb</a></div><div class="ttdoc">The namespace for the public UnoDB API.</div><div class="ttdef"><b>Definition</b> art.cpp:38</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

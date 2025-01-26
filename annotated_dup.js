@@ -1,28 +1,34 @@
 var annotated_dup =
 [
-    [ "unodb", null, [
+    [ "unodb", "namespaceunodb.html", [
       [ "benchmark", null, [
+        [ "detail", null, [
+          [ "tree_shape_snapshot", "classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html", null ]
+        ] ],
         [ "batched_prng", "classunodb_1_1benchmark_1_1batched__prng.html", null ],
         [ "concurrent_benchmark", "classunodb_1_1benchmark_1_1concurrent__benchmark.html", null ],
         [ "growing_tree_node_stats", "classunodb_1_1benchmark_1_1growing__tree__node__stats.html", null ],
         [ "tree_stats", "structunodb_1_1benchmark_1_1tree__stats.html", null ]
       ] ],
-      [ "detail", null, [
+      [ "detail", "namespaceunodb_1_1detail.html", [
         [ "basic_art_key", "structunodb_1_1detail_1_1basic__art__key.html", null ],
-        [ "basic_art_policy", "structunodb_1_1detail_1_1basic__art__policy.html", null ],
+        [ "basic_art_policy", "structunodb_1_1detail_1_1basic__art__policy.html", "structunodb_1_1detail_1_1basic__art__policy" ],
         [ "basic_db_inode_deleter", "classunodb_1_1detail_1_1basic__db__inode__deleter.html", null ],
         [ "basic_db_leaf_deleter", "classunodb_1_1detail_1_1basic__db__leaf__deleter.html", null ],
         [ "basic_inode", "classunodb_1_1detail_1_1basic__inode.html", null ],
         [ "basic_inode_16", "classunodb_1_1detail_1_1basic__inode__16.html", "classunodb_1_1detail_1_1basic__inode__16" ],
         [ "basic_inode_256", "classunodb_1_1detail_1_1basic__inode__256.html", null ],
-        [ "basic_inode_4", "classunodb_1_1detail_1_1basic__inode__4.html", null ],
-        [ "basic_inode_48", "classunodb_1_1detail_1_1basic__inode__48.html", null ],
+        [ "basic_inode_4", "classunodb_1_1detail_1_1basic__inode__4.html", "classunodb_1_1detail_1_1basic__inode__4" ],
+        [ "basic_inode_48", "classunodb_1_1detail_1_1basic__inode__48.html", "classunodb_1_1detail_1_1basic__inode__48" ],
         [ "basic_inode_def", "structunodb_1_1detail_1_1basic__inode__def.html", null ],
         [ "basic_inode_impl", "classunodb_1_1detail_1_1basic__inode__impl.html", "classunodb_1_1detail_1_1basic__inode__impl" ],
         [ "basic_leaf", "classunodb_1_1detail_1_1basic__leaf.html", null ],
         [ "basic_node_ptr", "classunodb_1_1detail_1_1basic__node__ptr.html", null ],
         [ "db_inode_qsbr_deleter", "classunodb_1_1detail_1_1db__inode__qsbr__deleter.html", null ],
         [ "db_leaf_qsbr_deleter", "classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html", null ],
+        [ "dealloc_vector_list_node", "structunodb_1_1detail_1_1dealloc__vector__list__node.html", null ],
+        [ "deallocation_request", "structunodb_1_1detail_1_1deallocation__request.html", null ],
+        [ "deferred_requests", "classunodb_1_1detail_1_1deferred__requests.html", null ],
         [ "dependent_false", "structunodb_1_1detail_1_1dependent__false.html", null ],
         [ "fake_inode", "classunodb_1_1detail_1_1fake__inode.html", null ],
         [ "impl_helpers", "structunodb_1_1detail_1_1impl__helpers.html", null ],
@@ -31,7 +37,7 @@ var annotated_dup =
         [ "inode_256", "classunodb_1_1detail_1_1inode__256.html", null ],
         [ "inode_4", "classunodb_1_1detail_1_1inode__4.html", null ],
         [ "inode_48", "classunodb_1_1detail_1_1inode__48.html", null ],
-        [ "key_prefix", "unionunodb_1_1detail_1_1key__prefix.html", null ],
+        [ "key_prefix", "unionunodb_1_1detail_1_1key__prefix.html", "unionunodb_1_1detail_1_1key__prefix" ],
         [ "node_header", "structunodb_1_1detail_1_1node__header.html", null ],
         [ "olc_impl_helpers", "structunodb_1_1detail_1_1olc__impl__helpers.html", null ],
         [ "olc_inode", "classunodb_1_1detail_1_1olc__inode.html", null ],
@@ -67,6 +73,7 @@ var annotated_dup =
       [ "qsbr_state", "structunodb_1_1qsbr__state.html", null ],
       [ "qsbr_thread", "classunodb_1_1qsbr__thread.html", null ],
       [ "quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", null ],
-      [ "remove_cvref", "structunodb_1_1remove__cvref.html", null ]
+      [ "remove_cvref", "structunodb_1_1remove__cvref.html", null ],
+      [ "visitor", "classunodb_1_1visitor.html", null ]
     ] ]
 ];

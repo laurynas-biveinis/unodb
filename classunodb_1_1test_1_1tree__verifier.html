@@ -98,6 +98,8 @@ $(document).ready(function(){initNavTree('classunodb_1_1test_1_1tree__verifier.h
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="classunodb_1_1test_1_1tree__verifier-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::test::tree_verifier&lt; Db &gt; Class Template Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
@@ -159,6 +161,36 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>try_remove</b> (unodb
 <tr class="memitem:aa2c67e914736fd53903fbccb8a3a9d81" id="r_aa2c67e914736fd53903fbccb8a3a9d81"><td class="memItemLeft" align="right" valign="top"><a id="aa2c67e914736fd53903fbccb8a3a9d81" name="aa2c67e914736fd53903fbccb8a3a9d81"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>try_get</b> (unodb::key k) const noexcept</td></tr>
 <tr class="separator:aa2c67e914736fd53903fbccb8a3a9d81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a567916d51b3ae4252d78e5307f2d6917" id="r_a567916d51b3ae4252d78e5307f2d6917"><td class="memItemLeft" align="right" valign="top"><a id="a567916d51b3ae4252d78e5307f2d6917" name="a567916d51b3ae4252d78e5307f2d6917"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>do_insert</b> (unodb::key k, unodb::value_view v)</td></tr>
+<tr class="separator:a567916d51b3ae4252d78e5307f2d6917"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a436aaa6ac0a1af315e490b6884e17997" id="r_a436aaa6ac0a1af315e490b6884e17997"><td class="memItemLeft" align="right" valign="top"><a id="a436aaa6ac0a1af315e490b6884e17997" name="a436aaa6ac0a1af315e490b6884e17997"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>do_remove</b> (unodb::key k, bool bypass_verifier)</td></tr>
+<tr class="separator:a436aaa6ac0a1af315e490b6884e17997"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33c7875c5b8dca11630a67794bab433e" id="r_a33c7875c5b8dca11630a67794bab433e"><td class="memItemLeft" align="right" valign="top"><a id="a33c7875c5b8dca11630a67794bab433e" name="a33c7875c5b8dca11630a67794bab433e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>do_try_remove_missing_key</b> (unodb::key absent_key)</td></tr>
+<tr class="separator:a33c7875c5b8dca11630a67794bab433e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d59c108034421c27117c3cecc7eac7b" id="r_a0d59c108034421c27117c3cecc7eac7b"><td class="memItemLeft" align="right" valign="top"><a id="a0d59c108034421c27117c3cecc7eac7b" name="a0d59c108034421c27117c3cecc7eac7b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>do_insert</b> (unodb::key k, unodb::value_view v)</td></tr>
+<tr class="separator:a0d59c108034421c27117c3cecc7eac7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cff7cc4d355cd93d8b3f9e229686dff" id="r_a8cff7cc4d355cd93d8b3f9e229686dff"><td class="memItemLeft" align="right" valign="top"><a id="a8cff7cc4d355cd93d8b3f9e229686dff" name="a8cff7cc4d355cd93d8b3f9e229686dff"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>do_try_remove_missing_key</b> (unodb::key absent_key)</td></tr>
+<tr class="separator:a8cff7cc4d355cd93d8b3f9e229686dff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a255d8a782011be60d44662b806a6506a" id="r_a255d8a782011be60d44662b806a6506a"><td class="memItemLeft" align="right" valign="top"><a id="a255d8a782011be60d44662b806a6506a" name="a255d8a782011be60d44662b806a6506a"></a>
+Db&#160;</td><td class="memItemRight" valign="bottom"><b>test_db</b> {}</td></tr>
+<tr class="separator:a255d8a782011be60d44662b806a6506a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1738262bc0b64eab25eb6a093901f341" id="r_a1738262bc0b64eab25eb6a093901f341"><td class="memItemLeft" align="right" valign="top"><a id="a1738262bc0b64eab25eb6a093901f341" name="a1738262bc0b64eab25eb6a093901f341"></a>
+std::unordered_map&lt; unodb::key, unodb::value_view &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>values</b></td></tr>
+<tr class="separator:a1738262bc0b64eab25eb6a093901f341"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09cc1f40a0556020effeb2b56c7bbe48" id="r_a09cc1f40a0556020effeb2b56c7bbe48"><td class="memItemLeft" align="right" valign="top"><a id="a09cc1f40a0556020effeb2b56c7bbe48" name="a09cc1f40a0556020effeb2b56c7bbe48"></a>
+const bool&#160;</td><td class="memItemRight" valign="bottom"><b>parallel_test</b></td></tr>
+<tr class="separator:a09cc1f40a0556020effeb2b56c7bbe48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>test/<a class="el" href="db__test__utils_8hpp_source.html">db_test_utils.hpp</a></li>
@@ -168,7 +200,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>try_get</b> (unodb::k
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>unodb</b></li><li class="navelem"><b>test</b></li><li class="navelem"><a class="el" href="classunodb_1_1test_1_1tree__verifier.html">tree_verifier</a></li>
+    <li class="navelem"><a class="el" href="namespaceunodb.html">unodb</a></li><li class="navelem"><b>test</b></li><li class="navelem"><a class="el" href="classunodb_1_1test_1_1tree__verifier.html">tree_verifier</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

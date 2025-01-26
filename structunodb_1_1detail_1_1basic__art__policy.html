@@ -100,11 +100,18 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1basic__art__p
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pri-types">Private Types</a> &#124;
+<a href="#pri-static-methods">Static Private Member Functions</a> &#124;
 <a href="structunodb_1_1detail_1_1basic__art__policy-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::basic_art_policy&lt; Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt; Struct Template Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html">delete_db_node_ptr_at_scope_exit</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a73c91323e2db4a93eb7e226ad07c8fd1" id="r_a73c91323e2db4a93eb7e226ad07c8fd1"><td class="memItemLeft" align="right" valign="top"><a id="a73c91323e2db4a93eb7e226ad07c8fd1" name="a73c91323e2db4a93eb7e226ad07c8fd1"></a>
@@ -174,29 +181,45 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>db_leaf_unique_ptr</
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a94bdfdabf962fcd409027ad5a12f946c" id="r_a94bdfdabf962fcd409027ad5a12f946c"><td class="memItemLeft" align="right" valign="top"><a id="a94bdfdabf962fcd409027ad5a12f946c" name="a94bdfdabf962fcd409027ad5a12f946c"></a>
-static auto&#160;</td><td class="memItemRight" valign="bottom"><b>make_db_leaf_ptr</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> k, value_view v, Db &amp;db_instance <a class="el" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>)</td></tr>
+static auto&#160;</td><td class="memItemRight" valign="bottom"><b>make_db_leaf_ptr</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> k, value_view v, Db &amp;db_instance <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>)</td></tr>
 <tr class="separator:a94bdfdabf962fcd409027ad5a12f946c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb574cd86bfd64545309a2647057b6ee" id="r_adb574cd86bfd64545309a2647057b6ee"><td class="memItemLeft" align="right" valign="top"><a id="adb574cd86bfd64545309a2647057b6ee" name="adb574cd86bfd64545309a2647057b6ee"></a>
-static auto&#160;</td><td class="memItemRight" valign="bottom"><b>reclaim_leaf_on_scope_exit</b> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a> *<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf</a> <a class="el" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, Db &amp;db_instance <a class="el" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
+static auto&#160;</td><td class="memItemRight" valign="bottom"><b>reclaim_leaf_on_scope_exit</b> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a> *<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf</a> <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, Db &amp;db_instance <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
 <tr class="separator:adb574cd86bfd64545309a2647057b6ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acaafc0751a0dc7581d763e4869b02d53" id="r_acaafc0751a0dc7581d763e4869b02d53"><td class="memTemplParams" colspan="2"><a id="acaafc0751a0dc7581d763e4869b02d53" name="acaafc0751a0dc7581d763e4869b02d53"></a>
 template&lt;class INode , class... Args&gt; </td></tr>
-<tr class="memitem:acaafc0751a0dc7581d763e4869b02d53"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_db_inode_unique_ptr</b> (Db &amp;db_instance <a class="el" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, Args &amp;&amp;...args)</td></tr>
+<tr class="memitem:acaafc0751a0dc7581d763e4869b02d53"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_db_inode_unique_ptr</b> (Db &amp;db_instance <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, Args &amp;&amp;...args)</td></tr>
 <tr class="separator:acaafc0751a0dc7581d763e4869b02d53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a54a51c35c139b2043276682e53b4c2b4" id="r_a54a51c35c139b2043276682e53b4c2b4"><td class="memTemplParams" colspan="2"><a id="a54a51c35c139b2043276682e53b4c2b4" name="a54a51c35c139b2043276682e53b4c2b4"></a>
 template&lt;class INode &gt; </td></tr>
-<tr class="memitem:a54a51c35c139b2043276682e53b4c2b4"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_db_inode_unique_ptr</b> (INode *inode_ptr <a class="el" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, Db &amp;db_instance <a class="el" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
+<tr class="memitem:a54a51c35c139b2043276682e53b4c2b4"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_db_inode_unique_ptr</b> (INode *inode_ptr <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, Db &amp;db_instance <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
 <tr class="separator:a54a51c35c139b2043276682e53b4c2b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38bd1bfd351c3e868de12e66c79a2cc2" id="r_a38bd1bfd351c3e868de12e66c79a2cc2"><td class="memTemplParams" colspan="2"><a id="a38bd1bfd351c3e868de12e66c79a2cc2" name="a38bd1bfd351c3e868de12e66c79a2cc2"></a>
 template&lt;class INode &gt; </td></tr>
-<tr class="memitem:a38bd1bfd351c3e868de12e66c79a2cc2"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_db_inode_reclaimable_ptr</b> (INode *inode_ptr <a class="el" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, Db &amp;db_instance <a class="el" href="global_8hpp.html#a5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
+<tr class="memitem:a38bd1bfd351c3e868de12e66c79a2cc2"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_db_inode_reclaimable_ptr</b> (INode *inode_ptr <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, Db &amp;db_instance <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
 <tr class="separator:a38bd1bfd351c3e868de12e66c79a2cc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1352c770bc9f6b420979ebcc93a53156" id="r_a1352c770bc9f6b420979ebcc93a53156"><td class="memItemLeft" align="right" valign="top"><a id="a1352c770bc9f6b420979ebcc93a53156" name="a1352c770bc9f6b420979ebcc93a53156"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>delete_subtree</b> (NodePtr node, Db &amp;db_instance) noexcept</td></tr>
 <tr class="separator:a1352c770bc9f6b420979ebcc93a53156"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af26f0312b30fd4950e2ddda32d625e8f" id="r_af26f0312b30fd4950e2ddda32d625e8f"><td class="memItemLeft" align="right" valign="top"><a id="af26f0312b30fd4950e2ddda32d625e8f" name="af26f0312b30fd4950e2ddda32d625e8f"></a>
-static <a class="el" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump_node</b> (std::ostream &amp;os, const NodePtr &amp;node, bool recursive=true)</td></tr>
+static <a class="el" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump_node</b> (std::ostream &amp;os, const NodePtr &amp;node, bool recursive=true)</td></tr>
 <tr class="separator:af26f0312b30fd4950e2ddda32d625e8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
+Private Types</h2></td></tr>
+<tr class="memitem:a3c7ed6c0855f1e1c3dba8e51d8bd214b" id="r_a3c7ed6c0855f1e1c3dba8e51d8bd214b"><td class="memTemplParams" colspan="2"><a id="a3c7ed6c0855f1e1c3dba8e51d8bd214b" name="a3c7ed6c0855f1e1c3dba8e51d8bd214b"></a>
+template&lt;class INode &gt; </td></tr>
+<tr class="memitem:a3c7ed6c0855f1e1c3dba8e51d8bd214b"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>db_inode_deleter</b> = <a class="el" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">basic_db_inode_deleter</a>&lt; INode, Db &gt;</td></tr>
+<tr class="separator:a3c7ed6c0855f1e1c3dba8e51d8bd214b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af268e45c2bafde70518d8b70e01ebb32" id="r_af268e45c2bafde70518d8b70e01ebb32"><td class="memItemLeft" align="right" valign="top"><a id="af268e45c2bafde70518d8b70e01ebb32" name="af268e45c2bafde70518d8b70e01ebb32"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_reclaimable_ptr</b> = std::unique_ptr&lt; <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a>, LeafReclamator&lt; header_type, Db &gt; &gt;</td></tr>
+<tr class="separator:af268e45c2bafde70518d8b70e01ebb32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
+Static Private Member Functions</h2></td></tr>
+<tr class="memitem:a50d967b16fa13b1c86b64a304a1777f2" id="r_a50d967b16fa13b1c86b64a304a1777f2"><td class="memItemLeft" align="right" valign="top"><a id="a50d967b16fa13b1c86b64a304a1777f2" name="a50d967b16fa13b1c86b64a304a1777f2"></a>
+static auto&#160;</td><td class="memItemRight" valign="bottom"><b>make_db_leaf_ptr</b> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a> *<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf</a> <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, Db &amp;db_instance <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
+<tr class="separator:a50d967b16fa13b1c86b64a304a1777f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>
@@ -206,7 +229,7 @@ static <a class="el" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">U
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>unodb</b></li><li class="navelem"><b>detail</b></li><li class="navelem"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">basic_art_policy</a></li>
+    <li class="navelem"><a class="el" href="namespaceunodb.html">unodb</a></li><li class="navelem"><a class="el" href="namespaceunodb_1_1detail.html">detail</a></li><li class="navelem"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">basic_art_policy</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

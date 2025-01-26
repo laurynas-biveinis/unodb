@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['unodb_5fdetail_5fc_5fstring_5farg_0',['UNODB_DETAIL_C_STRING_ARG',['../assert_8hpp.html#a3ee91956195d7e9c352a4a22f45eecaf',1,'unodb::detail']]]
+  ['msg_5fstacktrace_5fabort_0',['msg_stacktrace_abort',['../namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2',1,'unodb::detail']]]
 ];

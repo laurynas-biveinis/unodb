@@ -127,7 +127,7 @@ $(document).ready(function(){initNavTree('heap_8hpp_source.html',''); initResiza
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &quot;<a class="code" href="assert_8hpp.html">assert.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#include &quot;test_heap.hpp&quot;</span></div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">namespace </span>unodb::detail {</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb_1_1detail.html">unodb::detail</a> {</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>[[nodiscard]] <span class="keyword">constexpr</span> <span class="keyword">auto</span> alignment_for_new() noexcept {</div>
@@ -146,19 +146,19 @@ $(document).ready(function(){initNavTree('heap_8hpp_source.html',''); initResiza
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="preprocessor">#ifndef _MSC_VER</span></div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  <span class="keyword">const</span> <span class="keyword">auto</span> err = posix_memalign(&amp;result, alignment, size);</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(err != 0)) result = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(err != 0)) result = <span class="keyword">nullptr</span>;</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="preprocessor">#else</span></div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  result = _aligned_malloc(size, alignment);</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  <span class="keyword">const</span> <span class="keyword">auto</span> err = <a class="code hl_define" href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a>(result != <span class="keyword">nullptr</span>) ? 0 : errno;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  <span class="keyword">const</span> <span class="keyword">auto</span> err = <a class="code hl_define" href="group__internal.html#ga8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a>(result != <span class="keyword">nullptr</span>) ? 0 : errno;</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  UNODB_DETAIL_ASSERT(err != EINVAL);</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(err != EINVAL);</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>  <span class="comment">// NOLINTNEXTLINE(readability-simplify-boolean-expr)</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  UNODB_DETAIL_ASSERT(result != <span class="keyword">nullptr</span> || err == ENOMEM);</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(result != <span class="keyword">nullptr</span> || err == ENOMEM);</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(result == <span class="keyword">nullptr</span>)) {</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(result == <span class="keyword">nullptr</span>)) {</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordflow">throw</span> std::bad_alloc{};  <span class="comment">// LCOV_EXCL_LINE</span></div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>  }</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
@@ -179,8 +179,10 @@ $(document).ready(function(){initNavTree('heap_8hpp_source.html',''); initResiza
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_HEAP_HPP</span></div>
 <div class="ttc" id="aassert_8hpp_html"><div class="ttname"><a href="assert_8hpp.html">assert.hpp</a></div><div class="ttdoc">Internal macros for assertions, assumptions &amp; intentional crashing.</div></div>
 <div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
-<div class="ttc" id="aglobal_8hpp_html_a179146ac5b62703d8069468266dd7ea7"><div class="ttname"><a href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a></div><div class="ttdeci">#define UNODB_DETAIL_UNLIKELY(condition)</div><div class="ttdoc">Hint the compiler that the condition is likely false.</div><div class="ttdef"><b>Definition</b> global.hpp:278</div></div>
-<div class="ttc" id="aglobal_8hpp_html_a8d13685712ac14fa6a261cb5f0dfc618"><div class="ttname"><a href="global_8hpp.html#a8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a></div><div class="ttdeci">#define UNODB_DETAIL_LIKELY(condition)</div><div class="ttdoc">Hint the compiler that the condition is likely true.</div><div class="ttdef"><b>Definition</b> global.hpp:277</div></div>
+<div class="ttc" id="agroup__internal_html_ga143793f205c69f573831b99b3dee1b9c"><div class="ttname"><a href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a></div><div class="ttdeci">#define UNODB_DETAIL_ASSERT(condition)</div><div class="ttdoc">Assert a condition.</div><div class="ttdef"><b>Definition</b> assert.hpp:174</div></div>
+<div class="ttc" id="agroup__internal_html_ga179146ac5b62703d8069468266dd7ea7"><div class="ttname"><a href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a></div><div class="ttdeci">#define UNODB_DETAIL_UNLIKELY(condition)</div><div class="ttdoc">Hint the compiler that the condition is likely false.</div><div class="ttdef"><b>Definition</b> global.hpp:282</div></div>
+<div class="ttc" id="agroup__internal_html_ga8d13685712ac14fa6a261cb5f0dfc618"><div class="ttname"><a href="group__internal.html#ga8d13685712ac14fa6a261cb5f0dfc618">UNODB_DETAIL_LIKELY</a></div><div class="ttdeci">#define UNODB_DETAIL_LIKELY(condition)</div><div class="ttdoc">Hint the compiler that the condition is likely true.</div><div class="ttdef"><b>Definition</b> global.hpp:281</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html"><div class="ttname"><a href="namespaceunodb_1_1detail.html">unodb::detail</a></div><div class="ttdoc">The namespace for the UnoDB internal implementation details.</div><div class="ttdef"><b>Definition</b> art.cpp:38</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

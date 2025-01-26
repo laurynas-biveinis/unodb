@@ -134,7 +134,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="preprocessor">#include &quot;portability_arch.hpp&quot;</span></div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="preprocessor">#include &quot;qsbr_ptr.hpp&quot;</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keyword">namespace </span>unodb {</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb.html">unodb</a> {</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="keyword">class </span>olc_db;</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
@@ -321,7 +321,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno"><a class="line" href="classunodb_1_1olc__db_1_1iterator.html">  219</a></span>  <span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1olc__db_1_1iterator.html">iterator</a> {</div>
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1olc__db.html">olc_db</a>;</div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt;</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="keyword">friend</span> <span class="keyword">class </span>visitor;</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1visitor.html">visitor</a>;</div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="comment">// The [node_ptr] is never [nullptr] and points to the internal</span></div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    <span class="comment">// node or leaf for that step in the path from the root to some</span></div>
@@ -359,7 +359,8 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    <span class="comment">// The version tag is cached when when those data are read from</span></div>
 <div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    <span class="comment">// the node along with the [key_byte] and [child_index] values</span></div>
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="comment">// that were read.</span></div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <span class="keyword">struct </span>stack_entry : <span class="keyword">public</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html">detail::olc_inode_base::iter_result</a> {</div>
+<div class="foldopen" id="foldopen00260" data-start="{" data-end="};">
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno"><a class="line" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">  260</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">stack_entry</a> : <span class="keyword">public</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html">detail::olc_inode_base::iter_result</a> {</div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>      <span class="comment">// The version tag invariant for the node.</span></div>
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>      <span class="comment">//</span></div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>      <span class="comment">// Note: This is just the data for the version tag and not the</span></div>
@@ -372,11 +373,12 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>      version_tag_type version;</div>
 <div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span> </div>
 <div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>      [[nodiscard]] <span class="keyword">inline</span> <span class="keywordtype">bool</span> operator==(</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>          <span class="keyword">const</span> stack_entry&amp; other) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>          <span class="keyword">const</span> <a class="code hl_struct" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">stack_entry</a>&amp; other) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>        <span class="keywordflow">return</span> node == other.node &amp;&amp; key_byte == other.key_byte &amp;&amp;</div>
 <div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>               child_index == other.child_index &amp;&amp; version == other.version;</div>
 <div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>      }</div>
 <div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    };</div>
+</div>
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>   <span class="keyword">protected</span>:</div>
 <div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <span class="comment">// Construct an empty iterator (one that is logically not</span></div>
@@ -436,7 +438,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>        <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span> </div>
 <div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="comment">// Debugging</span></div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    [[gnu::cold]] <a class="code hl_define" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1olc__db_1_1iterator.html#ae884a0b3afc477dfadce0f4419d8d0bd">dump</a>(std::ostream&amp; os) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    [[gnu::cold]] <a class="code hl_define" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream&amp; os) <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    [[gnu::cold]] <span class="keywordtype">void</span> dump() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span> </div>
 <div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    <span class="comment">// Return true unless the stack is empty (exposed to tests)</span></div>
@@ -459,21 +461,21 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    <span class="comment">// Push an entry onto the stack.</span></div>
 <div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    <span class="comment">//</span></div>
 <div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    <span class="comment">// TODO(thompsonbry) handle variable length keys here.</span></div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="keywordtype">void</span> push(<span class="keyword">const</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html">detail::olc_inode_base::iter_result</a>&amp; e,</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>              <span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a>&amp; rcs) {</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="keywordtype">void</span> push(<span class="keyword">const</span> detail::olc_inode_base::iter_result&amp; e,</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>              <span class="keyword">const</span> optimistic_lock::read_critical_section&amp; rcs) {</div>
 <div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>      push(e.node, e.key_byte, e.child_index, rcs);</div>
 <div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    }</div>
 <div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span> </div>
 <div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>    <span class="comment">// Push an entry onto the stack.</span></div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>    <span class="keywordtype">void</span> push(<a class="code hl_class" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> node, std::byte key_byte,</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>    <span class="keywordtype">void</span> push(detail::olc_node_ptr node, std::byte key_byte,</div>
 <div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>              std::uint8_t child_index,</div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>              <span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a>&amp; rcs) {</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>              <span class="keyword">const</span> optimistic_lock::read_critical_section&amp; rcs) {</div>
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>      stack_.push({{node, key_byte, child_index}, rcs.get()});</div>
 <div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>    }</div>
 <div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span> </div>
 <div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    <span class="comment">// Push a leaf onto the stack.</span></div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    <span class="keywordtype">void</span> push_leaf(<a class="code hl_class" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> aleaf,</div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>                   <span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a>&amp; rcs) {</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    <span class="keywordtype">void</span> push_leaf(detail::olc_node_ptr aleaf,</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>                   <span class="keyword">const</span> optimistic_lock::read_critical_section&amp; rcs) {</div>
 <div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>      <span class="comment">// Mock up an iter_result for the leaf. The [key] and</span></div>
 <div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>      <span class="comment">// [child_index] are ignored for a leaf.</span></div>
 <div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>      push(aleaf, <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(0xFFU),</div>
@@ -490,15 +492,15 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span> </div>
 <div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>    <span class="comment">// Return the node on the top of the stack and nullptr if the</span></div>
 <div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>    <span class="comment">// stack is empty (similar to top(), but handles an empty stack).</span></div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    [[nodiscard]] <a class="code hl_class" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> current_node() {</div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>      <span class="keywordflow">return</span> stack_.empty() ? <a class="code hl_class" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a>(<span class="keyword">nullptr</span>) : stack_.top().node;</div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    [[nodiscard]] detail::olc_node_ptr current_node() {</div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>      <span class="keywordflow">return</span> stack_.empty() ? detail::olc_node_ptr(<span class="keyword">nullptr</span>) : stack_.top().node;</div>
 <div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>    }</div>
 <div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span> </div>
 <div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>   <span class="keyword">private</span>:</div>
 <div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>    <span class="comment">// Invalidate the iterator (pops everything off of the stack).</span></div>
 <div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>    <span class="comment">//</span></div>
 <div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>    <span class="comment">// post-condition: The iterator is !valid().</span></div>
-<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>    <a class="code hl_class" href="classunodb_1_1olc__db_1_1iterator.html">iterator</a>&amp; invalidate() {</div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>    iterator&amp; invalidate() {</div>
 <div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>      <span class="keywordflow">while</span> (!stack_.empty()) stack_.pop();  <span class="comment">// clear the stack</span></div>
 <div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>      <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
 <div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>    }</div>
@@ -516,22 +518,22 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>    <span class="comment">// caller&#39;s node to the left-most leaf under that node, pushing</span></div>
 <div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>    <span class="comment">// nodes onto the stack as they are visited.</span></div>
 <div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>    [[nodiscard]] <span class="keywordtype">bool</span> try_left_most_traversal(</div>
-<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>        <a class="code hl_class" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> node,</div>
-<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>        <a class="code hl_class" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a>&amp; parent_critical_section);</div>
+<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>        detail::olc_node_ptr node,</div>
+<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>        optimistic_lock::read_critical_section&amp; parent_critical_section);</div>
 <div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span> </div>
 <div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>    <span class="comment">// Descend from the current state of the stack to the right most</span></div>
 <div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>    <span class="comment">// child leaf, updating the state of the iterator during the</span></div>
 <div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>    <span class="comment">// descent.</span></div>
 <div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>    [[nodiscard]] <span class="keywordtype">bool</span> try_right_most_traversal(</div>
-<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>        <a class="code hl_class" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> node,</div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>        <a class="code hl_class" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a>&amp; parent_critical_section);</div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>        detail::olc_node_ptr node,</div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>        optimistic_lock::read_critical_section&amp; parent_critical_section);</div>
 <div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span> </div>
 <div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>    <span class="comment">// Core logic invoked from retry loop.</span></div>
-<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>    [[nodiscard]] <span class="keywordtype">bool</span> try_seek(<a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">detail::art_key</a> search_key, <span class="keywordtype">bool</span>&amp; match,</div>
+<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>    [[nodiscard]] <span class="keywordtype">bool</span> try_seek(detail::art_key search_key, <span class="keywordtype">bool</span>&amp; match,</div>
 <div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>                                <span class="keywordtype">bool</span> fwd);</div>
 <div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span> </div>
 <div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>    <span class="comment">// The outer db instance.</span></div>
-<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    <a class="code hl_class" href="classunodb_1_1olc__db.html">olc_db</a>&amp; db_;</div>
+<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    olc_db&amp; db_;</div>
 <div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span> </div>
 <div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>    <span class="comment">// A stack reflecting the parent path from the root of the tree to</span></div>
 <div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>    <span class="comment">// the current leaf.  An empty stack corresponds to a logically</span></div>
@@ -585,17 +587,17 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00484" name="l00484"></a><span class="lineno">  484</span>    <span class="keywordflow">if</span> (fwd) {</div>
 <div class="line"><a id="l00485" name="l00485"></a><span class="lineno">  485</span>      <a class="code hl_class" href="classunodb_1_1olc__db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
 <div class="line"><a id="l00486" name="l00486"></a><span class="lineno">  486</span>      it.first();</div>
-<div class="line"><a id="l00487" name="l00487"></a><span class="lineno">  487</span>      visitor&lt;olc_db::iterator&gt; v{it};</div>
+<div class="line"><a id="l00487" name="l00487"></a><span class="lineno">  487</span>      <a class="code hl_class" href="classunodb_1_1visitor.html">visitor&lt;olc_db::iterator&gt;</a> v{it};</div>
 <div class="line"><a id="l00488" name="l00488"></a><span class="lineno">  488</span>      <span class="keywordflow">while</span> (it.valid()) {</div>
-<div class="line"><a id="l00489" name="l00489"></a><span class="lineno">  489</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00489" name="l00489"></a><span class="lineno">  489</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l00490" name="l00490"></a><span class="lineno">  490</span>        it.next();</div>
 <div class="line"><a id="l00491" name="l00491"></a><span class="lineno">  491</span>      }</div>
 <div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>    } <span class="keywordflow">else</span> {</div>
 <div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span>      <a class="code hl_class" href="classunodb_1_1olc__db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
 <div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span>      it.last();</div>
-<div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span>      visitor&lt;olc_db::iterator&gt; v{it};</div>
+<div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span>      <a class="code hl_class" href="classunodb_1_1visitor.html">visitor&lt;olc_db::iterator&gt;</a> v{it};</div>
 <div class="line"><a id="l00496" name="l00496"></a><span class="lineno">  496</span>      <span class="keywordflow">while</span> (it.valid()) {</div>
-<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l00498" name="l00498"></a><span class="lineno">  498</span>        it.prior();</div>
 <div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>      }</div>
 <div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>    }</div>
@@ -623,7 +625,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>      it.seek(from_key_, match, <span class="keyword">true</span> <span class="comment">/*fwd*/</span>);</div>
 <div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>      visitor&lt;olc_db::iterator&gt; v{it};</div>
 <div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>      <span class="keywordflow">while</span> (it.valid()) {</div>
-<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span>        it.next();</div>
 <div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>      }</div>
 <div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>    } <span class="keywordflow">else</span> {</div>
@@ -631,7 +633,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>      it.seek(from_key_, match, <span class="keyword">false</span> <span class="comment">/*fwd*/</span>);</div>
 <div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>      visitor&lt;olc_db::iterator&gt; v{it};</div>
 <div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span>      <span class="keywordflow">while</span> (it.valid()) {</div>
-<div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span>        it.prior();</div>
 <div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span>      }</div>
 <div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>    }</div>
@@ -676,7 +678,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>      }</div>
 <div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>      visitor&lt;olc_db::iterator&gt; v{it};</div>
 <div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>      <span class="keywordflow">while</span> (it.valid() &amp;&amp; it.cmp(to_key_) &lt; 0) {</div>
-<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>        it.next();</div>
 <div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>        <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (debug) {</div>
 <div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>          std::cerr &lt;&lt; <span class="stringliteral">&quot;scan: next()\n&quot;</span>;</div>
@@ -693,7 +695,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>      }</div>
 <div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>      visitor&lt;olc_db::iterator&gt; v{it};</div>
 <div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>      <span class="keywordflow">while</span> (it.valid() &amp;&amp; it.cmp(to_key_) &gt; 0) {</div>
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>        it.prior();</div>
 <div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>        <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (debug) {</div>
 <div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>          std::cerr &lt;&lt; <span class="stringliteral">&quot;scan: prior()\n&quot;</span>;</div>
@@ -761,8 +763,8 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>  }</div>
 <div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span> </div>
 <div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span>  <span class="comment">// Debugging</span></div>
-<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span>  [[gnu::cold]] <a class="code hl_define" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream&amp; os) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span>  [[gnu::cold]] <a class="code hl_define" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span>  [[gnu::cold]] <a class="code hl_define" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream&amp; os) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span>  [[gnu::cold]] <a class="code hl_define" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span> </div>
 <div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span>  olc_db(<span class="keyword">const</span> olc_db&amp;) <span class="keyword">noexcept</span> = <span class="keyword">delete</span>;</div>
 <div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span>  olc_db(olc_db&amp;&amp;) noexcept = delete;</div>
@@ -780,7 +782,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span>  [[nodiscard]] try_get_result_type try_get(detail::art_key k) const noexcept;</div>
 <div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span> </div>
 <div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>  [[nodiscard]] try_update_result_type try_insert(</div>
-<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>      detail::art_key k, unodb::value_view v,</div>
+<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>      detail::art_key k, <a class="code hl_namespace" href="namespaceunodb.html">unodb</a>::value_view v,</div>
 <div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>      detail::olc_leaf_unique_ptr&amp; cached_leaf);</div>
 <div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span> </div>
 <div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span>  [[nodiscard]] try_update_result_type try_remove(detail::art_key k);</div>
@@ -796,16 +798,16 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00694" name="l00694"></a><span class="lineno">  694</span>    node_counts[as_i&lt;node_type::LEAF&gt;].fetch_add(1, std::memory_order_relaxed);</div>
 <div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span>  }</div>
 <div class="line"><a id="l00696" name="l00696"></a><span class="lineno">  696</span> </div>
-<div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span>  <a class="code hl_define" href="global_8hpp.html#a6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(4189)</div>
+<div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(4189)</div>
 <div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span>  void decrement_leaf_count(std::<span class="keywordtype">size_t</span> leaf_size) noexcept {</div>
 <div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span>    decrease_memory_use(leaf_size);</div>
 <div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span> </div>
-<div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span>    <span class="keyword">const</span> <span class="keyword">auto</span> old_leaf_count <a class="code hl_define" href="global_8hpp.html#a635640d5d3b202d11b61c3730f6c2988">UNODB_DETAIL_USED_IN_DEBUG</a> =</div>
+<div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span>    <span class="keyword">const</span> <span class="keyword">auto</span> old_leaf_count <a class="code hl_define" href="group__internal.html#ga635640d5d3b202d11b61c3730f6c2988">UNODB_DETAIL_USED_IN_DEBUG</a> =</div>
 <div class="line"><a id="l00702" name="l00702"></a><span class="lineno">  702</span>        node_counts[as_i&lt;node_type::LEAF&gt;].fetch_sub(1,</div>
 <div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span>                                                     std::memory_order_relaxed);</div>
-<div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span>    UNODB_DETAIL_ASSERT(old_leaf_count &gt; 0);</div>
+<div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(old_leaf_count &gt; 0);</div>
 <div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span>  }</div>
-<div class="line"><a id="l00706" name="l00706"></a><span class="lineno">  706</span>  <a class="code hl_define" href="global_8hpp.html#acd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00706" name="l00706"></a><span class="lineno">  706</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
 <div class="line"><a id="l00707" name="l00707"></a><span class="lineno">  707</span> </div>
 <div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span>  template &lt;class INode&gt;</div>
 <div class="line"><a id="l00709" name="l00709"></a><span class="lineno">  709</span>  constexpr <span class="keywordtype">void</span> increment_inode_count() noexcept;</div>
@@ -894,7 +896,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span>  <span class="keywordflow">if</span> (!valid()) <span class="keywordflow">return</span> {};  <span class="comment">// not positioned on anything.</span></div>
 <div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; e = stack_.top();</div>
 <div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; node = e.node;</div>
-<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span>  UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);     <span class="comment">// On a leaf.</span></div>
+<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(node.type() == node_type::LEAF);     <span class="comment">// On a leaf.</span></div>
 <div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span>  <span class="keyword">const</span> <span class="keyword">auto</span>* <span class="keyword">const</span> aleaf{node.ptr&lt;<a class="code hl_class" href="classunodb_1_1detail_1_1basic__leaf.html">detail::olc_leaf</a>*&gt;()};  <span class="comment">// current leaf.</span></div>
 <div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span>  key_ = aleaf-&gt;get_key().decode();  <span class="comment">// decode key into iterator&#39;s buffer.</span></div>
 <div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span>  <span class="keywordflow">return</span> key_;  <span class="comment">// return pointer to the internal key buffer.</span></div>
@@ -908,7 +910,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span>  <span class="keywordflow">if</span> (!valid()) <span class="keywordflow">return</span> {};  <span class="comment">// not positioned on anything.</span></div>
 <div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; e = stack_.top();</div>
 <div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; node = e.node;</div>
-<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>  UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);     <span class="comment">// On a leaf.</span></div>
+<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(node.type() == node_type::LEAF);     <span class="comment">// On a leaf.</span></div>
 <div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>  <span class="keyword">const</span> <span class="keyword">auto</span>* <span class="keyword">const</span> aleaf{node.ptr&lt;<a class="code hl_class" href="classunodb_1_1detail_1_1basic__leaf.html">detail::olc_leaf</a>*&gt;()};  <span class="comment">// current leaf.</span></div>
 <div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span>  <span class="keywordflow">return</span> qsbr_ptr_span{aleaf-&gt;get_value_view()};</div>
 <div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span>}</div>
@@ -917,9 +919,9 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span>  <span class="comment">// TODO(thompsonbry) Explore a cheaper way to handle the exclusive</span></div>
 <div class="line"><a id="l00816" name="l00816"></a><span class="lineno">  816</span>  <span class="comment">// bound case when developing variable length key support based on</span></div>
 <div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span>  <span class="comment">// the maintained key buffer.</span></div>
-<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span>  UNODB_DETAIL_ASSERT(!stack_.empty());</div>
+<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(!stack_.empty());</div>
 <div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span>  <span class="keyword">auto</span>&amp; node = stack_.top().node;</div>
-<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span>  UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);</div>
+<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(node.type() == node_type::LEAF);</div>
 <div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span>  <span class="keyword">const</span> <span class="keyword">auto</span>* <span class="keyword">const</span> leaf{node.ptr&lt;detail::olc_leaf*&gt;()};</div>
 <div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span>  <span class="keywordflow">return</span> leaf-&gt;get_key().cmp(akey);</div>
 <div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span>}</div>
@@ -942,24 +944,27 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="ttc" id="aclassunodb_1_1in__critical__section_html"><div class="ttname"><a href="classunodb_1_1in__critical__section.html">unodb::in_critical_section</a></div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:521</div></div>
 <div class="ttc" id="aclassunodb_1_1olc__db_1_1iterator_html"><div class="ttname"><a href="classunodb_1_1olc__db_1_1iterator.html">unodb::olc_db::iterator</a></div><div class="ttdoc">iterator (the iterator is an internal API, the public API is scan()).</div><div class="ttdef"><b>Definition</b> olc_art.hpp:219</div></div>
 <div class="ttc" id="aclassunodb_1_1olc__db_1_1iterator_html_a81990f0f0aa7aefb11a3043a5e66bdcf"><div class="ttname"><a href="classunodb_1_1olc__db_1_1iterator.html#a81990f0f0aa7aefb11a3043a5e66bdcf">unodb::olc_db::iterator::get_key</a></div><div class="ttdeci">std::optional&lt; const key &gt; get_key()</div><div class="ttdoc">ART iterator implementation.</div><div class="ttdef"><b>Definition</b> olc_art.hpp:784</div></div>
-<div class="ttc" id="aclassunodb_1_1olc__db_1_1iterator_html_ae884a0b3afc477dfadce0f4419d8d0bd"><div class="ttname"><a href="classunodb_1_1olc__db_1_1iterator.html#ae884a0b3afc477dfadce0f4419d8d0bd">unodb::olc_db::iterator::dump</a></div><div class="ttdeci">UNODB_DETAIL_NOINLINE void dump(std::ostream &amp;os) const</div><div class="ttdoc">unodb::olc_db::iterator</div><div class="ttdef"><b>Definition</b> olc_art.cpp:1315</div></div>
 <div class="ttc" id="aclassunodb_1_1olc__db_html"><div class="ttname"><a href="classunodb_1_1olc__db.html">unodb::olc_db</a></div><div class="ttdef"><b>Definition</b> olc_art.hpp:136</div></div>
 <div class="ttc" id="aclassunodb_1_1olc__db_html_a7162df147925d5422db3df170ba86259"><div class="ttname"><a href="classunodb_1_1olc__db.html#a7162df147925d5422db3df170ba86259">unodb::olc_db::scan</a></div><div class="ttdeci">void scan(FN fn, bool fwd=true) noexcept</div><div class="ttdoc">public scan API</div><div class="ttdef"><b>Definition</b> olc_art.hpp:483</div></div>
 <div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1read__critical__section_html"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">unodb::optimistic_lock::read_critical_section</a></div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:204</div></div>
 <div class="ttc" id="aclassunodb_1_1optimistic__lock_html"><div class="ttname"><a href="classunodb_1_1optimistic__lock.html">unodb::optimistic_lock</a></div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:91</div></div>
 <div class="ttc" id="aclassunodb_1_1qsbr__ptr__span_html"><div class="ttname"><a href="classunodb_1_1qsbr__ptr__span.html">unodb::qsbr_ptr_span</a></div><div class="ttdef"><b>Definition</b> qsbr_ptr.hpp:244</div></div>
+<div class="ttc" id="aclassunodb_1_1visitor_html"><div class="ttname"><a href="classunodb_1_1visitor.html">unodb::visitor</a></div><div class="ttdef"><b>Definition</b> art_internal.hpp:291</div></div>
 <div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
-<div class="ttc" id="aglobal_8hpp_html_a179146ac5b62703d8069468266dd7ea7"><div class="ttname"><a href="global_8hpp.html#a179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a></div><div class="ttdeci">#define UNODB_DETAIL_UNLIKELY(condition)</div><div class="ttdoc">Hint the compiler that the condition is likely false.</div><div class="ttdef"><b>Definition</b> global.hpp:278</div></div>
-<div class="ttc" id="aglobal_8hpp_html_a5b23fa8d0f373d55f1cd77b698f74d33"><div class="ttname"><a href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_NOINLINE</div><div class="ttdoc">Ask the compiler to not inline the function.</div><div class="ttdef"><b>Definition</b> global.hpp:282</div></div>
-<div class="ttc" id="aglobal_8hpp_html_a635640d5d3b202d11b61c3730f6c2988"><div class="ttname"><a href="global_8hpp.html#a635640d5d3b202d11b61c3730f6c2988">UNODB_DETAIL_USED_IN_DEBUG</a></div><div class="ttdeci">#define UNODB_DETAIL_USED_IN_DEBUG</div><div class="ttdoc">Marks a declaration as intentionally unused in release builds, but used in debug ones.</div><div class="ttdef"><b>Definition</b> global.hpp:409</div></div>
-<div class="ttc" id="aglobal_8hpp_html_a6979215c90d6f2280a56d80eb67c6c83"><div class="ttname"><a href="global_8hpp.html#a6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)</div><div class="ttdoc">Disable an MSVC warning x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:348</div></div>
-<div class="ttc" id="aglobal_8hpp_html_acd9e44918f8725b066b33afc500ce938"><div class="ttname"><a href="global_8hpp.html#acd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:349</div></div>
+<div class="ttc" id="agroup__internal_html_ga143793f205c69f573831b99b3dee1b9c"><div class="ttname"><a href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a></div><div class="ttdeci">#define UNODB_DETAIL_ASSERT(condition)</div><div class="ttdoc">Assert a condition.</div><div class="ttdef"><b>Definition</b> assert.hpp:174</div></div>
+<div class="ttc" id="agroup__internal_html_ga179146ac5b62703d8069468266dd7ea7"><div class="ttname"><a href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a></div><div class="ttdeci">#define UNODB_DETAIL_UNLIKELY(condition)</div><div class="ttdoc">Hint the compiler that the condition is likely false.</div><div class="ttdef"><b>Definition</b> global.hpp:282</div></div>
+<div class="ttc" id="agroup__internal_html_ga5b23fa8d0f373d55f1cd77b698f74d33"><div class="ttname"><a href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_NOINLINE</div><div class="ttdoc">Ask the compiler to not inline the function.</div><div class="ttdef"><b>Definition</b> global.hpp:286</div></div>
+<div class="ttc" id="agroup__internal_html_ga635640d5d3b202d11b61c3730f6c2988"><div class="ttname"><a href="group__internal.html#ga635640d5d3b202d11b61c3730f6c2988">UNODB_DETAIL_USED_IN_DEBUG</a></div><div class="ttdeci">#define UNODB_DETAIL_USED_IN_DEBUG</div><div class="ttdoc">Marks a declaration as intentionally unused in release builds, but used in debug ones.</div><div class="ttdef"><b>Definition</b> global.hpp:413</div></div>
+<div class="ttc" id="agroup__internal_html_ga6979215c90d6f2280a56d80eb67c6c83"><div class="ttname"><a href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)</div><div class="ttdoc">Disable an MSVC warning x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:352</div></div>
+<div class="ttc" id="agroup__internal_html_gacd9e44918f8725b066b33afc500ce938"><div class="ttname"><a href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:353</div></div>
+<div class="ttc" id="anamespaceunodb_html"><div class="ttname"><a href="namespaceunodb.html">unodb</a></div><div class="ttdoc">The namespace for the public UnoDB API.</div><div class="ttdef"><b>Definition</b> art.cpp:38</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1basic__art__key_html"><div class="ttname"><a href="structunodb_1_1detail_1_1basic__art__key.html">unodb::detail::basic_art_key</a></div><div class="ttdef"><b>Definition</b> art_internal.hpp:42</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1basic__art__policy_html"><div class="ttname"><a href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:234</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1basic__inode__def_html"><div class="ttname"><a href="structunodb_1_1detail_1_1basic__inode__def.html">unodb::detail::basic_inode_def</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:184</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1basic__inode__impl_1_1iter__result_html"><div class="ttname"><a href="structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html">unodb::detail::basic_inode_impl::iter_result</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:638</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1olc__impl__helpers_html"><div class="ttname"><a href="structunodb_1_1detail_1_1olc__impl__helpers.html">unodb::detail::olc_impl_helpers</a></div><div class="ttdef"><b>Definition</b> olc_art.cpp:210</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1olc__node__header_html"><div class="ttname"><a href="structunodb_1_1detail_1_1olc__node__header.html">unodb::detail::olc_node_header</a></div><div class="ttdef"><b>Definition</b> olc_art.hpp:43</div></div>
+<div class="ttc" id="astructunodb_1_1olc__db_1_1iterator_1_1stack__entry_html"><div class="ttname"><a href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">unodb::olc_db::iterator::stack_entry</a></div><div class="ttdef"><b>Definition</b> olc_art.hpp:260</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

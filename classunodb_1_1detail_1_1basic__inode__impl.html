@@ -103,6 +103,9 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1basic__inode__
 <a href="#pro-types">Protected Types</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-static-attribs">Static Protected Attributes</a> &#124;
+<a href="#pri-types">Private Types</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
+<a href="#pri-static-attribs">Static Private Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="classunodb_1_1detail_1_1basic__inode__impl-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::basic_inode_impl&lt; ArtPolicy &gt; Class Template Reference</div></div>
@@ -240,7 +243,7 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_type</b> = <a c
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:a7fdaaa43b9b0565f8b7b2937768495d3" id="r_a7fdaaa43b9b0565f8b7b2937768495d3"><td class="memItemLeft" align="right" valign="top"><a id="a7fdaaa43b9b0565f8b7b2937768495d3" name="a7fdaaa43b9b0565f8b7b2937768495d3"></a>
-<a class="el" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os, bool) const</td></tr>
+<a class="el" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os, bool) const</td></tr>
 <tr class="separator:a7fdaaa43b9b0565f8b7b2937768495d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-static-attribs" name="pro-static-attribs"></a>
@@ -251,6 +254,39 @@ static constexpr find_result&#160;</td><td class="memItemRight" valign="bottom">
 <tr class="memitem:a309951d14c3d09aff0f0fc8be224a6e9" id="r_a309951d14c3d09aff0f0fc8be224a6e9"><td class="memItemLeft" align="right" valign="top"><a id="a309951d14c3d09aff0f0fc8be224a6e9" name="a309951d14c3d09aff0f0fc8be224a6e9"></a>
 static constexpr iter_result_opt&#160;</td><td class="memItemRight" valign="bottom"><b>end_result</b> {}</td></tr>
 <tr class="separator:a309951d14c3d09aff0f0fc8be224a6e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
+Private Types</h2></td></tr>
+<tr class="memitem:a08a436d0caea461cd14f02e541d854f2" id="r_a08a436d0caea461cd14f02e541d854f2"><td class="memItemLeft" align="right" valign="top"><a id="a08a436d0caea461cd14f02e541d854f2" name="a08a436d0caea461cd14f02e541d854f2"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>header_type</b> = typename ArtPolicy::header_type</td></tr>
+<tr class="separator:a08a436d0caea461cd14f02e541d854f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a819af077973d5732e0d4672bea547f4b" id="r_a819af077973d5732e0d4672bea547f4b"><td class="memItemLeft" align="right" valign="top"><a id="a819af077973d5732e0d4672bea547f4b" name="a819af077973d5732e0d4672bea547f4b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode4_type</b> = typename ArtPolicy::inode4_type</td></tr>
+<tr class="separator:a819af077973d5732e0d4672bea547f4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a391911aa4ada3b8333a30b407b6a7bae" id="r_a391911aa4ada3b8333a30b407b6a7bae"><td class="memItemLeft" align="right" valign="top"><a id="a391911aa4ada3b8333a30b407b6a7bae" name="a391911aa4ada3b8333a30b407b6a7bae"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode16_type</b> = typename ArtPolicy::inode16_type</td></tr>
+<tr class="separator:a391911aa4ada3b8333a30b407b6a7bae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdcfa9de90ffd281dd43ed6b0152d2eb" id="r_abdcfa9de90ffd281dd43ed6b0152d2eb"><td class="memItemLeft" align="right" valign="top"><a id="abdcfa9de90ffd281dd43ed6b0152d2eb" name="abdcfa9de90ffd281dd43ed6b0152d2eb"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode48_type</b> = typename ArtPolicy::inode48_type</td></tr>
+<tr class="separator:abdcfa9de90ffd281dd43ed6b0152d2eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca72cb01bfbb57cac9c0c91ad5d561de" id="r_aca72cb01bfbb57cac9c0c91ad5d561de"><td class="memItemLeft" align="right" valign="top"><a id="aca72cb01bfbb57cac9c0c91ad5d561de" name="aca72cb01bfbb57cac9c0c91ad5d561de"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode256_type</b> = typename ArtPolicy::inode256_type</td></tr>
+<tr class="separator:aca72cb01bfbb57cac9c0c91ad5d561de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a64029e63f26966cd4af079ca62553a7d" id="r_a64029e63f26966cd4af079ca62553a7d"><td class="memItemLeft" align="right" valign="top"><a id="a64029e63f26966cd4af079ca62553a7d" name="a64029e63f26966cd4af079ca62553a7d"></a>
+<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a>&lt; critical_section_policy &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>k_prefix</b></td></tr>
+<tr class="separator:a64029e63f26966cd4af079ca62553a7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add5af43ee6411c23ba06198ec3f1895f" id="r_add5af43ee6411c23ba06198ec3f1895f"><td class="memItemLeft" align="right" valign="top"><a id="add5af43ee6411c23ba06198ec3f1895f" name="add5af43ee6411c23ba06198ec3f1895f"></a>
+critical_section_policy&lt; std::uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>children_count</b></td></tr>
+<tr class="separator:add5af43ee6411c23ba06198ec3f1895f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
+Static Private Attributes</h2></td></tr>
+<tr class="memitem:adc6e07b0120630ba8a01da34cde094a0" id="r_adc6e07b0120630ba8a01da34cde094a0"><td class="memItemLeft" align="right" valign="top"><a id="adc6e07b0120630ba8a01da34cde094a0" name="adc6e07b0120630ba8a01da34cde094a0"></a>
+static constexpr std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>child_not_found_i</b> = 0xFFU</td></tr>
+<tr class="separator:adc6e07b0120630ba8a01da34cde094a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
@@ -292,7 +328,7 @@ template&lt;class &gt; </td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>unodb</b></li><li class="navelem"><b>detail</b></li><li class="navelem"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">basic_inode_impl</a></li>
+    <li class="navelem"><a class="el" href="namespaceunodb.html">unodb</a></li><li class="navelem"><a class="el" href="namespaceunodb_1_1detail.html">detail</a></li><li class="navelem"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">basic_inode_impl</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

@@ -9,7 +9,9 @@ var searchData=
   ['inode_5f256_6',['inode_256',['../classunodb_1_1detail_1_1inode__256.html',1,'unodb::detail']]],
   ['inode_5f4_7',['inode_4',['../classunodb_1_1detail_1_1inode__4.html',1,'unodb::detail']]],
   ['inode_5f48_8',['inode_48',['../classunodb_1_1detail_1_1inode__48.html',1,'unodb::detail']]],
-  ['introduction_9',['Introduction',['../md_README.html#autotoc_md14',1,'']]],
-  ['iter_5fresult_10',['iter_result',['../structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html',1,'unodb::detail::basic_inode_impl']]],
-  ['iterator_11',['iterator',['../classunodb_1_1db_1_1iterator.html',1,'unodb::db::iterator'],['../classunodb_1_1olc__db_1_1iterator.html',1,'unodb::olc_db::iterator']]]
+  ['inode_5ffields_9',['inode_fields',['../structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html',1,'unodb::detail::key_prefix']]],
+  ['internals_10',['Internals',['../group__internal.html',1,'']]],
+  ['introduction_11',['Introduction',['../md_README.html#autotoc_md14',1,'']]],
+  ['iter_5fresult_12',['iter_result',['../structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html',1,'unodb::detail::basic_inode_impl']]],
+  ['iterator_13',['iterator',['../classunodb_1_1db_1_1iterator.html',1,'unodb::db::iterator'],['../classunodb_1_1olc__db_1_1iterator.html',1,'unodb::olc_db::iterator']]]
 ];

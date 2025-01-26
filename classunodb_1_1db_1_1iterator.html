@@ -99,6 +99,9 @@ $(document).ready(function(){initNavTree('classunodb_1_1db_1_1iterator.html','')
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pri-types">Private Types</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="classunodb_1_1db_1_1iterator-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::db::iterator Class Reference</div></div>
@@ -135,7 +138,7 @@ std::optional&lt; const key &gt;&#160;</td><td class="memItemRight" valign="bott
 std::optional&lt; const value_view &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_val</b> () const</td></tr>
 <tr class="separator:a125c6663b152b6762e6cecce8057c7bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af982044ade01c2fb5378aaea1e676e53" id="r_af982044ade01c2fb5378aaea1e676e53"><td class="memItemLeft" align="right" valign="top"><a id="af982044ade01c2fb5378aaea1e676e53" name="af982044ade01c2fb5378aaea1e676e53"></a>
-<a class="el" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
+<a class="el" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
 <tr class="memdesc:af982044ade01c2fb5378aaea1e676e53"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classunodb_1_1db_1_1iterator.html" title="iterator (the iterator is an internal API, the public API is scan()).">unodb::db::iterator</a> <br /></td></tr>
 <tr class="separator:af982044ade01c2fb5378aaea1e676e53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a06feb45f4ccff3899df221d31c0da14d" id="r_a06feb45f4ccff3899df221d31c0da14d"><td class="memItemLeft" align="right" valign="top"><a id="a06feb45f4ccff3899df221d31c0da14d" name="a06feb45f4ccff3899df221d31c0da14d"></a>
@@ -190,6 +193,30 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>pop</b> ()</td></tr>
 <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>current_node</b> ()</td></tr>
 <tr class="separator:a50f8c5ba6921e20a1b435a366a308c8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
+Private Types</h2></td></tr>
+<tr class="memitem:a4b57babfb295120664c7f1f9196a957b" id="r_a4b57babfb295120664c7f1f9196a957b"><td class="memItemLeft" align="right" valign="top"><a id="a4b57babfb295120664c7f1f9196a957b" name="a4b57babfb295120664c7f1f9196a957b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>stack_entry</b> = <a class="el" href="structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html">detail::inode_base::iter_result</a></td></tr>
+<tr class="separator:a4b57babfb295120664c7f1f9196a957b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a8510da710e7b7ef04839c9256845867a" id="r_a8510da710e7b7ef04839c9256845867a"><td class="memItemLeft" align="right" valign="top"><a id="a8510da710e7b7ef04839c9256845867a" name="a8510da710e7b7ef04839c9256845867a"></a>
+<a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>invalidate</b> ()</td></tr>
+<tr class="separator:a8510da710e7b7ef04839c9256845867a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a377d54e54418652d2ba81de46ca98970" id="r_a377d54e54418652d2ba81de46ca98970"><td class="memItemLeft" align="right" valign="top"><a id="a377d54e54418652d2ba81de46ca98970" name="a377d54e54418652d2ba81de46ca98970"></a>
+<a class="el" href="classunodb_1_1db.html">db</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>db_</b></td></tr>
+<tr class="separator:a377d54e54418652d2ba81de46ca98970"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba576bfcd68631e07208b1f9968b7e04" id="r_aba576bfcd68631e07208b1f9968b7e04"><td class="memItemLeft" align="right" valign="top"><a id="aba576bfcd68631e07208b1f9968b7e04" name="aba576bfcd68631e07208b1f9968b7e04"></a>
+std::stack&lt; <a class="el" href="structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html">stack_entry</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>stack_</b> {}</td></tr>
+<tr class="separator:aba576bfcd68631e07208b1f9968b7e04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab28e0fb1a938e0cbc935c13bb3640238" id="r_ab28e0fb1a938e0cbc935c13bb3640238"><td class="memItemLeft" align="right" valign="top"><a id="ab28e0fb1a938e0cbc935c13bb3640238" name="ab28e0fb1a938e0cbc935c13bb3640238"></a>
+key&#160;</td><td class="memItemRight" valign="bottom"><b>key_</b> {}</td></tr>
+<tr class="separator:ab28e0fb1a938e0cbc935c13bb3640238"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
 <tr class="memitem:afaa85f6d069fcff5be399f829fe8f1d5" id="r_afaa85f6d069fcff5be399f829fe8f1d5"><td class="memItemLeft" align="right" valign="top"><a id="afaa85f6d069fcff5be399f829fe8f1d5" name="afaa85f6d069fcff5be399f829fe8f1d5"></a>
@@ -211,7 +238,7 @@ template&lt;class &gt; </td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>unodb</b></li><li class="navelem"><a class="el" href="classunodb_1_1db.html">db</a></li><li class="navelem"><a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a></li>
+    <li class="navelem"><a class="el" href="namespaceunodb.html">unodb</a></li><li class="navelem"><a class="el" href="classunodb_1_1db.html">db</a></li><li class="navelem"><a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

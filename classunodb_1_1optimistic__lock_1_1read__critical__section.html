@@ -98,6 +98,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1optimistic__lock_1_1read
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="classunodb_1_1optimistic__lock_1_1read__critical__section-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::optimistic_lock::read_critical_section Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
@@ -113,7 +114,7 @@ Public Member Functions</h2></td></tr>
 <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> &amp;&amp;other) noexcept</td></tr>
 <tr class="separator:a6824edf72423338a0da364766d9b952e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42ab148e6412b12f15f86b3d64078ce7" id="r_a42ab148e6412b12f15f86b3d64078ce7"><td class="memItemLeft" align="right" valign="top"><a id="a42ab148e6412b12f15f86b3d64078ce7" name="a42ab148e6412b12f15f86b3d64078ce7"></a>
-<a class="el" href="global_8hpp.html#af5a41e323936137cb87fdb25e5acd652">UNODB_DETAIL_FORCE_INLINE</a> bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_read_unlock</b> () const noexcept</td></tr>
+<a class="el" href="group__internal.html#gaf5a41e323936137cb87fdb25e5acd652">UNODB_DETAIL_FORCE_INLINE</a> bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_read_unlock</b> () const noexcept</td></tr>
 <tr class="separator:a42ab148e6412b12f15f86b3d64078ce7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad027fbe6045c80c4869e6e6d05af408e" id="r_ad027fbe6045c80c4869e6e6d05af408e"><td class="memItemLeft" align="right" valign="top"><a id="ad027fbe6045c80c4869e6e6d05af408e" name="ad027fbe6045c80c4869e6e6d05af408e"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>check</b> () const noexcept</td></tr>
@@ -134,6 +135,15 @@ constexpr version_tag_type&#160;</td><td class="memItemRight" valign="bottom"><b
 <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> &amp;)=delete</td></tr>
 <tr class="separator:a358e873f71d070f57476c2cecfd647f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a49c205ed1230b579a8692119a3c67171" id="r_a49c205ed1230b579a8692119a3c67171"><td class="memItemLeft" align="right" valign="top"><a id="a49c205ed1230b579a8692119a3c67171" name="a49c205ed1230b579a8692119a3c67171"></a>
+<a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>lock</b> {nullptr}</td></tr>
+<tr class="separator:a49c205ed1230b579a8692119a3c67171"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66e3bcf979e6d6598cc683969a31d72e" id="r_a66e3bcf979e6d6598cc683969a31d72e"><td class="memItemLeft" align="right" valign="top"><a id="a66e3bcf979e6d6598cc683969a31d72e" name="a66e3bcf979e6d6598cc683969a31d72e"></a>
+<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>version</b> {0}</td></tr>
+<tr class="separator:a66e3bcf979e6d6598cc683969a31d72e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
 <tr class="memitem:a7f57a6123403295cd6814185cae5b76c" id="r_a7f57a6123403295cd6814185cae5b76c"><td class="memItemLeft" align="right" valign="top"><a id="a7f57a6123403295cd6814185cae5b76c" name="a7f57a6123403295cd6814185cae5b76c"></a>
@@ -148,7 +158,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b></td>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>unodb</b></li><li class="navelem"><a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a></li><li class="navelem"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a></li>
+    <li class="navelem"><a class="el" href="namespaceunodb.html">unodb</a></li><li class="navelem"><a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a></li><li class="navelem"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

@@ -119,7 +119,7 @@ $(document).ready(function(){initNavTree('node__type_8hpp_source.html',''); init
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#include &quot;<a class="code" href="assert_8hpp.html">assert.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="keyword">namespace </span>unodb {</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb.html">unodb</a> {</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keyword">enum class</span> [[nodiscard]] node_type : std::uint8_t { LEAF, I4, I16, I48, I256 };</div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
@@ -135,7 +135,7 @@ $(document).ready(function(){initNavTree('node__type_8hpp_source.html',''); init
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <span class="keyword">static_assert</span>(NodeType != node_type::LEAF);</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="comment">// This function is not for execution, but to wrap the static_assert, which is</span></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="comment">// not an expression for some reason.</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <a class="code hl_define" href="assert_8hpp.html#aa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>}</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>}  <span class="comment">// namespace detail</span></div>
@@ -150,7 +150,7 @@ $(document).ready(function(){initNavTree('node__type_8hpp_source.html',''); init
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    std::array&lt;std::uint64_t, detail::inode_type_count&gt;;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="comment">// function call before comma missing argument list</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><a class="code hl_define" href="global_8hpp.html#a6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(4546)</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(4546)</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>template &lt;node_type NodeType&gt;</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>inline constexpr auto internal_as_i{</div>
@@ -159,16 +159,17 @@ $(document).ready(function(){initNavTree('node__type_8hpp_source.html',''); init
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        NodeType) -</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    1};</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><a class="code hl_define" href="global_8hpp.html#acd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>}  <span class="comment">// namespace unodb</span></div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_NODE_TYPE_HPP</span></div>
 <div class="ttc" id="aassert_8hpp_html"><div class="ttname"><a href="assert_8hpp.html">assert.hpp</a></div><div class="ttdoc">Internal macros for assertions, assumptions &amp; intentional crashing.</div></div>
-<div class="ttc" id="aassert_8hpp_html_aa40fe4fe8238513be2c947f8779c04e4"><div class="ttname"><a href="assert_8hpp.html#aa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a></div><div class="ttdeci">#define UNODB_DETAIL_CANNOT_HAPPEN()</div><div class="ttdoc">Mark this source code location as unreachable.</div><div class="ttdef"><b>Definition</b> assert.hpp:176</div></div>
 <div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
-<div class="ttc" id="aglobal_8hpp_html_a6979215c90d6f2280a56d80eb67c6c83"><div class="ttname"><a href="global_8hpp.html#a6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)</div><div class="ttdoc">Disable an MSVC warning x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:348</div></div>
-<div class="ttc" id="aglobal_8hpp_html_acd9e44918f8725b066b33afc500ce938"><div class="ttname"><a href="global_8hpp.html#acd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:349</div></div>
+<div class="ttc" id="agroup__internal_html_ga6979215c90d6f2280a56d80eb67c6c83"><div class="ttname"><a href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)</div><div class="ttdoc">Disable an MSVC warning x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:352</div></div>
+<div class="ttc" id="agroup__internal_html_gaa40fe4fe8238513be2c947f8779c04e4"><div class="ttname"><a href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a></div><div class="ttdeci">#define UNODB_DETAIL_CANNOT_HAPPEN()</div><div class="ttdoc">Mark this source code location as unreachable.</div><div class="ttdef"><b>Definition</b> assert.hpp:205</div></div>
+<div class="ttc" id="agroup__internal_html_gacd9e44918f8725b066b33afc500ce938"><div class="ttname"><a href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:353</div></div>
+<div class="ttc" id="anamespaceunodb_html"><div class="ttname"><a href="namespaceunodb.html">unodb</a></div><div class="ttdoc">The namespace for the public UnoDB API.</div><div class="ttdef"><b>Definition</b> art.cpp:38</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

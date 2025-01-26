@@ -99,6 +99,8 @@ $(document).ready(function(){initNavTree('structunodb_1_1qsbr__state.html',''); 
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pri-static-methods">Static Private Member Functions</a> &#124;
+<a href="#pri-static-attribs">Static Private Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="structunodb_1_1qsbr__state-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::qsbr_state Struct Reference</div></div>
@@ -126,8 +128,70 @@ static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_
 static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>single_thread_mode</b> (type word) noexcept</td></tr>
 <tr class="separator:a58c99b349c8714cdc36eac0d2f465929"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40fa7c61fbf62f8e2c4febeffd5edbee" id="r_a40fa7c61fbf62f8e2c4febeffd5edbee"><td class="memItemLeft" align="right" valign="top"><a id="a40fa7c61fbf62f8e2c4febeffd5edbee" name="a40fa7c61fbf62f8e2c4febeffd5edbee"></a>
-static <a class="el" href="global_8hpp.html#a5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os, type word)</td></tr>
+static <a class="el" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os, type word)</td></tr>
 <tr class="separator:a40fa7c61fbf62f8e2c4febeffd5edbee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
+Static Private Member Functions</h2></td></tr>
+<tr class="memitem:a068a7fb06e919676a401d6e6c598414f" id="r_a068a7fb06e919676a401d6e6c598414f"><td class="memItemLeft" align="right" valign="top"><a id="a068a7fb06e919676a401d6e6c598414f" name="a068a7fb06e919676a401d6e6c598414f"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>do_get_epoch</b> (type word) noexcept</td></tr>
+<tr class="separator:a068a7fb06e919676a401d6e6c598414f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34dceb555923c8113759516d3a6db462" id="r_a34dceb555923c8113759516d3a6db462"><td class="memItemLeft" align="right" valign="top"><a id="a34dceb555923c8113759516d3a6db462" name="a34dceb555923c8113759516d3a6db462"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>do_get_thread_count</b> (type word) noexcept</td></tr>
+<tr class="separator:a34dceb555923c8113759516d3a6db462"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a607916dee9c91e320a7177d97bbd54c2" id="r_a607916dee9c91e320a7177d97bbd54c2"><td class="memItemLeft" align="right" valign="top"><a id="a607916dee9c91e320a7177d97bbd54c2" name="a607916dee9c91e320a7177d97bbd54c2"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>do_get_threads_in_previous_epoch</b> (type word) noexcept</td></tr>
+<tr class="separator:a607916dee9c91e320a7177d97bbd54c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a333e0b036adeed1f657304af46c53f24" id="r_a333e0b036adeed1f657304af46c53f24"><td class="memItemLeft" align="right" valign="top"><a id="a333e0b036adeed1f657304af46c53f24" name="a333e0b036adeed1f657304af46c53f24"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>make_from_epoch</b> (<a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a> epoch) noexcept</td></tr>
+<tr class="separator:a333e0b036adeed1f657304af46c53f24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6e7044ebb664bcfe8be8b43965f53fe" id="r_af6e7044ebb664bcfe8be8b43965f53fe"><td class="memItemLeft" align="right" valign="top"><a id="af6e7044ebb664bcfe8be8b43965f53fe" name="af6e7044ebb664bcfe8be8b43965f53fe"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>inc_thread_count</b> (type word) noexcept</td></tr>
+<tr class="separator:af6e7044ebb664bcfe8be8b43965f53fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cadf89447d5bf917ab118501d22b33c" id="r_a0cadf89447d5bf917ab118501d22b33c"><td class="memItemLeft" align="right" valign="top"><a id="a0cadf89447d5bf917ab118501d22b33c" name="a0cadf89447d5bf917ab118501d22b33c"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>dec_thread_count</b> (type word) noexcept</td></tr>
+<tr class="separator:a0cadf89447d5bf917ab118501d22b33c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75540ccfc1f744308fcfb4eb3959ef42" id="r_a75540ccfc1f744308fcfb4eb3959ef42"><td class="memItemLeft" align="right" valign="top"><a id="a75540ccfc1f744308fcfb4eb3959ef42" name="a75540ccfc1f744308fcfb4eb3959ef42"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>inc_thread_count_and_threads_in_previous_epoch</b> (type word) noexcept</td></tr>
+<tr class="separator:a75540ccfc1f744308fcfb4eb3959ef42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42181c036f20e53a90a29fc3a8177d09" id="r_a42181c036f20e53a90a29fc3a8177d09"><td class="memItemLeft" align="right" valign="top"><a id="a42181c036f20e53a90a29fc3a8177d09" name="a42181c036f20e53a90a29fc3a8177d09"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>dec_thread_count_and_threads_in_previous_epoch</b> (type word) noexcept</td></tr>
+<tr class="separator:a42181c036f20e53a90a29fc3a8177d09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4a7356d9966460d961be3a441ddb81e" id="r_ab4a7356d9966460d961be3a441ddb81e"><td class="memItemLeft" align="right" valign="top"><a id="ab4a7356d9966460d961be3a441ddb81e" name="ab4a7356d9966460d961be3a441ddb81e"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>inc_epoch_reset_previous</b> (type word) noexcept</td></tr>
+<tr class="separator:ab4a7356d9966460d961be3a441ddb81e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57b9dc2f9bab6aa17c9b7a3dcfb2bf83" id="r_a57b9dc2f9bab6aa17c9b7a3dcfb2bf83"><td class="memItemLeft" align="right" valign="top"><a id="a57b9dc2f9bab6aa17c9b7a3dcfb2bf83" name="a57b9dc2f9bab6aa17c9b7a3dcfb2bf83"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>inc_epoch_dec_thread_count_reset_previous</b> (type word) noexcept</td></tr>
+<tr class="separator:a57b9dc2f9bab6aa17c9b7a3dcfb2bf83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20fc37232412528f37f84496da32fe63" id="r_a20fc37232412528f37f84496da32fe63"><td class="memItemLeft" align="right" valign="top"><a id="a20fc37232412528f37f84496da32fe63" name="a20fc37232412528f37f84496da32fe63"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>dec_thread_count_threads_in_previous_epoch_maybe_advance</b> (type word, bool advance_epoch) noexcept</td></tr>
+<tr class="separator:a20fc37232412528f37f84496da32fe63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32a73629264fd2345fd0f87f83f072fe" id="r_a32a73629264fd2345fd0f87f83f072fe"><td class="memItemLeft" align="right" valign="top"><a id="a32a73629264fd2345fd0f87f83f072fe" name="a32a73629264fd2345fd0f87f83f072fe"></a>
+static auto&#160;</td><td class="memItemRight" valign="bottom"><b>atomic_fetch_dec_threads_in_previous_epoch</b> (std::atomic&lt; type &gt; &amp;word) noexcept</td></tr>
+<tr class="separator:a32a73629264fd2345fd0f87f83f072fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7ffe1a2893646634d39317db89e3570" id="r_ab7ffe1a2893646634d39317db89e3570"><td class="memItemLeft" align="right" valign="top"><a id="ab7ffe1a2893646634d39317db89e3570" name="ab7ffe1a2893646634d39317db89e3570"></a>
+static constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>assert_invariants</b> (type word <a class="el" href="group__internal.html#ga635640d5d3b202d11b61c3730f6c2988">UNODB_DETAIL_USED_IN_DEBUG</a>) noexcept</td></tr>
+<tr class="separator:ab7ffe1a2893646634d39317db89e3570"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
+Static Private Attributes</h2></td></tr>
+<tr class="memitem:a4e938754e4f52f03d657335a19c698e3" id="r_a4e938754e4f52f03d657335a19c698e3"><td class="memItemLeft" align="right" valign="top"><a id="a4e938754e4f52f03d657335a19c698e3" name="a4e938754e4f52f03d657335a19c698e3"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>thread_count_mask</b> = max_qsbr_threads</td></tr>
+<tr class="separator:a4e938754e4f52f03d657335a19c698e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94eff2759b60138b7241f6bfb881d871" id="r_a94eff2759b60138b7241f6bfb881d871"><td class="memItemLeft" align="right" valign="top">static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1qsbr__state.html#a94eff2759b60138b7241f6bfb881d871">threads_in_previous_epoch_in_word_mask</a></td></tr>
+<tr class="separator:a94eff2759b60138b7241f6bfb881d871"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d536e560819d5701ab0d4ad1fe874ba" id="r_a3d536e560819d5701ab0d4ad1fe874ba"><td class="memItemLeft" align="right" valign="top"><a id="a3d536e560819d5701ab0d4ad1fe874ba" name="a3d536e560819d5701ab0d4ad1fe874ba"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>thread_count_in_word_offset</b> = 32U</td></tr>
+<tr class="separator:a3d536e560819d5701ab0d4ad1fe874ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8e68343fbb94686c58f6c5a50aac08c" id="r_ae8e68343fbb94686c58f6c5a50aac08c"><td class="memItemLeft" align="right" valign="top">static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1qsbr__state.html#ae8e68343fbb94686c58f6c5a50aac08c">thread_count_in_word_mask</a></td></tr>
+<tr class="separator:ae8e68343fbb94686c58f6c5a50aac08c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83fc5302dcb15e5cdd1c5d4355bf233a" id="r_a83fc5302dcb15e5cdd1c5d4355bf233a"><td class="memItemLeft" align="right" valign="top"><a id="a83fc5302dcb15e5cdd1c5d4355bf233a" name="a83fc5302dcb15e5cdd1c5d4355bf233a"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>epoch_in_word_offset</b> = 62U</td></tr>
+<tr class="separator:a83fc5302dcb15e5cdd1c5d4355bf233a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89c75e71ef87b01b2e958dfe7d7b88ce" id="r_a89c75e71ef87b01b2e958dfe7d7b88ce"><td class="memItemLeft" align="right" valign="top">static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1qsbr__state.html#a89c75e71ef87b01b2e958dfe7d7b88ce">one_thread_in_count</a></td></tr>
+<tr class="separator:a89c75e71ef87b01b2e958dfe7d7b88ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a4dd4a202cfc58c779cbbae947b4b5d" id="r_a6a4dd4a202cfc58c779cbbae947b4b5d"><td class="memItemLeft" align="right" valign="top">static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1qsbr__state.html#a6a4dd4a202cfc58c779cbbae947b4b5d">one_thread_and_one_in_previous</a></td></tr>
+<tr class="separator:a6a4dd4a202cfc58c779cbbae947b4b5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
@@ -135,6 +199,104 @@ Friends</h2></td></tr>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr</b></td></tr>
 <tr class="separator:ab3ca2a8465951cd7d4da8a212db6c8d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a6a4dd4a202cfc58c779cbbae947b4b5d" name="a6a4dd4a202cfc58c779cbbae947b4b5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a4dd4a202cfc58c779cbbae947b4b5d">&#9670;&#160;</a></span>one_thread_and_one_in_previous</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto unodb::qsbr_state::one_thread_and_one_in_previous</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">      one_thread_in_count | 1U</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a89c75e71ef87b01b2e958dfe7d7b88ce" name="a89c75e71ef87b01b2e958dfe7d7b88ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89c75e71ef87b01b2e958dfe7d7b88ce">&#9670;&#160;</a></span>one_thread_in_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto unodb::qsbr_state::one_thread_in_count</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= 1ULL</div>
+<div class="line">                                              &lt;&lt; thread_count_in_word_offset</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="ae8e68343fbb94686c58f6c5a50aac08c" name="ae8e68343fbb94686c58f6c5a50aac08c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae8e68343fbb94686c58f6c5a50aac08c">&#9670;&#160;</a></span>thread_count_in_word_mask</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto unodb::qsbr_state::thread_count_in_word_mask</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">      <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(thread_count_mask)</div>
+<div class="line">      &lt;&lt; thread_count_in_word_offset</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a94eff2759b60138b7241f6bfb881d871" name="a94eff2759b60138b7241f6bfb881d871"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94eff2759b60138b7241f6bfb881d871">&#9670;&#160;</a></span>threads_in_previous_epoch_in_word_mask</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto unodb::qsbr_state::threads_in_previous_epoch_in_word_mask</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">      <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(thread_count_mask)</div>
+</div><!-- fragment -->
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following files:<ul>
 <li><a class="el" href="qsbr_8hpp_source.html">qsbr.hpp</a></li>
 <li><b>qsbr.cpp</b></li>
@@ -144,7 +306,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr</b></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>unodb</b></li><li class="navelem"><a class="el" href="structunodb_1_1qsbr__state.html">qsbr_state</a></li>
+    <li class="navelem"><a class="el" href="namespaceunodb.html">unodb</a></li><li class="navelem"><a class="el" href="structunodb_1_1qsbr__state.html">qsbr_state</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

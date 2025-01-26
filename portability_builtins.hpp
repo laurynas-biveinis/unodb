@@ -2,6 +2,11 @@
 #ifndef UNODB_DETAIL_PORTABILITY_BUILTINS_HPP
 #define UNODB_DETAIL_PORTABILITY_BUILTINS_HPP
 
+/// \file portability_builtins.hpp
+/// Definitions to abstact differences between different compiler builtins and
+/// intrinsics.
+/// \ingroup internal
+
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
 // HEADER FILES !!!
@@ -21,6 +26,7 @@
 
 namespace unodb::detail {
 
+/// Reverse the order of bytes in \a x.
 [[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint64_t bswap(
     std::uint64_t x) noexcept {
 #ifndef UNODB_DETAIL_MSVC
@@ -30,6 +36,8 @@ namespace unodb::detail {
 #endif
 }
 
+/// Return the number of trailing zero bits in \a x.
+/// \pre Argument may not be zero
 template <typename T>
 [[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint8_t ctz(
     T x) noexcept {
@@ -70,6 +78,7 @@ template <typename T>
   }  // cppcheck-suppress missingReturn
 }
 
+/// Return the number of one bits in \a x.
 [[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned popcount(
     unsigned x) noexcept {
 #ifndef UNODB_DETAIL_MSVC

@@ -14,19 +14,14 @@
 
 #include "olc_art.hpp"
 
-#include <cstddef>
 #include <cstdint>
 #include <iomanip>
 #include <iostream>  // IWYU pragma: keep
-#include <optional>
 
 #include "art_common.hpp"
-#include "art_internal.hpp"
 #include "art_internal_impl.hpp"
-#include "assert.hpp"
 #include "node_type.hpp"
 #include "optimistic_lock.hpp"
-#include "qsbr.hpp"
 
 namespace unodb {
 

@@ -19,7 +19,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <iomanip>
 #include <iosfwd>  // IWYU pragma: keep
+#include <iostream>
 #include <span>
 
 #include "heap.hpp"
@@ -103,9 +105,22 @@ namespace detail {
 /// TODO(thompsonbry) variable length keys - lift out as template argument.
 static constexpr size_t INITIAL_BUFFER_CAPACITY = 256;
 
+/// Dump the a byte as a hexidecimal number.
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
+                                                   std::byte byte);
+
 /// Dump the encoded key as a sequence of bytes.
 template <typename T>
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os, T k);
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os, T k) {
+  if constexpr (std::is_same_v<T, std::uint64_t>) {
+    os << "key: 0x" << std::hex << std::setfill('0') << std::setw(sizeof(k))
+       << k << std::dec;
+  } else {
+    const auto sz = k.size_bytes();
+    os << "key(" << sz << "): 0x";
+    for (std::size_t i = 0; i < sz; ++i) dump_byte(os, k[i]);
+  }
+}
 
 /// Dump the value as a sequence of bytes.
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_val(std::ostream &os,

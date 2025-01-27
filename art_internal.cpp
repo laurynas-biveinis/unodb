@@ -30,17 +30,6 @@ namespace unodb::detail {
      << static_cast<unsigned>(byte) << std::dec;
 }
 
-template <typename T>
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_key(std::ostream &os, T k) {
-  if constexpr (std::is_same_v<T, std::uint64_t>) {
-    os << "key: 0x" << std::hex << std::setfill('0') << std::setw(sizeof(k))
-       << k << std::dec;
-  } else {
-    const auto sz = k.size_bytes();
-    os << "key(" << sz << "): 0x";
-    for (std::size_t i = 0; i < sz; ++i) dump_byte(os, k[i]);
-  }
-}
 template void dump_key<std::uint64_t>(std::ostream &os, std::uint64_t k);
 template void dump_key<key_view>(std::ostream &os, key_view k);
 

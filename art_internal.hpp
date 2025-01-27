@@ -39,9 +39,6 @@ class [[nodiscard]] basic_leaf;
 template <typename, class, template <class> class>
 class [[nodiscard]] basic_db_leaf_deleter;
 
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
-                                                   std::byte byte);
-
 /// Lexicographic comparison of bytes.
 ///
 /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.

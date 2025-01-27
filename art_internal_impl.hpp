@@ -573,28 +573,28 @@ static constexpr key_prefix_size key_prefix_capacity = 7;
 // thread safety; and (b) the key_view being a non-owned view. So the
 // data are atomically copied into this structure and it can expose
 // the key_view over those data.
-class key_prefix_snapshot {
+union [[nodiscard]] key_prefix_snapshot {
  private:
   using key_prefix_data = std::array<std::byte, key_prefix_capacity>;
-  union {
-    struct {
-      key_prefix_data key_prefix;         // The prefix.
-      key_prefix_size key_prefix_length;  // The #of bytes in the prefix.
-    } f;
-    std::uint64_t u64;  // The same thing as a machine word.
-  };
+  struct [[nodiscard]] inode_fields {
+    key_prefix_data key_prefix;         // The prefix.
+    key_prefix_size key_prefix_length;  // The #of bytes in the prefix.
+  } f;
+  std::uint64_t u64;  // The same thing as a machine word.
 
  public:
   constexpr explicit key_prefix_snapshot(std::uint64_t v) noexcept : u64(v) {}
-  // Return a view onto the key_prefix.
+
+  /// Return a view onto the key_prefix.
   [[nodiscard]] key_view get_key_view() const noexcept {
     return key_view(f.key_prefix.data(), f.key_prefix_length);
   }
-  // Return the length of the key_prefix.
+
+  /// Return the length of the key_prefix.
   [[nodiscard]] key_prefix_size size() const noexcept {
     return f.key_prefix_length;
   }
-};
+};  // class key_prefix_snapshot
 
 /// The key_prefix is a sequence of zero or more bytes for a given node
 /// that are a common prefix shared by all children of that node and

@@ -447,7 +447,7 @@ constexpr typename std::enable_if<std::is_integral<T>::value && sizeof(T) == 8,
                                   T>::type
 NextPowerOfTwo(T i) {
   i = shiftOr32bitInt(i);
-  i |= (i >> 32);
+  i |= (i >> 32U);
   return ++i;
 }
 

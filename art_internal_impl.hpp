@@ -619,9 +619,9 @@ union [[nodiscard]] key_prefix {
   key_prefix(key_view k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept
       : u64{make_u64(k1, shifted_k2, depth)} {}
 
-  // TODO(thompsonbry) varkeys - old ctor unused?
-  key_prefix(ArtKey k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept
-      : u64{make_u64(k1, shifted_k2, depth)} {}
+  // // TODO(thompsonbry) varkeys - old ctor unused?
+  // key_prefix(ArtKey k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept
+  //     : u64{make_u64(k1, shifted_k2, depth)} {}
 
   key_prefix(unsigned key_prefix_len,
              const key_prefix &source_key_prefix) noexcept
@@ -722,23 +722,11 @@ union [[nodiscard]] key_prefix {
     return static_cast<unsigned>(detail::ctz(clamped) >> 3U);
   }
 
-  // TODO(thompsonbry) varkeys - new version (key_view)
   [[nodiscard, gnu::const]] static constexpr std::uint64_t make_u64(
       key_view k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept {
     k1 = k1.subspan(depth);  // shift_right(depth)
 
     const auto k1_u64 = get_u64(k1) & key_bytes_mask;
-
-    return k1_u64 | length_to_word(shared_len(k1_u64, shifted_k2.get_u64(),
-                                              key_prefix_capacity));
-  }
-
-  // TODO(thompsonbry) varkeys - old version unused?
-  [[nodiscard, gnu::const]] static constexpr std::uint64_t make_u64(
-      ArtKey k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept {
-    k1.shift_right(depth);
-
-    const auto k1_u64 = k1.get_u64() & key_bytes_mask;
 
     return k1_u64 | length_to_word(shared_len(k1_u64, shifted_k2.get_u64(),
                                               key_prefix_capacity));
@@ -1110,15 +1098,7 @@ class basic_inode_impl : public ArtPolicy::header_type {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  // TODO(thompsonbry) varkeys - new key_view ctor.
   constexpr basic_inode_impl(unsigned children_count_, key_view k1,
-                             art_key_type shifted_k2,
-                             tree_depth<art_key_type> depth) noexcept
-      : k_prefix{k1, shifted_k2, depth},
-        children_count{static_cast<std::uint8_t>(children_count_)} {}
-
-  // TODO(thompsonbry) varkeys - old ctor unused?
-  constexpr basic_inode_impl(unsigned children_count_, art_key_type k1,
                              art_key_type shifted_k2,
                              tree_depth<art_key_type> depth) noexcept
       : k_prefix{k1, shifted_k2, depth},
@@ -1232,16 +1212,7 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
   using typename parent::art_key_type;
   using typename parent::tree_depth_type;
 
-  // TODO(thompsonbry) varkeys - new key_view ctor.
   constexpr basic_inode(unodb::key_view k1, art_key_type shifted_k2,
-                        tree_depth<art_key_type> depth) noexcept
-      : parent{MinSize, k1, shifted_k2, depth} {
-    UNODB_DETAIL_ASSERT(is_min_size());
-  }
-
-  // TODO(thompsonbry) varkeys.  Unused?  Replaced by version where
-  // first arg is key_view?
-  constexpr basic_inode(art_key_type k1, art_key_type shifted_k2,
                         tree_depth<art_key_type> depth) noexcept
       : parent{MinSize, k1, shifted_k2, depth} {
     UNODB_DETAIL_ASSERT(is_min_size());
@@ -1304,29 +1275,12 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-  // TODO(thompsonbry) varkeys - new key_view ctor.
   constexpr basic_inode_4(db_type &, unodb::key_view k1,
                           art_key_type shifted_k2,
                           tree_depth_type depth) noexcept
       : parent_class{k1, shifted_k2, depth} {}
 
-  // TODO(thompsonbry) varkeys.  Unused?  Was used by insert0(), but
-  // changed k1 to key_view and added the constructor version above
-  // for that.
-  constexpr basic_inode_4(db_type &, art_key_type k1, art_key_type shifted_k2,
-                          tree_depth_type depth) noexcept
-      : parent_class{k1, shifted_k2, depth} {}
-
-  // TODO(thompsonbry) varkeys.  new key_view ctor.
   constexpr basic_inode_4(db_type &, key_view k1, art_key_type shifted_k2,
-                          tree_depth_type depth, leaf_type *child1,
-                          db_leaf_unique_ptr &&child2) noexcept
-      : parent_class{k1, shifted_k2, depth} {
-    init(k1, shifted_k2, depth, child1, std::move(child2));
-  }
-
-  // TODO(thompsonbry) varkeys.  Unused?  Was used by insert0(), but
-  constexpr basic_inode_4(db_type &, art_key_type k1, art_key_type shifted_k2,
                           tree_depth_type depth, leaf_type *child1,
                           db_leaf_unique_ptr &&child2) noexcept
       : parent_class{k1, shifted_k2, depth} {
@@ -1403,18 +1357,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                        keys.byte_array.cbegin() + basic_inode_4::capacity));
   }
 
-  // TODO(thompsonbry) varkeys - new version with key_view - template?
   constexpr void init(key_view k1, art_key_type shifted_k2,
-                      tree_depth_type depth, leaf_type *child1,
-                      db_leaf_unique_ptr &&child2) noexcept {
-    const auto k2_next_byte_depth = this->get_key_prefix().length();
-    const auto k1_next_byte_depth = k2_next_byte_depth + depth;
-    add_two_to_empty(k1[k1_next_byte_depth], node_ptr{child1, node_type::LEAF},
-                     shifted_k2[k2_next_byte_depth], std::move(child2));
-  }
-
-  // TODO(thompsonbry) varkeys - old version unused?
-  constexpr void init(art_key_type k1, art_key_type shifted_k2,
                       tree_depth_type depth, leaf_type *child1,
                       db_leaf_unique_ptr &&child2) noexcept {
     const auto k2_next_byte_depth = this->get_key_prefix().length();

@@ -36,12 +36,12 @@ platform-specific features:
 
 * Earliest versions of supported compilers: GCC 10, LLVM 11, XCode 16.1,
   MSVC 2022. Open an issue if you require support for an older version.
-* CMake, at least 3.12
+* CMake, at least 3.16
 * Boost library. If building with statistics counters, then it is a mandatory
   dependency for Boost.Accumulator. It is also an optional dependency for
   Boost.Stacktrace.
 
-### Build dependencies, bundled as git submodules
+### Optional vendored dependencies for development, testing, & benchmarking
 
 * Google Test for tests.
 * Google Benchmark for microbenchmarks.
@@ -49,14 +49,7 @@ platform-specific features:
 
 ## Building
 
-Out-of-source builds are recommended. Before anything else, do
-
-``` bash
-# --recursive is not strictly required at the moment, but a good habit to have
-git submodule update --init --recursive
-```
-
-There are some CMake options for users:
+Out-of-source builds are recommended. There are some CMake options for users:
 
 * `-DSPINLOCK_LOOP=PAUSE|EMPTY` to choose the spinlock wait loop body
   implementation for the optimistic lock. `EMPTY` may benchmark better as long

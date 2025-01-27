@@ -2,7 +2,7 @@
 #ifndef UNODB_DETAIL_PORTABILITY_ARCH_HPP
 #define UNODB_DETAIL_PORTABILITY_ARCH_HPP
 
-/// \file portability_arch.hpp
+/// \file
 /// Definitions to abstract differences between architectures.
 /// \ingroup internal
 

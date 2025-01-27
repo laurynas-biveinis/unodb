@@ -118,10 +118,10 @@ unavoidable. If a macro has to be introduced, its name must be prefixed with
 * Doxygen is used to produce source code documentation.
 * Doxygen commands should use `\foo` (and not `@foo`) syntax.
 * The preferred location of the comments is next to the declarations. An
-  exception is macros with multiple conditionally compiled declarations, in
-  which case a Doxygen comment with a `\def` for the macro should appear at the
-  top of its section or source file, and it should also have a
-  `\hideinitializer` tag.
+  exception is declarations with multiple conditionally compiled declarations,
+  in which case a Doxygen comment with a `\def`, `\var`, or another suitable tag
+  for the declaration should appear at the top of its section or source file,
+  and it should also have a `\hideinitializer` tag.
 * Doxygen automatic brief description detection is enabled, thus explicit
   `\brief` tags are not required, rather the first sentence in the Doxygen
   comment block will be interpreted as the brief description.

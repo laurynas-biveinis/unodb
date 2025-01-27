@@ -2,8 +2,8 @@
 #ifndef UNODB_DETAIL_PORTABILITY_BUILTINS_HPP
 #define UNODB_DETAIL_PORTABILITY_BUILTINS_HPP
 
-/// \file portability_builtins.hpp
-/// Definitions to abstact differences between different compiler builtins and
+/// \file
+/// Definitions to abstract differences between different compiler builtins and
 /// intrinsics.
 /// \ingroup internal
 

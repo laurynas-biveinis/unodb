@@ -2,7 +2,7 @@
 #ifndef UNODB_DETAIL_ASSERT_HPP
 #define UNODB_DETAIL_ASSERT_HPP
 
-/// \file assert.hpp
+/// \file
 /// Internal macros for assertions, assumptions & intentional crashing.
 ///
 /// If compiling as a part of another project, they will expand to C++ standard

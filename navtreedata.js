@@ -25,6 +25,28 @@
 var NAVTREE =
 [
   [ "UnoDB", "index.html", [
+    [ "unodb", "index.html#autotoc_md13", [
+      [ "Introduction", "index.html#autotoc_md14", null ],
+      [ "Requirements", "index.html#autotoc_md15", [
+        [ "Build dependencies", "index.html#autotoc_md16", null ],
+        [ "Build dependencies, bundled as git submodules", "index.html#autotoc_md17", null ]
+      ] ],
+      [ "Building", "index.html#autotoc_md18", null ],
+      [ "Platform-Specific Notes", "index.html#autotoc_md19", [
+        [ "Ubuntu 22.04", "index.html#autotoc_md20", null ],
+        [ "Amazon Linux 2023", "index.html#autotoc_md21", null ],
+        [ "Amazon Linux 2", "index.html#autotoc_md22", null ]
+      ] ],
+      [ "Usage", "index.html#autotoc_md23", null ],
+      [ "Technical Details", "index.html#autotoc_md24", [
+        [ "Adaptive Radix Tree", "index.html#autotoc_md25", null ],
+        [ "Sequential Lock", "index.html#autotoc_md26", null ],
+        [ "Quiescent State-Based Reclamation (QSBR)", "index.html#autotoc_md27", null ]
+      ] ],
+      [ "Related Projects", "index.html#autotoc_md28", null ],
+      [ "Contributing", "index.html#autotoc_md29", null ],
+      [ "Literature", "index.html#autotoc_md30", null ]
+    ] ],
     [ "CONTRIBUTING", "md_CONTRIBUTING.html", [
       [ "Contributing to UnoDB", "md_CONTRIBUTING.html#autotoc_md0", [
         [ "Optional development dependencies", "md_CONTRIBUTING.html#autotoc_md1", null ],
@@ -41,37 +63,15 @@ var NAVTREE =
         [ "License", "md_CONTRIBUTING.html#autotoc_md12", null ]
       ] ]
     ] ],
-    [ "README", "md_README.html", [
-      [ "unodb", "md_README.html#autotoc_md13", [
-        [ "Introduction", "md_README.html#autotoc_md14", null ],
-        [ "Requirements", "md_README.html#autotoc_md15", [
-          [ "Build dependencies", "md_README.html#autotoc_md16", null ],
-          [ "Build dependencies, bundled as git submodules", "md_README.html#autotoc_md17", null ]
-        ] ],
-        [ "Building", "md_README.html#autotoc_md18", null ],
-        [ "Platform-Specific Notes", "md_README.html#autotoc_md19", [
-          [ "Ubuntu 22.04", "md_README.html#autotoc_md20", null ],
-          [ "Amazon Linux 2023", "md_README.html#autotoc_md21", null ],
-          [ "Amazon Linux 2", "md_README.html#autotoc_md22", null ]
-        ] ],
-        [ "Usage", "md_README.html#autotoc_md23", null ],
-        [ "Technical Details", "md_README.html#autotoc_md24", [
-          [ "Adaptive Radix Tree", "md_README.html#autotoc_md25", null ],
-          [ "Sequential Lock", "md_README.html#autotoc_md26", null ],
-          [ "Quiescent State-Based Reclamation (QSBR)", "md_README.html#autotoc_md27", null ]
-        ] ],
-        [ "Related Projects", "md_README.html#autotoc_md28", null ],
-        [ "Contributing", "md_README.html#autotoc_md29", null ],
-        [ "Literature", "md_README.html#autotoc_md30", null ]
-      ] ]
-    ] ],
     [ "Topics", "topics.html", "topics" ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [
         [ "All", "namespacemembers.html", null ],
         [ "Functions", "namespacemembers_func.html", null ],
-        [ "Variables", "namespacemembers_vars.html", null ]
+        [ "Variables", "namespacemembers_vars.html", null ],
+        [ "Typedefs", "namespacemembers_type.html", null ],
+        [ "Enumerations", "namespacemembers_enum.html", null ]
       ] ]
     ] ],
     [ "Classes", "annotated.html", [
@@ -96,7 +96,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"optimistic__lock_8hpp_source.html"
+"namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

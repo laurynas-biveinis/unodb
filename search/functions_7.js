@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['popcount_0',['popcount',['../namespaceunodb_1_1detail.html#a60cd68db0acc4264f225af504457f974',1,'unodb::detail']]]
+  ['msg_5fstacktrace_5fabort_0',['msg_stacktrace_abort',['../namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2',1,'unodb::detail']]]
 ];

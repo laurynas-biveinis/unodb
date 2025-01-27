@@ -44,8 +44,11 @@ var namespaceunodb_1_1detail =
     [ "cannot_happen", "namespaceunodb_1_1detail.html#a84376061f77319109e51399dd10a3135", null ],
     [ "crash", "namespaceunodb_1_1detail.html#aae5f331d83917453230a096af3197dc2", null ],
     [ "ctz", "namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925", null ],
+    [ "is_internal_static_assert", "namespaceunodb_1_1detail.html#aa3da3568c516e9447ccaa528462a136e", null ],
     [ "msg_stacktrace_abort", "namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2", null ],
     [ "popcount", "namespaceunodb_1_1detail.html#a60cd68db0acc4264f225af504457f974", null ],
     [ "hardware_constructive_interference_size", "namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89", null ],
-    [ "hardware_destructive_interference_size", "namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c", null ]
+    [ "hardware_destructive_interference_size", "namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c", null ],
+    [ "inode_type_count", "namespaceunodb_1_1detail.html#aa11fc0dc02ee0b061504cd50856ea7dd", null ],
+    [ "node_type_count", "namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc", null ]
 ];

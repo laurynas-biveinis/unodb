@@ -2491,6 +2491,7 @@ PREDEFINED            += _M_X64
 PREDEFINED            += __clang__
 PREDEFINED            += UNODB_DETAIL_HEADER_NOINLINE=
 PREDEFINED            += UNODB_DETAIL_C_STRING_ARG(x)=
+PREDEFINED            += UNODB_DETAIL_CONSTEXPR_NOT_MSVC
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The

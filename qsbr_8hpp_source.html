@@ -159,7 +159,7 @@ $(document).ready(function(){initNavTree('qsbr_8hpp_source.html',''); initResiza
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="preprocessor">#include &quot;<a class="code" href="assert_8hpp.html">assert.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="preprocessor">#include &quot;heap.hpp&quot;</span></div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="preprocessor">#include &quot;portability_arch.hpp&quot;</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="preprocessor">#include &quot;<a class="code" href="portability__arch_8hpp.html">portability_arch.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb.html">unodb</a> {</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
@@ -987,7 +987,7 @@ $(document).ready(function(){initNavTree('qsbr_8hpp_source.html',''); initResiza
 <div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span> </div>
 <div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
 <div class="line"><a id="l00875" name="l00875"></a><span class="lineno">  875</span> </div>
-<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>  <span class="keyword">alignas</span>(detail::hardware_destructive_interference_size)</div>
+<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>  <span class="keyword">alignas</span>(<a class="code hl_variable" href="namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c">detail::hardware_destructive_interference_size</a>)</div>
 <div class="line"><a id="l00877" name="l00877"></a><span class="lineno">  877</span>      std::atomic&lt;qsbr_state::type&gt; state;</div>
 <div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span> </div>
 <div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span>  std::atomic&lt;detail::dealloc_vector_list_node *&gt;</div>
@@ -999,14 +999,14 @@ $(document).ready(function(){initNavTree('qsbr_8hpp_source.html',''); initResiza
 <div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>  <span class="keyword">static_assert</span>(<span class="keyword">sizeof</span>(state) +</div>
 <div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>                    <span class="keyword">sizeof</span>(orphaned_previous_interval_dealloc_requests) +</div>
 <div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>                    <span class="keyword">sizeof</span>(orphaned_current_interval_dealloc_requests) &lt;=</div>
-<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span>                detail::hardware_constructive_interference_size);</div>
+<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span>                <a class="code hl_variable" href="namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89">detail::hardware_constructive_interference_size</a>);</div>
 <div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span> </div>
 <div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
 <div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span> </div>
-<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>  <span class="keyword">alignas</span>(detail::hardware_destructive_interference_size)</div>
+<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>  <span class="keyword">alignas</span>(<a class="code hl_variable" href="namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c">detail::hardware_destructive_interference_size</a>)</div>
 <div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span>      std::atomic&lt;std::uint64_t&gt; epoch_change_count;</div>
 <div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span> </div>
-<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>  <span class="keyword">alignas</span>(detail::hardware_destructive_interference_size) std::mutex</div>
+<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>  <span class="keyword">alignas</span>(<a class="code hl_variable" href="namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c">detail::hardware_destructive_interference_size</a>) std::mutex</div>
 <div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>      dealloc_stats_lock;</div>
 <div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span> </div>
 <div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span>  <span class="comment">// TODO(laurynas): more interesting callback stats?</span></div>
@@ -1025,7 +1025,7 @@ $(document).ready(function(){initNavTree('qsbr_8hpp_source.html',''); initResiza
 <div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>  std::atomic&lt;double&gt; deallocation_size_per_thread_mean;</div>
 <div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span>  std::atomic&lt;double&gt; deallocation_size_per_thread_variance;</div>
 <div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span> </div>
-<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span>  <span class="keyword">alignas</span>(detail::hardware_destructive_interference_size) std::mutex</div>
+<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span>  <span class="keyword">alignas</span>(<a class="code hl_variable" href="namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c">detail::hardware_destructive_interference_size</a>) std::mutex</div>
 <div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span>      quiescent_state_stats_lock;</div>
 <div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span> </div>
 <div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span>  boost_acc::accumulator_set&lt;std::uint64_t,</div>
@@ -1406,7 +1406,10 @@ $(document).ready(function(){initNavTree('qsbr_8hpp_source.html',''); initResiza
 <div class="ttc" id="agroup__internal_html_ga9ec8bd41c6ee401f40edc11b624cabe9"><div class="ttname"><a href="group__internal.html#ga9ec8bd41c6ee401f40edc11b624cabe9">UNODB_DETAIL_WITH_STATS</a></div><div class="ttdeci">#define UNODB_DETAIL_WITH_STATS</div><div class="ttdoc">Defined when UnoDB is compiled with the statistics counters.</div><div class="ttdef"><b>Definition</b> global.hpp:143</div></div>
 <div class="ttc" id="agroup__internal_html_gacd9e44918f8725b066b33afc500ce938"><div class="ttname"><a href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:353</div></div>
 <div class="ttc" id="agroup__internal_html_gafd4e412d2f7204ec7887d6d20cb7f53b"><div class="ttname"><a href="group__internal.html#gafd4e412d2f7204ec7887d6d20cb7f53b">UNODB_DETAIL_RELEASE_EXPLICIT</a></div><div class="ttdeci">#define UNODB_DETAIL_RELEASE_EXPLICIT</div><div class="ttdoc">Expands to explicit in release builds, empty in debug builds.</div><div class="ttdef"><b>Definition</b> global.hpp:412</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html_a3ab520671507d4d7d913c5d2655fad89"><div class="ttname"><a href="namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89">unodb::detail::hardware_constructive_interference_size</a></div><div class="ttdeci">constexpr std::size_t hardware_constructive_interference_size</div><div class="ttdoc">The maximum size in bytes where multiple variables will be guaranteed to be shared for the purposes o...</div><div class="ttdef"><b>Definition</b> portability_arch.hpp:42</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html_a4c6387d4046bddd4f1d87150a2e6b94c"><div class="ttname"><a href="namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c">unodb::detail::hardware_destructive_interference_size</a></div><div class="ttdeci">constexpr std::size_t hardware_destructive_interference_size</div><div class="ttdoc">The minimum size in bytes where multiple variables will be guaranteed to be separated for the purpose...</div><div class="ttdef"><b>Definition</b> portability_arch.hpp:45</div></div>
 <div class="ttc" id="anamespaceunodb_html"><div class="ttname"><a href="namespaceunodb.html">unodb</a></div><div class="ttdoc">The namespace for the public UnoDB API.</div><div class="ttdef"><b>Definition</b> art.cpp:38</div></div>
+<div class="ttc" id="aportability__arch_8hpp_html"><div class="ttname"><a href="portability__arch_8hpp.html">portability_arch.hpp</a></div><div class="ttdoc">Definitions to abstract differences between architectures.</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1dealloc__vector__list__node_html"><div class="ttname"><a href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">unodb::detail::dealloc_vector_list_node</a></div><div class="ttdef"><b>Definition</b> qsbr.hpp:481</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1deallocation__request_html"><div class="ttname"><a href="structunodb_1_1detail_1_1deallocation__request.html">unodb::detail::deallocation_request</a></div><div class="ttdef"><b>Definition</b> qsbr.hpp:383</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread_html"><div class="ttname"><a href="structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html">unodb::detail::set_qsbr_per_thread_in_main_thread</a></div><div class="ttdef"><b>Definition</b> qsbr.cpp:37</div></div>

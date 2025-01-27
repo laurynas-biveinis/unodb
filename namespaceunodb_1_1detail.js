@@ -42,5 +42,7 @@ var namespaceunodb_1_1detail =
     [ "assert_failure", "namespaceunodb_1_1detail.html#a73ccae20a7fde29e0381b903bbf0c58a", null ],
     [ "cannot_happen", "namespaceunodb_1_1detail.html#a84376061f77319109e51399dd10a3135", null ],
     [ "crash", "namespaceunodb_1_1detail.html#aae5f331d83917453230a096af3197dc2", null ],
-    [ "msg_stacktrace_abort", "namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2", null ]
+    [ "msg_stacktrace_abort", "namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2", null ],
+    [ "hardware_constructive_interference_size", "namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89", null ],
+    [ "hardware_destructive_interference_size", "namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c", null ]
 ];

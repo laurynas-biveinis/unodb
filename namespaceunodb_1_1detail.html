@@ -341,12 +341,12 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>node
 <tr class="memitem:aa11fc0dc02ee0b061504cd50856ea7dd" id="r_aa11fc0dc02ee0b061504cd50856ea7dd"><td class="memItemLeft" align="right" valign="top"><a id="aa11fc0dc02ee0b061504cd50856ea7dd" name="aa11fc0dc02ee0b061504cd50856ea7dd"></a>
 constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inode_type_count</b> {4}</td></tr>
 <tr class="separator:aa11fc0dc02ee0b061504cd50856ea7dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bff43f416e2d0b95fb0ed4415269e75" id="r_a4bff43f416e2d0b95fb0ed4415269e75"><td class="memItemLeft" align="right" valign="top"><a id="a4bff43f416e2d0b95fb0ed4415269e75" name="a4bff43f416e2d0b95fb0ed4415269e75"></a>
-constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>hardware_constructive_interference_size</b> = 64</td></tr>
-<tr class="separator:a4bff43f416e2d0b95fb0ed4415269e75"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44a2fe5c140a93c5c27c1ff7ac56b9a6" id="r_a44a2fe5c140a93c5c27c1ff7ac56b9a6"><td class="memItemLeft" align="right" valign="top"><a id="a44a2fe5c140a93c5c27c1ff7ac56b9a6" name="a44a2fe5c140a93c5c27c1ff7ac56b9a6"></a>
-constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>hardware_destructive_interference_size</b> = 128</td></tr>
-<tr class="separator:a44a2fe5c140a93c5c27c1ff7ac56b9a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ab520671507d4d7d913c5d2655fad89" id="r_a3ab520671507d4d7d913c5d2655fad89"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89">hardware_constructive_interference_size</a></td></tr>
+<tr class="memdesc:a3ab520671507d4d7d913c5d2655fad89"><td class="mdescLeft">&#160;</td><td class="mdescRight">The maximum size in bytes where multiple variables will be guaranteed to be shared for the purposes of true sharing.  <br /></td></tr>
+<tr class="separator:a3ab520671507d4d7d913c5d2655fad89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c6387d4046bddd4f1d87150a2e6b94c" id="r_a4c6387d4046bddd4f1d87150a2e6b94c"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c">hardware_destructive_interference_size</a></td></tr>
+<tr class="memdesc:a4c6387d4046bddd4f1d87150a2e6b94c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The minimum size in bytes where multiple variables will be guaranteed to be separated for the purposes of false sharing.  <br /></td></tr>
+<tr class="separator:a4c6387d4046bddd4f1d87150a2e6b94c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04a041b47bebde8ed0f3bd97327e450c" id="r_a04a041b47bebde8ed0f3bd97327e450c"><td class="memItemLeft" align="right" valign="top"><a id="a04a041b47bebde8ed0f3bd97327e450c" name="a04a041b47bebde8ed0f3bd97327e450c"></a>
 std::array&lt; <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a>, 6 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>thread_syncs</b></td></tr>
 <tr class="separator:a04a041b47bebde8ed0f3bd97327e450c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -493,6 +493,57 @@ std::array&lt; <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">th
 
 <p>Intentionally crash from a given source location. </p>
 <p>Should not be called directly - use UNODB_DETAIL_CRASH instead. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a3ab520671507d4d7d913c5d2655fad89" name="a3ab520671507d4d7d913c5d2655fad89"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3ab520671507d4d7d913c5d2655fad89">&#9670;&#160;</a></span>hardware_constructive_interference_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unodb::detail::hardware_constructive_interference_size</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The maximum size in bytes where multiple variables will be guaranteed to be shared for the purposes of true sharing. </p>
+<p>Use this instead of <code>std::hardware_constructive_interference_size</code> even if the latter is available, because it is used in public headers and its value may vary, for example, by GCC 12 or later <code>--param</code> or <code>-mtune</code> flag. </p>
+
+</div>
+</div>
+<a id="a4c6387d4046bddd4f1d87150a2e6b94c" name="a4c6387d4046bddd4f1d87150a2e6b94c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c6387d4046bddd4f1d87150a2e6b94c">&#9670;&#160;</a></span>hardware_destructive_interference_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unodb::detail::hardware_destructive_interference_size</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The minimum size in bytes where multiple variables will be guaranteed to be separated for the purposes of false sharing. </p>
+<p>Use this instead of <code>std::hardware_destructive_interference_size</code> even if the latter is available, because it is used in public headers and its value may vary, for example, by GCC 12 or later <code>--param</code> or <code>-mtune</code> flag. </p>
 
 </div>
 </div>

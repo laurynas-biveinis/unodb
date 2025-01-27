@@ -1,6 +1,10 @@
-// Copyright 2022 Laurynas Biveinis
+// Copyright 2022-2025 Laurynas Biveinis
 #ifndef UNODB_DETAIL_PORTABILITY_ARCH_HPP
 #define UNODB_DETAIL_PORTABILITY_ARCH_HPP
+
+/// \file portability_arch.hpp
+/// Definitions to abstract differences between architectures.
+/// \ingroup internal
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -16,10 +20,23 @@
 
 namespace unodb::detail {
 
-// Do not use std::hardware_constructive_interference_size and
-// std::hardware_destructive_interference_size even when they are available,
-// because they are used in public headers, and their values are unstable (i.e.
-// can be affected by GCC 12 --param or -mtune flags).
+/// \var hardware_constructive_interference_size
+/// The maximum size in bytes where multiple variables will be guaranteed to be
+/// shared for the purposes of true sharing.
+/// \hideinitializer
+/// Use this instead of
+/// `std::hardware_constructive_interference_size` even if the latter is
+/// available, because it is used in public headers and its value may vary,
+/// for example, by GCC 12 or later `--param` or `-mtune` flag.
+
+/// \var hardware_destructive_interference_size
+/// The minimum size in bytes where multiple variables will be guaranteed to be
+/// separated for the purposes of false sharing.
+/// \hideinitializer
+/// Use this instead of
+/// `std::hardware_destructive_interference_size` even if the latter is
+/// available, because it is used in public headers and its value may vary,
+/// for example, by GCC 12 or later `--param` or `-mtune` flag.
 
 #ifdef UNODB_DETAIL_X86_64
 inline constexpr std::size_t hardware_constructive_interference_size = 64;

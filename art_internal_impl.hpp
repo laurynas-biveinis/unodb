@@ -585,7 +585,7 @@ class key_prefix_snapshot {
   };
 
  public:
-  constexpr explicit key_prefix_snapshot(std::uint64_t v) : u64(v) noexcept {}
+  constexpr explicit key_prefix_snapshot(std::uint64_t v) noexcept : u64(v) {}
   // Return a view onto the key_prefix.
   [[nodiscard]] key_view get_key_view() const noexcept {
     return key_view(f.key_prefix.data(), f.key_prefix_length);

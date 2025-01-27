@@ -344,7 +344,7 @@ class db final {
       UNODB_DETAIL_ASSERT(node.type() != node_type::LEAF);
       auto* inode{node.ptr<detail::inode<Key>*>()};
       auto prefix{inode->get_key_prefix().get_snapshot()};
-      stack_.push({node, key_byte, child_index, prefix.size()});
+      stack_.push({{node, key_byte, child_index}, prefix.size()});
       keybuf_.push(prefix.get_key_view());
       keybuf_.push(key_byte);
     }
@@ -353,10 +353,12 @@ class db final {
     void push_leaf(detail::node_ptr aleaf) {
       // Mock up a stack entry for the leaf.
       stack_.push({
-          aleaf,
-          static_cast<std::byte>(0xFFU),     // ignored for leaf
-          static_cast<std::uint8_t>(0xFFU),  // ignored for leaf
-          0                                  // ignored for leaf
+          {
+              aleaf,
+              static_cast<std::byte>(0xFFU),    // ignored for leaf
+              static_cast<std::uint8_t>(0xFFU)  // ignored for leaf
+          },
+          0  // ignored for leaf
       });
     }
 
@@ -644,17 +646,20 @@ class db final {
   template <class, class, template <class> class>
   friend class detail::basic_db_leaf_deleter;
 
-  template <class,                   // Db
+  template <typename,                // Key
+            template <class> class,  // Db
             template <class> class,  // CriticalSectionPolicy
             class,                   // Fake lock implementation
             class,  // Fake read_critical_section implementation
             class,  // NodePtr
-            class,  // INodeDefs
-            template <class> class,         // INodeReclamator
-            template <class, class> class>  // LeafReclamator
+            template <typename> class,         // INodeDefs
+            template <typename, class> class,  // INodeReclamator
+            template <typename, class,
+                      template <class> class>
+            class>  // LeafReclamator
   friend struct detail::basic_art_policy;
 
-  template <class, class>
+  template <class, class, template <class> class>
   friend class detail::basic_db_inode_deleter;
 
   friend struct detail::impl_helpers;
@@ -691,7 +696,7 @@ template <typename Key>
 class [[nodiscard]] inode_4 final : public inode_4_parent<Key> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_4_parent<Key>::basic_inode_4;
+  using typename inode_4_parent<Key>::basic_inode_4;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -721,7 +726,7 @@ template <typename Key>
 class [[nodiscard]] inode_16 final : public inode_16_parent<Key> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_16_parent<Key>::basic_inode_16;
+  using typename inode_16_parent<Key>::basic_inode_16;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -745,7 +750,7 @@ template <typename Key>
 class [[nodiscard]] inode_48 final : public inode_48_parent<Key> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_48_parent<Key>::basic_inode_48;
+  using typename inode_48_parent<Key>::basic_inode_48;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -773,7 +778,7 @@ template <typename Key>
 class [[nodiscard]] inode_256 final : public inode_256_parent<Key> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_256_parent<Key>::basic_inode_256;
+  using typename inode_256_parent<Key>::basic_inode_256;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -1178,7 +1183,7 @@ db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key, bool& match,
   while (true) {
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
-      const auto* const leaf{node.ptr<leaf_type*>()};
+      const auto* const leaf{node.template ptr<leaf_type*>()};
       push_leaf(node);
       const auto cmp_ = leaf->cmp(k);
       if (cmp_ == 0) {
@@ -1193,7 +1198,7 @@ db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key, bool& match,
       return (cmp_ > 0) ? *this : prior();
     }
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    auto* const inode{node.ptr<inode_type*>()};       // some internal node.
+    auto* const inode{node.template ptr<inode_type*>()};  // some internal node.
     const auto& key_prefix{inode->get_key_prefix()};  // prefix for that node.
     const auto key_prefix_length{
         key_prefix.length()};  // length of that prefix.

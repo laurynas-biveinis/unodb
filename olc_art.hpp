@@ -868,20 +868,29 @@ class olc_db final {
   friend auto detail::make_db_leaf_ptr<Key, detail::olc_node_header, olc_db>(
       art_key_type, unodb::value_view, olc_db&);
 
-  template <class, class>
+  template <class, class, template <class> class>
   friend class detail::basic_db_leaf_deleter;
 
-  template <class, class>
+  template <typename, class, template <class> class>
   friend class detail::db_leaf_qsbr_deleter;
 
-  template <class>
+  template <typename, class>
   friend class detail::db_inode_qsbr_deleter;
 
-  template <class, template <class> class, class, class, class, class,
-            template <class> class, template <class, class> class>
+  template <typename,                          // Key
+            template <class> class,            // Db
+            template <class> class,            // CriticalSectionPolicy
+            class,                             // LockPolicy
+            class,                             // ReadCriticalSection
+            class,                             // NodePtr
+            template <typename> class,         // INodeDefs
+            template <typename, class> class,  // INodeReclamator
+            template <typename, class,
+                      template <class> class>
+            class>  // LeafReclamator
   friend struct detail::basic_art_policy;
 
-  template <class, class>
+  template <class, class, template <class> class>
   friend class detail::basic_db_inode_deleter;
 
   friend struct detail::olc_impl_helpers;
@@ -2372,7 +2381,7 @@ bool olc_db<Key>::iterator::try_seek(art_key_type search_key, bool& match,
       if (UNODB_DETAIL_UNLIKELY(
               !parent_critical_section.try_read_unlock()))  // unlock parent
         return false;                                       // LCOV_EXCL_LINE
-      const auto* const leaf{node.ptr<leaf_type*>()};
+      const auto* const leaf{node.template ptr<leaf_type*>()};
       if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
         return false;  // LCOV_EXCL_LINE
       const auto cmp_ = leaf->cmp(k);
@@ -2390,7 +2399,7 @@ bool olc_db<Key>::iterator::try_seek(art_key_type search_key, bool& match,
       return (cmp_ > 0) ? true : try_prior();
     }
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    auto* const inode{node.ptr<inode_type*>()};         // some internal node.
+    auto* const inode{node.template ptr<inode_type*>()};  // some internal node.
     const auto& key_prefix{inode->get_key_prefix()};    // prefix for that node.
     const auto key_prefix_length{key_prefix.length()};  // length of that prefix
     const auto shared_length = key_prefix.get_shared_length(

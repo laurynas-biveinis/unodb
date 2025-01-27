@@ -45,9 +45,8 @@ class [[nodiscard]] basic_db_leaf_deleter;
 /// Lexicographic comparison of bytes.
 ///
 /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
-[[nodiscard, gnu::pure]] constexpr int compare(const void *a, const size_t alen,
-                                               const void *b,
-                                               const size_t blen) {
+[[nodiscard, gnu::pure]] inline int compare(const void *a, const size_t alen,
+                                            const void *b, const size_t blen) {
   const auto shared_length = std::min(alen, blen);
   auto ret = std::memcmp(a, b, shared_length);
   ret = (ret != 0) ? ret : ((alen == blen) ? 0 : (alen < blen ? -1 : 1));
@@ -57,15 +56,15 @@ class [[nodiscard]] basic_db_leaf_deleter;
 /// Lexicographic comparison of key_views.
 ///
 /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
-[[nodiscard, gnu::pure]] constexpr int compare(const unodb::key_view a,
-                                               const unodb::key_view b) {
+[[nodiscard, gnu::pure]] inline int compare(const unodb::key_view a,
+                                            const unodb::key_view b) {
   return compare(a.data(), a.size_bytes(), b.data(), b.size_bytes());
 }
 
 /// Return the first 64-bits of the encoded key.  This is used by the
 /// prefix compression logic to identify some number of bytes that are
 /// in common between the art_key and an inode having some key_prefix.
-[[nodiscard, gnu::pure]] constexpr std::uint64_t get_u64(key_view key) noexcept {
+[[nodiscard, gnu::pure]] inline std::uint64_t get_u64(key_view key) noexcept {
   std::uint64_t u{};  // will hold the first 64-bits.
   std::memcpy(&u, key.data(), std::min(key.size_bytes(), sizeof(u)));
   return u;
@@ -96,7 +95,6 @@ class [[nodiscard]] basic_db_leaf_deleter;
 template <typename KeyType>
 struct [[nodiscard]] basic_art_key final {
  private:
-  
   /// ctor helper converts a simple external key into an internal key
   /// supporting lexicographic comparison.
   [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
@@ -183,11 +181,11 @@ struct [[nodiscard]] basic_art_key final {
   /// key_prefix.
   [[nodiscard, gnu::pure]] constexpr std::uint64_t get_u64() const noexcept {
     if constexpr (std::is_same_v<KeyType, key_view>) {
-      return unodb::detail::get_u64( key );
+      return unodb::detail::get_u64(key);
     } else {
       // fast path - assumes KeyType is narrower and unsigned.
       return static_cast<std::uint64_t>(key);
-    }      
+    }
   }
 
   /// Shift the internal key some number of bytes to the right,
@@ -226,7 +224,7 @@ struct [[nodiscard]] basic_art_key final {
     /// to index into the bytes in the key for operator[].  This is
     /// ignored if KeyType==key_view as the key_view provides a
     /// byte-wise index operator already.
-    std::array<std::byte,sizeof(KeyType)> key_bytes;
+    std::array<std::byte, sizeof(KeyType)> key_bytes;
   };
 
   static void static_asserts() {
@@ -249,7 +247,7 @@ struct [[nodiscard]] basic_art_key final {
   /// Helper for debugging, writes on std::cerr.  Unrolled in
   /// art_internal.cpp.
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const;
-  
+
   friend std::ostream &operator<<(std ::ostream &os, const basic_art_key &k) {
     k.dump(os);
     return os;
@@ -267,8 +265,7 @@ class [[nodiscard]] tree_depth final {
   using value_type = std::uint32_t;  // explicitly since also used in leaf.
 
   explicit constexpr tree_depth(value_type value_ = 0) noexcept
-      : value{value_} {
-  }
+      : value{value_} {}
 
   // NOLINTNEXTLINE(google-explicit-constructor)
   [[nodiscard, gnu::pure]] constexpr operator value_type() const noexcept {
@@ -280,9 +277,7 @@ class [[nodiscard]] tree_depth final {
     return *this;
   }
 
-  constexpr void operator+=(value_type delta) noexcept {
-    value += delta;
-  }
+  constexpr void operator+=(value_type delta) noexcept { value += delta; }
 
  private:
   value_type value;
@@ -296,8 +291,8 @@ class basic_db_leaf_deleter {
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
-  constexpr explicit basic_db_leaf_deleter(db_type &db_
-                                           UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  constexpr explicit basic_db_leaf_deleter(
+      db_type &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   void operator()(leaf_type *to_delete) const noexcept;
@@ -321,8 +316,8 @@ class basic_db_inode_deleter {
  public:
   using db_type = Db<Key>;
 
-  constexpr explicit basic_db_inode_deleter(db_type &db_
-                                            UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  constexpr explicit basic_db_inode_deleter(
+      db_type &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   void operator()(INode *inode_ptr) noexcept;
@@ -447,7 +442,7 @@ template <typename T>
 constexpr typename std::enable_if<std::is_integral<T>::value && sizeof(T) == 4,
                                   T>::type
 NextPowerOfTwo(T i) {
-  return shiftOr32bitInt(i) + 1;
+  return shiftOr32bitInt(i) + static_cast<T>(1);
 }
 
 template <typename T>

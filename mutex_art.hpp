@@ -12,10 +12,10 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
+#include <cassert>
 #include <mutex>
 #include <type_traits>
 #include <utility>
-#include <cassert>
 
 #include "art.hpp"
 #include "assert.hpp"
@@ -91,7 +91,7 @@ class mutex_db final {
   // converted into a binary comparable key.  If Key is key_value,
   // then it is assumed to already be a binary comparable key, e.g.,
   // as produced by unodb::key_encoder.
-  // 
+  //
   // @return true iff the key value pair was inserted.
   [[nodiscard, gnu::pure]] bool insert(Key insert_key, value_view v) {
     const art_key_type k{insert_key};

@@ -313,13 +313,10 @@ TEST(ARTKeyEncodeDecodeTest, std_uint64_C00010) {
   do_encode_decode_test(static_cast<T>(~0 + 1));
   do_encode_decode_test(static_cast<T>(~0 - 1));
   // check lexicographic ordering for std::uint64_t pairs.
-  do_encode_decode_order_test<T>(0x0102030405060708ull,
-                                 0x090A0B0C0D0F1011ull);
+  do_encode_decode_order_test<T>(0x0102030405060708ull, 0x090A0B0C0D0F1011ull);
   do_encode_decode_order_test(static_cast<T>(0), static_cast<T>(1));
-  do_encode_decode_order_test<T>(0x7FFFFFFFFFFFFFFFull,
-                                 0x8000000000000000ull);
-  do_encode_decode_order_test<T>(0xFFFFFFFFFFFFFFFEull,
-                                 static_cast<T>(~0));
+  do_encode_decode_order_test<T>(0x7FFFFFFFFFFFFFFFull, 0x8000000000000000ull);
+  do_encode_decode_order_test<T>(0xFFFFFFFFFFFFFFFEull, static_cast<T>(~0));
 }
 
 TEST(ARTKeyEncodeDecodeTest, std_int64_C00010) {

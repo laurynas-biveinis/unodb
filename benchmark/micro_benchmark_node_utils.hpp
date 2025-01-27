@@ -409,8 +409,8 @@ inline void set_size_counter(::benchmark::State &state,
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 template <class Db, node_type DominatingINodeType>
-void assert_dominating_inode_tree(const Db &test_db
-                                  UNODB_DETAIL_USED_IN_DEBUG) noexcept {
+void assert_dominating_inode_tree(
+    const Db &test_db UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   static_assert(DominatingINodeType != node_type::LEAF);
   const auto node_counts{test_db.get_node_counts()};
@@ -442,9 +442,10 @@ void assert_dominating_inode_size_tree(const Db &test_db) noexcept {
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 template <class Db, unsigned SmallerNodeSize>
-void assert_growing_nodes(const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
-                          std::uint64_t expected_number_of_nodes
-                          UNODB_DETAIL_USED_IN_DEBUG) noexcept {
+void assert_growing_nodes(
+    const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
+    std::uint64_t
+        expected_number_of_nodes UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   constexpr auto larger_node_type =
       node_size_to_larger_node_type<SmallerNodeSize>();
@@ -459,9 +460,10 @@ void assert_growing_nodes(const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
 }
 
 template <class Db, unsigned SmallerNodeSize>
-void assert_shrinking_nodes(const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
-                            std::uint64_t expected_number_of_nodes
-                            UNODB_DETAIL_USED_IN_DEBUG) noexcept {
+void assert_shrinking_nodes(
+    const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
+    std::uint64_t
+        expected_number_of_nodes UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   constexpr auto larger_node_type =
       node_size_to_larger_node_type<SmallerNodeSize>();
@@ -483,8 +485,8 @@ namespace detail {
 template <class Db>
 class [[nodiscard]] tree_shape_snapshot final {
  public:
-  explicit constexpr tree_shape_snapshot(const Db &test_db
-                                         UNODB_DETAIL_USED_IN_DEBUG) noexcept
+  explicit constexpr tree_shape_snapshot(
+      const Db &test_db UNODB_DETAIL_USED_IN_DEBUG) noexcept
 #ifndef NDEBUG
       : db{test_db}
 #ifdef UNODB_DETAIL_WITH_STATS

@@ -155,20 +155,20 @@ class db final {
   // converted into a binary comparable key.  If Key is key_value,
   // then it is assumed to already be a binary comparable key, e.g.,
   // as produced by unodb::key_encoder.
-  // 
+  //
   // @return true iff the key value pair was inserted.
   [[nodiscard, gnu::pure]] bool insert(Key insert_key, value_view v) {
     const art_key_type k{insert_key};
     return insert0(k, v);
   }
-  
+
   // Remove the entry associated with the key.
   //
   // @param search_key If Key is a simple primitive type, then it is
   // converted into a binary comparable key.  If Key is key_value,
   // then it is assumed to already be a binary comparable key, e.g.,
   // as produced by unodb::key_encoder.
-  // 
+  //
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
   [[nodiscard, gnu::pure]] bool remove(Key search_key) {
@@ -322,8 +322,7 @@ class db final {
       auto& node = stack_.top().node;
       UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
       const auto* const leaf{node.template ptr<leaf_type*>()};
-      return unodb::detail::compare( leaf->get_key_view(),
-                                     akey.get_key_view() );
+      return unodb::detail::compare(leaf->get_key_view(), akey.get_key_view());
     }
 
     //
@@ -909,7 +908,6 @@ db<Key>::get_result db<Key>::get0(art_key_type k) const noexcept {
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
 template <class Key>
 bool db<Key>::insert0(art_key_type k, value_view v) {
-
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
     auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
     root = detail::node_ptr{leaf.release(), node_type::LEAF};
@@ -942,7 +940,7 @@ bool db<Key>::insert0(art_key_type k, value_view v) {
     }
 
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    //UNODB_DETAIL_ASSERT(depth < art_key_type::size);
+    // UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
     auto* const inode{node->ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};
@@ -984,7 +982,6 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <class Key>
 bool db<Key>::remove0(art_key_type k) {
-
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
 
   if (root.type() == node_type::LEAF) {
@@ -1004,7 +1001,7 @@ bool db<Key>::remove0(art_key_type k) {
   while (true) {
     const auto node_type = node->type();
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    //UNODB_DETAIL_ASSERT(depth < art_key_type::size);
+    // UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
     auto* const inode{node->ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};

@@ -44,7 +44,7 @@ using span_db = unodb::db<unodb::key_view>;
 
 extern template class tree_verifier<u64_db>;
 
-} // namespace unodb::test
+}  // namespace unodb::test
 
 namespace {
 using unodb::detail::thread_syncs;
@@ -56,10 +56,9 @@ class ARTSpanCorrectnessTest : public ::testing::Test {
   using Test::Test;
 };
 
-using ARTTypes =
-    ::testing::Types<unodb::test::span_db>;
-    // ::testing::Types<unodb::test::u64_db, unodb::test::u64_mutex_db,
-    //                  unodb::test::u64_olc_db>;
+using ARTTypes = ::testing::Types<unodb::test::span_db>;
+// ::testing::Types<unodb::test::u64_db, unodb::test::u64_mutex_db,
+//                  unodb::test::u64_olc_db>;
 
 UNODB_TYPED_TEST_SUITE(ARTSpanCorrectnessTest, ARTTypes)
 
@@ -72,7 +71,7 @@ TYPED_TEST(ARTSpanCorrectnessTest, SingleKeyOperationsOnEmptyTree) {
   const auto key = unodb::test::test_keys[1];  // 0x 00 02
   const auto val = unodb::test::test_keys[2];  // 0x 03 00 01
   TypeParam db;
-  EXPECT_FALSE( db.get(key));
+  EXPECT_FALSE(db.get(key));
   {
     uint64_t n = 0;
     auto fn = [&n](const unodb::visitor<typename TypeParam::iterator>&) {
@@ -82,28 +81,29 @@ TYPED_TEST(ARTSpanCorrectnessTest, SingleKeyOperationsOnEmptyTree) {
     db.scan(fn);
     UNODB_EXPECT_EQ(0, n);
   }
-  EXPECT_TRUE( db.insert(key, val) );
+  EXPECT_TRUE(db.insert(key, val));
   auto tmp = db.get(key);
-  EXPECT_TRUE( tmp.has_value() );
-  EXPECT_TRUE( std::ranges::equal( tmp.value(), val ) );
+  EXPECT_TRUE(tmp.has_value());
+  EXPECT_TRUE(std::ranges::equal(tmp.value(), val));
   {
     uint64_t n = 0;
-    std::vector<std::pair<unodb::key_view,unodb::value_view> > expected;
-    expected.emplace_back( key, val );  // key is already encoded.
-    auto fn = [&n,&expected](const unodb::visitor<typename TypeParam::iterator>& visitor) {
+    std::vector<std::pair<unodb::key_view, unodb::value_view>> expected;
+    expected.emplace_back(key, val);  // key is already encoded.
+    auto fn = [&n, &expected](
+                  const unodb::visitor<typename TypeParam::iterator>& visitor) {
       const auto& k = visitor.get_key();
       const auto& v = visitor.get_value();
-      EXPECT_TRUE( std::ranges::equal( k, expected[n].first ) );
-      EXPECT_TRUE( std::ranges::equal( v, expected[n].second ) );
+      EXPECT_TRUE(std::ranges::equal(k, expected[n].first));
+      EXPECT_TRUE(std::ranges::equal(v, expected[n].second));
       n++;           // LCOV_EXCL_LINE
       return false;  // LCOV_EXCL_LINE
     };
     db.scan(fn);
     UNODB_EXPECT_EQ(1, n);  // FIXME CHECK VISITED KEY/VAL
   }
-  EXPECT_TRUE( db.remove(key) );
-  EXPECT_FALSE( db.get(key));
-  EXPECT_FALSE( db.remove(key) );
+  EXPECT_TRUE(db.remove(key));
+  EXPECT_FALSE(db.get(key));
+  EXPECT_FALSE(db.remove(key));
   {
     uint64_t n = 0;
     auto fn = [&n](const unodb::visitor<typename TypeParam::iterator>&) {
@@ -134,9 +134,8 @@ TYPED_TEST(ARTSpanCorrectnessTest, SingleNodeTreeNonemptyValue) {
   verifier.insert(unodb::test::test_values[1], unodb::test::test_values[2]);
 
   verifier.check_present_values();
-  verifier.check_absent_keys({
-      unodb::test::test_values[0],
-      unodb::test::test_values[2]});
+  verifier.check_absent_keys(
+      {unodb::test::test_values[0], unodb::test::test_values[2]});
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({1, 0, 0, 0, 0});
@@ -155,7 +154,7 @@ TYPED_TEST(ARTSpanCorrectnessTest, TooLongValue) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   const auto& key = unodb::test::test_values[1];
-  
+
   UNODB_ASSERT_THROW(std::ignore = verifier.get_db().insert(key, too_long),
                      std::length_error);
 
@@ -178,7 +177,7 @@ TYPED_TEST(ARTSpanCorrectnessTest, TooLongKey) {
 
   unodb::test::tree_verifier<TypeParam> verifier;
 
-  UNODB_ASSERT_THROW(std::ignore = verifier.get_db().insert(too_long,{}),
+  UNODB_ASSERT_THROW(std::ignore = verifier.get_db().insert(too_long, {}),
                      std::length_error);
 
   verifier.assert_empty();
@@ -195,18 +194,18 @@ TYPED_TEST(ARTSpanCorrectnessTest, ExpandLeafToNode4) {
   const auto& k0 = unodb::test::test_values[0];  // 00
   const auto& k1 = unodb::test::test_values[1];  // 00 02
   const auto& k2 = unodb::test::test_values[2];  // 03 00 01
-  
+
   verifier.insert(k0, unodb::test::test_values[1]);
   verifier.get_db().dump();  // FIXME REMOVE
-  
+
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({1, 0, 0, 0, 0});
   verifier.assert_growing_inodes({0, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 
   verifier.insert(k1, unodb::test::test_values[2]);
-  verifier.get_db().dump(); // FIXME REMOVE
-  
+  verifier.get_db().dump();  // FIXME REMOVE
+
   verifier.check_present_values();  // FIXME FAILS HERE
   verifier.check_absent_keys({k2});
 
@@ -221,7 +220,7 @@ TYPED_TEST(ARTSpanCorrectnessTest, DuplicateKey) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   const auto& k0 = unodb::test::test_values[0];
-  
+
   verifier.insert(k0, unodb::test::test_values[0]);
 
 #ifdef UNODB_DETAIL_WITH_STATS

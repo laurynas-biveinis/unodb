@@ -12,11 +12,11 @@
 
 #include "mutex_art.hpp"
 
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <iomanip>
 #include <iostream>  // IWYU pragma: keep
-#include <cassert>
 
 #include "art_common.hpp"
 #include "art_internal.hpp"

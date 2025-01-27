@@ -45,7 +45,7 @@
 
 namespace unodb {
 template <typename>
-class db;        // IWYU pragma: keep
+class db;  // IWYU pragma: keep
 
 template <typename>
 class mutex_db;  // IWYU pragma: keep

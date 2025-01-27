@@ -46,8 +46,7 @@ int main() {
   std::cerr << "Insert key 50 result: " << insert_result << '\n';
 
   // visitor for scans.
-  auto fn = [](const unodb::visitor<
-                unodb::db<std::uint64_t>::iterator>& vis) {
+  auto fn = [](const unodb::visitor<unodb::db<std::uint64_t>::iterator>& vis) {
     const auto& key{vis.get_key()};
     unodb::key_decoder dec{key};
     std::uint64_t k;

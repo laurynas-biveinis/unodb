@@ -205,7 +205,7 @@ class olc_db final {
   // converted into a binary comparable key.  If Key is key_value,
   // then it is assumed to already be a binary comparable key, e.g.,
   // as produced by unodb::key_encoder.
-  // 
+  //
   // @return true iff the key value pair was inserted.
   //
   // TODO(thompsonbry) There should be a lambda variant of this to
@@ -213,8 +213,7 @@ class olc_db final {
   // semantics. This would call the caller's lambda once the method
   // was positioned on the leaf.  The caller could then update the
   // value or perhaps delete the entry under the key.
-  [[nodiscard, gnu::pure]] bool insert(Key insert_key,
-                                       unodb::value_view v) {
+  [[nodiscard, gnu::pure]] bool insert(Key insert_key, unodb::value_view v) {
     const auto k = art_key_type{insert_key};
     return insert0(k, v);
   }
@@ -225,7 +224,7 @@ class olc_db final {
   // converted into a binary comparable key.  If Key is key_value,
   // then it is assumed to already be a binary comparable key, e.g.,
   // as produced by unodb::key_encoder.
-  // 
+  //
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
   [[nodiscard, gnu::pure]] bool remove(Key search_key) {
@@ -930,8 +929,8 @@ class db_leaf_qsbr_deleter {
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
-  constexpr explicit db_leaf_qsbr_deleter(db_type& db_
-                                          UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  constexpr explicit db_leaf_qsbr_deleter(
+      db_type& db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db_instance{db_} {}
 
   void operator()(leaf_type* to_delete) const {
@@ -969,8 +968,9 @@ class db_leaf_qsbr_deleter {
 // Return a reference to the [optimistic_lock] from the node header.
 //
 // Note: This returns the lock rather than trying to acquire the lock.
-[[nodiscard]] inline auto& node_ptr_lock(const unodb::detail::olc_node_ptr& node
-                                         UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+[[nodiscard]] inline auto& node_ptr_lock(
+    const unodb::detail::olc_node_ptr&
+        node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return node.ptr<unodb::detail::olc_node_header*>()->lock();
 }
 
@@ -978,16 +978,16 @@ class db_leaf_qsbr_deleter {
 
 template <typename Key>
 [[nodiscard]] auto& node_ptr_lock(
-    const unodb::detail::olc_leaf_type<Key>* const node
-    UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+    const unodb::detail::olc_leaf_type<Key>* const
+        node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return node->lock();
 }
 
 #endif
 
 template <class INode>
-[[nodiscard]] constexpr auto& lock(const INode& inode
-                                   UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+[[nodiscard]] constexpr auto& lock(
+    const INode& inode UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return inode.lock();
 }
 
@@ -1087,7 +1087,7 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key> {
             leaf_type* child1, olc_db_leaf_unique_ptr_type&& child2) noexcept {
     UNODB_DETAIL_ASSERT(node_ptr_lock<Key>(child1).is_write_locked());
 
-  parent_class::init(k1, shifted_k2, depth, child1, std::move(child2));
+    parent_class::init(k1, shifted_k2, depth, child1, std::move(child2));
   }
 
   // TODO(thompsonbry) varkeys - old path unused?
@@ -1095,7 +1095,7 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key> {
             leaf_type* child1, olc_db_leaf_unique_ptr_type&& child2) noexcept {
     UNODB_DETAIL_ASSERT(node_ptr_lock<Key>(child1).is_write_locked());
 
-  parent_class::init(k1, shifted_k2, depth, child1, std::move(child2));
+    parent_class::init(k1, shifted_k2, depth, child1, std::move(child2));
   }
 
   void init(olc_node_ptr source_node, unsigned len, tree_depth_type depth,
@@ -1914,7 +1914,7 @@ olc_db<Key>::try_update_result_type olc_db<Key>::try_insert(
     }
 
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    //UNODB_DETAIL_ASSERT(depth < art_key_type::size);
+    // UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
     auto* const inode{node.ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};
@@ -2052,7 +2052,7 @@ olc_db<Key>::try_update_result_type olc_db<Key>::try_remove(art_key_type k) {
 
   while (true) {
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    //UNODB_DETAIL_ASSERT(depth < art_key_type::size);
+    // UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
     auto* const inode{node.ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};
@@ -2722,8 +2722,7 @@ int olc_db<Key>::iterator::cmp(const art_key_type& akey) const {
   auto& node = stack_.top().node;
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
   const auto* const leaf{node.template ptr<leaf_type*>()};
-  return unodb::detail::compare( leaf->get_key_view(),
-                                 akey.get_key_view() );
+  return unodb::detail::compare(leaf->get_key_view(), akey.get_key_view());
 }
 
 ///

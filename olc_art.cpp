@@ -71,7 +71,6 @@ void olc_db<Key>::iterator::dump() const {
 }
 // LCOV_EXCL_STOP
 
-
 }  // namespace unodb
 
 // Unroll unodb::olc_db templates here.

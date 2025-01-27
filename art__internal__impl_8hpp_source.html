@@ -140,7 +140,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="preprocessor">#include &quot;<a class="code" href="assert_8hpp.html">assert.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="preprocessor">#include &quot;heap.hpp&quot;</span></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="preprocessor">#include &quot;node_type.hpp&quot;</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#include &quot;portability_builtins.hpp&quot;</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#include &quot;<a class="code" href="portability__builtins_8hpp.html">portability_builtins.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb.html">unodb</a> {</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">class </span>db;</div>
@@ -154,7 +154,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>[[nodiscard, gnu::const]] <a class="code hl_define" href="group__internal.html#gaa49373011416798a490491db77a42849">UNODB_DETAIL_CONSTEXPR_NOT_MSVC</a> std::uint64_t</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>basic_art_key&lt;std::uint64_t&gt;::make_binary_comparable(std::uint64_t k) <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="preprocessor">#ifdef UNODB_DETAIL_LITTLE_ENDIAN</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <span class="keywordflow">return</span> bswap(k);</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1detail.html#aed5e6931eb6b7ec408bd94a6d6f99426">bswap</a>(k);</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="preprocessor">#else</span></div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="preprocessor">#error Needs implementing</span></div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="preprocessor">#endif</span></div>
@@ -165,7 +165,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>[[nodiscard, gnu::const]] <a class="code hl_define" href="group__internal.html#gaa49373011416798a490491db77a42849">UNODB_DETAIL_CONSTEXPR_NOT_MSVC</a> std::uint64_t</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>basic_art_key&lt;std::uint64_t&gt;::make_external(std::uint64_t k) <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="preprocessor">#ifdef UNODB_DETAIL_LITTLE_ENDIAN</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keywordflow">return</span> bswap(k);</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1detail.html#aed5e6931eb6b7ec408bd94a6d6f99426">bswap</a>(k);</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="preprocessor">#else</span></div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="preprocessor">#error Needs implementing</span></div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor">#endif</span></div>
@@ -1405,7 +1405,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l01284" name="l01284"></a><span class="lineno"> 1284</span>    <span class="keyword">const</span> <span class="keyword">auto</span> bit_field =</div>
 <div class="line"><a id="l01285" name="l01285"></a><span class="lineno"> 1285</span>        <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(_mm_movemask_epi8(matching_key_positions)) &amp; mask;</div>
 <div class="line"><a id="l01286" name="l01286"></a><span class="lineno"> 1286</span>    <span class="keywordflow">if</span> (bit_field != 0) {</div>
-<div class="line"><a id="l01287" name="l01287"></a><span class="lineno"> 1287</span>      <span class="keyword">const</span> <span class="keyword">auto</span> i = detail::ctz(bit_field);</div>
+<div class="line"><a id="l01287" name="l01287"></a><span class="lineno"> 1287</span>      <span class="keyword">const</span> <span class="keyword">auto</span> i = <a class="code hl_function" href="namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925">detail::ctz</a>(bit_field);</div>
 <div class="line"><a id="l01288" name="l01288"></a><span class="lineno"> 1288</span>      <span class="keywordflow">return</span> std::make_pair(</div>
 <div class="line"><a id="l01289" name="l01289"></a><span class="lineno"> 1289</span>          i, <span class="keyword">static_cast&lt;</span>critical_section_policy&lt;node_ptr&gt; *<span class="keyword">&gt;</span>(&amp;children[i]));</div>
 <div class="line"><a id="l01290" name="l01290"></a><span class="lineno"> 1290</span>    }</div>
@@ -1427,7 +1427,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l01306" name="l01306"></a><span class="lineno"> 1306</span> </div>
 <div class="line"><a id="l01307" name="l01307"></a><span class="lineno"> 1307</span>    <span class="keywordflow">if</span> (masked_pos == 0) <span class="keywordflow">return</span> parent_class::child_not_found;</div>
 <div class="line"><a id="l01308" name="l01308"></a><span class="lineno"> 1308</span> </div>
-<div class="line"><a id="l01309" name="l01309"></a><span class="lineno"> 1309</span>    <span class="keyword">const</span> <span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(detail::ctz(masked_pos) &gt;&gt; 3U);</div>
+<div class="line"><a id="l01309" name="l01309"></a><span class="lineno"> 1309</span>    <span class="keyword">const</span> <span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(<a class="code hl_function" href="namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925">detail::ctz</a>(masked_pos) &gt;&gt; 3U);</div>
 <div class="line"><a id="l01310" name="l01310"></a><span class="lineno"> 1310</span>    <span class="keywordflow">return</span> std::make_pair(</div>
 <div class="line"><a id="l01311" name="l01311"></a><span class="lineno"> 1311</span>        i, <span class="keyword">static_cast&lt;</span>critical_section_policy&lt;node_ptr&gt; *<span class="keyword">&gt;</span>(&amp;children[i]));</div>
 <div class="line"><a id="l01312" name="l01312"></a><span class="lineno"> 1312</span><span class="preprocessor">#else   </span><span class="comment">// #ifdef UNODB_DETAIL_X86_64</span></div>
@@ -1625,7 +1625,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l01502" name="l01502"></a><span class="lineno"> 1502</span>    <span class="keyword">const</span> <span class="keyword">auto</span> bit_field =</div>
 <div class="line"><a id="l01503" name="l01503"></a><span class="lineno"> 1503</span>        <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(_mm_movemask_epi8(le_node_key_positions)) &amp;</div>
 <div class="line"><a id="l01504" name="l01504"></a><span class="lineno"> 1504</span>        node_key_mask;</div>
-<div class="line"><a id="l01505" name="l01505"></a><span class="lineno"> 1505</span>    <span class="keywordflow">return</span> detail::popcount(bit_field);</div>
+<div class="line"><a id="l01505" name="l01505"></a><span class="lineno"> 1505</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1detail.html#a60cd68db0acc4264f225af504457f974">detail::popcount</a>(bit_field);</div>
 <div class="line"><a id="l01506" name="l01506"></a><span class="lineno"> 1506</span>  }</div>
 <div class="line"><a id="l01507" name="l01507"></a><span class="lineno"> 1507</span><span class="preprocessor">#else</span></div>
 <div class="line"><a id="l01508" name="l01508"></a><span class="lineno"> 1508</span>  <span class="comment">// The baseline implementation compares key bytes with less-than past the</span></div>
@@ -1827,7 +1827,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l01702" name="l01702"></a><span class="lineno"> 1702</span>    <span class="keyword">const</span> <span class="keyword">auto</span> bit_field =</div>
 <div class="line"><a id="l01703" name="l01703"></a><span class="lineno"> 1703</span>        <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(_mm_movemask_epi8(matching_key_positions)) &amp; mask;</div>
 <div class="line"><a id="l01704" name="l01704"></a><span class="lineno"> 1704</span>    <span class="keywordflow">if</span> (bit_field != 0) {</div>
-<div class="line"><a id="l01705" name="l01705"></a><span class="lineno"> 1705</span>      <span class="keyword">const</span> <span class="keyword">auto</span> i = detail::ctz(bit_field);</div>
+<div class="line"><a id="l01705" name="l01705"></a><span class="lineno"> 1705</span>      <span class="keyword">const</span> <span class="keyword">auto</span> i = <a class="code hl_function" href="namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925">detail::ctz</a>(bit_field);</div>
 <div class="line"><a id="l01706" name="l01706"></a><span class="lineno"> 1706</span>      <span class="keywordflow">return</span> std::make_pair(</div>
 <div class="line"><a id="l01707" name="l01707"></a><span class="lineno"> 1707</span>          i, <span class="keyword">static_cast&lt;</span>critical_section_policy&lt;node_ptr&gt; *<span class="keyword">&gt;</span>(&amp;children[i]));</div>
 <div class="line"><a id="l01708" name="l01708"></a><span class="lineno"> 1708</span>    }</div>
@@ -1849,7 +1849,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l01724" name="l01724"></a><span class="lineno"> 1724</span> </div>
 <div class="line"><a id="l01725" name="l01725"></a><span class="lineno"> 1725</span>    <span class="keywordflow">if</span> (masked_pos == 0) <span class="keywordflow">return</span> parent_class::child_not_found;</div>
 <div class="line"><a id="l01726" name="l01726"></a><span class="lineno"> 1726</span> </div>
-<div class="line"><a id="l01727" name="l01727"></a><span class="lineno"> 1727</span>    <span class="keyword">const</span> <span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(detail::ctz(masked_pos) &gt;&gt; 2U);</div>
+<div class="line"><a id="l01727" name="l01727"></a><span class="lineno"> 1727</span>    <span class="keyword">const</span> <span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(<a class="code hl_function" href="namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925">detail::ctz</a>(masked_pos) &gt;&gt; 2U);</div>
 <div class="line"><a id="l01728" name="l01728"></a><span class="lineno"> 1728</span>    <span class="keywordflow">return</span> std::make_pair(</div>
 <div class="line"><a id="l01729" name="l01729"></a><span class="lineno"> 1729</span>        i, <span class="keyword">static_cast&lt;</span>critical_section_policy&lt;node_ptr&gt; *<span class="keyword">&gt;</span>(&amp;children[i]));</div>
 <div class="line"><a id="l01730" name="l01730"></a><span class="lineno"> 1730</span><span class="preprocessor">#else</span></div>
@@ -1975,7 +1975,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l01850" name="l01850"></a><span class="lineno"> 1850</span>    <span class="keyword">const</span> <span class="keyword">auto</span> bit_field =</div>
 <div class="line"><a id="l01851" name="l01851"></a><span class="lineno"> 1851</span>        <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(_mm_movemask_epi8(lesser_key_positions)) &amp; mask;</div>
 <div class="line"><a id="l01852" name="l01852"></a><span class="lineno"> 1852</span>    <span class="keyword">const</span> <span class="keyword">auto</span> result = (bit_field != 0)</div>
-<div class="line"><a id="l01853" name="l01853"></a><span class="lineno"> 1853</span>                            ? detail::ctz(bit_field)</div>
+<div class="line"><a id="l01853" name="l01853"></a><span class="lineno"> 1853</span>                            ? <a class="code hl_function" href="namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925">detail::ctz</a>(bit_field)</div>
 <div class="line"><a id="l01854" name="l01854"></a><span class="lineno"> 1854</span>                            : <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(children_count_);</div>
 <div class="line"><a id="l01855" name="l01855"></a><span class="lineno"> 1855</span><span class="preprocessor">#else</span></div>
 <div class="line"><a id="l01856" name="l01856"></a><span class="lineno"> 1856</span>    <span class="comment">// This is also the best current ARM implementation</span></div>
@@ -2157,7 +2157,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l02028" name="l02028"></a><span class="lineno"> 2028</span>      <span class="keyword">const</span> <span class="keyword">auto</span> cmp_mask =</div>
 <div class="line"><a id="l02029" name="l02029"></a><span class="lineno"> 2029</span>          <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(_mm_movemask_epi8(vec_cmp));</div>
 <div class="line"><a id="l02030" name="l02030"></a><span class="lineno"> 2030</span>      <span class="keywordflow">if</span> (cmp_mask != 0) {</div>
-<div class="line"><a id="l02031" name="l02031"></a><span class="lineno"> 2031</span>        i = (i &lt;&lt; 1U) + (((detail::ctz(cmp_mask)) + 1U) &gt;&gt; 1U);</div>
+<div class="line"><a id="l02031" name="l02031"></a><span class="lineno"> 2031</span>        i = (i &lt;&lt; 1U) + (((<a class="code hl_function" href="namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925">detail::ctz</a>(cmp_mask)) + 1U) &gt;&gt; 1U);</div>
 <div class="line"><a id="l02032" name="l02032"></a><span class="lineno"> 2032</span>        <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l02033" name="l02033"></a><span class="lineno"> 2033</span>      }</div>
 <div class="line"><a id="l02034" name="l02034"></a><span class="lineno"> 2034</span>      i += 4;</div>
@@ -2189,7 +2189,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l02060" name="l02060"></a><span class="lineno"> 2060</span>            _mm256_permute4x64_epi64(interleaved_vec_cmp, 0b11&#39;01&#39;10&#39;00);</div>
 <div class="line"><a id="l02061" name="l02061"></a><span class="lineno"> 2061</span>        <span class="keyword">const</span> <span class="keyword">auto</span> cmp_mask =</div>
 <div class="line"><a id="l02062" name="l02062"></a><span class="lineno"> 2062</span>            <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(_mm256_movemask_epi8(vec_cmp));</div>
-<div class="line"><a id="l02063" name="l02063"></a><span class="lineno"> 2063</span>        i = (i &lt;&lt; 2U) + (detail::ctz(cmp_mask) &gt;&gt; 1U);</div>
+<div class="line"><a id="l02063" name="l02063"></a><span class="lineno"> 2063</span>        i = (i &lt;&lt; 2U) + (<a class="code hl_function" href="namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925">detail::ctz</a>(cmp_mask) &gt;&gt; 1U);</div>
 <div class="line"><a id="l02064" name="l02064"></a><span class="lineno"> 2064</span>        <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l02065" name="l02065"></a><span class="lineno"> 2065</span>      }</div>
 <div class="line"><a id="l02066" name="l02066"></a><span class="lineno"> 2066</span>      i += 4;</div>
@@ -2222,7 +2222,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l02093" name="l02093"></a><span class="lineno"> 2093</span>          <span class="comment">// NOLINTNEXTLINE(misc-const-correctness)</span></div>
 <div class="line"><a id="l02094" name="l02094"></a><span class="lineno"> 2094</span>          vget_lane_u64(vreinterpret_u64_u8(narrowed_cmp), 0);</div>
 <div class="line"><a id="l02095" name="l02095"></a><span class="lineno"> 2095</span>      <span class="keywordflow">if</span> (scalar_pos != 0) {</div>
-<div class="line"><a id="l02096" name="l02096"></a><span class="lineno"> 2096</span>        i = (i &lt;&lt; 1U) + static_cast&lt;unsigned&gt;(detail::ctz(scalar_pos) &gt;&gt; 3U);</div>
+<div class="line"><a id="l02096" name="l02096"></a><span class="lineno"> 2096</span>        i = (i &lt;&lt; 1U) + static_cast&lt;unsigned&gt;(<a class="code hl_function" href="namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925">detail::ctz</a>(scalar_pos) &gt;&gt; 3U);</div>
 <div class="line"><a id="l02097" name="l02097"></a><span class="lineno"> 2097</span>        <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l02098" name="l02098"></a><span class="lineno"> 2098</span>      }</div>
 <div class="line"><a id="l02099" name="l02099"></a><span class="lineno"> 2099</span>      i += 4;</div>
@@ -2822,7 +2822,11 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="ttc" id="agroup__internal_html_gacd9e44918f8725b066b33afc500ce938"><div class="ttname"><a href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:353</div></div>
 <div class="ttc" id="agroup__internal_html_gad564cfad4e209ae80d3f840512f12b84"><div class="ttname"><a href="group__internal.html#gad564cfad4e209ae80d3f840512f12b84">UNODB_DETAIL_RESTORE_GCC_11_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_GCC_11_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:395</div></div>
 <div class="ttc" id="anamespaceunodb_1_1detail_html"><div class="ttname"><a href="namespaceunodb_1_1detail.html">unodb::detail</a></div><div class="ttdoc">The namespace for the UnoDB internal implementation details.</div><div class="ttdef"><b>Definition</b> art.cpp:38</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html_a5572532b0d5ba02cbbfb5e876bd59925"><div class="ttname"><a href="namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925">unodb::detail::ctz</a></div><div class="ttdeci">std::uint8_t ctz(T x) noexcept</div><div class="ttdoc">Return the number of trailing zero bits in x.</div><div class="ttdef"><b>Definition</b> portability_builtins.hpp:42</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html_a60cd68db0acc4264f225af504457f974"><div class="ttname"><a href="namespaceunodb_1_1detail.html#a60cd68db0acc4264f225af504457f974">unodb::detail::popcount</a></div><div class="ttdeci">unsigned popcount(unsigned x) noexcept</div><div class="ttdoc">Return the number of one bits in x.</div><div class="ttdef"><b>Definition</b> portability_builtins.hpp:82</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html_aed5e6931eb6b7ec408bd94a6d6f99426"><div class="ttname"><a href="namespaceunodb_1_1detail.html#aed5e6931eb6b7ec408bd94a6d6f99426">unodb::detail::bswap</a></div><div class="ttdeci">std::uint64_t bswap(std::uint64_t x) noexcept</div><div class="ttdoc">Reverse the order of bytes in x.</div><div class="ttdef"><b>Definition</b> portability_builtins.hpp:30</div></div>
 <div class="ttc" id="anamespaceunodb_html"><div class="ttname"><a href="namespaceunodb.html">unodb</a></div><div class="ttdoc">The namespace for the public UnoDB API.</div><div class="ttdef"><b>Definition</b> art.cpp:38</div></div>
+<div class="ttc" id="aportability__builtins_8hpp_html"><div class="ttname"><a href="portability__builtins_8hpp.html">portability_builtins.hpp</a></div><div class="ttdoc">Definitions to abstact differences between different compiler builtins and intrinsics.</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1basic__art__key_html"><div class="ttname"><a href="structunodb_1_1detail_1_1basic__art__key.html">unodb::detail::basic_art_key</a></div><div class="ttdef"><b>Definition</b> art_internal.hpp:42</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit_html"><div class="ttname"><a href="structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html">unodb::detail::basic_art_policy::delete_db_node_ptr_at_scope_exit</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:331</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1basic__art__policy_html"><div class="ttname"><a href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:234</div></div>

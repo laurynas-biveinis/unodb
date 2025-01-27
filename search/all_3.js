@@ -23,8 +23,9 @@ var searchData=
   ['basic_5fleaf_20',['basic_leaf',['../classunodb_1_1detail_1_1basic__leaf.html',1,'unodb::detail']]],
   ['basic_5fnode_5fptr_21',['basic_node_ptr',['../classunodb_1_1detail_1_1basic__node__ptr.html',1,'unodb::detail']]],
   ['batched_5fprng_22',['batched_prng',['../classunodb_1_1benchmark_1_1batched__prng.html',1,'unodb::benchmark']]],
-  ['build_20dependencies_23',['Build dependencies',['../md_README.html#autotoc_md16',1,'']]],
-  ['build_20dependencies_20bundled_20as_20git_20submodules_24',['Build dependencies, bundled as git submodules',['../md_README.html#autotoc_md17',1,'']]],
-  ['building_25',['Building',['../md_README.html#autotoc_md18',1,'']]],
-  ['bundled_20as_20git_20submodules_26',['Build dependencies, bundled as git submodules',['../md_README.html#autotoc_md17',1,'']]]
+  ['bswap_23',['bswap',['../namespaceunodb_1_1detail.html#aed5e6931eb6b7ec408bd94a6d6f99426',1,'unodb::detail']]],
+  ['build_20dependencies_24',['Build dependencies',['../md_README.html#autotoc_md16',1,'']]],
+  ['build_20dependencies_20bundled_20as_20git_20submodules_25',['Build dependencies, bundled as git submodules',['../md_README.html#autotoc_md17',1,'']]],
+  ['building_26',['Building',['../md_README.html#autotoc_md18',1,'']]],
+  ['bundled_20as_20git_20submodules_27',['Build dependencies, bundled as git submodules',['../md_README.html#autotoc_md17',1,'']]]
 ];

@@ -3,6 +3,7 @@ var group__internal =
     [ "assert.hpp", "assert_8hpp.html", null ],
     [ "global.hpp", "global_8hpp.html", null ],
     [ "portability_arch.hpp", "portability__arch_8hpp.html", null ],
+    [ "portability_builtins.hpp", "portability__builtins_8hpp.html", null ],
     [ "unodb", "namespaceunodb.html", null ],
     [ "unodb::detail", "namespaceunodb_1_1detail.html", null ],
     [ "NOMINMAX", "group__internal.html#ga9f918755b601cf4bffca775992e6fb90", null ],

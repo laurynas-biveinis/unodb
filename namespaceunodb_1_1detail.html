@@ -322,16 +322,18 @@ template&lt;class Header , class Db &gt; </td></tr>
 template&lt;class T &gt; </td></tr>
 <tr class="memitem:ace283ba3cda1f0e8f2ddc1d3e5105110"><td class="memTemplItemLeft" align="right" valign="top">non_atomic_array&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>copy_atomic_to_nonatomic</b> (T &amp;atomic_array) noexcept</td></tr>
 <tr class="separator:ace283ba3cda1f0e8f2ddc1d3e5105110"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab53d3c659608b2a3b835fbbb3e4777f4" id="r_ab53d3c659608b2a3b835fbbb3e4777f4"><td class="memItemLeft" align="right" valign="top"><a id="ab53d3c659608b2a3b835fbbb3e4777f4" name="ab53d3c659608b2a3b835fbbb3e4777f4"></a>
-<a class="el" href="group__internal.html#gaa49373011416798a490491db77a42849">UNODB_DETAIL_CONSTEXPR_NOT_MSVC</a> std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>bswap</b> (std::uint64_t x) noexcept</td></tr>
-<tr class="separator:ab53d3c659608b2a3b835fbbb3e4777f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4983e9082fbea7365816cbbf3a4a0c14" id="r_a4983e9082fbea7365816cbbf3a4a0c14"><td class="memTemplParams" colspan="2"><a id="a4983e9082fbea7365816cbbf3a4a0c14" name="a4983e9082fbea7365816cbbf3a4a0c14"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a4983e9082fbea7365816cbbf3a4a0c14"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="group__internal.html#gaa49373011416798a490491db77a42849">UNODB_DETAIL_CONSTEXPR_NOT_MSVC</a> std::uint8_t&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ctz</b> (T x) noexcept</td></tr>
-<tr class="separator:a4983e9082fbea7365816cbbf3a4a0c14"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e433fd1f2d6fe55b82dc25909f8fe6b" id="r_a6e433fd1f2d6fe55b82dc25909f8fe6b"><td class="memItemLeft" align="right" valign="top"><a id="a6e433fd1f2d6fe55b82dc25909f8fe6b" name="a6e433fd1f2d6fe55b82dc25909f8fe6b"></a>
-<a class="el" href="group__internal.html#gaa49373011416798a490491db77a42849">UNODB_DETAIL_CONSTEXPR_NOT_MSVC</a> unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>popcount</b> (unsigned x) noexcept</td></tr>
-<tr class="separator:a6e433fd1f2d6fe55b82dc25909f8fe6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed5e6931eb6b7ec408bd94a6d6f99426" id="r_aed5e6931eb6b7ec408bd94a6d6f99426"><td class="memItemLeft" align="right" valign="top"><a id="aed5e6931eb6b7ec408bd94a6d6f99426" name="aed5e6931eb6b7ec408bd94a6d6f99426"></a>
+std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>bswap</b> (std::uint64_t x) noexcept</td></tr>
+<tr class="memdesc:aed5e6931eb6b7ec408bd94a6d6f99426"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reverse the order of bytes in <em>x</em>. <br /></td></tr>
+<tr class="separator:aed5e6931eb6b7ec408bd94a6d6f99426"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5572532b0d5ba02cbbfb5e876bd59925" id="r_a5572532b0d5ba02cbbfb5e876bd59925"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a5572532b0d5ba02cbbfb5e876bd59925"><td class="memTemplItemLeft" align="right" valign="top">std::uint8_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925">ctz</a> (T x) noexcept</td></tr>
+<tr class="memdesc:a5572532b0d5ba02cbbfb5e876bd59925"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of trailing zero bits in <em>x</em>.  <br /></td></tr>
+<tr class="separator:a5572532b0d5ba02cbbfb5e876bd59925"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60cd68db0acc4264f225af504457f974" id="r_a60cd68db0acc4264f225af504457f974"><td class="memItemLeft" align="right" valign="top"><a id="a60cd68db0acc4264f225af504457f974" name="a60cd68db0acc4264f225af504457f974"></a>
+unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>popcount</b> (unsigned x) noexcept</td></tr>
+<tr class="memdesc:a60cd68db0acc4264f225af504457f974"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of one bits in <em>x</em>. <br /></td></tr>
+<tr class="separator:a60cd68db0acc4264f225af504457f974"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -493,6 +495,37 @@ std::array&lt; <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">th
 
 <p>Intentionally crash from a given source location. </p>
 <p>Should not be called directly - use UNODB_DETAIL_CRASH instead. </p>
+
+</div>
+</div>
+<a id="a5572532b0d5ba02cbbfb5e876bd59925" name="a5572532b0d5ba02cbbfb5e876bd59925"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5572532b0d5ba02cbbfb5e876bd59925">&#9670;&#160;</a></span>ctz()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint8_t unodb::detail::ctz </td>
+          <td>(</td>
+          <td class="paramtype">T&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return the number of trailing zero bits in <em>x</em>. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>Argument may not be zero </dd></dl>
 
 </div>
 </div>

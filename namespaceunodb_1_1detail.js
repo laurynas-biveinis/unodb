@@ -40,9 +40,12 @@ var namespaceunodb_1_1detail =
     [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", null ],
     [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ],
     [ "assert_failure", "namespaceunodb_1_1detail.html#a73ccae20a7fde29e0381b903bbf0c58a", null ],
+    [ "bswap", "namespaceunodb_1_1detail.html#aed5e6931eb6b7ec408bd94a6d6f99426", null ],
     [ "cannot_happen", "namespaceunodb_1_1detail.html#a84376061f77319109e51399dd10a3135", null ],
     [ "crash", "namespaceunodb_1_1detail.html#aae5f331d83917453230a096af3197dc2", null ],
+    [ "ctz", "namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925", null ],
     [ "msg_stacktrace_abort", "namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2", null ],
+    [ "popcount", "namespaceunodb_1_1detail.html#a60cd68db0acc4264f225af504457f974", null ],
     [ "hardware_constructive_interference_size", "namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89", null ],
     [ "hardware_destructive_interference_size", "namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c", null ]
 ];

@@ -16,7 +16,7 @@ var files_dup =
     [ "olc_art.hpp", "olc__art_8hpp_source.html", null ],
     [ "optimistic_lock.hpp", "optimistic__lock_8hpp_source.html", null ],
     [ "portability_arch.hpp", "portability__arch_8hpp.html", "portability__arch_8hpp" ],
-    [ "portability_builtins.hpp", "portability__builtins_8hpp_source.html", null ],
+    [ "portability_builtins.hpp", "portability__builtins_8hpp.html", "portability__builtins_8hpp" ],
     [ "qsbr.hpp", "qsbr_8hpp_source.html", null ],
     [ "qsbr_ptr.hpp", "qsbr__ptr_8hpp_source.html", null ],
     [ "test_heap.hpp", "test__heap_8hpp_source.html", null ],

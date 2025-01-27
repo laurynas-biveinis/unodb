@@ -2,7 +2,7 @@
 #ifndef UNODB_DETAIL_GLOBAL_HPP
 #define UNODB_DETAIL_GLOBAL_HPP
 
-/// \file global.hpp
+/// \file
 /// Global defines that must precede every other include directive in all the
 /// source files.
 /// \ingroup internal

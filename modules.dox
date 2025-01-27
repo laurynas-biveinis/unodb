@@ -1,7 +1,7 @@
 /// \defgroup internal Internals
 /// Internals documentation for UnoDB developers.
 ///
-/// See also CONTRIBUTING.md.
+/// See also [CONTRIBUTING.md](CONTRIBUTING.md).
 
 /// \namespace unodb
 /// The namespace for the public UnoDB API.

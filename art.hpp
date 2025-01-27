@@ -641,7 +641,7 @@ class db final {
   friend auto detail::make_db_leaf_ptr<Key, detail::node_header, db>(
       art_key_type, value_view, db&);
 
-  template <class, class>
+  template <class, class, template <class> class>
   friend class detail::basic_db_leaf_deleter;
 
   template <class,                   // Db
@@ -651,7 +651,7 @@ class db final {
             class,  // NodePtr
             class,  // INodeDefs
             template <class> class,         // INodeReclamator
-            template <class, class> class>  // LeadReclamator
+            template <class, class> class>  // LeafReclamator
   friend struct detail::basic_art_policy;
 
   template <class, class>

@@ -50,6 +50,10 @@
 **/*~
 **/*#*
 
+cf_off.sh
+cf_on.sh
+cf_now.sh
 run-cmake.sh
 loop-test.sh
+compile1.sh
 /docs/

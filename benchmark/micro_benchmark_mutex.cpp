@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -23,7 +23,7 @@
 namespace {
 
 class [[nodiscard]] concurrent_benchmark_mutex final
-    : public unodb::benchmark::concurrent_benchmark<unodb::mutex_db,
+    : public unodb::benchmark::concurrent_benchmark<unodb::benchmark::mutex_db,
                                                     std::thread> {};
 
 concurrent_benchmark_mutex benchmark_fixture;

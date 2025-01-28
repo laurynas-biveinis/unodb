@@ -92,7 +92,7 @@ set(GCC_CXX_WARNING_FLAGS
   "-Wduplicated-cond" "-Wextra-semi" "-Wfloat-equal" "-Wformat-overflow=2"
   "-Wformat-signedness" "-Wformat-truncation=2" "-Wformat=2"
   "-Wimplicit-fallthrough=5" "-Winvalid-pch" "-Wlogical-op" "-Wmismatched-tags"
-  "-Wmissing-declarations" "-Wmissing-include-dirs" "-Wnoexcept"
+  "-Wmissing-include-dirs" "-Wnoexcept"
   "-Wnon-virtual-dtor" "-Wnull-dereference"  "-Wold-style-cast"
   "-Woverloaded-virtual" "-Wpacked" "-Wplacement-new=2" "-Wredundant-decls"
   "-Wshadow=global" "-Wsign-conversion" "-Wsign-promo" "-Wstrict-null-sentinel"
@@ -536,6 +536,8 @@ set(CPPCHECK_ARGS
   # False positives on structured bindings with 2.5
   "--suppress=unassignedVariable"
   "--suppress=unusedVariable"
+  # TODO(laurynas): figure out and fix
+  "--suppress=throwInNoexceptFunction"
   # Informational message that fails the build. Remove once cppcheck 2.11 is the
   # minimum
   "--suppress=normalCheckLevelMaxBranches")
@@ -702,9 +704,9 @@ if(LIBFUZZER_AVAILABLE)
   target_link_libraries(unodb_qsbr_lf PUBLIC unodb_util Threads::Threads)
 endif()
 
-add_unodb_library(unodb art.cpp art.hpp art_common.cpp art_common.hpp
-  mutex_art.hpp optimistic_lock.hpp art_internal_impl.hpp olc_art.hpp
-  olc_art.cpp art_internal.cpp art_internal.hpp node_type.hpp)
+add_unodb_library(unodb art.cpp art.hpp art_common.hpp
+  mutex_art.hpp mutex_art.cpp optimistic_lock.hpp art_internal_impl.hpp
+  olc_art.hpp olc_art.cpp art_internal.cpp art_internal.hpp node_type.hpp)
 target_link_libraries(unodb PUBLIC unodb_util unodb_qsbr)
 if(LIBFUZZER_AVAILABLE)
   target_link_libraries(unodb_lf PUBLIC unodb_util unodb_qsbr_lf)

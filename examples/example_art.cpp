@@ -31,7 +31,7 @@ constexpr std::string_view value_3 = "A third value";
 }  // namespace
 
 int main() {
-  unodb::db tree;
+  unodb::db<std::uint64_t> tree;
   std::cerr << "The tree starts out as empty: " << tree.empty() << '\n';
 
   auto insert_result = tree.insert(1, from_string_view(value_1));
@@ -46,11 +46,15 @@ int main() {
   std::cerr << "Insert key 50 result: " << insert_result << '\n';
 
   // visitor for scans.
-  auto fn = [](const unodb::visitor<typename unodb::db::iterator>& v) {
-    const auto& val = v.get_value();
-    const std::string_view s(reinterpret_cast<const char*>(val.data()),
+  auto fn = [](const unodb::visitor<unodb::db<std::uint64_t>::iterator>& vis) {
+    const auto& key{vis.get_key()};
+    unodb::key_decoder dec{key};
+    std::uint64_t k;
+    dec.decode(k);
+    const auto& val{vis.get_value()};
+    const std::string_view v(reinterpret_cast<const char*>(val.data()),
                              val.size());
-    std::cerr << "{key=" << v.get_key() << ",val=\"" << s << "\""
+    std::cerr << "{key=" << k << ",val=\"" << v << "\""
               << "} ";
     return false;  // do not halt
   };
@@ -82,7 +86,7 @@ int main() {
   get_result = tree.get(10);
   std::cerr << "Get key 10 result has value: "
             // Alternative to get_result.has_value
-            << unodb::db::key_found(get_result)
+            << unodb::db<std::uint64_t>::key_found(get_result)
             << ", value length: " << get_result->size() << '\n';
 
   auto remove_result = tree.remove(20);

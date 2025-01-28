@@ -27,7 +27,25 @@
 namespace unodb::detail {
 
 /// Reverse the order of bytes in \a x.
-[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint64_t bswap(
+[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint16_t bswap16(
+    std::uint16_t x) noexcept {
+#ifndef UNODB_DETAIL_MSVC
+  return __builtin_bswap16(x);
+#else
+  return _byteswap_ushort(x);
+#endif
+}
+
+[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint32_t bswap32(
+    std::uint32_t x) noexcept {
+#ifndef UNODB_DETAIL_MSVC
+  return __builtin_bswap32(x);
+#else
+  return _byteswap_ulong(x);
+#endif
+}
+
+[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint64_t bswap64(
     std::uint64_t x) noexcept {
 #ifndef UNODB_DETAIL_MSVC
   return __builtin_bswap64(x);

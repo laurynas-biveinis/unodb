@@ -147,9 +147,10 @@
 #define UNODB_DETAIL_BOOST_STACKTRACE
 
 /// Defined to the selected value of the optimistic spin lock wait algorithm
-/// implementation. It is also used by the OLC ART algorithms restarting close
-/// to the start of their execution. The possible values are
-/// #UNODB_DETAIL_SPINLOCK_LOOP_PAUSE and #UNODB_DETAIL_SPINLOCK_LOOP_EMPTY.
+/// implementation for unodb::spin_wait_loop_body(). It is also used by the OLC
+/// ART algorithms restarting close to the start of their execution. The
+/// possible values are #UNODB_DETAIL_SPINLOCK_LOOP_PAUSE and
+/// #UNODB_DETAIL_SPINLOCK_LOOP_EMPTY.
 #define UNODB_DETAIL_SPINLOCK_LOOP_VALUE
 
 #endif  // UNODB_DETAIL_DOXYGEN

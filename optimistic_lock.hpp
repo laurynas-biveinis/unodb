@@ -63,7 +63,8 @@ inline void spin_wait_loop_body() noexcept {
 }
 // LCOV_EXCL_STOP
 
-/// The bare data for the version information on a node.
+/// The underlying integer type used to store optimistic lock word, including
+/// its version and lock state information.
 //
 // TODO(laurynas) can we use optimistic_lock::version_type instead?
 using version_tag_type = std::uint64_t;
@@ -230,20 +231,32 @@ using version_tag_type = std::uint64_t;
 /// the addition of an obsolete state for data marked for reclamation.
 class [[nodiscard]] optimistic_lock final {
  public:
-  // Class for operations with a version_tag_type.
+  /// Non-atomic lock word representation. Used for copying and manipulating
+  /// snapshots of the atomic lock word.
+  /// The lock word consists of:
+  /// - Bit 0: obsolete state
+  /// - Bit 1: write lock
+  /// - Bits 2-63: version counter
+  // TODO(laurynas): rename to lock_word
   class [[nodiscard]] version_type final {
    public:
+    /// Create a new lock word from a raw \a version_val value.
     explicit constexpr version_type(version_tag_type version_val) noexcept
         : version{version_val} {}
 
+    /// Return whether the lock word has the write lock bit set.
+    // TODO(laurynas): introduce the precondition of not being obsolete
     [[nodiscard, gnu::const]] constexpr bool is_write_locked() const noexcept {
       return (version & 2U) != 0U;
     }
 
+    /// Return whether the lock word indicates a free lock that is available for
+    /// acquisition - neither write-locked nor obsolete.
     [[nodiscard, gnu::const]] constexpr bool is_free() const noexcept {
       return (version & 3U) == 0U;
     }
 
+    /// Return whether the lock word has the obsolete bit set.
     // Force inline because LLVM 14-17 and possibly later versions generate a
     // call to outline version from optimistic_lock::try_lock in release build
     // with UBSan. That same method is apparently miscompiled in that its loop
@@ -255,21 +268,30 @@ class [[nodiscard]] optimistic_lock final {
       return (version & 1U) != 0U;
     }
 
+    /// Return a lock word with the current version and lock bit set.
+    /// \pre the lock word must be free.
     [[nodiscard, gnu::const]] constexpr version_type set_locked_bit()
         const noexcept {
       UNODB_DETAIL_ASSERT(is_free());
       return version_type{version + 2};
     }
 
-    // Return the version_tag_type (just the data).
+    /// Return the version_tag_type (just the data, including both the version
+    /// and the write lock / obsolete bits).
+    // TODO(laurynas): will go away once this class is used directly instead of
+    // version_tag_type?
     [[nodiscard]] constexpr version_tag_type get() const noexcept {
       return version;
     }
 
+    /// Compare two lock words for equality, including all the version and lock
+    /// / obsolete bits.
     [[nodiscard]] constexpr bool operator==(version_type other) const noexcept {
       return version == other.version;
     }
 
+    /// Output the lock word to \a os output stream. Should only be used
+    /// for debug dumping.
     [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
       os << "version = 0x" << std::hex << std::setfill('0') << std::setw(8)
          << version << std::dec;
@@ -278,6 +300,7 @@ class [[nodiscard]] optimistic_lock final {
     }
 
    private:
+    /// The raw lock word value.
     version_tag_type version{0};
   };  // class version_type
 

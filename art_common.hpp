@@ -202,30 +202,38 @@ class key_encoder {
   //
 
   key_encoder &encode(std::int8_t v) {
-    const uint8_t u = (v >= 0) ? msb8 + static_cast<uint8_t>(v)
-                               : msb8 - static_cast<uint8_t>(-(v + 1)) -
-                                     static_cast<uint8_t>(1);
+    const int8_t iONE = static_cast<int8_t>(1);
+    const uint8_t uONE = static_cast<uint8_t>(1);
+    const uint8_t u = (v >= 0)
+                          ? msb8 + static_cast<uint8_t>(v)
+                          : msb8 - static_cast<uint8_t>(-(v + iONE)) - uONE;
     return encode(u);
   }
 
   key_encoder &encode(std::int16_t v) {
-    const uint16_t u = (v >= 0) ? msb16 + static_cast<uint16_t>(v)
-                                : msb16 - static_cast<uint16_t>(-(v + 1)) -
-                                      static_cast<uint16_t>(1);
+    const int16_t iONE = static_cast<int16_t>(1);
+    const uint16_t uONE = static_cast<uint16_t>(1);
+    const uint16_t u = (v >= 0)
+                           ? msb16 + static_cast<uint16_t>(v)
+                           : msb16 - static_cast<uint16_t>(-(v + iONE)) - uONE;
     return encode(u);
   }
 
   key_encoder &encode(std::int32_t v) {
-    const uint32_t u = (v >= 0) ? msb32 + static_cast<uint32_t>(v)
-                                : msb32 - static_cast<uint32_t>(-(v + 1)) -
-                                      static_cast<uint32_t>(1);
+    const int32_t iONE = 1;
+    const uint32_t uONE = static_cast<uint32_t>(1);
+    const uint32_t u = (v >= 0)
+                           ? msb32 + static_cast<uint32_t>(v)
+                           : msb32 - static_cast<uint32_t>(-(v + iONE)) - uONE;
     return encode(u);
   }
 
   key_encoder &encode(std::int64_t v) {
-    const uint64_t u = (v >= 0) ? msb64 + static_cast<uint64_t>(v)
-                                : msb64 - static_cast<uint64_t>(-(v + 1)) -
-                                      static_cast<uint64_t>(1);
+    const int64_t iONE = static_cast<int64_t>(1);
+    const uint64_t uONE = static_cast<uint64_t>(1);
+    const uint64_t u = (v >= 0)
+                           ? msb64 + static_cast<uint64_t>(v)
+                           : msb64 - static_cast<uint64_t>(-(v + iONE)) - uONE;
     return encode(u);
   }
 

@@ -15,8 +15,6 @@
 #include <cstdint>
 #include <iostream>  // IWYU pragma: keep
 
-#include "art_common.hpp"
-
 // Unroll unodb::mutex_db templates here.
 template class unodb::mutex_db<std::uint64_t>;
 // template class unodb::mutex_db<unodb::key_view>;

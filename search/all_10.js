@@ -1,14 +1,10 @@
 var searchData=
 [
-  ['qsbr_0',['qsbr',['../classunodb_1_1qsbr.html',1,'unodb::qsbr'],['../index.html#autotoc_md27',1,'Quiescent State-Based Reclamation (QSBR)']]],
-  ['qsbr_5fepoch_1',['qsbr_epoch',['../classunodb_1_1qsbr__epoch.html',1,'unodb']]],
-  ['qsbr_5fper_5fthread_2',['qsbr_per_thread',['../classunodb_1_1qsbr__per__thread.html',1,'unodb']]],
-  ['qsbr_5fptr_3',['qsbr_ptr',['../classunodb_1_1qsbr__ptr.html',1,'unodb']]],
-  ['qsbr_5fptr_5fbase_4',['qsbr_ptr_base',['../classunodb_1_1detail_1_1qsbr__ptr__base.html',1,'unodb::detail']]],
-  ['qsbr_5fptr_5fspan_5',['qsbr_ptr_span',['../classunodb_1_1qsbr__ptr__span.html',1,'unodb']]],
-  ['qsbr_5fstate_6',['qsbr_state',['../structunodb_1_1qsbr__state.html',1,'unodb']]],
-  ['qsbr_5fthread_7',['qsbr_thread',['../classunodb_1_1qsbr__thread.html',1,'unodb']]],
-  ['qsbrtestbase_8',['QSBRTestBase',['../classunodb_1_1test_1_1QSBRTestBase.html',1,'unodb::test']]],
-  ['quiescent_20state_20based_20reclamation_20qsbr_9',['Quiescent State-Based Reclamation (QSBR)',['../index.html#autotoc_md27',1,'']]],
-  ['quiescent_5fstate_5fon_5fscope_5fexit_10',['quiescent_state_on_scope_exit',['../structunodb_1_1quiescent__state__on__scope__exit.html',1,'unodb']]]
+  ['platform_20specific_20notes_0',['Platform-Specific Notes',['../index.html#autotoc_md25',1,'']]],
+  ['popcount_1',['popcount',['../namespaceunodb_1_1detail.html#a60cd68db0acc4264f225af504457f974',1,'unodb::detail']]],
+  ['portability_5farch_2ehpp_2',['portability_arch.hpp',['../portability__arch_8hpp.html',1,'']]],
+  ['portability_5fbuiltins_2ehpp_3',['portability_builtins.hpp',['../portability__builtins_8hpp.html',1,'']]],
+  ['projects_4',['Related Projects',['../index.html#autotoc_md34',1,'']]],
+  ['protocol_5',['protocol',['../classunodb_1_1optimistic__lock.html#autotoc_md15',1,'Read protocol'],['../classunodb_1_1optimistic__lock.html#autotoc_md16',1,'Write protocol']]],
+  ['pull_20requests_6',['Pull Requests',['../md_CONTRIBUTING.html#autotoc_md11',1,'']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['internals_0',['Internals',['../group__internal.html',1,'']]]
+  ['based_20reclamation_0',['Quiescent State-Based Reclamation',['../group__qsbr.html',1,'']]]
 ];

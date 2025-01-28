@@ -25,27 +25,27 @@
 var NAVTREE =
 [
   [ "UnoDB", "index.html", [
-    [ "unodb", "index.html#autotoc_md13", [
-      [ "Introduction", "index.html#autotoc_md14", null ],
-      [ "Requirements", "index.html#autotoc_md15", [
-        [ "Build dependencies", "index.html#autotoc_md16", null ],
-        [ "Build dependencies, bundled as git submodules", "index.html#autotoc_md17", null ]
+    [ "unodb", "index.html#autotoc_md19", [
+      [ "Introduction", "index.html#autotoc_md20", null ],
+      [ "Requirements", "index.html#autotoc_md21", [
+        [ "Build dependencies", "index.html#autotoc_md22", null ],
+        [ "Build dependencies, bundled as git submodules", "index.html#autotoc_md23", null ]
       ] ],
-      [ "Building", "index.html#autotoc_md18", null ],
-      [ "Platform-Specific Notes", "index.html#autotoc_md19", [
-        [ "Ubuntu 22.04", "index.html#autotoc_md20", null ],
-        [ "Amazon Linux 2023", "index.html#autotoc_md21", null ],
-        [ "Amazon Linux 2", "index.html#autotoc_md22", null ]
+      [ "Building", "index.html#autotoc_md24", null ],
+      [ "Platform-Specific Notes", "index.html#autotoc_md25", [
+        [ "Ubuntu 22.04", "index.html#autotoc_md26", null ],
+        [ "Amazon Linux 2023", "index.html#autotoc_md27", null ],
+        [ "Amazon Linux 2", "index.html#autotoc_md28", null ]
       ] ],
-      [ "Usage", "index.html#autotoc_md23", null ],
-      [ "Technical Details", "index.html#autotoc_md24", [
-        [ "Adaptive Radix Tree", "index.html#autotoc_md25", null ],
-        [ "Sequential Lock", "index.html#autotoc_md26", null ],
-        [ "Quiescent State-Based Reclamation (QSBR)", "index.html#autotoc_md27", null ]
+      [ "Usage", "index.html#autotoc_md29", null ],
+      [ "Technical Details", "index.html#autotoc_md30", [
+        [ "Adaptive Radix Tree", "index.html#autotoc_md31", null ],
+        [ "Sequential Lock", "index.html#autotoc_md32", null ],
+        [ "Quiescent State-Based Reclamation (QSBR)", "index.html#autotoc_md33", null ]
       ] ],
-      [ "Related Projects", "index.html#autotoc_md28", null ],
-      [ "Contributing", "index.html#autotoc_md29", null ],
-      [ "Literature", "index.html#autotoc_md30", null ]
+      [ "Related Projects", "index.html#autotoc_md34", null ],
+      [ "Contributing", "index.html#autotoc_md35", null ],
+      [ "Literature", "index.html#autotoc_md36", null ]
     ] ],
     [ "CONTRIBUTING", "md_CONTRIBUTING.html", [
       [ "Contributing to UnoDB", "md_CONTRIBUTING.html#autotoc_md0", [
@@ -96,7 +96,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89"
+"namespaceunodb.html#a8105523dd9adff845377f54dd034b838"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -1,15 +1,10 @@
 var searchData=
 [
-  ['olc_5fdb_0',['olc_db',['../classunodb_1_1olc__db.html',1,'unodb']]],
-  ['olc_5fimpl_5fhelpers_1',['olc_impl_helpers',['../structunodb_1_1detail_1_1olc__impl__helpers.html',1,'unodb::detail']]],
-  ['olc_5finode_2',['olc_inode',['../classunodb_1_1detail_1_1olc__inode.html',1,'unodb::detail']]],
-  ['olc_5finode_5f16_3',['olc_inode_16',['../classunodb_1_1detail_1_1olc__inode__16.html',1,'unodb::detail']]],
-  ['olc_5finode_5f256_4',['olc_inode_256',['../classunodb_1_1detail_1_1olc__inode__256.html',1,'unodb::detail']]],
-  ['olc_5finode_5f4_5',['olc_inode_4',['../classunodb_1_1detail_1_1olc__inode__4.html',1,'unodb::detail']]],
-  ['olc_5finode_5f48_6',['olc_inode_48',['../classunodb_1_1detail_1_1olc__inode__48.html',1,'unodb::detail']]],
-  ['olc_5fnode_5fheader_7',['olc_node_header',['../structunodb_1_1detail_1_1olc__node__header.html',1,'unodb::detail']]],
-  ['optimistic_5flock_8',['optimistic_lock',['../classunodb_1_1optimistic__lock.html',1,'unodb']]],
-  ['optional_20development_20dependencies_9',['Optional development dependencies',['../md_CONTRIBUTING.html#autotoc_md1',1,'']]],
-  ['options_10',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
-  ['organization_11',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]]
+  ['node_5fheader_0',['node_header',['../structunodb_1_1detail_1_1node__header.html',1,'unodb::detail']]],
+  ['node_5ftype_1',['node_type',['../namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3',1,'unodb']]],
+  ['node_5ftype_2ehpp_2',['node_type.hpp',['../node__type_8hpp.html',1,'']]],
+  ['node_5ftype_5fcount_3',['node_type_count',['../namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc',1,'unodb::detail']]],
+  ['node_5ftype_5fcounter_5farray_4',['node_type_counter_array',['../namespaceunodb.html#a8105523dd9adff845377f54dd034b838',1,'unodb']]],
+  ['nominmax_5',['NOMINMAX',['../group__internal.html#ga9f918755b601cf4bffca775992e6fb90',1,'global.hpp']]],
+  ['notes_6',['Platform-Specific Notes',['../index.html#autotoc_md25',1,'']]]
 ];

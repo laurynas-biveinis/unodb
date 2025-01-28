@@ -1,6 +1,10 @@
 var searchData=
 [
-  ['messages_0',['Commit messages',['../md_CONTRIBUTING.html#autotoc_md10',1,'']]],
-  ['msg_5fstacktrace_5fabort_1',['msg_stacktrace_abort',['../namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2',1,'unodb::detail']]],
-  ['mutex_5fdb_2',['mutex_db',['../classunodb_1_1mutex__db.html',1,'unodb']]]
+  ['leaf_0',['LEAF',['../namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350',1,'unodb']]],
+  ['license_1',['License',['../md_CONTRIBUTING.html#autotoc_md12',1,'']]],
+  ['linting_20and_20static_20analysis_2',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
+  ['linux_202_3',['Amazon Linux 2',['../index.html#autotoc_md28',1,'']]],
+  ['linux_202023_4',['Amazon Linux 2023',['../index.html#autotoc_md27',1,'']]],
+  ['literature_5',['literature',['../classunodb_1_1optimistic__lock.html#autotoc_md18',1,'Literature'],['../index.html#autotoc_md36',1,'Literature']]],
+  ['lock_6',['Sequential Lock',['../index.html#autotoc_md32',1,'']]]
 ];

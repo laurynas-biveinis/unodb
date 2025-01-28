@@ -135,6 +135,7 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db.html">olc_db</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations.  <a href="classunodb_1_1optimistic__lock.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html">qsbr</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -176,6 +177,7 @@ Typedefs</h2></td></tr>
 <tr class="separator:abb0d76ffe3981ce7fdedaebd068296d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70595f75a79bde2520bdcfb07689da7b" id="r_a70595f75a79bde2520bdcfb07689da7b"><td class="memItemLeft" align="right" valign="top"><a id="a70595f75a79bde2520bdcfb07689da7b" name="a70595f75a79bde2520bdcfb07689da7b"></a>
 <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>version_tag_type</b> = std::uint64_t</td></tr>
+<tr class="memdesc:a70595f75a79bde2520bdcfb07689da7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The bare data for the version information on a node. <br /></td></tr>
 <tr class="separator:a70595f75a79bde2520bdcfb07689da7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada0b4ac1dc20e0b46e360f0743ee24d4" id="r_ada0b4ac1dc20e0b46e360f0743ee24d4"><td class="memItemLeft" align="right" valign="top"><a id="ada0b4ac1dc20e0b46e360f0743ee24d4" name="ada0b4ac1dc20e0b46e360f0743ee24d4"></a>
 <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_thread_count_type</b> = std::uint32_t</td></tr>
@@ -204,8 +206,8 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:adf5c8f3a365ce28271526c3ef0ca4237" id="r_adf5c8f3a365ce28271526c3ef0ca4237"><td class="memItemLeft" align="right" valign="top"><a id="adf5c8f3a365ce28271526c3ef0ca4237" name="adf5c8f3a365ce28271526c3ef0ca4237"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>spin_wait_loop_body</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:adf5c8f3a365ce28271526c3ef0ca4237" id="r_adf5c8f3a365ce28271526c3ef0ca4237"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237">spin_wait_loop_body</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:adf5c8f3a365ce28271526c3ef0ca4237"><td class="mdescLeft">&#160;</td><td class="mdescRight">The optimistic spinlock wait loop algorithm implementation.  <br /></td></tr>
 <tr class="separator:adf5c8f3a365ce28271526c3ef0ca4237"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adaa3ab1c4bff7ee8938b2e727a11dd98" id="r_adaa3ab1c4bff7ee8938b2e727a11dd98"><td class="memItemLeft" align="right" valign="top"><a id="adaa3ab1c4bff7ee8938b2e727a11dd98" name="adaa3ab1c4bff7ee8938b2e727a11dd98"></a>
 <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">os</a> <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, <a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a> value)</td></tr>
@@ -343,6 +345,35 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda" name="a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda"></a>I256&#160;</td><td class="fielddoc"><p>Internal node for 49-256 children. </p>
 </td></tr>
 </table>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="adf5c8f3a365ce28271526c3ef0ca4237" name="adf5c8f3a365ce28271526c3ef0ca4237"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf5c8f3a365ce28271526c3ef0ca4237">&#9670;&#160;</a></span>spin_wait_loop_body()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a> unodb::spin_wait_loop_body </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The optimistic spinlock wait loop algorithm implementation. </p>
+<p>The implementation is selected by <a class="el" href="group__internal.html#gabf4ff9d84f77f57cc9388953b62e52fb" title="Defined to the selected value of the optimistic spin lock wait algorithm implementation for unodb::sp...">UNODB_DETAIL_SPINLOCK_LOOP_VALUE</a>, set by CMake, and can be either <a class="el" href="group__internal.html#gaf8bc21678478a2f86632015e259d030f" title="Spin lock wait loops use x86_64 PAUSE instruction or its closest equivalent on other architectures.">UNODB_DETAIL_SPINLOCK_LOOP_PAUSE</a> or <a class="el" href="group__internal.html#gaa05832ec08c6799fc37651fbe272ff6b" title="Spin lock loop wait loops are empty, causing aggressive spinning.">UNODB_DETAIL_SPINLOCK_LOOP_EMPTY</a> </p>
 
 </div>
 </div>

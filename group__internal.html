@@ -300,7 +300,7 @@ Macros</h2></td></tr>
 <tr class="memdesc:ga5b2c8a0ea5ce80959a6227679230415f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined when UnoDB is compiled with Boost.Stacktrace. <br /></td></tr>
 <tr class="separator:ga5b2c8a0ea5ce80959a6227679230415f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gabf4ff9d84f77f57cc9388953b62e52fb" id="r_gabf4ff9d84f77f57cc9388953b62e52fb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__internal.html#gabf4ff9d84f77f57cc9388953b62e52fb">UNODB_DETAIL_SPINLOCK_LOOP_VALUE</a></td></tr>
-<tr class="memdesc:gabf4ff9d84f77f57cc9388953b62e52fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined to the selected value of the optimistic spin lock wait algorithm implementation.  <br /></td></tr>
+<tr class="memdesc:gabf4ff9d84f77f57cc9388953b62e52fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined to the selected value of the optimistic spin lock wait algorithm implementation for <a class="el" href="namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237" title="The optimistic spinlock wait loop algorithm implementation.">unodb::spin_wait_loop_body()</a>.  <br /></td></tr>
 <tr class="separator:gabf4ff9d84f77f57cc9388953b62e52fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader">Architecture macros</h2></td></tr>
@@ -541,7 +541,7 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Defined to the selected value of the optimistic spin lock wait algorithm implementation. </p>
+<p>Defined to the selected value of the optimistic spin lock wait algorithm implementation for <a class="el" href="namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237" title="The optimistic spinlock wait loop algorithm implementation.">unodb::spin_wait_loop_body()</a>. </p>
 <p>It is also used by the OLC ART algorithms restarting close to the start of their execution. The possible values are <a class="el" href="group__internal.html#gaf8bc21678478a2f86632015e259d030f" title="Spin lock wait loops use x86_64 PAUSE instruction or its closest equivalent on other architectures.">UNODB_DETAIL_SPINLOCK_LOOP_PAUSE</a> and <a class="el" href="group__internal.html#gaa05832ec08c6799fc37651fbe272ff6b" title="Spin lock loop wait loops are empty, causing aggressive spinning.">UNODB_DETAIL_SPINLOCK_LOOP_EMPTY</a>. </p>
 
 </div>

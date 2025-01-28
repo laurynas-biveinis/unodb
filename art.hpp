@@ -87,6 +87,7 @@ class mutex_db;
 // A non-thread-safe implementation of the Adaptive Radix Tree (ART).
 template <typename Key>
 class db final {
+  static_assert(std::is_same_v<Key, std::uint64_t>);
   friend class mutex_db<Key>;
 
  public:

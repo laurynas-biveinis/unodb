@@ -70,4 +70,4 @@ void olc_db<Key>::iterator::dump() const {
 
 // Unroll unodb::olc_db templates here.
 template class unodb::olc_db<std::uint64_t>;
-template class unodb::olc_db<unodb::key_view>;
+// template class unodb::olc_db<unodb::key_view>;

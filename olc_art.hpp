@@ -147,6 +147,8 @@ using qsbr_value_view = qsbr_ptr_span<const std::byte>;
 // deleted node reclamation, Quiescent State-Based Reclamation is used.
 template <typename Key>
 class olc_db final {
+  static_assert(std::is_same_v<Key, std::uint64_t>);
+
  public:
   using key_type = Key;
   using value_view = unodb::qsbr_value_view;

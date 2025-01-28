@@ -65,4 +65,4 @@ void db<Key>::iterator::dump() const {
 
 // Unroll unodb::db templates here.
 template class unodb::db<std::uint64_t>;
-template class unodb::db<unodb::key_view>;
+// template class unodb::db<unodb::key_view>;

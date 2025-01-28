@@ -19,4 +19,4 @@
 
 // Unroll unodb::mutex_db templates here.
 template class unodb::mutex_db<std::uint64_t>;
-template class unodb::mutex_db<unodb::key_view>;
+// template class unodb::mutex_db<unodb::key_view>;

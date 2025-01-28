@@ -224,7 +224,8 @@ class db final {
       [[nodiscard]] constexpr bool operator==(
           const stack_entry& other) const noexcept {
         return inode_base::iter_result::operator==(
-                   static_cast<const inode_base::iter_result&>(other)) &&
+                   static_cast<const typename inode_base::iter_result&>(
+                       other)) &&
                prefix_len == other.prefix_len;
       }
     };
@@ -364,7 +365,7 @@ class db final {
     }
 
     // Push an entry onto the stack.
-    void push(const inode_base::iter_result& e) {
+    void push(const typename inode_base::iter_result& e) {
       const auto node_type = e.node.type();
       if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
         push_leaf(e.node);
@@ -880,7 +881,7 @@ db<Key>::~db() noexcept {
 }
 
 template <class Key>
-db<Key>::get_result db<Key>::get0(art_key_type k) const noexcept {
+typename db<Key>::get_result db<Key>::get0(art_key_type k) const noexcept {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
 
   auto node{root};
@@ -889,14 +890,14 @@ db<Key>::get_result db<Key>::get0(art_key_type k) const noexcept {
   while (true) {
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
-      const auto* const leaf{node.ptr<leaf_type*>()};
+      const auto* const leaf{node.template ptr<leaf_type*>()};
       if (leaf->matches(k)) return leaf->get_value_view();
       return {};
     }
 
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
 
-    auto* const inode{node.ptr<inode_type*>()};
+    auto* const inode{node.template ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     if (key_prefix.get_shared_length(remaining_key) < key_prefix_length)
@@ -927,7 +928,7 @@ bool db<Key>::insert0(art_key_type k, value_view v) {
   while (true) {
     const auto node_type = node->type();
     if (node_type == node_type::LEAF) {
-      auto* const leaf{node->ptr<leaf_type*>()};
+      auto* const leaf{node->template ptr<leaf_type*>()};
       const auto existing_key{leaf->get_key_view()};
       if (UNODB_DETAIL_UNLIKELY(k.cmp(existing_key) == 0)) {
         return false;  // exists
@@ -946,9 +947,8 @@ bool db<Key>::insert0(art_key_type k, value_view v) {
     }
 
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    // UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
-    auto* const inode{node->ptr<inode_type*>()};
+    auto* const inode{node->template ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
@@ -1007,9 +1007,8 @@ bool db<Key>::remove0(art_key_type k) {
   while (true) {
     const auto node_type = node->type();
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    // UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
-    auto* const inode{node->ptr<inode_type*>()};
+    auto* const inode{node->template ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
@@ -1041,7 +1040,7 @@ bool db<Key>::remove0(art_key_type k) {
 // re-populated as we step down along the path to the left-most leaf.
 // If the tree is empty, then the result is the same as end().
 template <class Key>
-db<Key>::iterator& db<Key>::iterator::first() {
+typename db<Key>::iterator& db<Key>::iterator::first() {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
   auto node{db_.root};
@@ -1052,7 +1051,7 @@ db<Key>::iterator& db<Key>::iterator::first() {
 // re-populated as we step down along the path to the right-most leaf.
 // If the tree is empty, then the result is the same as end().
 template <class Key>
-db<Key>::iterator& db<Key>::iterator::last() {
+typename db<Key>::iterator& db<Key>::iterator::last() {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
   auto node{db_.root};
@@ -1061,7 +1060,7 @@ db<Key>::iterator& db<Key>::iterator::last() {
 
 // Position the iterator on the next leaf in the index.
 template <class Key>
-db<Key>::iterator& db<Key>::iterator::next() {
+typename db<Key>::iterator& db<Key>::iterator::next() {
   while (!empty()) {
     auto e = top();
     auto node{e.node};
@@ -1092,7 +1091,7 @@ db<Key>::iterator& db<Key>::iterator::next() {
 
 // Position the iterator on the prior leaf in the index.
 template <class Key>
-db<Key>::iterator& db<Key>::iterator::prior() {
+typename db<Key>::iterator& db<Key>::iterator::prior() {
   while (!empty()) {
     auto e = top();
     auto node{e.node};
@@ -1124,7 +1123,7 @@ db<Key>::iterator& db<Key>::iterator::prior() {
 // node to the left-most leaf under that node, pushing nodes onto the
 // stack as they are visited.
 template <class Key>
-db<Key>::iterator& db<Key>::iterator::left_most_traversal(
+typename db<Key>::iterator& db<Key>::iterator::left_most_traversal(
     detail::node_ptr node) {
   while (true) {
     UNODB_DETAIL_ASSERT(node != nullptr);
@@ -1146,7 +1145,7 @@ db<Key>::iterator& db<Key>::iterator::left_most_traversal(
 // node to the right-most leaf under that node, pushing nodes onto the
 // stack as they are visited.
 template <class Key>
-db<Key>::iterator& db<Key>::iterator::right_most_traversal(
+typename db<Key>::iterator& db<Key>::iterator::right_most_traversal(
     detail::node_ptr node) {
   while (true) {
     UNODB_DETAIL_ASSERT(node != nullptr);
@@ -1171,8 +1170,8 @@ db<Key>::iterator& db<Key>::iterator::right_most_traversal(
 // consider the cases for both forward traversal and reverse traversal
 // from a key that is not in the data.
 template <class Key>
-db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key, bool& match,
-                                           bool fwd) {
+typename db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key,
+                                                    bool& match, bool fwd) {
   invalidate();   // invalidate the iterator (clear the stack).
   match = false;  // unless we wind up with an exact match.
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // aka end()

@@ -119,7 +119,7 @@ class mutex_db final {
   // scan API.
   //
 
-  using iterator = unodb::db<Key>::iterator;
+  using iterator = typename unodb::db<Key>::iterator;
 
   // Scan the tree, applying the caller's lambda to each visited leaf.
   // The tree remains locked for the duration of the scan.

@@ -102,7 +102,7 @@ using olc_art_policy = basic_art_policy<
     db_inode_qsbr_deleter, db_leaf_qsbr_deleter>;
 
 template <typename Key>
-using olc_db_leaf_unique_ptr = olc_art_policy<Key>::db_leaf_unique_ptr;
+using olc_db_leaf_unique_ptr = typename olc_art_policy<Key>::db_leaf_unique_ptr;
 
 template <typename Key>
 using olc_inode_base = basic_inode_impl<olc_art_policy<Key>>;
@@ -111,7 +111,7 @@ template <typename Key>
 class olc_inode : public olc_inode_base<Key> {};
 
 template <typename Key>
-using olc_leaf_type = olc_art_policy<Key>::leaf_type;
+using olc_leaf_type = typename olc_art_policy<Key>::leaf_type;
 
 //
 //
@@ -344,10 +344,10 @@ class olc_db final {
 
       [[nodiscard]] constexpr bool operator==(
           const stack_entry& other) const noexcept {
-        // FIXME(laurynas):  DOES NOT COMPARE prefix_len !!!
         return inode_base::iter_result::operator==(
-                   static_cast<const inode_base::iter_result&>(other)) &&
-               version == other.version;
+                   static_cast<const typename inode_base::iter_result&>(
+                       other)) &&
+               prefix_len == other.prefix_len && version == other.version;
       }
     };
 
@@ -476,7 +476,7 @@ class olc_db final {
     }
 
     // Push an entry onto the stack.
-    bool try_push(const inode_base::iter_result& e,
+    bool try_push(const typename inode_base::iter_result& e,
                   const optimistic_lock::read_critical_section& rcs) {
       const auto node_type = e.node.type();
       if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
@@ -1236,8 +1236,8 @@ class [[nodiscard]] olc_inode_16 final : public olc_inode_16_parent<Key> {
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
     const auto children_count_ = this->get_children_count();
     for (unsigned i = 0; i < children_count_; ++i)
-      if (keys.byte_array[i] == key_byte)
-        return std::make_pair(i, &children[i]);
+      if (parent_class::keys.byte_array[i] == key_byte)
+        return std::make_pair(i, &parent_class::children[i]);
     return parent_class::child_not_found;
 #else
     return olc_inode_16_parent<Key>::find_child(key_byte);
@@ -1721,7 +1721,8 @@ void olc_db<Key>::clear() noexcept {
 }
 
 template <typename Key>
-olc_db<Key>::get_result olc_db<Key>::get0(art_key_type k) const noexcept {
+typename olc_db<Key>::get_result olc_db<Key>::get0(
+    art_key_type k) const noexcept {
   try_get_result_type result;
 
   while (true) {
@@ -1735,7 +1736,7 @@ olc_db<Key>::get_result olc_db<Key>::get0(art_key_type k) const noexcept {
 }
 
 template <typename Key>
-olc_db<Key>::try_get_result_type olc_db<Key>::try_get(
+typename olc_db<Key>::try_get_result_type olc_db<Key>::try_get(
     art_key_type k) const noexcept {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
@@ -1842,7 +1843,7 @@ bool olc_db<Key>::insert0(art_key_type k, unodb::value_view v) {
 }
 
 template <typename Key>
-olc_db<Key>::try_update_result_type olc_db<Key>::try_insert(
+typename olc_db<Key>::try_update_result_type olc_db<Key>::try_insert(
     art_key_type k, unodb::value_view v,
     olc_db_leaf_unique_ptr_type& cached_leaf) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
@@ -1887,7 +1888,7 @@ olc_db<Key>::try_update_result_type olc_db<Key>::try_insert(
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
-      auto* const leaf{node.ptr<leaf_type*>()};
+      auto* const leaf{node.template ptr<leaf_type*>()};
       const auto existing_key{leaf->get_key_view()};
       if (UNODB_DETAIL_UNLIKELY(k.cmp(existing_key) == 0)) {
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
@@ -1925,9 +1926,8 @@ olc_db<Key>::try_update_result_type olc_db<Key>::try_insert(
     }
 
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    // UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
-    auto* const inode{node.ptr<inode_type*>()};
+    auto* const inode{node.template ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_length{
@@ -2002,7 +2002,8 @@ bool olc_db<Key>::remove0(art_key_type k) {
 }
 
 template <typename Key>
-olc_db<Key>::try_update_result_type olc_db<Key>::try_remove(art_key_type k) {
+typename olc_db<Key>::try_update_result_type olc_db<Key>::try_remove(
+    art_key_type k) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -2033,7 +2034,7 @@ olc_db<Key>::try_update_result_type olc_db<Key>::try_remove(art_key_type k) {
   auto node_type = node.type();
 
   if (node_type == node_type::LEAF) {
-    auto* const leaf{node.ptr<leaf_type*>()};
+    auto* const leaf{node.template ptr<leaf_type*>()};
     if (leaf->matches(k)) {
       const optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
@@ -2063,9 +2064,8 @@ olc_db<Key>::try_update_result_type olc_db<Key>::try_remove(art_key_type k) {
 
   while (true) {
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-    // UNODB_DETAIL_ASSERT(depth < art_key_type::size);
 
-    auto* const inode{node.ptr<inode_type*>()};
+    auto* const inode{node.template ptr<inode_type*>()};
     const auto& key_prefix{inode->get_key_prefix()};
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_length{
@@ -2118,7 +2118,7 @@ olc_db<Key>::try_update_result_type olc_db<Key>::try_remove(art_key_type k) {
 ///
 
 template <typename Key>
-olc_db<Key>::iterator& olc_db<Key>::iterator::first() {
+typename olc_db<Key>::iterator& olc_db<Key>::iterator::first() {
   while (!try_first()) {
     unodb::spin_wait_loop_body();  // LCOV_EXCL_LINE
   }
@@ -2142,7 +2142,7 @@ bool olc_db<Key>::iterator::try_first() {
 }
 
 template <typename Key>
-olc_db<Key>::iterator& olc_db<Key>::iterator::last() {
+typename olc_db<Key>::iterator& olc_db<Key>::iterator::last() {
   while (!try_last()) {
     unodb::spin_wait_loop_body();  // LCOV_EXCL_LINE
   }
@@ -2166,7 +2166,7 @@ bool olc_db<Key>::iterator::try_last() {
 }
 
 template <typename Key>
-olc_db<Key>::iterator& olc_db<Key>::iterator::next() {
+typename olc_db<Key>::iterator& olc_db<Key>::iterator::next() {
   auto node = current_node();
   if (node != nullptr) {
     UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
@@ -2240,7 +2240,7 @@ bool olc_db<Key>::iterator::try_next() {
 }
 
 template <typename Key>
-olc_db<Key>::iterator& olc_db<Key>::iterator::prior() {
+typename olc_db<Key>::iterator& olc_db<Key>::iterator::prior() {
   auto node = current_node();
   if (node != nullptr) {
     UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
@@ -2310,8 +2310,8 @@ bool olc_db<Key>::iterator::try_prior() {
 }
 
 template <typename Key>
-olc_db<Key>::iterator& olc_db<Key>::iterator::seek(art_key_type search_key,
-                                                   bool& match, bool fwd) {
+typename olc_db<Key>::iterator& olc_db<Key>::iterator::seek(
+    art_key_type search_key, bool& match, bool fwd) {
   while (!try_seek(search_key, match, fwd)) {
     unodb::spin_wait_loop_body();  // LCOV_EXCL_LINE
   }

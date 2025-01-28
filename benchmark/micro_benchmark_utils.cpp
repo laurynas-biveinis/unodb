@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Laurynas Biveinis
+// Copyright 2020-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -23,17 +23,18 @@ namespace unodb::benchmark {
 // Teardown
 
 template <class Db>
-void destroy_tree(Db &db, ::benchmark::State &state) {
+void destroy_tree(Db &instance, ::benchmark::State &state) {
   // Timer must be stopped on entry
-  db.clear();
+  instance.clear();
   ::benchmark::ClobberMemory();
   state.ResumeTiming();
 }
 
-template void destroy_tree<unodb::db>(unodb::db &, ::benchmark::State &);
-template void destroy_tree<unodb::mutex_db>(unodb::mutex_db &,
-                                            ::benchmark::State &);
-template void destroy_tree<unodb::olc_db>(unodb::olc_db &,
-                                          ::benchmark::State &);
+template void destroy_tree<unodb::db<std::uint64_t>>(unodb::db<std::uint64_t> &,
+                                                     ::benchmark::State &);
+template void destroy_tree<unodb::mutex_db<std::uint64_t>>(
+    unodb::mutex_db<std::uint64_t> &, ::benchmark::State &);
+template void destroy_tree<unodb::olc_db<std::uint64_t>>(
+    unodb::olc_db<std::uint64_t> &, ::benchmark::State &);
 
 }  // namespace unodb::benchmark

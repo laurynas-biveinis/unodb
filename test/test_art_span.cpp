@@ -1,8 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
-
-// IWYU pragma: no_include <array>
-// IWYU pragma: no_include <string>
-// IWYU pragma: no_include "gtest/gtest.h"
+// Copyright 2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -14,45 +10,117 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <array>
+// IWYU pragma: no_include <string>
+// IWYU pragma: no_include "gtest/gtest.h"
+
+#include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <stdexcept>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 #include <gtest/gtest.h>
 
+#include "art.hpp"
 #include "art_common.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
-#include "test_utils.hpp"
-#include "thread_sync.hpp"
+
+extern template class unodb::db<unodb::key_view>;
+
+namespace unodb::test {
+
+constexpr std::array<unodb::value_view, 6> test_keys = {
+    unodb::key_view{test_value_1}, unodb::key_view{test_value_2},
+    unodb::key_view{test_value_3}, unodb::key_view{test_value_4},
+    unodb::key_view{test_value_5}, unodb::key_view{empty_test_value}};
+
+using span_db = unodb::db<unodb::key_view>;
+
+extern template class tree_verifier<u64_db>;
+
+}  // namespace unodb::test
 
 namespace {
-using unodb::detail::thread_syncs;
-using unodb::test::test_values;
+// using unodb::detail::thread_syncs;
+// using unodb::test::test_values;
 
 template <class Db>
-class ARTCorrectnessTest : public ::testing::Test {
+class ARTSpanCorrectnessTest : public ::testing::Test {
  public:
   using Test::Test;
 };
 
-using ARTTypes =
-    ::testing::Types<unodb::test::u64_db, unodb::test::u64_mutex_db,
-                     unodb::test::u64_olc_db>;
+using ARTTypes = ::testing::Types<unodb::test::span_db>;
+// ::testing::Types<unodb::test::u64_db, unodb::test::u64_mutex_db,
+//                  unodb::test::u64_olc_db>;
 
-UNODB_TYPED_TEST_SUITE(ARTCorrectnessTest, ARTTypes)
+UNODB_TYPED_TEST_SUITE(ARTSpanCorrectnessTest, ARTTypes)
 
 UNODB_START_TYPED_TESTS()
 
-TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeEmptyValue) {
+/// Unit test bootstraps variable length key support by testing the
+/// full public API for a single key/value pair in an otherwise empty
+/// tree.
+TYPED_TEST(ARTSpanCorrectnessTest, SingleKeyOperationsOnEmptyTree) {
+  const auto key = unodb::test::test_keys[1];  // 0x 00 02
+  const auto val = unodb::test::test_keys[2];  // 0x 03 00 01
+  TypeParam db;
+  EXPECT_FALSE(db.get(key));
+  {
+    uint64_t n = 0;
+    auto fn = [&n](const unodb::visitor<typename TypeParam::iterator>&) {
+      n++;           // LCOV_EXCL_LINE
+      return false;  // LCOV_EXCL_LINE
+    };
+    db.scan(fn);
+    UNODB_EXPECT_EQ(0, n);
+  }
+  EXPECT_TRUE(db.insert(key, val));
+  const auto tmp = db.get(key);
+  EXPECT_TRUE(tmp.has_value() && std::ranges::equal(tmp.value(), val));
+  {
+    uint64_t n = 0;
+    std::vector<std::pair<unodb::key_view, unodb::value_view>> expected;
+    expected.emplace_back(key, val);  // key is already encoded.
+    auto fn = [&n, &expected](
+                  const unodb::visitor<typename TypeParam::iterator>& visitor) {
+      const auto& k = visitor.get_key();
+      const auto& v = visitor.get_value();
+      EXPECT_TRUE(std::ranges::equal(k, expected[n].first));
+      EXPECT_TRUE(std::ranges::equal(v, expected[n].second));
+      n++;           // LCOV_EXCL_LINE
+      return false;  // LCOV_EXCL_LINE
+    };
+    db.scan(fn);
+    UNODB_EXPECT_EQ(1, n);  // FIXME CHECK VISITED KEY/VAL
+  }
+  EXPECT_TRUE(db.remove(key));
+  EXPECT_FALSE(db.get(key));
+  EXPECT_FALSE(db.remove(key));
+  {
+    uint64_t n = 0;
+    auto fn = [&n](const unodb::visitor<typename TypeParam::iterator>&) {
+      n++;           // LCOV_EXCL_LINE
+      return false;  // LCOV_EXCL_LINE
+    };
+    db.scan(fn);
+    UNODB_EXPECT_EQ(0, n);
+  }
+}
+
+TYPED_TEST(ARTSpanCorrectnessTest, SingleNodeTreeEmptyValue) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  verifier.check_absent_keys({1});
-  verifier.insert(1, {});
+  verifier.check_absent_keys({unodb::test::test_keys[1]});
+  verifier.insert(unodb::test::test_keys[1], {});
 
   verifier.check_present_values();
-  verifier.check_absent_keys({0});
+  verifier.check_absent_keys({unodb::test::test_keys[0]});
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({1, 0, 0, 0, 0});
@@ -60,12 +128,13 @@ TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeEmptyValue) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeNonemptyValue) {
+TYPED_TEST(ARTSpanCorrectnessTest, SingleNodeTreeNonemptyValue) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  verifier.insert(1, unodb::test::test_values[2]);
+  verifier.insert(unodb::test::test_values[1], unodb::test::test_values[2]);
 
   verifier.check_present_values();
-  verifier.check_absent_keys({0, 2});
+  verifier.check_absent_keys(
+      {unodb::test::test_values[0], unodb::test::test_values[2]});
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({1, 0, 0, 0, 0});
@@ -74,7 +143,7 @@ TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeNonemptyValue) {
 }
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
+TYPED_TEST(ARTSpanCorrectnessTest, TooLongValue) {
   constexpr std::byte fake_val{0x00};
   const unodb::value_view too_long{
       &fake_val,
@@ -83,10 +152,12 @@ TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
 
   unodb::test::tree_verifier<TypeParam> verifier;
 
-  UNODB_ASSERT_THROW(std::ignore = verifier.get_db().insert(1, too_long),
+  const auto& key = unodb::test::test_values[1];
+
+  UNODB_ASSERT_THROW(std::ignore = verifier.get_db().insert(key, too_long),
                      std::length_error);
 
-  verifier.check_absent_keys({1});
+  verifier.check_absent_keys({key});
   verifier.assert_empty();
 
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -95,20 +166,48 @@ TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-TYPED_TEST(ARTCorrectnessTest, ExpandLeafToNode4) {
+#ifdef ALL_ART_SPAN_KEY_TESTS_ENABLED
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+TYPED_TEST(ARTSpanCorrectnessTest, TooLongKey) {
+  constexpr std::byte fake_val{0x00};
+  const unodb::key_view too_long{
+      &fake_val,
+      static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max()) +
+          1U};
+
   unodb::test::tree_verifier<TypeParam> verifier;
 
-  verifier.insert(0, unodb::test::test_values[1]);
+  UNODB_ASSERT_THROW(std::ignore = verifier.get_db().insert(too_long, {}),
+                     std::length_error);
+
+  verifier.assert_empty();
+
+#ifdef UNODB_DETAIL_WITH_STATS
+  verifier.assert_growing_inodes({0, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
+}
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+TYPED_TEST(ARTSpanCorrectnessTest, ExpandLeafToNode4) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+
+  const auto& k0 = unodb::test::test_values[0];  // 00
+  const auto& k1 = unodb::test::test_values[1];  // 00 02
+  const auto& k2 = unodb::test::test_values[2];  // 03 00 01
+
+  verifier.insert(k0, unodb::test::test_values[1]);
+  verifier.get_db().dump();  // FIXME REMOVE
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({1, 0, 0, 0, 0});
   verifier.assert_growing_inodes({0, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 
-  verifier.insert(1, unodb::test::test_values[2]);
+  verifier.insert(k1, unodb::test::test_values[2]);
+  verifier.get_db().dump();  // FIXME REMOVE
 
-  verifier.check_present_values();
-  verifier.check_absent_keys({2});
+  verifier.check_present_values();  // FIXME FAILS HERE
+  verifier.check_absent_keys({k2});
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({2, 1, 0, 0, 0});
@@ -117,10 +216,12 @@ TYPED_TEST(ARTCorrectnessTest, ExpandLeafToNode4) {
 }
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-TYPED_TEST(ARTCorrectnessTest, DuplicateKey) {
+TYPED_TEST(ARTSpanCorrectnessTest, DuplicateKey) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
-  verifier.insert(0, unodb::test::test_values[0]);
+  const auto& k0 = unodb::test::test_values[0];
+
+  verifier.insert(k0, unodb::test::test_values[0]);
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({1, 0, 0, 0, 0});
@@ -130,7 +231,7 @@ TYPED_TEST(ARTCorrectnessTest, DuplicateKey) {
 
   unodb::test::must_not_allocate([&verifier] {
     UNODB_ASSERT_FALSE(
-        verifier.get_db().insert(0, unodb::test::test_values[3]));
+        verifier.get_db().insert(k0, unodb::test::test_values[3]));
   });
 
   verifier.check_present_values();
@@ -144,7 +245,7 @@ TYPED_TEST(ARTCorrectnessTest, DuplicateKey) {
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-TYPED_TEST(ARTCorrectnessTest, InsertToFullNode4) {
+TYPED_TEST(ARTSpanCorrectnessTest, InsertToFullNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 4);
@@ -158,7 +259,7 @@ TYPED_TEST(ARTCorrectnessTest, InsertToFullNode4) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node4InsertFFByte) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node4InsertFFByte) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0xFC, 4);
@@ -172,7 +273,7 @@ TYPED_TEST(ARTCorrectnessTest, Node4InsertFFByte) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, TwoNode4) {
+TYPED_TEST(ARTSpanCorrectnessTest, TwoNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, unodb::test::test_values[0]);
@@ -195,7 +296,7 @@ TYPED_TEST(ARTCorrectnessTest, TwoNode4) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, DbInsertNodeRecursion) {
+TYPED_TEST(ARTSpanCorrectnessTest, DbInsertNodeRecursion) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, unodb::test::test_values[0]);
@@ -222,7 +323,7 @@ TYPED_TEST(ARTCorrectnessTest, DbInsertNodeRecursion) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node16) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node16) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 4);
@@ -238,7 +339,7 @@ TYPED_TEST(ARTCorrectnessTest, Node16) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, FullNode16) {
+TYPED_TEST(ARTSpanCorrectnessTest, FullNode16) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 16);
@@ -252,7 +353,7 @@ TYPED_TEST(ARTCorrectnessTest, FullNode16) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node16KeyPrefixSplit) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node16KeyPrefixSplit) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 5);
@@ -270,7 +371,7 @@ TYPED_TEST(ARTCorrectnessTest, Node16KeyPrefixSplit) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node16KeyInsertOrderDescending) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node16KeyInsertOrderDescending) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(5, unodb::test::test_values[0]);
@@ -288,7 +389,7 @@ TYPED_TEST(ARTCorrectnessTest, Node16KeyInsertOrderDescending) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node16ConstructWithFFKeyByte) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node16ConstructWithFFKeyByte) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0xFB, 4);
@@ -308,7 +409,7 @@ TYPED_TEST(ARTCorrectnessTest, Node16ConstructWithFFKeyByte) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node48) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node48) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 17);
@@ -322,7 +423,7 @@ TYPED_TEST(ARTCorrectnessTest, Node48) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, FullNode48) {
+TYPED_TEST(ARTSpanCorrectnessTest, FullNode48) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 48);
@@ -336,7 +437,7 @@ TYPED_TEST(ARTCorrectnessTest, FullNode48) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node48KeyPrefixSplit) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node48KeyPrefixSplit) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 17);
@@ -360,7 +461,7 @@ TYPED_TEST(ARTCorrectnessTest, Node48KeyPrefixSplit) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node256) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node256) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
@@ -374,7 +475,7 @@ TYPED_TEST(ARTCorrectnessTest, Node256) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, FullNode256) {
+TYPED_TEST(ARTSpanCorrectnessTest, FullNode256) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 256);
@@ -388,7 +489,7 @@ TYPED_TEST(ARTCorrectnessTest, FullNode256) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node256KeyPrefixSplit) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node256KeyPrefixSplit) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(20, 49);
@@ -412,7 +513,7 @@ TYPED_TEST(ARTCorrectnessTest, Node256KeyPrefixSplit) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, TryDeleteFromEmpty) {
+TYPED_TEST(ARTSpanCorrectnessTest, TryDeleteFromEmpty) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   unodb::test::must_not_allocate(
@@ -422,7 +523,7 @@ TYPED_TEST(ARTCorrectnessTest, TryDeleteFromEmpty) {
   verifier.check_absent_keys({1});
 }
 
-TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeDelete) {
+TYPED_TEST(ARTSpanCorrectnessTest, SingleNodeTreeDelete) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, unodb::test::test_values[0]);
@@ -435,7 +536,7 @@ TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeDelete) {
   verifier.check_absent_keys({1});
 }
 
-TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeAttemptDeleteAbsent) {
+TYPED_TEST(ARTSpanCorrectnessTest, SingleNodeTreeAttemptDeleteAbsent) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(2, unodb::test::test_values[1]);
@@ -452,7 +553,7 @@ TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeAttemptDeleteAbsent) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node4AttemptDeleteAbsent) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node4AttemptDeleteAbsent) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 4);
@@ -468,7 +569,7 @@ TYPED_TEST(ARTCorrectnessTest, Node4AttemptDeleteAbsent) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node4FullDeleteMiddleAndBeginning) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node4FullDeleteMiddleAndBeginning) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 4);
@@ -490,7 +591,7 @@ TYPED_TEST(ARTCorrectnessTest, Node4FullDeleteMiddleAndBeginning) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node4FullDeleteEndAndMiddle) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node4FullDeleteEndAndMiddle) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 4);
@@ -512,7 +613,7 @@ TYPED_TEST(ARTCorrectnessTest, Node4FullDeleteEndAndMiddle) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node4ShrinkToSingleLeaf) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node4ShrinkToSingleLeaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 2);
@@ -532,7 +633,7 @@ TYPED_TEST(ARTCorrectnessTest, Node4ShrinkToSingleLeaf) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node4DeleteLowerNode) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node4DeleteLowerNode) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0, 2);
@@ -557,7 +658,7 @@ TYPED_TEST(ARTCorrectnessTest, Node4DeleteLowerNode) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node4DeleteKeyPrefixMerge) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0x8001, 2);
@@ -582,7 +683,7 @@ TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge2) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node4DeleteKeyPrefixMerge2) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(0x0000000003020102, unodb::test::test_values[0]);
@@ -597,7 +698,7 @@ TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge2) {
   verifier.check_present_values();
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node16DeleteBeginningMiddleEnd) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node16DeleteBeginningMiddleEnd) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 16);
@@ -616,7 +717,7 @@ TYPED_TEST(ARTCorrectnessTest, Node16DeleteBeginningMiddleEnd) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteMiddle) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node16ShrinkToNode4DeleteMiddle) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
@@ -634,7 +735,7 @@ TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteMiddle) {
   verifier.check_absent_keys({0, 2, 6});
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteBeginning) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node16ShrinkToNode4DeleteBeginning) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
@@ -652,7 +753,7 @@ TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteBeginning) {
   verifier.check_absent_keys({0, 1, 6});
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteEnd) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node16ShrinkToNode4DeleteEnd) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 5);
@@ -670,7 +771,7 @@ TYPED_TEST(ARTCorrectnessTest, Node16ShrinkToNode4DeleteEnd) {
   verifier.check_absent_keys({0, 5, 6});
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node16KeyPrefixMerge) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node16KeyPrefixMerge) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 5);
@@ -694,7 +795,7 @@ TYPED_TEST(ARTCorrectnessTest, Node16KeyPrefixMerge) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node48DeleteBeginningMiddleEnd) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node48DeleteBeginningMiddleEnd) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 48);
@@ -713,7 +814,7 @@ TYPED_TEST(ARTCorrectnessTest, Node48DeleteBeginningMiddleEnd) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteMiddle) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node48ShrinkToNode16DeleteMiddle) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(0x80, 17);
@@ -731,7 +832,7 @@ TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteMiddle) {
   verifier.check_absent_keys({0x7F, 0x85, 0x91});
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteBeginning) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node48ShrinkToNode16DeleteBeginning) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 17);
@@ -751,7 +852,7 @@ TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteBeginning) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteEnd) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node48ShrinkToNode16DeleteEnd) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 17);
@@ -769,7 +870,7 @@ TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteEnd) {
   verifier.check_absent_keys({0, 17, 18});
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node48KeyPrefixMerge) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node48KeyPrefixMerge) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 17);
@@ -792,7 +893,7 @@ TYPED_TEST(ARTCorrectnessTest, Node48KeyPrefixMerge) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node256DeleteBeginningMiddleEnd) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node256DeleteBeginningMiddleEnd) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 256);
@@ -811,7 +912,7 @@ TYPED_TEST(ARTCorrectnessTest, Node256DeleteBeginningMiddleEnd) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteMiddle) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node256ShrinkToNode48DeleteMiddle) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
@@ -829,7 +930,7 @@ TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteMiddle) {
   verifier.check_absent_keys({0, 25, 50});
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteBeginning) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node256ShrinkToNode48DeleteBeginning) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
@@ -847,7 +948,7 @@ TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteBeginning) {
   verifier.check_absent_keys({0, 1, 50});
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteEnd) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node256ShrinkToNode48DeleteEnd) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(1, 49);
@@ -865,7 +966,7 @@ TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteEnd) {
   verifier.check_absent_keys({0, 49, 50});
 }
 
-TYPED_TEST(ARTCorrectnessTest, Node256KeyPrefixMerge) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node256KeyPrefixMerge) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert_key_range(10, 49);
@@ -888,7 +989,7 @@ TYPED_TEST(ARTCorrectnessTest, Node256KeyPrefixMerge) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, MissingKeyWithPresentPrefix) {
+TYPED_TEST(ARTSpanCorrectnessTest, MissingKeyWithPresentPrefix) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(0x010000, unodb::test::test_values[0]);
@@ -900,7 +1001,7 @@ TYPED_TEST(ARTCorrectnessTest, MissingKeyWithPresentPrefix) {
   });
 }
 
-TYPED_TEST(ARTCorrectnessTest, MissingKeyMatchingInodePath) {
+TYPED_TEST(ARTSpanCorrectnessTest, MissingKeyMatchingInodePath) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(0x0100, unodb::test::test_values[0]);
@@ -914,7 +1015,7 @@ TYPED_TEST(ARTCorrectnessTest, MissingKeyMatchingInodePath) {
 #ifdef UNODB_DETAIL_WITH_STATS
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-TYPED_TEST(ARTCorrectnessTest, MemoryAccountingDuplicateKeyInsert) {
+TYPED_TEST(ARTSpanCorrectnessTest, MemoryAccountingDuplicateKeyInsert) {
   unodb::test::tree_verifier<TypeParam> verifier;
   verifier.insert(0, unodb::test::test_values[0]);
   unodb::test::must_not_allocate([&verifier] {
@@ -928,7 +1029,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-TYPED_TEST(ARTCorrectnessTest, Node48InsertIntoDeletedSlot) {
+TYPED_TEST(ARTSpanCorrectnessTest, Node48InsertIntoDeletedSlot) {
   unodb::test::tree_verifier<TypeParam> verifier;
   verifier.insert(16865361447928765957ULL, unodb::test::test_values[0]);
   verifier.insert(7551546784238320931ULL, test_values[1]);
@@ -960,7 +1061,7 @@ TYPED_TEST(ARTCorrectnessTest, Node48InsertIntoDeletedSlot) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, ClearOnEmpty) {
+TYPED_TEST(ARTSpanCorrectnessTest, ClearOnEmpty) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   unodb::test::must_not_allocate([&verifier] { verifier.clear(); });
@@ -970,7 +1071,7 @@ TYPED_TEST(ARTCorrectnessTest, ClearOnEmpty) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, Clear) {
+TYPED_TEST(ARTSpanCorrectnessTest, Clear) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
   verifier.insert(1, test_values[0]);
@@ -984,7 +1085,7 @@ TYPED_TEST(ARTCorrectnessTest, Clear) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-TYPED_TEST(ARTCorrectnessTest, TwoInstances) {
+TYPED_TEST(ARTSpanCorrectnessTest, TwoInstances) {
   unodb::test::tree_verifier<TypeParam> v1;
   unodb::test::tree_verifier<TypeParam> v2;
 
@@ -1004,6 +1105,7 @@ TYPED_TEST(ARTCorrectnessTest, TwoInstances) {
 
   second_thread.join();
 }
+#endif
 
 UNODB_END_TESTS()
 

@@ -12,190 +12,314 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
-// IWYU pragma: no_include <__fwd/ostream.h>
 // IWYU pragma: no_include <_string.h>
-// IWYU pragma: no_include <ostream>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <iosfwd>  // IWYU pragma: keep
+#include <iomanip>
+#include <iostream>
 #include <memory>
 #include <type_traits>
 
 #include "art_common.hpp"
 #include "assert.hpp"
+#include "heap.hpp"
 #include "node_type.hpp"
+#include "portability_builtins.hpp"
 
 namespace unodb::detail {
 
 // Forward declarations to use in unodb::db and its siblings
-template <class>
+template <class, class>
 class [[nodiscard]] basic_leaf;
 
-template <class, class>
+template <typename, class, template <class> class>
 class [[nodiscard]] basic_db_leaf_deleter;
 
-// Internal ART key in binary-comparable format
+/// Lexicographic comparison of bytes.
+///
+/// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+[[nodiscard, gnu::pure]] inline int compare(const void *a, const size_t alen,
+                                            const void *b, const size_t blen) {
+  // TODO(thompsonbry) consider changing this over to std::span
+  // arguments and do not let the (ptr,len) pattern progagate
+  // outwards.
+  const auto shared_length = std::min(alen, blen);
+  auto ret = std::memcmp(a, b, shared_length);
+  ret = (ret != 0) ? ret : ((alen == blen) ? 0 : (alen < blen ? -1 : 1));
+  return ret;
+}
+
+/// Lexicographic comparison of key_views.
+///
+/// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+[[nodiscard, gnu::pure]] inline int compare(const unodb::key_view a,
+                                            const unodb::key_view b) {
+  return compare(a.data(), a.size_bytes(), b.data(), b.size_bytes());
+}
+
+/// Return the first 64-bits of the encoded key.  This is used by the
+/// prefix compression logic to identify some number of bytes that are
+/// in common between the art_key and an inode having some key_prefix.
+[[nodiscard, gnu::pure]] inline std::uint64_t get_u64(key_view key) noexcept {
+  std::uint64_t u{};  // will hold the first 64-bits.
+  std::memcpy(&u, key.data(), std::min(key.size_bytes(), sizeof(u)));
+  return u;
+}
+
+/// Internal ART key in binary-comparable format.  Application keys may
+/// be simple fixed width types (such as std::uint64_t) or variable
+/// length keys.  For the former, there are convenience methods on db,
+/// olc_db, etc. to convert external keys into the binary compariable
+/// format.  For the latter, the application is responsible for
+/// converting the data (e.g., certain columns in some ordering for a
+/// row of some relation) into the internal binary comparable key
+/// format.  A convenience class (unodb::key_encoder) is offered to
+/// encode data.  The encoding is always well defined and decoding
+/// (unodb::key_decoder) exists for all simple fixed width data types.
+/// Unicode encoding is complex and out of scope - use a quality
+/// library such as ICU to produce appropriate Unicode sort keys for
+/// your application.  Unicode decoding is NOT well defined.
+/// Applications involving database records and Unicode data will
+/// typically store the record identifier in a secondary index (ART) as
+/// the value associated with the key.  Using the record identifier,
+/// the original tuple can be discovered and the original Unicode data
+/// recovered from that tuple.
 template <typename KeyType>
 struct [[nodiscard]] basic_art_key final {
-  // Convert an external key into an internal key supporting lexicographic
-  // comparison. This is only intended for key types for which simple
-  // conversions are possible. For complex keys, including multiple key
-  // components or Unicode data, the application should use a
-  // std::span<std::byte> which already supports lexicographic comparison.
+ private:
+  /// ctor helper converts a simple external key into an internal key
+  /// supporting lexicographic comparison.
   [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
-  make_binary_comparable(KeyType key) noexcept;
+  make_binary_comparable(KeyType k) noexcept {
+#ifdef UNODB_DETAIL_LITTLE_ENDIAN
+    return bswap(k);
+#else
+#error Needs implementing
+#endif
+  }
 
-  // Convert an internal key into an external key. This is only intended for key
-  // types for which simple conversions are possible. For complex keys,
-  // including multiple key components or Unicode data, the application should
-  // use a std::span<std::byte> which already supports lexicographic comparison.
-  [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
-  make_external(KeyType key) noexcept;
-
-  constexpr basic_art_key() noexcept = default;
-
+ public:
+  /// Construct converts a fixed width primitive type into a
+  /// lexicographically ordered key.
+  ///
+  /// Note: Use a key_encoder for complex keys, including multiple key
+  /// components or Unicode data.
+  template <typename U = KeyType,
+            typename std::enable_if<std::is_integral<U>::value, int>::type = 0>
   UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(KeyType key_) noexcept
       : key{make_binary_comparable(key_)} {}
 
-  [[nodiscard, gnu::pure]] constexpr bool operator==(
-      basic_art_key<KeyType> key2) const noexcept {
-    // FIXME This is wrong for variable length keys.  It needs to
-    // consider no more bytes than the shorter key and if the two keys
-    // have the same prefix, then they are != if one is longer (and
-    // for == we can just compare the size as a short cut for this).
-    // Also needs unit tests for variable length keys.
-    return !std::memcmp(&key, &key2.key, size);
-  }
+  /// Construct converts a key_view which must already be
+  /// lexicographically ordered.
+  UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(key_view key_) noexcept
+      : key{key_} {}
 
-  // @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+  /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
   [[nodiscard, gnu::pure]] constexpr int cmp(
       basic_art_key<KeyType> key2) const noexcept {
-    // FIXME This is wrong for variable length keys.  It needs to
-    // consider no more bytes than the shorter key and if the two keys
-    // have the same prefix, then they are != if one is longer.  Also
-    // needs unit tests for variable length keys.
-    return std::memcmp(&key, &key2.key, size);
+    if constexpr (std::is_same_v<KeyType, key_view>) {
+      return compare(&key, sizeof(KeyType), &key2.key, sizeof(KeyType));
+    } else {
+      return std::memcmp(&key, &key2.key, sizeof(KeyType));
+    }
   }
 
+  /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
+  [[nodiscard, gnu::pure]] constexpr int cmp(key_view key2) const noexcept {
+    if constexpr (std::is_same_v<KeyType, unodb::key_view>) {
+      // variable length keys
+      return compare(key, key2);
+    } else {
+      // fixed width keys
+      return compare(&key, sizeof(KeyType), key2.data(), key2.size_bytes());
+    }
+  }
+
+  /// Return the byte at the specified index position in the binary
+  /// comparable key.
   [[nodiscard, gnu::pure]] constexpr auto operator[](
       std::size_t index) const noexcept {
-    UNODB_DETAIL_ASSERT(index < size);
-    return key_bytes[index];
+    if constexpr (std::is_same_v<KeyType, key_view>) {
+      return key[index];
+    } else {
+      // The key_bytes[] provides access the different byte positions
+      // in the primitive type [Key key].
+      UNODB_DETAIL_ASSERT(index < sizeof(KeyType));
+      return key_bytes[index];
+    }
   }
 
-  [[nodiscard, gnu::pure]] constexpr explicit operator KeyType()
-      const noexcept {
-    return key;
+  /// Return the backing key_view.
+  ///
+  /// Note: For integral keys, this is a non-owned view of the data in
+  /// the basic_art_key and will be invalid if that object goes out of
+  /// scope.
+  ///
+  /// Note: For key_view keys, this is the key_view backing this
+  /// art_key and its validity depends on the scope of the backing
+  /// byte array.
+  [[nodiscard, gnu::pure]] constexpr key_view get_key_view() const noexcept {
+    if constexpr (std::is_same_v<KeyType, key_view>) {
+      return key;
+    } else {
+      return key_view(reinterpret_cast<const std::byte *>(&key), sizeof(key));
+    }
   }
 
-  // return the decoded form of the key.
-  [[nodiscard, gnu::pure]] constexpr KeyType decode() const noexcept {
-    return make_external(key);
+  /// Return the first 64-bits (max) of the encoded key.  This is used
+  /// by the prefix compression logic to identify some number of bytes
+  /// that are in common between the art_key and an inode having some
+  /// key_prefix.
+  [[nodiscard, gnu::pure]] constexpr std::uint64_t get_u64() const noexcept {
+    if constexpr (std::is_same_v<KeyType, key_view>) {
+      return unodb::detail::get_u64(key);
+    } else {
+      return static_cast<std::uint64_t>(key);
+    }
   }
 
+  /// Shift the internal key some number of bytes to the right (the
+  /// leading bytes are discarded), causing the key to be shorter by
+  /// that many bytes. It is a lexicographic key. The first byte is
+  /// the most significant.  The last byte is the least significant.
+  ///
+  /// When backed by a u64, we get trailing bytes which are zeros.
+  /// Thus, for a fixed width type, this causes the key to be
+  /// logically zero filled as it becomes shorter.  E.g.
+  ///
+  /// ```0x0011223344556677 shift_right(2) => 0x2233445566770000```
   constexpr void shift_right(const std::size_t num_bytes) noexcept {
-    UNODB_DETAIL_ASSERT(num_bytes <= size);
-    key >>= (num_bytes * 8);
+    if constexpr (std::is_same_v<KeyType, key_view>) {
+      UNODB_DETAIL_ASSERT(num_bytes <= key.size_bytes());
+      key = key.subspan(num_bytes);
+    } else {
+      UNODB_DETAIL_ASSERT(num_bytes <= sizeof(KeyType));
+      key >>= (num_bytes * 8);
+    }
   }
 
-  static constexpr auto size = sizeof(KeyType);
+  /// Return the number of bytes required to represent the key.
+  constexpr size_t size() const noexcept {
+    if constexpr (std::is_same_v<KeyType, unodb::key_view>) {
+      return key.size_bytes();
+    } else {
+      return sizeof(KeyType);
+    }
+  }
 
   union {
+    /// The lexicographic byte-wise comparable binary key.
+    ///
+    /// Note: When KeyType == key_view, this is all you need.
     KeyType key;
-    std::array<std::byte, size> key_bytes;
+
+    /// Used iff the key is not a key_view.  This provides a mechanism
+    /// to index into the bytes in the key for operator[].  This is
+    /// ignored if KeyType==key_view as the key_view provides a
+    /// byte-wise index operator already.
+    std::array<std::byte, sizeof(KeyType)> key_bytes;
   };
 
   static void static_asserts() {
     static_assert(std::is_trivially_copyable_v<basic_art_key<KeyType>>);
     static_assert(sizeof(basic_art_key<KeyType>) == sizeof(KeyType));
   }
+
+  /// dump the key in lexicographic byte-wise order.
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
+    dump_key(os, key);
+  }
+
+  /// Helper for debugging, writes on std::cerr.
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const;
+
+  friend std::ostream &operator<<(std ::ostream &os, const basic_art_key &k) {
+    k.dump(os);
+    return os;
+  }
 };  // class basic_art_key
 
-using art_key = basic_art_key<unodb::key>;
-
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
-                                                   std::byte byte);
-
-[[gnu::cold]] UNODB_DETAIL_NOINLINE std::ostream &operator<<(
-    std::ostream &os UNODB_DETAIL_LIFETIMEBOUND, art_key key);
-
+/// A typed class representing the number of key bytes consumed along
+/// some path in the tree.  In general, the unodb::detail::key_prefix
+/// consumes up to some fixed number of bytes and one byte is consumed
+/// based on the key_byte for each node as we descend along that byte
+/// value to some child index.
+template <typename ArtKey>
 class [[nodiscard]] tree_depth final {
  public:
-  using value_type = unsigned;
+  using value_type = std::uint32_t;  // explicitly since also used in leaf.
 
   explicit constexpr tree_depth(value_type value_ = 0) noexcept
-      : value{value_} {
-    UNODB_DETAIL_ASSERT(value <= art_key::size);
-  }
+      : value{value_} {}
 
   // NOLINTNEXTLINE(google-explicit-constructor)
   [[nodiscard, gnu::pure]] constexpr operator value_type() const noexcept {
-    UNODB_DETAIL_ASSERT(value <= art_key::size);
     return value;
   }
 
   constexpr tree_depth &operator++() noexcept {
     ++value;
-    UNODB_DETAIL_ASSERT(value <= art_key::size);
     return *this;
   }
 
-  constexpr void operator+=(value_type delta) noexcept {
-    value += delta;
-    UNODB_DETAIL_ASSERT(value <= art_key::size);
-  }
+  constexpr void operator+=(value_type delta) noexcept { value += delta; }
 
  private:
   value_type value;
 };
 
-template <class Header, class Db>
+template <typename Key, class Header, template <class> class Db>
 class basic_db_leaf_deleter {
  public:
-  using leaf_type = basic_leaf<Header>;
+  using db_type = Db<Key>;
+  using leaf_type = basic_leaf<Key, Header>;
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
   constexpr explicit basic_db_leaf_deleter(
-      Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+      db_type &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   void operator()(leaf_type *to_delete) const noexcept;
 
-  [[nodiscard, gnu::pure]] Db &get_db() const noexcept { return db; }
+  [[nodiscard, gnu::pure]] db_type &get_db() const noexcept { return db; }
 
  private:
-  Db &db;
+  db_type &db;
 };
 
-template <class Header, class Db>
+template <typename Key, class Header, template <class> class Db>
 using basic_db_leaf_unique_ptr =
-    std::unique_ptr<basic_leaf<Header>, basic_db_leaf_deleter<Header, Db>>;
+    std::unique_ptr<basic_leaf<Key, Header>,
+                    basic_db_leaf_deleter<Key, Header, Db>>;
 
 template <class T>
 struct dependent_false : std::false_type {};
 
-template <class INode, class Db>
+template <typename Key, class INode, template <class> class Db>
 class basic_db_inode_deleter {
  public:
+  using db_type = Db<Key>;
+
   constexpr explicit basic_db_inode_deleter(
-      Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+      db_type &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   void operator()(INode *inode_ptr) noexcept;
 
-  [[nodiscard, gnu::pure]] Db &get_db() noexcept { return db; }
+  [[nodiscard, gnu::pure]] db_type &get_db() noexcept { return db; }
 
  private:
-  Db &db;
+  db_type &db;
 };
 
-// basic_node_ptr is a tagged pointer (the tag is the node type).  You
-// have to know statically the target type, then call
-// node_ptr_var.ptr<target_type *>.ptr() to get target_type.
+/// basic_node_ptr is a tagged pointer (the tag is the node type).
+/// You have to know statically the target type, then call
+/// node_ptr_var.ptr<target_type *>.ptr() to get target_type.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 template <class Header>
 class [[nodiscard]] basic_node_ptr {
@@ -238,7 +362,7 @@ class [[nodiscard]] basic_node_ptr {
   }
 
   // same raw_val means same type and same ptr.
-  [[nodiscard, gnu::pure]] auto operator==(
+  [[nodiscard, gnu::pure]] constexpr auto operator==(
       const basic_node_ptr &other) const noexcept {
     return tagged_ptr == other.tagged_ptr;
   }
@@ -280,46 +404,85 @@ class [[nodiscard]] basic_node_ptr {
 };
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-}  // namespace unodb::detail
-
-namespace unodb {
-
-// An object visited by the scan API.  The visitor passed to the
-// caller's lambda by the scan for each index entry visited by the
-// scan.
-template <typename Iterator>
-class visitor {
-  friend class olc_db;
-  friend class db;
-
+// A buffer containing an expandable binary comparable key.  This is
+// used to track the key by the iterator as things are pushed and
+// popped on the stack.
+class key_buffer {
+  // TODO(thompsonbry) This data structure (std::vector but with
+  // unstable &data[0] pointer and initial stack allocation) is
+  // repeated and could be refactored out into a base class.
  protected:
-  Iterator &it;
-  explicit visitor(Iterator &it_) : it(it_) {}
+  /// The capacity of the backing buffer.
+  [[nodiscard]] size_t capacity() const noexcept { return cap; }
+
+  /// The number of bytes of data in the buffer.
+  [[nodiscard]] size_t size_bytes() const noexcept { return off; }
+
+  /// Ensure that the buffer can hold at least [req] additional bytes.
+  void ensure_available(size_t req) {
+    if (UNODB_DETAIL_UNLIKELY(off + req > cap)) {
+      ensure_capacity(off + req);  // resize
+    }
+  }
 
  public:
-  // Visit the (decoded) key.
-  //
-  // Note: The lambda MUST NOT export a reference to the visited key.
-  // If you want to access the visited key outside of the scope of a
-  // single lambda invocation, then you must make a copy of the data.
-  //
-  // Note: Key decoding can be expensive and its utility is limited to
-  // simple primitive keys.  In particular, key decoding is not well
-  // defined for Unicode data in keys.
-  //
-  // TODO(thompsonbry) Variable length keys: We need to define a
-  // visitor method to visit the internal key buffer without any
-  // decoding.
-  inline auto get_key() const noexcept { return it.get_key().value(); }
+  /// Construct a new key_buffer.  It will be backed by an internal
+  /// buffer of a configured size and extended iff required for longer
+  /// keys.
+  key_buffer() noexcept = default;
 
-  // Visit the value.
-  //
-  // Note: The lambda MUST NOT export a reference to the visited
-  // value.  If you to access the value outside of the scope of a
-  // single lambda invocation, then you must make a copy of the data.
-  inline auto get_value() const noexcept { return it.get_val().value(); }
-};  // class visitor
+  ~key_buffer() {
+    if (cap > sizeof(ibuf)) {  // free old buffer iff allocated
+      detail::free_aligned(buf);
+    }
+  }
 
-}  // namespace unodb
+  /// Reset the buffer.
+  void reset() { off = 0; }
+
+  /// Return a read-only view of the buffer showing only those bytes
+  /// that have valid data.
+  [[nodiscard]] key_view get_key_view() const noexcept {
+    return key_view(buf, off);
+  }
+
+  /// Append a byte to the buffer.
+  void push(std::byte v) {
+    ensure_available(sizeof(v));
+    buf[off++] = v;
+  }
+
+  /// Append some bytes to the buffer.
+  void push(key_view v) {
+    const auto n = v.size_bytes();
+    ensure_available(n);
+    std::memcpy(buf + off, v.data(), n);
+    off += n;
+  }
+
+  /// Pop off some bytes from the buffer.
+  void pop(size_t n) {
+    UNODB_DETAIL_ASSERT(off >= n);
+    off -= n;
+  }
+
+ private:
+  /// Ensure that we have at least the specified capacity in the
+  /// buffer.
+  void ensure_capacity(size_t min_capacity) {
+    unodb::detail::ensure_capacity(buf, cap, off, min_capacity);
+  }
+
+  /// Used for the initial buffer.
+  std::byte ibuf[detail::INITIAL_BUFFER_CAPACITY];
+
+  /// The buffer to accmulate the key.  Originally this is the [ibuf].
+  /// If that overflows, then something will be allocated.
+  std::byte *buf{&ibuf[0]};
+  size_t cap{sizeof(ibuf)};  // current buffer capacity
+  size_t off{0};             // #of bytes in the buffer having valid data.
+};                           // class key_buffer
+
+}  // namespace unodb::detail
 
 #endif  // UNODB_DETAIL_ART_INTERNAL_HPP

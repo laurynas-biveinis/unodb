@@ -28,7 +28,7 @@ constexpr std::string_view value = "Value";
 }  // namespace
 
 int main() {
-  unodb::db tree;
+  unodb::db<std::uint64_t> tree;
   auto insert_result = tree.insert(1, from_string_view(value));
   insert_result &= tree.insert(2, from_string_view(value));
   insert_result &= tree.insert(3, from_string_view(value));

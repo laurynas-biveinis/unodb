@@ -16,10 +16,12 @@
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gtest/gtest.h"
 
-#include <cmath>
 #include <sstream>
 #include <system_error>
 #include <utility>
+#ifndef NDEBUG
+#include <cmath>
+#endif
 
 #include <gtest/gtest.h>
 

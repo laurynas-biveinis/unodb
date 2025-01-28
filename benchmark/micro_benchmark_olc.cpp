@@ -1,4 +1,4 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -22,7 +22,7 @@
 namespace {
 
 class [[nodiscard]] concurrent_benchmark_olc final
-    : public unodb::benchmark::concurrent_benchmark<unodb::olc_db,
+    : public unodb::benchmark::concurrent_benchmark<unodb::benchmark::olc_db,
                                                     unodb::qsbr_thread> {
  private:
   void setup() override {

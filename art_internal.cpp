@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Laurynas Biveinis
+// Copyright 2021-2025 UnoDB contributors
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -12,7 +12,9 @@
 
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
 
-#include "art_internal.hpp"
+#include "art_internal.hpp"  // IWYU pragma: keep
+
+#include "art_common.hpp"
 
 #include <cstddef>
 #include <iomanip>
@@ -26,11 +28,11 @@ namespace unodb::detail {
      << static_cast<unsigned>(byte) << std::dec;
 }
 
-[[gnu::cold]] UNODB_DETAIL_NOINLINE std::ostream &operator<<(std::ostream &os,
-                                                             art_key key) {
-  os << "binary-comparable key:";
-  for (std::size_t i = 0; i < sizeof(key); ++i) dump_byte(os, key[i]);
-  return os;
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_val(std::ostream &os,
+                                                  unodb::value_view v) {
+  const auto sz = v.size_bytes();
+  os << "val(" << sz << "): 0x";
+  for (std::size_t i = 0; i < sz; ++i) dump_byte(os, v[i]);
 }
 
 }  // namespace unodb::detail

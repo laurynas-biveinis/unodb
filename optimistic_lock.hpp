@@ -2,6 +2,9 @@
 #ifndef UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
 #define UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
 
+/// \file
+/// The optimistic lock
+
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
 // HEADER FILES !!!
@@ -31,6 +34,11 @@
 
 namespace unodb {
 
+/// The optimistic spinlock wait loop algorithm implementation.
+/// The implementation is selected by #UNODB_DETAIL_SPINLOCK_LOOP_VALUE, set by
+/// CMake, and can be either #UNODB_DETAIL_SPINLOCK_LOOP_PAUSE or
+/// #UNODB_DETAIL_SPINLOCK_LOOP_EMPTY
+// TODO(laurynas): move to unodb::detail namespace
 // LCOV_EXCL_START
 inline void spin_wait_loop_body() noexcept {
 #if UNODB_SPINLOCK_LOOP_VALUE == UNODB_DETAIL_SPINLOCK_LOOP_PAUSE
@@ -55,39 +63,171 @@ inline void spin_wait_loop_body() noexcept {
 }
 // LCOV_EXCL_STOP
 
-// The bare data for the version information on a node.
+/// The bare data for the version information on a node.
 //
 // TODO(laurynas) can we use optimistic_lock::version_type instead?
 using version_tag_type = std::uint64_t;
 
-// Optimistic lock as described in V. Leis, F. Schneiber, A. Kemper and T.
-// Neumann, "The ART of Practical Synchronization," 2016 Proceedings of the 12th
-// International Workshop on Data Management on New Hardware(DaMoN), pages
-// 3:1--3:8, 2016. They also seem to be very similar to Linux kernel sequential
-// locks, with the addition of the obsolete state. Memory ordering is
-// implemented following Boehm's 2012 paper "Can seqlocks get along with
-// programming language memory models?"
-
-// A lock is a single machine word, which encodes locked-unlocked state,
-// obsolete state, and version number. Locking for write atomically sets the
-// locked state and bumps the version number. Locking for read saves the version
-// number at the time, and "unlocking" for read checks whether the lock version
-// did not advance during the reader's critical section, which has the
-// constraint that no pointers may be followed while in there nor any other data
-// can be interpreted in a way that may potentially cause faults. Effectively
-// this means that reader critical section should copy the data it's interested
-// in, and, after unlock (or version check if further actions are needed in a
-// longer reader critical section), the data might be used only if the version
-// number has not advanced. Otherwise an algorithm restart is necessary. In the
-// current implementation, it is possible for a reader to be starved
-// indefinitely.
-
-// A lock in obsolete state marks data which is on the deallocation backlog to
-// be freed once all the thread epochs have advanced. All algorithms must
-// restart upon encountering a lock in obsolete state.
-
-// All bool-returning try_ functions return true on success and false on
-// lock version change, which indicates the need to restart
+/// A version-based optimistic lock that supports single-writer/multiple-readers
+/// concurrency without shared memory writes during read operations.
+///
+/// Writers bump the version counter and readers detect concurrent writes
+/// by comparing the version counter before and after the reads.
+///
+/// ## Examples
+///
+/// The simplest read locking example:
+/// \code{.cpp}
+/// // Spin until lock is not write-locked nor obsolete
+/// auto foo_read_critical_section = lock.try_read_lock();
+/// if (foo_read_critical_section.must_restart()) {
+///   // Obsolete, restart
+///   return false;
+/// }
+/// // Read
+/// const auto read_foo = foo.data;
+/// // Try unlock
+/// if (!foo_read_critical_section.try_read_unlock()) {
+///    // The lock was write-locked while we were accessing data. Do not act on
+///    // the read data, restart.
+///    return false;
+/// }
+/// // Act on read_foo and return success
+/// // ...
+/// return true;
+/// \endcode
+///
+/// An example of read locking with interim checks:
+/// \code{.cpp}
+/// auto foo_rcs = lock.try_read_lock();
+/// if (foo_rcs.must_restart()) return false;
+/// const auto read_foo_1 = foo.data_1;
+/// // Check whether read_foo_1 was read consistently but do not end the read
+/// // critical section
+/// if (!foo_rcs.check()) {
+///   // The check failed because the lock was write-locked while we were
+///   // accessing data. Do not act on it, restart.
+///   return false;
+/// }
+/// // Act on read_foo_1
+/// // ...
+/// const auto read_foo_2 = foo.data_2;
+/// if (!foo_rcs.try_read_unlock()) return false;
+/// // Both read_foo_1 and read_foo_2 were read consistently together, act on
+/// // them.
+/// // ...
+/// return true;
+/// \endcode
+///
+/// An example of write locking:
+/// \code{.cpp}
+/// // Write lock critical sections always start out as read lock ones.
+/// auto foo_rcs = lock.try_read_lock();
+/// if (foo_rcs.must_restart()) return false;
+/// // Read current data state if needed
+/// // ...
+/// // Try upgrading the lock
+/// const auto foo_write_guard =
+///   optimistic_lock::write_guard{std::move(foo_rcs)};
+/// if (foo_write_guard.must_restart()) {
+///   // The lock upgrade failed because somebody else write-locked it
+///   // first. Restart, also don't act on the read data in the read critical
+///   // section since the last check.
+///   return false;
+/// }
+/// // We have the exclusive write lock, freely write the data. The lock will be
+/// // released on scope exit.
+/// // ...
+/// return true;
+/// \endcode
+///
+/// An example of write locking that ends with data deletion:
+/// \code{.cpp}
+/// auto foo_rcs = lock.try_read_lock();
+/// if (foo_rcs.must_restart()) return false;
+/// auto foo_wg = optimistic_lock::write_guard{std::move(foo_rcs)};
+/// if (foo_wg.must_restart()) return false;
+/// // Act on write-locked data before marking it for deletion
+/// // ...
+/// foo_wg.unlock_and_obsolete();
+/// // Mark data to be reclaimed when it is safe to do so
+/// // ...
+/// \endcode
+///
+/// ## API conventions
+///
+/// All `bool`-returning `try_` methods return true on success and false when
+/// a concurrent write lock requires the operation to be restarted.
+///
+/// ## Read protocol
+///
+/// A read critical section (RCS) is created by
+/// unodb::optimistic_lock::try_read_lock(), which will either spin until the
+/// lock is not write-locked, or will return immediately if the lock goes to the
+/// obsolete state.
+///
+/// The obsolete state must be checked for by calling
+/// unodb::optimistic_lock::read_critical_section::must_restart() immediately
+/// after creating the RCS.
+///
+/// No pointers may be dereferenced in an RCS before a successful read unlock
+/// (unodb::optimistic_lock::try_read_unlock()) or an interim check
+/// (unodb::optimistic_lock::check()) call. Similarly, no non-pointer data may
+/// be accessed in any fault-causing way if it's illegal.
+///
+/// To follow the above rules, first copy the data of interest, then verify
+/// consistency via unlock or version check call. Only use the copied data if
+/// these operations succeeded. Otherwise an algorithm restart is necessary.
+///
+/// In the current implementation, it is possible for a reader to be starved
+/// indefinitely.
+///
+/// ## Write protocol
+///
+/// After a successful write lock acquisition by
+/// unodb::optimistic_lock::write_guard(), the protected data may be accessed
+/// freely, as if under a regular write lock, with the exception of data
+/// deletion, discussed below. The write lock object is a C++ scope guard which
+/// will unlock on leaving the scope.
+///
+/// Since read locking does not write to the shared memory, readers can have
+/// active pointers to the data without the writer knowing about them.
+/// Therefore, lock-protected heap data cannot be deallocated immediately.
+/// Instead of immediate deallocation, the data is marked as obsolete
+/// (unodb::optimistic_lock::write_guard::write_unlock_and_obsolete) and
+/// reclaimed later when it is safe to do so. This is implemented by \ref qsbr.
+///
+/// ## Internals
+///
+/// A lock is a single machine word, that encodes locked-unlocked state,
+/// obsolete state, and version number.
+///
+/// Locking for write (unodb::optimistic_lock::write_guard())
+/// atomically sets the locked state and bumps the version number.
+///
+/// Locking for read (unodb::optimistic_lock::try_read_lock()) saves the version
+/// number at the time, and unlocking for read
+/// (unodb::optimistic_lock::read_critical_section::try_read_unlock()) checks
+/// whether the lock version did not advance since the read lock. It is also
+/// possible to check this in a middle of an RCS
+/// (unodb::optimistic_lock::read_critical_section::check()), which has exactly
+/// the same semantics under a different name for descriptive code.
+///
+/// A lock in obsolete state marks data which is on the deallocation backlog to
+/// be freed once all the thread epochs have advanced. All algorithms must
+/// immediately stop retrying read locking such data and restart.
+///
+/// ## Literature
+///
+/// Based on the design from:
+/// - V. Leis et al., "The ART of Practical Synchronization," DaMoN 2016, for
+///   the algorithms.
+/// - H. Boehm, "Can seqlocks get along with programming language memory
+///   models?", MSPC 2012, for the critical section data access memory ordering
+///   rules.
+///
+/// The optimistic lock is also similar to Linux kernel sequential locks with
+/// the addition of an obsolete state for data marked for reclamation.
 class [[nodiscard]] optimistic_lock final {
  public:
   // Class for operations with a version_tag_type.
@@ -309,6 +449,8 @@ class [[nodiscard]] optimistic_lock final {
     friend class write_guard;
   };  // class read_critical_section
 
+  // Every write lock critical section starts out as a read lock critical
+  // section which then is attempted to upgrade.
   class [[nodiscard]] write_guard final {
    public:
     explicit write_guard(read_critical_section &&critical_section) noexcept

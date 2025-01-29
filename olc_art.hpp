@@ -415,11 +415,44 @@ class olc_db final {
     // Precondition: The iterator MUST be valid().
     [[nodiscard, gnu::pure]] const qsbr_value_view get_val() const;
 
-    // Debugging
-    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const;
-    [[gnu::cold]] void dump() const;
+    /// Debugging
+    // LCOV_EXCL_START
+    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const {
+      if (empty()) {
+        os << "iter::stack:: empty\n";
+        return;
+      }
+      // Create a new stack and copy everything there.  Using the new
+      // stack, print out the stack in top-bottom order.  This avoids
+      // modifications to the existing stack for the iterator.
+      auto tmp = stack_;
+      auto level = tmp.size() - 1;
+      while (!tmp.empty()) {
+        const auto& e = tmp.top();
+        const auto& np = e.node;
+        os << "iter::stack:: level = " << level << ", key_byte=0x" << std::hex
+           << std::setfill('0') << std::setw(2)
+           << static_cast<uint64_t>(e.key_byte) << std::dec
+           << ", child_index=0x" << std::hex << std::setfill('0')
+           << std::setw(2) << static_cast<std::uint64_t>(e.child_index)
+           << std::dec << ", prefix_len=" << e.prefix_len << std::dec
+           << ", version=";
+        optimistic_lock::version_type(e.version).dump(os);  // version tag.
+        os << ", ";
+        art_policy::dump_node(os, np, false /*recursive*/);  // node or leaf.
+        if (np.type() != node_type::LEAF) os << '\n';
+        tmp.pop();
+        level--;
+      }
+    }
+    // LCOV_EXCL_STOP
 
-    // Return true unless the stack is empty (exposed to tests)
+    /// Debugging
+    // LCOV_EXCL_START
+    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const { dump(std::cerr); }
+    // LCOV_EXCL_STOP
+
+    /// Return true unless the stack is empty (exposed to tests)
     [[nodiscard]] bool valid() const { return !stack_.empty(); }
 
    protected:
@@ -1093,16 +1126,7 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key> {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
-  // TODO(thompsonbry) varkeys - new path with key_view
   void init(key_view k1, art_key_type shifted_k2, tree_depth_type depth,
-            leaf_type* child1, olc_db_leaf_unique_ptr_type&& child2) noexcept {
-    UNODB_DETAIL_ASSERT(node_ptr_lock<Key>(child1).is_write_locked());
-
-    parent_class::init(k1, shifted_k2, depth, child1, std::move(child2));
-  }
-
-  // TODO(thompsonbry) varkeys - old path unused?
-  void init(art_key_type k1, art_key_type shifted_k2, tree_depth_type depth,
             leaf_type* child1, olc_db_leaf_unique_ptr_type&& child2) noexcept {
     UNODB_DETAIL_ASSERT(node_ptr_lock<Key>(child1).is_write_locked());
 
@@ -1391,8 +1415,7 @@ class [[nodiscard]] olc_inode_256 final : public olc_inode_256_parent<Key> {
  public:
   using db_type = olc_db<Key>;
   using inode_48_type = olc_inode_48<Key>;
-  using art_key_type = basic_art_key<Key>;  // FIXME(laurynas): inline below if
-  // only use
+  using art_key_type = basic_art_key<Key>;
   using tree_depth_type = tree_depth<art_key_type>;
   using olc_db_leaf_unique_ptr_type = olc_db_leaf_unique_ptr<Key>;
 

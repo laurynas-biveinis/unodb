@@ -102,8 +102,7 @@ class db final {
 
   // Query for a value associated with a key.
   [[nodiscard, gnu::pure]] get_result get0(
-      art_key_type search_key) const noexcept;  // FIXME(laurynas): pass by
-  // val or by const ref depending on the size
+      art_key_type search_key) const noexcept;
 
   // Insert a value under a key iff there is no entry for that key.
   //
@@ -218,7 +217,9 @@ class db final {
       // track how many bytes were pushed here (not including the
       // key_byte) so we can pop off the correct number of bytes
       // later.
-      // TODO(laurynas): push this field to the parent? Shared with olc_db
+      //
+      // TODO(laurynas): push this field to a common parent? Shared with
+      // olc_db
       detail::key_prefix_size prefix_len;
 
       [[nodiscard]] constexpr bool operator==(
@@ -293,11 +294,41 @@ class db final {
     // Precondition: The iterator MUST be valid().
     [[nodiscard, gnu::pure]] const value_view get_val() const;
 
-    // Debugging
-    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const;
-    [[gnu::cold]] void dump() const;
+    /// Debugging
+    // LCOV_EXCL_START
+    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const {
+      if (empty()) {
+        os << "iter::stack:: empty\n";
+        return;
+      }
+      // Create a new stack and copy everything there.  Using the new
+      // stack, print out the stack in top-bottom order.  This avoids
+      // modifications to the existing stack for the iterator.
+      auto tmp = stack_;
+      auto level = tmp.size() - 1;
+      while (!tmp.empty()) {
+        const auto& e = tmp.top();
+        const auto& np = e.node;
+        os << "iter::stack:: level = " << level << ", key_byte=0x" << std::hex
+           << std::setfill('0') << std::setw(2)
+           << static_cast<std::uint64_t>(e.key_byte) << std::dec
+           << ", child_index=0x" << std::hex << std::setfill('0')
+           << std::setw(2) << static_cast<std::uint64_t>(e.child_index)
+           << std::dec << ", ";
+        art_policy::dump_node(os, np, false /*recursive*/);
+        if (np.type() != node_type::LEAF) os << '\n';
+        tmp.pop();
+        level--;
+      }
+    }
+    // LCOV_EXCL_STOP
 
-    // Return true unless the stack is empty (exposed to tests).
+    /// Debugging
+    // LCOV_EXCL_START
+    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const { dump(std::cerr); }
+    // LCOV_EXCL_STOP
+
+    /// Return true unless the stack is empty (exposed to tests).
     [[nodiscard]] bool valid() const { return !stack_.empty(); }
 
    protected:

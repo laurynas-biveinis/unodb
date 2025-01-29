@@ -33,7 +33,13 @@ namespace {
 // decoder.
 //
 // TODO(thompsonbry) : variable length keys.  Add a microbenchmark for
-// the key_encoder.
+// the key_encoder & key_decoder.
+//
+// TODO(thompsonbry) : variable length keys.  To understand the
+// overhead associated with variable length keys vs fixed width known
+// type keys, compare performance for uint64_t as the Key type vs as
+// the sole component of a variable length key.
+//
 template <class Db>
 class ARTKeyEncodeDecodeTest : public ::testing::Test {
  public:

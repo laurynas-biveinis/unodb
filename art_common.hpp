@@ -70,10 +70,6 @@ class visitor {
   // data may then be recovered by associating the key with a record
   // identifier, looking up the record and reading off the Unicode
   // value there.  This is a common secondary index scenario.
-  //
-  // TODO(thompsonbry) Variable length keys: We need to define a
-  // visitor method to visit the internal key buffer without any
-  // decoding.
   inline auto get_key() const noexcept { return it.get_key(); }
 
   // Visit the value.
@@ -101,8 +97,6 @@ namespace detail {
 /// sizeof(T).  But in typical scenarios these objects are on the
 /// stack and there is little if any penalty to having a larger
 /// initial capacity for these buffers.
-///
-/// TODO(thompsonbry) variable length keys - lift out as template argument.
 static constexpr size_t INITIAL_BUFFER_CAPACITY = 256;
 
 /// Dump the a byte as a hexidecimal number.
@@ -145,15 +139,15 @@ void ensure_capacity(std::byte *&buf,     // buffer to resize
 /// primitive data types and provides support for the caller to pass
 /// through Unicode sort keys.
 //
-// TODO(thompsonbry) - variable length keys - handle integer types
 // TODO(thompsonbry) - variable length keys - handle floating point types
 // TODO(thompsonbry) - variable length keys - handle successors
 //
 // TODO(thompsonbry) - variable length keys - handle unicode sort keys
 // (caller must normalize, generate the sort key, and pad?)
 //
-// TODO(thompsonbry) - variable length keys - simply - try to use
-// templates for msb, bswap, and encode/decode of unsigned values.
+// TODO(thompsonbry) - variable length keys - attempt to simplify by
+// using templates for msb, bswap, and encode/decode of unsigned
+// values.
 class key_encoder {
  protected:
   // highest bit for various data types.
@@ -202,38 +196,38 @@ class key_encoder {
   //
 
   key_encoder &encode(std::int8_t v) {
-    const auto iONE = static_cast<int8_t>(1);
-    const auto uONE = static_cast<uint8_t>(1);
+    const auto i_one = static_cast<int8_t>(1);
+    const auto u_one = static_cast<uint8_t>(1);
     const auto u = static_cast<uint8_t>(
         (v >= 0) ? msb8 + static_cast<uint8_t>(v)
-                 : msb8 - static_cast<uint8_t>(-(v + iONE)) - uONE);
+                 : msb8 - static_cast<uint8_t>(-(v + i_one)) - u_one);
     return encode(u);
   }
 
   key_encoder &encode(std::int16_t v) {
-    const auto iONE = static_cast<int16_t>(1);
-    const auto uONE = static_cast<uint16_t>(1);
+    const auto i_one = static_cast<int16_t>(1);
+    const auto u_one = static_cast<uint16_t>(1);
     const auto u = static_cast<uint16_t>(
         (v >= 0) ? msb16 + static_cast<uint16_t>(v)
-                 : msb16 - static_cast<uint16_t>(-(v + iONE)) - uONE);
+                 : msb16 - static_cast<uint16_t>(-(v + i_one)) - u_one);
     return encode(u);
   }
 
   key_encoder &encode(std::int32_t v) {
-    const int32_t iONE = 1;
-    const uint32_t uONE = static_cast<uint32_t>(1);
-    const uint32_t u = (v >= 0)
-                           ? msb32 + static_cast<uint32_t>(v)
-                           : msb32 - static_cast<uint32_t>(-(v + iONE)) - uONE;
+    const int32_t i_one = 1;
+    const uint32_t u_one = static_cast<uint32_t>(1);
+    const uint32_t u =
+        (v >= 0) ? msb32 + static_cast<uint32_t>(v)
+                 : msb32 - static_cast<uint32_t>(-(v + i_one)) - u_one;
     return encode(u);
   }
 
   key_encoder &encode(std::int64_t v) {
-    const int64_t iONE = static_cast<int64_t>(1);
-    const uint64_t uONE = static_cast<uint64_t>(1);
-    const uint64_t u = (v >= 0)
-                           ? msb64 + static_cast<uint64_t>(v)
-                           : msb64 - static_cast<uint64_t>(-(v + iONE)) - uONE;
+    const int64_t i_one = static_cast<int64_t>(1);
+    const uint64_t u_one = static_cast<uint64_t>(1);
+    const uint64_t u =
+        (v >= 0) ? msb64 + static_cast<uint64_t>(v)
+                 : msb64 - static_cast<uint64_t>(-(v + i_one)) - u_one;
     return encode(u);
   }
 
@@ -326,43 +320,43 @@ class key_decoder {
 
   // Decode a component of the indicated type from the key.
   key_decoder &decode(std::int8_t &v) {
-    const auto ONE = static_cast<std::uint8_t>(1);
+    const auto one = static_cast<std::uint8_t>(1);
     std::uint8_t u;
     decode(u);
     v = (u >= msb8) ? static_cast<int8_t>(u - msb8)
-                    : -static_cast<int8_t>(msb8 - ONE - u) -
+                    : -static_cast<int8_t>(msb8 - one - u) -
                           static_cast<std::int8_t>(1);
     return *this;
   }
 
   // Decode a component of the indicated type from the key.
   key_decoder &decode(std::int16_t &v) {
-    const auto ONE = static_cast<std::uint16_t>(1);
+    const auto one = static_cast<std::uint16_t>(1);
     std::uint16_t u;
     decode(u);
     v = (u >= msb16) ? static_cast<int16_t>(u - msb16)
-                     : -static_cast<int16_t>(msb16 - ONE - u) -
+                     : -static_cast<int16_t>(msb16 - one - u) -
                            static_cast<std::int16_t>(1);
     return *this;
   }
 
   // Decode a component of the indicated type from the key.
   key_decoder &decode(std::int32_t &v) {
-    const auto ONE = static_cast<std::uint32_t>(1);
+    const auto one = static_cast<std::uint32_t>(1);
     std::uint32_t u;
     decode(u);
     v = (u >= msb32) ? static_cast<int32_t>(u - msb32)
-                     : -static_cast<int32_t>(msb32 - ONE - u) - 1;
+                     : -static_cast<int32_t>(msb32 - one - u) - 1;
     return *this;
   }
 
   // Decode a component of the indicated type from the key.
   key_decoder &decode(std::int64_t &v) {
-    const auto ONE = static_cast<std::uint64_t>(1);
+    const auto one = static_cast<std::uint64_t>(1);
     std::uint64_t u;
     decode(u);
     v = (u >= msb64) ? static_cast<int64_t>(u - msb64)
-                     : -static_cast<int64_t>(msb64 - ONE - u) - 1LL;
+                     : -static_cast<int64_t>(msb64 - one - u) - 1LL;
     return *this;
   }
 

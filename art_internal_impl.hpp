@@ -615,13 +615,8 @@ union [[nodiscard]] key_prefix {
   critical_section_policy<std::uint64_t> u64;
 
  public:
-  // TODO(thompsonbry) varkeys - new ctor (key_view)
   key_prefix(key_view k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept
       : u64{make_u64(k1, shifted_k2, depth)} {}
-
-  // // TODO(thompsonbry) varkeys - old ctor unused?
-  // key_prefix(ArtKey k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept
-  //     : u64{make_u64(k1, shifted_k2, depth)} {}
 
   key_prefix(unsigned key_prefix_len,
              const key_prefix &source_key_prefix) noexcept

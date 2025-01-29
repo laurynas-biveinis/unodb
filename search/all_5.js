@@ -14,5 +14,5 @@ var searchData=
   ['development_20cmake_20options_11',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
   ['development_20dependencies_12',['Optional development dependencies',['../md_CONTRIBUTING.html#autotoc_md1',1,'']]],
   ['documentation_20style_20guide_13',['Documentation style guide',['../md_CONTRIBUTING.html#autotoc_md6',1,'']]],
-  ['dump_14',['dump',['../classunodb_1_1olc__db_1_1iterator.html#ae884a0b3afc477dfadce0f4419d8d0bd',1,'unodb::olc_db::iterator::dump()'],['../classunodb_1_1db_1_1iterator.html#af982044ade01c2fb5378aaea1e676e53',1,'unodb::db::iterator::dump()']]]
+  ['dump_14',['dump',['../classunodb_1_1optimistic__lock_1_1version__type.html#a3d2da481d5515ecec566805a322d57ef',1,'unodb::optimistic_lock::version_type::dump()'],['../classunodb_1_1olc__db_1_1iterator.html#ae884a0b3afc477dfadce0f4419d8d0bd',1,'unodb::olc_db::iterator::dump()'],['../classunodb_1_1db_1_1iterator.html#af982044ade01c2fb5378aaea1e676e53',1,'unodb::db::iterator::dump()']]]
 ];

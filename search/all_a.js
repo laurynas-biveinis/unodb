@@ -19,7 +19,10 @@ var searchData=
   ['internal_5fas_5fi_16',['internal_as_i',['../namespaceunodb.html#a775cf37c7ccec6301c8512193550b424',1,'unodb']]],
   ['internals_17',['internals',['../classunodb_1_1optimistic__lock.html#autotoc_md17',1,'Internals'],['../group__internal.html',1,'Internals']]],
   ['introduction_18',['Introduction',['../index.html#autotoc_md20',1,'']]],
-  ['is_5finternal_5fstatic_5fassert_19',['is_internal_static_assert',['../namespaceunodb_1_1detail.html#aa3da3568c516e9447ccaa528462a136e',1,'unodb::detail']]],
-  ['iter_5fresult_20',['iter_result',['../structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html',1,'unodb::detail::basic_inode_impl']]],
-  ['iterator_21',['iterator',['../classunodb_1_1olc__db_1_1iterator.html',1,'unodb::olc_db::iterator'],['../classunodb_1_1db_1_1iterator.html',1,'unodb::db::iterator']]]
+  ['is_5ffree_19',['is_free',['../classunodb_1_1optimistic__lock_1_1version__type.html#ac5213291bc880b42167098855ece7dbd',1,'unodb::optimistic_lock::version_type']]],
+  ['is_5finternal_5fstatic_5fassert_20',['is_internal_static_assert',['../namespaceunodb_1_1detail.html#aa3da3568c516e9447ccaa528462a136e',1,'unodb::detail']]],
+  ['is_5fobsolete_21',['is_obsolete',['../classunodb_1_1optimistic__lock_1_1version__type.html#a79bbbea7fe019998dc7c18e8f68d7ec8',1,'unodb::optimistic_lock::version_type']]],
+  ['is_5fwrite_5flocked_22',['is_write_locked',['../classunodb_1_1optimistic__lock_1_1version__type.html#a9dbb46cd69d5469711b3c4615d4c0a8f',1,'unodb::optimistic_lock::version_type']]],
+  ['iter_5fresult_23',['iter_result',['../structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html',1,'unodb::detail::basic_inode_impl']]],
+  ['iterator_24',['iterator',['../classunodb_1_1olc__db_1_1iterator.html',1,'unodb::olc_db::iterator'],['../classunodb_1_1db_1_1iterator.html',1,'unodb::db::iterator']]]
 ];

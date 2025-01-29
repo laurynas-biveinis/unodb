@@ -8,9 +8,10 @@ var searchData=
   ['olc_5finode_5f4_5',['olc_inode_4',['../classunodb_1_1detail_1_1olc__inode__4.html',1,'unodb::detail']]],
   ['olc_5finode_5f48_6',['olc_inode_48',['../classunodb_1_1detail_1_1olc__inode__48.html',1,'unodb::detail']]],
   ['olc_5fnode_5fheader_7',['olc_node_header',['../structunodb_1_1detail_1_1olc__node__header.html',1,'unodb::detail']]],
-  ['optimistic_5flock_8',['optimistic_lock',['../classunodb_1_1optimistic__lock.html',1,'unodb']]],
-  ['optimistic_5flock_2ehpp_9',['optimistic_lock.hpp',['../optimistic__lock_8hpp.html',1,'']]],
-  ['optional_20development_20dependencies_10',['Optional development dependencies',['../md_CONTRIBUTING.html#autotoc_md1',1,'']]],
-  ['options_11',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
-  ['organization_12',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]]
+  ['operator_3d_3d_8',['operator==',['../classunodb_1_1optimistic__lock_1_1version__type.html#ab244755dfb33f13321ba1d18f37e8b74',1,'unodb::optimistic_lock::version_type']]],
+  ['optimistic_5flock_9',['optimistic_lock',['../classunodb_1_1optimistic__lock.html',1,'unodb']]],
+  ['optimistic_5flock_2ehpp_10',['optimistic_lock.hpp',['../optimistic__lock_8hpp.html',1,'']]],
+  ['optional_20development_20dependencies_11',['Optional development dependencies',['../md_CONTRIBUTING.html#autotoc_md1',1,'']]],
+  ['options_12',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
+  ['organization_13',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]]
 ];

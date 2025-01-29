@@ -305,44 +305,65 @@ class [[nodiscard]] optimistic_lock final {
   };  // class version_type
 
  private:
+  /// The atomic lock word and its operations.
   class [[nodiscard]] atomic_version_type final {
    public:
-    // load-acquire
+    /// Atomically load the lock word with acquire memory ordering.
     [[nodiscard]] version_type load() const noexcept {
       return version_type{version.load(std::memory_order_acquire)};
     }
 
-    // load-relaxed
+    /// Atomically load the lock word with relaxed memory ordering.
     [[nodiscard]] version_type load_relaxed() const noexcept {
       return version_type{version.load(std::memory_order_relaxed)};
     }
 
-    [[nodiscard]] bool cas(version_type expected,
-                           version_type new_val) noexcept {
+    /// Atomically compare-and-exchange the lock word with acquire ordering on
+    /// success. May not fail spuriously.
+    /// \param expected The expected current lock word value
+    /// \param new_val The new lock word value to set
+    /// \return true if the exchange was successful
+    [[nodiscard]] bool cas_acquire(version_type expected,
+                                   version_type new_val) noexcept {
       auto expected_val = expected.get();
       return UNODB_DETAIL_LIKELY(version.compare_exchange_strong(
           expected_val, new_val.get(), std::memory_order_acquire,
           std::memory_order_relaxed));
     }
 
+    /// Atomically clear the write lock bit with release memory ordering.
+    /// The version number is preserved.
+    /// \pre The write lock bit must be set.
     void write_unlock() noexcept {
       UNODB_DETAIL_ASSERT(load().is_write_locked());
 
       version.fetch_add(2, std::memory_order_release);
     }
 
+    /// Atomically clear the set write lock bit and set the obsolete bit with
+    /// release memory ordering.
+    /// \pre The obsolete bit must be clear
+    /// \pre The write lock bit must be set
+    // TODO(laurynas): we don't care about the version number, can we just
+    // store 1 atomically?
     void write_unlock_and_obsolete() noexcept {
-      UNODB_DETAIL_ASSERT(load().is_write_locked());
+#ifndef NDEBUG
+      const auto old_lock_word{load()};
+      UNODB_DETAIL_ASSERT(!old_lock_word.is_obsolete());
+      UNODB_DETAIL_ASSERT(old_lock_word.is_write_locked());
+#endif
 
       version.fetch_add(3, std::memory_order_release);
+
 #ifndef NDEBUG
-      const auto current_version{load()};
-      UNODB_DETAIL_ASSERT(!current_version.is_write_locked());
-      UNODB_DETAIL_ASSERT(current_version.is_obsolete());
+      const auto current_lock_word{load()};
+      UNODB_DETAIL_ASSERT(!current_lock_word.is_write_locked());
+      UNODB_DETAIL_ASSERT(current_lock_word.is_obsolete());
 #endif
     }
 
    private:
+    /// The raw atomic lock word.
     std::atomic<std::uint64_t> version;
 
     static_assert(decltype(version)::is_always_lock_free,
@@ -630,7 +651,7 @@ class [[nodiscard]] optimistic_lock final {
   [[nodiscard]] bool try_upgrade_to_write_lock(
       version_type locked_version) noexcept {
     const auto result{
-        version.cas(locked_version, locked_version.set_locked_bit())};
+        version.cas_acquire(locked_version, locked_version.set_locked_bit())};
     dec_read_lock_count();
     return UNODB_DETAIL_LIKELY(result);
   }

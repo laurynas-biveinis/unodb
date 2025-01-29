@@ -234,12 +234,15 @@ class [[nodiscard]] optimistic_lock final {
   /// Non-atomic lock word representation. Used for copying and manipulating
   /// snapshots of the atomic lock word.
   /// The lock word consists of:
-  /// - Bit 0: obsolete state
+  /// - Bit 0: obsolete state. If set, all other bits are zero.
   /// - Bit 1: write lock
   /// - Bits 2-63: version counter
   // TODO(laurynas): rename to lock_word
   class [[nodiscard]] version_type final {
    public:
+    /// A lock word value constant in the obsolete state.
+    static constexpr version_tag_type obsolete_lock_word = 1U;
+
     /// Create a new lock word from a raw \a version_val value.
     explicit constexpr version_type(version_tag_type version_val) noexcept
         : version{version_val} {}
@@ -256,7 +259,7 @@ class [[nodiscard]] optimistic_lock final {
       return (version & 3U) == 0U;
     }
 
-    /// Return whether the lock word has the obsolete bit set.
+    /// Return whether the lock word is in the obsolete state.
     // Force inline because LLVM 14-17 and possibly later versions generate a
     // call to outline version from optimistic_lock::try_lock in release build
     // with UBSan. That same method is apparently miscompiled in that its loop
@@ -265,7 +268,7 @@ class [[nodiscard]] optimistic_lock final {
     // too.
     [[nodiscard, gnu::const]] UNODB_DETAIL_FORCE_INLINE constexpr bool
     is_obsolete() const noexcept {
-      return (version & 1U) != 0U;
+      return version == obsolete_lock_word;
     }
 
     /// Return a lock word with the current version and lock bit set.
@@ -309,7 +312,7 @@ class [[nodiscard]] optimistic_lock final {
   class [[nodiscard]] atomic_version_type final {
    public:
     /// Atomically load the lock word with acquire memory ordering.
-    [[nodiscard]] version_type load() const noexcept {
+    [[nodiscard]] version_type load_acquire() const noexcept {
       return version_type{version.load(std::memory_order_acquire)};
     }
 
@@ -335,7 +338,7 @@ class [[nodiscard]] optimistic_lock final {
     /// The version number is preserved.
     /// \pre The write lock bit must be set.
     void write_unlock() noexcept {
-      UNODB_DETAIL_ASSERT(load().is_write_locked());
+      UNODB_DETAIL_ASSERT(load_relaxed().is_write_locked());
 
       version.fetch_add(2, std::memory_order_release);
     }
@@ -344,22 +347,17 @@ class [[nodiscard]] optimistic_lock final {
     /// release memory ordering.
     /// \pre The obsolete bit must be clear
     /// \pre The write lock bit must be set
-    // TODO(laurynas): we don't care about the version number, can we just
-    // store 1 atomically?
     void write_unlock_and_obsolete() noexcept {
 #ifndef NDEBUG
-      const auto old_lock_word{load()};
+      const auto old_lock_word{load_relaxed()};
       UNODB_DETAIL_ASSERT(!old_lock_word.is_obsolete());
       UNODB_DETAIL_ASSERT(old_lock_word.is_write_locked());
 #endif
 
-      version.fetch_add(3, std::memory_order_release);
+      version.store(version_type::obsolete_lock_word,
+                    std::memory_order_release);
 
-#ifndef NDEBUG
-      const auto current_lock_word{load()};
-      UNODB_DETAIL_ASSERT(!current_lock_word.is_write_locked());
-      UNODB_DETAIL_ASSERT(current_lock_word.is_obsolete());
-#endif
+      UNODB_DETAIL_ASSERT(load_relaxed().is_obsolete());
     }
 
    private:
@@ -566,7 +564,7 @@ class [[nodiscard]] optimistic_lock final {
   // @return a read_critical_section which MAY be invalid.
   [[nodiscard]] read_critical_section try_read_lock() noexcept {
     while (true) {
-      const auto current_version = version.load();
+      const auto current_version = version.load_acquire();
       if (UNODB_DETAIL_LIKELY(current_version.is_free())) {
         inc_read_lock_count();
         return read_critical_section{*this, current_version};
@@ -605,17 +603,17 @@ class [[nodiscard]] optimistic_lock final {
   }
 
   [[nodiscard]] bool is_obsoleted_by_this_thread() const noexcept {
-    return version.load().is_obsolete() &&
+    return version.load_acquire().is_obsolete() &&
            std::this_thread::get_id() == obsoleter_thread;
   }
 
   [[nodiscard]] bool is_write_locked() const noexcept {
-    return version.load().is_write_locked();
+    return version.load_acquire().is_write_locked();
   }
 #endif
 
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
-    const auto dump_version = version.load();
+    const auto dump_version = version.load_acquire();
     os << "lock: ";
     dump_version.dump(os);
 #ifndef NDEBUG

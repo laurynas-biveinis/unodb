@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['popcount_0',['popcount',['../namespaceunodb_1_1detail.html#a60cd68db0acc4264f225af504457f974',1,'unodb::detail']]]
+  ['operator_3d_3d_0',['operator==',['../classunodb_1_1optimistic__lock_1_1version__type.html#ab244755dfb33f13321ba1d18f37e8b74',1,'unodb::optimistic_lock::version_type']]]
 ];

@@ -103,31 +103,144 @@ $(document).ready(function(){initNavTree('classunodb_1_1optimistic__lock_1_1atom
   <div class="headertitle"><div class="title">unodb::optimistic_lock::atomic_version_type Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>The atomic lock word and its operations.  
+ <a href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a36d1644ac23559a19adb3dc8b24f386e" id="r_a36d1644ac23559a19adb3dc8b24f386e"><td class="memItemLeft" align="right" valign="top"><a id="a36d1644ac23559a19adb3dc8b24f386e" name="a36d1644ac23559a19adb3dc8b24f386e"></a>
 <a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>load</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a36d1644ac23559a19adb3dc8b24f386e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomically load the lock word with acquire memory ordering. <br /></td></tr>
 <tr class="separator:a36d1644ac23559a19adb3dc8b24f386e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58e25f698739d17ed135f6940e31674d" id="r_a58e25f698739d17ed135f6940e31674d"><td class="memItemLeft" align="right" valign="top"><a id="a58e25f698739d17ed135f6940e31674d" name="a58e25f698739d17ed135f6940e31674d"></a>
 <a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>load_relaxed</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a58e25f698739d17ed135f6940e31674d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomically load the lock word with relaxed memory ordering. <br /></td></tr>
 <tr class="separator:a58e25f698739d17ed135f6940e31674d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8e44adc1b361bbe631a4fa40c8e10ba7" id="r_a8e44adc1b361bbe631a4fa40c8e10ba7"><td class="memItemLeft" align="right" valign="top"><a id="a8e44adc1b361bbe631a4fa40c8e10ba7" name="a8e44adc1b361bbe631a4fa40c8e10ba7"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cas</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">expected</a>, <a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">new_val</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a8e44adc1b361bbe631a4fa40c8e10ba7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a351edceb51cf451d5d471f73c3817c09" id="r_a351edceb51cf451d5d471f73c3817c09"><td class="memItemLeft" align="right" valign="top"><a id="a351edceb51cf451d5d471f73c3817c09" name="a351edceb51cf451d5d471f73c3817c09"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>write_unlock</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:a94a722b0d55d428125b52b38eeb63c9a" id="r_a94a722b0d55d428125b52b38eeb63c9a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html#a94a722b0d55d428125b52b38eeb63c9a">cas_acquire</a> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">expected</a>, <a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">new_val</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a94a722b0d55d428125b52b38eeb63c9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomically compare-and-exchange the lock word with acquire ordering on success.  <br /></td></tr>
+<tr class="separator:a94a722b0d55d428125b52b38eeb63c9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a351edceb51cf451d5d471f73c3817c09" id="r_a351edceb51cf451d5d471f73c3817c09"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html#a351edceb51cf451d5d471f73c3817c09">write_unlock</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a351edceb51cf451d5d471f73c3817c09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomically clear the write lock bit with release memory ordering.  <br /></td></tr>
 <tr class="separator:a351edceb51cf451d5d471f73c3817c09"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1355063533f2735d2f3869a53d67286" id="r_ad1355063533f2735d2f3869a53d67286"><td class="memItemLeft" align="right" valign="top"><a id="ad1355063533f2735d2f3869a53d67286" name="ad1355063533f2735d2f3869a53d67286"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>write_unlock_and_obsolete</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:ad1355063533f2735d2f3869a53d67286" id="r_ad1355063533f2735d2f3869a53d67286"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html#ad1355063533f2735d2f3869a53d67286">write_unlock_and_obsolete</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:ad1355063533f2735d2f3869a53d67286"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomically clear the set write lock bit and set the obsolete bit with release memory ordering.  <br /></td></tr>
 <tr class="separator:ad1355063533f2735d2f3869a53d67286"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:ab7c41a1543f10aa0b32d77cc3968ec0c" id="r_ab7c41a1543f10aa0b32d77cc3968ec0c"><td class="memItemLeft" align="right" valign="top"><a id="ab7c41a1543f10aa0b32d77cc3968ec0c" name="ab7c41a1543f10aa0b32d77cc3968ec0c"></a>
 std::atomic&lt; std::uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>version</b></td></tr>
+<tr class="memdesc:ab7c41a1543f10aa0b32d77cc3968ec0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The raw atomic lock word. <br /></td></tr>
 <tr class="separator:ab7c41a1543f10aa0b32d77cc3968ec0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The atomic lock word and its operations. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a94a722b0d55d428125b52b38eeb63c9a" name="a94a722b0d55d428125b52b38eeb63c9a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94a722b0d55d428125b52b38eeb63c9a">&#9670;&#160;</a></span>cas_acquire()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a> unodb::optimistic_lock::atomic_version_type::cas_acquire </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td>
+          <td class="paramname"><em>expected</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td>
+          <td class="paramname"><em>new_val</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Atomically compare-and-exchange the lock word with acquire ordering on success. </p>
+<p>May not fail spuriously. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">expected</td><td>The expected current lock word value </td></tr>
+    <tr><td class="paramname">new_val</td><td>The new lock word value to set </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the exchange was successful </dd></dl>
+
+</div>
+</div>
+<a id="a351edceb51cf451d5d471f73c3817c09" name="a351edceb51cf451d5d471f73c3817c09"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a351edceb51cf451d5d471f73c3817c09">&#9670;&#160;</a></span>write_unlock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a> unodb::optimistic_lock::atomic_version_type::write_unlock </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Atomically clear the write lock bit with release memory ordering. </p>
+<p>The version number is preserved. </p><dl class="section pre"><dt>Precondition</dt><dd>The write lock bit must be set. </dd></dl>
+
+</div>
+</div>
+<a id="ad1355063533f2735d2f3869a53d67286" name="ad1355063533f2735d2f3869a53d67286"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad1355063533f2735d2f3869a53d67286">&#9670;&#160;</a></span>write_unlock_and_obsolete()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a> unodb::optimistic_lock::atomic_version_type::write_unlock_and_obsolete </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Atomically clear the set write lock bit and set the obsolete bit with release memory ordering. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>The obsolete bit must be clear </dd>
+<dd>
+The write lock bit must be set </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="optimistic__lock_8hpp_source.html">optimistic_lock.hpp</a></li>
 </ul>

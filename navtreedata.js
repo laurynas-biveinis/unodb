@@ -97,7 +97,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"micro__benchmark__concurrency_8hpp_source.html"
+"md_CONTRIBUTING.html#autotoc_md1"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

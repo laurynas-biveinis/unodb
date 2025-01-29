@@ -202,20 +202,20 @@ class key_encoder {
   //
 
   key_encoder &encode(std::int8_t v) {
-    const int8_t iONE = static_cast<int8_t>(1);
-    const uint8_t uONE = static_cast<uint8_t>(1);
-    const uint8_t u = (v >= 0)
-                          ? msb8 + static_cast<uint8_t>(v)
-                          : msb8 - static_cast<uint8_t>(-(v + iONE)) - uONE;
+    const auto iONE = static_cast<int8_t>(1);
+    const auto uONE = static_cast<uint8_t>(1);
+    const auto u = static_cast<uint8_t>(
+        (v >= 0) ? msb8 + static_cast<uint8_t>(v)
+                 : msb8 - static_cast<uint8_t>(-(v + iONE)) - uONE);
     return encode(u);
   }
 
   key_encoder &encode(std::int16_t v) {
-    const int16_t iONE = static_cast<int16_t>(1);
-    const uint16_t uONE = static_cast<uint16_t>(1);
-    const uint16_t u = (v >= 0)
-                           ? msb16 + static_cast<uint16_t>(v)
-                           : msb16 - static_cast<uint16_t>(-(v + iONE)) - uONE;
+    const auto iONE = static_cast<int16_t>(1);
+    const auto uONE = static_cast<uint16_t>(1);
+    const auto u = static_cast<uint16_t>(
+        (v >= 0) ? msb16 + static_cast<uint16_t>(v)
+                 : msb16 - static_cast<uint16_t>(-(v + iONE)) - uONE);
     return encode(u);
   }
 
@@ -299,8 +299,7 @@ class key_encoder {
   std::byte *buf{};
   size_t cap{};  // current buffer capacity
   size_t off{};  // #of bytes in the buffer having encoded data.
-
-};  // class key_encoder
+};               // class key_encoder
 
 // A utility class that can decode binary comparable keys as long as
 // those keys (except for Unicode sort keys).  To use this class, you
@@ -413,9 +412,7 @@ class key_decoder {
     off += sizeof(u);
     return *this;
   }
-
 };  // class key_decoder
-
 }  // namespace unodb
 
 #endif  // UNODB_DETAIL_ART_COMMON_HPP

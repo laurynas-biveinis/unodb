@@ -100,7 +100,7 @@ class ARTConcurrencyTest : public ::testing::Test {
   }
 
   // decode a uint64_t key.
-  static inline std::uint64_t decode(unodb::key_view akey) {
+  static std::uint64_t decode(unodb::key_view akey) {
     unodb::key_decoder dec{akey};
     std::uint64_t k;
     dec.decode(k);

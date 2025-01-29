@@ -143,7 +143,7 @@ void assert_result_eq(const Db &db, typename Db::key_type key,
 template <class Db>
 class [[nodiscard]] tree_verifier final {
  public:
-  using key_type = Db::key_type;
+  using key_type = typename Db::key_type;
 
  private:
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)

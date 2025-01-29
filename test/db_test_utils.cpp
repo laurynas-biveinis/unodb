@@ -17,9 +17,6 @@
 #include "art.hpp"
 #include "mutex_art.hpp"
 
-// TODO(thompsonbry) variable length keys -- add to mutex_art.cpp
-template class unodb::mutex_db<std::uint64_t>;
-
 namespace unodb::test {
 
 template class tree_verifier<u64_db>;

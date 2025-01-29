@@ -494,8 +494,8 @@ class [[nodiscard]] tree_verifier final {
   Db test_db{};
 
   // Note: The hash map does not support key_view keys in the map.  So
-  // switching over to the slower red/black tree for the ground truth
-  // map.
+  // we need to switch over to the slower red/black tree for the
+  // ground truth map.
   std::map<key_type, unodb::value_view, comparator> values;
   // std::unordered_map<key_type, unodb::value_view> values;
 

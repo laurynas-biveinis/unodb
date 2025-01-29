@@ -53,6 +53,8 @@
 cf_off.sh
 cf_on.sh
 cf_now.sh
+ct_off.sh
+ct_on.sh
 run-cmake.sh
 loop-test.sh
 compile1.sh

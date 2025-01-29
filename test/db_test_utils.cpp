@@ -10,12 +10,7 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
-#include <cstdint>
-
 #include "db_test_utils.hpp"
-
-#include "art.hpp"
-#include "mutex_art.hpp"
 
 namespace unodb::test {
 

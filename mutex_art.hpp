@@ -93,7 +93,7 @@ class mutex_db final {
   // as produced by unodb::key_encoder.
   //
   // @return true iff the key value pair was inserted.
-  [[nodiscard, gnu::pure]] bool insert(Key insert_key, value_view v) {
+  [[nodiscard]] bool insert(Key insert_key, value_view v) {
     const art_key_type k{insert_key};
     return insert0(k, v);
   }
@@ -104,7 +104,7 @@ class mutex_db final {
   // converted into a binary comparable key.  If Key is key_value,
   // then it is assumed to already be a binary comparable key, e.g.,
   // as produced by unodb::key_encoder.
-  [[nodiscard, gnu::pure]] bool remove(Key search_key) {
+  [[nodiscard]] bool remove(Key search_key) {
     const auto k = art_key_type{search_key};
     return remove0(k);
   }

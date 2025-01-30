@@ -338,9 +338,14 @@ class [[nodiscard]] optimistic_lock final {
     /// The version number is preserved.
     /// \pre The write lock bit must be set.
     void write_unlock() noexcept {
-      UNODB_DETAIL_ASSERT(load_relaxed().is_write_locked());
+      // This thread has written the previous lock word value, and no other
+      // thread may write it before the unlock, thus we can read it without
+      // ordering.
+      const auto old_lock_word = load_relaxed();
+      UNODB_DETAIL_ASSERT(old_lock_word.is_write_locked());
 
-      version.fetch_add(2, std::memory_order_release);
+      const auto new_lock_word = old_lock_word.get() + 2;
+      version.store(new_lock_word, std::memory_order_release);
     }
 
     /// Atomically clear the set write lock bit and set the obsolete bit with

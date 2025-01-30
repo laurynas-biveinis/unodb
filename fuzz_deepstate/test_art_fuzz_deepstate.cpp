@@ -34,7 +34,7 @@ using dynamic_value = std::vector<std::byte>;
 
 using values_type = std::vector<dynamic_value>;
 
-using oracle_type = std::unordered_map<unodb::key, unodb::value_view>;
+using oracle_type = std::unordered_map<std::uint64_t, unodb::value_view>;
 
 [[nodiscard]] auto make_random_value(dynamic_value::size_type length) {
   dynamic_value result{length};
@@ -66,8 +66,8 @@ using oracle_type = std::unordered_map<unodb::key, unodb::value_view>;
   return unodb::value_view{existing_value};
 }
 
-[[nodiscard]] unodb::key get_key(unodb::key max_key_value,
-                                 const std::vector<unodb::key> &keys) {
+[[nodiscard]] std::uint64_t get_key(std::uint64_t max_key_value,
+                                    const std::vector<std::uint64_t> &keys) {
   const auto use_existing_key = !keys.empty() && DeepState_Bool();
   if (use_existing_key) {
     ASSERT(!keys.empty());
@@ -108,8 +108,8 @@ void assert_unchanged_tree_after_failed_op(
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-void op_with_oom_test(oracle_type &oracle, std::vector<unodb::key> &keys,
-                      unodb::db &test_db, unodb::key key,
+void op_with_oom_test(oracle_type &oracle, std::vector<std::uint64_t> &keys,
+                      unodb::db &test_db, std::uint64_t key,
                       std::optional<unodb::value_view> value) {
   const auto do_insert = value.has_value();
 
@@ -201,9 +201,9 @@ UNODB_START_DEEPSTATE_TESTS()
 TEST(ART, DeepStateFuzz) {
   const auto limit_max_key = DeepState_Bool();
   const auto max_key_value =
-      limit_max_key
-          ? DeepState_UInt64InRange(0, std::numeric_limits<unodb::key>::max())
-          : std::numeric_limits<unodb::key>::max();
+      limit_max_key ? DeepState_UInt64InRange(
+                          0, std::numeric_limits<std::uint64_t>::max())
+                    : std::numeric_limits<std::uint64_t>::max();
   if (limit_max_key)
     LOG(TRACE) << "Limiting maximum key value to " << max_key_value;
   else
@@ -222,7 +222,7 @@ TEST(ART, DeepStateFuzz) {
   unodb::db test_db;
   ASSERT(test_db.empty());
 
-  std::vector<unodb::key> keys;
+  std::vector<std::uint64_t> keys;
   values_type values;
   oracle_type oracle;
 

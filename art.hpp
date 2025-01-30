@@ -157,7 +157,7 @@ class db final {
   // as produced by unodb::key_encoder.
   //
   // @return true iff the key value pair was inserted.
-  [[nodiscard, gnu::pure]] bool insert(Key insert_key, value_view v) {
+  [[nodiscard]] bool insert(Key insert_key, value_view v) {
     const art_key_type k{insert_key};
     return insert0(k, v);
   }
@@ -171,7 +171,7 @@ class db final {
   //
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
-  [[nodiscard, gnu::pure]] bool remove(Key search_key) {
+  [[nodiscard]] bool remove(Key search_key) {
     art_key_type k{search_key};  // fast path conversion.
     return remove0(k);
   }

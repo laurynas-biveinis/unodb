@@ -25,20 +25,18 @@
 #include "gtest_utils.hpp"
 #include "test_heap.hpp"
 
-// The OOM tests are dependent on the number of heap allocations in
-// the test, that's brittle and hardcoded. Suppose some op takes 5
-// heap allocations. The tests is wrtitten in that it knows that the
-// test should fail on OOMs injected on the 1st-5th allocation and
-// pass on the 6th one. The allocations done by libstdc++ are
-// included.
+// The OOM tests are dependent on the number of heap allocations in the test,
+// that's brittle and hardcoded. Suppose some op takes 5 heap allocations. The
+// tests is written in that it knows that the test should fail on OOMs injected
+// on the 1st-5th allocation and pass on the 6th one. The allocations done by
+// libstdc++ are included.
 //
-// Changing the data structure in the main code or the test suite
-// might perturb this, causing tests to fail.  If this happens you
-// need to decide whether the change in behavior was for a valid
-// reason or not. If tests fail in that "expected exception was not
-// thrown", try incrementing the allocation counter in the test. If
-// they fail in that "exception was thrown but we weren't expecting
-// it", try decrementing it.
+// Changing the data structure in the main code or the test suite might perturb
+// this, causing tests to fail. If this happens you need to decide whether the
+// change in behavior was for a valid reason or not. If tests fail in that
+// "expected exception was not thrown", try incrementing the allocation counter
+// in the test. If they fail in that "exception was thrown but we weren't
+// expecting it", try decrementing it.
 //
 // TODO(laurynas) OOM tests for the scan API.
 namespace {
@@ -123,11 +121,7 @@ TYPED_TEST(ARTOOMTest, CtorDoesNotAllocate) {
   unodb::test::allocation_failure_injector::reset();
 }
 
-// FIXME(laurynas) - OOM tests are disabled. gcc and clang are not
-// agreeing about when the OOM condition triggers.  For the first
-// test, I've reduced the threshold to as low as the first round and I
-// am still seeing a bad::alloc thrown out.
-TYPED_TEST(ARTOOMTest, DISABLED_SingleNodeTreeEmptyValue) {
+TYPED_TEST(ARTOOMTest, SingleNodeTreeEmptyValue) {
   oom_insert_test<TypeParam>(
       2,
       [](unodb::test::tree_verifier<TypeParam>&
@@ -153,7 +147,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_SingleNodeTreeEmptyValue) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_SingleNodeTreeNonemptyValue) {
+TYPED_TEST(ARTOOMTest, SingleNodeTreeNonemptyValue) {
   oom_insert_test<TypeParam>(
       2,
       [](unodb::test::tree_verifier<TypeParam>&
@@ -179,7 +173,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_SingleNodeTreeNonemptyValue) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_ExpandLeafToNode4) {
+TYPED_TEST(ARTOOMTest, ExpandLeafToNode4) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -202,7 +196,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_ExpandLeafToNode4) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_TwoNode4) {
+TYPED_TEST(ARTOOMTest, TwoNode4) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -229,7 +223,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_TwoNode4) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_DbInsertNodeRecursion) {
+TYPED_TEST(ARTOOMTest, DbInsertNodeRecursion) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -258,7 +252,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_DbInsertNodeRecursion) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_Node16) {
+TYPED_TEST(ARTOOMTest, Node16) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -281,7 +275,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_Node16) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_Node16KeyPrefixSplit) {
+TYPED_TEST(ARTOOMTest, Node16KeyPrefixSplit) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -307,7 +301,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_Node16KeyPrefixSplit) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_Node48) {
+TYPED_TEST(ARTOOMTest, Node48) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -330,7 +324,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_Node48) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_Node48KeyPrefixSplit) {
+TYPED_TEST(ARTOOMTest, Node48KeyPrefixSplit) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -356,7 +350,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_Node48KeyPrefixSplit) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_Node256) {
+TYPED_TEST(ARTOOMTest, Node256) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -379,7 +373,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_Node256) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_Node256KeyPrefixSplit) {
+TYPED_TEST(ARTOOMTest, Node256KeyPrefixSplit) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -405,7 +399,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_Node256KeyPrefixSplit) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_Node16ShrinkToNode4) {
+TYPED_TEST(ARTOOMTest, Node16ShrinkToNode4) {
   oom_remove_test<TypeParam>(
       2,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -428,7 +422,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_Node16ShrinkToNode4) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_Node48ShrinkToNode16) {
+TYPED_TEST(ARTOOMTest, Node48ShrinkToNode16) {
   oom_remove_test<TypeParam>(
       2,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -451,7 +445,7 @@ TYPED_TEST(ARTOOMTest, DISABLED_Node48ShrinkToNode16) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DISABLED_Node256ShrinkToNode48) {
+TYPED_TEST(ARTOOMTest, Node256ShrinkToNode48) {
   oom_remove_test<TypeParam>(
       2,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {

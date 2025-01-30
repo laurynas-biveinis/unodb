@@ -215,7 +215,7 @@ class olc_db final {
   // semantics. This would call the caller's lambda once the method
   // was positioned on the leaf.  The caller could then update the
   // value or perhaps delete the entry under the key.
-  [[nodiscard, gnu::pure]] bool insert(Key insert_key, unodb::value_view v) {
+  [[nodiscard]] bool insert(Key insert_key, unodb::value_view v) {
     const auto k = art_key_type{insert_key};
     return insert0(k, v);
   }
@@ -229,7 +229,7 @@ class olc_db final {
   //
   // @return true if the delete was successful (i.e. the key was found
   // in the tree and the associated index entry was removed).
-  [[nodiscard, gnu::pure]] bool remove(Key search_key) {
+  [[nodiscard]] bool remove(Key search_key) {
     const auto k = art_key_type{search_key};  // fast path conversion.
     return remove0(k);
   }

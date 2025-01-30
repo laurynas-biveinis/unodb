@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['version_0',['version',['../classunodb_1_1optimistic__lock_1_1version__type.html#af75f06a4506471589b23b87348919a2f',1,'unodb::optimistic_lock::version_type::version'],['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#ab7c41a1543f10aa0b32d77cc3968ec0c',1,'unodb::optimistic_lock::atomic_version_type::version']]]
+  ['obsolete_5flock_5fword_0',['obsolete_lock_word',['../classunodb_1_1optimistic__lock_1_1version__type.html#abee2b619b121ae96f36699bfc0c5f704',1,'unodb::optimistic_lock::version_type']]]
 ];

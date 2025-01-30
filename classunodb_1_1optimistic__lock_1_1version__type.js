@@ -8,5 +8,6 @@ var classunodb_1_1optimistic__lock_1_1version__type =
     [ "is_write_locked", "classunodb_1_1optimistic__lock_1_1version__type.html#a9dbb46cd69d5469711b3c4615d4c0a8f", null ],
     [ "operator==", "classunodb_1_1optimistic__lock_1_1version__type.html#ab244755dfb33f13321ba1d18f37e8b74", null ],
     [ "set_locked_bit", "classunodb_1_1optimistic__lock_1_1version__type.html#a51199c18f1bfce733bddc0f01c5c4369", null ],
+    [ "obsolete_lock_word", "classunodb_1_1optimistic__lock_1_1version__type.html#abee2b619b121ae96f36699bfc0c5f704", null ],
     [ "version", "classunodb_1_1optimistic__lock_1_1version__type.html#af75f06a4506471589b23b87348919a2f", null ]
 ];

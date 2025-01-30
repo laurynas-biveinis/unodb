@@ -98,6 +98,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1optimistic__lock_1_1vers
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="classunodb_1_1optimistic__lock_1_1version__type-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::optimistic_lock::version_type Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
@@ -125,7 +126,7 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ac5213291bc880b42167098855ece7dbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79bbbea7fe019998dc7c18e8f68d7ec8" id="r_a79bbbea7fe019998dc7c18e8f68d7ec8"><td class="memItemLeft" align="right" valign="top"><a id="a79bbbea7fe019998dc7c18e8f68d7ec8" name="a79bbbea7fe019998dc7c18e8f68d7ec8"></a>
 <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>is_obsolete</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="memdesc:a79bbbea7fe019998dc7c18e8f68d7ec8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return whether the lock word has the obsolete bit set. <br /></td></tr>
+<tr class="memdesc:a79bbbea7fe019998dc7c18e8f68d7ec8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return whether the lock word is in the obsolete state. <br /></td></tr>
 <tr class="separator:a79bbbea7fe019998dc7c18e8f68d7ec8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51199c18f1bfce733bddc0f01c5c4369" id="r_a51199c18f1bfce733bddc0f01c5c4369"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html#a51199c18f1bfce733bddc0f01c5c4369">set_locked_bit</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
 <tr class="memdesc:a51199c18f1bfce733bddc0f01c5c4369"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a lock word with the current version and lock bit set.  <br /></td></tr>
@@ -142,6 +143,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a3d2da481d5515ecec566805a322d57ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output the lock word to <em>os</em> output stream.  <br /></td></tr>
 <tr class="separator:a3d2da481d5515ecec566805a322d57ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:abee2b619b121ae96f36699bfc0c5f704" id="r_abee2b619b121ae96f36699bfc0c5f704"><td class="memItemLeft" align="right" valign="top"><a id="abee2b619b121ae96f36699bfc0c5f704" name="abee2b619b121ae96f36699bfc0c5f704"></a>
+<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">static</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>obsolete_lock_word</b> = 1<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">U</a></td></tr>
+<tr class="memdesc:abee2b619b121ae96f36699bfc0c5f704"><td class="mdescLeft">&#160;</td><td class="mdescRight">A lock word value constant in the obsolete state. <br /></td></tr>
+<tr class="separator:abee2b619b121ae96f36699bfc0c5f704"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:af75f06a4506471589b23b87348919a2f" id="r_af75f06a4506471589b23b87348919a2f"><td class="memItemLeft" align="right" valign="top"><a id="af75f06a4506471589b23b87348919a2f" name="af75f06a4506471589b23b87348919a2f"></a>
@@ -152,7 +160,7 @@ Private Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Non-atomic lock word representation. </p>
 <p>Used for copying and manipulating snapshots of the atomic lock word. The lock word consists of:</p><ul>
-<li>Bit 0: obsolete state</li>
+<li>Bit 0: obsolete state. If set, all other bits are zero.</li>
 <li>Bit 1: write lock</li>
 <li>Bits 2-63: version counter </li>
 </ul>

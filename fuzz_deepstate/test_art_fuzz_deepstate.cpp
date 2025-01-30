@@ -78,7 +78,7 @@ using oracle_type = std::unordered_map<std::uint64_t, unodb::value_view>;
   return DeepState_UInt64InRange(0, max_key_value);
 }
 
-void dump_tree(const unodb::db &tree) {
+void dump_tree(const unodb::db<std ::uint64_t> &tree) {
   // Dump the tree to a string. Do not attempt to check the dump format, only
   // that dumping does not crash
   std::stringstream dump_sink;
@@ -88,7 +88,7 @@ void dump_tree(const unodb::db &tree) {
 #ifdef UNODB_DETAIL_WITH_STATS
 
 void assert_unchanged_tree_after_failed_op(
-    const unodb::db &test_db, std::size_t mem_use_before,
+    const unodb::db<std ::uint64_t> &test_db, std::size_t mem_use_before,
     const unodb::node_type_counter_array &node_counts_before,
     const unodb::inode_type_counter_array &growing_inode_counts_before,
     const unodb::inode_type_counter_array &shrinking_inode_counts_before,
@@ -109,7 +109,7 @@ void assert_unchanged_tree_after_failed_op(
 #endif  // UNODB_DETAIL_WITH_STATS
 
 void op_with_oom_test(oracle_type &oracle, std::vector<std::uint64_t> &keys,
-                      unodb::db &test_db, std::uint64_t key,
+                      unodb::db<std ::uint64_t> &test_db, std::uint64_t key,
                       std::optional<unodb::value_view> value) {
   const auto do_insert = value.has_value();
 
@@ -219,7 +219,7 @@ TEST(ART, DeepStateFuzz) {
   else
     LOG(TRACE) << "Not limiting value length (" << max_value_length << ")";
 
-  unodb::db test_db;
+  unodb::db<std ::uint64_t> test_db;
   ASSERT(test_db.empty());
 
   std::vector<std::uint64_t> keys;

@@ -524,7 +524,7 @@ class key_buffer {
   std::byte *buf{};
   size_t cap{};  // current buffer capacity
   size_t off{};  // #of bytes in the buffer having valid data.
-};  // class key_buffer
+};               // class key_buffer
 
 }  // namespace unodb::detail
 

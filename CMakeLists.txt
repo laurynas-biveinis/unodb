@@ -536,8 +536,6 @@ set(CPPCHECK_ARGS
   # False positives on structured bindings with 2.5
   "--suppress=unassignedVariable"
   "--suppress=unusedVariable"
-  # TODO(laurynas): figure out and fix
-  "--suppress=throwInNoexceptFunction"
   # Informational message that fails the build. Remove once cppcheck 2.11 is the
   # minimum
   "--suppress=normalCheckLevelMaxBranches")

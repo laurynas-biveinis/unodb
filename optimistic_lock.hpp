@@ -323,8 +323,8 @@ class [[nodiscard]] optimistic_lock final {
 
     /// Atomically compare-and-exchange the lock word with acquire ordering on
     /// success. May not fail spuriously.
-    /// \param expected The expected current lock word value
-    /// \param new_val The new lock word value to set
+    /// \param[in] expected The expected current lock word value
+    /// \param[in] new_val The new lock word value to set
     /// \return true if the exchange was successful
     [[nodiscard]] bool cas_acquire(version_type expected,
                                    version_type new_val) noexcept {
@@ -376,27 +376,51 @@ class [[nodiscard]] optimistic_lock final {
  public:
   class write_guard;
 
-  // A read_critical_section (RCS) encapsulates a lock on some node
-  // and the version information that was read for that lock.  There
-  // are three different states for an RCS.
-  //
-  // (1) The backing node was obsolete when the RCS was returned by
-  // optimistic_lock::try_read_lock().  This is currently signaled by
-  // [lock==nullptr] internally.
-  //
-  // (2) The RCS was acquired and is valid.
-  //
-  // (3) The RCS has been unlocked and is no longer valid.  Note that
-  // in a debug build this also sets [lock=nullptr].
+  /// A read critical section (RCS) that stores the lock version at the read
+  /// lock time and checks it against the current version for consistent reads.
+  ///
+  /// There are three different states for an RCS:
+  /// 1. The lock was in obsolete state when the RCS was returned by
+  ///    optimistic_lock::try_read_lock(). This must always be checked for after
+  ///    the RCS has been created with a read_critical_section::must_restart()
+  ///    call.
+  /// 2. The RCS was acquired and no newer write-locking has been detected for
+  ///    the underlying lock.
+  /// 3. The RCS was unlocked or the underlying lock has been write-locked since
+  ///    the RCS was created, and this has been detected by a try_read_unlock()
+  ///    or check() call. The RCS is no longer valid.
+  ///
+  /// Internally the obsolete state (and in the debug builds, the unlocked /
+  /// underlying lock write locked state too) is represented by
+  /// read_critical_section::lock == nullptr.
   class [[nodiscard]] read_critical_section final {
    public:
-    // construct an RCS for an obsolete node.
+    /// Default-construct an invalid RCS. The resulting RCS may only be
+    /// destructed or another RCS may be move-assigned to it. Typically used as
+    /// a destination for move assignment.
     read_critical_section() noexcept = default;
 
+    /// Construct an RCS for \a lock_ read-locked at specific \a version_. Users
+    /// should not call this directly. Use optimistic_lock::try_read_lock() or
+    /// optimistic_lock::rehydrate_read_lock() instead.
+    // TODO(laurynas): hide this constructor from users with C++ access rules.
     read_critical_section(optimistic_lock &lock_,
                           version_type version_) noexcept
         : lock{&lock_}, version{version_} {}
 
+    /// Destruct an RCS.
+    ~read_critical_section() noexcept {
+      // TODO(laurynas): figure out why not all the paths have
+      // called try_read_unlock first, if possible assert that lock is nullptr.
+
+      // If the destructor ever starts doing something in the release build,
+      // reset moved-from lock fields in the move and write_guard constructors.
+#ifndef NDEBUG
+      if (lock != nullptr) std::ignore = lock->try_read_unlock(version);
+#endif
+    }
+
+    /// Move \a other RCS into this one.
     read_critical_section &operator=(read_critical_section &&other) noexcept {
       lock = other.lock;
       // The current implementation does not need lock == nullptr in the
@@ -409,17 +433,64 @@ class [[nodiscard]] optimistic_lock final {
       return *this;
     }
 
-    // Unlock iff it is not yet unlocked.  The read_critical_section
-    // is invalidated by this method and must not be used again by the
-    // caller.
-    //
-    // Note: In a DEBUG build, this clears the [lock] pointer, causing
-    // subsequent use of the RCS to result in a fault, and decrements
-    // the read_lock_count.
-    //
-    // @return true iff the [version] on the optimistic_lock is still
-    // the version that was used to construct this
-    // read_critical_section.
+    /// Check whether this RCS was not constructed on an obsolete lock, must
+    /// be called first thing after creating the RCS. In the case of failed
+    /// check this RCS may only be destructed or another RCS may be
+    /// move-assigned to it.
+    ///
+    /// \retval false if the lock was obsolete at the time that the RCS was
+    /// obtained.
+    [[nodiscard]] bool must_restart() const noexcept {
+      return UNODB_DETAIL_UNLIKELY(lock == nullptr);
+    }
+
+    /// Check whether this RCS is still valid. If the RCS is found to be
+    /// invalid, it may only be destructed or another RCS may be move-assigned
+    /// to it.
+    ///
+    /// \retval true The underlying lock is at the same version it was at the
+    /// RCS creation time, all read protected data is consistent.
+    /// \retval false The underlying lock has advanced since the RCS creation
+    /// or last check time, indicating a write lock, any data read since then
+    /// must be discarded.
+    ///
+    /// \note It is illegal to call this method first thing after creating an
+    /// RCS. Rather, read_critical_section::must_restart() must be called to
+    /// determine whether the lock was in the obsolete state at the RCS
+    /// construction time.
+    ///
+    /// The return value is determined by comparing
+    /// read_critical_section::version with the current lock version. If the
+    /// versions don't match and the RCS is no longer valid, a debug build will
+    /// reset read_critical_section::lock pointer to `nullptr`, causing
+    /// subsequent use attempts of the RCS to fault.
+    [[nodiscard]] bool check() const noexcept {
+      const auto result = lock->check(version);
+#ifndef NDEBUG
+      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;
+#endif
+      return UNODB_DETAIL_LIKELY(result);
+    }
+
+    /// Check one last time whether this RCS is still valid and unlock it.
+    /// The RCS is no longer valid after this call and may only be destructed or
+    /// another RCS may be move-assigned to it.
+    ///
+    /// \retval true The underlying lock is at the same version it was at the
+    /// RCS creation time, all read protected data is consistent.
+    /// \retval false The underlying lock has advanced since the RCS creation
+    /// or last check time, indicating a write lock, any data read since then
+    /// must be discarded.
+    ///
+    /// \note It is illegal to call this method first thing after creating an
+    /// RCS. Rather, read_critical_section::must_restart() must be called to
+    /// determine whether the lock was in the obsolete state at the RCS
+    /// construction time.
+    ///
+    /// The return value is determined by comparing
+    /// read_critical_section::version with the current lock version. In a debug
+    /// build, read_critical_section::lock pointer is reset to `nullptr`,
+    /// causing subsequent use attempts of the RCS to fault.
     [[nodiscard, gnu::flatten]] UNODB_DETAIL_FORCE_INLINE bool try_read_unlock()
         const noexcept {
       const auto result = lock->try_read_unlock(version);
@@ -429,54 +500,7 @@ class [[nodiscard]] optimistic_lock final {
       return UNODB_DETAIL_LIKELY(result);
     }
 
-    // Return true iff the version on the optimistic lock is still the
-    // same version that was used to construct this
-    // read_critical_section (RCS).
-    //
-    // Note: By contract, it is not legal to call this method if the
-    // RCS was marked obsolete when it was constructed.  You MUST
-    // detect this situation by calling must_restart() immediately on
-    // obtaining an RCS from optimistic_lock::try_read_lock(). A
-    // failure to do this can lead to the dereference of a nullptr for
-    // the [lock] when you call check().
-    //
-    // Note: By contract, it is not legal to call this method if the
-    // check has already failed.  To help catch such situations, in a
-    // DEBUG build, this will clear the [lock] pointer if the check
-    // fails.  A subsequent check() call will then dereference a
-    // nullptr and fault the process.
-    //
-    // @return true if the version is unchanged and false if the
-    // caller MUST restart because the version has been changed.
-    [[nodiscard]] bool check() const noexcept {
-      const auto result = lock->check(version);
-#ifndef NDEBUG
-      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;
-#endif
-      return UNODB_DETAIL_LIKELY(result);
-    }
-
-    // The optimistic_lock::try_read_lock() method MAY return a
-    // read_critical_section (RCS) for an obsolete node.  Upon
-    // obtaining the RCS, the caller MUST call this method to
-    // determine whether the node was obsolete and MUST restart if the
-    // method returns false.
-    //
-    // @return false if the node was obsolete at the time that the RCS
-    // was obtained.
-    [[nodiscard]] bool must_restart() const noexcept {
-      return UNODB_DETAIL_UNLIKELY(lock == nullptr);
-    }
-
-    // If the destructor ever starts doing something in the release build, reset
-    // moved-from lock fields in the move and write_guard constructors.
-    ~read_critical_section() noexcept {
-#ifndef NDEBUG
-      if (lock != nullptr) std::ignore = lock->try_read_unlock(version);
-#endif
-    }
-
-    // The version tag backing the read_critical_section.
+    /// Return the lock version when this RCS was created.
     [[nodiscard]] constexpr version_tag_type get() const noexcept {
       return version.get();
     }
@@ -486,11 +510,14 @@ class [[nodiscard]] optimistic_lock final {
     read_critical_section &operator=(const read_critical_section &) = delete;
 
    private:
+    /// The lock backing this RCS.
 #ifndef NDEBUG
     mutable
 #endif
         optimistic_lock *lock{nullptr};
 
+    /// The lock version at the RCS creation time. Immutable throughout
+    /// the RCS lifetime.
     version_type version{0};
 
     friend class write_guard;

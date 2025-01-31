@@ -104,26 +104,40 @@ $(document).ready(function(){initNavTree('classunodb_1_1optimistic__lock_1_1read
   <div class="headertitle"><div class="title">unodb::optimistic_lock::read_critical_section Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>A read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads.  
+ <a href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="optimistic__lock_8hpp_source.html">optimistic_lock.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a14642a96d32e2858bbc0e2f19463b44a" id="r_a14642a96d32e2858bbc0e2f19463b44a"><td class="memItemLeft" align="right" valign="top"><a id="a14642a96d32e2858bbc0e2f19463b44a" name="a14642a96d32e2858bbc0e2f19463b44a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>read_critical_section</b> (<a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a> &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">lock_</a>, <a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">version_</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:a59505c615c141f53ffcd287be14e6c7f" id="r_a59505c615c141f53ffcd287be14e6c7f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a59505c615c141f53ffcd287be14e6c7f">read_critical_section</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a>=<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">default</a></td></tr>
+<tr class="memdesc:a59505c615c141f53ffcd287be14e6c7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default-construct an invalid RCS.  <br /></td></tr>
+<tr class="separator:a59505c615c141f53ffcd287be14e6c7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14642a96d32e2858bbc0e2f19463b44a" id="r_a14642a96d32e2858bbc0e2f19463b44a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a14642a96d32e2858bbc0e2f19463b44a">read_critical_section</a> (<a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a> &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">lock_</a>, <a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">version_</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a14642a96d32e2858bbc0e2f19463b44a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an RCS for <em>lock_</em> read-locked at specific <em>version_</em>.  <br /></td></tr>
 <tr class="separator:a14642a96d32e2858bbc0e2f19463b44a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b2ae4c254f7479f492b16dec3a75c07" id="r_a7b2ae4c254f7479f492b16dec3a75c07"><td class="memItemLeft" align="right" valign="top"><a id="a7b2ae4c254f7479f492b16dec3a75c07" name="a7b2ae4c254f7479f492b16dec3a75c07"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>~read_critical_section</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a7b2ae4c254f7479f492b16dec3a75c07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destruct an RCS. <br /></td></tr>
+<tr class="separator:a7b2ae4c254f7479f492b16dec3a75c07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6824edf72423338a0da364766d9b952e" id="r_a6824edf72423338a0da364766d9b952e"><td class="memItemLeft" align="right" valign="top"><a id="a6824edf72423338a0da364766d9b952e" name="a6824edf72423338a0da364766d9b952e"></a>
 <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> &amp;&amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">other</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a6824edf72423338a0da364766d9b952e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move <em>other</em> RCS into this one. <br /></td></tr>
 <tr class="separator:a6824edf72423338a0da364766d9b952e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a440405f82d354281cf33f37de0433b95" id="r_a440405f82d354281cf33f37de0433b95"><td class="memItemLeft" align="right" valign="top"><a id="a440405f82d354281cf33f37de0433b95" name="a440405f82d354281cf33f37de0433b95"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>try_read_unlock</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a440405f82d354281cf33f37de0433b95"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad027fbe6045c80c4869e6e6d05af408e" id="r_ad027fbe6045c80c4869e6e6d05af408e"><td class="memItemLeft" align="right" valign="top"><a id="ad027fbe6045c80c4869e6e6d05af408e" name="ad027fbe6045c80c4869e6e6d05af408e"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>check</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:ad027fbe6045c80c4869e6e6d05af408e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3a83aa11980b8c28b3fdaafe7877160" id="r_ab3a83aa11980b8c28b3fdaafe7877160"><td class="memItemLeft" align="right" valign="top"><a id="ab3a83aa11980b8c28b3fdaafe7877160" name="ab3a83aa11980b8c28b3fdaafe7877160"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>must_restart</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:ab3a83aa11980b8c28b3fdaafe7877160" id="r_ab3a83aa11980b8c28b3fdaafe7877160"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160">must_restart</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:ab3a83aa11980b8c28b3fdaafe7877160"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether this RCS was not constructed on an obsolete lock, must be called first thing after creating the RCS.  <br /></td></tr>
 <tr class="separator:ab3a83aa11980b8c28b3fdaafe7877160"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad027fbe6045c80c4869e6e6d05af408e" id="r_ad027fbe6045c80c4869e6e6d05af408e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e">check</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:ad027fbe6045c80c4869e6e6d05af408e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether this RCS is still valid.  <br /></td></tr>
+<tr class="separator:ad027fbe6045c80c4869e6e6d05af408e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a440405f82d354281cf33f37de0433b95" id="r_a440405f82d354281cf33f37de0433b95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95">try_read_unlock</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a440405f82d354281cf33f37de0433b95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check one last time whether this RCS is still valid and unlock it.  <br /></td></tr>
+<tr class="separator:a440405f82d354281cf33f37de0433b95"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa77cda1502eb4bf8ccb4f82de424010f" id="r_aa77cda1502eb4bf8ccb4f82de424010f"><td class="memItemLeft" align="right" valign="top"><a id="aa77cda1502eb4bf8ccb4f82de424010f" name="aa77cda1502eb4bf8ccb4f82de424010f"></a>
 <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:aa77cda1502eb4bf8ccb4f82de424010f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the lock version when this RCS was created. <br /></td></tr>
 <tr class="separator:aa77cda1502eb4bf8ccb4f82de424010f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2cba112466f37f2dde25d9f75c9d63dd" id="r_a2cba112466f37f2dde25d9f75c9d63dd"><td class="memItemLeft" align="right" valign="top"><a id="a2cba112466f37f2dde25d9f75c9d63dd" name="a2cba112466f37f2dde25d9f75c9d63dd"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>read_critical_section</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> &amp;)=<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">delete</a></td></tr>
@@ -139,9 +153,10 @@ Public Member Functions</h2></td></tr>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a49c205ed1230b579a8692119a3c67171" id="r_a49c205ed1230b579a8692119a3c67171"><td class="memItemLeft" align="right" valign="top"><a id="a49c205ed1230b579a8692119a3c67171" name="a49c205ed1230b579a8692119a3c67171"></a>
 <a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>lock</b> {<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">nullptr</a>}</td></tr>
+<tr class="memdesc:a49c205ed1230b579a8692119a3c67171"><td class="mdescLeft">&#160;</td><td class="mdescRight">The lock backing this RCS. <br /></td></tr>
 <tr class="separator:a49c205ed1230b579a8692119a3c67171"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66e3bcf979e6d6598cc683969a31d72e" id="r_a66e3bcf979e6d6598cc683969a31d72e"><td class="memItemLeft" align="right" valign="top"><a id="a66e3bcf979e6d6598cc683969a31d72e" name="a66e3bcf979e6d6598cc683969a31d72e"></a>
-<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>version</b> {0}</td></tr>
+<tr class="memitem:a66e3bcf979e6d6598cc683969a31d72e" id="r_a66e3bcf979e6d6598cc683969a31d72e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a66e3bcf979e6d6598cc683969a31d72e">version</a> {0}</td></tr>
+<tr class="memdesc:a66e3bcf979e6d6598cc683969a31d72e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The lock version at the RCS creation time.  <br /></td></tr>
 <tr class="separator:a66e3bcf979e6d6598cc683969a31d72e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
@@ -150,6 +165,217 @@ Friends</h2></td></tr>
 <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">class</a>&#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b></td></tr>
 <tr class="separator:a7f57a6123403295cd6814185cae5b76c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>A read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads. </p>
+<p>There are three different states for an RCS:</p><ol type="1">
+<li>The lock was in obsolete state when the RCS was returned by optimistic_lock::try_read_lock(). This must always be checked for after the RCS has been created with a <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart()</a> call.</li>
+<li>The RCS was acquired and no newer write-locking has been detected for the underlying lock.</li>
+<li>The RCS was unlocked or the underlying lock has been write-locked since the RCS was created, and this has been detected by a <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">try_read_unlock()</a> or <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e" title="Check whether this RCS is still valid.">check()</a> call. The RCS is no longer valid.</li>
+</ol>
+<p>Internally the obsolete state (and in the debug builds, the unlocked / underlying lock write locked state too) is represented by <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171" title="The lock backing this RCS.">read_critical_section::lock</a> == nullptr. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a59505c615c141f53ffcd287be14e6c7f" name="a59505c615c141f53ffcd287be14e6c7f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59505c615c141f53ffcd287be14e6c7f">&#9670;&#160;</a></span>read_critical_section() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unodb::optimistic_lock::read_critical_section::read_critical_section </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">default</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Default-construct an invalid RCS. </p>
+<p>The resulting RCS may only be destructed or another RCS may be move-assigned to it. Typically used as a destination for move assignment. </p>
+
+</div>
+</div>
+<a id="a14642a96d32e2858bbc0e2f19463b44a" name="a14642a96d32e2858bbc0e2f19463b44a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a14642a96d32e2858bbc0e2f19463b44a">&#9670;&#160;</a></span>read_critical_section() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unodb::optimistic_lock::read_critical_section::read_critical_section </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a> &amp;&#160;</td>
+          <td class="paramname"><em>lock_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td>
+          <td class="paramname"><em>version_</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct an RCS for <em>lock_</em> read-locked at specific <em>version_</em>. </p>
+<p>Users should not call this directly. Use optimistic_lock::try_read_lock() or optimistic_lock::rehydrate_read_lock() instead. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="ad027fbe6045c80c4869e6e6d05af408e" name="ad027fbe6045c80c4869e6e6d05af408e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad027fbe6045c80c4869e6e6d05af408e">&#9670;&#160;</a></span>check()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a> unodb::optimistic_lock::read_critical_section::check </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check whether this RCS is still valid. </p>
+<p>If the RCS is found to be invalid, it may only be destructed or another RCS may be move-assigned to it.</p>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">true</td><td>The underlying lock is at the same version it was at the RCS creation time, all read protected data is consistent. </td></tr>
+    <tr><td class="paramname">false</td><td>The underlying lock has advanced since the RCS creation or last check time, indicating a write lock, any data read since then must be discarded.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>It is illegal to call this method first thing after creating an RCS. Rather, <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart()</a> must be called to determine whether the lock was in the obsolete state at the RCS construction time.</dd></dl>
+<p>The return value is determined by comparing <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a66e3bcf979e6d6598cc683969a31d72e" title="The lock version at the RCS creation time.">read_critical_section::version</a> with the current lock version. If the versions don't match and the RCS is no longer valid, a debug build will reset <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171" title="The lock backing this RCS.">read_critical_section::lock</a> pointer to <code>nullptr</code>, causing subsequent use attempts of the RCS to fault. </p>
+
+</div>
+</div>
+<a id="ab3a83aa11980b8c28b3fdaafe7877160" name="ab3a83aa11980b8c28b3fdaafe7877160"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3a83aa11980b8c28b3fdaafe7877160">&#9670;&#160;</a></span>must_restart()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a> unodb::optimistic_lock::read_critical_section::must_restart </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check whether this RCS was not constructed on an obsolete lock, must be called first thing after creating the RCS. </p>
+<p>In the case of failed check this RCS may only be destructed or another RCS may be move-assigned to it.</p>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">false</td><td>if the lock was obsolete at the time that the RCS was obtained. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a440405f82d354281cf33f37de0433b95" name="a440405f82d354281cf33f37de0433b95"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a440405f82d354281cf33f37de0433b95">&#9670;&#160;</a></span>try_read_unlock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a> unodb::optimistic_lock::read_critical_section::try_read_unlock </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check one last time whether this RCS is still valid and unlock it. </p>
+<p>The RCS is no longer valid after this call and may only be destructed or another RCS may be move-assigned to it.</p>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">true</td><td>The underlying lock is at the same version it was at the RCS creation time, all read protected data is consistent. </td></tr>
+    <tr><td class="paramname">false</td><td>The underlying lock has advanced since the RCS creation or last check time, indicating a write lock, any data read since then must be discarded.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>It is illegal to call this method first thing after creating an RCS. Rather, <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart()</a> must be called to determine whether the lock was in the obsolete state at the RCS construction time.</dd></dl>
+<p>The return value is determined by comparing <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a66e3bcf979e6d6598cc683969a31d72e" title="The lock version at the RCS creation time.">read_critical_section::version</a> with the current lock version. In a debug build, <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171" title="The lock backing this RCS.">read_critical_section::lock</a> pointer is reset to <code>nullptr</code>, causing subsequent use attempts of the RCS to fault. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a66e3bcf979e6d6598cc683969a31d72e" name="a66e3bcf979e6d6598cc683969a31d72e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66e3bcf979e6d6598cc683969a31d72e">&#9670;&#160;</a></span>version</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> unodb::optimistic_lock::read_critical_section::version {0}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The lock version at the RCS creation time. </p>
+<p>Immutable throughout the RCS lifetime. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="optimistic__lock_8hpp_source.html">optimistic_lock.hpp</a></li>
 </ul>

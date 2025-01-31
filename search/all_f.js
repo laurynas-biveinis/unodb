@@ -9,10 +9,11 @@ var searchData=
   ['olc_5finode_5f4_6',['olc_inode_4',['../classunodb_1_1detail_1_1olc__inode__4.html',1,'unodb::detail']]],
   ['olc_5finode_5f48_7',['olc_inode_48',['../classunodb_1_1detail_1_1olc__inode__48.html',1,'unodb::detail']]],
   ['olc_5fnode_5fheader_8',['olc_node_header',['../structunodb_1_1detail_1_1olc__node__header.html',1,'unodb::detail']]],
-  ['operator_3d_3d_9',['operator==',['../classunodb_1_1optimistic__lock_1_1version__type.html#ab244755dfb33f13321ba1d18f37e8b74',1,'unodb::optimistic_lock::version_type']]],
-  ['optimistic_5flock_10',['optimistic_lock',['../classunodb_1_1optimistic__lock.html',1,'unodb']]],
-  ['optimistic_5flock_2ehpp_11',['optimistic_lock.hpp',['../optimistic__lock_8hpp.html',1,'']]],
-  ['optional_20development_20dependencies_12',['Optional development dependencies',['../md_CONTRIBUTING.html#autotoc_md1',1,'']]],
-  ['options_13',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
-  ['organization_14',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]]
+  ['operator_3d_9',['operator=',['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#a6824edf72423338a0da364766d9b952e',1,'unodb::optimistic_lock::read_critical_section']]],
+  ['operator_3d_3d_10',['operator==',['../classunodb_1_1optimistic__lock_1_1version__type.html#ab244755dfb33f13321ba1d18f37e8b74',1,'unodb::optimistic_lock::version_type']]],
+  ['optimistic_5flock_11',['optimistic_lock',['../classunodb_1_1optimistic__lock.html',1,'unodb']]],
+  ['optimistic_5flock_2ehpp_12',['optimistic_lock.hpp',['../optimistic__lock_8hpp.html',1,'']]],
+  ['optional_20development_20dependencies_13',['Optional development dependencies',['../md_CONTRIBUTING.html#autotoc_md1',1,'']]],
+  ['options_14',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
+  ['organization_15',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]]
 ];

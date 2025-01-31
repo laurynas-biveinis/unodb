@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['write_5funlock_0',['write_unlock',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#a351edceb51cf451d5d471f73c3817c09',1,'unodb::optimistic_lock::atomic_version_type']]],
-  ['write_5funlock_5fand_5fobsolete_1',['write_unlock_and_obsolete',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#ad1355063533f2735d2f3869a53d67286',1,'unodb::optimistic_lock::atomic_version_type']]]
+  ['try_5fread_5funlock_0',['try_read_unlock',['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95',1,'unodb::optimistic_lock::read_critical_section']]]
 ];

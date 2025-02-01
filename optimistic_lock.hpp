@@ -378,6 +378,7 @@ class [[nodiscard]] optimistic_lock final {
 
   /// A read critical section (RCS) that stores the lock version at the read
   /// lock time and checks it against the current version for consistent reads.
+  /// Instances are non-copyable and only movable with the move constructor.
   ///
   /// There are three different states for an RCS:
   /// 1. The lock was in obsolete state when the RCS was returned by
@@ -438,7 +439,7 @@ class [[nodiscard]] optimistic_lock final {
     /// check this RCS may only be destructed or another RCS may be
     /// move-assigned to it.
     ///
-    /// \retval false if the lock was obsolete at the time that the RCS was
+    /// \retval true if the lock was obsolete at the time that the RCS was
     /// obtained.
     [[nodiscard]] bool must_restart() const noexcept {
       return UNODB_DETAIL_UNLIKELY(lock == nullptr);
@@ -448,16 +449,15 @@ class [[nodiscard]] optimistic_lock final {
     /// invalid, it may only be destructed or another RCS may be move-assigned
     /// to it.
     ///
+    /// \pre read_critical_section::must_restart must have returned false on
+    /// this RCS to check whether it was not created on a lock in obsolete
+    /// state.
+    ///
     /// \retval true The underlying lock is at the same version it was at the
     /// RCS creation time, all read protected data is consistent.
     /// \retval false The underlying lock has advanced since the RCS creation
     /// or last check time, indicating a write lock, any data read since then
     /// must be discarded.
-    ///
-    /// \note It is illegal to call this method first thing after creating an
-    /// RCS. Rather, read_critical_section::must_restart() must be called to
-    /// determine whether the lock was in the obsolete state at the RCS
-    /// construction time.
     ///
     /// The return value is determined by comparing
     /// read_critical_section::version with the current lock version. If the
@@ -476,16 +476,15 @@ class [[nodiscard]] optimistic_lock final {
     /// The RCS is no longer valid after this call and may only be destructed or
     /// another RCS may be move-assigned to it.
     ///
+    /// \pre read_critical_section::must_restart must have returned false on
+    /// this RCS to check whether it was not created on a lock in obsolete
+    /// state.
+    ///
     /// \retval true The underlying lock is at the same version it was at the
     /// RCS creation time, all read protected data is consistent.
     /// \retval false The underlying lock has advanced since the RCS creation
     /// or last check time, indicating a write lock, any data read since then
     /// must be discarded.
-    ///
-    /// \note It is illegal to call this method first thing after creating an
-    /// RCS. Rather, read_critical_section::must_restart() must be called to
-    /// determine whether the lock was in the obsolete state at the RCS
-    /// construction time.
     ///
     /// The return value is determined by comparing
     /// read_critical_section::version with the current lock version. In a debug
@@ -523,10 +522,27 @@ class [[nodiscard]] optimistic_lock final {
     friend class write_guard;
   };  // class read_critical_section
 
-  // Every write lock critical section starts out as a read lock critical
-  // section which then is attempted to upgrade.
+  /// A write guard (WG) for exclusive access protection. Functions as a scope
+  /// guard if needed. Can only be created by attempting to upgrade a
+  /// optimistic_lock::read_critical_section. Instances are non-copyable and
+  /// non-movable.
+  ///
+  /// There are two different states for a WG:
+  /// 1. Active: the lock version at upgrade time matched the RCS version. The
+  ///    WG holds the write lock.
+  /// 2. Inactive: either the upgrade failed due to concurrent write lock, or
+  ///    one of the write unlock methods has already been called. An inactive WG
+  ///    may only be destructed.
+  ///
+  /// Internally the active and inactive states are represented by
+  /// write_guard::lock pointing to a lock or being `nullptr` respectively.
   class [[nodiscard]] write_guard final {
    public:
+    /// Create a write guard by attempting to upgrade a read \a
+    /// critical_section, which is consumed in process. The upgrade succeeds if
+    /// the RCS lock version equals the current lock version.
+    /// \note write_guard::must_restart must be called on the created instance
+    /// to check for success.
     explicit write_guard(read_critical_section &&critical_section) noexcept
         : lock{critical_section.lock} {
 #ifndef NDEBUG
@@ -537,28 +553,42 @@ class [[nodiscard]] optimistic_lock final {
       if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;
     }
 
+    /// Unlock if needed and destruct the write guard.
     ~write_guard() noexcept {
       if (lock == nullptr) return;
       lock->write_unlock();
     }
 
+    /// Check whether this write guard failed to acquire the write lock. Must be
+    /// called after construction and before the first protected data access.
+    /// \retval true if the lock upgrade failed and this WG is inactive.
     [[nodiscard]] bool must_restart() const noexcept {
       return UNODB_DETAIL_UNLIKELY(lock == nullptr);
     }
 
+    /// Write unlock and make obsolete the underlying lock, deactivating this
+    /// write guard. Only destruction is legal after this call.
+    /// \pre The write guard must be active (write_guard::must_restart returned
+    /// false).
     void unlock_and_obsolete() noexcept {
       lock->write_unlock_and_obsolete();
       lock = nullptr;
     }
 
+    /// Write unlock the underlying lock, deactivating this write guard. Only
+    /// destruction is legal after this call.
+    /// \pre The write guard must be active (write_guard::must_restart returned
+    /// false).
     void unlock() noexcept {
       lock->write_unlock();
       lock = nullptr;
     }
 
 #ifndef NDEBUG
+    /// Check whether this write guard is active.
     [[nodiscard]] bool active() const noexcept { return lock != nullptr; }
 
+    /// Check whether this write guard holds a write lock on \a lock_
     [[nodiscard]] bool guards(const optimistic_lock &lock_) const noexcept {
       return lock == &lock_;
     }
@@ -570,6 +600,7 @@ class [[nodiscard]] optimistic_lock final {
     write_guard &operator=(write_guard &&) = delete;
 
    private:
+    /// The underlying lock. If `nullptr`, this WG is inactive.
     optimistic_lock *lock{nullptr};
   };  // class write_guard
 

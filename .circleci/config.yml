@@ -24,9 +24,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Checkout submodules
-          command: git submodule update --init
-      - run:
           name: Installing dependencies (common)
           command: |
             sudo apt-get update
@@ -70,6 +67,40 @@ jobs:
       - run:
           name: Create build environment
           command: mkdir build
+      - when:
+          condition:
+            not:
+              or:
+                - << parameters.asan >>
+                - << parameters.tsan >>
+                - << parameters.ubsan >>
+          steps:
+            - run:
+                name: Create build environment (examples)
+                command: mkdir build/build-examples
+            - run:
+                name: Configure CMake (examples)
+                working_directory: build/build-examples
+                command: |
+                  readonly BUILD_TYPE=<< parameters.build_type >>
+                  readonly COMPILER=<< parameters.compiler >>
+                  if [[ $COMPILER == "gcc" ]]; then
+                    V=13
+                    export CC=gcc-$V
+                    export CXX=g++-$V
+                  elif [[ $COMPILER == "clang" ]]; then
+                    V=19
+                    export CC=clang-$V
+                    export CXX=clang++-$V
+                  fi
+                  cmake ../../examples -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+            - run:
+                name: Examples
+                working_directory: build/build-examples
+                command: make -j2 -k examples
+      - run:
+          name: Checkout submodules
+          command: git submodule update --init
       - run:
           name: Configure CMake
           working_directory: build
@@ -107,10 +138,6 @@ jobs:
           name: Build
           working_directory: build
           command: make -j2 -k
-      - run:
-          name: Examples
-          working_directory: build
-          command: make -k examples
       - run:
           name: Correctness test
           working_directory: build
@@ -161,9 +188,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Checkout submodules
-          command: git submodule update --init --recursive
-      - run:
           name: Install dependencies
           command: |
             sudo -H pip install setuptools
@@ -171,6 +195,35 @@ jobs:
       - run:
           name: Create build environment
           command: mkdir build
+      - when:
+          condition:
+            not:
+              or:
+                - << parameters.asan >>
+                - << parameters.tsan >>
+                - << parameters.ubsan >>
+          steps:
+            - run:
+                name: Create build environment (examples)
+                command: mkdir build/build-examples
+            - run:
+                name: Installing dependencies (examples)
+                command: brew install cpp-gsl googletest google-benchmark
+            - run:
+                name: Configure CMake (examples)
+                working_directory: build/build-examples
+                command: |
+                  readonly BUILD_TYPE=<< parameters.build_type >>
+                  export CC=clang
+                  export CXX=clang++
+                  cmake ../../examples -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+            - run:
+                name: Examples
+                working_directory: build/build-examples
+                command: make -j3 -k examples
+      - run:
+          name: Checkout submodules
+          command: git submodule update --init --recursive
       - run:
           name: Configure CMake
           working_directory: build
@@ -188,10 +241,6 @@ jobs:
           name: Build
           working_directory: build
           command: make -j3 -k
-      - run:
-          name: Examples
-          working_directory: build
-          command: make -k examples
       - run:
           name: Correctness test
           working_directory: build

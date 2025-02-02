@@ -172,7 +172,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: false
 
       - name: Setup common dependencies
         run: |
@@ -195,15 +195,49 @@ jobs:
                "lld-${VERSION}"
         if: env.COMPILER == 'clang' && env.BUILD_TYPE == 'Release'
 
-      - name: Create build environment
-        run: mkdir ${{github.workspace}}/build
+      - name: Configure CMake (examples)
+        # Use a bash shell so we can use the same syntax for environment
+        # variable access regardless of the host operating system
+        shell: bash
+        run: |
+          mkdir ${{github.workspace}}/build-examples
+          cd ${{github.workspace}}/build-examples
+          export PATH="$HOME/.local/bin:$PATH"
+          if [[ -n "$BUILD_TYPE" ]]; then
+            CBT="-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+          else
+            CBT=""
+          fi
+          if [[ $COMPILER == "gcc" ]]; then
+            export CC="gcc-${VERSION}"
+            export CXX="g++-${VERSION}"
+          else
+            export CC="clang-${VERSION}"
+            export CXX="clang++-${VERSION}"
+          fi
+          cmake "$GITHUB_WORKSPACE/examples" "$CBT"
+        if: >
+          env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'
+          && env.SANITIZE_UB != 'ON'
+
+      - name: Examples
+        working-directory: ${{github.workspace}}/build-examples
+        run: make -j3 -k examples
+        if: >
+          env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'
+          && env.SANITIZE_UB != 'ON'
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment
         # variable access regardless of the host operating system
         shell: bash
-        working-directory: ${{github.workspace}}/build
         run: |
+          mkdir ${{github.workspace}}/build
+          cd ${{github.workspace}}/build
           SANITIZE_ADDRESS="${SANITIZE_ADDRESS:-$DEFAULT_SANITIZE_ADDRESS}"
           SANITIZE_THREAD="${SANITIZE_THREAD:-$DEFAULT_SANITIZE_THREAD}"
           SANITIZE_UB="${SANITIZE_UB:-$DEFAULT_SANITIZE_UB}"
@@ -231,10 +265,6 @@ jobs:
       - name: Build
         working-directory: ${{github.workspace}}/build
         run: make -j3 -k
-
-      - name: Examples
-        working-directory: ${{github.workspace}}/build
-        run: make -k examples
 
       - name: Correctness test
         working-directory: ${{github.workspace}}/build

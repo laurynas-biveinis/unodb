@@ -544,14 +544,7 @@ class [[nodiscard]] optimistic_lock final {
     /// \note write_guard::must_restart must be called on the created instance
     /// to check for success.
     explicit write_guard(read_critical_section &&critical_section) noexcept
-        : lock{critical_section.lock} {
-#ifndef NDEBUG
-      critical_section.lock = nullptr;
-#endif
-      const auto result =
-          lock->try_upgrade_to_write_lock(critical_section.version);
-      if (UNODB_DETAIL_UNLIKELY(!result)) lock = nullptr;
-    }
+        : lock{try_lock_upgrade(std::move(critical_section))} {}
 
     /// Unlock if needed and destruct the write guard.
     ~write_guard() noexcept {
@@ -600,6 +593,24 @@ class [[nodiscard]] optimistic_lock final {
     write_guard &operator=(write_guard &&) = delete;
 
    private:
+    /// Attempt to upgrade the underlying lock of \a critical_section to
+    /// write-locked state. The RCS is consumed in the process.
+    /// \return the write-locked lock if upgrade succeeded, `nullptr` if the RCS
+    /// version did not match the current lock version
+    [[nodiscard]] static optimistic_lock *try_lock_upgrade(
+        read_critical_section &&critical_section) noexcept {
+      const auto upgrade_success =
+          critical_section.lock->try_upgrade_to_write_lock(
+              critical_section.version);
+      auto *const result = UNODB_DETAIL_LIKELY(upgrade_success)
+                               ? critical_section.lock
+                               : nullptr;
+#ifndef NDEBUG
+      critical_section.lock = nullptr;
+#endif
+      return result;
+    }
+
     /// The underlying lock. If `nullptr`, this WG is inactive.
     optimistic_lock *lock{nullptr};
   };  // class write_guard

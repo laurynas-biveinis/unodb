@@ -103,26 +103,37 @@ $(document).ready(function(){initNavTree('classunodb_1_1optimistic__lock_1_1writ
   <div class="headertitle"><div class="title">unodb::optimistic_lock::write_guard Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>A write guard (WG) for exclusive access protection.  
+ <a href="classunodb_1_1optimistic__lock_1_1write__guard.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="optimistic__lock_8hpp_source.html">optimistic_lock.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af16daf7ec12f8824761dcfd147f88502" id="r_af16daf7ec12f8824761dcfd147f88502"><td class="memItemLeft" align="right" valign="top"><a id="af16daf7ec12f8824761dcfd147f88502" name="af16daf7ec12f8824761dcfd147f88502"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> &amp;&amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">critical_section</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:af16daf7ec12f8824761dcfd147f88502" id="r_af16daf7ec12f8824761dcfd147f88502"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html#af16daf7ec12f8824761dcfd147f88502">write_guard</a> (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> &amp;&amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">critical_section</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:af16daf7ec12f8824761dcfd147f88502"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a write guard by attempting to upgrade a read <em>critical_section</em>, which is consumed in process.  <br /></td></tr>
 <tr class="separator:af16daf7ec12f8824761dcfd147f88502"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a78944bd2ee4e432ec03659fbdcb4c435" id="r_a78944bd2ee4e432ec03659fbdcb4c435"><td class="memItemLeft" align="right" valign="top"><a id="a78944bd2ee4e432ec03659fbdcb4c435" name="a78944bd2ee4e432ec03659fbdcb4c435"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>must_restart</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:ac5808e71507ce64965b364a5e5c345c3" id="r_ac5808e71507ce64965b364a5e5c345c3"><td class="memItemLeft" align="right" valign="top"><a id="ac5808e71507ce64965b364a5e5c345c3" name="ac5808e71507ce64965b364a5e5c345c3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>~write_guard</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:ac5808e71507ce64965b364a5e5c345c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unlock if needed and destruct the write guard. <br /></td></tr>
+<tr class="separator:ac5808e71507ce64965b364a5e5c345c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78944bd2ee4e432ec03659fbdcb4c435" id="r_a78944bd2ee4e432ec03659fbdcb4c435"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435">must_restart</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a78944bd2ee4e432ec03659fbdcb4c435"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether this write guard failed to acquire the write lock.  <br /></td></tr>
 <tr class="separator:a78944bd2ee4e432ec03659fbdcb4c435"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4083c784a45907e08d1b159b30af6bdb" id="r_a4083c784a45907e08d1b159b30af6bdb"><td class="memItemLeft" align="right" valign="top"><a id="a4083c784a45907e08d1b159b30af6bdb" name="a4083c784a45907e08d1b159b30af6bdb"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>unlock_and_obsolete</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:a4083c784a45907e08d1b159b30af6bdb" id="r_a4083c784a45907e08d1b159b30af6bdb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html#a4083c784a45907e08d1b159b30af6bdb">unlock_and_obsolete</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a4083c784a45907e08d1b159b30af6bdb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write unlock and make obsolete the underlying lock, deactivating this write guard.  <br /></td></tr>
 <tr class="separator:a4083c784a45907e08d1b159b30af6bdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9e2296850d48a7c50d40be79036be07" id="r_aa9e2296850d48a7c50d40be79036be07"><td class="memItemLeft" align="right" valign="top"><a id="aa9e2296850d48a7c50d40be79036be07" name="aa9e2296850d48a7c50d40be79036be07"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>unlock</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:aa9e2296850d48a7c50d40be79036be07" id="r_aa9e2296850d48a7c50d40be79036be07"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html#aa9e2296850d48a7c50d40be79036be07">unlock</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:aa9e2296850d48a7c50d40be79036be07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write unlock the underlying lock, deactivating this write guard.  <br /></td></tr>
 <tr class="separator:aa9e2296850d48a7c50d40be79036be07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8f9f411c1ee0aacbb7e7dcfa7500c6b9" id="r_a8f9f411c1ee0aacbb7e7dcfa7500c6b9"><td class="memItemLeft" align="right" valign="top"><a id="a8f9f411c1ee0aacbb7e7dcfa7500c6b9" name="a8f9f411c1ee0aacbb7e7dcfa7500c6b9"></a>
 <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>active</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a8f9f411c1ee0aacbb7e7dcfa7500c6b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether this write guard is active. <br /></td></tr>
 <tr class="separator:a8f9f411c1ee0aacbb7e7dcfa7500c6b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9153f958dcd73cf922b1f255f4338034" id="r_a9153f958dcd73cf922b1f255f4338034"><td class="memItemLeft" align="right" valign="top"><a id="a9153f958dcd73cf922b1f255f4338034" name="a9153f958dcd73cf922b1f255f4338034"></a>
 <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>guards</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a> &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">lock_</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a9153f958dcd73cf922b1f255f4338034"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether this write guard holds a write lock on <em>lock_</em>. <br /></td></tr>
 <tr class="separator:a9153f958dcd73cf922b1f255f4338034"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a814d4c75771a4cc2820fffad1e8eb3e5" id="r_a814d4c75771a4cc2820fffad1e8eb3e5"><td class="memItemLeft" align="right" valign="top"><a id="a814d4c75771a4cc2820fffad1e8eb3e5" name="a814d4c75771a4cc2820fffad1e8eb3e5"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a> &amp;)=<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">delete</a></td></tr>
@@ -141,8 +152,137 @@ Public Member Functions</h2></td></tr>
 Private Attributes</h2></td></tr>
 <tr class="memitem:aecfbd1a3a70115e656ad5ae57de13d8f" id="r_aecfbd1a3a70115e656ad5ae57de13d8f"><td class="memItemLeft" align="right" valign="top"><a id="aecfbd1a3a70115e656ad5ae57de13d8f" name="aecfbd1a3a70115e656ad5ae57de13d8f"></a>
 <a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>lock</b> {<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">nullptr</a>}</td></tr>
+<tr class="memdesc:aecfbd1a3a70115e656ad5ae57de13d8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The underlying lock. If <code>nullptr</code>, this WG is inactive. <br /></td></tr>
 <tr class="separator:aecfbd1a3a70115e656ad5ae57de13d8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>A write guard (WG) for exclusive access protection. </p>
+<p>Functions as a scope guard if needed. Can only be created by attempting to upgrade a <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a>. Instances are non-copyable and non-movable.</p>
+<p>There are two different states for a WG:</p><ol type="1">
+<li>Active: the lock version at upgrade time matched the RCS version. The WG holds the write lock.</li>
+<li>Inactive: either the upgrade failed due to concurrent write lock, or one of the write unlock methods has already been called. An inactive WG may only be destructed.</li>
+</ol>
+<p>Internally the active and inactive states are represented by <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html#aecfbd1a3a70115e656ad5ae57de13d8f" title="The underlying lock. If nullptr, this WG is inactive.">write_guard::lock</a> pointing to a lock or being <code>nullptr</code> respectively. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="af16daf7ec12f8824761dcfd147f88502" name="af16daf7ec12f8824761dcfd147f88502"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af16daf7ec12f8824761dcfd147f88502">&#9670;&#160;</a></span>write_guard()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unodb::optimistic_lock::write_guard::write_guard </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> &amp;&amp;&#160;</td>
+          <td class="paramname"><em>critical_section</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create a write guard by attempting to upgrade a read <em>critical_section</em>, which is consumed in process. </p>
+<p>The upgrade succeeds if the RCS lock version equals the current lock version. </p><dl class="section note"><dt>Note</dt><dd><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435" title="Check whether this write guard failed to acquire the write lock.">write_guard::must_restart</a> must be called on the created instance to check for success. </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a78944bd2ee4e432ec03659fbdcb4c435" name="a78944bd2ee4e432ec03659fbdcb4c435"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78944bd2ee4e432ec03659fbdcb4c435">&#9670;&#160;</a></span>must_restart()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a> unodb::optimistic_lock::write_guard::must_restart </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check whether this write guard failed to acquire the write lock. </p>
+<p>Must be called after construction and before the first protected data access. </p><dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">true</td><td>if the lock upgrade failed and this WG is inactive. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa9e2296850d48a7c50d40be79036be07" name="aa9e2296850d48a7c50d40be79036be07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9e2296850d48a7c50d40be79036be07">&#9670;&#160;</a></span>unlock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a> unodb::optimistic_lock::write_guard::unlock </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Write unlock the underlying lock, deactivating this write guard. </p>
+<p>Only destruction is legal after this call. </p><dl class="section pre"><dt>Precondition</dt><dd>The write guard must be active (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435" title="Check whether this write guard failed to acquire the write lock.">write_guard::must_restart</a> returned false). </dd></dl>
+
+</div>
+</div>
+<a id="a4083c784a45907e08d1b159b30af6bdb" name="a4083c784a45907e08d1b159b30af6bdb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4083c784a45907e08d1b159b30af6bdb">&#9670;&#160;</a></span>unlock_and_obsolete()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a> unodb::optimistic_lock::write_guard::unlock_and_obsolete </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Write unlock and make obsolete the underlying lock, deactivating this write guard. </p>
+<p>Only destruction is legal after this call. </p><dl class="section pre"><dt>Precondition</dt><dd>The write guard must be active (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435" title="Check whether this write guard failed to acquire the write lock.">write_guard::must_restart</a> returned false). </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="optimistic__lock_8hpp_source.html">optimistic_lock.hpp</a></li>
 </ul>

@@ -6,5 +6,6 @@ var searchData=
   ['git_20submodules_3',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md23',1,'']]],
   ['global_2ehpp_4',['global.hpp',['../global_8hpp.html',1,'']]],
   ['growing_5ftree_5fnode_5fstats_5',['growing_tree_node_stats',['../classunodb_1_1benchmark_1_1growing__tree__node__stats.html',1,'unodb::benchmark']]],
-  ['guide_6',['guide',['../md_CONTRIBUTING.html#autotoc_md5',1,'Code style guide'],['../md_CONTRIBUTING.html#autotoc_md6',1,'Documentation style guide']]]
+  ['guards_6',['guards',['../classunodb_1_1optimistic__lock_1_1write__guard.html#a9153f958dcd73cf922b1f255f4338034',1,'unodb::optimistic_lock::write_guard']]],
+  ['guide_7',['guide',['../md_CONTRIBUTING.html#autotoc_md5',1,'Code style guide'],['../md_CONTRIBUTING.html#autotoc_md6',1,'Documentation style guide']]]
 ];

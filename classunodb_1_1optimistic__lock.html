@@ -123,6 +123,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-atomic lock word representation.  <a href="classunodb_1_1optimistic__lock_1_1version__type.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A write guard (WG) for exclusive access protection.  <a href="classunodb_1_1optimistic__lock_1_1write__guard.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -253,16 +254,17 @@ Examples</h2>
 <div class="line"><span class="comment">// released on scope exit.</span></div>
 <div class="line"><span class="comment">// ...</span></div>
 <div class="line"><span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1write__guard_html"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a></div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:528</div></div>
+<div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1write__guard_html"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a></div><div class="ttdoc">A write guard (WG) for exclusive access protection.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:539</div></div>
 </div><!-- fragment --><p>An example of write locking that ends with data deletion: </p><div class="fragment"><div class="line"><span class="keyword">auto</span> <a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_rcs</a> = lock.try_read_lock();</div>
 <div class="line"><span class="keywordflow">if</span> (<a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_rcs</a>.must_restart()) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><span class="keyword">auto</span> <a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_wg</a> = <a class="code hl_class" href="classunodb_1_1optimistic__lock_1_1write__guard.html">optimistic_lock::write_guard</a>{std::move(<a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_rcs</a>)};</div>
 <div class="line"><span class="keywordflow">if</span> (<a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_wg</a>.must_restart()) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><span class="comment">// Act on write-locked data before marking it for deletion</span></div>
 <div class="line"><span class="comment">// ...</span></div>
-<div class="line"><a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_wg</a>.unlock_and_obsolete();</div>
+<div class="line"><a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_wg</a>.<a class="code hl_function" href="classunodb_1_1optimistic__lock_1_1write__guard.html#a4083c784a45907e08d1b159b30af6bdb">unlock_and_obsolete</a>();</div>
 <div class="line"><span class="comment">// Mark data to be reclaimed when it is safe to do so</span></div>
 <div class="line"><span class="comment">// ...</span></div>
+<div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1write__guard_html_a4083c784a45907e08d1b159b30af6bdb"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1write__guard.html#a4083c784a45907e08d1b159b30af6bdb">unodb::optimistic_lock::write_guard::unlock_and_obsolete</a></div><div class="ttdeci">void unlock_and_obsolete() noexcept</div><div class="ttdoc">Write unlock and make obsolete the underlying lock, deactivating this write guard.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:573</div></div>
 </div><!-- fragment --><h2><a class="anchor" id="autotoc_md14"></a>
 API conventions</h2>
 <p>All <code>bool</code>-returning <code>try_</code> methods return true on success and false when a concurrent write lock requires the operation to be restarted.</p>
@@ -275,12 +277,12 @@ Read protocol</h2>
 <p>In the current implementation, it is possible for a reader to be starved indefinitely.</p>
 <h2><a class="anchor" id="autotoc_md16"></a>
 Write protocol</h2>
-<p>After a successful write lock acquisition by <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard()</a>, the protected data may be accessed freely, as if under a regular write lock, with the exception of data deletion, discussed below. The write lock object is a C++ scope guard which will unlock on leaving the scope.</p>
+<p>After a successful write lock acquisition by <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html" title="A write guard (WG) for exclusive access protection.">unodb::optimistic_lock::write_guard()</a>, the protected data may be accessed freely, as if under a regular write lock, with the exception of data deletion, discussed below. The write lock object is a C++ scope guard which will unlock on leaving the scope.</p>
 <p>Since read locking does not write to the shared memory, readers can have active pointers to the data without the writer knowing about them. Therefore, lock-protected heap data cannot be deallocated immediately. Instead of immediate deallocation, the data is marked as obsolete (unodb::optimistic_lock::write_guard::write_unlock_and_obsolete) and reclaimed later when it is safe to do so. This is implemented by <a class="el" href="group__qsbr.html">Quiescent State-Based Reclamation</a>.</p>
 <h2><a class="anchor" id="autotoc_md17"></a>
 Internals</h2>
 <p>A lock is a single machine word, that encodes locked-unlocked state, obsolete state, and version number.</p>
-<p>Locking for write (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard()</a>) atomically sets the locked state and bumps the version number.</p>
+<p>Locking for write (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html" title="A write guard (WG) for exclusive access protection.">unodb::optimistic_lock::write_guard()</a>) atomically sets the locked state and bumps the version number.</p>
 <p>Locking for read (unodb::optimistic_lock::try_read_lock()) saves the version number at the time, and unlocking for read (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">unodb::optimistic_lock::read_critical_section::try_read_unlock()</a>) checks whether the lock version did not advance since the read lock. It is also possible to check this in a middle of an RCS (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e" title="Check whether this RCS is still valid.">unodb::optimistic_lock::read_critical_section::check()</a>), which has exactly the same semantics under a different name for descriptive code.</p>
 <p>A lock in obsolete state marks data which is on the deallocation backlog to be freed once all the thread epochs have advanced. All algorithms must immediately stop retrying read locking such data and restart.</p>
 <h2><a class="anchor" id="autotoc_md18"></a>

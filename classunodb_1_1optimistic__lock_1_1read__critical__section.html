@@ -167,6 +167,7 @@ Friends</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads. </p>
+<p>Instances are non-copyable and only movable with the move constructor.</p>
 <p>There are three different states for an RCS:</p><ol type="1">
 <li>The lock was in obsolete state when the RCS was returned by optimistic_lock::try_read_lock(). This must always be checked for after the RCS has been created with a <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart()</a> call.</li>
 <li>The RCS was acquired and no newer write-locking has been detected for the underlying lock.</li>
@@ -267,6 +268,7 @@ Friends</h2></td></tr>
 
 <p>Check whether this RCS is still valid. </p>
 <p>If the RCS is found to be invalid, it may only be destructed or another RCS may be move-assigned to it.</p>
+<dl class="section pre"><dt>Precondition</dt><dd><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart</a> must have returned false on this RCS to check whether it was not created on a lock in obsolete state.</dd></dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
     <tr><td class="paramname">true</td><td>The underlying lock is at the same version it was at the RCS creation time, all read protected data is consistent. </td></tr>
@@ -274,7 +276,6 @@ Friends</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>It is illegal to call this method first thing after creating an RCS. Rather, <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart()</a> must be called to determine whether the lock was in the obsolete state at the RCS construction time.</dd></dl>
 <p>The return value is determined by comparing <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a66e3bcf979e6d6598cc683969a31d72e" title="The lock version at the RCS creation time.">read_critical_section::version</a> with the current lock version. If the versions don't match and the RCS is no longer valid, a debug build will reset <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171" title="The lock backing this RCS.">read_critical_section::lock</a> pointer to <code>nullptr</code>, causing subsequent use attempts of the RCS to fault. </p>
 
 </div>
@@ -306,7 +307,7 @@ Friends</h2></td></tr>
 <p>In the case of failed check this RCS may only be destructed or another RCS may be move-assigned to it.</p>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">false</td><td>if the lock was obsolete at the time that the RCS was obtained. </td></tr>
+    <tr><td class="paramname">true</td><td>if the lock was obsolete at the time that the RCS was obtained. </td></tr>
   </table>
   </dd>
 </dl>
@@ -338,6 +339,7 @@ Friends</h2></td></tr>
 
 <p>Check one last time whether this RCS is still valid and unlock it. </p>
 <p>The RCS is no longer valid after this call and may only be destructed or another RCS may be move-assigned to it.</p>
+<dl class="section pre"><dt>Precondition</dt><dd><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart</a> must have returned false on this RCS to check whether it was not created on a lock in obsolete state.</dd></dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
     <tr><td class="paramname">true</td><td>The underlying lock is at the same version it was at the RCS creation time, all read protected data is consistent. </td></tr>
@@ -345,7 +347,6 @@ Friends</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>It is illegal to call this method first thing after creating an RCS. Rather, <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart()</a> must be called to determine whether the lock was in the obsolete state at the RCS construction time.</dd></dl>
 <p>The return value is determined by comparing <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a66e3bcf979e6d6598cc683969a31d72e" title="The lock version at the RCS creation time.">read_critical_section::version</a> with the current lock version. In a debug build, <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171" title="The lock backing this RCS.">read_critical_section::lock</a> pointer is reset to <code>nullptr</code>, causing subsequent use attempts of the RCS to fault. </p>
 
 </div>

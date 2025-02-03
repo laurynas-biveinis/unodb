@@ -72,8 +72,9 @@ using version_tag_type = std::uint64_t;
 /// A version-based optimistic lock that supports single-writer/multiple-readers
 /// concurrency without shared memory writes during read operations.
 ///
-/// Writers bump the version counter and readers detect concurrent writes
-/// by comparing the version counter before and after the reads.
+/// Writers bump the version counter and readers detect concurrent writes by
+/// comparing the version counter before and after the reads. Instances are
+/// non-copyable and non-moveable.
 ///
 /// ## Examples
 ///
@@ -615,27 +616,19 @@ class [[nodiscard]] optimistic_lock final {
     optimistic_lock *lock{nullptr};
   };  // class write_guard
 
+  /// Construct a new optimistic lock.
   optimistic_lock() noexcept = default;
 
-  optimistic_lock(const optimistic_lock &) = delete;
-  optimistic_lock(optimistic_lock &&) = delete;
-  optimistic_lock &operator=(const optimistic_lock &) = delete;
-  optimistic_lock &operator=(optimistic_lock &&) = delete;
-
+  /// Destruct the lock, trivially.
   ~optimistic_lock() noexcept = default;
 
-  // Acquire and return a read_critical_section for some lock.  This
-  // is done without writing anything on the lock, but it can spin if
-  // the lock is in a transient state (e.g., locked by a writer).
-  //
-  // Note: The returned read_critical_section MAY be marked
-  // [obsolete].
-  //
-  // Note: The caller MUST call read_critical_section::must_restart()
-  // immediately on the result of this method in order to determine if
-  // the node is obsolete.
-  //
-  // @return a read_critical_section which MAY be invalid.
+  /// Acquire and return an optimistic_lock::read_critical_section for this
+  /// lock. This is done without writing anything on the lock, but it will spin
+  /// if the lock is write-locked. It will return immediately if the lock is in
+  /// obsolete state. In debug builds, this will maintain the open RCS counter.
+  ///
+  /// \note read_critical_section::must_restart must be called before the first
+  /// protected data access to check for obsolete state.
   [[nodiscard]] read_critical_section try_read_lock() noexcept {
     while (true) {
       const auto current_version = version.load_acquire();
@@ -652,40 +645,43 @@ class [[nodiscard]] optimistic_lock final {
     }
   }
 
-  // Return a read_critical_section for this optimistic_lock using a
-  // version_tag_type which had been obtained previously.  The use case
-  // for this is to fix up the optimistic_lock when a version_tag_type is
-  // read from the stack for an OLC itertor.  It bumps the read lock
-  // count to make the code happy but does not do any spin waits or
-  // even look at the current version_tag_type associated with the lock.
-  // When the caller calls read_critical_section::check() on the
-  // returned lock they will figure out whether or not the version is
-  // still valid.
+  /// Create an optimistic_lock::read_critical_section using a previously saved
+  /// \a version_tag. Used for restoring OLC iterator state. It does not do any
+  /// spin waits or even look at the current lock version. When the caller calls
+  /// read_critical_section::check() on the returned lock they will figure out
+  /// whether or not the version is still valid. In debug builds, this will
+  /// maintain the open RCS counter.
   [[nodiscard]] read_critical_section rehydrate_read_lock(
       version_tag_type version_tag) noexcept {
-    // TODO(laurynas) The inc_read_lock_count call should be
-    // refactored to a RCS-creating factory method in optimistic_lock,
-    // removing the need for this comment and cleaning up usage. Not
-    // necessary to do now.
+    // TODO(laurynas) The inc_read_lock_count call should be refactored to a
+    // RCS-creating factory method in optimistic_lock, removing the need for
+    // this comment and cleaning up usage.
     inc_read_lock_count();
     return read_critical_section{*this, version_type(version_tag)};
   }
 
 #ifndef NDEBUG
+  /// Assert that this lock has no open optimistic_lock::read_critical_section
+  /// instances. Used in debug builds at lock heap deallocation time.
   void check_on_dealloc() const noexcept {
     UNODB_DETAIL_ASSERT(read_lock_count.load(std::memory_order_acquire) == 0);
   }
 
+  /// In debug builds, check whether this lock is in obsolete state and that it
+  /// was this thread that obsoleted it.
   [[nodiscard]] bool is_obsoleted_by_this_thread() const noexcept {
     return version.load_acquire().is_obsolete() &&
            std::this_thread::get_id() == obsoleter_thread;
   }
 
+  /// In debug builds, check whether this lock is write locked.
   [[nodiscard]] bool is_write_locked() const noexcept {
     return version.load_acquire().is_write_locked();
   }
 #endif
 
+  /// Output the lock representation to \a os output stream. Should only be used
+  /// for debug dumping.
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
     const auto dump_version = version.load_acquire();
     os << "lock: ";
@@ -696,8 +692,15 @@ class [[nodiscard]] optimistic_lock final {
 #endif
   }
 
+  optimistic_lock(const optimistic_lock &) = delete;
+  optimistic_lock(optimistic_lock &&) = delete;
+  optimistic_lock &operator=(const optimistic_lock &) = delete;
+  optimistic_lock &operator=(optimistic_lock &&) = delete;
+
  private:
-  // return true if the version has not changed.
+  /// Check if the current lock version has not changed since \a
+  /// locked_version. Act as a read unlock if the check fails.
+  /// \pre At least one read lock must exist
   [[nodiscard]] bool check(version_type locked_version) const noexcept {
     UNODB_DETAIL_ASSERT(read_lock_count.load(std::memory_order_acquire) > 0);
 
@@ -711,6 +714,13 @@ class [[nodiscard]] optimistic_lock final {
     return UNODB_DETAIL_LIKELY(result);
   }
 
+  /// Try to read unlock this lock by comparing the current version with
+  /// \a locked_version. Since read locking and unlocking does not affect the
+  /// shared lock state, this only checks whether the lock version is equal to
+  /// \a locked_version.
+  /// \retval true if the read unlock succeeded
+  /// \retval false if the current lock version has advanced since the read lock
+  /// was taken
   [[nodiscard, gnu::flatten]] UNODB_DETAIL_FORCE_INLINE bool try_read_unlock(
       version_type locked_version) const noexcept {
     const auto result{check(locked_version)};
@@ -720,6 +730,11 @@ class [[nodiscard]] optimistic_lock final {
     return UNODB_DETAIL_LIKELY(result);
   }
 
+  /// Try to write lock by atomically setting the lock bit while verifying the
+  /// version matches \a locked_version. Acts as a read unlock if unsuccessful.
+  /// \retval true if the write lock succeeded
+  /// \retval false if the current lock version has advanced since the read lock
+  /// was taken
   [[nodiscard]] bool try_upgrade_to_write_lock(
       version_type locked_version) noexcept {
     const auto result{
@@ -728,8 +743,12 @@ class [[nodiscard]] optimistic_lock final {
     return UNODB_DETAIL_LIKELY(result);
   }
 
+  /// Write unlock this lock.
+  /// \pre The lock must be write-locked.
   void write_unlock() noexcept { version.write_unlock(); }
 
+  /// Atomically write unlock and obsolete this lock.
+  /// \pre The lock must be write-locked.
   void write_unlock_and_obsolete() noexcept {
     version.write_unlock_and_obsolete();
 #ifndef NDEBUG
@@ -737,19 +756,25 @@ class [[nodiscard]] optimistic_lock final {
 #endif
   }
 
+  /// The atomic lock word.
   atomic_version_type version{};
 
 #ifndef NDEBUG
+  /// In debug builds, the counter of currently-active read locks.
   mutable std::atomic<std::int64_t> read_lock_count{0};
+
+  /// In debug builds, the ID of the thread which obsoleted this lock.
   std::thread::id obsoleter_thread{};
 #endif
 
+  /// In debug builds, increment the read lock counter, no-op in release builds.
   void inc_read_lock_count() const noexcept {
 #ifndef NDEBUG
     read_lock_count.fetch_add(1, std::memory_order_release);
 #endif
   }
 
+  /// In debug builds, decrement the read lock counter, no-op in release builds.
   void dec_read_lock_count() const noexcept {
 #ifndef NDEBUG
     const auto old_value =
@@ -760,6 +785,8 @@ class [[nodiscard]] optimistic_lock final {
 };  // class optimistic_lock
 
 static_assert(std::is_standard_layout_v<optimistic_lock>);
+static_assert(std::is_trivially_destructible_v<optimistic_lock>);
+static_assert(std::is_nothrow_destructible_v<optimistic_lock>);
 
 #define UNODB_DETAIL_ASSERT_INACTIVE(guard)   \
   do {                                        \

@@ -25,27 +25,27 @@
 var NAVTREE =
 [
   [ "UnoDB", "index.html", [
-    [ "unodb", "index.html#autotoc_md20", [
-      [ "Introduction", "index.html#autotoc_md21", null ],
-      [ "Requirements", "index.html#autotoc_md22", [
-        [ "Build dependencies", "index.html#autotoc_md23", null ],
-        [ "Build dependencies, bundled as git submodules", "index.html#autotoc_md24", null ]
+    [ "unodb", "index.html#autotoc_md23", [
+      [ "Introduction", "index.html#autotoc_md24", null ],
+      [ "Requirements", "index.html#autotoc_md25", [
+        [ "Build dependencies", "index.html#autotoc_md26", null ],
+        [ "Build dependencies, bundled as git submodules", "index.html#autotoc_md27", null ]
       ] ],
-      [ "Building", "index.html#autotoc_md25", null ],
-      [ "Platform-Specific Notes", "index.html#autotoc_md26", [
-        [ "Ubuntu 22.04", "index.html#autotoc_md27", null ],
-        [ "Amazon Linux 2023", "index.html#autotoc_md28", null ],
-        [ "Amazon Linux 2", "index.html#autotoc_md29", null ]
+      [ "Building", "index.html#autotoc_md28", null ],
+      [ "Platform-Specific Notes", "index.html#autotoc_md29", [
+        [ "Ubuntu 22.04", "index.html#autotoc_md30", null ],
+        [ "Amazon Linux 2023", "index.html#autotoc_md31", null ],
+        [ "Amazon Linux 2", "index.html#autotoc_md32", null ]
       ] ],
-      [ "Usage", "index.html#autotoc_md30", null ],
-      [ "Technical Details", "index.html#autotoc_md31", [
-        [ "Adaptive Radix Tree", "index.html#autotoc_md32", null ],
-        [ "Sequential Lock", "index.html#autotoc_md33", null ],
-        [ "Quiescent State-Based Reclamation (QSBR)", "index.html#autotoc_md34", null ]
+      [ "Usage", "index.html#autotoc_md33", null ],
+      [ "Technical Details", "index.html#autotoc_md34", [
+        [ "Adaptive Radix Tree", "index.html#autotoc_md35", null ],
+        [ "Sequential Lock", "index.html#autotoc_md36", null ],
+        [ "Quiescent State-Based Reclamation (QSBR)", "index.html#autotoc_md37", null ]
       ] ],
-      [ "Related Projects", "index.html#autotoc_md35", null ],
-      [ "Contributing", "index.html#autotoc_md36", null ],
-      [ "Literature", "index.html#autotoc_md37", null ]
+      [ "Related Projects", "index.html#autotoc_md38", null ],
+      [ "Contributing", "index.html#autotoc_md39", null ],
+      [ "Literature", "index.html#autotoc_md40", null ]
     ] ],
     [ "CONTRIBUTING", "md_CONTRIBUTING.html", [
       [ "Contributing to UnoDB", "md_CONTRIBUTING.html#autotoc_md0", [

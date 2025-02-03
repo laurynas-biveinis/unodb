@@ -152,7 +152,9 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:ac33116d42d7704005e6aff80b7431d5e" id="r_ac33116d42d7704005e6aff80b7431d5e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="optimistic__lock_8hpp.html#ac33116d42d7704005e6aff80b7431d5e">UNODB_DETAIL_ASSERT_INACTIVE</a>(guard)</td></tr>
+<tr class="memitem:ac33116d42d7704005e6aff80b7431d5e" id="r_ac33116d42d7704005e6aff80b7431d5e"><td class="memItemLeft" align="right" valign="top"><a id="ac33116d42d7704005e6aff80b7431d5e" name="ac33116d42d7704005e6aff80b7431d5e"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_ASSERT_INACTIVE</b>(guard)</td></tr>
+<tr class="memdesc:ac33116d42d7704005e6aff80b7431d5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">In debug builds, assert that the optimistic_lock::write_guard <em>guard</em> is active. <br /></td></tr>
 <tr class="separator:ac33116d42d7704005e6aff80b7431d5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
@@ -170,31 +172,127 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The optimistic lock. </p>
-</div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="ac33116d42d7704005e6aff80b7431d5e" name="ac33116d42d7704005e6aff80b7431d5e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac33116d42d7704005e6aff80b7431d5e">&#9670;&#160;</a></span>UNODB_DETAIL_ASSERT_INACTIVE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define UNODB_DETAIL_ASSERT_INACTIVE</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">guard</td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                        \</div>
-<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26800); \</div>
-<div class="line">    UNODB_DETAIL_ASSERT(!(guard).active());   \</div>
-<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS();     \</div>
-<div class="line">  } <span class="keywordflow">while</span> (0)</div>
-</div><!-- fragment -->
-</div>
-</div>
-</div><!-- contents -->
+<h1><a class="anchor" id="autotoc_md14"></a>
+Overview</h1>
+<p>A version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations. Writers bump the version counter and readers detect concurrent writes by comparing the version counter before and after the reads.</p>
+<h2><a class="anchor" id="autotoc_md15"></a>
+Examples</h2>
+<p>Protected data declaration and access API: </p><div class="fragment"><div class="line"><span class="comment">// Multiple data fields protected by the same optimistic lock:</span></div>
+<div class="line"><a class="code hl_class" href="classunodb_1_1in__critical__section.html">unodb::in_critical_section&lt;std::uint64_t&gt;</a> val;</div>
+<div class="line"><a class="code hl_class" href="classunodb_1_1in__critical__section.html">unodb::in_critical_section&lt;std::uint64_t&gt;</a> val2;</div>
+<div class="line"><span class="comment">// Transparent operations using the underlying type:</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> bar = val + 5;</div>
+<div class="line">++val; <span class="comment">// etc.</span></div>
+<div class="line"><span class="comment">// Explicit loads and store swhen needed:</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> baz = val2.load();</div>
+<div class="line">val2.store(10);</div>
+<div class="ttc" id="aclassunodb_1_1in__critical__section_html"><div class="ttname"><a href="classunodb_1_1in__critical__section.html">unodb::in_critical_section</a></div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:855</div></div>
+</div><!-- fragment --><p>The simplest read locking example: </p><div class="fragment"><div class="line"><span class="comment">// Spin until lock is not write-locked nor obsolete</span></div>
+<div class="line"><span class="keyword">auto</span> foo_read_critical_section = lock.try_read_lock();</div>
+<div class="line"><span class="keywordflow">if</span> (foo_read_critical_section.must_restart()) {</div>
+<div class="line">  <span class="comment">// Obsolete, restart</span></div>
+<div class="line">  <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">}</div>
+<div class="line"><span class="comment">// Read</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> read_foo = foo.data;</div>
+<div class="line"><span class="comment">// Try unlock</span></div>
+<div class="line"><span class="keywordflow">if</span> (!foo_read_critical_section.try_read_unlock()) {</div>
+<div class="line">   <span class="comment">// The lock was write-locked while we were accessing data. Do not act on</span></div>
+<div class="line">   <span class="comment">// the read data, restart.</span></div>
+<div class="line">   <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">}</div>
+<div class="line"><span class="comment">// Act on read_foo and return success</span></div>
+<div class="line"><span class="comment">// ...</span></div>
+<div class="line"><span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+</div><!-- fragment --><p>An example of read locking with interim checks: </p><div class="fragment"><div class="line"><span class="keyword">auto</span> foo_rcs = lock.try_read_lock();</div>
+<div class="line"><span class="keywordflow">if</span> (foo_rcs.must_restart()) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> read_foo_1 = foo.data_1;</div>
+<div class="line"><span class="comment">// Check whether read_foo_1 was read consistently but do not end the read</span></div>
+<div class="line"><span class="comment">// critical section</span></div>
+<div class="line"><span class="keywordflow">if</span> (!foo_rcs.check()) {</div>
+<div class="line">  <span class="comment">// The check failed because the lock was write-locked while we were</span></div>
+<div class="line">  <span class="comment">// accessing data. Do not act on it, restart.</span></div>
+<div class="line">  <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">}</div>
+<div class="line"><span class="comment">// Act on read_foo_1</span></div>
+<div class="line"><span class="comment">// ...</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> read_foo_2 = foo.data_2;</div>
+<div class="line"><span class="keywordflow">if</span> (!foo_rcs.try_read_unlock()) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><span class="comment">// Both read_foo_1 and read_foo_2 were read consistently together, act on</span></div>
+<div class="line"><span class="comment">// them.</span></div>
+<div class="line"><span class="comment">// ...</span></div>
+<div class="line"><span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+</div><!-- fragment --><p>An example of write locking: </p><div class="fragment"><div class="line"><span class="comment">// Write lock critical sections always start out as read lock ones.</span></div>
+<div class="line"><span class="keyword">auto</span> foo_rcs = lock.try_read_lock();</div>
+<div class="line"><span class="keywordflow">if</span> (foo_rcs.must_restart()) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><span class="comment">// Read current data state if needed</span></div>
+<div class="line"><span class="comment">// ...</span></div>
+<div class="line"><span class="comment">// Try upgrading the lock</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> foo_write_guard =</div>
+<div class="line">  optimistic_lock::write_guard{std::move(foo_rcs)};</div>
+<div class="line"><span class="keywordflow">if</span> (foo_write_guard.must_restart()) {</div>
+<div class="line">  <span class="comment">// The lock upgrade failed because somebody else write-locked it</span></div>
+<div class="line">  <span class="comment">// first. Restart, also don&#39;t act on the read data in the read critical</span></div>
+<div class="line">  <span class="comment">// section since the last check.</span></div>
+<div class="line">  <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">}</div>
+<div class="line"><span class="comment">// We have the exclusive write lock, freely write the data. The lock will be</span></div>
+<div class="line"><span class="comment">// released on scope exit.</span></div>
+<div class="line"><span class="comment">// ...</span></div>
+<div class="line"><span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+</div><!-- fragment --><p>An example of write locking that ends with data deletion: </p><div class="fragment"><div class="line"><span class="keyword">auto</span> foo_rcs = lock.try_read_lock();</div>
+<div class="line"><span class="keywordflow">if</span> (foo_rcs.must_restart()) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><span class="keyword">auto</span> foo_wg = optimistic_lock::write_guard{std::move(foo_rcs)};</div>
+<div class="line"><span class="keywordflow">if</span> (foo_wg.must_restart()) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><span class="comment">// Act on write-locked data before marking it for deletion</span></div>
+<div class="line"><span class="comment">// ...</span></div>
+<div class="line">foo_wg.unlock_and_obsolete();</div>
+<div class="line"><span class="comment">// Mark data to be reclaimed when it is safe to do so</span></div>
+<div class="line"><span class="comment">// ...</span></div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md16"></a>
+API conventions</h2>
+<p>All <code>bool</code>-returning <code>try_</code> methods return true on success and false when a concurrent write lock requires the operation to be restarted.</p>
+<h2><a class="anchor" id="autotoc_md17"></a>
+Protected data declaration</h2>
+<p>All data fields or variables to be protected by an optimistic lock must be wrapped in <a class="el" href="classunodb_1_1in__critical__section.html">unodb::in_critical_section</a> template. Effectively it converts the data accesses to relaxed atomic accesses, which is required by the optimistic lock memory model.</p>
+<h2><a class="anchor" id="autotoc_md18"></a>
+Read protocol</h2>
+<p>A read critical section (RCS) is created by <a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0" title="Acquire and return an optimistic_lock::read_critical_section for this lock.">unodb::optimistic_lock::try_read_lock()</a>, which will either spin until the lock is not write-locked, or will return immediately if the lock goes to the obsolete state.</p>
+<p>The obsolete state must be checked for by calling <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">unodb::optimistic_lock::read_critical_section::must_restart()</a> immediately after creating the RCS.</p>
+<p>No pointers may be dereferenced in an RCS before a successful read unlock (<a class="el" href="classunodb_1_1optimistic__lock.html#a427d68606712d24c073e8f2c13264f55" title="Try to read unlock this lock by comparing the current version with locked_version.">unodb::optimistic_lock::try_read_unlock()</a>) or an interim check (<a class="el" href="classunodb_1_1optimistic__lock.html#a87019ebcc11a4033acddd2b810adb490" title="Check if the current lock version has not changed since locked_version.">unodb::optimistic_lock::check()</a>) call. Similarly, no non-pointer data may be accessed in any fault-causing way if it's illegal.</p>
+<p>To follow the above rules, first copy the data of interest, then verify consistency via unlock or version check call. Only use the copied data if these operations succeeded. Otherwise an algorithm restart is necessary.</p>
+<p>In the current implementation, it is possible for a reader to be starved indefinitely.</p>
+<h2><a class="anchor" id="autotoc_md19"></a>
+Write protocol</h2>
+<p>After a successful write lock acquisition by <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html" title="A write guard (WG) for exclusive access protection.">unodb::optimistic_lock::write_guard()</a>, the protected data may be accessed freely, as if under a regular write lock, with the exception of data deletion, discussed below. The write lock object is a C++ scope guard which will unlock on leaving the scope.</p>
+<p>Since read locking does not write to the shared memory, readers can have active pointers to the data without the writer knowing about them. Therefore, lock-protected heap data cannot be deallocated immediately. Instead of immediate deallocation, the data is marked as obsolete (unodb::optimistic_lock::write_guard::write_unlock_and_obsolete) and reclaimed later when it is safe to do so. This is implemented by <a class="el" href="group__qsbr.html">Quiescent State-Based Reclamation</a>.</p>
+<h2><a class="anchor" id="autotoc_md20"></a>
+Internals</h2>
+<p>A lock is a single machine word, that encodes locked-unlocked state, obsolete state, and version number.</p>
+<p>Locking for write (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html" title="A write guard (WG) for exclusive access protection.">unodb::optimistic_lock::write_guard()</a>) atomically sets the locked state and bumps the version number.</p>
+<p>Locking for read (<a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0" title="Acquire and return an optimistic_lock::read_critical_section for this lock.">unodb::optimistic_lock::try_read_lock()</a>) saves the version number at the time, and unlocking for read (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">unodb::optimistic_lock::read_critical_section::try_read_unlock()</a>) checks whether the lock version did not advance since the read lock. It is also possible to check this in a middle of an RCS (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e" title="Check whether this RCS is still valid.">unodb::optimistic_lock::read_critical_section::check()</a>), which has exactly the same semantics under a different name for descriptive code.</p>
+<p>A lock in obsolete state marks data which is on the deallocation backlog to be freed once all the thread epochs have advanced. All algorithms must immediately stop retrying read locking such data and restart.</p>
+<h2><a class="anchor" id="autotoc_md21"></a>
+Memory model</h2>
+<p>The data races are prevented by implementing the Figure 6 method from Boehm's paper (see Literature section below for the reference): </p><div class="fragment"><div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> ver0 = lock_version.load(std::memory_order_acquire);</div>
+<div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> data0 = data0.load(std::memory_order_relaxed);</div>
+<div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> data1 = data1.load(std::memory_order_relaxed);</div>
+<div class="line">std::atomic_thread_fence(std::memory_order_acquire);</div>
+<div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> ver1 = lock_version.load(std::memory_order_relaxed);</div>
+<div class="line"><span class="keywordflow">if</span> (ver0 == ver1 &amp;&amp; is_free(ver1)) {</div>
+<div class="line">  <span class="comment">// OK to act on data0 and data1</span></div>
+<div class="line">} <span class="keywordflow">else</span> {</div>
+<div class="line">  <span class="comment">// Restart</span></div>
+<div class="line">}</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md22"></a>
+Literature</h2>
+<p>Based on the design from:</p><ul>
+<li>V. Leis et al., "The ART of Practical Synchronization," DaMoN 2016, for the algorithms.</li>
+<li>H. Boehm, "Can seqlocks get along with programming language memory
+  models?", MSPC 2012, for the critical section data access memory ordering rules.</li>
+</ul>
+<p>The optimistic lock is also similar to Linux kernel sequential locks with the addition of an obsolete state for data marked for reclamation. </p>
+</div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

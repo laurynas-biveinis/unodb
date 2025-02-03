@@ -10,9 +10,9 @@ var searchData=
   ['code_20style_20guide_7',['Code style guide',['../md_CONTRIBUTING.html#autotoc_md5',1,'']]],
   ['commit_20messages_8',['Commit messages',['../md_CONTRIBUTING.html#autotoc_md10',1,'']]],
   ['concurrent_5fbenchmark_9',['concurrent_benchmark',['../classunodb_1_1benchmark_1_1concurrent__benchmark.html',1,'unodb::benchmark']]],
-  ['contributing_10',['contributing',['../index.html#autotoc_md36',1,'Contributing'],['../md_CONTRIBUTING.html',1,'CONTRIBUTING']]],
+  ['contributing_10',['contributing',['../index.html#autotoc_md39',1,'Contributing'],['../md_CONTRIBUTING.html',1,'CONTRIBUTING']]],
   ['contributing_20to_20unodb_11',['Contributing to UnoDB',['../md_CONTRIBUTING.html#autotoc_md0',1,'']]],
-  ['conventions_12',['API conventions',['../classunodb_1_1optimistic__lock.html#autotoc_md15',1,'']]],
+  ['conventions_12',['API conventions',['../optimistic__lock_8hpp.html#autotoc_md16',1,'']]],
   ['crash_13',['crash',['../namespaceunodb_1_1detail.html#aae5f331d83917453230a096af3197dc2',1,'unodb::detail']]],
   ['ctz_14',['ctz',['../namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925',1,'unodb::detail']]]
 ];

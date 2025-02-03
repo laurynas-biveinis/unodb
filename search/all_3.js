@@ -1,7 +1,7 @@
 var searchData=
 [
   ['based_20reclamation_0',['Quiescent State-Based Reclamation',['../group__qsbr.html',1,'']]],
-  ['based_20reclamation_20qsbr_1',['Quiescent State-Based Reclamation (QSBR)',['../index.html#autotoc_md34',1,'']]],
+  ['based_20reclamation_20qsbr_1',['Quiescent State-Based Reclamation (QSBR)',['../index.html#autotoc_md37',1,'']]],
   ['basic_5fart_5fkey_2',['basic_art_key',['../structunodb_1_1detail_1_1basic__art__key.html',1,'unodb::detail']]],
   ['basic_5fart_5fpolicy_3',['basic_art_policy',['../structunodb_1_1detail_1_1basic__art__policy.html',1,'unodb::detail']]],
   ['basic_5fdb_5finode_5fdeleter_4',['basic_db_inode_deleter',['../classunodb_1_1detail_1_1basic__db__inode__deleter.html',1,'unodb::detail']]],
@@ -26,8 +26,8 @@ var searchData=
   ['batched_5fprng_23',['batched_prng',['../classunodb_1_1benchmark_1_1batched__prng.html',1,'unodb::benchmark']]],
   ['benchmarking_24',['Benchmarking',['../md_CONTRIBUTING.html#autotoc_md12',1,'']]],
   ['bswap_25',['bswap',['../namespaceunodb_1_1detail.html#aed5e6931eb6b7ec408bd94a6d6f99426',1,'unodb::detail']]],
-  ['build_20dependencies_26',['Build dependencies',['../index.html#autotoc_md23',1,'']]],
-  ['build_20dependencies_20bundled_20as_20git_20submodules_27',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md24',1,'']]],
-  ['building_28',['Building',['../index.html#autotoc_md25',1,'']]],
-  ['bundled_20as_20git_20submodules_29',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md24',1,'']]]
+  ['build_20dependencies_26',['Build dependencies',['../index.html#autotoc_md26',1,'']]],
+  ['build_20dependencies_20bundled_20as_20git_20submodules_27',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
+  ['building_28',['Building',['../index.html#autotoc_md28',1,'']]],
+  ['bundled_20as_20git_20submodules_29',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
 ];

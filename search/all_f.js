@@ -16,5 +16,6 @@ var searchData=
   ['optimistic_5flock_2ehpp_13',['optimistic_lock.hpp',['../optimistic__lock_8hpp.html',1,'']]],
   ['optional_20development_20dependencies_14',['Optional development dependencies',['../md_CONTRIBUTING.html#autotoc_md1',1,'']]],
   ['options_15',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
-  ['organization_16',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]]
+  ['organization_16',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]],
+  ['overview_17',['Overview',['../optimistic__lock_8hpp.html#autotoc_md14',1,'']]]
 ];

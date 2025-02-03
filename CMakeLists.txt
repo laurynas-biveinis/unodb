@@ -344,6 +344,8 @@ else()
   set(USE_BOOST_STACKTRACE OFF)
 endif()
 
+option(TESTS "Build tests, including fuzz ones if DeepState is available" ON)
+
 string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
 if(MSVC)
   string(REPLACE ";" " " MSVC_WARNING_FLAGS_FOR_SUBDIR_STR_TMP "${MSVC_CXX_WARNING_FLAGS}")
@@ -376,12 +378,14 @@ macro(RESTORE_CXX_FLAGS_FOR_SUBDIR)
   set(CMAKE_SHARED_LINKER_FLAGS ${ORIG_CMAKE_SHARED_LINKER_FLAGS})
 endmacro()
 
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+if(TESTS)
+  # For Windows: Prevent overriding the parent project's compiler/linker settings
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-ADD_CXX_FLAGS_FOR_SUBDIR()
-add_subdirectory(3rd_party/googletest)
-RESTORE_CXX_FLAGS_FOR_SUBDIR()
+  ADD_CXX_FLAGS_FOR_SUBDIR()
+  add_subdirectory(3rd_party/googletest)
+  RESTORE_CXX_FLAGS_FOR_SUBDIR()
+endif()
 
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark tests"
   FORCE)
@@ -408,12 +412,13 @@ add_subdirectory(3rd_party/benchmark)
 RESTORE_CXX_FLAGS_FOR_SUBDIR()
 
 # Do not build DeepState:
+# - if tests are disabled
 # - under Windows as it's not supported
 # - on anything else than x86_64
 # - if 32-bit build is not possible
 # - with GCC under macOS due to https://github.com/trailofbits/deepstate/issues/374
 # - under macOS with ASan or TSan enabled
-if(NOT (is_darwin AND (is_gxx OR SANITIZE_ADDRESS OR SANITIZE_THREAD))
+if(TESTS AND NOT (is_darwin AND (is_gxx OR SANITIZE_ADDRESS OR SANITIZE_THREAD))
     AND NOT is_windows AND is_x86_64)
   CHECK_INCLUDE_FILE(stdio.h CAN_BUILD_32BIT -m32)
 
@@ -716,28 +721,31 @@ set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"
 add_custom_target(valgrind
   DEPENDS valgrind_tests valgrind_benchmarks valgrind_examples)
 
-enable_testing()
+if (TESTS)
+  enable_testing()
 
-add_unodb_library(unodb_test test_heap.cpp)
-target_link_libraries(unodb_test PUBLIC unodb_util)
-target_link_libraries(unodb_test PRIVATE ${Boost_LIBRARIES})
+  add_unodb_library(unodb_test test_heap.cpp)
+  target_link_libraries(unodb_test PUBLIC unodb_util)
+  target_link_libraries(unodb_test PRIVATE ${Boost_LIBRARIES})
 
-function(add_sanitized_test)
-  cmake_parse_arguments(AST "" "NAME" "COMMAND" ${ARGN})
-  add_test(NAME "${AST_NAME}" COMMAND ${AST_COMMAND})
-  if(SANITIZE_ADDRESS OR SANITIZE_THREAD OR SANITIZE_UB)
-    set_property(TEST "${AST_NAME}" APPEND PROPERTY ENVIRONMENT
-      "${SANITIZER_ENV}")
+  function(add_sanitized_test)
+    cmake_parse_arguments(AST "" "NAME" "COMMAND" ${ARGN})
+    add_test(NAME "${AST_NAME}" COMMAND ${AST_COMMAND})
+    if(SANITIZE_ADDRESS OR SANITIZE_THREAD OR SANITIZE_UB)
+      set_property(TEST "${AST_NAME}" APPEND PROPERTY ENVIRONMENT
+        "${SANITIZER_ENV}")
+    endif()
+  endfunction()
+
+  if(TARGET deepstate)
+    add_subdirectory(fuzz_deepstate)
+    add_dependencies(valgrind valgrind_deepstate)
   endif()
-endfunction()
+  add_subdirectory(test)
+endif()
 
 add_subdirectory(benchmark)
 add_subdirectory(examples)
-if(TARGET deepstate)
-  add_subdirectory(fuzz_deepstate)
-  add_dependencies(valgrind valgrind_deepstate)
-endif()
-add_subdirectory(test)
 
 set(BIN_DIR_CDB "${CMAKE_BINARY_DIR}/compile_commands.json")
 set(SRC_DIR_CDB "${CMAKE_SOURCE_DIR}/compile_commands.json")
@@ -752,10 +760,11 @@ endif()
 message(STATUS "Build configuration and user-set CMake options:")
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 message(STATUS "STANDALONE: ${STANDALONE}")
-message(STATUS "MAINTAINER_MODE: ${MAINTAINER_MODE}")
 message(STATUS "AVX2: ${AVX2}")
 message(STATUS "SPINLOCK_LOOP: ${SPINLOCK_LOOP}")
 message(STATUS "STATS: ${STATS}")
+message(STATUS "TESTS: ${TESTS}")
+message(STATUS "MAINTAINER_MODE: ${MAINTAINER_MODE}")
 message(STATUS "COVERAGE: ${COVERAGE}")
 message(STATUS "GCOV_PATH: ${GCOV_PATH}")
 message(STATUS "SANITIZE_ADDRESS: ${SANITIZE_ADDRESS}")

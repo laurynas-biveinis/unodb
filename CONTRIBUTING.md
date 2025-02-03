@@ -193,6 +193,60 @@ suffix, such as `deepstate_lf_8h`, `deepstate_qsbr_lf_20m`,
   feature or fix, as it should, there should be only one commit in it.
 * Very obvious changes may be pushed directly.
 
+## Benchmarking
+
+Benchmarking is hard: it is easy to do it incorrectly with no obvious warning
+signs. Here are some suggestions how to set it up. They will not guarantee valid
+results but should exclude some classes of invalid ones:
+
+* Set up the benchmark machine for the best CPU counter observability and run
+  repeatability. This configuration is at odds with some of the Linux security
+  features, so don't do that on machines close to production:
+
+  ```bash
+  sudo sh -c "echo -1 > /proc/sys/kernel/perf_event_paranoid"
+  sudo sysctl -w kernel.kptr_restrict=0
+  sudo sh -c "echo 0 > /proc/sys/kernel/yama/ptrace_scope"
+  sudo sysctl -w vm.swappiness=0
+  ```
+
+* To make the above settings survive reboots, edit `/etc/sysctl.conf` for:
+
+   ```conf
+   kernel.perf_event_paranoid = -1
+   kernel.kptr_restrict = 0
+   vm.swappiness = 0
+   ```
+
+   and `/etc/sysctl.d/10-ptrace.conf` for `kernel.yama.ptrace_scope = 0`.
+* On x86_64, make sure to use the performance governor for the CPU frequency
+  management: edit `/etc/default/cpufrequtils` for `GOVERNOR="performance"`
+  followed by `sudo /etc/init.d/cpufrequtils restart`. You can also do
+  `sudo cpupower frequency-set --governor performance` for transient setting.
+* Disable hyperthreading:
+  `sudo sh -c "echo off > /sys/devices/system/cpu/smt/control"`
+* Pick a CPU and shield it from other threads running there:
+  `sudo cset shield --cpu=2 --kthread=on`
+* Start a shell for benchmarking in the shield:
+  `sudo cset shield --exec zsh`
+* Use jemalloc for heap:
+  `export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2`
+* Now run your desired benchmarks. For the supported flags for i.e. benchmark
+  filtering see [Google Benchmark
+  documentation](https://github.com/google/benchmark/blob/main/docs/user_guide.md).
+* To measure the effect of a patch, Google Benchmark provides
+  [U-Test](https://github.com/google/benchmark/blob/main/docs/tools.md#u-test)
+  feature. Let's say you changed N16 node fields, but only for the OLC case.
+  Then you can run N16-specific tests, filtered for the OLC. The next command is
+  in the directory with benchmark executables, and the baseline executables are
+  at `/foo/bar/baseline`:
+
+  ```bash
+  python3 ../../../3rd_party/benchmark/tools/compare.py benchmarks \
+     /foo/bar/baseline/micro_benchmark_olc \
+     ./micro_benchmark_olc --benchmark_repetitions=9
+  ```
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the

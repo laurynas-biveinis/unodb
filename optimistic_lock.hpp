@@ -3,80 +3,29 @@
 #define UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
 
 /// \file
-/// The optimistic lock
-
-//
-// CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
-// HEADER FILES !!!
-//
-// This header defines _GLIBCXX_DEBUG and _GLIBCXX_DEBUG_PEDANTIC for
-// DEBUG builds.  If some standard headers are included before and
-// after those symbols are defined, then that results in different
-// container internal structure layouts and that is Not Good.
-#include "global.hpp"  // IWYU pragma: keep
-
-#include <atomic>
-#include <cstddef>
-#include <cstdint>
-#include <iomanip>
-#include <iostream>
-#include <iterator>
-#include <optional>
-#include <thread>
-#include <tuple>
-#include <type_traits>
-
-#ifdef UNODB_DETAIL_X86_64
-#include <emmintrin.h>
-#endif
-
-#include "assert.hpp"
-
-namespace unodb {
-
-/// The optimistic spinlock wait loop algorithm implementation.
-/// The implementation is selected by #UNODB_DETAIL_SPINLOCK_LOOP_VALUE, set by
-/// CMake, and can be either #UNODB_DETAIL_SPINLOCK_LOOP_PAUSE or
-/// #UNODB_DETAIL_SPINLOCK_LOOP_EMPTY
-// TODO(laurynas): move to unodb::detail namespace
-// LCOV_EXCL_START
-inline void spin_wait_loop_body() noexcept {
-#if UNODB_SPINLOCK_LOOP_VALUE == UNODB_DETAIL_SPINLOCK_LOOP_PAUSE
-
-#if defined(UNODB_DETAIL_X86_64)
-  _mm_pause();
-#elif defined(__aarch64__)
-  __asm__ __volatile__("yield\n");
-#else
-#error Needs porting
-#endif
-
-#elif UNODB_SPINLOCK_LOOP_VALUE == UNODB_DETAIL_SPINLOCK_LOOP_EMPTY
-
-  // Empty
-
-#else  // UNODB_SPINLOCK_LOOP_VALUE
-
-#error Unknown SPINLOCK_LOOP value in CMake
-
-#endif  // UNODB_SPINLOCK_LOOP_VALUE
-}
-// LCOV_EXCL_STOP
-
-/// The underlying integer type used to store optimistic lock word, including
-/// its version and lock state information.
-//
-// TODO(laurynas) can we use optimistic_lock::version_type instead?
-using version_tag_type = std::uint64_t;
-
-/// A version-based optimistic lock that supports single-writer/multiple-readers
-/// concurrency without shared memory writes during read operations.
+/// The optimistic lock.
 ///
-/// Writers bump the version counter and readers detect concurrent writes by
-/// comparing the version counter before and after the reads. Instances are
-/// non-copyable and non-moveable.
+/// # Overview
+///
+/// A version-based optimistic lock that supports single-writer/multiple-readers
+/// concurrency without shared memory writes during read operations. Writers
+/// bump the version counter and readers detect concurrent writes by comparing
+/// the version counter before and after the reads.
 ///
 /// ## Examples
+///
+/// Protected data declaration and access API:
+/// \code{.cpp}
+/// // Multiple data fields protected by the same optimistic lock:
+/// unodb::in_critical_section<std::uint64_t> val;
+/// unodb::in_critical_section<std::uint64_t> val2;
+/// // Transparent operations using the underlying type:
+/// const auto bar = val + 5;
+/// ++val; // etc.
+/// // Explicit loads and store swhen needed:
+/// const auto baz = val2.load();
+/// val2.store(10);
+/// \endcode
 ///
 /// The simplest read locking example:
 /// \code{.cpp}
@@ -161,6 +110,13 @@ using version_tag_type = std::uint64_t;
 /// All `bool`-returning `try_` methods return true on success and false when
 /// a concurrent write lock requires the operation to be restarted.
 ///
+/// ## Protected data declaration
+///
+/// All data fields or variables to be protected by an optimistic lock must be
+/// wrapped in unodb::in_critical_section template. Effectively it converts the
+/// data accesses to relaxed atomic accesses, which is required by the
+/// optimistic lock memory model.
+///
 /// ## Read protocol
 ///
 /// A read critical section (RCS) is created by
@@ -219,6 +175,23 @@ using version_tag_type = std::uint64_t;
 /// be freed once all the thread epochs have advanced. All algorithms must
 /// immediately stop retrying read locking such data and restart.
 ///
+/// ## Memory model
+///
+/// The data races are prevented by implementing the Figure 6 method from
+/// Boehm's paper (see Literature section below for the reference):
+/// \code{.cpp}
+/// const auto ver0 = lock_version.load(std::memory_order_acquire);
+/// const auto data0 = data0.load(std::memory_order_relaxed);
+/// const auto data1 = data1.load(std::memory_order_relaxed);
+/// std::atomic_thread_fence(std::memory_order_acquire);
+/// const auto ver1 = lock_version.load(std::memory_order_relaxed);
+/// if (ver0 == ver1 && is_free(ver1)) {
+///   // OK to act on data0 and data1
+/// } else {
+///   // Restart
+/// }
+/// \endcode
+///
 /// ## Literature
 ///
 /// Based on the design from:
@@ -230,6 +203,79 @@ using version_tag_type = std::uint64_t;
 ///
 /// The optimistic lock is also similar to Linux kernel sequential locks with
 /// the addition of an obsolete state for data marked for reclamation.
+
+//
+// CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
+// HEADER FILES !!!
+//
+// This header defines _GLIBCXX_DEBUG and _GLIBCXX_DEBUG_PEDANTIC for
+// DEBUG builds.  If some standard headers are included before and
+// after those symbols are defined, then that results in different
+// container internal structure layouts and that is Not Good.
+#include "global.hpp"  // IWYU pragma: keep
+
+#include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <optional>
+#include <thread>
+#include <tuple>
+#include <type_traits>
+
+#ifdef UNODB_DETAIL_X86_64
+#include <emmintrin.h>
+#endif
+
+#include "assert.hpp"
+
+namespace unodb {
+
+/// The optimistic spinlock wait loop algorithm implementation.
+/// The implementation is selected by #UNODB_DETAIL_SPINLOCK_LOOP_VALUE, set by
+/// CMake, and can be either #UNODB_DETAIL_SPINLOCK_LOOP_PAUSE or
+/// #UNODB_DETAIL_SPINLOCK_LOOP_EMPTY
+// TODO(laurynas): move to unodb::detail namespace
+// LCOV_EXCL_START
+inline void spin_wait_loop_body() noexcept {
+#if UNODB_SPINLOCK_LOOP_VALUE == UNODB_DETAIL_SPINLOCK_LOOP_PAUSE
+
+#if defined(UNODB_DETAIL_X86_64)
+  _mm_pause();
+#elif defined(__aarch64__)
+  __asm__ __volatile__("yield\n");
+#else
+#error Needs porting
+#endif
+
+#elif UNODB_SPINLOCK_LOOP_VALUE == UNODB_DETAIL_SPINLOCK_LOOP_EMPTY
+
+  // Empty
+
+#else  // UNODB_SPINLOCK_LOOP_VALUE
+
+#error Unknown SPINLOCK_LOOP value in CMake
+
+#endif  // UNODB_SPINLOCK_LOOP_VALUE
+}
+// LCOV_EXCL_STOP
+
+/// The underlying integer type used to store optimistic lock word, including
+/// its version and lock state information.
+//
+// TODO(laurynas) can we use optimistic_lock::version_type instead?
+using version_tag_type = std::uint64_t;
+
+/// A version-based optimistic lock that supports single-writer/multiple-readers
+/// concurrency without shared memory writes during read operations.
+///
+/// Writers bump the version counter and readers detect concurrent writes by
+/// comparing the version counter before and after the reads. Instances are
+/// non-copyable and non-moveable.
+///
+/// See file-level documentation for usage examples and protocols.
 class [[nodiscard]] optimistic_lock final {
  public:
   /// Non-atomic lock word representation. Used for copying and manipulating
@@ -788,6 +834,9 @@ static_assert(std::is_standard_layout_v<optimistic_lock>);
 static_assert(std::is_trivially_destructible_v<optimistic_lock>);
 static_assert(std::is_nothrow_destructible_v<optimistic_lock>);
 
+/// In debug builds, assert that the optimistic_lock::write_guard \a guard is
+/// active.
+/// \hideinitializer
 #define UNODB_DETAIL_ASSERT_INACTIVE(guard)   \
   do {                                        \
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26800); \

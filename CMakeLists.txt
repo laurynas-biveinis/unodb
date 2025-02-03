@@ -43,7 +43,8 @@ endif()
 set_bool(is_not_msvc_clang ${is_clang} AND NOT ${is_msvc_clang})
 
 option(STANDALONE
-  "Build UnoDB not for linking with outside code. Enables extra global checks")
+  "Build UnoDB not for linking with outside code. Enables extra global checks, \
+builds benchmarks by default.")
 
 option(MAINTAINER_MODE "Maintainer mode: compiler warnings are fatal")
 if(MAINTAINER_MODE)
@@ -344,128 +345,6 @@ else()
   set(USE_BOOST_STACKTRACE OFF)
 endif()
 
-option(TESTS "Build tests, including fuzz ones if DeepState is available" ON)
-
-string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
-if(MSVC)
-  string(REPLACE ";" " " MSVC_WARNING_FLAGS_FOR_SUBDIR_STR_TMP "${MSVC_CXX_WARNING_FLAGS}")
-  string(REPLACE "/Wall" "" MSVC_WARNING_FLAGS_FOR_SUBDIR_STR
-    "${MSVC_WARNING_FLAGS_FOR_SUBDIR_STR_TMP}")
-endif()
-string(REPLACE ";" " " LD_FLAGS_FOR_SUBDIR_STR "${SANITIZER_LD_FLAGS}")
-
-macro(ADD_CXX_FLAGS_FOR_SUBDIR)
-  set(ORIG_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-  set(ORIG_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
-  set(ORIG_CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS})
-  set(ORIG_CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS})
-  string(APPEND CMAKE_CXX_FLAGS " " "${CXX_FLAGS_FOR_SUBDIR_STR}")
-  if(MSVC)
-    string(APPEND CMAKE_CXX_FLAGS " " "${MSVC_WARNING_FLAGS_FOR_SUBDIR_STR}")
-  endif()
-  if(is_not_msvc_clang AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14.0)
-    string(APPEND CMAKE_CXX_FLAGS " " "${CLANG_GE_14_CXX_FLAGS}")
-  endif()
-  string(APPEND CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
-  string(APPEND CMAKE_MODULE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
-  string(APPEND CMAKE_SHARED_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
-endmacro()
-
-macro(RESTORE_CXX_FLAGS_FOR_SUBDIR)
-  set(CMAKE_CXX_FLAGS ${ORIG_CMAKE_CXX_FLAGS})
-  set(CMAKE_EXE_LINKER_FLAGS ${ORIG_CMAKE_EXE_LINKER_FLAGS})
-  set(CMAKE_MODULE_LINKER_FLAGS ${ORIG_CMAKE_MODULE_LINKER_FLAGS})
-  set(CMAKE_SHARED_LINKER_FLAGS ${ORIG_CMAKE_SHARED_LINKER_FLAGS})
-endmacro()
-
-if(TESTS)
-  # For Windows: Prevent overriding the parent project's compiler/linker settings
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-  ADD_CXX_FLAGS_FOR_SUBDIR()
-  add_subdirectory(3rd_party/googletest)
-  RESTORE_CXX_FLAGS_FOR_SUBDIR()
-endif()
-
-set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark tests"
-  FORCE)
-set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL
-  "Suppressing Google Benchmark installation" FORCE)
-
-if(IPO_SUPPORTED)
-  if(is_debug)
-    # It seems that Google Benchmark does not support multi-configuration
-    # generators if LTO is enabled
-    message(STATUS "Disabling LTO for Google Benchmark due to debug build")
-  elseif(is_apple_clang)
-    message(STATUS
-      "Disabling LTO for Google Benchmark because Apple clang is not supported")
-  else()
-    set(BENCHMARK_ENABLE_LTO ON CACHE BOOL "Enabling LTO for Google Benchmark"
-      FORCE)
-    message(STATUS "Enabling LTO for Google Benchmark")
-  endif()
-endif()
-
-ADD_CXX_FLAGS_FOR_SUBDIR()
-add_subdirectory(3rd_party/benchmark)
-RESTORE_CXX_FLAGS_FOR_SUBDIR()
-
-# Do not build DeepState:
-# - if tests are disabled
-# - under Windows as it's not supported
-# - on anything else than x86_64
-# - if 32-bit build is not possible
-# - with GCC under macOS due to https://github.com/trailofbits/deepstate/issues/374
-# - under macOS with ASan or TSan enabled
-if(TESTS AND NOT (is_darwin AND (is_gxx OR SANITIZE_ADDRESS OR SANITIZE_THREAD))
-    AND NOT is_windows AND is_x86_64)
-  CHECK_INCLUDE_FILE(stdio.h CAN_BUILD_32BIT -m32)
-
-  if(CAN_BUILD_32BIT)
-    message(STATUS "32-bit compilation supported, building DeepState")
-
-    # ThreadSanitizer is not compatible with libfuzzer and LLVM 11 linker crashes
-    # on libfuzzer release build
-    if(is_clang AND NOT(is_release) AND NOT(SANITIZE_THREAD))
-      set(LIBFUZZER_AVAILABLE TRUE)
-      set(BUILD_DEEPSTATE_LIBFUZZER "-DDEEPSTATE_LIBFUZZER=ON")
-    else()
-      set(LIBFUZZER_AVAILABLE FALSE)
-      set(BUILD_DEEPSTATE_LIBFUZZER "-DDEEPSTATE_LIBFUZZER=OFF")
-    endif()
-
-    include(ExternalProject)
-    ExternalProject_Add(3rd_party_deepstate
-      SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rd_party/deepstate"
-      BINARY_DIR "${CMAKE_BINARY_DIR}/3rd_party/deepstate"
-      CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
-      "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-      "-DCMAKE_C_FLAGS=-w -Wno-implicit-function-declaration"
-      "-DCMAKE_CXX_FLAGS=-w" "${BUILD_DEEPSTATE_LIBFUZZER}"
-      INSTALL_COMMAND "")
-    ExternalProject_Get_property(3rd_party_deepstate SOURCE_DIR)
-    ExternalProject_Get_property(3rd_party_deepstate BINARY_DIR)
-
-    add_library(deepstate STATIC IMPORTED)
-    add_dependencies(deepstate 3rd_party_deepstate)
-    target_include_directories(deepstate INTERFACE "${SOURCE_DIR}/src/include/")
-    set_target_properties(deepstate PROPERTIES IMPORTED_LOCATION
-      "${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}deepstate${CMAKE_STATIC_LIBRARY_SUFFIX}")
-
-    if(LIBFUZZER_AVAILABLE)
-      add_library(deepstate_lf STATIC IMPORTED)
-      add_dependencies(deepstate_lf 3rd_party_deepstate)
-      target_include_directories(deepstate_lf INTERFACE
-        "${SOURCE_DIR}/src/include/")
-      set_target_properties(deepstate_lf PROPERTIES IMPORTED_LOCATION
-        "${BINARY_DIR}/libdeepstate_LF.a")
-    endif()
-  else()
-    message(STATUS "32-bit compilation not supported, skipping DeepState build")
-  endif()
-endif()
-
 # Generator expression helpers
 set(is_release_genex "$<CONFIG:Release>")
 set(is_not_release_genex "$<NOT:${is_release_genex}>")
@@ -504,14 +383,146 @@ set(is_standalone "$<BOOL:${STANDALONE}>")
 set(is_gxx_not_release_standalone
   $<AND:${is_gxx_genex},${is_not_release_genex},${is_standalone}>)
 
-target_compile_definitions(benchmark PUBLIC
-  "$<${is_gxx_not_release_standalone}:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
+option(TESTS "Build tests, including fuzz ones if DeepState is available" ON)
 
-# Add benchmark_include_dirs by target_include_directories(... SYSTEM ...)
-# before target_link_libraries so that benchmark headers are included through
-# -isystem not -I, resulting in build-breaking diagnostics.
-get_target_property(benchmark_include_dirs benchmark::benchmark
-  INTERFACE_INCLUDE_DIRECTORIES)
+option(BENCHMARKS "Build benchmarks" ${STANDALONE})
+
+if(TESTS OR BENCHMARKS)
+  string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
+  if(MSVC)
+    string(REPLACE ";" " " MSVC_WARNING_FLAGS_FOR_SUBDIR_STR_TMP
+      "${MSVC_CXX_WARNING_FLAGS}")
+    string(REPLACE "/Wall" "" MSVC_WARNING_FLAGS_FOR_SUBDIR_STR
+      "${MSVC_WARNING_FLAGS_FOR_SUBDIR_STR_TMP}")
+  endif()
+  string(REPLACE ";" " " LD_FLAGS_FOR_SUBDIR_STR "${SANITIZER_LD_FLAGS}")
+
+  macro(ADD_CXX_FLAGS_FOR_SUBDIR)
+    set(ORIG_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+    set(ORIG_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
+    set(ORIG_CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS})
+    set(ORIG_CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS})
+    string(APPEND CMAKE_CXX_FLAGS " " "${CXX_FLAGS_FOR_SUBDIR_STR}")
+    if(MSVC)
+      string(APPEND CMAKE_CXX_FLAGS " " "${MSVC_WARNING_FLAGS_FOR_SUBDIR_STR}")
+    endif()
+    if(is_not_msvc_clang
+        AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14.0)
+      string(APPEND CMAKE_CXX_FLAGS " " "${CLANG_GE_14_CXX_FLAGS}")
+    endif()
+    string(APPEND CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
+    string(APPEND CMAKE_MODULE_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
+    string(APPEND CMAKE_SHARED_LINKER_FLAGS "${LD_FLAGS_FOR_SUBDIR_STR}")
+  endmacro()
+
+  macro(RESTORE_CXX_FLAGS_FOR_SUBDIR)
+    set(CMAKE_CXX_FLAGS ${ORIG_CMAKE_CXX_FLAGS})
+    set(CMAKE_EXE_LINKER_FLAGS ${ORIG_CMAKE_EXE_LINKER_FLAGS})
+    set(CMAKE_MODULE_LINKER_FLAGS ${ORIG_CMAKE_MODULE_LINKER_FLAGS})
+    set(CMAKE_SHARED_LINKER_FLAGS ${ORIG_CMAKE_SHARED_LINKER_FLAGS})
+  endmacro()
+endif()
+
+if(TESTS)
+  # For Windows: Prevent overriding the parent project's compiler/linker settings
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+  ADD_CXX_FLAGS_FOR_SUBDIR()
+  add_subdirectory(3rd_party/googletest)
+  RESTORE_CXX_FLAGS_FOR_SUBDIR()
+
+  # Do not build DeepState:
+  # - under Windows as it's not supported
+  # - on anything else than x86_64
+  # - if 32-bit build is not possible
+  # - with GCC under macOS due to
+  #   https://github.com/trailofbits/deepstate/issues/374
+  # - under macOS with ASan or TSan enabled
+  if(NOT (is_darwin AND (is_gxx OR SANITIZE_ADDRESS OR SANITIZE_THREAD))
+      AND NOT is_windows AND is_x86_64)
+    CHECK_INCLUDE_FILE(stdio.h CAN_BUILD_32BIT -m32)
+
+    if(CAN_BUILD_32BIT)
+      message(STATUS "32-bit compilation supported, building DeepState")
+
+      # ThreadSanitizer is not compatible with libfuzzer and LLVM 11 linker
+      # crashes on libfuzzer release build
+      if(is_clang AND NOT(is_release) AND NOT(SANITIZE_THREAD))
+        set(LIBFUZZER_AVAILABLE TRUE)
+        set(BUILD_DEEPSTATE_LIBFUZZER "-DDEEPSTATE_LIBFUZZER=ON")
+      else()
+        set(LIBFUZZER_AVAILABLE FALSE)
+        set(BUILD_DEEPSTATE_LIBFUZZER "-DDEEPSTATE_LIBFUZZER=OFF")
+      endif()
+
+      include(ExternalProject)
+      ExternalProject_Add(3rd_party_deepstate
+        SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rd_party/deepstate"
+        BINARY_DIR "${CMAKE_BINARY_DIR}/3rd_party/deepstate"
+        CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
+        "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+        "-DCMAKE_C_FLAGS=-w -Wno-implicit-function-declaration"
+        "-DCMAKE_CXX_FLAGS=-w" "${BUILD_DEEPSTATE_LIBFUZZER}"
+        INSTALL_COMMAND "")
+      ExternalProject_Get_property(3rd_party_deepstate SOURCE_DIR)
+      ExternalProject_Get_property(3rd_party_deepstate BINARY_DIR)
+
+      add_library(deepstate STATIC IMPORTED)
+      add_dependencies(deepstate 3rd_party_deepstate)
+      target_include_directories(deepstate INTERFACE "${SOURCE_DIR}/src/include/")
+      set_target_properties(deepstate PROPERTIES IMPORTED_LOCATION
+        "${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}deepstate${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
+      if(LIBFUZZER_AVAILABLE)
+        add_library(deepstate_lf STATIC IMPORTED)
+        add_dependencies(deepstate_lf 3rd_party_deepstate)
+        target_include_directories(deepstate_lf INTERFACE
+          "${SOURCE_DIR}/src/include/")
+        set_target_properties(deepstate_lf PROPERTIES IMPORTED_LOCATION
+          "${BINARY_DIR}/libdeepstate_LF.a")
+      endif()
+    else()
+      message(STATUS
+        "32-bit compilation not supported, skipping DeepState build")
+    endif()
+  endif()
+endif()
+
+if(BENCHMARKS)
+  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL
+    "Suppressing Google Benchmark tests" FORCE)
+  set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL
+    "Suppressing Google Benchmark installation" FORCE)
+
+  if(IPO_SUPPORTED)
+    if(is_debug)
+      # It seems that Google Benchmark does not support multi-configuration
+      # generators if LTO is enabled
+      message(STATUS "Disabling LTO for Google Benchmark due to debug build")
+    elseif(is_apple_clang)
+      message(STATUS
+        "Disabling LTO for Google Benchmark because Apple clang is not \
+         supported")
+    else()
+      set(BENCHMARK_ENABLE_LTO ON CACHE BOOL "Enabling LTO for Google Benchmark"
+        FORCE)
+      message(STATUS "Enabling LTO for Google Benchmark")
+    endif()
+  endif()
+
+  ADD_CXX_FLAGS_FOR_SUBDIR()
+  add_subdirectory(3rd_party/benchmark)
+  RESTORE_CXX_FLAGS_FOR_SUBDIR()
+
+  target_compile_definitions(benchmark PUBLIC
+    "$<${is_gxx_not_release_standalone}:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
+
+  # Add benchmark_include_dirs by target_include_directories(... SYSTEM ...)
+  # before target_link_libraries so that benchmark headers are included through
+  # -isystem not -I, resulting in build-breaking diagnostics.
+  get_target_property(benchmark_include_dirs benchmark::benchmark
+    INTERFACE_INCLUDE_DIRECTORIES)
+endif()
 
 if(NOT is_any_clang)
   message(STATUS "Not using clang-tidy due to non-clang compiler being used")
@@ -718,10 +729,10 @@ endif()
 set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"
   "--trace-children=yes" "-v")
 
-add_custom_target(valgrind
-  DEPENDS valgrind_tests valgrind_benchmarks valgrind_examples)
+add_custom_target(valgrind DEPENDS valgrind_benchmarks valgrind_examples)
 
-if (TESTS)
+if(TESTS)
+  add_dependencies(valgrind valgrind_tests)
   enable_testing()
 
   add_unodb_library(unodb_test test_heap.cpp)
@@ -744,7 +755,11 @@ if (TESTS)
   add_subdirectory(test)
 endif()
 
-add_subdirectory(benchmark)
+if(BENCHMARKS)
+  add_dependencies(valgrind valgrind_benchmarks)
+  add_subdirectory(benchmark)
+endif()
+
 add_subdirectory(examples)
 
 set(BIN_DIR_CDB "${CMAKE_BINARY_DIR}/compile_commands.json")
@@ -764,6 +779,7 @@ message(STATUS "AVX2: ${AVX2}")
 message(STATUS "SPINLOCK_LOOP: ${SPINLOCK_LOOP}")
 message(STATUS "STATS: ${STATS}")
 message(STATUS "TESTS: ${TESTS}")
+message(STATUS "BENCHMARKS: ${BENCHMARKS}")
 message(STATUS "MAINTAINER_MODE: ${MAINTAINER_MODE}")
 message(STATUS "COVERAGE: ${COVERAGE}")
 message(STATUS "GCOV_PATH: ${GCOV_PATH}")

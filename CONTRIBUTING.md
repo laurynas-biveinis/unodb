@@ -27,9 +27,9 @@ There also other development-specific options. All of them are `OFF` by default.
 
 * `-DSTANDALONE=ON` always should be given when working on UnoDB itself, whereas
   for users with UnoDB as a part of another project it should be `OFF`. When
-  turned on, it will enable extra global debug checks that require entire
-  programs to be compiled with them. Currently, this consists of the libstdc++
-  debug mode.
+  turned on, it will build benchmarks by default and enable extra global debug
+  checks that require entire programs to be compiled with them. Currently, this
+  consists of the libstdc++ debug mode.
 * `-DMAINTAINER_MODE=ON` to enable maintainer diagnostics. This makes
   compilation warnings fatal.
 * `-DSANITIZE_ADDRESS=ON` to enable AddressSanitizer and, if available,

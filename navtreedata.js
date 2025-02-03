@@ -25,27 +25,27 @@
 var NAVTREE =
 [
   [ "UnoDB", "index.html", [
-    [ "unodb", "index.html#autotoc_md19", [
-      [ "Introduction", "index.html#autotoc_md20", null ],
-      [ "Requirements", "index.html#autotoc_md21", [
-        [ "Build dependencies", "index.html#autotoc_md22", null ],
-        [ "Build dependencies, bundled as git submodules", "index.html#autotoc_md23", null ]
+    [ "unodb", "index.html#autotoc_md20", [
+      [ "Introduction", "index.html#autotoc_md21", null ],
+      [ "Requirements", "index.html#autotoc_md22", [
+        [ "Build dependencies", "index.html#autotoc_md23", null ],
+        [ "Build dependencies, bundled as git submodules", "index.html#autotoc_md24", null ]
       ] ],
-      [ "Building", "index.html#autotoc_md24", null ],
-      [ "Platform-Specific Notes", "index.html#autotoc_md25", [
-        [ "Ubuntu 22.04", "index.html#autotoc_md26", null ],
-        [ "Amazon Linux 2023", "index.html#autotoc_md27", null ],
-        [ "Amazon Linux 2", "index.html#autotoc_md28", null ]
+      [ "Building", "index.html#autotoc_md25", null ],
+      [ "Platform-Specific Notes", "index.html#autotoc_md26", [
+        [ "Ubuntu 22.04", "index.html#autotoc_md27", null ],
+        [ "Amazon Linux 2023", "index.html#autotoc_md28", null ],
+        [ "Amazon Linux 2", "index.html#autotoc_md29", null ]
       ] ],
-      [ "Usage", "index.html#autotoc_md29", null ],
-      [ "Technical Details", "index.html#autotoc_md30", [
-        [ "Adaptive Radix Tree", "index.html#autotoc_md31", null ],
-        [ "Sequential Lock", "index.html#autotoc_md32", null ],
-        [ "Quiescent State-Based Reclamation (QSBR)", "index.html#autotoc_md33", null ]
+      [ "Usage", "index.html#autotoc_md30", null ],
+      [ "Technical Details", "index.html#autotoc_md31", [
+        [ "Adaptive Radix Tree", "index.html#autotoc_md32", null ],
+        [ "Sequential Lock", "index.html#autotoc_md33", null ],
+        [ "Quiescent State-Based Reclamation (QSBR)", "index.html#autotoc_md34", null ]
       ] ],
-      [ "Related Projects", "index.html#autotoc_md34", null ],
-      [ "Contributing", "index.html#autotoc_md35", null ],
-      [ "Literature", "index.html#autotoc_md36", null ]
+      [ "Related Projects", "index.html#autotoc_md35", null ],
+      [ "Contributing", "index.html#autotoc_md36", null ],
+      [ "Literature", "index.html#autotoc_md37", null ]
     ] ],
     [ "CONTRIBUTING", "md_CONTRIBUTING.html", [
       [ "Contributing to UnoDB", "md_CONTRIBUTING.html#autotoc_md0", [
@@ -60,7 +60,8 @@ var NAVTREE =
         [ "Fuzzing", "md_CONTRIBUTING.html#autotoc_md9", null ],
         [ "Commit messages", "md_CONTRIBUTING.html#autotoc_md10", null ],
         [ "Pull Requests", "md_CONTRIBUTING.html#autotoc_md11", null ],
-        [ "License", "md_CONTRIBUTING.html#autotoc_md12", null ]
+        [ "Benchmarking", "md_CONTRIBUTING.html#autotoc_md12", null ],
+        [ "License", "md_CONTRIBUTING.html#autotoc_md13", null ]
       ] ]
     ] ],
     [ "Topics", "topics.html", "topics" ],

@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['ubuntu_2022_2004_0',['Ubuntu 22.04',['../index.html#autotoc_md26',1,'']]],
+  ['ubuntu_2022_2004_0',['Ubuntu 22.04',['../index.html#autotoc_md27',1,'']]],
   ['unlock_1',['unlock',['../classunodb_1_1optimistic__lock_1_1write__guard.html#aa9e2296850d48a7c50d40be79036be07',1,'unodb::optimistic_lock::write_guard']]],
   ['unlock_5fand_5fobsolete_2',['unlock_and_obsolete',['../classunodb_1_1optimistic__lock_1_1write__guard.html#a4083c784a45907e08d1b159b30af6bdb',1,'unodb::optimistic_lock::write_guard']]],
-  ['unodb_3',['unodb',['../md_CONTRIBUTING.html#autotoc_md0',1,'Contributing to UnoDB'],['../index.html',1,'UnoDB'],['../index.html#autotoc_md19',1,'unodb'],['../namespaceunodb.html',1,'unodb']]],
+  ['unodb_3',['unodb',['../md_CONTRIBUTING.html#autotoc_md0',1,'Contributing to UnoDB'],['../index.html',1,'UnoDB'],['../index.html#autotoc_md20',1,'unodb'],['../namespaceunodb.html',1,'unodb']]],
   ['unodb_3a_3adetail_4',['detail',['../namespaceunodb_1_1detail.html',1,'unodb']]],
   ['unodb_5fdetail_5faddress_5fsanitizer_5',['UNODB_DETAIL_ADDRESS_SANITIZER',['../group__internal.html#ga7b07d99892b2d5fa3657675affb67a29',1,'global.hpp']]],
   ['unodb_5fdetail_5fassert_6',['UNODB_DETAIL_ASSERT',['../group__internal.html#ga143793f205c69f573831b99b3dee1b9c',1,'assert.hpp']]],
@@ -51,5 +51,5 @@ var searchData=
   ['unodb_5fdetail_5fused_5fin_5fdebug_48',['UNODB_DETAIL_USED_IN_DEBUG',['../group__internal.html#ga635640d5d3b202d11b61c3730f6c2988',1,'global.hpp']]],
   ['unodb_5fdetail_5fwith_5fstats_49',['UNODB_DETAIL_WITH_STATS',['../group__internal.html#ga9ec8bd41c6ee401f40edc11b624cabe9',1,'global.hpp']]],
   ['unodb_5fdetail_5fx86_5f64_50',['UNODB_DETAIL_X86_64',['../group__internal.html#ga7496e03d41dc595453e75e3e66157007',1,'global.hpp']]],
-  ['usage_51',['Usage',['../index.html#autotoc_md29',1,'']]]
+  ['usage_51',['Usage',['../index.html#autotoc_md30',1,'']]]
 ];

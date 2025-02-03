@@ -200,6 +200,34 @@ Pull Requests</h2>
 <li>Very obvious changes may be pushed directly.</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md12"></a>
+Benchmarking</h2>
+<p>Benchmarking is hard: it is easy to do it incorrectly with no obvious warning signs. Here are some suggestions how to set it up. They will not guarantee valid results but should exclude some classes of invalid ones:</p>
+<ul>
+<li><p class="startli">Set up the benchmark machine for the best CPU counter observability and run repeatability. This configuration is at odds with some of the Linux security features, so don't do that on machines close to production:</p>
+<div class="fragment"><div class="line">sudo sh -c &quot;echo -1 &gt; /proc/sys/kernel/perf_event_paranoid&quot;</div>
+<div class="line">sudo sysctl -w kernel.kptr_restrict=0</div>
+<div class="line">sudo sh -c &quot;echo 0 &gt; /proc/sys/kernel/yama/ptrace_scope&quot;</div>
+<div class="line">sudo sysctl -w vm.swappiness=0</div>
+</div><!-- fragment --></li>
+<li><p class="startli">To make the above settings survive reboots, edit <code>/etc/sysctl.conf</code> for:</p>
+<div class="fragment"><div class="line">kernel.perf_event_paranoid = -1</div>
+<div class="line">kernel.kptr_restrict = 0</div>
+<div class="line">vm.swappiness = 0</div>
+</div><!-- fragment --><p class="startli">and <code>/etc/sysctl.d/10-ptrace.conf</code> for <code>kernel.yama.ptrace_scope = 0</code>.</p>
+</li>
+<li>On x86_64, make sure to use the performance governor for the CPU frequency management: edit <code>/etc/default/cpufrequtils</code> for <code>GOVERNOR="performance"</code> followed by <code>sudo /etc/init.d/cpufrequtils restart</code>. You can also do <code>sudo cpupower frequency-set --governor performance</code> for transient setting.</li>
+<li>Disable hyperthreading: <code>sudo sh -c "echo off &gt; /sys/devices/system/cpu/smt/control"</code></li>
+<li>Pick a CPU and shield it from other threads running there: <code>sudo cset shield --cpu=2 --kthread=on</code></li>
+<li>Start a shell for benchmarking in the shield: <code>sudo cset shield --exec zsh</code></li>
+<li>Use jemalloc for heap: <code>export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2</code></li>
+<li>Now run your desired benchmarks. For the supported flags for i.e. benchmark filtering see <a href="https://github.com/google/benchmark/blob/main/docs/user_guide.md">Google Benchmark documentation</a>.</li>
+<li><p class="startli">To measure the effect of a patch, Google Benchmark provides <a href="https://github.com/google/benchmark/blob/main/docs/tools.md#u-test">U-Test</a> feature. Let's say you changed N16 node fields, but only for the OLC case. Then you can run N16-specific tests, filtered for the OLC. The next command is in the directory with benchmark executables, and the baseline executables are at <code>/foo/bar/baseline</code>:</p>
+<div class="fragment"><div class="line">python3 ../../../3rd_party/benchmark/tools/compare.py benchmarks \</div>
+<div class="line">   /foo/bar/baseline/micro_benchmark_olc \</div>
+<div class="line">   ./micro_benchmark_olc --benchmark_repetitions=9</div>
+</div><!-- fragment --></li>
+</ul>
+<h2><a class="anchor" id="autotoc_md13"></a>
 License</h2>
 <p>By contributing, you agree that your contributions will be licensed under the [LICENSE](LICENSE) terms. </p>
 </div></div><!-- contents -->

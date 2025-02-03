@@ -6,5 +6,5 @@ var searchData=
   ['node_5ftype_5fcount_3',['node_type_count',['../namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc',1,'unodb::detail']]],
   ['node_5ftype_5fcounter_5farray_4',['node_type_counter_array',['../namespaceunodb.html#a8105523dd9adff845377f54dd034b838',1,'unodb']]],
   ['nominmax_5',['NOMINMAX',['../group__internal.html#ga9f918755b601cf4bffca775992e6fb90',1,'global.hpp']]],
-  ['notes_6',['Platform-Specific Notes',['../index.html#autotoc_md25',1,'']]]
+  ['notes_6',['Platform-Specific Notes',['../index.html#autotoc_md26',1,'']]]
 ];

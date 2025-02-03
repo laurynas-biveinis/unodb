@@ -128,6 +128,34 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a0733ad84e6f45d73043b661275f60b2a" id="r_a0733ad84e6f45d73043b661275f60b2a"><td class="memItemLeft" align="right" valign="top"><a id="a0733ad84e6f45d73043b661275f60b2a" name="a0733ad84e6f45d73043b661275f60b2a"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>optimistic_lock</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a>=<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">default</a></td></tr>
+<tr class="memdesc:a0733ad84e6f45d73043b661275f60b2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new optimistic lock. <br /></td></tr>
+<tr class="separator:a0733ad84e6f45d73043b661275f60b2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20e74ba469d7a88d080c4f379fa87885" id="r_a20e74ba469d7a88d080c4f379fa87885"><td class="memItemLeft" align="right" valign="top"><a id="a20e74ba469d7a88d080c4f379fa87885" name="a20e74ba469d7a88d080c4f379fa87885"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>~optimistic_lock</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a>=<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">default</a></td></tr>
+<tr class="memdesc:a20e74ba469d7a88d080c4f379fa87885"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destruct the lock, trivially. <br /></td></tr>
+<tr class="separator:a20e74ba469d7a88d080c4f379fa87885"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a557b207dfd8a0d42a63e27dd34a05db0" id="r_a557b207dfd8a0d42a63e27dd34a05db0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0">try_read_lock</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a557b207dfd8a0d42a63e27dd34a05db0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Acquire and return an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> for this lock.  <br /></td></tr>
+<tr class="separator:a557b207dfd8a0d42a63e27dd34a05db0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d3bc8fc5293073acb7f1dc9b8f7080a" id="r_a3d3bc8fc5293073acb7f1dc9b8f7080a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#a3d3bc8fc5293073acb7f1dc9b8f7080a">rehydrate_read_lock</a> (<a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">version_tag</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a3d3bc8fc5293073acb7f1dc9b8f7080a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> using a previously saved <em>version_tag</em>.  <br /></td></tr>
+<tr class="separator:a3d3bc8fc5293073acb7f1dc9b8f7080a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0801000a72aa582f32a7d8b3626ff7fd" id="r_a0801000a72aa582f32a7d8b3626ff7fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#a0801000a72aa582f32a7d8b3626ff7fd">check_on_dealloc</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a0801000a72aa582f32a7d8b3626ff7fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assert that this lock has no open <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> instances.  <br /></td></tr>
+<tr class="separator:a0801000a72aa582f32a7d8b3626ff7fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a246e73602241135f01d74ff879f369e9" id="r_a246e73602241135f01d74ff879f369e9"><td class="memItemLeft" align="right" valign="top"><a id="a246e73602241135f01d74ff879f369e9" name="a246e73602241135f01d74ff879f369e9"></a>
+<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>is_obsoleted_by_this_thread</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a246e73602241135f01d74ff879f369e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">In debug builds, check whether this lock is in obsolete state and that it was this thread that obsoleted it. <br /></td></tr>
+<tr class="separator:a246e73602241135f01d74ff879f369e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9696be3421cb1dd27566cfb352d870c" id="r_ad9696be3421cb1dd27566cfb352d870c"><td class="memItemLeft" align="right" valign="top"><a id="ad9696be3421cb1dd27566cfb352d870c" name="ad9696be3421cb1dd27566cfb352d870c"></a>
+<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>is_write_locked</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:ad9696be3421cb1dd27566cfb352d870c"><td class="mdescLeft">&#160;</td><td class="mdescRight">In debug builds, check whether this lock is write locked. <br /></td></tr>
+<tr class="separator:ad9696be3421cb1dd27566cfb352d870c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26ddceb8b35d6632bfd6192e01542dd6" id="r_a26ddceb8b35d6632bfd6192e01542dd6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#a26ddceb8b35d6632bfd6192e01542dd6">dump</a> (std::ostream &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">os</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a></td></tr>
+<tr class="memdesc:a26ddceb8b35d6632bfd6192e01542dd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output the lock representation to <em>os</em> output stream.  <br /></td></tr>
+<tr class="separator:a26ddceb8b35d6632bfd6192e01542dd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a227ade2bbd8cbd17940a7639100fd4d8" id="r_a227ade2bbd8cbd17940a7639100fd4d8"><td class="memItemLeft" align="right" valign="top"><a id="a227ade2bbd8cbd17940a7639100fd4d8" name="a227ade2bbd8cbd17940a7639100fd4d8"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>optimistic_lock</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a> &amp;)=<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">delete</a></td></tr>
 <tr class="separator:a227ade2bbd8cbd17940a7639100fd4d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,64 +168,51 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6b819adb781fe2f733fc7b81f783e024" id="r_a6b819adb781fe2f733fc7b81f783e024"><td class="memItemLeft" align="right" valign="top"><a id="a6b819adb781fe2f733fc7b81f783e024" name="a6b819adb781fe2f733fc7b81f783e024"></a>
 <a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a> &amp;&amp;)=<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">delete</a></td></tr>
 <tr class="separator:a6b819adb781fe2f733fc7b81f783e024"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a557b207dfd8a0d42a63e27dd34a05db0" id="r_a557b207dfd8a0d42a63e27dd34a05db0"><td class="memItemLeft" align="right" valign="top"><a id="a557b207dfd8a0d42a63e27dd34a05db0" name="a557b207dfd8a0d42a63e27dd34a05db0"></a>
-<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a>&#160;</td><td class="memItemRight" valign="bottom"><b>try_read_lock</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a557b207dfd8a0d42a63e27dd34a05db0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d3bc8fc5293073acb7f1dc9b8f7080a" id="r_a3d3bc8fc5293073acb7f1dc9b8f7080a"><td class="memItemLeft" align="right" valign="top"><a id="a3d3bc8fc5293073acb7f1dc9b8f7080a" name="a3d3bc8fc5293073acb7f1dc9b8f7080a"></a>
-<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a>&#160;</td><td class="memItemRight" valign="bottom"><b>rehydrate_read_lock</b> (<a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">version_tag</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a3d3bc8fc5293073acb7f1dc9b8f7080a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0801000a72aa582f32a7d8b3626ff7fd" id="r_a0801000a72aa582f32a7d8b3626ff7fd"><td class="memItemLeft" align="right" valign="top"><a id="a0801000a72aa582f32a7d8b3626ff7fd" name="a0801000a72aa582f32a7d8b3626ff7fd"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>check_on_dealloc</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a0801000a72aa582f32a7d8b3626ff7fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a246e73602241135f01d74ff879f369e9" id="r_a246e73602241135f01d74ff879f369e9"><td class="memItemLeft" align="right" valign="top"><a id="a246e73602241135f01d74ff879f369e9" name="a246e73602241135f01d74ff879f369e9"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>is_obsoleted_by_this_thread</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a246e73602241135f01d74ff879f369e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad9696be3421cb1dd27566cfb352d870c" id="r_ad9696be3421cb1dd27566cfb352d870c"><td class="memItemLeft" align="right" valign="top"><a id="ad9696be3421cb1dd27566cfb352d870c" name="ad9696be3421cb1dd27566cfb352d870c"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>is_write_locked</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:ad9696be3421cb1dd27566cfb352d870c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a26ddceb8b35d6632bfd6192e01542dd6" id="r_a26ddceb8b35d6632bfd6192e01542dd6"><td class="memItemLeft" align="right" valign="top"><a id="a26ddceb8b35d6632bfd6192e01542dd6" name="a26ddceb8b35d6632bfd6192e01542dd6"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">os</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a></td></tr>
-<tr class="separator:a26ddceb8b35d6632bfd6192e01542dd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
-<tr class="memitem:a87019ebcc11a4033acddd2b810adb490" id="r_a87019ebcc11a4033acddd2b810adb490"><td class="memItemLeft" align="right" valign="top"><a id="a87019ebcc11a4033acddd2b810adb490" name="a87019ebcc11a4033acddd2b810adb490"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>check</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">locked_version</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:a87019ebcc11a4033acddd2b810adb490" id="r_a87019ebcc11a4033acddd2b810adb490"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#a87019ebcc11a4033acddd2b810adb490">check</a> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">locked_version</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a87019ebcc11a4033acddd2b810adb490"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the current lock version has not changed since <em>locked_version</em>.  <br /></td></tr>
 <tr class="separator:a87019ebcc11a4033acddd2b810adb490"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a427d68606712d24c073e8f2c13264f55" id="r_a427d68606712d24c073e8f2c13264f55"><td class="memItemLeft" align="right" valign="top"><a id="a427d68606712d24c073e8f2c13264f55" name="a427d68606712d24c073e8f2c13264f55"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>try_read_unlock</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">locked_version</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:a427d68606712d24c073e8f2c13264f55" id="r_a427d68606712d24c073e8f2c13264f55"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#a427d68606712d24c073e8f2c13264f55">try_read_unlock</a> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">locked_version</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a427d68606712d24c073e8f2c13264f55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Try to read unlock this lock by comparing the current version with <em>locked_version</em>.  <br /></td></tr>
 <tr class="separator:a427d68606712d24c073e8f2c13264f55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a462a9f65f786f790dbbc1b8af92a9e37" id="r_a462a9f65f786f790dbbc1b8af92a9e37"><td class="memItemLeft" align="right" valign="top"><a id="a462a9f65f786f790dbbc1b8af92a9e37" name="a462a9f65f786f790dbbc1b8af92a9e37"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>try_upgrade_to_write_lock</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">locked_version</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:a462a9f65f786f790dbbc1b8af92a9e37" id="r_a462a9f65f786f790dbbc1b8af92a9e37"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#a462a9f65f786f790dbbc1b8af92a9e37">try_upgrade_to_write_lock</a> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">locked_version</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a462a9f65f786f790dbbc1b8af92a9e37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Try to write lock by atomically setting the lock bit while verifying the version matches <em>locked_version</em>.  <br /></td></tr>
 <tr class="separator:a462a9f65f786f790dbbc1b8af92a9e37"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f579be6e903ef98b1fa9a3122ee636b" id="r_a0f579be6e903ef98b1fa9a3122ee636b"><td class="memItemLeft" align="right" valign="top"><a id="a0f579be6e903ef98b1fa9a3122ee636b" name="a0f579be6e903ef98b1fa9a3122ee636b"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>write_unlock</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:a0f579be6e903ef98b1fa9a3122ee636b" id="r_a0f579be6e903ef98b1fa9a3122ee636b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#a0f579be6e903ef98b1fa9a3122ee636b">write_unlock</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a0f579be6e903ef98b1fa9a3122ee636b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write unlock this lock.  <br /></td></tr>
 <tr class="separator:a0f579be6e903ef98b1fa9a3122ee636b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af296d16c2c9b99751a0c514149761241" id="r_af296d16c2c9b99751a0c514149761241"><td class="memItemLeft" align="right" valign="top"><a id="af296d16c2c9b99751a0c514149761241" name="af296d16c2c9b99751a0c514149761241"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>write_unlock_and_obsolete</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:af296d16c2c9b99751a0c514149761241" id="r_af296d16c2c9b99751a0c514149761241"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#af296d16c2c9b99751a0c514149761241">write_unlock_and_obsolete</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:af296d16c2c9b99751a0c514149761241"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomically write unlock and obsolete this lock.  <br /></td></tr>
 <tr class="separator:af296d16c2c9b99751a0c514149761241"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f037a7201745546fb1a1530280a166f" id="r_a5f037a7201745546fb1a1530280a166f"><td class="memItemLeft" align="right" valign="top"><a id="a5f037a7201745546fb1a1530280a166f" name="a5f037a7201745546fb1a1530280a166f"></a>
 <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>inc_read_lock_count</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a5f037a7201745546fb1a1530280a166f"><td class="mdescLeft">&#160;</td><td class="mdescRight">In debug builds, increment the read lock counter, no-op in release builds. <br /></td></tr>
 <tr class="separator:a5f037a7201745546fb1a1530280a166f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a089b1cee3747f7a42618fca56db4b03b" id="r_a089b1cee3747f7a42618fca56db4b03b"><td class="memItemLeft" align="right" valign="top"><a id="a089b1cee3747f7a42618fca56db4b03b" name="a089b1cee3747f7a42618fca56db4b03b"></a>
 <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>dec_read_lock_count</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memdesc:a089b1cee3747f7a42618fca56db4b03b"><td class="mdescLeft">&#160;</td><td class="mdescRight">In debug builds, decrement the read lock counter, no-op in release builds. <br /></td></tr>
 <tr class="separator:a089b1cee3747f7a42618fca56db4b03b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a87ca3251940e5e31314d2a59e760cb7e" id="r_a87ca3251940e5e31314d2a59e760cb7e"><td class="memItemLeft" align="right" valign="top"><a id="a87ca3251940e5e31314d2a59e760cb7e" name="a87ca3251940e5e31314d2a59e760cb7e"></a>
 <a class="el" href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html">atomic_version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>version</b> {}</td></tr>
+<tr class="memdesc:a87ca3251940e5e31314d2a59e760cb7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The atomic lock word. <br /></td></tr>
 <tr class="separator:a87ca3251940e5e31314d2a59e760cb7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a533b7c85785d3da0427152ec1312d6ac" id="r_a533b7c85785d3da0427152ec1312d6ac"><td class="memItemLeft" align="right" valign="top"><a id="a533b7c85785d3da0427152ec1312d6ac" name="a533b7c85785d3da0427152ec1312d6ac"></a>
 std::atomic&lt; std::int64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>read_lock_count</b> {0}</td></tr>
+<tr class="memdesc:a533b7c85785d3da0427152ec1312d6ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">In debug builds, the counter of currently-active read locks. <br /></td></tr>
 <tr class="separator:a533b7c85785d3da0427152ec1312d6ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7feae095aa3b9f62d93da82d4ce6909e" id="r_a7feae095aa3b9f62d93da82d4ce6909e"><td class="memItemLeft" align="right" valign="top"><a id="a7feae095aa3b9f62d93da82d4ce6909e" name="a7feae095aa3b9f62d93da82d4ce6909e"></a>
 std::thread::id&#160;</td><td class="memItemRight" valign="bottom"><b>obsoleter_thread</b> {}</td></tr>
+<tr class="memdesc:a7feae095aa3b9f62d93da82d4ce6909e"><td class="mdescLeft">&#160;</td><td class="mdescRight">In debug builds, the ID of the thread which obsoleted this lock. <br /></td></tr>
 <tr class="separator:a7feae095aa3b9f62d93da82d4ce6909e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations. </p>
-<p>Writers bump the version counter and readers detect concurrent writes by comparing the version counter before and after the reads.</p>
+<p>Writers bump the version counter and readers detect concurrent writes by comparing the version counter before and after the reads. Instances are non-copyable and non-moveable.</p>
 <h2><a class="anchor" id="autotoc_md13"></a>
 Examples</h2>
 <p>The simplest read locking example: </p><div class="fragment"><div class="line"><span class="comment">// Spin until lock is not write-locked nor obsolete</span></div>
@@ -254,7 +269,7 @@ Examples</h2>
 <div class="line"><span class="comment">// released on scope exit.</span></div>
 <div class="line"><span class="comment">// ...</span></div>
 <div class="line"><span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1write__guard_html"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a></div><div class="ttdoc">A write guard (WG) for exclusive access protection.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:539</div></div>
+<div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1write__guard_html"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a></div><div class="ttdoc">A write guard (WG) for exclusive access protection.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:540</div></div>
 </div><!-- fragment --><p>An example of write locking that ends with data deletion: </p><div class="fragment"><div class="line"><span class="keyword">auto</span> <a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_rcs</a> = lock.try_read_lock();</div>
 <div class="line"><span class="keywordflow">if</span> (<a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_rcs</a>.must_restart()) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><span class="keyword">auto</span> <a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_wg</a> = <a class="code hl_class" href="classunodb_1_1optimistic__lock_1_1write__guard.html">optimistic_lock::write_guard</a>{std::move(<a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_rcs</a>)};</div>
@@ -264,15 +279,15 @@ Examples</h2>
 <div class="line"><a class="code hl_variable" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">foo_wg</a>.<a class="code hl_function" href="classunodb_1_1optimistic__lock_1_1write__guard.html#a4083c784a45907e08d1b159b30af6bdb">unlock_and_obsolete</a>();</div>
 <div class="line"><span class="comment">// Mark data to be reclaimed when it is safe to do so</span></div>
 <div class="line"><span class="comment">// ...</span></div>
-<div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1write__guard_html_a4083c784a45907e08d1b159b30af6bdb"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1write__guard.html#a4083c784a45907e08d1b159b30af6bdb">unodb::optimistic_lock::write_guard::unlock_and_obsolete</a></div><div class="ttdeci">void unlock_and_obsolete() noexcept</div><div class="ttdoc">Write unlock and make obsolete the underlying lock, deactivating this write guard.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:566</div></div>
+<div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1write__guard_html_a4083c784a45907e08d1b159b30af6bdb"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1write__guard.html#a4083c784a45907e08d1b159b30af6bdb">unodb::optimistic_lock::write_guard::unlock_and_obsolete</a></div><div class="ttdeci">void unlock_and_obsolete() noexcept</div><div class="ttdoc">Write unlock and make obsolete the underlying lock, deactivating this write guard.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:567</div></div>
 </div><!-- fragment --><h2><a class="anchor" id="autotoc_md14"></a>
 API conventions</h2>
 <p>All <code>bool</code>-returning <code>try_</code> methods return true on success and false when a concurrent write lock requires the operation to be restarted.</p>
 <h2><a class="anchor" id="autotoc_md15"></a>
 Read protocol</h2>
-<p>A read critical section (RCS) is created by unodb::optimistic_lock::try_read_lock(), which will either spin until the lock is not write-locked, or will return immediately if the lock goes to the obsolete state.</p>
+<p>A read critical section (RCS) is created by <a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0" title="Acquire and return an optimistic_lock::read_critical_section for this lock.">unodb::optimistic_lock::try_read_lock()</a>, which will either spin until the lock is not write-locked, or will return immediately if the lock goes to the obsolete state.</p>
 <p>The obsolete state must be checked for by calling <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">unodb::optimistic_lock::read_critical_section::must_restart()</a> immediately after creating the RCS.</p>
-<p>No pointers may be dereferenced in an RCS before a successful read unlock (unodb::optimistic_lock::try_read_unlock()) or an interim check (unodb::optimistic_lock::check()) call. Similarly, no non-pointer data may be accessed in any fault-causing way if it's illegal.</p>
+<p>No pointers may be dereferenced in an RCS before a successful read unlock (<a class="el" href="classunodb_1_1optimistic__lock.html#a427d68606712d24c073e8f2c13264f55" title="Try to read unlock this lock by comparing the current version with locked_version.">unodb::optimistic_lock::try_read_unlock()</a>) or an interim check (<a class="el" href="classunodb_1_1optimistic__lock.html#a87019ebcc11a4033acddd2b810adb490" title="Check if the current lock version has not changed since locked_version.">unodb::optimistic_lock::check()</a>) call. Similarly, no non-pointer data may be accessed in any fault-causing way if it's illegal.</p>
 <p>To follow the above rules, first copy the data of interest, then verify consistency via unlock or version check call. Only use the copied data if these operations succeeded. Otherwise an algorithm restart is necessary.</p>
 <p>In the current implementation, it is possible for a reader to be starved indefinitely.</p>
 <h2><a class="anchor" id="autotoc_md16"></a>
@@ -283,7 +298,7 @@ Write protocol</h2>
 Internals</h2>
 <p>A lock is a single machine word, that encodes locked-unlocked state, obsolete state, and version number.</p>
 <p>Locking for write (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html" title="A write guard (WG) for exclusive access protection.">unodb::optimistic_lock::write_guard()</a>) atomically sets the locked state and bumps the version number.</p>
-<p>Locking for read (unodb::optimistic_lock::try_read_lock()) saves the version number at the time, and unlocking for read (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">unodb::optimistic_lock::read_critical_section::try_read_unlock()</a>) checks whether the lock version did not advance since the read lock. It is also possible to check this in a middle of an RCS (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e" title="Check whether this RCS is still valid.">unodb::optimistic_lock::read_critical_section::check()</a>), which has exactly the same semantics under a different name for descriptive code.</p>
+<p>Locking for read (<a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0" title="Acquire and return an optimistic_lock::read_critical_section for this lock.">unodb::optimistic_lock::try_read_lock()</a>) saves the version number at the time, and unlocking for read (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">unodb::optimistic_lock::read_critical_section::try_read_unlock()</a>) checks whether the lock version did not advance since the read lock. It is also possible to check this in a middle of an RCS (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e" title="Check whether this RCS is still valid.">unodb::optimistic_lock::read_critical_section::check()</a>), which has exactly the same semantics under a different name for descriptive code.</p>
 <p>A lock in obsolete state marks data which is on the deallocation backlog to be freed once all the thread epochs have advanced. All algorithms must immediately stop retrying read locking such data and restart.</p>
 <h2><a class="anchor" id="autotoc_md18"></a>
 Literature</h2>
@@ -293,7 +308,278 @@ Literature</h2>
   models?", MSPC 2012, for the critical section data access memory ordering rules.</li>
 </ul>
 <p>The optimistic lock is also similar to Linux kernel sequential locks with the addition of an obsolete state for data marked for reclamation. </p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a87019ebcc11a4033acddd2b810adb490" name="a87019ebcc11a4033acddd2b810adb490"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a87019ebcc11a4033acddd2b810adb490">&#9670;&#160;</a></span>check()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a> unodb::optimistic_lock::check </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td>
+          <td class="paramname"><em>locked_version</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check if the current lock version has not changed since <em>locked_version</em>. </p>
+<p>Act as a read unlock if the check fails. </p><dl class="section pre"><dt>Precondition</dt><dd>At least one read lock must exist </dd></dl>
+
+</div>
+</div>
+<a id="a0801000a72aa582f32a7d8b3626ff7fd" name="a0801000a72aa582f32a7d8b3626ff7fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0801000a72aa582f32a7d8b3626ff7fd">&#9670;&#160;</a></span>check_on_dealloc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a> unodb::optimistic_lock::check_on_dealloc </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Assert that this lock has no open <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> instances. </p>
+<p>Used in debug builds at lock heap deallocation time. </p>
+
+</div>
+</div>
+<a id="a26ddceb8b35d6632bfd6192e01542dd6" name="a26ddceb8b35d6632bfd6192e01542dd6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26ddceb8b35d6632bfd6192e01542dd6">&#9670;&#160;</a></span>dump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a> unodb::optimistic_lock::dump </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>os</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Output the lock representation to <em>os</em> output stream. </p>
+<p>Should only be used for debug dumping. </p>
+
+</div>
+</div>
+<a id="a3d3bc8fc5293073acb7f1dc9b8f7080a" name="a3d3bc8fc5293073acb7f1dc9b8f7080a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d3bc8fc5293073acb7f1dc9b8f7080a">&#9670;&#160;</a></span>rehydrate_read_lock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> unodb::optimistic_lock::rehydrate_read_lock </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a>&#160;</td>
+          <td class="paramname"><em>version_tag</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> using a previously saved <em>version_tag</em>. </p>
+<p>Used for restoring OLC iterator state. It does not do any spin waits or even look at the current lock version. When the caller calls <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e" title="Check whether this RCS is still valid.">read_critical_section::check()</a> on the returned lock they will figure out whether or not the version is still valid. In debug builds, this will maintain the open RCS counter. </p>
+
+</div>
+</div>
+<a id="a557b207dfd8a0d42a63e27dd34a05db0" name="a557b207dfd8a0d42a63e27dd34a05db0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a557b207dfd8a0d42a63e27dd34a05db0">&#9670;&#160;</a></span>try_read_lock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> unodb::optimistic_lock::try_read_lock </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Acquire and return an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> for this lock. </p>
+<p>This is done without writing anything on the lock, but it will spin if the lock is write-locked. It will return immediately if the lock is in obsolete state. In debug builds, this will maintain the open RCS counter.</p>
+<dl class="section note"><dt>Note</dt><dd><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart</a> must be called before the first protected data access to check for obsolete state. </dd></dl>
+
+</div>
+</div>
+<a id="a427d68606712d24c073e8f2c13264f55" name="a427d68606712d24c073e8f2c13264f55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a427d68606712d24c073e8f2c13264f55">&#9670;&#160;</a></span>try_read_unlock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a> unodb::optimistic_lock::try_read_unlock </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td>
+          <td class="paramname"><em>locked_version</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Try to read unlock this lock by comparing the current version with <em>locked_version</em>. </p>
+<p>Since read locking and unlocking does not affect the shared lock state, this only checks whether the lock version is equal to <em>locked_version</em>. </p><dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">true</td><td>if the read unlock succeeded </td></tr>
+    <tr><td class="paramname">false</td><td>if the current lock version has advanced since the read lock was taken </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a462a9f65f786f790dbbc1b8af92a9e37" name="a462a9f65f786f790dbbc1b8af92a9e37"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a462a9f65f786f790dbbc1b8af92a9e37">&#9670;&#160;</a></span>try_upgrade_to_write_lock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a> unodb::optimistic_lock::try_upgrade_to_write_lock </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td>
+          <td class="paramname"><em>locked_version</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Try to write lock by atomically setting the lock bit while verifying the version matches <em>locked_version</em>. </p>
+<p>Acts as a read unlock if unsuccessful. </p><dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">true</td><td>if the write lock succeeded </td></tr>
+    <tr><td class="paramname">false</td><td>if the current lock version has advanced since the read lock was taken </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a0f579be6e903ef98b1fa9a3122ee636b" name="a0f579be6e903ef98b1fa9a3122ee636b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f579be6e903ef98b1fa9a3122ee636b">&#9670;&#160;</a></span>write_unlock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a> unodb::optimistic_lock::write_unlock </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Write unlock this lock. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>The lock must be write-locked. </dd></dl>
+
+</div>
+</div>
+<a id="af296d16c2c9b99751a0c514149761241" name="af296d16c2c9b99751a0c514149761241"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af296d16c2c9b99751a0c514149761241">&#9670;&#160;</a></span>write_unlock_and_obsolete()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a> unodb::optimistic_lock::write_unlock_and_obsolete </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Atomically write unlock and obsolete this lock. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>The lock must be write-locked. </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="optimistic__lock_8hpp_source.html">optimistic_lock.hpp</a></li>
 </ul>
 </div><!-- contents -->

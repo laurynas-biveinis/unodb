@@ -169,7 +169,7 @@ Friends</h2></td></tr>
 <div class="textblock"><p>A read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads. </p>
 <p>Instances are non-copyable and only movable with the move constructor.</p>
 <p>There are three different states for an RCS:</p><ol type="1">
-<li>The lock was in obsolete state when the RCS was returned by optimistic_lock::try_read_lock(). This must always be checked for after the RCS has been created with a <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart()</a> call.</li>
+<li>The lock was in obsolete state when the RCS was returned by <a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0" title="Acquire and return an optimistic_lock::read_critical_section for this lock.">optimistic_lock::try_read_lock()</a>. This must always be checked for after the RCS has been created with a <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart()</a> call.</li>
 <li>The RCS was acquired and no newer write-locking has been detected for the underlying lock.</li>
 <li>The RCS was unlocked or the underlying lock has been write-locked since the RCS was created, and this has been detected by a <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">try_read_unlock()</a> or <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e" title="Check whether this RCS is still valid.">check()</a> call. The RCS is no longer valid.</li>
 </ol>
@@ -238,7 +238,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Construct an RCS for <em>lock_</em> read-locked at specific <em>version_</em>. </p>
-<p>Users should not call this directly. Use optimistic_lock::try_read_lock() or optimistic_lock::rehydrate_read_lock() instead. </p>
+<p>Users should not call this directly. Use <a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0" title="Acquire and return an optimistic_lock::read_critical_section for this lock.">optimistic_lock::try_read_lock()</a> or <a class="el" href="classunodb_1_1optimistic__lock.html#a3d3bc8fc5293073acb7f1dc9b8f7080a" title="Create an optimistic_lock::read_critical_section using a previously saved version_tag.">optimistic_lock::rehydrate_read_lock()</a> instead. </p>
 
 </div>
 </div>

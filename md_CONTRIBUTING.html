@@ -121,7 +121,7 @@ Development CMake options</h2>
 <p>The regular CMake option <code>-DCMAKE_BUILD_TYPE</code> is recognized. Setting it to <code>Debug</code> will enable a lot of assertions, which are useful during development.</p>
 <p>There also other development-specific options. All of them are <code>OFF</code> by default.</p>
 <ul>
-<li><code>-DSTANDALONE=ON</code> always should be given when working on UnoDB itself, whereas for users with UnoDB as a part of another project it should be <code>OFF</code>. When turned on, it will enable extra global debug checks that require entire programs to be compiled with them. Currently, this consists of the libstdc++ debug mode.</li>
+<li><code>-DSTANDALONE=ON</code> always should be given when working on UnoDB itself, whereas for users with UnoDB as a part of another project it should be <code>OFF</code>. When turned on, it will build benchmarks by default and enable extra global debug checks that require entire programs to be compiled with them. Currently, this consists of the libstdc++ debug mode.</li>
 <li><code>-DMAINTAINER_MODE=ON</code> to enable maintainer diagnostics. This makes compilation warnings fatal.</li>
 <li><code>-DSANITIZE_ADDRESS=ON</code> to enable AddressSanitizer and, if available, LeakSanitizer. It is incompatible with the <code>-DSANITIZE_THREAD=ON</code> option.</li>
 <li><code>-DSANITIZE_THREAD=ON</code> to enable ThreadSanitizer. It is incompatible with the <code>-DSANITIZE_ADDRESS=ON</code> option, not available under MSVC, and will disable libfuzzer support if it would be enabled otherwise.</li>

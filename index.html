@@ -140,6 +140,7 @@ Building</h2>
 <li><code>-DSTATS=OFF</code> if you want to compile away all the statistics counters. The result will scale better in benchmarks. The current stats implementation is global cache line-padded shared atomic counters. This option might be removed in the future if the stats are reimplemented with less overhead.</li>
 <li><code>-DWITH_AVX2=OFF</code> to disable AVX2 intrinsics to use SSE4.1/AVX only.</li>
 <li><code>-DTESTS=OFF</code> to skip building the tests.</li>
+<li><code>-DBENCHMARKS=ON</code> to build the benchmarks.</li>
 </ul>
 <p>There are other CMake options that are mainly intended for UnoDB development itself and are discussed in <a class="el" href="md_CONTRIBUTING.html">CONTRIBUTING.md</a>.</p>
 <h2><a class="anchor" id="autotoc_md29"></a>

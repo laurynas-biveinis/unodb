@@ -1,5 +1,5 @@
 ---
-name: build-tests-off
+name: feature-matrix-build
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - master
   pull_request:
 
-permissions: { }
+permissions: {}
 
 jobs:
   build:
@@ -16,22 +16,17 @@ jobs:
     env:
       BUILD_TYPE: ${{matrix.BUILD_TYPE}}
       STANDALONE: ${{matrix.STANDALONE}}
+      TESTS: ${{matrix.TESTS}}
+      BENCHMARKS: ${{matrix.BENCHMARKS}}
 
     strategy:
       fail-fast: false
+
       matrix:
-        include:
-          - BUILD_TYPE: Release
-            STANDALONE: ON
-
-          - BUILD_TYPE: Release
-            STANDALONE: OFF
-
-          - BUILD_TYPE: Debug
-            STANDALONE: ON
-
-          - BUILD_TYPE: Debug
-            STANDALONE: OFF
+        BUILD_TYPE: [Release, Debug]
+        STANDALONE: [ON, OFF]
+        TESTS: [ON, OFF]
+        BENCHMARKS: [ON, OFF]
 
     steps:
       - uses: actions/checkout@v4
@@ -51,7 +46,8 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           cmake "$GITHUB_WORKSPACE" "-DSTANDALONE=$STANDALONE" \
-              "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" "-DTESTS=OFF"
+              "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" "-DTESTS=$TESTS" \
+              "-DBENCHMARKS=$BENCHMARKS"
 
       - name: Build
         working-directory: ${{github.workspace}}/build

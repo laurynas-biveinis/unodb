@@ -68,6 +68,7 @@ There are some CMake options for users:
   in the future if the stats are reimplemented with less overhead.
 * `-DWITH_AVX2=OFF` to disable AVX2 intrinsics to use SSE4.1/AVX only.
 * `-DTESTS=OFF` to skip building the tests.
+* `-DBENCHMARKS=ON` to build the benchmarks.
 
 There are other CMake options that are mainly intended for UnoDB development
 itself and are discussed in [CONTRIBUTING.md](CONTRIBUTING.md).

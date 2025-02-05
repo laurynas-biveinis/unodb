@@ -163,6 +163,10 @@ set(MSVC_CLANG_WARNING_FLAGS "-Wno-c++98-compat" "-Wno-c++98-compat-pedantic"
 # cl flags that clang-cl does not understand
 set(MSVC_CXX_FLAGS "/external:anglebrackets" "/external:W0")
 
+if(NOT DEFINED VSINSTALLDIR)
+  set(VSINSTALLDIR NOTFOUND)
+endif()
+
 # Disable the following warnings for MSVC static analysis. I'd like to have 
 # them enabled, but their suggestions result in runtime overhead in release 
 # builds.
@@ -199,6 +203,7 @@ if(COVERAGE)
     message(STATUS "Code coverage reporting enabled with default gcov path")
   endif()
 else()
+  set(GCOV_PATH NOTFOUND)
   message(STATUS "Code coverage reporting not enabled")
 endif()
 
@@ -218,6 +223,8 @@ macro(SET_COMMON_SANITIZER_FLAGS)
         "-fno-optimize-sibling-calls")
   endif()
 endmacro()
+
+set(SANITIZER_ENV "")
 
 option(SANITIZE_ADDRESS "Enable AddressSanitizer runtime checks")
 if(SANITIZE_ADDRESS)
@@ -252,7 +259,7 @@ if(SANITIZE_ADDRESS)
   if(is_clang OR is_gxx)
     string(APPEND ASAN_ENV ":detect_leaks=1")
   endif()
-  set(SANITIZER_ENV ${ASAN_ENV})
+  list(APPEND SANITIZER_ENV ${ASAN_ENV})
   unset(ASAN_ENV)
 else()
   if(MSVC AND NOT is_clang)
@@ -289,9 +296,11 @@ if(SANITIZE_UB)
   set(SANITIZER_LD_FLAGS "-fsanitize=undefined")
   string(CONCAT UBSAN_ENV "UBSAN_OPTIONS="
     "print_stacktrace=1:halt_on_error=1:abort_on_error=1")
-  set(SANITIZER_ENV ${UBSAN_ENV})
+  list(APPEND SANITIZER_ENV ${UBSAN_ENV})
   unset(UBSAN_ENV)
 endif()
+
+message(STATUS "SANITIZER_ENV: ${SANITIZER_ENV}")
 
 option(STATIC_ANALYSIS "Enable compiler static analysis")
 
@@ -619,7 +628,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<${with_stats}:UNODB_DETAIL_WITH_STATS>"
     "UNODB_SPINLOCK_LOOP_VALUE=${SPINLOCK_LOOP_VALUE}")
   target_compile_options(${TARGET} PRIVATE
-    "${CXX_FLAGS}" "${SANITIZER_CXX_FLAGS}"
+    "${SANITIZER_CXX_FLAGS}"
     "$<${is_msvc}:${MSVC_CXX_FLAGS}>"
     "$<${is_any_msvc}:${ANY_MSVC_CXX_FLAGS}>"
     "$<${is_not_windows}:${UNIX_CXX_FLAGS}>"

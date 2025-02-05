@@ -22,7 +22,7 @@
 /// // Transparent operations using the underlying type:
 /// const auto bar = val + 5;
 /// ++val; // etc.
-/// // Explicit loads and store swhen needed:
+/// // Explicit loads and stores when needed:
 /// const auto baz = val2.load();
 /// val2.store(10);
 /// \endcode
@@ -850,26 +850,33 @@ static_assert(sizeof(optimistic_lock) == 8);
 static_assert(sizeof(optimistic_lock) == 24);
 #endif
 
-// A gloss for the atomic semantics used to guard loads and stores.
+/// A gloss for the atomic semantics used to guard loads and stores. Wraps the
+/// protected data fields. The loads and stores become relaxed atomic operations
+/// as required by the optimistic lock memory model. The instances are
+/// non-moveable and non-copy-constructable but the assignments both from the
+/// wrapped values and plain value type are supported.
+/// Implements the required set of transparent operations, extend as necessary.
 template <typename T>
 class [[nodiscard]] in_critical_section final {
  public:
+  /// Default construct the wrapped \a T value.
   constexpr in_critical_section() noexcept = default;
 
+  /// Construct the wrapped value from the passed \a value_.
   // cppcheck-suppress noExplicitConstructor
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   constexpr in_critical_section(T value_) noexcept : value{value_} {}
 
-  in_critical_section(const in_critical_section<T> &) = delete;
-  in_critical_section(in_critical_section<T> &&) = delete;
-
+  /// Destruct the wrapped value.
   ~in_critical_section() noexcept = default;
 
+  /// Assign \a new_value to the wrapped value.
   in_critical_section<T> &operator=(T new_value) noexcept {
     store(new_value);
     return *this;
   }
 
+  /// Copy-assign another wrapped value.
   // NOLINTNEXTLINE(cert-oop54-cpp)
   in_critical_section<T> &operator=(
       const in_critical_section<T> &new_value) noexcept {
@@ -877,12 +884,16 @@ class [[nodiscard]] in_critical_section final {
     return *this;
   }
 
-  void operator=(in_critical_section<T> &&) = delete;
-
+  /// Pre-increment the wrapped value.
   void operator++() noexcept { store(load() + 1); }
 
-  void operator--() noexcept { store(static_cast<T>(load() - 1)); }
+  /// Pre-decrement the wrapped value.
+  void operator--() noexcept {
+    // The cast silences MSVC diagnostics about signed/unsigned mismatch.
+    store((static_cast<T>(load() - 1)));
+  }
 
+  /// Post-decrement the wrapped value. Returns the old unwrapped value.
   // NOLINTNEXTLINE(cert-dcl21-cpp)
   T operator--(int) noexcept {
     const auto result = load();
@@ -890,30 +901,36 @@ class [[nodiscard]] in_critical_section final {
     return result;
   }
 
-  template <typename T_ = T,
-            typename = std::enable_if_t<!std::is_integral_v<T_>>>
+  /// Checks whether the wrapped pointer is `nullptr`.
   [[nodiscard]] auto operator==(std::nullptr_t) const noexcept {
     return load() == nullptr;
   }
 
-  template <typename T_ = T,
-            typename = std::enable_if_t<!std::is_integral_v<T_>>>
+  /// Checks whether the wrapped pointer is not `nullptr`.
   [[nodiscard]] auto operator!=(std::nullptr_t) const noexcept {
     return load() != nullptr;
   }
 
+  /// Convert to the wrapped value, implicitly if needed.
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
   operator T() const noexcept { return load(); }
 
+  /// Explicitly read the wrapped value.
   [[nodiscard]] T load() const noexcept {
     return value.load(std::memory_order_relaxed);
   }
 
+  /// Explicitly assign the wrapped value from \a new_value.
   void store(T new_value) noexcept {
     value.store(new_value, std::memory_order_relaxed);
   }
 
+  in_critical_section(const in_critical_section<T> &) = delete;
+  in_critical_section(in_critical_section<T> &&) = delete;
+  void operator=(in_critical_section<T> &&) = delete;
+
  private:
+  /// The wrapped value.
   std::atomic<T> value;
 
   static_assert(std::atomic<T>::is_always_lock_free,

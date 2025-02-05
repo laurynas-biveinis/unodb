@@ -11,6 +11,7 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <cstdint>
+#include <cstring>
 #include <type_traits>
 
 #ifdef UNODB_DETAIL_MSVC
@@ -103,6 +104,21 @@ template <typename T>
 #else
   return static_cast<unsigned>(__popcnt(x));
 #endif
+}
+
+// Performs a "bit_cast".
+//
+// TODO(laurynas) We can use std::bit_cast at GCC 11 clang 14 minimums.
+//
+// See https://github.com/jfbastien/bit_cast for an implementation
+// using memcpy (MIT license).
+template <typename To, typename From>
+[[nodiscard, gnu::pure]] constexpr To bit_cast(From input) {
+  // must be the same stride
+  static_assert(sizeof(To) == sizeof(From));
+  typename std::aligned_storage<sizeof(To), alignof(To)>::type tmp;
+  std::memcpy(reinterpret_cast<void*>(&tmp), &input, sizeof(To));
+  return reinterpret_cast<const To&>(tmp);
 }
 
 }  // namespace unodb::detail

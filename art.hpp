@@ -83,8 +83,6 @@ class mutex_db;
 /// implementation.
 template <typename Key>
 class db final {
-  // disable all other key types until unit tests prove that they work
-  static_assert(std::is_same_v<Key, std::uint64_t>);
   friend class mutex_db<Key>;
 
  public:
@@ -101,19 +99,18 @@ class db final {
   [[nodiscard, gnu::pure]] get_result get_internal(
       art_key_type search_key) const noexcept;
 
-  /// Insert a value under an encoded key iff there is no entry for
-  /// that key.
+  /// Insert a value under an encoded key iff there is no entry for that key.
   ///
-  /// Note: Cannot be called during stack unwinding with
-  /// std::uncaught_exceptions() > 0
+  /// \note Cannot be called during stack unwinding with
+  /// `std::uncaught_exceptions() > 0`.
   ///
-  /// @return true iff the key value pair was inserted.
+  /// \return true iff the key value pair was inserted.
   [[nodiscard]] bool insert_internal(art_key_type insert_key, value_view v);
 
   /// Remove the entry associated with the encoded key.
   ///
-  /// @return true if the delete was successful (i.e. the key was
-  /// found in the tree and the associated index entry was removed).
+  /// \return true if the delete was successful (i.e. the key was found in the
+  /// tree and the associated index entry was removed).
   [[nodiscard]] bool remove_internal(art_key_type remove_key);
 
  public:
@@ -130,10 +127,10 @@ class db final {
 
   /// Query for a value associated with a key.
   ///
-  /// @param search_key If Key is a simple primitive type, then it is
-  /// converted into a binary comparable key.  If Key is key_value,
-  /// then it is assumed to already be a binary comparable key, e.g.,
-  /// as produced by unodb::key_encoder.
+  /// \param search_key If Key is a simple primitive type, then it is converted
+  /// into a binary comparable key.  If Key is unodb::key_view, then it is
+  /// assumed to already be a binary comparable key, e.g., as produced by
+  /// unodb::key_encoder.
   [[nodiscard, gnu::pure]] get_result get(Key search_key) const noexcept {
     const art_key_type k{search_key};
     return get_internal(k);
@@ -146,15 +143,18 @@ class db final {
 
   /// Insert a value under a key iff there is no entry for that key.
   ///
-  /// Note: Cannot be called during stack unwinding with
-  /// std::uncaught_exceptions() > 0
+  /// \note Cannot be called during stack unwinding with
+  /// `std::uncaught_exceptions() > 0`.
   ///
-  /// @param insert_key If Key is a simple primitive type, then it is
-  /// converted into a binary comparable key.  If Key is key_value,
-  /// then it is assumed to already be a binary comparable key, e.g.,
-  /// as produced by unodb::key_encoder.
+  /// \param insert_key If Key is a simple primitive type, then it is converted
+  /// into a binary comparable key.  If Key is unodb::key_view, then it is
+  /// assumed to already be a binary comparable key, e.g., as produced by
+  /// unodb::key_encoder.
   ///
-  /// @return true iff the key value pair was inserted.
+  /// \return true iff the key value pair was inserted.
+  ///
+  /// \sa key_encoder, which provides for encoding text and multi-field records
+  /// when Key is unodb::key_view.
   [[nodiscard]] bool insert(Key insert_key, value_view v) {
     const art_key_type k{insert_key};
     return insert_internal(k, v);
@@ -162,13 +162,13 @@ class db final {
 
   /// Remove the entry associated with the key.
   ///
-  /// @param search_key If Key is a simple primitive type, then it is
-  /// converted into a binary comparable key.  If Key is key_value,
-  /// then it is assumed to already be a binary comparable key, e.g.,
-  /// as produced by unodb::key_encoder.
+  /// \param search_key If Key is a simple primitive type, then it is converted
+  /// into a binary comparable key.  If Key is unodb::key_view, then it is
+  /// assumed to already be a binary comparable key, e.g., as produced by
+  /// unodb::key_encoder.
   ///
-  /// @return true if the delete was successful (i.e. the key was
-  /// found in the tree and the associated index entry was removed).
+  /// \return true if the delete was successful (i.e. the key was found in the
+  /// tree and the associated index entry was removed).
   [[nodiscard]] bool remove(Key search_key) {
     art_key_type k{search_key};
     return remove_internal(k);
@@ -188,39 +188,8 @@ class db final {
     template <class>
     friend class visitor;
 
-    /// The stack is made up of tuples containing the node pointer,
-    /// the key_byte, and the child_index.
-    ///
-    /// Note: The node is a pointer to either an internal node or a
-    /// leaf.
-    ///
-    /// Note: The key_byte is the byte from the key that was consumed
-    /// as you step down to the child node. This is the same as the
-    /// child index (if you convert std::uint8_t to std::byte) for N48
-    /// and N256, but it is different for N4 and N16 since they use a
-    /// sparse encoding of the keys.  It is represented explicitly to
-    /// avoid searching for the key byte in the N48 and N256 cases.
-    ///
-    /// Note: The child_index is the index of the child node within
-    /// that internal node (except for N48, where it is the index into
-    /// the child_indexes[] and is in fact the same data as the key
-    /// byte).  Overflow for the child_index can only occur for N48
-    /// and N256.  When overflow happens, the iter_result is not
-    /// defined and the outer std::optional will return false.
-    struct stack_entry : public inode_base::iter_result {
-      /// The [prefix_len] is the number of bytes in the key prefix
-      /// for [node].  When the node is pushed onto the stack, we also
-      /// push [prefix_bytes] plus the [key_byte] onto a key_buffer.
-      /// We track how many bytes were pushed here (not including the
-      /// key_byte) so we can pop off the correct number of bytes
-      /// later.
-      ///
-      /// TODO(thompsonbry): push this field to a common parent?
-      /// Shared with olc_db.  maybe we can just return it in all
-      /// methods which already return an iter_result making it part
-      /// of that structure.
-      detail::key_prefix_size prefix_len;
-    };
+    /// Alias used for the elements of the stack.
+    using stack_entry = typename inode_base::iter_result;
 
    protected:
     /// Construct an empty iterator (one that is logically not
@@ -251,40 +220,36 @@ class db final {
     /// Position the iterator on the previous entry in the index.
     iterator& prior();
 
-    /// Position the iterator on, before, or after the caller's key.
-    /// If the iterator can not be positioned, it will be invalidated.
-    /// For example, if [fwd:=true] and the [search_key] is GT any key
-    /// in the index then the iterator will be invalidated since there
-    /// is no index entry greater than the search key.  Likewise, if
-    /// [fwd:=false] and the [search_key] is LT any key in the index,
-    /// then the iterator will be invalidated since there is no index
-    /// entry LT the search key.
+    /// Position the iterator on, before, or after the caller's key.  If the
+    /// iterator can not be positioned, it will be invalidated.  For example, if
+    /// `fwd:=true` and the \a search_key is GT any key in the index then the
+    /// iterator will be invalidated since there is no index entry greater than
+    /// the search key.  Likewise, if `fwd:=false` and the \a search_key is LT
+    /// any key in the index, then the iterator will be invalidated since there
+    /// is no index entry LT the \a search_key.
     ///
-    /// @param search_key The internal key used to position the
-    /// iterator.
+    /// \param search_key The internal key used to position the iterator.
     ///
-    /// @param match Will be set to true iff the search key is an
-    /// exact match in the index data.  Otherwise, the match is not
-    /// exact and the iterator is positioned either before or after
-    /// the search_key.
+    /// \param match Will be set to true iff the search key is an exact match in
+    /// the index data.  Otherwise, the match is not exact and the iterator is
+    /// positioned either before or after the search_key.
     ///
-    /// @param fwd When true, the iterator will be positioned first
-    /// entry which orders GTE the search_key and invalidated if there
-    /// is no such entry.  Otherwise, the iterator will be positioned
-    /// on the last key which orders LTE the search_key and
-    /// invalidated if there is no such entry.
+    /// \param fwd When true, the iterator will be positioned first entry which
+    /// orders GTE the search_key and invalidated if there is no such entry.
+    /// Otherwise, the iterator will be positioned on the last key which orders
+    /// LTE the search_key and invalidated if there is no such entry.
     iterator& seek(art_key_type search_key, bool& match, bool fwd = true);
 
     /// Return the key_view associated with the current position of
     /// the iterator.
-    //
-    /// Precondition: The iterator MUST be valid().
+    ///
+    /// \pre The iterator MUST be valid().
     [[nodiscard]] key_view get_key();
 
     /// Return the value_view associated with the current position of
     /// the iterator.
-    //
-    /// Precondition: The iterator MUST be valid().
+    ///
+    /// \pre The iterator MUST be valid().
     [[nodiscard, gnu::pure]] const value_view get_val() const;
 
     /// Debugging
@@ -294,6 +259,10 @@ class db final {
         os << "iter::stack:: empty\n";
         return;
       }
+      // Dump the key buffer maintained by the iterator.
+      os << "keybuf=";
+      detail::dump_key(os, keybuf_.get_key_view());
+      os << "\n";
       // Create a new stack and copy everything there.  Using the new
       // stack, print out the stack in top-bottom order.  This avoids
       // modifications to the existing stack for the iterator.
@@ -307,7 +276,9 @@ class db final {
            << static_cast<std::uint64_t>(e.key_byte) << std::dec
            << ", child_index=0x" << std::hex << std::setfill('0')
            << std::setw(2) << static_cast<std::uint64_t>(e.child_index)
-           << std::dec << ", ";
+           << std::dec << ", prefix(" << e.prefix.length() << ")=";
+        detail::dump_key(os, e.prefix.get_key_view());
+        os << ", ";
         art_policy::dump_node(os, np, false /*recursive*/);
         if (np.type() != node_type::LEAF) os << '\n';
         tmp.pop();
@@ -337,8 +308,8 @@ class db final {
 
     /// Compare the given key (e.g., the to_key) to the current key in
     /// the internal buffer.
-    //
-    /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other
+    ///
+    /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other
     /// key.
     [[nodiscard]] int cmp(art_key_type akey) const {
       // TODO(thompsonbry) : variable length keys.  Explore a cheaper
@@ -361,7 +332,7 @@ class db final {
 
     /// Push a non-leaf entry onto the stack.
     void push(detail::node_ptr node, std::byte key_byte,
-              std::uint8_t child_index) {
+              std::uint8_t child_index, detail::key_prefix_snapshot prefix) {
       // For variable length keys we need to know the number of bytes
       // associated with the node's key_prefix.  In addition there is
       // one byte for the descent to the child node along the
@@ -369,9 +340,7 @@ class db final {
       // stack so we can pop off the right number of bytes even for
       // OLC where the node might be concurrently modified.
       UNODB_DETAIL_ASSERT(node.type() != node_type::LEAF);
-      auto* inode{node.ptr<detail::inode<Key>*>()};
-      auto prefix{inode->get_key_prefix().get_snapshot()};
-      stack_.push({{node, key_byte, child_index}, prefix.size()});
+      stack_.push({node, key_byte, child_index, prefix});
       keybuf_.push(prefix.get_key_view());
       keybuf_.push(key_byte);
     }
@@ -380,13 +349,12 @@ class db final {
     void push_leaf(detail::node_ptr aleaf) {
       // Mock up a stack entry for the leaf.
       stack_.push({
-          {
-              aleaf,
-              static_cast<std::byte>(0xFFU),    // ignored for leaf
-              static_cast<std::uint8_t>(0xFFU)  // ignored for leaf
-          },
-          0  // ignored for leaf
+          aleaf,
+          static_cast<std::byte>(0xFFU),     // ignored for leaf
+          static_cast<std::uint8_t>(0xFFU),  // ignored for leaf
+          detail::key_prefix_snapshot(0)     // ignored for leaf
       });
+      // No change in the key_buffer.
     }
 
     /// Push an entry onto the stack.
@@ -395,14 +363,14 @@ class db final {
       if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
         push_leaf(e.node);
       }
-      push(e.node, e.key_byte, e.child_index);
+      push(e.node, e.key_byte, e.child_index, e.prefix);
     }
 
     /// Pop an entry from the stack and truncate the key buffer.
     void pop() {
-      const auto prefix_len = top().prefix_len;
-      stack_.pop();
+      const auto prefix_len = top().prefix.length();
       keybuf_.pop(prefix_len);
+      stack_.pop();
     }
 
     /// Return the entry (if any) on the top of the stack.
@@ -486,51 +454,44 @@ class db final {
   // internal keys (seek() and the iterator). It also makes life
   // easier for mutex_db since scan() can take the lock.
 
-  /// Scan the tree, applying the caller's lambda to each visited
-  /// leaf.
-  //
-  /// @param fn A function f(unodb::visitor<unodb::db::iterator>&)
-  /// returning [bool:halt].  The traversal will halt if the function
-  /// returns [true].
-  //
-  /// @param fwd When [true] perform a forward scan, otherwise perform
-  /// a reverse scan.
+  /// Scan the tree, applying the caller's lambda to each visited leaf.
+  ///
+  /// \param fn A function `f(unodb::visitor<unodb::db::iterator>&)' returning
+  /// `bool`.  The traversal will halt if the function returns \c true.
+  ///
+  /// \param fwd When \c true perform a forward scan, otherwise perform a
+  /// reverse scan.
   template <typename FN>
   void scan(FN fn, bool fwd = true);
 
-  /// Scan in the indicated direction, applying the caller's lambda to
-  /// each visited leaf.
-  //
-  /// @param from_key is an inclusive lower bound for the starting
-  /// point of the scan.
-  //
-  /// @param fn A function f(unodb::visitor<unodb::db::iterator>&)
-  /// returning [bool:halt].  The traversal will halt if the function
-  /// returns [true].
-  //
-  /// @param fwd When [true] perform a forward scan, otherwise perform
-  /// a reverse scan.
+  /// Scan in the indicated direction, applying the caller's lambda to each
+  /// visited leaf.
+  ///
+  /// \param from_key is an inclusive lower bound for the starting point of the
+  /// scan.
+  ///
+  /// \param fn A function `f(unodb::visitor<unodb::db::iterator>&)` returning
+  /// `bool`.  The traversal will halt if the function returns \c true.
+  ///
+  /// \param fwd When \c true perform a forward scan, otherwise perform a
+  /// reverse scan.
   template <typename FN>
   void scan_from(Key from_key, FN fn, bool fwd = true);
 
-  /// Scan a half-open key range, applying the caller's lambda to each
-  /// visited leaf.  The scan will proceed in lexicographic order iff
-  /// from_key is less than to_key and in reverse lexicographic order
-  /// iff to_key is less than from_key.  When from_key < to_key, the
-  /// scan will visit all index entries in the half-open range
-  /// [from_key,to_key) in forward order.  Otherwise the scan will
-  /// visit all index entries in the half-open range (from_key,to_key]
-  /// in reverse order.
-  //
-  /// @param from_key is an inclusive bound for the starting point of
-  /// the scan.
-  //
-  /// @param to_key is an exclusive bound for the ending point of the
-  /// scan.
-  //
-  /// @param fn A function f(unodb::visitor<unodb::db::iterator>&)
-  /// returning [bool:halt].  The traversal will halt if the function
-  /// returns [true].
+  /// Scan a half-open key range, applying the caller's lambda to each visited
+  /// leaf.  The scan will proceed in lexicographic order iff \a from_key is
+  /// less than \a to_key and in reverse lexicographic order iff \a to_key is
+  /// less than \a from_key.  When `from_key < to_key`, the scan will visit all
+  /// index entries in the half-open range `[from_key,to_key)` in forward order.
+  /// Otherwise the scan will visit all index entries in the half-open range
+  /// `(from_key,to_key]` in reverse order.
+  ///
+  /// \param from_key is an inclusive bound for the starting point of the scan.
+  ///
+  /// \param to_key is an exclusive bound for the ending point of the scan.
+  ///
+  /// \param fn A function `f(unodb::visitor<unodb::db::iterator>&)` returning
+  /// `bool`.  The traversal will halt if the function returns \c true.
   template <typename FN>
   void scan_range(Key from_key, Key to_key, FN fn);
 
@@ -957,11 +918,12 @@ bool db<Key>::insert_internal(art_key_type k, value_view v) {
     if (node_type == node_type::LEAF) {
       auto* const leaf{node->template ptr<leaf_type*>()};
       const auto existing_key{leaf->get_key_view()};
-      if (UNODB_DETAIL_UNLIKELY(k.cmp(existing_key) == 0)) {
+      const auto cmp = k.cmp(existing_key);
+      if (UNODB_DETAIL_UNLIKELY(cmp == 0)) {
         return false;  // exists
       }
       // Replace the existing leaf with a new N4 and put the existing
-      // leaf and the a leaf for the caller's key and value under the
+      // leaf and the leaf for the caller's key and value under the
       // new inode as its direct children.
       auto new_leaf = art_policy::make_db_leaf_ptr(k, v, *this);
       auto new_node{inode_4::create(*this, existing_key, remaining_key, depth,
@@ -1229,11 +1191,10 @@ typename db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key,
     }
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
     auto* const inode{node.template ptr<inode_type*>()};  // some internal node.
-    const auto& key_prefix{inode->get_key_prefix()};  // prefix for that node.
-    const auto key_prefix_length{
-        key_prefix.length()};  // length of that prefix.
+    const auto key_prefix{inode->get_key_prefix().get_snapshot()};  // prefix
+    const auto key_prefix_length{key_prefix.length()};  // length of that prefix
     const auto shared_length = key_prefix.get_shared_length(
-        remaining_key);  // #of prefix bytes matched.
+        remaining_key.get_u64());  // #of prefix bytes matched.
     if (shared_length < key_prefix_length) {
       // We have visited an internal node whose prefix is longer than
       // the bytes in the key that we need to match.  To figure out
@@ -1308,8 +1269,8 @@ typename db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key,
         auto tmp = nxt.value();  // unwrap.
         const auto child_index = tmp.child_index;
         const auto child = inode->get_child(node_type, child_index);
-        push(node, tmp.key_byte, child_index);  // the path we took
-        return left_most_traversal(child);      // left most traversal
+        push(node, tmp.key_byte, child_index, tmp.prefix);  // the path we took
+        return left_most_traversal(child);  // left most traversal
       }
       // REV: Take the prior child_index that is mapped and then do
       // a right-most descent to land on the key that is the
@@ -1338,13 +1299,13 @@ typename db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key,
       auto tmp = nxt.value();  // unwrap.
       const auto child_index{tmp.child_index};
       const auto child = inode->get_child(node_type, child_index);
-      push(node, tmp.key_byte, child_index);  // the path we took
-      return right_most_traversal(child);     // right most traversal
+      push(node, tmp.key_byte, child_index, tmp.prefix);  // the path we took
+      return right_most_traversal(child);  // right most traversal
     }
     // Simple case. There is a child for the current key byte.
     const auto child_index{res.first};
     const auto* const child{res.second};
-    push(node, remaining_key[0], child_index);
+    push(node, remaining_key[0], child_index, key_prefix);
     node = *child;
     remaining_key.shift_right(1);
   }  // while ( true )
@@ -1354,18 +1315,13 @@ typename db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key,
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key>
 key_view db<Key>::iterator::get_key() {
-  // TODO(thompsonbry) : variable length keys. Eventually this will
-  // need to use the stack to reconstruct the key from the path from
-  // the root to this leaf.  Right now it is relying on the fact that
-  // simple fixed width keys are stored directly in the leaves.
-  //
-  // Note: We can not simplify this until the leaf has a variable
-  // length prefix consisting of the suffix of the key (the part not
-  // already matched by the inode path).
+  UNODB_DETAIL_ASSERT(valid());  // by contract
+  // TODO(thompsonbry) : variable length keys. The simplest case
+  // where this does not work today is a single root leaf.  In that
+  // case, there is no inode path and we can not properly track the
+  // key in the key_buffer.
   //
   // return keybuf_.get_key_view();
-  //
-  UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.

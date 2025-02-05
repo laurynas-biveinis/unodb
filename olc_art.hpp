@@ -139,9 +139,6 @@ using qsbr_value_view = qsbr_ptr_span<const std::byte>;
 /// Reclamation is used.
 template <typename Key>
 class olc_db final {
-  // disable all other key types until unit tests prove that they work
-  static_assert(std::is_same_v<Key, std::uint64_t>);
-
  public:
   using key_type = Key;
   using value_view = unodb::qsbr_value_view;
@@ -159,17 +156,17 @@ class olc_db final {
   /// Insert a value under an encoded key iff there is no entry for
   /// that key.
   ///
-  /// Note: Cannot be called during stack unwinding with
-  /// std::uncaught_exceptions() > 0
+  /// \note Cannot be called during stack unwinding with
+  /// `std::uncaught_exceptions() > 0`.
   ///
-  /// @return true iff the key value pair was inserted.
+  /// \return true iff the key value pair was inserted.
   [[nodiscard]] bool insert_internal(art_key_type insert_key,
                                      unodb::value_view v);
 
   /// Remove the entry associated with the encoded key.
   ///
-  /// @return true if the delete was successful (i.e. the key was
-  /// found in the tree and the associated index entry was removed).
+  /// \return true if the delete was successful (i.e. the key was found in the
+  /// tree and the associated index entry was removed).
   [[nodiscard]] bool remove_internal(art_key_type remove_key);
 
  public:
@@ -180,10 +177,10 @@ class olc_db final {
 
   /// Query for a value associated with a key.
   ///
-  /// @param search_key If Key is a simple primitive type, then it is
-  /// converted into a binary comparable key.  If Key is key_value,
-  /// then it is assumed to already be a binary comparable key, e.g.,
-  /// as produced by unodb::key_encoder.
+  /// \param search_key If Key is a simple primitive type, then it is converted
+  /// into a binary comparable key.  If Key is unodb::key_view, then it is
+  /// assumed to already be a binary comparable key, e.g., as produced by
+  /// unodb::key_encoder.
   [[nodiscard, gnu::pure]] get_result get(Key search_key) const noexcept {
     const auto k = art_key_type{search_key};
     return get_internal(k);
@@ -192,18 +189,23 @@ class olc_db final {
   /// Return true iff the tree is empty (no root leaf).
   [[nodiscard]] auto empty() const noexcept { return root == nullptr; }
 
-  /// Insert a value under a binary comparable key iff there is no
-  /// entry for that key.
+  /// Insert a value under a binary comparable key iff there is no entry for
+  /// that key.
   ///
-  /// Note: Cannot be called during stack unwinding with
-  /// std::uncaught_exceptions() > 0
+  /// \note Cannot be called during stack unwinding with
+  /// `std::uncaught_exceptions() > 0`.
   ///
-  /// @param insert_key If Key is a simple primitive type, then it is
-  /// converted into a binary comparable key.  If Key is key_value,
-  /// then it is assumed to already be a binary comparable key, e.g.,
-  /// as produced by unodb::key_encoder.
+  /// \param insert_key If Key is a simple primitive type, then it is converted
+  /// into a binary comparable key.  If Key is unodb::key_view, then it is
+  /// assumed to already be a binary comparable key, e.g., as produced by
+  /// unodb::key_encoder.
   ///
-  /// @return true iff the key value pair was inserted.
+  /// \param v The value to be inserted under that key.
+  ///
+  /// \return true iff the key value pair was inserted.
+  ///
+  /// \sa key_encoder, which provides for encoding text and multi-field records
+  /// when Key is unodb::key_view.
   [[nodiscard]] bool insert(Key insert_key, unodb::value_view v) {
     // TODO(thompsonbry) There should be a lambda variant of this to
     // handle conflicts and support upsert or delete-upsert
@@ -216,13 +218,13 @@ class olc_db final {
 
   /// Remove the entry associated with the key.
   ///
-  /// @param search_key If Key is a simple primitive type, then it is
-  /// converted into a binary comparable key.  If Key is key_value,
-  /// then it is assumed to already be a binary comparable key, e.g.,
-  /// as produced by unodb::key_encoder.
+  /// \param search_key If Key is a simple primitive type, then it is converted
+  /// into a binary comparable key.  If Key is unodb::key_view, then it is
+  /// assumed to already be a binary comparable key, e.g., as produced by
+  /// unodb::key_encoder.
   ///
-  /// @return true if the delete was successful (i.e. the key was
-  /// found in the tree and the associated index entry was removed).
+  /// \return true if the delete was successful (i.e. the key was found in the
+  /// tree and the associated index entry was removed).
   [[nodiscard]] bool remove(Key search_key) {
     const auto k = art_key_type{search_key};
     return remove_internal(k);
@@ -230,114 +232,66 @@ class olc_db final {
 
   /// Removes all entries in the index.
   ///
-  /// Note: Only legal in single-threaded context, as destructor
+  /// \note Only legal in single-threaded context, as destructor
   void clear() noexcept;
 
   //
   // iterator (the iterator is an internal API, the public API is scan()).
   //
 
-  /// The OLC scan() logic tracks the version tag (a
-  /// read_critical_section) for each node in the stack.  This
-  /// information is required because the iter_result tuples already
-  /// contain physical information read from nodes which may have been
-  /// invalidated by subsequent mutations.  The scan is built on
-  /// iterator methods for seek(), next(), prior(), etc.  These
-  /// methods must restart (rebuilding the stack and redoing the work)
-  /// if they encounter a version tag for an element on the stack
-  /// which is no longer valid.  Restart works by performing a seek()
-  /// to the key for the leaf on the bottom of the stack.  Restarts
-  /// can be full (from the root) or partial (from the first element
-  /// in the stack which was not invalidated by the structural
+  /// The OLC scan() logic tracks the version tag (a read_critical_section) for
+  /// each node in the stack.  This information is required because the
+  /// iter_result tuples already contain physical information read from nodes
+  /// which may have been invalidated by subsequent mutations.  The scan is
+  /// built on iterator methods for seek(), next(), prior(), etc.  These methods
+  /// must restart (rebuilding the stack and redoing the work) if they encounter
+  /// a version tag for an element on the stack which is no longer valid.
+  /// Restart works by performing a seek() to the key for the leaf on the bottom
+  /// of the stack.  Restarts can be full (from the root) or partial (from the
+  /// first element in the stack which was not invalidated by the structural
   /// modification).
   ///
-  /// During scan(), the iterator seek()s to some key and then invokes
-  /// the caller's lambda passing a reference to a visitor object.
-  /// That visitor allows the caller to access the key and/or value
-  /// associated with the leaf.  If the leaf is concurrently deleted
-  /// from the structure, the visitor relies on epoch protection to
-  /// return the data from the now invalidated leaf.  This is still
-  /// the state that the caller would have observed without the
-  /// concurrent structural modification.  When next() is called, it
-  /// will discover that the leaf on the bottom of the stack is not
-  /// valid (it is marked as obsolete) and it will have to restart by
-  /// seek() to the key for that leaf and then invoking next() if the
-  /// key still exists and otherwise we should already be on the
-  /// successor of that leaf.
+  /// During scan(), the iterator seek()s to some key and then invokes the
+  /// caller's lambda passing a reference to a visitor object.  That visitor
+  /// allows the caller to access the key and/or value associated with the leaf.
+  /// If the leaf is concurrently deleted from the structure, the visitor relies
+  /// on epoch protection to return the data from the now invalidated leaf.
+  /// This is still the state that the caller would have observed without the
+  /// concurrent structural modification.  When next() is called, it will
+  /// discover that the leaf on the bottom of the stack is not valid (it is
+  /// marked as obsolete) and it will have to restart by seek() to the key for
+  /// that leaf and then invoking next() if the key still exists and otherwise
+  /// we should already be on the successor of that leaf.
   ///
-  /// Note: The OLC thread safety mechanisms permit concurrent
-  /// non-atomic (multi-work) mutations to be applied to nodes.  This
-  /// means that a thread can read junk in the middle of some
-  /// reorganization of a node (e.g., the keys or children are being
-  /// reordered to maintain an invariant for I16).  To protect against
-  /// reading such junk, the thread reads the version tag before and
-  /// after it accesses data in the node and restarts if the version
-  /// information has changed.  The thread must not act on information
-  /// that it had read until it verifies that the version tag remained
-  /// unchanged across the read operation.
+  /// \note The OLC thread safety mechanisms permit concurrent non-atomic
+  /// (multi-work) mutations to be applied to nodes.  This means that a thread
+  /// can read junk in the middle of some reorganization of a node (e.g., the
+  /// keys or children are being reordered to maintain an invariant for \c I16).
+  /// To protect against reading such junk, the thread reads the version tag
+  /// before and after it accesses data in the node and restarts if the version
+  /// information has changed.  The thread must not act on information that it
+  /// had read until it verifies that the version tag remained unchanged across
+  /// the read operation.
   ///
-  /// Note: The iterator is backed by a std::stack. This means that
-  /// the iterator methods accessing the stack can not be declared as
-  /// [[noexcept]].
+  /// \note The iterator is backed by a std::stack. This means that the iterator
+  /// methods accessing the stack can not be declared as \c noexcept.
   class iterator {
     friend class olc_db<Key>;
     template <class>
     friend class visitor;
 
-    /// The [node_ptr] is never [nullptr] and points to the internal
-    /// node or leaf for that step in the path from the root to some
-    /// leaf.  For the bottom of the stack, [node_ptr] is the root.
-    /// For the top of the stack, [node_ptr] is the current leaf. In
-    /// the degenerate case where the tree is a single root leaf, then
-    /// the stack contains just that leaf.
-    ///
-    /// The [key] is the [std::byte] along which the path descends
-    /// from that [node_ptr].  The [key] has no meaning for a leaf.
-    /// The key byte may be used to reconstruct the full key (along
-    /// with any prefix bytes in the nodes along the path).  The key
-    /// byte is tracked to avoid having to search the keys of some
-    /// node types (N48) when the [child_index] does not directly
-    /// imply the key byte.
-    ///
-    /// The [child_index] is the [std::uint8_t] index position in the
-    /// parent at which the [child_ptr] was found.  The [child_index]
-    /// has no meaning for a leaf.  In the special case of N48, the
-    /// [child_index] is the index into the [child_indexes[]].  For
-    /// all other internal node types, the [child_index] is a direct
-    /// index into the [children[]].  When finding the successor (or
-    /// predecessor) the [child_index] needs to be interpreted
-    /// according to the node type.  For N4 and N16, you just look at
-    /// the next slot in the children[] to find the successor.  For
-    /// N256, you look at the next non-null slot in the children[].
-    /// N48 is the oddest of the node types.  For N48, you have to
-    /// look at the child_indexes[], find the next mapped key value
-    /// greater than the current one, and then look at its entry in
-    /// the children[].
-    ///
-    /// The [tag] is the [version_tag_type] from the
-    /// read_critical_section and contains the version information
-    /// that must be valid to use the [key_byte] and [child_index]
-    /// data read from the [node].  The version tag is cached when
-    /// when those data are read from the node along with the
-    /// [key_byte] and [child_index] values that were read.
+    /// Alias for the elements on the stack.
     struct stack_entry : public inode_base::iter_result {
-      /// The [prefix_len] is the number of bytes in the key prefix
-      /// for [node].  When the node is pushed onto the stack, we also
-      /// push [prefix_bytes] plus the [key_byte] onto a key_buffer.
-      /// We track how many bytes were pushed here (not including the
-      /// key_byte) so we can pop off the correct number of bytes
-      /// later.
-      detail::key_prefix_size prefix_len;
-
-      /// The version tag invariant for the node.
+      /// The version tag invariant for the node.  This contains the version
+      /// information that must be valid to use data read from the node.  The
+      /// version tag is cached when when those data are read from the node.
       ///
-      /// Note: This is just the data for the version tag and not the
-      /// read_critical_section (RCS).  Moving the RCS onto the stack
-      /// creates problems in the while(...) loops that use parent and
-      /// node lock chaining since the RCS in the loop is invalid as
-      /// soon as it is moved onto the stack.  Hence, this is just the
-      /// data and the while loops continue to use the normal OLC
-      /// pattern for lock chaining.
+      /// \note This is just the data for the version tag and not the
+      /// unodb::read_critical_section (RCS).  Moving the RCS onto the stack
+      /// creates problems in the `while(...)` loops that use parent and node
+      /// lock chaining since the RCS in the loop is invalid as soon as it is
+      /// moved onto the stack.  Hence, this is just the data and the \c while
+      /// loops continue to use the normal OLC pattern for lock chaining.
       version_tag_type version;
     };
 
@@ -370,40 +324,36 @@ class olc_db final {
     /// Position the iterator on the previous entry in the index.
     iterator& prior();
 
-    /// Position the iterator on, before, or after the caller's key.
-    /// If the iterator can not be positioned, it will be invalidated.
-    /// For example, if [fwd:=true] and the [search_key] is GT any key
-    /// in the index then the iterator will be invalidated since there
-    /// is no index entry greater than the search key.  Likewise, if
-    /// [fwd:=false] and the [search_key] is LT any key in the index,
-    /// then the iterator will be invalidated since there is no index
-    /// entry LT the search key.
+    /// Position the iterator on, before, or after the caller's key.  If the
+    /// iterator can not be positioned, it will be invalidated.  For example, if
+    /// `fwd:=true` and the \a search_key is GT any key in the index then the
+    /// iterator will be invalidated since there is no index entry greater than
+    /// the search key.  Likewise, if `fwd:=false` and the \a search_key is LT
+    /// any key in the index, then the iterator will be invalidated since there
+    /// is no index entry LT the \c search_key.
     ///
-    /// @param search_key The internal key used to position the
-    /// iterator.
+    /// \param search_key The internal key used to position the iterator.
     ///
-    /// @param match Will be set to true iff the search key is an
-    /// exact match in the index data.  Otherwise, the match is not
-    /// exact and the iterator is positioned either before or after
-    /// the search_key.
+    /// \param match Will be set to true iff the search key is an exact match in
+    /// the index data.  Otherwise, the match is not exact and the iterator is
+    /// positioned either before or after the search_key.
     ///
-    /// @param fwd When true, the iterator will be positioned first
-    /// entry which orders GTE the search_key and will be !valid() if
-    /// there is no such entry.  Otherwise, the iterator will be
-    /// positioned on the last key which orders LTE the search_key and
-    /// !valid() if there is no such entry.
+    /// \param fwd When true, the iterator will be positioned first entry which
+    /// orders GTE the search_key and invalidated if there is no such entry.
+    /// Otherwise, the iterator will be positioned on the last key which orders
+    /// LTE the search_key and invalidated if there is no such entry.
     iterator& seek(art_key_type search_key, bool& match, bool fwd = true);
 
     /// Return the key_view associated with the current position of
     /// the iterator.
     ///
-    /// Precondition: The iterator MUST be valid().
+    /// \pre The iterator MUST be valid().
     [[nodiscard]] key_view get_key();
 
     /// Return the value_view associated with the current position of
     /// the iterator.
     ///
-    /// Precondition: The iterator MUST be valid().
+    /// \pre The iterator MUST be valid().
     [[nodiscard, gnu::pure]] const qsbr_value_view get_val() const;
 
     /// Debugging
@@ -413,6 +363,10 @@ class olc_db final {
         os << "iter::stack:: empty\n";
         return;
       }
+      // Dump the key buffer maintained by the iterator.
+      os << "keybuf=";
+      detail::dump_key(os, keybuf_.get_key_view());
+      os << "\n";
       // Create a new stack and copy everything there.  Using the new
       // stack, print out the stack in top-bottom order.  This avoids
       // modifications to the existing stack for the iterator.
@@ -426,8 +380,9 @@ class olc_db final {
            << static_cast<uint64_t>(e.key_byte) << std::dec
            << ", child_index=0x" << std::hex << std::setfill('0')
            << std::setw(2) << static_cast<std::uint64_t>(e.child_index)
-           << std::dec << ", prefix_len=" << e.prefix_len << std::dec
-           << ", version=";
+           << std::dec << ", prefix(" << e.prefix.length() << ")=";
+        detail::dump_key(os, e.prefix.get_key_view());
+        os << ", version=";
         optimistic_lock::version_type(e.version).dump(os);  // version tag.
         os << ", ";
         art_policy::dump_node(os, np, false /*recursive*/);  // node or leaf.
@@ -447,11 +402,10 @@ class olc_db final {
     [[nodiscard]] bool valid() const { return !stack_.empty(); }
 
    protected:
-    /// Compare the given key (e.g., the to_key) to the current key in
-    /// the internal buffer.
+    /// Compare the given key (e.g., the to_key) to the current key in the
+    /// internal buffer.
     ///
-    /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other
-    /// key.
+    /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
     [[nodiscard, gnu::pure]] int cmp(const art_key_type& akey) const;
 
     //
@@ -463,7 +417,7 @@ class olc_db final {
 
     /// Push an entry onto the stack.
     bool try_push(detail::olc_node_ptr node, std::byte key_byte,
-                  std::uint8_t child_index,
+                  std::uint8_t child_index, detail::key_prefix_snapshot prefix,
                   const optimistic_lock::read_critical_section& rcs) {
       // For variable length keys we need to know the number of bytes
       // associated with the node's key_prefix.  In addition there is
@@ -472,13 +426,7 @@ class olc_db final {
       // stack so we can pop off the right number of bytes even for
       // OLC where the node might be concurrently modified.
       UNODB_DETAIL_ASSERT(node.type() != node_type::LEAF);
-      auto* inode{node.ptr<inode_type*>()};
-      auto prefix{inode->get_key_prefix().get_snapshot()};
-      // Check the RCS to make sure the snapshot of the key prefix is valid.
-      if (UNODB_DETAIL_UNLIKELY(!rcs.check())) {
-        return false;  // LCOV_EXCL_LINE
-      }
-      stack_.push({{node, key_byte, child_index}, prefix.size(), rcs.get()});
+      stack_.push({{node, key_byte, child_index, prefix}, rcs.get()});
       keybuf_.push(prefix.get_key_view());
       keybuf_.push(key_byte);
       return true;
@@ -487,15 +435,11 @@ class olc_db final {
     /// Push a leaf onto the stack.
     bool try_push_leaf(detail::olc_node_ptr aleaf,
                        const optimistic_lock::read_critical_section& rcs) {
-      // The [key], [child_index] and [prefix_len] are ignored for a
-      // leaf.
-      //
-      // TODO(thompsonbry) variable length keys - we will need to
-      // handle a final variable length key prefix on the leaf here.
+      // The [key], [child_index] and [prefix] are ignored for a leaf.
       stack_.push({{aleaf,
-                    static_cast<std::byte>(0xFFU),      // key_byte
-                    static_cast<std::uint8_t>(0xFFU)},  // child_index
-                   0,                                   // prefix_len
+                    static_cast<std::byte>(0xFFU),     // key_byte
+                    static_cast<std::uint8_t>(0xFFU),  // child_index
+                    detail::key_prefix_snapshot(0)},   // empty key_prefix
                    rcs.get()});
       return true;
     }
@@ -507,7 +451,7 @@ class olc_db final {
       if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
         return try_push_leaf(e.node, rcs);
       }
-      return try_push(e.node, e.key_byte, e.child_index, rcs);
+      return try_push(e.node, e.key_byte, e.child_index, e.prefix, rcs);
     }
 
     /// Pop an entry from the stack and the corresponding bytes from
@@ -518,9 +462,9 @@ class olc_db final {
       // was pushed onto the stack and the stack and the keybuf are in
       // sync with one another.  So we can just do a simple POP for
       // each of them.
-      const auto prefix_len = top().prefix_len;
-      stack_.pop();
+      const auto prefix_len = top().prefix.length();
       keybuf_.pop(prefix_len);
+      stack_.pop();
     }
 
     /// Return the entry (if any) on the top of the stack.
@@ -600,15 +544,14 @@ class olc_db final {
   // internal keys (seek() and the iterator). It also makes life
   // easier for mutex_db since scan() can take the lock.
 
-  /// Scan the tree, applying the caller's lambda to each visited
-  /// leaf.
+  /// Scan the tree, applying the caller's lambda to each visited leaf.
   ///
-  /// @param fn A function f(unodb::visitor<unodb::olc_db::iterator>&)
-  /// returning [bool:halt].  The traversal will halt if the function
-  /// returns [true].
+  /// \param fn A function `f(unodb::visitor<unodb::olc_db::iterator>&)`
+  /// returning `bool`.  The traversal will halt if the function returns \c
+  /// true.
   ///
-  /// @param fwd When [true] perform a forward scan, otherwise perform
-  /// a reverse scan.
+  /// \param fwd When \c true perform a forward scan, otherwise perform a
+  /// reverse scan.
   template <typename FN>
   void scan(FN fn, bool fwd = true) noexcept {
     if (fwd) {
@@ -630,18 +573,18 @@ class olc_db final {
     }
   }
 
-  /// Scan in the indicated direction, applying the caller's lambda to
-  /// each visited leaf.
+  /// Scan in the indicated direction, applying the caller's lambda to each
+  /// visited leaf.
   ///
-  /// @param from_key is an inclusive lower bound for the starting
-  /// point of the scan.
+  /// \param from_key is an inclusive lower bound for the starting point of the
+  /// scan.
   ///
-  /// @param fn A function f(unodb::visitor<unodb::olc_db::iterator>&)
-  /// returning [bool:halt].  The traversal will halt if the function
-  /// returns [true].
+  /// \param fn A function `f(unodb::visitor<unodb::olc_db::iterator>&)`
+  /// returning `bool`.  The traversal will halt if the function returns \c
+  /// true.
   ///
-  /// @param fwd When [true] perform a forward scan, otherwise perform
-  /// a reverse scan.
+  /// \param fwd When \c true perform a forward scan, otherwise perform a
+  /// reverse scan.
   template <typename FN>
   void scan_from(Key from_key, FN fn, bool fwd = true) noexcept {
     const auto from_key_ = art_key_type{from_key};  // convert to internal key
@@ -665,24 +608,21 @@ class olc_db final {
     }
   }
 
-  /// Scan a half-open key range, applying the caller's lambda to each
-  /// visited leaf.  The scan will proceed in lexicographic order iff
-  /// from_key is less than to_key and in reverse lexicographic order
-  /// iff to_key is less than from_key.  When from_key < to_key, the
-  /// scan will visit all index entries in the half-open range
-  /// [from_key,to_key) in forward order.  Otherwise the scan will
-  /// visit all index entries in the half-open range (from_key,to_key]
-  /// in reverse order.
-  //
-  /// @param from_key is an inclusive bound for the starting point of
-  /// the scan.
-  //
-  /// @param to_key is an exclusive bound for the ending point of the
-  /// scan.
-  //
-  /// @param fn A function f(unodb::visitor<unodb::olc_db::iterator>&)
-  /// returning [bool:halt].  The traversal will halt if the function
-  /// returns [true].
+  /// Scan a half-open key range, applying the caller's lambda to each visited
+  /// leaf.  The scan will proceed in lexicographic order iff \a from_key is
+  /// less than \a to_key and in reverse lexicographic order iff \a to_key is
+  /// less than \a from_key.  When `from_key < to_key`, the scan will visit all
+  /// index entries in the half-open range `[from_key,to_key)` in forward order.
+  /// Otherwise the scan will visit all index entries in the half-open range
+  /// `(from_key,to_key]` in reverse order.
+  ///
+  /// \param from_key is an inclusive bound for the starting point of the scan.
+  ///
+  /// \param to_key is an exclusive bound for the ending point of the scan.
+  ///
+  /// \param fn A function `f(unodb::visitor<unodb::olc_db::iterator>&)`
+  /// returning `bool`.  The traversal will halt if the function returns \c
+  /// true.
   template <typename FN>
   void scan_range(Key from_key, Key to_key, FN fn) noexcept {
     // TODO(thompsonbry) : variable length keys. Explore a cheaper way
@@ -1002,9 +942,10 @@ class db_leaf_qsbr_deleter {
   db_type& db_instance;
 };
 
-// Return a reference to the [optimistic_lock] from the node header.
-//
-// Note: This returns the lock rather than trying to acquire the lock.
+/// Return a reference to the unodb::optimistic_lock from the node header
+/// associated with the unodb::detail::olc_node_ptr..
+///
+/// \note This returns the lock rather than trying to acquire the lock.
 [[nodiscard]] inline auto& node_ptr_lock(
     const unodb::detail::olc_node_ptr&
         node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
@@ -1083,17 +1024,16 @@ struct olc_impl_helpers {
   olc_impl_helpers() = delete;
 };
 
-///
-/// OLC inode classes extend the basic inode classes and wrap them
-/// with additional policy stuff.
-///
-/// Note: These classes may assert that appropriate optimistic locks
-/// are held, but they do not take those locks.  That happens above
-/// the inode abstraction in the various algorithms which must follow
-/// the OLC patterns to ensure that they do not take action on data
-/// before they have verified that the optimistic condition remained
-/// true while data was read from the inode.
-///
+//
+// OLC inode classes extend the basic inode classes and wrap them with
+// additional policy stuff.
+//
+// Note: These classes may assert that appropriate optimistic locks are held,
+// but they do not take those locks.  That happens above the inode abstraction
+// in the various algorithms which must follow the OLC patterns to ensure that
+// they do not take action on data before they have verified that the optimistic
+// condition remained true while data was read from the inode.
+//
 
 template <typename Key>
 using olc_inode_4_parent = basic_inode_4<olc_art_policy<Key>>;
@@ -2336,7 +2276,7 @@ typename olc_db<Key>::iterator& olc_db<Key>::iterator::seek(
 // Ensure that the read_critical_section is unlocked regardless of the
 // outcome of some computation.
 //
-// @return the outcome of that computation and false if the
+// \return the outcome of that computation and false if the
 // read_critical_section could not be unlocked.
 [[nodiscard]] inline bool unlock_and_return(
     const unodb::optimistic_lock::read_critical_section& cs,
@@ -2418,10 +2358,10 @@ bool olc_db<Key>::iterator::try_seek(art_key_type search_key, bool& match,
     }
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
     auto* const inode{node.template ptr<inode_type*>()};  // some internal node.
-    const auto& key_prefix{inode->get_key_prefix()};    // prefix for that node.
+    const auto key_prefix{inode->get_key_prefix().get_snapshot()};  // prefix
     const auto key_prefix_length{key_prefix.length()};  // length of that prefix
     const auto shared_length = key_prefix.get_shared_length(
-        remaining_key);  // #of prefix bytes matched.
+        remaining_key.get_u64());  // #of prefix bytes matched.
     if (shared_length < key_prefix_length) {
       // We have visited an internal node whose prefix is longer than
       // the bytes in the key that we need to match.  To figure out
@@ -2533,7 +2473,7 @@ bool olc_db<Key>::iterator::try_seek(art_key_type search_key, bool& match,
           return false;                                       // LCOV_EXCL_LINE
         // push the path we took
         if (UNODB_DETAIL_UNLIKELY(!try_push(node, tmp.key_byte, child_index,
-                                            node_critical_section)))
+                                            tmp.prefix, node_critical_section)))
           return false;  // LCOV_EXCL_LINE
         return try_left_most_traversal(child, node_critical_section);
       }
@@ -2589,7 +2529,7 @@ bool olc_db<Key>::iterator::try_seek(art_key_type search_key, bool& match,
         return false;                                       // LCOV_EXCL_LINE
       // push the path we took
       if (UNODB_DETAIL_UNLIKELY(!try_push(node, tmp.key_byte, child_index,
-                                          node_critical_section)))
+                                          tmp.prefix, node_critical_section)))
         return false;  // LCOV_EXCL_LINE
       return try_right_most_traversal(child, node_critical_section);
     }
@@ -2597,7 +2537,7 @@ bool olc_db<Key>::iterator::try_seek(art_key_type search_key, bool& match,
     const auto child_index{res.first};
     const auto* const child{res.second};
     if (UNODB_DETAIL_UNLIKELY(!try_push(node, remaining_key[0], child_index,
-                                        node_critical_section)))
+                                        key_prefix, node_critical_section)))
       return false;  // LCOV_EXCL_LINE
     node = *child;
     remaining_key.shift_right(1);
@@ -2705,22 +2645,17 @@ bool olc_db<Key>::iterator::try_right_most_traversal(
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key>
 key_view olc_db<Key>::iterator::get_key() {
+  UNODB_DETAIL_ASSERT(valid());  // by contract
   // Note: If the iterator is on a leaf, we return the key for that
   // leaf regardless of whether the leaf has been deleted.  This is
   // part of the design semantics for the OLC ART scan.
   //
-  // TODO(thompsonbry) : variable length keys.  Eventually this will
-  // need to use the stack to reconstruct the key from the path from
-  // the root to this leaf.  Right now it is relying on the fact that
-  // simple fixed width keys are stored directly in the leaves.
-  //
-  // Note: We can not simplify this until the leaf has a variable
-  // length prefix consisting of the suffix of the key (the part not
-  // already matched by the inode path).
+  // TODO(thompsonbry) : variable length keys. The simplest case
+  // where this does not work today is a single root leaf.  In that
+  // case, there is no inode path and we can not properly track the
+  // key in the key_buffer.
   //
   // return keybuf_.get_key_view();
-  //
-  UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.

@@ -22,9 +22,6 @@
 namespace {
 
 // Test suite for an ART iterator.
-//
-// TODO(thompsonbry) variable length keys :: unit tests for
-// std::span<std::byte>
 template <class Db>
 class ARTIteratorTest : public ::testing::Test {
  public:
@@ -41,7 +38,9 @@ inline std::uint64_t decode(unodb::key_view akey) {
 
 using ARTTypes =
     ::testing::Types<unodb::test::u64_db, unodb::test::u64_mutex_db,
-                     unodb::test::u64_olc_db>;
+                     unodb::test::u64_olc_db, unodb::test::key_view_db,
+                     unodb::test::key_view_mutex_db,
+                     unodb::test::key_view_olc_db>;
 
 UNODB_TYPED_TEST_SUITE(ARTIteratorTest, ARTTypes)
 
@@ -73,7 +72,7 @@ TYPED_TEST(ARTIteratorTest, singleLeafIteratorOneValue) {
   auto b = db.test_only_iterator();
   b.first();  // obtain iterator.
   UNODB_EXPECT_TRUE(b.valid());
-  UNODB_EXPECT_TRUE(decode(b.get_key()) == 0);
+  UNODB_EXPECT_EQ(decode(b.get_key()), 0);
   UNODB_EXPECT_TRUE(
       std::ranges::equal(b.get_val(), unodb::test::test_values[0]));
   b.next();                       // advance.
@@ -90,14 +89,14 @@ TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesForwardScan) {
   b.first();  // obtain iterator.
   UNODB_EXPECT_TRUE(b.valid());
   {
-    UNODB_EXPECT_TRUE(decode(b.get_key()) == 0);
+    UNODB_EXPECT_EQ(decode(b.get_key()), 0);
     UNODB_EXPECT_TRUE(
         std::ranges::equal(b.get_val(), unodb::test::test_values[0]));
   }
   b.next();  // advance
   UNODB_EXPECT_TRUE(b.valid());
   {
-    UNODB_EXPECT_TRUE(decode(b.get_key()) == 1);
+    UNODB_EXPECT_EQ(decode(b.get_key()), 1);
     UNODB_EXPECT_TRUE(
         std::ranges::equal(b.get_val(), unodb::test::test_values[1]));
   }
@@ -115,14 +114,14 @@ TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesReverseScan) {
   b.last();
   UNODB_EXPECT_TRUE(b.valid());
   {
-    UNODB_EXPECT_TRUE(decode(b.get_key()) == 1);
+    UNODB_EXPECT_EQ(decode(b.get_key()), 1);
     UNODB_EXPECT_TRUE(
         std::ranges::equal(b.get_val(), unodb::test::test_values[1]));
   }
   b.prior();
   UNODB_EXPECT_TRUE(b.valid());
   {
-    UNODB_EXPECT_TRUE(decode(b.get_key()) == 0);
+    UNODB_EXPECT_EQ(decode(b.get_key()), 0);
     UNODB_EXPECT_TRUE(
         std::ranges::equal(b.get_val(), unodb::test::test_values[0]));
   }
@@ -146,21 +145,21 @@ TYPED_TEST(ARTIteratorTest, C0001) {
   b.first();
   UNODB_EXPECT_TRUE(b.valid());
   {
-    UNODB_EXPECT_TRUE(decode(b.get_key()) == 0xaa00);
+    UNODB_EXPECT_EQ(decode(b.get_key()), 0xaa00);
     UNODB_EXPECT_TRUE(
         std::ranges::equal(b.get_val(), unodb::test::test_values[0]));
   }
   b.next();
   UNODB_EXPECT_TRUE(b.valid());
   {
-    UNODB_EXPECT_TRUE(decode(b.get_key()) == 0xaa01);
+    UNODB_EXPECT_EQ(decode(b.get_key()), 0xaa01);
     UNODB_EXPECT_TRUE(
         std::ranges::equal(b.get_val(), unodb::test::test_values[1]));
   }
   b.next();
   UNODB_EXPECT_TRUE(b.valid());
   {
-    UNODB_EXPECT_TRUE(decode(b.get_key()) == 0xab00);
+    UNODB_EXPECT_EQ(decode(b.get_key()), 0xab00);
     UNODB_EXPECT_TRUE(
         std::ranges::equal(b.get_val(), unodb::test::test_values[2]));
   }
@@ -288,19 +287,21 @@ TYPED_TEST(ARTIteratorTest, C0004) {
 
 // unit test with an empty tree.
 TYPED_TEST(ARTIteratorTest, emptyTreeSeek) {
+  using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   {
     auto e = db.test_only_iterator();
     bool match = false;
-    e.seek(unodb::detail::basic_art_key<std::uint64_t>{0}, match, true /*fwd*/);
+    e.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0)}, match,
+           true /*fwd*/);
     UNODB_EXPECT_FALSE(e.valid());
     UNODB_EXPECT_EQ(match, false);
   }
   {
     auto e = db.test_only_iterator();
     bool match = false;
-    e.seek(unodb::detail::basic_art_key<std::uint64_t>{0}, match,
+    e.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0)}, match,
            false /*fwd*/);
     UNODB_EXPECT_FALSE(e.valid());
     UNODB_EXPECT_EQ(match, false);
@@ -309,14 +310,15 @@ TYPED_TEST(ARTIteratorTest, emptyTreeSeek) {
 
 // unit test where the root is a single leaf.
 TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
+  using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(1, unodb::test::test_values[1]);
   {  // exact match, forward traversal (GTE)
     auto e = db.test_only_iterator();
     bool match = false;
-    auto& it = e.seek(unodb::detail::basic_art_key<std::uint64_t>{1}, match,
-                      true /*fwd*/);
+    auto& it = e.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(1)},
+                      match, true /*fwd*/);
     UNODB_EXPECT_TRUE(it.valid());
     UNODB_EXPECT_EQ(match, true);
     UNODB_EXPECT_TRUE(decode(it.get_key()) == 1);
@@ -328,8 +330,8 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
   {  // exact match, reverse traversal (LTE)
     auto e = db.test_only_iterator();
     bool match = false;
-    auto& it = e.seek(unodb::detail::basic_art_key<std::uint64_t>{1}, match,
-                      false /*fwd*/);
+    auto& it = e.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(1)},
+                      match, false /*fwd*/);
     UNODB_EXPECT_TRUE(it.valid());
     UNODB_EXPECT_EQ(match, true);
     UNODB_EXPECT_TRUE(decode(it.get_key()) == 1);
@@ -343,7 +345,7 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
     // data.
     bool match = true;
     auto it = db.test_only_iterator();
-    it.seek(unodb::detail::basic_art_key<std::uint64_t>{0}, match,
+    it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0)}, match,
             true /*fwd*/);
     UNODB_EXPECT_TRUE(it.valid());
     UNODB_EXPECT_EQ(match, false);
@@ -357,7 +359,7 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
     // and iterator is invalidated.
     bool match = true;
     auto it = db.test_only_iterator();
-    it.seek(unodb::detail::basic_art_key<std::uint64_t>{2}, match,
+    it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(2)}, match,
             true /*fwd*/);
     UNODB_EXPECT_FALSE(it.valid());
     UNODB_EXPECT_EQ(match, false);
@@ -366,7 +368,7 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
     // match=false and iterator is invalidated.
     bool match = true;
     auto it = db.test_only_iterator();
-    it.seek(unodb::detail::basic_art_key<std::uint64_t>{0}, match,
+    it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0)}, match,
             false /*fwd*/);
     UNODB_EXPECT_FALSE(it.valid());
     UNODB_EXPECT_EQ(match, false);
@@ -375,7 +377,7 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
     // and iterator is positioned at the last key.
     bool match = true;
     auto it = db.test_only_iterator();
-    it.seek(unodb::detail::basic_art_key<std::uint64_t>{2}, match,
+    it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(2)}, match,
             false /*fwd*/);
     UNODB_EXPECT_TRUE(it.valid());
     UNODB_EXPECT_EQ(match, false);
@@ -394,6 +396,7 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
 //   I4     L2
 // L0 L1
 TYPED_TEST(ARTIteratorTest, C101) {
+  using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   const std::uint64_t k0 = 0xaa00;
@@ -406,7 +409,7 @@ TYPED_TEST(ARTIteratorTest, C101) {
     {  // exact match, forward traversal (GTE), first key.
       auto it = db.test_only_iterator();
       bool match = false;
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k0}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k0)}, match,
               true /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -417,7 +420,7 @@ TYPED_TEST(ARTIteratorTest, C101) {
     {  // exact match, forward traversal (GTE), middle key.
       bool match = false;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k1}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k1)}, match,
               true /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -428,7 +431,7 @@ TYPED_TEST(ARTIteratorTest, C101) {
     {  // exact match, forward traversal (GTE), last key.
       bool match = false;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k2}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k2)}, match,
               true /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -441,7 +444,7 @@ TYPED_TEST(ARTIteratorTest, C101) {
     {  // exact match, reverse traversal (LTE), first key.
       bool match = false;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k0}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k0)}, match,
               false /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -452,7 +455,7 @@ TYPED_TEST(ARTIteratorTest, C101) {
     {  // exact match, reverse traversal (LTE), middle key.
       bool match = false;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k1}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k1)}, match,
               false /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -463,7 +466,7 @@ TYPED_TEST(ARTIteratorTest, C101) {
     {  // exact match, reverse traversal (LTE), last key.
       bool match = false;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k2}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k2)}, match,
               false /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -478,7 +481,7 @@ TYPED_TEST(ARTIteratorTest, C101) {
       // data.
       bool match = true;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{0}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0)}, match,
               true /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, false);
@@ -490,8 +493,8 @@ TYPED_TEST(ARTIteratorTest, C101) {
       // and iterator is invalidated.
       bool match = true;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{0xffff}, match,
-              true /*fwd*/);
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0xffff)},
+              match, true /*fwd*/);
       UNODB_EXPECT_FALSE(it.valid());
       UNODB_EXPECT_EQ(match, false);
     }
@@ -499,7 +502,7 @@ TYPED_TEST(ARTIteratorTest, C101) {
       // match=false and iterator is invalidated.
       bool match = true;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{0}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0)}, match,
               false /*fwd*/);
       UNODB_EXPECT_FALSE(it.valid());
       UNODB_EXPECT_EQ(match, false);
@@ -508,8 +511,8 @@ TYPED_TEST(ARTIteratorTest, C101) {
       // and iterator is positioned at the last key.
       bool match = true;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{0xffff}, match,
-              false /*fwd*/);
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0xffff)},
+              match, false /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, false);
       UNODB_EXPECT_TRUE(decode(it.get_key()) == k2);
@@ -526,6 +529,7 @@ TYPED_TEST(ARTIteratorTest, C101) {
 //
 TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
   constexpr bool debug = false;
+  using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();
   const std::uint64_t k0 = 0xaa10;
@@ -542,7 +546,7 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
     {  // exact match, forward traversal (GTE), first key.
       bool match = false;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k0}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k0)}, match,
               true /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -553,7 +557,7 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
     {  // exact match, forward traversal (GTE), middle key.
       bool match = false;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k1}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k1)}, match,
               true /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -564,7 +568,7 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
     {  // exact match, forward traversal (GTE), last key.
       bool match = false;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k2}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k2)}, match,
               true /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -577,7 +581,7 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
     {  // exact match, reverse traversal (LTE), first key.
       bool match = false;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k0}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k0)}, match,
               false /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -588,7 +592,7 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
     {  // exact match, reverse traversal (LTE), middle key.
       bool match = false;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k1}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k1)}, match,
               false /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -599,7 +603,7 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
     {  // exact match, reverse traversal (LTE), last key.
       bool match = false;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{k2}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(k2)}, match,
               false /*fwd*/);
       UNODB_EXPECT_TRUE(it.valid());
       UNODB_EXPECT_EQ(match, true);
@@ -614,7 +618,7 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
       // data.
       bool match = true;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{0}, match,
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0)}, match,
               true /*fwd*/);
       if (debug) {
         std::cerr << "it.seek(0,&match,true)::\n";
@@ -630,8 +634,8 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
        // match=false and iterator is invalidated.
       bool match = true;
       auto it = db.test_only_iterator();
-      it.seek(unodb::detail::basic_art_key<std::uint64_t>{0xffff}, match,
-              true /*fwd*/);
+      it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0xffff)},
+              match, true /*fwd*/);
       if (debug) {
         std::cerr << "it.seek(0xffff,&match,true)::\n";
         it.dump(std::cerr);
@@ -644,8 +648,8 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
         // match=false and iterator is invalidated.
         bool match = true;
         auto it = db.test_only_iterator();
-        it.seek(unodb::detail::basic_art_key<std::uint64_t>{0}, match,
-                false /*fwd*/);
+        it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0)},
+                match, false /*fwd*/);
         if (debug) {
           std::cerr << "it.seek(0,&match,true)::\n";
           it.dump(std::cerr);
@@ -657,8 +661,8 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
          // match=false and iterator is positioned at the last key.
         bool match = true;
         auto it = db.test_only_iterator();
-        it.seek(unodb::detail::basic_art_key<std::uint64_t>{0xffff}, match,
-                false /*fwd*/);
+        it.seek(unodb::detail::basic_art_key<Key>{verifier.coerce_key(0xffff)},
+                match, false /*fwd*/);
         if (debug) {
           std::cerr << "it.seek(0xffff,&match,false)::\n";
           it.dump(std::cerr);

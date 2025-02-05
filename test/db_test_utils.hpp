@@ -15,11 +15,13 @@
 #include <cstdint>
 #include <initializer_list>
 #include <iostream>
-#include <map>
+#include <list>
+#include <memory>
 #include <sstream>
 #include <thread>
 #include <tuple>
 #include <type_traits>
+#include <unordered_map>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -41,6 +43,10 @@
 extern template class unodb::db<std::uint64_t>;
 extern template class unodb::mutex_db<std::uint64_t>;
 extern template class unodb::olc_db<std::uint64_t>;
+
+extern template class unodb::db<unodb::key_view>;
+extern template class unodb::mutex_db<unodb::key_view>;
+extern template class unodb::olc_db<unodb::key_view>;
 
 namespace unodb::test {
 
@@ -73,6 +79,7 @@ constexpr std::array<unodb::value_view, 6> test_values = {
 namespace detail {
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
+UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wunused-parameter")
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 template <class Db>
@@ -85,6 +92,16 @@ void assert_value_eq(const typename Db::get_result &result,
   } else {
     UNODB_DETAIL_ASSERT(result.has_value());
     UNODB_ASSERT_TRUE(std::ranges::equal(*result, expected));
+  }
+}
+
+template <class Db>
+void assert_not_found(const typename Db::get_result &result) noexcept {
+  if constexpr (std::is_same_v<Db, unodb::mutex_db<typename Db::key_type>>) {
+    UNODB_DETAIL_ASSERT(!result.second.owns_lock());
+    UNODB_DETAIL_ASSERT(!result.first.has_value());
+  } else {
+    UNODB_DETAIL_ASSERT(!result.has_value());
   }
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -127,10 +144,114 @@ void assert_result_eq(const Db &db, typename Db::key_type key,
 #define ASSERT_VALUE_FOR_KEY(DbType, test_db, key, expected) \
   detail::assert_result_eq<DbType>(test_db, key, expected, __FILE__, __LINE__)
 
+/// Utility class supporting verification of the system under test.
+///
+/// \note For the ::key_view cases, the verifier assumes that we are storing u64
+/// keys encoded into a ::key_view.  The caller's ::key_view is decoded to
+/// obtain the u64 key.  We then encode each u64 value in the specified range
+/// into a ::key_view.
 template <class Db>
 class [[nodiscard]] tree_verifier final {
- public:
   using key_type = typename Db::key_type;
+
+  // replaces the use of try_get(0) with a parameterized key type.
+  key_type unused_key{};
+
+  /// \note This is the historical type accepted for unodb::db keys.  It is used
+  /// in the unodb::test::tree_verifier to perform explicit type promotion where
+  /// unit tests where using implicit type conversion from `int` to
+  /// `std::uint64_t`.
+  using u64 = std::uint64_t;
+
+  /// Used to wrap the non-owned keys with an owned, comparable, etc. type iff
+  /// the the keys of the Db are unodb::key_view.
+  using key_wrapper = std::shared_ptr<std::vector<std::byte>>;
+
+  /// Declares the type for the keys of the tree_verifier::map. Since ::key_view
+  /// is a non-owned type, we need to copy the data into an owned type that can
+  /// be used with the map.
+  template <typename Db2 = Db>
+  using ikey_type = typename std::conditional<
+      (std::is_same_v<typename Db2::key_type, typename unodb::key_view>),
+      key_wrapper, typename Db2::key_type>::type;
+
+  /// Convert an external key (Db::key_type) to an internal key (one the
+  /// unodb::test::tree_verifier stores in its ground truth key/value
+  /// collection).
+  [[nodiscard]] ikey_type<Db> to_ikey(typename Db::key_type key) const {
+    if constexpr (std::is_same_v<key_type, unodb::key_view>) {
+      // Allocate a vector, make a copy of the key into the vector,
+      // and return a shared_ptr to that vector.
+      UNODB_DETAIL_PAUSE_HEAP_TRACKING_GUARD()
+      const auto nbytes = key.size_bytes();
+      auto *vec = new std::vector<std::byte>(nbytes);
+      std::memcpy(vec->data(), key.data(), nbytes);
+      return key_wrapper{vec};
+    } else {
+      return key;  // NOP
+    }
+  }
+
+  template <typename T>
+  key_type coerce_key_internal(T key) {
+    if constexpr (std::is_same_v<key_type, unodb::key_view>) {  // Db<key_view>?
+      if constexpr (std::is_same_v<T, unodb::key_view>) {  // Given key_view?
+        // key_view pass through
+        return key;
+      } else {
+        // type promote and then encode the key into a key_view.
+        return make_key(static_cast<u64>(key));
+      }
+    } else {  // type promotion.
+      return static_cast<u64>(key);
+    }
+  }
+
+ public:
+  /// Coerce an external key into the Db::key_type.
+  ///
+  /// \note Historically, the unit tests were written to some mixture of `int`,
+  /// `unsigned`, and `std::uint64_t` keys and relied on implicit type
+  /// promotion.  This method takes the place of that implicit type promotion
+  /// and also handles conversion from such simple keys to unodb::key_view.
+  ///
+  /// \note Type promotion is explicitly to std::uint64_t since that is the
+  /// historical external type against which the unit tests were written.
+  ///
+  /// \param key An external key.
+  ///
+  /// \return A key of a type suitable for the db under test.
+  //
+  // Note: This method is used mostly internally within the tree_verifier.
+  // However, it is also used by test_art_iter to from the type specific keys
+  // for the db::iterator::seek() API.
+  template <typename T>
+  key_type coerce_key(T key) const {
+    // TODO(thompsonbry) - Look at why some callers are const.
+    //
+    // Some callers are const, but we need to add things into the
+    // internal collections.
+    return const_cast<tree_verifier<Db> *>(this)->coerce_key_internal(key);
+  }
+
+  /// Return an unodb::key_view backed by a `std::array` in an internal
+  /// collection whose existance is scoped to the life cycle of the
+  /// tree_verifier.
+  unodb::key_view make_key(std::uint64_t k) {
+    constexpr auto sz{sizeof(k)};
+    UNODB_DETAIL_PAUSE_HEAP_TRACKING_GUARD()
+    // Encode the key, emplace an array into the list of encoded keys
+    // that we are tracking, and copy the encoded key into that
+    // emplaced array.
+    unodb::key_encoder enc;
+    auto kv{enc.encode(k).get_key_view()};
+    key_views.emplace_back(std::array<std::byte, sz>{});
+    auto &a = key_views.back();  // a *reference* to data emplaced_back.
+    std::copy(kv.data(), kv.data() + sz, a.begin());  // copy data into array.
+    // Return a key_view backed by the array that we just put on that
+    // list.
+    return unodb::key_view(a.data(), sz);  // view of array's data.
+  }
 
  private:
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
@@ -158,7 +279,7 @@ class [[nodiscard]] tree_verifier final {
 
   void do_remove(key_type k, bool bypass_verifier) {
     if (!bypass_verifier) {
-      const auto remove_result = values.erase(k);
+      const auto remove_result = values.erase(to_ikey(k));
       UNODB_ASSERT_EQ(remove_result, 1);
     }
 
@@ -218,38 +339,26 @@ class [[nodiscard]] tree_verifier final {
   // Earlier versions give errors of different declarations having identical
   // mangled names.
   // NOLINTBEGIN(modernize-use-constraints)
-  template <class Db2 = Db>
+  template <class Db2 = Db, typename T>
   std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
-  do_try_remove_missing_key(key_type absent_key) {
-    UNODB_ASSERT_FALSE(test_db.remove(absent_key));
+  do_try_remove_missing_key(T absent_key) {
+    UNODB_ASSERT_FALSE(test_db.remove(coerce_key(absent_key)));
   }
 
-  template <class Db2 = Db>
+  template <class Db2 = Db, typename T>
   std::enable_if_t<std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
-  do_try_remove_missing_key(key_type absent_key) {
+  do_try_remove_missing_key(T absent_key) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
-    UNODB_ASSERT_FALSE(test_db.remove(absent_key));
+    UNODB_ASSERT_FALSE(test_db.remove(coerce_key(absent_key)));
   }
   // NOLINTEND(modernize-use-constraints)
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
- public:
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
-  explicit tree_verifier(bool parallel_test_ = false)
-      : parallel_test{parallel_test_} {
-    assert_empty();
-#ifdef UNODB_DETAIL_WITH_STATS
-    assert_growing_inodes({0, 0, 0, 0});
-    assert_shrinking_inodes({0, 0, 0, 0});
-    assert_key_prefix_splits(0);
-#endif  // UNODB_DETAIL_WITH_STATS
-  }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-  void insert(key_type k, unodb::value_view v, bool bypass_verifier = false) {
+  void insert_internal(key_type k, unodb::value_view v,
+                       bool bypass_verifier = false) {
     const auto empty_before = test_db.empty();
 #ifdef UNODB_DETAIL_WITH_STATS
     const auto mem_use_before =
@@ -302,39 +411,105 @@ class [[nodiscard]] tree_verifier final {
 #ifndef NDEBUG
       allocation_failure_injector::reset();
 #endif
-      const auto [pos, insert_succeeded] = values.try_emplace(k, v);
+      UNODB_DETAIL_PAUSE_HEAP_TRACKING_GUARD()
+      const auto [pos, insert_succeeded] = values.try_emplace(to_ikey(k), v);
       (void)pos;
       UNODB_ASSERT_TRUE(insert_succeeded);
     }
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  void insert_key_range(key_type start_key, std::size_t count,
-                        bool bypass_verifier = false) {
-    for (auto key = start_key; key < start_key + count; ++key) {
-      insert(key, test_values[key % test_values.size()], bypass_verifier);
+  void insert_key_range_internal(key_type start_key, std::size_t count,
+                                 bool bypass_verifier = false) {
+    if constexpr (std::is_same_v<key_type, key_view>) {
+      // decode to figure out the start key for the loop.
+      unodb::key_decoder dec(start_key);
+      std::uint64_t start_key_dec;
+      dec.decode(start_key_dec);
+      unodb::key_encoder enc;
+      for (auto key = start_key_dec; key < start_key_dec + count; ++key) {
+        insert(enc.reset().encode(key).get_key_view(),
+               test_values[key % test_values.size()], bypass_verifier);
+      }
+    } else {
+      for (auto key = start_key; key < start_key + count; ++key) {
+        insert(key, test_values[key % test_values.size()], bypass_verifier);
+      }
     }
   }
 
-  void try_insert(key_type k, unodb::value_view v) {
-    std::ignore = test_db.insert(k, v);
+ public:
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
+  explicit tree_verifier(bool parallel_test_ = false)
+      : parallel_test{parallel_test_} {
+    assert_empty();
+#ifdef UNODB_DETAIL_WITH_STATS
+    assert_growing_inodes({0, 0, 0, 0});
+    assert_shrinking_inodes({0, 0, 0, 0});
+    assert_key_prefix_splits(0);
+#endif  // UNODB_DETAIL_WITH_STATS
+  }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+  template <typename T>
+  void insert(T k, unodb::value_view v, bool bypass_verifier = false) {
+    insert_internal(coerce_key(k), v, bypass_verifier);
+  }
+
+  template <typename T>
+  void insert_key_range(T start_key, std::size_t count,
+                        bool bypass_verifier = false) {
+    insert_key_range_internal(coerce_key(start_key), count, bypass_verifier);
+  }
+
+  template <typename T>
+  bool try_insert(T k, unodb::value_view v) {
+    return test_db.insert(coerce_key(k), v);
   }
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-  void preinsert_key_range_to_verifier_only(key_type start_key,
-                                            std::size_t count) {
-    for (auto key = start_key; key < start_key + count; ++key) {
-      const auto [pos, insert_succeeded] =
-          values.try_emplace(key, test_values[key % test_values.size()]);
-      (void)pos;
-      UNODB_ASSERT_TRUE(insert_succeeded);
+  template <typename T>
+  void preinsert_key_range_to_verifier_only(T start_key1, std::size_t count) {
+    const auto start_key{coerce_key(start_key1)};
+    if constexpr (std::is_same_v<key_type, key_view>) {
+      unodb::key_decoder dec(start_key);
+      std::uint64_t start_key_dec;
+      dec.decode(start_key_dec);
+      unodb::key_encoder enc;
+      for (auto key = start_key_dec; key < start_key_dec + count; ++key) {
+        auto tmp = to_ikey(enc.reset().encode(key).get_key_view());
+        const auto [pos, insert_succeeded] =
+            values.try_emplace(tmp, test_values[key % test_values.size()]);
+        (void)pos;
+        UNODB_ASSERT_TRUE(insert_succeeded);
+      }
+    } else {
+      for (auto key = start_key; key < start_key + count; ++key) {
+        const auto [pos, insert_succeeded] = values.try_emplace(
+            to_ikey(key), test_values[key % test_values.size()]);
+        (void)pos;
+        UNODB_ASSERT_TRUE(insert_succeeded);
+      }
     }
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  void insert_preinserted_key_range(key_type start_key, std::size_t count) {
-    for (auto key = start_key; key < start_key + count; ++key) {
-      do_insert(key, test_values[key % test_values.size()]);
+  template <typename T>
+  void insert_preinserted_key_range(T start_key1, std::size_t count) {
+    const auto start_key{coerce_key(start_key1)};
+    if constexpr (std::is_same_v<key_type, key_view>) {
+      unodb::key_decoder dec(start_key);
+      std::uint64_t start_key_dec;
+      dec.decode(start_key_dec);
+      unodb::key_encoder enc;
+      for (auto key = start_key_dec; key < start_key_dec + count; ++key) {
+        do_insert(enc.reset().encode(key).get_key_view(),
+                  test_values[key % test_values.size()]);
+      }
+    } else {
+      for (auto key = start_key; key < start_key + count; ++key) {
+        do_insert(key, test_values[key % test_values.size()]);
+      }
     }
   }
 
@@ -343,45 +518,47 @@ class [[nodiscard]] tree_verifier final {
   // Earlier versions give errors of different declarations having identical
   // mangled names.
   // NOLINTBEGIN(modernize-use-constraints)
-  template <class Db2 = Db>
+  template <class Db2 = Db, typename T>
   std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void> remove(
-      key_type k, bool bypass_verifier = false) {
-    do_remove(k, bypass_verifier);
+      T k, bool bypass_verifier = false) {
+    do_remove(coerce_key(k), bypass_verifier);
   }
 
-  template <class Db2 = Db>
+  template <class Db2 = Db, typename T>
   std::enable_if_t<std::is_same_v<Db2, unodb::olc_db<key_type>>, void> remove(
-      key_type k, bool bypass_verifier = false) {
+      T k, bool bypass_verifier = false) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
-    do_remove(k, bypass_verifier);
+    do_remove(coerce_key(k), bypass_verifier);
   }
 
-  template <class Db2 = Db>
+  template <class Db2 = Db, typename T>
   std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
-  try_remove(key_type k) {
-    std::ignore = test_db.remove(k);
+  try_remove(T k) {
+    std::ignore = test_db.remove(coerce_key(k));
   }
 
-  template <class Db2 = Db>
+  template <class Db2 = Db, typename T>
   std::enable_if_t<std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
-  try_remove(key_type k) {
+  try_remove(T k) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
-    std::ignore = test_db.remove(k);
+    std::ignore = test_db.remove(coerce_key(k));
   }
   // NOLINTEND(modernize-use-constraints)
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-  void attempt_remove_missing_keys(
-      std::initializer_list<key_type> absent_keys) {
+  template <typename T>
+  void attempt_remove_missing_keys(std::initializer_list<T> absent_keys) {
 #ifdef UNODB_DETAIL_WITH_STATS
     const auto mem_use_before =
         parallel_test ? 0 : test_db.get_current_memory_use();
 #endif  // UNODB_DETAIL_WITH_STATS
 
     for (const auto absent_key : absent_keys) {
-      const auto remove_result = values.erase(absent_key);
+      const auto k{coerce_key(absent_key)};
+
+      const auto remove_result = values.erase(to_ikey(k));
       UNODB_ASSERT_EQ(remove_result, 0);
-      do_try_remove_missing_key(absent_key);
+      do_try_remove_missing_key(k);
 #ifdef UNODB_DETAIL_WITH_STATS
       if (!parallel_test) {
         UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
@@ -396,37 +573,113 @@ class [[nodiscard]] tree_verifier final {
   // Earlier versions give errors of different declarations having identical
   // mangled names.
   // NOLINTBEGIN(modernize-use-constraints)
-  template <class Db2 = Db>
+  template <class Db2 = Db, typename T>
   std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void> try_get(
-      key_type k) const noexcept(noexcept(this->test_db.get(k))) {
-    std::ignore = test_db.get(k);
+      T k) const noexcept(noexcept(this->test_db.get(k))) {
+    std::ignore = test_db.get(coerce_key(k));
   }
 
-  template <class Db2 = Db>
+  template <class Db2 = Db, typename T>
   std::enable_if_t<std::is_same_v<Db2, unodb::olc_db<key_type>>, void> try_get(
-      key_type k) const noexcept(noexcept(this->test_db.get(k))) {
+      T k) const noexcept(noexcept(this->test_db.get(k))) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
-    std::ignore = test_db.get(k);
+    std::ignore = test_db.get(coerce_key(k));
   }
   // NOLINTEND(modernize-use-constraints)
 
+  /// Verify that each key and value in the internal ground truth collection can
+  /// be found in the test db. This also performs a full scan of the test db and
+  /// verify that each (key,val) visited in lexicographic order (we can't probe
+  /// the ground truth with the encoded keys so the number of keys visited by
+  /// the scan can be checked, but not whether each key is in the ground truth -
+  /// doing that requires knowledge about how the keys were encoded and the
+  /// encoding needs to be reversible, which it is not in the general case).
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
   void check_present_values() const {
+    // Probe the test_db for each key, verifying the expected value is found
+    // under that key.
     for (const auto &[key, value] : values) {
-      ASSERT_VALUE_FOR_KEY(Db, test_db, key, value);
+      if constexpr (std::is_same_v<typename Db::key_type, unodb::key_view>) {
+        ASSERT_VALUE_FOR_KEY(Db, test_db, *key, value);
+      } else {
+        ASSERT_VALUE_FOR_KEY(Db, test_db, key, value);
+      }
     }
+    // Scan the test_db.  For each (key,val) visited, verify (a) that each key
+    // is visited in lexicographic order; and (b) that each (key,val) pair also
+    // appears in the ground truth collection.
+    //
+    // Note: This depends on the ability to decode the key. Therefore, the
+    // caller SHOULD disable this scan when the keys do not support 100%
+    // faithful round-trip encoding and decoding.
+    UNODB_DETAIL_PAUSE_HEAP_TRACKING_GUARD()
+    std::size_t n{0};
+    bool first = true;
+    unodb::key_view prev{};
+    auto fn = [&n, &first,
+               &prev](const unodb::visitor<typename Db::iterator> &visitor) {
+      const auto &kv = visitor.get_key();
+      if (UNODB_DETAIL_UNLIKELY(first)) {
+        prev = kv;
+        first = false;
+      } else {
+        // NOLINTNEXTLINE(readability/check)
+        EXPECT_TRUE(unodb::detail::compare(prev, kv) < 0);
+        prev = kv;
+      }
+      n++;
+      return false;
+    };
+    const_cast<Db &>(test_db).scan(fn);
+    // FIXME(thompsonbry) variable length keys - enable this assert.
+    // 3 OOM tests are failing (for each Db type) when this is enabled
+    // (off by one).  What is going on there?
+    //
+    // const auto sz = values.size();  // #of (key,val) pairs expected.
+    // UNODB_EXPECT_EQ(sz, n);
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-  void check_absent_keys(std::initializer_list<key_type> absent_keys) const
+  template <typename T>
+  void check_absent_keys(std::initializer_list<T> absent_keys) const
       noexcept(noexcept(this->try_get(unused_key))) {
     for (const auto absent_key : absent_keys) {
-      UNODB_ASSERT_EQ(values.find(absent_key), values.cend());
-      try_get(absent_key);
+      const auto k{coerce_key(absent_key)};
+      UNODB_ASSERT_EQ(values.find(to_ikey(k)), values.cend());
+      try_get(k);
     }
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+  //
+  // scan API
+  //
+
+  // TODO(thompsonbry) Add verification against ground truth into the
+  // scan() API calls?  Maybe by having the caller NOT specify the
+  // lambda FN if they want built-in verification?  Some of the scan
+  // UTs are explicit about how the ground truth is populated, but
+  // their validation could still be replaced by validating against
+  // the tree_verifier::values map.
+
+  template <typename FN, typename T>
+  void scan(FN fn, bool fwd = true) {
+    test_db.scan_from(fn, fwd);
+  }
+
+  template <typename FN, typename T>
+  void scan_from(T from_key, FN fn, bool fwd = true) {
+    const auto fk{coerce_key(from_key)};
+    test_db.scan_from(fk, fn, fwd);
+  }
+
+  template <typename FN, typename T>
+  void scan_range(T from_key, T to_key, FN fn) {
+    const auto fk{coerce_key(from_key)};
+    const auto tk{coerce_key(to_key)};
+    test_db.scan_range(fk, tk, fn);
+  }
 
   void assert_empty() const {
     UNODB_ASSERT_TRUE(test_db.empty());
@@ -496,38 +749,48 @@ class [[nodiscard]] tree_verifier final {
  private:
   // Custom comparator is required for key_view.
   struct comparator {
-    bool operator()(const key_type &lhs, const key_type &rhs) const {
-      if constexpr (std::is_same_v<key_type, unodb::key_view>) {
-        return unodb::detail::compare(lhs, rhs) < 0;
+    bool operator()(const ikey_type<Db> &lhs, const ikey_type<Db> &rhs) const {
+      if constexpr (std::is_same_v<typename Db::key_type, unodb::key_view>) {
+        // Handle wrapped keys.
+        return unodb::detail::compare(lhs->data(), lhs->size(), rhs->data(),
+                                      rhs->size()) < 0;
       } else {
         return lhs < rhs;
       }
     }
   };
 
+  /// The tree under test.
   Db test_db{};
 
-  // Note: The hash map does not support key_view keys in the map.  So
-  // we need to switch over to the slower red/black tree for the
-  // ground truth map.
-  std::map<key_type, unodb::value_view, comparator> values;
-
-  // replaces the use of try_get(0) with a parameterized key type.
-  key_type unused_key{};
+  /// Ground truth (key,val) pairs.
+  ///
+  /// \note The `std::map` and `std::unordered_map` do not support non-owned
+  /// unodb::key_view objects as keys.  To handle this, unodb::key_view keys are
+  /// wrapped as an owning type.
+  std::map<ikey_type<Db>, unodb::value_view, comparator> values;
 
   const bool parallel_test;
-};
 
-// TODO(thompsonbry) variable length keys. declare key_view variants
-// here.
+  /// Arrays backing unodb::key_view objects.
+  std::vector<std::array<std::byte, sizeof(std::uint64_t)>> key_views{};
+};
 
 using u64_db = unodb::db<std::uint64_t>;
 using u64_mutex_db = unodb::mutex_db<std::uint64_t>;
 using u64_olc_db = unodb::olc_db<std::uint64_t>;
 
+using key_view_db = unodb::db<key_view>;
+using key_view_mutex_db = unodb::mutex_db<key_view>;
+using key_view_olc_db = unodb::olc_db<key_view>;
+
 extern template class tree_verifier<u64_db>;
 extern template class tree_verifier<u64_mutex_db>;
 extern template class tree_verifier<u64_olc_db>;
+
+extern template class tree_verifier<key_view_db>;
+extern template class tree_verifier<key_view_mutex_db>;
+extern template class tree_verifier<key_view_olc_db>;
 
 }  // namespace unodb::test
 

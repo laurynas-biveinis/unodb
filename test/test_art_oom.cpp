@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Laurynas Biveinis
+// Copyright 2022-2025 UnoDB contributors
 
 #ifndef NDEBUG
 
@@ -16,18 +16,28 @@
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gtest/gtest.h"
 
+#include <gtest/gtest.h>
+#include <cstdint>
 #include <new>
 
-#include <gtest/gtest.h>
-
-#include "art.hpp"
 #include "art_common.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
-#include "mutex_art.hpp"
-#include "olc_art.hpp"
 #include "test_heap.hpp"
 
+// The OOM tests are dependent on the number of heap allocations in the test,
+// that's brittle and hardcoded. Suppose some op takes 5 heap allocations. The
+// tests is written in that it knows that the test should fail on OOMs injected
+// on the 1st-5th allocation and pass on the 6th one. The allocations done by
+// libstdc++ are included.
+//
+// Changing the data structure in the main code or the test suite might perturb
+// this, causing tests to fail. If this happens you need to decide whether the
+// change in behavior was for a valid reason or not. If tests fail in that
+// "expected exception was not thrown", try incrementing the allocation counter
+// in the test. If they fail in that "exception was thrown but we weren't
+// expecting it", try decrementing it.
+//
 // TODO(laurynas) OOM tests for the scan API.
 namespace {
 
@@ -61,7 +71,7 @@ void oom_test(unsigned fail_limit, Init init, Test test,
 }
 
 template <class TypeParam, typename Init, typename CheckAfterSuccess>
-void oom_insert_test(unsigned fail_limit, Init init, unodb::key k,
+void oom_insert_test(unsigned fail_limit, Init init, std::uint64_t k,
                      unodb::value_view v,
                      CheckAfterSuccess check_after_success) {
   oom_test<TypeParam>(
@@ -76,7 +86,7 @@ void oom_insert_test(unsigned fail_limit, Init init, unodb::key k,
 }
 
 template <class TypeParam, typename Init, typename CheckAfterSuccess>
-void oom_remove_test(unsigned fail_limit, Init init, unodb::key k,
+void oom_remove_test(unsigned fail_limit, Init init, std::uint64_t k,
                      CheckAfterSuccess check_after_success) {
   oom_test<TypeParam>(
       fail_limit, init,
@@ -97,7 +107,9 @@ class ARTOOMTest : public ::testing::Test {
   using Test::Test;
 };
 
-using ARTTypes = ::testing::Types<unodb::db, unodb::mutex_db, unodb::olc_db>;
+using ARTTypes =
+    ::testing::Types<unodb::test::u64_db, unodb::test::u64_mutex_db,
+                     unodb::test::u64_olc_db>;
 
 UNODB_TYPED_TEST_SUITE(ARTOOMTest, ARTTypes)
 

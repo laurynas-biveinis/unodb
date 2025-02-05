@@ -24,9 +24,7 @@
 #include <gtest/gtest.h>
 
 #include "art_common.hpp"
-#include "art_internal.hpp"
 #include "assert.hpp"
-#include "mutex_art.hpp"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 
@@ -36,14 +34,14 @@
 
 namespace {
 
-inline bool odd(const unodb::key x) { return static_cast<bool>(x % 2); }
+inline bool odd(const std::uint64_t x) { return static_cast<bool>(x % 2); }
 
 template <class Db>
 class ARTConcurrencyTest : public ::testing::Test {
  public:
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   ~ARTConcurrencyTest() noexcept override {
-    if constexpr (std::is_same_v<Db, unodb::olc_db>) {
+    if constexpr (std::is_same_v<Db, unodb::olc_db<typename Db::key_type>>) {
       unodb::this_thread().quiescent();
       unodb::test::expect_idle_qsbr();
     }
@@ -53,7 +51,7 @@ class ARTConcurrencyTest : public ::testing::Test {
  protected:
   // NOLINTNEXTLINE(bugprone-exception-escape)
   ARTConcurrencyTest() noexcept {
-    if constexpr (std::is_same_v<Db, unodb::olc_db>)
+    if constexpr (std::is_same_v<Db, unodb::olc_db<typename Db::key_type>>)
       unodb::test::expect_idle_qsbr();
   }
 
@@ -61,7 +59,7 @@ class ARTConcurrencyTest : public ::testing::Test {
   // thread_i, std::size_t ops_per_thread)
   template <std::size_t ThreadCount, std::size_t OpsPerThread, typename TestFn>
   void parallel_test(TestFn test_function) {
-    if constexpr (std::is_same_v<Db, unodb::olc_db>)
+    if constexpr (std::is_same_v<Db, unodb::olc_db<typename Db::key_type>>)
       unodb::this_thread().qsbr_pause();
 
     std::array<unodb::test::thread<Db>, ThreadCount> threads;
@@ -73,7 +71,7 @@ class ARTConcurrencyTest : public ::testing::Test {
       t.join();
     }
 
-    if constexpr (std::is_same_v<Db, unodb::olc_db>)
+    if constexpr (std::is_same_v<Db, unodb::olc_db<typename Db::key_type>>)
       unodb::this_thread().qsbr_resume();
   }
 
@@ -101,19 +99,27 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
   }
 
+  // decode a uint64_t key.
+  static std::uint64_t decode(unodb::key_view akey) {
+    unodb::key_decoder dec{akey};
+    std::uint64_t k;
+    dec.decode(k);
+    return k;
+  }
+
   // test helper for scan() verification.
   static void do_scan_verification(unodb::test::tree_verifier<Db> *verifier,
-                                   unodb::key key) {
+                                   std::uint64_t key) {
     const bool fwd = odd(key);  // select scan direction
     const auto k0 = (key > 100) ? (key - 100) : key;
     const auto k1 = key + 100;
     uint64_t n = 0;
     uint64_t sum = 0;
-    unodb::key prior{};
+    std::uint64_t prior{};
     auto fn = [&n, &sum, &fwd, &k0, &k1,
                &prior](const unodb::visitor<typename Db::iterator> &v) {
       n++;
-      const auto &akey = v.get_key();  // actual visited key.
+      const auto &akey = decode(v.get_key());  // actual visited key.
       sum += akey;
       const auto expected =  // Note: same value formula as insert().
           unodb::test::test_values[akey % unodb::test::test_values.size()];
@@ -144,7 +150,7 @@ class ARTConcurrencyTest : public ::testing::Test {
     } else {
       verifier->get_db().scan_range(k1, k0, fn);
     }
-    if constexpr (std::is_same_v<Db, unodb::olc_db>) {
+    if constexpr (std::is_same_v<Db, unodb::olc_db<typename Db::key_type>>) {
       unodb::this_thread().quiescent();
     }
   }
@@ -153,7 +159,7 @@ class ARTConcurrencyTest : public ::testing::Test {
                                   std::size_t thread_i,
                                   std::size_t ops_per_thread) {
     constexpr auto ntasks = 4;  // Note: 4 to enable scan tests.
-    unodb::key key = thread_i / ntasks * ntasks;
+    std::uint64_t key = thread_i / ntasks * ntasks;
     for (decltype(ops_per_thread) i = 0; i < ops_per_thread; ++i) {
       switch (thread_i % ntasks) {
         case 0: /* insert (same value formula as insert_key_range!) */
@@ -185,7 +191,7 @@ class ARTConcurrencyTest : public ::testing::Test {
                                std::size_t ops_per_thread) {
     std::random_device rd;
     std::mt19937 gen{rd()};
-    std::geometric_distribution<unodb::key> key_generator{0.5};
+    std::geometric_distribution<std::uint64_t> key_generator{0.5};
     constexpr auto ntasks = 4;  // Note: 4 to enable scan tests.
     for (decltype(ops_per_thread) i = 0; i < ops_per_thread; ++i) {
       const auto key{key_generator(gen)};
@@ -222,7 +228,8 @@ class ARTConcurrencyTest : public ::testing::Test {
   ARTConcurrencyTest<Db> &operator=(ARTConcurrencyTest<Db> &&) = delete;
 };
 
-using ConcurrentARTTypes = ::testing::Types<unodb::mutex_db, unodb::olc_db>;
+using ConcurrentARTTypes =
+    ::testing::Types<unodb::test::u64_mutex_db, unodb::test::u64_olc_db>;
 
 UNODB_TYPED_TEST_SUITE(ARTConcurrencyTest, ConcurrentARTTypes)
 
@@ -262,12 +269,6 @@ TYPED_TEST(ARTConcurrencyTest, Node48ParallelOps) {
   this->template key_range_op_test<32, 9, 32>();
 }
 
-// FIXME Is the #of OpsPerThread related to the conditions under which
-// the node would be replaced by a different root node?  And does that
-// change once SCAN is introduced as an operation?  It would seem that
-// the test conditions would likely be Ok since fewer operations would
-// be performed and presumably the OpsPerThread is a maximum before a
-// structural modification would result.
 TYPED_TEST(ARTConcurrencyTest, Node256ParallelOps) {
   this->template key_range_op_test<152, 9, 208>();
 }

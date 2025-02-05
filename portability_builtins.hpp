@@ -27,13 +27,37 @@
 namespace unodb::detail {
 
 /// Reverse the order of bytes in \a x.
-[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint64_t bswap(
-    std::uint64_t x) noexcept {
-#ifndef UNODB_DETAIL_MSVC
-  return __builtin_bswap64(x);
-#else
-  return _byteswap_uint64(x);
-#endif
+template <typename T>
+T bswap(T x) {
+#ifdef UNODB_DETAIL_MSVC
+  static_assert(sizeof(std::uint32_t) ==
+                sizeof(unsigned long));               // NOLINT(runtime/int)
+  static_assert(std::is_same_v<unsigned short, T> ||  // NOLINT(runtime/int)
+                std::is_same_v<std::uint32_t, T> ||
+                std::is_same_v<std::uint64_t, T>);
+  if constexpr (std::is_same_v<unsigned short, T>) {  // NOLINT(runtime/int)
+    return _byteswap_ushort(x);
+  }
+  if constexpr (std::is_same_v<std::uint32_t, T>) {
+    return _byteswap_ulong(x);
+  }
+  if constexpr (std::is_same_v<std::uint64_t, T>) {
+    return _byteswap_uint64(x);
+  }
+#else   // UNODB_DETAIL_MSVC
+  static_assert(std::is_same_v<std::uint16_t, T> ||
+                std::is_same_v<std::uint32_t, T> ||
+                std::is_same_v<std::uint64_t, T>);
+  if constexpr (std::is_same_v<std::uint16_t, T>) {
+    return __builtin_bswap16(x);
+  }
+  if constexpr (std::is_same_v<std::uint32_t, T>) {
+    return __builtin_bswap32(x);
+  }
+  if constexpr (std::is_same_v<std::uint64_t, T>) {
+    return __builtin_bswap64(x);
+  }  // cppcheck-suppress missingReturn
+#endif  // UNODB_DETAIL_MSVC
 }
 
 /// Return the number of trailing zero bits in \a x.

@@ -888,9 +888,11 @@ class [[nodiscard]] in_critical_section final {
   void operator++() noexcept { store(load() + 1); }
 
   /// Pre-decrement the wrapped value.
-  void operator--() noexcept {
-    // The cast silences MSVC diagnostics about signed/unsigned mismatch.
-    store((static_cast<T>(load() - 1)));
+  // If a signed version is needed, create another method with a corresponding
+  // requires clause and use 1 without U in the assignment.
+  void operator--() noexcept
+      requires(std::is_integral_v<T> &&std::is_unsigned_v<T>) {
+    store(load() - static_cast<T>(1U));
   }
 
   /// Post-decrement the wrapped value. Returns the old unwrapped value.

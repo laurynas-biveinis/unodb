@@ -10,6 +10,7 @@ var searchData=
   ['state_20based_20reclamation_7',['Quiescent State-Based Reclamation',['../group__qsbr.html',1,'']]],
   ['state_20based_20reclamation_20qsbr_8',['Quiescent State-Based Reclamation (QSBR)',['../index.html#autotoc_md37',1,'']]],
   ['static_20analysis_9',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
-  ['style_20guide_10',['style guide',['../md_CONTRIBUTING.html#autotoc_md5',1,'Code style guide'],['../md_CONTRIBUTING.html#autotoc_md6',1,'Documentation style guide']]],
-  ['submodules_11',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
+  ['store_10',['store',['../classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556',1,'unodb::in_critical_section']]],
+  ['style_20guide_11',['style guide',['../md_CONTRIBUTING.html#autotoc_md5',1,'Code style guide'],['../md_CONTRIBUTING.html#autotoc_md6',1,'Documentation style guide']]],
+  ['submodules_12',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
 ];

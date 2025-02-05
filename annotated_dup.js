@@ -60,7 +60,7 @@ var annotated_dup =
       [ "db", "classunodb_1_1db.html", "classunodb_1_1db" ],
       [ "fake_lock", "classunodb_1_1fake__lock.html", null ],
       [ "fake_read_critical_section", "classunodb_1_1fake__read__critical__section.html", null ],
-      [ "in_critical_section", "classunodb_1_1in__critical__section.html", null ],
+      [ "in_critical_section", "classunodb_1_1in__critical__section.html", "classunodb_1_1in__critical__section" ],
       [ "in_fake_critical_section", "classunodb_1_1in__fake__critical__section.html", null ],
       [ "mutex_db", "classunodb_1_1mutex__db.html", null ],
       [ "olc_db", "classunodb_1_1olc__db.html", "classunodb_1_1olc__db" ],

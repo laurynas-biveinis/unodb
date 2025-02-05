@@ -33,7 +33,9 @@ class ARTCorrectnessTest : public ::testing::Test {
 
 using ARTTypes =
     ::testing::Types<unodb::test::u64_db, unodb::test::u64_mutex_db,
-                     unodb::test::u64_olc_db>;
+                     unodb::test::u64_olc_db, unodb::test::key_view_db,
+                     unodb::test::key_view_mutex_db,
+                     unodb::test::key_view_olc_db>;
 
 UNODB_TYPED_TEST_SUITE(ARTCorrectnessTest, ARTTypes)
 
@@ -76,7 +78,7 @@ TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
 
   unodb::test::tree_verifier<TypeParam> verifier;
 
-  UNODB_ASSERT_THROW(std::ignore = verifier.get_db().insert(1, too_long),
+  UNODB_ASSERT_THROW(std::ignore = verifier.try_insert(1, too_long),
                      std::length_error);
 
   verifier.check_absent_keys({1});
@@ -122,8 +124,7 @@ TYPED_TEST(ARTCorrectnessTest, DuplicateKey) {
 #endif  // UNODB_DETAIL_WITH_STATS
 
   unodb::test::must_not_allocate([&verifier] {
-    UNODB_ASSERT_FALSE(
-        verifier.get_db().insert(0, unodb::test::test_values[3]));
+    UNODB_ASSERT_FALSE(verifier.try_insert(0, unodb::test::test_values[3]));
   });
 
   verifier.check_present_values();
@@ -223,7 +224,7 @@ TYPED_TEST(ARTCorrectnessTest, Node16) {
   verifier.insert(5, unodb::test::test_values[0]);
 
   verifier.check_present_values();
-  verifier.check_absent_keys({6, 0x0100, 0xFFFFFFFFFFFFFFFFULL});
+  verifier.check_absent_keys({6ULL, 0x0100ULL, 0xFFFFFFFFFFFFFFFFULL});
 
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({5, 0, 1, 0, 0});
@@ -451,7 +452,7 @@ TYPED_TEST(ARTCorrectnessTest, Node4AttemptDeleteAbsent) {
   verifier.insert_key_range(1, 4);
 
   unodb::test::must_not_allocate([&verifier] {
-    verifier.attempt_remove_missing_keys({0, 6, 0xFF000001});
+    verifier.attempt_remove_missing_keys({0ULL, 6ULL, 0xFF000001ULL});
   });
 
   verifier.check_absent_keys({0, 6, 0xFF00000});
@@ -739,9 +740,7 @@ TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteBeginning) {
 #endif  // UNODB_DETAIL_WITH_STATS
 
   verifier.check_present_values();
-#ifdef UNODB_DETAIL_WITH_STATS
   verifier.check_absent_keys({0, 1, 18});
-#endif  // UNODB_DETAIL_WITH_STATS
 }
 
 TYPED_TEST(ARTCorrectnessTest, Node48ShrinkToNode16DeleteEnd) {
@@ -911,8 +910,7 @@ TYPED_TEST(ARTCorrectnessTest, MemoryAccountingDuplicateKeyInsert) {
   unodb::test::tree_verifier<TypeParam> verifier;
   verifier.insert(0, unodb::test::test_values[0]);
   unodb::test::must_not_allocate([&verifier] {
-    UNODB_ASSERT_FALSE(
-        verifier.get_db().insert(0, unodb::test::test_values[1]));
+    UNODB_ASSERT_FALSE(verifier.try_insert(0, unodb::test::test_values[1]));
   });
   verifier.remove(0);
   UNODB_ASSERT_EQ(verifier.get_db().get_current_memory_use(), 0);

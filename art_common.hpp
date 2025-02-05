@@ -9,6 +9,7 @@
 // IWYU pragma: no_include <ostream>
 // IWYU pragma: no_include <ostream.h>
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -16,9 +17,18 @@
 #include <iosfwd>  // IWYU pragma: keep
 #include <iostream>
 #include <span>
+#include <string_view>
 
+#include "duckdb_encode_decode.hpp"
 #include "heap.hpp"
 #include "portability_builtins.hpp"
+
+// FIXME(thompsonbry) - I think we should disable the "C String" API
+// since it can not be made generally useful without taking on some
+// other significant changes in the ART data structure (such as a leaf
+// associated with each inode).  For now, declaring a constant which
+// will allow us to conditionally compile the API.
+#define UNODB_C_STRING_API
 
 namespace unodb {
 
@@ -35,6 +45,14 @@ using value_view = std::span<const std::byte>;
 /// Keys are passed as non-owning pointers to memory with associated
 /// length (std::span).
 using key_view = std::span<const std::byte>;
+
+/// A type alias determining the maximum size of a key that may be
+/// stored in the index.
+using key_size_type = std::uint32_t;
+
+/// A type alias determining the maximum size of a value that may be
+/// stored in the index.
+using value_size_type = std::uint32_t;
 
 /// An object visited by the scan API.  The visitor passed to the
 /// caller's lambda by the scan for each index entry visited by the
@@ -104,12 +122,20 @@ static constexpr size_t INITIAL_BUFFER_CAPACITY = 256;
 /// Dump the value as a sequence of bytes.
 [[gnu::cold]] void dump_val(std::ostream &os, unodb::value_view v);
 
+/// Dump a std::span byte-wise (works on any key_view).
+template <typename T>
+[[gnu::cold]] void dump_key(std::ostream &os, key_view key) {
+  const auto sz = key.size_bytes();
+  os << "key(" << sz << "): 0x";
+  for (std::size_t i = 0; i < sz; ++i) unodb::detail::dump_byte(os, key[i]);
+}
+
 /// Dump the key in lexicographic byte-wise order.
 template <typename T>
 [[gnu::cold]] void dump_key(std::ostream &os, T key) {
   if constexpr (std::is_same_v<T, key_view>) {
-    os << "key: 0x";
     const auto sz = key.size_bytes();
+    os << "key(" << sz << "): 0x";
     for (std::size_t i = 0; i < sz; ++i) unodb::detail::dump_byte(os, key[i]);
   } else {
     os << "key: 0x" << std::hex << std::setfill('0') << std::setw(sizeof(key))
@@ -154,6 +180,34 @@ next_power_of_two(T i) {
   return ++i;
 }
 
+/// Compute the lexicographically next bit permutation.  This method
+/// gets used when you want to form an exclusive upper bound for some
+/// key range.  You take the upper bound and form the bitwise
+/// successor of that value to turn it into an exclusive upper
+/// bound. This has to be done for each component of the composite
+/// key, working backwards from the end of the key, until a component
+/// is found which does not overflow (is not already ~0).
+///
+/// Suppose we have a pattern of N bits set to 1 in an integer and we
+/// want the next permutation of N 1 bits in a lexicographical
+/// sense. For example, if N is 3 and the bit pattern is 00010011, the
+/// next patterns would be 00010101, 00010110, 00011001,00011010,
+/// 00011100, 00100011, and so forth. The following is a fast way to
+/// compute the next permutation.
+///
+/// Source:
+/// https://graphics.stanford.edu/~seander/bithacks.html#NextBitPermutation
+///
+/// @param v Some unsigned value.
+template <typename T>
+T successor(T v) {
+  const T t = v | (v - 1u);  // t gets v's least significant 0 bits set to 1
+  // Next set to 1 the most significant bit to change, set to 0 the
+  // least significant ones, and add the necessary 1 bits.
+  const T w = (t + 1) | (((~t & -~t) - 1) >> (ctz(v) + 1));
+  return w;
+}
+
 /// Utility method for power of two expansion of buffers (internal
 /// API, forward declaration).
 inline void ensure_capacity(std::byte *&buf,     // buffer to resize
@@ -186,17 +240,34 @@ inline void ensure_capacity(std::byte *&buf,     // buffer to resize
 /// of key components.  This class supports the various kinds of
 /// primitive data types and provides support for the caller to pass
 /// through Unicode sort keys.
+///
+/// Note: This class is NOT final so people can extend or override the
+/// key_encoder (and key_decoder) for language specific handling of
+/// order within floating point values, handling of NULLs, etc.
 class key_encoder {
-  //
-  // TODO(thompsonbry) - variable length keys - handle floating point types
-  // TODO(thompsonbry) - variable length keys - handle successors
-  //
-  // TODO(thompsonbry) - variable length keys - handle unicode sort keys
-  // (caller must normalize, generate the sort key, and pad?)
-  //
-  // TODO(thompsonbry) - variable length keys - attempt to simplify by
-  // using templates for msb, bswap, and encode/decode of unsigned
-  // values.
+ public:
+  /// This indirectly determines the #maxlen and is used as the size
+  /// for the run-length encoding of the padding.
+  using size_type = std::uint16_t;  // unodb::key_size_type;
+
+  /// The pad byte used when encoding variable length text into a key
+  /// to logically extend the text field to #maxlen bytes.  The pad
+  /// byte (which is added to the buffer as an unsigned value) is
+  /// followed by a run length count such that the key is logically
+  /// padded out to the maximum length of a text field, which is
+  /// #maxlen.  The run length count is expressed in the #size_type.
+  static constexpr auto pad{static_cast<std::byte>(0x00)};
+
+  /// The maximum length of a text component of the key.  Keys are
+  /// truncated to at most this many bytes and then logically extended
+  /// using the #pad byte and a trailing run length until the field is
+  /// logically #maxlen bytes wide.  This field is computed such that
+  /// the total byte width of the encoded text can be indexed by
+  /// sizeof(size_type).
+  static constexpr auto maxlen{static_cast<size_type>(
+      std::numeric_limits<size_type>::max() - sizeof(pad) - sizeof(size_type))};
+  static_assert(sizeof(maxlen) == sizeof(size_type));
+
  protected:
   // highest bit for various data types.
   static constexpr std::uint8_t msb8 = 1U << 7;
@@ -204,17 +275,28 @@ class key_encoder {
   static constexpr std::uint32_t msb32 = 1U << 31;
   static constexpr std::uint64_t msb64 = 1ULL << 63;
 
-  /// The current capacity of the buffer.
-  [[nodiscard]] size_t capacity() const noexcept { return cap; }
-
   /// The number of bytes of data in the internal buffer.
   [[nodiscard]] size_t size_bytes() const noexcept { return off; }
+
+  /// The current capacity of the buffer.
+  [[nodiscard]] size_t capacity() const noexcept { return cap; }
 
   /// Ensure that the buffer can hold at least [req] additional bytes.
   void ensure_available(size_t req) {
     if (UNODB_DETAIL_UNLIKELY(off + req > cap)) {
       ensure_capacity(off + req);  // resize
     }
+  }
+
+  /// Append a sequence of bytes to the key.  The caller is
+  /// responsible for not violating the ART contract (no key may be a
+  /// prefix of another key).
+  key_encoder &append_bytes(std::span<const std::byte> data) {
+    const auto sz = data.size_bytes();
+    ensure_available(sz);
+    std::memcpy(buf + off, data.data(), sz);
+    off += sz;
+    return *this;
   }
 
  public:
@@ -329,6 +411,147 @@ class key_encoder {
     return *this;
   }
 
+  //
+  // floating point
+  //
+
+  /// Encode the floating-point value.
+  ///
+  /// Note: Encoding maps all NaN values to a single canonical NaN.
+  /// This means that decoding is not perfect and various kinds of NaN
+  /// all decode as a single canonical NaN.
+  key_encoder &encode(float v) {
+    return encode(unodb::detail::EncodeFloatingPoint<std::uint32_t>(v));
+  }
+
+  /// Encode the double precision value.
+  ///
+  /// Note: Encoding maps all NaN values to a single canonical NaN.
+  /// This means that decoding is not perfect and various kinds of NaN
+  /// all decode as a single canonical NaN.
+  key_encoder &encode(double v) {
+    return encode(unodb::detail::EncodeFloatingPoint<std::uint64_t>(v));
+  }
+
+  /// This encodes ASCII text or Unicode sort keys.  Keys are
+  /// logically padded out to #maxlen bytes and will be truncated if
+  /// they would exceed #maxlen.
+  ///
+  /// Note: The ART index disallows keys which are prefixes of other
+  /// keys.  The logical padding addresses this and other issues while
+  /// preserving lexicographic ordering.
+  ///
+  /// When handling Unicode, the caller is responsible for using a
+  /// quality library (e.g., ICU) to (a) normalize their Unicode data;
+  /// and (b) generate a Unicode sort key from their Unicode data.
+  /// The sort key will impose specific collation ordering semantics
+  /// as configured by the application (locale, collation strength,
+  /// decomposition mode).
+  ///
+  /// @param A view onto some sequence of bytes.  The view will be
+  /// truncated to at most #maxlen bytes.  A #pad byte and a run count
+  /// are added to make all text fields logically #maxlen bytes. The
+  /// truncation and padding (a) ensures that no key is a prefix of
+  /// another key; and (b) keeps multi-field keys with embedded
+  /// variable length text fields aligned such that the field
+  /// following a variable length text field does not bleed into the
+  /// lexiographic ordering of the variable length text field.
+  key_encoder &encode_text(std::span<const std::byte> text) {
+    // truncate view to at most maxlen bytes.
+    text = (text.size_bytes() > maxlen) ? text.subspan(0, maxlen) : text;
+    // normalize padding by stripping off any trailing [pad] bytes.
+    auto sz = text.size_bytes();
+    for (; sz > 0; sz--) {
+      if (text[sz - 1] != pad) break;
+    }
+    text = text.subspan(0, sz);  // adjust span in case truncated.
+    // Ensure enough room for the text, the pad byte, and the
+    // run-length encoding of the pad byte.
+    ensure_available(sz + 1 + sizeof(size_type));
+    const auto padlen{static_cast<size_type>(maxlen - sz)};
+    append_bytes(text);                      // append bytes to the buffer.
+    encode(static_cast<std::uint8_t>(pad));  // encode as unsigned byte
+    encode(padlen);  // logical run-length of the pad byte.
+    return *this;
+  }
+
+  /// convenience alias
+  key_encoder &encode_text(std::string_view data) {
+    return encode_text(std::span<const std::byte>(
+        reinterpret_cast<const std::byte *>(data.cbegin()), data.size()));
+  }
+
+  /// convenience alias (usable with nul terminated C strings)
+  key_encoder &encode_text(const char *data) {
+    const auto len = strlen(data);
+    return encode_text(std::span<const std::byte>(
+        reinterpret_cast<const std::byte *>(data), len));
+  }
+
+#ifdef UNODB_C_STRING_API
+  //
+  // Simple case - only acceptable if you do not need Unicode
+  // collation semantics and the data will be the final component of
+  // the key.
+  //
+
+  /// Append a sequence of unsigned bytes to the encoded key (UNSAFE).
+  ///
+  /// Note: it is NOT legal for one key to be a prefix of another key
+  /// (this is not allowed by the ART data structure and would imply
+  /// that internal nodes could point to leaves). Violations of this
+  /// contract can only arise with string data, and only then when you
+  /// do not use encode_text().  The encode_text() methods properly
+  /// handle this case by (a) truncating to maxlen; and (b) logically
+  /// padding out all text fields to maxlen.
+  ///
+  /// @param data A sequence of bytes that will be appended to the
+  /// key.
+  key_encoder &append(std::span<const std::byte> data) {
+    const auto sz = data.size_bytes();
+    ensure_available(sz);
+    std::memcpy(buf + off, data.data(), sz);
+    off += sz;
+    return *this;
+  }
+
+  /// Append a sequence of unsigned bytes to the encoder key (UNSAFE).
+  ///
+  /// Note: it is NOT legal for one key to be a prefix of another key
+  /// (this is not allowed by the ART data structure and would imply
+  /// that internal nodes could point to leaves). Violations of this
+  /// contract can only arise with string data, and only then when you
+  /// do not use encode_text().  The encode_text() methods properly
+  /// handle this case by (a) truncating to maxlen; and (b) logically
+  /// padding out all text fields to maxlen.
+  ///
+  /// @param data A sequence of bytes that will be appended to the
+  /// key.
+  key_encoder &append(std::string_view data) {
+    return append(std::span<const std::byte>(
+        reinterpret_cast<const std::byte *>(data.cbegin()), data.size()));
+  }
+
+  /// Append a sequence of characters (interpreted as unsigned bytes)
+  /// to the encoder key.
+  ///
+  /// Note: it is NOT legal for one key to be a prefix of another key
+  /// (this is not allowed by the ART data structure and would imply
+  /// that internal nodes could point to leaves). Violations of this
+  /// contract can only arise with string data, and only then when you
+  /// do not use encode_text().  The encode_text() methods properly
+  /// handle this case by (a) truncating to maxlen; and (b) logically
+  /// padding out all text fields to maxlen.
+  ///
+  /// @param data A C string containing a sequence of bytes that will
+  /// be appended to the key.
+  key_encoder &append(const char *data) {
+    const auto len = strlen(data);
+    return append(std::span<const std::byte>(
+        reinterpret_cast<const std::byte *>(data), len));
+  }
+#endif
+
  private:
   /// Ensure that we have at least the specified capacity in the
   /// buffer.
@@ -354,6 +577,10 @@ class key_encoder {
 /// those keys (except for Unicode sort keys).  To use this class, you
 /// need to know how a given key was encoded as a sequence of key
 /// components.
+///
+/// Note: This class is NOT final so people can extend or override the
+/// key_decoder (and key_encoder) for language specific handling of
+/// order within floating point values, handling of NULLs, etc.
 class key_decoder {
  private:
   const std::byte *buf;  /// the data to be decoded
@@ -417,7 +644,9 @@ class key_decoder {
     return *this;
   }
 
+  //
   // unsigned integers
+  //
 
   /// Decode a component of the indicated type from the key.
   key_decoder &decode(std::uint8_t &v) {
@@ -463,7 +692,36 @@ class key_decoder {
     off += sizeof(u);
     return *this;
   }
+
+  //
+  // floating point
+  //
+
+  /// Decode a single-precision floating point value from the key.
+  ///
+  /// Note: Encoding maps all NaN values to a single canonical NaN.
+  /// This means that decoding is not perfect and various kinds of NaN
+  /// all decode as a single canonical NaN.
+  key_decoder &decode(float &v) {
+    std::uint32_t u;
+    decode(u);
+    v = unodb::detail::DecodeFloatingPoint<float>(u);
+    return *this;
+  }
+
+  /// Decode a double-precision floating point value from the key.
+  ///
+  /// Note: Encoding maps all NaN values to a single canonical NaN.
+  /// This means that decoding is not perfect and various kinds of NaN
+  /// all decode as a single canonical NaN.
+  key_decoder &decode(double &v) {
+    std::uint64_t u;
+    decode(u);
+    v = unodb::detail::DecodeFloatingPoint<double>(u);
+    return *this;
+  }
 };  // class key_decoder
+
 }  // namespace unodb
 
 #endif  // UNODB_DETAIL_ART_COMMON_HPP

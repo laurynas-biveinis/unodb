@@ -83,8 +83,6 @@ class mutex_db;
 /// implementation.
 template <typename Key>
 class db final {
-  // disable all other key types until unit tests prove that they work
-  static_assert(std::is_same_v<Key, std::uint64_t>);
   friend class mutex_db<Key>;
 
  public:
@@ -155,6 +153,9 @@ class db final {
   /// as produced by unodb::key_encoder.
   ///
   /// @return true iff the key value pair was inserted.
+  ///
+  /// @see key_encoder, which provides for encoding text and
+  /// multi-field records when Key is unodb::key_view.
   [[nodiscard]] bool insert(Key insert_key, value_view v) {
     const art_key_type k{insert_key};
     return insert_internal(k, v);
@@ -207,20 +208,14 @@ class db final {
     /// byte).  Overflow for the child_index can only occur for N48
     /// and N256.  When overflow happens, the iter_result is not
     /// defined and the outer std::optional will return false.
-    struct stack_entry : public inode_base::iter_result {
-      /// The [prefix_len] is the number of bytes in the key prefix
-      /// for [node].  When the node is pushed onto the stack, we also
-      /// push [prefix_bytes] plus the [key_byte] onto a key_buffer.
-      /// We track how many bytes were pushed here (not including the
-      /// key_byte) so we can pop off the correct number of bytes
-      /// later.
-      ///
-      /// TODO(thompsonbry): push this field to a common parent?
-      /// Shared with olc_db.  maybe we can just return it in all
-      /// methods which already return an iter_result making it part
-      /// of that structure.
-      detail::key_prefix_size prefix_len;
-    };
+    ///
+    /// The [prefix_len] is the number of bytes in the key prefix
+    /// for [node].  When the node is pushed onto the stack, we also
+    /// push [prefix_bytes] plus the [key_byte] onto a key_buffer.
+    /// We track how many bytes were pushed here (not including the
+    /// key_byte) so we can pop off the correct number of bytes
+    /// later.
+    struct stack_entry : public inode_base::iter_result {};
 
    protected:
     /// Construct an empty iterator (one that is logically not
@@ -294,6 +289,10 @@ class db final {
         os << "iter::stack:: empty\n";
         return;
       }
+      // Dump the key buffer maintained by the iterator.
+      os << "keybuf=";
+      detail::dump_key(os, keybuf_.get_key_view());
+      os << "\n";
       // Create a new stack and copy everything there.  Using the new
       // stack, print out the stack in top-bottom order.  This avoids
       // modifications to the existing stack for the iterator.
@@ -307,7 +306,9 @@ class db final {
            << static_cast<std::uint64_t>(e.key_byte) << std::dec
            << ", child_index=0x" << std::hex << std::setfill('0')
            << std::setw(2) << static_cast<std::uint64_t>(e.child_index)
-           << std::dec << ", ";
+           << std::dec << ", prefix(" << e.prefix.length() << ")=";
+        detail::dump_key(os, e.prefix.get_key_view());
+        os << ", ";
         art_policy::dump_node(os, np, false /*recursive*/);
         if (np.type() != node_type::LEAF) os << '\n';
         tmp.pop();
@@ -361,7 +362,7 @@ class db final {
 
     /// Push a non-leaf entry onto the stack.
     void push(detail::node_ptr node, std::byte key_byte,
-              std::uint8_t child_index) {
+              std::uint8_t child_index, detail::key_prefix_snapshot prefix) {
       // For variable length keys we need to know the number of bytes
       // associated with the node's key_prefix.  In addition there is
       // one byte for the descent to the child node along the
@@ -369,9 +370,7 @@ class db final {
       // stack so we can pop off the right number of bytes even for
       // OLC where the node might be concurrently modified.
       UNODB_DETAIL_ASSERT(node.type() != node_type::LEAF);
-      auto* inode{node.ptr<detail::inode<Key>*>()};
-      auto prefix{inode->get_key_prefix().get_snapshot()};
-      stack_.push({{node, key_byte, child_index}, prefix.size()});
+      stack_.push({node, key_byte, child_index, prefix});
       keybuf_.push(prefix.get_key_view());
       keybuf_.push(key_byte);
     }
@@ -380,13 +379,12 @@ class db final {
     void push_leaf(detail::node_ptr aleaf) {
       // Mock up a stack entry for the leaf.
       stack_.push({
-          {
-              aleaf,
-              static_cast<std::byte>(0xFFU),    // ignored for leaf
-              static_cast<std::uint8_t>(0xFFU)  // ignored for leaf
-          },
-          0  // ignored for leaf
+          aleaf,
+          static_cast<std::byte>(0xFFU),     // ignored for leaf
+          static_cast<std::uint8_t>(0xFFU),  // ignored for leaf
+          detail::key_prefix_snapshot(0)     // ignored for leaf
       });
+      // No change in the key_buffer.
     }
 
     /// Push an entry onto the stack.
@@ -395,14 +393,14 @@ class db final {
       if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
         push_leaf(e.node);
       }
-      push(e.node, e.key_byte, e.child_index);
+      push(e.node, e.key_byte, e.child_index, e.prefix);
     }
 
     /// Pop an entry from the stack and truncate the key buffer.
     void pop() {
-      const auto prefix_len = top().prefix_len;
-      stack_.pop();
+      const auto prefix_len = top().prefix.length();
       keybuf_.pop(prefix_len);
+      stack_.pop();
     }
 
     /// Return the entry (if any) on the top of the stack.
@@ -957,11 +955,12 @@ bool db<Key>::insert_internal(art_key_type k, value_view v) {
     if (node_type == node_type::LEAF) {
       auto* const leaf{node->template ptr<leaf_type*>()};
       const auto existing_key{leaf->get_key_view()};
-      if (UNODB_DETAIL_UNLIKELY(k.cmp(existing_key) == 0)) {
+      const auto cmp = k.cmp(existing_key);
+      if (UNODB_DETAIL_UNLIKELY(cmp == 0)) {
         return false;  // exists
       }
       // Replace the existing leaf with a new N4 and put the existing
-      // leaf and the a leaf for the caller's key and value under the
+      // leaf and the leaf for the caller's key and value under the
       // new inode as its direct children.
       auto new_leaf = art_policy::make_db_leaf_ptr(k, v, *this);
       auto new_node{inode_4::create(*this, existing_key, remaining_key, depth,
@@ -1229,11 +1228,10 @@ typename db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key,
     }
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
     auto* const inode{node.template ptr<inode_type*>()};  // some internal node.
-    const auto& key_prefix{inode->get_key_prefix()};  // prefix for that node.
-    const auto key_prefix_length{
-        key_prefix.length()};  // length of that prefix.
+    const auto key_prefix{inode->get_key_prefix().get_snapshot()};  // prefix
+    const auto key_prefix_length{key_prefix.length()};  // length of that prefix
     const auto shared_length = key_prefix.get_shared_length(
-        remaining_key);  // #of prefix bytes matched.
+        remaining_key.get_u64());  // #of prefix bytes matched.
     if (shared_length < key_prefix_length) {
       // We have visited an internal node whose prefix is longer than
       // the bytes in the key that we need to match.  To figure out
@@ -1308,8 +1306,8 @@ typename db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key,
         auto tmp = nxt.value();  // unwrap.
         const auto child_index = tmp.child_index;
         const auto child = inode->get_child(node_type, child_index);
-        push(node, tmp.key_byte, child_index);  // the path we took
-        return left_most_traversal(child);      // left most traversal
+        push(node, tmp.key_byte, child_index, tmp.prefix);  // the path we took
+        return left_most_traversal(child);  // left most traversal
       }
       // REV: Take the prior child_index that is mapped and then do
       // a right-most descent to land on the key that is the
@@ -1338,13 +1336,13 @@ typename db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key,
       auto tmp = nxt.value();  // unwrap.
       const auto child_index{tmp.child_index};
       const auto child = inode->get_child(node_type, child_index);
-      push(node, tmp.key_byte, child_index);  // the path we took
-      return right_most_traversal(child);     // right most traversal
+      push(node, tmp.key_byte, child_index, tmp.prefix);  // the path we took
+      return right_most_traversal(child);  // right most traversal
     }
     // Simple case. There is a child for the current key byte.
     const auto child_index{res.first};
     const auto* const child{res.second};
-    push(node, remaining_key[0], child_index);
+    push(node, remaining_key[0], child_index, key_prefix);
     node = *child;
     remaining_key.shift_right(1);
   }  // while ( true )
@@ -1354,18 +1352,13 @@ typename db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key,
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key>
 key_view db<Key>::iterator::get_key() {
-  // TODO(thompsonbry) : variable length keys. Eventually this will
-  // need to use the stack to reconstruct the key from the path from
-  // the root to this leaf.  Right now it is relying on the fact that
-  // simple fixed width keys are stored directly in the leaves.
-  //
-  // Note: We can not simplify this until the leaf has a variable
-  // length prefix consisting of the suffix of the key (the part not
-  // already matched by the inode path).
+  UNODB_DETAIL_ASSERT(valid());  // by contract
+  // TODO(thompsonbry) : variable length keys. The simplest case
+  // where this does not work today is a single root leaf.  In that
+  // case, there is no inode path and we can not properly track the
+  // key in the key_buffer.
   //
   // return keybuf_.get_key_view();
-  //
-  UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.

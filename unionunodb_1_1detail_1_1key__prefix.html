@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UnoDB: unodb::detail::key_prefix&lt; CriticalSectionPolicy &gt; Union Template Reference</title>
+<title>UnoDB: unodb::detail::key_prefix&lt; ArtKey, CriticalSectionPolicy &gt; Union Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -104,9 +104,14 @@ $(document).ready(function(){initNavTree('unionunodb_1_1detail_1_1key__prefix.ht
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="#pri-static-attribs">Static Private Attributes</a> &#124;
 <a href="unionunodb_1_1detail_1_1key__prefix-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">unodb::detail::key_prefix&lt; CriticalSectionPolicy &gt; Union Template Reference</div></div>
+  <div class="headertitle"><div class="title">unodb::detail::key_prefix&lt; ArtKey, CriticalSectionPolicy &gt; Union Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>The <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The key_prefix is a sequence of zero or more bytes for a given node that are a common prefix shared b...">key_prefix</a> is a sequence of zero or more bytes for a given node that are a common prefix shared by all children of that node and supports prefix compression in the index.  
+ <a href="unionunodb_1_1detail_1_1key__prefix.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -115,87 +120,87 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac7ae9f600acf445d99ebd76a6378af9d" id="r_ac7ae9f600acf445d99ebd76a6378af9d"><td class="memItemLeft" align="right" valign="top"><a id="ac7ae9f600acf445d99ebd76a6378af9d" name="ac7ae9f600acf445d99ebd76a6378af9d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">k1</a>, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">shifted_k2</a>, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">depth</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:ac7ae9f600acf445d99ebd76a6378af9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4b6fc876eb9c15ab7c3208e3c6a7caf1" id="r_a4b6fc876eb9c15ab7c3208e3c6a7caf1"><td class="memItemLeft" align="right" valign="top"><a id="a4b6fc876eb9c15ab7c3208e3c6a7caf1" name="a4b6fc876eb9c15ab7c3208e3c6a7caf1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">unsigned</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">key_prefix_len</a>, <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">source_key_prefix</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a4b6fc876eb9c15ab7c3208e3c6a7caf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9bd110626c7fe8a09a660f53cb140221" id="r_a9bd110626c7fe8a09a660f53cb140221"><td class="memItemLeft" align="right" valign="top"><a id="a9bd110626c7fe8a09a660f53cb140221" name="a9bd110626c7fe8a09a660f53cb140221"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">other</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a9bd110626c7fe8a09a660f53cb140221"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac981def34d4e872af24aaac3e0406bc3" id="r_ac981def34d4e872af24aaac3e0406bc3"><td class="memItemLeft" align="right" valign="top"><a id="ac981def34d4e872af24aaac3e0406bc3" name="ac981def34d4e872af24aaac3e0406bc3"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_shared_length</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">unodb::detail::art_key</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">shifted_key</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:ac981def34d4e872af24aaac3e0406bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83302b04e05e3cd5a30654ea80b2ab82" id="r_a83302b04e05e3cd5a30654ea80b2ab82"><td class="memItemLeft" align="right" valign="top"><a id="a83302b04e05e3cd5a30654ea80b2ab82" name="a83302b04e05e3cd5a30654ea80b2ab82"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">unsigned</a>&#160;</td><td class="memItemRight" valign="bottom"><b>length</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a83302b04e05e3cd5a30654ea80b2ab82"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae60b7ed6d8e50db2cb26e21e33498830" id="r_ae60b7ed6d8e50db2cb26e21e33498830"><td class="memItemLeft" align="right" valign="top"><a id="ae60b7ed6d8e50db2cb26e21e33498830" name="ae60b7ed6d8e50db2cb26e21e33498830"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cut</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">unsigned</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">cut_len</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:ae60b7ed6d8e50db2cb26e21e33498830"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb7dfa11e238432aedd0708001adb881" id="r_acb7dfa11e238432aedd0708001adb881"><td class="memItemLeft" align="right" valign="top"><a id="acb7dfa11e238432aedd0708001adb881" name="acb7dfa11e238432aedd0708001adb881"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>prepend</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">prefix1</a>, std::byte <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">prefix2</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:acb7dfa11e238432aedd0708001adb881"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af922e446c723d723c658e537a277cf49" id="r_af922e446c723d723c658e537a277cf49"><td class="memItemLeft" align="right" valign="top"><a id="af922e446c723d723c658e537a277cf49" name="af922e446c723d723c658e537a277cf49"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (std::size_t <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">i</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:af922e446c723d723c658e537a277cf49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fbd805218753186c092e3247e482f20" id="r_a7fbd805218753186c092e3247e482f20"><td class="memItemLeft" align="right" valign="top"><a id="a7fbd805218753186c092e3247e482f20" name="a7fbd805218753186c092e3247e482f20"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">os</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a></td></tr>
-<tr class="separator:a7fbd805218753186c092e3247e482f20"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0124654b767d6369511e8df40805fed1" id="r_a0124654b767d6369511e8df40805fed1"><td class="memItemLeft" align="right" valign="top"><a id="a0124654b767d6369511e8df40805fed1" name="a0124654b767d6369511e8df40805fed1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&amp;)=<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">delete</a></td></tr>
-<tr class="separator:a0124654b767d6369511e8df40805fed1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9df3886e4db748c71eb7eb5ab146f550" id="r_a9df3886e4db748c71eb7eb5ab146f550"><td class="memItemLeft" align="right" valign="top"><a id="a9df3886e4db748c71eb7eb5ab146f550" name="a9df3886e4db748c71eb7eb5ab146f550"></a>
-<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;)=<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">delete</a></td></tr>
-<tr class="separator:a9df3886e4db748c71eb7eb5ab146f550"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a596e806b184a90999ed03bb8f2155bcf" id="r_a596e806b184a90999ed03bb8f2155bcf"><td class="memItemLeft" align="right" valign="top"><a id="a596e806b184a90999ed03bb8f2155bcf" name="a596e806b184a90999ed03bb8f2155bcf"></a>
-<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&amp;)=<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">delete</a></td></tr>
-<tr class="separator:a596e806b184a90999ed03bb8f2155bcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a328ddc5f0d3da389a637ce56afbdfcc4" id="r_a328ddc5f0d3da389a637ce56afbdfcc4"><td class="memItemLeft" align="right" valign="top"><a id="a328ddc5f0d3da389a637ce56afbdfcc4" name="a328ddc5f0d3da389a637ce56afbdfcc4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> k1, ArtKey shifted_k2, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; ArtKey &gt; depth) noexcept</td></tr>
+<tr class="separator:a328ddc5f0d3da389a637ce56afbdfcc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9917771ebe6ba952f6745a7e02c9d7ea" id="r_a9917771ebe6ba952f6745a7e02c9d7ea"><td class="memItemLeft" align="right" valign="top"><a id="a9917771ebe6ba952f6745a7e02c9d7ea" name="a9917771ebe6ba952f6745a7e02c9d7ea"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (unsigned key_prefix_len, const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;source_key_prefix) noexcept</td></tr>
+<tr class="separator:a9917771ebe6ba952f6745a7e02c9d7ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae693d162743f7b58689b8ab22e36b0ec" id="r_ae693d162743f7b58689b8ab22e36b0ec"><td class="memItemLeft" align="right" valign="top"><a id="ae693d162743f7b58689b8ab22e36b0ec" name="ae693d162743f7b58689b8ab22e36b0ec"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;other) noexcept</td></tr>
+<tr class="separator:ae693d162743f7b58689b8ab22e36b0ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8126bc99eb3bf3406082174d7c29a78d" id="r_a8126bc99eb3bf3406082174d7c29a78d"><td class="memItemLeft" align="right" valign="top"><a id="a8126bc99eb3bf3406082174d7c29a78d" name="a8126bc99eb3bf3406082174d7c29a78d"></a>
+constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_shared_length</b> (ArtKey shifted_key) const noexcept</td></tr>
+<tr class="separator:a8126bc99eb3bf3406082174d7c29a78d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4ab58d4a80c408fd2bcd1be5785c668" id="r_ad4ab58d4a80c408fd2bcd1be5785c668"><td class="memItemLeft" align="right" valign="top"><a id="ad4ab58d4a80c408fd2bcd1be5785c668" name="ad4ab58d4a80c408fd2bcd1be5785c668"></a>
+constexpr <a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">key_prefix_snapshot</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_snapshot</b> () const noexcept</td></tr>
+<tr class="separator:ad4ab58d4a80c408fd2bcd1be5785c668"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a114a2d4b2216816cedc298ce5819006b" id="r_a114a2d4b2216816cedc298ce5819006b"><td class="memItemLeft" align="right" valign="top"><a id="a114a2d4b2216816cedc298ce5819006b" name="a114a2d4b2216816cedc298ce5819006b"></a>
+constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>length</b> () const noexcept</td></tr>
+<tr class="separator:a114a2d4b2216816cedc298ce5819006b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedb490b37430c1e53f3d505eeb9652c9" id="r_aedb490b37430c1e53f3d505eeb9652c9"><td class="memItemLeft" align="right" valign="top"><a id="aedb490b37430c1e53f3d505eeb9652c9" name="aedb490b37430c1e53f3d505eeb9652c9"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>cut</b> (unsigned cut_len) noexcept</td></tr>
+<tr class="separator:aedb490b37430c1e53f3d505eeb9652c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a42a86045a0d76da96aa2ed0ab7863a" id="r_a5a42a86045a0d76da96aa2ed0ab7863a"><td class="memItemLeft" align="right" valign="top"><a id="a5a42a86045a0d76da96aa2ed0ab7863a" name="a5a42a86045a0d76da96aa2ed0ab7863a"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>prepend</b> (const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;prefix1, std::byte prefix2) noexcept</td></tr>
+<tr class="separator:a5a42a86045a0d76da96aa2ed0ab7863a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfc012138d604be22be519fd3c8828b6" id="r_acfc012138d604be22be519fd3c8828b6"><td class="memItemLeft" align="right" valign="top"><a id="acfc012138d604be22be519fd3c8828b6" name="acfc012138d604be22be519fd3c8828b6"></a>
+constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (std::size_t i) const noexcept</td></tr>
+<tr class="separator:acfc012138d604be22be519fd3c8828b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a014416012cec9c0067cb531aa0fedbcc" id="r_a014416012cec9c0067cb531aa0fedbcc"><td class="memItemLeft" align="right" valign="top"><a id="a014416012cec9c0067cb531aa0fedbcc" name="a014416012cec9c0067cb531aa0fedbcc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
+<tr class="separator:a014416012cec9c0067cb531aa0fedbcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa67a6a7a205082d8a8b19f6a407d2376" id="r_aa67a6a7a205082d8a8b19f6a407d2376"><td class="memItemLeft" align="right" valign="top"><a id="aa67a6a7a205082d8a8b19f6a407d2376" name="aa67a6a7a205082d8a8b19f6a407d2376"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&amp;)=delete</td></tr>
+<tr class="separator:aa67a6a7a205082d8a8b19f6a407d2376"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c9f16a2de88e3206d19ef02a5780531" id="r_a4c9f16a2de88e3206d19ef02a5780531"><td class="memItemLeft" align="right" valign="top"><a id="a4c9f16a2de88e3206d19ef02a5780531" name="a4c9f16a2de88e3206d19ef02a5780531"></a>
+<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;)=delete</td></tr>
+<tr class="separator:a4c9f16a2de88e3206d19ef02a5780531"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38f8c4bf69a3d167db9a3e70c1ddbcfc" id="r_a38f8c4bf69a3d167db9a3e70c1ddbcfc"><td class="memItemLeft" align="right" valign="top"><a id="a38f8c4bf69a3d167db9a3e70c1ddbcfc" name="a38f8c4bf69a3d167db9a3e70c1ddbcfc"></a>
+<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&amp;)=delete</td></tr>
+<tr class="separator:a38f8c4bf69a3d167db9a3e70c1ddbcfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
 Private Types</h2></td></tr>
-<tr class="memitem:aa5ca89e7cf3709f2325a3cc7596146f7" id="r_aa5ca89e7cf3709f2325a3cc7596146f7"><td class="memTemplParams" colspan="2"><a id="aa5ca89e7cf3709f2325a3cc7596146f7" name="aa5ca89e7cf3709f2325a3cc7596146f7"></a>
-template&lt;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">typename</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">T</a> &gt; </td></tr>
-<tr class="memitem:aa5ca89e7cf3709f2325a3cc7596146f7"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">using</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>critical_section_policy</b> = <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">CriticalSectionPolicy</a>&lt; <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">T</a> &gt;</td></tr>
-<tr class="separator:aa5ca89e7cf3709f2325a3cc7596146f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3969a8bd7d645f65a0f0bcba5362b6ca" id="r_a3969a8bd7d645f65a0f0bcba5362b6ca"><td class="memItemLeft" align="right" valign="top"><a id="a3969a8bd7d645f65a0f0bcba5362b6ca" name="a3969a8bd7d645f65a0f0bcba5362b6ca"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix_size</b> = std::uint8_t</td></tr>
-<tr class="separator:a3969a8bd7d645f65a0f0bcba5362b6ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88dfb0607554d80e1ae4508eb9519d7e" id="r_a88dfb0607554d80e1ae4508eb9519d7e"><td class="memItemLeft" align="right" valign="top"><a id="a88dfb0607554d80e1ae4508eb9519d7e" name="a88dfb0607554d80e1ae4508eb9519d7e"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix_data</b> = std::array&lt; critical_section_policy&lt; std::byte &gt;, key_prefix_capacity &gt;</td></tr>
-<tr class="separator:a88dfb0607554d80e1ae4508eb9519d7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a226df62814cb46d0c014fba5e635bd57" id="r_a226df62814cb46d0c014fba5e635bd57"><td class="memTemplParams" colspan="2"><a id="a226df62814cb46d0c014fba5e635bd57" name="a226df62814cb46d0c014fba5e635bd57"></a>
+template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a226df62814cb46d0c014fba5e635bd57"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>critical_section_policy</b> = CriticalSectionPolicy&lt; T &gt;</td></tr>
+<tr class="separator:a226df62814cb46d0c014fba5e635bd57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87360cc8f398353f47fedf785bfcf399" id="r_a87360cc8f398353f47fedf785bfcf399"><td class="memItemLeft" align="right" valign="top"><a id="a87360cc8f398353f47fedf785bfcf399" name="a87360cc8f398353f47fedf785bfcf399"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix_data</b> = std::array&lt; critical_section_policy&lt; std::byte &gt;, key_prefix_capacity &gt;</td></tr>
+<tr class="separator:a87360cc8f398353f47fedf785bfcf399"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
-<tr class="memitem:acbf636afeea4cf57d81495973e6d44c4" id="r_acbf636afeea4cf57d81495973e6d44c4"><td class="memItemLeft" align="right" valign="top"><a id="acbf636afeea4cf57d81495973e6d44c4" name="acbf636afeea4cf57d81495973e6d44c4"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">static</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>length_to_word</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">unsigned</a> length)</td></tr>
-<tr class="separator:acbf636afeea4cf57d81495973e6d44c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5db9e7df9a550237d0c35969a138cb44" id="r_a5db9e7df9a550237d0c35969a138cb44"><td class="memItemLeft" align="right" valign="top"><a id="a5db9e7df9a550237d0c35969a138cb44" name="a5db9e7df9a550237d0c35969a138cb44"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">static</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">unsigned</a>&#160;</td><td class="memItemRight" valign="bottom"><b>shared_len</b> (std::uint64_t <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">k1</a>, std::uint64_t <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">k2</a>, <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">unsigned</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">clamp_byte_pos</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a5db9e7df9a550237d0c35969a138cb44"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb6def211f4fba82683ab1896da0b17f" id="r_acb6def211f4fba82683ab1896da0b17f"><td class="memItemLeft" align="right" valign="top"><a id="acb6def211f4fba82683ab1896da0b17f" name="acb6def211f4fba82683ab1896da0b17f"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">static</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>make_u64</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">k1</a>, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">shifted_k2</a>, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">depth</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:acb6def211f4fba82683ab1896da0b17f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3af7f0dc30167f49ab5a1dc9e224dcf" id="r_ae3af7f0dc30167f49ab5a1dc9e224dcf"><td class="memItemLeft" align="right" valign="top"><a id="ae3af7f0dc30167f49ab5a1dc9e224dcf" name="ae3af7f0dc30167f49ab5a1dc9e224dcf"></a>
+static constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>length_to_word</b> (unsigned length)</td></tr>
+<tr class="separator:ae3af7f0dc30167f49ab5a1dc9e224dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22f5e3b38d809435bb6d7832d0e8e9ca" id="r_a22f5e3b38d809435bb6d7832d0e8e9ca"><td class="memItemLeft" align="right" valign="top"><a id="a22f5e3b38d809435bb6d7832d0e8e9ca" name="a22f5e3b38d809435bb6d7832d0e8e9ca"></a>
+static constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>shared_len</b> (std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept</td></tr>
+<tr class="separator:a22f5e3b38d809435bb6d7832d0e8e9ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d1165407e3eddb03cba9962d8be2685" id="r_a1d1165407e3eddb03cba9962d8be2685"><td class="memItemLeft" align="right" valign="top"><a id="a1d1165407e3eddb03cba9962d8be2685" name="a1d1165407e3eddb03cba9962d8be2685"></a>
+static constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>make_u64</b> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> k1, ArtKey shifted_k2, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; ArtKey &gt; depth) noexcept</td></tr>
+<tr class="separator:a1d1165407e3eddb03cba9962d8be2685"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:ac8167b3836786d64d153806df9c757c9" id="r_ac8167b3836786d64d153806df9c757c9"><td class="memItemLeft" align="right" valign="top"><a id="ac8167b3836786d64d153806df9c757c9" name="ac8167b3836786d64d153806df9c757c9"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">struct</a> <a class="el" href="structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html">unodb::detail::key_prefix::inode_fields</a>&#160;</td><td class="memItemRight" valign="bottom"><b>f</b></td></tr>
-<tr class="separator:ac8167b3836786d64d153806df9c757c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2931a7e602b390400641be7fcb952bd" id="r_ad2931a7e602b390400641be7fcb952bd"><td class="memItemLeft" align="right" valign="top"><a id="ad2931a7e602b390400641be7fcb952bd" name="ad2931a7e602b390400641be7fcb952bd"></a>
+<tr class="memitem:a005d322592e512a895e2a2c2413b8414" id="r_a005d322592e512a895e2a2c2413b8414"><td class="memItemLeft" align="right" valign="top"><a id="a005d322592e512a895e2a2c2413b8414" name="a005d322592e512a895e2a2c2413b8414"></a>
+struct <a class="el" href="structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html">unodb::detail::key_prefix::inode_fields</a>&#160;</td><td class="memItemRight" valign="bottom"><b>f</b></td></tr>
+<tr class="separator:a005d322592e512a895e2a2c2413b8414"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2866197edfbf076586ccdc781aacb0f1" id="r_a2866197edfbf076586ccdc781aacb0f1"><td class="memItemLeft" align="right" valign="top"><a id="a2866197edfbf076586ccdc781aacb0f1" name="a2866197edfbf076586ccdc781aacb0f1"></a>
 critical_section_policy&lt; std::uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>u64</b></td></tr>
-<tr class="separator:ad2931a7e602b390400641be7fcb952bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a2866197edfbf076586ccdc781aacb0f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
 Static Private Attributes</h2></td></tr>
-<tr class="memitem:a3cc655edffbe89673d6e99a00888203f" id="r_a3cc655edffbe89673d6e99a00888203f"><td class="memItemLeft" align="right" valign="top"><a id="a3cc655edffbe89673d6e99a00888203f" name="a3cc655edffbe89673d6e99a00888203f"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">static</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> key_prefix_size&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix_capacity</b> = 7</td></tr>
-<tr class="separator:a3cc655edffbe89673d6e99a00888203f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3489f7816bb0e4ac5c27e09574a523d" id="r_ad3489f7816bb0e4ac5c27e09574a523d"><td class="memItemLeft" align="right" valign="top"><a id="ad3489f7816bb0e4ac5c27e09574a523d" name="ad3489f7816bb0e4ac5c27e09574a523d"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">static</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>key_bytes_mask</b> = 0x00FF'<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">FFFF</a>'<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">FFFF</a>'<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">FFFFULL</a></td></tr>
-<tr class="separator:ad3489f7816bb0e4ac5c27e09574a523d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b07ac198d7bc0437c16c685af8a59c3" id="r_a9b07ac198d7bc0437c16c685af8a59c3"><td class="memItemLeft" align="right" valign="top"><a id="a9b07ac198d7bc0437c16c685af8a59c3" name="a9b07ac198d7bc0437c16c685af8a59c3"></a>
+static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>key_bytes_mask</b> = 0x00FF'FFFF'FFFF'FFFFULL</td></tr>
+<tr class="separator:a9b07ac198d7bc0437c16c685af8a59c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this union was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;typename ArtKey, template&lt; class &gt; class CriticalSectionPolicy&gt;<br />
+union unodb::detail::key_prefix&lt; ArtKey, CriticalSectionPolicy &gt;</div><p>The <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The key_prefix is a sequence of zero or more bytes for a given node that are a common prefix shared b...">key_prefix</a> is a sequence of zero or more bytes for a given node that are a common prefix shared by all children of that node and supports prefix compression in the index. </p>
+</div><hr/>The documentation for this union was generated from the following file:<ul>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>
 </ul>
 </div><!-- contents -->

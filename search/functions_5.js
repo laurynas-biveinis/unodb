@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['get_0',['get',['../classunodb_1_1optimistic__lock_1_1version__type.html#ae0e9edd4ef5117986211eda38d706ff6',1,'unodb::optimistic_lock::version_type::get()'],['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#aa77cda1502eb4bf8ccb4f82de424010f',1,'unodb::optimistic_lock::read_critical_section::get()']]],
-  ['get_5fkey_1',['get_key',['../classunodb_1_1db_1_1iterator.html#a29a88ed844cec38077e91eacd43ee5d2',1,'unodb::db::iterator::get_key()'],['../classunodb_1_1olc__db_1_1iterator.html#a81990f0f0aa7aefb11a3043a5e66bdcf',1,'unodb::olc_db::iterator::get_key()']]],
-  ['guards_2',['guards',['../classunodb_1_1optimistic__lock_1_1write__guard.html#a9153f958dcd73cf922b1f255f4338034',1,'unodb::optimistic_lock::write_guard']]]
+  ['find_5fchild_0',['find_child',['../classunodb_1_1detail_1_1basic__inode__impl.html#a9199d94a15fedd493387941042e577f3',1,'unodb::detail::basic_inode_impl']]],
+  ['first_1',['first',['../classunodb_1_1db_1_1iterator.html#ad7c233ba464e341aa6c356390b0a4a4e',1,'unodb::db::iterator::first()'],['../classunodb_1_1olc__db_1_1iterator.html#a27b92787c103a64dd2ba7f35f3e42680',1,'unodb::olc_db::iterator::first()']]]
 ];

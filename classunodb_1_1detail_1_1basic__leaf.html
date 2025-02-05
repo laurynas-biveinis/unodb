@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UnoDB: unodb::detail::basic_leaf&lt; Header &gt; Class Template Reference</title>
+<title>UnoDB: unodb::detail::basic_leaf&lt; Key, Header &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -103,11 +103,16 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1basic__leaf.ht
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="classunodb_1_1detail_1_1basic__leaf-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">unodb::detail::basic_leaf&lt; Header &gt; Class Template Reference</div></div>
+  <div class="headertitle"><div class="title">unodb::detail::basic_leaf&lt; Key, Header &gt; Class Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>The <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html" title="The basic_leaf handles most of the behavior of a leaf in the index.">basic_leaf</a> handles most of the behavior of a leaf in the index.  
+ <a href="classunodb_1_1detail_1_1basic__leaf.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&gt;</code></p>
 <div class="dynheader">
-Inheritance diagram for unodb::detail::basic_leaf&lt; Header &gt;:</div>
+Inheritance diagram for unodb::detail::basic_leaf&lt; Key, Header &gt;:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classunodb_1_1detail_1_1basic__leaf.png" alt=""/>
@@ -115,71 +120,235 @@ Inheritance diagram for unodb::detail::basic_leaf&lt; Header &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a274efa2eb2c473e1f15702f3024207f1" id="r_a274efa2eb2c473e1f15702f3024207f1"><td class="memItemLeft" align="right" valign="top"><a id="a274efa2eb2c473e1f15702f3024207f1" name="a274efa2eb2c473e1f15702f3024207f1"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>value_size_type</b> = std::uint32_t</td></tr>
-<tr class="separator:a274efa2eb2c473e1f15702f3024207f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ecff1b0efcaa1885908f4402da940eb" id="r_a0ecff1b0efcaa1885908f4402da940eb"><td class="memItemLeft" align="right" valign="top"><a id="a0ecff1b0efcaa1885908f4402da940eb" name="a0ecff1b0efcaa1885908f4402da940eb"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>key_size_type</b> = std::uint32_t</td></tr>
+<tr class="memdesc:a0ecff1b0efcaa1885908f4402da940eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type alias determining the maximum size of a value that may be stored in the index. <br /></td></tr>
+<tr class="separator:a0ecff1b0efcaa1885908f4402da940eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd0e023dc5b0d9382ba575ab9e3524e3" id="r_afd0e023dc5b0d9382ba575ab9e3524e3"><td class="memItemLeft" align="right" valign="top"><a id="afd0e023dc5b0d9382ba575ab9e3524e3" name="afd0e023dc5b0d9382ba575ab9e3524e3"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>value_size_type</b> = std::uint32_t</td></tr>
+<tr class="memdesc:afd0e023dc5b0d9382ba575ab9e3524e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type alias determining the maximum size of a value that may be stored in the index. <br /></td></tr>
+<tr class="separator:afd0e023dc5b0d9382ba575ab9e3524e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a320fd0e04a9e76c044927d815051b319" id="r_a320fd0e04a9e76c044927d815051b319"><td class="memItemLeft" align="right" valign="top"><a id="a320fd0e04a9e76c044927d815051b319" name="a320fd0e04a9e76c044927d815051b319"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>art_key_type</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt;</td></tr>
+<tr class="separator:a320fd0e04a9e76c044927d815051b319"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a6f021d9227fcd0c199faed18143a3457" id="r_a6f021d9227fcd0c199faed18143a3457"><td class="memItemLeft" align="right" valign="top"><a id="a6f021d9227fcd0c199faed18143a3457" name="a6f021d9227fcd0c199faed18143a3457"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>basic_leaf</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">k</a>, value_view <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">v</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a6f021d9227fcd0c199faed18143a3457"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8e95755155843600eed2fabff32d1d6e" id="r_a8e95755155843600eed2fabff32d1d6e"><td class="memItemLeft" align="right" valign="top"><a id="a8e95755155843600eed2fabff32d1d6e" name="a8e95755155843600eed2fabff32d1d6e"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_key</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a8e95755155843600eed2fabff32d1d6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c7fdae4b605a5832b5840f1e0725ee3" id="r_a7c7fdae4b605a5832b5840f1e0725ee3"><td class="memItemLeft" align="right" valign="top"><a id="a7c7fdae4b605a5832b5840f1e0725ee3" name="a7c7fdae4b605a5832b5840f1e0725ee3"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>matches</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">k</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a7c7fdae4b605a5832b5840f1e0725ee3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bd7e1d39be200a8a7fa06da2030cbee" id="r_a4bd7e1d39be200a8a7fa06da2030cbee"><td class="memItemLeft" align="right" valign="top"><a id="a4bd7e1d39be200a8a7fa06da2030cbee" name="a4bd7e1d39be200a8a7fa06da2030cbee"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cmp</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">k</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a4bd7e1d39be200a8a7fa06da2030cbee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8203e3f3b0050faaef00294cc0d0ee23" id="r_a8203e3f3b0050faaef00294cc0d0ee23"><td class="memItemLeft" align="right" valign="top"><a id="a8203e3f3b0050faaef00294cc0d0ee23" name="a8203e3f3b0050faaef00294cc0d0ee23"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_value_view</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a8203e3f3b0050faaef00294cc0d0ee23"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8b689d5e2a251b6d26f4cd0097f4e1c" id="r_ab8b689d5e2a251b6d26f4cd0097f4e1c"><td class="memItemLeft" align="right" valign="top"><a id="ab8b689d5e2a251b6d26f4cd0097f4e1c" name="ab8b689d5e2a251b6d26f4cd0097f4e1c"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_size</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:ab8b689d5e2a251b6d26f4cd0097f4e1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd630aebbae910281fefd4ca6fe5fc1f" id="r_acd630aebbae910281fefd4ca6fe5fc1f"><td class="memItemLeft" align="right" valign="top"><a id="acd630aebbae910281fefd4ca6fe5fc1f" name="acd630aebbae910281fefd4ca6fe5fc1f"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">os</a>, <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a></td></tr>
-<tr class="separator:acd630aebbae910281fefd4ca6fe5fc1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2708c966884c7b9feab50af3e1958ad2" id="r_a2708c966884c7b9feab50af3e1958ad2"><td class="memItemLeft" align="right" valign="top"><a id="a2708c966884c7b9feab50af3e1958ad2" name="a2708c966884c7b9feab50af3e1958ad2"></a>
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_leaf</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v) noexcept</td></tr>
+<tr class="separator:a2708c966884c7b9feab50af3e1958ad2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25f0e5829d662bfe0d8d505d7497493c" id="r_a25f0e5829d662bfe0d8d505d7497493c"><td class="memItemLeft" align="right" valign="top"><a id="a25f0e5829d662bfe0d8d505d7497493c" name="a25f0e5829d662bfe0d8d505d7497493c"></a>
+constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_key</b> () const noexcept</td></tr>
+<tr class="memdesc:a25f0e5829d662bfe0d8d505d7497493c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the binary comparable key stored in the leaf. <br /></td></tr>
+<tr class="separator:a25f0e5829d662bfe0d8d505d7497493c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3faee12b17a4a4b9134c2c4fd81a688b" id="r_a3faee12b17a4a4b9134c2c4fd81a688b"><td class="memItemLeft" align="right" valign="top"><a id="a3faee12b17a4a4b9134c2c4fd81a688b" name="a3faee12b17a4a4b9134c2c4fd81a688b"></a>
+constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_key_view</b> () const noexcept</td></tr>
+<tr class="memdesc:a3faee12b17a4a4b9134c2c4fd81a688b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a view onto the key stored in the leaf. <br /></td></tr>
+<tr class="separator:a3faee12b17a4a4b9134c2c4fd81a688b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3fb5bc240211394284d1880d0e512cbe" id="r_a3fb5bc240211394284d1880d0e512cbe"><td class="memItemLeft" align="right" valign="top"><a id="a3fb5bc240211394284d1880d0e512cbe" name="a3fb5bc240211394284d1880d0e512cbe"></a>
+constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>matches</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k) const noexcept</td></tr>
+<tr class="memdesc:a3fb5bc240211394284d1880d0e512cbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the two keys are the same. <br /></td></tr>
+<tr class="separator:a3fb5bc240211394284d1880d0e512cbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83845cef7d07d2f4e99eddc1ef05e3ec" id="r_a83845cef7d07d2f4e99eddc1ef05e3ec"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a83845cef7d07d2f4e99eddc1ef05e3ec">cmp</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k) const noexcept</td></tr>
+<tr class="memdesc:a83845cef7d07d2f4e99eddc1ef05e3ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return LT ZERO (0) if this key is less than the caller's key.  <br /></td></tr>
+<tr class="separator:a83845cef7d07d2f4e99eddc1ef05e3ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88d3ef305a3e3e8eae77002f433fd73d" id="r_a88d3ef305a3e3e8eae77002f433fd73d"><td class="memItemLeft" align="right" valign="top"><a id="a88d3ef305a3e3e8eae77002f433fd73d" name="a88d3ef305a3e3e8eae77002f433fd73d"></a>
+constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_value_view</b> () const noexcept</td></tr>
+<tr class="memdesc:a88d3ef305a3e3e8eae77002f433fd73d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a view onto the value stored in the leaf. <br /></td></tr>
+<tr class="separator:a88d3ef305a3e3e8eae77002f433fd73d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65bf9368b0a37a32ec3903aa3d463778" id="r_a65bf9368b0a37a32ec3903aa3d463778"><td class="memItemLeft" align="right" valign="top"><a id="a65bf9368b0a37a32ec3903aa3d463778" name="a65bf9368b0a37a32ec3903aa3d463778"></a>
+constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_size</b> () const noexcept</td></tr>
+<tr class="memdesc:a65bf9368b0a37a32ec3903aa3d463778"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the byte size of the leaf data structure. <br /></td></tr>
+<tr class="separator:a65bf9368b0a37a32ec3903aa3d463778"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0cafb1e0be7f524adb937948fce2e8b" id="r_ac0cafb1e0be7f524adb937948fce2e8b"><td class="memItemLeft" align="right" valign="top"><a id="ac0cafb1e0be7f524adb937948fce2e8b" name="ac0cafb1e0be7f524adb937948fce2e8b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os, bool) const</td></tr>
+<tr class="separator:ac0cafb1e0be7f524adb937948fce2e8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:ad5d6b1554aa0399623ed22fdd3dc9fff" id="r_ad5d6b1554aa0399623ed22fdd3dc9fff"><td class="memItemLeft" align="right" valign="top"><a id="ad5d6b1554aa0399623ed22fdd3dc9fff" name="ad5d6b1554aa0399623ed22fdd3dc9fff"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">static</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>compute_size</b> (value_size_type <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">val_size</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:ad5d6b1554aa0399623ed22fdd3dc9fff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16b0da061659a06c5ede9389ad511378" id="r_a16b0da061659a06c5ede9389ad511378"><td class="memItemLeft" align="right" valign="top">static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a16b0da061659a06c5ede9389ad511378">compute_size</a> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a0ecff1b0efcaa1885908f4402da940eb">key_size_type</a> <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a891b5c7b76c488e453319377a83e4ae3">key_size</a>, <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#afd0e023dc5b0d9382ba575ab9e3524e3">value_size_type</a> val_size) noexcept</td></tr>
+<tr class="memdesc:a16b0da061659a06c5ede9389ad511378"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the required byte size of the leaf to hold the header, key, and value.  <br /></td></tr>
+<tr class="separator:a16b0da061659a06c5ede9389ad511378"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:a71ff4806a3a28a227d35d32a653b3c5b" id="r_a71ff4806a3a28a227d35d32a653b3c5b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">static</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a71ff4806a3a28a227d35d32a653b3c5b">max_value_size</a></td></tr>
-<tr class="separator:a71ff4806a3a28a227d35d32a653b3c5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad0f48689bee75c4df7ea93296657094" id="r_aad0f48689bee75c4df7ea93296657094"><td class="memItemLeft" align="right" valign="top">static constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#aad0f48689bee75c4df7ea93296657094">max_key_size</a></td></tr>
+<tr class="memdesc:aad0f48689bee75c4df7ea93296657094"><td class="mdescLeft">&#160;</td><td class="mdescRight">The maximum size of any key in bytes.  <br /></td></tr>
+<tr class="separator:aad0f48689bee75c4df7ea93296657094"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ae66a23e391de1745d9144f4279296c" id="r_a2ae66a23e391de1745d9144f4279296c"><td class="memItemLeft" align="right" valign="top">static constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a2ae66a23e391de1745d9144f4279296c">max_value_size</a></td></tr>
+<tr class="memdesc:a2ae66a23e391de1745d9144f4279296c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The maximum size of any value in bytes.  <br /></td></tr>
+<tr class="separator:a2ae66a23e391de1745d9144f4279296c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a343108011092ed8a2781f7164e234caa" id="r_a343108011092ed8a2781f7164e234caa"><td class="memItemLeft" align="right" valign="top"><a id="a343108011092ed8a2781f7164e234caa" name="a343108011092ed8a2781f7164e234caa"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key</a>&#160;</td><td class="memItemRight" valign="bottom"><b>key</b></td></tr>
-<tr class="separator:a343108011092ed8a2781f7164e234caa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab85382924a39251823c7d20f12c0c8f5" id="r_ab85382924a39251823c7d20f12c0c8f5"><td class="memItemLeft" align="right" valign="top"><a id="ab85382924a39251823c7d20f12c0c8f5" name="ab85382924a39251823c7d20f12c0c8f5"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> value_size_type&#160;</td><td class="memItemRight" valign="bottom"><b>value_size</b></td></tr>
-<tr class="separator:ab85382924a39251823c7d20f12c0c8f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aefd1dda02529744030eff9ba972df642" id="r_aefd1dda02529744030eff9ba972df642"><td class="memItemLeft" align="right" valign="top"><a id="aefd1dda02529744030eff9ba972df642" name="aefd1dda02529744030eff9ba972df642"></a>
-std::byte&#160;</td><td class="memItemRight" valign="bottom"><b>value_start</b> [1]</td></tr>
-<tr class="separator:aefd1dda02529744030eff9ba972df642"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a891b5c7b76c488e453319377a83e4ae3" id="r_a891b5c7b76c488e453319377a83e4ae3"><td class="memItemLeft" align="right" valign="top"><a id="a891b5c7b76c488e453319377a83e4ae3" name="a891b5c7b76c488e453319377a83e4ae3"></a>
+const <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a0ecff1b0efcaa1885908f4402da940eb">key_size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>key_size</b></td></tr>
+<tr class="memdesc:a891b5c7b76c488e453319377a83e4ae3"><td class="mdescLeft">&#160;</td><td class="mdescRight">The byte length of the key. <br /></td></tr>
+<tr class="separator:a891b5c7b76c488e453319377a83e4ae3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89b605abe77f9a90b137b7469d64fe27" id="r_a89b605abe77f9a90b137b7469d64fe27"><td class="memItemLeft" align="right" valign="top"><a id="a89b605abe77f9a90b137b7469d64fe27" name="a89b605abe77f9a90b137b7469d64fe27"></a>
+const <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#afd0e023dc5b0d9382ba575ab9e3524e3">value_size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>value_size</b></td></tr>
+<tr class="memdesc:a89b605abe77f9a90b137b7469d64fe27"><td class="mdescLeft">&#160;</td><td class="mdescRight">The byte length of the value. <br /></td></tr>
+<tr class="separator:a89b605abe77f9a90b137b7469d64fe27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b9efcf5222a040cac645af90218351b" id="r_a9b9efcf5222a040cac645af90218351b"><td class="memItemLeft" align="right" valign="top">std::byte&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a9b9efcf5222a040cac645af90218351b">data</a> [1]</td></tr>
+<tr class="memdesc:a9b9efcf5222a040cac645af90218351b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The leaf's key and value data starts at data[0].  <br /></td></tr>
+<tr class="separator:a9b9efcf5222a040cac645af90218351b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a id="a71ff4806a3a28a227d35d32a653b3c5b" name="a71ff4806a3a28a227d35d32a653b3c5b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a71ff4806a3a28a227d35d32a653b3c5b">&#9670;&#160;</a></span>max_value_size</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;class Key, class Header&gt;<br />
+class unodb::detail::basic_leaf&lt; Key, Header &gt;</div><p>The <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html" title="The basic_leaf handles most of the behavior of a leaf in the index.">basic_leaf</a> handles most of the behavior of a leaf in the index. </p>
+<p>It is specialized for OLC which includes additional information in the header. The leaf contains a copy of the key and a copy of the value.</p>
+<p>TODO(thompsonbry) variable length keys - update documentation about what is stored in the leaf once we have a clear decision.</p>
+<p>TODO(thompsonbry) : variable length keys. Consider adding a <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The key_prefix is a sequence of zero or more bytes for a given node that are a common prefix shared b...">key_prefix</a> to the leaf in which case the tree to the leaf needs to hold the full key except for that trailing 0-7 bytes which is stored on the leaf.</p>
+<p>TODO(thompsonbry) : variable length keys. The key should be optional on the leaf, except for perhaps a <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The key_prefix is a sequence of zero or more bytes for a given node that are a common prefix shared b...">key_prefix</a>.</p>
+<p>TODO(thompsonbry) : variable length keys. The key_size can be elided for fixed length keys. The value size can be elided for fixed length values. Both are common cases and should be handled via appropriate template specialization. This is most important when the allocations are small and getting into a smaller power of two can result in significant space savings. Further, the key_size and the value_size can be represented as variable length unsigned integers for a more compact data record. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a83845cef7d07d2f4e99eddc1ef05e3ec" name="a83845cef7d07d2f4e99eddc1ef05e3ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83845cef7d07d2f4e99eddc1ef05e3ec">&#9670;&#160;</a></span>cmp()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">class</a> Header &gt; </div>
+template&lt;class Key , class Header &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> std::size_t <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Header &gt;::max_value_size</td>
+          <td class="memname">constexpr auto <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::cmp </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a>&#160;</td>
+          <td class="paramname"><em>k</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return LT ZERO (0) if this key is less than the caller's key. </p>
+<p>Return GT ZERO (0) if this key is greater than the caller's key. Return ZERO (0) if the two keys are the same. </p>
+
+</div>
+</div>
+<a id="a16b0da061659a06c5ede9389ad511378" name="a16b0da061659a06c5ede9389ad511378"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16b0da061659a06c5ede9389ad511378">&#9670;&#160;</a></span>compute_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static constexpr auto <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::compute_size </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a0ecff1b0efcaa1885908f4402da940eb">key_size_type</a>&#160;</td>
+          <td class="paramname"><em>key_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#afd0e023dc5b0d9382ba575ab9e3524e3">value_size_type</a>&#160;</td>
+          <td class="paramname"><em>val_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compute the required byte size of the leaf to hold the header, key, and value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">key_size</td><td>The size in bytes of the portion of the key stored in the leaf.</td></tr>
+    <tr><td class="paramname">val_size</td><td>The size in bytes of the the value stored in the leaf. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a9b9efcf5222a040cac645af90218351b" name="a9b9efcf5222a040cac645af90218351b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b9efcf5222a040cac645af90218351b">&#9670;&#160;</a></span>data</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::byte <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::data[1]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The leaf's key and value data starts at data[0]. </p>
+<p>The key comes first followed by the data. </p>
+
+</div>
+</div>
+<a id="aad0f48689bee75c4df7ea93296657094" name="aad0f48689bee75c4df7ea93296657094"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad0f48689bee75c4df7ea93296657094">&#9670;&#160;</a></span>max_key_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr std::size_t <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::max_key_size</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">      std::numeric_limits&lt;key_size_type&gt;::max()</div>
+</div><!-- fragment -->
+<p>The maximum size of any key in bytes. </p>
+
+</div>
+</div>
+<a id="a2ae66a23e391de1745d9144f4279296c" name="a2ae66a23e391de1745d9144f4279296c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ae66a23e391de1745d9144f4279296c">&#9670;&#160;</a></span>max_value_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr std::size_t <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::max_value_size</td>
         </tr>
       </table>
   </td>
@@ -191,6 +360,8 @@ template&lt;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d8
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
 <div class="line">      std::numeric_limits&lt;value_size_type&gt;::max()</div>
 </div><!-- fragment -->
+<p>The maximum size of any value in bytes. </p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>

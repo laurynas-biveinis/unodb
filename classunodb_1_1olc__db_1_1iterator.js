@@ -1,6 +1,30 @@
 var classunodb_1_1olc__db_1_1iterator =
 [
-    [ "stack_entry", "structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html", null ],
-    [ "dump", "classunodb_1_1olc__db_1_1iterator.html#ae884a0b3afc477dfadce0f4419d8d0bd", null ],
-    [ "get_key", "classunodb_1_1olc__db_1_1iterator.html#a81990f0f0aa7aefb11a3043a5e66bdcf", null ]
+    [ "stack_entry", "structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html", "structunodb_1_1olc__db_1_1iterator_1_1stack__entry" ],
+    [ "iterator", "classunodb_1_1olc__db_1_1iterator.html#a88a1b399bf866f05645603ba65335c25", null ],
+    [ "cmp", "classunodb_1_1olc__db_1_1iterator.html#a17f0370a66613d3671ded270383407bf", null ],
+    [ "current_node", "classunodb_1_1olc__db_1_1iterator.html#ad2eeed2660561a3a4b588488ed72b284", null ],
+    [ "dump", "classunodb_1_1olc__db_1_1iterator.html#ac32b41e7266be4b63d1bcc2cae46cdf0", null ],
+    [ "dump", "classunodb_1_1olc__db_1_1iterator.html#a44a181de093bcde297ef11c90d952eae", null ],
+    [ "empty", "classunodb_1_1olc__db_1_1iterator.html#a41f9db6a97ff84b2d3868112fc030cf7", null ],
+    [ "first", "classunodb_1_1olc__db_1_1iterator.html#a27b92787c103a64dd2ba7f35f3e42680", null ],
+    [ "get_key", "classunodb_1_1olc__db_1_1iterator.html#a4551e913ad076425b4904a76c154a2ea", null ],
+    [ "get_val", "classunodb_1_1olc__db_1_1iterator.html#a0b81d77d02348d5ef341158498c58834", null ],
+    [ "invalidate", "classunodb_1_1olc__db_1_1iterator.html#a01fcd0d3bcaf82c306a12aec24a5c0ba", null ],
+    [ "last", "classunodb_1_1olc__db_1_1iterator.html#afb17ba1d9bfd6b3246ea6990aec1862a", null ],
+    [ "next", "classunodb_1_1olc__db_1_1iterator.html#ae5453ca90fb7b34d846ab46bb1105945", null ],
+    [ "pop", "classunodb_1_1olc__db_1_1iterator.html#a19a4de3d100ab8b7b2b0dae0478a81de", null ],
+    [ "prior", "classunodb_1_1olc__db_1_1iterator.html#a934efc86d4ca947f6188a328ca12d38f", null ],
+    [ "seek", "classunodb_1_1olc__db_1_1iterator.html#afc4e2fe72daa028df5bab019c6f3c6e3", null ],
+    [ "top", "classunodb_1_1olc__db_1_1iterator.html#aed7fe61ec43543e7f010be5a4b38c6e8", null ],
+    [ "try_left_most_traversal", "classunodb_1_1olc__db_1_1iterator.html#ad072818476974fa1f05b1ce6b4132b1a", null ],
+    [ "try_push", "classunodb_1_1olc__db_1_1iterator.html#abf1fc1a0db6e7328eff730c6e271fe9a", null ],
+    [ "try_push", "classunodb_1_1olc__db_1_1iterator.html#aa20ecab2e7833b68586ef9749ce37d2f", null ],
+    [ "try_push_leaf", "classunodb_1_1olc__db_1_1iterator.html#a71f9c242a94be59fe64dd66de3aaabd6", null ],
+    [ "try_right_most_traversal", "classunodb_1_1olc__db_1_1iterator.html#a20753d94d49b35588f91a21b2bfd6765", null ],
+    [ "try_seek", "classunodb_1_1olc__db_1_1iterator.html#abe9fef1191b60ecdcce9a805fc444a36", null ],
+    [ "valid", "classunodb_1_1olc__db_1_1iterator.html#a3913e8ce0825a495466e462216aa1f8b", null ],
+    [ "db_", "classunodb_1_1olc__db_1_1iterator.html#a1c2a1ad956ccc841e76ecefcafde8aa9", null ],
+    [ "keybuf_", "classunodb_1_1olc__db_1_1iterator.html#a1cb128bff73b67be45c998d7ec97f43e", null ],
+    [ "stack_", "classunodb_1_1olc__db_1_1iterator.html#ad183b47cee58cc08507806d2f87d7f03", null ]
 ];

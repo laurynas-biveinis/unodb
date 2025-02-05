@@ -113,40 +113,40 @@ $(document).ready(function(){initNavTree('classunodb_1_1optimistic__lock_1_1vers
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a0498bb6cdab8882c986c947bffdbac98" id="r_a0498bb6cdab8882c986c947bffdbac98"><td class="memItemLeft" align="right" valign="top"><a id="a0498bb6cdab8882c986c947bffdbac98" name="a0498bb6cdab8882c986c947bffdbac98"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>version_type</b> (<a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">version_val</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>version_type</b> (<a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a> version_val) noexcept</td></tr>
 <tr class="memdesc:a0498bb6cdab8882c986c947bffdbac98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new lock word from a raw <em>version_val</em> value. <br /></td></tr>
 <tr class="separator:a0498bb6cdab8882c986c947bffdbac98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9dbb46cd69d5469711b3c4615d4c0a8f" id="r_a9dbb46cd69d5469711b3c4615d4c0a8f"><td class="memItemLeft" align="right" valign="top"><a id="a9dbb46cd69d5469711b3c4615d4c0a8f" name="a9dbb46cd69d5469711b3c4615d4c0a8f"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>is_write_locked</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_write_locked</b> () const noexcept</td></tr>
 <tr class="memdesc:a9dbb46cd69d5469711b3c4615d4c0a8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return whether the lock word has the write lock bit set. <br /></td></tr>
 <tr class="separator:a9dbb46cd69d5469711b3c4615d4c0a8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5213291bc880b42167098855ece7dbd" id="r_ac5213291bc880b42167098855ece7dbd"><td class="memItemLeft" align="right" valign="top"><a id="ac5213291bc880b42167098855ece7dbd" name="ac5213291bc880b42167098855ece7dbd"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>is_free</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_free</b> () const noexcept</td></tr>
 <tr class="memdesc:ac5213291bc880b42167098855ece7dbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return whether the lock word indicates a free lock that is available for acquisition - neither write-locked nor obsolete. <br /></td></tr>
 <tr class="separator:ac5213291bc880b42167098855ece7dbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79bbbea7fe019998dc7c18e8f68d7ec8" id="r_a79bbbea7fe019998dc7c18e8f68d7ec8"><td class="memItemLeft" align="right" valign="top"><a id="a79bbbea7fe019998dc7c18e8f68d7ec8" name="a79bbbea7fe019998dc7c18e8f68d7ec8"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>is_obsolete</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_obsolete</b> () const noexcept</td></tr>
 <tr class="memdesc:a79bbbea7fe019998dc7c18e8f68d7ec8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return whether the lock word is in the obsolete state. <br /></td></tr>
 <tr class="separator:a79bbbea7fe019998dc7c18e8f68d7ec8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a51199c18f1bfce733bddc0f01c5c4369" id="r_a51199c18f1bfce733bddc0f01c5c4369"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html#a51199c18f1bfce733bddc0f01c5c4369">set_locked_bit</a> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:a51199c18f1bfce733bddc0f01c5c4369" id="r_a51199c18f1bfce733bddc0f01c5c4369"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html#a51199c18f1bfce733bddc0f01c5c4369">set_locked_bit</a> () const noexcept</td></tr>
 <tr class="memdesc:a51199c18f1bfce733bddc0f01c5c4369"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a lock word with the current version and lock bit set.  <br /></td></tr>
 <tr class="separator:a51199c18f1bfce733bddc0f01c5c4369"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae0e9edd4ef5117986211eda38d706ff6" id="r_ae0e9edd4ef5117986211eda38d706ff6"><td class="memItemLeft" align="right" valign="top"><a id="ae0e9edd4ef5117986211eda38d706ff6" name="ae0e9edd4ef5117986211eda38d706ff6"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+constexpr <a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get</b> () const noexcept</td></tr>
 <tr class="memdesc:ae0e9edd4ef5117986211eda38d706ff6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the version_tag_type (just the data, including both the version and the write lock / obsolete bits). <br /></td></tr>
 <tr class="separator:ae0e9edd4ef5117986211eda38d706ff6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab244755dfb33f13321ba1d18f37e8b74" id="r_ab244755dfb33f13321ba1d18f37e8b74"><td class="memItemLeft" align="right" valign="top"><a id="ab244755dfb33f13321ba1d18f37e8b74" name="ab244755dfb33f13321ba1d18f37e8b74"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">other</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> other) const noexcept</td></tr>
 <tr class="memdesc:ab244755dfb33f13321ba1d18f37e8b74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare two lock words for equality, including all the version and lock / obsolete bits. <br /></td></tr>
 <tr class="separator:ab244755dfb33f13321ba1d18f37e8b74"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d2da481d5515ecec566805a322d57ef" id="r_a3d2da481d5515ecec566805a322d57ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html#a3d2da481d5515ecec566805a322d57ef">dump</a> (std::ostream &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">os</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a></td></tr>
+<tr class="memitem:a3d2da481d5515ecec566805a322d57ef" id="r_a3d2da481d5515ecec566805a322d57ef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html#a3d2da481d5515ecec566805a322d57ef">dump</a> (std::ostream &amp;os) const</td></tr>
 <tr class="memdesc:a3d2da481d5515ecec566805a322d57ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output the lock word to <em>os</em> output stream.  <br /></td></tr>
 <tr class="separator:a3d2da481d5515ecec566805a322d57ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
 <tr class="memitem:abee2b619b121ae96f36699bfc0c5f704" id="r_abee2b619b121ae96f36699bfc0c5f704"><td class="memItemLeft" align="right" valign="top"><a id="abee2b619b121ae96f36699bfc0c5f704" name="abee2b619b121ae96f36699bfc0c5f704"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">static</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>obsolete_lock_word</b> = 1<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">U</a></td></tr>
+static constexpr <a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>obsolete_lock_word</b> = 1U</td></tr>
 <tr class="memdesc:abee2b619b121ae96f36699bfc0c5f704"><td class="mdescLeft">&#160;</td><td class="mdescRight">A lock word value constant in the obsolete state. <br /></td></tr>
 <tr class="separator:abee2b619b121ae96f36699bfc0c5f704"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -175,7 +175,7 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a> unodb::optimistic_lock::version_type::dump </td>
+          <td class="memname">void unodb::optimistic_lock::version_type::dump </td>
           <td>(</td>
           <td class="paramtype">std::ostream &amp;&#160;</td>
           <td class="paramname"><em>os</em></td><td>)</td>
@@ -204,7 +204,7 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> unodb::optimistic_lock::version_type::set_locked_bit </td>
+          <td class="memname">constexpr <a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a> unodb::optimistic_lock::version_type::set_locked_bit </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>

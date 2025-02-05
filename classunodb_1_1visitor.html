@@ -97,6 +97,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1visitor.html',''); initR
 
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
@@ -105,39 +106,116 @@ $(document).ready(function(){initNavTree('classunodb_1_1visitor.html',''); initR
   <div class="headertitle"><div class="title">unodb::visitor&lt; Iterator &gt; Class Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>An object visited by the scan API.  
+ <a href="classunodb_1_1visitor.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="art__common_8hpp_source.html">art_common.hpp</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a53363e08f7b0ee4b7e306bb3a44e07d0" id="r_a53363e08f7b0ee4b7e306bb3a44e07d0"><td class="memItemLeft" align="right" valign="top"><a id="a53363e08f7b0ee4b7e306bb3a44e07d0" name="a53363e08f7b0ee4b7e306bb3a44e07d0"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>key_type</b> = typename Iterator::key_type</td></tr>
+<tr class="separator:a53363e08f7b0ee4b7e306bb3a44e07d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a60a0f107773016ce01e4757c6710ca1d" id="r_a60a0f107773016ce01e4757c6710ca1d"><td class="memItemLeft" align="right" valign="top"><a id="a60a0f107773016ce01e4757c6710ca1d" name="a60a0f107773016ce01e4757c6710ca1d"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_key</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:a60a0f107773016ce01e4757c6710ca1d" id="r_a60a0f107773016ce01e4757c6710ca1d"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1visitor.html#a60a0f107773016ce01e4757c6710ca1d">get_key</a> () const noexcept</td></tr>
+<tr class="memdesc:a60a0f107773016ce01e4757c6710ca1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit the encoded key.  <br /></td></tr>
 <tr class="separator:a60a0f107773016ce01e4757c6710ca1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af6fed2abf8b9a3cc9025df149a06af78" id="r_af6fed2abf8b9a3cc9025df149a06af78"><td class="memItemLeft" align="right" valign="top"><a id="af6fed2abf8b9a3cc9025df149a06af78" name="af6fed2abf8b9a3cc9025df149a06af78"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_value</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
+<tr class="memitem:af6fed2abf8b9a3cc9025df149a06af78" id="r_af6fed2abf8b9a3cc9025df149a06af78"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1visitor.html#af6fed2abf8b9a3cc9025df149a06af78">get_value</a> () const noexcept</td></tr>
+<tr class="memdesc:af6fed2abf8b9a3cc9025df149a06af78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit the value.  <br /></td></tr>
 <tr class="separator:af6fed2abf8b9a3cc9025df149a06af78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:a0d083412d0b4a7d5e4bbd664d13833ef" id="r_a0d083412d0b4a7d5e4bbd664d13833ef"><td class="memItemLeft" align="right" valign="top"><a id="a0d083412d0b4a7d5e4bbd664d13833ef" name="a0d083412d0b4a7d5e4bbd664d13833ef"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>visitor</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">Iterator</a> &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">it_</a>)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>visitor</b> (Iterator &amp;it_)</td></tr>
 <tr class="separator:a0d083412d0b4a7d5e4bbd664d13833ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:a88f5de7adfbc8eae86d11b8242dc9df6" id="r_a88f5de7adfbc8eae86d11b8242dc9df6"><td class="memItemLeft" align="right" valign="top"><a id="a88f5de7adfbc8eae86d11b8242dc9df6" name="a88f5de7adfbc8eae86d11b8242dc9df6"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">Iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>it</b></td></tr>
+Iterator &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>it</b></td></tr>
 <tr class="separator:a88f5de7adfbc8eae86d11b8242dc9df6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:a448c22a011cf13268c0dfbbf88ad6722" id="r_a448c22a011cf13268c0dfbbf88ad6722"><td class="memItemLeft" align="right" valign="top"><a id="a448c22a011cf13268c0dfbbf88ad6722" name="a448c22a011cf13268c0dfbbf88ad6722"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">class</a>&#160;</td><td class="memItemRight" valign="bottom"><b>olc_db</b></td></tr>
-<tr class="separator:a448c22a011cf13268c0dfbbf88ad6722"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afaa85f6d069fcff5be399f829fe8f1d5" id="r_afaa85f6d069fcff5be399f829fe8f1d5"><td class="memItemLeft" align="right" valign="top"><a id="afaa85f6d069fcff5be399f829fe8f1d5" name="afaa85f6d069fcff5be399f829fe8f1d5"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">class</a>&#160;</td><td class="memItemRight" valign="bottom"><b>db</b></td></tr>
-<tr class="separator:afaa85f6d069fcff5be399f829fe8f1d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa06707b5312d3b68a37e34d6edaabe0a" id="r_aa06707b5312d3b68a37e34d6edaabe0a"><td class="memItemLeft" align="right" valign="top"><a id="aa06707b5312d3b68a37e34d6edaabe0a" name="aa06707b5312d3b68a37e34d6edaabe0a"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>olc_db&lt; key_type &gt;</b></td></tr>
+<tr class="separator:aa06707b5312d3b68a37e34d6edaabe0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a905f16b0987a6be53a4a84b404b48195" id="r_a905f16b0987a6be53a4a84b404b48195"><td class="memItemLeft" align="right" valign="top"><a id="a905f16b0987a6be53a4a84b404b48195" name="a905f16b0987a6be53a4a84b404b48195"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>db&lt; key_type &gt;</b></td></tr>
+<tr class="separator:a905f16b0987a6be53a4a84b404b48195"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;typename Iterator&gt;<br />
+class unodb::visitor&lt; Iterator &gt;</div><p>An object visited by the scan API. </p>
+<p>The visitor passed to the caller's lambda by the scan for each index entry visited by the scan. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a60a0f107773016ce01e4757c6710ca1d" name="a60a0f107773016ce01e4757c6710ca1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60a0f107773016ce01e4757c6710ca1d">&#9670;&#160;</a></span>get_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Iterator &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto <a class="el" href="classunodb_1_1visitor.html">unodb::visitor</a>&lt; Iterator &gt;::get_key </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Visit the encoded key. </p>
+<p>Note: The lambda MUST NOT export a reference to the visited key. If you want to access the visited key outside of the scope of a single lambda invocation, then you must make a copy of the data.</p>
+<p>Note: The application MAY use the [<a class="el" href="classunodb_1_1key__decoder.html" title="A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort...">key_decoder</a>] to decode any key corresponding to a sequence of one or more primitive data types. However, key decoding is not well defined for Unicode sort keys. The recommended pattern when the key contains Unicode data is to convert it to a sort key using some collation order. The Unicode data may then be recovered by associating the key with a record identifier, looking up the record and reading off the Unicode value there. This is a common secondary index scenario. </p>
+
+</div>
+</div>
+<a id="af6fed2abf8b9a3cc9025df149a06af78" name="af6fed2abf8b9a3cc9025df149a06af78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6fed2abf8b9a3cc9025df149a06af78">&#9670;&#160;</a></span>get_value()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Iterator &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto <a class="el" href="classunodb_1_1visitor.html">unodb::visitor</a>&lt; Iterator &gt;::get_value </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Visit the value. </p>
+<p>Note: The lambda MUST NOT export a reference to the visited value. If you to access the value outside of the scope of a single lambda invocation, then you must make a copy of the data. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a></li>
+<li><a class="el" href="art__common_8hpp_source.html">art_common.hpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

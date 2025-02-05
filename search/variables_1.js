@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['hardware_5fconstructive_5finterference_5fsize_0',['hardware_constructive_interference_size',['../namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89',1,'unodb::detail']]],
-  ['hardware_5fdestructive_5finterference_5fsize_1',['hardware_destructive_interference_size',['../namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c',1,'unodb::detail']]]
+  ['buf_0',['buf',['../classunodb_1_1key__encoder.html#a54ee1fa410f52af5353bf5baff2173a7',1,'unodb::key_encoder::buf'],['../classunodb_1_1detail_1_1key__buffer.html#ac194dd8d30a35188b87939582d5f8d84',1,'unodb::detail::key_buffer::buf']]]
 ];

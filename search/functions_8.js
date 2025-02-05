@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['msg_5fstacktrace_5fabort_0',['msg_stacktrace_abort',['../namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2',1,'unodb::detail']]],
-  ['must_5frestart_1',['must_restart',['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160',1,'unodb::optimistic_lock::read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435',1,'unodb::optimistic_lock::write_guard::must_restart()']]]
+  ['key_5fbuffer_0',['key_buffer',['../classunodb_1_1detail_1_1key__buffer.html#aa2f1990980281226761af423b36fe6ba',1,'unodb::detail::key_buffer']]],
+  ['key_5fdecoder_1',['key_decoder',['../classunodb_1_1key__decoder.html#a5a981687f918e9dc94b2426e6289c5db',1,'unodb::key_decoder']]],
+  ['key_5fencoder_2',['key_encoder',['../classunodb_1_1key__encoder.html#a591fe4f824b2a55fea59154ef0b285b7',1,'unodb::key_encoder']]]
 ];

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UnoDB: unodb::detail::basic_inode_impl&lt; ArtPolicy &gt;::iter_result Struct Reference</title>
+<title>UnoDB: unodb::detail::iter_result&lt; NodeHeader &gt; Struct Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search/",'.html');
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('structunodb_1_1detail_1_1iter__result.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -97,39 +97,40 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1basic__inode_
 
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">unodb::detail::basic_inode_impl&lt; ArtPolicy &gt;::iter_result Struct Reference</div></div>
+<a href="structunodb_1_1detail_1_1iter__result-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">unodb::detail::iter_result&lt; NodeHeader &gt; Struct Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="dynheader">
-Inheritance diagram for unodb::detail::basic_inode_impl&lt; ArtPolicy &gt;::iter_result:</div>
+Inheritance diagram for unodb::detail::iter_result&lt; NodeHeader &gt;:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.png" usemap="#unodb::detail::basic_5Finode_5Fimpl_3C_20ArtPolicy_20_3E::iter_5Fresult_map" alt=""/>
-  <map id="unodb::detail::basic_5Finode_5Fimpl_3C_20ArtPolicy_20_3E::iter_5Fresult_map" name="unodb::detail::basic_5Finode_5Fimpl_3C_20ArtPolicy_20_3E::iter_5Fresult_map">
-<area href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html" alt="unodb::olc_db::iterator::stack_entry" shape="rect" coords="0,56,324,80"/>
+  <img src="structunodb_1_1detail_1_1iter__result.png" usemap="#unodb::detail::iter_5Fresult_3C_20NodeHeader_20_3E_map" alt=""/>
+  <map id="unodb::detail::iter_5Fresult_3C_20NodeHeader_20_3E_map" name="unodb::detail::iter_5Fresult_3C_20NodeHeader_20_3E_map">
+<area href="structunodb_1_1db_1_1iterator_1_1stack__entry.html" title="The stack is made up of tuples containing the node pointer, the key_byte, and the child_index." alt="unodb::db&lt; Key &gt;::iterator::stack_entry" shape="rect" coords="0,56,254,80"/>
+<area href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html" title="The [node_ptr] is never [nullptr] and points to the internal node or leaf for that step in the path f..." alt="unodb::olc_db&lt; Key &gt;::iterator::stack_entry" shape="rect" coords="264,56,518,80"/>
   </map>
 </div></div>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
-Public Member Functions</h2></td></tr>
-<tr class="memitem:a1c187bdbae2d06464a32d15c38b4f8a9" id="r_a1c187bdbae2d06464a32d15c38b4f8a9"><td class="memItemLeft" align="right" valign="top"><a id="a1c187bdbae2d06464a32d15c38b4f8a9" name="a1c187bdbae2d06464a32d15c38b4f8a9"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html">iter_result</a> &amp;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">other</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a1c187bdbae2d06464a32d15c38b4f8a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:ab22270fae893b795cee9f4d663950f41" id="r_ab22270fae893b795cee9f4d663950f41"><td class="memItemLeft" align="right" valign="top"><a id="ab22270fae893b795cee9f4d663950f41" name="ab22270fae893b795cee9f4d663950f41"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>node_ptr</b> = <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>&lt; NodeHeader &gt;</td></tr>
+<tr class="separator:ab22270fae893b795cee9f4d663950f41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a5d4f2f2452554e4928a09751cf7b71a8" id="r_a5d4f2f2452554e4928a09751cf7b71a8"><td class="memItemLeft" align="right" valign="top"><a id="a5d4f2f2452554e4928a09751cf7b71a8" name="a5d4f2f2452554e4928a09751cf7b71a8"></a>
-node_ptr&#160;</td><td class="memItemRight" valign="bottom"><b>node</b></td></tr>
-<tr class="separator:a5d4f2f2452554e4928a09751cf7b71a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e3a524a69ac84288e3e2d436c4e0006" id="r_a6e3a524a69ac84288e3e2d436c4e0006"><td class="memItemLeft" align="right" valign="top"><a id="a6e3a524a69ac84288e3e2d436c4e0006" name="a6e3a524a69ac84288e3e2d436c4e0006"></a>
+<tr class="memitem:a854585e8656a3b42ae0e48a97d2f970a" id="r_a854585e8656a3b42ae0e48a97d2f970a"><td class="memItemLeft" align="right" valign="top"><a id="a854585e8656a3b42ae0e48a97d2f970a" name="a854585e8656a3b42ae0e48a97d2f970a"></a>
+<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>node</b></td></tr>
+<tr class="separator:a854585e8656a3b42ae0e48a97d2f970a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af629f13328e6b7ebd271a9939d7559a8" id="r_af629f13328e6b7ebd271a9939d7559a8"><td class="memItemLeft" align="right" valign="top"><a id="af629f13328e6b7ebd271a9939d7559a8" name="af629f13328e6b7ebd271a9939d7559a8"></a>
 std::byte&#160;</td><td class="memItemRight" valign="bottom"><b>key_byte</b></td></tr>
-<tr class="separator:a6e3a524a69ac84288e3e2d436c4e0006"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7074424d864748d00d89f1a4203e04af" id="r_a7074424d864748d00d89f1a4203e04af"><td class="memItemLeft" align="right" valign="top"><a id="a7074424d864748d00d89f1a4203e04af" name="a7074424d864748d00d89f1a4203e04af"></a>
+<tr class="separator:af629f13328e6b7ebd271a9939d7559a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a985b95e52360b47cc69e53c0ab48946e" id="r_a985b95e52360b47cc69e53c0ab48946e"><td class="memItemLeft" align="right" valign="top"><a id="a985b95e52360b47cc69e53c0ab48946e" name="a985b95e52360b47cc69e53c0ab48946e"></a>
 std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>child_index</b></td></tr>
-<tr class="separator:a7074424d864748d00d89f1a4203e04af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a985b95e52360b47cc69e53c0ab48946e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>
@@ -139,7 +140,7 @@ std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>child_index</
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="namespaceunodb.html">unodb</a></li><li class="navelem"><a class="el" href="namespaceunodb_1_1detail.html">detail</a></li><li class="navelem"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">basic_inode_impl</a></li><li class="navelem"><a class="el" href="structunodb_1_1detail_1_1basic__inode__impl_1_1iter__result.html">iter_result</a></li>
+    <li class="navelem"><a class="el" href="namespaceunodb.html">unodb</a></li><li class="navelem"><a class="el" href="namespaceunodb_1_1detail.html">detail</a></li><li class="navelem"><a class="el" href="structunodb_1_1detail_1_1iter__result.html">iter_result</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

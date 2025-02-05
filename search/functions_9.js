@@ -1,10 +1,8 @@
 var searchData=
 [
-  ['operator_20t_0',['operator T',['../classunodb_1_1in__critical__section.html#af7268c9424f0844c880389d60ad4e830',1,'unodb::in_critical_section']]],
-  ['operator_21_3d_1',['operator!=',['../classunodb_1_1in__critical__section.html#a92b23cb51bcfebbdebec16d11a453c81',1,'unodb::in_critical_section']]],
-  ['operator_2b_2b_2',['operator++',['../classunodb_1_1in__critical__section.html#a0cd8c9f07cbca9b3b93cd4b5814f5625',1,'unodb::in_critical_section']]],
-  ['operator_2d_2d_3',['operator--',['../classunodb_1_1in__critical__section.html#a0655f4a46aed0d1fc21d104e292135d5',1,'unodb::in_critical_section::operator--() noexcept'],['../classunodb_1_1in__critical__section.html#a7b3e9ea64b614801d119993760eb4878',1,'unodb::in_critical_section::operator--(int) noexcept']]],
-  ['operator_3d_4',['operator=',['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#a6824edf72423338a0da364766d9b952e',1,'unodb::optimistic_lock::read_critical_section::operator=()'],['../classunodb_1_1in__critical__section.html#a71f6134853dcc0b0fa250243c927b1be',1,'unodb::in_critical_section::operator=(T new_value) noexcept'],['../classunodb_1_1in__critical__section.html#ac186349fdfd470c8b24ffd1465820a71',1,'unodb::in_critical_section::operator=(const in_critical_section&lt; T &gt; &amp;new_value) noexcept']]],
-  ['operator_3d_3d_5',['operator==',['../classunodb_1_1optimistic__lock_1_1version__type.html#ab244755dfb33f13321ba1d18f37e8b74',1,'unodb::optimistic_lock::version_type::operator==()'],['../classunodb_1_1in__critical__section.html#ac76f8e415847139d2298bffad30704b3',1,'unodb::in_critical_section::operator==()']]],
-  ['optimistic_5flock_6',['optimistic_lock',['../classunodb_1_1optimistic__lock.html#a0733ad84e6f45d73043b661275f60b2a',1,'unodb::optimistic_lock']]]
+  ['last_0',['last',['../classunodb_1_1db_1_1iterator.html#a49abd1a9feda382a28b522b49d2ab834',1,'unodb::db::iterator::last()'],['../classunodb_1_1olc__db_1_1iterator.html#afb17ba1d9bfd6b3246ea6990aec1862a',1,'unodb::olc_db::iterator::last()']]],
+  ['left_5fmost_5ftraversal_1',['left_most_traversal',['../classunodb_1_1db_1_1iterator.html#a7e1ed063c879501558d5b7c88b7546ab',1,'unodb::db::iterator']]],
+  ['load_2',['load',['../classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f',1,'unodb::in_critical_section']]],
+  ['load_5facquire_3',['load_acquire',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#ab1bd489f032fd876be87fdda82ec0fb3',1,'unodb::optimistic_lock::atomic_version_type']]],
+  ['load_5frelaxed_4',['load_relaxed',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#a58e25f698739d17ed135f6940e31674d',1,'unodb::optimistic_lock::atomic_version_type']]]
 ];

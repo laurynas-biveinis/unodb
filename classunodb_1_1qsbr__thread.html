@@ -113,15 +113,15 @@ Inheritance diagram for unodb::qsbr_thread:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:acc58b8a96e43a706c9e39f36a379676e" id="r_acc58b8a96e43a706c9e39f36a379676e"><td class="memTemplParams" colspan="2"><a id="acc58b8a96e43a706c9e39f36a379676e" name="acc58b8a96e43a706c9e39f36a379676e"></a>
-template&lt;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">typename</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">Function</a> , typename... Args, <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">class</a>  = std::enable_if_t&lt;                !std::is_same_v&lt;remove_cvref_t&lt;Function&gt;, qsbr_thread&gt;&gt;&gt; </td></tr>
-<tr class="memitem:acc58b8a96e43a706c9e39f36a379676e"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>qsbr_thread</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">Function</a> &amp;&amp;f, <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">Args</a> &amp;&amp;...<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">args</a>)</td></tr>
+template&lt;typename Function , typename... Args, class  = std::enable_if_t&lt;                !std::is_same_v&lt;remove_cvref_t&lt;Function&gt;, qsbr_thread&gt;&gt;&gt; </td></tr>
+<tr class="memitem:acc58b8a96e43a706c9e39f36a379676e"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>qsbr_thread</b> (Function &amp;&amp;f, Args &amp;&amp;...args)</td></tr>
 <tr class="separator:acc58b8a96e43a706c9e39f36a379676e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
 <tr class="memitem:a69dac57f7d17cbb04c13b3e89f65c9a0" id="r_a69dac57f7d17cbb04c13b3e89f65c9a0"><td class="memTemplParams" colspan="2"><a id="a69dac57f7d17cbb04c13b3e89f65c9a0" name="a69dac57f7d17cbb04c13b3e89f65c9a0"></a>
-template&lt;<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">typename</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">Function</a> , typename... Args&gt; </td></tr>
-<tr class="memitem:a69dac57f7d17cbb04c13b3e89f65c9a0"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">static</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">auto</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_qsbr_thread</b> (<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">Function</a> &amp;&amp;f, <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">Args</a> &amp;&amp;...<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">args</a>)</td></tr>
+template&lt;typename Function , typename... Args&gt; </td></tr>
+<tr class="memitem:a69dac57f7d17cbb04c13b3e89f65c9a0"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_qsbr_thread</b> (Function &amp;&amp;f, Args &amp;&amp;...args)</td></tr>
 <tr class="separator:a69dac57f7d17cbb04c13b3e89f65c9a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following file:<ul>

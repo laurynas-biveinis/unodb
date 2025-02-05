@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['version_5ftype_0',['version_type',['../classunodb_1_1optimistic__lock_1_1version__type.html',1,'unodb::optimistic_lock']]],
-  ['visitor_1',['visitor',['../classunodb_1_1visitor.html',1,'unodb']]]
+  ['write_5fguard_0',['write_guard',['../classunodb_1_1optimistic__lock_1_1write__guard.html',1,'unodb::optimistic_lock']]]
 ];

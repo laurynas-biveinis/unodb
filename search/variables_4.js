@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['node_5ftype_5fcount_0',['node_type_count',['../namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc',1,'unodb::detail']]]
+  ['hardware_5fconstructive_5finterference_5fsize_0',['hardware_constructive_interference_size',['../namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89',1,'unodb::detail']]],
+  ['hardware_5fdestructive_5finterference_5fsize_1',['hardware_destructive_interference_size',['../namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c',1,'unodb::detail']]]
 ];

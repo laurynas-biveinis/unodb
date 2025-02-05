@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UnoDB: unodb::detail::tree_depth Class Reference</title>
+<title>UnoDB: unodb::detail::tree_depth&lt; ArtKey &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -101,38 +101,47 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1tree__depth.ht
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="classunodb_1_1detail_1_1tree__depth-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">unodb::detail::tree_depth Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
+  <div class="headertitle"><div class="title">unodb::detail::tree_depth&lt; ArtKey &gt; Class Template Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>A typed class representing the number of key bytes consumed along some path in the tree.  
+ <a href="classunodb_1_1detail_1_1tree__depth.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a21d403e1443fe81ad26eefd5f806b207" id="r_a21d403e1443fe81ad26eefd5f806b207"><td class="memItemLeft" align="right" valign="top"><a id="a21d403e1443fe81ad26eefd5f806b207" name="a21d403e1443fe81ad26eefd5f806b207"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">unsigned</a></td></tr>
-<tr class="separator:a21d403e1443fe81ad26eefd5f806b207"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38f215bf29e4389cdea148492b4cb5c7" id="r_a38f215bf29e4389cdea148492b4cb5c7"><td class="memItemLeft" align="right" valign="top"><a id="a38f215bf29e4389cdea148492b4cb5c7" name="a38f215bf29e4389cdea148492b4cb5c7"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = std::uint32_t</td></tr>
+<tr class="separator:a38f215bf29e4389cdea148492b4cb5c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a642d1dd4910cc2fff8b7cec53260ade4" id="r_a642d1dd4910cc2fff8b7cec53260ade4"><td class="memItemLeft" align="right" valign="top"><a id="a642d1dd4910cc2fff8b7cec53260ade4" name="a642d1dd4910cc2fff8b7cec53260ade4"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>tree_depth</b> (value_type <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">value_</a>=0) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a642d1dd4910cc2fff8b7cec53260ade4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a836fb74c3350848a20e7545f228654e8" id="r_a836fb74c3350848a20e7545f228654e8"><td class="memItemLeft" align="right" valign="top"><a id="a836fb74c3350848a20e7545f228654e8" name="a836fb74c3350848a20e7545f228654e8"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator value_type</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">const</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a836fb74c3350848a20e7545f228654e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa1122013225d710d9b963450ee97b8ca" id="r_aa1122013225d710d9b963450ee97b8ca"><td class="memItemLeft" align="right" valign="top"><a id="aa1122013225d710d9b963450ee97b8ca" name="aa1122013225d710d9b963450ee97b8ca"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator++</b> () <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:aa1122013225d710d9b963450ee97b8ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a65c868fdfe22046335e4793c0c7935be" id="r_a65c868fdfe22046335e4793c0c7935be"><td class="memItemLeft" align="right" valign="top"><a id="a65c868fdfe22046335e4793c0c7935be" name="a65c868fdfe22046335e4793c0c7935be"></a>
-<a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">constexpr</a> <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator+=</b> (value_type <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">delta</a>) <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">noexcept</a></td></tr>
-<tr class="separator:a65c868fdfe22046335e4793c0c7935be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a762c757dd0b60c7586282b6877b5c261" id="r_a762c757dd0b60c7586282b6877b5c261"><td class="memItemLeft" align="right" valign="top"><a id="a762c757dd0b60c7586282b6877b5c261" name="a762c757dd0b60c7586282b6877b5c261"></a>
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>tree_depth</b> (value_type value_=0) noexcept</td></tr>
+<tr class="separator:a762c757dd0b60c7586282b6877b5c261"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a769246d0679d57f662d7d2fbf5f544e2" id="r_a769246d0679d57f662d7d2fbf5f544e2"><td class="memItemLeft" align="right" valign="top"><a id="a769246d0679d57f662d7d2fbf5f544e2" name="a769246d0679d57f662d7d2fbf5f544e2"></a>
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>operator value_type</b> () const noexcept</td></tr>
+<tr class="separator:a769246d0679d57f662d7d2fbf5f544e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46bb58c1b9e47eecee51003b6afc25a9" id="r_a46bb58c1b9e47eecee51003b6afc25a9"><td class="memItemLeft" align="right" valign="top"><a id="a46bb58c1b9e47eecee51003b6afc25a9" name="a46bb58c1b9e47eecee51003b6afc25a9"></a>
+constexpr <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator++</b> () noexcept</td></tr>
+<tr class="separator:a46bb58c1b9e47eecee51003b6afc25a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98860b6761fce919bb5d33e08cca4fe8" id="r_a98860b6761fce919bb5d33e08cca4fe8"><td class="memItemLeft" align="right" valign="top"><a id="a98860b6761fce919bb5d33e08cca4fe8" name="a98860b6761fce919bb5d33e08cca4fe8"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>operator+=</b> (value_type delta) noexcept</td></tr>
+<tr class="separator:a98860b6761fce919bb5d33e08cca4fe8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:aafcc3ba74d3d5018d8c89df6c5a2f330" id="r_aafcc3ba74d3d5018d8c89df6c5a2f330"><td class="memItemLeft" align="right" valign="top"><a id="aafcc3ba74d3d5018d8c89df6c5a2f330" name="aafcc3ba74d3d5018d8c89df6c5a2f330"></a>
+<tr class="memitem:aa775c15a99346d1b8c0776c410b173ce" id="r_aa775c15a99346d1b8c0776c410b173ce"><td class="memItemLeft" align="right" valign="top"><a id="aa775c15a99346d1b8c0776c410b173ce" name="aa775c15a99346d1b8c0776c410b173ce"></a>
 value_type&#160;</td><td class="memItemRight" valign="bottom"><b>value</b></td></tr>
-<tr class="separator:aafcc3ba74d3d5018d8c89df6c5a2f330"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:aa775c15a99346d1b8c0776c410b173ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;typename ArtKey&gt;<br />
+class unodb::detail::tree_depth&lt; ArtKey &gt;</div><p>A typed class representing the number of key bytes consumed along some path in the tree. </p>
+<p>In general, the <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The key_prefix is a sequence of zero or more bytes for a given node that are a common prefix shared b...">unodb::detail::key_prefix</a> consumes up to some fixed number of bytes and one byte is consumed based on the key_byte for each node as we descend along that byte value to some child index. </p>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a></li>
 </ul>
 </div><!-- contents -->

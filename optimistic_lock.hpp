@@ -5,6 +5,10 @@
 /// \file
 /// The optimistic lock.
 ///
+/// \ingroup optimistic-lock
+
+/// \addtogroup optimistic-lock
+/// \{
 /// # Overview
 ///
 /// A version-based optimistic lock that supports single-writer/multiple-readers
@@ -203,6 +207,7 @@
 ///
 /// The optimistic lock is also similar to Linux kernel sequential locks with
 /// the addition of an obsolete state for data marked for reclamation.
+/// \}
 
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
@@ -275,7 +280,11 @@ using version_tag_type = std::uint64_t;
 /// comparing the version counter before and after the reads. Instances are
 /// non-copyable and non-moveable.
 ///
-/// See file-level documentation for usage examples and protocols.
+/// See \ref optimistic-lock for usage examples and protocols.
+///
+/// To support reusing the same code for single-threaded context too, there is a
+/// no-op counterpart: unodb::fake_optimistic_lock, enabling templatizing on the
+/// lock type and passing either class as needed.
 class [[nodiscard]] optimistic_lock final {
  public:
   /// Non-atomic lock word representation. Used for copying and manipulating
@@ -437,6 +446,10 @@ class [[nodiscard]] optimistic_lock final {
   /// 3. The RCS was unlocked or the underlying lock has been write-locked since
   ///    the RCS was created, and this has been detected by a try_read_unlock()
   ///    or check() call. The RCS is no longer valid.
+  ///
+  /// To support reusing the same code for single-threaded contexts too, there
+  /// is a no-op counterpart: unodb::fake_read_critical_section, enabling
+  /// templatizing on the RCS type and passing the either class as needed.
   ///
   /// Internally the obsolete state (and in the debug builds, the unlocked /
   /// underlying lock write locked state too) is represented by
@@ -855,6 +868,11 @@ static_assert(sizeof(optimistic_lock) == 24);
 /// as required by the optimistic lock memory model. The instances are
 /// non-moveable and non-copy-constructable but the assignments both from the
 /// wrapped values and plain value type are supported.
+///
+/// To support reusing the same code for single-threaded context too, there is a
+/// no-op counterpart: unodb::in_fake_critical_section, enabling templatizing on
+/// the wrapper type and passing either class as needed.
+///
 /// Implements the required set of transparent operations, extend as necessary.
 template <typename T>
 class [[nodiscard]] in_critical_section final {
@@ -870,17 +888,17 @@ class [[nodiscard]] in_critical_section final {
   /// Destruct the wrapped value.
   ~in_critical_section() noexcept = default;
 
-  /// Assign \a new_value to the wrapped value.
-  in_critical_section<T> &operator=(T new_value) noexcept {
-    store(new_value);
+  /// Copy-assign another wrapped value.
+  // NOLINTNEXTLINE(cert-oop54-cpp)
+  in_critical_section &operator=(
+      const in_critical_section &new_value) noexcept {
+    store(new_value.load());
     return *this;
   }
 
-  /// Copy-assign another wrapped value.
-  // NOLINTNEXTLINE(cert-oop54-cpp)
-  in_critical_section<T> &operator=(
-      const in_critical_section<T> &new_value) noexcept {
-    store(new_value.load());
+  /// Assign \a new_value to the wrapped value.
+  in_critical_section &operator=(T new_value) noexcept {
+    store(new_value);
     return *this;
   }
 
@@ -925,9 +943,9 @@ class [[nodiscard]] in_critical_section final {
     value.store(new_value, std::memory_order_relaxed);
   }
 
-  in_critical_section(const in_critical_section<T> &) = delete;
-  in_critical_section(in_critical_section<T> &&) = delete;
-  void operator=(in_critical_section<T> &&) = delete;
+  in_critical_section(const in_critical_section &) = delete;
+  in_critical_section(in_critical_section &&) = delete;
+  void operator=(in_critical_section &&) = delete;
 
  private:
   /// The wrapped value.

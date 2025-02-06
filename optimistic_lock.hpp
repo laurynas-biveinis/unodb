@@ -393,15 +393,20 @@ class [[nodiscard]] optimistic_lock final {
     /// Atomically clear the write lock bit with release memory ordering.
     /// The version number is preserved.
     /// \pre The write lock bit must be set.
-    void write_unlock() noexcept {
+    void write_unlock(version_tag_type word_for_unlock) noexcept {
+#ifndef NDEBUG
+      UNODB_DETAIL_ASSERT(version_type{word_for_unlock}.is_free());
       // This thread has written the previous lock word value, and no other
       // thread may write it before the unlock, thus we can read it without
       // ordering.
       const auto old_lock_word = load_relaxed();
       UNODB_DETAIL_ASSERT(old_lock_word.is_write_locked());
+      UNODB_DETAIL_ASSERT(
+          (word_for_unlock >> 2U) - (old_lock_word.get() >> 2U) == 1);
+      UNODB_DETAIL_ASSERT(old_lock_word.get() + 2 == word_for_unlock);
+#endif
 
-      const auto new_lock_word = old_lock_word.get() + 2;
-      version.store(new_lock_word, std::memory_order_release);
+      version.store(word_for_unlock, std::memory_order_release);
     }
 
     /// Atomically clear the set write lock bit and set the obsolete bit with
@@ -604,12 +609,14 @@ class [[nodiscard]] optimistic_lock final {
     /// \note write_guard::must_restart must be called on the created instance
     /// to check for success.
     explicit write_guard(read_critical_section &&critical_section) noexcept
-        : lock{try_lock_upgrade(std::move(critical_section))} {}
+        : lock{try_lock_upgrade(critical_section)} {
+      if (lock != nullptr) word_for_unlock = critical_section.get() + 4;
+    }
 
     /// Unlock if needed and destruct the write guard.
     ~write_guard() noexcept {
       if (lock == nullptr) return;
-      lock->write_unlock();
+      lock->write_unlock(word_for_unlock);
     }
 
     /// Check whether this write guard failed to acquire the write lock. Must be
@@ -633,7 +640,7 @@ class [[nodiscard]] optimistic_lock final {
     /// \pre The write guard must be active (write_guard::must_restart returned
     /// false).
     void unlock() noexcept {
-      lock->write_unlock();
+      lock->write_unlock(word_for_unlock);
       lock = nullptr;
     }
 
@@ -658,7 +665,7 @@ class [[nodiscard]] optimistic_lock final {
     /// \return the write-locked lock if upgrade succeeded, `nullptr` if the RCS
     /// version did not match the current lock version
     [[nodiscard]] static optimistic_lock *try_lock_upgrade(
-        read_critical_section &&critical_section) noexcept {
+        read_critical_section &critical_section) noexcept {
       const auto upgrade_success =
           critical_section.lock->try_upgrade_to_write_lock(
               critical_section.version);
@@ -673,6 +680,8 @@ class [[nodiscard]] optimistic_lock final {
 
     /// The underlying lock. If `nullptr`, this WG is inactive.
     optimistic_lock *lock{nullptr};
+
+    version_tag_type word_for_unlock;
   };  // class write_guard
 
   /// Construct a new optimistic lock.
@@ -804,7 +813,9 @@ class [[nodiscard]] optimistic_lock final {
 
   /// Write unlock this lock.
   /// \pre The lock must be write-locked.
-  void write_unlock() noexcept { version.write_unlock(); }
+  void write_unlock(version_tag_type word_for_unlock) noexcept {
+    version.write_unlock(word_for_unlock);
+  }
 
   /// Atomically write unlock and obsolete this lock.
   /// \pre The lock must be write-locked.

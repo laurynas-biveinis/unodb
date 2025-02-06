@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: ${{ matrix.TESTS == 'ON' || matrix.BENCHMARKS == 'ON' }}
 
       - name: Setup Boost
         run: sudo apt-get install -y libboost-dev

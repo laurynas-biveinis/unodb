@@ -213,7 +213,8 @@ std::thread::id&#160;</td><td class="memItemRight" valign="bottom"><b>obsoleter_
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations. </p>
 <p>Writers bump the version counter and readers detect concurrent writes by comparing the version counter before and after the reads. Instances are non-copyable and non-moveable.</p>
-<p>See file-level documentation for usage examples and protocols. </p>
+<p>See <a class="el" href="group__optimistic-lock.html">Optimistic Locking</a> for usage examples and protocols.</p>
+<p>To support reusing the same code for single-threaded context too, there is a no-op counterpart: unodb::fake_optimistic_lock, enabling templatizing on the lock type and passing either class as needed. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a87019ebcc11a4033acddd2b810adb490" name="a87019ebcc11a4033acddd2b810adb490"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a87019ebcc11a4033acddd2b810adb490">&#9670;&#160;</a></span>check()</h2>

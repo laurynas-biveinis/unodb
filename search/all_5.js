@@ -1,7 +1,7 @@
 var searchData=
 [
   ['data_0',['data',['../classunodb_1_1detail_1_1basic__leaf.html#a9b9efcf5222a040cac645af90218351b',1,'unodb::detail::basic_leaf']]],
-  ['data_20declaration_1',['Protected data declaration',['../optimistic__lock_8hpp.html#autotoc_md17',1,'']]],
+  ['data_20declaration_1',['Protected data declaration',['../group__optimistic-lock.html#autotoc_md17',1,'']]],
   ['db_2',['db',['../classunodb_1_1db.html',1,'unodb']]],
   ['db_5f_3',['db_',['../classunodb_1_1db_1_1iterator.html#ad1c2814bb4526e103d7227b1850e1f61',1,'unodb::db::iterator::db_'],['../classunodb_1_1olc__db_1_1iterator.html#a1c2a1ad956ccc841e76ecefcafde8aa9',1,'unodb::olc_db::iterator::db_']]],
   ['db_5finode_5fqsbr_5fdeleter_4',['db_inode_qsbr_deleter',['../classunodb_1_1detail_1_1db__inode__qsbr__deleter.html',1,'unodb::detail']]],
@@ -9,7 +9,7 @@ var searchData=
   ['dealloc_5fvector_5flist_5fnode_6',['dealloc_vector_list_node',['../structunodb_1_1detail_1_1dealloc__vector__list__node.html',1,'unodb::detail']]],
   ['deallocation_5frequest_7',['deallocation_request',['../structunodb_1_1detail_1_1deallocation__request.html',1,'unodb::detail']]],
   ['dec_5fread_5flock_5fcount_8',['dec_read_lock_count',['../classunodb_1_1optimistic__lock.html#a089b1cee3747f7a42618fca56db4b03b',1,'unodb::optimistic_lock']]],
-  ['declaration_9',['Protected data declaration',['../optimistic__lock_8hpp.html#autotoc_md17',1,'']]],
+  ['declaration_9',['Protected data declaration',['../group__optimistic-lock.html#autotoc_md17',1,'']]],
   ['decode_10',['decode',['../classunodb_1_1key__decoder.html#ab55c46b5c81a46ab6d18f680f78ec390',1,'unodb::key_decoder::decode(std::uint64_t &amp;v)'],['../classunodb_1_1key__decoder.html#a4abc4ff5e3588d965f64d90684e5cbba',1,'unodb::key_decoder::decode(std::uint32_t &amp;v)'],['../classunodb_1_1key__decoder.html#a9413e95321ebf0e638fb63de663d9473',1,'unodb::key_decoder::decode(std::uint16_t &amp;v)'],['../classunodb_1_1key__decoder.html#aef99af6cd66c44627b1f515b9495b2f3',1,'unodb::key_decoder::decode(std::uint8_t &amp;v)'],['../classunodb_1_1key__decoder.html#a49a783f141de5968adbc702ec513f560',1,'unodb::key_decoder::decode(std::int32_t &amp;v)'],['../classunodb_1_1key__decoder.html#af83611f8cd28cc0cd95189d13d073b38',1,'unodb::key_decoder::decode(std::int16_t &amp;v)'],['../classunodb_1_1key__decoder.html#ad0b81c81e08f51c02aa0bf02c2da36e1',1,'unodb::key_decoder::decode(std::int8_t &amp;v)'],['../classunodb_1_1key__decoder.html#a8ba7dbdf11528130da1c4c37831d7e6f',1,'unodb::key_decoder::decode(std::int64_t &amp;v)']]],
   ['deferred_5frequests_11',['deferred_requests',['../classunodb_1_1detail_1_1deferred__requests.html',1,'unodb::detail']]],
   ['delete_5fdb_5fnode_5fptr_5fat_5fscope_5fexit_12',['delete_db_node_ptr_at_scope_exit',['../structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html',1,'unodb::detail::basic_art_policy']]],

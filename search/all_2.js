@@ -7,7 +7,7 @@ var searchData=
   ['amazon_20linux_202023_4',['Amazon Linux 2023',['../index.html#autotoc_md31',1,'']]],
   ['analysis_5',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
   ['and_20static_20analysis_6',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
-  ['api_20conventions_7',['API conventions',['../optimistic__lock_8hpp.html#autotoc_md16',1,'']]],
+  ['api_20conventions_7',['API conventions',['../group__optimistic-lock.html#autotoc_md16',1,'']]],
   ['as_20git_20submodules_8',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
   ['as_5fi_9',['as_i',['../namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1',1,'unodb']]],
   ['assert_2ehpp_10',['assert.hpp',['../assert_8hpp.html',1,'']]],

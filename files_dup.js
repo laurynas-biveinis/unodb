@@ -10,7 +10,7 @@ var files_dup =
     [ "assert.hpp", "assert_8hpp.html", "assert_8hpp" ],
     [ "global.hpp", "global_8hpp.html", "global_8hpp" ],
     [ "heap.hpp", "heap_8hpp_source.html", null ],
-    [ "in_fake_critical_section.hpp", "in__fake__critical__section_8hpp_source.html", null ],
+    [ "in_fake_critical_section.hpp", "in__fake__critical__section_8hpp.html", "in__fake__critical__section_8hpp" ],
     [ "mutex_art.hpp", "mutex__art_8hpp_source.html", null ],
     [ "node_type.hpp", "node__type_8hpp.html", "node__type_8hpp" ],
     [ "olc_art.hpp", "olc__art_8hpp_source.html", null ],

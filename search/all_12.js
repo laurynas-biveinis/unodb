@@ -1,7 +1,7 @@
 var searchData=
 [
   ['radix_20tree_0',['Adaptive Radix Tree',['../index.html#autotoc_md35',1,'']]],
-  ['read_20protocol_1',['Read protocol',['../optimistic__lock_8hpp.html#autotoc_md18',1,'']]],
+  ['read_20protocol_1',['Read protocol',['../group__optimistic-lock.html#autotoc_md18',1,'']]],
   ['read_5fcritical_5fsection_2',['read_critical_section',['../classunodb_1_1optimistic__lock_1_1read__critical__section.html',1,'unodb::optimistic_lock::read_critical_section'],['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#a59505c615c141f53ffcd287be14e6c7f',1,'unodb::optimistic_lock::read_critical_section::read_critical_section() noexcept=default'],['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#a14642a96d32e2858bbc0e2f19463b44a',1,'unodb::optimistic_lock::read_critical_section::read_critical_section(optimistic_lock &amp;lock_, version_type version_) noexcept']]],
   ['read_5flock_5fcount_3',['read_lock_count',['../classunodb_1_1optimistic__lock.html#a533b7c85785d3da0427152ec1312d6ac',1,'unodb::optimistic_lock']]],
   ['reclamation_4',['Quiescent State-Based Reclamation',['../group__qsbr.html',1,'']]],

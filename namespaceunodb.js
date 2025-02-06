@@ -2,10 +2,10 @@ var namespaceunodb =
 [
     [ "detail", "namespaceunodb_1_1detail.html", "namespaceunodb_1_1detail" ],
     [ "db", "classunodb_1_1db.html", "classunodb_1_1db" ],
-    [ "fake_lock", "classunodb_1_1fake__lock.html", null ],
-    [ "fake_read_critical_section", "classunodb_1_1fake__read__critical__section.html", null ],
+    [ "fake_lock", "classunodb_1_1fake__lock.html", "classunodb_1_1fake__lock" ],
+    [ "fake_read_critical_section", "classunodb_1_1fake__read__critical__section.html", "classunodb_1_1fake__read__critical__section" ],
     [ "in_critical_section", "classunodb_1_1in__critical__section.html", "classunodb_1_1in__critical__section" ],
-    [ "in_fake_critical_section", "classunodb_1_1in__fake__critical__section.html", null ],
+    [ "in_fake_critical_section", "classunodb_1_1in__fake__critical__section.html", "classunodb_1_1in__fake__critical__section" ],
     [ "key_decoder", "classunodb_1_1key__decoder.html", "classunodb_1_1key__decoder" ],
     [ "key_encoder", "classunodb_1_1key__encoder.html", "classunodb_1_1key__encoder" ],
     [ "mutex_db", "classunodb_1_1mutex__db.html", "classunodb_1_1mutex__db" ],

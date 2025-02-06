@@ -9,8 +9,8 @@ var classunodb_1_1in__critical__section =
     [ "operator++", "classunodb_1_1in__critical__section.html#a0cd8c9f07cbca9b3b93cd4b5814f5625", null ],
     [ "operator--", "classunodb_1_1in__critical__section.html#a0655f4a46aed0d1fc21d104e292135d5", null ],
     [ "operator--", "classunodb_1_1in__critical__section.html#a7b3e9ea64b614801d119993760eb4878", null ],
-    [ "operator=", "classunodb_1_1in__critical__section.html#ac186349fdfd470c8b24ffd1465820a71", null ],
-    [ "operator=", "classunodb_1_1in__critical__section.html#a71f6134853dcc0b0fa250243c927b1be", null ],
+    [ "operator=", "classunodb_1_1in__critical__section.html#a5b7855225bdf6c84be43051e516bd327", null ],
+    [ "operator=", "classunodb_1_1in__critical__section.html#a8b104f8061125989911a501cadeef3ec", null ],
     [ "operator==", "classunodb_1_1in__critical__section.html#ac76f8e415847139d2298bffad30704b3", null ],
     [ "store", "classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556", null ],
     [ "value", "classunodb_1_1in__critical__section.html#a477db9235622c80e33aad4249fe0bdb7", null ]

@@ -6,11 +6,11 @@ var searchData=
   ['matches_3',['matches',['../classunodb_1_1detail_1_1basic__leaf.html#a3fb5bc240211394284d1880d0e512cbe',1,'unodb::detail::basic_leaf']]],
   ['max_5fkey_5fsize_4',['max_key_size',['../classunodb_1_1detail_1_1basic__leaf.html#aad0f48689bee75c4df7ea93296657094',1,'unodb::detail::basic_leaf']]],
   ['max_5fvalue_5fsize_5',['max_value_size',['../classunodb_1_1detail_1_1basic__leaf.html#a2ae66a23e391de1745d9144f4279296c',1,'unodb::detail::basic_leaf']]],
-  ['memory_20model_6',['Memory model',['../optimistic__lock_8hpp.html#autotoc_md21',1,'']]],
+  ['memory_20model_6',['Memory model',['../group__optimistic-lock.html#autotoc_md21',1,'']]],
   ['messages_7',['Commit messages',['../md_CONTRIBUTING.html#autotoc_md10',1,'']]],
-  ['model_8',['Memory model',['../optimistic__lock_8hpp.html#autotoc_md21',1,'']]],
+  ['model_8',['Memory model',['../group__optimistic-lock.html#autotoc_md21',1,'']]],
   ['msb8_9',['msb8',['../classunodb_1_1key__decoder.html#aa802fb814869f0e416a7c98ece5cb5c4',1,'unodb::key_decoder']]],
   ['msg_5fstacktrace_5fabort_10',['msg_stacktrace_abort',['../namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2',1,'unodb::detail']]],
-  ['must_5frestart_11',['must_restart',['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160',1,'unodb::optimistic_lock::read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435',1,'unodb::optimistic_lock::write_guard::must_restart()']]],
+  ['must_5frestart_11',['must_restart',['../classunodb_1_1fake__read__critical__section.html#ad1bbceea9fc44696afb0cedb51db2a05',1,'unodb::fake_read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160',1,'unodb::optimistic_lock::read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435',1,'unodb::optimistic_lock::write_guard::must_restart()']]],
   ['mutex_5fdb_12',['mutex_db',['../classunodb_1_1mutex__db.html',1,'unodb']]]
 ];

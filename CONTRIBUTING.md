@@ -244,7 +244,7 @@ results but should exclude some classes of invalid ones:
   ```bash
   python3 ../../../3rd_party/benchmark/tools/compare.py benchmarks \
      /foo/bar/baseline/micro_benchmark_olc \
-     ./micro_benchmark_olc --benchmark_repetitions=9
+     ./micro_benchmark_olc --benchmark_repetitions=9 --benchmark_filter='olc_db'
   ```
 
 ## License

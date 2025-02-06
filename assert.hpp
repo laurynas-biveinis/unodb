@@ -11,12 +11,12 @@
 /// \ingroup internal
 
 /// \addtogroup internal
-///@{
+/// @{
 
 // Macros that have multiple definitions are documented once.
 
 /// \name Assertion & assumption macros
-///@{
+/// @{
 
 /// \def UNODB_DETAIL_ASSERT(condition)
 /// \hideinitializer
@@ -207,8 +207,8 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 // LCOV_EXCL_STOP
 
-///@}
+/// @}
 
-///@}
+/// @}
 
 #endif

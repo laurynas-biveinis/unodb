@@ -191,7 +191,7 @@ struct [[nodiscard]] basic_art_key final {
   /// Thus, for a fixed width type, this causes the key to be
   /// logically zero filled as it becomes shorter.  E.g.
   ///
-  /// ```0x0011223344556677 shift_right(2) => 0x2233445566770000```
+  /// `0x0011223344556677 shift_right(2) => 0x2233445566770000`
   constexpr void shift_right(const std::size_t num_bytes) noexcept {
     if constexpr (std::is_same_v<KeyType, key_view>) {
       UNODB_DETAIL_ASSERT(num_bytes <= key.size_bytes());

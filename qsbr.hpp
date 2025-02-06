@@ -2,8 +2,6 @@
 #ifndef UNODB_DETAIL_QSBR_HPP
 #define UNODB_DETAIL_QSBR_HPP
 
-/// \defgroup qsbr Quiescent State-Based Reclamation
-
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
 // HEADER FILES !!!

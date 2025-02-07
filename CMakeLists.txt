@@ -43,8 +43,8 @@ endif()
 set_bool(is_not_msvc_clang ${is_clang} AND NOT ${is_msvc_clang})
 
 option(STANDALONE
-  "Build UnoDB not for linking with outside code. Enables extra global checks, \
-builds benchmarks by default.")
+  "Build UnoDB as a standalone project. Enables extra global checks, builds \
+benchmarks by default.")
 
 option(MAINTAINER_MODE "Maintainer mode: compiler warnings are fatal")
 if(MAINTAINER_MODE)
@@ -355,6 +355,7 @@ else()
 endif()
 
 # Generator expression helpers
+# Platform
 set(is_release_genex "$<CONFIG:Release>")
 set(is_not_release_genex "$<NOT:${is_release_genex}>")
 set(is_not_windows_x86_64 "$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>")
@@ -362,6 +363,7 @@ set(is_windows_x86_64 "$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},AMD64>")
 set(is_windows_genex "$<PLATFORM_ID:Windows>")
 set(is_not_windows "$<NOT:${is_windows_genex}>")
 set(is_linux "$<PLATFORM_ID:Linux>")
+# Compiler
 set(is_gxx_genex "$<CXX_COMPILER_ID:GNU>")
 set(is_clang_genex "$<CXX_COMPILER_ID:Clang>")
 set(is_any_clang_genex "$<CXX_COMPILER_ID:AppleClang,Clang>")
@@ -372,6 +374,7 @@ set(is_clang_cl "$<AND:${is_windows_genex},${is_clang_genex}>")
 set(is_any_msvc "$<OR:${is_msvc},${is_clang_cl}>")
 set(is_x86_64_any_msvc "$<AND:${is_any_msvc},${is_windows_x86_64}>")
 set(is_clang_not_windows "$<AND:${is_clang_genex},${is_not_windows}>")
+# Compiler version
 set(cxx_ge_11 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,11.0>")
 set(cxx_ge_12 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,12.0>")
 set(cxx_lt_13 "$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>")
@@ -383,12 +386,14 @@ set(is_clang_ge_14_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_14}>")
 set(is_gxx_ge_11 "$<AND:${is_gxx_genex},${cxx_ge_11}>")
 set(is_gxx_ge_12 "$<AND:${is_gxx_genex},${cxx_ge_12}>")
 set(is_gxx_ge_14 "$<AND:${is_gxx_genex},${cxx_ge_14}>")
+# Configuration
 set(has_avx2 "$<BOOL:${AVX2}>")
 set(use_boost_stacktrace "$<BOOL:${USE_BOOST_STACKTRACE}>")
 set(with_stats "$<BOOL:${STATS}>")
 set(fatal_warnings_on "$<BOOL:${MAINTAINER_MODE}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
 set(is_standalone "$<BOOL:${STANDALONE}>")
+# Checks across multiple categories
 set(is_gxx_not_release_standalone
   $<AND:${is_gxx_genex},${is_not_release_genex},${is_standalone}>)
 
@@ -622,7 +627,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   cmake_parse_arguments(PARSE_ARGV 1 CTP "SKIP_CHECKS" "" "")
   target_compile_features(${TARGET} PUBLIC cxx_std_20)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
-  target_compile_definitions(${TARGET} PRIVATE
+  target_compile_definitions(${TARGET} PUBLIC
     "$<${is_standalone}:UNODB_DETAIL_STANDALONE>"
     "$<${use_boost_stacktrace}:UNODB_DETAIL_BOOST_STACKTRACE>"
     "$<${with_stats}:UNODB_DETAIL_WITH_STATS>"
@@ -771,14 +776,16 @@ endif()
 
 add_subdirectory(examples)
 
-set(BIN_DIR_CDB "${CMAKE_BINARY_DIR}/compile_commands.json")
-set(SRC_DIR_CDB "${CMAKE_SOURCE_DIR}/compile_commands.json")
+if(STANDALONE)
+  set(BIN_DIR_CDB "${CMAKE_BINARY_DIR}/compile_commands.json")
+  set(SRC_DIR_CDB "${CMAKE_SOURCE_DIR}/compile_commands.json")
 
-# cmake -E create_symlink has Windows implementation, but additional permissions
-# are required.
-if(NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-    ${BIN_DIR_CDB} ${SRC_DIR_CDB})
+  # cmake -E create_symlink has Windows implementation, but additional
+  # permissions are required.
+  if(NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+      ${BIN_DIR_CDB} ${SRC_DIR_CDB})
+  endif()
 endif()
 
 message(STATUS "Build configuration and user-set CMake options:")

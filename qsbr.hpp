@@ -1239,10 +1239,9 @@ class [[nodiscard]] qsbr_thread : public std::thread {
  public:
   using thread::thread;
 
-  template <typename Function, typename... Args,
-            class = std::enable_if_t<
-                !std::is_same_v<remove_cvref_t<Function>, qsbr_thread>>>
+  template <typename Function, typename... Args>
   explicit qsbr_thread(Function &&f, Args &&...args)
+      requires(!std::is_same_v<remove_cvref_t<Function>, qsbr_thread>)
       : std::thread{make_qsbr_thread(std::forward<Function>(f),
                                      std::forward<Args>(args)...)} {}
 

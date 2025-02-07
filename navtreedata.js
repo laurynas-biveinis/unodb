@@ -29,7 +29,7 @@ var NAVTREE =
       [ "Introduction", "index.html#autotoc_md24", null ],
       [ "Requirements", "index.html#autotoc_md25", [
         [ "Build dependencies", "index.html#autotoc_md26", null ],
-        [ "Build dependencies, bundled as git submodules", "index.html#autotoc_md27", null ]
+        [ "Optional vendored dependencies, bundled as git submodules", "index.html#autotoc_md27", null ]
       ] ],
       [ "Building", "index.html#autotoc_md28", null ],
       [ "Platform-Specific Notes", "index.html#autotoc_md29", [

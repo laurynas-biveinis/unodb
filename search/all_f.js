@@ -23,7 +23,8 @@ var searchData=
   ['optimistic_5flock_20',['optimistic_lock',['../classunodb_1_1optimistic__lock.html#a0733ad84e6f45d73043b661275f60b2a',1,'unodb::optimistic_lock::optimistic_lock()'],['../classunodb_1_1optimistic__lock.html',1,'unodb::optimistic_lock']]],
   ['optimistic_5flock_2ehpp_21',['optimistic_lock.hpp',['../optimistic__lock_8hpp.html',1,'']]],
   ['optional_20development_20dependencies_22',['Optional development dependencies',['../md_CONTRIBUTING.html#autotoc_md1',1,'']]],
-  ['options_23',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
-  ['organization_24',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]],
-  ['overview_25',['Overview',['../group__optimistic-lock.html#autotoc_md14',1,'']]]
+  ['optional_20vendored_20dependencies_20bundled_20as_20git_20submodules_23',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
+  ['options_24',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
+  ['organization_25',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]],
+  ['overview_26',['Overview',['../group__optimistic-lock.html#autotoc_md14',1,'']]]
 ];

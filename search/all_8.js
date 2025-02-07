@@ -10,7 +10,7 @@ var searchData=
   ['get_5fval_7',['get_val',['../classunodb_1_1db_1_1iterator.html#ade55efca771c7e7caa2c8a80440a0671',1,'unodb::db::iterator::get_val()'],['../classunodb_1_1olc__db_1_1iterator.html#a0b81d77d02348d5ef341158498c58834',1,'unodb::olc_db::iterator::get_val()']]],
   ['get_5fvalue_8',['get_value',['../classunodb_1_1visitor.html#af6fed2abf8b9a3cc9025df149a06af78',1,'unodb::visitor']]],
   ['get_5fvalue_5fview_9',['get_value_view',['../classunodb_1_1detail_1_1basic__leaf.html#a88d3ef305a3e3e8eae77002f433fd73d',1,'unodb::detail::basic_leaf']]],
-  ['git_20submodules_10',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
+  ['git_20submodules_10',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
   ['global_2ehpp_11',['global.hpp',['../global_8hpp.html',1,'']]],
   ['guards_12',['guards',['../classunodb_1_1optimistic__lock_1_1write__guard.html#a9153f958dcd73cf922b1f255f4338034',1,'unodb::optimistic_lock::write_guard']]],
   ['guide_13',['guide',['../md_CONTRIBUTING.html#autotoc_md5',1,'Code style guide'],['../md_CONTRIBUTING.html#autotoc_md6',1,'Documentation style guide']]]

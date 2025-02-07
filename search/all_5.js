@@ -14,7 +14,7 @@ var searchData=
   ['deferred_5frequests_11',['deferred_requests',['../classunodb_1_1detail_1_1deferred__requests.html',1,'unodb::detail']]],
   ['delete_5fdb_5fnode_5fptr_5fat_5fscope_5fexit_12',['delete_db_node_ptr_at_scope_exit',['../structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html',1,'unodb::detail::basic_art_policy']]],
   ['dependencies_13',['dependencies',['../index.html#autotoc_md26',1,'Build dependencies'],['../md_CONTRIBUTING.html#autotoc_md1',1,'Optional development dependencies']]],
-  ['dependencies_20bundled_20as_20git_20submodules_14',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
+  ['dependencies_20bundled_20as_20git_20submodules_14',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
   ['dependent_5ffalse_15',['dependent_false',['../structunodb_1_1detail_1_1dependent__false.html',1,'unodb::detail']]],
   ['details_16',['Technical Details',['../index.html#autotoc_md34',1,'']]],
   ['development_20cmake_20options_17',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],

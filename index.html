@@ -118,22 +118,28 @@ Requirements</h2>
 Build dependencies</h3>
 <ul>
 <li>Earliest versions of supported compilers: GCC 10, LLVM 11, XCode 16.1, MSVC 2022. Open an issue if you require support for an older version.</li>
-<li>CMake, at least 3.12</li>
+<li>CMake, at least 3.16.</li>
 <li>Boost library. If building with statistics counters, then it is a mandatory dependency for Boost.Accumulator. It is also an optional dependency for Boost.Stacktrace.</li>
 </ul>
 <h3><a class="anchor" id="autotoc_md27"></a>
-Build dependencies, bundled as git submodules</h3>
+Optional vendored dependencies, bundled as git submodules</h3>
 <ul>
 <li>Google Test for tests.</li>
 <li>Google Benchmark for microbenchmarks.</li>
 <li><a href="https://github.com/trailofbits/deepstate" title="DeepState on GitHub">DeepState</a> for fuzzing tests.</li>
 </ul>
+<p>These dependencies need not be present if the build is configured to skip the corresponding part. For example, if the CMake option <code>-DTESTS=OFF</code> is given, then Google Test and DeepState submodules don't have to be populated.</p>
 <h2><a class="anchor" id="autotoc_md28"></a>
 Building</h2>
-<p>Out-of-source builds are recommended. Before anything else, do</p>
+<p>Unless you configure your build otherwise, first you need to populate the git submodules for test and benchmark dependencies:</p>
 <div class="fragment"><div class="line"> bash</div>
 <div class="line"># --recursive is not strictly required at the moment, but a good habit to have</div>
 <div class="line">git submodule update --init --recursive</div>
+</div><!-- fragment --><p>Out-of-source builds are recommended, for example</p>
+<div class="fragment"><div class="line"> bash</div>
+<div class="line">mkdir build</div>
+<div class="line">cd build</div>
+<div class="line">cmake .. &lt;other options, see below&gt;</div>
 </div><!-- fragment --><p>There are some CMake options for users:</p>
 <ul>
 <li><code>-DSPINLOCK_LOOP=PAUSE|EMPTY</code> to choose the spinlock wait loop body implementation for the optimistic lock. <code>EMPTY</code> may benchmark better as long as there are fewer threads than available CPU cores. <code>PAUSE</code> will use that instruction on x86_64, and something similar on ARM. The default is <code>PAUSE</code>.</li>

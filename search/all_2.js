@@ -8,7 +8,7 @@ var searchData=
   ['analysis_5',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
   ['and_20static_20analysis_6',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
   ['api_20conventions_7',['API conventions',['../group__optimistic-lock.html#autotoc_md16',1,'']]],
-  ['as_20git_20submodules_8',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
+  ['as_20git_20submodules_8',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
   ['as_5fi_9',['as_i',['../namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1',1,'unodb']]],
   ['assert_2ehpp_10',['assert.hpp',['../assert_8hpp.html',1,'']]],
   ['assert_5ffailure_11',['assert_failure',['../namespaceunodb_1_1detail.html#a73ccae20a7fde29e0381b903bbf0c58a',1,'unodb::detail']]],

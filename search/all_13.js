@@ -19,5 +19,5 @@ var searchData=
   ['static_20analysis_16',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
   ['store_17',['store',['../classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556',1,'unodb::in_critical_section']]],
   ['style_20guide_18',['style guide',['../md_CONTRIBUTING.html#autotoc_md5',1,'Code style guide'],['../md_CONTRIBUTING.html#autotoc_md6',1,'Documentation style guide']]],
-  ['submodules_19',['Build dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
+  ['submodules_19',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
 ];

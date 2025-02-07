@@ -468,6 +468,7 @@ jobs:
           env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'
           && env.SANITIZE_UB != 'ON' && env.STATIC_ANALYSIS != 'ON'
           && runner.os == 'Linux' && env.COVERAGE != 'ON'
+        timeout-minutes: 180
 
       - name: Gather coverage data
         working-directory: ${{github.workspace}}/build

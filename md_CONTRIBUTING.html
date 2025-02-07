@@ -224,7 +224,7 @@ Benchmarking</h2>
 <li><p class="startli">To measure the effect of a patch, Google Benchmark provides <a href="https://github.com/google/benchmark/blob/main/docs/tools.md#u-test">U-Test</a> feature. Let's say you changed N16 node fields, but only for the OLC case. Then you can run N16-specific tests, filtered for the OLC. The next command is in the directory with benchmark executables, and the baseline executables are at <code>/foo/bar/baseline</code>:</p>
 <div class="fragment"><div class="line">python3 ../../../3rd_party/benchmark/tools/compare.py benchmarks \</div>
 <div class="line">   /foo/bar/baseline/micro_benchmark_olc \</div>
-<div class="line">   ./micro_benchmark_olc --benchmark_repetitions=9</div>
+<div class="line">   ./micro_benchmark_olc --benchmark_repetitions=9 --benchmark_filter=&#39;olc_db&#39;</div>
 </div><!-- fragment --></li>
 </ul>
 <h2><a class="anchor" id="autotoc_md13"></a>

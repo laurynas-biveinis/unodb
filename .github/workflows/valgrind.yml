@@ -1,0 +1,57 @@
+---
+name: valgrind
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    env:
+      BUILD_TYPE: ${{matrix.BUILD_TYPE}}
+      AVX2: ${{matrix.AVX2}}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        BUILD_TYPE: [Release, Debug]
+        AVX2: [ON, OFF]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libboost-dev libc6-dev-i386 libc6-dbg
+          sudo snap install --classic valgrind
+
+      - name: Create build environment
+        run: mkdir ${{github.workspace}}/build
+
+      - name: Configure CMake
+        # Use a bash shell so we can use the same syntax for environment
+        # variable access regardless of the host operating system
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: |
+          cmake "$GITHUB_WORKSPACE" "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
+              "-DSTANDALONE=ON" "-DAVX2=$AVX2"
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: make -j3 -k
+
+      - name: Valgrind test
+        working-directory: ${{github.workspace}}/build
+        run: make -k valgrind
+        timeout-minutes: 180

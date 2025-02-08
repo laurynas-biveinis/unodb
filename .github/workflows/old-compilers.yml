@@ -537,14 +537,3 @@ jobs:
       - name: Benchmark correctness test
         working-directory: ${{github.workspace}}/build
         run: make -k quick_benchmarks
-
-      - name: Valgrind test
-        working-directory: ${{github.workspace}}/build
-        run: |
-          sudo apt-get install -y libc6-dbg
-          sudo snap install --classic valgrind
-          make -k valgrind
-        if: >
-          env.SANITIZE_ADDRESS != 'ON' && env.SANITIZE_THREAD != 'ON'
-          && env.SANITIZE_UB != 'ON'
-        timeout-minutes: 180

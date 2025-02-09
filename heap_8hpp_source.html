@@ -130,7 +130,7 @@ $(document).ready(function(){initNavTree('heap_8hpp_source.html',''); initResiza
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb_1_1detail.html">unodb::detail</a> {</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>[[nodiscard]] <span class="keyword">constexpr</span> <span class="keyword">auto</span> alignment_for_new() noexcept {</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>[[nodiscard]] <span class="keyword">consteval</span> <span class="keyword">auto</span> alignment_for_new() noexcept {</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  <span class="keywordflow">return</span> std::max(<span class="keyword">alignof</span>(T),</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>                  <span class="keyword">static_cast&lt;</span>std::size_t<span class="keyword">&gt;</span>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>}</div>

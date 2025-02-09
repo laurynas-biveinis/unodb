@@ -149,7 +149,7 @@ Code style guide</h2>
 <li>The code is <code>[[nodiscard]]</code>-maximalist. Every value-returning function and method starts out as <code>[[nodiscard]]</code> by default, and is only changed if there is a clear need to both handle and ignore the return value.</li>
 <li>The code follows the Almost Always Auto guideline.</li>
 <li><code>const</code> should be used everywhere it is possible to do so, with the exception of by-value function parameters and class fields that support moving from.</li>
-<li><code>constexpr</code> should be applied everywhere it is legal to do so. Perhaps one day we will have compile-time Adaptive Radix Tree.</li>
+<li><code>constexpr</code> (and <code>consteval</code>) should be applied everywhere it is legal to do so. Perhaps one day we will have a compile-time Adaptive Radix Tree.</li>
 <li>All C++ standard library symbols must be namespace-qualified, and this includes symbols shared with C. For example <code>std::size_t</code>.</li>
 <li>Automatic code formatting can be configured through git clean/fuzz filters. To enable this feature, do <code>git config --local include.path ../.gitconfig</code>. If you need to temporarily disable it, run <code>git config --local --unset include.path</code>.</li>
 <li>The code that cannot be possibly tested by short deterministic tests, for example, because it handles rarely-occurring non-deterministic concurrency conditions, should be excluded from coverage testing with <code>// LCOV_EXCL_LINE</code> comment for a single line or with <code>// LCOV_EXCL_START</code>, <code>// LCOV_EXCL_STOP</code> start and end markers for a block.</li>

@@ -12,6 +12,7 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -36,7 +37,7 @@ namespace unodb::benchmark {
 // Key manipulation with key zero bits
 
 template <unsigned NodeSize>
-[[nodiscard]] constexpr auto node_size_to_key_zero_bits() noexcept {
+[[nodiscard]] consteval auto node_size_to_key_zero_bits() noexcept {
   static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
                 NodeSize == 256);
   if constexpr (NodeSize == 2) {
@@ -87,8 +88,8 @@ class [[nodiscard]] batched_prng final {
 
  private:
   void refill() {
-    std::generate(random_keys.begin(), random_keys.end(),
-                  [this]() { return random_key_dist(get_prng()); });
+    std::ranges::generate(random_keys,
+                          [this]() { return random_key_dist(get_prng()); });
     random_key_ptr = random_keys.cbegin();
   }
 
@@ -105,7 +106,7 @@ namespace detail {
 // Node sizes
 
 template <unsigned NodeCapacity>
-[[nodiscard]] constexpr auto node_capacity_to_minimum_size() noexcept {
+[[nodiscard]] consteval auto node_capacity_to_minimum_size() noexcept {
   static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
                 NodeCapacity == 256);
   if constexpr (NodeCapacity == 16) {
@@ -118,20 +119,20 @@ template <unsigned NodeCapacity>
 }
 
 template <unsigned NodeCapacity>
-[[nodiscard]] constexpr auto node_capacity_over_minimum() noexcept {
+[[nodiscard]] consteval auto node_capacity_over_minimum() noexcept {
   static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
                 NodeCapacity == 256);
   return NodeCapacity - node_capacity_to_minimum_size<NodeCapacity>();
 }
 
 template <unsigned NodeSize>
-[[nodiscard]] constexpr auto node_size_has_key_zero_bits() noexcept {
+[[nodiscard]] consteval auto node_size_has_key_zero_bits() noexcept {
   // If node size is a power of two, then can use key zero bit-based operations
   return (NodeSize & (NodeSize - 1)) == 0;
 }
 
 template <unsigned NodeSize>
-[[nodiscard]] constexpr auto node_size_to_node_type() noexcept {
+[[nodiscard]] consteval auto node_size_to_node_type() noexcept {
   static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
                 NodeSize == 48 || NodeSize == 256);
   if constexpr (NodeSize == 2 || NodeSize == 4) return node_type::I4;
@@ -143,7 +144,7 @@ template <unsigned NodeSize>
 #ifndef NDEBUG
 
 template <unsigned SmallerNodeSize>
-[[nodiscard]] constexpr auto node_size_to_larger_node_type() noexcept {
+[[nodiscard]] consteval auto node_size_to_larger_node_type() noexcept {
   static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16 ||
                 SmallerNodeSize == 48);
   if constexpr (SmallerNodeSize == 4) return node_type::I16;
@@ -265,6 +266,7 @@ generate_random_keys_over_full_smaller_tree(std::uint64_t key_limit) {
     std::array<std::uint8_t, 8> as_bytes;
   } constructed_key;
 
+  // NOLINTBEGIN(readability-math-missing-parentheses)
   for (std::uint8_t i = 0; i < NumByteValues; ++i) {
     constructed_key.as_bytes[7] = static_cast<std::uint8_t>(i * 2 + 1);
     for (std::uint8_t i2 = 0; i2 < NumByteValues; ++i2) {
@@ -299,6 +301,7 @@ generate_random_keys_over_full_smaller_tree(std::uint64_t key_limit) {
       }
     }
   }
+  // NOLINTEND(readability-math-missing-parentheses)
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -1080,8 +1083,8 @@ void minimal_tree_full_scan(::benchmark::State &state) {
 template <class Db, unsigned NodeSize>
 void minimal_tree_random_gets(::benchmark::State &state) {
   const auto node_count = static_cast<unsigned>(state.range(0));
-  const auto key_count = static_cast<std::uint64_t>(node_count) *
-                             detail::node_capacity_to_minimum_size<NodeSize>() -
+  const auto key_count = (static_cast<std::uint64_t>(node_count) *
+                          detail::node_capacity_to_minimum_size<NodeSize>()) -
                          1;
 
   Db test_db;

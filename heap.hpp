@@ -29,7 +29,7 @@
 namespace unodb::detail {
 
 template <typename T>
-[[nodiscard]] constexpr auto alignment_for_new() noexcept {
+[[nodiscard]] consteval auto alignment_for_new() noexcept {
   return std::max(alignof(T),
                   static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
 }

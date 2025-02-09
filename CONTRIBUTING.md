@@ -92,8 +92,8 @@ unavoidable. If a macro has to be introduced, its name must be prefixed with
 * The code follows the Almost Always Auto guideline.
 * `const` should be used everywhere it is possible to do so, with the exception
   of by-value function parameters and class fields that support moving from.
-* `constexpr` should be applied everywhere it is legal to do so. Perhaps one day
-  we will have compile-time Adaptive Radix Tree.
+* `constexpr` (and `consteval`) should be applied everywhere it is legal to do
+  so. Perhaps one day we will have a compile-time Adaptive Radix Tree.
 * All C++ standard library symbols must be namespace-qualified, and this
   includes symbols shared with C. For example `std::size_t`.
 * Automatic code formatting can be configured through git clean/fuzz filters. To

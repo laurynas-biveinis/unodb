@@ -1,3 +1,6 @@
+/// \defgroup qsbr Quiescent State-Based Reclamation
+/// Deferred memory reclamation method, compatible with \ref optimistic-lock.
+
 /// \defgroup internal Internals
 /// Internals documentation for UnoDB developers.
 ///

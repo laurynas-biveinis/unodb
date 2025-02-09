@@ -2,6 +2,14 @@
 #ifndef UNODB_DETAIL_QSBR_PTR_HPP
 #define UNODB_DETAIL_QSBR_PTR_HPP
 
+/// \file
+/// Pointers and spans to QSBR-managed data.
+///
+/// \ingroup optimistic-lock
+///
+/// They are debugging helpers to catch the QSBR contract violation of declaring
+/// a quiescent state while having an active pointer to the shared data.
+
 //
 // CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
 // HEADER FILES !!!
@@ -23,35 +31,54 @@ namespace unodb {
 
 namespace detail {
 
+/// Base class for QSBR pointers that provides per-thread active pointer
+/// registration functionality in debug builds.
 class qsbr_ptr_base {
  protected:
+  /// Default-construct the base.
   qsbr_ptr_base() = default;
 
 #ifndef NDEBUG
+  /// Register an active pointer \a ptr to QSBR-managed data in this thread. A
+  /// no-op with `nullptr`.
   static void register_active_ptr(const void *ptr);
+
+  /// Unregister an active pointer \a ptr to QSBR-managed data in this thread. A
+  /// no-op with `nullptr`.
   static void unregister_active_ptr(const void *ptr);
 #endif
 };
 
 }  // namespace detail
 
-// An active pointer to QSBR-managed shared data. A thread cannot go through a
-// quiescent state while at least one is alive, which is asserted in the debug
-// build. A smart pointer class that provides a raw pointer-like interface.
-// Implemented bare minimum to get things to work, expand as necessary.
-template <class T>
+/// A raw pointer-like smart pointer to QSBR-managed shared data. Crashes debug
+/// builds if a thread goes through a quiescent state while having an active
+/// pointer. Meets C++ contiguous iterator requirements.
+// Implemented the minimum necessary operations, extend as needed.
+template <typename T>
 class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
  public:
-  using value_type = T;
-  using pointer = T *;
-  using reference = std::add_lvalue_reference_t<T>;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::contiguous_iterator_tag;
+  /// \name Type aliases required for iterator support
+  /// \{
 
+  /// Type of values pointed to.
+  using value_type = T;
+  /// Raw pointer type.
+  using pointer = T *;
+  /// Reference type.
+  using reference = std::add_lvalue_reference_t<T>;
+  /// Type for pointer arithmetic.
+  using difference_type = std::ptrdiff_t;
+  /// Iterator category - explicitly tagged as contiguous iterator.
+  using iterator_category = std::contiguous_iterator_tag;
+  /// \}
+
+  /// Default-construct a null pointer.
   qsbr_ptr() noexcept = default;
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
+  /// Construct from raw pointer \a ptr_ to QSBR-managed data.
   UNODB_DETAIL_RELEASE_CONSTEXPR explicit qsbr_ptr(
       pointer ptr_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : ptr{ptr_} {
@@ -60,6 +87,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 #endif
   }
 
+  /// Copy-construct from \a other.
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr(const qsbr_ptr &other) noexcept
       : ptr{other.ptr} {
 #ifndef NDEBUG
@@ -69,11 +97,13 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  /// Move-construct from \a other, leaving it `nullptr`.
   constexpr qsbr_ptr(qsbr_ptr &&other) noexcept
       : ptr{std::exchange(other.ptr, nullptr)} {}
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
+  /// Destruct the pointer.
   ~qsbr_ptr() noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);

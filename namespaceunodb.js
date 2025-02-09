@@ -14,7 +14,7 @@ var namespaceunodb =
     [ "qsbr", "classunodb_1_1qsbr.html", null ],
     [ "qsbr_epoch", "classunodb_1_1qsbr__epoch.html", null ],
     [ "qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", null ],
-    [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html", null ],
+    [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html", "classunodb_1_1qsbr__ptr" ],
     [ "qsbr_ptr_span", "classunodb_1_1qsbr__ptr__span.html", null ],
     [ "qsbr_state", "structunodb_1_1qsbr__state.html", null ],
     [ "qsbr_thread", "classunodb_1_1qsbr__thread.html", null ],

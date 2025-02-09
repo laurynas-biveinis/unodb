@@ -52,5 +52,6 @@ var searchData=
   ['unodb_5fdetail_5fused_5fin_5fdebug_49',['UNODB_DETAIL_USED_IN_DEBUG',['../group__internal.html#ga635640d5d3b202d11b61c3730f6c2988',1,'global.hpp']]],
   ['unodb_5fdetail_5fwith_5fstats_50',['UNODB_DETAIL_WITH_STATS',['../group__internal.html#ga9ec8bd41c6ee401f40edc11b624cabe9',1,'global.hpp']]],
   ['unodb_5fdetail_5fx86_5f64_51',['UNODB_DETAIL_X86_64',['../group__internal.html#ga7496e03d41dc595453e75e3e66157007',1,'global.hpp']]],
-  ['usage_52',['Usage',['../index.html#autotoc_md33',1,'']]]
+  ['unregister_5factive_5fptr_52',['unregister_active_ptr',['../classunodb_1_1detail_1_1qsbr__ptr__base.html#ada5f94aa6bc6a826105e2818753ff37a',1,'unodb::detail::qsbr_ptr_base']]],
+  ['usage_53',['Usage',['../index.html#autotoc_md33',1,'']]]
 ];

@@ -18,7 +18,7 @@ var files_dup =
     [ "portability_arch.hpp", "portability__arch_8hpp.html", "portability__arch_8hpp" ],
     [ "portability_builtins.hpp", "portability__builtins_8hpp.html", "portability__builtins_8hpp" ],
     [ "qsbr.hpp", "qsbr_8hpp_source.html", null ],
-    [ "qsbr_ptr.hpp", "qsbr__ptr_8hpp_source.html", null ],
+    [ "qsbr_ptr.hpp", "qsbr__ptr_8hpp.html", "qsbr__ptr_8hpp" ],
     [ "test_heap.hpp", "test__heap_8hpp_source.html", null ],
     [ "thread_sync.hpp", "thread__sync_8hpp_source.html", null ]
 ];

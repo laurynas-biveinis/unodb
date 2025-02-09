@@ -47,7 +47,7 @@ var annotated_dup =
         [ "olc_inode_4", "classunodb_1_1detail_1_1olc__inode__4.html", null ],
         [ "olc_inode_48", "classunodb_1_1detail_1_1olc__inode__48.html", null ],
         [ "olc_node_header", "structunodb_1_1detail_1_1olc__node__header.html", null ],
-        [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", null ],
+        [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", "classunodb_1_1detail_1_1qsbr__ptr__base" ],
         [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", null ],
         [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", null ],
         [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ]
@@ -70,7 +70,7 @@ var annotated_dup =
       [ "qsbr", "classunodb_1_1qsbr.html", null ],
       [ "qsbr_epoch", "classunodb_1_1qsbr__epoch.html", null ],
       [ "qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", null ],
-      [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html", null ],
+      [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html", "classunodb_1_1qsbr__ptr" ],
       [ "qsbr_ptr_span", "classunodb_1_1qsbr__ptr__span.html", null ],
       [ "qsbr_state", "structunodb_1_1qsbr__state.html", null ],
       [ "qsbr_thread", "classunodb_1_1qsbr__thread.html", null ],

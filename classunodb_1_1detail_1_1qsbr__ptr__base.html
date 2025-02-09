@@ -97,30 +97,104 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1qsbr__ptr__bas
 
 <div class="header">
   <div class="summary">
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-static-methods">Static Protected Member Functions</a> &#124;
 <a href="classunodb_1_1detail_1_1qsbr__ptr__base-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::qsbr_ptr_base Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Base class for QSBR pointers that provides per-thread active pointer registration functionality in debug builds.  
+ <a href="classunodb_1_1detail_1_1qsbr__ptr__base.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="qsbr__ptr_8hpp_source.html">qsbr_ptr.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for unodb::detail::qsbr_ptr_base:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classunodb_1_1detail_1_1qsbr__ptr__base.png" usemap="#unodb::detail::qsbr_5Fptr_5Fbase_map" alt=""/>
   <map id="unodb::detail::qsbr_5Fptr_5Fbase_map" name="unodb::detail::qsbr_5Fptr_5Fbase_map">
-<area href="classunodb_1_1qsbr__ptr.html" alt="unodb::qsbr_ptr&lt; T &gt;" shape="rect" coords="0,56,169,80"/>
+<area href="classunodb_1_1qsbr__ptr.html" title="A raw pointer-like smart pointer to QSBR-managed shared data." alt="unodb::qsbr_ptr&lt; T &gt;" shape="rect" coords="0,56,169,80"/>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a5500cdff5dbf256de99f74e78e10de5d" id="r_a5500cdff5dbf256de99f74e78e10de5d"><td class="memItemLeft" align="right" valign="top"><a id="a5500cdff5dbf256de99f74e78e10de5d" name="a5500cdff5dbf256de99f74e78e10de5d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_ptr_base</b> ()=default</td></tr>
+<tr class="memdesc:a5500cdff5dbf256de99f74e78e10de5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default-construct the base. <br /></td></tr>
+<tr class="separator:a5500cdff5dbf256de99f74e78e10de5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-static-methods" name="pro-static-methods"></a>
 Static Protected Member Functions</h2></td></tr>
-<tr class="memitem:a78497b9da6650208a8b2ce18bb67ffa2" id="r_a78497b9da6650208a8b2ce18bb67ffa2"><td class="memItemLeft" align="right" valign="top"><a id="a78497b9da6650208a8b2ce18bb67ffa2" name="a78497b9da6650208a8b2ce18bb67ffa2"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>register_active_ptr</b> (const void *ptr)</td></tr>
+<tr class="memitem:a78497b9da6650208a8b2ce18bb67ffa2" id="r_a78497b9da6650208a8b2ce18bb67ffa2"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1qsbr__ptr__base.html#a78497b9da6650208a8b2ce18bb67ffa2">register_active_ptr</a> (const void *ptr)</td></tr>
+<tr class="memdesc:a78497b9da6650208a8b2ce18bb67ffa2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register an active pointer <em>ptr</em> to QSBR-managed data in this thread.  <br /></td></tr>
 <tr class="separator:a78497b9da6650208a8b2ce18bb67ffa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ada5f94aa6bc6a826105e2818753ff37a" id="r_ada5f94aa6bc6a826105e2818753ff37a"><td class="memItemLeft" align="right" valign="top"><a id="ada5f94aa6bc6a826105e2818753ff37a" name="ada5f94aa6bc6a826105e2818753ff37a"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>unregister_active_ptr</b> (const void *ptr)</td></tr>
+<tr class="memitem:ada5f94aa6bc6a826105e2818753ff37a" id="r_ada5f94aa6bc6a826105e2818753ff37a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1qsbr__ptr__base.html#ada5f94aa6bc6a826105e2818753ff37a">unregister_active_ptr</a> (const void *ptr)</td></tr>
+<tr class="memdesc:ada5f94aa6bc6a826105e2818753ff37a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister an active pointer <em>ptr</em> to QSBR-managed data in this thread.  <br /></td></tr>
 <tr class="separator:ada5f94aa6bc6a826105e2818753ff37a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Base class for QSBR pointers that provides per-thread active pointer registration functionality in debug builds. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a78497b9da6650208a8b2ce18bb67ffa2" name="a78497b9da6650208a8b2ce18bb67ffa2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78497b9da6650208a8b2ce18bb67ffa2">&#9670;&#160;</a></span>register_active_ptr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void unodb::detail::qsbr_ptr_base::register_active_ptr </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>ptr</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Register an active pointer <em>ptr</em> to QSBR-managed data in this thread. </p>
+<p>A no-op with <code>nullptr</code>. </p>
+
+</div>
+</div>
+<a id="ada5f94aa6bc6a826105e2818753ff37a" name="ada5f94aa6bc6a826105e2818753ff37a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada5f94aa6bc6a826105e2818753ff37a">&#9670;&#160;</a></span>unregister_active_ptr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void unodb::detail::qsbr_ptr_base::unregister_active_ptr </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>ptr</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Unregister an active pointer <em>ptr</em> to QSBR-managed data in this thread. </p>
+<p>A no-op with <code>nullptr</code>. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="qsbr__ptr_8hpp_source.html">qsbr_ptr.hpp</a></li>
 <li><b>qsbr_ptr.cpp</b></li>

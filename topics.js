@@ -1,5 +1,5 @@
 var topics =
 [
-    [ "Internals", "group__internal.html", "group__internal" ],
-    [ "Quiescent State-Based Reclamation", "group__qsbr.html", null ]
+    [ "Quiescent State-Based Reclamation", "group__qsbr.html", null ],
+    [ "Internals", "group__internal.html", "group__internal" ]
 ];

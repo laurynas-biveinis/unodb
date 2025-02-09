@@ -38,7 +38,7 @@ var namespaceunodb_1_1detail =
     [ "olc_inode_4", "classunodb_1_1detail_1_1olc__inode__4.html", null ],
     [ "olc_inode_48", "classunodb_1_1detail_1_1olc__inode__48.html", null ],
     [ "olc_node_header", "structunodb_1_1detail_1_1olc__node__header.html", null ],
-    [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", null ],
+    [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", "classunodb_1_1detail_1_1qsbr__ptr__base" ],
     [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", null ],
     [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", null ],
     [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ],

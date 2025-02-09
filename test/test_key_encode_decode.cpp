@@ -10,6 +10,8 @@
 // container internal structure layouts and that is Not Good.
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <string>
+
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -145,8 +147,8 @@ void do_encode_decode_test(const T ekey,
   EXPECT_EQ(kv.size_bytes(), sizeof(ekey));       // check size
   // check order.
   size_t i = 0;
-  for (auto it = ikey.begin(); it != ikey.end(); it++) {
-    EXPECT_EQ(*it, kv[i++]);
+  for (const auto byte : ikey) {
+    EXPECT_EQ(byte, kv[i++]);
   }
   // decode check
   unodb::key_decoder dec{kv};

@@ -289,8 +289,7 @@ generate_random_keys_over_full_smaller_tree(std::uint64_t key_limit) {
                 const std::uint64_t k = constructed_key.as_int;
                 if (k > key_limit) {
                   result.shrink_to_fit();
-                  std::shuffle(result.begin(), result.end(),
-                               unodb::benchmark::get_prng());
+                  std::ranges::shuffle(result, unodb::benchmark::get_prng());
                   return result;
                 }
                 result.push_back(k);
@@ -1034,7 +1033,7 @@ void random_add_benchmark(::benchmark::State &state) {
         detail::make_base_tree_for_add<Db, NodeSize>(test_db, node_count);
     auto benchmark_keys = detail::generate_keys_to_limit(
         key_limit, detail::number_to_full_leaf_over_minimal_tree_key<NodeSize>);
-    std::shuffle(benchmark_keys.begin(), benchmark_keys.end(), get_prng());
+    std::ranges::shuffle(benchmark_keys, get_prng());
     state.ResumeTiming();
 
     insert_keys(test_db, benchmark_keys);
@@ -1175,7 +1174,7 @@ void random_delete_benchmark(::benchmark::State &state) {
     auto remove_keys = detail::generate_keys_to_limit(
         key_limit, detail::number_to_full_leaf_over_minimal_tree_key<NodeSize>);
     remove_key_count = remove_keys.size();
-    std::shuffle(remove_keys.begin(), remove_keys.end(), get_prng());
+    std::ranges::shuffle(remove_keys, get_prng());
     state.ResumeTiming();
 
     delete_keys(test_db, remove_keys);

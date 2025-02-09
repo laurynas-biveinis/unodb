@@ -1,4 +1,4 @@
-// Copyright 2021-2024 Laurynas Biveinis
+// Copyright 2021-2025 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -681,8 +681,9 @@ TEST(QSBR, DeepStateFuzz) {
           reset_stats();
         });
     const auto unpaused_threads = static_cast<unodb::qsbr_thread_count_type>(
-        std::count_if(threads.cbegin(), threads.cend(),
-                      [](const thread_info &info) { return !info.is_paused; }));
+        std::ranges::count_if(threads, [](const thread_info &info) noexcept {
+          return !info.is_paused;
+        }));
     const auto current_qsbr_state = unodb::qsbr::instance().get_state();
     ASSERT(unodb::qsbr_state::single_thread_mode(current_qsbr_state) ==
            (unpaused_threads < 2));

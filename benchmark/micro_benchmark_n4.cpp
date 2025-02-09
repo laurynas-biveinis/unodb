@@ -19,13 +19,9 @@
 
 #include <benchmark/benchmark.h>
 
-#include "art.hpp"
-#include "art_common.hpp"
 #include "micro_benchmark_node_utils.hpp"
 #include "micro_benchmark_utils.hpp"
-#include "mutex_art.hpp"
 #include "node_type.hpp"
-#include "olc_art.hpp"
 
 namespace {
 
@@ -106,7 +102,7 @@ void node4_random_insert(benchmark::State &state) {
 
   for (const auto _ : state) {
     state.PauseTiming();
-    std::shuffle(keys.begin(), keys.end(), unodb::benchmark::get_prng());
+    std::ranges::shuffle(keys, unodb::benchmark::get_prng());
     Db test_db;
     benchmark::ClobberMemory();
     state.ResumeTiming();
@@ -202,7 +198,7 @@ void node4_random_delete_benchmark(benchmark::State &state,
 #endif  // UNODB_DETAIL_WITH_STATS
 
     auto keys = make_limited_key_sequence(key_limit, delete_key_zero_bits);
-    std::shuffle(keys.begin(), keys.end(), unodb::benchmark::get_prng());
+    std::ranges::shuffle(keys, unodb::benchmark::get_prng());
     state.ResumeTiming();
 
     unodb::benchmark::delete_keys(test_db, keys);

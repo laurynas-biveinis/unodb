@@ -84,7 +84,7 @@ constexpr std::size_t main_thread_id{0};
 
 std::array<unodb::detail::thread_sync, max_thread_id> thread_sync;
 
-std::size_t new_thread_id{1};
+constinit std::size_t new_thread_id{1};
 
 template <class T>
 [[nodiscard]] std::pair<typename T::difference_type, typename T::iterator>

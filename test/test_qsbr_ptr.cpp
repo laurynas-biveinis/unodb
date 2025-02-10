@@ -26,16 +26,16 @@
 namespace {
 
 constexpr char x = 'X';  // -V707
-const char* const raw_ptr_x = &x;
+constinit const char* const raw_ptr_x = &x;
 
 constexpr char y = 'Y';  // -V707
-const char* const raw_ptr_y = &y;
+constinit const char* const raw_ptr_y = &y;
 
-const std::array<const char, 2> two_chars = {'A', 'B'};
-const std::span<const char> std_span{two_chars};
+constinit const std::array<const char, 2> two_chars = {'A', 'B'};
+constinit const std::span<const char> std_span{two_chars};
 
-const std::array<const char, 3> three_chars = {'C', 'D', 'E'};
-const std::span<const char> std_span2{three_chars};
+constinit const std::array<const char, 3> three_chars = {'C', 'D', 'E'};
+constinit const std::span<const char> std_span2{three_chars};
 
 UNODB_START_TESTS()
 

@@ -14,8 +14,6 @@
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <span>
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include <iterator>
-// IWYU pragma: no_forward_declare unodb::visitor
 
 #include <algorithm>
 #include <cstdint>
@@ -25,9 +23,7 @@
 
 #include <gtest/gtest.h>
 
-#include "art.hpp"
 #include "art_common.hpp"
-#include "olc_art.hpp"
 
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
@@ -58,10 +54,8 @@ inline std::uint64_t decode(unodb::key_view akey) {
 [[maybe_unused]] void dump(
     const std::vector<std::pair<std::uint64_t, unodb::value_view>>& x) {
   std::cerr << "[";
-  auto it = x.begin();
-  while (it != x.end()) {
-    std::cerr << "(" << (*it).first << ") ";
-    it++;
+  for (const auto& key_and_val : x) {
+    std::cerr << "(" << key_and_val.first << ") ";
   }
   std::cerr << "]\n";
 }

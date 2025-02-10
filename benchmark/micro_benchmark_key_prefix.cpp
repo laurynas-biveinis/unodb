@@ -18,12 +18,9 @@
 
 #include <benchmark/benchmark.h>
 
-#include "art.hpp"
 #include "art_common.hpp"
 #include "assert.hpp"
 #include "micro_benchmark_utils.hpp"
-#include "mutex_art.hpp"
-#include "olc_art.hpp"
 
 namespace {
 
@@ -73,6 +70,7 @@ Keys to be inserted:    Additional key prefix mismatch keys:
 template <class Db>
 void unpredictable_get_shared_length(benchmark::State &state) {
   std::vector<std::uint64_t> search_keys{};
+  // NOLINTNEXTLINE(readability-math-missing-parentheses)
   search_keys.reserve(7 * 2 + 7 * 2 - 3);
   Db test_db;
   for (std::uint8_t top_byte = 0x00; top_byte <= 0x05; ++top_byte) {
@@ -96,8 +94,7 @@ void unpredictable_get_shared_length(benchmark::State &state) {
 
   for (const auto _ : state) {
     state.PauseTiming();
-    std::shuffle(search_keys.begin(), search_keys.end(),
-                 unodb::benchmark::get_prng());
+    std::ranges::shuffle(search_keys, unodb::benchmark::get_prng());
     state.ResumeTiming();
     for (const auto k : search_keys) unodb::benchmark::get_key(test_db, k);
   }
@@ -182,8 +179,7 @@ void do_insert_benchmark(benchmark::State &state,
     state.PauseTiming();
     Db test_db;
     insert_keys(test_db, prepare_keys);
-    std::shuffle(benchmark_keys.begin(), benchmark_keys.end(),
-                 unodb::benchmark::get_prng());
+    std::ranges::shuffle(benchmark_keys, unodb::benchmark::get_prng());
     state.ResumeTiming();
 
     insert_keys(test_db, benchmark_keys);
@@ -211,20 +207,18 @@ void unpredictable_leaf_key_prefix_split(benchmark::State &state) {
     const auto first_key = static_cast<std::uint64_t>(top_byte) << 56U;
 
     // Quadratic but debug build only
-    UNODB_DETAIL_ASSERT(std::find(prepare_keys.cbegin(), prepare_keys.cend(),
-                                  first_key) == prepare_keys.cend());
-    UNODB_DETAIL_ASSERT(std::find(benchmark_keys.cbegin(),
-                                  benchmark_keys.cend(),
-                                  first_key) == benchmark_keys.cend());
+    UNODB_DETAIL_ASSERT(std::ranges::find(prepare_keys, first_key) ==
+                        prepare_keys.cend());
+    UNODB_DETAIL_ASSERT(std::ranges::find(benchmark_keys, first_key) ==
+                        benchmark_keys.cend());
     prepare_keys.push_back(first_key);
 
     const auto second_key = first_key | (1ULL << (top_byte % stride_len * 8U));
     // Quadratic but debug build only
-    UNODB_DETAIL_ASSERT(std::find(prepare_keys.cbegin(), prepare_keys.cend(),
-                                  second_key) == prepare_keys.cend());
-    UNODB_DETAIL_ASSERT(std::find(benchmark_keys.cbegin(),
-                                  benchmark_keys.cend(),
-                                  second_key) == benchmark_keys.cend());
+    UNODB_DETAIL_ASSERT(std::ranges::find(prepare_keys, second_key) ==
+                        prepare_keys.cend());
+    UNODB_DETAIL_ASSERT(std::ranges::find(benchmark_keys, second_key) ==
+                        benchmark_keys.cend());
     benchmark_keys.push_back(second_key);
   }
 
@@ -422,8 +416,7 @@ void unpredictable_prepend_key_prefix(benchmark::State &state) {
     state.PauseTiming();
     Db test_db;
     insert_keys(test_db, prepare_keys);
-    std::shuffle(benchmark_keys.begin(), benchmark_keys.end(),
-                 unodb::benchmark::get_prng());
+    std::ranges::shuffle(benchmark_keys, unodb::benchmark::get_prng());
     state.ResumeTiming();
 
     for (const auto k : benchmark_keys) {

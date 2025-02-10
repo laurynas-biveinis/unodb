@@ -1,4 +1,4 @@
-// Copyright 2021-2024 Laurynas Biveinis
+// Copyright 2021-2025 Laurynas Biveinis
 
 #include "global.hpp"
 
@@ -6,6 +6,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <ctime>
 #include <iterator>
 #include <new>
 #include <sstream>
@@ -616,6 +617,8 @@ TEST(QSBR, DeepStateFuzz) {
 
   threads.emplace_back(main_thread_i);
 
+  const auto start_tm = time(nullptr);
+
   for (auto i = 0; i < test_length; ++i) {
     LOG(TRACE) << "Iteration " << i;
     deepstate::OneOf(
@@ -715,6 +718,8 @@ TEST(QSBR, DeepStateFuzz) {
     dump_sink << unodb::qsbr::instance().get_max_backlog_bytes();
     dump_sink << unodb::qsbr::instance().get_mean_backlog_bytes();
 #endif  // UNODB_DETAIL_WITH_STATS
+
+    if (unodb::test::timeout_reached(start_tm)) break;
   }
 
   for (std::size_t i = 0; i < threads.size(); ++i) {

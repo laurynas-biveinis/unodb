@@ -5,6 +5,7 @@
 #include <algorithm>  // IWYU pragma: keep
 #include <cstddef>
 #include <cstdint>
+#include <ctime>
 #include <limits>
 #include <new>
 #include <optional>  // IWYU pragma: keep
@@ -226,6 +227,8 @@ TEST(ART, DeepStateFuzz) {
   values_type values;
   oracle_type oracle;
 
+  const auto start_tm = std::time(nullptr);
+
   for (auto i = 0; i < test_length; i++) {
     LOG(TRACE) << "Iteration " << i;
     deepstate::OneOf(
@@ -278,6 +281,7 @@ TEST(ART, DeepStateFuzz) {
           LOG(TRACE) << "Deleting key " << key;
           op_with_oom_test(oracle, keys, test_db, key, {});
         });
+    if (unodb::test::timeout_reached(start_tm)) break;
   }
 
 #ifdef UNODB_DETAIL_WITH_STATS

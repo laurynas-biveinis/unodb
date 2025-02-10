@@ -54,4 +54,4 @@ jobs:
       - name: Valgrind test
         working-directory: ${{github.workspace}}/build
         run: make -k valgrind
-        timeout-minutes: 180
+        timeout-minutes: 120

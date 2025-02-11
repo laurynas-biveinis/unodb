@@ -70,6 +70,7 @@ const unodb::detail::set_qsbr_per_thread_in_main_thread do_it;
 
 namespace unodb {
 
+// Try converting to constinit at C++23
 thread_local std::unique_ptr<qsbr_per_thread>
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
     qsbr_per_thread::current_thread_instance;

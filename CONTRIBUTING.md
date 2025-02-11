@@ -32,15 +32,14 @@ There also other development-specific options. All of them are `OFF` by default.
   consists of the libstdc++ debug mode.
 * `-DMAINTAINER_MODE=ON` to enable maintainer diagnostics. This makes
   compilation warnings fatal.
-* `-DSANITIZE_ADDRESS=ON` to enable AddressSanitizer and, if available,
+* `-DSANITIZE_ADDRESS=ON` to enable AddressSanitizer (asan) and, if available,
   LeakSanitizer. It is incompatible with the `-DSANITIZE_THREAD=ON` option.
-* `-DSANITIZE_THREAD=ON` to enable ThreadSanitizer. It is incompatible with the
-  `-DSANITIZE_ADDRESS=ON` option, not available under MSVC, and will disable
-  libfuzzer support if it would be enabled otherwise.
-* `-DSANITIZE_UB=ON` to enable UndefinedBehaviorSanitizer. It is compatible with
-  other sanitizer options, although some
-  [false positive][sanitizer-combination-bug] might occur. Not available under
-  MSVC.
+* `-DSANITIZE_THREAD=ON` to enable ThreadSanitizer (tsan). It is incompatible
+  with the `-DSANITIZE_ADDRESS=ON` option, not available under MSVC, and will
+  disable libfuzzer support if it would be enabled otherwise.
+* `-DSANITIZE_UB=ON` to enable UndefinedBehaviorSanitizer (ubsan). It is
+  compatible with other sanitizer options, although some [false
+  positive][sanitizer-combination-bug] might occur. Not available under MSVC.
 * `-DSTATIC_ANALYSIS=ON` for GCC or MSVC compiler static analysis. LLVM analyzer
   is used without any CMake option, see the "Linting and static analysis"
   section below.

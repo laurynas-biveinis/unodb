@@ -2,6 +2,7 @@
 #ifndef UNODB_DETAIL_DEEPSTATE_UTILS_HPP
 #define UNODB_DETAIL_DEEPSTATE_UTILS_HPP
 
+// Should be the first include
 #include "global.hpp"
 
 #include <cstddef>

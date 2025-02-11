@@ -138,11 +138,9 @@
 /// another project.
 #define UNODB_DETAIL_STANDALONE
 
-/// \def UNODB_DETAIL_WITH_STATS
 /// Defined when UnoDB is compiled with the statistics counters.
 #define UNODB_DETAIL_WITH_STATS
 
-/// \def UNODB_DETAIL_BOOST_STACKTRACE
 /// Defined when UnoDB is compiled with Boost.Stacktrace.
 #define UNODB_DETAIL_BOOST_STACKTRACE
 
@@ -153,42 +151,19 @@
 /// #UNODB_DETAIL_SPINLOCK_LOOP_EMPTY.
 #define UNODB_DETAIL_SPINLOCK_LOOP_VALUE
 
-#endif  // UNODB_DETAIL_DOXYGEN
-
-/// @}
-
-#ifdef UNODB_DETAIL_STANDALONE
-
-/// \name libstdc++ debug mode
-/// Defines to enable libstdc++ debug mode.
-/// Only defined in the standalone debug configuration with GCC.
-/// @{
-#if !defined(NDEBUG) && !defined(__clang__)
-
-#ifndef _GLIBCXX_DEBUG
-/// Enables the libstdc++ debug mode.
+/// Enables the libstdc++ debug mode when compiling in the standalone debug
+/// configuration.
 #define _GLIBCXX_DEBUG
-#endif
 
-#ifndef _GLIBCXX_DEBUG_PEDANTIC
-/// Enables erroring on the use of libstdc++-specific behaviors and extensions.
+/// Enables erroring on the use of libstdc++-specific behaviors and extensions
+/// when compiling in the standalone debug configuration.
 #define _GLIBCXX_DEBUG_PEDANTIC
-#endif
 
-#endif  // !defined(NDEBUG) && !defined(__clang__)
+/// Annotates `std::vector` in libstdc++ for AddressSanitizer when compiling
+/// with AddressSanitizer.
+#define _GLIBCXX_SANITIZE_VECTOR
 
-#if defined(__has_feature) && !defined(__clang__)
-#if __has_feature(address_sanitizer)
-/// Annotate `std::vector` for AddressSanitizer.
-/// Only defined if building with AddressSanitizer.
-#define _GLIBCXX_SANITIZE_VECTOR 1
-#endif
-#elif defined(__SANITIZE_ADDRESS__)
-#define _GLIBCXX_SANITIZE_VECTOR 1
-#endif
-
-#endif  // UNODB_DETAIL_STANDALONE
-
+#endif  // UNODB_DETAIL_DOXYGEN
 /// @}
 
 #ifdef _MSC_VER

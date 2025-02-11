@@ -123,9 +123,9 @@ Development CMake options</h2>
 <ul>
 <li><code>-DSTANDALONE=ON</code> always should be given when working on UnoDB itself, whereas for users with UnoDB as a part of another project it should be <code>OFF</code>. When turned on, it will build benchmarks by default and enable extra global debug checks that require entire programs to be compiled with them. Currently, this consists of the libstdc++ debug mode.</li>
 <li><code>-DMAINTAINER_MODE=ON</code> to enable maintainer diagnostics. This makes compilation warnings fatal.</li>
-<li><code>-DSANITIZE_ADDRESS=ON</code> to enable AddressSanitizer and, if available, LeakSanitizer. It is incompatible with the <code>-DSANITIZE_THREAD=ON</code> option.</li>
-<li><code>-DSANITIZE_THREAD=ON</code> to enable ThreadSanitizer. It is incompatible with the <code>-DSANITIZE_ADDRESS=ON</code> option, not available under MSVC, and will disable libfuzzer support if it would be enabled otherwise.</li>
-<li><code>-DSANITIZE_UB=ON</code> to enable UndefinedBehaviorSanitizer. It is compatible with other sanitizer options, although some <a href="https://github.com/google/sanitizers/issues/1106">false positive</a> might occur. Not available under MSVC.</li>
+<li><code>-DSANITIZE_ADDRESS=ON</code> to enable AddressSanitizer (asan) and, if available, LeakSanitizer. It is incompatible with the <code>-DSANITIZE_THREAD=ON</code> option.</li>
+<li><code>-DSANITIZE_THREAD=ON</code> to enable ThreadSanitizer (tsan). It is incompatible with the <code>-DSANITIZE_ADDRESS=ON</code> option, not available under MSVC, and will disable libfuzzer support if it would be enabled otherwise.</li>
+<li><code>-DSANITIZE_UB=ON</code> to enable UndefinedBehaviorSanitizer (ubsan). It is compatible with other sanitizer options, although some <a href="https://github.com/google/sanitizers/issues/1106">false positive</a> might occur. Not available under MSVC.</li>
 <li><code>-DSTATIC_ANALYSIS=ON</code> for GCC or MSVC compiler static analysis. LLVM analyzer is used without any CMake option, see the "Linting and static analysis" section below.</li>
 <li><code>-DIWYU=ON</code> to use include-what-you-use. It will take effect if building with clang.</li>
 <li><code>-DCPPCHECK_AGGRESSIVE=ON</code> to enable inconclusive cppcheck diagnostics. They will not fail a build.</li>

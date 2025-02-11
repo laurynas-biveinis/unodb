@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #ifndef NDEBUG
 #include <iostream>
 #endif
@@ -23,10 +24,12 @@
 
 #include <benchmark/benchmark.h>
 
+#include "art.hpp"
 #include "art_common.hpp"
 #ifndef NDEBUG
 #include "assert.hpp"
 #endif
+#include "mutex_art.hpp"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 
@@ -42,14 +45,6 @@
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26485) \
   BENCHMARK_MAIN()                         \
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
-namespace unodb {
-template <typename>
-class db;  // IWYU pragma: keep
-
-template <typename>
-class mutex_db;  // IWYU pragma: keep
-}  // namespace unodb
 
 namespace unodb::benchmark {
 

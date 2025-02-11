@@ -1,3 +1,4 @@
+---
 version: 2.1
 
 jobs:
@@ -19,7 +20,7 @@ jobs:
         type: boolean
         default: false
     machine:
-      image: ubuntu-2204:2023.02.1
+      image: ubuntu-2404:2024.11.1
     resource_class: arm.medium
     steps:
       - checkout
@@ -33,40 +34,41 @@ jobs:
             sudo apt-get install -y libboost-dev
       - when:
           condition:
-            equal: [ "gcc", << parameters.compiler >> ]
+            equal: ["gcc", << parameters.compiler >>]
           steps:
             - run:
                 name: Installing dependencies (GCC)
                 command: |
-                  sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-                  sudo apt-get update
-                  sudo apt-get install -y g++-13
+                  sudo apt-get install -y g++-14
       - when:
           condition:
-            equal: [ "clang", << parameters.compiler >> ]
+            equal: ["clang", << parameters.compiler >>]
           steps:
             - run:
                 name: Installing dependencies (LLVM common)
                 command: |
-                  curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
-                    | sudo apt-key add -
-                  echo \
-                    'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main' \
-                    | sudo tee -a /etc/apt/sources.list
-                  sudo apt-get update
-                  sudo NEEDRESTART_MODE=a apt-get install -y clang-19 \
-                    clang-tidy-19 iwyu
+                  sudo apt-get install -y clang-19 clang-tidy-19 iwyu \
+                    libstdc++-14-dev
       - when:
           condition:
             and:
-              - equal: [ "clang", << parameters.compiler >> ]
-              - equal: [ "Release", << parameters.build_type >> ]
+              - equal: ["clang", << parameters.compiler >>]
+              - equal: ["Release", << parameters.build_type >>]
           steps:
             - run:
                 name: Installing dependencies (LLVM Release)
                 command: |
-                  sudo NEEDRESTART_MODE=a apt-get install -y libomp5-19 \
-                    llvm-19 lld-19
+                  sudo apt-get install -y libomp5-19 llvm-19 lld-19
+      - when:
+          condition:
+            << parameters.tsan >>
+          steps:
+            - run:
+                name: Lowering ASLR entropy
+                # Remove once the change for
+                # https://github.com/google/sanitizers/issues/1716 has
+                # propagated everywhere
+                command: sudo sysctl vm.mmap_rnd_bits=28
       - run:
           name: Create build environment
           command: mkdir build
@@ -80,7 +82,7 @@ jobs:
             readonly TSAN=<< parameters.tsan >>
             readonly UBSAN=<< parameters.ubsan >>
             if [[ $COMPILER == "gcc" ]]; then
-              V=13
+              V=14
               export CC=gcc-$V
               export CXX=g++-$V
               EXTRA_CMAKE_ARGS=()
@@ -120,7 +122,7 @@ jobs:
             not:
               and:
                 - << parameters.asan >>
-                - equal: [ "Debug", << parameters.build_type >> ]
+                - equal: ["Debug", << parameters.build_type >>]
           steps:
             - run:
                 name: Benchmark correctness test
@@ -156,7 +158,7 @@ jobs:
         type: boolean
         default: false
     macos:
-      xcode: 15.1.0
+      xcode: 16.2.0
     resource_class: macos.m1.medium.gen1
     steps:
       - checkout
@@ -201,7 +203,7 @@ jobs:
             not:
               and:
                 - << parameters.asan >>
-                - equal: [ "Debug", << parameters.build_type >> ]
+                - equal: ["Debug", << parameters.build_type >>]
           steps:
             - run:
                 name: Benchmark correctness test
@@ -212,40 +214,40 @@ workflows:
   build:
     jobs:
       - build-linux:
-          name: GCC 13 Debug
+          name: GCC 14 Debug
           build_type: Debug
           compiler: gcc
       - build-linux:
-          name: GCC 13 Debug with ASan
+          name: GCC 14 Debug with ASan
           build_type: Debug
           compiler: gcc
           asan: true
       - build-linux:
-          name: GCC 13 Debug with TSan
+          name: GCC 14 Debug with TSan
           build_type: Debug
           compiler: gcc
           tsan: true
       - build-linux:
-          name: GCC 13 Debug with UBSan
+          name: GCC 14 Debug with UBSan
           build_type: Debug
           compiler: gcc
           ubsan: true
       - build-linux:
-          name: GCC 13 Release
+          name: GCC 14 Release
           build_type: Release
           compiler: gcc
       - build-linux:
-          name: GCC 13 Release with ASan
+          name: GCC 14 Release with ASan
           build_type: Release
           compiler: gcc
           asan: true
       - build-linux:
-          name: GCC 13 Release with TSan
+          name: GCC 14 Release with TSan
           build_type: Release
           compiler: gcc
           tsan: true
       - build-linux:
-          name: GCC 13 Release with UBSan
+          name: GCC 14 Release with UBSan
           build_type: Release
           compiler: gcc
           ubsan: true

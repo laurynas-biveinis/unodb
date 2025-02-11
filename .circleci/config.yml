@@ -104,7 +104,7 @@ jobs:
             cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSTANDALONE=ON \
               -DMAINTAINER_MODE=ON -DSANITIZE_ADDRESS=$ASAN \
               -DSANITIZE_THREAD=$TSAN -DSANITIZE_UB=$UBSAN \
-              "${EXTRA_CMAKE_ARGS[@]}"
+              -DCMAKE_CXX_FLAGS=-march=armv8.2-a "${EXTRA_CMAKE_ARGS[@]}"
       - run:
           name: Build
           working_directory: build

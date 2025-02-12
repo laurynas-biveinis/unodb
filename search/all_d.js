@@ -1,16 +1,16 @@
 var searchData=
 [
-  ['make_5fbinary_5fcomparable_0',['make_binary_comparable',['../structunodb_1_1detail_1_1basic__art__key.html#a2424f684fcd0eb8c9af138caaf4befe5',1,'unodb::detail::basic_art_key']]],
-  ['make_5fdb_5finode_5funique_5fptr_1',['make_db_inode_unique_ptr',['../structunodb_1_1detail_1_1basic__art__policy.html#aadb1795d2c6c0a6050e1f3fb83d1fa8e',1,'unodb::detail::basic_art_policy']]],
-  ['make_5fdb_5fleaf_5fptr_2',['make_db_leaf_ptr',['../namespaceunodb_1_1detail.html#a912adf1e0ac7b474163cec2dd85bba51',1,'unodb::detail']]],
-  ['matches_3',['matches',['../classunodb_1_1detail_1_1basic__leaf.html#a3fb5bc240211394284d1880d0e512cbe',1,'unodb::detail::basic_leaf']]],
-  ['max_5fkey_5fsize_4',['max_key_size',['../classunodb_1_1detail_1_1basic__leaf.html#aad0f48689bee75c4df7ea93296657094',1,'unodb::detail::basic_leaf']]],
-  ['max_5fvalue_5fsize_5',['max_value_size',['../classunodb_1_1detail_1_1basic__leaf.html#a2ae66a23e391de1745d9144f4279296c',1,'unodb::detail::basic_leaf']]],
-  ['memory_20model_6',['Memory model',['../group__optimistic-lock.html#autotoc_md21',1,'']]],
-  ['messages_7',['Commit messages',['../md_CONTRIBUTING.html#autotoc_md10',1,'']]],
-  ['model_8',['Memory model',['../group__optimistic-lock.html#autotoc_md21',1,'']]],
-  ['msb8_9',['msb8',['../classunodb_1_1key__decoder.html#aa802fb814869f0e416a7c98ece5cb5c4',1,'unodb::key_decoder']]],
-  ['msg_5fstacktrace_5fabort_10',['msg_stacktrace_abort',['../namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2',1,'unodb::detail']]],
-  ['must_5frestart_11',['must_restart',['../classunodb_1_1fake__read__critical__section.html#ad1bbceea9fc44696afb0cedb51db2a05',1,'unodb::fake_read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160',1,'unodb::optimistic_lock::read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435',1,'unodb::optimistic_lock::write_guard::must_restart()']]],
-  ['mutex_5fdb_12',['mutex_db',['../classunodb_1_1mutex__db.html',1,'unodb']]]
+  ['last_0',['last',['../classunodb_1_1olc__db_1_1iterator.html#afb17ba1d9bfd6b3246ea6990aec1862a',1,'unodb::olc_db::iterator::last()'],['../classunodb_1_1db_1_1iterator.html#a49abd1a9feda382a28b522b49d2ab834',1,'unodb::db::iterator::last()']]],
+  ['leaf_1',['LEAF',['../namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350',1,'unodb']]],
+  ['left_5fmost_5ftraversal_2',['left_most_traversal',['../classunodb_1_1db_1_1iterator.html#a7e1ed063c879501558d5b7c88b7546ab',1,'unodb::db::iterator']]],
+  ['license_3',['License',['../md_CONTRIBUTING.html#autotoc_md13',1,'']]],
+  ['linting_20and_20static_20analysis_4',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
+  ['linux_202_5',['Amazon Linux 2',['../index.html#autotoc_md32',1,'']]],
+  ['linux_202023_6',['Amazon Linux 2023',['../index.html#autotoc_md31',1,'']]],
+  ['literature_7',['literature',['../group__optimistic-lock.html#autotoc_md22',1,'Literature'],['../index.html#autotoc_md40',1,'Literature']]],
+  ['load_8',['load',['../classunodb_1_1in__fake__critical__section.html#a72d88e12287402107ad417b79f7045dd',1,'unodb::in_fake_critical_section::load()'],['../classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f',1,'unodb::in_critical_section::load()']]],
+  ['load_5facquire_9',['load_acquire',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#ab1bd489f032fd876be87fdda82ec0fb3',1,'unodb::optimistic_lock::atomic_version_type']]],
+  ['load_5frelaxed_10',['load_relaxed',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#a58e25f698739d17ed135f6940e31674d',1,'unodb::optimistic_lock::atomic_version_type']]],
+  ['lock_11',['lock',['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171',1,'unodb::optimistic_lock::read_critical_section::lock'],['../classunodb_1_1optimistic__lock_1_1write__guard.html#aecfbd1a3a70115e656ad5ae57de13d8f',1,'unodb::optimistic_lock::write_guard::lock'],['../index.html#autotoc_md36',1,'Sequential Lock']]],
+  ['locking_12',['Optimistic Locking',['../group__optimistic-lock.html',1,'']]]
 ];

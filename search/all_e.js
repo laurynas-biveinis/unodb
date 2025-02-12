@@ -1,12 +1,16 @@
 var searchData=
 [
-  ['next_0',['next',['../classunodb_1_1db_1_1iterator.html#ae4bc493e6c8a216e47f68c3226162328',1,'unodb::db::iterator::next()'],['../classunodb_1_1olc__db_1_1iterator.html#ae5453ca90fb7b34d846ab46bb1105945',1,'unodb::olc_db::iterator::next()']]],
-  ['next_5fpower_5fof_5ftwo_1',['next_power_of_two',['../namespaceunodb_1_1detail.html#adfd758c629ed9b8f0df427b1b417dfef',1,'unodb::detail']]],
-  ['node_5fheader_2',['node_header',['../structunodb_1_1detail_1_1node__header.html',1,'unodb::detail']]],
-  ['node_5ftype_3',['node_type',['../namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3',1,'unodb']]],
-  ['node_5ftype_2ehpp_4',['node_type.hpp',['../node__type_8hpp.html',1,'']]],
-  ['node_5ftype_5fcount_5',['node_type_count',['../namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc',1,'unodb::detail']]],
-  ['node_5ftype_5fcounter_5farray_6',['node_type_counter_array',['../namespaceunodb.html#a8105523dd9adff845377f54dd034b838',1,'unodb']]],
-  ['nominmax_7',['NOMINMAX',['../group__internal.html#ga9f918755b601cf4bffca775992e6fb90',1,'global.hpp']]],
-  ['notes_8',['Platform-Specific Notes',['../index.html#autotoc_md29',1,'']]]
+  ['make_5fbinary_5fcomparable_0',['make_binary_comparable',['../structunodb_1_1detail_1_1basic__art__key.html#a2424f684fcd0eb8c9af138caaf4befe5',1,'unodb::detail::basic_art_key']]],
+  ['make_5fdb_5finode_5funique_5fptr_1',['make_db_inode_unique_ptr',['../structunodb_1_1detail_1_1basic__art__policy.html#aadb1795d2c6c0a6050e1f3fb83d1fa8e',1,'unodb::detail::basic_art_policy']]],
+  ['make_5fdb_5fleaf_5fptr_2',['make_db_leaf_ptr',['../namespaceunodb_1_1detail.html#a912adf1e0ac7b474163cec2dd85bba51',1,'unodb::detail']]],
+  ['matches_3',['matches',['../classunodb_1_1detail_1_1basic__leaf.html#a3fb5bc240211394284d1880d0e512cbe',1,'unodb::detail::basic_leaf']]],
+  ['max_5fkey_5fsize_4',['max_key_size',['../classunodb_1_1detail_1_1basic__leaf.html#aad0f48689bee75c4df7ea93296657094',1,'unodb::detail::basic_leaf']]],
+  ['max_5fvalue_5fsize_5',['max_value_size',['../classunodb_1_1detail_1_1basic__leaf.html#a2ae66a23e391de1745d9144f4279296c',1,'unodb::detail::basic_leaf']]],
+  ['memory_20model_6',['Memory model',['../group__optimistic-lock.html#autotoc_md21',1,'']]],
+  ['messages_7',['Commit messages',['../md_CONTRIBUTING.html#autotoc_md10',1,'']]],
+  ['model_8',['Memory model',['../group__optimistic-lock.html#autotoc_md21',1,'']]],
+  ['msb8_9',['msb8',['../classunodb_1_1key__decoder.html#aa802fb814869f0e416a7c98ece5cb5c4',1,'unodb::key_decoder']]],
+  ['msg_5fstacktrace_5fabort_10',['msg_stacktrace_abort',['../namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2',1,'unodb::detail']]],
+  ['must_5frestart_11',['must_restart',['../classunodb_1_1fake__read__critical__section.html#ad1bbceea9fc44696afb0cedb51db2a05',1,'unodb::fake_read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160',1,'unodb::optimistic_lock::read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435',1,'unodb::optimistic_lock::write_guard::must_restart()']]],
+  ['mutex_5fdb_12',['mutex_db',['../classunodb_1_1mutex__db.html',1,'unodb']]]
 ];

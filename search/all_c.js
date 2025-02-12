@@ -1,16 +1,16 @@
 var searchData=
 [
-  ['last_0',['last',['../classunodb_1_1olc__db_1_1iterator.html#afb17ba1d9bfd6b3246ea6990aec1862a',1,'unodb::olc_db::iterator::last()'],['../classunodb_1_1db_1_1iterator.html#a49abd1a9feda382a28b522b49d2ab834',1,'unodb::db::iterator::last()']]],
-  ['leaf_1',['LEAF',['../namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350',1,'unodb']]],
-  ['left_5fmost_5ftraversal_2',['left_most_traversal',['../classunodb_1_1db_1_1iterator.html#a7e1ed063c879501558d5b7c88b7546ab',1,'unodb::db::iterator']]],
-  ['license_3',['License',['../md_CONTRIBUTING.html#autotoc_md13',1,'']]],
-  ['linting_20and_20static_20analysis_4',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
-  ['linux_202_5',['Amazon Linux 2',['../index.html#autotoc_md32',1,'']]],
-  ['linux_202023_6',['Amazon Linux 2023',['../index.html#autotoc_md31',1,'']]],
-  ['literature_7',['literature',['../group__optimistic-lock.html#autotoc_md22',1,'Literature'],['../index.html#autotoc_md40',1,'Literature']]],
-  ['load_8',['load',['../classunodb_1_1in__fake__critical__section.html#a72d88e12287402107ad417b79f7045dd',1,'unodb::in_fake_critical_section::load()'],['../classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f',1,'unodb::in_critical_section::load()']]],
-  ['load_5facquire_9',['load_acquire',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#ab1bd489f032fd876be87fdda82ec0fb3',1,'unodb::optimistic_lock::atomic_version_type']]],
-  ['load_5frelaxed_10',['load_relaxed',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#a58e25f698739d17ed135f6940e31674d',1,'unodb::optimistic_lock::atomic_version_type']]],
-  ['lock_11',['lock',['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171',1,'unodb::optimistic_lock::read_critical_section::lock'],['../classunodb_1_1optimistic__lock_1_1write__guard.html#aecfbd1a3a70115e656ad5ae57de13d8f',1,'unodb::optimistic_lock::write_guard::lock'],['../index.html#autotoc_md36',1,'Sequential Lock']]],
-  ['locking_12',['Optimistic Locking',['../group__optimistic-lock.html',1,'']]]
+  ['key_0',['key',['../structunodb_1_1detail_1_1basic__art__key.html#abc8d474caa99eac94a1b49eee7a9df07',1,'unodb::detail::basic_art_key']]],
+  ['key_5fbuffer_1',['key_buffer',['../classunodb_1_1detail_1_1key__buffer.html',1,'unodb::detail::key_buffer'],['../classunodb_1_1detail_1_1key__buffer.html#aa2f1990980281226761af423b36fe6ba',1,'unodb::detail::key_buffer::key_buffer()']]],
+  ['key_5fbytes_2',['key_bytes',['../structunodb_1_1detail_1_1basic__art__key.html#aa1c673bbd12a302556a7880df52aa9b8',1,'unodb::detail::basic_art_key']]],
+  ['key_5fdecoder_3',['key_decoder',['../classunodb_1_1key__decoder.html',1,'unodb::key_decoder'],['../classunodb_1_1key__decoder.html#a5a981687f918e9dc94b2426e6289c5db',1,'unodb::key_decoder::key_decoder()']]],
+  ['key_5fencoder_4',['key_encoder',['../classunodb_1_1key__encoder.html',1,'unodb::key_encoder'],['../classunodb_1_1key__encoder.html#a591fe4f824b2a55fea59154ef0b285b7',1,'unodb::key_encoder::key_encoder()']]],
+  ['key_5fprefix_5',['key_prefix',['../unionunodb_1_1detail_1_1key__prefix.html',1,'unodb::detail']]],
+  ['key_5fprefix_3c_20art_5fkey_5ftype_2c_20critical_5fsection_5fpolicy_20_3e_6',['key_prefix&lt; art_key_type, critical_section_policy &gt;',['../unionunodb_1_1detail_1_1key__prefix.html',1,'unodb::detail']]],
+  ['key_5fprefix_5fsnapshot_7',['key_prefix_snapshot',['../unionunodb_1_1detail_1_1key__prefix__snapshot.html',1,'unodb::detail']]],
+  ['key_5fsize_8',['key_size',['../classunodb_1_1detail_1_1basic__leaf.html#a891b5c7b76c488e453319377a83e4ae3',1,'unodb::detail::basic_leaf']]],
+  ['key_5fsize_5ftype_9',['key_size_type',['../classunodb_1_1detail_1_1basic__leaf.html#a0ecff1b0efcaa1885908f4402da940eb',1,'unodb::detail::basic_leaf']]],
+  ['key_5funion_10',['key_union',['../unionunodb_1_1detail_1_1basic__inode__16_1_1key__union.html',1,'unodb::detail::basic_inode_16&lt; ArtPolicy &gt;::key_union'],['../unionunodb_1_1detail_1_1basic__inode__4_1_1key__union.html',1,'unodb::detail::basic_inode_4&lt; ArtPolicy &gt;::key_union']]],
+  ['key_5fview_11',['key_view',['../namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90',1,'unodb']]],
+  ['keybuf_5f_12',['keybuf_',['../classunodb_1_1db_1_1iterator.html#ac63c8c6e747332c1128a5361294847be',1,'unodb::db::iterator::keybuf_'],['../classunodb_1_1olc__db_1_1iterator.html#a1cb128bff73b67be45c998d7ec97f43e',1,'unodb::olc_db::iterator::keybuf_']]]
 ];

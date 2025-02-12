@@ -1,9 +1,7 @@
 var searchData=
 [
-  ['fake_5finode_0',['fake_inode',['../classunodb_1_1detail_1_1fake__inode.html',1,'unodb::detail']]],
-  ['fake_5flock_1',['fake_lock',['../classunodb_1_1fake__lock.html',1,'unodb']]],
-  ['fake_5fread_5fcritical_5fsection_2',['fake_read_critical_section',['../classunodb_1_1fake__read__critical__section.html',1,'unodb::fake_read_critical_section'],['../classunodb_1_1fake__read__critical__section.html#aef58c23a1eca1fac26c4a7ee1ff28b27',1,'unodb::fake_read_critical_section::fake_read_critical_section()']]],
-  ['find_5fchild_3',['find_child',['../classunodb_1_1detail_1_1basic__inode__impl.html#a9199d94a15fedd493387941042e577f3',1,'unodb::detail::basic_inode_impl']]],
-  ['first_4',['first',['../classunodb_1_1db_1_1iterator.html#ad7c233ba464e341aa6c356390b0a4a4e',1,'unodb::db::iterator::first()'],['../classunodb_1_1olc__db_1_1iterator.html#a27b92787c103a64dd2ba7f35f3e42680',1,'unodb::olc_db::iterator::first()']]],
-  ['fuzzing_5',['Fuzzing',['../md_CONTRIBUTING.html#autotoc_md9',1,'']]]
+  ['empty_0',['empty',['../classunodb_1_1db.html#aef4d50e3008f613cb7c9d9403e792301',1,'unodb::db::empty()'],['../classunodb_1_1db_1_1iterator.html#aeae6f6f72f94afc63b300fa707367659',1,'unodb::db::iterator::empty()'],['../classunodb_1_1olc__db.html#a51108e5930882c6beb1d4ea856908262',1,'unodb::olc_db::empty()'],['../classunodb_1_1olc__db_1_1iterator.html#a41f9db6a97ff84b2d3868112fc030cf7',1,'unodb::olc_db::iterator::empty()']]],
+  ['ensure_5favailable_1',['ensure_available',['../classunodb_1_1key__encoder.html#acb4f36b165be259d85666d7f61c1853b',1,'unodb::key_encoder::ensure_available()'],['../classunodb_1_1detail_1_1key__buffer.html#a8621eef88fde59c1424b5932dfec2077',1,'unodb::detail::key_buffer::ensure_available()']]],
+  ['ensure_5fcapacity_2',['ensure_capacity',['../classunodb_1_1key__encoder.html#aa75a0d285ed84818d9cd31d79db814b0',1,'unodb::key_encoder::ensure_capacity()'],['../classunodb_1_1detail_1_1key__buffer.html#ae52a2da6536639faca622846d029781e',1,'unodb::detail::key_buffer::ensure_capacity()'],['../namespaceunodb_1_1detail.html#ae50fbbc0bfcabb917d60da68dd6ea193',1,'unodb::detail::ensure_capacity()']]],
+  ['examples_3',['Examples',['../group__optimistic-lock.html#autotoc_md15',1,'']]]
 ];

@@ -1,16 +1,17 @@
 var searchData=
 [
-  ['qsbr_0',['qsbr',['../classunodb_1_1qsbr.html',1,'unodb::qsbr'],['../index.html#autotoc_md37',1,'Quiescent State-Based Reclamation (QSBR)']]],
-  ['qsbr_5fepoch_1',['qsbr_epoch',['../classunodb_1_1qsbr__epoch.html',1,'unodb']]],
-  ['qsbr_5fper_5fthread_2',['qsbr_per_thread',['../classunodb_1_1qsbr__per__thread.html',1,'unodb']]],
-  ['qsbr_5fptr_3',['qsbr_ptr',['../classunodb_1_1qsbr__ptr.html',1,'unodb::qsbr_ptr&lt; T &gt;'],['../classunodb_1_1qsbr__ptr.html#a2641169d199346b78df7879dec6276b6',1,'unodb::qsbr_ptr::qsbr_ptr() noexcept=default'],['../classunodb_1_1qsbr__ptr.html#ac526b240b5be248676a6d3a865d23df2',1,'unodb::qsbr_ptr::qsbr_ptr(pointer ptr_ UNODB_DETAIL_LIFETIMEBOUND) noexcept'],['../classunodb_1_1qsbr__ptr.html#a4b5e72ace20ad413c6442d955123d0c3',1,'unodb::qsbr_ptr::qsbr_ptr(const qsbr_ptr &amp;other) noexcept'],['../classunodb_1_1qsbr__ptr.html#ad9a6c26c3bd6d8544ba406eeb63baa5b',1,'unodb::qsbr_ptr::qsbr_ptr(qsbr_ptr &amp;&amp;other) noexcept']]],
-  ['qsbr_5fptr_2ehpp_4',['qsbr_ptr.hpp',['../qsbr__ptr_8hpp.html',1,'']]],
-  ['qsbr_5fptr_5fbase_5',['qsbr_ptr_base',['../classunodb_1_1detail_1_1qsbr__ptr__base.html',1,'unodb::detail::qsbr_ptr_base'],['../classunodb_1_1detail_1_1qsbr__ptr__base.html#a5500cdff5dbf256de99f74e78e10de5d',1,'unodb::detail::qsbr_ptr_base::qsbr_ptr_base()']]],
-  ['qsbr_5fptr_5fspan_6',['qsbr_ptr_span',['../classunodb_1_1qsbr__ptr__span.html',1,'unodb']]],
-  ['qsbr_5fstate_7',['qsbr_state',['../structunodb_1_1qsbr__state.html',1,'unodb']]],
-  ['qsbr_5fthread_8',['qsbr_thread',['../classunodb_1_1qsbr__thread.html',1,'unodb']]],
-  ['qsbrtestbase_9',['QSBRTestBase',['../classunodb_1_1test_1_1QSBRTestBase.html',1,'unodb::test']]],
-  ['quiescent_20state_20based_20reclamation_10',['Quiescent State-Based Reclamation',['../group__qsbr.html',1,'']]],
-  ['quiescent_20state_20based_20reclamation_20qsbr_11',['Quiescent State-Based Reclamation (QSBR)',['../index.html#autotoc_md37',1,'']]],
-  ['quiescent_5fstate_5fon_5fscope_5fexit_12',['quiescent_state_on_scope_exit',['../structunodb_1_1quiescent__state__on__scope__exit.html',1,'unodb']]]
+  ['platform_20specific_20notes_0',['Platform-Specific Notes',['../index.html#autotoc_md29',1,'']]],
+  ['pointer_1',['pointer',['../classunodb_1_1qsbr__ptr.html#aad73d607224016b21ad63c3ae57f648b',1,'unodb::qsbr_ptr']]],
+  ['pop_2',['pop',['../classunodb_1_1db_1_1iterator.html#a996328a45cb1a2db5b0207468bb19103',1,'unodb::db::iterator::pop()'],['../classunodb_1_1detail_1_1key__buffer.html#a36f646c8c2cc895af810687e22165fdc',1,'unodb::detail::key_buffer::pop()'],['../classunodb_1_1olc__db_1_1iterator.html#a19a4de3d100ab8b7b2b0dae0478a81de',1,'unodb::olc_db::iterator::pop()']]],
+  ['popcount_3',['popcount',['../namespaceunodb_1_1detail.html#a60cd68db0acc4264f225af504457f974',1,'unodb::detail']]],
+  ['portability_5farch_2ehpp_4',['portability_arch.hpp',['../portability__arch_8hpp.html',1,'']]],
+  ['portability_5fbuiltins_2ehpp_5',['portability_builtins.hpp',['../portability__builtins_8hpp.html',1,'']]],
+  ['prefix_5flen_6',['prefix_len',['../structunodb_1_1db_1_1iterator_1_1stack__entry.html#a291b354e08a0edd949ef44f337b91edc',1,'unodb::db::iterator::stack_entry::prefix_len'],['../structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#a8200da52e6bc2c64caf8240b401a47ee',1,'unodb::olc_db::iterator::stack_entry::prefix_len']]],
+  ['prior_7',['prior',['../classunodb_1_1db_1_1iterator.html#a8a772ae580b1b30f66cc2ec06e4e717e',1,'unodb::db::iterator::prior()'],['../classunodb_1_1olc__db_1_1iterator.html#a934efc86d4ca947f6188a328ca12d38f',1,'unodb::olc_db::iterator::prior()']]],
+  ['projects_8',['Related Projects',['../index.html#autotoc_md38',1,'']]],
+  ['protected_20data_20declaration_9',['Protected data declaration',['../group__optimistic-lock.html#autotoc_md17',1,'']]],
+  ['protocol_10',['protocol',['../group__optimistic-lock.html#autotoc_md18',1,'Read protocol'],['../group__optimistic-lock.html#autotoc_md19',1,'Write protocol']]],
+  ['pull_20requests_11',['Pull Requests',['../md_CONTRIBUTING.html#autotoc_md11',1,'']]],
+  ['push_12',['push',['../classunodb_1_1detail_1_1key__buffer.html#afc4d34986f8e25f2b0b55476227608b7',1,'unodb::detail::key_buffer::push(key_view v)'],['../classunodb_1_1detail_1_1key__buffer.html#a2ed442b3f16f8c4c49cdd397bcc986fa',1,'unodb::detail::key_buffer::push(std::byte v)'],['../classunodb_1_1db_1_1iterator.html#aa8b40c9ba49f397f35eeb51d7d53eb22',1,'unodb::db::iterator::push(const typename inode_base::iter_result &amp;e)'],['../classunodb_1_1db_1_1iterator.html#a0b7b269c195dd190113487c7b22915b3',1,'unodb::db::iterator::push(detail::node_ptr node, std::byte key_byte, std::uint8_t child_index)']]],
+  ['push_5fleaf_13',['push_leaf',['../classunodb_1_1db_1_1iterator.html#a25ced56f294545cfbf549475c72cde53',1,'unodb::db::iterator']]]
 ];

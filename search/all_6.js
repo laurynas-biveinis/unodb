@@ -1,7 +1,28 @@
 var searchData=
 [
-  ['empty_0',['empty',['../classunodb_1_1db.html#aef4d50e3008f613cb7c9d9403e792301',1,'unodb::db::empty()'],['../classunodb_1_1db_1_1iterator.html#aeae6f6f72f94afc63b300fa707367659',1,'unodb::db::iterator::empty()'],['../classunodb_1_1olc__db.html#a51108e5930882c6beb1d4ea856908262',1,'unodb::olc_db::empty()'],['../classunodb_1_1olc__db_1_1iterator.html#a41f9db6a97ff84b2d3868112fc030cf7',1,'unodb::olc_db::iterator::empty()']]],
-  ['ensure_5favailable_1',['ensure_available',['../classunodb_1_1key__encoder.html#acb4f36b165be259d85666d7f61c1853b',1,'unodb::key_encoder::ensure_available()'],['../classunodb_1_1detail_1_1key__buffer.html#a8621eef88fde59c1424b5932dfec2077',1,'unodb::detail::key_buffer::ensure_available()']]],
-  ['ensure_5fcapacity_2',['ensure_capacity',['../classunodb_1_1key__encoder.html#aa75a0d285ed84818d9cd31d79db814b0',1,'unodb::key_encoder::ensure_capacity()'],['../classunodb_1_1detail_1_1key__buffer.html#ae52a2da6536639faca622846d029781e',1,'unodb::detail::key_buffer::ensure_capacity()'],['../namespaceunodb_1_1detail.html#ae50fbbc0bfcabb917d60da68dd6ea193',1,'unodb::detail::ensure_capacity()']]],
-  ['examples_3',['Examples',['../group__optimistic-lock.html#autotoc_md15',1,'']]]
+  ['data_0',['data',['../classunodb_1_1detail_1_1basic__leaf.html#a9b9efcf5222a040cac645af90218351b',1,'unodb::detail::basic_leaf']]],
+  ['data_20declaration_1',['Protected data declaration',['../group__optimistic-lock.html#autotoc_md17',1,'']]],
+  ['db_2',['db',['../classunodb_1_1db.html',1,'unodb']]],
+  ['db_5f_3',['db_',['../classunodb_1_1db_1_1iterator.html#ad1c2814bb4526e103d7227b1850e1f61',1,'unodb::db::iterator::db_'],['../classunodb_1_1olc__db_1_1iterator.html#a1c2a1ad956ccc841e76ecefcafde8aa9',1,'unodb::olc_db::iterator::db_']]],
+  ['db_5finode_5fqsbr_5fdeleter_4',['db_inode_qsbr_deleter',['../classunodb_1_1detail_1_1db__inode__qsbr__deleter.html',1,'unodb::detail']]],
+  ['db_5fleaf_5fqsbr_5fdeleter_5',['db_leaf_qsbr_deleter',['../classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html',1,'unodb::detail']]],
+  ['dealloc_5fvector_5flist_5fnode_6',['dealloc_vector_list_node',['../structunodb_1_1detail_1_1dealloc__vector__list__node.html',1,'unodb::detail']]],
+  ['deallocation_5frequest_7',['deallocation_request',['../structunodb_1_1detail_1_1deallocation__request.html',1,'unodb::detail']]],
+  ['dec_5fread_5flock_5fcount_8',['dec_read_lock_count',['../classunodb_1_1optimistic__lock.html#a089b1cee3747f7a42618fca56db4b03b',1,'unodb::optimistic_lock']]],
+  ['declaration_9',['Protected data declaration',['../group__optimistic-lock.html#autotoc_md17',1,'']]],
+  ['decode_10',['decode',['../classunodb_1_1key__decoder.html#af83611f8cd28cc0cd95189d13d073b38',1,'unodb::key_decoder::decode(std::int16_t &amp;v)'],['../classunodb_1_1key__decoder.html#ab55c46b5c81a46ab6d18f680f78ec390',1,'unodb::key_decoder::decode(std::uint64_t &amp;v)'],['../classunodb_1_1key__decoder.html#a4abc4ff5e3588d965f64d90684e5cbba',1,'unodb::key_decoder::decode(std::uint32_t &amp;v)'],['../classunodb_1_1key__decoder.html#a9413e95321ebf0e638fb63de663d9473',1,'unodb::key_decoder::decode(std::uint16_t &amp;v)'],['../classunodb_1_1key__decoder.html#aef99af6cd66c44627b1f515b9495b2f3',1,'unodb::key_decoder::decode(std::uint8_t &amp;v)'],['../classunodb_1_1key__decoder.html#a8ba7dbdf11528130da1c4c37831d7e6f',1,'unodb::key_decoder::decode(std::int64_t &amp;v)'],['../classunodb_1_1key__decoder.html#a49a783f141de5968adbc702ec513f560',1,'unodb::key_decoder::decode(std::int32_t &amp;v)'],['../classunodb_1_1key__decoder.html#ad0b81c81e08f51c02aa0bf02c2da36e1',1,'unodb::key_decoder::decode(std::int8_t &amp;v)']]],
+  ['deferred_5frequests_11',['deferred_requests',['../classunodb_1_1detail_1_1deferred__requests.html',1,'unodb::detail']]],
+  ['delete_5fdb_5fnode_5fptr_5fat_5fscope_5fexit_12',['delete_db_node_ptr_at_scope_exit',['../structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html',1,'unodb::detail::basic_art_policy']]],
+  ['dependencies_13',['dependencies',['../index.html#autotoc_md26',1,'Build dependencies'],['../md_CONTRIBUTING.html#autotoc_md1',1,'Optional development dependencies']]],
+  ['dependencies_20bundled_20as_20git_20submodules_14',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
+  ['dependent_5ffalse_15',['dependent_false',['../structunodb_1_1detail_1_1dependent__false.html',1,'unodb::detail']]],
+  ['details_16',['Technical Details',['../index.html#autotoc_md34',1,'']]],
+  ['development_20cmake_20options_17',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
+  ['development_20dependencies_18',['Optional development dependencies',['../md_CONTRIBUTING.html#autotoc_md1',1,'']]],
+  ['difference_5ftype_19',['difference_type',['../classunodb_1_1qsbr__ptr.html#ab295c46704b6749f28082df1c45f814f',1,'unodb::qsbr_ptr']]],
+  ['documentation_20style_20guide_20',['Documentation style guide',['../md_CONTRIBUTING.html#autotoc_md6',1,'']]],
+  ['dump_21',['dump',['../classunodb_1_1olc__db_1_1iterator.html#ac32b41e7266be4b63d1bcc2cae46cdf0',1,'unodb::olc_db::iterator::dump()'],['../classunodb_1_1optimistic__lock_1_1version__type.html#a3d2da481d5515ecec566805a322d57ef',1,'unodb::optimistic_lock::version_type::dump()'],['../classunodb_1_1optimistic__lock.html#a26ddceb8b35d6632bfd6192e01542dd6',1,'unodb::optimistic_lock::dump()'],['../classunodb_1_1olc__db_1_1iterator.html#a44a181de093bcde297ef11c90d952eae',1,'unodb::olc_db::iterator::dump()'],['../structunodb_1_1detail_1_1basic__art__key.html#aa8cb5d0c123c5ff8fc83f2e724b0e4b6',1,'unodb::detail::basic_art_key::dump() const'],['../structunodb_1_1detail_1_1basic__art__key.html#a0a5a6bb536028d38b08447c64cd91cf1',1,'unodb::detail::basic_art_key::dump(std::ostream &amp;os) const'],['../classunodb_1_1db_1_1iterator.html#ad7ccbf017e5fa39cc70f846eb320bcc7',1,'unodb::db::iterator::dump() const'],['../classunodb_1_1db_1_1iterator.html#a7c8a03d710c741b581877ec46d92bd82',1,'unodb::db::iterator::dump(std::ostream &amp;os) const']]],
+  ['dump_5fbyte_22',['dump_byte',['../namespaceunodb_1_1detail.html#a0ea0a7a9ae7c67e2636bae1ca01e11fe',1,'unodb::detail']]],
+  ['dump_5fkey_23',['dump_key',['../namespaceunodb_1_1detail.html#a3f442e3027e04156cef43a9b865a0c16',1,'unodb::detail']]],
+  ['dump_5fval_24',['dump_val',['../namespaceunodb_1_1detail.html#a815292cf4ea423f309805739554301b5',1,'unodb::detail']]]
 ];

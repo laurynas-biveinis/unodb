@@ -51,7 +51,7 @@ class qsbr_ptr_base {
 template <typename T>
 class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
  public:
-  /// \name Type aliases required for iterator support
+  /// \name Type aliases for iterator support
   /// \{
 
   /// Type of values pointed to.
@@ -66,7 +66,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   using iterator_category = std::contiguous_iterator_tag;
   /// \}
 
-  /// Default-construct a null pointer.
+  /// Default-construct a `nullptr` pointer.
   qsbr_ptr() noexcept = default;
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
@@ -105,6 +105,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26456)
 
+  /// Copy-assign from \a other.
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr &operator=(
       const qsbr_ptr &other) noexcept {
 #ifndef NDEBUG
@@ -118,6 +119,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     return *this;
   }
 
+  /// Move-assign from \a other, leaving it `nullptr`.
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr &operator=(
       qsbr_ptr &&other) noexcept {
 #ifndef NDEBUG
@@ -130,18 +132,22 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  /// Dereference the pointer.
   [[nodiscard]] constexpr reference operator*() const noexcept { return *ptr; }
 
+  /// Array subscript operator for the element at \a n.
   [[nodiscard]] constexpr reference operator[](
       difference_type n) const noexcept {
     return ptr[n];
   }
 
+  /// Member access operator.
   [[nodiscard, gnu::pure]] constexpr T *operator->() const noexcept {
     return ptr;
   }
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+  /// Pre-increment operator.
   constexpr qsbr_ptr &operator++() noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
@@ -154,12 +160,14 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  /// Post-increment operator.
   [[nodiscard]] constexpr qsbr_ptr operator++(int) noexcept {
     const auto result = *this;
     ++(*this);
     return result;
   }
 
+  /// Pre-decrement operator.
   constexpr qsbr_ptr &operator--() noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
@@ -171,12 +179,14 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     return *this;
   }
 
+  /// Post-decrement operator.
   [[nodiscard]] constexpr qsbr_ptr operator--(int) noexcept {
     const auto result = *this;
     --(*this);
     return result;
   }
 
+  /// Add offset \a n to this pointer.
   constexpr qsbr_ptr &operator+=(difference_type n) noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
@@ -188,17 +198,20 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     return *this;
   }
 
+  /// Return a new pointer with offset \a n added to this pointer.
   [[nodiscard]] constexpr qsbr_ptr operator+(difference_type n) const noexcept {
     auto result = *this;
     result += n;
     return result;
   }
 
+  /// Return a new pointer which is a sum of offset \a n and pointer \a other.
   [[nodiscard]] friend constexpr qsbr_ptr operator+(difference_type n,
                                                     qsbr_ptr other) noexcept {
     return other + n;
   }
 
+  /// Subtract offset \a n from this pointer.
   constexpr qsbr_ptr &operator-=(difference_type n) noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
@@ -210,52 +223,62 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     return *this;
   }
 
+  /// Return a new pointer with offset \a n subtracted from this pointer.
   [[nodiscard]] constexpr qsbr_ptr operator-(difference_type n) const noexcept {
     auto result = *this;
     result -= n;
     return result;
   }
 
+  /// Return the distance between this pointer and \a other.
   [[nodiscard, gnu::pure]] constexpr difference_type operator-(
       qsbr_ptr other) const noexcept {
     return get() - other.get();
   }
 
+  /// Compare equal to \a other.
   [[nodiscard, gnu::pure]] constexpr bool operator==(
       qsbr_ptr other) const noexcept {
     return get() == other.get();
   }
 
+  /// Compare not equal to \a other.
   [[nodiscard, gnu::pure]] constexpr bool operator!=(
       qsbr_ptr other) const noexcept {
     return get() != other.get();
   }
 
+  /// Compare less than or equal to \a other.
   [[nodiscard, gnu::pure]] constexpr bool operator<=(
       qsbr_ptr other) const noexcept {
     return get() <= other.get();
   }
 
+  /// Compare greater than or equal to \a other.
   [[nodiscard, gnu::pure]] constexpr bool operator>=(
       qsbr_ptr other) const noexcept {
     return get() >= other.get();
   }
 
+  /// Compare less than \a other.
   [[nodiscard, gnu::pure]] constexpr bool operator<(
       qsbr_ptr other) const noexcept {
     return get() < other.get();
   }
 
+  /// Compare greater than \a other.
   [[nodiscard, gnu::pure]] constexpr bool operator>(
       qsbr_ptr other) const noexcept {
     return get() > other.get();
   }
 
+  /// Get the raw pointer.
   [[nodiscard, gnu::pure]] constexpr pointer get() const noexcept {
     return ptr;
   }
 
  private:
+  /// The raw pointer.
   pointer ptr{nullptr};
 };
 

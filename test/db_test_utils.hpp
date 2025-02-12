@@ -5,12 +5,9 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
-// IWYU pragma: no_include <__fwd/sstream.h>
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
-// IWYU pragma: no_include <iterator>
+// IWYU pragma: no_include <iomanip>
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include "gmock/gmock.h"
-// IWYU pragma: no_include "gtest/gtest.h"
 
 #include <algorithm>
 #include <array>
@@ -24,13 +21,14 @@
 #include <tuple>
 #include <type_traits>
 
-#include <gmock/gmock.h>  // IWYU pragma: keep
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "gtest_utils.hpp"
 
 #include "art.hpp"
 #include "art_common.hpp"
+#include "art_internal.hpp"
 #include "assert.hpp"
 #include "mutex_art.hpp"
 #include "node_type.hpp"
@@ -83,13 +81,10 @@ void assert_value_eq(const typename Db::get_result &result,
   if constexpr (std::is_same_v<Db, unodb::mutex_db<typename Db::key_type>>) {
     UNODB_DETAIL_ASSERT(result.second.owns_lock());
     UNODB_DETAIL_ASSERT(result.first.has_value());
-    UNODB_ASSERT_TRUE(std::equal(std::cbegin(*result.first),
-                                 std::cend(*result.first),
-                                 std::cbegin(expected), std::cend(expected)));
+    UNODB_ASSERT_TRUE(std::ranges::equal(*result.first, expected));
   } else {
     UNODB_DETAIL_ASSERT(result.has_value());
-    UNODB_ASSERT_TRUE(std::equal(std::cbegin(*result), std::cend(*result),
-                                 std::cbegin(expected), std::cend(expected)));
+    UNODB_ASSERT_TRUE(std::ranges::equal(*result, expected));
   }
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -141,6 +136,11 @@ class [[nodiscard]] tree_verifier final {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+  // Replace std::enable_if_t in the next two methods with
+  // requires(std::is_same_v) when LLVM 15 is the oldest supported LLVM version.
+  // Earlier versions give errors of different declarations having identical
+  // mangled names.
+  // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db>
   std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
   do_insert(key_type k, unodb::value_view v) {
@@ -153,6 +153,7 @@ class [[nodiscard]] tree_verifier final {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     UNODB_ASSERT_TRUE(test_db.insert(k, v));
   }
+  // NOLINTEND(modernize-use-constraints)
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   void do_remove(key_type k, bool bypass_verifier) {
@@ -212,6 +213,11 @@ class [[nodiscard]] tree_verifier final {
   }
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+  // Replace std::enable_if_t in the next two methods with
+  // requires(std::is_same_v) when LLVM 15 is the oldest supported LLVM version.
+  // Earlier versions give errors of different declarations having identical
+  // mangled names.
+  // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db>
   std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
   do_try_remove_missing_key(key_type absent_key) {
@@ -224,6 +230,7 @@ class [[nodiscard]] tree_verifier final {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     UNODB_ASSERT_FALSE(test_db.remove(absent_key));
   }
+  // NOLINTEND(modernize-use-constraints)
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -331,6 +338,11 @@ class [[nodiscard]] tree_verifier final {
     }
   }
 
+  // Replace std::enable_if_t in the next four methods with
+  // requires(std::is_same_v) when LLVM 15 is the oldest supported LLVM version.
+  // Earlier versions give errors of different declarations having identical
+  // mangled names.
+  // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db>
   std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void> remove(
       key_type k, bool bypass_verifier = false) {
@@ -356,6 +368,7 @@ class [[nodiscard]] tree_verifier final {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     std::ignore = test_db.remove(k);
   }
+  // NOLINTEND(modernize-use-constraints)
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   void attempt_remove_missing_keys(
@@ -378,6 +391,11 @@ class [[nodiscard]] tree_verifier final {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  // Replace std::enable_if_t in the next two methods with
+  // requires(std::is_same_v) when LLVM 15 is the oldest supported LLVM version.
+  // Earlier versions give errors of different declarations having identical
+  // mangled names.
+  // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db>
   std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void> try_get(
       key_type k) const noexcept(noexcept(this->test_db.get(k))) {
@@ -390,6 +408,7 @@ class [[nodiscard]] tree_verifier final {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     std::ignore = test_db.get(k);
   }
+  // NOLINTEND(modernize-use-constraints)
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
   void check_present_values() const {
@@ -470,6 +489,9 @@ class [[nodiscard]] tree_verifier final {
   }
 
   [[nodiscard, gnu::pure]] constexpr Db &get_db() noexcept { return test_db; }
+
+  tree_verifier(const tree_verifier &) = delete;
+  tree_verifier &operator=(const tree_verifier &) = delete;
 
  private:
   // Custom comparator is required for key_view.

@@ -267,9 +267,9 @@ TYPED_TEST(ARTConcurrencyTest, Node256ParallelOps) {
 }
 
 TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan) {
-  constexpr auto thread_count = 4 * 3;
-  constexpr auto initial_keys = 256;
-  constexpr auto ops_per_thread = 1000;
+  constexpr auto thread_count = 4 * 2;
+  constexpr auto initial_keys = 2048;
+  constexpr auto ops_per_thread = 10'000;
 
   this->verifier.insert_key_range(0, initial_keys, true);
   this->template parallel_test<thread_count, ops_per_thread>(

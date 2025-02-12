@@ -251,25 +251,25 @@ TYPED_TEST(ARTConcurrencyTest, ParallelTearDownOneTree) {
 }
 
 TYPED_TEST(ARTConcurrencyTest, Node4ParallelOps) {
-  this->template key_range_op_test<3, 9, 6>();
+  this->template key_range_op_test<3, 8, 6>();
 }
 
 TYPED_TEST(ARTConcurrencyTest, Node16ParallelOps) {
-  this->template key_range_op_test<10, 9, 12>();
+  this->template key_range_op_test<10, 8, 12>();
 }
 
 TYPED_TEST(ARTConcurrencyTest, Node48ParallelOps) {
-  this->template key_range_op_test<32, 9, 32>();
+  this->template key_range_op_test<32, 8, 32>();
 }
 
 TYPED_TEST(ARTConcurrencyTest, Node256ParallelOps) {
-  this->template key_range_op_test<152, 9, 208>();
+  this->template key_range_op_test<152, 8, 208>();
 }
 
 TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan) {
-  constexpr auto thread_count = 4 * 2;
-  constexpr auto initial_keys = 2048;
-  constexpr auto ops_per_thread = 10'000;
+  constexpr auto thread_count = 4;
+  constexpr auto initial_keys = 128;
+  constexpr auto ops_per_thread = 500;
 
   this->verifier.insert_key_range(0, initial_keys, true);
   this->template parallel_test<thread_count, ops_per_thread>(

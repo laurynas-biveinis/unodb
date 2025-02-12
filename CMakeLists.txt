@@ -394,9 +394,10 @@ set(with_stats "$<BOOL:${STATS}>")
 set(fatal_warnings_on "$<BOOL:${MAINTAINER_MODE}>")
 set(coverage_on "$<BOOL:${COVERAGE}>")
 set(is_standalone "$<BOOL:${STANDALONE}>")
+set(asan_on "$<BOOL:${SANITIZE_ADDRESS}>")
 # Checks across multiple categories
-set(is_gxx_not_release_standalone
-  $<AND:${is_gxx_genex},${is_not_release_genex},${is_standalone}>)
+set(is_standalone_not_release "$<AND:${is_standalone},${is_not_release_genex}>")
+set(is_standalone_asan "$<AND:${is_standalone},${asan_on}>")
 
 option(TESTS "Build tests, including fuzz ones if DeepState is available" ON)
 
@@ -438,6 +439,15 @@ if(TESTS OR BENCHMARKS)
   endmacro()
 endif()
 
+# C++-related properties that must be set on every compiled target. Applies to
+# dependencies too in the case of standalone build.
+function(GLOBAL_CXX_TARGET_PROPERTIES TARGET)
+  target_compile_definitions(${TARGET} PUBLIC
+    "$<${is_standalone_not_release}:_GLIBCXX_DEBUG>"
+    "$<${is_standalone_not_release}:_GLIBCXX_DEBUG_PEDANTIC>"
+    "$<${is_standalone_asan}:_GLIBCXX_SANITIZE_VECTOR>")
+endfunction()
+
 if(TESTS)
   # For Windows: Prevent overriding the parent project's compiler/linker settings
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -445,6 +455,9 @@ if(TESTS)
   ADD_CXX_FLAGS_FOR_SUBDIR()
   add_subdirectory(3rd_party/googletest)
   RESTORE_CXX_FLAGS_FOR_SUBDIR()
+
+  global_cxx_target_properties(gtest)
+  global_cxx_target_properties(gtest_main)
 
   # Do not build DeepState:
   # - under Windows as it's not supported
@@ -529,8 +542,8 @@ if(BENCHMARKS)
   add_subdirectory(3rd_party/benchmark)
   RESTORE_CXX_FLAGS_FOR_SUBDIR()
 
-  target_compile_definitions(benchmark PUBLIC
-    "$<${is_gxx_not_release_standalone}:_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC>")
+  global_cxx_target_properties(benchmark)
+  global_cxx_target_properties(benchmark_main)
 
   # Add benchmark_include_dirs by target_include_directories(... SYSTEM ...)
   # before target_link_libraries so that benchmark headers are included through
@@ -628,6 +641,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   cmake_parse_arguments(PARSE_ARGV 1 CTP "SKIP_CHECKS" "" "")
   target_compile_features(${TARGET} PUBLIC cxx_std_20)
   set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
+  global_cxx_target_properties(${TARGET})
   target_compile_definitions(${TARGET} PUBLIC
     "$<${is_standalone}:UNODB_DETAIL_STANDALONE>"
     "$<${use_boost_stacktrace}:UNODB_DETAIL_BOOST_STACKTRACE>"

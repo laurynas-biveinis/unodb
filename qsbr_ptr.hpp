@@ -10,14 +10,7 @@
 /// They are debugging helpers to catch the QSBR contract violation of declaring
 /// a quiescent state while having an active pointer to the shared data.
 
-//
-// CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
-// HEADER FILES !!!
-//
-// This header defines _GLIBCXX_DEBUG and _GLIBCXX_DEBUG_PEDANTIC for
-// DEBUG builds.  If some standard headers are included before and
-// after those symbols are defined, then that results in different
-// container internal structure layouts and that is Not Good.
+// Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <cstddef>

@@ -1,17 +1,10 @@
-// Copyright 2019-2024 Laurynas Biveinis
+// Copyright 2019-2025 UnoDB contributors
 
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gtest/gtest.h"
 
-//
-// CAUTION: [global.hpp] MUST BE THE FIRST INCLUDE IN ALL SOURCE AND
-// HEADER FILES !!!
-//
-// This header defines _GLIBCXX_DEBUG and _GLIBCXX_DEBUG_PEDANTIC for
-// DEBUG builds.  If some standard headers are included before and
-// after those symbols are defined, then that results in different
-// container internal structure layouts and that is Not Good.
+// Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
 #include <cstddef>

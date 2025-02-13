@@ -284,48 +284,67 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 
 static_assert(std::contiguous_iterator<unodb::qsbr_ptr<std::byte>>);
 
-// An std::span, but with qsbr_ptr instead of a raw pointer.
+/// An std::span, but with unodb::qsbr_ptr instead of a raw pointer, that is, a
+/// span over QSBR-managed data. Crashes debug builds if a thread goes through a
+/// quiescent state while having an active span. Meets C++ contiguous range
+/// requirements.
 // Implemented the bare minimum to get things to work, expand as necessary.
-template <class T>
+template <typename T>
 class qsbr_ptr_span : public std::ranges::view_base {
  public:
-  UNODB_DETAIL_RELEASE_CONSTEXPR
-  qsbr_ptr_span() noexcept : start{nullptr}, length{0} {}
+  /// Construct an empty span.
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span() noexcept
+      : start{nullptr}, length{0} {}
 
+  /// Construct from a regular span \a other over QSBR-managed data.
   UNODB_DETAIL_RELEASE_CONSTEXPR
   explicit qsbr_ptr_span(const std::span<T> &other) noexcept
       : start{other.data()}, length{static_cast<std::size_t>(other.size())} {}
 
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span(
-      const qsbr_ptr_span<T> &) noexcept = default;
-  constexpr qsbr_ptr_span(qsbr_ptr_span<T> &&) noexcept = default;
+  /// Copy-construct from \a other.
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span(const qsbr_ptr_span &) noexcept =
+      default;
+
+  /// Move-construct from \a other.
+  constexpr qsbr_ptr_span(qsbr_ptr_span &&) noexcept = default;
+
+  /// Destruct the span.
   ~qsbr_ptr_span() noexcept = default;
 
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span<T> &operator=(
-      const qsbr_ptr_span<T> &) noexcept = default;
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span<T> &operator=(
-      qsbr_ptr_span<T> &&) noexcept = default;
+  /// Copy-assign from \a other.
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span &operator=(
+      const qsbr_ptr_span &) noexcept = default;
 
+  /// Move-assign from \a other.
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span &operator=(
+      qsbr_ptr_span &&) noexcept = default;
+
+  /// Get the start iterator.
   [[nodiscard, gnu::pure]] constexpr qsbr_ptr<T> begin() const noexcept {
     return start;
   }
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+  /// Get the past-the-end iterator.
   [[nodiscard, gnu::pure]] constexpr qsbr_ptr<T> end() const noexcept {
     return qsbr_ptr<T>{start.get() + length};
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  /// Get the number of elements.
   [[nodiscard, gnu::pure]] constexpr std::size_t size() const noexcept {
     return length;
   }
 
  private:
+  /// The QSBR pointer to the start of the span.
   qsbr_ptr<T> start;
+  /// The number of elements.
   std::size_t length;
 };
 
-template <class T>
+/// Deduction guide for constructing from std::span with the same element type.
+template <typename T>
 qsbr_ptr_span(const std::span<T> &) -> qsbr_ptr_span<T>;
 
 }  // namespace unodb

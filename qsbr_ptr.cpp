@@ -1,5 +1,9 @@
 // Copyright (C) 2021-2025 UnoDB contributors
 
+/// \file
+/// Implementation of active pointer registration for QSBR-managed data in debug
+/// builds.
+
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 

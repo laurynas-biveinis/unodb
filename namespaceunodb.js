@@ -15,7 +15,7 @@ var namespaceunodb =
     [ "qsbr_epoch", "classunodb_1_1qsbr__epoch.html", null ],
     [ "qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", null ],
     [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html", "classunodb_1_1qsbr__ptr" ],
-    [ "qsbr_ptr_span", "classunodb_1_1qsbr__ptr__span.html", null ],
+    [ "qsbr_ptr_span", "classunodb_1_1qsbr__ptr__span.html", "classunodb_1_1qsbr__ptr__span" ],
     [ "qsbr_state", "structunodb_1_1qsbr__state.html", null ],
     [ "qsbr_thread", "classunodb_1_1qsbr__thread.html", null ],
     [ "quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", null ],
@@ -33,6 +33,7 @@ var namespaceunodb =
       [ "I48", "namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084", null ],
       [ "I256", "namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda", null ]
     ] ],
+    [ "qsbr_ptr_span", "namespaceunodb.html#a5710c60b3e8525518398d85e89a7a40d", null ],
     [ "spin_wait_loop_body", "namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237", null ],
     [ "as_i", "namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1", null ],
     [ "internal_as_i", "namespaceunodb.html#a775cf37c7ccec6301c8512193550b424", null ]

@@ -125,6 +125,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A raw pointer-like smart pointer to QSBR-managed shared data.  <a href="classunodb_1_1qsbr__ptr.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__ptr__span.html">unodb::qsbr_ptr_span&lt; T &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An std::span, but with <a class="el" href="classunodb_1_1qsbr__ptr.html" title="A raw pointer-like smart pointer to QSBR-managed shared data.">unodb::qsbr_ptr</a> instead of a raw pointer, that is, a span over QSBR-managed data.  <a href="classunodb_1_1qsbr__ptr__span.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -139,8 +140,9 @@ Namespaces</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a5710c60b3e8525518398d85e89a7a40d" id="r_a5710c60b3e8525518398d85e89a7a40d"><td class="memTemplParams" colspan="2"><a id="a5710c60b3e8525518398d85e89a7a40d" name="a5710c60b3e8525518398d85e89a7a40d"></a>
-template&lt;class T &gt; </td></tr>
+template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a5710c60b3e8525518398d85e89a7a40d"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::qsbr_ptr_span</b> (const std::span&lt; T &gt; &amp;) -&gt; <a class="el" href="classunodb_1_1qsbr__ptr__span.html">qsbr_ptr_span</a>&lt; T &gt;</td></tr>
+<tr class="memdesc:a5710c60b3e8525518398d85e89a7a40d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deduction guide for constructing from std::span with the same element type. <br /></td></tr>
 <tr class="separator:a5710c60b3e8525518398d85e89a7a40d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>

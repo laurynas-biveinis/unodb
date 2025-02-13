@@ -274,11 +274,13 @@ workflows:
           name: clang 19 Release
           build_type: Release
           compiler: clang
-      - build-linux:
-          name: clang 19 Release with ASan
-          build_type: Release
-          compiler: clang
-          asan: true
+      # Disabled until https://github.com/laurynas-biveinis/unodb/issues/700 is
+      # fixed.
+      # - build-linux:
+      #     name: clang 19 Release with ASan
+      #     build_type: Release
+      #     compiler: clang
+      #     asan: true
       - build-linux:
           name: clang 19 Release with TSan
           build_type: Release

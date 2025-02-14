@@ -36,16 +36,12 @@ jobs:
       - name: Setup Boost
         run: sudo apt-get install -y libboost-dev
 
-      - name: Create build environment
-        run: mkdir ${{github.workspace}}/build
-
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment
         # variable access regardless of the host operating system
         shell: bash
-        working-directory: ${{github.workspace}}/build
         run: |
-          cmake "$GITHUB_WORKSPACE" "-DSTANDALONE=$STANDALONE" \
+          cmake -B build "$GITHUB_WORKSPACE" "-DSTANDALONE=$STANDALONE" \
               "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" "-DTESTS=$TESTS" \
               "-DBENCHMARKS=$BENCHMARKS"
 

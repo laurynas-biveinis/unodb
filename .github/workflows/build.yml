@@ -16,7 +16,7 @@ env:
   DEFAULT_COVERAGE: OFF
   DEFAULT_AVX2: ON
 
-permissions: { }
+permissions: {}
 
 jobs:
   build:
@@ -349,14 +349,10 @@ jobs:
         run: brew install cppcheck
         if: runner.os == 'macOS' && env.CPPCHECK == 'ON'
 
-      - name: Create build environment
-        run: mkdir ${{github.workspace}}/build
-
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment
         # variable access regardless of the host operating system
         shell: bash
-        working-directory: ${{github.workspace}}/build
         run: |
           COMPILER="${COMPILER:-$DEFAULT_COMPILER}"
           SANITIZE_ADDRESS="${SANITIZE_ADDRESS:-$DEFAULT_SANITIZE_ADDRESS}"
@@ -407,7 +403,7 @@ jobs:
             export CC=clang
             export CXX=clang++
           fi
-          cmake "$GITHUB_WORKSPACE" "$CBT" -DSTANDALONE=ON \
+          cmake -B build "$GITHUB_WORKSPACE" "$CBT" -DSTANDALONE=ON \
               -DMAINTAINER_MODE=ON -DIWYU=ON \
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
@@ -426,11 +422,6 @@ jobs:
           /usr/bin/scan-build-19 --status-bugs -stats -analyze-headers \
             --force-analyze-debug-code make -j3 -k;
         if: env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang'
-
-      - name: Examples
-        working-directory: ${{github.workspace}}/build
-        run: make -k examples
-        if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
 
       - name: Correctness test
         working-directory: ${{github.workspace}}/build

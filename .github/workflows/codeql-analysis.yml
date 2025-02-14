@@ -39,16 +39,13 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: manual
 
-      - name: Create build environment
-        run: mkdir ${{github.workspace}}/build
-
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment
         # variable access regardless of the host operating system
         shell: bash
-        working-directory: ${{github.workspace}}/build
         run: |
-          cmake "$GITHUB_WORKSPACE" -DCMAKE_BUILD_TYPE=Release -DSTANDALONE=ON
+          cmake -B build "$GITHUB_WORKSPACE" -DCMAKE_BUILD_TYPE=Release \
+              -DSTANDALONE=ON
 
       - name: Build
         working-directory: ${{github.workspace}}/build

@@ -1,5 +1,5 @@
 ---
-name: valgrind
+name: examples
 
 on:
   push:
@@ -15,24 +15,27 @@ jobs:
 
     env:
       BUILD_TYPE: ${{matrix.BUILD_TYPE}}
-      AVX2: ${{matrix.AVX2}}
+      TESTS: ${{matrix.TESTS}}
+      BENCHMARKS: ${{matrix.BENCHMARKS}}
 
     strategy:
       fail-fast: false
 
       matrix:
         BUILD_TYPE: [Release, Debug]
-        AVX2: [ON, OFF]
+        TESTS: [ON, OFF]
+        BENCHMARKS: [ON, OFF]
 
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: false
 
       - name: Setup dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libboost-dev libc6-dev-i386 libc6-dbg
+          sudo apt-get install -y libboost-dev libc6-dev-i386 libc6-dbg \
+              libgtest-dev libgmock-dev libbenchmark-dev
           # Install a newer version than the one in APT
           sudo snap install --classic valgrind
 
@@ -41,14 +44,14 @@ jobs:
         # variable access regardless of the host operating system
         shell: bash
         run: |
-          cmake -B build "$GITHUB_WORKSPACE" "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
-              "-DSTANDALONE=ON" "-DAVX2=$AVX2"
+          cmake -B build "$GITHUB_WORKSPACE/examples" \
+              "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" "-DTESTS=$TESTS" \
+              "-DBENCHMARKS=$BENCHMARKS"
 
-      - name: Build
+      - name: Examples
         working-directory: ${{github.workspace}}/build
-        run: make -j3 -k
+        run: make -j3 -k examples
 
-      - name: Valgrind test
+      - name: Valgrind examples
         working-directory: ${{github.workspace}}/build
-        run: make -k valgrind
-        timeout-minutes: 120
+        run: make -j3 -k valgrind_examples

@@ -14,7 +14,7 @@ env:
   DEFAULT_SPINLOCK_LOOP: PAUSE
   DEFAULT_STATS: ON
 
-permissions: { }
+permissions: {}
 
 jobs:
   build:
@@ -481,14 +481,10 @@ jobs:
           sudo apt-get install -y gcc
         if: env.COMPILER == 'gcc' && env.VERSION == '11'
 
-      - name: Create build environment
-        run: mkdir ${{github.workspace}}/build
-
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment
         # variable access regardless of the host operating system
         shell: bash
-        working-directory: ${{github.workspace}}/build
         run: |
           SANITIZE_ADDRESS="${SANITIZE_ADDRESS:-$DEFAULT_SANITIZE_ADDRESS}"
           SANITIZE_THREAD="${SANITIZE_THREAD:-$DEFAULT_SANITIZE_THREAD}"
@@ -514,7 +510,7 @@ jobs:
               EXTRA_CMAKE_ARGS=("${EXTRA_CMAKE_ARGS[@]}" "-DMAINTAINER_MODE=ON")
             fi
           fi
-          cmake "$GITHUB_WORKSPACE" -DSTANDALONE=ON \
+          cmake -B build "$GITHUB_WORKSPACE" -DSTANDALONE=ON \
               "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
@@ -525,10 +521,6 @@ jobs:
       - name: Build
         working-directory: ${{github.workspace}}/build
         run: make -j3 -k
-
-      - name: Examples
-        working-directory: ${{github.workspace}}/build
-        run: make -k examples
 
       - name: Correctness test
         working-directory: ${{github.workspace}}/build

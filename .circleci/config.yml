@@ -1,6 +1,14 @@
 ---
 version: 2.1
 
+parameters:
+  GCC_VERSION:
+    type: string
+    default: "14"
+  CLANG_VERSION:
+    type: string
+    default: "19"
+
 jobs:
   build-linux:
     parameters:
@@ -19,19 +27,20 @@ jobs:
       ubsan:
         type: boolean
         default: false
+    environment:
+      GCC_VERSION: << pipeline.parameters.GCC_VERSION >>
+      CLANG_VERSION: << pipeline.parameters.CLANG_VERSION >>
     machine:
       image: ubuntu-2404:2024.11.1
     resource_class: arm.medium
     steps:
       - checkout
       - run:
-          name: Checkout submodules
-          command: git submodule update --init
-      - run:
           name: Installing dependencies (common)
           command: |
             sudo apt-get update
-            sudo apt-get install -y libboost-dev
+            sudo apt-get install -y libboost-dev libgtest-dev libgmock-dev \
+                libbenchmark-dev valgrind
       - when:
           condition:
             equal: ["gcc", << parameters.compiler >>]
@@ -39,7 +48,7 @@ jobs:
             - run:
                 name: Installing dependencies (GCC)
                 command: |
-                  sudo apt-get install -y g++-14
+                  sudo apt-get install -y g++-${GCC_VERSION}
       - when:
           condition:
             equal: ["clang", << parameters.compiler >>]
@@ -47,8 +56,9 @@ jobs:
             - run:
                 name: Installing dependencies (LLVM common)
                 command: |
-                  sudo apt-get install -y clang-19 clang-tidy-19 iwyu \
-                    libstdc++-14-dev
+                  sudo apt-get install -y clang-${CLANG_VERSION} \
+                    clang-tidy-${CLANG_VERSION} iwyu \
+                    libstdc++-${GCC_VERSION}-dev
       - when:
           condition:
             and:
@@ -58,7 +68,8 @@ jobs:
             - run:
                 name: Installing dependencies (LLVM Release)
                 command: |
-                  sudo apt-get install -y libomp5-19 llvm-19 lld-19
+                  sudo apt-get install -y libomp5-${CLANG_VERSION} \
+                      llvm-${CLANG_VERSION} lld-${CLANG_VERSION}
       - when:
           condition:
             << parameters.tsan >>
@@ -69,37 +80,66 @@ jobs:
                 # https://github.com/google/sanitizers/issues/1716 has
                 # propagated everywhere
                 command: sudo sysctl vm.mmap_rnd_bits=28
+      - when:
+          condition:
+            not:
+              or:
+                - << parameters.asan >>
+                - << parameters.tsan >>
+                - << parameters.ubsan >>
+          steps:
+            - run:
+                name: Configure CMake (examples)
+                command: |
+                  readonly BUILD_TYPE=<< parameters.build_type >>
+                  readonly COMPILER=<< parameters.compiler >>
+                  if [[ $COMPILER == "gcc" ]]; then
+                    export CC=gcc-$GCC_VERSION
+                    export CXX=g++-$GCC_VERSION
+                  elif [[ $COMPILER == "clang" ]]; then
+                    export CC=clang-$CLANG_VERSION
+                    export CXX=clang++-$CLANG_VERSION
+                  fi
+                  cmake -S examples -B build-examples \
+                      -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+            - run:
+                name: Examples
+                working_directory: build-examples
+                command: make -j2 -k examples
+            - run:
+                name: Valgrind examples
+                working_directory: build-examples
+                command: make -k valgrind_examples
       - run:
-          name: Create build environment
-          command: mkdir build
+          name: Checkout submodules
+          command: git submodule update --init
       - run:
           name: Configure CMake
-          working_directory: build
           command: |
+            mkdir build
+            cd build
             readonly BUILD_TYPE=<< parameters.build_type >>
             readonly COMPILER=<< parameters.compiler >>
             readonly ASAN=<< parameters.asan >>
             readonly TSAN=<< parameters.tsan >>
             readonly UBSAN=<< parameters.ubsan >>
             if [[ $COMPILER == "gcc" ]]; then
-              V=14
-              export CC=gcc-$V
-              export CXX=g++-$V
+              export CC=gcc-$GCC_VERSION
+              export CXX=g++-$GCC_VERSION
               EXTRA_CMAKE_ARGS=()
             elif [[ $COMPILER == "clang" ]]; then
-              V=19
-              export CC=clang-$V
-              export CXX=clang++-$V
+              export CC=clang-$CLANG_VERSION
+              export CXX=clang++-$CLANG_VERSION
               if [[ $BUILD_TYPE == "Release" ]]; then
                 EXTRA_CMAKE_ARGS=(\
-                  "-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-$V" \
-                  "-DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-$V" \
-                  "-DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-$V")
+                  "-DLLVMAR_EXECUTABLE=/usr/bin/llvm-ar-$CLANG_VERSION" \
+                  "-DLLVMNM_EXECUTABLE=/usr/bin/llvm-nm-$CLANG_VERSION" \
+                  "-DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-$CLANG_VERSION")
               else
                 EXTRA_CMAKE_ARGS=()
               fi
               EXTRA_CMAKE_ARGS=("${EXTRA_CMAKE_ARGS[@]}" \
-                  "-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-$V")
+                  "-DCLANG_TIDY_EXE=/usr/bin/clang-tidy-$CLANG_VERSION")
             fi
             cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSTANDALONE=ON \
               -DMAINTAINER_MODE=ON -DSANITIZE_ADDRESS=$ASAN \
@@ -109,10 +149,6 @@ jobs:
           name: Build
           working_directory: build
           command: make -j2 -k
-      - run:
-          name: Examples
-          working_directory: build
-          command: make -k examples
       - run:
           name: Correctness test
           working_directory: build
@@ -139,9 +175,7 @@ jobs:
             - run:
                 name: Valgrind test
                 working_directory: build
-                command: |
-                  sudo NEEDRESTART_MODE=a apt-get install -y valgrind
-                  make -k valgrind
+                command: make -k valgrind
 
   build-macos:
     parameters:
@@ -163,19 +197,38 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Checkout submodules
-          command: git submodule update --init --recursive
-      - run:
           name: Install dependencies
           command: |
             sudo -H pip install setuptools
             brew install boost cmake
+      - when:
+          condition:
+            not:
+              or:
+                - << parameters.asan >>
+                - << parameters.tsan >>
+                - << parameters.ubsan >>
+          steps:
+            - run:
+                name: Installing dependencies (examples)
+                command: brew install googletest google-benchmark
+            - run:
+                name: Configure CMake (examples)
+                command: |
+                  readonly BUILD_TYPE=<< parameters.build_type >>
+                  export CC=clang
+                  export CXX=clang++
+                  cmake -S examples -B build-examples \
+                      -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+            - run:
+                name: Examples
+                working_directory: build-examples
+                command: make -j3 -k examples
       - run:
-          name: Create build environment
-          command: mkdir build
+          name: Checkout submodules
+          command: git submodule update --init --recursive
       - run:
           name: Configure CMake
-          working_directory: build
           command: |
             readonly BUILD_TYPE=<< parameters.build_type >>
             readonly ASAN=<< parameters.asan >>
@@ -183,17 +236,13 @@ jobs:
             readonly UBSAN=<< parameters.ubsan >>
             export CC=clang
             export CXX=clang++
-            cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSTANDALONE=ON \
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSTANDALONE=ON \
               -DMAINTAINER_MODE=OFF -DSANITIZE_ADDRESS=$ASAN \
               -DSANITIZE_THREAD=$TSAN -DSANITIZE_UB=$UBSAN
       - run:
           name: Build
           working_directory: build
           command: make -j3 -k
-      - run:
-          name: Examples
-          working_directory: build
-          command: make -k examples
       - run:
           name: Correctness test
           working_directory: build
@@ -214,80 +263,80 @@ workflows:
   build:
     jobs:
       - build-linux:
-          name: GCC 14 Debug
+          name: GCC << pipeline.parameters.GCC_VERSION >> Debug
           build_type: Debug
           compiler: gcc
       - build-linux:
-          name: GCC 14 Debug with ASan
+          name: GCC << pipeline.parameters.GCC_VERSION >> Debug with ASan
           build_type: Debug
           compiler: gcc
           asan: true
       - build-linux:
-          name: GCC 14 Debug with TSan
+          name: GCC << pipeline.parameters.GCC_VERSION >> Debug with TSan
           build_type: Debug
           compiler: gcc
           tsan: true
       - build-linux:
-          name: GCC 14 Debug with UBSan
+          name: GCC << pipeline.parameters.GCC_VERSION >> Debug with UBSan
           build_type: Debug
           compiler: gcc
           ubsan: true
       - build-linux:
-          name: GCC 14 Release
+          name: GCC << pipeline.parameters.GCC_VERSION >> Release
           build_type: Release
           compiler: gcc
       - build-linux:
-          name: GCC 14 Release with ASan
+          name: GCC << pipeline.parameters.GCC_VERSION >> Release with ASan
           build_type: Release
           compiler: gcc
           asan: true
       - build-linux:
-          name: GCC 14 Release with TSan
+          name: GCC << pipeline.parameters.GCC_VERSION >> Release with TSan
           build_type: Release
           compiler: gcc
           tsan: true
       - build-linux:
-          name: GCC 14 Release with UBSan
+          name: GCC << pipeline.parameters.GCC_VERSION >> Release with UBSan
           build_type: Release
           compiler: gcc
           ubsan: true
       - build-linux:
-          name: clang 19 Debug
+          name: clang << pipeline.parameters.CLANG_VERSION >> Debug
           build_type: Debug
           compiler: clang
       - build-linux:
-          name: clang 19 Debug with ASan
+          name: clang << pipeline.parameters.CLANG_VERSION >> Debug with ASan
           build_type: Debug
           compiler: clang
           asan: true
       - build-linux:
-          name: clang 19 Debug with TSan
+          name: clang << pipeline.parameters.CLANG_VERSION >> Debug with TSan
           build_type: Debug
           compiler: clang
           tsan: true
       - build-linux:
-          name: clang 19 Debug with UBSan
+          name: clang << pipeline.parameters.CLANG_VERSION >> Debug with UBSan
           build_type: Debug
           compiler: clang
           ubsan: true
       - build-linux:
-          name: clang 19 Release
+          name: clang << pipeline.parameters.CLANG_VERSION >> Release
           build_type: Release
           compiler: clang
       # Disabled until https://github.com/laurynas-biveinis/unodb/issues/700 is
       # fixed.
       # - build-linux:
-      #     name: clang 19 Release with ASan
+      #     name: clang << pipeline.parameters.CLANG_VERSION >> Release with ASan
       #     build_type: Release
       #     compiler: clang
       #     asan: true
       - build-linux:
-          name: clang 19 Release with TSan
+          name: clang << pipeline.parameters.CLANG_VERSION >> Release with TSan
           build_type: Release
           compiler: clang
           tsan: true
       - build-linux:
-          name: clang 19 Release with UBSan
+          name: clang << pipeline.parameters.CLANG_VERSION >> Release with UBSan
           build_type: Release
           compiler: clang
           ubsan: true

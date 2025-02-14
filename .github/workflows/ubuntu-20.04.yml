@@ -12,7 +12,7 @@ env:
   DEFAULT_SANITIZE_THREAD: OFF
   DEFAULT_SANITIZE_UB: OFF
 
-permissions: { }
+permissions: {}
 
 jobs:
   build:
@@ -195,14 +195,10 @@ jobs:
                "lld-${VERSION}"
         if: env.COMPILER == 'clang' && env.BUILD_TYPE == 'Release'
 
-      - name: Create build environment
-        run: mkdir ${{github.workspace}}/build
-
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment
         # variable access regardless of the host operating system
         shell: bash
-        working-directory: ${{github.workspace}}/build
         run: |
           SANITIZE_ADDRESS="${SANITIZE_ADDRESS:-$DEFAULT_SANITIZE_ADDRESS}"
           SANITIZE_THREAD="${SANITIZE_THREAD:-$DEFAULT_SANITIZE_THREAD}"
@@ -222,7 +218,7 @@ jobs:
                   "-DLLVMRANLIB_EXECUTABLE=/usr/bin/llvm-ranlib-${VERSION}")
             fi
           fi
-          cmake "$GITHUB_WORKSPACE" -DSTANDALONE=ON \
+          cmake -B build "$GITHUB_WORKSPACE" -DSTANDALONE=ON \
               "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
@@ -231,10 +227,6 @@ jobs:
       - name: Build
         working-directory: ${{github.workspace}}/build
         run: make -j3 -k
-
-      - name: Examples
-        working-directory: ${{github.workspace}}/build
-        run: make -k examples
 
       - name: Correctness test
         working-directory: ${{github.workspace}}/build

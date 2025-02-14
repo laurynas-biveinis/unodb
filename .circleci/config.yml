@@ -152,7 +152,7 @@ jobs:
       - run:
           name: Build
           working_directory: build
-          command: make -j2 -k
+          command: make -k
       - run:
           name: Correctness test
           working_directory: build

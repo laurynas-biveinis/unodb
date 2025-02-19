@@ -439,11 +439,11 @@ TEST(ARTKeyEncodeDecodeTest, FloatC0003NegInfinity) {
   using F = float;
   using U = std::uint32_t;
   constexpr auto ninf = -std::numeric_limits<F>::infinity();
-  static_assert(sizeof(ninf) == sizeof(float));
-  static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 required");
-  static_assert(ninf < std::numeric_limits<float>::lowest());
-  static_assert(std::isinf(ninf));
-  static_assert(!std::isnan(ninf));
+  EXPECT_EQ(sizeof(ninf), sizeof(float));
+  EXPECT_TRUE(std::numeric_limits<float>::is_iec559) << "IEEE 754 required";
+  EXPECT_TRUE(ninf < std::numeric_limits<float>::lowest());
+  EXPECT_TRUE(std::isinf(ninf));
+  EXPECT_TRUE(!std::isnan(ninf));
   EXPECT_EQ(unodb::detail::bit_cast<const U>(ninf), 0xff800000U);
   do_encode_decode_float_test(ninf);
 }
@@ -551,11 +551,11 @@ TEST(ARTKeyEncodeDecodeTest, DoubleC0003NegInfinity) {
   using F = double;
   using U = std::uint64_t;
   constexpr auto ninf = -std::numeric_limits<F>::infinity();
-  static_assert(sizeof(ninf) == sizeof(double));
-  static_assert(std::numeric_limits<double>::is_iec559, "IEEE 754 required");
-  static_assert(ninf < std::numeric_limits<double>::lowest());
-  static_assert(std::isinf(ninf));
-  static_assert(!std::isnan(ninf));
+  EXPECT_EQ(sizeof(ninf), sizeof(double));
+  EXPECT_TRUE(std::numeric_limits<double>::is_iec559) << "IEEE 754 required";
+  EXPECT_TRUE(ninf < std::numeric_limits<double>::lowest());
+  EXPECT_TRUE(std::isinf(ninf));
+  EXPECT_TRUE(!std::isnan(ninf));
   EXPECT_EQ(unodb::detail::bit_cast<const U>(ninf), 0xfff0000000000000ULL);
   do_encode_decode_double_test(ninf);
 }

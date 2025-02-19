@@ -34,6 +34,8 @@
 #include <cstddef>
 #include <cstdint>
 
+#include "portability_builtins.hpp"
+
 // to avoid conflicts with the DuckDB methods of the same name.
 namespace unodb::detail {
 
@@ -61,7 +63,6 @@ template <typename U, typename F>
     else
       return 0;  // -inf
   }
-  // U buff = reinterpret_cast<U&>(x);
   U buff = unodb::detail::bit_cast<U, F>(x);
   if ((buff & msb) == 0) {  //! +0 and positive numbers
     buff |= msb;
@@ -89,7 +90,6 @@ template <typename F, typename U>
   } else {
     input = ~input;  // negative numbers - invert
   }
-  // return reinterpret_cast<F&>( input );
   return unodb::detail::bit_cast<F, U>(input);
 }
 

@@ -17,6 +17,9 @@
 #include <span>
 #include <sstream>
 #include <vector>
+#ifndef NDEBUG
+#include <iostream>
+#endif
 
 #include <gtest/gtest.h>
 
@@ -82,6 +85,7 @@ void do_encode_decode_lt_test(const T ekey1, const T ekey2) {
   // (after encoding) obey the asserted ordering over the external
   // keys (before encoding).
   if (!(compare(ikey1, ikey2) < 0)) {
+    // LCOV_EXCL_START
     std::stringstream ss1;
     std::stringstream ss2;
     unodb::detail::dump_key(ss1, ikey1);
@@ -89,6 +93,7 @@ void do_encode_decode_lt_test(const T ekey1, const T ekey2) {
     FAIL() << "ikey1 < ikey2"
            << ": ekey1(" << ekey1 << ")[" << ss1.str() << "]"
            << ", ekey2(" << ekey2 << ")[" << ss2.str() << "]";
+    // LCOV_EXCL_START
   }
   // Verify key2 > key1
   EXPECT_TRUE(compare(ikey2, ikey1) > 0);
@@ -690,7 +695,7 @@ TEST(ARTKeyEncodeDecodeTest, AppendCStringC0001) {
 class key_factory {
  public:
   /// Used to retain arrays backing unodb::key_views.
-  std::vector<std::vector<std::byte>> key_views{};
+  std::vector<std::vector<std::byte>> key_views;
 
   /// Copy the data from the encoder into a new entry in #key_views.
   unodb::key_view make_key_view(unodb::key_encoder& enc) {
@@ -733,10 +738,11 @@ void do_simple_pad_test(unodb::key_encoder& enc, const char* s) {
 void do_pad_test_large_string(unodb::key_encoder& enc, size_t nbytes,
                               bool expect_truncation = false) {
   // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
-  const std::unique_ptr<void, decltype(std::free)*> ptr{std::malloc(nbytes),
+  const std::unique_ptr<void, decltype(std::free)*> ptr{std::malloc(nbytes + 1),
                                                         std::free};
   auto* p{reinterpret_cast<char*>(ptr.get())};
   std::memset(p, 'a', nbytes);  // fill with some char.
+  p[nbytes] = '\0';             // nul terminate.
   do_simple_pad_test(enc, p);
   if (expect_truncation) {
     auto kv = enc.get_key_view();

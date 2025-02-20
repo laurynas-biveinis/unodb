@@ -178,7 +178,7 @@ class [[nodiscard]] tree_verifier final {
   /// Convert an external key (Db::key_type) to an internal key (one
   /// the tree_verifier stores in its ground truth key/value
   /// collection).
-  ikey_type<Db> to_ikey(Db::key_type key) const {
+  ikey_type<Db> to_ikey(typename Db::key_type key) const {
     if constexpr (std::is_same_v<key_type, unodb::key_view>) {
       // Allocate a vector, make a copy of the key into the vector,
       // and return a shared_ptr to that vector.

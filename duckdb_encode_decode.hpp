@@ -39,6 +39,7 @@
 // to avoid conflicts with the DuckDB methods of the same name.
 namespace unodb::detail {
 
+/// return the most significant bit for the indicated type.
 template <typename T>
 [[nodiscard]] constexpr T msb();
 template <>
@@ -53,7 +54,7 @@ constexpr std::uint32_t msb<std::uint32_t>() {
 /// This method is derived from DuckDB.
 template <typename U, typename F>
 [[nodiscard]] inline U EncodeFloatingPoint(F x) {
-  constexpr auto msb = unodb::detail::msb<U>();
+  constexpr auto msb0 = unodb::detail::msb<U>();
   if (std::isnan(x)) {
     return std::numeric_limits<U>::max();  // NaN
   }
@@ -64,8 +65,8 @@ template <typename U, typename F>
       return 0;  // -inf
   }
   U buff = unodb::detail::bit_cast<U, F>(x);
-  if ((buff & msb) == 0) {  //! +0 and positive numbers
-    buff |= msb;
+  if ((buff & msb0) == 0) {  //! +0 and positive numbers
+    buff |= msb0;
   } else {         //! negative numbers
     buff = ~buff;  //! complement 1
   }
@@ -75,7 +76,7 @@ template <typename U, typename F>
 /// This method is derived from DuckDB.
 template <typename F, typename U>
 [[nodiscard]] inline F DecodeFloatingPoint(U input) {
-  constexpr auto msb = unodb::detail::msb<U>();
+  constexpr auto msb0 = unodb::detail::msb<U>();
   if (input == std::numeric_limits<U>::max()) {
     return std::numeric_limits<F>::quiet_NaN();  // NaN
   }
@@ -85,8 +86,8 @@ template <typename F, typename U>
   if (input == 0) {
     return -std::numeric_limits<F>::infinity();  // -inf
   }
-  if (input & msb) {
-    input = input ^ msb;  // positive numbers - flip sign bit
+  if (input & msb0) {
+    input = input ^ msb0;  // positive numbers - flip sign bit
   } else {
     input = ~input;  // negative numbers - invert
   }

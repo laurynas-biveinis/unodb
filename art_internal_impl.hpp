@@ -2384,7 +2384,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
                 this->get_key_prefix().get_snapshot()};
       }
     }
-    UNODB_DETAIL_CANNOT_HAPPEN();  // because we always have at least 17 keys.
+    // because we always have at least 17 keys.
+    UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
   }
 
   // N48: Return the child pointer for the last key in the

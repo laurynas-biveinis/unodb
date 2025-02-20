@@ -475,11 +475,11 @@ class key_encoder {
     return *this;
   }
 
-  /// convenience alias
-  key_encoder &encode_text(std::string_view data) {
-    return encode_text(std::span<const std::byte>(
-        reinterpret_cast<const std::byte *>(data.cbegin()), data.size()));
-  }
+  // /// convenience alias  (MSCV complains)
+  // key_encoder &encode_text(std::string_view data) {
+  //   return encode_text(std::span<const std::byte>(
+  //       reinterpret_cast<const std::byte *>(data.cbegin()), data.size()));
+  // }
 
   /// convenience alias (usable with nul terminated C strings)
   key_encoder &encode_text(const char *data) {

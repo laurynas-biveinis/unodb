@@ -60,7 +60,7 @@ class allocation_failure_injector final {
   }
 
   /// Debugging
-  static void dump(std::string msg = "") {
+  static void dump(const std::string& msg = "") {
     std::cerr << msg << "allocation_failure_injector"
               << "{fail_on_nth_allocation="
               << fail_on_nth_allocation_.load(std::memory_order_acquire)

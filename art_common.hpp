@@ -275,6 +275,16 @@ class key_encoder {
   static constexpr std::uint32_t msb32 = 1U << 31;
   static constexpr std::uint64_t msb64 = 1ULL << 63;
 
+ public:
+  /// setup a new key encoder.
+  key_encoder() noexcept = default;
+
+  ~key_encoder() {
+    if (cap > sizeof(ibuf)) {  // free old buffer iff allocated
+      detail::free_aligned(buf);
+    }
+  }
+
   /// The number of bytes of data in the internal buffer.
   [[nodiscard]] size_t size_bytes() const noexcept { return off; }
 
@@ -288,27 +298,6 @@ class key_encoder {
     }
   }
 
-  /// Append a sequence of bytes to the key.  The caller is
-  /// responsible for not violating the ART contract (no key may be a
-  /// prefix of another key).
-  key_encoder &append_bytes(std::span<const std::byte> data) {
-    const auto sz = data.size_bytes();
-    ensure_available(sz);
-    std::memcpy(buf + off, data.data(), sz);
-    off += sz;
-    return *this;
-  }
-
- public:
-  /// setup a new key encoder.
-  key_encoder() noexcept = default;
-
-  ~key_encoder() {
-    if (cap > sizeof(ibuf)) {  // free old buffer iff allocated
-      detail::free_aligned(buf);
-    }
-  }
-
   /// Reset the encoder to encode another key.
   key_encoder &reset() noexcept {
     off = 0;
@@ -319,6 +308,17 @@ class key_encoder {
   /// that were encoded since the last reset().
   [[nodiscard]] key_view get_key_view() const noexcept {
     return key_view(buf, off);
+  }
+
+  /// Append a sequence of bytes to the key.  The caller is
+  /// responsible for not violating the ART contract (no key may be a
+  /// prefix of another key).
+  key_encoder &append_bytes(std::span<const std::byte> data) {
+    const auto sz = data.size_bytes();
+    ensure_available(sz);
+    std::memcpy(buf + off, data.data(), sz);
+    off += sz;
+    return *this;
   }
 
   //

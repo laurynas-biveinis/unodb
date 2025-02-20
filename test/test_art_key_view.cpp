@@ -61,7 +61,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 /// validates the tree.
 TYPED_TEST(ARTKeyViewCorrectnessTest, EncodedTextKeys) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   const auto& val = unodb::test::test_values[0];
   verifier.insert(enc.reset().encode_text("").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("a").get_key_view(), val);
@@ -87,7 +87,7 @@ TYPED_TEST(ARTKeyViewCorrectnessTest, EncodedTextKeys) {
 /// is a prefix of all other strings.
 TYPED_TEST(ARTKeyViewCorrectnessTest, StringKeysWithoutProperEncoding) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   const auto& val = unodb::test::test_values[0];
   verifier.insert(enc.reset().append("abba").get_key_view(), val);
   verifier.insert(enc.reset().append("banana").get_key_view(), val);

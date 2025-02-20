@@ -26,7 +26,6 @@
 
 #include "art_common.hpp"
 #include "art_internal.hpp"
-#include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
 #include "portability_builtins.hpp"
 
@@ -42,8 +41,7 @@ class ARTKeyEncodeDecodeTest : public ::testing::Test {
 
 using unodb::detail::compare;
 
-constexpr auto INITIAL_CAPACITY =
-    unodb::test::my_key_encoder::get_initial_capacity();
+constexpr auto INITIAL_CAPACITY = unodb::detail::INITIAL_BUFFER_CAPACITY;
 
 /// Test helper verifies that [ekey1] < [ekey2].
 ///
@@ -65,9 +63,9 @@ void do_encode_decode_lt_test(const T ekey1, const T ekey2) {
   unodb::key_encoder enc2{};  // separate decoder (backed by different span).
   const auto ikey1 = enc1.encode(ekey1).get_key_view();  // into encoder buf!
   const auto ikey2 = enc2.encode(ekey2).get_key_view();  // into encoder buf!
-  EXPECT_TRUE(compare(ikey1, ikey1) == 0);               // compare w/ self
-  EXPECT_TRUE(compare(ikey2, ikey2) == 0);               // compare w/ self
-  EXPECT_TRUE(compare(ikey1, ikey2) != 0);               // not the same ikey.
+  EXPECT_EQ(compare(ikey1, ikey1), 0);                   // compare w/ self
+  EXPECT_EQ(compare(ikey2, ikey2), 0);                   // compare w/ self
+  EXPECT_NE(compare(ikey1, ikey2), 0);                   // not the same ikey.
   // Check the core assertion for this test helper. The internal keys
   // (after encoding) obey the asserted ordering over the external
   // keys (before encoding).
@@ -83,6 +81,7 @@ void do_encode_decode_lt_test(const T ekey1, const T ekey2) {
     // LCOV_EXCL_START
   }
   // Verify key2 > key1
+  // NOLINTNEXTLINE(readability/check)
   EXPECT_TRUE(compare(ikey2, ikey1) > 0);
   // Verify that we can round trip both values.
   unodb::key_decoder dec1{ikey1};
@@ -99,7 +98,7 @@ UNODB_START_TESTS()
 
 // basic memory management - initial buffer case.
 TEST(ARTKeyEncodeDecodeTest, C00001) {
-  unodb::test::my_key_encoder enc{};
+  unodb::key_encoder enc{};
   EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
   EXPECT_EQ(enc.size_bytes(), 0);
   // ensure some space is available w/o change in encoder.
@@ -121,7 +120,7 @@ TEST(ARTKeyEncodeDecodeTest, C00001) {
 
 // basic memory management -- buffer extension case.
 TEST(ARTKeyEncodeDecodeTest, C00002) {
-  unodb::test::my_key_encoder enc{};
+  unodb::key_encoder enc{};
   EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
   EXPECT_EQ(enc.size_bytes(), 0);
   // ensure some space is available w/o change in encoder.
@@ -139,7 +138,7 @@ TEST(ARTKeyEncodeDecodeTest, C00002) {
 // Encode/decode round trip test.
 template <typename T>
 void do_encode_decode_test(const T ekey) {
-  unodb::test::my_key_encoder enc{};
+  unodb::key_encoder enc{};
   enc.encode(ekey);
   const unodb::key_view kv = enc.get_key_view();  // encode
   EXPECT_EQ(kv.size_bytes(), sizeof(ekey));       // check size
@@ -154,7 +153,7 @@ void do_encode_decode_test(const T ekey) {
 template <typename T>
 void do_encode_decode_test(const T ekey,
                            const std::array<const std::byte, sizeof(T)> ikey) {
-  unodb::test::my_key_encoder enc{};
+  unodb::key_encoder enc{};
   enc.encode(ekey);
   const unodb::key_view kv = enc.get_key_view();  // encode
   EXPECT_EQ(kv.size_bytes(), sizeof(ekey));       // check size
@@ -404,8 +403,8 @@ TEST(ARTKeyEncodeDecodeTest, FloatC0001) {
   using F = float;
   constexpr auto pzero = 0.F;
   constexpr auto nzero = -0.F;
-  EXPECT_TRUE(std::signbit(pzero) == 0);
-  EXPECT_TRUE(std::signbit(nzero) == 1);
+  EXPECT_FALSE(std::signbit(pzero));
+  EXPECT_TRUE(std::signbit(nzero));
   do_encode_decode_float_test(pzero);
   do_encode_decode_float_test(nzero);
   do_encode_decode_float_test(10.001F);
@@ -469,8 +468,8 @@ TEST(ARTKeyEncodeDecodeTest, FloatC0007Order) {
   using F = float;
   constexpr auto pzero = 0.F;
   constexpr auto nzero = -0.F;
-  EXPECT_TRUE(std::signbit(pzero) == 0);
-  EXPECT_TRUE(std::signbit(nzero) == 1);
+  EXPECT_FALSE(std::signbit(pzero));
+  EXPECT_TRUE(std::signbit(nzero));
   constexpr auto minf = std::numeric_limits<F>::min();
   constexpr auto maxf = std::numeric_limits<F>::max();
   constexpr auto inf = std::numeric_limits<F>::infinity();
@@ -516,8 +515,8 @@ TEST(ARTKeyEncodeDecodeTest, DoubleC0001) {
   using F = double;
   constexpr auto pzero = 0.F;
   constexpr auto nzero = -0.F;
-  EXPECT_TRUE(std::signbit(pzero) == 0);
-  EXPECT_TRUE(std::signbit(nzero) == 1);
+  EXPECT_FALSE(std::signbit(pzero));
+  EXPECT_TRUE(std::signbit(nzero));
   do_encode_decode_float_test(pzero);
   do_encode_decode_float_test(nzero);
   do_encode_decode_double_test(10.001);
@@ -583,8 +582,8 @@ TEST(ARTKeyEncodeDecodeTest, DoubleC0007Order) {
   using F = double;
   constexpr auto pzero = 0.;
   constexpr auto nzero = -0.;
-  EXPECT_TRUE(std::signbit(pzero) == 0);
-  EXPECT_TRUE(std::signbit(nzero) == 1);
+  EXPECT_FALSE(std::signbit(pzero));
+  EXPECT_TRUE(std::signbit(nzero));
   constexpr auto minf = std::numeric_limits<F>::min();
   constexpr auto maxf = std::numeric_limits<F>::max();
   constexpr auto inf = std::numeric_limits<F>::infinity();
@@ -605,7 +604,7 @@ TEST(ARTKeyEncodeDecodeTest, DoubleC0007Order) {
 //
 
 void do_encode_bytes_test(std::span<const std::byte> a) {
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   const auto sz = a.size();
   enc.append_bytes(a);
   const auto cmp = std::memcmp(enc.get_key_view().data(), a.data(), sz);
@@ -650,10 +649,9 @@ TEST(ARTKeyEncodeDecodeTest, AppendSpanConstByteC0001) {
 //
 
 void do_encode_cstring_test(std::string_view sv) {
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   enc.append(sv);
-  EXPECT_TRUE(std::memcmp(enc.get_key_view().data(), sv.data(), sv.size()) ==
-              0);
+  EXPECT_EQ(std::memcmp(enc.get_key_view().data(), sv.data(), sv.size()), 0);
 }
 
 TEST(ARTKeyEncodeDecodeTest, AppendStringViewC0001) {
@@ -693,7 +691,7 @@ class key_factory {
   }
 };
 
-void do_simple_pad_test(unodb::test::my_key_encoder& enc, std::string_view sv) {
+void do_simple_pad_test(unodb::key_encoder& enc, std::string_view sv) {
   using ST = unodb::key_encoder::size_type;
   const auto len = sv.size();                         // text length.
   const auto sz = (len > unodb::key_encoder::maxlen)  // truncated len.
@@ -720,7 +718,7 @@ void do_simple_pad_test(unodb::test::my_key_encoder& enc, std::string_view sv) {
 
 /// Helper generates a large string and feeds it into
 /// do_simple_pad_test().
-void do_pad_test_large_string(unodb::test::my_key_encoder& enc, size_t nbytes,
+void do_pad_test_large_string(unodb::key_encoder& enc, size_t nbytes,
                               bool expect_truncation = false) {
   // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
   const std::unique_ptr<void, decltype(std::free)*> ptr{std::malloc(nbytes + 1),
@@ -741,7 +739,7 @@ void do_pad_test_large_string(unodb::test::my_key_encoder& enc, size_t nbytes,
 
 /// Verify proper padding to maxlen.
 TEST(ARTKeyEncodeDecodeTest, EncodeTextC0001) {
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   do_simple_pad_test(enc, "");
   do_simple_pad_test(enc, "abc");
   do_simple_pad_test(enc, "brown");
@@ -751,26 +749,26 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0001) {
 /// Unit test variant examines truncation for a key whose length is
 /// maxlen - 1.
 TEST(ARTKeyEncodeDecodeTest, EncodeTextC0012) {
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   do_pad_test_large_string(enc, unodb::key_encoder::maxlen - 1);
 }
 
 /// Unit test variant examines truncation for a key whose length is
 /// exactly maxlen.
 TEST(ARTKeyEncodeDecodeTest, EncodeTextC0013) {
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   do_pad_test_large_string(enc, unodb::key_encoder::maxlen);
 }
 
 /// Unit test where the key is truncated.
 TEST(ARTKeyEncodeDecodeTest, EncodeTextC0014) {
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   do_pad_test_large_string(enc, unodb::key_encoder::maxlen + 1, true);
 }
 
 /// Unit test where the key is truncated.
 TEST(ARTKeyEncodeDecodeTest, EncodeTextC0015) {
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   do_pad_test_large_string(enc, unodb::key_encoder::maxlen + 2, true);
 }
 
@@ -780,7 +778,7 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0015) {
 /// such as "brown".
 TEST(ARTKeyEncodeDecodeTest, EncodeTextC0020) {
   key_factory fac;
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   const auto k0 = fac.make_key_view(enc.reset().encode_text("brown"));
   const auto k1 = fac.make_key_view(enc.reset().encode_text("bro"));
   const auto k2 = fac.make_key_view(enc.reset().encode_text("break"));
@@ -801,17 +799,17 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0020) {
 #endif
   // Now sort and look at the expected sort order.
   std::ranges::sort(fac.key_views);
-  EXPECT_TRUE(compare(k3, fac.key_views[0]) == 0);  // bre
-  EXPECT_TRUE(compare(k2, fac.key_views[1]) == 0);  // break
-  EXPECT_TRUE(compare(k1, fac.key_views[2]) == 0);  // bro
-  EXPECT_TRUE(compare(k0, fac.key_views[3]) == 0);  // brown
+  EXPECT_EQ(compare(k3, fac.key_views[0]), 0);  // bre
+  EXPECT_EQ(compare(k2, fac.key_views[1]), 0);  // break
+  EXPECT_EQ(compare(k1, fac.key_views[2]), 0);  // bro
+  EXPECT_EQ(compare(k0, fac.key_views[3]), 0);  // brown
 }
 
 /// Verify that trailing nul (0x00) bytes are removed as part of the
 /// truncation and logical padding logic.
 TEST(ARTKeyEncodeDecodeTest, EncodeTextC0021) {
   key_factory fac;
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   // Use std::array rather than "C" strings since the nul would
   // otherwise be interpreted as the end of the C string.
   constexpr auto a1 = std::array<const std::byte, 5>{
@@ -823,8 +821,8 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0021) {
   using S = std::span<const std::byte>;
   const auto k1 = fac.make_key_view(enc.reset().encode_text(S(a1)));
   const auto k2 = fac.make_key_view(enc.reset().encode_text(S(a2)));
-  EXPECT_TRUE(compare(k1, k2) == 0);  // same sort order.
-  EXPECT_EQ(k1.size(), k2.size());    // same number of bytes.
+  EXPECT_EQ(compare(k1, k2), 0);    // same sort order.
+  EXPECT_EQ(k1.size(), k2.size());  // same number of bytes.
   EXPECT_EQ(k1.size_bytes(),
             a1.size() + 1 + sizeof(unodb::key_encoder::size_type));
 #ifndef NDEBUG
@@ -840,7 +838,7 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0021) {
 /// Verifies that an embedded nul byte is supported.
 TEST(ARTKeyEncodeDecodeTest, EncodeTextC0022) {
   key_factory fac;
-  unodb::test::my_key_encoder enc;
+  unodb::key_encoder enc;
   // Use std::array rather than "C" strings since the nul would
   // otherwise be interpreted as the end of the C string.
   constexpr auto a1 = std::array<const std::byte, 5>{

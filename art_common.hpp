@@ -310,7 +310,7 @@ class key_encoder {
   }
 
   /// Reset the encoder to encode another key.
-  key_encoder &reset() {
+  key_encoder &reset() noexcept {
     off = 0;
     return *this;
   }
@@ -475,17 +475,10 @@ class key_encoder {
     return *this;
   }
 
-  // /// convenience alias  (MSCV complains)
-  // key_encoder &encode_text(std::string_view data) {
-  //   return encode_text(std::span<const std::byte>(
-  //       reinterpret_cast<const std::byte *>(data.cbegin()), data.size()));
-  // }
-
-  /// convenience alias (usable with nul terminated C strings)
-  key_encoder &encode_text(const char *data) {
-    const auto len = strlen(data);
+  /// convenience alias.
+  key_encoder &encode_text(std::string_view sv) {
     return encode_text(std::span<const std::byte>(
-        reinterpret_cast<const std::byte *>(data), len));
+        reinterpret_cast<const std::byte *>(sv.data()), sv.size()));
   }
 
 #ifdef UNODB_C_STRING_API
@@ -527,28 +520,9 @@ class key_encoder {
   ///
   /// @param data A sequence of bytes that will be appended to the
   /// key.
-  key_encoder &append(std::string_view data) {
+  key_encoder &append(std::string_view sv) {
     return append(std::span<const std::byte>(
-        reinterpret_cast<const std::byte *>(data.cbegin()), data.size()));
-  }
-
-  /// Append a sequence of characters (interpreted as unsigned bytes)
-  /// to the encoder key.
-  ///
-  /// Note: it is NOT legal for one key to be a prefix of another key
-  /// (this is not allowed by the ART data structure and would imply
-  /// that internal nodes could point to leaves). Violations of this
-  /// contract can only arise with string data, and only then when you
-  /// do not use encode_text().  The encode_text() methods properly
-  /// handle this case by (a) truncating to maxlen; and (b) logically
-  /// padding out all text fields to maxlen.
-  ///
-  /// @param data A C string containing a sequence of bytes that will
-  /// be appended to the key.
-  key_encoder &append(const char *data) {
-    const auto len = strlen(data);
-    return append(std::span<const std::byte>(
-        reinterpret_cast<const std::byte *>(data), len));
+        reinterpret_cast<const std::byte *>(sv.data()), sv.size()));
   }
 #endif
 

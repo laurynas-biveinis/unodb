@@ -215,7 +215,7 @@ class db final {
     /// We track how many bytes were pushed here (not including the
     /// key_byte) so we can pop off the correct number of bytes
     /// later.
-    using stack_entry = inode_base::iter_result;
+    using stack_entry = typename inode_base::iter_result;
 
    protected:
     /// Construct an empty iterator (one that is logically not

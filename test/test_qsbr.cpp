@@ -12,9 +12,6 @@
 #include <sstream>
 #include <system_error>
 #include <utility>
-#ifndef NDEBUG
-#include <cmath>
-#endif
 
 #include <gtest/gtest.h>
 

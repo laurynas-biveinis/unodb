@@ -61,7 +61,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 /// validates the tree.
 TYPED_TEST(ARTKeyViewCorrectnessTest, EncodedTextKeys) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  unodb::key_encoder enc;
+  unodb::test::my_key_encoder enc;
   const auto& val = unodb::test::test_values[0];
   verifier.insert(enc.reset().encode_text("").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("a").get_key_view(), val);
@@ -74,6 +74,8 @@ TYPED_TEST(ARTKeyViewCorrectnessTest, EncodedTextKeys) {
   verifier.check_present_values();  // checks keys and key ordering.
 }
 
+#ifdef UNODB_C_STRING_API
+
 /// Unit test inserts several string keys WITHOUT proper encoding
 /// (they are just copied in by unodb::key_encoder::append_text(const
 /// char*)) but which do not violate the contract (no key may be a
@@ -85,7 +87,7 @@ TYPED_TEST(ARTKeyViewCorrectnessTest, EncodedTextKeys) {
 /// is a prefix of all other strings.
 TYPED_TEST(ARTKeyViewCorrectnessTest, StringKeysWithoutProperEncoding) {
   unodb::test::tree_verifier<TypeParam> verifier;
-  unodb::key_encoder enc;
+  unodb::test::my_key_encoder enc;
   const auto& val = unodb::test::test_values[0];
   verifier.insert(enc.reset().append("abba").get_key_view(), val);
   verifier.insert(enc.reset().append("banana").get_key_view(), val);
@@ -95,6 +97,8 @@ TYPED_TEST(ARTKeyViewCorrectnessTest, StringKeysWithoutProperEncoding) {
   verifier.insert(enc.reset().append("zebra").get_key_view(), val);
   verifier.check_present_values();  // checks keys and key ordering.
 }
+
+#endif  // UNODB_C_STRING_API
 
 UNODB_END_TESTS()
 

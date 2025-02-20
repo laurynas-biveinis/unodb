@@ -50,6 +50,44 @@ extern template class unodb::olc_db<unodb::key_view>;
 
 namespace unodb::test {
 
+// exposes some protected methods and data to the tests.
+class my_key_encoder : public unodb::key_encoder {
+ public:
+  my_key_encoder() = default;
+  static constexpr size_t get_initial_capacity() {
+    return unodb::detail::INITIAL_BUFFER_CAPACITY;
+  }
+  size_t capacity() { return key_encoder::capacity(); }
+  size_t size_bytes() { return key_encoder::size_bytes(); }
+  void ensure_available(size_t req) { key_encoder::ensure_available(req); }
+  my_key_encoder &reset() noexcept {
+    key_encoder::reset();
+    return *this;
+  }
+  my_key_encoder &append_bytes(std::span<const std::byte> data) {  // public
+    key_encoder::append_bytes(data);
+    return *this;
+  }
+  my_key_encoder &encode_text(std::span<const std::byte> text) {
+    key_encoder::encode_text(text);
+    return *this;
+  }
+  my_key_encoder &encode_text(std::string_view text) {
+    key_encoder::encode_text(text);
+    return *this;
+  }
+#ifdef UNODB_C_STRING_API
+  my_key_encoder &append(std::span<const std::byte> data) {
+    key_encoder::append(data);
+    return *this;
+  }
+  my_key_encoder &append(std::string_view data) {
+    key_encoder::append(data);
+    return *this;
+  }
+#endif
+};
+
 template <class TestDb>
 using thread = typename std::conditional_t<
     std::is_same_v<TestDb, unodb::olc_db<typename TestDb::key_type>>,

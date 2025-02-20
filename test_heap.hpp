@@ -86,7 +86,7 @@ class allocation_failure_injector final {
 class pause_heap_faults {
  public:
   /// Pause heap faults.
-  explicit pause_heap_faults() { allocation_failure_injector::paused = true; }
+  pause_heap_faults() { allocation_failure_injector::paused = true; }
   /// Resumes heap faults.
   ~pause_heap_faults() { allocation_failure_injector::paused = false; }
 };  // class pause_heap_faults

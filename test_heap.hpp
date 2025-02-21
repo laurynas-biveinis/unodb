@@ -86,10 +86,12 @@ class allocation_failure_injector final {
 class pause_heap_faults {
  public:
   /// Pause heap faults.
-  pause_heap_faults() { allocation_failure_injector::paused = true; }
+  inline pause_heap_faults() noexcept {
+    allocation_failure_injector::paused = true;
+  }
   /// Resumes heap faults.
-  ~pause_heap_faults() { allocation_failure_injector::paused = false; }
-};  // class pause_heap_faults
+  inline ~pause_heap_faults() { allocation_failure_injector::paused = false; }
+};
 
 }  // namespace unodb::test
 
@@ -97,11 +99,14 @@ class pause_heap_faults {
   unodb::test::allocation_failure_injector::reset()
 #define UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(n) \
   unodb::test::allocation_failure_injector::fail_on_nth_allocation(n)
+#define UNODB_DETAIL_PAUSE_HEAP_TRACKING() \
+  unodb::test::pause_heap_faults guard{};
 
 #else  // !NDEBUG
 
 #define UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR()
 #define UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(n)
+#define UNODB_DETAIL_PAUSE_HEAP_TRACKING()
 
 #endif  // !NDEBUG
 

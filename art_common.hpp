@@ -448,12 +448,12 @@ class key_encoder {
   /// as configured by the application (locale, collation strength,
   /// decomposition mode).
   ///
-  /// @param A view onto some sequence of bytes.  The view will be
-  /// truncated to at most #maxlen bytes.  A #pad byte and a run count
-  /// are added to make all text fields logically #maxlen bytes. The
-  /// truncation and padding (a) ensures that no key is a prefix of
-  /// another key; and (b) keeps multi-field keys with embedded
-  /// variable length text fields aligned such that the field
+  /// @param text A view onto some sequence of bytes.  The view will
+  /// be truncated to at most #maxlen bytes.  A #pad byte and a run
+  /// count are added to make all text fields logically #maxlen
+  /// bytes. The truncation and padding (a) ensures that no key is a
+  /// prefix of another key; and (b) keeps multi-field keys with
+  /// embedded variable length text fields aligned such that the field
   /// following a variable length text field does not bleed into the
   /// lexiographic ordering of the variable length text field.
   key_encoder &encode_text(std::span<const std::byte> text) {
@@ -518,8 +518,7 @@ class key_encoder {
   /// handle this case by (a) truncating to maxlen; and (b) logically
   /// padding out all text fields to maxlen.
   ///
-  /// @param data A sequence of bytes that will be appended to the
-  /// key.
+  /// @param sv A sequence of bytes that will be appended to the key.
   key_encoder &append(std::string_view sv) {
     return append(std::span<const std::byte>(
         reinterpret_cast<const std::byte *>(sv.data()), sv.size()));

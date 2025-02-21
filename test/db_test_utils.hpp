@@ -182,9 +182,7 @@ class [[nodiscard]] tree_verifier final {
     if constexpr (std::is_same_v<key_type, unodb::key_view>) {
       // Allocate a vector, make a copy of the key into the vector,
       // and return a shared_ptr to that vector.
-#ifndef NDEBUG
-      unodb::test::pause_heap_faults guard{};  // Suspend memory tracking.
-#endif
+      UNODB_DETAIL_PAUSE_HEAP_TRACKING()
       const auto nbytes = key.size_bytes();
       auto *vec = new std::vector<std::byte>(nbytes);
       std::memcpy(vec->data(), key.data(), nbytes);
@@ -243,9 +241,7 @@ class [[nodiscard]] tree_verifier final {
   /// tree_verifier.
   unodb::key_view make_key(std::uint64_t k) {
     constexpr auto sz{sizeof(k)};
-#ifndef NDEBUG
-    unodb::test::pause_heap_faults guard{};  // Suspend memory tracking.
-#endif
+    UNODB_DETAIL_PAUSE_HEAP_TRACKING()
     // Encode the key, emplace an array into the list of encoded keys
     // that we are tracking, and copy the encoded key into that
     // emplaced array.
@@ -417,9 +413,7 @@ class [[nodiscard]] tree_verifier final {
 #ifndef NDEBUG
       allocation_failure_injector::reset();
 #endif
-#ifndef NDEBUG
-      unodb::test::pause_heap_faults guard{};  // Suspend memory tracking.
-#endif
+      UNODB_DETAIL_PAUSE_HEAP_TRACKING()
       const auto [pos, insert_succeeded] = values.try_emplace(to_ikey(k), v);
       (void)pos;
       UNODB_ASSERT_TRUE(insert_succeeded);
@@ -622,9 +616,7 @@ class [[nodiscard]] tree_verifier final {
     // Note: This depends on the ability to decode the key. Therefore,
     // the caller SHOULD disable this scan when the keys do not
     // support 100% faithful round-trip encoding and decoding.
-#ifndef NDEBUG
-    unodb::test::pause_heap_faults guard{};  // Suspend memory tracking.
-#endif
+    UNODB_DETAIL_PAUSE_HEAP_TRACKING()
     std::size_t n{0};
     bool first = true;
     unodb::key_view prev{};

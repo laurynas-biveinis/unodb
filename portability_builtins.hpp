@@ -109,15 +109,14 @@ template <typename T>
 //
 // TODO(laurynas) What conditional compilation expressions can we use
 // to support std::bit_cast on platforms where that method is defined?
+// See https://github.com/jfbastien/bit_cast for an implementation
+// using memcpy (MIT license).
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wundefined-reinterpret-cast")
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wstrict-aliasing")
 template <typename To, typename From>
 [[nodiscard, gnu::pure]] const To bit_cast(From input) {
   static_assert(sizeof(To) == sizeof(From));
-  // return std::bit_cast<To&>( input )
   return reinterpret_cast<const To&>(input);
-  // See https://github.com/jfbastien/bit_cast for an implementation
-  // using memcpy (MIT license).
 }
 UNODB_DETAIL_RESTORE_WARNINGS()
 

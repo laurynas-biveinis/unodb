@@ -570,7 +570,7 @@ union [[nodiscard]] key_prefix_snapshot {
   /// a view of the next 64-bits (max) of some the shifted_key from
   /// which any leading bytes already matched by the traversal path
   /// have been discarded (variant method shared by key_prefix_snapshot).
-  [[nodiscard]] constexpr auto get_shared_length(
+  [[nodiscard]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC auto get_shared_length(
       std::uint64_t shifted_key_u64) const noexcept {
     return shared_len(shifted_key_u64, u64, length());
   }
@@ -583,8 +583,9 @@ union [[nodiscard]] key_prefix_snapshot {
 
  private:
   /// from key_prefix
-  [[nodiscard, gnu::const]] static constexpr unsigned shared_len(
-      std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept {
+  [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned
+  shared_len(std::uint64_t k1, std::uint64_t k2,
+             unsigned clamp_byte_pos) noexcept {
     UNODB_DETAIL_ASSERT(clamp_byte_pos < 8);
 
     const auto diff = k1 ^ k2;

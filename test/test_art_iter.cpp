@@ -287,7 +287,7 @@ TYPED_TEST(ARTIteratorTest, C0004) {
 
 // unit test with an empty tree.
 TYPED_TEST(ARTIteratorTest, emptyTreeSeek) {
-  using Key = TypeParam::key_type;
+  using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   {
@@ -310,7 +310,7 @@ TYPED_TEST(ARTIteratorTest, emptyTreeSeek) {
 
 // unit test where the root is a single leaf.
 TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
-  using Key = TypeParam::key_type;
+  using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(1, unodb::test::test_values[1]);
@@ -396,7 +396,7 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
 //   I4     L2
 // L0 L1
 TYPED_TEST(ARTIteratorTest, C101) {
-  using Key = TypeParam::key_type;
+  using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   const std::uint64_t k0 = 0xaa00;
@@ -529,7 +529,7 @@ TYPED_TEST(ARTIteratorTest, C101) {
 //
 TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
   constexpr bool debug = false;
-  using Key = TypeParam::key_type;
+  using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();
   const std::uint64_t k0 = 0xaa10;

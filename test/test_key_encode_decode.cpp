@@ -798,7 +798,8 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0020) {
   std::cerr << "\n";
 #endif
   // Now sort and look at the expected sort order.
-  std::ranges::sort(fac.key_views);
+  // std::ranges::sort(fac.key_views);
+  std::sort(fac.key_views.begin(), fac.key_views.end());
   EXPECT_EQ(compare(k3, fac.key_views[0]), 0);  // bre
   EXPECT_EQ(compare(k2, fac.key_views[1]), 0);  // break
   EXPECT_EQ(compare(k1, fac.key_views[2]), 0);  // bro

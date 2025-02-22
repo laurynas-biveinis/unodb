@@ -776,11 +776,6 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0015) {
 /// break, bre}, including verifying that the pad byte causes a prefix
 /// such as "bro" to sort before a term which extends that prefix,
 /// such as "brown".
-//
-// Note: std::ranges::sort() causes clang-tidy crashes in CI.  So
-// commenting that out and disabling the clang warning.
-//
-UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wmodernize-use-ranges")
 TEST(ARTKeyEncodeDecodeTest, EncodeTextC0020) {
   key_factory fac;
   unodb::key_encoder enc;
@@ -803,14 +798,19 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0020) {
   std::cerr << "\n";
 #endif
   // Now sort and look at the expected sort order.
-  // std::ranges::sort(fac.key_views);
+  //
+  // Note: std::ranges::sort() causes clang-tidy crashes in CI.  So
+  // commenting that out and disabling the clang warning.  Remove this
+  // once LLVM 12 is the oldest supported version.
+  //
+  // NOLINTNEXTLINE("modernize-use-ranges")
   std::sort(fac.key_views.begin(), fac.key_views.end());
+  // std::ranges::sort(fac.key_views);
   EXPECT_EQ(compare(k3, fac.key_views[0]), 0);  // bre
   EXPECT_EQ(compare(k2, fac.key_views[1]), 0);  // break
   EXPECT_EQ(compare(k1, fac.key_views[2]), 0);  // bro
   EXPECT_EQ(compare(k0, fac.key_views[3]), 0);  // brown
 }
-UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
 /// Verify that trailing nul (0x00) bytes are removed as part of the
 /// truncation and logical padding logic.

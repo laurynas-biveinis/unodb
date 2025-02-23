@@ -761,7 +761,7 @@ endif()
 
 add_unodb_library(unodb art.hpp art_common.hpp mutex_art.hpp optimistic_lock.hpp
   art_internal_impl.hpp olc_art.hpp art_internal.hpp art_internal.cpp
-  node_type.hpp)
+  node_type.hpp duckdb_encode_decode.hpp)
 target_link_libraries(unodb PUBLIC unodb_util unodb_qsbr)
 if(LIBFUZZER_AVAILABLE)
   target_link_libraries(unodb_lf PUBLIC unodb_util unodb_qsbr_lf)

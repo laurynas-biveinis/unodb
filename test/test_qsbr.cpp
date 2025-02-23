@@ -12,9 +12,8 @@
 #include <sstream>
 #include <system_error>
 #include <utility>
-#ifndef NDEBUG
+// NOLINTNEXTLINE(misc-include-cleaner)
 #include <cmath>
-#endif
 
 #include <gtest/gtest.h>
 

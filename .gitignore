@@ -37,6 +37,7 @@
 
 # CMake build dirs
 /build
+examples/build
 !build.yml
 /BUILD.bazel
 

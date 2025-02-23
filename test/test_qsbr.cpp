@@ -9,10 +9,11 @@
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gtest/gtest.h"
 
-#include <cmath>
 #include <sstream>
 #include <system_error>
 #include <utility>
+// NOLINTNEXTLINE(misc-include-cleaner)
+#include <cmath>
 
 #include <gtest/gtest.h>
 

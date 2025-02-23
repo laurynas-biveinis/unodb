@@ -797,19 +797,15 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0020) {
   unodb::detail::dump_key(std::cerr, k3);
   std::cerr << "\n";
 #endif
-  // Now sort and look at the expected sort order.
+  // Clang-tidy keeps crashing on std::ranges::sort and dislikes
+  // std::sort,, so inspecting the implied sort order without sorting.
   //
-  // Note: std::ranges::sort() causes clang-tidy crashes in CI.  So
-  // commenting that out and disabling the clang warning.  Remove this
-  // once LLVM 12 is the oldest supported version.
-  //
-  // NOLINTNEXTLINE("modernize-use-ranges")
-  std::sort(fac.key_views.begin(), fac.key_views.end());
-  // std::ranges::sort(fac.key_views);
-  EXPECT_EQ(compare(k3, fac.key_views[0]), 0);  // bre
-  EXPECT_EQ(compare(k2, fac.key_views[1]), 0);  // break
-  EXPECT_EQ(compare(k1, fac.key_views[2]), 0);  // bro
-  EXPECT_EQ(compare(k0, fac.key_views[3]), 0);  // brown
+  // NOLINTNEXTLINE(readability/check)
+  EXPECT_TRUE(compare(k3, k2) < 0);  // bre < break
+  // NOLINTNEXTLINE(readability/check)
+  EXPECT_TRUE(compare(k2, k1) < 0);  // break < bro
+  // NOLINTNEXTLINE(readability/check)
+  EXPECT_TRUE(compare(k1, k0) < 0);  // bro < brown
 }
 
 /// Verify that trailing nul (0x00) bytes are removed as part of the

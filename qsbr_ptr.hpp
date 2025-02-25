@@ -44,7 +44,7 @@ class qsbr_ptr_base {
 
 }  // namespace detail
 
-/// A raw pointer-like smart pointer to QSBR-managed shared data. Crashes debug
+/// Raw pointer-like smart pointer to QSBR-managed shared data. Crashes debug
 /// builds if a thread goes through a quiescent state while having an active
 /// pointer. Meets C++ contiguous iterator requirements.
 // Implemented the minimum necessary operations, extend as needed.
@@ -278,13 +278,13 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   }
 
  private:
-  /// The raw pointer.
+  /// Raw pointer.
   pointer ptr{nullptr};
 };
 
 static_assert(std::contiguous_iterator<unodb::qsbr_ptr<std::byte>>);
 
-/// An std::span, but with unodb::qsbr_ptr instead of a raw pointer, that is, a
+/// `std::span`, but with unodb::qsbr_ptr instead of a raw pointer, that is, a
 /// span over QSBR-managed data. Crashes debug builds if a thread goes through a
 /// quiescent state while having an active span. Meets C++ contiguous range
 /// requirements.
@@ -337,9 +337,10 @@ class qsbr_ptr_span : public std::ranges::view_base {
   }
 
  private:
-  /// The QSBR pointer to the start of the span.
+  /// QSBR pointer to the start of the span.
   qsbr_ptr<T> start;
-  /// The number of elements.
+
+  /// Number of elements.
   std::size_t length;
 };
 

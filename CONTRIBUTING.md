@@ -123,7 +123,8 @@ unavoidable. If a macro has to be introduced, its name must be prefixed with
   and it should also have a `\hideinitializer` tag.
 * Doxygen automatic brief description detection is enabled, thus explicit
   `\brief` tags are not required, rather the first sentence in the Doxygen
-  comment block will be interpreted as the brief description.
+  comment block will be interpreted as the brief description. It should use a
+  headline-like style without articles.
 * Markdown markup is preferred, i.e. ```foo`` instead of `\c foo`.
 
 ## Linting and static analysis

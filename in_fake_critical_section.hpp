@@ -144,7 +144,7 @@ class [[nodiscard]] in_fake_critical_section final {
   in_fake_critical_section &operator=(in_fake_critical_section &&) = delete;
 
  private:
-  /// The wrapped value.
+  /// Wrapped value.
   T value;
 };
 

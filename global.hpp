@@ -282,7 +282,7 @@
 
 /// @}
 
-/// A declaration specifier for a function in a header file that should not be
+/// Declaration specifier for a function in a header file that should not be
 /// inlined.
 /// \hideinitializer
 /// This is a pair of two seemingly conflicting intentions: "noinline" and

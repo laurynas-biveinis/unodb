@@ -14,22 +14,20 @@
 namespace unodb::detail {
 
 /// \var hardware_constructive_interference_size
-/// The maximum size in bytes where multiple variables will be guaranteed to be
+/// Maximum size in bytes where multiple variables will be guaranteed to be
 /// shared for the purposes of true sharing.
 /// \hideinitializer
-/// Use this instead of
-/// `std::hardware_constructive_interference_size` even if the latter is
-/// available, because it is used in public headers and its value may vary,
-/// for example, by GCC 12 or later `--param` or `-mtune` flag.
+/// Use this instead of `std::hardware_constructive_interference_size` even if
+/// the latter is available, because it is used in public headers and its value
+/// may vary, for example, by GCC 12 or later `--param` or `-mtune` flag.
 
 /// \var hardware_destructive_interference_size
-/// The minimum size in bytes where multiple variables will be guaranteed to be
+/// Minimum size in bytes where multiple variables will be guaranteed to be
 /// separated for the purposes of false sharing.
 /// \hideinitializer
-/// Use this instead of
-/// `std::hardware_destructive_interference_size` even if the latter is
-/// available, because it is used in public headers and its value may vary,
-/// for example, by GCC 12 or later `--param` or `-mtune` flag.
+/// Use this instead of `std::hardware_destructive_interference_size` even if
+/// the latter is available, because it is used in public headers and its value
+/// may vary, for example, by GCC 12 or later `--param` or `-mtune` flag.
 
 #ifdef UNODB_DETAIL_X86_64
 inline constexpr std::size_t hardware_constructive_interference_size = 64;

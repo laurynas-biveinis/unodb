@@ -7,13 +7,13 @@
 /// See also [CONTRIBUTING.md](CONTRIBUTING.md).
 
 /// \defgroup optimistic-lock Optimistic Locking
-/// The optimistic lock primitive and associated internals.
+/// Optimistic lock primitive and associated internals.
 /// \ingroup internal
 
 /// \namespace unodb
-/// The namespace for the public UnoDB API.
+/// Namespace for the public UnoDB API.
 
 /// \namespace unodb::detail
-/// The namespace for the UnoDB internal implementation details.
+/// Namespace for the UnoDB internal implementation details.
 /// \ingroup internal
 /// It is not part of the public API, and it may change at any time.

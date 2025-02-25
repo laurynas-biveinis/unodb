@@ -17,7 +17,7 @@ var files_dup =
     [ "optimistic_lock.hpp", "optimistic__lock_8hpp.html", "optimistic__lock_8hpp" ],
     [ "portability_arch.hpp", "portability__arch_8hpp.html", "portability__arch_8hpp" ],
     [ "portability_builtins.hpp", "portability__builtins_8hpp.html", "portability__builtins_8hpp" ],
-    [ "qsbr.hpp", "qsbr_8hpp_source.html", null ],
+    [ "qsbr.hpp", "qsbr_8hpp.html", "qsbr_8hpp" ],
     [ "qsbr_ptr.cpp", "qsbr__ptr_8cpp.html", null ],
     [ "qsbr_ptr.hpp", "qsbr__ptr_8hpp.html", "qsbr__ptr_8hpp" ],
     [ "test_heap.hpp", "test__heap_8hpp_source.html", null ],

@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1optimistic__lock.html','
 </div><!--header-->
 <div class="contents">
 
-<p>A version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations.  
+<p>Version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations.  
  <a href="classunodb_1_1optimistic__lock.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="optimistic__lock_8hpp_source.html">optimistic_lock.hpp</a>&gt;</code></p>
@@ -114,16 +114,16 @@ $(document).ready(function(){initNavTree('classunodb_1_1optimistic__lock.html','
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html">atomic_version_type</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The atomic lock word and its operations.  <a href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomic lock word and its operations.  <a href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads.  <a href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads.  <a href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-atomic lock word representation.  <a href="classunodb_1_1optimistic__lock_1_1version__type.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A write guard (WG) for exclusive access protection.  <a href="classunodb_1_1optimistic__lock_1_1write__guard.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write guard (WG) for exclusive access protection.  <a href="classunodb_1_1optimistic__lock_1_1write__guard.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -137,13 +137,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a20e74ba469d7a88d080c4f379fa87885"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destruct the lock, trivially. <br /></td></tr>
 <tr class="separator:a20e74ba469d7a88d080c4f379fa87885"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a557b207dfd8a0d42a63e27dd34a05db0" id="r_a557b207dfd8a0d42a63e27dd34a05db0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0">try_read_lock</a> () noexcept</td></tr>
-<tr class="memdesc:a557b207dfd8a0d42a63e27dd34a05db0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Acquire and return an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> for this lock.  <br /></td></tr>
+<tr class="memdesc:a557b207dfd8a0d42a63e27dd34a05db0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Acquire and return an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="Read critical section (RCS) that stores the lock version at the read lock time and checks it against ...">optimistic_lock::read_critical_section</a> for this lock.  <br /></td></tr>
 <tr class="separator:a557b207dfd8a0d42a63e27dd34a05db0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3d3bc8fc5293073acb7f1dc9b8f7080a" id="r_a3d3bc8fc5293073acb7f1dc9b8f7080a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#a3d3bc8fc5293073acb7f1dc9b8f7080a">rehydrate_read_lock</a> (<a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a> version_tag) noexcept</td></tr>
-<tr class="memdesc:a3d3bc8fc5293073acb7f1dc9b8f7080a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> using a previously saved <em>version_tag</em>.  <br /></td></tr>
+<tr class="memdesc:a3d3bc8fc5293073acb7f1dc9b8f7080a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="Read critical section (RCS) that stores the lock version at the read lock time and checks it against ...">optimistic_lock::read_critical_section</a> using a previously saved <em>version_tag</em>.  <br /></td></tr>
 <tr class="separator:a3d3bc8fc5293073acb7f1dc9b8f7080a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0801000a72aa582f32a7d8b3626ff7fd" id="r_a0801000a72aa582f32a7d8b3626ff7fd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html#a0801000a72aa582f32a7d8b3626ff7fd">check_on_dealloc</a> () const noexcept</td></tr>
-<tr class="memdesc:a0801000a72aa582f32a7d8b3626ff7fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assert that this lock has no open <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> instances.  <br /></td></tr>
+<tr class="memdesc:a0801000a72aa582f32a7d8b3626ff7fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assert that this lock has no open <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="Read critical section (RCS) that stores the lock version at the read lock time and checks it against ...">optimistic_lock::read_critical_section</a> instances.  <br /></td></tr>
 <tr class="separator:a0801000a72aa582f32a7d8b3626ff7fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a246e73602241135f01d74ff879f369e9" id="r_a246e73602241135f01d74ff879f369e9"><td class="memItemLeft" align="right" valign="top"><a id="a246e73602241135f01d74ff879f369e9" name="a246e73602241135f01d74ff879f369e9"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_obsoleted_by_this_thread</b> () const noexcept</td></tr>
@@ -199,7 +199,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>dec_read_lock_count</
 Private Attributes</h2></td></tr>
 <tr class="memitem:a87ca3251940e5e31314d2a59e760cb7e" id="r_a87ca3251940e5e31314d2a59e760cb7e"><td class="memItemLeft" align="right" valign="top"><a id="a87ca3251940e5e31314d2a59e760cb7e" name="a87ca3251940e5e31314d2a59e760cb7e"></a>
 <a class="el" href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html">atomic_version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>version</b> {}</td></tr>
-<tr class="memdesc:a87ca3251940e5e31314d2a59e760cb7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The atomic lock word. <br /></td></tr>
+<tr class="memdesc:a87ca3251940e5e31314d2a59e760cb7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomic lock word. <br /></td></tr>
 <tr class="separator:a87ca3251940e5e31314d2a59e760cb7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a533b7c85785d3da0427152ec1312d6ac" id="r_a533b7c85785d3da0427152ec1312d6ac"><td class="memItemLeft" align="right" valign="top"><a id="a533b7c85785d3da0427152ec1312d6ac" name="a533b7c85785d3da0427152ec1312d6ac"></a>
 std::atomic&lt; std::int64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>read_lock_count</b> {0}</td></tr>
@@ -211,7 +211,7 @@ std::thread::id&#160;</td><td class="memItemRight" valign="bottom"><b>obsoleter_
 <tr class="separator:a7feae095aa3b9f62d93da82d4ce6909e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations. </p>
+<div class="textblock"><p>Version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations. </p>
 <p>Writers bump the version counter and readers detect concurrent writes by comparing the version counter before and after the reads. Instances are non-copyable and non-moveable.</p>
 <p>See <a class="el" href="group__optimistic-lock.html">Optimistic Locking</a> for usage examples and protocols.</p>
 <p>To support reusing the same code for single-threaded context too, there is a no-op counterpart: unodb::fake_optimistic_lock, enabling templatizing on the lock type and passing either class as needed. </p>
@@ -268,7 +268,7 @@ std::thread::id&#160;</td><td class="memItemRight" valign="bottom"><b>obsoleter_
 </table>
 </div><div class="memdoc">
 
-<p>Assert that this lock has no open <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> instances. </p>
+<p>Assert that this lock has no open <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="Read critical section (RCS) that stores the lock version at the read lock time and checks it against ...">optimistic_lock::read_critical_section</a> instances. </p>
 <p>Used in debug builds at lock heap deallocation time. </p>
 
 </div>
@@ -326,7 +326,7 @@ std::thread::id&#160;</td><td class="memItemRight" valign="bottom"><b>obsoleter_
 </table>
 </div><div class="memdoc">
 
-<p>Create an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> using a previously saved <em>version_tag</em>. </p>
+<p>Create an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="Read critical section (RCS) that stores the lock version at the read lock time and checks it against ...">optimistic_lock::read_critical_section</a> using a previously saved <em>version_tag</em>. </p>
 <p>Used for restoring OLC iterator state. It does not do any spin waits or even look at the current lock version. When the caller calls <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e" title="Check whether this RCS is still valid.">read_critical_section::check()</a> on the returned lock they will figure out whether or not the version is still valid. In debug builds, this will maintain the open RCS counter. </p>
 
 </div>
@@ -354,7 +354,7 @@ std::thread::id&#160;</td><td class="memItemRight" valign="bottom"><b>obsoleter_
 </table>
 </div><div class="memdoc">
 
-<p>Acquire and return an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> for this lock. </p>
+<p>Acquire and return an <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="Read critical section (RCS) that stores the lock version at the read lock time and checks it against ...">optimistic_lock::read_critical_section</a> for this lock. </p>
 <p>This is done without writing anything on the lock, but it will spin if the lock is write-locked. It will return immediately if the lock is in obsolete state. In debug builds, this will maintain the open RCS counter.</p>
 <dl class="section note"><dt>Note</dt><dd><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart</a> must be called before the first protected data access to check for obsolete state. </dd></dl>
 

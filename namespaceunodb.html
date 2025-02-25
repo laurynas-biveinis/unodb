@@ -107,13 +107,13 @@ $(document).ready(function(){initNavTree('namespaceunodb.html',''); initResizabl
 </div><!--header-->
 <div class="contents">
 
-<p>The namespace for the public UnoDB API.  
+<p>Namespace for the public UnoDB API.  
 <a href="namespaceunodb.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespaceunodb_1_1detail" id="r_namespaceunodb_1_1detail"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html">detail</a></td></tr>
-<tr class="memdesc:namespaceunodb_1_1detail"><td class="mdescLeft">&#160;</td><td class="mdescRight">The namespace for the UnoDB internal implementation details. <br /></td></tr>
+<tr class="memdesc:namespaceunodb_1_1detail"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for the UnoDB internal implementation details. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -122,13 +122,13 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A non-thread-safe implementation of the Adaptive Radix Tree (ART).  <a href="classunodb_1_1db.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1fake__lock.html">fake_lock</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fake version of <a class="el" href="classunodb_1_1optimistic__lock.html" title="A version-based optimistic lock that supports single-writer/multiple-readers concurrency without shar...">unodb::optimistic_lock</a>. All operations are no-ops.  <a href="classunodb_1_1fake__lock.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fake version of <a class="el" href="classunodb_1_1optimistic__lock.html" title="Version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared...">unodb::optimistic_lock</a>. All operations are no-ops.  <a href="classunodb_1_1fake__lock.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1fake__read__critical__section.html">fake_read_critical_section</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fake version of <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="A read critical section (RCS) that stores the lock version at the read lock time and checks it agains...">optimistic_lock::read_critical_section</a> used to align <a class="el" href="classunodb_1_1db.html" title="A non-thread-safe implementation of the Adaptive Radix Tree (ART).">unodb::db</a> and <a class="el" href="classunodb_1_1olc__db.html" title="A thread-safe Adaptive Radix Tree that is synchronized using optimistic lock coupling.">unodb::olc_db</a> code.  <a href="classunodb_1_1fake__read__critical__section.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fake version of <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html" title="Read critical section (RCS) that stores the lock version at the read lock time and checks it against ...">optimistic_lock::read_critical_section</a> used to align <a class="el" href="classunodb_1_1db.html" title="A non-thread-safe implementation of the Adaptive Radix Tree (ART).">unodb::db</a> and <a class="el" href="classunodb_1_1olc__db.html" title="A thread-safe Adaptive Radix Tree that is synchronized using optimistic lock coupling.">unodb::olc_db</a> code.  <a href="classunodb_1_1fake__read__critical__section.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1in__critical__section.html">in_critical_section</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A gloss for the atomic semantics used to guard loads and stores.  <a href="classunodb_1_1in__critical__section.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gloss for the atomic semantics used to guard loads and stores.  <a href="classunodb_1_1in__critical__section.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1in__fake__critical__section.html">in_fake_critical_section</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provide access to <em>T</em> with unodb::in_critical_section&lt;T&gt;-like interface, except that loads and stores are direct instead of relaxed atomic.  <a href="classunodb_1_1in__fake__critical__section.html#details">More...</a><br /></td></tr>
@@ -146,19 +146,20 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A thread-safe Adaptive Radix Tree that is synchronized using optimistic lock coupling.  <a href="classunodb_1_1olc__db.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations.  <a href="classunodb_1_1optimistic__lock.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations.  <a href="classunodb_1_1optimistic__lock.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html">qsbr</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two-bit wrapping-around QSBR epoch counter.  <a href="classunodb_1_1qsbr__epoch.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html">qsbr_per_thread</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__ptr.html">qsbr_ptr</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A raw pointer-like smart pointer to QSBR-managed shared data.  <a href="classunodb_1_1qsbr__ptr.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw pointer-like smart pointer to QSBR-managed shared data.  <a href="classunodb_1_1qsbr__ptr.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__ptr__span.html">qsbr_ptr_span</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An std::span, but with <a class="el" href="classunodb_1_1qsbr__ptr.html" title="A raw pointer-like smart pointer to QSBR-managed shared data.">unodb::qsbr_ptr</a> instead of a raw pointer, that is, a span over QSBR-managed data.  <a href="classunodb_1_1qsbr__ptr__span.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>std::span</code>, but with <a class="el" href="classunodb_1_1qsbr__ptr.html" title="Raw pointer-like smart pointer to QSBR-managed shared data.">unodb::qsbr_ptr</a> instead of a raw pointer, that is, a span over QSBR-managed data.  <a href="classunodb_1_1qsbr__ptr__span.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1qsbr__state.html">qsbr_state</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -182,20 +183,21 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>key_view</b> = std::
 <tr class="memdesc:a37e43379ef5bf4922acff8db9a432a90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keys are passed as non-owning pointers to memory with associated length (std::span). <br /></td></tr>
 <tr class="separator:a37e43379ef5bf4922acff8db9a432a90"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8105523dd9adff845377f54dd034b838" id="r_a8105523dd9adff845377f54dd034b838"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">node_type_counter_array</a> = std::array&lt; std::uint64_t, <a class="el" href="namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc">detail::node_type_count</a> &gt;</td></tr>
-<tr class="memdesc:a8105523dd9adff845377f54dd034b838"><td class="mdescLeft">&#160;</td><td class="mdescRight">An <code>std::array</code> of <code>std::uint64_t</code> values for each node type.  <br /></td></tr>
+<tr class="memdesc:a8105523dd9adff845377f54dd034b838"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>std::array</code> of <code>std::uint64_t</code> values for each node type.  <br /></td></tr>
 <tr class="separator:a8105523dd9adff845377f54dd034b838"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60a52550ffa9f2d0d9e1cd9ebc7cab28" id="r_a60a52550ffa9f2d0d9e1cd9ebc7cab28"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">inode_type_counter_array</a> = std::array&lt; std::uint64_t, <a class="el" href="namespaceunodb_1_1detail.html#aa11fc0dc02ee0b061504cd50856ea7dd">detail::inode_type_count</a> &gt;</td></tr>
-<tr class="memdesc:a60a52550ffa9f2d0d9e1cd9ebc7cab28"><td class="mdescLeft">&#160;</td><td class="mdescRight">An <code>std::array</code> of <code>std::uint64_t</code> values for each internal node type.  <br /></td></tr>
+<tr class="memdesc:a60a52550ffa9f2d0d9e1cd9ebc7cab28"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>std::array</code> of <code>std::uint64_t</code> values for each internal node type.  <br /></td></tr>
 <tr class="separator:a60a52550ffa9f2d0d9e1cd9ebc7cab28"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb0d76ffe3981ce7fdedaebd068296d1" id="r_abb0d76ffe3981ce7fdedaebd068296d1"><td class="memItemLeft" align="right" valign="top"><a id="abb0d76ffe3981ce7fdedaebd068296d1" name="abb0d76ffe3981ce7fdedaebd068296d1"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_value_view</b> = <a class="el" href="classunodb_1_1qsbr__ptr__span.html">qsbr_ptr_span</a>&lt; const std::byte &gt;</td></tr>
 <tr class="separator:abb0d76ffe3981ce7fdedaebd068296d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70595f75a79bde2520bdcfb07689da7b" id="r_a70595f75a79bde2520bdcfb07689da7b"><td class="memItemLeft" align="right" valign="top"><a id="a70595f75a79bde2520bdcfb07689da7b" name="a70595f75a79bde2520bdcfb07689da7b"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>version_tag_type</b> = std::uint64_t</td></tr>
-<tr class="memdesc:a70595f75a79bde2520bdcfb07689da7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The underlying integer type used to store optimistic lock word, including its version and lock state information. <br /></td></tr>
+<tr class="memdesc:a70595f75a79bde2520bdcfb07689da7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Underlying integer type used to store optimistic lock word, including its version and lock state information. <br /></td></tr>
 <tr class="separator:a70595f75a79bde2520bdcfb07689da7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada0b4ac1dc20e0b46e360f0743ee24d4" id="r_ada0b4ac1dc20e0b46e360f0743ee24d4"><td class="memItemLeft" align="right" valign="top"><a id="ada0b4ac1dc20e0b46e360f0743ee24d4" name="ada0b4ac1dc20e0b46e360f0743ee24d4"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_thread_count_type</b> = std::uint32_t</td></tr>
+<tr class="memdesc:ada0b4ac1dc20e0b46e360f0743ee24d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for counting QSBR-managed threads. <br /></td></tr>
 <tr class="separator:ada0b4ac1dc20e0b46e360f0743ee24d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5a167ea3daf99e23a500b6ec73b4538d" id="r_a5a167ea3daf99e23a500b6ec73b4538d"><td class="memTemplParams" colspan="2"><a id="a5a167ea3daf99e23a500b6ec73b4538d" name="a5a167ea3daf99e23a500b6ec73b4538d"></a>
 template&lt;typename T &gt; </td></tr>
@@ -222,10 +224,10 @@ Functions</h2></td></tr>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>unlock_and_return</b> (const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">unodb::optimistic_lock::read_critical_section</a> &amp;cs, bool ret) noexcept</td></tr>
 <tr class="separator:a7a60a32f6fea903e6de1e8d22de2eac9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf5c8f3a365ce28271526c3ef0ca4237" id="r_adf5c8f3a365ce28271526c3ef0ca4237"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237">spin_wait_loop_body</a> () noexcept</td></tr>
-<tr class="memdesc:adf5c8f3a365ce28271526c3ef0ca4237"><td class="mdescLeft">&#160;</td><td class="mdescRight">The optimistic spinlock wait loop algorithm implementation.  <br /></td></tr>
+<tr class="memdesc:adf5c8f3a365ce28271526c3ef0ca4237"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimistic spinlock wait loop algorithm implementation.  <br /></td></tr>
 <tr class="separator:adf5c8f3a365ce28271526c3ef0ca4237"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adaa3ab1c4bff7ee8938b2e727a11dd98" id="r_adaa3ab1c4bff7ee8938b2e727a11dd98"><td class="memItemLeft" align="right" valign="top"><a id="adaa3ab1c4bff7ee8938b2e727a11dd98" name="adaa3ab1c4bff7ee8938b2e727a11dd98"></a>
-auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, <a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a> value)</td></tr>
+<tr class="memitem:adaa3ab1c4bff7ee8938b2e727a11dd98" id="r_adaa3ab1c4bff7ee8938b2e727a11dd98"><td class="memItemLeft" align="right" valign="top">auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#adaa3ab1c4bff7ee8938b2e727a11dd98">operator&lt;&lt;</a> (std::ostream &amp;os <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, <a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a> value)</td></tr>
+<tr class="memdesc:adaa3ab1c4bff7ee8938b2e727a11dd98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print the epoch <em>value</em> to the output stream <em>os</em>.  <br /></td></tr>
 <tr class="separator:adaa3ab1c4bff7ee8938b2e727a11dd98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4714801b642ab4a8b9fd71677a7eabc5" id="r_a4714801b642ab4a8b9fd71677a7eabc5"><td class="memItemLeft" align="right" valign="top"><a id="a4714801b642ab4a8b9fd71677a7eabc5" name="a4714801b642ab4a8b9fd71677a7eabc5"></a>
 auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>this_thread</b> () noexcept</td></tr>
@@ -246,12 +248,12 @@ Variables</h2></td></tr>
 <tr class="memitem:a775cf37c7ccec6301c8512193550b424"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a775cf37c7ccec6301c8512193550b424">internal_as_i</a></td></tr>
 <tr class="memdesc:a775cf37c7ccec6301c8512193550b424"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert internal <em>NodeType</em> to a value suitable for use as an index.  <br /></td></tr>
 <tr class="separator:a775cf37c7ccec6301c8512193550b424"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a43c189e41434317736d00dfa2cda4429" id="r_a43c189e41434317736d00dfa2cda4429"><td class="memItemLeft" align="right" valign="top"><a id="a43c189e41434317736d00dfa2cda4429" name="a43c189e41434317736d00dfa2cda4429"></a>
-constexpr qsbr_thread_count_type&#160;</td><td class="memItemRight" valign="bottom"><b>max_qsbr_threads</b> = (2UL &lt;&lt; 29U) - 1U</td></tr>
+<tr class="memitem:a43c189e41434317736d00dfa2cda4429" id="r_a43c189e41434317736d00dfa2cda4429"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespaceunodb.html#ada0b4ac1dc20e0b46e360f0743ee24d4">qsbr_thread_count_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a43c189e41434317736d00dfa2cda4429">max_qsbr_threads</a> = (2UL &lt;&lt; 29U) - 1U</td></tr>
+<tr class="memdesc:a43c189e41434317736d00dfa2cda4429"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of threads that can participate in QSBR simultaneously.  <br /></td></tr>
 <tr class="separator:a43c189e41434317736d00dfa2cda4429"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The namespace for the public UnoDB API. </p>
+<div class="textblock"><p>Namespace for the public UnoDB API. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
 <a id="a60a52550ffa9f2d0d9e1cd9ebc7cab28" name="a60a52550ffa9f2d0d9e1cd9ebc7cab28"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a60a52550ffa9f2d0d9e1cd9ebc7cab28">&#9670;&#160;</a></span>inode_type_counter_array</h2>
@@ -265,7 +267,7 @@ constexpr qsbr_thread_count_type&#160;</td><td class="memItemRight" valign="bott
       </table>
 </div><div class="memdoc">
 
-<p>An <code>std::array</code> of <code>std::uint64_t</code> values for each internal node type. </p>
+<p><code>std::array</code> of <code>std::uint64_t</code> values for each internal node type. </p>
 <p>Use <a class="el" href="namespaceunodb.html#a775cf37c7ccec6301c8512193550b424" title="Convert internal NodeType to a value suitable for use as an index.">internal_as_i()</a> for indexing. </p>
 
 </div>
@@ -282,7 +284,7 @@ constexpr qsbr_thread_count_type&#160;</td><td class="memItemRight" valign="bott
       </table>
 </div><div class="memdoc">
 
-<p>An <code>std::array</code> of <code>std::uint64_t</code> values for each node type. </p>
+<p><code>std::array</code> of <code>std::uint64_t</code> values for each node type. </p>
 <p>Use <a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1" title="Convert NodeType to a value suitable for use as an index.">as_i()</a> for indexing. </p>
 
 </div>
@@ -343,6 +345,45 @@ constexpr qsbr_thread_count_type&#160;</td><td class="memItemRight" valign="bott
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="adaa3ab1c4bff7ee8938b2e727a11dd98" name="adaa3ab1c4bff7ee8938b2e727a11dd98"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adaa3ab1c4bff7ee8938b2e727a11dd98">&#9670;&#160;</a></span>operator&lt;&lt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto &amp; unodb::operator&lt;&lt; </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;os&#160;</td>
+          <td class="paramname"><em>UNODB_DETAIL_LIFETIMEBOUND</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a>&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Print the epoch <em>value</em> to the output stream <em>os</em>. </p>
+<p>For debug purposes only. </p>
+
+</div>
+</div>
 <a id="adf5c8f3a365ce28271526c3ef0ca4237" name="adf5c8f3a365ce28271526c3ef0ca4237"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#adf5c8f3a365ce28271526c3ef0ca4237">&#9670;&#160;</a></span>spin_wait_loop_body()</h2>
 
@@ -366,7 +407,7 @@ constexpr qsbr_thread_count_type&#160;</td><td class="memItemRight" valign="bott
 </table>
 </div><div class="memdoc">
 
-<p>The optimistic spinlock wait loop algorithm implementation. </p>
+<p>Optimistic spinlock wait loop algorithm implementation. </p>
 <p>The implementation is selected by <a class="el" href="group__internal.html#gabf4ff9d84f77f57cc9388953b62e52fb" title="Defined to the selected value of the optimistic spin lock wait algorithm implementation for unodb::sp...">UNODB_DETAIL_SPINLOCK_LOOP_VALUE</a>, set by CMake, and can be either <a class="el" href="group__internal.html#gaf8bc21678478a2f86632015e259d030f" title="Spin lock wait loops use x86_64 PAUSE instruction or its closest equivalent on other architectures.">UNODB_DETAIL_SPINLOCK_LOOP_PAUSE</a> or <a class="el" href="group__internal.html#gaa05832ec08c6799fc37651fbe272ff6b" title="Spin lock loop wait loops are empty, causing aggressive spinning.">UNODB_DETAIL_SPINLOCK_LOOP_EMPTY</a> </p>
 
 </div>
@@ -428,6 +469,31 @@ template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a6
 </div><!-- fragment -->
 <p>Convert internal <em>NodeType</em> to a value suitable for use as an index. </p>
 <p>Meant for using together with inode_type_counter_array. </p>
+
+</div>
+</div>
+<a id="a43c189e41434317736d00dfa2cda4429" name="a43c189e41434317736d00dfa2cda4429"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a43c189e41434317736d00dfa2cda4429">&#9670;&#160;</a></span>max_qsbr_threads</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="namespaceunodb.html#ada0b4ac1dc20e0b46e360f0743ee24d4">qsbr_thread_count_type</a> unodb::max_qsbr_threads = (2UL &lt;&lt; 29U) - 1U</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Maximum number of threads that can participate in QSBR simultaneously. </p>
+<p>Set to 2^29-1, chosen to allow two thread count fields and an epoch counter to fit in a single machine word. It should be enough for everybody, and its overflow is not checked even in Release builds. </p>
 
 </div>
 </div>

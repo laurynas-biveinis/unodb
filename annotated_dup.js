@@ -68,7 +68,7 @@ var annotated_dup =
       [ "olc_db", "classunodb_1_1olc__db.html", "classunodb_1_1olc__db" ],
       [ "optimistic_lock", "classunodb_1_1optimistic__lock.html", "classunodb_1_1optimistic__lock" ],
       [ "qsbr", "classunodb_1_1qsbr.html", null ],
-      [ "qsbr_epoch", "classunodb_1_1qsbr__epoch.html", null ],
+      [ "qsbr_epoch", "classunodb_1_1qsbr__epoch.html", "classunodb_1_1qsbr__epoch" ],
       [ "qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", null ],
       [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html", "classunodb_1_1qsbr__ptr" ],
       [ "qsbr_ptr_span", "classunodb_1_1qsbr__ptr__span.html", "classunodb_1_1qsbr__ptr__span" ],

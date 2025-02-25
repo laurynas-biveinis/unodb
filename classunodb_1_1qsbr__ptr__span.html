@@ -104,7 +104,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1qsbr__ptr__span.html',''
 </div><!--header-->
 <div class="contents">
 
-<p>An std::span, but with <a class="el" href="classunodb_1_1qsbr__ptr.html" title="A raw pointer-like smart pointer to QSBR-managed shared data.">unodb::qsbr_ptr</a> instead of a raw pointer, that is, a span over QSBR-managed data.  
+<p><code>std::span</code>, but with <a class="el" href="classunodb_1_1qsbr__ptr.html" title="Raw pointer-like smart pointer to QSBR-managed shared data.">unodb::qsbr_ptr</a> instead of a raw pointer, that is, a span over QSBR-managed data.  
  <a href="classunodb_1_1qsbr__ptr__span.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="qsbr__ptr_8hpp_source.html">qsbr_ptr.hpp</a>&gt;</code></p>
@@ -162,16 +162,16 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>size
 Private Attributes</h2></td></tr>
 <tr class="memitem:a240f75edeb773147502f3c742bebee98" id="r_a240f75edeb773147502f3c742bebee98"><td class="memItemLeft" align="right" valign="top"><a id="a240f75edeb773147502f3c742bebee98" name="a240f75edeb773147502f3c742bebee98"></a>
 <a class="el" href="classunodb_1_1qsbr__ptr.html">qsbr_ptr</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>start</b></td></tr>
-<tr class="memdesc:a240f75edeb773147502f3c742bebee98"><td class="mdescLeft">&#160;</td><td class="mdescRight">The QSBR pointer to the start of the span. <br /></td></tr>
+<tr class="memdesc:a240f75edeb773147502f3c742bebee98"><td class="mdescLeft">&#160;</td><td class="mdescRight">QSBR pointer to the start of the span. <br /></td></tr>
 <tr class="separator:a240f75edeb773147502f3c742bebee98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab8af2672865f361b294d190fdb91f65d" id="r_ab8af2672865f361b294d190fdb91f65d"><td class="memItemLeft" align="right" valign="top"><a id="ab8af2672865f361b294d190fdb91f65d" name="ab8af2672865f361b294d190fdb91f65d"></a>
 std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>length</b></td></tr>
-<tr class="memdesc:ab8af2672865f361b294d190fdb91f65d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of elements. <br /></td></tr>
+<tr class="memdesc:ab8af2672865f361b294d190fdb91f65d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of elements. <br /></td></tr>
 <tr class="separator:ab8af2672865f361b294d190fdb91f65d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename T&gt;<br />
-class unodb::qsbr_ptr_span&lt; T &gt;</div><p>An std::span, but with <a class="el" href="classunodb_1_1qsbr__ptr.html" title="A raw pointer-like smart pointer to QSBR-managed shared data.">unodb::qsbr_ptr</a> instead of a raw pointer, that is, a span over QSBR-managed data. </p>
+class unodb::qsbr_ptr_span&lt; T &gt;</div><p><code>std::span</code>, but with <a class="el" href="classunodb_1_1qsbr__ptr.html" title="Raw pointer-like smart pointer to QSBR-managed shared data.">unodb::qsbr_ptr</a> instead of a raw pointer, that is, a span over QSBR-managed data. </p>
 <p>Crashes debug builds if a thread goes through a quiescent state while having an active span. Meets C++ contiguous range requirements. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="qsbr__ptr_8hpp_source.html">qsbr_ptr.hpp</a></li>

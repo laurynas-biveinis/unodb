@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp.html',''); initR
 </div><!--header-->
 <div class="contents">
 
-<p>The optimistic lock.  
+<p>Optimistic lock.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="global_8hpp_source.html">global.hpp</a>&quot;</code><br />
 <code>#include &lt;atomic&gt;</code><br />
@@ -127,28 +127,28 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp.html',''); initR
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock.html">unodb::optimistic_lock</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations.  <a href="classunodb_1_1optimistic__lock.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations.  <a href="classunodb_1_1optimistic__lock.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">unodb::optimistic_lock::version_type</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-atomic lock word representation.  <a href="classunodb_1_1optimistic__lock_1_1version__type.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html">unodb::optimistic_lock::atomic_version_type</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The atomic lock word and its operations.  <a href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomic lock word and its operations.  <a href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">unodb::optimistic_lock::read_critical_section</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads.  <a href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads.  <a href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A write guard (WG) for exclusive access protection.  <a href="classunodb_1_1optimistic__lock_1_1write__guard.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write guard (WG) for exclusive access protection.  <a href="classunodb_1_1optimistic__lock_1_1write__guard.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1in__critical__section.html">unodb::in_critical_section&lt; T &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A gloss for the atomic semantics used to guard loads and stores.  <a href="classunodb_1_1in__critical__section.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gloss for the atomic semantics used to guard loads and stores.  <a href="classunodb_1_1in__critical__section.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespaceunodb" id="r_namespaceunodb"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html">unodb</a></td></tr>
-<tr class="memdesc:namespaceunodb"><td class="mdescLeft">&#160;</td><td class="mdescRight">The namespace for the public UnoDB API. <br /></td></tr>
+<tr class="memdesc:namespaceunodb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for the public UnoDB API. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
@@ -162,17 +162,17 @@ Macros</h2></td></tr>
 Typedefs</h2></td></tr>
 <tr class="memitem:a70595f75a79bde2520bdcfb07689da7b" id="r_a70595f75a79bde2520bdcfb07689da7b"><td class="memItemLeft" align="right" valign="top"><a id="a70595f75a79bde2520bdcfb07689da7b" name="a70595f75a79bde2520bdcfb07689da7b"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::version_tag_type</b> = std::uint64_t</td></tr>
-<tr class="memdesc:a70595f75a79bde2520bdcfb07689da7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The underlying integer type used to store optimistic lock word, including its version and lock state information. <br /></td></tr>
+<tr class="memdesc:a70595f75a79bde2520bdcfb07689da7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Underlying integer type used to store optimistic lock word, including its version and lock state information. <br /></td></tr>
 <tr class="separator:a70595f75a79bde2520bdcfb07689da7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:adf5c8f3a365ce28271526c3ef0ca4237" id="r_adf5c8f3a365ce28271526c3ef0ca4237"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237">unodb::spin_wait_loop_body</a> () noexcept</td></tr>
-<tr class="memdesc:adf5c8f3a365ce28271526c3ef0ca4237"><td class="mdescLeft">&#160;</td><td class="mdescRight">The optimistic spinlock wait loop algorithm implementation.  <br /></td></tr>
+<tr class="memdesc:adf5c8f3a365ce28271526c3ef0ca4237"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimistic spinlock wait loop algorithm implementation.  <br /></td></tr>
 <tr class="separator:adf5c8f3a365ce28271526c3ef0ca4237"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The optimistic lock. </p>
+<div class="textblock"><p>Optimistic lock. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

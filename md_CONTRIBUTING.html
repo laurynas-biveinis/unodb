@@ -134,7 +134,7 @@ Development CMake options</h2>
 <h2><a class="anchor" id="autotoc_md4"></a>
 Code organization</h2>
 <p>Header files can be public and internal. The internal ones have "internal" somewhere in their name.</p>
-<p>Public API must be introduced in <code>unodb</code> namespace, and any such declarations should appear in a public header. It is OK for the implementation of a public declaration to be in a private header, but see below. All the private declarations for implementation details should live in <code><a class="el" href="namespaceunodb_1_1detail.html" title="The namespace for the UnoDB internal implementation details.">unodb::detail</a></code> namespace. Thus, private headers may contain both <code>unodb</code> and <code><a class="el" href="namespaceunodb_1_1detail.html" title="The namespace for the UnoDB internal implementation details.">unodb::detail</a></code> code, but rethink the header split if the former becomes a majority in a header.</p>
+<p>Public API must be introduced in <code>unodb</code> namespace, and any such declarations should appear in a public header. It is OK for the implementation of a public declaration to be in a private header, but see below. All the private declarations for implementation details should live in <code><a class="el" href="namespaceunodb_1_1detail.html" title="Namespace for the UnoDB internal implementation details.">unodb::detail</a></code> namespace. Thus, private headers may contain both <code>unodb</code> and <code><a class="el" href="namespaceunodb_1_1detail.html" title="Namespace for the UnoDB internal implementation details.">unodb::detail</a></code> code, but rethink the header split if the former becomes a majority in a header.</p>
 <p>Macros should not be a part of public API, and may be used internally only when unavoidable. If a macro has to be introduced, its name must be prefixed with <code>UNODB_DETAIL_</code>.</p>
 <h2><a class="anchor" id="autotoc_md5"></a>
 Code style guide</h2>
@@ -162,7 +162,7 @@ Documentation style guide</h2>
 <li>Doxygen is used to produce source code documentation.</li>
 <li>Doxygen commands should use <code>\foo</code> (and not <code>@foo</code>) syntax.</li>
 <li>The preferred location of the comments is next to the declarations. An exception is declarations with multiple conditionally compiled declarations, in which case a Doxygen comment with a <code>\def</code>, <code>\var</code>, or another suitable tag for the declaration should appear at the top of its section or source file, and it should also have a <code>\hideinitializer</code> tag.</li>
-<li>Doxygen automatic brief description detection is enabled, thus explicit <code>\brief</code> tags are not required, rather the first sentence in the Doxygen comment block will be interpreted as the brief description.</li>
+<li>Doxygen automatic brief description detection is enabled, thus explicit <code>\brief</code> tags are not required, rather the first sentence in the Doxygen comment block will be interpreted as the brief description. It should use a headline-like style without articles.</li>
 <li>Markdown markup is preferred, i.e. `<code>foo</code> instead of <code>\c foo</code>.</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md7"></a>

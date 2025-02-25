@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['pointer_0',['pointer',['../classunodb_1_1qsbr__ptr.html#aad73d607224016b21ad63c3ae57f648b',1,'unodb::qsbr_ptr']]]
+  ['olc_5finode_5f4_5fparent_0',['olc_inode_4_parent',['../namespaceunodb_1_1detail.html#a8e075560ef2badedb5c38741633b4507',1,'unodb::detail']]]
 ];

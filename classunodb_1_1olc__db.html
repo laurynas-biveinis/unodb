@@ -365,7 +365,7 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><b>detail::make_db_leaf_
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename Key&gt;<br />
 class unodb::olc_db&lt; Key &gt;</div><p>A thread-safe Adaptive Radix Tree that is synchronized using optimistic lock coupling. </p>
-<p>At any time, at most two directly-related tree nodes can be write-locked by the insert algorithm and three by the delete algorithm. The lock used is optimistic lock (see <a class="el" href="optimistic__lock_8hpp.html" title="The optimistic lock.">optimistic_lock.hpp</a>), where only writers lock and readers access nodes optimistically with node version checks. For deleted node reclamation, Quiescent State-Based Reclamation is used. </p>
+<p>At any time, at most two directly-related tree nodes can be write-locked by the insert algorithm and three by the delete algorithm. The lock used is optimistic lock (see <a class="el" href="optimistic__lock_8hpp.html" title="Optimistic lock.">optimistic_lock.hpp</a>), where only writers lock and readers access nodes optimistically with node version checks. For deleted node reclamation, Quiescent State-Based Reclamation is used. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a57f7edec7c843c04db0a3e149ea5768f" name="a57f7edec7c843c04db0a3e149ea5768f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a57f7edec7c843c04db0a3e149ea5768f">&#9670;&#160;</a></span>clear()</h2>

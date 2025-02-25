@@ -102,7 +102,7 @@ $(document).ready(function(){initNavTree('group__optimistic-lock.html',''); init
 </div><!--header-->
 <div class="contents">
 
-<p>The optimistic lock primitive and associated internals.  
+<p>Optimistic lock primitive and associated internals.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>
@@ -111,14 +111,14 @@ Files</h2></td></tr>
 <tr class="memdesc:in__fake__critical__section_8hpp"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op ("fake") versions of the optimistic lock primitive, its read critical section type, and the protected data declaration wrapper. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:optimistic__lock_8hpp" id="r_optimistic__lock_8hpp"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="optimistic__lock_8hpp.html">optimistic_lock.hpp</a></td></tr>
-<tr class="memdesc:optimistic__lock_8hpp"><td class="mdescLeft">&#160;</td><td class="mdescRight">The optimistic lock. <br /></td></tr>
+<tr class="memdesc:optimistic__lock_8hpp"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimistic lock. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:qsbr__ptr_8hpp" id="r_qsbr__ptr_8hpp"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="qsbr__ptr_8hpp.html">qsbr_ptr.hpp</a></td></tr>
 <tr class="memdesc:qsbr__ptr_8hpp"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointers and spans to QSBR-managed data. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<p>The optimistic lock primitive and associated internals. </p>
+<p>Optimistic lock primitive and associated internals. </p>
 <h1><a class="anchor" id="autotoc_md14"></a>
 Overview</h1>
 <p>A version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations. Writers bump the version counter and readers detect concurrent writes by comparing the version counter before and after the reads.</p>
@@ -133,7 +133,7 @@ Examples</h2>
 <div class="line"><span class="comment">// Explicit loads and stores when needed:</span></div>
 <div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> baz = val2.<a class="code hl_function" href="classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f">load</a>();</div>
 <div class="line">val2.<a class="code hl_function" href="classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556">store</a>(10);</div>
-<div class="ttc" id="aclassunodb_1_1in__critical__section_html"><div class="ttname"><a href="classunodb_1_1in__critical__section.html">unodb::in_critical_section</a></div><div class="ttdoc">A gloss for the atomic semantics used to guard loads and stores.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:871</div></div>
+<div class="ttc" id="aclassunodb_1_1in__critical__section_html"><div class="ttname"><a href="classunodb_1_1in__critical__section.html">unodb::in_critical_section</a></div><div class="ttdoc">Gloss for the atomic semantics used to guard loads and stores.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:871</div></div>
 <div class="ttc" id="aclassunodb_1_1in__critical__section_html_a8eb1c277a49389a3ea0697c405dec31f"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f">unodb::in_critical_section::load</a></div><div class="ttdeci">T load() const noexcept</div><div class="ttdoc">Explicitly read the wrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:930</div></div>
 <div class="ttc" id="aclassunodb_1_1in__critical__section_html_ad57cdf663ee959fae3d4ea595f046556"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556">unodb::in_critical_section::store</a></div><div class="ttdeci">void store(T new_value) noexcept</div><div class="ttdoc">Explicitly assign the wrapped value from new_value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:935</div></div>
 </div><!-- fragment --><p>The simplest read locking example: </p><div class="fragment"><div class="line"><span class="comment">// Spin until lock is not write-locked nor obsolete</span></div>
@@ -203,7 +203,7 @@ API conventions</h2>
 <p>All <code>bool</code>-returning <code>try_</code> methods return true on success and false when a concurrent write lock requires the operation to be restarted.</p>
 <h2><a class="anchor" id="autotoc_md17"></a>
 Protected data declaration</h2>
-<p>All data fields or variables to be protected by an optimistic lock must be wrapped in <a class="el" href="classunodb_1_1in__critical__section.html" title="A gloss for the atomic semantics used to guard loads and stores.">unodb::in_critical_section</a> template. Effectively it converts the data accesses to relaxed atomic accesses, which is required by the optimistic lock memory model.</p>
+<p>All data fields or variables to be protected by an optimistic lock must be wrapped in <a class="el" href="classunodb_1_1in__critical__section.html" title="Gloss for the atomic semantics used to guard loads and stores.">unodb::in_critical_section</a> template. Effectively it converts the data accesses to relaxed atomic accesses, which is required by the optimistic lock memory model.</p>
 <h2><a class="anchor" id="autotoc_md18"></a>
 Read protocol</h2>
 <p>A read critical section (RCS) is created by <a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0" title="Acquire and return an optimistic_lock::read_critical_section for this lock.">unodb::optimistic_lock::try_read_lock()</a>, which will either spin until the lock is not write-locked, or will return immediately if the lock goes to the obsolete state.</p>
@@ -213,12 +213,12 @@ Read protocol</h2>
 <p>In the current implementation, it is possible for a reader to be starved indefinitely.</p>
 <h2><a class="anchor" id="autotoc_md19"></a>
 Write protocol</h2>
-<p>After a successful write lock acquisition by <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html" title="A write guard (WG) for exclusive access protection.">unodb::optimistic_lock::write_guard()</a>, the protected data may be accessed freely, as if under a regular write lock, with the exception of data deletion, discussed below. The write lock object is a C++ scope guard which will unlock on leaving the scope.</p>
+<p>After a successful write lock acquisition by <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html" title="Write guard (WG) for exclusive access protection.">unodb::optimistic_lock::write_guard()</a>, the protected data may be accessed freely, as if under a regular write lock, with the exception of data deletion, discussed below. The write lock object is a C++ scope guard which will unlock on leaving the scope.</p>
 <p>Since read locking does not write to the shared memory, readers can have active pointers to the data without the writer knowing about them. Therefore, lock-protected heap data cannot be deallocated immediately. Instead of immediate deallocation, the data is marked as obsolete (unodb::optimistic_lock::write_guard::write_unlock_and_obsolete) and reclaimed later when it is safe to do so. This is implemented by <a class="el" href="group__qsbr.html">Quiescent State-Based Reclamation</a>.</p>
 <h2><a class="anchor" id="autotoc_md20"></a>
 Internals</h2>
 <p>A lock is a single machine word, that encodes locked-unlocked state, obsolete state, and version number.</p>
-<p>Locking for write (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html" title="A write guard (WG) for exclusive access protection.">unodb::optimistic_lock::write_guard()</a>) atomically sets the locked state and bumps the version number.</p>
+<p>Locking for write (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html" title="Write guard (WG) for exclusive access protection.">unodb::optimistic_lock::write_guard()</a>) atomically sets the locked state and bumps the version number.</p>
 <p>Locking for read (<a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0" title="Acquire and return an optimistic_lock::read_critical_section for this lock.">unodb::optimistic_lock::try_read_lock()</a>) saves the version number at the time, and unlocking for read (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">unodb::optimistic_lock::read_critical_section::try_read_unlock()</a>) checks whether the lock version did not advance since the read lock. It is also possible to check this in a middle of an RCS (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e" title="Check whether this RCS is still valid.">unodb::optimistic_lock::read_critical_section::check()</a>), which has exactly the same semantics under a different name for descriptive code.</p>
 <p>A lock in obsolete state marks data which is on the deallocation backlog to be freed once all the thread epochs have advanced. All algorithms must immediately stop retrying read locking such data and restart.</p>
 <h2><a class="anchor" id="autotoc_md21"></a>

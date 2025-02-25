@@ -104,7 +104,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1in__critical__section.ht
 </div><!--header-->
 <div class="contents">
 
-<p>A gloss for the atomic semantics used to guard loads and stores.  
+<p>Gloss for the atomic semantics used to guard loads and stores.  
  <a href="classunodb_1_1in__critical__section.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="optimistic__lock_8hpp_source.html">optimistic_lock.hpp</a>&gt;</code></p>
@@ -177,12 +177,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a cla
 Private Attributes</h2></td></tr>
 <tr class="memitem:a477db9235622c80e33aad4249fe0bdb7" id="r_a477db9235622c80e33aad4249fe0bdb7"><td class="memItemLeft" align="right" valign="top"><a id="a477db9235622c80e33aad4249fe0bdb7" name="a477db9235622c80e33aad4249fe0bdb7"></a>
 std::atomic&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>value</b></td></tr>
-<tr class="memdesc:a477db9235622c80e33aad4249fe0bdb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapped value. <br /></td></tr>
+<tr class="memdesc:a477db9235622c80e33aad4249fe0bdb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapped value. <br /></td></tr>
 <tr class="separator:a477db9235622c80e33aad4249fe0bdb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename T&gt;<br />
-class unodb::in_critical_section&lt; T &gt;</div><p>A gloss for the atomic semantics used to guard loads and stores. </p>
+class unodb::in_critical_section&lt; T &gt;</div><p>Gloss for the atomic semantics used to guard loads and stores. </p>
 <p>Wraps the protected data fields. The loads and stores become relaxed atomic operations as required by the optimistic lock memory model. The instances are non-moveable and non-copy-constructable but the assignments both from the wrapped values and plain value type are supported.</p>
 <p>To support reusing the same code for single-threaded context too, there is a no-op counterpart: <a class="el" href="classunodb_1_1in__fake__critical__section.html" title="Provide access to T with unodb::in_critical_section&lt;T&gt;-like interface, except that loads and stores a...">unodb::in_fake_critical_section</a>, enabling templatizing on the wrapper type and passing either class as needed.</p>
 <p>Implements the required set of transparent operations, extend as necessary. </p>

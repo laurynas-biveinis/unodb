@@ -105,7 +105,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1optimistic__lock_1_1read
 </div><!--header-->
 <div class="contents">
 
-<p>A read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads.  
+<p>Read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads.  
  <a href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="optimistic__lock_8hpp_source.html">optimistic_lock.hpp</a>&gt;</code></p>
@@ -153,10 +153,10 @@ constexpr <a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689d
 Private Attributes</h2></td></tr>
 <tr class="memitem:a49c205ed1230b579a8692119a3c67171" id="r_a49c205ed1230b579a8692119a3c67171"><td class="memItemLeft" align="right" valign="top"><a id="a49c205ed1230b579a8692119a3c67171" name="a49c205ed1230b579a8692119a3c67171"></a>
 <a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>lock</b> {nullptr}</td></tr>
-<tr class="memdesc:a49c205ed1230b579a8692119a3c67171"><td class="mdescLeft">&#160;</td><td class="mdescRight">The lock backing this RCS. <br /></td></tr>
+<tr class="memdesc:a49c205ed1230b579a8692119a3c67171"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lock backing this RCS. <br /></td></tr>
 <tr class="separator:a49c205ed1230b579a8692119a3c67171"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66e3bcf979e6d6598cc683969a31d72e" id="r_a66e3bcf979e6d6598cc683969a31d72e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1optimistic__lock_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a66e3bcf979e6d6598cc683969a31d72e">version</a> {0}</td></tr>
-<tr class="memdesc:a66e3bcf979e6d6598cc683969a31d72e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The lock version at the RCS creation time.  <br /></td></tr>
+<tr class="memdesc:a66e3bcf979e6d6598cc683969a31d72e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lock version at the RCS creation time.  <br /></td></tr>
 <tr class="separator:a66e3bcf979e6d6598cc683969a31d72e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
@@ -166,7 +166,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b></td>
 <tr class="separator:a7f57a6123403295cd6814185cae5b76c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads. </p>
+<div class="textblock"><p>Read critical section (RCS) that stores the lock version at the read lock time and checks it against the current version for consistent reads. </p>
 <p>Instances are non-copyable and only movable with the move constructor.</p>
 <p>There are three different states for an RCS:</p><ol type="1">
 <li>The lock was in obsolete state when the RCS was returned by <a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0" title="Acquire and return an optimistic_lock::read_critical_section for this lock.">optimistic_lock::try_read_lock()</a>. This must always be checked for after the RCS has been created with a <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">read_critical_section::must_restart()</a> call.</li>
@@ -174,7 +174,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b></td>
 <li>The RCS was unlocked or the underlying lock has been write-locked since the RCS was created, and this has been detected by a <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">try_read_unlock()</a> or <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e" title="Check whether this RCS is still valid.">check()</a> call. The RCS is no longer valid.</li>
 </ol>
 <p>To support reusing the same code for single-threaded contexts too, there is a no-op counterpart: <a class="el" href="classunodb_1_1fake__read__critical__section.html" title="Fake version of optimistic_lock::read_critical_section used to align unodb::db and unodb::olc_db code...">unodb::fake_read_critical_section</a>, enabling templatizing on the RCS type and passing the either class as needed.</p>
-<p>Internally the obsolete state (and in the debug builds, the unlocked / underlying lock write locked state too) is represented by <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171" title="The lock backing this RCS.">read_critical_section::lock</a> == nullptr. </p>
+<p>Internally the obsolete state (and in the debug builds, the unlocked / underlying lock write locked state too) is represented by <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171" title="Lock backing this RCS.">read_critical_section::lock</a> == nullptr. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a59505c615c141f53ffcd287be14e6c7f" name="a59505c615c141f53ffcd287be14e6c7f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a59505c615c141f53ffcd287be14e6c7f">&#9670;&#160;</a></span>read_critical_section() <span class="overload">[1/2]</span></h2>
@@ -277,7 +277,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b></td>
   </table>
   </dd>
 </dl>
-<p>The return value is determined by comparing <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a66e3bcf979e6d6598cc683969a31d72e" title="The lock version at the RCS creation time.">read_critical_section::version</a> with the current lock version. If the versions don't match and the RCS is no longer valid, a debug build will reset <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171" title="The lock backing this RCS.">read_critical_section::lock</a> pointer to <code>nullptr</code>, causing subsequent use attempts of the RCS to fault. </p>
+<p>The return value is determined by comparing <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a66e3bcf979e6d6598cc683969a31d72e" title="Lock version at the RCS creation time.">read_critical_section::version</a> with the current lock version. If the versions don't match and the RCS is no longer valid, a debug build will reset <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171" title="Lock backing this RCS.">read_critical_section::lock</a> pointer to <code>nullptr</code>, causing subsequent use attempts of the RCS to fault. </p>
 
 </div>
 </div>
@@ -348,7 +348,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b></td>
   </table>
   </dd>
 </dl>
-<p>The return value is determined by comparing <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a66e3bcf979e6d6598cc683969a31d72e" title="The lock version at the RCS creation time.">read_critical_section::version</a> with the current lock version. In a debug build, <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171" title="The lock backing this RCS.">read_critical_section::lock</a> pointer is reset to <code>nullptr</code>, causing subsequent use attempts of the RCS to fault. </p>
+<p>The return value is determined by comparing <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a66e3bcf979e6d6598cc683969a31d72e" title="Lock version at the RCS creation time.">read_critical_section::version</a> with the current lock version. In a debug build, <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a49c205ed1230b579a8692119a3c67171" title="Lock backing this RCS.">read_critical_section::lock</a> pointer is reset to <code>nullptr</code>, causing subsequent use attempts of the RCS to fault. </p>
 
 </div>
 </div>
@@ -373,7 +373,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b></td>
 </table>
 </div><div class="memdoc">
 
-<p>The lock version at the RCS creation time. </p>
+<p>Lock version at the RCS creation time. </p>
 <p>Immutable throughout the RCS lifetime. </p>
 
 </div>

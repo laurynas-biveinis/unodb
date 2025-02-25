@@ -26,9 +26,9 @@ template <class T>
   return DeepState_SizeTInRange(0, std::size(container) - 1);
 }
 
-/// The DeepState command line-specified timeout in seconds. We need it, but
-/// it is not exposed through the public DeepState API, hence take the risk
-/// and declare it ourselves.
+/// DeepState command line-specified timeout in seconds. We need it, but it is
+/// not exposed through the public DeepState API, hence take the risk and
+/// declare it ourselves.
 extern "C" int FLAGS_timeout;
 
 namespace unodb::test {

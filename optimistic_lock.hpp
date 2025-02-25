@@ -3,7 +3,7 @@
 #define UNODB_DETAIL_OPTIMISTIC_LOCK_HPP
 
 /// \file
-/// The optimistic lock.
+/// Optimistic lock.
 ///
 /// \ingroup optimistic-lock
 
@@ -231,9 +231,9 @@
 
 namespace unodb {
 
-/// The optimistic spinlock wait loop algorithm implementation.
-/// The implementation is selected by #UNODB_DETAIL_SPINLOCK_LOOP_VALUE, set by
-/// CMake, and can be either #UNODB_DETAIL_SPINLOCK_LOOP_PAUSE or
+/// Optimistic spinlock wait loop algorithm implementation. The implementation
+/// is selected by #UNODB_DETAIL_SPINLOCK_LOOP_VALUE, set by CMake, and can be
+/// either #UNODB_DETAIL_SPINLOCK_LOOP_PAUSE or
 /// #UNODB_DETAIL_SPINLOCK_LOOP_EMPTY
 // TODO(laurynas): move to unodb::detail namespace
 // LCOV_EXCL_START
@@ -260,13 +260,13 @@ inline void spin_wait_loop_body() noexcept {
 }
 // LCOV_EXCL_STOP
 
-/// The underlying integer type used to store optimistic lock word, including
-/// its version and lock state information.
+/// Underlying integer type used to store optimistic lock word, including its
+/// version and lock state information.
 //
 // TODO(laurynas) can we use optimistic_lock::version_type instead?
 using version_tag_type = std::uint64_t;
 
-/// A version-based optimistic lock that supports single-writer/multiple-readers
+/// Version-based optimistic lock that supports single-writer/multiple-readers
 /// concurrency without shared memory writes during read operations.
 ///
 /// Writers bump the version counter and readers detect concurrent writes by
@@ -289,7 +289,7 @@ class [[nodiscard]] optimistic_lock final {
   // TODO(laurynas): rename to lock_word
   class [[nodiscard]] version_type final {
    public:
-    /// A lock word value constant in the obsolete state.
+    /// Lock word value constant in the obsolete state.
     static constexpr version_tag_type obsolete_lock_word = 1U;
 
     /// Create a new lock word from a raw \a version_val value.
@@ -352,12 +352,12 @@ class [[nodiscard]] optimistic_lock final {
     }
 
    private:
-    /// The raw lock word value.
+    /// Raw lock word value.
     version_tag_type version{0};
   };  // class version_type
 
  private:
-  /// The atomic lock word and its operations.
+  /// Atomic lock word and its operations.
   class [[nodiscard]] atomic_version_type final {
    public:
     /// Atomically load the lock word with acquire memory ordering.
@@ -415,7 +415,7 @@ class [[nodiscard]] optimistic_lock final {
     }
 
    private:
-    /// The raw atomic lock word.
+    /// Raw atomic lock word.
     std::atomic<std::uint64_t> version;
 
     static_assert(decltype(version)::is_always_lock_free,
@@ -425,8 +425,8 @@ class [[nodiscard]] optimistic_lock final {
  public:
   class write_guard;
 
-  /// A read critical section (RCS) that stores the lock version at the read
-  /// lock time and checks it against the current version for consistent reads.
+  /// Read critical section (RCS) that stores the lock version at the read lock
+  /// time and checks it against the current version for consistent reads.
   /// Instances are non-copyable and only movable with the move constructor.
   ///
   /// There are three different states for an RCS:
@@ -562,20 +562,20 @@ class [[nodiscard]] optimistic_lock final {
     read_critical_section &operator=(const read_critical_section &) = delete;
 
    private:
-    /// The lock backing this RCS.
+    /// Lock backing this RCS.
 #ifndef NDEBUG
     mutable
 #endif
         optimistic_lock *lock{nullptr};
 
-    /// The lock version at the RCS creation time. Immutable throughout
-    /// the RCS lifetime.
+    /// Lock version at the RCS creation time. Immutable throughout the RCS
+    /// lifetime.
     version_type version{0};
 
     friend class write_guard;
   };  // class read_critical_section
 
-  /// A write guard (WG) for exclusive access protection. Functions as a scope
+  /// Write guard (WG) for exclusive access protection. Functions as a scope
   /// guard if needed. Can only be created by attempting to upgrade a
   /// optimistic_lock::read_critical_section. Instances are non-copyable and
   /// non-movable.
@@ -664,7 +664,7 @@ class [[nodiscard]] optimistic_lock final {
       return result;
     }
 
-    /// The underlying lock. If `nullptr`, this WG is inactive.
+    /// Underlying lock. If `nullptr`, this WG is inactive.
     optimistic_lock *lock{nullptr};
   };  // class write_guard
 
@@ -808,7 +808,7 @@ class [[nodiscard]] optimistic_lock final {
 #endif
   }
 
-  /// The atomic lock word.
+  /// Atomic lock word.
   atomic_version_type version{};
 
 #ifndef NDEBUG
@@ -856,7 +856,7 @@ static_assert(sizeof(optimistic_lock) == 8);
 static_assert(sizeof(optimistic_lock) == 24);
 #endif
 
-/// A gloss for the atomic semantics used to guard loads and stores. Wraps the
+/// Gloss for the atomic semantics used to guard loads and stores. Wraps the
 /// protected data fields. The loads and stores become relaxed atomic operations
 /// as required by the optimistic lock memory model. The instances are
 /// non-moveable and non-copy-constructable but the assignments both from the
@@ -941,7 +941,7 @@ class [[nodiscard]] in_critical_section final {
   void operator=(in_critical_section &&) = delete;
 
  private:
-  /// The wrapped value.
+  /// Wrapped value.
   std::atomic<T> value;
 
   static_assert(std::atomic<T>::is_always_lock_free,

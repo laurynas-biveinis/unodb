@@ -2,6 +2,25 @@
 #ifndef UNODB_DETAIL_QSBR_HPP
 #define UNODB_DETAIL_QSBR_HPP
 
+/// \file
+/// Quiescent State-based reclamation.
+///
+/// \ingroup qsbr
+///
+/// Quiescent state-based reclamation (QSBR) memory reclamation scheme. Instead
+/// of freeing memory directly, threads register pending deallocation requests
+/// to be executed later. Further, each thread notifies when it's not holding
+/// any pointers to the shared data structure (is quiescent with respect to that
+/// structure). All the threads having passed through a quiescent state
+/// constitute a quiescent period, and an epoch change happens at its boundary.
+/// At that point all the pending deallocation requests queued before the start
+/// of the just-finished quiescent period can be safely executed.
+///
+/// For a usage example, see example/example_olc_art.cpp.
+///
+/// The implementation borrows some of the basic ideas from
+/// https://preshing.com/20160726/using-quiescent-states-to-reclaim-memory/
+
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -55,46 +74,43 @@
 
 namespace unodb {
 
-// Quiescent-state based reclamation (QSBR) memory reclamation scheme. Instead
-// of freeing memory directly, threads register pending deallocation requests to
-// be executed later. Further, each thread notifies when it's not holding any
-// pointers to the shared data structure (is quiescent with respect to that
-// structure). All the threads having passed through a quiescent state
-// constitute a quiescent period, and an epoch change happens at its boundary.
-// At that point all the pending deallocation requests queued before the
-// start of the just-finished quiescent period can be safely executed.
-//
-// For a usage example, see example/example_olc_art.cpp.
-//
-// The implementation borrows some of the basic ideas from
-// https://preshing.com/20160726/using-quiescent-states-to-reclaim-memory/
-
-// If C++ standartisation proposal by A. D. Robison "Policy-based design for
-// safe destruction in concurrent containers" ever gets anywhere, consider
-// changing to its interface, like Stamp-it paper does.
-
-// Two-bit wrapping-around epoch counter. Two epochs can be compared for
-// equality but otherwise are unordered. One bit counter would be enough too,
-// but with two bits we can check more invariants.
+/// Two-bit wrapping-around QSBR epoch counter. Two epochs can be compared for
+/// equality but otherwise are unordered. One bit counter would be enough too,
+/// but with two bits we can check more invariants.
+// TODO(laurynas): move to detail namespace?
 class [[nodiscard]] qsbr_epoch final {
  public:
+  /// Underlying integer type for the epoch.
   using epoch_type = std::uint8_t;
 
+  /// Maximum epoch value.
   static constexpr epoch_type max = 3U;
 
+  /// Copy-construct the epoch counter.
   qsbr_epoch(const qsbr_epoch &) noexcept = default;
+
+  /// Move-construct the epoch counter.
   qsbr_epoch(qsbr_epoch &&) noexcept = default;
+
+  /// Copy-assign the epoch counter.
   qsbr_epoch &operator=(const qsbr_epoch &) noexcept = default;
+
+  /// Move-assign the epoch counter.
   qsbr_epoch &operator=(qsbr_epoch &&) noexcept = default;
+
+  /// Trivially destruct the epoch counter.
   ~qsbr_epoch() noexcept = default;
 
+  /// Construct an epoch with a specific value \a epoch_val_.
   constexpr explicit qsbr_epoch(epoch_type epoch_val_) : epoch_val{epoch_val_} {
 #ifndef NDEBUG
     assert_invariant();
 #endif
   }
 
-  [[nodiscard]] constexpr auto advance(unsigned by = 1) const noexcept {
+  /// Return a new epoch advanced by \a by, wrapping around, if necessary.
+  [[nodiscard, gnu::pure]] constexpr qsbr_epoch advance(
+      unsigned by = 1) const noexcept {
 #ifndef NDEBUG
     assert_invariant();
 #endif
@@ -102,7 +118,9 @@ class [[nodiscard]] qsbr_epoch final {
     return qsbr_epoch{static_cast<epoch_type>((epoch_val + by) % max_count)};
   }
 
-  [[nodiscard]] constexpr auto operator==(qsbr_epoch other) const noexcept {
+  /// Compare equal to \a other.
+  [[nodiscard, gnu::pure]] constexpr bool operator==(
+      qsbr_epoch other) const noexcept {
 #ifndef NDEBUG
     assert_invariant();
     other.assert_invariant();
@@ -111,7 +129,9 @@ class [[nodiscard]] qsbr_epoch final {
     return epoch_val == other.epoch_val;
   }
 
-  [[nodiscard]] constexpr auto operator!=(qsbr_epoch other) const noexcept {
+  /// Compare not equal to \a other.
+  [[nodiscard, gnu::pure]] constexpr bool operator!=(
+      qsbr_epoch other) const noexcept {
 #ifndef NDEBUG
     assert_invariant();
     other.assert_invariant();
@@ -120,19 +140,27 @@ class [[nodiscard]] qsbr_epoch final {
     return epoch_val != other.epoch_val;
   }
 
+  /// Output the epoch to \a os. For debug purposes only.
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;
 
-  friend struct qsbr_state;
-
+  /// Prohibit constructing defaulted epoch values.
   qsbr_epoch() noexcept = delete;
 
  private:
-  static constexpr auto max_count = max + 1U;
-  static_assert((max_count & (max_count - 1U)) == 0);
+  // qsbr_state::make_from_epoch reads the field directly
+  friend struct qsbr_state;
 
+  /// Number of possible epoch values.
+  static constexpr auto max_count = max + 1U;
+
+  static_assert((max_count & (max_count - 1U)) == 0,
+                "The number of possible epoch values must be a power of 2");
+
+  /// Epoch value.
   epoch_type epoch_val;
 
 #ifndef NDEBUG
+  /// Assert that the epoch value is valid.
   constexpr void assert_invariant() const noexcept {
     UNODB_DETAIL_ASSERT(epoch_val <= max);
   }
@@ -140,6 +168,8 @@ class [[nodiscard]] qsbr_epoch final {
 };
 
 // LCOV_EXCL_START
+/// Print the epoch \a value to the output stream \a os. For debug purposes
+/// only.
 [[gnu::cold]] inline auto &operator<<(
     std::ostream &os UNODB_DETAIL_LIFETIMEBOUND, qsbr_epoch value) {
   value.dump(os);
@@ -147,11 +177,13 @@ class [[nodiscard]] qsbr_epoch final {
 }
 // LCOV_EXCL_STOP
 
-// The maximum allowed QSBR-managed thread count is 2^29-1, should be enough for
-// everybody, let's not even bother checking the limit in the Release
-// configuration
+/// Type for counting QSBR-managed threads.
 using qsbr_thread_count_type = std::uint32_t;
 
+/// Maximum number of threads that can participate in QSBR simultaneously. Set
+/// to 2^29-1, chosen to allow two thread count fields and an epoch counter to
+/// fit in a single machine word. It should be enough for everybody, and its
+/// overflow is not checked even in Release builds.
 inline constexpr qsbr_thread_count_type max_qsbr_threads = (2UL << 29U) - 1U;
 
 // Bits are allocated as follows:
@@ -685,6 +717,10 @@ class [[nodiscard]] qsbr_per_thread final {
 namespace boost_acc = boost::accumulators;
 
 #endif  // UNODB_DETAIL_WITH_STATS
+
+// If C++ standartisation proposal by A. D. Robison "Policy-based design for
+// safe destruction in concurrent containers" ever gets anywhere, consider
+// changing to its interface, like Stamp-it paper does.
 
 class qsbr final {
  public:

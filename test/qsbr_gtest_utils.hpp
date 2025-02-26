@@ -5,6 +5,8 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <cstddef>
+// IWYU pragma: no_include <cstdint>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include "gtest/gtest.h"
 
@@ -262,7 +264,7 @@ class QSBRTestBase : public ::testing::Test {
   QSBRTestBase &operator=(QSBRTestBase &&) = delete;
 
  private:
-  unodb::qsbr_epoch last_epoch{0};
+  unodb::detail::qsbr_epoch last_epoch{0};
 };
 
 }  // namespace unodb::test

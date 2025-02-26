@@ -28,7 +28,7 @@
 namespace {
 
 constexpr auto max_threads{1024};
-static_assert(max_threads <= unodb::max_qsbr_threads);
+static_assert(max_threads <= unodb::detail::max_qsbr_threads);
 constexpr auto max_thread_id{102400};
 
 constexpr std::uint64_t object_mem = 0xAABBCCDD22446688ULL;
@@ -683,10 +683,12 @@ TEST(QSBR, DeepStateFuzz) {
           }
           reset_stats();
         });
-    const auto unpaused_threads = static_cast<unodb::qsbr_thread_count_type>(
-        std::ranges::count_if(threads, [](const thread_info &info) noexcept {
-          return !info.is_paused;
-        }));
+    const auto unpaused_threads =
+        static_cast<unodb::detail::qsbr_thread_count_type>(
+            std::ranges::count_if(threads,
+                                  [](const thread_info &info) noexcept {
+                                    return !info.is_paused;
+                                  }));
     const auto current_qsbr_state = unodb::qsbr::instance().get_state();
     ASSERT(unodb::qsbr_state::single_thread_mode(current_qsbr_state) ==
            (unpaused_threads < 2));

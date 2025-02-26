@@ -1,7 +1,7 @@
 var searchData=
 [
   ['qsbr_0',['qsbr',['../classunodb_1_1qsbr.html',1,'unodb']]],
-  ['qsbr_5fepoch_1',['qsbr_epoch',['../classunodb_1_1qsbr__epoch.html',1,'unodb']]],
+  ['qsbr_5fepoch_1',['qsbr_epoch',['../classunodb_1_1detail_1_1qsbr__epoch.html',1,'unodb::detail']]],
   ['qsbr_5fper_5fthread_2',['qsbr_per_thread',['../classunodb_1_1qsbr__per__thread.html',1,'unodb']]],
   ['qsbr_5fptr_3',['qsbr_ptr',['../classunodb_1_1qsbr__ptr.html',1,'unodb']]],
   ['qsbr_5fptr_5fbase_4',['qsbr_ptr_base',['../classunodb_1_1detail_1_1qsbr__ptr__base.html',1,'unodb::detail']]],

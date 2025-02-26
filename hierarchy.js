@@ -81,7 +81,7 @@ var hierarchy =
     [ "unodb::detail::olc_node_header", "structunodb_1_1detail_1_1olc__node__header.html", null ],
     [ "unodb::optimistic_lock", "classunodb_1_1optimistic__lock.html", null ],
     [ "unodb::qsbr", "classunodb_1_1qsbr.html", null ],
-    [ "unodb::qsbr_epoch", "classunodb_1_1qsbr__epoch.html", null ],
+    [ "unodb::detail::qsbr_epoch", "classunodb_1_1detail_1_1qsbr__epoch.html", null ],
     [ "unodb::qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", null ],
     [ "unodb::detail::qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", [
       [ "unodb::qsbr_ptr< T >", "classunodb_1_1qsbr__ptr.html", null ]

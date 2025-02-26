@@ -191,6 +191,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1olc__node__header.html">olc_node_header</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two-bit wrapping-around QSBR epoch counter.  <a href="classunodb_1_1detail_1_1qsbr__epoch.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1qsbr__ptr__base.html">qsbr_ptr_base</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base class for QSBR pointers that provides per-thread active pointer registration functionality in debug builds.  <a href="classunodb_1_1detail_1_1qsbr__ptr__base.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -321,6 +324,10 @@ template&lt;typename Key &gt; </td></tr>
 template&lt;typename Key &gt; </td></tr>
 <tr class="memitem:a682ff0b220d179d4a43235771a90723f"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>olc_inode_256_parent</b> = <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html">basic_inode_256</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">olc_art_policy</a>&lt; Key &gt; &gt;</td></tr>
 <tr class="separator:a682ff0b220d179d4a43235771a90723f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78bbb5caf501cb09276604dab64723bf" id="r_a78bbb5caf501cb09276604dab64723bf"><td class="memItemLeft" align="right" valign="top"><a id="a78bbb5caf501cb09276604dab64723bf" name="a78bbb5caf501cb09276604dab64723bf"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_thread_count_type</b> = std::uint32_t</td></tr>
+<tr class="memdesc:a78bbb5caf501cb09276604dab64723bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for counting QSBR-managed threads. <br /></td></tr>
+<tr class="separator:a78bbb5caf501cb09276604dab64723bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c98952bb0651c3bd50ab5de879cfeff" id="r_a3c98952bb0651c3bd50ab5de879cfeff"><td class="memItemLeft" align="right" valign="top"><a id="a3c98952bb0651c3bd50ab5de879cfeff" name="a3c98952bb0651c3bd50ab5de879cfeff"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>dealloc_request_vector</b> = std::vector&lt; <a class="el" href="structunodb_1_1detail_1_1deallocation__request.html">deallocation_request</a> &gt;</td></tr>
 <tr class="separator:a3c98952bb0651c3bd50ab5de879cfeff"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -442,6 +449,9 @@ template&lt;typename T &gt; </td></tr>
 unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>popcount</b> (unsigned x) noexcept</td></tr>
 <tr class="memdesc:a60cd68db0acc4264f225af504457f974"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of one bits in <em>x</em>. <br /></td></tr>
 <tr class="separator:a60cd68db0acc4264f225af504457f974"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9aa17872190ea6f43fde638f1129514" id="r_aa9aa17872190ea6f43fde638f1129514"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#aa9aa17872190ea6f43fde638f1129514">operator&lt;&lt;</a> (std::ostream &amp;os <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> value)</td></tr>
+<tr class="memdesc:aa9aa17872190ea6f43fde638f1129514"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print the epoch <em>value</em> to the output stream <em>os</em>.  <br /></td></tr>
+<tr class="separator:aa9aa17872190ea6f43fde638f1129514"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -465,6 +475,9 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inod
 <tr class="memitem:a4c6387d4046bddd4f1d87150a2e6b94c" id="r_a4c6387d4046bddd4f1d87150a2e6b94c"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c">hardware_destructive_interference_size</a></td></tr>
 <tr class="memdesc:a4c6387d4046bddd4f1d87150a2e6b94c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum size in bytes where multiple variables will be guaranteed to be separated for the purposes of false sharing.  <br /></td></tr>
 <tr class="separator:a4c6387d4046bddd4f1d87150a2e6b94c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7fc26e8bd3beb685ef91e9cc7e6672d" id="r_ac7fc26e8bd3beb685ef91e9cc7e6672d"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespaceunodb_1_1detail.html#a78bbb5caf501cb09276604dab64723bf">qsbr_thread_count_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ac7fc26e8bd3beb685ef91e9cc7e6672d">max_qsbr_threads</a> = (2UL &lt;&lt; 29U) - 1U</td></tr>
+<tr class="memdesc:ac7fc26e8bd3beb685ef91e9cc7e6672d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of threads that can participate in QSBR simultaneously.  <br /></td></tr>
+<tr class="separator:ac7fc26e8bd3beb685ef91e9cc7e6672d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04a041b47bebde8ed0f3bd97327e450c" id="r_a04a041b47bebde8ed0f3bd97327e450c"><td class="memItemLeft" align="right" valign="top"><a id="a04a041b47bebde8ed0f3bd97327e450c" name="a04a041b47bebde8ed0f3bd97327e450c"></a>
 std::array&lt; <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a>, 6 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>thread_syncs</b></td></tr>
 <tr class="separator:a04a041b47bebde8ed0f3bd97327e450c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -845,6 +858,45 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a id="aa9aa17872190ea6f43fde638f1129514" name="aa9aa17872190ea6f43fde638f1129514"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9aa17872190ea6f43fde638f1129514">&#9670;&#160;</a></span>operator&lt;&lt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::ostream &amp; unodb::detail::operator&lt;&lt; </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;os&#160;</td>
+          <td class="paramname"><em>UNODB_DETAIL_LIFETIMEBOUND</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a>&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Print the epoch <em>value</em> to the output stream <em>os</em>. </p>
+<p>For debug purposes only. </p>
+
+</div>
+</div>
 <a id="a861c73c299176b3b3839990fce470afe" name="a861c73c299176b3b3839990fce470afe"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a861c73c299176b3b3839990fce470afe">&#9670;&#160;</a></span>shift_or_32bit_int()</h2>
 
@@ -950,6 +1002,31 @@ template&lt;typename T &gt; </div>
 <p>A constant determining the initial capacity for the <a class="el" href="classunodb_1_1key__encoder.html" title="Key encodes and key decoder.">key_encoder</a> and other similar internal buffers. </p>
 <p>This should be set high enough that such objects DO NOT allocate for commonly used key lengths. These objects use an internal buffer of this capacity and then switch over to an explicitly allocated buffer if the capacity would be exceeded.</p>
 <p>Note: If you are only using fixed width keys, then this can be sizeof(T). But in typical scenarios these objects are on the stack and there is little if any penalty to having a larger initial capacity for these buffers. </p>
+
+</div>
+</div>
+<a id="ac7fc26e8bd3beb685ef91e9cc7e6672d" name="ac7fc26e8bd3beb685ef91e9cc7e6672d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7fc26e8bd3beb685ef91e9cc7e6672d">&#9670;&#160;</a></span>max_qsbr_threads</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="namespaceunodb_1_1detail.html#a78bbb5caf501cb09276604dab64723bf">qsbr_thread_count_type</a> unodb::detail::max_qsbr_threads = (2UL &lt;&lt; 29U) - 1U</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Maximum number of threads that can participate in QSBR simultaneously. </p>
+<p>Set to 2^29-1, chosen to allow two thread count fields and an epoch counter to fit in a single machine word. It should be enough for everybody, and its overflow is not checked even in Release builds. </p>
 
 </div>
 </div>

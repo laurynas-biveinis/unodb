@@ -37,22 +37,19 @@
 #include <cstddef>
 #include <cstdint>
 #include <exception>
-#ifndef NDEBUG
-#include <functional>
-#endif
 #include <iostream>
 #include <memory>
-#ifndef NDEBUG
-#include <optional>
-#endif
 #include <system_error>
 #include <thread>
 #include <type_traits>
-#ifndef NDEBUG
-#include <unordered_set>
-#endif
 #include <utility>
 #include <vector>
+
+#ifndef NDEBUG
+#include <functional>
+#include <optional>
+#include <unordered_set>
+#endif
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
@@ -191,28 +188,34 @@ inline constexpr qsbr_thread_count_type max_qsbr_threads = (2UL << 29U) - 1U;
 
 }  // namespace detail
 
-// Bits are allocated as follows:
-// 0..29: number of threads in the previous epoch
-// 30..31: unused
-// 32..62: total number of threads
-// 63..64: wrapping-around epoch counter
-// Special states: if a thread decrements the number of threads in the previous
-// epoch and observes zero while the total number of threads is greater than
-// zero, then this thread is responsible for the epoch change. The decrement of
-// the last thread in the previous epoch and the epoch bump may happen in a
-// single step, in which case nobody will observe zero threads in the previous
-// epoch.
+/// Global QSBR state in a single 64-bit machine word.
+///
+/// Bit allocation:
+/// - 0..29: Number of threads in the previous epoch
+/// - 30..31: Unused
+/// - 32..61: Total number of threads
+/// - 62..63: Wrapping-around epoch counter
+///
+/// Special state transitions:
+/// If a thread decrements the number of threads in the previous epoch and
+/// observes zero while the total number of threads is greater than zero, then
+/// this thread is responsible for the epoch change. The decrement of the last
+/// thread in the previous epoch and the epoch bump may happen in a single step,
+/// in which case nobody will observe zero threads in the previous epoch.
 // TODO(laurynas): move to detail namespace
 struct qsbr_state {
+  /// Underlying type for the state word.
   using type = std::uint64_t;
 
  private:
+  /// Extract the epoch from \a word.
   [[nodiscard, gnu::const]] static constexpr detail::qsbr_epoch do_get_epoch(
       type word) noexcept {
     return detail::qsbr_epoch{static_cast<detail::qsbr_epoch::epoch_type>(
         word >> epoch_in_word_offset)};
   }
 
+  /// Extract the total thread count from \a word.
   [[nodiscard, gnu::const]] static constexpr detail::qsbr_thread_count_type
   do_get_thread_count(type word) noexcept {
     const auto result = static_cast<detail::qsbr_thread_count_type>(
@@ -221,6 +224,7 @@ struct qsbr_state {
     return result;
   }
 
+  /// Extract the count of threads in the previous epoch from \a word.
   [[nodiscard, gnu::const]] static constexpr detail::qsbr_thread_count_type
   do_get_threads_in_previous_epoch(type word) noexcept {
     const auto result = static_cast<detail::qsbr_thread_count_type>(
@@ -230,35 +234,41 @@ struct qsbr_state {
   }
 
  public:
+  /// Get the epoch from \a word.
   [[nodiscard, gnu::const]] static constexpr detail::qsbr_epoch get_epoch(
       type word) noexcept {
     assert_invariants(word);
     return do_get_epoch(word);
   }
 
+  /// Get the total thread count from \a word.
   [[nodiscard, gnu::const]] static constexpr detail::qsbr_thread_count_type
   get_thread_count(type word) noexcept {
     assert_invariants(word);
     return do_get_thread_count(word);
   }
 
+  /// Get the count of threads in the previous epoch from \a word.
   [[nodiscard, gnu::const]] static constexpr detail::qsbr_thread_count_type
   get_threads_in_previous_epoch(type word) noexcept {
     assert_invariants(word);
     return do_get_threads_in_previous_epoch(word);
   }
 
+  /// Check if the count of threads in if \a word is 0 or 1.
   [[nodiscard, gnu::const]] static constexpr bool single_thread_mode(
       type word) noexcept {
     return get_thread_count(word) < 2;
   }
 
+  /// Output QSBR state in \a word to \a os, for debugging only.
   [[gnu::cold]] UNODB_DETAIL_NOINLINE static void dump(std::ostream &os,
                                                        type word);
 
  private:
   friend class qsbr;
 
+  /// Make a state word from \a epoch.
   [[nodiscard, gnu::const]] static constexpr type make_from_epoch(
       detail::qsbr_epoch epoch) noexcept {
     const auto result = static_cast<type>(epoch.get_val())
@@ -267,6 +277,7 @@ struct qsbr_state {
     return result;
   }
 
+  /// Increment the thread count in \a word by one.
   [[nodiscard, gnu::const]] static constexpr type inc_thread_count(
       type word) noexcept {
     assert_invariants(word);
@@ -282,6 +293,7 @@ struct qsbr_state {
     return result;
   }
 
+  /// Decrement the thread count in \a word by one.
   [[nodiscard, gnu::const]] static constexpr type dec_thread_count(
       type word) noexcept {
     assert_invariants(word);
@@ -298,6 +310,7 @@ struct qsbr_state {
     return result;
   }
 
+  /// Increment both the thread count and threads in previous epoch in \a word.
   [[nodiscard, gnu::const]] static constexpr type
   inc_thread_count_and_threads_in_previous_epoch(type word) noexcept {
     assert_invariants(word);
@@ -313,6 +326,7 @@ struct qsbr_state {
     return result;
   }
 
+  /// Decrement both the thread count and threads in previous epoch in \a word.
   [[nodiscard, gnu::const]] static constexpr type
   dec_thread_count_and_threads_in_previous_epoch(type word) noexcept {
     assert_invariants(word);
@@ -330,6 +344,8 @@ struct qsbr_state {
     return result;
   }
 
+  /// Increment the epoch and reset the threads in previous epoch count to the
+  /// total thread count.
   [[nodiscard, gnu::const]] static constexpr type inc_epoch_reset_previous(
       type word) noexcept {
     assert_invariants(word);
@@ -352,6 +368,8 @@ struct qsbr_state {
     return result;
   }
 
+  /// Increment the epoch, decrement the thread count, and reset the threads in
+  /// previous epoch to the new thread count.
   [[nodiscard, gnu::const]] static constexpr type
   inc_epoch_dec_thread_count_reset_previous(type word) noexcept {
     assert_invariants(word);
@@ -376,6 +394,8 @@ struct qsbr_state {
     return result;
   }
 
+  /// Decrement thread counts in \a word while optionally advancing the epoch if
+  /// \a advance_epoch is set.
   [[nodiscard, gnu::const]] static constexpr type
   dec_thread_count_threads_in_previous_epoch_maybe_advance(
       type word, bool advance_epoch) noexcept {
@@ -384,9 +404,13 @@ struct qsbr_state {
                : dec_thread_count_and_threads_in_previous_epoch(word);
   }
 
-  [[nodiscard]] static auto atomic_fetch_dec_threads_in_previous_epoch(
-      std::atomic<type> &word) noexcept;
+  /// Atomically decrement the number of threads in the previous epoch.
+  /// \param word atomic QSBR state word
+  /// \return old word value
+  [[nodiscard]] static qsbr_state::type
+  atomic_fetch_dec_threads_in_previous_epoch(std::atomic<type> &word) noexcept;
 
+  /// Assert that all invariants hold for \a word.
   static constexpr void assert_invariants(
       type word UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
@@ -397,39 +421,66 @@ struct qsbr_state {
 #endif
   }
 
+  /// Mask for the thread count field.
   static constexpr auto thread_count_mask = detail::max_qsbr_threads;
-  static_assert((thread_count_mask & (thread_count_mask + 1)) == 0);
 
+  static_assert((thread_count_mask & (thread_count_mask + 1)) == 0,
+                "Thread count field mask should be 2^n-1");
+
+  /// Mask for the threads in previous epoch field.
+  /// \hideinitializer
   static constexpr auto threads_in_previous_epoch_in_word_mask =
       static_cast<std::uint64_t>(thread_count_mask);
 
+  /// Bit offset for the total thread count field.
   static constexpr auto thread_count_in_word_offset = 32U;
+
+  /// Mask for the total thread count field.
+  /// \hideinitializer
   static constexpr auto thread_count_in_word_mask =
       static_cast<std::uint64_t>(thread_count_mask)
       << thread_count_in_word_offset;
 
+  /// Bit offset for the epoch field.
   static constexpr auto epoch_in_word_offset = 62U;
 
+  /// Value to use for incrementing or decrementing the thread count by one.
+  /// \hideinitializer
   static constexpr auto one_thread_in_count = 1ULL
                                               << thread_count_in_word_offset;
+
+  /// Value to use for incrementing or decrementing both thread count and
+  /// threads in previous epoch by one.
+  /// \hideinitializer
   static constexpr auto one_thread_and_one_in_previous =
       one_thread_in_count | 1U;
 };
 
 namespace detail {
 
+/// Pending deallocation request for QSBR-managed memory.
 struct [[nodiscard]] deallocation_request final {
+  /// Pointer to memory that should be deallocated.
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   void *const pointer;
 
 #ifndef NDEBUG
+  /// Debug build only: function type for callbacks executed during
+  /// deallocation.
   using debug_callback = std::function<void(const void *)>;
 
+  /// Debug build only: callback to execute during deallocation.
   // Non-const to support move
   debug_callback dealloc_callback;
-  qsbr_epoch request_epoch;
+
+  /// Debug build only: epoch when this deallocation request was created.
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
+  const qsbr_epoch request_epoch;
 #endif
 
+  /// Create a new deallocation request for \a pointer_. In debug builds also
+  /// pass \a request_epoch_ and \a dealloc_callback_ to be executed during
+  /// deallocation.
   explicit deallocation_request(void *pointer_ UNODB_DETAIL_LIFETIMEBOUND
 #ifndef NDEBUG
                                 ,
@@ -449,9 +500,20 @@ struct [[nodiscard]] deallocation_request final {
 #endif
   }
 
+  /// Move constructor.
   deallocation_request(deallocation_request &&) noexcept = default;
+
+  /// Destructor.
   ~deallocation_request() = default;
 
+  /// Do the deallocation. All parameters are debug build-only.
+  ///
+#ifndef NDEBUG
+  /// \param orphan Whether this request belongs to a terminated thread
+  /// \param dealloc_epoch Optional epoch when deallocation happens
+  /// \param dealloc_epoch_single_thread_mode Optional flag whether the
+  /// deallocation epoch has total zero or one thread only
+#endif
   void deallocate(
 #ifndef NDEBUG
       bool orphan, std::optional<qsbr_epoch> dealloc_epoch,
@@ -459,16 +521,24 @@ struct [[nodiscard]] deallocation_request final {
 #endif
   ) const noexcept;
 
+  /// Copy construction is disabled to prevent redundant instances.
+  deallocation_request(const deallocation_request &) = delete;
+
+  /// Copy assignment is disabled.
+  deallocation_request &operator=(const deallocation_request &) = delete;
+
+  /// Move assignment is disabled.
+  deallocation_request &operator=(deallocation_request &&) = delete;
+
 #ifndef NDEBUG
+  /// Assert that no instances of this class exist, indicating unhandled
+  /// requests.
   static void assert_zero_instances() noexcept {
     UNODB_DETAIL_ASSERT(instance_count.load(std::memory_order_relaxed) == 0);
   }
 
-  deallocation_request(const deallocation_request &) = delete;
-  deallocation_request &operator=(const deallocation_request &) = delete;
-  deallocation_request &operator=(deallocation_request &&) = delete;
-
  private:
+  /// Debug build only: global count of active deallocation request instances.
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
   static std::atomic<std::uint64_t> instance_count;
 #endif

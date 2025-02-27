@@ -15,3 +15,5 @@ rcs
 nullptr
 benchmarking
 invariants
+unhandled
+deallocation

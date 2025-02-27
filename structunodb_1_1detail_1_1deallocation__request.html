@@ -106,58 +106,176 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1deallocation_
   <div class="headertitle"><div class="title">unodb::detail::deallocation_request Struct Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Pending deallocation request for QSBR-managed memory.  
+ <a href="structunodb_1_1detail_1_1deallocation__request.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a091c0981dcaefa926b631259f83f190c" id="r_a091c0981dcaefa926b631259f83f190c"><td class="memItemLeft" align="right" valign="top"><a id="a091c0981dcaefa926b631259f83f190c" name="a091c0981dcaefa926b631259f83f190c"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>debug_callback</b> = std::function&lt; void(const void *)&gt;</td></tr>
+<tr class="memdesc:a091c0981dcaefa926b631259f83f190c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debug build only: function type for callbacks executed during deallocation. <br /></td></tr>
 <tr class="separator:a091c0981dcaefa926b631259f83f190c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a081f2de5b49709964c3c84afd5a744b1" id="r_a081f2de5b49709964c3c84afd5a744b1"><td class="memItemLeft" align="right" valign="top"><a id="a081f2de5b49709964c3c84afd5a744b1" name="a081f2de5b49709964c3c84afd5a744b1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>deallocation_request</b> (void *pointer_ <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> request_epoch_, debug_callback dealloc_callback_) noexcept</td></tr>
+<tr class="memitem:a081f2de5b49709964c3c84afd5a744b1" id="r_a081f2de5b49709964c3c84afd5a744b1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1deallocation__request.html#a081f2de5b49709964c3c84afd5a744b1">deallocation_request</a> (void *pointer_ <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> request_epoch_, <a class="el" href="structunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">debug_callback</a> dealloc_callback_) noexcept</td></tr>
+<tr class="memdesc:a081f2de5b49709964c3c84afd5a744b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new deallocation request for <em>pointer_</em>.  <br /></td></tr>
 <tr class="separator:a081f2de5b49709964c3c84afd5a744b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad82ee101c12437adb18e428056df63e0" id="r_ad82ee101c12437adb18e428056df63e0"><td class="memItemLeft" align="right" valign="top"><a id="ad82ee101c12437adb18e428056df63e0" name="ad82ee101c12437adb18e428056df63e0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>deallocation_request</b> (<a class="el" href="structunodb_1_1detail_1_1deallocation__request.html">deallocation_request</a> &amp;&amp;) noexcept=default</td></tr>
+<tr class="memdesc:ad82ee101c12437adb18e428056df63e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move constructor. <br /></td></tr>
 <tr class="separator:ad82ee101c12437adb18e428056df63e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac83e01f57ee8b1ad7787835cb02ea145" id="r_ac83e01f57ee8b1ad7787835cb02ea145"><td class="memItemLeft" align="right" valign="top"><a id="ac83e01f57ee8b1ad7787835cb02ea145" name="ac83e01f57ee8b1ad7787835cb02ea145"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>deallocate</b> (bool orphan, std::optional&lt; <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> &gt; dealloc_epoch, std::optional&lt; bool &gt; dealloc_epoch_single_thread_mode) const noexcept</td></tr>
+<tr class="memitem:a09828aa1a4e94b26e0f987a498b5a77f" id="r_a09828aa1a4e94b26e0f987a498b5a77f"><td class="memItemLeft" align="right" valign="top"><a id="a09828aa1a4e94b26e0f987a498b5a77f" name="a09828aa1a4e94b26e0f987a498b5a77f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>~deallocation_request</b> ()=default</td></tr>
+<tr class="memdesc:a09828aa1a4e94b26e0f987a498b5a77f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. <br /></td></tr>
+<tr class="separator:a09828aa1a4e94b26e0f987a498b5a77f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac83e01f57ee8b1ad7787835cb02ea145" id="r_ac83e01f57ee8b1ad7787835cb02ea145"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1deallocation__request.html#ac83e01f57ee8b1ad7787835cb02ea145">deallocate</a> (bool orphan, std::optional&lt; <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> &gt; dealloc_epoch, std::optional&lt; bool &gt; dealloc_epoch_single_thread_mode) const noexcept</td></tr>
+<tr class="memdesc:ac83e01f57ee8b1ad7787835cb02ea145"><td class="mdescLeft">&#160;</td><td class="mdescRight">Do the deallocation.  <br /></td></tr>
 <tr class="separator:ac83e01f57ee8b1ad7787835cb02ea145"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a86aea7d82d5a3d54b10e22020d7f39" id="r_a7a86aea7d82d5a3d54b10e22020d7f39"><td class="memItemLeft" align="right" valign="top"><a id="a7a86aea7d82d5a3d54b10e22020d7f39" name="a7a86aea7d82d5a3d54b10e22020d7f39"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>deallocation_request</b> (const <a class="el" href="structunodb_1_1detail_1_1deallocation__request.html">deallocation_request</a> &amp;)=delete</td></tr>
+<tr class="memdesc:a7a86aea7d82d5a3d54b10e22020d7f39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy construction is disabled to prevent redundant instances. <br /></td></tr>
 <tr class="separator:a7a86aea7d82d5a3d54b10e22020d7f39"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a536cdb985a40c1a632f633c1ca391634" id="r_a536cdb985a40c1a632f633c1ca391634"><td class="memItemLeft" align="right" valign="top"><a id="a536cdb985a40c1a632f633c1ca391634" name="a536cdb985a40c1a632f633c1ca391634"></a>
 <a class="el" href="structunodb_1_1detail_1_1deallocation__request.html">deallocation_request</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="structunodb_1_1detail_1_1deallocation__request.html">deallocation_request</a> &amp;)=delete</td></tr>
+<tr class="memdesc:a536cdb985a40c1a632f633c1ca391634"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assignment is disabled. <br /></td></tr>
 <tr class="separator:a536cdb985a40c1a632f633c1ca391634"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42f78388ecec762651914b914c21a4ac" id="r_a42f78388ecec762651914b914c21a4ac"><td class="memItemLeft" align="right" valign="top"><a id="a42f78388ecec762651914b914c21a4ac" name="a42f78388ecec762651914b914c21a4ac"></a>
 <a class="el" href="structunodb_1_1detail_1_1deallocation__request.html">deallocation_request</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="structunodb_1_1detail_1_1deallocation__request.html">deallocation_request</a> &amp;&amp;)=delete</td></tr>
+<tr class="memdesc:a42f78388ecec762651914b914c21a4ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment is disabled. <br /></td></tr>
 <tr class="separator:a42f78388ecec762651914b914c21a4ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a66cb2dfcece9fc6da5cb484834eb43bd" id="r_a66cb2dfcece9fc6da5cb484834eb43bd"><td class="memItemLeft" align="right" valign="top"><a id="a66cb2dfcece9fc6da5cb484834eb43bd" name="a66cb2dfcece9fc6da5cb484834eb43bd"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>assert_zero_instances</b> () noexcept</td></tr>
+<tr class="memdesc:a66cb2dfcece9fc6da5cb484834eb43bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assert that no instances of this class exist, indicating unhandled requests. <br /></td></tr>
 <tr class="separator:a66cb2dfcece9fc6da5cb484834eb43bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a6f77c23a78b9e6d4b46625a9b380a281" id="r_a6f77c23a78b9e6d4b46625a9b380a281"><td class="memItemLeft" align="right" valign="top"><a id="a6f77c23a78b9e6d4b46625a9b380a281" name="a6f77c23a78b9e6d4b46625a9b380a281"></a>
 void *const&#160;</td><td class="memItemRight" valign="bottom"><b>pointer</b></td></tr>
+<tr class="memdesc:a6f77c23a78b9e6d4b46625a9b380a281"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to memory that should be deallocated. <br /></td></tr>
 <tr class="separator:a6f77c23a78b9e6d4b46625a9b380a281"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0625f115fb1ff05f1d5c2294b13b492f" id="r_a0625f115fb1ff05f1d5c2294b13b492f"><td class="memItemLeft" align="right" valign="top"><a id="a0625f115fb1ff05f1d5c2294b13b492f" name="a0625f115fb1ff05f1d5c2294b13b492f"></a>
-debug_callback&#160;</td><td class="memItemRight" valign="bottom"><b>dealloc_callback</b></td></tr>
+<a class="el" href="structunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">debug_callback</a>&#160;</td><td class="memItemRight" valign="bottom"><b>dealloc_callback</b></td></tr>
+<tr class="memdesc:a0625f115fb1ff05f1d5c2294b13b492f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debug build only: callback to execute during deallocation. <br /></td></tr>
 <tr class="separator:a0625f115fb1ff05f1d5c2294b13b492f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42939038ee18e9b296d8176b139a2971" id="r_a42939038ee18e9b296d8176b139a2971"><td class="memItemLeft" align="right" valign="top"><a id="a42939038ee18e9b296d8176b139a2971" name="a42939038ee18e9b296d8176b139a2971"></a>
-<a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a>&#160;</td><td class="memItemRight" valign="bottom"><b>request_epoch</b></td></tr>
-<tr class="separator:a42939038ee18e9b296d8176b139a2971"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85e4d0f928fd80d96201fe77958d588c" id="r_a85e4d0f928fd80d96201fe77958d588c"><td class="memItemLeft" align="right" valign="top"><a id="a85e4d0f928fd80d96201fe77958d588c" name="a85e4d0f928fd80d96201fe77958d588c"></a>
+const <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a>&#160;</td><td class="memItemRight" valign="bottom"><b>request_epoch</b></td></tr>
+<tr class="memdesc:a85e4d0f928fd80d96201fe77958d588c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debug build only: epoch when this deallocation request was created. <br /></td></tr>
+<tr class="separator:a85e4d0f928fd80d96201fe77958d588c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
 Static Private Attributes</h2></td></tr>
 <tr class="memitem:acf3894d4bf8662296a6bc8142c3f9f0c" id="r_acf3894d4bf8662296a6bc8142c3f9f0c"><td class="memItemLeft" align="right" valign="top"><a id="acf3894d4bf8662296a6bc8142c3f9f0c" name="acf3894d4bf8662296a6bc8142c3f9f0c"></a>
 static std::atomic&lt; std::uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>instance_count</b> {0}</td></tr>
+<tr class="memdesc:acf3894d4bf8662296a6bc8142c3f9f0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debug build only: global count of active deallocation request instances. <br /></td></tr>
 <tr class="separator:acf3894d4bf8662296a6bc8142c3f9f0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Pending deallocation request for QSBR-managed memory. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a081f2de5b49709964c3c84afd5a744b1" name="a081f2de5b49709964c3c84afd5a744b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a081f2de5b49709964c3c84afd5a744b1">&#9670;&#160;</a></span>deallocation_request()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unodb::detail::deallocation_request::deallocation_request </td>
+          <td>(</td>
+          <td class="paramtype">void *pointer_&#160;</td>
+          <td class="paramname"><em>UNODB_DETAIL_LIFETIMEBOUND</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a>&#160;</td>
+          <td class="paramname"><em>request_epoch_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">debug_callback</a>&#160;</td>
+          <td class="paramname"><em>dealloc_callback_</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create a new deallocation request for <em>pointer_</em>. </p>
+<p>In debug builds also pass <em>request_epoch_</em> and <em>dealloc_callback_</em> to be executed during deallocation. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="ac83e01f57ee8b1ad7787835cb02ea145" name="ac83e01f57ee8b1ad7787835cb02ea145"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac83e01f57ee8b1ad7787835cb02ea145">&#9670;&#160;</a></span>deallocate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void unodb::detail::deallocation_request::deallocate </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>orphan</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::optional&lt; <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> &gt;&#160;</td>
+          <td class="paramname"><em>dealloc_epoch</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::optional&lt; bool &gt;&#160;</td>
+          <td class="paramname"><em>dealloc_epoch_single_thread_mode</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Do the deallocation. </p>
+<p>All parameters are debug build-only. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">orphan</td><td>Whether this request belongs to a terminated thread </td></tr>
+    <tr><td class="paramname">dealloc_epoch</td><td>Optional epoch when deallocation happens </td></tr>
+    <tr><td class="paramname">dealloc_epoch_single_thread_mode</td><td>Optional flag whether the deallocation epoch has total zero or one thread only </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following files:<ul>
 <li><a class="el" href="qsbr_8hpp_source.html">qsbr.hpp</a></li>
 <li><b>qsbr.cpp</b></li>

@@ -1,7 +1,7 @@
 var searchData=
 [
   ['platform_20specific_20notes_0',['Platform-Specific Notes',['../index.html#autotoc_md29',1,'']]],
-  ['pointer_1',['pointer',['../classunodb_1_1qsbr__ptr.html#aad73d607224016b21ad63c3ae57f648b',1,'unodb::qsbr_ptr']]],
+  ['pointer_1',['pointer',['../classunodb_1_1qsbr__ptr.html#aad73d607224016b21ad63c3ae57f648b',1,'unodb::qsbr_ptr::pointer'],['../structunodb_1_1detail_1_1deallocation__request.html#a6f77c23a78b9e6d4b46625a9b380a281',1,'unodb::detail::deallocation_request::pointer']]],
   ['pop_2',['pop',['../classunodb_1_1db_1_1iterator.html#a996328a45cb1a2db5b0207468bb19103',1,'unodb::db::iterator::pop()'],['../classunodb_1_1detail_1_1key__buffer.html#a36f646c8c2cc895af810687e22165fdc',1,'unodb::detail::key_buffer::pop()'],['../classunodb_1_1olc__db_1_1iterator.html#a19a4de3d100ab8b7b2b0dae0478a81de',1,'unodb::olc_db::iterator::pop()']]],
   ['popcount_3',['popcount',['../namespaceunodb_1_1detail.html#a60cd68db0acc4264f225af504457f974',1,'unodb::detail']]],
   ['portability_5farch_2ehpp_4',['portability_arch.hpp',['../portability__arch_8hpp.html',1,'']]],

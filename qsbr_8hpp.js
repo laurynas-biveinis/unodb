@@ -1,8 +1,8 @@
 var qsbr_8hpp =
 [
     [ "unodb::detail::qsbr_epoch", "classunodb_1_1detail_1_1qsbr__epoch.html", "classunodb_1_1detail_1_1qsbr__epoch" ],
-    [ "unodb::qsbr_state", "structunodb_1_1qsbr__state.html", null ],
-    [ "unodb::detail::deallocation_request", "structunodb_1_1detail_1_1deallocation__request.html", null ],
+    [ "unodb::qsbr_state", "structunodb_1_1qsbr__state.html", "structunodb_1_1qsbr__state" ],
+    [ "unodb::detail::deallocation_request", "structunodb_1_1detail_1_1deallocation__request.html", "structunodb_1_1detail_1_1deallocation__request" ],
     [ "unodb::detail::deferred_requests", "classunodb_1_1detail_1_1deferred__requests.html", null ],
     [ "unodb::detail::dealloc_vector_list_node", "structunodb_1_1detail_1_1dealloc__vector__list__node.html", null ],
     [ "unodb::qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", null ],

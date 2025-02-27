@@ -195,7 +195,7 @@ Usage</h2>
 <li><code>mutex_db</code>: ART tree with single global mutex synchronization</li>
 <li><code>olc_db</code>: a concurrent ART tree, implementing Optimistic Lock Coupling as described in "The ART of Practical Synchronization" paper by Leis et al.; nodes are versioned, writers lock per-node optimistic locks, readers don't lock but check node versions and restart if they change.</li>
 </ul>
-<p>The full source code reference, including public API, is available at <a href="https://laurynas-biveinis.github.io/unodb/">https://laurynas-biveinis.github.io/unodb/</a> (work in progress).</p>
+<p>The full source code reference, including public API, is available at <a href="https://docs.unodb.dev">https://docs.unodb.dev</a> (work in progress).</p>
 <p>Do not use macros starting with <code>UNODB_DETAIL_</code> or declarations in <code><a class="el" href="namespaceunodb_1_1detail.html" title="Namespace for the UnoDB internal implementation details.">unodb::detail</a></code> and <code>unob::test</code> namespaces as they are internal and may change at any time.</p>
 <h2><a class="anchor" id="autotoc_md34"></a>
 Technical Details</h2>

@@ -1578,7 +1578,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l01697" name="l01697"></a><span class="lineno"> 1697</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key&gt;</div>
 <div class="line"><a id="l01698" name="l01698"></a><span class="lineno"> 1698</span>olc_db&lt;Key&gt;::~olc_db() noexcept {</div>
 <div class="line"><a id="l01699" name="l01699"></a><span class="lineno"> 1699</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(</div>
-<div class="line"><a id="l01700" name="l01700"></a><span class="lineno"> 1700</span>      qsbr_state::single_thread_mode(qsbr::instance().get_state()));</div>
+<div class="line"><a id="l01700" name="l01700"></a><span class="lineno"> 1700</span>      <a class="code hl_function" href="structunodb_1_1qsbr__state.html#a34cec6a5c7739cb36a3df6041e45e118">qsbr_state::single_thread_mode</a>(qsbr::instance().get_state()));</div>
 <div class="line"><a id="l01701" name="l01701"></a><span class="lineno"> 1701</span> </div>
 <div class="line"><a id="l01702" name="l01702"></a><span class="lineno"> 1702</span>  delete_root_subtree();</div>
 <div class="line"><a id="l01703" name="l01703"></a><span class="lineno"> 1703</span>}  <span class="comment">// namespace &gt;::~</span></div>
@@ -1586,7 +1586,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l01705" name="l01705"></a><span class="lineno"> 1705</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key&gt;</div>
 <div class="line"><a id="l01706" name="l01706"></a><span class="lineno"> 1706</span><span class="keywordtype">void</span> olc_db&lt;Key&gt;::delete_root_subtree() noexcept {</div>
 <div class="line"><a id="l01707" name="l01707"></a><span class="lineno"> 1707</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(</div>
-<div class="line"><a id="l01708" name="l01708"></a><span class="lineno"> 1708</span>      qsbr_state::single_thread_mode(qsbr::instance().get_state()));</div>
+<div class="line"><a id="l01708" name="l01708"></a><span class="lineno"> 1708</span>      <a class="code hl_function" href="structunodb_1_1qsbr__state.html#a34cec6a5c7739cb36a3df6041e45e118">qsbr_state::single_thread_mode</a>(qsbr::instance().get_state()));</div>
 <div class="line"><a id="l01709" name="l01709"></a><span class="lineno"> 1709</span> </div>
 <div class="line"><a id="l01710" name="l01710"></a><span class="lineno"> 1710</span>  <span class="keywordflow">if</span> (root != <span class="keyword">nullptr</span>) art_policy::delete_subtree(root, *<span class="keyword">this</span>);</div>
 <div class="line"><a id="l01711" name="l01711"></a><span class="lineno"> 1711</span> </div>
@@ -1602,7 +1602,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="foldopen" id="foldopen01721" data-start="{" data-end="}">
 <div class="line"><a id="l01721" name="l01721"></a><span class="lineno"><a class="line" href="classunodb_1_1olc__db.html#a57f7edec7c843c04db0a3e149ea5768f"> 1721</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1olc__db.html#a57f7edec7c843c04db0a3e149ea5768f">olc_db&lt;Key&gt;::clear</a>() noexcept {</div>
 <div class="line"><a id="l01722" name="l01722"></a><span class="lineno"> 1722</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(</div>
-<div class="line"><a id="l01723" name="l01723"></a><span class="lineno"> 1723</span>      qsbr_state::single_thread_mode(qsbr::instance().get_state()));</div>
+<div class="line"><a id="l01723" name="l01723"></a><span class="lineno"> 1723</span>      <a class="code hl_function" href="structunodb_1_1qsbr__state.html#a34cec6a5c7739cb36a3df6041e45e118">qsbr_state::single_thread_mode</a>(qsbr::instance().get_state()));</div>
 <div class="line"><a id="l01724" name="l01724"></a><span class="lineno"> 1724</span> </div>
 <div class="line"><a id="l01725" name="l01725"></a><span class="lineno"> 1725</span>  delete_root_subtree();</div>
 <div class="line"><a id="l01726" name="l01726"></a><span class="lineno"> 1726</span> </div>
@@ -2865,6 +2865,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="ttc" id="astructunodb_1_1olc__db_1_1iterator_1_1stack__entry_html"><div class="ttname"><a href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">unodb::olc_db::iterator::stack_entry</a></div><div class="ttdoc">The [node_ptr] is never [nullptr] and points to the internal node or leaf for that step in the path f...</div><div class="ttdef"><b>Definition</b> olc_art.hpp:323</div></div>
 <div class="ttc" id="astructunodb_1_1olc__db_1_1iterator_1_1stack__entry_html_a8200da52e6bc2c64caf8240b401a47ee"><div class="ttname"><a href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#a8200da52e6bc2c64caf8240b401a47ee">unodb::olc_db::iterator::stack_entry::prefix_len</a></div><div class="ttdeci">detail::key_prefix_size prefix_len</div><div class="ttdoc">The [prefix_len] is the number of bytes in the key prefix for [node].</div><div class="ttdef"><b>Definition</b> olc_art.hpp:330</div></div>
 <div class="ttc" id="astructunodb_1_1olc__db_1_1iterator_1_1stack__entry_html_ad818c8b71399638679d847e14843d925"><div class="ttname"><a href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#ad818c8b71399638679d847e14843d925">unodb::olc_db::iterator::stack_entry::version</a></div><div class="ttdeci">version_tag_type version</div><div class="ttdoc">The version tag invariant for the node.</div><div class="ttdef"><b>Definition</b> olc_art.hpp:341</div></div>
+<div class="ttc" id="astructunodb_1_1qsbr__state_html_a34cec6a5c7739cb36a3df6041e45e118"><div class="ttname"><a href="structunodb_1_1qsbr__state.html#a34cec6a5c7739cb36a3df6041e45e118">unodb::qsbr_state::single_thread_mode</a></div><div class="ttdeci">static constexpr bool single_thread_mode(type word) noexcept</div><div class="ttdoc">Check if the count of threads in if word is 0 or 1.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:259</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

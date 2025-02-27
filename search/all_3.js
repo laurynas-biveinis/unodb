@@ -14,5 +14,8 @@ var searchData=
   ['assert_2ehpp_11',['assert.hpp',['../assert_8hpp.html',1,'']]],
   ['assert_5ffailure_12',['assert_failure',['../namespaceunodb_1_1detail.html#a73ccae20a7fde29e0381b903bbf0c58a',1,'unodb::detail']]],
   ['assert_5finvariant_13',['assert_invariant',['../classunodb_1_1detail_1_1qsbr__epoch.html#a1b0d5fe1607ac162dc107ff773d21069',1,'unodb::detail::qsbr_epoch']]],
-  ['atomic_5fversion_5ftype_14',['atomic_version_type',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html',1,'unodb::optimistic_lock']]]
+  ['assert_5finvariants_14',['assert_invariants',['../structunodb_1_1qsbr__state.html#ab7ffe1a2893646634d39317db89e3570',1,'unodb::qsbr_state']]],
+  ['assert_5fzero_5finstances_15',['assert_zero_instances',['../structunodb_1_1detail_1_1deallocation__request.html#a66cb2dfcece9fc6da5cb484834eb43bd',1,'unodb::detail::deallocation_request']]],
+  ['atomic_5ffetch_5fdec_5fthreads_5fin_5fprevious_5fepoch_16',['atomic_fetch_dec_threads_in_previous_epoch',['../structunodb_1_1qsbr__state.html#ab46c5fe15d36c12d619713e696a48626',1,'unodb::qsbr_state']]],
+  ['atomic_5fversion_5ftype_17',['atomic_version_type',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html',1,'unodb::optimistic_lock']]]
 ];

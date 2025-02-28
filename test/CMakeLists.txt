@@ -55,8 +55,11 @@ add_test_target(test_qsbr_ptr)
 add_test_target(test_qsbr)
 target_link_libraries(test_qsbr PRIVATE qsbr_test_utils)
 add_db_test_target(test_key_encode_decode)
+
 add_db_test_target(test_art)
-#add_db_test_target(test_art_span)
+target_compile_options(test_art PRIVATE "$<${is_msvc}:/bigobj>")
+
+add_db_test_target(test_art_key_view)
 add_db_test_target(test_art_iter)
 add_db_test_target(test_art_scan)
 add_db_test_target(test_art_concurrency)
@@ -87,7 +90,7 @@ add_custom_target(valgrind_tests
   COMMAND ${VALGRIND_COMMAND} ./test_qsbr;
   COMMAND ${VALGRIND_COMMAND} ./test_key_encode_decode;
   COMMAND ${VALGRIND_COMMAND} ./test_art;
-  #COMMAND ${VALGRIND_COMMAND} ./test_art_span;
+  COMMAND ${VALGRIND_COMMAND} ./test_art_key_view;
   COMMAND ${VALGRIND_COMMAND} ./test_art_iter;
   COMMAND ${VALGRIND_COMMAND} ./test_art_scan;
   COMMAND ${VALGRIND_COMMAND} ./test_art_concurrency

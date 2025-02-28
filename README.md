@@ -123,13 +123,31 @@ See `examples/` directory for simple usage examples.
 All the declarations live in the `unodb` namespace, which is omitted in the
 descriptions below.
 
-The only currently supported key type is `std::uint64_t`, aliased as `key`. To
-add a new simple key type, instantiate `art_key` type with the desired type, and
-specialize `art_key::make_binary_comparable` according to the ART paper.
-Compound keys or Unicode data should be handled by specifying
-`std::span<std::byte>` as the key type. In this case, the application must
-provide a span suitably encoded for lexicographic comparisons (that is, one
-which is already binary compatible).
+The key type is a template argument for the `unodb::db` classes.  In general,
+the library supports both integral keys (though only `std::uint64_t` is tested
+at this time) and variable length keys (using `unodb::key_view` as the key
+type).  Variable length keys are supported using the `unodb::key_encoder` and
+`unodb::key_decoder`.  The `unodb::key_encoder` is responsible for making
+encoded keys which obey lexicographic ordering and handles various signed and
+unsigned types, floating point, types, and text.  The `unodb::key_encoder` MUST
+be used for text data (including Unicode sort keys) and for compound keys (keys
+consisting of multiple components).  The ART data structure has a restriction
+that no full length key may be a prefix of another key.  This restriction is
+trivially satisified for any fixed width key.  Also per the ART paper, the
+`unodb::key_encoder` maintains this contract for text keys by truncating them to
+not more than `unodb::key_encoder::maxlen` bytes and then logically padding them
+out (with a run length counter) to `unodb::key_encoder::maxlen`.  Unicode data
+SHOULD be converted by the caller using a quality library (e.g., ICU) to Unicode
+sort keys which capture the desired collation order, and those sort keys then
+passed to the `unodb::key_encoder`.  Finally, the `unodb::key_decoder` may be
+used to decode signed and unsigned integral types and floating point types. Note
+that all NaNs are mapped to a canonical NaN during encoding, so decode of NaN
+always returns that canonical value.  Decode of Unicode sort keys is not
+possible due to the transformation to generate the sort key.  Decode of other
+text can run into the truncation and run length padding artifacts and is not
+supported.  When ART is used as a secondary index, the caller stores the record
+identifier (or record pointer) as the values in the tree.  The original text can
+then be recovered from the source record.
 
 Values are treated opaquely. For `unodb::db`, they are passed as non-owning
 objects of `value_view` (a `std::span<std::byte>`), and insertion copies them

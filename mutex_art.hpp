@@ -16,23 +16,21 @@
 
 namespace unodb {
 
-/// A thread-safe implementation of the Adaptive Radix Tree (ART)
-/// using an explicit global lock.  All get, insert, remove and scan
-/// operations take the global lock and hold it for the duration of
-/// the operation.
+/// A thread-safe implementation of the Adaptive Radix Tree (ART) using an
+/// explicit global lock.  All get, insert, remove and scan operations take the
+/// global lock and hold it for the duration of the operation.
 ///
-/// See olc_art for a highly concurrent thread-safe ART
-/// implementation.
+/// \sa unodb::olc_art for a highly concurrent thread-safe ART implementation.
 template <typename Key>
 class mutex_db final {
  public:
   using key_type = Key;
   using value_view = unodb::value_view;
 
-  // If the search key was found, that is, the first pair member has a value,
-  // then the second member is a locked tree mutex which must be released ASAP
-  // after reading the first pair member. Otherwise, the second member is
-  // undefined.
+  /// If the search key was found, that is, the first pair member has a value,
+  /// then the second member is a locked tree mutex which must be released ASAP
+  /// after reading the first pair member. Otherwise, the second member is
+  /// undefined.
   using get_result =
       std::pair<typename db<Key>::get_result, std::unique_lock<std::mutex>>;
 
@@ -52,8 +50,8 @@ class mutex_db final {
 
   /// Modifying with an encoded key.
   ///
-  /// Cannot be called during stack unwinding with
-  /// std::uncaught_exceptions() > 0
+  /// Cannot be called during stack unwinding with `std::uncaught_exceptions() >
+  /// 0`.
   [[nodiscard]] auto insert_internal(art_key_type k, value_view v) {
     const std::lock_guard guard{mutex};
     return db_.insert_internal(k, v);
@@ -71,10 +69,10 @@ class mutex_db final {
 
   /// Query for a value associated with a key.
   ///
-  /// @param search_key If Key is a simple primitive type, then it is
-  /// converted into a binary comparable key.  If Key is key_value,
-  /// then it is assumed to already be a binary comparable key, e.g.,
-  /// as produced by unodb::key_encoder.
+  /// \param search_key If Key is a simple primitive type, then it is converted
+  /// into a binary comparable key.  If Key is unodb::key_view, then it is
+  /// assumed to already be a binary comparable key, e.g., as produced by
+  /// unodb::key_encoder.
   [[nodiscard, gnu::pure]] get_result get(Key search_key) const noexcept {
     art_key_type k{search_key};
     return get_internal(k);
@@ -87,15 +85,20 @@ class mutex_db final {
 
   /// Insert a value under a key iff there is no entry for that key.
   ///
-  /// Note: Cannot be called during stack unwinding with
-  /// std::uncaught_exceptions() > 0
+  /// \note Cannot be called during stack unwinding with
+  /// `std::uncaught_exceptions() > 0`.
   ///
-  /// @param insert_key If Key is a simple primitive type, then it is
-  /// converted into a binary comparable key.  If Key is key_value,
-  /// then it is assumed to already be a binary comparable key, e.g.,
-  /// as produced by unodb::key_encoder.
+  /// \param insert_key If Key is a simple primitive type, then it is converted
+  /// into a binary comparable key.  If Key is unodb::key_view, then it is
+  /// assumed to already be a binary comparable key, e.g., as produced by
+  /// unodb::key_encoder.
   ///
-  /// @return true iff the key value pair was inserted.
+  /// \param v The value to be inserted under that key.
+  ///
+  /// \return true iff the key value pair was inserted.
+  ///
+  /// \sa key_encoder, which provides for encoding text and multi-field records
+  /// when Key is unodb::key_view.
   [[nodiscard]] bool insert(Key insert_key, value_view v) {
     const art_key_type k{insert_key};
     return insert_internal(k, v);
@@ -103,16 +106,16 @@ class mutex_db final {
 
   /// Remove the entry associated with the key.
   ///
-  /// @param search_key If Key is a simple primitive type, then it is
-  /// converted into a binary comparable key.  If Key is key_value,
-  /// then it is assumed to already be a binary comparable key, e.g.,
-  /// as produced by unodb::key_encoder.
+  /// \param search_key If Key is a simple primitive type, then it is converted
+  /// into a binary comparable key.  If Key is unodb::key_view, then it is
+  /// assumed to already be a binary comparable key, e.g., as produced by
+  /// unodb::key_encoder.
   [[nodiscard]] bool remove(Key search_key) {
     const auto k = art_key_type{search_key};
     return remove_internal(k);
   }
 
-  // Removes all entries in the index.
+  /// Removes all entries in the index.
   void clear() {
     const std::lock_guard guard{mutex};
     db_.clear();
@@ -124,61 +127,54 @@ class mutex_db final {
 
   using iterator = typename unodb::db<Key>::iterator;
 
-  /// Scan the tree, applying the caller's lambda to each visited
-  /// leaf.  The tree remains locked for the duration of the scan.
+  /// Scan the tree, applying the caller's lambda to each visited leaf.  The
+  /// tree remains locked for the duration of the scan.
   ///
-  /// @param fn A function
-  /// f(unodb::visitor<unodb::mutex_db::iterator>&) returning
-  /// [bool::halt].  The traversal will halt if the function returns
-  /// [true].
+  /// \param fn A function `f(unodb::visitor<unodb::mutex_db::iterator>&)`
+  /// returning `bool`.  The traversal will halt if the function returns \c
+  /// true.
   ///
-  /// @param fwd When [true] perform a forward scan, otherwise perform
-  /// a reverse scan.
+  /// \param fwd When \c true perform a forward scan, otherwise perform a
+  /// reverse scan.
   template <typename FN>
   void scan(FN fn, bool fwd = true) noexcept {
     const std::lock_guard guard{mutex};
     db_.scan(fn, fwd);
   }
 
-  /// Scan in the indicated direction, applying the caller's lambda to
-  /// each visited leaf.  The tree remains locked for the duration of
-  /// the scan.
+  /// Scan in the indicated direction, applying the caller's lambda to each
+  /// visited leaf.  The tree remains locked for the duration of the scan.
   ///
-  /// @param from_key is an inclusive lower bound for the starting
-  /// point of the scan.
+  /// \param from_key is an inclusive lower bound for the starting point of the
+  /// scan.
   ///
-  /// @param fn A function
-  /// f(unodb::visitor<unodb::mutex_db::iterator>&) returning
-  /// [bool::halt].  The traversal will halt if the function returns
-  /// [true].
+  /// \param fn A function `f(unodb::visitor<unodb::mutex_db::iterator>&)`
+  /// returning `bool`.  The traversal will halt if the function returns \c
+  /// true.
   ///
-  /// @param fwd When [true] perform a forward scan, otherwise perform
-  /// a reverse scan.
+  /// \param fwd When \c true perform a forward scan, otherwise perform a
+  /// reverse scan.
   template <typename FN>
   void scan_from(Key from_key, FN fn, bool fwd = true) noexcept {
     const std::lock_guard guard{mutex};
     db_.scan_from(from_key, fn, fwd);
   }
 
-  /// Scan a half-open key range, applying the caller's lambda to each
-  /// visited leaf.  The tree remains locked for the duration of the
-  /// scan.  The scan will proceed in lexicographic order iff fromKey
-  /// is less than toKey and in reverse lexicographic order iff toKey
-  /// is less than fromKey.  When fromKey < toKey, the scan will visit
-  /// all index entries in the half-open range [fromKey,toKey) in
-  /// forward order.  Otherwise the scan will visit all index entries
-  /// in the half-open range (fromKey,toKey] in reverse order.
+  /// Scan a half-open key range, applying the caller's lambda to each visited
+  /// leaf.  The scan will proceed in lexicographic order iff \a from_key is
+  /// less than \a to_key and in reverse lexicographic order iff \a to_key is
+  /// less than \a from_key.  When `from_key < to_key`, the scan will visit all
+  /// index entries in the half-open range `[from_key,to_key)` in forward order.
+  /// Otherwise the scan will visit all index entries in the half-open range
+  /// `(from_key,to_key]` in reverse order.
   ///
-  /// @param from_key is an inclusive bound for the starting point of
-  /// the scan.
+  /// \param from_key is an inclusive bound for the starting point of the scan.
   ///
-  /// @param to_key is an exclusive bound for the ending point of the
-  /// scan.
+  /// \param to_key is an exclusive bound for the ending point of the scan.
   ///
-  /// @param fn A function
-  /// f(unodb::visitor<unodb::mutex_db::iterator>&) returning
-  /// [bool::halt].  The traversal will halt if the function returns
-  /// [true].
+  /// \param fn A function `f(unodb::visitor<unodb::mutex_db::iterator>&)`
+  /// returning `bool`.  The traversal will halt if the function returns \c
+  /// true.
   template <typename FN>
   void scan_range(Key from_key, Key to_key, FN fn) noexcept {
     const std::lock_guard guard{mutex};

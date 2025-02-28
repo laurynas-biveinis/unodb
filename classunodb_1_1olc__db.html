@@ -393,7 +393,7 @@ template&lt;typename Key &gt; </div>
 </div><div class="memdoc">
 
 <p>Removes all entries in the index. </p>
-<p>Note: Only legal in single-threaded context, as destructor </p>
+<dl class="section note"><dt>Note</dt><dd>Only legal in single-threaded context, as destructor </dd></dl>
 
 </div>
 </div>
@@ -426,7 +426,7 @@ template&lt;typename Key &gt; </div>
 <p>Query for a value associated with a key. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is key_value, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="Key encodes and key decoder.">unodb::key_encoder</a>. </td></tr>
+    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -470,14 +470,16 @@ template&lt;typename Key &gt; </div>
 </div><div class="memdoc">
 
 <p>Insert a value under a binary comparable key iff there is no entry for that key. </p>
-<p>Note: Cannot be called during stack unwinding with std::uncaught_exceptions() &gt; 0</p>
+<dl class="section note"><dt>Note</dt><dd>Cannot be called during stack unwinding with <code>std::uncaught_exceptions() &gt; 0</code>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">insert_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is key_value, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="Key encodes and key decoder.">unodb::key_encoder</a>.</td></tr>
+    <tr><td class="paramname">insert_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>.</td></tr>
+    <tr><td class="paramname">v</td><td>The value to be inserted under that key.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>true iff the key value pair was inserted. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>true iff the key value pair was inserted.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">key_encoder</a>, which provides for encoding text and multi-field records when Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>. </dd></dl>
 
 </div>
 </div>
@@ -518,7 +520,7 @@ template&lt;typename Key &gt; </div>
 </div><div class="memdoc">
 
 <p>Insert a value under an encoded key iff there is no entry for that key. </p>
-<p>Note: Cannot be called during stack unwinding with std::uncaught_exceptions() &gt; 0</p>
+<dl class="section note"><dt>Note</dt><dd>Cannot be called during stack unwinding with <code>std::uncaught_exceptions() &gt; 0</code>.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>true iff the key value pair was inserted. </dd></dl>
 
 </div>
@@ -552,7 +554,7 @@ template&lt;typename Key &gt; </div>
 <p>Remove the entry associated with the key. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is key_value, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="Key encodes and key decoder.">unodb::key_encoder</a>.</td></tr>
+    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>.</td></tr>
   </table>
   </dd>
 </dl>
@@ -633,8 +635,8 @@ template&lt;typename FN &gt; </div>
 <p>Scan the tree, applying the caller's lambda to each visited leaf.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fn</td><td>A function f(unodb::visitor&lt;unodb::olc_db::iterator&gt;&amp;) returning [bool:halt]. The traversal will halt if the function returns [true].</td></tr>
-    <tr><td class="paramname">fwd</td><td>When [true] perform a forward scan, otherwise perform a reverse scan. </td></tr>
+    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="An object visited by the scan API.">unodb::visitor</a>&lt;<a class="el" href="classunodb_1_1olc__db_1_1iterator.html" title="The OLC scan() logic tracks the version tag (a read_critical_section) for each node in the stack.">unodb::olc_db::iterator</a>&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>.</td></tr>
+    <tr><td class="paramname">fwd</td><td>When <code>true</code> perform a forward scan, otherwise perform a reverse scan. </td></tr>
   </table>
   </dd>
 </dl>
@@ -689,8 +691,8 @@ template&lt;typename FN &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">from_key</td><td>is an inclusive lower bound for the starting point of the scan.</td></tr>
-    <tr><td class="paramname">fn</td><td>A function f(unodb::visitor&lt;unodb::olc_db::iterator&gt;&amp;) returning [bool:halt]. The traversal will halt if the function returns [true].</td></tr>
-    <tr><td class="paramname">fwd</td><td>When [true] perform a forward scan, otherwise perform a reverse scan. </td></tr>
+    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="An object visited by the scan API.">unodb::visitor</a>&lt;<a class="el" href="classunodb_1_1olc__db_1_1iterator.html" title="The OLC scan() logic tracks the version tag (a read_critical_section) for each node in the stack.">unodb::olc_db::iterator</a>&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>.</td></tr>
+    <tr><td class="paramname">fwd</td><td>When <code>true</code> perform a forward scan, otherwise perform a reverse scan. </td></tr>
   </table>
   </dd>
 </dl>
@@ -742,11 +744,12 @@ template&lt;typename FN &gt; </div>
 </div><div class="memdoc">
 
 <p>Scan a half-open key range, applying the caller's lambda to each visited leaf. </p>
-<p>The scan will proceed in lexicographic order iff from_key is less than to_key and in reverse lexicographic order iff to_key is less than from_key. When from_key &lt; to_key, the scan will visit all index entries in the half-open range [from_key,to_key) in forward order. Otherwise the scan will visit all index entries in the half-open range (from_key,to_key] in reverse order. </p><dl class="params"><dt>Parameters</dt><dd>
+<p>The scan will proceed in lexicographic order iff <em>from_key</em> is less than <em>to_key</em> and in reverse lexicographic order iff <em>to_key</em> is less than <em>from_key</em>. When <code>from_key &lt; to_key</code>, the scan will visit all index entries in the half-open range <code>[from_key,to_key)</code> in forward order. Otherwise the scan will visit all index entries in the half-open range <code>(from_key,to_key]</code> in reverse order.</p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">from_key</td><td>is an inclusive bound for the starting point of the scan. </td></tr>
-    <tr><td class="paramname">to_key</td><td>is an exclusive bound for the ending point of the scan. </td></tr>
-    <tr><td class="paramname">fn</td><td>A function f(unodb::visitor&lt;unodb::olc_db::iterator&gt;&amp;) returning [bool:halt]. The traversal will halt if the function returns [true]. </td></tr>
+    <tr><td class="paramname">from_key</td><td>is an inclusive bound for the starting point of the scan.</td></tr>
+    <tr><td class="paramname">to_key</td><td>is an exclusive bound for the ending point of the scan.</td></tr>
+    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="An object visited by the scan API.">unodb::visitor</a>&lt;<a class="el" href="classunodb_1_1olc__db_1_1iterator.html" title="The OLC scan() logic tracks the version tag (a read_critical_section) for each node in the stack.">unodb::olc_db::iterator</a>&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>. </td></tr>
   </table>
   </dd>
 </dl>

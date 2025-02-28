@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['type_0',['type',['../structunodb_1_1qsbr__state.html#a9ded9024be69a382b3a9fc65892ea7cc',1,'unodb::qsbr_state']]]
+  ['reference_0',['reference',['../classunodb_1_1qsbr__ptr.html#a193c5790a5afb0e7d4910a3ec678c63f',1,'unodb::qsbr_ptr']]]
 ];

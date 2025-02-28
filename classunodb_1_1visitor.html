@@ -179,8 +179,9 @@ template&lt;typename Iterator &gt; </div>
 </div><div class="memdoc">
 
 <p>Visit the encoded key. </p>
-<p>Note: The lambda MUST NOT export a reference to the visited key. If you want to access the visited key outside of the scope of a single lambda invocation, then you must make a copy of the data.</p>
-<p>Note: The application MAY use the [<a class="el" href="classunodb_1_1key__decoder.html" title="A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort...">key_decoder</a>] to decode any key corresponding to a sequence of one or more primitive data types. However, key decoding is not well defined for Unicode sort keys. The recommended pattern when the key contains Unicode data is to convert it to a sort key using some collation order. The Unicode data may then be recovered by associating the key with a record identifier, looking up the record and reading off the Unicode value there. This is a common secondary index scenario. </p>
+<dl class="section note"><dt>Note</dt><dd>The lambda MUST NOT export a reference to the visited key. If you want to access the visited key outside of the scope of a single lambda invocation, then you MUST make a copy of the data.</dd>
+<dd>
+The application MAY use the <a class="el" href="classunodb_1_1key__decoder.html" title="A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort...">unodb::key_decoder</a> to decode any key corresponding to a sequence of one or more primitive data types. However, key decoding is not well defined for Unicode sort keys and all floating point <code>NaN</code> values are mapped to a canonical <code>NaN</code> by the <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>. The recommended pattern when the key contains Unicode data is to convert it to a sort key using some collation order. The Unicode data may then be recovered by associating the key with a record identifier, looking up the record and reading off the Unicode value there. This is a common secondary index scenario. </dd></dl>
 
 </div>
 </div>
@@ -210,7 +211,7 @@ template&lt;typename Iterator &gt; </div>
 </div><div class="memdoc">
 
 <p>Visit the value. </p>
-<p>Note: The lambda MUST NOT export a reference to the visited value. If you to access the value outside of the scope of a single lambda invocation, then you must make a copy of the data. </p>
+<dl class="section note"><dt>Note</dt><dd>The lambda MUST NOT export a reference to the visited value. If you to access the value outside of the scope of a single lambda invocation, then you must make a copy of the data. </dd></dl>
 
 </div>
 </div>

@@ -114,7 +114,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1key__decoder.html',''); 
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a5a981687f918e9dc94b2426e6289c5db" id="r_a5a981687f918e9dc94b2426e6289c5db"><td class="memItemLeft" align="right" valign="top"><a id="a5a981687f918e9dc94b2426e6289c5db" name="a5a981687f918e9dc94b2426e6289c5db"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>key_decoder</b> (const <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> kv)</td></tr>
-<tr class="memdesc:a5a981687f918e9dc94b2426e6289c5db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a decoder for the key_view. <br /></td></tr>
+<tr class="memdesc:a5a981687f918e9dc94b2426e6289c5db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a decoder for the <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>. <br /></td></tr>
 <tr class="separator:a5a981687f918e9dc94b2426e6289c5db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0b81c81e08f51c02aa0bf02c2da36e1" id="r_ad0b81c81e08f51c02aa0bf02c2da36e1"><td class="memItemLeft" align="right" valign="top"><a id="ad0b81c81e08f51c02aa0bf02c2da36e1" name="ad0b81c81e08f51c02aa0bf02c2da36e1"></a>
 <a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>decode</b> (std::int8_t &amp;v)</td></tr>
@@ -148,6 +148,12 @@ Public Member Functions</h2></td></tr>
 <a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>decode</b> (std::uint64_t &amp;v)</td></tr>
 <tr class="memdesc:ab55c46b5c81a46ab6d18f680f78ec390"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a component of the indicated type from the key. <br /></td></tr>
 <tr class="separator:ab55c46b5c81a46ab6d18f680f78ec390"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6562826374a56884cea323e80ffae8fd" id="r_a6562826374a56884cea323e80ffae8fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#a6562826374a56884cea323e80ffae8fd">decode</a> (float &amp;v)</td></tr>
+<tr class="memdesc:a6562826374a56884cea323e80ffae8fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a single-precision floating point value from the key.  <br /></td></tr>
+<tr class="separator:a6562826374a56884cea323e80ffae8fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea2713c9db16b0cea39521ca14008b50" id="r_aea2713c9db16b0cea39521ca14008b50"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#aea2713c9db16b0cea39521ca14008b50">decode</a> (double &amp;v)</td></tr>
+<tr class="memdesc:aea2713c9db16b0cea39521ca14008b50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a double-precision floating point value from the key.  <br /></td></tr>
+<tr class="separator:aea2713c9db16b0cea39521ca14008b50"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -181,8 +187,68 @@ static constexpr uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort keys). </p>
-<p>To use this class, you need to know how a given key was encoded as a sequence of key components. </p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+<p>To use this class, you need to know how a given key was encoded as a sequence of key components.</p>
+<dl class="section note"><dt>Note</dt><dd>This class is NOT final so people can extend or override the <a class="el" href="classunodb_1_1key__decoder.html" title="A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort...">unodb::key_decoder</a> (and <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>) for language specific handling of order within floating point values, handling of <code>NULL</code> values in database query languages, etc. </dd></dl>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="aea2713c9db16b0cea39521ca14008b50" name="aea2713c9db16b0cea39521ca14008b50"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aea2713c9db16b0cea39521ca14008b50">&#9670;&#160;</a></span>decode() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp; unodb::key_decoder::decode </td>
+          <td>(</td>
+          <td class="paramtype">double &amp;&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode a double-precision floating point value from the key. </p>
+<dl class="section note"><dt>Note</dt><dd>Encoding maps all <code>NaN</code> values to a single canonical <code>NaN</code>. This means that decoding is not perfect and various kinds of <code>NaN</code> all decode as a single canonical <code>NaN</code>. </dd></dl>
+
+</div>
+</div>
+<a id="a6562826374a56884cea323e80ffae8fd" name="a6562826374a56884cea323e80ffae8fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6562826374a56884cea323e80ffae8fd">&#9670;&#160;</a></span>decode() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp; unodb::key_decoder::decode </td>
+          <td>(</td>
+          <td class="paramtype">float &amp;&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode a single-precision floating point value from the key. </p>
+<dl class="section note"><dt>Note</dt><dd>Encoding maps all <code>NaN</code> values to a single canonical <code>NaN</code>. This means that decoding is not perfect and various kinds of <code>NaN</code> all decode as a single canonical <code>NaN</code>. </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="art__common_8hpp_source.html">art_common.hpp</a></li>
 </ul>
 </div><!-- contents -->

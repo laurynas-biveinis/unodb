@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UnoDB: Member List</title>
+<title>UnoDB: unodb::test::pause_heap_faults Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search/",'.html');
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('structunodb_1_1db_1_1iterator_1_1stack__entry.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('classunodb_1_1test_1_1pause__heap__faults.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -96,22 +96,40 @@ $(document).ready(function(){initNavTree('structunodb_1_1db_1_1iterator_1_1stack
 </div>
 
 <div class="header">
-  <div class="headertitle"><div class="title">unodb::db&lt; Key &gt;::iterator::stack_entry Member List</div></div>
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="classunodb_1_1test_1_1pause__heap__faults-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">unodb::test::pause_heap_faults Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>This is the complete list of members for <a class="el" href="structunodb_1_1db_1_1iterator_1_1stack__entry.html">unodb::db&lt; Key &gt;::iterator::stack_entry</a>, including all inherited members.</p>
-<table class="directory">
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>child_index</b> (defined in <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result&lt; NodeHeader &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result&lt; NodeHeader &gt;</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>key_byte</b> (defined in <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result&lt; NodeHeader &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result&lt; NodeHeader &gt;</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>node</b> (defined in <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result&lt; NodeHeader &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result&lt; NodeHeader &gt;</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>node_ptr</b> typedef (defined in <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result&lt; NodeHeader &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result&lt; NodeHeader &gt;</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="structunodb_1_1db_1_1iterator_1_1stack__entry.html#a291b354e08a0edd949ef44f337b91edc">prefix_len</a></td><td class="entry"><a class="el" href="structunodb_1_1db_1_1iterator_1_1stack__entry.html">unodb::db&lt; Key &gt;::iterator::stack_entry</a></td><td class="entry"></td></tr>
-</table></div><!-- contents -->
+<p>Lexically scoped guard to pause heap allocation tracking and faulting for the current thread.  
+ <a href="classunodb_1_1test_1_1pause__heap__faults.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="test__heap_8hpp_source.html">test_heap.hpp</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:ae5e31eea4d28fd784679aa4ad79f6dd2" id="r_ae5e31eea4d28fd784679aa4ad79f6dd2"><td class="memItemLeft" align="right" valign="top"><a id="ae5e31eea4d28fd784679aa4ad79f6dd2" name="ae5e31eea4d28fd784679aa4ad79f6dd2"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>pause_heap_faults</b> () noexcept</td></tr>
+<tr class="memdesc:ae5e31eea4d28fd784679aa4ad79f6dd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pause heap faults for this thread. <br /></td></tr>
+<tr class="separator:ae5e31eea4d28fd784679aa4ad79f6dd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ae3cac88194bb9fff6b2cea36b2582a" id="r_a8ae3cac88194bb9fff6b2cea36b2582a"><td class="memItemLeft" align="right" valign="top"><a id="a8ae3cac88194bb9fff6b2cea36b2582a" name="a8ae3cac88194bb9fff6b2cea36b2582a"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>~pause_heap_faults</b> ()</td></tr>
+<tr class="memdesc:a8ae3cac88194bb9fff6b2cea36b2582a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resumes heap faults for this thread. <br /></td></tr>
+<tr class="separator:a8ae3cac88194bb9fff6b2cea36b2582a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Lexically scoped guard to pause heap allocation tracking and faulting for the current thread. </p>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="test__heap_8hpp_source.html">test_heap.hpp</a></li>
+</ul>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
+    <li class="navelem"><a class="el" href="namespaceunodb.html">unodb</a></li><li class="navelem"><b>test</b></li><li class="navelem"><a class="el" href="classunodb_1_1test_1_1pause__heap__faults.html">pause_heap_faults</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

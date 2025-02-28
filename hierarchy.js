@@ -61,7 +61,6 @@ var hierarchy =
     [ "unodb::detail::key_prefix< ArtKey, CriticalSectionPolicy >::inode_fields", "structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html", null ],
     [ "unodb::detail::key_prefix_snapshot::inode_fields", "structunodb_1_1detail_1_1key__prefix__snapshot_1_1inode__fields.html", null ],
     [ "unodb::detail::iter_result< NodeHeader >", "structunodb_1_1detail_1_1iter__result.html", [
-      [ "unodb::db< Key >::iterator::stack_entry", "structunodb_1_1db_1_1iterator_1_1stack__entry.html", null ],
       [ "unodb::olc_db< Key >::iterator::stack_entry", "structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html", null ]
     ] ],
     [ "unodb::db< Key >::iterator", "classunodb_1_1db_1_1iterator.html", null ],
@@ -80,6 +79,7 @@ var hierarchy =
     [ "unodb::detail::olc_impl_helpers", "structunodb_1_1detail_1_1olc__impl__helpers.html", null ],
     [ "unodb::detail::olc_node_header", "structunodb_1_1detail_1_1olc__node__header.html", null ],
     [ "unodb::optimistic_lock", "classunodb_1_1optimistic__lock.html", null ],
+    [ "unodb::test::pause_heap_faults", "classunodb_1_1test_1_1pause__heap__faults.html", null ],
     [ "unodb::qsbr", "classunodb_1_1qsbr.html", null ],
     [ "unodb::detail::qsbr_epoch", "classunodb_1_1detail_1_1qsbr__epoch.html", null ],
     [ "unodb::qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", null ],

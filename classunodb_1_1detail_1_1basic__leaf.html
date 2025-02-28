@@ -120,14 +120,14 @@ Inheritance diagram for unodb::detail::basic_leaf&lt; Key, Header &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a0ecff1b0efcaa1885908f4402da940eb" id="r_a0ecff1b0efcaa1885908f4402da940eb"><td class="memItemLeft" align="right" valign="top"><a id="a0ecff1b0efcaa1885908f4402da940eb" name="a0ecff1b0efcaa1885908f4402da940eb"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>key_size_type</b> = std::uint32_t</td></tr>
-<tr class="memdesc:a0ecff1b0efcaa1885908f4402da940eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type alias determining the maximum size of a value that may be stored in the index. <br /></td></tr>
-<tr class="separator:a0ecff1b0efcaa1885908f4402da940eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd0e023dc5b0d9382ba575ab9e3524e3" id="r_afd0e023dc5b0d9382ba575ab9e3524e3"><td class="memItemLeft" align="right" valign="top"><a id="afd0e023dc5b0d9382ba575ab9e3524e3" name="afd0e023dc5b0d9382ba575ab9e3524e3"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>value_size_type</b> = std::uint32_t</td></tr>
-<tr class="memdesc:afd0e023dc5b0d9382ba575ab9e3524e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type alias determining the maximum size of a value that may be stored in the index. <br /></td></tr>
-<tr class="separator:afd0e023dc5b0d9382ba575ab9e3524e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a538c567cd0cf84512ff1e0b9ddd29e00" id="r_a538c567cd0cf84512ff1e0b9ddd29e00"><td class="memItemLeft" align="right" valign="top"><a id="a538c567cd0cf84512ff1e0b9ddd29e00" name="a538c567cd0cf84512ff1e0b9ddd29e00"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>key_size_type</b> = <a class="el" href="namespaceunodb.html#aa6744476ee7ac432b5377c804ddfca1c">unodb::key_size_type</a></td></tr>
+<tr class="memdesc:a538c567cd0cf84512ff1e0b9ddd29e00"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type alias determining the maximum size of a key that may be stored in the index. <br /></td></tr>
+<tr class="separator:a538c567cd0cf84512ff1e0b9ddd29e00"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09d1c7bbbdc27a74c943930e294e814c" id="r_a09d1c7bbbdc27a74c943930e294e814c"><td class="memItemLeft" align="right" valign="top"><a id="a09d1c7bbbdc27a74c943930e294e814c" name="a09d1c7bbbdc27a74c943930e294e814c"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>value_size_type</b> = <a class="el" href="namespaceunodb.html#a6b16b24543826b94728828213976f2cb">unodb::value_size_type</a></td></tr>
+<tr class="memdesc:a09d1c7bbbdc27a74c943930e294e814c"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type alias determining the maximum size of a value that may be stored in the index. <br /></td></tr>
+<tr class="separator:a09d1c7bbbdc27a74c943930e294e814c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a320fd0e04a9e76c044927d815051b319" id="r_a320fd0e04a9e76c044927d815051b319"><td class="memItemLeft" align="right" valign="top"><a id="a320fd0e04a9e76c044927d815051b319" name="a320fd0e04a9e76c044927d815051b319"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>art_key_type</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt;</td></tr>
 <tr class="separator:a320fd0e04a9e76c044927d815051b319"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -166,7 +166,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostrea
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a16b0da061659a06c5ede9389ad511378" id="r_a16b0da061659a06c5ede9389ad511378"><td class="memItemLeft" align="right" valign="top">static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a16b0da061659a06c5ede9389ad511378">compute_size</a> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a0ecff1b0efcaa1885908f4402da940eb">key_size_type</a> <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a891b5c7b76c488e453319377a83e4ae3">key_size</a>, <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#afd0e023dc5b0d9382ba575ab9e3524e3">value_size_type</a> val_size) noexcept</td></tr>
+<tr class="memitem:a16b0da061659a06c5ede9389ad511378" id="r_a16b0da061659a06c5ede9389ad511378"><td class="memItemLeft" align="right" valign="top">static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a16b0da061659a06c5ede9389ad511378">compute_size</a> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a538c567cd0cf84512ff1e0b9ddd29e00">key_size_type</a> <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a891b5c7b76c488e453319377a83e4ae3">key_size</a>, <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a09d1c7bbbdc27a74c943930e294e814c">value_size_type</a> val_size) noexcept</td></tr>
 <tr class="memdesc:a16b0da061659a06c5ede9389ad511378"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the required byte size of the leaf to hold the header, key, and value.  <br /></td></tr>
 <tr class="separator:a16b0da061659a06c5ede9389ad511378"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -182,11 +182,11 @@ Static Public Attributes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a891b5c7b76c488e453319377a83e4ae3" id="r_a891b5c7b76c488e453319377a83e4ae3"><td class="memItemLeft" align="right" valign="top"><a id="a891b5c7b76c488e453319377a83e4ae3" name="a891b5c7b76c488e453319377a83e4ae3"></a>
-const <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a0ecff1b0efcaa1885908f4402da940eb">key_size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>key_size</b></td></tr>
+const <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a538c567cd0cf84512ff1e0b9ddd29e00">key_size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>key_size</b></td></tr>
 <tr class="memdesc:a891b5c7b76c488e453319377a83e4ae3"><td class="mdescLeft">&#160;</td><td class="mdescRight">The byte length of the key. <br /></td></tr>
 <tr class="separator:a891b5c7b76c488e453319377a83e4ae3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a89b605abe77f9a90b137b7469d64fe27" id="r_a89b605abe77f9a90b137b7469d64fe27"><td class="memItemLeft" align="right" valign="top"><a id="a89b605abe77f9a90b137b7469d64fe27" name="a89b605abe77f9a90b137b7469d64fe27"></a>
-const <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#afd0e023dc5b0d9382ba575ab9e3524e3">value_size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>value_size</b></td></tr>
+const <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a09d1c7bbbdc27a74c943930e294e814c">value_size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>value_size</b></td></tr>
 <tr class="memdesc:a89b605abe77f9a90b137b7469d64fe27"><td class="mdescLeft">&#160;</td><td class="mdescRight">The byte length of the value. <br /></td></tr>
 <tr class="separator:a89b605abe77f9a90b137b7469d64fe27"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b9efcf5222a040cac645af90218351b" id="r_a9b9efcf5222a040cac645af90218351b"><td class="memItemLeft" align="right" valign="top">std::byte&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a9b9efcf5222a040cac645af90218351b">data</a> [1]</td></tr>
@@ -196,11 +196,7 @@ const <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#afd0e023dc5b0
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;class Key, class Header&gt;<br />
 class unodb::detail::basic_leaf&lt; Key, Header &gt;</div><p>The <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html" title="The basic_leaf handles most of the behavior of a leaf in the index.">basic_leaf</a> handles most of the behavior of a leaf in the index. </p>
-<p>It is specialized for OLC which includes additional information in the header. The leaf contains a copy of the key and a copy of the value.</p>
-<p>TODO(thompsonbry) variable length keys - update documentation about what is stored in the leaf once we have a clear decision.</p>
-<p>TODO(thompsonbry) : variable length keys. Consider adding a <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The key_prefix is a sequence of zero or more bytes for a given node that are a common prefix shared b...">key_prefix</a> to the leaf in which case the tree to the leaf needs to hold the full key except for that trailing 0-7 bytes which is stored on the leaf.</p>
-<p>TODO(thompsonbry) : variable length keys. The key should be optional on the leaf, except for perhaps a <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The key_prefix is a sequence of zero or more bytes for a given node that are a common prefix shared b...">key_prefix</a>.</p>
-<p>TODO(thompsonbry) : variable length keys. The key_size can be elided for fixed length keys. The value size can be elided for fixed length values. Both are common cases and should be handled via appropriate template specialization. This is most important when the allocations are small and getting into a smaller power of two can result in significant space savings. Further, the key_size and the value_size can be represented as variable length unsigned integers for a more compact data record. </p>
+<p>It is specialized for OLC which includes additional information in the header. The leaf contains a copy of the key and a copy of the value. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a83845cef7d07d2f4e99eddc1ef05e3ec" name="a83845cef7d07d2f4e99eddc1ef05e3ec"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a83845cef7d07d2f4e99eddc1ef05e3ec">&#9670;&#160;</a></span>cmp()</h2>
@@ -247,13 +243,13 @@ template&lt;class Key , class Header &gt; </div>
         <tr>
           <td class="memname">static constexpr auto <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::compute_size </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a0ecff1b0efcaa1885908f4402da940eb">key_size_type</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a538c567cd0cf84512ff1e0b9ddd29e00">key_size_type</a>&#160;</td>
           <td class="paramname"><em>key_size</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#afd0e023dc5b0d9382ba575ab9e3524e3">value_size_type</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a09d1c7bbbdc27a74c943930e294e814c">value_size_type</a>&#160;</td>
           <td class="paramname"><em>val_size</em>&#160;</td>
         </tr>
         <tr>

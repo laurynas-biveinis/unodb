@@ -99,33 +99,60 @@ $(document).ready(function(){initNavTree('classunodb_1_1test_1_1allocation__fail
   <div class="summary">
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pri-static-attribs">Static Private Attributes</a> &#124;
+<a href="#friends">Friends</a> &#124;
 <a href="classunodb_1_1test_1_1allocation__failure__injector-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::test::allocation_failure_injector Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Test helper class may be used to inject memory allocation faults, throwing <code>std::bad_alloc</code> once some number of allocations have been made.  
+ <a href="classunodb_1_1test_1_1allocation__failure__injector.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="test__heap_8hpp_source.html">test_heap.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a229f390699b118f4f2a35d7bfdfc617f" id="r_a229f390699b118f4f2a35d7bfdfc617f"><td class="memItemLeft" align="right" valign="top"><a id="a229f390699b118f4f2a35d7bfdfc617f" name="a229f390699b118f4f2a35d7bfdfc617f"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>reset</b> () noexcept</td></tr>
+<tr class="memdesc:a229f390699b118f4f2a35d7bfdfc617f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset the counters tracking the number of allocations and the allocation number at which allocation will throw <code>std::bad_alloc</code> to zero. <br /></td></tr>
 <tr class="separator:a229f390699b118f4f2a35d7bfdfc617f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcfa9d32d1318ca0969f2a593607341c" id="r_afcfa9d32d1318ca0969f2a593607341c"><td class="memItemLeft" align="right" valign="top"><a id="afcfa9d32d1318ca0969f2a593607341c" name="afcfa9d32d1318ca0969f2a593607341c"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>fail_on_nth_allocation</b> (std::uint64_t n <a class="el" href="group__internal.html#ga635640d5d3b202d11b61c3730f6c2988">UNODB_DETAIL_USED_IN_DEBUG</a>) noexcept</td></tr>
+<tr class="memdesc:afcfa9d32d1318ca0969f2a593607341c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the allocation number at which allocation will fail. <br /></td></tr>
 <tr class="separator:afcfa9d32d1318ca0969f2a593607341c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c0aab1629c36621d45dee5f272b2b82" id="r_a5c0aab1629c36621d45dee5f272b2b82"><td class="memItemLeft" align="right" valign="top"><a id="a5c0aab1629c36621d45dee5f272b2b82" name="a5c0aab1629c36621d45dee5f272b2b82"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>maybe_fail</b> ()</td></tr>
+<tr class="memdesc:a5c0aab1629c36621d45dee5f272b2b82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invoked from the gtest harness allocator hooks to fail memory allocation by throwing <code>std::bad_alloc</code> iff (a) memory allocation tracking is enabled; and (b) the allocation fail counter is breached. <br /></td></tr>
 <tr class="separator:a5c0aab1629c36621d45dee5f272b2b82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc8f227c9b2e4fdb5c966e149da29ab2" id="r_adc8f227c9b2e4fdb5c966e149da29ab2"><td class="memItemLeft" align="right" valign="top"><a id="adc8f227c9b2e4fdb5c966e149da29ab2" name="adc8f227c9b2e4fdb5c966e149da29ab2"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::string_view msg=&quot;&quot;)</td></tr>
+<tr class="memdesc:adc8f227c9b2e4fdb5c966e149da29ab2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debugging. <br /></td></tr>
+<tr class="separator:adc8f227c9b2e4fdb5c966e149da29ab2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
 Static Private Attributes</h2></td></tr>
 <tr class="memitem:a1504ebd7361714e5c1a1ad88566049ac" id="r_a1504ebd7361714e5c1a1ad88566049ac"><td class="memItemLeft" align="right" valign="top"><a id="a1504ebd7361714e5c1a1ad88566049ac" name="a1504ebd7361714e5c1a1ad88566049ac"></a>
 static std::atomic&lt; std::uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>allocation_counter</b> {0}</td></tr>
+<tr class="memdesc:a1504ebd7361714e5c1a1ad88566049ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tracks the number of allocations made iff heap tracking is enabled. <br /></td></tr>
 <tr class="separator:a1504ebd7361714e5c1a1ad88566049ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2a7ef67aa270a2a8a50782040b5c90d" id="r_aa2a7ef67aa270a2a8a50782040b5c90d"><td class="memItemLeft" align="right" valign="top"><a id="aa2a7ef67aa270a2a8a50782040b5c90d" name="aa2a7ef67aa270a2a8a50782040b5c90d"></a>
 static std::atomic&lt; std::uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>fail_on_nth_allocation_</b> {0}</td></tr>
+<tr class="memdesc:aa2a7ef67aa270a2a8a50782040b5c90d"><td class="mdescLeft">&#160;</td><td class="mdescRight">When non-zero, causes the nth allocation to fail. <br /></td></tr>
 <tr class="separator:aa2a7ef67aa270a2a8a50782040b5c90d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4550e186361238a556d817a5ce0b1c5" id="r_aa4550e186361238a556d817a5ce0b1c5"><td class="memItemLeft" align="right" valign="top"><a id="aa4550e186361238a556d817a5ce0b1c5" name="aa4550e186361238a556d817a5ce0b1c5"></a>
+static thread_local bool&#160;</td><td class="memItemRight" valign="bottom"><b>paused</b> {}</td></tr>
+<tr class="memdesc:aa4550e186361238a556d817a5ce0b1c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">When true, memory tracking is suspended for this thread. <br /></td></tr>
+<tr class="separator:aa4550e186361238a556d817a5ce0b1c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a1b1332623afb5e702b645e3cb93d22d6" id="r_a1b1332623afb5e702b645e3cb93d22d6"><td class="memItemLeft" align="right" valign="top"><a id="a1b1332623afb5e702b645e3cb93d22d6" name="a1b1332623afb5e702b645e3cb93d22d6"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>pause_heap_faults</b></td></tr>
+<tr class="separator:a1b1332623afb5e702b645e3cb93d22d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Test helper class may be used to inject memory allocation faults, throwing <code>std::bad_alloc</code> once some number of allocations have been made. </p>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="test__heap_8hpp_source.html">test_heap.hpp</a></li>
 </ul>
 </div><!-- contents -->

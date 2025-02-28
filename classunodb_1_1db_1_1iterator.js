@@ -1,6 +1,6 @@
 var classunodb_1_1db_1_1iterator =
 [
-    [ "stack_entry", "structunodb_1_1db_1_1iterator_1_1stack__entry.html", "structunodb_1_1db_1_1iterator_1_1stack__entry" ],
+    [ "stack_entry", "classunodb_1_1db_1_1iterator.html#a2b097d047c77c285ec5eaf614afcf75a", null ],
     [ "iterator", "classunodb_1_1db_1_1iterator.html#ab5b13e3fa5aae037db791d33578a9312", null ],
     [ "cmp", "classunodb_1_1db_1_1iterator.html#a91e09ef9d4c7131ee015d21ae8fe108a", null ],
     [ "current_node", "classunodb_1_1db_1_1iterator.html#ac67e5768ac33e3331ac36f4d08856cc7", null ],
@@ -17,7 +17,7 @@ var classunodb_1_1db_1_1iterator =
     [ "pop", "classunodb_1_1db_1_1iterator.html#a996328a45cb1a2db5b0207468bb19103", null ],
     [ "prior", "classunodb_1_1db_1_1iterator.html#a8a772ae580b1b30f66cc2ec06e4e717e", null ],
     [ "push", "classunodb_1_1db_1_1iterator.html#aa8b40c9ba49f397f35eeb51d7d53eb22", null ],
-    [ "push", "classunodb_1_1db_1_1iterator.html#a0b7b269c195dd190113487c7b22915b3", null ],
+    [ "push", "classunodb_1_1db_1_1iterator.html#ab3739f68f892895f0e9e994150242150", null ],
     [ "push_leaf", "classunodb_1_1db_1_1iterator.html#a25ced56f294545cfbf549475c72cde53", null ],
     [ "right_most_traversal", "classunodb_1_1db_1_1iterator.html#a7a6992b40eab90cdf7510c264bb042db", null ],
     [ "seek", "classunodb_1_1db_1_1iterator.html#ac3bf57ee57d312ed55feb0a1aea12ee0", null ],

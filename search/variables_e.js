@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['stack_5f_0',['stack_',['../classunodb_1_1db_1_1iterator.html#abee3406f1cca24e24dd086c2323f7206',1,'unodb::db::iterator::stack_'],['../classunodb_1_1olc__db_1_1iterator.html#ad183b47cee58cc08507806d2f87d7f03',1,'unodb::olc_db::iterator::stack_']]],
-  ['start_1',['start',['../classunodb_1_1qsbr__ptr__span.html#a240f75edeb773147502f3c742bebee98',1,'unodb::qsbr_ptr_span']]]
+  ['read_5flock_5fcount_0',['read_lock_count',['../classunodb_1_1optimistic__lock.html#a533b7c85785d3da0427152ec1312d6ac',1,'unodb::optimistic_lock']]],
+  ['request_5fepoch_1',['request_epoch',['../structunodb_1_1detail_1_1deallocation__request.html#a85e4d0f928fd80d96201fe77958d588c',1,'unodb::detail::deallocation_request']]]
 ];

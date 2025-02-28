@@ -117,7 +117,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1olc__db_1_1iterator.html
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">stack_entry</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The [node_ptr] is never [nullptr] and points to the internal node or leaf for that step in the path from the root to some leaf.  <a href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias for the elements on the stack.  <a href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
@@ -187,10 +187,10 @@ Protected Member Functions</h2></td></tr>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const</td></tr>
 <tr class="memdesc:a41f9db6a97ff84b2d3868112fc030cf7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the stack is empty. <br /></td></tr>
 <tr class="separator:a41f9db6a97ff84b2d3868112fc030cf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa20ecab2e7833b68586ef9749ce37d2f" id="r_aa20ecab2e7833b68586ef9749ce37d2f"><td class="memItemLeft" align="right" valign="top"><a id="aa20ecab2e7833b68586ef9749ce37d2f" name="aa20ecab2e7833b68586ef9749ce37d2f"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_push</b> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> node, std::byte key_byte, std::uint8_t child_index, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
-<tr class="memdesc:aa20ecab2e7833b68586ef9749ce37d2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push an entry onto the stack. <br /></td></tr>
-<tr class="separator:aa20ecab2e7833b68586ef9749ce37d2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2aad5328008ecf928c4e63df56271c81" id="r_a2aad5328008ecf928c4e63df56271c81"><td class="memItemLeft" align="right" valign="top"><a id="a2aad5328008ecf928c4e63df56271c81" name="a2aad5328008ecf928c4e63df56271c81"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_push</b> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> node, std::byte key_byte, std::uint8_t child_index, <a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">detail::key_prefix_snapshot</a> prefix, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
+<tr class="memdesc:a2aad5328008ecf928c4e63df56271c81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push an entry onto the stack. <br /></td></tr>
+<tr class="separator:a2aad5328008ecf928c4e63df56271c81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71f9c242a94be59fe64dd66de3aaabd6" id="r_a71f9c242a94be59fe64dd66de3aaabd6"><td class="memItemLeft" align="right" valign="top"><a id="a71f9c242a94be59fe64dd66de3aaabd6" name="a71f9c242a94be59fe64dd66de3aaabd6"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_push_leaf</b> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> aleaf, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
 <tr class="memdesc:a71f9c242a94be59fe64dd66de3aaabd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a leaf onto the stack. <br /></td></tr>
@@ -270,8 +270,9 @@ template&lt;class &gt; </td></tr>
 class unodb::olc_db&lt; Key &gt;::iterator</div><p>The OLC <a class="el" href="classunodb_1_1olc__db.html#a9eb87e84296f5996e28524e8b6065776" title="public scan API">scan()</a> logic tracks the version tag (a read_critical_section) for each node in the stack. </p>
 <p>This information is required because the iter_result tuples already contain physical information read from nodes which may have been invalidated by subsequent mutations. The scan is built on iterator methods for <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#afc4e2fe72daa028df5bab019c6f3c6e3" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a>, <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ae5453ca90fb7b34d846ab46bb1105945" title="Advance the iterator to next entry in the index.">next()</a>, <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a934efc86d4ca947f6188a328ca12d38f" title="Position the iterator on the previous entry in the index.">prior()</a>, etc. These methods must restart (rebuilding the stack and redoing the work) if they encounter a version tag for an element on the stack which is no longer valid. Restart works by performing a <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#afc4e2fe72daa028df5bab019c6f3c6e3" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a> to the key for the leaf on the bottom of the stack. Restarts can be full (from the root) or partial (from the first element in the stack which was not invalidated by the structural modification).</p>
 <p>During <a class="el" href="classunodb_1_1olc__db.html#a9eb87e84296f5996e28524e8b6065776" title="public scan API">scan()</a>, the iterator <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#afc4e2fe72daa028df5bab019c6f3c6e3" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a>s to some key and then invokes the caller's lambda passing a reference to a visitor object. That visitor allows the caller to access the key and/or value associated with the leaf. If the leaf is concurrently deleted from the structure, the visitor relies on epoch protection to return the data from the now invalidated leaf. This is still the state that the caller would have observed without the concurrent structural modification. When <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ae5453ca90fb7b34d846ab46bb1105945" title="Advance the iterator to next entry in the index.">next()</a> is called, it will discover that the leaf on the bottom of the stack is not valid (it is marked as obsolete) and it will have to restart by <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#afc4e2fe72daa028df5bab019c6f3c6e3" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a> to the key for that leaf and then invoking <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ae5453ca90fb7b34d846ab46bb1105945" title="Advance the iterator to next entry in the index.">next()</a> if the key still exists and otherwise we should already be on the successor of that leaf.</p>
-<p>Note: The OLC thread safety mechanisms permit concurrent non-atomic (multi-work) mutations to be applied to nodes. This means that a thread can read junk in the middle of some reorganization of a node (e.g., the keys or children are being reordered to maintain an invariant for I16). To protect against reading such junk, the thread reads the version tag before and after it accesses data in the node and restarts if the version information has changed. The thread must not act on information that it had read until it verifies that the version tag remained unchanged across the read operation.</p>
-<p>Note: The iterator is backed by a std::stack. This means that the iterator methods accessing the stack can not be declared as [[noexcept]]. </p>
+<dl class="section note"><dt>Note</dt><dd>The OLC thread safety mechanisms permit concurrent non-atomic (multi-work) mutations to be applied to nodes. This means that a thread can read junk in the middle of some reorganization of a node (e.g., the keys or children are being reordered to maintain an invariant for <code>I16</code>). To protect against reading such junk, the thread reads the version tag before and after it accesses data in the node and restarts if the version information has changed. The thread must not act on information that it had read until it verifies that the version tag remained unchanged across the read operation.</dd>
+<dd>
+The iterator is backed by a std::stack. This means that the iterator methods accessing the stack can not be declared as <code>noexcept</code>. </dd></dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a17f0370a66613d3671ded270383407bf" name="a17f0370a66613d3671ded270383407bf"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a17f0370a66613d3671ded270383407bf">&#9670;&#160;</a></span>cmp()</h2>
@@ -344,7 +345,7 @@ template&lt;typename Key &gt; </div>
 </div><div class="memdoc">
 
 <p>Return the key_view associated with the current position of the iterator. </p>
-<p>Precondition: The iterator MUST be <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a3913e8ce0825a495466e462216aa1f8b" title="Return true unless the stack is empty (exposed to tests)">valid()</a>. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>The iterator MUST be <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a3913e8ce0825a495466e462216aa1f8b" title="Return true unless the stack is empty (exposed to tests)">valid()</a>. </dd></dl>
 
 </div>
 </div>
@@ -366,7 +367,7 @@ template&lt;typename Key &gt; </div>
 </div><div class="memdoc">
 
 <p>Return the value_view associated with the current position of the iterator. </p>
-<p>Precondition: The iterator MUST be <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a3913e8ce0825a495466e462216aa1f8b" title="Return true unless the stack is empty (exposed to tests)">valid()</a>. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>The iterator MUST be <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a3913e8ce0825a495466e462216aa1f8b" title="Return true unless the stack is empty (exposed to tests)">valid()</a>. </dd></dl>
 
 </div>
 </div>
@@ -435,12 +436,12 @@ template&lt;typename Key &gt; </div>
 </div><div class="memdoc">
 
 <p>Position the iterator on, before, or after the caller's key. </p>
-<p>If the iterator can not be positioned, it will be invalidated. For example, if [fwd:=true] and the [search_key] is GT any key in the index then the iterator will be invalidated since there is no index entry greater than the search key. Likewise, if [fwd:=false] and the [search_key] is LT any key in the index, then the iterator will be invalidated since there is no index entry LT the search key.</p>
+<p>If the iterator can not be positioned, it will be invalidated. For example, if <code>fwd:=true</code> and the <em>search_key</em> is GT any key in the index then the iterator will be invalidated since there is no index entry greater than the search key. Likewise, if <code>fwd:=false</code> and the <em>search_key</em> is LT any key in the index, then the iterator will be invalidated since there is no index entry LT the <code>search_key</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">search_key</td><td>The internal key used to position the iterator.</td></tr>
     <tr><td class="paramname">match</td><td>Will be set to true iff the search key is an exact match in the index data. Otherwise, the match is not exact and the iterator is positioned either before or after the search_key.</td></tr>
-    <tr><td class="paramname">fwd</td><td>When true, the iterator will be positioned first entry which orders GTE the search_key and will be !valid() if there is no such entry. Otherwise, the iterator will be positioned on the last key which orders LTE the search_key and !valid() if there is no such entry. </td></tr>
+    <tr><td class="paramname">fwd</td><td>When true, the iterator will be positioned first entry which orders GTE the search_key and invalidated if there is no such entry. Otherwise, the iterator will be positioned on the last key which orders LTE the search_key and invalidated if there is no such entry. </td></tr>
   </table>
   </dd>
 </dl>

@@ -1,5 +1,7 @@
 var classunodb_1_1mutex__db =
 [
+    [ "get_result", "classunodb_1_1mutex__db.html#a79ab7f47d51caacb96cfc0ec48ff90c3", null ],
+    [ "clear", "classunodb_1_1mutex__db.html#a81de112353d2ee2b9219d72ee3e495da", null ],
     [ "get", "classunodb_1_1mutex__db.html#a798c9e60cfd170808182bb1a214a6528", null ],
     [ "get_internal", "classunodb_1_1mutex__db.html#a11c3fd4c7334357fadf92ea00821166a", null ],
     [ "insert", "classunodb_1_1mutex__db.html#ad7c7386b34676c3af03a3d3a8356fa80", null ],

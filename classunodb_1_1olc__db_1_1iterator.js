@@ -19,7 +19,7 @@ var classunodb_1_1olc__db_1_1iterator =
     [ "top", "classunodb_1_1olc__db_1_1iterator.html#aed7fe61ec43543e7f010be5a4b38c6e8", null ],
     [ "try_left_most_traversal", "classunodb_1_1olc__db_1_1iterator.html#ad072818476974fa1f05b1ce6b4132b1a", null ],
     [ "try_push", "classunodb_1_1olc__db_1_1iterator.html#abf1fc1a0db6e7328eff730c6e271fe9a", null ],
-    [ "try_push", "classunodb_1_1olc__db_1_1iterator.html#aa20ecab2e7833b68586ef9749ce37d2f", null ],
+    [ "try_push", "classunodb_1_1olc__db_1_1iterator.html#a2aad5328008ecf928c4e63df56271c81", null ],
     [ "try_push_leaf", "classunodb_1_1olc__db_1_1iterator.html#a71f9c242a94be59fe64dd66de3aaabd6", null ],
     [ "try_right_most_traversal", "classunodb_1_1olc__db_1_1iterator.html#a20753d94d49b35588f91a21b2bfd6765", null ],
     [ "try_seek", "classunodb_1_1olc__db_1_1iterator.html#abe9fef1191b60ecdcce9a805fc444a36", null ],

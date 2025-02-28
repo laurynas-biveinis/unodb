@@ -137,7 +137,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort keys).  <a href="classunodb_1_1key__decoder.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__encoder.html">key_encoder</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Key encodes and key decoder.  <a href="classunodb_1_1key__encoder.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A utility class to generate binary comparable keys from a sequence of key components.  <a href="classunodb_1_1key__encoder.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html">mutex_db</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A thread-safe implementation of the Adaptive Radix Tree (ART) using an explicit global lock.  <a href="classunodb_1_1mutex__db.html#details">More...</a><br /></td></tr>
@@ -174,12 +174,19 @@ Classes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:ae25127f715f2aac269da8a3616284c0b" id="r_ae25127f715f2aac269da8a3616284c0b"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> = std::span&lt; const std::byte &gt;</td></tr>
-<tr class="memdesc:ae25127f715f2aac269da8a3616284c0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Values are passed as non-owning pointers to memory with associated length (std::span).  <br /></td></tr>
+<tr class="memdesc:ae25127f715f2aac269da8a3616284c0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Values are passed as non-owning pointers to memory with associated length using a <code>std::span</code>.  <br /></td></tr>
 <tr class="separator:ae25127f715f2aac269da8a3616284c0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37e43379ef5bf4922acff8db9a432a90" id="r_a37e43379ef5bf4922acff8db9a432a90"><td class="memItemLeft" align="right" valign="top"><a id="a37e43379ef5bf4922acff8db9a432a90" name="a37e43379ef5bf4922acff8db9a432a90"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>key_view</b> = std::span&lt; const std::byte &gt;</td></tr>
-<tr class="memdesc:a37e43379ef5bf4922acff8db9a432a90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keys are passed as non-owning pointers to memory with associated length (std::span). <br /></td></tr>
+<tr class="memitem:a37e43379ef5bf4922acff8db9a432a90" id="r_a37e43379ef5bf4922acff8db9a432a90"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> = std::span&lt; const std::byte &gt;</td></tr>
+<tr class="memdesc:a37e43379ef5bf4922acff8db9a432a90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keys are passed as non-owning pointers to memory with associated length using a <code>std::span</code>.  <br /></td></tr>
 <tr class="separator:a37e43379ef5bf4922acff8db9a432a90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6744476ee7ac432b5377c804ddfca1c" id="r_aa6744476ee7ac432b5377c804ddfca1c"><td class="memItemLeft" align="right" valign="top"><a id="aa6744476ee7ac432b5377c804ddfca1c" name="aa6744476ee7ac432b5377c804ddfca1c"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>key_size_type</b> = std::uint32_t</td></tr>
+<tr class="memdesc:aa6744476ee7ac432b5377c804ddfca1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type alias determining the maximum size of a key that may be stored in the index. <br /></td></tr>
+<tr class="separator:aa6744476ee7ac432b5377c804ddfca1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b16b24543826b94728828213976f2cb" id="r_a6b16b24543826b94728828213976f2cb"><td class="memItemLeft" align="right" valign="top"><a id="a6b16b24543826b94728828213976f2cb" name="a6b16b24543826b94728828213976f2cb"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>value_size_type</b> = std::uint32_t</td></tr>
+<tr class="memdesc:a6b16b24543826b94728828213976f2cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type alias determining the maximum size of a value that may be stored in the index. <br /></td></tr>
+<tr class="separator:a6b16b24543826b94728828213976f2cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8105523dd9adff845377f54dd034b838" id="r_a8105523dd9adff845377f54dd034b838"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">node_type_counter_array</a> = std::array&lt; std::uint64_t, <a class="el" href="namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc">detail::node_type_count</a> &gt;</td></tr>
 <tr class="memdesc:a8105523dd9adff845377f54dd034b838"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>std::array</code> of <code>std::uint64_t</code> values for each node type.  <br /></td></tr>
 <tr class="separator:a8105523dd9adff845377f54dd034b838"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -260,6 +267,23 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="a37e43379ef5bf4922acff8db9a432a90" name="a37e43379ef5bf4922acff8db9a432a90"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37e43379ef5bf4922acff8db9a432a90">&#9670;&#160;</a></span>key_view</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> = typedef std::span&lt;const std::byte&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Keys are passed as non-owning pointers to memory with associated length using a <code>std::span</code>. </p>
+<p>The memory is copied upon insertion. </p>
+
+</div>
+</div>
 <a id="a8105523dd9adff845377f54dd034b838" name="a8105523dd9adff845377f54dd034b838"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8105523dd9adff845377f54dd034b838">&#9670;&#160;</a></span>node_type_counter_array</h2>
 
@@ -289,7 +313,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Values are passed as non-owning pointers to memory with associated length (std::span). </p>
+<p>Values are passed as non-owning pointers to memory with associated length using a <code>std::span</code>. </p>
 <p>The memory is copied upon insertion. </p>
 
 </div>

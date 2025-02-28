@@ -35,7 +35,7 @@ var annotated_dup =
         [ "inode_256", "classunodb_1_1detail_1_1inode__256.html", null ],
         [ "inode_4", "classunodb_1_1detail_1_1inode__4.html", null ],
         [ "inode_48", "classunodb_1_1detail_1_1inode__48.html", null ],
-        [ "iter_result", "structunodb_1_1detail_1_1iter__result.html", null ],
+        [ "iter_result", "structunodb_1_1detail_1_1iter__result.html", "structunodb_1_1detail_1_1iter__result" ],
         [ "key_buffer", "classunodb_1_1detail_1_1key__buffer.html", "classunodb_1_1detail_1_1key__buffer" ],
         [ "key_prefix", "unionunodb_1_1detail_1_1key__prefix.html", "unionunodb_1_1detail_1_1key__prefix" ],
         [ "key_prefix_snapshot", "unionunodb_1_1detail_1_1key__prefix__snapshot.html", "unionunodb_1_1detail_1_1key__prefix__snapshot" ],
@@ -54,7 +54,8 @@ var annotated_dup =
         [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ]
       ] ],
       [ "test", null, [
-        [ "allocation_failure_injector", "classunodb_1_1test_1_1allocation__failure__injector.html", null ],
+        [ "allocation_failure_injector", "classunodb_1_1test_1_1allocation__failure__injector.html", "classunodb_1_1test_1_1allocation__failure__injector" ],
+        [ "pause_heap_faults", "classunodb_1_1test_1_1pause__heap__faults.html", "classunodb_1_1test_1_1pause__heap__faults" ],
         [ "QSBRTestBase", "classunodb_1_1test_1_1QSBRTestBase.html", null ],
         [ "tree_verifier", "classunodb_1_1test_1_1tree__verifier.html", "classunodb_1_1test_1_1tree__verifier" ]
       ] ],

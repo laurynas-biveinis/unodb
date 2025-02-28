@@ -21,8 +21,10 @@ var namespaceunodb =
     [ "remove_cvref", "structunodb_1_1remove__cvref.html", null ],
     [ "visitor", "classunodb_1_1visitor.html", "classunodb_1_1visitor" ],
     [ "inode_type_counter_array", "namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28", null ],
+    [ "key_size_type", "namespaceunodb.html#aa6744476ee7ac432b5377c804ddfca1c", null ],
     [ "key_view", "namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90", null ],
     [ "node_type_counter_array", "namespaceunodb.html#a8105523dd9adff845377f54dd034b838", null ],
+    [ "value_size_type", "namespaceunodb.html#a6b16b24543826b94728828213976f2cb", null ],
     [ "value_view", "namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b", null ],
     [ "version_tag_type", "namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b", null ],
     [ "node_type", "namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3", [

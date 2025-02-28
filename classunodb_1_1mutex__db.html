@@ -121,8 +121,8 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>key_type</b> = Key</
 <tr class="memitem:aff70d5ad9575302d9910f238506c3144" id="r_aff70d5ad9575302d9910f238506c3144"><td class="memItemLeft" align="right" valign="top"><a id="aff70d5ad9575302d9910f238506c3144" name="aff70d5ad9575302d9910f238506c3144"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>value_view</b> = <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a></td></tr>
 <tr class="separator:aff70d5ad9575302d9910f238506c3144"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79ab7f47d51caacb96cfc0ec48ff90c3" id="r_a79ab7f47d51caacb96cfc0ec48ff90c3"><td class="memItemLeft" align="right" valign="top"><a id="a79ab7f47d51caacb96cfc0ec48ff90c3" name="a79ab7f47d51caacb96cfc0ec48ff90c3"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>get_result</b> = std::pair&lt; typename <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key &gt;::get_result, std::unique_lock&lt; std::mutex &gt; &gt;</td></tr>
+<tr class="memitem:a79ab7f47d51caacb96cfc0ec48ff90c3" id="r_a79ab7f47d51caacb96cfc0ec48ff90c3"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a79ab7f47d51caacb96cfc0ec48ff90c3">get_result</a> = std::pair&lt; typename <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key &gt;::get_result, std::unique_lock&lt; std::mutex &gt; &gt;</td></tr>
+<tr class="memdesc:a79ab7f47d51caacb96cfc0ec48ff90c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the search key was found, that is, the first pair member has a value, then the second member is a locked tree mutex which must be released ASAP after reading the first pair member.  <br /></td></tr>
 <tr class="separator:a79ab7f47d51caacb96cfc0ec48ff90c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a392b8856ed56ab17f9c5ea58aa71d2cb" id="r_a392b8856ed56ab17f9c5ea58aa71d2cb"><td class="memItemLeft" align="right" valign="top"><a id="a392b8856ed56ab17f9c5ea58aa71d2cb" name="a392b8856ed56ab17f9c5ea58aa71d2cb"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> = typename <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key &gt;::iterator</td></tr>
@@ -130,7 +130,7 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> = typen
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a798c9e60cfd170808182bb1a214a6528" id="r_a798c9e60cfd170808182bb1a214a6528"><td class="memItemLeft" align="right" valign="top">get_result&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a798c9e60cfd170808182bb1a214a6528">get</a> (Key search_key) const noexcept</td></tr>
+<tr class="memitem:a798c9e60cfd170808182bb1a214a6528" id="r_a798c9e60cfd170808182bb1a214a6528"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1mutex__db.html#a79ab7f47d51caacb96cfc0ec48ff90c3">get_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a798c9e60cfd170808182bb1a214a6528">get</a> (Key search_key) const noexcept</td></tr>
 <tr class="memdesc:a798c9e60cfd170808182bb1a214a6528"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query for a value associated with a key.  <br /></td></tr>
 <tr class="separator:a798c9e60cfd170808182bb1a214a6528"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a801ba096fc84c669ca6b47423acdd74b" id="r_a801ba096fc84c669ca6b47423acdd74b"><td class="memItemLeft" align="right" valign="top"><a id="a801ba096fc84c669ca6b47423acdd74b" name="a801ba096fc84c669ca6b47423acdd74b"></a>
@@ -144,6 +144,7 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const</t
 <tr class="separator:aef63d2e198d5971577197cbfd26a5602"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a81de112353d2ee2b9219d72ee3e495da" id="r_a81de112353d2ee2b9219d72ee3e495da"><td class="memItemLeft" align="right" valign="top"><a id="a81de112353d2ee2b9219d72ee3e495da" name="a81de112353d2ee2b9219d72ee3e495da"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> ()</td></tr>
+<tr class="memdesc:a81de112353d2ee2b9219d72ee3e495da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all entries in the index. <br /></td></tr>
 <tr class="separator:a81de112353d2ee2b9219d72ee3e495da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0bc658977ddbc4e9e2d24da737c241e3" id="r_a0bc658977ddbc4e9e2d24da737c241e3"><td class="memTemplParams" colspan="2">template&lt;typename FN &gt; </td></tr>
 <tr class="memitem:a0bc658977ddbc4e9e2d24da737c241e3"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a0bc658977ddbc4e9e2d24da737c241e3">scan</a> (FN fn, bool fwd=true) noexcept</td></tr>
@@ -194,7 +195,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostrea
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aaa85f5cfc81885a8009fde14ba0bb293" id="r_aaa85f5cfc81885a8009fde14ba0bb293"><td class="memItemLeft" align="right" valign="top"><a id="aaa85f5cfc81885a8009fde14ba0bb293" name="aaa85f5cfc81885a8009fde14ba0bb293"></a>
-static auto&#160;</td><td class="memItemRight" valign="bottom"><b>key_found</b> (const get_result &amp;result) noexcept</td></tr>
+static auto&#160;</td><td class="memItemRight" valign="bottom"><b>key_found</b> (const <a class="el" href="classunodb_1_1mutex__db.html#a79ab7f47d51caacb96cfc0ec48ff90c3">get_result</a> &amp;result) noexcept</td></tr>
 <tr class="separator:aaa85f5cfc81885a8009fde14ba0bb293"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
@@ -230,8 +231,28 @@ std::mutex&#160;</td><td class="memItemRight" valign="bottom"><b>mutex</b></td><
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename Key&gt;<br />
 class unodb::mutex_db&lt; Key &gt;</div><p>A thread-safe implementation of the Adaptive Radix Tree (ART) using an explicit global lock. </p>
 <p>All get, insert, remove and scan operations take the global lock and hold it for the duration of the operation.</p>
-<p>See olc_art for a highly concurrent thread-safe ART implementation. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+<dl class="section see"><dt>See also</dt><dd>unodb::olc_art for a highly concurrent thread-safe ART implementation. </dd></dl>
+</div><h2 class="groupheader">Member Typedef Documentation</h2>
+<a id="a79ab7f47d51caacb96cfc0ec48ff90c3" name="a79ab7f47d51caacb96cfc0ec48ff90c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a79ab7f47d51caacb96cfc0ec48ff90c3">&#9670;&#160;</a></span>get_result</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key &gt;::get_result =  std::pair&lt;typename <a class="el" href="classunodb_1_1db.html">db</a>&lt;Key&gt;::get_result, std::unique_lock&lt;std::mutex&gt; &gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>If the search key was found, that is, the first pair member has a value, then the second member is a locked tree mutex which must be released ASAP after reading the first pair member. </p>
+<p>Otherwise, the second member is undefined. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="a798c9e60cfd170808182bb1a214a6528" name="a798c9e60cfd170808182bb1a214a6528"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a798c9e60cfd170808182bb1a214a6528">&#9670;&#160;</a></span>get()</h2>
 
@@ -244,7 +265,7 @@ template&lt;typename Key &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">get_result <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key &gt;::get </td>
+          <td class="memname"><a class="el" href="classunodb_1_1mutex__db.html#a79ab7f47d51caacb96cfc0ec48ff90c3">get_result</a> <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key &gt;::get </td>
           <td>(</td>
           <td class="paramtype">Key&#160;</td>
           <td class="paramname"><em>search_key</em></td><td>)</td>
@@ -261,7 +282,7 @@ template&lt;typename Key &gt; </div>
 <p>Query for a value associated with a key. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is key_value, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="Key encodes and key decoder.">unodb::key_encoder</a>. </td></tr>
+    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -305,14 +326,16 @@ template&lt;typename Key &gt; </div>
 </div><div class="memdoc">
 
 <p>Insert a value under a key iff there is no entry for that key. </p>
-<p>Note: Cannot be called during stack unwinding with std::uncaught_exceptions() &gt; 0</p>
+<dl class="section note"><dt>Note</dt><dd>Cannot be called during stack unwinding with <code>std::uncaught_exceptions() &gt; 0</code>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">insert_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is key_value, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="Key encodes and key decoder.">unodb::key_encoder</a>.</td></tr>
+    <tr><td class="paramname">insert_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>.</td></tr>
+    <tr><td class="paramname">v</td><td>The value to be inserted under that key.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>true iff the key value pair was inserted. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>true iff the key value pair was inserted.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">key_encoder</a>, which provides for encoding text and multi-field records when Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>. </dd></dl>
 
 </div>
 </div>
@@ -353,7 +376,7 @@ template&lt;typename Key &gt; </div>
 </div><div class="memdoc">
 
 <p>Modifying with an encoded key. </p>
-<p>Cannot be called during stack unwinding with std::uncaught_exceptions() &gt; 0 </p>
+<p>Cannot be called during stack unwinding with <code>std::uncaught_exceptions() &gt; 0</code>. </p>
 
 </div>
 </div>
@@ -386,7 +409,7 @@ template&lt;typename Key &gt; </div>
 <p>Remove the entry associated with the key. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is key_value, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="Key encodes and key decoder.">unodb::key_encoder</a>. </td></tr>
+    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -435,8 +458,8 @@ template&lt;typename FN &gt; </div>
 <p>The tree remains locked for the duration of the scan.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fn</td><td>A function f(unodb::visitor&lt;unodb::mutex_db::iterator&gt;&amp;) returning [bool::halt]. The traversal will halt if the function returns [true].</td></tr>
-    <tr><td class="paramname">fwd</td><td>When [true] perform a forward scan, otherwise perform a reverse scan. </td></tr>
+    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="An object visited by the scan API.">unodb::visitor</a>&lt;unodb::mutex_db::iterator&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>.</td></tr>
+    <tr><td class="paramname">fwd</td><td>When <code>true</code> perform a forward scan, otherwise perform a reverse scan. </td></tr>
   </table>
   </dd>
 </dl>
@@ -492,8 +515,8 @@ template&lt;typename FN &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">from_key</td><td>is an inclusive lower bound for the starting point of the scan.</td></tr>
-    <tr><td class="paramname">fn</td><td>A function f(unodb::visitor&lt;unodb::mutex_db::iterator&gt;&amp;) returning [bool::halt]. The traversal will halt if the function returns [true].</td></tr>
-    <tr><td class="paramname">fwd</td><td>When [true] perform a forward scan, otherwise perform a reverse scan. </td></tr>
+    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="An object visited by the scan API.">unodb::visitor</a>&lt;unodb::mutex_db::iterator&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>.</td></tr>
+    <tr><td class="paramname">fwd</td><td>When <code>true</code> perform a forward scan, otherwise perform a reverse scan. </td></tr>
   </table>
   </dd>
 </dl>
@@ -545,12 +568,12 @@ template&lt;typename FN &gt; </div>
 </div><div class="memdoc">
 
 <p>Scan a half-open key range, applying the caller's lambda to each visited leaf. </p>
-<p>The tree remains locked for the duration of the scan. The scan will proceed in lexicographic order iff fromKey is less than toKey and in reverse lexicographic order iff toKey is less than fromKey. When fromKey &lt; toKey, the scan will visit all index entries in the half-open range [fromKey,toKey) in forward order. Otherwise the scan will visit all index entries in the half-open range (fromKey,toKey] in reverse order.</p>
+<p>The scan will proceed in lexicographic order iff <em>from_key</em> is less than <em>to_key</em> and in reverse lexicographic order iff <em>to_key</em> is less than <em>from_key</em>. When <code>from_key &lt; to_key</code>, the scan will visit all index entries in the half-open range <code>[from_key,to_key)</code> in forward order. Otherwise the scan will visit all index entries in the half-open range <code>(from_key,to_key]</code> in reverse order.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">from_key</td><td>is an inclusive bound for the starting point of the scan.</td></tr>
     <tr><td class="paramname">to_key</td><td>is an exclusive bound for the ending point of the scan.</td></tr>
-    <tr><td class="paramname">fn</td><td>A function f(unodb::visitor&lt;unodb::mutex_db::iterator&gt;&amp;) returning [bool::halt]. The traversal will halt if the function returns [true]. </td></tr>
+    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="An object visited by the scan API.">unodb::visitor</a>&lt;unodb::mutex_db::iterator&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>. </td></tr>
   </table>
   </dd>
 </dl>

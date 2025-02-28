@@ -103,14 +103,18 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1iter__result.
   <div class="headertitle"><div class="title">unodb::detail::iter_result&lt; NodeHeader &gt; Struct Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>A struct that is returned by the iterator visitation pattern which represents a path in the tree for an internal node.  
+ <a href="structunodb_1_1detail_1_1iter__result.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for unodb::detail::iter_result&lt; NodeHeader &gt;:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="structunodb_1_1detail_1_1iter__result.png" usemap="#unodb::detail::iter_5Fresult_3C_20NodeHeader_20_3E_map" alt=""/>
   <map id="unodb::detail::iter_5Fresult_3C_20NodeHeader_20_3E_map" name="unodb::detail::iter_5Fresult_3C_20NodeHeader_20_3E_map">
-<area href="structunodb_1_1db_1_1iterator_1_1stack__entry.html" title="The stack is made up of tuples containing the node pointer, the key_byte, and the child_index." alt="unodb::db&lt; Key &gt;::iterator::stack_entry" shape="rect" coords="0,56,254,80"/>
-<area href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html" title="The [node_ptr] is never [nullptr] and points to the internal node or leaf for that step in the path f..." alt="unodb::olc_db&lt; Key &gt;::iterator::stack_entry" shape="rect" coords="264,56,518,80"/>
+<area href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html" title="Alias for the elements on the stack." alt="unodb::olc_db&lt; Key &gt;::iterator::stack_entry" shape="rect" coords="0,56,254,80"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -127,12 +131,28 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a854585e8656a3b42ae0e48a97d2f970a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af629f13328e6b7ebd271a9939d7559a8" id="r_af629f13328e6b7ebd271a9939d7559a8"><td class="memItemLeft" align="right" valign="top"><a id="af629f13328e6b7ebd271a9939d7559a8" name="af629f13328e6b7ebd271a9939d7559a8"></a>
 std::byte&#160;</td><td class="memItemRight" valign="bottom"><b>key_byte</b></td></tr>
+<tr class="memdesc:af629f13328e6b7ebd271a9939d7559a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">node pointer <br /></td></tr>
 <tr class="separator:af629f13328e6b7ebd271a9939d7559a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a985b95e52360b47cc69e53c0ab48946e" id="r_a985b95e52360b47cc69e53c0ab48946e"><td class="memItemLeft" align="right" valign="top"><a id="a985b95e52360b47cc69e53c0ab48946e" name="a985b95e52360b47cc69e53c0ab48946e"></a>
 std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>child_index</b></td></tr>
+<tr class="memdesc:a985b95e52360b47cc69e53c0ab48946e"><td class="mdescLeft">&#160;</td><td class="mdescRight">key byte <br /></td></tr>
 <tr class="separator:a985b95e52360b47cc69e53c0ab48946e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a567edf1377659f0138ac433674cf6091" id="r_a567edf1377659f0138ac433674cf6091"><td class="memItemLeft" align="right" valign="top"><a id="a567edf1377659f0138ac433674cf6091" name="a567edf1377659f0138ac433674cf6091"></a>
+<a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">key_prefix_snapshot</a>&#160;</td><td class="memItemRight" valign="bottom"><b>prefix</b></td></tr>
+<tr class="memdesc:a567edf1377659f0138ac433674cf6091"><td class="mdescLeft">&#160;</td><td class="mdescRight">child-index <br /></td></tr>
+<tr class="separator:a567edf1377659f0138ac433674cf6091"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;class NodeHeader&gt;<br />
+struct unodb::detail::iter_result&lt; NodeHeader &gt;</div><p>A struct that is returned by the iterator visitation pattern which represents a path in the tree for an internal node. </p>
+<dl class="section note"><dt>Note</dt><dd>The node is a pointer to either an internal node or a leaf.</dd>
+<dd>
+The <a class="el" href="structunodb_1_1detail_1_1iter__result.html#af629f13328e6b7ebd271a9939d7559a8" title="node pointer">iter_result::key_byte</a> is the byte from the key that was consumed as you step down to the child node. This is the same as the child index (if you convert <code>std::uint8_t</code> to <code>std::byte</code>) for N48 and N256, but it is different for N4 and N16 since they use a sparse encoding of the keys. It is represented explicitly to avoid searching for the key byte in the N48 and N256 cases.</dd>
+<dd>
+The <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a985b95e52360b47cc69e53c0ab48946e" title="key byte">iter_result::child_index</a> is the index of the child node within that internal node (except for N48, where it is the index into the unodb::detail::basic_inode_48::child_indexes[] and is in fact the same data as the key byte). Overflow for the <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a985b95e52360b47cc69e53c0ab48946e" title="key byte">iter_result::child_index</a> can only occur for N48 and N256. When overflow happens, the <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="A struct that is returned by the iterator visitation pattern which represents a path in the tree for ...">iter_result</a> is not defined and the outer std::optional will return false.</dd>
+<dd>
+The <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a567edf1377659f0138ac433674cf6091" title="child-index">iter_result::prefix</a> is a snapshot of the key prefix for node. </dd></dl>
+</div><hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>
 </ul>
 </div><!-- contents -->

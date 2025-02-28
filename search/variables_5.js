@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['hardware_5fconstructive_5finterference_5fsize_0',['hardware_constructive_interference_size',['../namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89',1,'unodb::detail']]],
-  ['hardware_5fdestructive_5finterference_5fsize_1',['hardware_destructive_interference_size',['../namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c',1,'unodb::detail']]]
+  ['fail_5fon_5fnth_5fallocation_5f_0',['fail_on_nth_allocation_',['../classunodb_1_1test_1_1allocation__failure__injector.html#aa2a7ef67aa270a2a8a50782040b5c90d',1,'unodb::test::allocation_failure_injector']]]
 ];

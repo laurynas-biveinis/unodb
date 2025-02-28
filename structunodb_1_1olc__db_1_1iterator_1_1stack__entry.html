@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('structunodb_1_1olc__db_1_1iterator_1_1
 </div><!--header-->
 <div class="contents">
 
-<p>The [node_ptr] is never [nullptr] and points to the internal node or leaf for that step in the path from the root to some leaf.  
+<p>Alias for the elements on the stack.  
  <a href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for unodb::olc_db&lt; Key &gt;::iterator::stack_entry:</div>
@@ -111,15 +111,12 @@ Inheritance diagram for unodb::olc_db&lt; Key &gt;::iterator::stack_entry:</div>
  <div class="center">
   <img src="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.png" usemap="#unodb::olc_5Fdb_3C_20Key_20_3E::iterator::stack_5Fentry_map" alt=""/>
   <map id="unodb::olc_5Fdb_3C_20Key_20_3E::iterator::stack_5Fentry_map" name="unodb::olc_5Fdb_3C_20Key_20_3E::iterator::stack_5Fentry_map">
-<area href="structunodb_1_1detail_1_1iter__result.html" alt="unodb::detail::iter_result&lt; NodeHeader &gt;" shape="rect" coords="0,0,254,24"/>
+<area href="structunodb_1_1detail_1_1iter__result.html" title="A struct that is returned by the iterator visitation pattern which represents a path in the tree for ..." alt="unodb::detail::iter_result&lt; NodeHeader &gt;" shape="rect" coords="0,0,254,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a8200da52e6bc2c64caf8240b401a47ee" id="r_a8200da52e6bc2c64caf8240b401a47ee"><td class="memItemLeft" align="right" valign="top">detail::key_prefix_size&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#a8200da52e6bc2c64caf8240b401a47ee">prefix_len</a></td></tr>
-<tr class="memdesc:a8200da52e6bc2c64caf8240b401a47ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">The [prefix_len] is the number of bytes in the key prefix for [node].  <br /></td></tr>
-<tr class="separator:a8200da52e6bc2c64caf8240b401a47ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad818c8b71399638679d847e14843d925" id="r_ad818c8b71399638679d847e14843d925"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#ad818c8b71399638679d847e14843d925">version</a></td></tr>
 <tr class="memdesc:ad818c8b71399638679d847e14843d925"><td class="mdescLeft">&#160;</td><td class="mdescRight">The version tag invariant for the node.  <br /></td></tr>
 <tr class="separator:ad818c8b71399638679d847e14843d925"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -129,10 +126,16 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a854585e8656a3b42ae0e48a97d2f970a inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af629f13328e6b7ebd271a9939d7559a8 inherit pub_attribs_structunodb_1_1detail_1_1iter__result" id="r_af629f13328e6b7ebd271a9939d7559a8"><td class="memItemLeft" align="right" valign="top">
 std::byte&#160;</td><td class="memItemRight" valign="bottom"><b>key_byte</b></td></tr>
+<tr class="memdesc:af629f13328e6b7ebd271a9939d7559a8 inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="mdescLeft">&#160;</td><td class="mdescRight">node pointer <br /></td></tr>
 <tr class="separator:af629f13328e6b7ebd271a9939d7559a8 inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a985b95e52360b47cc69e53c0ab48946e inherit pub_attribs_structunodb_1_1detail_1_1iter__result" id="r_a985b95e52360b47cc69e53c0ab48946e"><td class="memItemLeft" align="right" valign="top">
 std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>child_index</b></td></tr>
+<tr class="memdesc:a985b95e52360b47cc69e53c0ab48946e inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="mdescLeft">&#160;</td><td class="mdescRight">key byte <br /></td></tr>
 <tr class="separator:a985b95e52360b47cc69e53c0ab48946e inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a567edf1377659f0138ac433674cf6091 inherit pub_attribs_structunodb_1_1detail_1_1iter__result" id="r_a567edf1377659f0138ac433674cf6091"><td class="memItemLeft" align="right" valign="top">
+<a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">key_prefix_snapshot</a>&#160;</td><td class="memItemRight" valign="bottom"><b>prefix</b></td></tr>
+<tr class="memdesc:a567edf1377659f0138ac433674cf6091 inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="mdescLeft">&#160;</td><td class="mdescRight">child-index <br /></td></tr>
+<tr class="separator:a567edf1377659f0138ac433674cf6091 inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -143,31 +146,8 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>node_ptr</b> = <a cl
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename Key&gt;<br />
-struct unodb::olc_db&lt; Key &gt;::iterator::stack_entry</div><p>The [node_ptr] is never [nullptr] and points to the internal node or leaf for that step in the path from the root to some leaf. </p>
-<p>For the bottom of the stack, [node_ptr] is the root. For the top of the stack, [node_ptr] is the current leaf. In the degenerate case where the tree is a single root leaf, then the stack contains just that leaf.</p>
-<p>The [key] is the [std::byte] along which the path descends from that [node_ptr]. The [key] has no meaning for a leaf. The key byte may be used to reconstruct the full key (along with any prefix bytes in the nodes along the path). The key byte is tracked to avoid having to search the keys of some node types (N48) when the [child_index] does not directly imply the key byte.</p>
-<p>The [child_index] is the [std::uint8_t] index position in the parent at which the [child_ptr] was found. The [child_index] has no meaning for a leaf. In the special case of N48, the [child_index] is the index into the [child_indexes[]]. For all other internal node types, the [child_index] is a direct index into the [children[]]. When finding the successor (or predecessor) the [child_index] needs to be interpreted according to the node type. For N4 and N16, you just look at the next slot in the children[] to find the successor. For N256, you look at the next non-null slot in the children[]. N48 is the oddest of the node types. For N48, you have to look at the child_indexes[], find the next mapped key value greater than the current one, and then look at its entry in the children[].</p>
-<p>The [tag] is the [version_tag_type] from the read_critical_section and contains the version information that must be valid to use the [key_byte] and [child_index] data read from the [node]. The version tag is cached when when those data are read from the node along with the [key_byte] and [child_index] values that were read. </p>
+struct unodb::olc_db&lt; Key &gt;::iterator::stack_entry</div><p>Alias for the elements on the stack. </p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
-<a id="a8200da52e6bc2c64caf8240b401a47ee" name="a8200da52e6bc2c64caf8240b401a47ee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8200da52e6bc2c64caf8240b401a47ee">&#9670;&#160;</a></span>prefix_len</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename Key &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">detail::key_prefix_size <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key &gt;::iterator::stack_entry::prefix_len</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The [prefix_len] is the number of bytes in the key prefix for [node]. </p>
-<p>When the node is pushed onto the stack, we also push [prefix_bytes] plus the [key_byte] onto a key_buffer. We track how many bytes were pushed here (not including the key_byte) so we can pop off the correct number of bytes later. </p>
-
-</div>
-</div>
 <a id="ad818c8b71399638679d847e14843d925" name="ad818c8b71399638679d847e14843d925"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad818c8b71399638679d847e14843d925">&#9670;&#160;</a></span>version</h2>
 
@@ -183,7 +163,8 @@ template&lt;typename Key &gt; </div>
 </div><div class="memdoc">
 
 <p>The version tag invariant for the node. </p>
-<p>Note: This is just the data for the version tag and not the read_critical_section (RCS). Moving the RCS onto the stack creates problems in the while(...) loops that use parent and node lock chaining since the RCS in the loop is invalid as soon as it is moved onto the stack. Hence, this is just the data and the while loops continue to use the normal OLC pattern for lock chaining. </p>
+<p>This contains the version information that must be valid to use data read from the node. The version tag is cached when when those data are read from the node.</p>
+<dl class="section note"><dt>Note</dt><dd>This is just the data for the version tag and not the unodb::read_critical_section (RCS). Moving the RCS onto the stack creates problems in the <code>while(...)</code> loops that use parent and node lock chaining since the RCS in the loop is invalid as soon as it is moved onto the stack. Hence, this is just the data and the <code>while</code> loops continue to use the normal OLC pattern for lock chaining. </dd></dl>
 
 </div>
 </div>

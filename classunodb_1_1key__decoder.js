@@ -1,6 +1,8 @@
 var classunodb_1_1key__decoder =
 [
     [ "key_decoder", "classunodb_1_1key__decoder.html#a5a981687f918e9dc94b2426e6289c5db", null ],
+    [ "decode", "classunodb_1_1key__decoder.html#aea2713c9db16b0cea39521ca14008b50", null ],
+    [ "decode", "classunodb_1_1key__decoder.html#a6562826374a56884cea323e80ffae8fd", null ],
     [ "decode", "classunodb_1_1key__decoder.html#af83611f8cd28cc0cd95189d13d073b38", null ],
     [ "decode", "classunodb_1_1key__decoder.html#a49a783f141de5968adbc702ec513f560", null ],
     [ "decode", "classunodb_1_1key__decoder.html#a8ba7dbdf11528130da1c4c37831d7e6f", null ],

@@ -8,6 +8,7 @@ var files_dup =
     [ "art_internal.hpp", "art__internal_8hpp_source.html", null ],
     [ "art_internal_impl.hpp", "art__internal__impl_8hpp_source.html", null ],
     [ "assert.hpp", "assert_8hpp.html", "assert_8hpp" ],
+    [ "duckdb_encode_decode.hpp", "duckdb__encode__decode_8hpp_source.html", null ],
     [ "global.hpp", "global_8hpp.html", "global_8hpp" ],
     [ "heap.hpp", "heap_8hpp_source.html", null ],
     [ "in_fake_critical_section.hpp", "in__fake__critical__section_8hpp.html", "in__fake__critical__section_8hpp" ],

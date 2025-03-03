@@ -156,10 +156,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>unregister_active_ptr
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
 <tr class="memitem:ae8ed6c0ce29e48f1fc70a5e3e94cd25f" id="r_ae8ed6c0ce29e48f1fc70a5e3e94cd25f"><td class="memItemLeft" align="right" valign="top"><a id="ae8ed6c0ce29e48f1fc70a5e3e94cd25f" name="ae8ed6c0ce29e48f1fc70a5e3e94cd25f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>advance_last_seen_epoch</b> (bool single_thread_mode, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> new_seen_epoch, detail::dealloc_request_vector new_current_requests={})</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>advance_last_seen_epoch</b> (bool single_thread_mode, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> new_seen_epoch, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> new_current_requests={})</td></tr>
 <tr class="separator:ae8ed6c0ce29e48f1fc70a5e3e94cd25f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31f84e25a40dffd8dc13c73613634053" id="r_a31f84e25a40dffd8dc13c73613634053"><td class="memItemLeft" align="right" valign="top"><a id="a31f84e25a40dffd8dc13c73613634053" name="a31f84e25a40dffd8dc13c73613634053"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>update_requests</b> (bool single_thread_mode, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> dealloc_epoch, detail::dealloc_request_vector new_current_requests={})</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>update_requests</b> (bool single_thread_mode, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> dealloc_epoch, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> new_current_requests={})</td></tr>
 <tr class="separator:a31f84e25a40dffd8dc13c73613634053"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb5546a8285617341d41aa30d0ea0fe4" id="r_aeb5546a8285617341d41aa30d0ea0fe4"><td class="memItemLeft" align="right" valign="top"><a id="aeb5546a8285617341d41aa30d0ea0fe4" name="aeb5546a8285617341d41aa30d0ea0fe4"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>orphan_deferred_requests</b> () noexcept</td></tr>
@@ -190,10 +190,10 @@ std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>quiescent_st
 <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a>&#160;</td><td class="memItemRight" valign="bottom"><b>last_seen_epoch</b></td></tr>
 <tr class="separator:a9697778e3004e9c765c475b37f8eb4be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a067c56d3356e016deec77387eb03da95" id="r_a067c56d3356e016deec77387eb03da95"><td class="memItemLeft" align="right" valign="top"><a id="a067c56d3356e016deec77387eb03da95" name="a067c56d3356e016deec77387eb03da95"></a>
-detail::dealloc_request_vector&#160;</td><td class="memItemRight" valign="bottom"><b>previous_interval_dealloc_requests</b></td></tr>
+<a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a>&#160;</td><td class="memItemRight" valign="bottom"><b>previous_interval_dealloc_requests</b></td></tr>
 <tr class="separator:a067c56d3356e016deec77387eb03da95"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7557ea586b33893b1bd9f4aa5581d391" id="r_a7557ea586b33893b1bd9f4aa5581d391"><td class="memItemLeft" align="right" valign="top"><a id="a7557ea586b33893b1bd9f4aa5581d391" name="a7557ea586b33893b1bd9f4aa5581d391"></a>
-detail::dealloc_request_vector&#160;</td><td class="memItemRight" valign="bottom"><b>current_interval_dealloc_requests</b></td></tr>
+<a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a>&#160;</td><td class="memItemRight" valign="bottom"><b>current_interval_dealloc_requests</b></td></tr>
 <tr class="separator:a7557ea586b33893b1bd9f4aa5581d391"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6fc38b62224e729fdab0988048626df7" id="r_a6fc38b62224e729fdab0988048626df7"><td class="memItemLeft" align="right" valign="top"><a id="a6fc38b62224e729fdab0988048626df7" name="a6fc38b62224e729fdab0988048626df7"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>paused</b> {false}</td></tr>

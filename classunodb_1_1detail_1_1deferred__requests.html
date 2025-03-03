@@ -103,40 +103,120 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1deferred__requ
   <div class="headertitle"><div class="title">unodb::detail::deferred_requests Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>A scope guard that executes deallocation requests upon destruction.  
+ <a href="classunodb_1_1detail_1_1deferred__requests.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae2f328070402155a30e55dc93cd1fbf4" id="r_ae2f328070402155a30e55dc93cd1fbf4"><td class="memItemLeft" align="right" valign="top"><a id="ae2f328070402155a30e55dc93cd1fbf4" name="ae2f328070402155a30e55dc93cd1fbf4"></a>
-<a class="el" href="group__internal.html#gafd4e412d2f7204ec7887d6d20cb7f53b">UNODB_DETAIL_RELEASE_EXPLICIT</a>&#160;</td><td class="memItemRight" valign="bottom"><b>deferred_requests</b> (dealloc_request_vector &amp;&amp;requests_, bool orphaned_requests_, std::optional&lt; <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> &gt; request_epoch_, std::optional&lt; bool &gt; dealloc_epoch_single_thread_mode_) noexcept</td></tr>
+<tr class="memitem:ae2f328070402155a30e55dc93cd1fbf4" id="r_ae2f328070402155a30e55dc93cd1fbf4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__internal.html#gafd4e412d2f7204ec7887d6d20cb7f53b">UNODB_DETAIL_RELEASE_EXPLICIT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1deferred__requests.html#ae2f328070402155a30e55dc93cd1fbf4">deferred_requests</a> (<a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">dealloc_request_vector</a> &amp;&amp;requests_, bool orphaned_requests_, std::optional&lt; <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> &gt; request_epoch_, std::optional&lt; bool &gt; dealloc_epoch_single_thread_mode_) noexcept</td></tr>
+<tr class="memdesc:ae2f328070402155a30e55dc93cd1fbf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a deferred requests object that takes ownership of <em>requests_</em>.  <br /></td></tr>
 <tr class="separator:ae2f328070402155a30e55dc93cd1fbf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae62963e5d6bea53bcaf7240c77398f0e" id="r_ae62963e5d6bea53bcaf7240c77398f0e"><td class="memItemLeft" align="right" valign="top"><a id="ae62963e5d6bea53bcaf7240c77398f0e" name="ae62963e5d6bea53bcaf7240c77398f0e"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>deferred_requests</b> (const <a class="el" href="classunodb_1_1detail_1_1deferred__requests.html">deferred_requests</a> &amp;) noexcept=delete</td></tr>
+<tr class="memdesc:ae62963e5d6bea53bcaf7240c77398f0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy construction is disabled to prevent redundant instances. <br /></td></tr>
 <tr class="separator:ae62963e5d6bea53bcaf7240c77398f0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab8ccb1328add23dc0d55a3efed8c6b84" id="r_ab8ccb1328add23dc0d55a3efed8c6b84"><td class="memItemLeft" align="right" valign="top"><a id="ab8ccb1328add23dc0d55a3efed8c6b84" name="ab8ccb1328add23dc0d55a3efed8c6b84"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>deferred_requests</b> (<a class="el" href="classunodb_1_1detail_1_1deferred__requests.html">deferred_requests</a> &amp;&amp;) noexcept=delete</td></tr>
+<tr class="memdesc:ab8ccb1328add23dc0d55a3efed8c6b84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move construction is disabled, instances are created in-place only. <br /></td></tr>
 <tr class="separator:ab8ccb1328add23dc0d55a3efed8c6b84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abace45c786044cf371235c214a75072d" id="r_abace45c786044cf371235c214a75072d"><td class="memItemLeft" align="right" valign="top"><a id="abace45c786044cf371235c214a75072d" name="abace45c786044cf371235c214a75072d"></a>
 <a class="el" href="classunodb_1_1detail_1_1deferred__requests.html">deferred_requests</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classunodb_1_1detail_1_1deferred__requests.html">deferred_requests</a> &amp;) noexcept=delete</td></tr>
+<tr class="memdesc:abace45c786044cf371235c214a75072d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assignment is disabled. <br /></td></tr>
 <tr class="separator:abace45c786044cf371235c214a75072d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b38bdff729cad96c96dd7d75b8fbb0f" id="r_a3b38bdff729cad96c96dd7d75b8fbb0f"><td class="memItemLeft" align="right" valign="top"><a id="a3b38bdff729cad96c96dd7d75b8fbb0f" name="a3b38bdff729cad96c96dd7d75b8fbb0f"></a>
 <a class="el" href="classunodb_1_1detail_1_1deferred__requests.html">deferred_requests</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1detail_1_1deferred__requests.html">deferred_requests</a> &amp;&amp;) noexcept=delete</td></tr>
+<tr class="memdesc:a3b38bdff729cad96c96dd7d75b8fbb0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment is disabled. <br /></td></tr>
 <tr class="separator:a3b38bdff729cad96c96dd7d75b8fbb0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09dab31c5386d2fc52b5f1d32e3904f9" id="r_a09dab31c5386d2fc52b5f1d32e3904f9"><td class="memItemLeft" align="right" valign="top"><a id="a09dab31c5386d2fc52b5f1d32e3904f9" name="a09dab31c5386d2fc52b5f1d32e3904f9"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>~deferred_requests</b> () noexcept</td></tr>
+<tr class="memdesc:a09dab31c5386d2fc52b5f1d32e3904f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destruct this object and execute all deallocation requests. <br /></td></tr>
+<tr class="separator:a09dab31c5386d2fc52b5f1d32e3904f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e7a2c85206b8e16012c5eab4b8c5ed2" id="r_a6e7a2c85206b8e16012c5eab4b8c5ed2"><td class="memItemLeft" align="right" valign="top"><a id="a6e7a2c85206b8e16012c5eab4b8c5ed2" name="a6e7a2c85206b8e16012c5eab4b8c5ed2"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>deferred_requests</b> ()=delete</td></tr>
+<tr class="memdesc:a6e7a2c85206b8e16012c5eab4b8c5ed2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default construction is disabled. <br /></td></tr>
+<tr class="separator:a6e7a2c85206b8e16012c5eab4b8c5ed2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a0318bf025f39f26722f32e7f3000765b" id="r_a0318bf025f39f26722f32e7f3000765b"><td class="memItemLeft" align="right" valign="top"><a id="a0318bf025f39f26722f32e7f3000765b" name="a0318bf025f39f26722f32e7f3000765b"></a>
-const dealloc_request_vector&#160;</td><td class="memItemRight" valign="bottom"><b>requests</b></td></tr>
+const <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">dealloc_request_vector</a>&#160;</td><td class="memItemRight" valign="bottom"><b>requests</b></td></tr>
+<tr class="memdesc:a0318bf025f39f26722f32e7f3000765b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The vector of deallocation requests to be executed. <br /></td></tr>
 <tr class="separator:a0318bf025f39f26722f32e7f3000765b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a361f2b2af74eff0112a4890d5ef07481" id="r_a361f2b2af74eff0112a4890d5ef07481"><td class="memItemLeft" align="right" valign="top"><a id="a361f2b2af74eff0112a4890d5ef07481" name="a361f2b2af74eff0112a4890d5ef07481"></a>
 const bool&#160;</td><td class="memItemRight" valign="bottom"><b>orphaned_requests</b></td></tr>
+<tr class="memdesc:a361f2b2af74eff0112a4890d5ef07481"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether these requests belong to a terminated thread. <br /></td></tr>
 <tr class="separator:a361f2b2af74eff0112a4890d5ef07481"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e260cd682d39bee9d37c3d30fef3a1a" id="r_a3e260cd682d39bee9d37c3d30fef3a1a"><td class="memItemLeft" align="right" valign="top"><a id="a3e260cd682d39bee9d37c3d30fef3a1a" name="a3e260cd682d39bee9d37c3d30fef3a1a"></a>
 const std::optional&lt; <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>dealloc_epoch</b></td></tr>
+<tr class="memdesc:a3e260cd682d39bee9d37c3d30fef3a1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The epoch when the requests should be deallocated, if known. <br /></td></tr>
 <tr class="separator:a3e260cd682d39bee9d37c3d30fef3a1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a208e41a203a79f66b585bb5a05d7b9ea" id="r_a208e41a203a79f66b585bb5a05d7b9ea"><td class="memItemLeft" align="right" valign="top"><a id="a208e41a203a79f66b585bb5a05d7b9ea" name="a208e41a203a79f66b585bb5a05d7b9ea"></a>
 const std::optional&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>dealloc_epoch_single_thread_mode</b></td></tr>
+<tr class="memdesc:a208e41a203a79f66b585bb5a05d7b9ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the deallocation epoch has only 0 or 1 threads, if known. <br /></td></tr>
 <tr class="separator:a208e41a203a79f66b585bb5a05d7b9ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>A scope guard that executes deallocation requests upon destruction. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="ae2f328070402155a30e55dc93cd1fbf4" name="ae2f328070402155a30e55dc93cd1fbf4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae2f328070402155a30e55dc93cd1fbf4">&#9670;&#160;</a></span>deferred_requests()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__internal.html#gafd4e412d2f7204ec7887d6d20cb7f53b">UNODB_DETAIL_RELEASE_EXPLICIT</a> unodb::detail::deferred_requests::deferred_requests </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">dealloc_request_vector</a> &amp;&amp;&#160;</td>
+          <td class="paramname"><em>requests_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>orphaned_requests_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::optional&lt; <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> &gt;&#160;</td>
+          <td class="paramname"><em>request_epoch_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::optional&lt; bool &gt;&#160;</td>
+          <td class="paramname"><em>dealloc_epoch_single_thread_mode_</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create a deferred requests object that takes ownership of <em>requests_</em>. </p>
+<p>In debug builds, also stores metadata about the requests. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">orphaned_requests_</td><td>Whether these requests belongs to a terminated thread </td></tr>
+    <tr><td class="paramname">request_epoch_</td><td>The epoch when the requests were created, if known </td></tr>
+    <tr><td class="paramname">dealloc_epoch_single_thread_mode_</td><td>Optional flag whether the deallocation epoch has total zero or one thread only </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="qsbr_8hpp_source.html">qsbr.hpp</a></li>
 </ul>

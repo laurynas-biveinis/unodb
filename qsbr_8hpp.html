@@ -149,8 +149,10 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pending deallocation request for QSBR-managed memory.  <a href="structunodb_1_1detail_1_1deallocation__request.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1deferred__requests.html">unodb::detail::deferred_requests</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A scope guard that executes deallocation requests upon destruction.  <a href="classunodb_1_1detail_1_1deferred__requests.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">unodb::detail::dealloc_vector_list_node</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node in a linked list for orphaned (issued by threads that have quit since) deallocation requests.  <a href="structunodb_1_1detail_1_1dealloc__vector__list__node.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html">unodb::qsbr_per_thread</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -180,6 +182,7 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::qsbr_
 <tr class="separator:a78bbb5caf501cb09276604dab64723bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c98952bb0651c3bd50ab5de879cfeff" id="r_a3c98952bb0651c3bd50ab5de879cfeff"><td class="memItemLeft" align="right" valign="top"><a id="a3c98952bb0651c3bd50ab5de879cfeff" name="a3c98952bb0651c3bd50ab5de879cfeff"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::dealloc_request_vector</b> = std::vector&lt; <a class="el" href="structunodb_1_1detail_1_1deallocation__request.html">deallocation_request</a> &gt;</td></tr>
+<tr class="memdesc:a3c98952bb0651c3bd50ab5de879cfeff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vector of deallocation requests. <br /></td></tr>
 <tr class="separator:a3c98952bb0651c3bd50ab5de879cfeff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5a167ea3daf99e23a500b6ec73b4538d" id="r_a5a167ea3daf99e23a500b6ec73b4538d"><td class="memTemplParams" colspan="2"><a id="a5a167ea3daf99e23a500b6ec73b4538d" name="a5a167ea3daf99e23a500b6ec73b4538d"></a>
 template&lt;typename T &gt; </td></tr>

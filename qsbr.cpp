@@ -27,6 +27,7 @@
 
 namespace unodb::detail {
 
+/// Helper for registering the main thread with QSBR.
 struct set_qsbr_per_thread_in_main_thread {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   set_qsbr_per_thread_in_main_thread() noexcept {

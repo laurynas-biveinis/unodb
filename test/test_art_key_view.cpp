@@ -4,6 +4,7 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <string>
+// IWYU pragma: no_include <string_view>
 // IWYU pragma: no_include "gtest/gtest.h"
 
 #include <array>

@@ -4,6 +4,7 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <string>
+// IWYU pragma: no_include "mutex_art.hpp"
 // IWYU pragma: no_forward_declare unodb::visitor
 
 #include <algorithm>

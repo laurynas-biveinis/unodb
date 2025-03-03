@@ -12,7 +12,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <type_traits>
@@ -29,7 +28,7 @@ namespace unodb::detail {
 template <class, class>
 class [[nodiscard]] basic_leaf;
 
-template <typename, class, template <class> class>
+template <class>
 class [[nodiscard]] basic_db_leaf_deleter;
 
 /// Lexicographic comparison of bytes.
@@ -265,49 +264,46 @@ class [[nodiscard]] tree_depth final {
   value_type value;
 };
 
-template <typename Key, class Header, template <class> class Db>
+template <class Db>
 class basic_db_leaf_deleter {
  public:
-  using db_type = Db<Key>;
-  using leaf_type = basic_leaf<Key, Header>;
+  using leaf_type = basic_leaf<typename Db::key_type, typename Db::header_type>;
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
   constexpr explicit basic_db_leaf_deleter(
-      db_type &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+      Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   void operator()(leaf_type *to_delete) const noexcept;
 
-  [[nodiscard, gnu::pure]] db_type &get_db() const noexcept { return db; }
+  [[nodiscard, gnu::pure]] Db &get_db() const noexcept { return db; }
 
  private:
-  db_type &db;
+  Db &db;
 };
 
+// Not taken from Db to break a dependency circle
 template <typename Key, class Header, template <class> class Db>
 using basic_db_leaf_unique_ptr =
-    std::unique_ptr<basic_leaf<Key, Header>,
-                    basic_db_leaf_deleter<Key, Header, Db>>;
+    std::unique_ptr<basic_leaf<Key, Header>, basic_db_leaf_deleter<Db<Key>>>;
 
 template <class T>
 struct dependent_false : std::false_type {};
 
-template <typename Key, class INode, template <class> class Db>
+template <class INode, class Db>
 class basic_db_inode_deleter {
  public:
-  using db_type = Db<Key>;
-
   constexpr explicit basic_db_inode_deleter(
-      db_type &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+      Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   void operator()(INode *inode_ptr) noexcept;
 
-  [[nodiscard, gnu::pure]] db_type &get_db() noexcept { return db; }
+  [[nodiscard, gnu::pure]] Db &get_db() noexcept { return db; }
 
  private:
-  db_type &db;
+  Db &db;
 };
 
 /// basic_node_ptr is a tagged pointer (the tag is the node type).

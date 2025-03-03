@@ -15,12 +15,9 @@
 
 #include <benchmark/benchmark.h>
 
-#include "art.hpp"
 #include "art_common.hpp"
-#include "art_internal.hpp"
-#include "mutex_art.hpp"
+#include "art_internal.hpp"  // IWYU pragma: keep
 #include "node_type.hpp"
-#include "olc_art.hpp"
 
 #include "micro_benchmark_node_utils.hpp"
 #include "micro_benchmark_utils.hpp"

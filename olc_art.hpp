@@ -80,7 +80,7 @@ using olc_node_ptr = basic_node_ptr<olc_node_header>;
 template <typename, class>
 class db_inode_qsbr_deleter;  // IWYU pragma: keep
 
-template <class, class, template <class> class>
+template <class>
 class db_leaf_qsbr_deleter;  // IWYU pragma: keep
 
 struct olc_impl_helpers;
@@ -144,7 +144,7 @@ class olc_db final {
   using value_view = unodb::qsbr_value_view;
   using get_result = std::optional<value_view>;
   using inode_base = detail::olc_inode_base<Key>;
-  using leaf_type = detail ::olc_leaf_type<Key>;
+  using leaf_type = detail::olc_leaf_type<Key>;
 
  private:
   using art_key_type = detail::basic_art_key<Key>;
@@ -742,6 +742,7 @@ class olc_db final {
 
  private:
   using art_policy = detail::olc_art_policy<Key>;
+  using header_type = typename art_policy::header_type;
   using inode_type = detail::olc_inode<Key>;
   using inode_4 = detail::olc_inode_4<Key>;
   using tree_depth_type = detail::tree_depth<art_key_type>;
@@ -833,13 +834,13 @@ class olc_db final {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-  friend auto detail::make_db_leaf_ptr<Key, detail::olc_node_header, olc_db>(
-      art_key_type, unodb::value_view, olc_db&);
+  friend auto detail::make_db_leaf_ptr<Key, olc_db>(art_key_type,
+                                                    unodb::value_view, olc_db&);
 
-  template <class, class, template <class> class>
+  template <class>
   friend class detail::basic_db_leaf_deleter;
 
-  template <typename, class, template <class> class>
+  template <class>
   friend class detail::db_leaf_qsbr_deleter;
 
   template <typename, class>
@@ -853,12 +854,10 @@ class olc_db final {
             class,                             // NodePtr
             template <typename> class,         // INodeDefs
             template <typename, class> class,  // INodeReclamator
-            template <typename, class,
-                      template <class> class>
-            class>  // LeafReclamator
+            template <class> class>            // LeafReclamator
   friend struct detail::basic_art_policy;
 
-  template <class, class, template <class> class>
+  template <class, class>
   friend class detail::basic_db_inode_deleter;
 
   friend struct detail::olc_impl_helpers;
@@ -868,7 +867,7 @@ namespace detail {
 
 template <typename Key, class INode>
 using db_inode_qsbr_deleter_parent =
-    unodb::detail::basic_db_inode_deleter<Key, INode, unodb::olc_db>;
+    unodb::detail::basic_db_inode_deleter<INode, unodb::olc_db<Key>>;
 
 template <typename Key, class INode>
 class db_inode_qsbr_deleter : public db_inode_qsbr_deleter_parent<Key, INode> {
@@ -898,16 +897,16 @@ class db_inode_qsbr_deleter : public db_inode_qsbr_deleter_parent<Key, INode> {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
-template <typename Key, class Header, template <class> class Db>
+template <class Db>
 class db_leaf_qsbr_deleter {
  public:
-  using db_type = Db<Key>;
-  using leaf_type = basic_leaf<Key, Header>;
+  using key_type = typename Db::key_type;
+  using leaf_type = basic_leaf<key_type, typename Db::header_type>;
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
   constexpr explicit db_leaf_qsbr_deleter(
-      db_type& db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+      Db& db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db_instance{db_} {}
 
   void operator()(leaf_type* to_delete) const {
@@ -939,7 +938,7 @@ class db_leaf_qsbr_deleter {
 
  private:
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
-  db_type& db_instance;
+  Db& db_instance;
 };
 
 /// Return a reference to the unodb::optimistic_lock from the node header
@@ -1786,9 +1785,7 @@ template <typename Key>
 bool olc_db<Key>::insert_internal(art_key_type k, unodb::value_view v) {
   try_update_result_type result;
   olc_db_leaf_unique_ptr_type cached_leaf{
-      nullptr,
-      detail::basic_db_leaf_deleter<Key, detail::olc_node_header, olc_db>{
-          *this}};
+      nullptr, detail::basic_db_leaf_deleter<olc_db<Key>>{*this}};
 
   while (true) {
     result = try_insert(k, v, cached_leaf);

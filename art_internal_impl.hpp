@@ -215,10 +215,11 @@ class [[nodiscard]] basic_leaf final : public Header {
 
 /// Return a unique pointer for a new leaf initialized with the caller's key and
 /// value.
-template <class Key, class Header, template <class> class Db>
+template <class Key, template <class> class Db>
 [[nodiscard]] auto make_db_leaf_ptr(basic_art_key<Key> k, value_view v,
                                     Db<Key> &db UNODB_DETAIL_LIFETIMEBOUND) {
-  using leaf_type = basic_leaf<Key, Header>;
+  using header_type = typename Db<Key>::header_type;
+  using leaf_type = basic_leaf<Key, header_type>;
 
   // TODO(thompsonbry) We should have a discussion about limits.  To
   // my mind, limits should be explicit configuration values, not
@@ -244,9 +245,8 @@ template <class Key, class Header, template <class> class Db>
   db.increment_leaf_count(size);
 #endif  // UNODB_DETAIL_WITH_STATS
 
-  return basic_db_leaf_unique_ptr<Key, Header, Db>{
-      new (leaf_mem) leaf_type{k, v},
-      basic_db_leaf_deleter<Key, Header, Db>{db}};
+  return basic_db_leaf_unique_ptr<Key, header_type, Db>{
+      new (leaf_mem) leaf_type{k, v}, basic_db_leaf_deleter<Db<Key>>{db}};
 }
 
 // basic_inode_def is a metaprogramming construct to list all concrete
@@ -269,8 +269,8 @@ struct basic_inode_def final {
 };
 
 // Implementation of things declared in art_internal.hpp
-template <typename Key, class Header, template <class> class Db>
-inline void basic_db_leaf_deleter<Key, Header, Db>::operator()(
+template <class Db>
+inline void basic_db_leaf_deleter<Db>::operator()(
     leaf_type *to_delete) const noexcept {
 #ifdef UNODB_DETAIL_WITH_STATS
   const auto leaf_size = to_delete->get_size();
@@ -283,8 +283,8 @@ inline void basic_db_leaf_deleter<Key, Header, Db>::operator()(
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-template <typename Key, class INode, template <class> class Db>
-inline void basic_db_inode_deleter<Key, INode, Db>::operator()(
+template <class INode, class Db>
+inline void basic_db_inode_deleter<INode, Db>::operator()(
     INode *inode_ptr) noexcept {
   static_assert(std::is_trivially_destructible_v<INode>);
 
@@ -303,8 +303,7 @@ template <typename Key, template <class> class Db,
           class ReadCriticalSection, class NodePtr,
           template <typename> class INodeDefs,
           template <typename, class> class INodeReclamator,
-          template <typename, class, template <class> class>
-          class LeafReclamator>
+          template <class> class LeafReclamator>
 struct basic_art_policy final {
   using key_type = Key;
   using art_key_type = basic_art_key<Key>;
@@ -325,10 +324,10 @@ struct basic_art_policy final {
 
  private:
   template <class INode>
-  using db_inode_deleter = basic_db_inode_deleter<Key, INode, Db>;
+  using db_inode_deleter = basic_db_inode_deleter<INode, db_type>;
 
   using leaf_reclaimable_ptr =
-      std::unique_ptr<leaf_type, LeafReclamator<Key, header_type, Db>>;
+      std::unique_ptr<leaf_type, LeafReclamator<db_type>>;
 
  public:
   template <typename T>
@@ -346,20 +345,19 @@ struct basic_art_policy final {
   using db_inode_reclaimable_ptr =
       std::unique_ptr<INode, INodeReclamator<Key, INode>>;
 
-  using db_leaf_unique_ptr = basic_db_leaf_unique_ptr<Key, header_type, Db>;
+  using db_leaf_unique_ptr =
+      basic_db_leaf_unique_ptr<key_type, header_type, Db>;
 
   [[nodiscard]] static auto make_db_leaf_ptr(
       art_key_type k, value_view v,
       db_type &db_instance UNODB_DETAIL_LIFETIMEBOUND) {
-    return ::unodb::detail::make_db_leaf_ptr<Key, header_type, Db>(k, v,
-                                                                   db_instance);
+    return ::unodb::detail::make_db_leaf_ptr<Key, Db>(k, v, db_instance);
   }
 
   [[nodiscard]] static auto reclaim_leaf_on_scope_exit(
       leaf_type *leaf UNODB_DETAIL_LIFETIMEBOUND,
       db_type &db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
-    return leaf_reclaimable_ptr{
-        leaf, LeafReclamator<Key, header_type, Db>{db_instance}};
+    return leaf_reclaimable_ptr{leaf, LeafReclamator<db_type>{db_instance}};
   }
 
   /// Allocates memory for a node inode and does a placement new pattern to
@@ -406,8 +404,8 @@ struct basic_art_policy final {
   [[nodiscard]] static auto make_db_leaf_ptr(
       leaf_type *leaf UNODB_DETAIL_LIFETIMEBOUND,
       db_type &db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
-    return basic_db_leaf_unique_ptr<Key, header_type, Db>{
-        leaf, basic_db_leaf_deleter<Key, header_type, Db>{db_instance}};
+    return basic_db_leaf_unique_ptr<key_type, header_type, Db>{
+        leaf, basic_db_leaf_deleter<db_type>{db_instance}};
   }
 
   struct delete_db_node_ptr_at_scope_exit final {

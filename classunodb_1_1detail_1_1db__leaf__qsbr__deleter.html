@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UnoDB: unodb::detail::db_leaf_qsbr_deleter&lt; Key, Header, Db &gt; Class Template Reference</title>
+<title>UnoDB: unodb::detail::db_leaf_qsbr_deleter&lt; Db &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -101,45 +101,45 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1db__leaf__qsbr
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="classunodb_1_1detail_1_1db__leaf__qsbr__deleter-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">unodb::detail::db_leaf_qsbr_deleter&lt; Key, Header, Db &gt; Class Template Reference</div></div>
+  <div class="headertitle"><div class="title">unodb::detail::db_leaf_qsbr_deleter&lt; Db &gt; Class Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a9a12a28bf3732480b43fe8d9b378f4c9" id="r_a9a12a28bf3732480b43fe8d9b378f4c9"><td class="memItemLeft" align="right" valign="top"><a id="a9a12a28bf3732480b43fe8d9b378f4c9" name="a9a12a28bf3732480b43fe8d9b378f4c9"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>db_type</b> = Db&lt; Key &gt;</td></tr>
-<tr class="separator:a9a12a28bf3732480b43fe8d9b378f4c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a30fd3b95425337c3f6dc56f2da55083a" id="r_a30fd3b95425337c3f6dc56f2da55083a"><td class="memItemLeft" align="right" valign="top"><a id="a30fd3b95425337c3f6dc56f2da55083a" name="a30fd3b95425337c3f6dc56f2da55083a"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_type</b> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; Key, Header &gt;</td></tr>
-<tr class="separator:a30fd3b95425337c3f6dc56f2da55083a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a673b2bf914e054ef1e2a26538013f9ee" id="r_a673b2bf914e054ef1e2a26538013f9ee"><td class="memItemLeft" align="right" valign="top"><a id="a673b2bf914e054ef1e2a26538013f9ee" name="a673b2bf914e054ef1e2a26538013f9ee"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>key_type</b> = typename Db::key_type</td></tr>
+<tr class="separator:a673b2bf914e054ef1e2a26538013f9ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae11424c3d59a773f7a7d10c1921505b4" id="r_ae11424c3d59a773f7a7d10c1921505b4"><td class="memItemLeft" align="right" valign="top"><a id="ae11424c3d59a773f7a7d10c1921505b4" name="ae11424c3d59a773f7a7d10c1921505b4"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_type</b> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; key_type, typename Db::header_type &gt;</td></tr>
+<tr class="separator:ae11424c3d59a773f7a7d10c1921505b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a4333e2e35a35167f0a221ac7bf697ff3" id="r_a4333e2e35a35167f0a221ac7bf697ff3"><td class="memItemLeft" align="right" valign="top"><a id="a4333e2e35a35167f0a221ac7bf697ff3" name="a4333e2e35a35167f0a221ac7bf697ff3"></a>
-constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>db_leaf_qsbr_deleter</b> (db_type &amp;db_ <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
-<tr class="separator:a4333e2e35a35167f0a221ac7bf697ff3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae941db58120906a2c33ce763d6eeb429" id="r_ae941db58120906a2c33ce763d6eeb429"><td class="memItemLeft" align="right" valign="top"><a id="ae941db58120906a2c33ce763d6eeb429" name="ae941db58120906a2c33ce763d6eeb429"></a>
+<tr class="memitem:af6415019a1d08e3d23504f195cb15a7f" id="r_af6415019a1d08e3d23504f195cb15a7f"><td class="memItemLeft" align="right" valign="top"><a id="af6415019a1d08e3d23504f195cb15a7f" name="af6415019a1d08e3d23504f195cb15a7f"></a>
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>db_leaf_qsbr_deleter</b> (Db &amp;db_ <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
+<tr class="separator:af6415019a1d08e3d23504f195cb15a7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74120fdf5954346a4a947f3663888c48" id="r_a74120fdf5954346a4a947f3663888c48"><td class="memItemLeft" align="right" valign="top"><a id="a74120fdf5954346a4a947f3663888c48" name="a74120fdf5954346a4a947f3663888c48"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a> *to_delete) const</td></tr>
-<tr class="separator:ae941db58120906a2c33ce763d6eeb429"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb5d16e39c60d9940d570ed87e4f82f2" id="r_afb5d16e39c60d9940d570ed87e4f82f2"><td class="memItemLeft" align="right" valign="top"><a id="afb5d16e39c60d9940d570ed87e4f82f2" name="afb5d16e39c60d9940d570ed87e4f82f2"></a>
+<tr class="separator:a74120fdf5954346a4a947f3663888c48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac196fcad456af86172d43537a35e559" id="r_aac196fcad456af86172d43537a35e559"><td class="memItemLeft" align="right" valign="top"><a id="aac196fcad456af86172d43537a35e559" name="aac196fcad456af86172d43537a35e559"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>db_leaf_qsbr_deleter</b> (const <a class="el" href="classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html">db_leaf_qsbr_deleter</a> &amp;)=default</td></tr>
-<tr class="separator:afb5d16e39c60d9940d570ed87e4f82f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1fa8d3662543b44752e42bf28e391486" id="r_a1fa8d3662543b44752e42bf28e391486"><td class="memItemLeft" align="right" valign="top"><a id="a1fa8d3662543b44752e42bf28e391486" name="a1fa8d3662543b44752e42bf28e391486"></a>
+<tr class="separator:aac196fcad456af86172d43537a35e559"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4224239380ddbf2d7604cf4013a9d65" id="r_ae4224239380ddbf2d7604cf4013a9d65"><td class="memItemLeft" align="right" valign="top"><a id="ae4224239380ddbf2d7604cf4013a9d65" name="ae4224239380ddbf2d7604cf4013a9d65"></a>
 <a class="el" href="classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html">db_leaf_qsbr_deleter</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html">db_leaf_qsbr_deleter</a> &amp;)=delete</td></tr>
-<tr class="separator:a1fa8d3662543b44752e42bf28e391486"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a77316b427d4f3caa4fd1a678f51971" id="r_a9a77316b427d4f3caa4fd1a678f51971"><td class="memItemLeft" align="right" valign="top"><a id="a9a77316b427d4f3caa4fd1a678f51971" name="a9a77316b427d4f3caa4fd1a678f51971"></a>
+<tr class="separator:ae4224239380ddbf2d7604cf4013a9d65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51bffd146e6f313601bfb411346430a3" id="r_a51bffd146e6f313601bfb411346430a3"><td class="memItemLeft" align="right" valign="top"><a id="a51bffd146e6f313601bfb411346430a3" name="a51bffd146e6f313601bfb411346430a3"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>db_leaf_qsbr_deleter</b> (<a class="el" href="classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html">db_leaf_qsbr_deleter</a> &amp;&amp;)=delete</td></tr>
-<tr class="separator:a9a77316b427d4f3caa4fd1a678f51971"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afcee5f0b9c67423ab0dc75fd8f972969" id="r_afcee5f0b9c67423ab0dc75fd8f972969"><td class="memItemLeft" align="right" valign="top"><a id="afcee5f0b9c67423ab0dc75fd8f972969" name="afcee5f0b9c67423ab0dc75fd8f972969"></a>
+<tr class="separator:a51bffd146e6f313601bfb411346430a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4c7bdb34e1327e32ab52d20bbbf5429" id="r_aa4c7bdb34e1327e32ab52d20bbbf5429"><td class="memItemLeft" align="right" valign="top"><a id="aa4c7bdb34e1327e32ab52d20bbbf5429" name="aa4c7bdb34e1327e32ab52d20bbbf5429"></a>
 <a class="el" href="classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html">db_leaf_qsbr_deleter</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html">db_leaf_qsbr_deleter</a> &amp;&amp;)=delete</td></tr>
-<tr class="separator:afcee5f0b9c67423ab0dc75fd8f972969"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:aa4c7bdb34e1327e32ab52d20bbbf5429"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:abe5b1848ffbb0655627896296ac17220" id="r_abe5b1848ffbb0655627896296ac17220"><td class="memItemLeft" align="right" valign="top"><a id="abe5b1848ffbb0655627896296ac17220" name="abe5b1848ffbb0655627896296ac17220"></a>
-db_type &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>db_instance</b></td></tr>
-<tr class="separator:abe5b1848ffbb0655627896296ac17220"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a964b206909fd9d623741c2a8cd480bf0" id="r_a964b206909fd9d623741c2a8cd480bf0"><td class="memItemLeft" align="right" valign="top"><a id="a964b206909fd9d623741c2a8cd480bf0" name="a964b206909fd9d623741c2a8cd480bf0"></a>
+Db &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>db_instance</b></td></tr>
+<tr class="separator:a964b206909fd9d623741c2a8cd480bf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="olc__art_8hpp_source.html">olc_art.hpp</a></li>

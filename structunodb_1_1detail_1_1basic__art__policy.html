@@ -183,9 +183,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>db_inode256_unique_p
 template&lt;class INode &gt; </td></tr>
 <tr class="memitem:a78bc32793fd3330937f2e5982786b748"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>db_inode_reclaimable_ptr</b> = std::unique_ptr&lt; INode, INodeReclamator&lt; Key, INode &gt; &gt;</td></tr>
 <tr class="separator:a78bc32793fd3330937f2e5982786b748"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46a62abc4f5c892677b0187f927e9f1e" id="r_a46a62abc4f5c892677b0187f927e9f1e"><td class="memItemLeft" align="right" valign="top"><a id="a46a62abc4f5c892677b0187f927e9f1e" name="a46a62abc4f5c892677b0187f927e9f1e"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>db_leaf_unique_ptr</b> = basic_db_leaf_unique_ptr&lt; Key, header_type, Db &gt;</td></tr>
-<tr class="separator:a46a62abc4f5c892677b0187f927e9f1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a015574d957dd6a98a97a7294ece5268c" id="r_a015574d957dd6a98a97a7294ece5268c"><td class="memItemLeft" align="right" valign="top"><a id="a015574d957dd6a98a97a7294ece5268c" name="a015574d957dd6a98a97a7294ece5268c"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>db_leaf_unique_ptr</b> = basic_db_leaf_unique_ptr&lt; key_type, header_type, Db &gt;</td></tr>
+<tr class="separator:a015574d957dd6a98a97a7294ece5268c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -217,13 +217,13 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>dump_node</b> 
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
 Private Types</h2></td></tr>
-<tr class="memitem:a6538295b792f598b3122df4ec60c2c51" id="r_a6538295b792f598b3122df4ec60c2c51"><td class="memTemplParams" colspan="2"><a id="a6538295b792f598b3122df4ec60c2c51" name="a6538295b792f598b3122df4ec60c2c51"></a>
+<tr class="memitem:a821f8edb00fc3428a934cf83939cd75e" id="r_a821f8edb00fc3428a934cf83939cd75e"><td class="memTemplParams" colspan="2"><a id="a821f8edb00fc3428a934cf83939cd75e" name="a821f8edb00fc3428a934cf83939cd75e"></a>
 template&lt;class INode &gt; </td></tr>
-<tr class="memitem:a6538295b792f598b3122df4ec60c2c51"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>db_inode_deleter</b> = <a class="el" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">basic_db_inode_deleter</a>&lt; Key, INode, Db &gt;</td></tr>
-<tr class="separator:a6538295b792f598b3122df4ec60c2c51"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acbf6adc58816fff40e10c77a7b6722ee" id="r_acbf6adc58816fff40e10c77a7b6722ee"><td class="memItemLeft" align="right" valign="top"><a id="acbf6adc58816fff40e10c77a7b6722ee" name="acbf6adc58816fff40e10c77a7b6722ee"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_reclaimable_ptr</b> = std::unique_ptr&lt; <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a>, LeafReclamator&lt; Key, header_type, Db &gt; &gt;</td></tr>
-<tr class="separator:acbf6adc58816fff40e10c77a7b6722ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a821f8edb00fc3428a934cf83939cd75e"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>db_inode_deleter</b> = <a class="el" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">basic_db_inode_deleter</a>&lt; INode, db_type &gt;</td></tr>
+<tr class="separator:a821f8edb00fc3428a934cf83939cd75e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6a05e367e4b0a3b065fc8cc43c8195d" id="r_aa6a05e367e4b0a3b065fc8cc43c8195d"><td class="memItemLeft" align="right" valign="top"><a id="aa6a05e367e4b0a3b065fc8cc43c8195d" name="aa6a05e367e4b0a3b065fc8cc43c8195d"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_reclaimable_ptr</b> = std::unique_ptr&lt; <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a>, LeafReclamator&lt; db_type &gt; &gt;</td></tr>
+<tr class="separator:aa6a05e367e4b0a3b065fc8cc43c8195d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>

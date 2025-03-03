@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search/",'.html');
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('structunodb_1_1benchmark_1_1tree__stats.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -96,16 +96,20 @@ $(document).ready(function(){initNavTree('classunodb_1_1benchmark_1_1detail_1_1t
 </div>
 
 <div class="header">
-  <div class="headertitle"><div class="title">unodb::benchmark::detail::tree_shape_snapshot&lt; Db &gt; Member List</div></div>
+  <div class="headertitle"><div class="title">unodb::benchmark::tree_stats&lt; Db &gt; Member List</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>This is the complete list of members for <a class="el" href="classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html">unodb::benchmark::detail::tree_shape_snapshot&lt; Db &gt;</a>, including all inherited members.</p>
+<p>This is the complete list of members for <a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a>, including all inherited members.</p>
 <table class="directory">
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>assert_internal_levels_same</b>() const noexcept (defined in <a class="el" href="classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html">unodb::benchmark::detail::tree_shape_snapshot&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html">unodb::benchmark::detail::tree_shape_snapshot&lt; Db &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>db</b> (defined in <a class="el" href="classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html">unodb::benchmark::detail::tree_shape_snapshot&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html">unodb::benchmark::detail::tree_shape_snapshot&lt; Db &gt;</a></td><td class="entry"><span class="mlabel">private</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>stats</b> (defined in <a class="el" href="classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html">unodb::benchmark::detail::tree_shape_snapshot&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html">unodb::benchmark::detail::tree_shape_snapshot&lt; Db &gt;</a></td><td class="entry"><span class="mlabel">private</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>tree_shape_snapshot</b>(const Db &amp;test_db UNODB_DETAIL_USED_IN_DEBUG) noexcept (defined in <a class="el" href="classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html">unodb::benchmark::detail::tree_shape_snapshot&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html">unodb::benchmark::detail::tree_shape_snapshot&lt; Db &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">explicit</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>get</b>(const Db &amp;test_db) noexcept (defined in <a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>growing_inode_counts</b> (defined in <a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>internal_levels_equal</b>(const tree_stats&lt; Db &gt; &amp;other) const noexcept (defined in <a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>key_prefix_splits</b> (defined in <a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>node_counts</b> (defined in <a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>operator==</b>(const tree_stats&lt; Db &gt; &amp;other) const noexcept (defined in <a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>tree_stats</b>() noexcept=default (defined in <a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>tree_stats</b>(const Db &amp;test_db) noexcept (defined in <a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a>)</td><td class="entry"><a class="el" href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats&lt; Db &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">explicit</span></td></tr>
 </table></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

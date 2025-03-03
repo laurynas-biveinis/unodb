@@ -4,10 +4,10 @@ var hierarchy =
     [ "unodb::optimistic_lock::atomic_version_type", "classunodb_1_1optimistic__lock_1_1atomic__version__type.html", null ],
     [ "unodb::detail::basic_art_key< KeyType >", "structunodb_1_1detail_1_1basic__art__key.html", null ],
     [ "unodb::detail::basic_art_policy< Key, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator >", "structunodb_1_1detail_1_1basic__art__policy.html", null ],
-    [ "unodb::detail::basic_db_inode_deleter< Key, INode, Db >", "classunodb_1_1detail_1_1basic__db__inode__deleter.html", [
+    [ "unodb::detail::basic_db_inode_deleter< INode, Db >", "classunodb_1_1detail_1_1basic__db__inode__deleter.html", [
       [ "unodb::detail::db_inode_qsbr_deleter< Key, INode >", "classunodb_1_1detail_1_1db__inode__qsbr__deleter.html", null ]
     ] ],
-    [ "unodb::detail::basic_db_leaf_deleter< Key, Header, Db >", "classunodb_1_1detail_1_1basic__db__leaf__deleter.html", null ],
+    [ "unodb::detail::basic_db_leaf_deleter< Db >", "classunodb_1_1detail_1_1basic__db__leaf__deleter.html", null ],
     [ "unodb::detail::basic_inode_def< INode, Node4, Node16, Node48, Node256 >", "structunodb_1_1detail_1_1basic__inode__def.html", null ],
     [ "unodb::detail::basic_node_ptr< Header >", "classunodb_1_1detail_1_1basic__node__ptr.html", null ],
     [ "unodb::detail::basic_node_ptr< NodeHeader >", "classunodb_1_1detail_1_1basic__node__ptr.html", null ],
@@ -16,7 +16,7 @@ var hierarchy =
     [ "unodb::test::tree_verifier< Db >::comparator", "structunodb_1_1test_1_1tree__verifier_1_1comparator.html", null ],
     [ "unodb::benchmark::concurrent_benchmark< Db, Thread >", "classunodb_1_1benchmark_1_1concurrent__benchmark.html", null ],
     [ "unodb::db< Key >", "classunodb_1_1db.html", null ],
-    [ "unodb::detail::db_leaf_qsbr_deleter< Key, Header, Db >", "classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html", null ],
+    [ "unodb::detail::db_leaf_qsbr_deleter< Db >", "classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html", null ],
     [ "unodb::detail::dealloc_vector_list_node", "structunodb_1_1detail_1_1dealloc__vector__list__node.html", null ],
     [ "unodb::detail::deallocation_request", "structunodb_1_1detail_1_1deallocation__request.html", null ],
     [ "unodb::detail::deferred_requests", "classunodb_1_1detail_1_1deferred__requests.html", null ],
@@ -27,6 +27,7 @@ var hierarchy =
     [ "std::false_type", null, [
       [ "unodb::detail::dependent_false< T >", "structunodb_1_1detail_1_1dependent__false.html", null ]
     ] ],
+    [ "unodb::benchmark::growing_tree_node_stats< Db >", "classunodb_1_1benchmark_1_1growing__tree__node__stats.html", null ],
     [ "Header", null, [
       [ "unodb::detail::basic_leaf< Key, Header >", "classunodb_1_1detail_1_1basic__leaf.html", null ]
     ] ],
@@ -100,6 +101,7 @@ var hierarchy =
     [ "unodb::detail::thread_sync", "classunodb_1_1detail_1_1thread__sync.html", null ],
     [ "unodb::detail::tree_depth< ArtKey >", "classunodb_1_1detail_1_1tree__depth.html", null ],
     [ "unodb::benchmark::detail::tree_shape_snapshot< Db >", "classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html", null ],
+    [ "unodb::benchmark::tree_stats< Db >", "structunodb_1_1benchmark_1_1tree__stats.html", null ],
     [ "unodb::test::tree_verifier< Db >", "classunodb_1_1test_1_1tree__verifier.html", null ],
     [ "unodb::optimistic_lock::version_type", "classunodb_1_1optimistic__lock_1_1version__type.html", null ],
     [ "std::ranges::view_base", null, [

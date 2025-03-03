@@ -61,7 +61,7 @@ var namespaceunodb_1_1detail =
     [ "get_u64", "namespaceunodb_1_1detail.html#a7d9586a5c7fc84c4bbc05b716fd1ce03", null ],
     [ "is_internal_static_assert", "namespaceunodb_1_1detail.html#aa3da3568c516e9447ccaa528462a136e", null ],
     [ "lexicographic_successor", "namespaceunodb_1_1detail.html#a0944ca4972aeaf1a2ec41f0c9d74fd37", null ],
-    [ "make_db_leaf_ptr", "namespaceunodb_1_1detail.html#a912adf1e0ac7b474163cec2dd85bba51", null ],
+    [ "make_db_leaf_ptr", "namespaceunodb_1_1detail.html#a15aba047e9d400d50bcda7696cc38a44", null ],
     [ "msb", "namespaceunodb_1_1detail.html#a0d491f30fd1fb7d9f1b689bd13787a25", null ],
     [ "msg_stacktrace_abort", "namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2", null ],
     [ "next_power_of_two", "namespaceunodb_1_1detail.html#accbae124e22c790ab242b390af59f80b", null ],

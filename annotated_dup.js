@@ -6,7 +6,9 @@ var annotated_dup =
           [ "tree_shape_snapshot", "classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html", null ]
         ] ],
         [ "batched_prng", "classunodb_1_1benchmark_1_1batched__prng.html", null ],
-        [ "concurrent_benchmark", "classunodb_1_1benchmark_1_1concurrent__benchmark.html", null ]
+        [ "concurrent_benchmark", "classunodb_1_1benchmark_1_1concurrent__benchmark.html", null ],
+        [ "growing_tree_node_stats", "classunodb_1_1benchmark_1_1growing__tree__node__stats.html", null ],
+        [ "tree_stats", "structunodb_1_1benchmark_1_1tree__stats.html", null ]
       ] ],
       [ "detail", "namespaceunodb_1_1detail.html", [
         [ "basic_art_key", "structunodb_1_1detail_1_1basic__art__key.html", "structunodb_1_1detail_1_1basic__art__key" ],

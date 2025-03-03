@@ -54,7 +54,7 @@ using inode_defs = basic_inode_def<inode<Key>, inode_4<Key>, inode_16<Key>,
                                    inode_48<Key>, inode_256<Key>>;
 
 template <typename Key, class INode>
-using db_inode_deleter = basic_db_inode_deleter<Key, INode, unodb::db>;
+using db_inode_deleter = basic_db_inode_deleter<INode, unodb::db<Key>>;
 
 template <typename Key>
 using art_policy =
@@ -565,6 +565,7 @@ class db final {
 
  private:
   using art_policy = detail::art_policy<Key>;
+  using header_type = typename art_policy::header_type;
   using inode_type = detail::inode<Key>;
   using inode_4 = detail::inode_4<Key>;
   using tree_depth_type = detail::tree_depth<art_key_type>;
@@ -629,10 +630,9 @@ class db final {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-  friend auto detail::make_db_leaf_ptr<Key, detail::node_header, db>(
-      art_key_type, value_view, db&);
+  friend auto detail::make_db_leaf_ptr<Key, db>(art_key_type, value_view, db&);
 
-  template <class, class, template <class> class>
+  template <class>
   friend class detail::basic_db_leaf_deleter;
 
   template <typename,                // Key
@@ -643,12 +643,10 @@ class db final {
             class,  // NodePtr
             template <typename> class,         // INodeDefs
             template <typename, class> class,  // INodeReclamator
-            template <typename, class,
-                      template <class> class>
-            class>  // LeafReclamator
+            template <class> class>            // LeafReclamator
   friend struct detail::basic_art_policy;
 
-  template <class, class, template <class> class>
+  template <class, class>
   friend class detail::basic_db_inode_deleter;
 
   friend struct detail::impl_helpers;

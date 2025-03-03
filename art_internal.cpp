@@ -4,6 +4,7 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
+// IWYU pragma: no_include <span>
 
 #include "art_internal.hpp"  // IWYU pragma: keep
 

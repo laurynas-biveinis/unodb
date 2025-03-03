@@ -6,6 +6,7 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
+// IWYU pragma: no_include <_string.h>
 // IWYU pragma: no_include <iomanip>
 // IWYU pragma: no_include <string>
 
@@ -13,15 +14,16 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <initializer_list>
 #include <iostream>
-#include <list>
+#include <map>
 #include <memory>
 #include <sstream>
 #include <thread>
 #include <tuple>
 #include <type_traits>
-#include <unordered_map>
+#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

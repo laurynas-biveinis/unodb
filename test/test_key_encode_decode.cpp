@@ -3,6 +3,9 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <__math/traits.h>
+// IWYU pragma: no_include <__ostream/basic_ostream.h>
+// IWYU pragma: no_include <_string.h>
 // IWYU pragma: no_include <string>
 
 #include <algorithm>
@@ -17,7 +20,9 @@
 #include <span>
 #include <sstream>
 #include <string_view>
+#include <type_traits>
 #include <vector>
+
 #ifndef NDEBUG
 #include <iostream>
 #endif

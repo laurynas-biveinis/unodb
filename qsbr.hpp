@@ -544,10 +544,23 @@ struct [[nodiscard]] deallocation_request final {
 #endif
 };
 
+/// Vector of deallocation requests.
 using dealloc_request_vector = std::vector<deallocation_request>;
 
+/// A scope guard that executes deallocation requests upon destruction.
 class [[nodiscard]] deferred_requests final {
  public:
+  /// Create a deferred requests object that takes ownership of \a requests_.
+  /// In debug builds, also stores metadata about the requests.
+  ///
+#ifndef NDEBUG
+  /// \param orphaned_requests_ Whether these requests belongs to a terminated
+  ///                           thread
+  /// \param request_epoch_ The epoch when the requests were created, if known
+  /// \param dealloc_epoch_single_thread_mode_ Optional flag whether the
+  ///                                          deallocation epoch has total zero
+  ///                                          or one thread only
+#endif
   UNODB_DETAIL_RELEASE_EXPLICIT deferred_requests(
       dealloc_request_vector &&requests_
 #ifndef NDEBUG
@@ -566,11 +579,19 @@ class [[nodiscard]] deferred_requests final {
   {
   }
 
+  /// Copy construction is disabled to prevent redundant instances.
   deferred_requests(const deferred_requests &) noexcept = delete;
+
+  /// Move construction is disabled, instances are created in-place only.
   deferred_requests(deferred_requests &&) noexcept = delete;
+
+  /// Copy assignment is disabled.
   deferred_requests &operator=(const deferred_requests &) noexcept = delete;
+
+  /// Move assignment is disabled.
   deferred_requests &operator=(deferred_requests &&) noexcept = delete;
 
+  /// Destruct this object and execute all deallocation requests.
   ~deferred_requests() noexcept {
     for (const auto &dealloc_request : requests) {
       dealloc_request.deallocate(
@@ -581,21 +602,33 @@ class [[nodiscard]] deferred_requests final {
     }
   }
 
+  /// Default construction is disabled.
   deferred_requests() = delete;
 
  private:
+  /// The vector of deallocation requests to be executed.
   const dealloc_request_vector requests;
 
 #ifndef NDEBUG
+  /// Whether these requests belong to a terminated thread.
   const bool orphaned_requests;
+
+  /// The epoch when the requests should be deallocated, if known.
   const std::optional<qsbr_epoch> dealloc_epoch;
+
+  /// Whether the deallocation epoch has only 0 or 1 threads, if known.
   const std::optional<bool> dealloc_epoch_single_thread_mode;
 #endif
 };
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
+/// Node in a linked list for orphaned (issued by threads that have quit since)
+/// deallocation requests.
+// TODO(laurynas): rename? orphaned_dealloc_request_list_node?
 struct dealloc_vector_list_node {
+  /// Orphaned deallocation requests.
   detail::dealloc_request_vector requests;
+  /// Next linked list node.
   dealloc_vector_list_node *next;
 };
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -604,22 +637,36 @@ struct set_qsbr_per_thread_in_main_thread;
 
 #ifndef UNODB_DETAIL_MSVC_CLANG
 
+/// Register a function \a fn of type \a Func to be called on thread exit.
 template <typename Func>
 void on_thread_exit(Func fn) noexcept {
+  /// Helper class that executes a function on destruction.
   struct thread_exiter {
+    /// Construct with the function to execute on destruction.
     explicit thread_exiter(Func func_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
         : func{func_} {}
+
+    /// Destruct and execute the function on destruction.
     ~thread_exiter() noexcept { func(); }
 
+    /// Copy construction is disabled.
     thread_exiter(const thread_exiter &) = delete;
+
+    /// Move construction is disabled.
     thread_exiter(thread_exiter &&) = delete;
+
+    /// Copy assignment is disabled.
     thread_exiter &operator=(const thread_exiter &) = delete;
+
+    /// Move assignment is disabled.
     thread_exiter &operator=(thread_exiter &&) = delete;
 
    private:
+    /// The function to execute on destruction.
     Func func;
   };
 
+  /// Thread-local instance of the exiter that will run fn on thread exit.
   const thread_local static thread_exiter exiter{fn};
 }
 

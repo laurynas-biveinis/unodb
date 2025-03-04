@@ -4,7 +4,7 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include "mutex_art.hpp"
+// IWYU pragma: no_include <type_traits>
 // IWYU pragma: no_forward_declare unodb::visitor
 
 #include <algorithm>
@@ -13,13 +13,11 @@
 #include <cstdint>
 #include <random>
 #include <tuple>
-#include <type_traits>
 
 #include <gtest/gtest.h>
 
 #include "art_common.hpp"
 #include "assert.hpp"
-#include "olc_art.hpp"
 #include "qsbr.hpp"
 
 #include "db_test_utils.hpp"
@@ -35,7 +33,7 @@ class ARTConcurrencyTest : public ::testing::Test {
  public:
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   ~ARTConcurrencyTest() noexcept override {
-    if constexpr (std::is_same_v<Db, unodb::olc_db<typename Db::key_type>>) {
+    if constexpr (unodb::test::is_olc_db<Db>) {
       unodb::this_thread().quiescent();
       unodb::test::expect_idle_qsbr();
     }
@@ -45,16 +43,14 @@ class ARTConcurrencyTest : public ::testing::Test {
  protected:
   // NOLINTNEXTLINE(bugprone-exception-escape)
   ARTConcurrencyTest() noexcept {
-    if constexpr (std::is_same_v<Db, unodb::olc_db<typename Db::key_type>>)
-      unodb::test::expect_idle_qsbr();
+    if constexpr (unodb::test::is_olc_db<Db>) unodb::test::expect_idle_qsbr();
   }
 
   // TestFn is void(unodb::test::tree_verifier<Db> *verifier, std::size_t
   // thread_i, std::size_t ops_per_thread)
   template <std::size_t ThreadCount, std::size_t OpsPerThread, typename TestFn>
   void parallel_test(TestFn test_function) {
-    if constexpr (std::is_same_v<Db, unodb::olc_db<typename Db::key_type>>)
-      unodb::this_thread().qsbr_pause();
+    if constexpr (unodb::test::is_olc_db<Db>) unodb::this_thread().qsbr_pause();
 
     std::array<unodb::test::thread<Db>, ThreadCount> threads;
     for (decltype(ThreadCount) i = 0; i < ThreadCount; ++i) {
@@ -65,7 +61,7 @@ class ARTConcurrencyTest : public ::testing::Test {
       t.join();
     }
 
-    if constexpr (std::is_same_v<Db, unodb::olc_db<typename Db::key_type>>)
+    if constexpr (unodb::test::is_olc_db<Db>)
       unodb::this_thread().qsbr_resume();
   }
 
@@ -144,7 +140,7 @@ class ARTConcurrencyTest : public ::testing::Test {
     } else {
       verifier->scan_range(k1, k0, fn);
     }
-    if constexpr (std::is_same_v<Db, unodb::olc_db<typename Db::key_type>>) {
+    if constexpr (unodb::test::is_olc_db<Db>) {
       unodb::this_thread().quiescent();
     }
   }

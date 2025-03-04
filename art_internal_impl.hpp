@@ -215,10 +215,11 @@ class [[nodiscard]] basic_leaf final : public Header {
 
 /// Return a unique pointer for a new leaf initialized with the caller's key and
 /// value.
-template <class Key, template <class> class Db>
+template <typename Key, template <typename> class Db>
 [[nodiscard]] auto make_db_leaf_ptr(basic_art_key<Key> k, value_view v,
                                     Db<Key> &db UNODB_DETAIL_LIFETIMEBOUND) {
-  using header_type = typename Db<Key>::header_type;
+  using db_type = Db<Key>;
+  using header_type = typename db_type::header_type;
   using leaf_type = basic_leaf<Key, header_type>;
 
   // TODO(thompsonbry) We should have a discussion about limits.  To
@@ -246,7 +247,7 @@ template <class Key, template <class> class Db>
 #endif  // UNODB_DETAIL_WITH_STATS
 
   return basic_db_leaf_unique_ptr<Key, header_type, Db>{
-      new (leaf_mem) leaf_type{k, v}, basic_db_leaf_deleter<Db<Key>>{db}};
+      new (leaf_mem) leaf_type{k, v}, basic_db_leaf_deleter<db_type>{db}};
 }
 
 // basic_inode_def is a metaprogramming construct to list all concrete
@@ -298,7 +299,7 @@ inline void basic_db_inode_deleter<INode, Db>::operator()(
 // The basic_art_policy encapsulates differences between plain and OLC
 // ART, such as extra header field, and node access critical section
 // type.
-template <typename Key, template <class> class Db,
+template <typename Key, template <typename> class Db,
           template <class> class CriticalSectionPolicy, class LockPolicy,
           class ReadCriticalSection, class NodePtr,
           template <typename> class INodeDefs,

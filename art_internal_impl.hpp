@@ -36,10 +36,10 @@
 
 namespace unodb {
 
-template <typename Key>
+template <typename Key, typename Value>
 class db;
 
-template <typename Key>
+template <typename Key, typename Value>
 class olc_db;
 
 }  // namespace unodb
@@ -215,10 +215,11 @@ class [[nodiscard]] basic_leaf final : public Header {
 
 /// Return a unique pointer for a new leaf initialized with the caller's key and
 /// value.
-template <typename Key, template <typename> class Db>
-[[nodiscard]] auto make_db_leaf_ptr(basic_art_key<Key> k, value_view v,
-                                    Db<Key> &db UNODB_DETAIL_LIFETIMEBOUND) {
-  using db_type = Db<Key>;
+template <typename Key, typename Value, template <typename, typename> class Db>
+[[nodiscard]] auto make_db_leaf_ptr(
+    basic_art_key<Key> k, value_view v,
+    Db<Key, Value> &db UNODB_DETAIL_LIFETIMEBOUND) {
+  using db_type = Db<Key, Value>;
   using header_type = typename db_type::header_type;
   using leaf_type = basic_leaf<Key, header_type>;
 
@@ -246,7 +247,7 @@ template <typename Key, template <typename> class Db>
   db.increment_leaf_count(size);
 #endif  // UNODB_DETAIL_WITH_STATS
 
-  return basic_db_leaf_unique_ptr<Key, header_type, Db>{
+  return basic_db_leaf_unique_ptr<Key, Value, header_type, Db>{
       new (leaf_mem) leaf_type{k, v}, basic_db_leaf_deleter<db_type>{db}};
 }
 
@@ -299,20 +300,21 @@ inline void basic_db_inode_deleter<INode, Db>::operator()(
 // The basic_art_policy encapsulates differences between plain and OLC
 // ART, such as extra header field, and node access critical section
 // type.
-template <typename Key, template <typename> class Db,
+template <typename Key, typename Value, template <typename, typename> class Db,
           template <class> class CriticalSectionPolicy, class LockPolicy,
           class ReadCriticalSection, class NodePtr,
-          template <typename> class INodeDefs,
-          template <typename, class> class INodeReclamator,
+          template <typename, typename> class INodeDefs,
+          template <typename, typename, class> class INodeReclamator,
           template <class> class LeafReclamator>
 struct basic_art_policy final {
   using key_type = Key;
+  using value_type = Value;
   using art_key_type = basic_art_key<Key>;
   using node_ptr = NodePtr;
   using header_type = typename NodePtr::header_type;
   using lock_policy = LockPolicy;
   using read_critical_section = ReadCriticalSection;
-  using inode_defs = INodeDefs<Key>;
+  using inode_defs = INodeDefs<Key, Value>;
   using inode = typename inode_defs::inode;
   using inode4_type = typename inode_defs::n4;
   using inode16_type = typename inode_defs::n16;
@@ -321,7 +323,7 @@ struct basic_art_policy final {
   using tree_depth_type = tree_depth<art_key_type>;
   using leaf_type = basic_leaf<Key, header_type>;
 
-  using db_type = Db<Key>;
+  using db_type = Db<Key, Value>;
 
  private:
   template <class INode>
@@ -344,15 +346,15 @@ struct basic_art_policy final {
 
   template <class INode>
   using db_inode_reclaimable_ptr =
-      std::unique_ptr<INode, INodeReclamator<Key, INode>>;
+      std::unique_ptr<INode, INodeReclamator<Key, Value, INode>>;
 
   using db_leaf_unique_ptr =
-      basic_db_leaf_unique_ptr<key_type, header_type, Db>;
+      basic_db_leaf_unique_ptr<key_type, value_type, header_type, Db>;
 
   [[nodiscard]] static auto make_db_leaf_ptr(
       art_key_type k, value_view v,
       db_type &db_instance UNODB_DETAIL_LIFETIMEBOUND) {
-    return ::unodb::detail::make_db_leaf_ptr<Key, Db>(k, v, db_instance);
+    return ::unodb::detail::make_db_leaf_ptr<Key, Value, Db>(k, v, db_instance);
   }
 
   [[nodiscard]] static auto reclaim_leaf_on_scope_exit(
@@ -398,14 +400,14 @@ struct basic_art_policy final {
       INode *inode_ptr UNODB_DETAIL_LIFETIMEBOUND,
       db_type &db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
     return db_inode_reclaimable_ptr<INode>{
-        inode_ptr, INodeReclamator<Key, INode>{db_instance}};
+        inode_ptr, INodeReclamator<Key, Value, INode>{db_instance}};
   }
 
  private:
   [[nodiscard]] static auto make_db_leaf_ptr(
       leaf_type *leaf UNODB_DETAIL_LIFETIMEBOUND,
       db_type &db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
-    return basic_db_leaf_unique_ptr<key_type, header_type, Db>{
+    return basic_db_leaf_unique_ptr<key_type, value_type, header_type, Db>{
         leaf, basic_db_leaf_deleter<db_type>{db_instance}};
   }
 
@@ -785,6 +787,7 @@ template <class ArtPolicy>
 class basic_inode_impl : public ArtPolicy::header_type {
  public:
   using key_type = typename ArtPolicy::key_type;
+  using value_type = typename ArtPolicy::value_type;
   using art_key_type = typename ArtPolicy::art_key_type;
   using node_ptr = typename ArtPolicy::node_ptr;
 
@@ -1136,8 +1139,8 @@ class basic_inode_impl : public ArtPolicy::header_type {
 
   using leaf_type = basic_leaf<key_type, header_type>;
 
-  friend class unodb::db<key_type>;
-  friend class unodb::olc_db<key_type>;
+  friend class unodb::db<key_type, value_type>;
+  friend class unodb::olc_db<key_type, value_type>;
   friend struct olc_inode_immediate_deleter;
 
   template <class, unsigned, unsigned, node_type, class, class, class>

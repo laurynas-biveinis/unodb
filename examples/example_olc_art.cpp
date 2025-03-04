@@ -34,7 +34,8 @@
 namespace {
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables,fuchsia-statically-constructed-objects)
-unodb::olc_db<std::uint64_t> tree;
+using Db = unodb::olc_db<std::uint64_t, unodb::value_view>;
+Db tree;
 
 constexpr std::string_view value = "A value";
 

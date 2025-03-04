@@ -21,18 +21,24 @@ namespace unodb {
 /// global lock and hold it for the duration of the operation.
 ///
 /// \sa unodb::olc_art for a highly concurrent thread-safe ART implementation.
-template <typename Key>
+template <typename Key, typename Value>
 class mutex_db final {
  public:
+  /// The type of the keys in the index.
   using key_type = Key;
+  /// The type of the value associated with the keys in the index.
+  using value_type = Value;
   using value_view = unodb::value_view;
 
   /// If the search key was found, that is, the first pair member has a value,
   /// then the second member is a locked tree mutex which must be released ASAP
   /// after reading the first pair member. Otherwise, the second member is
   /// undefined.
-  using get_result =
-      std::pair<typename db<Key>::get_result, std::unique_lock<std::mutex>>;
+  using get_result = std::pair<typename db<Key, value_view>::get_result,
+                               std::unique_lock<std::mutex>>;
+
+  // TODO(laurynas): added temporarily during development
+  static_assert(std::is_same_v<value_type, unodb::value_view>);
 
  private:
   using art_key_type = detail::basic_art_key<Key>;
@@ -52,7 +58,7 @@ class mutex_db final {
   ///
   /// Cannot be called during stack unwinding with `std::uncaught_exceptions() >
   /// 0`.
-  [[nodiscard]] auto insert_internal(art_key_type k, value_view v) {
+  [[nodiscard]] auto insert_internal(art_key_type k, value_type v) {
     const std::lock_guard guard{mutex};
     return db_.insert_internal(k, v);
   }
@@ -93,13 +99,14 @@ class mutex_db final {
   /// assumed to already be a binary comparable key, e.g., as produced by
   /// unodb::key_encoder.
   ///
-  /// \param v The value to be inserted under that key.
+  /// \param v The value of type `value_type` to be inserted under
+  /// that key.
   ///
   /// \return true iff the key value pair was inserted.
   ///
   /// \sa key_encoder, which provides for encoding text and multi-field records
   /// when Key is unodb::key_view.
-  [[nodiscard]] bool insert(Key insert_key, value_view v) {
+  [[nodiscard]] bool insert(Key insert_key, value_type v) {
     const art_key_type k{insert_key};
     return insert_internal(k, v);
   }
@@ -125,7 +132,7 @@ class mutex_db final {
   // scan API.
   //
 
-  using iterator = typename unodb::db<Key>::iterator;
+  using iterator = typename unodb::db<Key, Value>::iterator;
 
   /// Scan the tree, applying the caller's lambda to each visited leaf.  The
   /// tree remains locked for the duration of the scan.
@@ -257,7 +264,7 @@ class mutex_db final {
   }
 
  private:
-  db<Key> db_;
+  db<Key, Value> db_;
   mutable std::mutex mutex;
 };
 

@@ -150,34 +150,34 @@ template&lt;typename T &gt; </td></tr>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a85fe75284871b38d1170b79eeb527080"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>insert_preinserted_key_range</b> (T start_key1, std::size_t count)</td></tr>
 <tr class="separator:a85fe75284871b38d1170b79eeb527080"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abfe9d92c76b8a3ca1df2debfdcc7c13c" id="r_abfe9d92c76b8a3ca1df2debfdcc7c13c"><td class="memTemplParams" colspan="2"><a id="abfe9d92c76b8a3ca1df2debfdcc7c13c" name="abfe9d92c76b8a3ca1df2debfdcc7c13c"></a>
+<tr class="memitem:ac4028b8961970f00267f224868b73d1b" id="r_ac4028b8961970f00267f224868b73d1b"><td class="memTemplParams" colspan="2"><a id="ac4028b8961970f00267f224868b73d1b" name="ac4028b8961970f00267f224868b73d1b"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
-<tr class="memitem:abfe9d92c76b8a3ca1df2debfdcc7c13c"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!std::is_same_v&lt; Db2, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; key_type &gt; &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>remove</b> (T k, bool bypass_verifier=false)</td></tr>
-<tr class="separator:abfe9d92c76b8a3ca1df2debfdcc7c13c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31d4715de94601f134212a000bd1c988" id="r_a31d4715de94601f134212a000bd1c988"><td class="memTemplParams" colspan="2"><a id="a31d4715de94601f134212a000bd1c988" name="a31d4715de94601f134212a000bd1c988"></a>
+<tr class="memitem:ac4028b8961970f00267f224868b73d1b"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>remove</b> (T k, bool bypass_verifier=false)</td></tr>
+<tr class="separator:ac4028b8961970f00267f224868b73d1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af88c7b683a5cf83ed652c7be0f418afa" id="r_af88c7b683a5cf83ed652c7be0f418afa"><td class="memTemplParams" colspan="2"><a id="af88c7b683a5cf83ed652c7be0f418afa" name="af88c7b683a5cf83ed652c7be0f418afa"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
-<tr class="memitem:a31d4715de94601f134212a000bd1c988"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; std::is_same_v&lt; Db2, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; key_type &gt; &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>remove</b> (T k, bool bypass_verifier=false)</td></tr>
-<tr class="separator:a31d4715de94601f134212a000bd1c988"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ade03e904552abc621c7e27547ae77ebf" id="r_ade03e904552abc621c7e27547ae77ebf"><td class="memTemplParams" colspan="2"><a id="ade03e904552abc621c7e27547ae77ebf" name="ade03e904552abc621c7e27547ae77ebf"></a>
+<tr class="memitem:af88c7b683a5cf83ed652c7be0f418afa"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>remove</b> (T k, bool bypass_verifier=false)</td></tr>
+<tr class="separator:af88c7b683a5cf83ed652c7be0f418afa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a396dd29b2a67466a45ea01995b6227c7" id="r_a396dd29b2a67466a45ea01995b6227c7"><td class="memTemplParams" colspan="2"><a id="a396dd29b2a67466a45ea01995b6227c7" name="a396dd29b2a67466a45ea01995b6227c7"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
-<tr class="memitem:ade03e904552abc621c7e27547ae77ebf"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!std::is_same_v&lt; Db2, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; key_type &gt; &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_remove</b> (T k)</td></tr>
-<tr class="separator:ade03e904552abc621c7e27547ae77ebf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ff7fdee2eb71e97eebb95b75408850e" id="r_a3ff7fdee2eb71e97eebb95b75408850e"><td class="memTemplParams" colspan="2"><a id="a3ff7fdee2eb71e97eebb95b75408850e" name="a3ff7fdee2eb71e97eebb95b75408850e"></a>
+<tr class="memitem:a396dd29b2a67466a45ea01995b6227c7"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_remove</b> (T k)</td></tr>
+<tr class="separator:a396dd29b2a67466a45ea01995b6227c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3c6db7f3c8312776561a7e08ec1761a" id="r_ae3c6db7f3c8312776561a7e08ec1761a"><td class="memTemplParams" colspan="2"><a id="ae3c6db7f3c8312776561a7e08ec1761a" name="ae3c6db7f3c8312776561a7e08ec1761a"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
-<tr class="memitem:a3ff7fdee2eb71e97eebb95b75408850e"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; std::is_same_v&lt; Db2, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; key_type &gt; &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_remove</b> (T k)</td></tr>
-<tr class="separator:a3ff7fdee2eb71e97eebb95b75408850e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3c6db7f3c8312776561a7e08ec1761a"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_remove</b> (T k)</td></tr>
+<tr class="separator:ae3c6db7f3c8312776561a7e08ec1761a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3da20911f67d315c5db288a4be7d895" id="r_ae3da20911f67d315c5db288a4be7d895"><td class="memTemplParams" colspan="2"><a id="ae3da20911f67d315c5db288a4be7d895" name="ae3da20911f67d315c5db288a4be7d895"></a>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:ae3da20911f67d315c5db288a4be7d895"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>attempt_remove_missing_keys</b> (std::initializer_list&lt; T &gt; absent_keys)</td></tr>
 <tr class="separator:ae3da20911f67d315c5db288a4be7d895"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf32b0c88342bf0a6a687a63df492bb6" id="r_abf32b0c88342bf0a6a687a63df492bb6"><td class="memTemplParams" colspan="2"><a id="abf32b0c88342bf0a6a687a63df492bb6" name="abf32b0c88342bf0a6a687a63df492bb6"></a>
+<tr class="memitem:a1e88ada5490d3621731acff7ce3f9819" id="r_a1e88ada5490d3621731acff7ce3f9819"><td class="memTemplParams" colspan="2"><a id="a1e88ada5490d3621731acff7ce3f9819" name="a1e88ada5490d3621731acff7ce3f9819"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
-<tr class="memitem:abf32b0c88342bf0a6a687a63df492bb6"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!std::is_same_v&lt; Db2, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; key_type &gt; &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_get</b> (T k) const noexcept(noexcept(this-&gt;test_db.get(k)))</td></tr>
-<tr class="separator:abf32b0c88342bf0a6a687a63df492bb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae04750204da46da29e3b39664e5e174a" id="r_ae04750204da46da29e3b39664e5e174a"><td class="memTemplParams" colspan="2"><a id="ae04750204da46da29e3b39664e5e174a" name="ae04750204da46da29e3b39664e5e174a"></a>
+<tr class="memitem:a1e88ada5490d3621731acff7ce3f9819"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_get</b> (T k) const noexcept(noexcept(this-&gt;test_db.get(k)))</td></tr>
+<tr class="separator:a1e88ada5490d3621731acff7ce3f9819"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae070b8fae5ec6f5ccd0b7c53b714e8bd" id="r_ae070b8fae5ec6f5ccd0b7c53b714e8bd"><td class="memTemplParams" colspan="2"><a id="ae070b8fae5ec6f5ccd0b7c53b714e8bd" name="ae070b8fae5ec6f5ccd0b7c53b714e8bd"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
-<tr class="memitem:ae04750204da46da29e3b39664e5e174a"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; std::is_same_v&lt; Db2, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; key_type &gt; &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_get</b> (T k) const noexcept(noexcept(this-&gt;test_db.get(k)))</td></tr>
-<tr class="separator:ae04750204da46da29e3b39664e5e174a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae070b8fae5ec6f5ccd0b7c53b714e8bd"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_get</b> (T k) const noexcept(noexcept(this-&gt;test_db.get(k)))</td></tr>
+<tr class="separator:ae070b8fae5ec6f5ccd0b7c53b714e8bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5272379cd23253f105135a5a448d2f2" id="r_aa5272379cd23253f105135a5a448d2f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1test_1_1tree__verifier.html#aa5272379cd23253f105135a5a448d2f2">check_present_values</a> () const</td></tr>
 <tr class="memdesc:aa5272379cd23253f105135a5a448d2f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verify that each key and value in the internal ground truth collection can be found in the test db.  <br /></td></tr>
 <tr class="separator:aa5272379cd23253f105135a5a448d2f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -238,25 +238,25 @@ Private Member Functions</h2></td></tr>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a39d553729e4f13de416b382e301cad29"><td class="memTemplItemLeft" align="right" valign="top">key_type&#160;</td><td class="memTemplItemRight" valign="bottom"><b>coerce_key_internal</b> (T key)</td></tr>
 <tr class="separator:a39d553729e4f13de416b382e301cad29"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aacb066b2cb8670a3bee7b4fd5536a13b" id="r_aacb066b2cb8670a3bee7b4fd5536a13b"><td class="memTemplParams" colspan="2"><a id="aacb066b2cb8670a3bee7b4fd5536a13b" name="aacb066b2cb8670a3bee7b4fd5536a13b"></a>
+<tr class="memitem:a840f1469c0c9069b37333f430f91a7c6" id="r_a840f1469c0c9069b37333f430f91a7c6"><td class="memTemplParams" colspan="2"><a id="a840f1469c0c9069b37333f430f91a7c6" name="a840f1469c0c9069b37333f430f91a7c6"></a>
 template&lt;class Db2  = Db&gt; </td></tr>
-<tr class="memitem:aacb066b2cb8670a3bee7b4fd5536a13b"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!std::is_same_v&lt; Db2, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; key_type &gt; &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>do_insert</b> (key_type k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> v)</td></tr>
-<tr class="separator:aacb066b2cb8670a3bee7b4fd5536a13b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a84d28384ca3d6e90712779dec7082e3f" id="r_a84d28384ca3d6e90712779dec7082e3f"><td class="memTemplParams" colspan="2"><a id="a84d28384ca3d6e90712779dec7082e3f" name="a84d28384ca3d6e90712779dec7082e3f"></a>
+<tr class="memitem:a840f1469c0c9069b37333f430f91a7c6"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>do_insert</b> (key_type k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> v)</td></tr>
+<tr class="separator:a840f1469c0c9069b37333f430f91a7c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ff52d25d8cd201bcf938e77c21a2261" id="r_a3ff52d25d8cd201bcf938e77c21a2261"><td class="memTemplParams" colspan="2"><a id="a3ff52d25d8cd201bcf938e77c21a2261" name="a3ff52d25d8cd201bcf938e77c21a2261"></a>
 template&lt;class Db2  = Db&gt; </td></tr>
-<tr class="memitem:a84d28384ca3d6e90712779dec7082e3f"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; std::is_same_v&lt; Db2, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; key_type &gt; &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>do_insert</b> (key_type k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> v)</td></tr>
-<tr class="separator:a84d28384ca3d6e90712779dec7082e3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ff52d25d8cd201bcf938e77c21a2261"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>do_insert</b> (key_type k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> v)</td></tr>
+<tr class="separator:a3ff52d25d8cd201bcf938e77c21a2261"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a927f2654dbb2bc53085ad57d9ad7841c" id="r_a927f2654dbb2bc53085ad57d9ad7841c"><td class="memItemLeft" align="right" valign="top"><a id="a927f2654dbb2bc53085ad57d9ad7841c" name="a927f2654dbb2bc53085ad57d9ad7841c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>do_remove</b> (key_type k, bool bypass_verifier)</td></tr>
 <tr class="separator:a927f2654dbb2bc53085ad57d9ad7841c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae4f658a612f2ef3a22bd0e4f043bcb4a" id="r_ae4f658a612f2ef3a22bd0e4f043bcb4a"><td class="memTemplParams" colspan="2"><a id="ae4f658a612f2ef3a22bd0e4f043bcb4a" name="ae4f658a612f2ef3a22bd0e4f043bcb4a"></a>
+<tr class="memitem:a6b93f029abdb6d7b01da6ad896ac4198" id="r_a6b93f029abdb6d7b01da6ad896ac4198"><td class="memTemplParams" colspan="2"><a id="a6b93f029abdb6d7b01da6ad896ac4198" name="a6b93f029abdb6d7b01da6ad896ac4198"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
-<tr class="memitem:ae4f658a612f2ef3a22bd0e4f043bcb4a"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!std::is_same_v&lt; Db2, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; key_type &gt; &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>do_try_remove_missing_key</b> (T absent_key)</td></tr>
-<tr class="separator:ae4f658a612f2ef3a22bd0e4f043bcb4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7a6913d14e9dba4d42ac92cfc79b33dd" id="r_a7a6913d14e9dba4d42ac92cfc79b33dd"><td class="memTemplParams" colspan="2"><a id="a7a6913d14e9dba4d42ac92cfc79b33dd" name="a7a6913d14e9dba4d42ac92cfc79b33dd"></a>
+<tr class="memitem:a6b93f029abdb6d7b01da6ad896ac4198"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>do_try_remove_missing_key</b> (T absent_key)</td></tr>
+<tr class="separator:a6b93f029abdb6d7b01da6ad896ac4198"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab04ab2852aff1e2b6f0e4fcac4922616" id="r_ab04ab2852aff1e2b6f0e4fcac4922616"><td class="memTemplParams" colspan="2"><a id="ab04ab2852aff1e2b6f0e4fcac4922616" name="ab04ab2852aff1e2b6f0e4fcac4922616"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
-<tr class="memitem:a7a6913d14e9dba4d42ac92cfc79b33dd"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; std::is_same_v&lt; Db2, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; key_type &gt; &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>do_try_remove_missing_key</b> (T absent_key)</td></tr>
-<tr class="separator:a7a6913d14e9dba4d42ac92cfc79b33dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab04ab2852aff1e2b6f0e4fcac4922616"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>do_try_remove_missing_key</b> (T absent_key)</td></tr>
+<tr class="separator:ab04ab2852aff1e2b6f0e4fcac4922616"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9b7845d5f989cc2adc639fd8c6cf63f" id="r_ae9b7845d5f989cc2adc639fd8c6cf63f"><td class="memItemLeft" align="right" valign="top"><a id="ae9b7845d5f989cc2adc639fd8c6cf63f" name="ae9b7845d5f989cc2adc639fd8c6cf63f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>insert_internal</b> (key_type k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> v, bool bypass_verifier=false)</td></tr>
 <tr class="separator:ae9b7845d5f989cc2adc639fd8c6cf63f"><td class="memSeparator" colspan="2">&#160;</td></tr>

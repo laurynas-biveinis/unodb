@@ -229,6 +229,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>art_key_type</b> = <
 <tr class="memitem:a5a541d199e950e717b13fcfb36297269" id="r_a5a541d199e950e717b13fcfb36297269"><td class="memItemLeft" align="right" valign="top"><a id="a5a541d199e950e717b13fcfb36297269" name="a5a541d199e950e717b13fcfb36297269"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_type</b> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">detail::leaf_type</a>&lt; Key &gt;</td></tr>
 <tr class="separator:a5a541d199e950e717b13fcfb36297269"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c26adba7c294148ba0f8b6c063e49f4" id="r_a0c26adba7c294148ba0f8b6c063e49f4"><td class="memItemLeft" align="right" valign="top"><a id="a0c26adba7c294148ba0f8b6c063e49f4" name="a0c26adba7c294148ba0f8b6c063e49f4"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>db_type</b> = <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key &gt;</td></tr>
+<tr class="separator:a0c26adba7c294148ba0f8b6c063e49f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5a8071c3ad0e858e128c90b0802502d" id="r_af5a8071c3ad0e858e128c90b0802502d"><td class="memItemLeft" align="right" valign="top"><a id="af5a8071c3ad0e858e128c90b0802502d" name="af5a8071c3ad0e858e128c90b0802502d"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>art_policy</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">detail::art_policy</a>&lt; Key &gt;</td></tr>
 <tr class="separator:af5a8071c3ad0e858e128c90b0802502d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -244,6 +247,12 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_4</b> = <a cla
 <tr class="memitem:a54d9c0d75184a2f541f3e9c655ce621b" id="r_a54d9c0d75184a2f541f3e9c655ce621b"><td class="memItemLeft" align="right" valign="top"><a id="a54d9c0d75184a2f541f3e9c655ce621b" name="a54d9c0d75184a2f541f3e9c655ce621b"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>tree_depth_type</b> = <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">detail::tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> &gt;</td></tr>
 <tr class="separator:a54d9c0d75184a2f541f3e9c655ce621b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0543180c801cdee19a8cc18c5eaea2af" id="r_a0543180c801cdee19a8cc18c5eaea2af"><td class="memItemLeft" align="right" valign="top"><a id="a0543180c801cdee19a8cc18c5eaea2af" name="a0543180c801cdee19a8cc18c5eaea2af"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>visitor_type</b> = <a class="el" href="classunodb_1_1visitor.html">visitor</a>&lt; <a class="el" href="classunodb_1_1db_1_1iterator.html">db_type::iterator</a> &gt;</td></tr>
+<tr class="separator:a0543180c801cdee19a8cc18c5eaea2af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed5c24e66ccc405bce86f7eedac079be" id="r_aed5c24e66ccc405bce86f7eedac079be"><td class="memItemLeft" align="right" valign="top"><a id="aed5c24e66ccc405bce86f7eedac079be" name="aed5c24e66ccc405bce86f7eedac079be"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_defs_type</b> = <a class="el" href="structunodb_1_1detail_1_1basic__inode__def.html">detail::inode_defs</a>&lt; Key &gt;</td></tr>
+<tr class="separator:aed5c24e66ccc405bce86f7eedac079be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
@@ -320,11 +329,11 @@ template&lt;class &gt; </td></tr>
 <tr class="memitem:ae619cc4a8d95fc5ddc04afd1eb7f2417"><td class="memTemplItemLeft" align="right" valign="top">class&#160;</td><td class="memTemplItemRight" valign="bottom"><b>detail::basic_db_leaf_deleter</b></td></tr>
 <tr class="separator:ae619cc4a8d95fc5ddc04afd1eb7f2417"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0251789b95d192baa2c57f0335947176" id="r_a0251789b95d192baa2c57f0335947176"><td class="memTemplParams" colspan="2"><a id="a0251789b95d192baa2c57f0335947176" name="a0251789b95d192baa2c57f0335947176"></a>
-template&lt;typename , template&lt; class &gt; class, template&lt; class &gt; class, class , class , class , template&lt; typename &gt; class, template&lt; typename, class &gt; class, template&lt; class &gt; class&gt; </td></tr>
+template&lt;typename , template&lt; typename &gt; class, template&lt; typename &gt; class, class , class , class , template&lt; typename &gt; class, template&lt; typename, class &gt; class, template&lt; class &gt; class&gt; </td></tr>
 <tr class="memitem:a0251789b95d192baa2c57f0335947176"><td class="memTemplItemLeft" align="right" valign="top">struct&#160;</td><td class="memTemplItemRight" valign="bottom"><b>detail::basic_art_policy</b></td></tr>
 <tr class="separator:a0251789b95d192baa2c57f0335947176"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae96ae9741ef57bdec0060d3b43f2fd36" id="r_ae96ae9741ef57bdec0060d3b43f2fd36"><td class="memTemplParams" colspan="2"><a id="ae96ae9741ef57bdec0060d3b43f2fd36" name="ae96ae9741ef57bdec0060d3b43f2fd36"></a>
-template&lt;class , class &gt; </td></tr>
+template&lt;typename , class &gt; </td></tr>
 <tr class="memitem:ae96ae9741ef57bdec0060d3b43f2fd36"><td class="memTemplItemLeft" align="right" valign="top">class&#160;</td><td class="memTemplItemRight" valign="bottom"><b>detail::basic_db_inode_deleter</b></td></tr>
 <tr class="separator:ae96ae9741ef57bdec0060d3b43f2fd36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac00839cde174b4727ab403c590b3670" id="r_aac00839cde174b4727ab403c590b3670"><td class="memItemLeft" align="right" valign="top"><a id="aac00839cde174b4727ab403c590b3670" name="aac00839cde174b4727ab403c590b3670"></a>
@@ -430,7 +439,7 @@ template&lt;typename Key &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class Key &gt; </div>
+template&lt;typename Key &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -509,7 +518,7 @@ template&lt;typename Key &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class Key &gt; </div>
+template&lt;typename Key &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">

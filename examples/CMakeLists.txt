@@ -37,9 +37,9 @@ add_executable(example_olc_art example_olc_art.cpp)
 target_link_libraries(example_olc_art PRIVATE unodb)
 
 add_custom_target(examples
-  env ./example_art
-  COMMAND env ./example_art_stats
-  COMMAND env ./example_olc_art
+  ./example_art
+  COMMAND ./example_art_stats
+  COMMAND ./example_olc_art
   DEPENDS example_art example_art_stats example_olc_art)
 
 set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"

@@ -25,10 +25,10 @@
 
 namespace unodb {
 
-template <typename Key>
+template <typename Key, typename Value>
 class db;
 
-template <typename Key>
+template <typename Key, typename Value>
 class olc_db;
 
 /// Values are passed as non-owning pointers to memory with associated length
@@ -57,6 +57,7 @@ class visitor {
 
  public:
   using key_type = typename Iterator::key_type;
+  using value_type = typename Iterator::value_type;
   /// Visit the encoded key.
   ///
   /// \note The lambda MUST NOT export a reference to the visited key.  If you
@@ -89,8 +90,8 @@ class visitor {
   }
 
  private:
-  friend class olc_db<key_type>;
-  friend class db<key_type>;
+  friend class olc_db<key_type, value_type>;
+  friend class db<key_type, value_type>;
 };  // class visitor
 
 namespace detail {

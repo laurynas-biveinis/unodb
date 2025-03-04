@@ -19,13 +19,13 @@ namespace unodb {
 // Instantiate the various classes under test.
 //
 
-template class unodb::db<std::uint64_t>;
-template class unodb::mutex_db<std::uint64_t>;
-template class unodb::olc_db<std::uint64_t>;
+template class unodb::db<std::uint64_t, unodb::value_view>;
+template class unodb::mutex_db<std::uint64_t, unodb::value_view>;
+template class unodb::olc_db<std::uint64_t, unodb::value_view>;
 
-template class unodb::db<unodb::key_view>;
-template class unodb::mutex_db<unodb::key_view>;
-template class unodb::olc_db<unodb::key_view>;
+template class unodb::db<unodb::key_view, unodb::value_view>;
+template class unodb::mutex_db<unodb::key_view, unodb::value_view>;
+template class unodb::olc_db<unodb::key_view, unodb::value_view>;
 
 }  // namespace unodb
 

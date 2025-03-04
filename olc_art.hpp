@@ -145,6 +145,7 @@ class olc_db final {
   using get_result = std::optional<value_view>;
   using inode_base = detail::olc_inode_base<Key>;
   using leaf_type = detail::olc_leaf_type<Key>;
+  using db_type = olc_db<Key>;
 
  private:
   using art_key_type = detail::basic_art_key<Key>;
@@ -557,7 +558,7 @@ class olc_db final {
     if (fwd) {
       iterator it(*this);
       it.first();
-      visitor<olc_db<Key>::iterator> v{it};
+      visitor_type v{it};
       while (it.valid()) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.next();
@@ -565,7 +566,7 @@ class olc_db final {
     } else {
       iterator it(*this);
       it.last();
-      visitor<olc_db<Key>::iterator> v{it};
+      visitor_type v{it};
       while (it.valid()) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.prior();
@@ -592,7 +593,7 @@ class olc_db final {
     if (fwd) {
       iterator it(*this);
       it.seek(from_key_, match, true /*fwd*/);
-      visitor<olc_db<Key>::iterator> v{it};
+      visitor_type v{it};
       while (it.valid()) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.next();
@@ -600,7 +601,7 @@ class olc_db final {
     } else {
       iterator it(*this);
       it.seek(from_key_, match, false /*fwd*/);
-      visitor<olc_db<Key>::iterator> v{it};
+      visitor_type v{it};
       while (it.valid()) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.prior();
@@ -644,7 +645,7 @@ class olc_db final {
                   << "\n";
         it.dump(std::cerr);
       }
-      visitor<olc_db<Key>::iterator> v{it};
+      visitor_type v{it};
       while (it.valid() && it.cmp(to_key_) < 0) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.next();
@@ -662,7 +663,7 @@ class olc_db final {
                   << "\n";
         it.dump(std::cerr);
       }
-      visitor<olc_db<Key>::iterator> v{it};
+      visitor_type v{it};
       while (it.valid() && it.cmp(to_key_) > 0) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.prior();
@@ -746,6 +747,7 @@ class olc_db final {
   using inode_type = detail::olc_inode<Key>;
   using inode_4 = detail::olc_inode_4<Key>;
   using tree_depth_type = detail::tree_depth<art_key_type>;
+  using visitor_type = visitor<db_type::iterator>;
   using olc_db_leaf_unique_ptr_type = detail::olc_db_leaf_unique_ptr<Key>;
   // If get_result is not present, the search was interrupted. Yes, this
   // resolves to std::optional<std::optional<value_view>>, but IMHO both
@@ -847,7 +849,7 @@ class olc_db final {
   friend class detail::db_inode_qsbr_deleter;
 
   template <typename,                          // Key
-            template <class> class,            // Db
+            template <typename> class,         // Db
             template <class> class,            // CriticalSectionPolicy
             class,                             // LockPolicy
             class,                             // ReadCriticalSection
@@ -1091,7 +1093,7 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key> {
   void remove(std::uint8_t child_index, db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(lock(*this).is_write_locked());
 
-    olc_inode_4_parent<Key>::remove(child_index, db_instance);
+    parent_class::remove(child_index, db_instance);
   }
 
   [[nodiscard]] auto leave_last_child(std::uint8_t child_to_delete,
@@ -1100,8 +1102,7 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key> {
     UNODB_DETAIL_ASSERT(node_ptr_lock(this->children[child_to_delete].load())
                             .is_obsoleted_by_this_thread());
 
-    return olc_inode_4_parent<Key>::leave_last_child(child_to_delete,
-                                                     db_instance);
+    return parent_class::leave_last_child(child_to_delete, db_instance);
   }
 
   // cppcheck-suppress duplInheritedMember
@@ -1109,24 +1110,25 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key> {
                                                 bool recursive) const {
     os << ", ";
     lock(*this).dump(os);
-    olc_inode_4_parent<Key>::dump(os, recursive);
+    parent_class::dump(os, recursive);
   }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };  // basic_inode_4
 
+using olc_inode_4_test_type = olc_inode_4<std::uint64_t>;
 // 48 (or 56) == sizeof(inode_4)
 #ifndef _MSC_VER
 #ifdef NDEBUG
-static_assert(sizeof(olc_inode_4<std::uint64_t>) == 48 + 8);
+static_assert(sizeof(olc_inode_4_test_type) == 48 + 8);
 #else
-static_assert(sizeof(olc_inode_4<std::uint64_t>) == 48 + 24);
+static_assert(sizeof(olc_inode_4_test_type) == 48 + 24);
 #endif
 #else  // #ifndef _MSC_VER
 #ifdef NDEBUG
-static_assert(sizeof(olc_inode_4<std::uint64_t>) == 56 + 8);
+static_assert(sizeof(olc_inode_4_test_type) == 56 + 8);
 #else
-static_assert(sizeof(olc_inode_4<std::uint64_t>) == 56 + 24);
+static_assert(sizeof(olc_inode_4_test_type) == 56 + 24);
 #endif
 #endif  // #ifndef _MSC_VER
 
@@ -1184,7 +1186,7 @@ class [[nodiscard]] olc_inode_16 final : public olc_inode_16_parent<Key> {
   void remove(std::uint8_t child_index, db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(lock(*this).is_write_locked());
 
-    olc_inode_16_parent<Key>::remove(child_index, db_instance);
+    parent_class::remove(child_index, db_instance);
   }
 
   // cppcheck-suppress duplInheritedMember
@@ -1196,7 +1198,7 @@ class [[nodiscard]] olc_inode_16 final : public olc_inode_16_parent<Key> {
         return std::make_pair(i, &parent_class::children[i]);
     return parent_class::child_not_found;
 #else
-    return olc_inode_16_parent<Key>::find_child(key_byte);
+    return parent_class::find_child(key_byte);
 #endif
   }
 
@@ -1205,17 +1207,18 @@ class [[nodiscard]] olc_inode_16 final : public olc_inode_16_parent<Key> {
                                                 bool recursive) const {
     os << ", ";
     lock(*this).dump(os);
-    olc_inode_16_parent<Key>::dump(os, recursive);
+    parent_class::dump(os, recursive);
   }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
+using olc_inode_16_test_type = olc_inode_16<std::uint64_t>;
 // 160 == sizeof(inode_16)
 #ifdef NDEBUG
-static_assert(sizeof(olc_inode_16<std::uint64_t>) == 160 + 16);
+static_assert(sizeof(olc_inode_16_test_type) == 160 + 16);
 #else   // #ifdef NDEBUG
-static_assert(sizeof(olc_inode_16<std::uint64_t>) == 160 + 32);
+static_assert(sizeof(olc_inode_16_test_type) == 160 + 32);
 #endif  // #ifdef NDEBUG
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
@@ -1291,7 +1294,7 @@ class [[nodiscard]] olc_inode_48 final : public olc_inode_48_parent<Key> {
   void remove(std::uint8_t child_index, db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(lock(*this).is_write_locked());
 
-    olc_inode_48_parent<Key>::remove(child_index, db_instance);
+    parent_class::remove(child_index, db_instance);
   }
 
   // cppcheck-suppress duplInheritedMember
@@ -1299,21 +1302,22 @@ class [[nodiscard]] olc_inode_48 final : public olc_inode_48_parent<Key> {
                                                 bool recursive) const {
     os << ", ";
     lock(*this).dump(os);
-    olc_inode_48_parent<Key>::dump(os, recursive);
+    parent_class::dump(os, recursive);
   }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
+using olc_inode_48_test_type = olc_inode_48<std::uint64_t>;
 // sizeof(inode_48) == 672 on AVX2, 656 otherwise
 #ifdef NDEBUG
 // AVX2 too. Padding?
-static_assert(sizeof(olc_inode_48<std::uint64_t>) == 656 + 16);
+static_assert(sizeof(olc_inode_48_test_type) == 656 + 16);
 #else  // #ifdef NDEBUG
 #if defined(UNODB_DETAIL_AVX2)
-static_assert(sizeof(olc_inode_48<std::uint64_t>) == 672 + 32);
+static_assert(sizeof(olc_inode_48_test_type) == 672 + 32);
 #else
-static_assert(sizeof(olc_inode_48<std::uint64_t>) == 656 + 32);
+static_assert(sizeof(olc_inode_48_test_type) == 656 + 32);
 #endif
 #endif  // #ifdef NDEBUG
 
@@ -1384,7 +1388,7 @@ class [[nodiscard]] olc_inode_256 final : public olc_inode_256_parent<Key> {
   void remove(std::uint8_t child_index, db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(lock(*this).is_write_locked());
 
-    olc_inode_256_parent<Key>::remove(child_index, db_instance);
+    parent_class::remove(child_index, db_instance);
   }
 
   // cppcheck-suppress duplInheritedMember
@@ -1392,17 +1396,18 @@ class [[nodiscard]] olc_inode_256 final : public olc_inode_256_parent<Key> {
                                                 bool recursive) const {
     os << ", ";
     lock(*this).dump(os);
-    olc_inode_256_parent<Key>::dump(os, recursive);
+    parent_class::dump(os, recursive);
   }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
+using olc_inode_256_test_type = olc_inode_256<std::uint64_t>;
 // 2064 == sizeof(inode_256)
 #ifdef NDEBUG
-static_assert(sizeof(olc_inode_256<std::uint64_t>) == 2064 + 8);
+static_assert(sizeof(olc_inode_256_test_type) == 2064 + 8);
 #else
-static_assert(sizeof(olc_inode_256<std::uint64_t>) == 2064 + 24);
+static_assert(sizeof(olc_inode_256_test_type) == 2064 + 24);
 #endif
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)

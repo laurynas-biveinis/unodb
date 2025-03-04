@@ -38,9 +38,7 @@
 #include "node_type.hpp"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
-#ifndef NDEBUG
 #include "test_heap.hpp"
-#endif
 
 extern template class unodb::db<std::uint64_t>;
 extern template class unodb::mutex_db<std::uint64_t>;
@@ -53,9 +51,16 @@ extern template class unodb::olc_db<unodb::key_view>;
 namespace unodb::test {
 
 template <class TestDb>
-using thread = typename std::conditional_t<
-    std::is_same_v<TestDb, unodb::olc_db<typename TestDb::key_type>>,
-    unodb::qsbr_thread, std::thread>;
+constexpr bool is_olc_db =
+    std::is_same_v<TestDb, unodb::olc_db<typename TestDb ::key_type>>;
+
+template <class TestDb>
+constexpr bool is_mutex_db =
+    std::is_same_v<TestDb, unodb::mutex_db<typename TestDb ::key_type>>;
+
+template <class TestDb>
+using thread = typename std::conditional_t<is_olc_db<TestDb>,
+                                           unodb::qsbr_thread, std::thread>;
 
 constexpr auto test_value_1 = std::array<std::byte, 1>{std::byte{0x00}};
 constexpr auto test_value_2 =
@@ -87,7 +92,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 template <class Db>
 void assert_value_eq(const typename Db::get_result &result,
                      unodb::value_view expected) noexcept {
-  if constexpr (std::is_same_v<Db, unodb::mutex_db<typename Db::key_type>>) {
+  if constexpr (is_mutex_db<Db>) {
     UNODB_DETAIL_ASSERT(result.second.owns_lock());
     UNODB_DETAIL_ASSERT(result.first.has_value());
     UNODB_ASSERT_TRUE(std::ranges::equal(*result.first, expected));
@@ -99,7 +104,7 @@ void assert_value_eq(const typename Db::get_result &result,
 
 template <class Db>
 void assert_not_found(const typename Db::get_result &result) noexcept {
-  if constexpr (std::is_same_v<Db, unodb::mutex_db<typename Db::key_type>>) {
+  if constexpr (is_mutex_db<Db>) {
     UNODB_DETAIL_ASSERT(!result.second.owns_lock());
     UNODB_DETAIL_ASSERT(!result.first.has_value());
   } else {
@@ -133,7 +138,7 @@ UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 template <class Db>
 void assert_result_eq(const Db &db, typename Db::key_type key,
                       unodb::value_view expected, const char *file, int line) {
-  if constexpr (std::is_same_v<Db, unodb::olc_db<typename Db::key_type>>) {
+  if constexpr (is_olc_db<Db>) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     do_assert_result_eq<Db>(db, key, expected, file, line);
   } else {
@@ -265,14 +270,14 @@ class [[nodiscard]] tree_verifier final {
   // mangled names.
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db>
-  std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
-  do_insert(key_type k, unodb::value_view v) {
+  std::enable_if_t<!is_olc_db<Db2>, void> do_insert(key_type k,
+                                                    unodb::value_view v) {
     UNODB_ASSERT_TRUE(test_db.insert(k, v));
   }
 
   template <class Db2 = Db>
-  std::enable_if_t<std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
-  do_insert(key_type k, unodb::value_view v) {
+  std::enable_if_t<is_olc_db<Db2>, void> do_insert(key_type k,
+                                                   unodb::value_view v) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     UNODB_ASSERT_TRUE(test_db.insert(k, v));
   }
@@ -342,14 +347,14 @@ class [[nodiscard]] tree_verifier final {
   // mangled names.
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db, typename T>
-  std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
-  do_try_remove_missing_key(T absent_key) {
+  std::enable_if_t<!is_olc_db<Db2>, void> do_try_remove_missing_key(
+      T absent_key) {
     UNODB_ASSERT_FALSE(test_db.remove(coerce_key(absent_key)));
   }
 
   template <class Db2 = Db, typename T>
-  std::enable_if_t<std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
-  do_try_remove_missing_key(T absent_key) {
+  std::enable_if_t<is_olc_db<Db2>, void> do_try_remove_missing_key(
+      T absent_key) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     UNODB_ASSERT_FALSE(test_db.remove(coerce_key(absent_key)));
   }
@@ -521,27 +526,25 @@ class [[nodiscard]] tree_verifier final {
   // mangled names.
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db, typename T>
-  std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void> remove(
-      T k, bool bypass_verifier = false) {
+  std::enable_if_t<!is_olc_db<Db2>, void> remove(T k,
+                                                 bool bypass_verifier = false) {
     do_remove(coerce_key(k), bypass_verifier);
   }
 
   template <class Db2 = Db, typename T>
-  std::enable_if_t<std::is_same_v<Db2, unodb::olc_db<key_type>>, void> remove(
-      T k, bool bypass_verifier = false) {
+  std::enable_if_t<is_olc_db<Db2>, void> remove(T k,
+                                                bool bypass_verifier = false) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     do_remove(coerce_key(k), bypass_verifier);
   }
 
   template <class Db2 = Db, typename T>
-  std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
-  try_remove(T k) {
+  std::enable_if_t<!is_olc_db<Db2>, void> try_remove(T k) {
     std::ignore = test_db.remove(coerce_key(k));
   }
 
   template <class Db2 = Db, typename T>
-  std::enable_if_t<std::is_same_v<Db2, unodb::olc_db<key_type>>, void>
-  try_remove(T k) {
+  std::enable_if_t<is_olc_db<Db2>, void> try_remove(T k) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     std::ignore = test_db.remove(coerce_key(k));
   }
@@ -576,14 +579,14 @@ class [[nodiscard]] tree_verifier final {
   // mangled names.
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db, typename T>
-  std::enable_if_t<!std::is_same_v<Db2, unodb::olc_db<key_type>>, void> try_get(
-      T k) const noexcept(noexcept(this->test_db.get(k))) {
+  std::enable_if_t<!is_olc_db<Db2>, void> try_get(T k) const
+      noexcept(noexcept(this->test_db.get(k))) {
     std::ignore = test_db.get(coerce_key(k));
   }
 
   template <class Db2 = Db, typename T>
-  std::enable_if_t<std::is_same_v<Db2, unodb::olc_db<key_type>>, void> try_get(
-      T k) const noexcept(noexcept(this->test_db.get(k))) {
+  std::enable_if_t<is_olc_db<Db2>, void> try_get(T k) const
+      noexcept(noexcept(this->test_db.get(k))) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     std::ignore = test_db.get(coerce_key(k));
   }

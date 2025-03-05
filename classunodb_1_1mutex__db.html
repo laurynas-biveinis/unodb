@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UnoDB: unodb::mutex_db&lt; Key &gt; Class Template Reference</title>
+<title>UnoDB: unodb::mutex_db&lt; Key, Value &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -104,7 +104,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1mutex__db.html',''); ini
 <a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="classunodb_1_1mutex__db-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">unodb::mutex_db&lt; Key &gt; Class Template Reference</div></div>
+  <div class="headertitle"><div class="title">unodb::mutex_db&lt; Key, Value &gt; Class Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
@@ -115,134 +115,139 @@ $(document).ready(function(){initNavTree('classunodb_1_1mutex__db.html',''); ini
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a8bf3e8be1462f2e18f0c85d42385c89e" id="r_a8bf3e8be1462f2e18f0c85d42385c89e"><td class="memItemLeft" align="right" valign="top"><a id="a8bf3e8be1462f2e18f0c85d42385c89e" name="a8bf3e8be1462f2e18f0c85d42385c89e"></a>
+<tr class="memitem:ab0955c6dbac92d44a2997f55d53b1028" id="r_ab0955c6dbac92d44a2997f55d53b1028"><td class="memItemLeft" align="right" valign="top"><a id="ab0955c6dbac92d44a2997f55d53b1028" name="ab0955c6dbac92d44a2997f55d53b1028"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>key_type</b> = Key</td></tr>
-<tr class="separator:a8bf3e8be1462f2e18f0c85d42385c89e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff70d5ad9575302d9910f238506c3144" id="r_aff70d5ad9575302d9910f238506c3144"><td class="memItemLeft" align="right" valign="top"><a id="aff70d5ad9575302d9910f238506c3144" name="aff70d5ad9575302d9910f238506c3144"></a>
+<tr class="memdesc:ab0955c6dbac92d44a2997f55d53b1028"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of the keys in the index. <br /></td></tr>
+<tr class="separator:ab0955c6dbac92d44a2997f55d53b1028"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95da9eb65d7d477a1c43666848f8e362" id="r_a95da9eb65d7d477a1c43666848f8e362"><td class="memItemLeft" align="right" valign="top"><a id="a95da9eb65d7d477a1c43666848f8e362" name="a95da9eb65d7d477a1c43666848f8e362"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = Value</td></tr>
+<tr class="memdesc:a95da9eb65d7d477a1c43666848f8e362"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of the value associated with the keys in the index. <br /></td></tr>
+<tr class="separator:a95da9eb65d7d477a1c43666848f8e362"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae61b42a6da71d56e14ae75bace36dd02" id="r_ae61b42a6da71d56e14ae75bace36dd02"><td class="memItemLeft" align="right" valign="top"><a id="ae61b42a6da71d56e14ae75bace36dd02" name="ae61b42a6da71d56e14ae75bace36dd02"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>value_view</b> = <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a></td></tr>
-<tr class="separator:aff70d5ad9575302d9910f238506c3144"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79ab7f47d51caacb96cfc0ec48ff90c3" id="r_a79ab7f47d51caacb96cfc0ec48ff90c3"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a79ab7f47d51caacb96cfc0ec48ff90c3">get_result</a> = std::pair&lt; typename <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key &gt;::get_result, std::unique_lock&lt; std::mutex &gt; &gt;</td></tr>
-<tr class="memdesc:a79ab7f47d51caacb96cfc0ec48ff90c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the search key was found, that is, the first pair member has a value, then the second member is a locked tree mutex which must be released ASAP after reading the first pair member.  <br /></td></tr>
-<tr class="separator:a79ab7f47d51caacb96cfc0ec48ff90c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a392b8856ed56ab17f9c5ea58aa71d2cb" id="r_a392b8856ed56ab17f9c5ea58aa71d2cb"><td class="memItemLeft" align="right" valign="top"><a id="a392b8856ed56ab17f9c5ea58aa71d2cb" name="a392b8856ed56ab17f9c5ea58aa71d2cb"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> = typename <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key &gt;::iterator</td></tr>
-<tr class="separator:a392b8856ed56ab17f9c5ea58aa71d2cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:ae61b42a6da71d56e14ae75bace36dd02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f521ddf190a1659d9cdddf2d59ab55a" id="r_a4f521ddf190a1659d9cdddf2d59ab55a"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a4f521ddf190a1659d9cdddf2d59ab55a">get_result</a> = std::pair&lt; typename <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, value_view &gt;::get_result, std::unique_lock&lt; std::mutex &gt; &gt;</td></tr>
+<tr class="memdesc:a4f521ddf190a1659d9cdddf2d59ab55a"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the search key was found, that is, the first pair member has a value, then the second member is a locked tree mutex which must be released ASAP after reading the first pair member.  <br /></td></tr>
+<tr class="separator:a4f521ddf190a1659d9cdddf2d59ab55a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2af886f57550a3abf6daf005739b5c0e" id="r_a2af886f57550a3abf6daf005739b5c0e"><td class="memItemLeft" align="right" valign="top"><a id="a2af886f57550a3abf6daf005739b5c0e" name="a2af886f57550a3abf6daf005739b5c0e"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> = typename <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator</td></tr>
+<tr class="separator:a2af886f57550a3abf6daf005739b5c0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a798c9e60cfd170808182bb1a214a6528" id="r_a798c9e60cfd170808182bb1a214a6528"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1mutex__db.html#a79ab7f47d51caacb96cfc0ec48ff90c3">get_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a798c9e60cfd170808182bb1a214a6528">get</a> (Key search_key) const noexcept</td></tr>
-<tr class="memdesc:a798c9e60cfd170808182bb1a214a6528"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query for a value associated with a key.  <br /></td></tr>
-<tr class="separator:a798c9e60cfd170808182bb1a214a6528"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a801ba096fc84c669ca6b47423acdd74b" id="r_a801ba096fc84c669ca6b47423acdd74b"><td class="memItemLeft" align="right" valign="top"><a id="a801ba096fc84c669ca6b47423acdd74b" name="a801ba096fc84c669ca6b47423acdd74b"></a>
+<tr class="memitem:aeade57112531c5a734cb6e8390026bc3" id="r_aeade57112531c5a734cb6e8390026bc3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1mutex__db.html#a4f521ddf190a1659d9cdddf2d59ab55a">get_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#aeade57112531c5a734cb6e8390026bc3">get</a> (Key search_key) const noexcept</td></tr>
+<tr class="memdesc:aeade57112531c5a734cb6e8390026bc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query for a value associated with a key.  <br /></td></tr>
+<tr class="separator:aeade57112531c5a734cb6e8390026bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a972bda63bce40271a5ce0fc9c684b0c6" id="r_a972bda63bce40271a5ce0fc9c684b0c6"><td class="memItemLeft" align="right" valign="top"><a id="a972bda63bce40271a5ce0fc9c684b0c6" name="a972bda63bce40271a5ce0fc9c684b0c6"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const</td></tr>
-<tr class="separator:a801ba096fc84c669ca6b47423acdd74b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7c7386b34676c3af03a3d3a8356fa80" id="r_ad7c7386b34676c3af03a3d3a8356fa80"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#ad7c7386b34676c3af03a3d3a8356fa80">insert</a> (Key insert_key, value_view v)</td></tr>
-<tr class="memdesc:ad7c7386b34676c3af03a3d3a8356fa80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert a value under a key iff there is no entry for that key.  <br /></td></tr>
-<tr class="separator:ad7c7386b34676c3af03a3d3a8356fa80"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef63d2e198d5971577197cbfd26a5602" id="r_aef63d2e198d5971577197cbfd26a5602"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#aef63d2e198d5971577197cbfd26a5602">remove</a> (Key search_key)</td></tr>
-<tr class="memdesc:aef63d2e198d5971577197cbfd26a5602"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the entry associated with the key.  <br /></td></tr>
-<tr class="separator:aef63d2e198d5971577197cbfd26a5602"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81de112353d2ee2b9219d72ee3e495da" id="r_a81de112353d2ee2b9219d72ee3e495da"><td class="memItemLeft" align="right" valign="top"><a id="a81de112353d2ee2b9219d72ee3e495da" name="a81de112353d2ee2b9219d72ee3e495da"></a>
+<tr class="separator:a972bda63bce40271a5ce0fc9c684b0c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae71cb90594f0f045e65854c06c18b8b9" id="r_ae71cb90594f0f045e65854c06c18b8b9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#ae71cb90594f0f045e65854c06c18b8b9">insert</a> (Key insert_key, <a class="el" href="classunodb_1_1mutex__db.html#a95da9eb65d7d477a1c43666848f8e362">value_type</a> v)</td></tr>
+<tr class="memdesc:ae71cb90594f0f045e65854c06c18b8b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert a value under a key iff there is no entry for that key.  <br /></td></tr>
+<tr class="separator:ae71cb90594f0f045e65854c06c18b8b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4de54b9c77294c1efdcc3f290ad16b0d" id="r_a4de54b9c77294c1efdcc3f290ad16b0d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a4de54b9c77294c1efdcc3f290ad16b0d">remove</a> (Key search_key)</td></tr>
+<tr class="memdesc:a4de54b9c77294c1efdcc3f290ad16b0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the entry associated with the key.  <br /></td></tr>
+<tr class="separator:a4de54b9c77294c1efdcc3f290ad16b0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58a3c66a09d76f19a014875c93b1e310" id="r_a58a3c66a09d76f19a014875c93b1e310"><td class="memItemLeft" align="right" valign="top"><a id="a58a3c66a09d76f19a014875c93b1e310" name="a58a3c66a09d76f19a014875c93b1e310"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> ()</td></tr>
-<tr class="memdesc:a81de112353d2ee2b9219d72ee3e495da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all entries in the index. <br /></td></tr>
-<tr class="separator:a81de112353d2ee2b9219d72ee3e495da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0bc658977ddbc4e9e2d24da737c241e3" id="r_a0bc658977ddbc4e9e2d24da737c241e3"><td class="memTemplParams" colspan="2">template&lt;typename FN &gt; </td></tr>
-<tr class="memitem:a0bc658977ddbc4e9e2d24da737c241e3"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a0bc658977ddbc4e9e2d24da737c241e3">scan</a> (FN fn, bool fwd=true) noexcept</td></tr>
-<tr class="memdesc:a0bc658977ddbc4e9e2d24da737c241e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan the tree, applying the caller's lambda to each visited leaf.  <br /></td></tr>
-<tr class="separator:a0bc658977ddbc4e9e2d24da737c241e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adb13dd3ba7a9883d26d7c3def9879935" id="r_adb13dd3ba7a9883d26d7c3def9879935"><td class="memTemplParams" colspan="2">template&lt;typename FN &gt; </td></tr>
-<tr class="memitem:adb13dd3ba7a9883d26d7c3def9879935"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#adb13dd3ba7a9883d26d7c3def9879935">scan_from</a> (Key from_key, FN fn, bool fwd=true) noexcept</td></tr>
-<tr class="memdesc:adb13dd3ba7a9883d26d7c3def9879935"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan in the indicated direction, applying the caller's lambda to each visited leaf.  <br /></td></tr>
-<tr class="separator:adb13dd3ba7a9883d26d7c3def9879935"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5d02c0dfcf291a3f5901ccb19d12d01a" id="r_a5d02c0dfcf291a3f5901ccb19d12d01a"><td class="memTemplParams" colspan="2">template&lt;typename FN &gt; </td></tr>
-<tr class="memitem:a5d02c0dfcf291a3f5901ccb19d12d01a"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a5d02c0dfcf291a3f5901ccb19d12d01a">scan_range</a> (Key from_key, Key to_key, FN fn) noexcept</td></tr>
-<tr class="memdesc:a5d02c0dfcf291a3f5901ccb19d12d01a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan a half-open key range, applying the caller's lambda to each visited leaf.  <br /></td></tr>
-<tr class="separator:a5d02c0dfcf291a3f5901ccb19d12d01a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad68298dcac479b205a44e65394d6e4fa" id="r_ad68298dcac479b205a44e65394d6e4fa"><td class="memItemLeft" align="right" valign="top"><a id="ad68298dcac479b205a44e65394d6e4fa" name="ad68298dcac479b205a44e65394d6e4fa"></a>
+<tr class="memdesc:a58a3c66a09d76f19a014875c93b1e310"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all entries in the index. <br /></td></tr>
+<tr class="separator:a58a3c66a09d76f19a014875c93b1e310"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2359973d76a675229b88bf5ef0fa8a5" id="r_af2359973d76a675229b88bf5ef0fa8a5"><td class="memTemplParams" colspan="2">template&lt;typename FN &gt; </td></tr>
+<tr class="memitem:af2359973d76a675229b88bf5ef0fa8a5"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#af2359973d76a675229b88bf5ef0fa8a5">scan</a> (FN fn, bool fwd=true) noexcept</td></tr>
+<tr class="memdesc:af2359973d76a675229b88bf5ef0fa8a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan the tree, applying the caller's lambda to each visited leaf.  <br /></td></tr>
+<tr class="separator:af2359973d76a675229b88bf5ef0fa8a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6a1564ab98be4126bf3cf65d208831f" id="r_ab6a1564ab98be4126bf3cf65d208831f"><td class="memTemplParams" colspan="2">template&lt;typename FN &gt; </td></tr>
+<tr class="memitem:ab6a1564ab98be4126bf3cf65d208831f"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#ab6a1564ab98be4126bf3cf65d208831f">scan_from</a> (Key from_key, FN fn, bool fwd=true) noexcept</td></tr>
+<tr class="memdesc:ab6a1564ab98be4126bf3cf65d208831f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan in the indicated direction, applying the caller's lambda to each visited leaf.  <br /></td></tr>
+<tr class="separator:ab6a1564ab98be4126bf3cf65d208831f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8852fa0deb950e7af233b71a46ab570" id="r_ac8852fa0deb950e7af233b71a46ab570"><td class="memTemplParams" colspan="2">template&lt;typename FN &gt; </td></tr>
+<tr class="memitem:ac8852fa0deb950e7af233b71a46ab570"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#ac8852fa0deb950e7af233b71a46ab570">scan_range</a> (Key from_key, Key to_key, FN fn) noexcept</td></tr>
+<tr class="memdesc:ac8852fa0deb950e7af233b71a46ab570"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan a half-open key range, applying the caller's lambda to each visited leaf.  <br /></td></tr>
+<tr class="separator:ac8852fa0deb950e7af233b71a46ab570"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08a058d16d47300a10419effe2768492" id="r_a08a058d16d47300a10419effe2768492"><td class="memItemLeft" align="right" valign="top"><a id="a08a058d16d47300a10419effe2768492" name="a08a058d16d47300a10419effe2768492"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>test_only_iterator</b> () noexcept</td></tr>
-<tr class="separator:ad68298dcac479b205a44e65394d6e4fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6c7d860c7494443670f3168675b7221" id="r_ac6c7d860c7494443670f3168675b7221"><td class="memItemLeft" align="right" valign="top"><a id="ac6c7d860c7494443670f3168675b7221" name="ac6c7d860c7494443670f3168675b7221"></a>
+<tr class="separator:a08a058d16d47300a10419effe2768492"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f1365ffc3de8654149674400798d023" id="r_a1f1365ffc3de8654149674400798d023"><td class="memItemLeft" align="right" valign="top"><a id="a1f1365ffc3de8654149674400798d023" name="a1f1365ffc3de8654149674400798d023"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_current_memory_use</b> () const</td></tr>
-<tr class="separator:ac6c7d860c7494443670f3168675b7221"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6365661af33e2e763d5128ba73aa0459" id="r_a6365661af33e2e763d5128ba73aa0459"><td class="memTemplParams" colspan="2"><a id="a6365661af33e2e763d5128ba73aa0459" name="a6365661af33e2e763d5128ba73aa0459"></a>
+<tr class="separator:a1f1365ffc3de8654149674400798d023"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5303b319b17752b6ff783fefec1cca6a" id="r_a5303b319b17752b6ff783fefec1cca6a"><td class="memTemplParams" colspan="2"><a id="a5303b319b17752b6ff783fefec1cca6a" name="a5303b319b17752b6ff783fefec1cca6a"></a>
 template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> NodeType&gt; </td></tr>
-<tr class="memitem:a6365661af33e2e763d5128ba73aa0459"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>get_node_count</b> () const</td></tr>
-<tr class="separator:a6365661af33e2e763d5128ba73aa0459"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a07fc8615ff9c968f587e31336cc35204" id="r_a07fc8615ff9c968f587e31336cc35204"><td class="memItemLeft" align="right" valign="top"><a id="a07fc8615ff9c968f587e31336cc35204" name="a07fc8615ff9c968f587e31336cc35204"></a>
+<tr class="memitem:a5303b319b17752b6ff783fefec1cca6a"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>get_node_count</b> () const</td></tr>
+<tr class="separator:a5303b319b17752b6ff783fefec1cca6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9128e1f1fe86983696bf0d88e336973" id="r_ac9128e1f1fe86983696bf0d88e336973"><td class="memItemLeft" align="right" valign="top"><a id="ac9128e1f1fe86983696bf0d88e336973" name="ac9128e1f1fe86983696bf0d88e336973"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_node_counts</b> () const</td></tr>
-<tr class="separator:a07fc8615ff9c968f587e31336cc35204"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aade521f69040c7194cd971745a1544f7" id="r_aade521f69040c7194cd971745a1544f7"><td class="memTemplParams" colspan="2"><a id="aade521f69040c7194cd971745a1544f7" name="aade521f69040c7194cd971745a1544f7"></a>
+<tr class="separator:ac9128e1f1fe86983696bf0d88e336973"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad624ded3fbb66276c16661585b3e47fe" id="r_ad624ded3fbb66276c16661585b3e47fe"><td class="memTemplParams" colspan="2"><a id="ad624ded3fbb66276c16661585b3e47fe" name="ad624ded3fbb66276c16661585b3e47fe"></a>
 template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> NodeType&gt; </td></tr>
-<tr class="memitem:aade521f69040c7194cd971745a1544f7"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>get_growing_inode_count</b> () const</td></tr>
-<tr class="separator:aade521f69040c7194cd971745a1544f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa819cf376ec4850a92243394dec0eff6" id="r_aa819cf376ec4850a92243394dec0eff6"><td class="memItemLeft" align="right" valign="top"><a id="aa819cf376ec4850a92243394dec0eff6" name="aa819cf376ec4850a92243394dec0eff6"></a>
+<tr class="memitem:ad624ded3fbb66276c16661585b3e47fe"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>get_growing_inode_count</b> () const</td></tr>
+<tr class="separator:ad624ded3fbb66276c16661585b3e47fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe067445d4ae9fd4c9c813889f5cc124" id="r_abe067445d4ae9fd4c9c813889f5cc124"><td class="memItemLeft" align="right" valign="top"><a id="abe067445d4ae9fd4c9c813889f5cc124" name="abe067445d4ae9fd4c9c813889f5cc124"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_growing_inode_counts</b> () const</td></tr>
-<tr class="separator:aa819cf376ec4850a92243394dec0eff6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a02058a4e9a7995ea0bf59154a8ed393b" id="r_a02058a4e9a7995ea0bf59154a8ed393b"><td class="memTemplParams" colspan="2"><a id="a02058a4e9a7995ea0bf59154a8ed393b" name="a02058a4e9a7995ea0bf59154a8ed393b"></a>
+<tr class="separator:abe067445d4ae9fd4c9c813889f5cc124"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c470fb80abe32f9a0807455a17e7143" id="r_a9c470fb80abe32f9a0807455a17e7143"><td class="memTemplParams" colspan="2"><a id="a9c470fb80abe32f9a0807455a17e7143" name="a9c470fb80abe32f9a0807455a17e7143"></a>
 template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> NodeType&gt; </td></tr>
-<tr class="memitem:a02058a4e9a7995ea0bf59154a8ed393b"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>get_shrinking_inode_count</b> () const</td></tr>
-<tr class="separator:a02058a4e9a7995ea0bf59154a8ed393b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6ee3cfd3427617cbabb6c99c9c6ef39" id="r_aa6ee3cfd3427617cbabb6c99c9c6ef39"><td class="memItemLeft" align="right" valign="top"><a id="aa6ee3cfd3427617cbabb6c99c9c6ef39" name="aa6ee3cfd3427617cbabb6c99c9c6ef39"></a>
+<tr class="memitem:a9c470fb80abe32f9a0807455a17e7143"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>get_shrinking_inode_count</b> () const</td></tr>
+<tr class="separator:a9c470fb80abe32f9a0807455a17e7143"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8496da4f76b97a320d19590e6ccf4b7c" id="r_a8496da4f76b97a320d19590e6ccf4b7c"><td class="memItemLeft" align="right" valign="top"><a id="a8496da4f76b97a320d19590e6ccf4b7c" name="a8496da4f76b97a320d19590e6ccf4b7c"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_shrinking_inode_counts</b> () const</td></tr>
-<tr class="separator:aa6ee3cfd3427617cbabb6c99c9c6ef39"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71434df06548317d005c20bee394d97c" id="r_a71434df06548317d005c20bee394d97c"><td class="memItemLeft" align="right" valign="top"><a id="a71434df06548317d005c20bee394d97c" name="a71434df06548317d005c20bee394d97c"></a>
+<tr class="separator:a8496da4f76b97a320d19590e6ccf4b7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4eee8ee85a75054b6125297971aa298" id="r_af4eee8ee85a75054b6125297971aa298"><td class="memItemLeft" align="right" valign="top"><a id="af4eee8ee85a75054b6125297971aa298" name="af4eee8ee85a75054b6125297971aa298"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_key_prefix_splits</b> () const</td></tr>
-<tr class="separator:a71434df06548317d005c20bee394d97c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae3da1ac7feee2874eca06dab7e2037d" id="r_aae3da1ac7feee2874eca06dab7e2037d"><td class="memItemLeft" align="right" valign="top"><a id="aae3da1ac7feee2874eca06dab7e2037d" name="aae3da1ac7feee2874eca06dab7e2037d"></a>
+<tr class="separator:af4eee8ee85a75054b6125297971aa298"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef7a18c3979d55785c4184f9dd00c553" id="r_aef7a18c3979d55785c4184f9dd00c553"><td class="memItemLeft" align="right" valign="top"><a id="aef7a18c3979d55785c4184f9dd00c553" name="aef7a18c3979d55785c4184f9dd00c553"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
-<tr class="separator:aae3da1ac7feee2874eca06dab7e2037d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:aef7a18c3979d55785c4184f9dd00c553"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:aaa85f5cfc81885a8009fde14ba0bb293" id="r_aaa85f5cfc81885a8009fde14ba0bb293"><td class="memItemLeft" align="right" valign="top"><a id="aaa85f5cfc81885a8009fde14ba0bb293" name="aaa85f5cfc81885a8009fde14ba0bb293"></a>
-static auto&#160;</td><td class="memItemRight" valign="bottom"><b>key_found</b> (const <a class="el" href="classunodb_1_1mutex__db.html#a79ab7f47d51caacb96cfc0ec48ff90c3">get_result</a> &amp;result) noexcept</td></tr>
-<tr class="separator:aaa85f5cfc81885a8009fde14ba0bb293"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18cef9a9074ec893cda76537903b57f7" id="r_a18cef9a9074ec893cda76537903b57f7"><td class="memItemLeft" align="right" valign="top"><a id="a18cef9a9074ec893cda76537903b57f7" name="a18cef9a9074ec893cda76537903b57f7"></a>
+static auto&#160;</td><td class="memItemRight" valign="bottom"><b>key_found</b> (const <a class="el" href="classunodb_1_1mutex__db.html#a4f521ddf190a1659d9cdddf2d59ab55a">get_result</a> &amp;result) noexcept</td></tr>
+<tr class="separator:a18cef9a9074ec893cda76537903b57f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
 Private Types</h2></td></tr>
-<tr class="memitem:ac29a82b6cf4c84f246596abd635059a4" id="r_ac29a82b6cf4c84f246596abd635059a4"><td class="memItemLeft" align="right" valign="top"><a id="ac29a82b6cf4c84f246596abd635059a4" name="ac29a82b6cf4c84f246596abd635059a4"></a>
+<tr class="memitem:aa0531a2d5ef1ca02b566d6259f0c51d0" id="r_aa0531a2d5ef1ca02b566d6259f0c51d0"><td class="memItemLeft" align="right" valign="top"><a id="aa0531a2d5ef1ca02b566d6259f0c51d0" name="aa0531a2d5ef1ca02b566d6259f0c51d0"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>art_key_type</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">detail::basic_art_key</a>&lt; Key &gt;</td></tr>
-<tr class="separator:ac29a82b6cf4c84f246596abd635059a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:aa0531a2d5ef1ca02b566d6259f0c51d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
-<tr class="memitem:a11c3fd4c7334357fadf92ea00821166a" id="r_a11c3fd4c7334357fadf92ea00821166a"><td class="memItemLeft" align="right" valign="top"><a id="a11c3fd4c7334357fadf92ea00821166a" name="a11c3fd4c7334357fadf92ea00821166a"></a>
+<tr class="memitem:ae6f04368bba0409583d54ae7e33e198b" id="r_ae6f04368bba0409583d54ae7e33e198b"><td class="memItemLeft" align="right" valign="top"><a id="ae6f04368bba0409583d54ae7e33e198b" name="ae6f04368bba0409583d54ae7e33e198b"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_internal</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k) const</td></tr>
-<tr class="memdesc:a11c3fd4c7334357fadf92ea00821166a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Querying with an encoded key. <br /></td></tr>
-<tr class="separator:a11c3fd4c7334357fadf92ea00821166a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa22be2f25d5dcbd7920714d0aa61d6e9" id="r_aa22be2f25d5dcbd7920714d0aa61d6e9"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#aa22be2f25d5dcbd7920714d0aa61d6e9">insert_internal</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k, value_view v)</td></tr>
-<tr class="memdesc:aa22be2f25d5dcbd7920714d0aa61d6e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifying with an encoded key.  <br /></td></tr>
-<tr class="separator:aa22be2f25d5dcbd7920714d0aa61d6e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf99413537dbd3446e31a5165b3075d2" id="r_acf99413537dbd3446e31a5165b3075d2"><td class="memItemLeft" align="right" valign="top"><a id="acf99413537dbd3446e31a5165b3075d2" name="acf99413537dbd3446e31a5165b3075d2"></a>
+<tr class="memdesc:ae6f04368bba0409583d54ae7e33e198b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Querying with an encoded key. <br /></td></tr>
+<tr class="separator:ae6f04368bba0409583d54ae7e33e198b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f88ade056bf1038b2b59a160d87befc" id="r_a1f88ade056bf1038b2b59a160d87befc"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a1f88ade056bf1038b2b59a160d87befc">insert_internal</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k, <a class="el" href="classunodb_1_1mutex__db.html#a95da9eb65d7d477a1c43666848f8e362">value_type</a> v)</td></tr>
+<tr class="memdesc:a1f88ade056bf1038b2b59a160d87befc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifying with an encoded key.  <br /></td></tr>
+<tr class="separator:a1f88ade056bf1038b2b59a160d87befc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecda6a43a3c8c59f0221a6e4e956939a" id="r_aecda6a43a3c8c59f0221a6e4e956939a"><td class="memItemLeft" align="right" valign="top"><a id="aecda6a43a3c8c59f0221a6e4e956939a" name="aecda6a43a3c8c59f0221a6e4e956939a"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>remove_internal</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k)</td></tr>
-<tr class="memdesc:acf99413537dbd3446e31a5165b3075d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removing with an encoded key. <br /></td></tr>
-<tr class="separator:acf99413537dbd3446e31a5165b3075d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:aecda6a43a3c8c59f0221a6e4e956939a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removing with an encoded key. <br /></td></tr>
+<tr class="separator:aecda6a43a3c8c59f0221a6e4e956939a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:acc15c445bcbb85d5ea67ba14bf843acb" id="r_acc15c445bcbb85d5ea67ba14bf843acb"><td class="memItemLeft" align="right" valign="top"><a id="acc15c445bcbb85d5ea67ba14bf843acb" name="acc15c445bcbb85d5ea67ba14bf843acb"></a>
-<a class="el" href="classunodb_1_1db.html">db</a>&lt; Key &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>db_</b></td></tr>
-<tr class="separator:acc15c445bcbb85d5ea67ba14bf843acb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae900a9156fe1cdb3bd8fbb25c35fd98" id="r_aae900a9156fe1cdb3bd8fbb25c35fd98"><td class="memItemLeft" align="right" valign="top"><a id="aae900a9156fe1cdb3bd8fbb25c35fd98" name="aae900a9156fe1cdb3bd8fbb25c35fd98"></a>
+<tr class="memitem:a85518842035171ca1f723dadc5d75415" id="r_a85518842035171ca1f723dadc5d75415"><td class="memItemLeft" align="right" valign="top"><a id="a85518842035171ca1f723dadc5d75415" name="a85518842035171ca1f723dadc5d75415"></a>
+<a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>db_</b></td></tr>
+<tr class="separator:a85518842035171ca1f723dadc5d75415"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add97f72f6599ee2ad84a39a9595ef615" id="r_add97f72f6599ee2ad84a39a9595ef615"><td class="memItemLeft" align="right" valign="top"><a id="add97f72f6599ee2ad84a39a9595ef615" name="add97f72f6599ee2ad84a39a9595ef615"></a>
 std::mutex&#160;</td><td class="memItemRight" valign="bottom"><b>mutex</b></td></tr>
-<tr class="separator:aae900a9156fe1cdb3bd8fbb25c35fd98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:add97f72f6599ee2ad84a39a9595ef615"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><div class="compoundTemplParams">template&lt;typename Key&gt;<br />
-class unodb::mutex_db&lt; Key &gt;</div><p>A thread-safe implementation of the Adaptive Radix Tree (ART) using an explicit global lock. </p>
+<div class="textblock"><div class="compoundTemplParams">template&lt;typename Key, typename Value&gt;<br />
+class unodb::mutex_db&lt; Key, Value &gt;</div><p>A thread-safe implementation of the Adaptive Radix Tree (ART) using an explicit global lock. </p>
 <p>All get, insert, remove and scan operations take the global lock and hold it for the duration of the operation.</p>
 <dl class="section see"><dt>See also</dt><dd>unodb::olc_art for a highly concurrent thread-safe ART implementation. </dd></dl>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="a79ab7f47d51caacb96cfc0ec48ff90c3" name="a79ab7f47d51caacb96cfc0ec48ff90c3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a79ab7f47d51caacb96cfc0ec48ff90c3">&#9670;&#160;</a></span>get_result</h2>
+<a id="a4f521ddf190a1659d9cdddf2d59ab55a" name="a4f521ddf190a1659d9cdddf2d59ab55a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f521ddf190a1659d9cdddf2d59ab55a">&#9670;&#160;</a></span>get_result</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Key &gt; </div>
+template&lt;typename Key , typename Value &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key &gt;::get_result =  std::pair&lt;typename <a class="el" href="classunodb_1_1db.html">db</a>&lt;Key&gt;::get_result, std::unique_lock&lt;std::mutex&gt; &gt;</td>
+          <td class="memname">using <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::get_result =  std::pair&lt;typename <a class="el" href="classunodb_1_1db.html">db</a>&lt;Key, value_view&gt;::get_result, std::unique_lock&lt;std::mutex&gt; &gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -253,19 +258,19 @@ template&lt;typename Key &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a798c9e60cfd170808182bb1a214a6528" name="a798c9e60cfd170808182bb1a214a6528"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a798c9e60cfd170808182bb1a214a6528">&#9670;&#160;</a></span>get()</h2>
+<a id="aeade57112531c5a734cb6e8390026bc3" name="aeade57112531c5a734cb6e8390026bc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeade57112531c5a734cb6e8390026bc3">&#9670;&#160;</a></span>get()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Key &gt; </div>
+template&lt;typename Key , typename Value &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classunodb_1_1mutex__db.html#a79ab7f47d51caacb96cfc0ec48ff90c3">get_result</a> <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key &gt;::get </td>
+          <td class="memname"><a class="el" href="classunodb_1_1mutex__db.html#a4f521ddf190a1659d9cdddf2d59ab55a">get_result</a> <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::get </td>
           <td>(</td>
           <td class="paramtype">Key&#160;</td>
           <td class="paramname"><em>search_key</em></td><td>)</td>
@@ -289,19 +294,19 @@ template&lt;typename Key &gt; </div>
 
 </div>
 </div>
-<a id="ad7c7386b34676c3af03a3d3a8356fa80" name="ad7c7386b34676c3af03a3d3a8356fa80"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad7c7386b34676c3af03a3d3a8356fa80">&#9670;&#160;</a></span>insert()</h2>
+<a id="ae71cb90594f0f045e65854c06c18b8b9" name="ae71cb90594f0f045e65854c06c18b8b9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae71cb90594f0f045e65854c06c18b8b9">&#9670;&#160;</a></span>insert()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Key &gt; </div>
+template&lt;typename Key , typename Value &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key &gt;::insert </td>
+          <td class="memname">bool <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::insert </td>
           <td>(</td>
           <td class="paramtype">Key&#160;</td>
           <td class="paramname"><em>insert_key</em>, </td>
@@ -309,7 +314,7 @@ template&lt;typename Key &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">value_view&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1mutex__db.html#a95da9eb65d7d477a1c43666848f8e362">value_type</a>&#160;</td>
           <td class="paramname"><em>v</em>&#160;</td>
         </tr>
         <tr>
@@ -330,7 +335,7 @@ template&lt;typename Key &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">insert_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>.</td></tr>
-    <tr><td class="paramname">v</td><td>The value to be inserted under that key.</td></tr>
+    <tr><td class="paramname">v</td><td>The value of type <code>value_type</code> to be inserted under that key.</td></tr>
   </table>
   </dd>
 </dl>
@@ -339,19 +344,19 @@ template&lt;typename Key &gt; </div>
 
 </div>
 </div>
-<a id="aa22be2f25d5dcbd7920714d0aa61d6e9" name="aa22be2f25d5dcbd7920714d0aa61d6e9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa22be2f25d5dcbd7920714d0aa61d6e9">&#9670;&#160;</a></span>insert_internal()</h2>
+<a id="a1f88ade056bf1038b2b59a160d87befc" name="a1f88ade056bf1038b2b59a160d87befc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f88ade056bf1038b2b59a160d87befc">&#9670;&#160;</a></span>insert_internal()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Key &gt; </div>
+template&lt;typename Key , typename Value &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">auto <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key &gt;::insert_internal </td>
+          <td class="memname">auto <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::insert_internal </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a>&#160;</td>
           <td class="paramname"><em>k</em>, </td>
@@ -359,7 +364,7 @@ template&lt;typename Key &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">value_view&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1mutex__db.html#a95da9eb65d7d477a1c43666848f8e362">value_type</a>&#160;</td>
           <td class="paramname"><em>v</em>&#160;</td>
         </tr>
         <tr>
@@ -380,19 +385,19 @@ template&lt;typename Key &gt; </div>
 
 </div>
 </div>
-<a id="aef63d2e198d5971577197cbfd26a5602" name="aef63d2e198d5971577197cbfd26a5602"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aef63d2e198d5971577197cbfd26a5602">&#9670;&#160;</a></span>remove()</h2>
+<a id="a4de54b9c77294c1efdcc3f290ad16b0d" name="a4de54b9c77294c1efdcc3f290ad16b0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4de54b9c77294c1efdcc3f290ad16b0d">&#9670;&#160;</a></span>remove()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Key &gt; </div>
+template&lt;typename Key , typename Value &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key &gt;::remove </td>
+          <td class="memname">bool <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::remove </td>
           <td>(</td>
           <td class="paramtype">Key&#160;</td>
           <td class="paramname"><em>search_key</em></td><td>)</td>
@@ -416,13 +421,13 @@ template&lt;typename Key &gt; </div>
 
 </div>
 </div>
-<a id="a0bc658977ddbc4e9e2d24da737c241e3" name="a0bc658977ddbc4e9e2d24da737c241e3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0bc658977ddbc4e9e2d24da737c241e3">&#9670;&#160;</a></span>scan()</h2>
+<a id="af2359973d76a675229b88bf5ef0fa8a5" name="af2359973d76a675229b88bf5ef0fa8a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af2359973d76a675229b88bf5ef0fa8a5">&#9670;&#160;</a></span>scan()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Key &gt; </div>
+template&lt;typename Key , typename Value &gt; </div>
 <div class="memtemplate">
 template&lt;typename FN &gt; </div>
 <table class="mlabels">
@@ -430,7 +435,7 @@ template&lt;typename FN &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key &gt;::scan </td>
+          <td class="memname">void <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::scan </td>
           <td>(</td>
           <td class="paramtype">FN&#160;</td>
           <td class="paramname"><em>fn</em>, </td>
@@ -466,13 +471,13 @@ template&lt;typename FN &gt; </div>
 
 </div>
 </div>
-<a id="adb13dd3ba7a9883d26d7c3def9879935" name="adb13dd3ba7a9883d26d7c3def9879935"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adb13dd3ba7a9883d26d7c3def9879935">&#9670;&#160;</a></span>scan_from()</h2>
+<a id="ab6a1564ab98be4126bf3cf65d208831f" name="ab6a1564ab98be4126bf3cf65d208831f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6a1564ab98be4126bf3cf65d208831f">&#9670;&#160;</a></span>scan_from()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Key &gt; </div>
+template&lt;typename Key , typename Value &gt; </div>
 <div class="memtemplate">
 template&lt;typename FN &gt; </div>
 <table class="mlabels">
@@ -480,7 +485,7 @@ template&lt;typename FN &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key &gt;::scan_from </td>
+          <td class="memname">void <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::scan_from </td>
           <td>(</td>
           <td class="paramtype">Key&#160;</td>
           <td class="paramname"><em>from_key</em>, </td>
@@ -523,13 +528,13 @@ template&lt;typename FN &gt; </div>
 
 </div>
 </div>
-<a id="a5d02c0dfcf291a3f5901ccb19d12d01a" name="a5d02c0dfcf291a3f5901ccb19d12d01a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5d02c0dfcf291a3f5901ccb19d12d01a">&#9670;&#160;</a></span>scan_range()</h2>
+<a id="ac8852fa0deb950e7af233b71a46ab570" name="ac8852fa0deb950e7af233b71a46ab570"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8852fa0deb950e7af233b71a46ab570">&#9670;&#160;</a></span>scan_range()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Key &gt; </div>
+template&lt;typename Key , typename Value &gt; </div>
 <div class="memtemplate">
 template&lt;typename FN &gt; </div>
 <table class="mlabels">
@@ -537,7 +542,7 @@ template&lt;typename FN &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key &gt;::scan_range </td>
+          <td class="memname">void <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::scan_range </td>
           <td>(</td>
           <td class="paramtype">Key&#160;</td>
           <td class="paramname"><em>from_key</em>, </td>

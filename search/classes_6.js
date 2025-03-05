@@ -11,5 +11,5 @@ var searchData=
   ['inode_5f48_8',['inode_48',['../classunodb_1_1detail_1_1inode__48.html',1,'unodb::detail']]],
   ['inode_5ffields_9',['inode_fields',['../structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html',1,'unodb::detail::key_prefix&lt; ArtKey, CriticalSectionPolicy &gt;::inode_fields'],['../structunodb_1_1detail_1_1key__prefix__snapshot_1_1inode__fields.html',1,'unodb::detail::key_prefix_snapshot::inode_fields']]],
   ['iter_5fresult_10',['iter_result',['../structunodb_1_1detail_1_1iter__result.html',1,'unodb::detail']]],
-  ['iterator_11',['iterator',['../classunodb_1_1db_1_1iterator.html',1,'unodb::db&lt; Key &gt;::iterator'],['../classunodb_1_1olc__db_1_1iterator.html',1,'unodb::olc_db&lt; Key &gt;::iterator']]]
+  ['iterator_11',['iterator',['../classunodb_1_1db_1_1iterator.html',1,'unodb::db&lt; Key, Value &gt;::iterator'],['../classunodb_1_1olc__db_1_1iterator.html',1,'unodb::olc_db&lt; Key, Value &gt;::iterator']]]
 ];

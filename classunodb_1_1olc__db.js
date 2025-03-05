@@ -1,16 +1,18 @@
 var classunodb_1_1olc__db =
 [
     [ "iterator", "classunodb_1_1olc__db_1_1iterator.html", "classunodb_1_1olc__db_1_1iterator" ],
-    [ "clear", "classunodb_1_1olc__db.html#a57f7edec7c843c04db0a3e149ea5768f", null ],
-    [ "empty", "classunodb_1_1olc__db.html#a51108e5930882c6beb1d4ea856908262", null ],
-    [ "get", "classunodb_1_1olc__db.html#abfe3bb17db735b4f81ef42d3171e1725", null ],
-    [ "get_internal", "classunodb_1_1olc__db.html#a9075b50039381645cad807dc305795d3", null ],
-    [ "increase_memory_use", "classunodb_1_1olc__db.html#abf5744e6ccff78db2dacdd9f34c2c0d8", null ],
-    [ "insert", "classunodb_1_1olc__db.html#ae90c4139286abcebb449aaf441688337", null ],
-    [ "insert_internal", "classunodb_1_1olc__db.html#ad8151a58f549352cc275ab8be9d018a5", null ],
-    [ "remove", "classunodb_1_1olc__db.html#a1bc77ba50f7bde2b2c8e399306e8a424", null ],
-    [ "remove_internal", "classunodb_1_1olc__db.html#a96d9bc8fcee794bd735b7880bd961afb", null ],
-    [ "scan", "classunodb_1_1olc__db.html#a9eb87e84296f5996e28524e8b6065776", null ],
-    [ "scan_from", "classunodb_1_1olc__db.html#a4885c2a0b42d34e5fab229bb4f35d1bd", null ],
-    [ "scan_range", "classunodb_1_1olc__db.html#a86bedcfd43c689c53234cbc3c7e2c72d", null ]
+    [ "key_type", "classunodb_1_1olc__db.html#aff5ef0207a6cf003ad978093ea41f765", null ],
+    [ "value_type", "classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2", null ],
+    [ "clear", "classunodb_1_1olc__db.html#a4cbf7a42e62a5d36d00820bc9579f2ff", null ],
+    [ "empty", "classunodb_1_1olc__db.html#a6beb153875791c86b4387f547331d662", null ],
+    [ "get", "classunodb_1_1olc__db.html#a59a2450d6a7997d7c4d43a8ca71a319d", null ],
+    [ "get_internal", "classunodb_1_1olc__db.html#a564f07b087eb0cc64d8a9afc384646e7", null ],
+    [ "increase_memory_use", "classunodb_1_1olc__db.html#a77817106a441d5aab184a26239f133e3", null ],
+    [ "insert", "classunodb_1_1olc__db.html#aad25013026e02d563e4e4ea0efe2d31c", null ],
+    [ "insert_internal", "classunodb_1_1olc__db.html#ac2708ef143750971fcd5c82031c91f4c", null ],
+    [ "remove", "classunodb_1_1olc__db.html#ac91a57a39e7495d4d4b627b3cca4044c", null ],
+    [ "remove_internal", "classunodb_1_1olc__db.html#a3d279a01cb25be3297a38db685d2856a", null ],
+    [ "scan", "classunodb_1_1olc__db.html#a55b7d8a934e3bd04a30fdc6472a06630", null ],
+    [ "scan_from", "classunodb_1_1olc__db.html#a1dbe69eda1ac2e562a4cfd7d580d90cd", null ],
+    [ "scan_range", "classunodb_1_1olc__db.html#a1d2fc2189158f306049b995ea4901055", null ]
 ];

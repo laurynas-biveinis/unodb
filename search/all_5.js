@@ -10,9 +10,9 @@ var searchData=
   ['child_5findex_7',['child_index',['../structunodb_1_1detail_1_1iter__result.html#a985b95e52360b47cc69e53c0ab48946e',1,'unodb::detail::iter_result']]],
   ['child_5fnot_5ffound_8',['child_not_found',['../classunodb_1_1detail_1_1basic__inode__impl.html#a6905ec23ef797ae856d05259c70385bb',1,'unodb::detail::basic_inode_impl']]],
   ['children_5funion_9',['children_union',['../unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html',1,'unodb::detail::basic_inode_48']]],
-  ['clear_10',['clear',['../classunodb_1_1mutex__db.html#a81de112353d2ee2b9219d72ee3e495da',1,'unodb::mutex_db::clear()'],['../classunodb_1_1olc__db.html#a57f7edec7c843c04db0a3e149ea5768f',1,'unodb::olc_db::clear()']]],
+  ['clear_10',['clear',['../classunodb_1_1mutex__db.html#a58a3c66a09d76f19a014875c93b1e310',1,'unodb::mutex_db::clear()'],['../classunodb_1_1olc__db.html#a4cbf7a42e62a5d36d00820bc9579f2ff',1,'unodb::olc_db::clear()']]],
   ['cmake_20options_11',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
-  ['cmp_12',['cmp',['../classunodb_1_1db_1_1iterator.html#a91e09ef9d4c7131ee015d21ae8fe108a',1,'unodb::db::iterator::cmp()'],['../structunodb_1_1detail_1_1basic__art__key.html#aaeb7df8faa6c346f5b974a50dc1331b3',1,'unodb::detail::basic_art_key::cmp(basic_art_key&lt; KeyType &gt; key2) const noexcept'],['../structunodb_1_1detail_1_1basic__art__key.html#a4c0b18ff7b89651418db68d8eb236519',1,'unodb::detail::basic_art_key::cmp(key_view key2) const noexcept'],['../classunodb_1_1detail_1_1basic__leaf.html#a83845cef7d07d2f4e99eddc1ef05e3ec',1,'unodb::detail::basic_leaf::cmp()'],['../classunodb_1_1olc__db_1_1iterator.html#a17f0370a66613d3671ded270383407bf',1,'unodb::olc_db::iterator::cmp()']]],
+  ['cmp_12',['cmp',['../classunodb_1_1db_1_1iterator.html#a903454fbe79c72dc31186ac516c63517',1,'unodb::db::iterator::cmp()'],['../structunodb_1_1detail_1_1basic__art__key.html#aaeb7df8faa6c346f5b974a50dc1331b3',1,'unodb::detail::basic_art_key::cmp(basic_art_key&lt; KeyType &gt; key2) const noexcept'],['../structunodb_1_1detail_1_1basic__art__key.html#a4c0b18ff7b89651418db68d8eb236519',1,'unodb::detail::basic_art_key::cmp(key_view key2) const noexcept'],['../classunodb_1_1detail_1_1basic__leaf.html#a83845cef7d07d2f4e99eddc1ef05e3ec',1,'unodb::detail::basic_leaf::cmp()'],['../classunodb_1_1olc__db_1_1iterator.html#a6a02994bec36f682b94dc620f3d3c155',1,'unodb::olc_db::iterator::cmp()']]],
   ['code_20organization_13',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]],
   ['code_20style_20guide_14',['Code style guide',['../md_CONTRIBUTING.html#autotoc_md5',1,'']]],
   ['coerce_5fkey_15',['coerce_key',['../classunodb_1_1test_1_1tree__verifier.html#a78be91ab9d36939edc0429cfee3ea02f',1,'unodb::test::tree_verifier']]],
@@ -27,5 +27,5 @@ var searchData=
   ['crash_24',['crash',['../namespaceunodb_1_1detail.html#aae5f331d83917453230a096af3197dc2',1,'unodb::detail']]],
   ['create_25',['create',['../classunodb_1_1detail_1_1basic__inode.html#a6d1b192d3ff5ed35faf03ad885bf7bde',1,'unodb::detail::basic_inode']]],
   ['ctz_26',['ctz',['../namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925',1,'unodb::detail']]],
-  ['current_5fnode_27',['current_node',['../classunodb_1_1olc__db_1_1iterator.html#ad2eeed2660561a3a4b588488ed72b284',1,'unodb::olc_db::iterator::current_node()'],['../classunodb_1_1db_1_1iterator.html#ac67e5768ac33e3331ac36f4d08856cc7',1,'unodb::db::iterator::current_node()']]]
+  ['current_5fnode_27',['current_node',['../classunodb_1_1olc__db_1_1iterator.html#ad87c11e34717eb2ecf457a329b6b7186',1,'unodb::olc_db::iterator::current_node()'],['../classunodb_1_1db_1_1iterator.html#a2d761d932c9fb7c82d52de8c8b575c8a',1,'unodb::db::iterator::current_node()']]]
 ];

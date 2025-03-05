@@ -12,7 +12,7 @@ var namespaceunodb =
     [ "olc_db", "classunodb_1_1olc__db.html", "classunodb_1_1olc__db" ],
     [ "optimistic_lock", "classunodb_1_1optimistic__lock.html", "classunodb_1_1optimistic__lock" ],
     [ "qsbr", "classunodb_1_1qsbr.html", null ],
-    [ "qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", null ],
+    [ "qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", "classunodb_1_1qsbr__per__thread" ],
     [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html", "classunodb_1_1qsbr__ptr" ],
     [ "qsbr_ptr_span", "classunodb_1_1qsbr__ptr__span.html", "classunodb_1_1qsbr__ptr__span" ],
     [ "qsbr_state", "structunodb_1_1qsbr__state.html", "structunodb_1_1qsbr__state" ],

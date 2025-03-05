@@ -7,7 +7,7 @@ var searchData=
   ['reclamation_4',['Quiescent State-Based Reclamation',['../group__qsbr.html',1,'']]],
   ['reclamation_20qsbr_5',['Quiescent State-Based Reclamation (QSBR)',['../index.html#autotoc_md37',1,'']]],
   ['reference_6',['reference',['../classunodb_1_1qsbr__ptr.html#a193c5790a5afb0e7d4910a3ec678c63f',1,'unodb::qsbr_ptr']]],
-  ['register_5factive_5fptr_7',['register_active_ptr',['../classunodb_1_1detail_1_1qsbr__ptr__base.html#a78497b9da6650208a8b2ce18bb67ffa2',1,'unodb::detail::qsbr_ptr_base']]],
+  ['register_5factive_5fptr_7',['register_active_ptr',['../classunodb_1_1detail_1_1qsbr__ptr__base.html#a78497b9da6650208a8b2ce18bb67ffa2',1,'unodb::detail::qsbr_ptr_base::register_active_ptr()'],['../classunodb_1_1qsbr__per__thread.html#ae39c9b13610c71dce1e166a874a4b194',1,'unodb::qsbr_per_thread::register_active_ptr()']]],
   ['rehydrate_5fread_5flock_8',['rehydrate_read_lock',['../classunodb_1_1optimistic__lock.html#a3d3bc8fc5293073acb7f1dc9b8f7080a',1,'unodb::optimistic_lock']]],
   ['related_20projects_9',['Related Projects',['../index.html#autotoc_md38',1,'']]],
   ['remove_10',['remove',['../classunodb_1_1db.html#acdd57c327e541afc96495bb543390cff',1,'unodb::db::remove()'],['../classunodb_1_1mutex__db.html#a4de54b9c77294c1efdcc3f290ad16b0d',1,'unodb::mutex_db::remove()'],['../classunodb_1_1olc__db.html#ac91a57a39e7495d4d4b627b3cca4044c',1,'unodb::olc_db::remove()']]],

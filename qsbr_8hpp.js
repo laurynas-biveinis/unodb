@@ -5,7 +5,7 @@ var qsbr_8hpp =
     [ "unodb::detail::deallocation_request", "structunodb_1_1detail_1_1deallocation__request.html", "structunodb_1_1detail_1_1deallocation__request" ],
     [ "unodb::detail::deferred_requests", "classunodb_1_1detail_1_1deferred__requests.html", "classunodb_1_1detail_1_1deferred__requests" ],
     [ "unodb::detail::dealloc_vector_list_node", "structunodb_1_1detail_1_1dealloc__vector__list__node.html", "structunodb_1_1detail_1_1dealloc__vector__list__node" ],
-    [ "unodb::qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", null ],
+    [ "unodb::qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", "classunodb_1_1qsbr__per__thread" ],
     [ "unodb::qsbr", "classunodb_1_1qsbr.html", null ],
     [ "unodb::quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", null ],
     [ "unodb::remove_cvref< T >", "structunodb_1_1remove__cvref.html", null ],

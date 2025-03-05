@@ -62,21 +62,13 @@ jobs:
         with:
           submodules: false
 
-      - name: Install Boost
-        uses: MarkusJx/install-boost@v2.4.5
-        id: install-boost
-        with:
-          boost_version: 1.80.0
-          platform_version: 2022
-          toolset: msvc
-          cache: false
-
       - name: Setup command line tools
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install dependencies
         run: |
-          vcpkg install gtest benchmark
+          vcpkg install boost-accumulators boost-stacktrace:x64-windows-static `
+              gtest benchmark
 
       - name: Configure CMake (examples)
         working-directory: examples
@@ -84,8 +76,6 @@ jobs:
           # Ensure that we use clang-cl from MSVC, not LLVM
           $env:path = $env:path -split ';' -notmatch 'C:\\Program Files\\LLVM\\bin' -join ';'
           cmake --preset "${{ matrix.preset }}"
-        env:
-          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
         if: contains(env.EXAMPLE_PRESETS, matrix.preset)
 
       - name: Build (examples)
@@ -106,8 +96,6 @@ jobs:
           # Ensure that we use clang-cl from MSVC, not LLVM
           $env:path = $env:path -split ';' -notmatch 'C:\\Program Files\\LLVM\\bin' -join ';'
           cmake --preset "${{ matrix.preset }}"
-        env:
-          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
       - name: Build
         run: |

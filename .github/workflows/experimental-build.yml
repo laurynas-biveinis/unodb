@@ -33,11 +33,6 @@ jobs:
 
       - name: Set up dependencies for macOS
         run: |
-          rm '/usr/local/bin/2to3-3.11'
-          rm '/usr/local/bin/idle3.11'
-          rm '/usr/local/bin/pydoc3.11'
-          rm '/usr/local/bin/python3.11'
-          rm '/usr/local/bin/python3.11-config'
           brew update
           brew install boost cppcheck
 

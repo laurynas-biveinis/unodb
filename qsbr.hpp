@@ -674,18 +674,22 @@ void on_thread_exit(Func fn) noexcept {
 
 }  // namespace detail
 
-// Thread-local QSBR data structure. It has deallocation request lists for the
-// previous and current epoch, as well as the last seen global epoch by any
-// operation by this thread and the last seen global epoch by a quiescent state
-// of this thread.
+/// Thread-local QSBR data structure.
+///
+/// Maintains pending deallocation requests for the previous and current epoch,
+/// tracks the last seen global epoch by any operation, and the last seen global
+/// epoch by a quiescent state for this thread.
+///
+/// Also owns the preallocated list nodes for orphaning pending previous and
+/// current interval deallocation requests on thread exit. Having them
+/// preallocated avoids heap allocations on thread exit code path, where
+/// handling any allocation failures is hard.
 class [[nodiscard]] qsbr_per_thread final {
  public:
-  [[nodiscard, gnu::pure]] bool is_qsbr_paused() const noexcept {
-    return paused;
-  }
-
+  /// Construct a new thread-local QSBR structure and register with global QSBR.
   qsbr_per_thread();
 
+  /// Unregister the current thread from global QSBR on thread exist.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   ~qsbr_per_thread() noexcept {
     if (!is_qsbr_paused()) {
@@ -720,6 +724,15 @@ class [[nodiscard]] qsbr_per_thread final {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  /// Request deallocation of \a pointer when it is safe to do so.
+  ///
+  /// \param pointer Memory to deallocate
+#ifdef UNODB_DETAIL_WITH_STATS
+  /// \param size Size of the memory, for statistics
+#endif
+#ifndef NDEBUG
+  /// \param dealloc_callback Debug callback to execute during deallocation
+#endif
   void on_next_epoch_deallocate(
       void *pointer
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -732,44 +745,75 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
   );
 
+  /// Signal that this thread is quiescent.
+  /// \pre No active pointers to QSBR-managed data must be held.
   void quiescent()
 #ifndef UNODB_DETAIL_WITH_STATS
       noexcept
 #endif
       ;
 
+  /// Pause QSBR for this thread, unregistering from global QSBR.
+  /// \pre No active pointers to QSBR-managed data must be held.
+  /// \pre QSBR must not be paused for this thread.
   void qsbr_pause()
 #ifndef UNODB_DETAIL_WITH_STATS
       noexcept
 #endif
       ;
 
+  /// Resume QSBR for this thread, registering with global QSBR.
+  /// \pre QSBR must be paused for this thread.
   void qsbr_resume();
 
+  /// Check if QSBR is paused for this thread.
+  [[nodiscard, gnu::pure]] bool is_qsbr_paused() const noexcept {
+    return paused;
+  }
+
+  /// Check if there are no deallocation requests for the previous epoch.
   [[nodiscard]] bool previous_interval_requests_empty() const noexcept {
     return previous_interval_dealloc_requests.empty();
   }
 
+  /// Check if there are no deallocation requests for the current epoch.
   [[nodiscard]] bool current_interval_requests_empty() const noexcept {
     return current_interval_dealloc_requests.empty();
   }
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
-  [[nodiscard]] std::size_t get_current_interval_total_dealloc_size()
+  /// Get the total size of memory submitted for deallocation in the current
+  /// epoch.
+  [[nodiscard, gnu::pure]] std::size_t get_current_interval_total_dealloc_size()
       const noexcept {
     return current_interval_total_dealloc_size;
   }
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
+  /// Copy construction is disabled for a per-thread singleton.
   qsbr_per_thread(const qsbr_per_thread &) = delete;
+
+  /// Move construction is disabled for a per-thread singleton.
   qsbr_per_thread(qsbr_per_thread &&) = delete;
+
+  /// Copy assignment is disabled for a per-thread singleton.
   qsbr_per_thread &operator=(const qsbr_per_thread &) = delete;
+
+  /// Move assignment is disabled for a per-thread singleton.
   qsbr_per_thread &operator=(qsbr_per_thread &&) = delete;
 
+  // TODO(laurynas): make private with qsbr_ptr friend
 #ifndef NDEBUG
+  /// Register an active pointer \a ptr to QSBR-managed data in this thread.
+  ///
+  /// \note Do not call directly: use unodb::qsbr_ptr instead.
   void register_active_ptr(const void *ptr);
+
+  /// Unregister an active pointer \a ptr to QSBR-managed data in this thread.
+  ///
+  /// \note Do not call directly: use unodb::qsbr_ptr instead.
   void unregister_active_ptr(const void *ptr);
 #endif
 
@@ -779,10 +823,12 @@ class [[nodiscard]] qsbr_per_thread final {
   friend qsbr_per_thread &this_thread() noexcept;
   friend struct detail::set_qsbr_per_thread_in_main_thread;
 
+  /// Get the thread-local QSBR data structure instance.
   [[nodiscard]] static qsbr_per_thread &get_instance() noexcept {
     return *current_thread_instance;
   }
 
+  /// Make \a new_instance to be the thread-local QSBR data structure instance.
   static void set_instance(
       std::unique_ptr<qsbr_per_thread> new_instance) noexcept {
     current_thread_instance = std::move(new_instance);
@@ -795,36 +841,54 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
   }
 
+  /// The thread-local QSBR instance.
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
   thread_local static std::unique_ptr<qsbr_per_thread> current_thread_instance;
 
-  // Preallocated list nodes for orphaning the requests to avoid memory
-  // allocation on thread exit code path.
+  /// Preallocated list node for orphaning pending previous epoch requests on
+  /// thread exit.
+  /// \hideinitializer
   std::unique_ptr<detail::dealloc_vector_list_node>
       previous_interval_orphan_list_node{
           std::make_unique<detail::dealloc_vector_list_node>()};
 
+  /// Preallocated list node for orphaning pending current epoch requests on
+  /// thread exit.
+  /// \hideinitializer
   std::unique_ptr<detail::dealloc_vector_list_node>
       current_interval_orphan_list_node{
           std::make_unique<detail::dealloc_vector_list_node>()};
 
+  /// Number of quiescent states since the last epoch change.
   std::uint64_t quiescent_states_since_epoch_change{0};
 
-  // Last seen global epoch by quiescent state for this thread
+  /// Last seen global epoch by quiescent state for this thread.
   detail::qsbr_epoch last_seen_quiescent_state_epoch;
 
-  // Last seen global epoch by any operation for this thread
+  /// Last seen global epoch by any operation for this thread.
   detail::qsbr_epoch last_seen_epoch;
 
+  /// Pending deallocation requests for the previous epoch.
   detail::dealloc_request_vector previous_interval_dealloc_requests;
+
+  /// Pending deallocation requests for the current epoch.
   detail::dealloc_request_vector current_interval_dealloc_requests;
 
+  /// Whether QSBR participation is currently paused for this thread.
   bool paused{false};
 
 #ifdef UNODB_DETAIL_WITH_STATS
+  /// Total size of memory that was submitted for deallocation in the current
+  /// epoch.
   std::size_t current_interval_total_dealloc_size{0};
 #endif  // UNODB_DETAIL_WITH_STATS
 
+  /// Update this thread's view of the current epoch and execute the previous
+  /// interval deallocation requests if a newer epoch is seen.
+  ///
+  /// \param single_thread_mode Whether QSBR is in single-thread mode
+  /// \param new_seen_epoch The new epoch to advance to
+  /// \param new_current_requests Deallocation requests for the current epoch
   void advance_last_seen_epoch(
       bool single_thread_mode, detail::qsbr_epoch new_seen_epoch,
       detail::dealloc_request_vector new_current_requests = {})
@@ -833,6 +897,13 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
       ;
 
+  /// Execute the previous interval deallocation requests and move the
+  /// current interval ones to the previous interval.
+  ///
+  /// \param single_thread_mode Whether QSBR is in single-thread mode
+  /// \param dealloc_epoch Deallocation epoch
+  /// \param new_current_requests New deallocation requests for the current
+  ///                             epoch
   void update_requests(bool single_thread_mode,
                        detail::qsbr_epoch dealloc_epoch,
                        detail::dealloc_request_vector new_current_requests = {})
@@ -841,9 +912,12 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
       ;
 
+  /// Move any pending deallocation requests to the global QSBR structure when
+  /// the thread exits.
   void orphan_deferred_requests() noexcept;
 
 #ifndef NDEBUG
+  /// Set of active pointers to QSBR-managed data held by this thread.
   std::unordered_multiset<const void *> active_ptrs;
 #endif
 };

@@ -284,9 +284,11 @@ class basic_db_leaf_deleter {
 };
 
 // Not taken from Db to break a dependency circle
-template <typename Key, class Header, template <typename> class Db>
+template <typename Key, typename Value, class Header,
+          template <typename, typename> class Db>
 using basic_db_leaf_unique_ptr =
-    std::unique_ptr<basic_leaf<Key, Header>, basic_db_leaf_deleter<Db<Key>>>;
+    std::unique_ptr<basic_leaf<Key, Header>,
+                    basic_db_leaf_deleter<Db<Key, Value>>>;
 
 template <class T>
 struct dependent_false : std::false_type {};

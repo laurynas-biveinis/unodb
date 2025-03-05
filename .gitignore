@@ -38,6 +38,7 @@
 # CMake build dirs
 /build
 examples/build
+examples/compile_commands.json
 !build.yml
 /BUILD.bazel
 

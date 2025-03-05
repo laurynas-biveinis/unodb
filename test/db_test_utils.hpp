@@ -40,23 +40,25 @@
 #include "qsbr.hpp"
 #include "test_heap.hpp"
 
-extern template class unodb::db<std::uint64_t>;
-extern template class unodb::mutex_db<std::uint64_t>;
-extern template class unodb::olc_db<std::uint64_t>;
+extern template class unodb::db<std::uint64_t, unodb::value_view>;
+extern template class unodb::mutex_db<std::uint64_t, unodb::value_view>;
+extern template class unodb::olc_db<std::uint64_t, unodb::value_view>;
 
-extern template class unodb::db<unodb::key_view>;
-extern template class unodb::mutex_db<unodb::key_view>;
-extern template class unodb::olc_db<unodb::key_view>;
+extern template class unodb::db<unodb::key_view, unodb::value_view>;
+extern template class unodb::mutex_db<unodb::key_view, unodb::value_view>;
+extern template class unodb::olc_db<unodb::key_view, unodb::value_view>;
 
 namespace unodb::test {
 
 template <class TestDb>
 constexpr bool is_olc_db =
-    std::is_same_v<TestDb, unodb::olc_db<typename TestDb ::key_type>>;
+    std::is_same_v<TestDb, unodb::olc_db<typename TestDb::key_type,
+                                         typename TestDb::value_type>>;
 
 template <class TestDb>
 constexpr bool is_mutex_db =
-    std::is_same_v<TestDb, unodb::mutex_db<typename TestDb ::key_type>>;
+    std::is_same_v<TestDb, unodb::mutex_db<typename TestDb::key_type,
+                                           typename TestDb::value_type>>;
 
 template <class TestDb>
 using thread = typename std::conditional_t<is_olc_db<TestDb>,
@@ -160,6 +162,7 @@ void assert_result_eq(const Db &db, typename Db::key_type key,
 template <class Db>
 class [[nodiscard]] tree_verifier final {
   using key_type = typename Db::key_type;
+  using value_type = typename Db::value_type;
 
   // replaces the use of try_get(0) with a parameterized key type.
   key_type unused_key{};
@@ -781,13 +784,13 @@ class [[nodiscard]] tree_verifier final {
   std::vector<std::array<std::byte, sizeof(std::uint64_t)>> key_views{};
 };
 
-using u64_db = unodb::db<std::uint64_t>;
-using u64_mutex_db = unodb::mutex_db<std::uint64_t>;
-using u64_olc_db = unodb::olc_db<std::uint64_t>;
+using u64_db = unodb::db<std::uint64_t, unodb::value_view>;
+using u64_mutex_db = unodb::mutex_db<std::uint64_t, unodb::value_view>;
+using u64_olc_db = unodb::olc_db<std::uint64_t, unodb::value_view>;
 
-using key_view_db = unodb::db<key_view>;
-using key_view_mutex_db = unodb::mutex_db<key_view>;
-using key_view_olc_db = unodb::olc_db<key_view>;
+using key_view_db = unodb::db<unodb::key_view, unodb::value_view>;
+using key_view_mutex_db = unodb::mutex_db<unodb::key_view, unodb::value_view>;
+using key_view_olc_db = unodb::olc_db<unodb::key_view, unodb::value_view>;
 
 extern template class tree_verifier<u64_db>;
 extern template class tree_verifier<u64_mutex_db>;

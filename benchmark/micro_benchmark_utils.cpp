@@ -23,11 +23,11 @@ void destroy_tree(Db &instance, ::benchmark::State &state) {
   state.ResumeTiming();
 }
 
-template void destroy_tree<unodb::db<std::uint64_t>>(unodb::db<std::uint64_t> &,
-                                                     ::benchmark::State &);
-template void destroy_tree<unodb::mutex_db<std::uint64_t>>(
-    unodb::mutex_db<std::uint64_t> &, ::benchmark::State &);
-template void destroy_tree<unodb::olc_db<std::uint64_t>>(
-    unodb::olc_db<std::uint64_t> &, ::benchmark::State &);
+template void destroy_tree<unodb::db<std::uint64_t, unodb::value_view>>(
+    unodb::db<std::uint64_t, unodb::value_view> &, ::benchmark::State &);
+template void destroy_tree<unodb::mutex_db<std::uint64_t, unodb::value_view>>(
+    unodb::mutex_db<std::uint64_t, unodb::value_view> &, ::benchmark::State &);
+template void destroy_tree<unodb::olc_db<std::uint64_t, unodb::value_view>>(
+    unodb::olc_db<std::uint64_t, unodb::value_view> &, ::benchmark::State &);
 
 }  // namespace unodb::benchmark

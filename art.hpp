@@ -26,19 +26,19 @@ namespace unodb {
 
 namespace detail {
 
-template <typename Key>
+template <typename Key, typename Value>
 class inode;  // IWYU pragma: keep
 
-template <typename Key>
+template <typename Key, typename Value>
 class inode_4;
 
-template <typename Key>
+template <typename Key, typename Value>
 class inode_16;
 
-template <typename Key>
+template <typename Key, typename Value>
 class inode_48;
 
-template <typename Key>
+template <typename Key, typename Value>
 class inode_256;
 
 struct [[nodiscard]] node_header {};
@@ -49,52 +49,58 @@ using node_ptr = basic_node_ptr<node_header>;
 
 struct impl_helpers;
 
-template <typename Key>
-using inode_defs = basic_inode_def<inode<Key>, inode_4<Key>, inode_16<Key>,
-                                   inode_48<Key>, inode_256<Key>>;
+template <typename Key, typename Value>
+using inode_defs = basic_inode_def<inode<Key, Value>, inode_4<Key, Value>,
+                                   inode_16<Key, Value>, inode_48<Key, Value>,
+                                   inode_256<Key, Value>>;
 
-template <typename Key, class INode>
-using db_inode_deleter = basic_db_inode_deleter<INode, unodb::db<Key>>;
+template <typename Key, typename Value, class INode>
+using db_inode_deleter = basic_db_inode_deleter<INode, unodb::db<Key, Value>>;
 
-template <typename Key>
+template <typename Key, typename Value>
 using art_policy =
-    basic_art_policy<Key, unodb::db, unodb::in_fake_critical_section,
+    basic_art_policy<Key, Value, unodb::db, unodb::in_fake_critical_section,
                      unodb::fake_lock, unodb::fake_read_critical_section,
                      node_ptr, inode_defs, db_inode_deleter,
                      basic_db_leaf_deleter>;
 
-template <typename Key>
-using inode_base = basic_inode_impl<art_policy<Key>>;
+template <typename Key, typename Value>
+using inode_base = basic_inode_impl<art_policy<Key, Value>>;
 
 template <typename Key>
 using leaf_type = basic_leaf<Key, node_header>;
 
-template <typename Key>
-class inode : public inode_base<Key> {};
+template <typename Key, typename Value>
+class inode : public inode_base<Key, Value> {};
 
 }  // namespace detail
 
-template <typename Key>
+template <typename Key, typename Value>
 class mutex_db;
 
 /// A non-thread-safe implementation of the Adaptive Radix Tree (ART).
 ///
-/// See olc_art for a highly concurrent thread-safe ART
-/// implementation.
-template <typename Key>
+/// \sa olc_art for a highly concurrent thread-safe ART implementation.
+template <typename Key, typename Value>
 class db final {
-  friend class mutex_db<Key>;
+  friend class mutex_db<Key, Value>;
 
  public:
+  /// The type of the keys in the index.
   using key_type = Key;
+  /// The type of the value associated with the keys in the index.
+  using value_type = Value;
   using value_view = unodb::value_view;
   using get_result = std::optional<value_view>;
-  using inode_base = detail::inode_base<Key>;
+  using inode_base = detail::inode_base<Key, Value>;
+
+  // TODO(laurynas): added temporarily during development
+  static_assert(std::is_same_v<value_type, unodb::value_view>);
 
  private:
   using art_key_type = detail::basic_art_key<Key>;
   using leaf_type = detail::leaf_type<Key>;
-  using db_type = db<Key>;
+  using db_type = db<Key, Value>;
 
   /// Query for a value associated with an encoded key.
   [[nodiscard, gnu::pure]] get_result get_internal(
@@ -106,7 +112,7 @@ class db final {
   /// `std::uncaught_exceptions() > 0`.
   ///
   /// \return true iff the key value pair was inserted.
-  [[nodiscard]] bool insert_internal(art_key_type insert_key, value_view v);
+  [[nodiscard]] bool insert_internal(art_key_type insert_key, value_type v);
 
   /// Remove the entry associated with the encoded key.
   ///
@@ -152,11 +158,13 @@ class db final {
   /// assumed to already be a binary comparable key, e.g., as produced by
   /// unodb::key_encoder.
   ///
+  /// \param v The value of type `value_type` to be inserted under that key.
+  ///
   /// \return true iff the key value pair was inserted.
   ///
   /// \sa key_encoder, which provides for encoding text and multi-field records
   /// when Key is unodb::key_view.
-  [[nodiscard]] bool insert(Key insert_key, value_view v) {
+  [[nodiscard]] bool insert(Key insert_key, value_type v) {
     const art_key_type k{insert_key};
     return insert_internal(k, v);
   }
@@ -205,6 +213,7 @@ class db final {
 
    public:
     using key_type = Key;
+    using value_type = Value;
 
     // EXPOSED TO THE TESTS
 
@@ -565,13 +574,13 @@ class db final {
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const;
 
  private:
-  using art_policy = detail::art_policy<Key>;
+  using art_policy = detail::art_policy<Key, Value>;
   using header_type = typename art_policy::header_type;
-  using inode_type = detail::inode<Key>;
-  using inode_4 = detail::inode_4<Key>;
+  using inode_type = detail::inode<Key, Value>;
+  using inode_4 = detail::inode_4<Key, Value>;
   using tree_depth_type = detail::tree_depth<art_key_type>;
   using visitor_type = visitor<db_type::iterator>;
-  using inode_defs_type = detail::inode_defs<Key>;
+  using inode_defs_type = detail::inode_defs<Key, Value>;
 
   void delete_root_subtree() noexcept;
 
@@ -633,20 +642,22 @@ class db final {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-  friend auto detail::make_db_leaf_ptr<Key, db>(art_key_type, value_view, db&);
+  friend auto detail::make_db_leaf_ptr<Key, Value, db>(art_key_type, value_view,
+                                                       db&);
 
   template <class>
   friend class detail::basic_db_leaf_deleter;
 
-  template <typename,                   // Key
-            template <typename> class,  // Db
-            template <typename> class,  // CriticalSectionPolicy
-            class,                      // Fake lock implementation
+  template <typename,                             // Key
+            typename,                             // Value
+            template <typename, typename> class,  // Db
+            template <class> class,               // CriticalSectionPolicy
+            class,                                // Fake lock implementation
             class,  // Fake read_critical_section implementation
             class,  // NodePtr
-            template <typename> class,         // INodeDefs
-            template <typename, class> class,  // INodeReclamator
-            template <class> class>            // LeafReclamator
+            template <typename, typename> class,         // INodeDefs
+            template <typename, typename, class> class,  // INodeReclamator
+            template <class> class>                      // LeafReclamator
   friend struct detail::basic_art_policy;
 
   template <typename, class>
@@ -662,31 +673,31 @@ struct impl_helpers {
   // constexpr branch, such as node_in_parent for inode_256.
   UNODB_DETAIL_DISABLE_GCC_10_WARNING("-Wunused-parameter")
 
-  template <typename Key, class INode>
+  template <typename Key, typename Value, class INode>
   [[nodiscard]] static detail::node_ptr* add_or_choose_subtree(
       INode& inode, std::byte key_byte, basic_art_key<Key> k, value_view v,
-      db<Key>& db_instance, tree_depth<basic_art_key<Key>> depth,
+      db<Key, Value>& db_instance, tree_depth<basic_art_key<Key>> depth,
       detail::node_ptr* node_in_parent);
 
   UNODB_DETAIL_RESTORE_GCC_10_WARNINGS()
 
-  template <typename Key, class INode>
+  template <typename Key, typename Value, class INode>
   [[nodiscard]] static std::optional<detail::node_ptr*>
   remove_or_choose_subtree(INode& inode, std::byte key_byte,
-                           basic_art_key<Key> k, db<Key>& db_instance,
+                           basic_art_key<Key> k, db<Key, Value>& db_instance,
                            detail::node_ptr* node_in_parent);
 
   impl_helpers() = delete;
 };
 
-template <typename Key>
-using inode_4_parent = basic_inode_4<art_policy<Key>>;
+template <typename Key, typename Value>
+using inode_4_parent = basic_inode_4<art_policy<Key, Value>>;
 
-template <typename Key>
-class [[nodiscard]] inode_4 final : public inode_4_parent<Key> {
+template <typename Key, typename Value>
+class [[nodiscard]] inode_4 final : public inode_4_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_4_parent<Key>::inode_4_parent;
+  using inode_4_parent<Key, Value>::inode_4_parent;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -701,7 +712,7 @@ class [[nodiscard]] inode_4 final : public inode_4_parent<Key> {
   }
 };
 
-using inode_4_test_type = inode_4<std::uint64_t>;
+using inode_4_test_type = inode_4<std::uint64_t, unodb::value_view>;
 #ifndef _MSC_VER
 static_assert(sizeof(inode_4_test_type) == 48);
 #else
@@ -710,14 +721,14 @@ static_assert(sizeof(inode_4_test_type) == 48);
 static_assert(sizeof(inode_4_test_type) == 56);
 #endif
 
-template <typename Key>
-using inode_16_parent = basic_inode_16<art_policy<Key>>;
+template <typename Key, typename Value>
+using inode_16_parent = basic_inode_16<art_policy<Key, Value>>;
 
-template <typename Key>
-class [[nodiscard]] inode_16 final : public inode_16_parent<Key> {
+template <typename Key, typename Value>
+class [[nodiscard]] inode_16 final : public inode_16_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_16_parent<Key>::inode_16_parent;
+  using inode_16_parent<Key, Value>::inode_16_parent;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -732,16 +743,16 @@ class [[nodiscard]] inode_16 final : public inode_16_parent<Key> {
   }
 };
 
-static_assert(sizeof(inode_16<std::uint64_t>) == 160);
+static_assert(sizeof(inode_16<std::uint64_t, unodb ::value_view>) == 160);
 
-template <typename Key>
-using inode_48_parent = basic_inode_48<art_policy<Key>>;
+template <typename Key, typename Value>
+using inode_48_parent = basic_inode_48<art_policy<Key, Value>>;
 
-template <typename Key>
-class [[nodiscard]] inode_48 final : public inode_48_parent<Key> {
+template <typename Key, typename Value>
+class [[nodiscard]] inode_48 final : public inode_48_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_48_parent<Key>::inode_48_parent;
+  using inode_48_parent<Key, Value>::inode_48_parent;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -756,21 +767,21 @@ class [[nodiscard]] inode_48 final : public inode_48_parent<Key> {
   }
 };
 
-using inode_48_test_type = inode_48<std::uint64_t>;
+using inode_48_test_type = inode_48<std::uint64_t, unodb::value_view>;
 #ifdef UNODB_DETAIL_AVX2
 static_assert(sizeof(inode_48_test_type) == 672);
 #else
 static_assert(sizeof(inode_48_test_type) == 656);
 #endif
 
-template <typename Key>
-using inode_256_parent = basic_inode_256<art_policy<Key>>;
+template <typename Key, typename Value>
+using inode_256_parent = basic_inode_256<art_policy<Key, Value>>;
 
-template <typename Key>
-class [[nodiscard]] inode_256 final : public inode_256_parent<Key> {
+template <typename Key, typename Value>
+class [[nodiscard]] inode_256 final : public inode_256_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_256_parent<Key>::inode_256_parent;
+  using inode_256_parent<Key, Value>::inode_256_parent;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -785,7 +796,7 @@ class [[nodiscard]] inode_256 final : public inode_256_parent<Key> {
   }
 };
 
-static_assert(sizeof(inode_256<std::uint64_t>) == 2064);
+static_assert(sizeof(inode_256<std::uint64_t, unodb::value_view>) == 2064);
 
 // Because we cannot dereference, load(), & take address of - it is a temporary
 // by then
@@ -796,20 +807,20 @@ inline auto* unwrap_fake_critical_section(
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-template <typename Key, class INode>
+template <typename Key, typename Value, class INode>
 detail::node_ptr* impl_helpers::add_or_choose_subtree(
     INode& inode, std::byte key_byte, basic_art_key<Key> k, value_view v,
-    db<Key>& db_instance, tree_depth<basic_art_key<Key>> depth,
+    db<Key, Value>& db_instance, tree_depth<basic_art_key<Key>> depth,
     detail::node_ptr* node_in_parent) {
   auto* const child =
       unwrap_fake_critical_section(inode.find_child(key_byte).second);
 
   if (child != nullptr) return child;
 
-  auto leaf = art_policy<Key>::make_db_leaf_ptr(k, v, db_instance);
+  auto leaf = art_policy<Key, Value>::make_db_leaf_ptr(k, v, db_instance);
   const auto children_count = inode.get_children_count();
 
-  if constexpr (!std::is_same_v<INode, inode_256<Key>>) {
+  if constexpr (!std::is_same_v<INode, inode_256<Key, Value>>) {
     if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
       auto larger_node{INode::larger_derived_type::create(
           db_instance, inode, std::move(leaf), depth)};
@@ -826,10 +837,10 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
   return child;
 }
 
-template <typename Key, class INode>
+template <typename Key, typename Value, class INode>
 std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
     INode& inode, std::byte key_byte, basic_art_key<Key> k,
-    db<Key>& db_instance, detail::node_ptr* node_in_parent) {
+    db<Key, Value>& db_instance, detail::node_ptr* node_in_parent) {
   const auto [child_i, child_ptr]{inode.find_child(key_byte)};
 
   if (child_ptr == nullptr) return {};
@@ -839,13 +850,13 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
     return unwrap_fake_critical_section(child_ptr);
 
   const auto* const leaf{
-      child_ptr_val.template ptr<typename db<Key>::leaf_type*>()};
+      child_ptr_val.template ptr<typename db<Key, Value>::leaf_type*>()};
   if (!leaf->matches(k)) return {};
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
-    if constexpr (std::is_same_v<INode, inode_4<Key>>) {
-      auto current_node{
-          art_policy<Key>::make_db_inode_unique_ptr(&inode, db_instance)};
+    if constexpr (std::is_same_v<INode, inode_4<Key, Value>>) {
+      auto current_node{art_policy<Key, Value>::make_db_inode_unique_ptr(
+          &inode, db_instance)};
       *node_in_parent = current_node->leave_last_child(child_i, db_instance);
     } else {
       auto new_node{
@@ -865,13 +876,13 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
 
 }  // namespace detail
 
-template <typename Key>
-db<Key>::~db() noexcept {
+template <typename Key, typename Value>
+db<Key, Value>::~db() noexcept {
   delete_root_subtree();
 }
 
-template <typename Key>
-typename db<Key>::get_result db<Key>::get_internal(
+template <typename Key, typename Value>
+typename db<Key, Value>::get_result db<Key, Value>::get_internal(
     art_key_type k) const noexcept {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
 
@@ -904,8 +915,8 @@ typename db<Key>::get_result db<Key>::get_internal(
 }
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
-template <typename Key>
-bool db<Key>::insert_internal(art_key_type k, value_view v) {
+template <typename Key, typename Value>
+bool db<Key, Value>::insert_internal(art_key_type k, value_type v) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
     auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
     root = detail::node_ptr{leaf.release(), node_type::LEAF};
@@ -978,8 +989,8 @@ bool db<Key>::insert_internal(art_key_type k, value_view v) {
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-template <typename Key>
-bool db<Key>::remove_internal(art_key_type k) {
+template <typename Key, typename Value>
+bool db<Key, Value>::remove_internal(art_key_type k) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
 
   if (root.type() == node_type::LEAF) {
@@ -1034,8 +1045,8 @@ bool db<Key>::remove_internal(art_key_type k) {
 // TODO(laurynas): the method pairs first, last; next, prior;
 // left_most_traversal, right_most_traversal are identical except for a couple
 // lines. Extract helper methods templatized on the differences.
-template <typename Key>
-typename db<Key>::iterator& db<Key>::iterator::first() {
+template <typename Key, typename Value>
+typename db<Key, Value>::iterator& db<Key, Value>::iterator::first() {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
   auto node{db_.root};
@@ -1045,8 +1056,8 @@ typename db<Key>::iterator& db<Key>::iterator::first() {
 // Traverse to the right-most leaf. The stack is cleared first and then
 // re-populated as we step down along the path to the right-most leaf.
 // If the tree is empty, then the result is the same as end().
-template <typename Key>
-typename db<Key>::iterator& db<Key>::iterator::last() {
+template <typename Key, typename Value>
+typename db<Key, Value>::iterator& db<Key, Value>::iterator::last() {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
   auto node{db_.root};
@@ -1054,8 +1065,8 @@ typename db<Key>::iterator& db<Key>::iterator::last() {
 }
 
 // Position the iterator on the next leaf in the index.
-template <typename Key>
-typename db<Key>::iterator& db<Key>::iterator::next() {
+template <typename Key, typename Value>
+typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
   while (!empty()) {
     auto e = top();
     auto node{e.node};
@@ -1084,8 +1095,8 @@ typename db<Key>::iterator& db<Key>::iterator::next() {
 }
 
 // Position the iterator on the prior leaf in the index.
-template <typename Key>
-typename db<Key>::iterator& db<Key>::iterator::prior() {
+template <typename Key, typename Value>
+typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
   while (!empty()) {
     auto e = top();
     auto node{e.node};
@@ -1116,9 +1127,9 @@ typename db<Key>::iterator& db<Key>::iterator::prior() {
 // Push the given node onto the stack and traverse from the caller's
 // node to the left-most leaf under that node, pushing nodes onto the
 // stack as they are visited.
-template <typename Key>
-typename db<Key>::iterator& db<Key>::iterator::left_most_traversal(
-    detail::node_ptr node) {
+template <typename Key, typename Value>
+typename db<Key, Value>::iterator&
+db<Key, Value>::iterator::left_most_traversal(detail::node_ptr node) {
   while (true) {
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
@@ -1138,9 +1149,9 @@ typename db<Key>::iterator& db<Key>::iterator::left_most_traversal(
 // Push the given node onto the stack and traverse from the caller's
 // node to the right-most leaf under that node, pushing nodes onto the
 // stack as they are visited.
-template <typename Key>
-typename db<Key>::iterator& db<Key>::iterator::right_most_traversal(
-    detail::node_ptr node) {
+template <typename Key, typename Value>
+typename db<Key, Value>::iterator&
+db<Key, Value>::iterator::right_most_traversal(detail::node_ptr node) {
   while (true) {
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
@@ -1164,9 +1175,9 @@ typename db<Key>::iterator& db<Key>::iterator::right_most_traversal(
 // consider the cases for both forward traversal and reverse traversal
 // from a key that is not in the data.  See method declartion for
 // details.
-template <typename Key>
-typename db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key,
-                                                    bool& match, bool fwd) {
+template <typename Key, typename Value>
+typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
+    art_key_type search_key, bool& match, bool fwd) {
   invalidate();   // invalidate the iterator (clear the stack).
   match = false;  // unless we wind up with an exact match.
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // aka end()
@@ -1316,8 +1327,8 @@ typename db<Key>::iterator& db<Key>::iterator::seek(art_key_type search_key,
 }
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-template <typename Key>
-key_view db<Key>::iterator::get_key() {
+template <typename Key, typename Value>
+key_view db<Key, Value>::iterator::get_key() {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   // TODO(thompsonbry) : variable length keys. The simplest case
   // where this does not work today is a single root leaf.  In that
@@ -1333,8 +1344,8 @@ key_view db<Key>::iterator::get_key() {
 }
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
-template <typename Key>
-const value_view db<Key>::iterator::get_val() const {
+template <typename Key, typename Value>
+const value_view db<Key, Value>::iterator::get_val() const {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
@@ -1347,9 +1358,9 @@ const value_view db<Key>::iterator::get_val() const {
 /// ART scan implementations.
 ///
 
-template <typename Key>
+template <typename Key, typename Value>
 template <typename FN>
-void db<Key>::scan(FN fn, bool fwd) {
+void db<Key, Value>::scan(FN fn, bool fwd) {
   if (fwd) {
     iterator it(*this);
     it.first();
@@ -1369,9 +1380,9 @@ void db<Key>::scan(FN fn, bool fwd) {
   }
 }
 
-template <typename Key>
+template <typename Key, typename Value>
 template <typename FN>
-void db<Key>::scan_from(Key from_key, FN fn, bool fwd) {
+void db<Key, Value>::scan_from(Key from_key, FN fn, bool fwd) {
   art_key_type from_key_{from_key};  // convert to internal key
   bool match{};
   if (fwd) {
@@ -1393,9 +1404,9 @@ void db<Key>::scan_from(Key from_key, FN fn, bool fwd) {
   }
 }
 
-template <typename Key>
+template <typename Key, typename Value>
 template <typename FN>
-void db<Key>::scan_range(Key from_key, Key to_key, FN fn) {
+void db<Key, Value>::scan_range(Key from_key, Key to_key, FN fn) {
   // TODO(thompsonbry) : variable length keys. Explore a cheaper way
   // to handle the exclusive bound case when developing variable
   // length key support based on the maintained key buffer.
@@ -1443,8 +1454,8 @@ void db<Key>::scan_range(Key from_key, Key to_key, FN fn) {
   }
 }
 
-template <typename Key>
-void db<Key>::delete_root_subtree() noexcept {
+template <typename Key, typename Value>
+void db<Key, Value>::delete_root_subtree() noexcept {
   if (root != nullptr) art_policy::delete_subtree(root, *this);
 
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -1454,8 +1465,8 @@ void db<Key>::delete_root_subtree() noexcept {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-template <typename Key>
-void db<Key>::clear() noexcept {
+template <typename Key, typename Value>
+void db<Key, Value>::clear() noexcept {
   delete_root_subtree();
 
   root = nullptr;
@@ -1470,18 +1481,18 @@ void db<Key>::clear() noexcept {
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
-template <typename Key>
+template <typename Key, typename Value>
 template <class INode>
-constexpr void db<Key>::increment_inode_count() noexcept {
+constexpr void db<Key, Value>::increment_inode_count() noexcept {
   static_assert(inode_defs_type::template is_inode<INode>());
 
   ++node_counts[as_i<INode::type>];
   increase_memory_use(sizeof(INode));
 }
 
-template <typename Key>
+template <typename Key, typename Value>
 template <class INode>
-constexpr void db<Key>::decrement_inode_count() noexcept {
+constexpr void db<Key, Value>::decrement_inode_count() noexcept {
   static_assert(inode_defs_type::template is_inode<INode>());
   UNODB_DETAIL_ASSERT(node_counts[as_i<INode::type>] > 0);
 
@@ -1489,9 +1500,9 @@ constexpr void db<Key>::decrement_inode_count() noexcept {
   decrease_memory_use(sizeof(INode));
 }
 
-template <typename Key>
+template <typename Key, typename Value>
 template <node_type NodeType>
-constexpr void db<Key>::account_growing_inode() noexcept {
+constexpr void db<Key, Value>::account_growing_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
   // NOLINTNEXTLINE(google-readability-casting)
@@ -1500,9 +1511,9 @@ constexpr void db<Key>::account_growing_inode() noexcept {
                       node_counts[as_i<NodeType>]);
 }
 
-template <typename Key>
+template <typename Key, typename Value>
 template <node_type NodeType>
-constexpr void db<Key>::account_shrinking_inode() noexcept {
+constexpr void db<Key, Value>::account_shrinking_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
   ++shrinking_inode_counts[internal_as_i<NodeType>];
@@ -1512,8 +1523,8 @@ constexpr void db<Key>::account_shrinking_inode() noexcept {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-template <typename Key>
-void db<Key>::dump(std::ostream& os) const {
+template <typename Key, typename Value>
+void db<Key, Value>::dump(std::ostream& os) const {
 #ifdef UNODB_DETAIL_WITH_STATS
   os << "db dump, current memory use = " << get_current_memory_use() << '\n';
 #else
@@ -1523,8 +1534,8 @@ void db<Key>::dump(std::ostream& os) const {
 }
 
 // LCOV_EXCL_START
-template <typename Key>
-void db<Key>::dump() const {
+template <typename Key, typename Value>
+void db<Key, Value>::dump() const {
   dump(std::cerr);
 }
 // LCOV_EXCL_STOP

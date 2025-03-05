@@ -43,9 +43,9 @@ namespace unodb::benchmark {
 
 // Benchmarked tree types
 
-using db = unodb::db<std::uint64_t>;
-using mutex_db = unodb ::mutex_db<std::uint64_t>;
-using olc_db = unodb::olc_db<std::uint64_t>;
+using db = unodb::db<std::uint64_t, unodb::value_view>;
+using mutex_db = unodb ::mutex_db<std::uint64_t, unodb::value_view>;
+using olc_db = unodb::olc_db<std::uint64_t, unodb::value_view>;
 
 // Values
 
@@ -111,8 +111,9 @@ void insert_key_ignore_dups(Db &instance, std::uint64_t k,
 }
 
 template <>
-inline void insert_key_ignore_dups(unodb::olc_db<std ::uint64_t> &instance,
-                                   std::uint64_t k, unodb::value_view v) {
+inline void insert_key_ignore_dups(
+    unodb::olc_db<std::uint64_t, unodb::value_view> &instance, std::uint64_t k,
+    unodb::value_view v) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_insert_key_ignore_dups(instance, k, v);
 }
@@ -123,8 +124,9 @@ void insert_key(Db &instance, std::uint64_t k, unodb::value_view v) {
 }
 
 template <>
-inline void insert_key(unodb::olc_db<std::uint64_t> &instance, std::uint64_t k,
-                       unodb::value_view v) {
+inline void insert_key(
+    unodb::olc_db<std::uint64_t, unodb::value_view> &instance, std::uint64_t k,
+    unodb::value_view v) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_insert_key(instance, k, v);
 }
@@ -170,8 +172,9 @@ void delete_key_if_exists(Db &instance, std::uint64_t k) {
 }
 
 template <>
-inline void delete_key_if_exists(unodb::olc_db<std::uint64_t> &instance,
-                                 std::uint64_t k) {
+inline void delete_key_if_exists(
+    unodb::olc_db<std::uint64_t, unodb::value_view> &instance,
+    std::uint64_t k) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_delete_key_if_exists(instance, k);
 }
@@ -182,8 +185,9 @@ void delete_key(Db &instance, std::uint64_t k) {
 }
 
 template <>
-inline void delete_key(unodb::olc_db<std::uint64_t> &instance,
-                       std::uint64_t k) {
+inline void delete_key(
+    unodb::olc_db<std::uint64_t, unodb::value_view> &instance,
+    std::uint64_t k) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_delete_key(instance, k);
 }
@@ -230,8 +234,9 @@ void get_key(const Db &instance, std::uint64_t k) {
 }
 
 template <>
-inline void get_key(const unodb::olc_db<std::uint64_t> &instance,
-                    std::uint64_t k) {
+inline void get_key(
+    const unodb::olc_db<std::uint64_t, unodb::value_view> &instance,
+    std::uint64_t k) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_get_key(instance, k);
 }
@@ -242,8 +247,9 @@ void get_existing_key(const Db &instance, std::uint64_t k) {
 }
 
 template <>
-inline void get_existing_key(const unodb::olc_db<std::uint64_t> &instance,
-                             std::uint64_t k) {
+inline void get_existing_key(
+    const unodb::olc_db<std::uint64_t, unodb::value_view> &instance,
+    std::uint64_t k) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_get_existing_key(instance, k);
 }
@@ -253,12 +259,14 @@ inline void get_existing_key(const unodb::olc_db<std::uint64_t> &instance,
 template <class Db>
 void destroy_tree(Db &instance, ::benchmark::State &state);
 
-extern template void destroy_tree<unodb::db<std::uint64_t>>(
-    unodb::db<std::uint64_t> &, ::benchmark::State &);
-extern template void destroy_tree<unodb::mutex_db<std::uint64_t>>(
-    unodb::mutex_db<std::uint64_t> &, ::benchmark::State &);
-extern template void destroy_tree<unodb::olc_db<std::uint64_t>>(
-    unodb::olc_db<std::uint64_t> &, ::benchmark::State &);
+extern template void destroy_tree<unodb::db<std::uint64_t, unodb::value_view>>(
+    unodb::db<std::uint64_t, unodb ::value_view> &, ::benchmark::State &);
+extern template void
+destroy_tree<unodb::mutex_db<std::uint64_t, unodb::value_view>>(
+    unodb::mutex_db<std::uint64_t, unodb::value_view> &, ::benchmark::State &);
+extern template void
+destroy_tree<unodb::olc_db<std::uint64_t, unodb::value_view>>(
+    unodb::olc_db<std::uint64_t, unodb::value_view> &, ::benchmark::State &);
 
 }  // namespace unodb::benchmark
 

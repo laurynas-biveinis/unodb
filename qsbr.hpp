@@ -922,6 +922,7 @@ class [[nodiscard]] qsbr_per_thread final {
 #endif
 };
 
+/// Get the thread-local QSBR instance.
 [[nodiscard]] inline qsbr_per_thread &this_thread() noexcept {
   return qsbr_per_thread::get_instance();
 }
@@ -936,22 +937,37 @@ namespace boost_acc = boost::accumulators;
 // safe destruction in concurrent containers" ever gets anywhere, consider
 // changing to its interface, like Stamp-it paper does.
 
+/// Global QSBR state manager for memory reclamation.
+///
+/// Tracks threads participating in QSBR, manages epoch transitions, and handles
+/// orphaned deallocation requests from terminated threads.
 class qsbr final {
  public:
+  /// Get the global QSBR singleton instance.
   [[nodiscard]] static qsbr &instance() noexcept {
     static qsbr instance;
     return instance;
   }
 
+  /// Copy construction is disabled for a singleton.
   qsbr(const qsbr &) = delete;
+
+  /// Move construction is disabled for a singleton.
   qsbr(qsbr &&) = delete;
+
+  /// Copy assignment is disabled for a singleton.
   qsbr &operator=(const qsbr &) = delete;
+
+  /// Move assignment is disabled for a singleton.
   qsbr &operator=(qsbr &&) = delete;
 
  private:
   friend struct detail::deallocation_request;
   friend class qsbr_per_thread;
 
+  /// Free memory at \a pointer using detail::free_aligned.
+  ///
+  /// In debug builds, call \a debug_callback at the actual deallocation time.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   static void deallocate(
       void *pointer
@@ -968,6 +984,13 @@ class qsbr final {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  public:
+  /// Process quiescent state for a thread, potentially triggering an epoch
+  /// change.
+  /// \param current_global_epoch Current global epoch
+#ifndef NDEBUG
+  /// \param thread_epoch Current thread epoch (debug builds only)
+#endif
+  /// \return Potentially updated global epoch
   [[nodiscard]] detail::qsbr_epoch remove_thread_from_previous_epoch(
       detail::qsbr_epoch current_global_epoch
 #ifndef NDEBUG
@@ -976,8 +999,16 @@ class qsbr final {
 #endif
       ) noexcept;
 
+  /// Register a new thread with QSBR.
+  /// \return The current global epoch
   [[nodiscard]] detail::qsbr_epoch register_thread() noexcept;
 
+  /// Unregister a thread from QSBR.
+  /// \param quiescent_states_since_epoch_change Count of quiescent states by
+  ///                                            this thread since last epoch
+  ///                                            change
+  /// \param thread_epoch Last seen epoch by this thread
+  /// \param qsbr_thread The thread's QSBR instance to unregister
   void unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                          detail::qsbr_epoch thread_epoch,
                          qsbr_per_thread &qsbr_thread)
@@ -986,12 +1017,15 @@ class qsbr final {
 #endif
       ;
 
+  /// Output QSBR state to \a out for debugging.
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &out) const;
 
 #ifdef UNODB_DETAIL_WITH_STATS
-
+  /// Reset all statistics counters to zero.
   void reset_stats();
 
+  /// Register thread's count of quiescent \a states between thread epoch
+  /// changes.
   void register_quiescent_states_per_thread_between_epoch_changes(
       std::uint64_t states) {
     const std::lock_guard guard{quiescent_state_stats_lock};
@@ -999,6 +1033,10 @@ class qsbr final {
     publish_quiescent_states_per_thread_between_epoch_change_stats();
   }
 
+  /// Register thread's deallocation request stats between thread epoch changes.
+  ///
+  /// \param total_size Total size in bytes of deallocation requests
+  /// \param count Count of deallocation requests
   void register_dealloc_stats_per_thread_between_epoch_changes(
       std::size_t total_size, std::size_t count) {
     const std::lock_guard guard{dealloc_stats_lock};
@@ -1008,51 +1046,66 @@ class qsbr final {
     publish_epoch_callback_stats();
   }
 
+  /// Get maximum number of threads' deallocation request counts between epoch
+  /// changes.
   [[nodiscard]] std::size_t get_epoch_callback_count_max() const noexcept {
     return epoch_dealloc_per_thread_count_max.load(std::memory_order_acquire);
   }
 
+  /// Get variance of threads' deallocation request counts between epoch
+  /// changes.
   [[nodiscard]] double get_epoch_callback_count_variance() const noexcept {
     return epoch_dealloc_per_thread_count_variance.load(
         std::memory_order_acquire);
   }
 
+  /// Get mean of threads' deallocation request counts between epoch
+  /// changes.
   [[nodiscard]] double
   get_mean_quiescent_states_per_thread_between_epoch_changes() const noexcept {
     return quiescent_states_per_thread_between_epoch_change_mean.load(
         std::memory_order_acquire);
   }
 
+  /// Get total number of epoch changes.
   [[nodiscard]] std::uint64_t get_epoch_change_count() const noexcept {
     return epoch_change_count.load(std::memory_order_acquire);
   }
 
+  /// Get maximum size of memory waiting for deallocation in bytes.
   [[nodiscard]] std::uint64_t get_max_backlog_bytes() const noexcept {
     return deallocation_size_per_thread_max.load(std::memory_order_acquire);
   }
 
+  /// Get mean backlog of memory waiting for deallocation in bytes.
   [[nodiscard]] double get_mean_backlog_bytes() const noexcept {
     return deallocation_size_per_thread_mean.load(std::memory_order_acquire);
   }
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-  // Made public for tests and asserts
+  /// Get the current QSBR state word.
+  /// \note Made public for tests and asserts, do not call from the user code.
   [[nodiscard]] qsbr_state::type get_state() const noexcept {
     return state.load(std::memory_order_acquire);
   }
 
+  /// Check if there are no orphaned (issued by threads that have quit
+  /// since) deallocation requests for the previous epoch.
   [[nodiscard]] bool previous_interval_orphaned_requests_empty()
       const noexcept {
     return orphaned_previous_interval_dealloc_requests.load(
                std::memory_order_acquire) == nullptr;
   }
 
+  /// Check if there are no orphaned (issued by threads that have quit
+  /// since) deallocation requests for the current epoch.
   [[nodiscard]] bool current_interval_orphaned_requests_empty() const noexcept {
     return orphaned_current_interval_dealloc_requests.load(
                std::memory_order_acquire) == nullptr;
   }
 
+  /// Assert that QSBR is idle (at most one thread, no orphaned requests).
   void assert_idle() const noexcept {
 #ifndef NDEBUG
     const auto current_state = get_state();
@@ -1072,22 +1125,39 @@ class qsbr final {
   }
 
  private:
+  /// Default constructor for singleton.
   qsbr() noexcept = default;
 
+  /// Destructor. In debug builds asserts that QSBR is idle.
   ~qsbr() noexcept { assert_idle(); }
 
+  /// Synchronization barrier for thread epoch changes.
+  ///
+  /// Synchronizes with qsbr::epoch_change_barrier_and_handle_orphans.
   static void thread_epoch_change_barrier() noexcept;
 
+  /// Synchronize threads and handle orphaned requests.
+  ///
+  /// Synchronizes with qsbr::thread_epoch_change_barrier.
+  ///
+  /// \param single_thread_mode Whether there is at most one QSBR thread.
   void epoch_change_barrier_and_handle_orphans(
       bool single_thread_mode) noexcept;
 
+  /// Advance to the next epoch by synchronizing threads, handling orphaned
+  /// requests, and publishing the new global QSBR state.
+  ///
+  /// \param current_global_epoch Current global epoch
+  /// \param single_thread_mode Whether there is at most one QSBR thread.
+  /// \return New global epoch
   detail::qsbr_epoch change_epoch(detail::qsbr_epoch current_global_epoch,
                                   bool single_thread_mode) noexcept;
 
 #ifdef UNODB_DETAIL_WITH_STATS
-
+  /// Increment the epoch change counter.
   void bump_epoch_change_count() noexcept;
 
+  /// Make updated deallocation size statistics visible for readers.
   void publish_deallocation_size_stats() {
     deallocation_size_per_thread_max.store(
         boost_acc::max(deallocation_size_per_thread_stats),
@@ -1100,6 +1170,7 @@ class qsbr final {
         std::memory_order_relaxed);
   }
 
+  /// Make updated deallocation count statistics visible for readers.
   void publish_epoch_callback_stats() {
     epoch_dealloc_per_thread_count_max.store(
         boost_acc::max(epoch_dealloc_per_thread_count_stats),
@@ -1109,6 +1180,8 @@ class qsbr final {
         std::memory_order_relaxed);
   }
 
+  /// Make updated Q state between thread epoch change statistics visible for
+  /// readers.
   void publish_quiescent_states_per_thread_between_epoch_change_stats() {
     quiescent_states_per_thread_between_epoch_change_mean.store(
         boost_acc::mean(quiescent_states_per_thread_between_epoch_change_stats),
@@ -1117,50 +1190,74 @@ class qsbr final {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
+  /// The global QSBR state.
   alignas(detail::hardware_destructive_interference_size)
       std::atomic<qsbr_state::type> state;
 
+  /// Orphaned deallocation requests for the previous epoch from terminated
+  /// threads.
   std::atomic<detail::dealloc_vector_list_node *>
       orphaned_previous_interval_dealloc_requests;
 
+  /// Orphaned deallocation requests for the current epoch from terminated
+  /// threads.
   std::atomic<detail::dealloc_vector_list_node *>
       orphaned_current_interval_dealloc_requests;
 
   static_assert(sizeof(state) +
-                    sizeof(orphaned_previous_interval_dealloc_requests) +
-                    sizeof(orphaned_current_interval_dealloc_requests) <=
-                detail::hardware_constructive_interference_size);
+                        sizeof(orphaned_previous_interval_dealloc_requests) +
+                        sizeof(orphaned_current_interval_dealloc_requests) <=
+                    detail::hardware_constructive_interference_size,
+                "Global QSBR fields must fit into a single cache line");
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
+  /// Epoch change counter.
   alignas(detail::hardware_destructive_interference_size)
       std::atomic<std::uint64_t> epoch_change_count;
 
+  /// Mutex protecting deallocation statistics.
   alignas(detail::hardware_destructive_interference_size) std::mutex
       dealloc_stats_lock;
 
   // TODO(laurynas): more interesting callback stats?
+
+  /// Statistics for deallocation counts per thread between epoch changes.
   boost_acc::accumulator_set<
       std::size_t,
       boost_acc::stats<boost_acc::tag::max, boost_acc::tag::variance>>
       epoch_dealloc_per_thread_count_stats;
+
+  /// Maximum deallocation count per thread between epoch changes.
   std::atomic<std::size_t> epoch_dealloc_per_thread_count_max;
+
+  /// Variance of deallocation count per thread between epoch changes..
   std::atomic<double> epoch_dealloc_per_thread_count_variance;
 
+  /// Statistics for deallocation sizes per thread between epoch changes.
   boost_acc::accumulator_set<
       std::uint64_t,
       boost_acc::stats<boost_acc::tag::max, boost_acc::tag::variance>>
       deallocation_size_per_thread_stats;
+
+  /// Maximum total deallocation size per thread between epoch changes.
   std::atomic<std::uint64_t> deallocation_size_per_thread_max;
+
+  /// Mean total deallocation size per thread between epoch changes.
   std::atomic<double> deallocation_size_per_thread_mean;
+
+  /// Variance of total deallocation size per thread between epoch changes.
   std::atomic<double> deallocation_size_per_thread_variance;
 
+  /// Mutex protecting quiescent state statistics.
   alignas(detail::hardware_destructive_interference_size) std::mutex
       quiescent_state_stats_lock;
 
+  /// Statistics for quiescent states per thread between epoch changes.
   boost_acc::accumulator_set<std::uint64_t,
                              boost_acc::stats<boost_acc::tag::mean>>
       quiescent_states_per_thread_between_epoch_change_stats;
+  /// Mean number of quiescent states between epoch changes per thread.
   std::atomic<double> quiescent_states_per_thread_between_epoch_change_mean;
 
 #endif  // UNODB_DETAIL_WITH_STATS

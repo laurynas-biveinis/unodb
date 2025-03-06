@@ -9,7 +9,7 @@ var indexSectionsWithContent =
   6: "defgiknpqrstuv",
   7: "n",
   8: "il",
-  9: "o",
+  9: "ot",
   10: "u",
   11: "biloqrs",
   12: "cu"

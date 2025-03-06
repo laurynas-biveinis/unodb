@@ -19,10 +19,11 @@ var searchData=
   ['stack_5f_16',['stack_',['../classunodb_1_1db_1_1iterator.html#a6653e19363aa0aaa8747510bfd1c6e30',1,'unodb::db::iterator::stack_'],['../classunodb_1_1olc__db_1_1iterator.html#a58c016ff5086ef9cee40ee4a8aaa72d5',1,'unodb::olc_db::iterator::stack_']]],
   ['stack_5fentry_17',['stack_entry',['../structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html',1,'unodb::olc_db&lt; Key, Value &gt;::iterator::stack_entry'],['../classunodb_1_1db_1_1iterator.html#a9166f2a1d9fcc47bc1c9f09da8806919',1,'unodb::db::iterator::stack_entry']]],
   ['start_18',['start',['../classunodb_1_1qsbr__ptr__span.html#a240f75edeb773147502f3c742bebee98',1,'unodb::qsbr_ptr_span']]],
-  ['state_20based_20reclamation_19',['Quiescent State-Based Reclamation',['../group__qsbr.html',1,'']]],
-  ['state_20based_20reclamation_20qsbr_20',['Quiescent State-Based Reclamation (QSBR)',['../index.html#autotoc_md37',1,'']]],
-  ['static_20analysis_21',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
-  ['store_22',['store',['../classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556',1,'unodb::in_critical_section']]],
-  ['style_20guide_23',['style guide',['../md_CONTRIBUTING.html#autotoc_md5',1,'Code style guide'],['../md_CONTRIBUTING.html#autotoc_md6',1,'Documentation style guide']]],
-  ['submodules_24',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
+  ['state_19',['state',['../classunodb_1_1qsbr.html#a01a260fb085274cacc7465cc0389f38e',1,'unodb::qsbr']]],
+  ['state_20based_20reclamation_20',['Quiescent State-Based Reclamation',['../group__qsbr.html',1,'']]],
+  ['state_20based_20reclamation_20qsbr_21',['Quiescent State-Based Reclamation (QSBR)',['../index.html#autotoc_md37',1,'']]],
+  ['static_20analysis_22',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
+  ['store_23',['store',['../classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556',1,'unodb::in_critical_section']]],
+  ['style_20guide_24',['style guide',['../md_CONTRIBUTING.html#autotoc_md5',1,'Code style guide'],['../md_CONTRIBUTING.html#autotoc_md6',1,'Documentation style guide']]],
+  ['submodules_25',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
 ];

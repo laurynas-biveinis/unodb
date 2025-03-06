@@ -23,5 +23,6 @@ var searchData=
   ['buf_20',['buf',['../classunodb_1_1key__encoder.html#a54ee1fa410f52af5353bf5baff2173a7',1,'unodb::key_encoder::buf'],['../classunodb_1_1detail_1_1key__buffer.html#ac194dd8d30a35188b87939582d5f8d84',1,'unodb::detail::key_buffer::buf']]],
   ['build_20dependencies_21',['Build dependencies',['../index.html#autotoc_md26',1,'']]],
   ['building_22',['Building',['../index.html#autotoc_md28',1,'']]],
-  ['bundled_20as_20git_20submodules_23',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
+  ['bump_5fepoch_5fchange_5fcount_23',['bump_epoch_change_count',['../classunodb_1_1qsbr.html#a7fc645a40b11e4140adb6453ca352498',1,'unodb::qsbr']]],
+  ['bundled_20as_20git_20submodules_24',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
 ];

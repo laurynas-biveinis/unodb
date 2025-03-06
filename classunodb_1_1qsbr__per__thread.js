@@ -21,6 +21,7 @@ var classunodb_1_1qsbr__per__thread =
     [ "set_instance", "classunodb_1_1qsbr__per__thread.html#a7e46b44064a75d5fcd1f97b11b5e3f6a", null ],
     [ "unregister_active_ptr", "classunodb_1_1qsbr__per__thread.html#a5983279bf3dbf1c42a4d86cab81869f2", null ],
     [ "update_requests", "classunodb_1_1qsbr__per__thread.html#a31f84e25a40dffd8dc13c73613634053", null ],
+    [ "this_thread", "classunodb_1_1qsbr__per__thread.html#a0665641e11efcb2ef47493202c85f38c", null ],
     [ "active_ptrs", "classunodb_1_1qsbr__per__thread.html#a55c5dbbe490a2583f5cc647d2f999afa", null ],
     [ "current_interval_dealloc_requests", "classunodb_1_1qsbr__per__thread.html#a7557ea586b33893b1bd9f4aa5581d391", null ],
     [ "current_interval_orphan_list_node", "classunodb_1_1qsbr__per__thread.html#a0956872b02e7c8af4f6d0078eaa909f7", null ],

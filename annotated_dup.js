@@ -71,7 +71,7 @@ var annotated_dup =
       [ "mutex_db", "classunodb_1_1mutex__db.html", "classunodb_1_1mutex__db" ],
       [ "olc_db", "classunodb_1_1olc__db.html", "classunodb_1_1olc__db" ],
       [ "optimistic_lock", "classunodb_1_1optimistic__lock.html", "classunodb_1_1optimistic__lock" ],
-      [ "qsbr", "classunodb_1_1qsbr.html", null ],
+      [ "qsbr", "classunodb_1_1qsbr.html", "classunodb_1_1qsbr" ],
       [ "qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", "classunodb_1_1qsbr__per__thread" ],
       [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html", "classunodb_1_1qsbr__ptr" ],
       [ "qsbr_ptr_span", "classunodb_1_1qsbr__ptr__span.html", "classunodb_1_1qsbr__ptr__span" ],

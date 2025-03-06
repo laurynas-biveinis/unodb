@@ -145,12 +145,12 @@ option(STATS "Whether to compile in the statistics counters" ON)
 # - "C5246: '...': the initialization of a subobject should be wrapped in
 #   braces": billions of std::array false positives with 17.2.2.
 # - The other disabled warnings only activate on /Wall
-# - "C5264": "'const' variable is not used": billions of false positives with
-#   17.5.
+# - "C5264: 'const' variable is not used": billions of false positives with 17.5
 # - "C4714": Google Benchmark 1.9.1 fails to inline __forceinline functions
-set(MSVC_CXX_WARNING_FLAGS "/Wall" "/wd4324" "/wd5030" "/wd5072"
-  "/wd4623" "/wd4625" "/wd4626" "/wd4582" "/wd4820" "/wd4710" "/wd4711"
-  "/wd4868" "/wd5026" "/wd5027" "/wd5045" "/wd5246" "/wd5264" "/wd4714")
+# - "C4514: unreferenced inline function has been removed"
+set(MSVC_CXX_WARNING_FLAGS "/Wall" "/wd4324" "/wd5030" "/wd5072" "/wd4623"
+  "/wd4625" "/wd4626" "/wd4582" "/wd4820" "/wd4710" "/wd4711" "/wd4868"
+  "/wd5026" "/wd5027" "/wd5045" "/wd5246" "/wd5264" "/wd4714" "/wd4514")
 
 # Flags for both MSVC cl and clang-cl compilers
 set(ANY_MSVC_CXX_FLAGS "/permissive-")

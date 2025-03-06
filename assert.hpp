@@ -79,19 +79,6 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   std::abort();
 }
 
-/// Intentionally crash from a given source location.
-///
-/// Should not be called directly - use UNODB_DETAIL_CRASH instead.
-[[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)
-    UNODB_DETAIL_C_STRING_ARG(3) UNODB_DETAIL_HEADER_NOINLINE
-    void crash(const char *file, int line, const char *func) noexcept {
-  UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(0);
-  std::ostringstream buf;
-  buf << "Crash requested at " << file << ':' << line << ", function \"" << func
-      << "\", thread " << std::this_thread::get_id() << '\n';
-  msg_stacktrace_abort(buf.str());
-}
-
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 // Definitions that only depend on Debug vs Release
@@ -102,9 +89,9 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 /// Implementation for marking a source code location as unreachable.
 ///
 /// Should not be called directly - use UNODB_DETAIL_CANNOT_HAPPEN instead.
-[[noreturn]] UNODB_DETAIL_C_STRING_ARG(1)
-    UNODB_DETAIL_C_STRING_ARG(3) inline void cannot_happen(
-        const char *file, int line, const char *func) noexcept {
+[[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)
+    UNODB_DETAIL_C_STRING_ARG(3) UNODB_DETAIL_HEADER_NOINLINE
+    void cannot_happen(const char *file, int line, const char *func) noexcept {
   unodb::test::allocation_failure_injector::fail_on_nth_allocation(0);
   std::ostringstream buf;
   buf << "Execution reached an unreachable point at " << file << ':' << line
@@ -117,8 +104,9 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #define UNODB_DETAIL_DEBUG_CRASH()
 
-[[noreturn]] UNODB_DETAIL_C_STRING_ARG(1) UNODB_DETAIL_C_STRING_ARG(
-    3) inline void cannot_happen(const char *, int, const char *) noexcept {
+[[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)
+    UNODB_DETAIL_C_STRING_ARG(3) UNODB_DETAIL_HEADER_NOINLINE
+    void cannot_happen(const char *, int, const char *) noexcept {
   UNODB_DETAIL_UNREACHABLE();
 }
 
@@ -126,6 +114,19 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 // Definitions that only depend on standalone vs part of another project
 #ifdef UNODB_DETAIL_STANDALONE
+
+/// Intentionally crash from a given source location.
+///
+/// Should not be called directly - use UNODB_DETAIL_CRASH instead.
+[[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)
+    UNODB_DETAIL_C_STRING_ARG(3) UNODB_DETAIL_HEADER_NOINLINE
+    void crash(const char *file, int line, const char *func) noexcept {
+  UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(0);
+  std::ostringstream buf;
+  buf << "Crash requested at " << file << ':' << line << ", function \"" << func
+      << "\", thread " << std::this_thread::get_id() << '\n';
+  msg_stacktrace_abort(buf.str());
+}
 
 #define UNODB_DETAIL_CRASH() unodb::detail::crash(__FILE__, __LINE__, __func__)
 

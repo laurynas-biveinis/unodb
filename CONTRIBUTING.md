@@ -114,7 +114,8 @@ unavoidable. If a macro has to be introduced, its name must be prefixed with
   however sometimes they land there. In both cases they should have a username
   in parentheses, i.e. `TODO(alice)`, `FIXME(bob)`. It indicates the comment
   author, not necessarily who should address it.
-* Doxygen is used to produce source code documentation.
+* Doxygen is used to produce source code documentation. To build the local HTML
+  docs, run `doxygen Doxyfile` from the root source directory.
 * Doxygen commands should use `\foo` (and not `@foo`) syntax.
 * The preferred location of the comments is next to the declarations. An
   exception is declarations with multiple conditionally compiled declarations,

@@ -118,7 +118,8 @@ sudo yum install jemalloc perf
 
 ## Usage
 
-See `examples/` directory for simple usage examples.
+See `examples/` directory for simple usage examples. This directory is a
+top-level CMake project.
 
 All the declarations live in the `unodb` namespace, which is omitted in the
 descriptions below.

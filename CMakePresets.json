@@ -26,7 +26,11 @@
             "name": "base-msvc",
             "hidden": true,
             "inherits": "base",
-            "generator": "Ninja"
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
+            }
+
         },
         {
             "name": "base-msvc-llvm",

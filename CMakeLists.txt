@@ -409,7 +409,7 @@ option(BENCHMARKS "Build benchmarks" ${STANDALONE})
 if((STANDALONE OR NOT TARGET GTest::gtest_main
     OR NOT TARGET benchmark::benchmark) AND (TESTS OR BENCHMARKS))
   string(REPLACE ";" " " CXX_FLAGS_FOR_SUBDIR_STR "${SANITIZER_CXX_FLAGS}")
-  if(MSVC)
+  if(STANDALONE AND MSVC)
     string(REPLACE ";" " " MSVC_WARNING_FLAGS_FOR_SUBDIR_STR_TMP
       "${MSVC_CXX_WARNING_FLAGS}")
     string(REPLACE "/Wall" "" MSVC_WARNING_FLAGS_FOR_SUBDIR_STR
@@ -670,15 +670,15 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<${is_clang_ge_14_not_windows}:${CLANG_GE_14_CXX_FLAGS}>"
     # Warnings
     "$<${fatal_warnings_on}:$<IF:${is_any_msvc},/WX,-Werror>>"
-    "$<${is_any_msvc}:${MSVC_CXX_WARNING_FLAGS}>"
-    "$<${is_clang_cl}:${MSVC_CLANG_WARNING_FLAGS}>"
-    "$<$<AND:${is_any_clang_genex},${is_not_windows}>:${CLANG_CXX_WARNING_FLAGS}>"
-    "$<${is_clang_lt_13_not_windows}:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
-    "$<${is_clang_ge_13_not_windows}:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
-    "$<${is_gxx_genex}:${GCC_CXX_WARNING_FLAGS}>"
-    "$<${is_gxx_ge_11}:${GCC_GE_11_CXX_WARNING_FLAGS}>"
-    "$<${is_gxx_ge_12}:${GCC_GE_12_CXX_WARNING_FLAGS}>"
-    "$<${is_gxx_ge_14}:${GCC_GE_14_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_any_msvc}>:${MSVC_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_clang_cl}>:${MSVC_CLANG_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_any_clang_genex},${is_not_windows}>:${CLANG_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_clang_lt_13_not_windows}>:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_clang_ge_13_not_windows}>:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_gxx_genex}>:${GCC_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_gxx_ge_11}>:${GCC_GE_11_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_gxx_ge_12}>:${GCC_GE_12_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_gxx_ge_14}>:${GCC_GE_14_CXX_WARNING_FLAGS}>"
     # Optimization
     "$<${is_not_release_genex}:$<IF:${is_windows_genex},/Od,-O0>>"
     "$<$<AND:${is_release_genex},${is_not_windows}>:$<IF:${coverage_on},-O0,-O3>>"

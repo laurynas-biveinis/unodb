@@ -132,17 +132,6 @@ class [[nodiscard]] qsbr_epoch final {
     return epoch_val == other.epoch_val;
   }
 
-  /// Compare not equal to \a other.
-  [[nodiscard, gnu::pure]] constexpr bool operator!=(
-      qsbr_epoch other) const noexcept {
-#ifndef NDEBUG
-    assert_invariant();
-    other.assert_invariant();
-#endif
-
-    return epoch_val != other.epoch_val;
-  }
-
   /// Output the epoch to \a os. For debug purposes only.
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const;
 

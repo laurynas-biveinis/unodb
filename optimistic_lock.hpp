@@ -913,13 +913,8 @@ class [[nodiscard]] in_critical_section final {
   }
 
   /// Checks whether the wrapped pointer is `nullptr`.
-  [[nodiscard]] auto operator==(std::nullptr_t) const noexcept {
+  [[nodiscard]] bool operator==(std::nullptr_t) const noexcept {
     return load() == nullptr;
-  }
-
-  /// Checks whether the wrapped pointer is not `nullptr`.
-  [[nodiscard]] auto operator!=(std::nullptr_t) const noexcept {
-    return load() != nullptr;
   }
 
   /// Convert to the wrapped value, implicitly if needed.

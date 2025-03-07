@@ -76,8 +76,8 @@ var annotated_dup =
       [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html", "classunodb_1_1qsbr__ptr" ],
       [ "qsbr_ptr_span", "classunodb_1_1qsbr__ptr__span.html", "classunodb_1_1qsbr__ptr__span" ],
       [ "qsbr_state", "structunodb_1_1qsbr__state.html", "structunodb_1_1qsbr__state" ],
-      [ "qsbr_thread", "classunodb_1_1qsbr__thread.html", null ],
-      [ "quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", null ],
+      [ "qsbr_thread", "classunodb_1_1qsbr__thread.html", "classunodb_1_1qsbr__thread" ],
+      [ "quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", "structunodb_1_1quiescent__state__on__scope__exit" ],
       [ "remove_cvref", "structunodb_1_1remove__cvref.html", null ],
       [ "visitor", "classunodb_1_1visitor.html", "classunodb_1_1visitor" ]
     ] ]

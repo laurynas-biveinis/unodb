@@ -140,12 +140,16 @@ class [[nodiscard]] basic_leaf final : public Header {
     }
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26485)
+
   /// Return a view onto the key stored in the leaf.
   //
   // TODO(thompsonbry) : Partial or no key in leaf?
   [[nodiscard, gnu::pure]] constexpr auto get_key_view() const noexcept {
     return key_view{data, key_size};
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Return true iff the two keys are the same.
   //
@@ -164,10 +168,14 @@ class [[nodiscard]] basic_leaf final : public Header {
     return k.cmp(get_key_view());
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26485)
+
   /// Return a view onto the value stored in the leaf.
   [[nodiscard, gnu::pure]] constexpr auto get_value_view() const noexcept {
     return value_view{data + key_size, value_size};
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #ifdef UNODB_DETAIL_WITH_STATS
 

@@ -186,6 +186,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     return result;
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+
   /// Add offset \a n to this pointer.
   constexpr qsbr_ptr &operator+=(difference_type n) noexcept {
 #ifndef NDEBUG
@@ -197,6 +199,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 #endif
     return *this;
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Return a new pointer with offset \a n added to this pointer.
   [[nodiscard]] constexpr qsbr_ptr operator+(difference_type n) const noexcept {
@@ -211,6 +215,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     return other + n;
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+
   /// Subtract offset \a n from this pointer.
   constexpr qsbr_ptr &operator-=(difference_type n) noexcept {
 #ifndef NDEBUG
@@ -222,6 +228,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 #endif
     return *this;
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Return a new pointer with offset \a n subtracted from this pointer.
   [[nodiscard]] constexpr qsbr_ptr operator-(difference_type n) const noexcept {

@@ -68,7 +68,6 @@ TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeNonemptyValue) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
   constexpr std::byte fake_val{0x00};
   const unodb::value_view too_long{
@@ -88,7 +87,6 @@ TYPED_TEST(ARTCorrectnessTest, TooLongValue) {
   verifier.assert_growing_inodes({0, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 TYPED_TEST(ARTCorrectnessTest, ExpandLeafToNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
@@ -111,7 +109,6 @@ TYPED_TEST(ARTCorrectnessTest, ExpandLeafToNode4) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TYPED_TEST(ARTCorrectnessTest, DuplicateKey) {
   unodb::test::tree_verifier<TypeParam> verifier;
 
@@ -136,7 +133,6 @@ TYPED_TEST(ARTCorrectnessTest, DuplicateKey) {
   verifier.assert_growing_inodes({0, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 TYPED_TEST(ARTCorrectnessTest, InsertToFullNode4) {
   unodb::test::tree_verifier<TypeParam> verifier;
@@ -905,7 +901,6 @@ TYPED_TEST(ARTCorrectnessTest, MissingKeyMatchingInodePath) {
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TYPED_TEST(ARTCorrectnessTest, MemoryAccountingDuplicateKeyInsert) {
   unodb::test::tree_verifier<TypeParam> verifier;
   verifier.insert(0, unodb::test::test_values[0]);
@@ -915,7 +910,6 @@ TYPED_TEST(ARTCorrectnessTest, MemoryAccountingDuplicateKeyInsert) {
   verifier.remove(0);
   UNODB_ASSERT_EQ(verifier.get_db().get_current_memory_use(), 0);
 }
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #endif  // UNODB_DETAIL_WITH_STATS
 

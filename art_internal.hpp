@@ -434,6 +434,8 @@ class key_buffer {
     return key_view(buf, off);
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+
   /// Append a byte to the buffer.
   void push(std::byte v) {
     ensure_available(sizeof(v));
@@ -447,6 +449,8 @@ class key_buffer {
     std::memcpy(buf + off, v.data(), n);
     off += n;
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Pop off some bytes from the buffer.
   void pop(size_t n) noexcept {

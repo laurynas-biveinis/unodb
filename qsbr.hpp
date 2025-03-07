@@ -1514,16 +1514,12 @@ inline void qsbr_per_thread::qsbr_resume() {
   paused = false;
 }
 
+/// RAII guard that signals quiescent state for this thread on destruction.
 struct quiescent_state_on_scope_exit final {
+  /// Default constructor.
   quiescent_state_on_scope_exit() = default;
 
-  quiescent_state_on_scope_exit(const quiescent_state_on_scope_exit &) = delete;
-  quiescent_state_on_scope_exit(quiescent_state_on_scope_exit &&) = delete;
-  quiescent_state_on_scope_exit &operator=(
-      const quiescent_state_on_scope_exit &) = delete;
-  quiescent_state_on_scope_exit &operator=(quiescent_state_on_scope_exit &&) =
-      delete;
-
+  /// Destructor, that signals quiescent state for this thread.
   ~quiescent_state_on_scope_exit()
 #ifdef UNODB_DETAIL_WITH_STATS
       noexcept(false)
@@ -1558,9 +1554,24 @@ struct quiescent_state_on_scope_exit final {
 #endif
   }
 
+  /// Copy construction is disabled.
+  quiescent_state_on_scope_exit(const quiescent_state_on_scope_exit &) = delete;
+
+  /// Move construction is disabled.
+  quiescent_state_on_scope_exit(quiescent_state_on_scope_exit &&) = delete;
+
+  /// Copy assignment is disabled.
+  quiescent_state_on_scope_exit &operator=(
+      const quiescent_state_on_scope_exit &) = delete;
+
+  /// Move assignment is disabled.
+  quiescent_state_on_scope_exit &operator=(quiescent_state_on_scope_exit &&) =
+      delete;
+
 #ifdef UNODB_DETAIL_WITH_STATS
 
  private:
+  /// Count of exceptions at constructor time for proper rethrow handling.
   const int exceptions_at_ctor{std::uncaught_exceptions()};
 #endif
 };
@@ -1574,12 +1585,15 @@ struct remove_cvref final {
 template <typename T>
 using remove_cvref_t = typename remove_cvref<T>::type;
 
-// All the QSBR users must use qsbr_thread instead of std::thread so that
-// a thread-local current_thread_reclamator instance gets properly constructed
+/// An `std::thread`-like thread that participates in QSBR.
+///
+/// Ensures that a thread-local unodb::qsbr_per_thread instance gets properly
+/// constructed.
 class [[nodiscard]] qsbr_thread : public std::thread {
  public:
   using thread::thread;
 
+  /// Create a new thread running function \a f with arguments \a args.
   template <typename Function, typename... Args>
   explicit qsbr_thread(Function &&f, Args &&...args)
       requires(!std::is_same_v<remove_cvref_t<Function>, qsbr_thread>)
@@ -1587,17 +1601,16 @@ class [[nodiscard]] qsbr_thread : public std::thread {
                                      std::forward<Args>(args)...)} {}
 
  private:
+  /// Create a thread with a unodb::qsbr_per_thread instance set.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   template <typename Function, typename... Args>
   [[nodiscard]] static std::thread make_qsbr_thread(Function &&f,
                                                     Args &&...args) {
-    auto new_qsbr_thread_reclamator = std::make_unique<qsbr_per_thread>();
+    auto new_qsbr_per_thread = std::make_unique<qsbr_per_thread>();
     return std::thread{
-        [inner_new_qsbr_thread_reclamator =
-             std::move(new_qsbr_thread_reclamator)](
+        [inner_new_qsbr_per_thread = std::move(new_qsbr_per_thread)](
             auto &&f2, auto &&...args2) mutable noexcept(noexcept(f2)) {
-          qsbr_per_thread::set_instance(
-              std::move(inner_new_qsbr_thread_reclamator));
+          qsbr_per_thread::set_instance(std::move(inner_new_qsbr_per_thread));
           f2(std::forward<Args>(args2)...);
         },
         std::forward<Function>(f), std::forward<Args>(args)...};

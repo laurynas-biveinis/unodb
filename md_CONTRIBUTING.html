@@ -159,7 +159,7 @@ Documentation style guide</h2>
 <ul>
 <li>The code should be commented, but without comments repeating already obvious code.</li>
 <li><code>TODO</code> comments may be used for future tasks. <code>FIXME</code> comments should be used for things that must be fixed before the code lands in the master branch, however sometimes they land there. In both cases they should have a username in parentheses, i.e. <code>TODO(alice)</code>, <code>FIXME(bob)</code>. It indicates the comment author, not necessarily who should address it.</li>
-<li>Doxygen is used to produce source code documentation.</li>
+<li>Doxygen is used to produce source code documentation. To build the local HTML docs, run <code>doxygen Doxyfile</code> from the root source directory.</li>
 <li>Doxygen commands should use <code>\foo</code> (and not <code>@foo</code>) syntax.</li>
 <li>The preferred location of the comments is next to the declarations. An exception is declarations with multiple conditionally compiled declarations, in which case a Doxygen comment with a <code>\def</code>, <code>\var</code>, or another suitable tag for the declaration should appear at the top of its section or source file, and it should also have a <code>\hideinitializer</code> tag.</li>
 <li>Doxygen automatic brief description detection is enabled, thus explicit <code>\brief</code> tags are not required, rather the first sentence in the Doxygen comment block will be interpreted as the brief description. It should use a headline-like style without articles.</li>

@@ -155,6 +155,7 @@ struct [[nodiscard]] basic_art_key final {
   /// Note: For key_view keys, this is the key_view backing this
   /// art_key and its validity depends on the scope of the backing
   /// byte array.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
   [[nodiscard, gnu::pure]] constexpr key_view get_key_view() const noexcept {
     if constexpr (std::is_same_v<KeyType, key_view>) {
       return key;
@@ -162,6 +163,7 @@ struct [[nodiscard]] basic_art_key final {
       return key_view(reinterpret_cast<const std::byte *>(&key), sizeof(key));
     }
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Return the first 64-bits (max) of the encoded key.  This is used
   /// by the prefix compression logic to identify some number of bytes
@@ -414,7 +416,9 @@ class key_buffer {
   /// Construct a new key_buffer.  It will be backed by an internal
   /// buffer of a configured size and extended iff required for longer
   /// keys.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
   key_buffer() noexcept = default;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   ~key_buffer() {
     if (cap > sizeof(ibuf)) {  // free old buffer iff allocated
@@ -431,6 +435,8 @@ class key_buffer {
     return key_view(buf, off);
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+
   /// Append a byte to the buffer.
   void push(std::byte v) {
     ensure_available(sizeof(v));
@@ -444,6 +450,8 @@ class key_buffer {
     std::memcpy(buf + off, v.data(), n);
     off += n;
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Pop off some bytes from the buffer.
   void pop(size_t n) noexcept {

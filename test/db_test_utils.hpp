@@ -88,7 +88,6 @@ namespace detail {
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wunused-parameter")
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 template <class Db>
 void assert_value_eq(const typename Db::get_result &result,
                      unodb::value_view expected) noexcept {
@@ -111,7 +110,6 @@ void assert_not_found(const typename Db::get_result &result) noexcept {
     UNODB_DETAIL_ASSERT(!result.has_value());
   }
 }
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <class Db>
 void do_assert_result_eq(const Db &db, typename Db::key_type key,
@@ -240,6 +238,8 @@ class [[nodiscard]] tree_verifier final {
     return coerce_key_internal(key);
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+
   /// Return an unodb::key_view backed by a `std::array` in an internal
   /// collection whose existance is scoped to the life cycle of the
   /// tree_verifier.
@@ -259,9 +259,9 @@ class [[nodiscard]] tree_verifier final {
     return unodb::key_view(a.data(), sz);  // view of array's data.
   }
 
- private:
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+ private:
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
   // Replace std::enable_if_t in the next two methods with
   // requires(std::is_same_v) when LLVM 15 is the oldest supported LLVM version.
@@ -360,9 +360,6 @@ class [[nodiscard]] tree_verifier final {
   // NOLINTEND(modernize-use-constraints)
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   void insert_internal(key_type k, unodb::value_view v,
                        bool bypass_verifier = false) {
     const auto empty_before = test_db.empty();
@@ -423,7 +420,6 @@ class [[nodiscard]] tree_verifier final {
       UNODB_ASSERT_TRUE(insert_succeeded);
     }
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   void insert_key_range_internal(key_type start_key, std::size_t count,
                                  bool bypass_verifier = false) {
@@ -473,7 +469,6 @@ class [[nodiscard]] tree_verifier final {
     return test_db.insert(coerce_key(k), v);
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   template <typename T>
   void preinsert_key_range_to_verifier_only(T start_key1, std::size_t count) {
     const auto start_key{coerce_key(start_key1)};
@@ -498,7 +493,6 @@ class [[nodiscard]] tree_verifier final {
       }
     }
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <typename T>
   void insert_preinserted_key_range(T start_key1, std::size_t count) {
@@ -549,7 +543,6 @@ class [[nodiscard]] tree_verifier final {
   }
   // NOLINTEND(modernize-use-constraints)
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   template <typename T>
   void attempt_remove_missing_keys(std::initializer_list<T> absent_keys) {
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -570,7 +563,6 @@ class [[nodiscard]] tree_verifier final {
 #endif  // UNODB_DETAIL_WITH_STATS
     }
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   // Replace std::enable_if_t in the next two methods with
   // requires(std::is_same_v) when LLVM 15 is the oldest supported LLVM version.
@@ -642,7 +634,6 @@ class [[nodiscard]] tree_verifier final {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   template <typename T>
   void check_absent_keys(std::initializer_list<T> absent_keys) {
     for (const auto absent_key : absent_keys) {
@@ -651,7 +642,6 @@ class [[nodiscard]] tree_verifier final {
       try_get(k);
     }
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   //
   // scan API
@@ -694,7 +684,6 @@ class [[nodiscard]] tree_verifier final {
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   void assert_node_counts(
       const node_type_counter_array &expected_node_counts) const {
     // Dump the tree to a string. Do not attempt to check the dump format, only
@@ -706,7 +695,6 @@ class [[nodiscard]] tree_verifier final {
     UNODB_ASSERT_THAT(actual_node_counts,
                       ::testing::ElementsAreArray(expected_node_counts));
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void assert_growing_inodes(
       const inode_type_counter_array &expected_growing_inode_counts)
@@ -750,6 +738,7 @@ class [[nodiscard]] tree_verifier final {
  private:
   // Custom comparator is required for key_view.
   struct comparator {
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26418)
     bool operator()(const ikey_type<Db> &lhs,
                     const ikey_type<Db> &rhs) const noexcept {
       if constexpr (std::is_same_v<typename Db::key_type, unodb::key_view>) {
@@ -760,6 +749,7 @@ class [[nodiscard]] tree_verifier final {
         return lhs < rhs;
       }
     }
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   };
 
   /// The tree under test.

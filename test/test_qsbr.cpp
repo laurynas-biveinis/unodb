@@ -41,8 +41,6 @@ void active_pointer_ops(void *raw_ptr) noexcept {
 
 UNODB_START_TESTS()
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
 TEST_F(QSBR, SingleThreadQuitPaused) {
   UNODB_ASSERT_FALSE(is_qsbr_paused());
   qsbr_pause();
@@ -65,14 +63,10 @@ TEST_F(QSBR, TwoThreads) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
 TEST_F(QSBR, TwoThreadsSecondQuitPaused) {
   unodb::qsbr_thread second_thread([] { qsbr_pause(); });
   join(second_thread);
 }
-
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
 TEST_F(QSBR, TwoThreadsSecondPaused) {
   unodb::qsbr_thread second_thread([] {
@@ -196,8 +190,6 @@ TEST_F(QSBR, ThreeThreadsInitialPaused) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
 TEST_F(QSBR, SingleThreadOneAllocation) {
   auto *ptr = static_cast<char *>(allocate());
   touch_memory(ptr);
@@ -261,16 +253,12 @@ TEST_F(QSBR, ActivePointersBeforePause) {
 
 #ifndef NDEBUG
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
 TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
   auto *ptr = allocate();
   const unodb::qsbr_ptr<void> active_ptr{ptr};
   UNODB_ASSERT_DEATH({ quiescent(); }, "");
   qsbr_deallocate(ptr);
 }
-
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #endif
 
@@ -814,8 +802,6 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
   join(second_thread);
 }
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
 TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
   mark_epoch();
   auto *const ptr = static_cast<char *>(allocate());
@@ -972,8 +958,6 @@ TEST_F(QSBR, Dump) {
   std::ostringstream buf;
   unodb::qsbr::instance().dump(buf);
 }
-
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 UNODB_END_TESTS()
 

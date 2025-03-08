@@ -1,13 +1,5 @@
 var NAVTREEINDEX4 =
 {
-"functions_p.html":[4,3,0,13],
-"functions_q.html":[4,3,0,14],
-"functions_r.html":[4,3,0,15],
-"functions_rela.html":[4,3,4],
-"functions_s.html":[4,3,0,16],
-"functions_t.html":[4,3,0,17],
-"functions_type.html":[4,3,3],
-"functions_u.html":[4,3,0,18],
 "functions_v.html":[4,3,0,19],
 "functions_vars.html":[4,3,2],
 "functions_w.html":[4,3,0,20],
@@ -186,8 +178,8 @@ var NAVTREEINDEX4 =
 "node__type_8hpp.html#af9b052db17b88851bb075efd8d84f8d1":[5,0,13,4],
 "node__type_8hpp_source.html":[5,0,13],
 "olc__art_8hpp_source.html":[5,0,14],
-"optimistic__lock_8hpp.html":[2,1,0,1],
 "optimistic__lock_8hpp.html":[5,0,15],
+"optimistic__lock_8hpp.html":[2,1,0,1],
 "optimistic__lock_8hpp.html#a70595f75a79bde2520bdcfb07689da7b":[5,0,15,7],
 "optimistic__lock_8hpp.html#ac33116d42d7704005e6aff80b7431d5e":[5,0,15,6],
 "optimistic__lock_8hpp.html#adf5c8f3a365ce28271526c3ef0ca4237":[5,0,15,8],
@@ -249,5 +241,13 @@ var NAVTREEINDEX4 =
 "structunodb_1_1detail_1_1basic__art__key.html#af0ee37f5a4106ac58fd5cecf5b22be4c":[4,0,0,1,0,0],
 "structunodb_1_1detail_1_1basic__art__key.html#af0ee37f5a4106ac58fd5cecf5b22be4c":[3,0,0,0,0,0],
 "structunodb_1_1detail_1_1basic__art__key.html#af20e5187f7869ad48ab185a6fc09a61d":[3,0,0,0,0,6],
-"structunodb_1_1detail_1_1basic__art__key.html#af20e5187f7869ad48ab185a6fc09a61d":[4,0,0,1,0,6]
+"structunodb_1_1detail_1_1basic__art__key.html#af20e5187f7869ad48ab185a6fc09a61d":[4,0,0,1,0,6],
+"structunodb_1_1detail_1_1basic__art__policy.html":[3,0,0,0,1],
+"structunodb_1_1detail_1_1basic__art__policy.html":[4,0,0,1,1],
+"structunodb_1_1detail_1_1basic__art__policy.html#a138f4d86319ae5d0d7eff9191d6bdf92":[3,0,0,0,1,1],
+"structunodb_1_1detail_1_1basic__art__policy.html#a138f4d86319ae5d0d7eff9191d6bdf92":[4,0,0,1,1,1],
+"structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html":[4,0,0,1,1,0],
+"structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html":[3,0,0,0,1,0],
+"structunodb_1_1detail_1_1basic__inode__def.html":[4,0,0,1,9],
+"structunodb_1_1detail_1_1basic__inode__def.html":[3,0,0,0,9]
 };

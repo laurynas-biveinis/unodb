@@ -1,13 +1,5 @@
 var NAVTREEINDEX5 =
 {
-"structunodb_1_1detail_1_1basic__art__policy.html":[3,0,0,0,1],
-"structunodb_1_1detail_1_1basic__art__policy.html":[4,0,0,1,1],
-"structunodb_1_1detail_1_1basic__art__policy.html#a138f4d86319ae5d0d7eff9191d6bdf92":[3,0,0,0,1,1],
-"structunodb_1_1detail_1_1basic__art__policy.html#a138f4d86319ae5d0d7eff9191d6bdf92":[4,0,0,1,1,1],
-"structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html":[4,0,0,1,1,0],
-"structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html":[3,0,0,0,1,0],
-"structunodb_1_1detail_1_1basic__inode__def.html":[4,0,0,1,9],
-"structunodb_1_1detail_1_1basic__inode__def.html":[3,0,0,0,9],
 "structunodb_1_1detail_1_1dealloc__vector__list__node.html":[3,0,0,0,15],
 "structunodb_1_1detail_1_1dealloc__vector__list__node.html":[4,0,0,1,15],
 "structunodb_1_1detail_1_1dealloc__vector__list__node.html#a217feafa91bbc8861e81220d60ad5f34":[3,0,0,0,15,1],

@@ -11,7 +11,6 @@ var classunodb_1_1qsbr__ptr =
     [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html#ad9a6c26c3bd6d8544ba406eeb63baa5b", null ],
     [ "~qsbr_ptr", "classunodb_1_1qsbr__ptr.html#a10f00e8a516e8873a6eaba43c6d1242e", null ],
     [ "get", "classunodb_1_1qsbr__ptr.html#abd3a78cf23f7e31d7322b7f2a80e250e", null ],
-    [ "operator!=", "classunodb_1_1qsbr__ptr.html#a680faff417ab332cf3ceda7ed1966340", null ],
     [ "operator*", "classunodb_1_1qsbr__ptr.html#ac92f1c62929570986a5702a41f5468a3", null ],
     [ "operator+", "classunodb_1_1qsbr__ptr.html#ae4ee380514f374daf4837fb88cdff333", null ],
     [ "operator++", "classunodb_1_1qsbr__ptr.html#a0305a619600292f79efc3c55d2529a47", null ],

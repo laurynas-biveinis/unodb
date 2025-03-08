@@ -179,7 +179,7 @@ void free_orphan_list(detail::dealloc_vector_list_node *list) noexcept {
 
 }  // namespace
 
-void qsbr_per_thread::orphan_deferred_requests() noexcept {
+void qsbr_per_thread::orphan_pending_requests() noexcept {
   add_to_orphan_list(
       qsbr::instance().orphaned_previous_interval_dealloc_requests,
       std::move(previous_interval_dealloc_requests),
@@ -270,7 +270,7 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
       if (UNODB_DETAIL_LIKELY(state.compare_exchange_weak(
               old_state, new_state, std::memory_order_acq_rel,
               std::memory_order_acquire))) {
-        qsbr_thread.orphan_deferred_requests();
+        qsbr_thread.orphan_pending_requests();
         return;
       }
       continue;
@@ -318,10 +318,10 @@ void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
 #ifdef UNODB_DETAIL_WITH_STATS
         bump_epoch_change_count();
 #endif  // UNODB_DETAIL_WITH_STATS
-        qsbr_thread.update_requests(old_single_thread_mode,
-                                    old_epoch.advance());
+        qsbr_thread.execute_previous_requests(old_single_thread_mode,
+                                              old_epoch.advance());
       }
-      qsbr_thread.orphan_deferred_requests();
+      qsbr_thread.orphan_pending_requests();
 
 #ifdef UNODB_DETAIL_WITH_STATS
       if (UNODB_DETAIL_UNLIKELY(thread_epoch != old_epoch)) {

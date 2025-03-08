@@ -242,12 +242,6 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     return get() == other.get();
   }
 
-  /// Compare not equal to \a other.
-  [[nodiscard, gnu::pure]] constexpr bool operator!=(
-      qsbr_ptr other) const noexcept {
-    return get() != other.get();
-  }
-
   /// Compare less than or equal to \a other.
   [[nodiscard, gnu::pure]] constexpr bool operator<=(
       qsbr_ptr other) const noexcept {

@@ -353,17 +353,13 @@ class [[nodiscard]] basic_node_ptr {
   }
 
   // same raw_val means same type and same ptr.
-  [[nodiscard, gnu::pure]] constexpr auto operator==(
+  [[nodiscard, gnu::pure]] constexpr bool operator==(
       const basic_node_ptr &other) const noexcept {
     return tagged_ptr == other.tagged_ptr;
   }
 
-  [[nodiscard, gnu::pure]] auto operator==(std::nullptr_t) const noexcept {
+  [[nodiscard, gnu::pure]] bool operator==(std::nullptr_t) const noexcept {
     return tagged_ptr == reinterpret_cast<std::uintptr_t>(nullptr);
-  }
-
-  [[nodiscard, gnu::pure]] auto operator!=(std::nullptr_t) const noexcept {
-    return tagged_ptr != reinterpret_cast<std::uintptr_t>(nullptr);
   }
 
  private:

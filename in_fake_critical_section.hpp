@@ -121,15 +121,9 @@ class [[nodiscard]] in_fake_critical_section final {
   constexpr T operator--(int) noexcept { return value--; }
 
   /// Checks whether the wrapped pointer is `nullptr`.
-  [[nodiscard, gnu::pure]] constexpr auto operator==(
+  [[nodiscard, gnu::pure]] constexpr bool operator==(
       std::nullptr_t) const noexcept {
     return value == nullptr;
-  }
-
-  /// Checks whether the wrapped pointer is not `nullptr`.
-  [[nodiscard, gnu::pure]] constexpr auto operator!=(
-      std::nullptr_t) const noexcept {
-    return value != nullptr;
   }
 
   /// Convert to the wrapped value, implicitly if needed.

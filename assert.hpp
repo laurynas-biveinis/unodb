@@ -115,6 +115,8 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // Definitions that only depend on standalone vs part of another project
 #ifdef UNODB_DETAIL_STANDALONE
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
+
 /// Intentionally crash from a given source location.
 ///
 /// Should not be called directly - use UNODB_DETAIL_CRASH instead.
@@ -127,6 +129,8 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
       << "\", thread " << std::this_thread::get_id() << '\n';
   msg_stacktrace_abort(buf.str());
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #define UNODB_DETAIL_CRASH() unodb::detail::crash(__FILE__, __LINE__, __func__)
 

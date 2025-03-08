@@ -22,7 +22,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(4514)
 /// Test helper class may be used to inject memory allocation faults, throwing
 /// `std::bad_alloc` once some number of allocations have been made.
 class allocation_failure_injector final {
-  friend class pause_heap_faults;
+  friend struct pause_heap_faults;
 
  public:
   /// Reset the counters tracking the number of allocations and the allocation
@@ -83,12 +83,25 @@ class allocation_failure_injector final {
 
 /// Lexically scoped guard to pause heap allocation tracking and faulting for
 /// the current thread.
-class pause_heap_faults {
+struct [[nodiscard]] pause_heap_faults final {
  public:
   /// Pause heap faults for this thread.
   pause_heap_faults() noexcept { allocation_failure_injector::paused = true; }
+
   /// Resumes heap faults for this thread.
   ~pause_heap_faults() { allocation_failure_injector::paused = false; }
+
+  /// Copy construction is disabled.
+  pause_heap_faults(const pause_heap_faults&) = delete;
+
+  /// Move construction is disabled.
+  pause_heap_faults(pause_heap_faults&&) = delete;
+
+  /// Copy assignment is disabled.
+  pause_heap_faults& operator=(const pause_heap_faults&) = delete;
+
+  /// Move assignment is disabled.
+  pause_heap_faults& operator=(pause_heap_faults&&) = delete;
 };
 
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()

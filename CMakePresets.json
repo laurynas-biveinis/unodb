@@ -20,7 +20,7 @@
             "name": "base-unix",
             "hidden": true,
             "inherits": "base",
-            "generator": "Unix Makefiles"
+            "generator": "Ninja"
         },
         {
             "name": "base-msvc",

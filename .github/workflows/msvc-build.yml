@@ -74,7 +74,8 @@ jobs:
         working-directory: examples
         run: |
           # Ensure that we use clang-cl from MSVC, not LLVM
-          $env:path = $env:path -split ';' -notmatch 'C:\\Program Files\\LLVM\\bin' -join ';'
+          $env:path = $env:path `
+              -split ';' -notmatch 'C:\\Program Files\\LLVM\\bin' -join ';'
           cmake --preset "${{ matrix.preset }}"
         if: contains(env.EXAMPLE_PRESETS, matrix.preset)
 
@@ -94,15 +95,18 @@ jobs:
         run: |
           git submodule update --init --recursive
           # Ensure that we use clang-cl from MSVC, not LLVM
-          $env:path = $env:path -split ';' -notmatch 'C:\\Program Files\\LLVM\\bin' -join ';'
+          $env:path = $env:path `
+              -split ';' -notmatch 'C:\\Program Files\\LLVM\\bin' -join ';'
           cmake --preset "${{ matrix.preset }}"
 
       - name: Build
         run: |
-          cmake --build --preset "${{ matrix.preset }}"
-          $SARIF_SRC = "${{github.workspace}}\build\${{matrix.preset}}\msvc.sarif"
-          $SARIF_DST = "${{github.workspace}}\build\$($env:matrix.preset)\msvc-${{matrix.preset}}.sarif"
-          Move-Item -Path $SARIF_SRC -Destination $SARIF_DST -ErrorAction SilentlyContinue
+          cmake --build --preset "${{matrix.preset}}"
+          $BUILD_ROOT = "${{github.workspace}}\build\${{matrix.preset}}"
+          $SARIF_SRC = "$BUILD_ROOT\msvc.sarif"
+          $SARIF_DST = "$BUILD_ROOT\msvc-${{matrix.preset}}.sarif"
+          Move-Item -Path $SARIF_SRC -Destination $SARIF_DST `
+              -ErrorAction SilentlyContinue
 
       - name: Upload SARIF as an Artifact
         uses: actions/upload-artifact@v4

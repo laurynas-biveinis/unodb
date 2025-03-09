@@ -1,7 +1,7 @@
 var searchData=
 [
   ['pad_0',['pad',['../classunodb_1_1key__encoder.html#a52f15092ae61b2c24c23af0dc4831cc5',1,'unodb::key_encoder']]],
-  ['pause_5fheap_5ffaults_1',['pause_heap_faults',['../classunodb_1_1test_1_1pause__heap__faults.html',1,'unodb::test::pause_heap_faults'],['../classunodb_1_1test_1_1pause__heap__faults.html#ae5e31eea4d28fd784679aa4ad79f6dd2',1,'unodb::test::pause_heap_faults::pause_heap_faults()']]],
+  ['pause_5fheap_5ffaults_1',['pause_heap_faults',['../structunodb_1_1test_1_1pause__heap__faults.html',1,'unodb::test::pause_heap_faults'],['../structunodb_1_1test_1_1pause__heap__faults.html#ae5e31eea4d28fd784679aa4ad79f6dd2',1,'unodb::test::pause_heap_faults::pause_heap_faults() noexcept'],['../structunodb_1_1test_1_1pause__heap__faults.html#a449a2e8bea5748b6a1050c6d9a6e5907',1,'unodb::test::pause_heap_faults::pause_heap_faults(const pause_heap_faults &amp;)=delete'],['../structunodb_1_1test_1_1pause__heap__faults.html#af02e2ec271e40aab0e6fb702ac67535f',1,'unodb::test::pause_heap_faults::pause_heap_faults(pause_heap_faults &amp;&amp;)=delete']]],
   ['paused_2',['paused',['../classunodb_1_1qsbr__per__thread.html#a6fc38b62224e729fdab0988048626df7',1,'unodb::qsbr_per_thread::paused'],['../classunodb_1_1test_1_1allocation__failure__injector.html#aa4550e186361238a556d817a5ce0b1c5',1,'unodb::test::allocation_failure_injector::paused']]],
   ['platform_20specific_20notes_3',['Platform-Specific Notes',['../index.html#autotoc_md29',1,'']]],
   ['pointer_4',['pointer',['../classunodb_1_1qsbr__ptr.html#aad73d607224016b21ad63c3ae57f648b',1,'unodb::qsbr_ptr::pointer'],['../structunodb_1_1detail_1_1deallocation__request.html#a6f77c23a78b9e6d4b46625a9b380a281',1,'unodb::detail::deallocation_request::pointer']]],
@@ -14,7 +14,7 @@ var searchData=
   ['previous_5finterval_5forphan_5flist_5fnode_11',['previous_interval_orphan_list_node',['../classunodb_1_1qsbr__per__thread.html#a888e20fad9dfd7017ee351f965fc8ec1',1,'unodb::qsbr_per_thread']]],
   ['previous_5finterval_5forphaned_5frequests_5fempty_12',['previous_interval_orphaned_requests_empty',['../classunodb_1_1qsbr.html#ab0bc128769cba4329bf9995d269f53e9',1,'unodb::qsbr']]],
   ['previous_5finterval_5frequests_5fempty_13',['previous_interval_requests_empty',['../classunodb_1_1qsbr__per__thread.html#ac0e208117edcaa92cbb31aa9a3e5a34e',1,'unodb::qsbr_per_thread']]],
-  ['prior_14',['prior',['../classunodb_1_1detail_1_1basic__inode__impl.html#a9bc2a9ac06fef0b585ef78a635d430ab',1,'unodb::detail::basic_inode_impl::prior()'],['../classunodb_1_1olc__db_1_1iterator.html#a2e40d0642da63e5b5906b9cd287d4598',1,'unodb::olc_db::iterator::prior()'],['../classunodb_1_1db_1_1iterator.html#a7185f8a53c2a16d45bf4ddd7ca18e668',1,'unodb::db::iterator::prior()']]],
+  ['prior_14',['prior',['../classunodb_1_1db_1_1iterator.html#a7185f8a53c2a16d45bf4ddd7ca18e668',1,'unodb::db::iterator::prior()'],['../classunodb_1_1olc__db_1_1iterator.html#a2e40d0642da63e5b5906b9cd287d4598',1,'unodb::olc_db::iterator::prior()'],['../classunodb_1_1detail_1_1basic__inode__impl.html#a9bc2a9ac06fef0b585ef78a635d430ab',1,'unodb::detail::basic_inode_impl::prior()']]],
   ['projects_15',['Related Projects',['../index.html#autotoc_md38',1,'']]],
   ['protected_20data_20declaration_16',['Protected data declaration',['../group__optimistic-lock.html#autotoc_md17',1,'']]],
   ['protocol_17',['protocol',['../group__optimistic-lock.html#autotoc_md18',1,'Read protocol'],['../group__optimistic-lock.html#autotoc_md19',1,'Write protocol']]],

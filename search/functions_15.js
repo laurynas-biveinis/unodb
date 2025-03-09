@@ -6,7 +6,7 @@ var searchData=
   ['_7ein_5fcritical_5fsection_3',['~in_critical_section',['../classunodb_1_1in__critical__section.html#a3a816ce38114699b46752bdd7581f33e',1,'unodb::in_critical_section']]],
   ['_7ein_5ffake_5fcritical_5fsection_4',['~in_fake_critical_section',['../classunodb_1_1in__fake__critical__section.html#a842dd973824a71eacd38628c9ce63caa',1,'unodb::in_fake_critical_section']]],
   ['_7eoptimistic_5flock_5',['~optimistic_lock',['../classunodb_1_1optimistic__lock.html#a20e74ba469d7a88d080c4f379fa87885',1,'unodb::optimistic_lock']]],
-  ['_7epause_5fheap_5ffaults_6',['~pause_heap_faults',['../classunodb_1_1test_1_1pause__heap__faults.html#a8ae3cac88194bb9fff6b2cea36b2582a',1,'unodb::test::pause_heap_faults']]],
+  ['_7epause_5fheap_5ffaults_6',['~pause_heap_faults',['../structunodb_1_1test_1_1pause__heap__faults.html#a8ae3cac88194bb9fff6b2cea36b2582a',1,'unodb::test::pause_heap_faults']]],
   ['_7eqsbr_7',['~qsbr',['../classunodb_1_1qsbr.html#a04909fe04746cfa54eca808c2aa6a015',1,'unodb::qsbr']]],
   ['_7eqsbr_5fepoch_8',['~qsbr_epoch',['../classunodb_1_1detail_1_1qsbr__epoch.html#af73e06abb2f2a7398ad4e1fb0929c485',1,'unodb::detail::qsbr_epoch']]],
   ['_7eqsbr_5fper_5fthread_9',['~qsbr_per_thread',['../classunodb_1_1qsbr__per__thread.html#a310ad917b38a86a0967b1d7998f2c274',1,'unodb::qsbr_per_thread']]],

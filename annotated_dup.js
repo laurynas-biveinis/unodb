@@ -57,7 +57,7 @@ var annotated_dup =
       ] ],
       [ "test", null, [
         [ "allocation_failure_injector", "classunodb_1_1test_1_1allocation__failure__injector.html", "classunodb_1_1test_1_1allocation__failure__injector" ],
-        [ "pause_heap_faults", "classunodb_1_1test_1_1pause__heap__faults.html", "classunodb_1_1test_1_1pause__heap__faults" ],
+        [ "pause_heap_faults", "structunodb_1_1test_1_1pause__heap__faults.html", "structunodb_1_1test_1_1pause__heap__faults" ],
         [ "QSBRTestBase", "classunodb_1_1test_1_1QSBRTestBase.html", null ],
         [ "tree_verifier", "classunodb_1_1test_1_1tree__verifier.html", "classunodb_1_1test_1_1tree__verifier" ]
       ] ],

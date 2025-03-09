@@ -73,6 +73,8 @@ namespace unodb {
 
 namespace detail {
 
+class qsbr_ptr_base;
+
 /// Two-bit wrapping-around QSBR epoch counter. Two epochs can be compared for
 /// equality but otherwise are unordered. One bit counter would be enough too,
 /// but with two bits we can check more invariants.
@@ -448,23 +450,12 @@ struct qsbr_state {
 namespace detail {
 
 /// Pending deallocation request for QSBR-managed memory.
-struct [[nodiscard]] deallocation_request final {
-  /// Pointer to memory that should be deallocated.
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
-  void *const pointer;
-
+class [[nodiscard]] deallocation_request final {
+ public:
 #ifndef NDEBUG
   /// Debug build only: function type for callbacks executed during
   /// deallocation.
   using debug_callback = std::function<void(const void *)>;
-
-  /// Debug build only: callback to execute during deallocation.
-  // Non-const to support move
-  debug_callback dealloc_callback;
-
-  /// Debug build only: epoch when this deallocation request was created.
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
-  const qsbr_epoch request_epoch;
 #endif
 
   /// Create a new deallocation request for \a pointer_. In debug builds also
@@ -525,8 +516,22 @@ struct [[nodiscard]] deallocation_request final {
   static void assert_zero_instances() noexcept {
     UNODB_DETAIL_ASSERT(instance_count.load(std::memory_order_relaxed) == 0);
   }
+#endif
 
  private:
+  /// Pointer to memory that should be deallocated.
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
+  void *const pointer;
+
+#ifndef NDEBUG
+  /// Debug build only: callback to execute during deallocation.
+  // Non-const to support move
+  debug_callback dealloc_callback;
+
+  /// Debug build only: epoch when this deallocation request was created.
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
+  const qsbr_epoch request_epoch;
+
   /// Debug build only: global count of active deallocation request instances.
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
   static std::atomic<std::uint64_t> instance_count;
@@ -793,7 +798,13 @@ class [[nodiscard]] qsbr_per_thread final {
   /// Move assignment is disabled for a per-thread singleton.
   qsbr_per_thread &operator=(qsbr_per_thread &&) = delete;
 
-  // TODO(laurynas): make private with qsbr_ptr friend
+ private:
+  friend class detail::qsbr_ptr_base;
+  friend class qsbr;
+  friend class qsbr_thread;
+  friend qsbr_per_thread &this_thread() noexcept;
+  friend struct detail::set_qsbr_per_thread_in_main_thread;
+
 #ifndef NDEBUG
   /// Register an active pointer \a ptr to QSBR-managed data in this thread.
   ///
@@ -805,12 +816,6 @@ class [[nodiscard]] qsbr_per_thread final {
   /// \note Do not call directly: use unodb::qsbr_ptr instead.
   void unregister_active_ptr(const void *ptr);
 #endif
-
- private:
-  friend class qsbr;
-  friend class qsbr_thread;
-  friend qsbr_per_thread &this_thread() noexcept;
-  friend struct detail::set_qsbr_per_thread_in_main_thread;
 
   /// Get the thread-local QSBR data structure instance.
   [[nodiscard]] static qsbr_per_thread &get_instance() noexcept {
@@ -893,9 +898,9 @@ class [[nodiscard]] qsbr_per_thread final {
   /// \param dealloc_epoch Deallocation epoch
   /// \param new_current_requests New deallocation requests for the current
   ///                             epoch
-  void update_requests(bool single_thread_mode,
-                       detail::qsbr_epoch dealloc_epoch,
-                       detail::dealloc_request_vector new_current_requests = {})
+  void execute_previous_requests(
+      bool single_thread_mode, detail::qsbr_epoch dealloc_epoch,
+      detail::dealloc_request_vector new_current_requests = {})
 #ifndef UNODB_DETAIL_WITH_STATS
       noexcept
 #endif
@@ -903,7 +908,7 @@ class [[nodiscard]] qsbr_per_thread final {
 
   /// Move any pending deallocation requests to the global QSBR structure when
   /// the thread exits.
-  void orphan_deferred_requests() noexcept;
+  void orphan_pending_requests() noexcept;
 
 #ifndef NDEBUG
   /// Set of active pointers to QSBR-managed data held by this thread.
@@ -938,41 +943,6 @@ class qsbr final {
     return instance;
   }
 
-  /// Copy construction is disabled for a singleton.
-  qsbr(const qsbr &) = delete;
-
-  /// Move construction is disabled for a singleton.
-  qsbr(qsbr &&) = delete;
-
-  /// Copy assignment is disabled for a singleton.
-  qsbr &operator=(const qsbr &) = delete;
-
-  /// Move assignment is disabled for a singleton.
-  qsbr &operator=(qsbr &&) = delete;
-
- private:
-  friend struct detail::deallocation_request;
-  friend class qsbr_per_thread;
-
-  /// Free memory at \a pointer using detail::free_aligned.
-  ///
-  /// In debug builds, call \a debug_callback at the actual deallocation time.
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
-  static void deallocate(
-      void *pointer
-#ifndef NDEBUG
-      ,
-      const detail::deallocation_request::debug_callback &debug_callback
-#endif
-      ) noexcept {
-#ifndef NDEBUG
-    if (debug_callback != nullptr) debug_callback(pointer);
-#endif
-    detail::free_aligned(pointer);
-  }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
- public:
   /// Process quiescent state for a thread, potentially triggering an epoch
   /// change.
   /// \param current_global_epoch Current global epoch
@@ -1005,9 +975,6 @@ class qsbr final {
       noexcept
 #endif
       ;
-
-  /// Output QSBR state to \a out for debugging.
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &out) const;
 
 #ifdef UNODB_DETAIL_WITH_STATS
   /// Reset all statistics counters to zero.
@@ -1113,12 +1080,48 @@ class qsbr final {
 #endif
   }
 
+  /// Output QSBR state to \a out for debugging.
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &out) const;
+
+  /// Copy construction is disabled for a singleton.
+  qsbr(const qsbr &) = delete;
+
+  /// Move construction is disabled for a singleton.
+  qsbr(qsbr &&) = delete;
+
+  /// Copy assignment is disabled for a singleton.
+  qsbr &operator=(const qsbr &) = delete;
+
+  /// Move assignment is disabled for a singleton.
+  qsbr &operator=(qsbr &&) = delete;
+
  private:
+  friend class detail::deallocation_request;
+  friend class qsbr_per_thread;
+
   /// Default constructor for singleton.
   qsbr() noexcept = default;
 
   /// Destructor. In debug builds asserts that QSBR is idle.
   ~qsbr() noexcept { assert_idle(); }
+
+  /// Free memory at \a pointer using detail::free_aligned.
+  ///
+  /// In debug builds, call \a debug_callback at the actual deallocation time.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
+  static void deallocate(
+      void *pointer
+#ifndef NDEBUG
+      ,
+      const detail::deallocation_request::debug_callback &debug_callback
+#endif
+      ) noexcept {
+#ifndef NDEBUG
+    if (debug_callback != nullptr) debug_callback(pointer);
+#endif
+    detail::free_aligned(pointer);
+  }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Synchronization barrier for thread epoch changes.
   ///
@@ -1337,11 +1340,11 @@ inline void qsbr_per_thread::advance_last_seen_epoch(
       // yet; 3) it quitting will cause an epoch advance
       || (!single_thread_mode && new_seen_epoch == last_seen_epoch.advance(2)));
 
-  update_requests(single_thread_mode, new_seen_epoch,
-                  std::move(new_current_requests));
+  execute_previous_requests(single_thread_mode, new_seen_epoch,
+                            std::move(new_current_requests));
 }
 
-inline void qsbr_per_thread::update_requests(
+inline void qsbr_per_thread::execute_previous_requests(
     bool single_thread_mode, detail::qsbr_epoch dealloc_epoch,
     detail::dealloc_request_vector new_current_requests)
 #ifndef UNODB_DETAIL_WITH_STATS
@@ -1425,7 +1428,7 @@ inline void qsbr_per_thread::quiescent()
       last_seen_quiescent_state_epoch = new_global_epoch;
 
       UNODB_DETAIL_ASSERT(last_seen_epoch.advance() == new_global_epoch);
-      update_requests(single_thread_mode, new_global_epoch);
+      execute_previous_requests(single_thread_mode, new_global_epoch);
 
 #ifdef UNODB_DETAIL_WITH_STATS
       qsbr::instance()
@@ -1565,15 +1568,6 @@ struct quiescent_state_on_scope_exit final {
 #endif
 };
 
-// Replace with C++20 std::remove_cvref once it's available
-template <typename T>
-struct remove_cvref final {
-  using type = std::remove_cv_t<std::remove_reference_t<T>>;
-};
-
-template <typename T>
-using remove_cvref_t = typename remove_cvref<T>::type;
-
 /// An `std::thread`-like thread that participates in QSBR.
 ///
 /// Ensures that a thread-local unodb::qsbr_per_thread instance gets properly
@@ -1585,7 +1579,7 @@ class [[nodiscard]] qsbr_thread : public std::thread {
   /// Create a new thread running function \a f with arguments \a args.
   template <typename Function, typename... Args>
   explicit qsbr_thread(Function &&f, Args &&...args)
-      requires(!std::is_same_v<remove_cvref_t<Function>, qsbr_thread>)
+      requires(!std::is_same_v<std::remove_cvref_t<Function>, qsbr_thread>)
       : std::thread{make_qsbr_thread(std::forward<Function>(f),
                                      std::forward<Args>(args)...)} {}
 

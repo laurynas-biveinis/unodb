@@ -79,8 +79,6 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   std::abort();
 }
 
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
 // Definitions that only depend on Debug vs Release
 #ifndef NDEBUG
 
@@ -115,8 +113,6 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // Definitions that only depend on standalone vs part of another project
 #ifdef UNODB_DETAIL_STANDALONE
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
-
 /// Intentionally crash from a given source location.
 ///
 /// Should not be called directly - use UNODB_DETAIL_CRASH instead.
@@ -129,8 +125,6 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
       << "\", thread " << std::this_thread::get_id() << '\n';
   msg_stacktrace_abort(buf.str());
 }
-
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #define UNODB_DETAIL_CRASH() unodb::detail::crash(__FILE__, __LINE__, __func__)
 
@@ -148,8 +142,6 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #elif !defined(NDEBUG)
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
-
 /// Assert failure implementation for standalone debug build.
 ///
 /// Should not be called directly - used UNODB_DETAIL_ASSERT instead.
@@ -166,8 +158,6 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   msg_stacktrace_abort(buf.str());
 }
 
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
 #define UNODB_DETAIL_ASSERT(condition)                                      \
   UNODB_DETAIL_UNLIKELY(!(condition))                                       \
   ? unodb::detail::assert_failure(__FILE__, __LINE__, __func__, #condition) \
@@ -178,6 +168,8 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 #define UNODB_DETAIL_ASSERT(condition) ((void)0)
 
 #endif  // !defined(NDEBUG)
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace unodb::detail
 

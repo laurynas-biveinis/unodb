@@ -221,7 +221,7 @@ inline void ensure_capacity(std::byte *&buf, size_t &cap, size_t off,
   if (cap > INITIAL_BUFFER_CAPACITY) {          // free old buffer iff allocated
     detail::free_aligned(buf);
   }
-  buf = reinterpret_cast<std::byte *>(tmp);
+  buf = static_cast<std::byte *>(tmp);
   cap = asize;
 }
 

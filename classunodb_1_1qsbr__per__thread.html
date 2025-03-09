@@ -123,7 +123,7 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>~qsbr_per_thread</b> () noexcept</td></tr>
 <tr class="memdesc:a310ad917b38a86a0967b1d7998f2c274"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister the current thread from global QSBR on thread exist. <br /></td></tr>
 <tr class="separator:a310ad917b38a86a0967b1d7998f2c274"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88e9830fbe4868759b676fc091cabf0f" id="r_a88e9830fbe4868759b676fc091cabf0f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a88e9830fbe4868759b676fc091cabf0f">on_next_epoch_deallocate</a> (void *pointer, std::size_t size, <a class="el" href="structunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a> dealloc_callback)</td></tr>
+<tr class="memitem:a88e9830fbe4868759b676fc091cabf0f" id="r_a88e9830fbe4868759b676fc091cabf0f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a88e9830fbe4868759b676fc091cabf0f">on_next_epoch_deallocate</a> (void *pointer, std::size_t size, <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a> dealloc_callback)</td></tr>
 <tr class="memdesc:a88e9830fbe4868759b676fc091cabf0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request deallocation of <em>pointer</em> when it is safe to do so.  <br /></td></tr>
 <tr class="separator:a88e9830fbe4868759b676fc091cabf0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac26eeb41f72fcf9f6753ec95d8f1cb99" id="r_ac26eeb41f72fcf9f6753ec95d8f1cb99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#ac26eeb41f72fcf9f6753ec95d8f1cb99">quiescent</a> ()</td></tr>
@@ -167,25 +167,25 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_current_in
 <a class="el" href="classunodb_1_1qsbr__per__thread.html">qsbr_per_thread</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1qsbr__per__thread.html">qsbr_per_thread</a> &amp;&amp;)=delete</td></tr>
 <tr class="memdesc:a0d9c7ff812f0d133f937a0f53a1b4def"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment is disabled for a per-thread singleton. <br /></td></tr>
 <tr class="separator:a0d9c7ff812f0d133f937a0f53a1b4def"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
 <tr class="memitem:ae39c9b13610c71dce1e166a874a4b194" id="r_ae39c9b13610c71dce1e166a874a4b194"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#ae39c9b13610c71dce1e166a874a4b194">register_active_ptr</a> (const void *ptr)</td></tr>
 <tr class="memdesc:ae39c9b13610c71dce1e166a874a4b194"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register an active pointer <em>ptr</em> to QSBR-managed data in this thread.  <br /></td></tr>
 <tr class="separator:ae39c9b13610c71dce1e166a874a4b194"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5983279bf3dbf1c42a4d86cab81869f2" id="r_a5983279bf3dbf1c42a4d86cab81869f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a5983279bf3dbf1c42a4d86cab81869f2">unregister_active_ptr</a> (const void *ptr)</td></tr>
 <tr class="memdesc:a5983279bf3dbf1c42a4d86cab81869f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister an active pointer <em>ptr</em> to QSBR-managed data in this thread.  <br /></td></tr>
 <tr class="separator:a5983279bf3dbf1c42a4d86cab81869f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
 <tr class="memitem:ae8ed6c0ce29e48f1fc70a5e3e94cd25f" id="r_ae8ed6c0ce29e48f1fc70a5e3e94cd25f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#ae8ed6c0ce29e48f1fc70a5e3e94cd25f">advance_last_seen_epoch</a> (bool single_thread_mode, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> new_seen_epoch, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> new_current_requests={})</td></tr>
 <tr class="memdesc:ae8ed6c0ce29e48f1fc70a5e3e94cd25f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update this thread's view of the current epoch and execute the previous interval deallocation requests if a newer epoch is seen.  <br /></td></tr>
 <tr class="separator:ae8ed6c0ce29e48f1fc70a5e3e94cd25f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31f84e25a40dffd8dc13c73613634053" id="r_a31f84e25a40dffd8dc13c73613634053"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a31f84e25a40dffd8dc13c73613634053">update_requests</a> (bool single_thread_mode, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> dealloc_epoch, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> new_current_requests={})</td></tr>
-<tr class="memdesc:a31f84e25a40dffd8dc13c73613634053"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execute the previous interval deallocation requests and move the current interval ones to the previous interval.  <br /></td></tr>
-<tr class="separator:a31f84e25a40dffd8dc13c73613634053"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeb5546a8285617341d41aa30d0ea0fe4" id="r_aeb5546a8285617341d41aa30d0ea0fe4"><td class="memItemLeft" align="right" valign="top"><a id="aeb5546a8285617341d41aa30d0ea0fe4" name="aeb5546a8285617341d41aa30d0ea0fe4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>orphan_deferred_requests</b> () noexcept</td></tr>
-<tr class="memdesc:aeb5546a8285617341d41aa30d0ea0fe4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move any pending deallocation requests to the global QSBR structure when the thread exits. <br /></td></tr>
-<tr class="separator:aeb5546a8285617341d41aa30d0ea0fe4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a05800171a04e7592e83cbe7c7f86fc63" id="r_a05800171a04e7592e83cbe7c7f86fc63"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a05800171a04e7592e83cbe7c7f86fc63">execute_previous_requests</a> (bool single_thread_mode, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> dealloc_epoch, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> new_current_requests={})</td></tr>
+<tr class="memdesc:a05800171a04e7592e83cbe7c7f86fc63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execute the previous interval deallocation requests and move the current interval ones to the previous interval.  <br /></td></tr>
+<tr class="separator:a05800171a04e7592e83cbe7c7f86fc63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add6170269ed644653e4206906d5166b0" id="r_add6170269ed644653e4206906d5166b0"><td class="memItemLeft" align="right" valign="top"><a id="add6170269ed644653e4206906d5166b0" name="add6170269ed644653e4206906d5166b0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>orphan_pending_requests</b> () noexcept</td></tr>
+<tr class="memdesc:add6170269ed644653e4206906d5166b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move any pending deallocation requests to the global QSBR structure when the thread exits. <br /></td></tr>
+<tr class="separator:add6170269ed644653e4206906d5166b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
@@ -250,6 +250,9 @@ static thread_local std::unique_ptr&lt; <a class="el" href="classunodb_1_1qsbr__
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
+<tr class="memitem:a92e7a318fc8d3873898812b9a6272b96" id="r_a92e7a318fc8d3873898812b9a6272b96"><td class="memItemLeft" align="right" valign="top"><a id="a92e7a318fc8d3873898812b9a6272b96" name="a92e7a318fc8d3873898812b9a6272b96"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>detail::qsbr_ptr_base</b></td></tr>
+<tr class="separator:a92e7a318fc8d3873898812b9a6272b96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab3ca2a8465951cd7d4da8a212db6c8d1" id="r_ab3ca2a8465951cd7d4da8a212db6c8d1"><td class="memItemLeft" align="right" valign="top"><a id="ab3ca2a8465951cd7d4da8a212db6c8d1" name="ab3ca2a8465951cd7d4da8a212db6c8d1"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr</b></td></tr>
 <tr class="separator:ab3ca2a8465951cd7d4da8a212db6c8d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -321,6 +324,58 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
 
 </div>
 </div>
+<a id="a05800171a04e7592e83cbe7c7f86fc63" name="a05800171a04e7592e83cbe7c7f86fc63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a05800171a04e7592e83cbe7c7f86fc63">&#9670;&#160;</a></span>execute_previous_requests()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void unodb::qsbr_per_thread::execute_previous_requests </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>single_thread_mode</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a>&#160;</td>
+          <td class="paramname"><em>dealloc_epoch</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a>&#160;</td>
+          <td class="paramname"><em>new_current_requests</em> = <code>{}</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Execute the previous interval deallocation requests and move the current interval ones to the previous interval. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">single_thread_mode</td><td>Whether QSBR is in single-thread mode </td></tr>
+    <tr><td class="paramname">dealloc_epoch</td><td>Deallocation epoch </td></tr>
+    <tr><td class="paramname">new_current_requests</td><td>New deallocation requests for the current epoch </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a88e9830fbe4868759b676fc091cabf0f" name="a88e9830fbe4868759b676fc091cabf0f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a88e9830fbe4868759b676fc091cabf0f">&#9670;&#160;</a></span>on_next_epoch_deallocate()</h2>
 
@@ -345,7 +400,7 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a>&#160;</td>
           <td class="paramname"><em>dealloc_callback</em>&#160;</td>
         </tr>
         <tr>
@@ -464,6 +519,9 @@ QSBR must not be paused for this thread. </dd></dl>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void unodb::qsbr_per_thread::register_active_ptr </td>
@@ -473,6 +531,11 @@ QSBR must not be paused for this thread. </dd></dl>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Register an active pointer <em>ptr</em> to QSBR-managed data in this thread. </p>
@@ -485,6 +548,9 @@ QSBR must not be paused for this thread. </dd></dl>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void unodb::qsbr_per_thread::unregister_active_ptr </td>
@@ -494,62 +560,15 @@ QSBR must not be paused for this thread. </dd></dl>
           <td></td>
         </tr>
       </table>
-</div><div class="memdoc">
-
-<p>Unregister an active pointer <em>ptr</em> to QSBR-managed data in this thread. </p>
-<dl class="section note"><dt>Note</dt><dd>Do not call directly: use <a class="el" href="classunodb_1_1qsbr__ptr.html" title="Raw pointer-like smart pointer to QSBR-managed shared data.">unodb::qsbr_ptr</a> instead. </dd></dl>
-
-</div>
-</div>
-<a id="a31f84e25a40dffd8dc13c73613634053" name="a31f84e25a40dffd8dc13c73613634053"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a31f84e25a40dffd8dc13c73613634053">&#9670;&#160;</a></span>update_requests()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void unodb::qsbr_per_thread::update_requests </td>
-          <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>single_thread_mode</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a>&#160;</td>
-          <td class="paramname"><em>dealloc_epoch</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a>&#160;</td>
-          <td class="paramname"><em>new_current_requests</em> = <code>{}</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Execute the previous interval deallocation requests and move the current interval ones to the previous interval. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">single_thread_mode</td><td>Whether QSBR is in single-thread mode </td></tr>
-    <tr><td class="paramname">dealloc_epoch</td><td>Deallocation epoch </td></tr>
-    <tr><td class="paramname">new_current_requests</td><td>New deallocation requests for the current epoch </td></tr>
-  </table>
-  </dd>
-</dl>
+<p>Unregister an active pointer <em>ptr</em> to QSBR-managed data in this thread. </p>
+<dl class="section note"><dt>Note</dt><dd>Do not call directly: use <a class="el" href="classunodb_1_1qsbr__ptr.html" title="Raw pointer-like smart pointer to QSBR-managed shared data.">unodb::qsbr_ptr</a> instead. </dd></dl>
 
 </div>
 </div>

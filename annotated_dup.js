@@ -27,7 +27,7 @@ var annotated_dup =
         [ "db_inode_qsbr_deleter", "classunodb_1_1detail_1_1db__inode__qsbr__deleter.html", null ],
         [ "db_leaf_qsbr_deleter", "classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html", null ],
         [ "dealloc_vector_list_node", "structunodb_1_1detail_1_1dealloc__vector__list__node.html", "structunodb_1_1detail_1_1dealloc__vector__list__node" ],
-        [ "deallocation_request", "structunodb_1_1detail_1_1deallocation__request.html", "structunodb_1_1detail_1_1deallocation__request" ],
+        [ "deallocation_request", "classunodb_1_1detail_1_1deallocation__request.html", "classunodb_1_1detail_1_1deallocation__request" ],
         [ "deferred_requests", "classunodb_1_1detail_1_1deferred__requests.html", "classunodb_1_1detail_1_1deferred__requests" ],
         [ "dependent_false", "structunodb_1_1detail_1_1dependent__false.html", null ],
         [ "fake_inode", "classunodb_1_1detail_1_1fake__inode.html", null ],
@@ -78,7 +78,6 @@ var annotated_dup =
       [ "qsbr_state", "structunodb_1_1qsbr__state.html", "structunodb_1_1qsbr__state" ],
       [ "qsbr_thread", "classunodb_1_1qsbr__thread.html", "classunodb_1_1qsbr__thread" ],
       [ "quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", "structunodb_1_1quiescent__state__on__scope__exit" ],
-      [ "remove_cvref", "structunodb_1_1remove__cvref.html", null ],
       [ "visitor", "classunodb_1_1visitor.html", "classunodb_1_1visitor" ]
     ] ]
 ];

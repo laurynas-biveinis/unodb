@@ -18,7 +18,7 @@ var hierarchy =
     [ "unodb::db< Key, Value >", "classunodb_1_1db.html", null ],
     [ "unodb::detail::db_leaf_qsbr_deleter< Db >", "classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html", null ],
     [ "unodb::detail::dealloc_vector_list_node", "structunodb_1_1detail_1_1dealloc__vector__list__node.html", null ],
-    [ "unodb::detail::deallocation_request", "structunodb_1_1detail_1_1deallocation__request.html", null ],
+    [ "unodb::detail::deallocation_request", "classunodb_1_1detail_1_1deallocation__request.html", null ],
     [ "unodb::detail::deferred_requests", "classunodb_1_1detail_1_1deferred__requests.html", null ],
     [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator >::delete_db_node_ptr_at_scope_exit", "structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html", null ],
     [ "unodb::detail::fake_inode", "classunodb_1_1detail_1_1fake__inode.html", null ],
@@ -90,7 +90,6 @@ var hierarchy =
     [ "unodb::qsbr_state", "structunodb_1_1qsbr__state.html", null ],
     [ "unodb::quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", null ],
     [ "unodb::optimistic_lock::read_critical_section", "classunodb_1_1optimistic__lock_1_1read__critical__section.html", null ],
-    [ "unodb::remove_cvref< T >", "structunodb_1_1remove__cvref.html", null ],
     [ "unodb::detail::set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", null ],
     [ "testing::Test", null, [
       [ "unodb::test::QSBRTestBase", "classunodb_1_1test_1_1QSBRTestBase.html", null ]

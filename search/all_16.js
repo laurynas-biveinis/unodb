@@ -4,7 +4,7 @@ var searchData=
   ['ubuntu_2022_2004_1',['Ubuntu 22.04',['../index.html#autotoc_md30',1,'']]],
   ['unlock_2',['unlock',['../classunodb_1_1optimistic__lock_1_1write__guard.html#aa9e2296850d48a7c50d40be79036be07',1,'unodb::optimistic_lock::write_guard']]],
   ['unlock_5fand_5fobsolete_3',['unlock_and_obsolete',['../classunodb_1_1optimistic__lock_1_1write__guard.html#a4083c784a45907e08d1b159b30af6bdb',1,'unodb::optimistic_lock::write_guard']]],
-  ['unodb_4',['unodb',['../md_CONTRIBUTING.html#autotoc_md0',1,'Contributing to UnoDB'],['../namespaceunodb.html',1,'unodb'],['../index.html#autotoc_md23',1,'unodb'],['../index.html',1,'UnoDB']]],
+  ['unodb_4',['unodb',['../md_CONTRIBUTING.html#autotoc_md0',1,'Contributing to UnoDB'],['../index.html',1,'UnoDB'],['../index.html#autotoc_md23',1,'unodb'],['../namespaceunodb.html',1,'unodb']]],
   ['unodb_3a_3adetail_5',['detail',['../namespaceunodb_1_1detail.html',1,'unodb']]],
   ['unodb_5fdetail_5faddress_5fsanitizer_6',['UNODB_DETAIL_ADDRESS_SANITIZER',['../group__internal.html#ga7b07d99892b2d5fa3657675affb67a29',1,'global.hpp']]],
   ['unodb_5fdetail_5fassert_7',['UNODB_DETAIL_ASSERT',['../group__internal.html#ga143793f205c69f573831b99b3dee1b9c',1,'assert.hpp']]],
@@ -55,6 +55,5 @@ var searchData=
   ['unodb_5fdetail_5fx86_5f64_52',['UNODB_DETAIL_X86_64',['../group__internal.html#ga7496e03d41dc595453e75e3e66157007',1,'global.hpp']]],
   ['unregister_5factive_5fptr_53',['unregister_active_ptr',['../classunodb_1_1detail_1_1qsbr__ptr__base.html#ada5f94aa6bc6a826105e2818753ff37a',1,'unodb::detail::qsbr_ptr_base::unregister_active_ptr()'],['../classunodb_1_1qsbr__per__thread.html#a5983279bf3dbf1c42a4d86cab81869f2',1,'unodb::qsbr_per_thread::unregister_active_ptr()']]],
   ['unregister_5fthread_54',['unregister_thread',['../classunodb_1_1qsbr.html#a45126988fe608048686cdf3de3a643bb',1,'unodb::qsbr']]],
-  ['update_5frequests_55',['update_requests',['../classunodb_1_1qsbr__per__thread.html#a31f84e25a40dffd8dc13c73613634053',1,'unodb::qsbr_per_thread']]],
-  ['usage_56',['Usage',['../index.html#autotoc_md33',1,'']]]
+  ['usage_55',['Usage',['../index.html#autotoc_md33',1,'']]]
 ];

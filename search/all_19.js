@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['_7edeallocation_5frequest_0',['~deallocation_request',['../structunodb_1_1detail_1_1deallocation__request.html#a09828aa1a4e94b26e0f987a498b5a77f',1,'unodb::detail::deallocation_request']]],
+  ['_7edeallocation_5frequest_0',['~deallocation_request',['../classunodb_1_1detail_1_1deallocation__request.html#a09828aa1a4e94b26e0f987a498b5a77f',1,'unodb::detail::deallocation_request']]],
   ['_7edeferred_5frequests_1',['~deferred_requests',['../classunodb_1_1detail_1_1deferred__requests.html#a09dab31c5386d2fc52b5f1d32e3904f9',1,'unodb::detail::deferred_requests']]],
   ['_7efake_5fread_5fcritical_5fsection_2',['~fake_read_critical_section',['../classunodb_1_1fake__read__critical__section.html#a5818b3291ce3cc94d3faac099619482a',1,'unodb::fake_read_critical_section']]],
   ['_7ein_5fcritical_5fsection_3',['~in_critical_section',['../classunodb_1_1in__critical__section.html#a3a816ce38114699b46752bdd7581f33e',1,'unodb::in_critical_section']]],

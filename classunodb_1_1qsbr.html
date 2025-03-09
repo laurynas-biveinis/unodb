@@ -115,22 +115,6 @@ $(document).ready(function(){initNavTree('classunodb_1_1qsbr.html',''); initResi
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a9c6b2fa62d6e56955c0bbd6ae716cdd0" id="r_a9c6b2fa62d6e56955c0bbd6ae716cdd0"><td class="memItemLeft" align="right" valign="top"><a id="a9c6b2fa62d6e56955c0bbd6ae716cdd0" name="a9c6b2fa62d6e56955c0bbd6ae716cdd0"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr</b> (const <a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;)=delete</td></tr>
-<tr class="memdesc:a9c6b2fa62d6e56955c0bbd6ae716cdd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy construction is disabled for a singleton. <br /></td></tr>
-<tr class="separator:a9c6b2fa62d6e56955c0bbd6ae716cdd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ca0f8c36c88da7c582d26778a4a2e64" id="r_a6ca0f8c36c88da7c582d26778a4a2e64"><td class="memItemLeft" align="right" valign="top"><a id="a6ca0f8c36c88da7c582d26778a4a2e64" name="a6ca0f8c36c88da7c582d26778a4a2e64"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr</b> (<a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;&amp;)=delete</td></tr>
-<tr class="memdesc:a6ca0f8c36c88da7c582d26778a4a2e64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move construction is disabled for a singleton. <br /></td></tr>
-<tr class="separator:a6ca0f8c36c88da7c582d26778a4a2e64"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2970364f4ada9b08289d06de7c425b0c" id="r_a2970364f4ada9b08289d06de7c425b0c"><td class="memItemLeft" align="right" valign="top"><a id="a2970364f4ada9b08289d06de7c425b0c" name="a2970364f4ada9b08289d06de7c425b0c"></a>
-<a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;)=delete</td></tr>
-<tr class="memdesc:a2970364f4ada9b08289d06de7c425b0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assignment is disabled for a singleton. <br /></td></tr>
-<tr class="separator:a2970364f4ada9b08289d06de7c425b0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad76846cc21ae665e476fc38184bd91c5" id="r_ad76846cc21ae665e476fc38184bd91c5"><td class="memItemLeft" align="right" valign="top"><a id="ad76846cc21ae665e476fc38184bd91c5" name="ad76846cc21ae665e476fc38184bd91c5"></a>
-<a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;&amp;)=delete</td></tr>
-<tr class="memdesc:ad76846cc21ae665e476fc38184bd91c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment is disabled for a singleton. <br /></td></tr>
-<tr class="separator:ad76846cc21ae665e476fc38184bd91c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6d9dcbf3cfd31588a782570fcf9d465" id="r_ac6d9dcbf3cfd31588a782570fcf9d465"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#ac6d9dcbf3cfd31588a782570fcf9d465">remove_thread_from_previous_epoch</a> (<a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> current_global_epoch, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> thread_epoch) noexcept</td></tr>
 <tr class="memdesc:ac6d9dcbf3cfd31588a782570fcf9d465"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process quiescent state for a thread, potentially triggering an epoch change.  <br /></td></tr>
 <tr class="separator:ac6d9dcbf3cfd31588a782570fcf9d465"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,10 +124,6 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a45126988fe608048686cdf3de3a643bb" id="r_a45126988fe608048686cdf3de3a643bb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#a45126988fe608048686cdf3de3a643bb">unregister_thread</a> (std::uint64_t quiescent_states_since_epoch_change, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> thread_epoch, <a class="el" href="classunodb_1_1qsbr__per__thread.html">qsbr_per_thread</a> &amp;<a class="el" href="classunodb_1_1qsbr__thread.html">qsbr_thread</a>)</td></tr>
 <tr class="memdesc:a45126988fe608048686cdf3de3a643bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister a thread from QSBR.  <br /></td></tr>
 <tr class="separator:a45126988fe608048686cdf3de3a643bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3917296ed04b12883da63a447552acff" id="r_a3917296ed04b12883da63a447552acff"><td class="memItemLeft" align="right" valign="top"><a id="a3917296ed04b12883da63a447552acff" name="a3917296ed04b12883da63a447552acff"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;out) const</td></tr>
-<tr class="memdesc:a3917296ed04b12883da63a447552acff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output QSBR state to <em>out</em> for debugging. <br /></td></tr>
-<tr class="separator:a3917296ed04b12883da63a447552acff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91ab1f05706949f31a01649e721831d8" id="r_a91ab1f05706949f31a01649e721831d8"><td class="memItemLeft" align="right" valign="top"><a id="a91ab1f05706949f31a01649e721831d8" name="a91ab1f05706949f31a01649e721831d8"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>reset_stats</b> ()</td></tr>
 <tr class="memdesc:a91ab1f05706949f31a01649e721831d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset all statistics counters to zero. <br /></td></tr>
@@ -194,6 +174,26 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>current_interval_orph
 void&#160;</td><td class="memItemRight" valign="bottom"><b>assert_idle</b> () const noexcept</td></tr>
 <tr class="memdesc:a3775f80f3b2140b78e67cdb48f9c11da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assert that QSBR is idle (at most one thread, no orphaned requests). <br /></td></tr>
 <tr class="separator:a3775f80f3b2140b78e67cdb48f9c11da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3917296ed04b12883da63a447552acff" id="r_a3917296ed04b12883da63a447552acff"><td class="memItemLeft" align="right" valign="top"><a id="a3917296ed04b12883da63a447552acff" name="a3917296ed04b12883da63a447552acff"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;out) const</td></tr>
+<tr class="memdesc:a3917296ed04b12883da63a447552acff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output QSBR state to <em>out</em> for debugging. <br /></td></tr>
+<tr class="separator:a3917296ed04b12883da63a447552acff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c6b2fa62d6e56955c0bbd6ae716cdd0" id="r_a9c6b2fa62d6e56955c0bbd6ae716cdd0"><td class="memItemLeft" align="right" valign="top"><a id="a9c6b2fa62d6e56955c0bbd6ae716cdd0" name="a9c6b2fa62d6e56955c0bbd6ae716cdd0"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr</b> (const <a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;)=delete</td></tr>
+<tr class="memdesc:a9c6b2fa62d6e56955c0bbd6ae716cdd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy construction is disabled for a singleton. <br /></td></tr>
+<tr class="separator:a9c6b2fa62d6e56955c0bbd6ae716cdd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ca0f8c36c88da7c582d26778a4a2e64" id="r_a6ca0f8c36c88da7c582d26778a4a2e64"><td class="memItemLeft" align="right" valign="top"><a id="a6ca0f8c36c88da7c582d26778a4a2e64" name="a6ca0f8c36c88da7c582d26778a4a2e64"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr</b> (<a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;&amp;)=delete</td></tr>
+<tr class="memdesc:a6ca0f8c36c88da7c582d26778a4a2e64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move construction is disabled for a singleton. <br /></td></tr>
+<tr class="separator:a6ca0f8c36c88da7c582d26778a4a2e64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2970364f4ada9b08289d06de7c425b0c" id="r_a2970364f4ada9b08289d06de7c425b0c"><td class="memItemLeft" align="right" valign="top"><a id="a2970364f4ada9b08289d06de7c425b0c" name="a2970364f4ada9b08289d06de7c425b0c"></a>
+<a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;)=delete</td></tr>
+<tr class="memdesc:a2970364f4ada9b08289d06de7c425b0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assignment is disabled for a singleton. <br /></td></tr>
+<tr class="separator:a2970364f4ada9b08289d06de7c425b0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad76846cc21ae665e476fc38184bd91c5" id="r_ad76846cc21ae665e476fc38184bd91c5"><td class="memItemLeft" align="right" valign="top"><a id="ad76846cc21ae665e476fc38184bd91c5" name="ad76846cc21ae665e476fc38184bd91c5"></a>
+<a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1qsbr.html">qsbr</a> &amp;&amp;)=delete</td></tr>
+<tr class="memdesc:ad76846cc21ae665e476fc38184bd91c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment is disabled for a singleton. <br /></td></tr>
+<tr class="separator:ad76846cc21ae665e476fc38184bd91c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -237,7 +237,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>publish_quiescent_sta
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
-<tr class="memitem:ab805604c80aa7bbf91777c7bbf5f391a" id="r_ab805604c80aa7bbf91777c7bbf5f391a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#ab805604c80aa7bbf91777c7bbf5f391a">deallocate</a> (void *pointer, const <a class="el" href="structunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a> &amp;debug_callback) noexcept</td></tr>
+<tr class="memitem:ab805604c80aa7bbf91777c7bbf5f391a" id="r_ab805604c80aa7bbf91777c7bbf5f391a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#ab805604c80aa7bbf91777c7bbf5f391a">deallocate</a> (void *pointer, const <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a> &amp;debug_callback) noexcept</td></tr>
 <tr class="memdesc:ab805604c80aa7bbf91777c7bbf5f391a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free memory at <em>pointer</em> using detail::free_aligned.  <br /></td></tr>
 <tr class="separator:ab805604c80aa7bbf91777c7bbf5f391a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12cd3058880cc8a4ced8466f959aed83" id="r_a12cd3058880cc8a4ced8466f959aed83"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#a12cd3058880cc8a4ced8466f959aed83">thread_epoch_change_barrier</a> () noexcept</td></tr>
@@ -309,9 +309,9 @@ std::atomic&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:a4c5e947eb3bcaa33f4d62698be4af6fa" id="r_a4c5e947eb3bcaa33f4d62698be4af6fa"><td class="memItemLeft" align="right" valign="top"><a id="a4c5e947eb3bcaa33f4d62698be4af6fa" name="a4c5e947eb3bcaa33f4d62698be4af6fa"></a>
-struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::deallocation_request</b></td></tr>
-<tr class="separator:a4c5e947eb3bcaa33f4d62698be4af6fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4517d362486e453161d68c9e901e1000" id="r_a4517d362486e453161d68c9e901e1000"><td class="memItemLeft" align="right" valign="top"><a id="a4517d362486e453161d68c9e901e1000" name="a4517d362486e453161d68c9e901e1000"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>detail::deallocation_request</b></td></tr>
+<tr class="separator:a4517d362486e453161d68c9e901e1000"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a32408898e7927d3a879013f726712feb" id="r_a32408898e7927d3a879013f726712feb"><td class="memItemLeft" align="right" valign="top"><a id="a32408898e7927d3a879013f726712feb" name="a32408898e7927d3a879013f726712feb"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_per_thread</b></td></tr>
 <tr class="separator:a32408898e7927d3a879013f726712feb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -384,7 +384,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_per_thread</b><
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a> &amp;&#160;</td>
           <td class="paramname"><em>debug_callback</em>&#160;</td>
         </tr>
         <tr>

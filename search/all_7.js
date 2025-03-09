@@ -17,5 +17,6 @@ var searchData=
   ['epoch_5ftype_14',['epoch_type',['../classunodb_1_1detail_1_1qsbr__epoch.html#af72d71938cbe487714f8a18118b0a093',1,'unodb::detail::qsbr_epoch']]],
   ['epoch_5fval_15',['epoch_val',['../classunodb_1_1detail_1_1qsbr__epoch.html#a6a691754f6787ec44de89c9e0f714b5a',1,'unodb::detail::qsbr_epoch']]],
   ['examples_16',['Examples',['../group__optimistic-lock.html#autotoc_md15',1,'']]],
-  ['exceptions_5fat_5fctor_17',['exceptions_at_ctor',['../structunodb_1_1quiescent__state__on__scope__exit.html#a3cccedbca284edccb346ae9d910f8011',1,'unodb::quiescent_state_on_scope_exit']]]
+  ['exceptions_5fat_5fctor_17',['exceptions_at_ctor',['../structunodb_1_1quiescent__state__on__scope__exit.html#a3cccedbca284edccb346ae9d910f8011',1,'unodb::quiescent_state_on_scope_exit']]],
+  ['execute_5fprevious_5frequests_18',['execute_previous_requests',['../classunodb_1_1qsbr__per__thread.html#a05800171a04e7592e83cbe7c7f86fc63',1,'unodb::qsbr_per_thread']]]
 ];

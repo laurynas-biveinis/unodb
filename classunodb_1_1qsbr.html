@@ -238,7 +238,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>publish_quiescent_sta
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
 <tr class="memitem:ab805604c80aa7bbf91777c7bbf5f391a" id="r_ab805604c80aa7bbf91777c7bbf5f391a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#ab805604c80aa7bbf91777c7bbf5f391a">deallocate</a> (void *pointer, const <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a> &amp;debug_callback) noexcept</td></tr>
-<tr class="memdesc:ab805604c80aa7bbf91777c7bbf5f391a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free memory at <em>pointer</em> using detail::free_aligned.  <br /></td></tr>
+<tr class="memdesc:ab805604c80aa7bbf91777c7bbf5f391a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free memory at <em>pointer</em> using <a class="el" href="namespaceunodb_1_1detail.html#a857e30bf5bbe06e321300ee868010df9" title="Free heap memory allocated with allocate_aligned().">detail::free_aligned</a>.  <br /></td></tr>
 <tr class="separator:ab805604c80aa7bbf91777c7bbf5f391a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12cd3058880cc8a4ced8466f959aed83" id="r_a12cd3058880cc8a4ced8466f959aed83"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#a12cd3058880cc8a4ced8466f959aed83">thread_epoch_change_barrier</a> () noexcept</td></tr>
 <tr class="memdesc:a12cd3058880cc8a4ced8466f959aed83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Synchronization barrier for thread epoch changes.  <br /></td></tr>
@@ -400,7 +400,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_per_thread</b><
 </table>
 </div><div class="memdoc">
 
-<p>Free memory at <em>pointer</em> using detail::free_aligned. </p>
+<p>Free memory at <em>pointer</em> using <a class="el" href="namespaceunodb_1_1detail.html#a857e30bf5bbe06e321300ee868010df9" title="Free heap memory allocated with allocate_aligned().">detail::free_aligned</a>. </p>
 <p>In debug builds, call <em>debug_callback</em> at the actual deallocation time. </p>
 
 </div>

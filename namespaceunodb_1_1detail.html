@@ -456,12 +456,14 @@ template&lt;typename F , typename U &gt; </td></tr>
 <tr class="memitem:a09737ff3b123b65375a00570dbd62502" id="r_a09737ff3b123b65375a00570dbd62502"><td class="memTemplParams" colspan="2"><a id="a09737ff3b123b65375a00570dbd62502" name="a09737ff3b123b65375a00570dbd62502"></a>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a09737ff3b123b65375a00570dbd62502"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>alignment_for_new</b> () noexcept</td></tr>
+<tr class="memdesc:a09737ff3b123b65375a00570dbd62502"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get minimum alignment to use when allocating objects of type <em>T</em>. <br /></td></tr>
 <tr class="separator:a09737ff3b123b65375a00570dbd62502"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67151fe8291fd24bff04038739700b1f" id="r_a67151fe8291fd24bff04038739700b1f"><td class="memItemLeft" align="right" valign="top"><a id="a67151fe8291fd24bff04038739700b1f" name="a67151fe8291fd24bff04038739700b1f"></a>
-void *&#160;</td><td class="memItemRight" valign="bottom"><b>allocate_aligned</b> (std::size_t size, std::size_t alignment=__STDCPP_DEFAULT_NEW_ALIGNMENT__)</td></tr>
+<tr class="memitem:a67151fe8291fd24bff04038739700b1f" id="r_a67151fe8291fd24bff04038739700b1f"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a67151fe8291fd24bff04038739700b1f">allocate_aligned</a> (std::size_t size, std::size_t alignment=__STDCPP_DEFAULT_NEW_ALIGNMENT__)</td></tr>
+<tr class="memdesc:a67151fe8291fd24bff04038739700b1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate aligned heap memory.  <br /></td></tr>
 <tr class="separator:a67151fe8291fd24bff04038739700b1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a857e30bf5bbe06e321300ee868010df9" id="r_a857e30bf5bbe06e321300ee868010df9"><td class="memItemLeft" align="right" valign="top"><a id="a857e30bf5bbe06e321300ee868010df9" name="a857e30bf5bbe06e321300ee868010df9"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>free_aligned</b> (void *ptr) noexcept</td></tr>
+<tr class="memdesc:a857e30bf5bbe06e321300ee868010df9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free heap memory allocated with <a class="el" href="namespaceunodb_1_1detail.html#a67151fe8291fd24bff04038739700b1f" title="Allocate aligned heap memory.">allocate_aligned()</a>. <br /></td></tr>
 <tr class="separator:a857e30bf5bbe06e321300ee868010df9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa3da3568c516e9447ccaa528462a136e" id="r_aa3da3568c516e9447ccaa528462a136e"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> NodeType&gt; </td></tr>
 <tr class="memitem:aa3da3568c516e9447ccaa528462a136e"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#aa3da3568c516e9447ccaa528462a136e">is_internal_static_assert</a> () noexcept</td></tr>
@@ -547,6 +549,59 @@ std::array&lt; <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">th
 <div class="textblock"><p>Namespace for the UnoDB internal implementation details. </p>
 <p>It is not part of the public API, and it may change at any time. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="a67151fe8291fd24bff04038739700b1f" name="a67151fe8291fd24bff04038739700b1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67151fe8291fd24bff04038739700b1f">&#9670;&#160;</a></span>allocate_aligned()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void * unodb::detail::allocate_aligned </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>alignment</em> = <code>__STDCPP_DEFAULT_NEW_ALIGNMENT__</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Allocate aligned heap memory. </p>
+<p>The allocated block should be freed with <a class="el" href="namespaceunodb_1_1detail.html#a857e30bf5bbe06e321300ee868010df9" title="Free heap memory allocated with allocate_aligned().">free_aligned()</a>. In debug builds, the allocation failure injector is hooked.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">size</td><td>Size of memory to allocate in bytes </td></tr>
+    <tr><td class="paramname">alignment</td><td>Memory alignment boundary </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Pointer to allocated memory block </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">`std::bad_alloc`</td><td>if the allocation fails </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a73ccae20a7fde29e0381b903bbf0c58a" name="a73ccae20a7fde29e0381b903bbf0c58a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a73ccae20a7fde29e0381b903bbf0c58a">&#9670;&#160;</a></span>assert_failure()</h2>
 

@@ -52,7 +52,7 @@ var annotated_dup =
         [ "qsbr_epoch", "classunodb_1_1detail_1_1qsbr__epoch.html", "classunodb_1_1detail_1_1qsbr__epoch" ],
         [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", "classunodb_1_1detail_1_1qsbr__ptr__base" ],
         [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", null ],
-        [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", null ],
+        [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", "classunodb_1_1detail_1_1thread__sync" ],
         [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ]
       ] ],
       [ "test", null, [

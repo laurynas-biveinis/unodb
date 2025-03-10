@@ -209,6 +209,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper for registering the main thread with QSBR.  <a href="structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A simple one-way synchronization mechanism to make one thread wait until another one signals it.  <a href="classunodb_1_1detail_1_1thread__sync.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A typed class representing the number of key bytes consumed along some path in the tree.  <a href="classunodb_1_1detail_1_1tree__depth.html#details">More...</a><br /></td></tr>
@@ -541,8 +542,8 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inod
 <tr class="memitem:ac7fc26e8bd3beb685ef91e9cc7e6672d" id="r_ac7fc26e8bd3beb685ef91e9cc7e6672d"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespaceunodb_1_1detail.html#a78bbb5caf501cb09276604dab64723bf">qsbr_thread_count_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ac7fc26e8bd3beb685ef91e9cc7e6672d">max_qsbr_threads</a> = (2UL &lt;&lt; 29U) - 1U</td></tr>
 <tr class="memdesc:ac7fc26e8bd3beb685ef91e9cc7e6672d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of threads that can participate in QSBR simultaneously.  <br /></td></tr>
 <tr class="separator:ac7fc26e8bd3beb685ef91e9cc7e6672d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04a041b47bebde8ed0f3bd97327e450c" id="r_a04a041b47bebde8ed0f3bd97327e450c"><td class="memItemLeft" align="right" valign="top"><a id="a04a041b47bebde8ed0f3bd97327e450c" name="a04a041b47bebde8ed0f3bd97327e450c"></a>
-std::array&lt; <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a>, 6 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>thread_syncs</b></td></tr>
+<tr class="memitem:a04a041b47bebde8ed0f3bd97327e450c" id="r_a04a041b47bebde8ed0f3bd97327e450c"><td class="memItemLeft" align="right" valign="top">std::array&lt; <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a>, 6 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a04a041b47bebde8ed0f3bd97327e450c">thread_syncs</a></td></tr>
+<tr class="memdesc:a04a041b47bebde8ed0f3bd97327e450c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global array of thread synchronization objects.  <br /></td></tr>
 <tr class="separator:a04a041b47bebde8ed0f3bd97327e450c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -1250,6 +1251,31 @@ template&lt;typename T &gt; </div>
 
 <p>Maximum number of threads that can participate in QSBR simultaneously. </p>
 <p>Set to 2^29-1, chosen to allow two thread count fields and an epoch counter to fit in a single machine word. It should be enough for everybody, and its overflow is not checked even in Release builds. </p>
+
+</div>
+</div>
+<a id="a04a041b47bebde8ed0f3bd97327e450c" name="a04a041b47bebde8ed0f3bd97327e450c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04a041b47bebde8ed0f3bd97327e450c">&#9670;&#160;</a></span>thread_syncs</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::array&lt;<a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a>, 6&gt; unodb::detail::thread_syncs</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Global array of thread synchronization objects. </p>
+<p>The array size is determined by test needs. </p>
 
 </div>
 </div>

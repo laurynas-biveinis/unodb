@@ -22,5 +22,5 @@ var files_dup =
     [ "qsbr_ptr.cpp", "qsbr__ptr_8cpp.html", null ],
     [ "qsbr_ptr.hpp", "qsbr__ptr_8hpp.html", "qsbr__ptr_8hpp" ],
     [ "test_heap.hpp", "test__heap_8hpp_source.html", null ],
-    [ "thread_sync.hpp", "thread__sync_8hpp_source.html", null ]
+    [ "thread_sync.hpp", "thread__sync_8hpp.html", "thread__sync_8hpp" ]
 ];

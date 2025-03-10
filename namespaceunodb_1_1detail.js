@@ -41,7 +41,7 @@ var namespaceunodb_1_1detail =
     [ "qsbr_epoch", "classunodb_1_1detail_1_1qsbr__epoch.html", "classunodb_1_1detail_1_1qsbr__epoch" ],
     [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", "classunodb_1_1detail_1_1qsbr__ptr__base" ],
     [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", null ],
-    [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", null ],
+    [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", "classunodb_1_1detail_1_1thread__sync" ],
     [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ],
     [ "dealloc_request_vector", "namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff", null ],
     [ "qsbr_thread_count_type", "namespaceunodb_1_1detail.html#a78bbb5caf501cb09276604dab64723bf", null ],
@@ -77,5 +77,6 @@ var namespaceunodb_1_1detail =
     [ "INITIAL_BUFFER_CAPACITY", "namespaceunodb_1_1detail.html#aba258d6d1df5e71714ec57d8b041b129", null ],
     [ "inode_type_count", "namespaceunodb_1_1detail.html#aa11fc0dc02ee0b061504cd50856ea7dd", null ],
     [ "max_qsbr_threads", "namespaceunodb_1_1detail.html#ac7fc26e8bd3beb685ef91e9cc7e6672d", null ],
-    [ "node_type_count", "namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc", null ]
+    [ "node_type_count", "namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc", null ],
+    [ "thread_syncs", "namespaceunodb_1_1detail.html#a04a041b47bebde8ed0f3bd97327e450c", null ]
 ];

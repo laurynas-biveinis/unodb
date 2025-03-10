@@ -9,5 +9,6 @@ var searchData=
   ['node_5ftype_5fcount_6',['node_type_count',['../namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc',1,'unodb::detail']]],
   ['node_5ftype_5fcounter_5farray_7',['node_type_counter_array',['../namespaceunodb.html#a8105523dd9adff845377f54dd034b838',1,'unodb']]],
   ['nominmax_8',['NOMINMAX',['../group__internal.html#ga9f918755b601cf4bffca775992e6fb90',1,'global.hpp']]],
-  ['notes_9',['Platform-Specific Notes',['../index.html#autotoc_md29',1,'']]]
+  ['notes_9',['Platform-Specific Notes',['../index.html#autotoc_md29',1,'']]],
+  ['notify_10',['notify',['../classunodb_1_1detail_1_1thread__sync.html#ac49b6f0f0180abea03a8759296279ea8',1,'unodb::detail::thread_sync']]]
 ];

@@ -2,6 +2,9 @@
 #ifndef UNODB_DETAIL_HEAP_HPP
 #define UNODB_DETAIL_HEAP_HPP
 
+/// \file
+/// Aligned heap memory allocation.
+
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -21,12 +24,22 @@
 
 namespace unodb::detail {
 
+/// Get minimum alignment to use when allocating objects of type \a T.
 template <typename T>
 [[nodiscard]] consteval auto alignment_for_new() noexcept {
   return std::max(alignof(T),
                   static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
 }
 
+/// Allocate aligned heap memory.
+///
+/// The allocated block should be freed with free_aligned(). In debug builds,
+/// the allocation failure injector is hooked.
+///
+/// \param size Size of memory to allocate in bytes
+/// \param alignment Memory alignment boundary
+/// \return Pointer to allocated memory block
+/// \throws `std::bad_alloc` if the allocation fails
 [[nodiscard]] inline void* allocate_aligned(
     std::size_t size,
     std::size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
@@ -57,6 +70,7 @@ template <typename T>
   return result;
 }
 
+/// Free heap memory allocated with allocate_aligned().
 inline void free_aligned(void* ptr) noexcept {
 #ifndef _MSC_VER
   // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)

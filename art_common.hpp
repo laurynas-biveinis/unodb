@@ -478,6 +478,11 @@ class key_encoder {
         reinterpret_cast<const std::byte *>(sv.data()), sv.size()));
   }
 
+  key_encoder(const key_encoder &) = delete;
+  key_encoder(key_encoder &&) = delete;
+  key_encoder &operator=(const key_encoder &) = delete;
+  key_encoder &operator=(key_encoder &&) = delete;
+
  private:
   /// Ensure that we have at least the specified capacity in the buffer.
   void ensure_capacity(size_t min_capacity) {

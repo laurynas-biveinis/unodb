@@ -534,7 +534,7 @@ class key_decoder {
 
   /// Decode a component of the indicated type from the key.
   key_decoder &decode(std::int8_t &v) noexcept {
-    const auto one = static_cast<std::uint8_t>(1);
+    constexpr auto one = static_cast<std::uint8_t>(1);
     std::uint8_t u;
     decode(u);
     v = (u >= msb8) ? static_cast<int8_t>(u - msb8)
@@ -545,7 +545,7 @@ class key_decoder {
 
   /// Decode a component of the indicated type from the key.
   key_decoder &decode(std::int16_t &v) noexcept {
-    const auto one = static_cast<std::uint16_t>(1);
+    constexpr auto one = static_cast<std::uint16_t>(1);
     std::uint16_t u;
     decode(u);
     v = (u >= msb16) ? static_cast<int16_t>(u - msb16)
@@ -556,7 +556,7 @@ class key_decoder {
 
   /// Decode a component of the indicated type from the key.
   key_decoder &decode(std::int32_t &v) noexcept {
-    const auto one = static_cast<std::uint32_t>(1);
+    constexpr auto one = static_cast<std::uint32_t>(1);
     std::uint32_t u;
     decode(u);
     v = (u >= msb32) ? static_cast<int32_t>(u - msb32)
@@ -566,7 +566,7 @@ class key_decoder {
 
   /// Decode a component of the indicated type from the key.
   key_decoder &decode(std::int64_t &v) noexcept {
-    const auto one = static_cast<std::uint64_t>(1);
+    constexpr auto one = static_cast<std::uint64_t>(1);
     std::uint64_t u;
     decode(u);
     v = (u >= msb64) ? static_cast<int64_t>(u - msb64)

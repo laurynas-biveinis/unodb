@@ -104,7 +104,7 @@ var NAVTREEINDEX =
 "classunodb_1_1mutex__db.html#ae6f04368bba0409583d54ae7e33e198b",
 "classunodb_1_1qsbr.html#a6922e5a1f4e24ebb730351b5f3d2862d",
 "dir_44cec6e3ea30e076b9313c4641539d9f.html",
-"portability__builtins_8hpp.html#a60cd68db0acc4264f225af504457f974"
+"portability__arch_8hpp.html#a4c6387d4046bddd4f1d87150a2e6b94c"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

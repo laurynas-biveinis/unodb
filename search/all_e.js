@@ -17,7 +17,7 @@ var searchData=
   ['memory_20model_14',['Memory model',['../group__optimistic-lock.html#autotoc_md21',1,'']]],
   ['messages_15',['Commit messages',['../md_CONTRIBUTING.html#autotoc_md10',1,'']]],
   ['model_16',['Memory model',['../group__optimistic-lock.html#autotoc_md21',1,'']]],
-  ['msb_17',['msb',['../namespaceunodb_1_1detail.html#a0d491f30fd1fb7d9f1b689bd13787a25',1,'unodb::detail']]],
+  ['msb_17',['msb',['../namespaceunodb_1_1detail.html#aa11dfd956f06126308971d516d631d85',1,'unodb::detail']]],
   ['msb8_18',['msb8',['../classunodb_1_1key__decoder.html#aa802fb814869f0e416a7c98ece5cb5c4',1,'unodb::key_decoder']]],
   ['msg_5fstacktrace_5fabort_19',['msg_stacktrace_abort',['../namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2',1,'unodb::detail']]],
   ['must_5frestart_20',['must_restart',['../classunodb_1_1fake__read__critical__section.html#ad1bbceea9fc44696afb0cedb51db2a05',1,'unodb::fake_read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160',1,'unodb::optimistic_lock::read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435',1,'unodb::optimistic_lock::write_guard::must_restart()']]],

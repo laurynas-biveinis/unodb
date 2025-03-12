@@ -525,7 +525,7 @@ class key_decoder {
 
  public:
   /// Build a decoder for the unodb::key_view.
-  explicit key_decoder(const key_view kv)
+  explicit key_decoder(key_view kv) noexcept
       : buf(kv.data()), cap(kv.size_bytes()) {}
 
   //
@@ -533,7 +533,7 @@ class key_decoder {
   //
 
   /// Decode a component of the indicated type from the key.
-  key_decoder &decode(std::int8_t &v) {
+  key_decoder &decode(std::int8_t &v) noexcept {
     const auto one = static_cast<std::uint8_t>(1);
     std::uint8_t u;
     decode(u);
@@ -544,7 +544,7 @@ class key_decoder {
   }
 
   /// Decode a component of the indicated type from the key.
-  key_decoder &decode(std::int16_t &v) {
+  key_decoder &decode(std::int16_t &v) noexcept {
     const auto one = static_cast<std::uint16_t>(1);
     std::uint16_t u;
     decode(u);
@@ -555,7 +555,7 @@ class key_decoder {
   }
 
   /// Decode a component of the indicated type from the key.
-  key_decoder &decode(std::int32_t &v) {
+  key_decoder &decode(std::int32_t &v) noexcept {
     const auto one = static_cast<std::uint32_t>(1);
     std::uint32_t u;
     decode(u);
@@ -565,7 +565,7 @@ class key_decoder {
   }
 
   /// Decode a component of the indicated type from the key.
-  key_decoder &decode(std::int64_t &v) {
+  key_decoder &decode(std::int64_t &v) noexcept {
     const auto one = static_cast<std::uint64_t>(1);
     std::uint64_t u;
     decode(u);
@@ -579,13 +579,13 @@ class key_decoder {
   //
 
   /// Decode a component of the indicated type from the key.
-  key_decoder &decode(std::uint8_t &v) {
+  key_decoder &decode(std::uint8_t &v) noexcept {
     v = reinterpret_cast<const std::uint8_t &>(buf[off++]);
     return *this;
   }
 
   /// Decode a component of the indicated type from the key.
-  key_decoder &decode(std::uint16_t &v) {
+  key_decoder &decode(std::uint16_t &v) noexcept {
     std::uint16_t u;
     std::memcpy(&u, buf + off, sizeof(u));
 #ifdef UNODB_DETAIL_LITTLE_ENDIAN
@@ -598,7 +598,7 @@ class key_decoder {
   }
 
   /// Decode a component of the indicated type from the key.
-  key_decoder &decode(std::uint32_t &v) {
+  key_decoder &decode(std::uint32_t &v) noexcept {
     std::uint32_t u;
     std::memcpy(&u, buf + off, sizeof(u));
 #ifdef UNODB_DETAIL_LITTLE_ENDIAN
@@ -611,7 +611,7 @@ class key_decoder {
   }
 
   /// Decode a component of the indicated type from the key.
-  key_decoder &decode(std::uint64_t &v) {
+  key_decoder &decode(std::uint64_t &v) noexcept {
     std::uint64_t u;
     std::memcpy(&u, buf + off, sizeof(u));
 #ifdef UNODB_DETAIL_LITTLE_ENDIAN
@@ -632,7 +632,7 @@ class key_decoder {
   /// \note Encoding maps all \c NaN values to a single canonical \c NaN.  This
   /// means that decoding is not perfect and various kinds of \c NaN all decode
   /// as a single canonical \c NaN.
-  key_decoder &decode(float &v) {
+  key_decoder &decode(float &v) noexcept {
     std::uint32_t u;
     decode(u);
     v = unodb::detail::decode_floating_point<float>(u);
@@ -644,7 +644,7 @@ class key_decoder {
   /// \note Encoding maps all \c NaN values to a single canonical \c NaN.  This
   /// means that decoding is not perfect and various kinds of \c NaN all decode
   /// as a single canonical \c NaN.
-  key_decoder &decode(double &v) {
+  key_decoder &decode(double &v) noexcept {
     std::uint64_t u;
     decode(u);
     v = unodb::detail::decode_floating_point<double>(u);

@@ -121,7 +121,7 @@ void dense_full_scan(benchmark::State &state) {
 }
 
 // decode a uint64_t key.
-static inline std::uint64_t decode(unodb::key_view akey) {
+[[nodiscard]] std::uint64_t decode(unodb::key_view akey) noexcept {
   unodb::key_decoder dec{akey};
   std::uint64_t k;
   dec.decode(k);

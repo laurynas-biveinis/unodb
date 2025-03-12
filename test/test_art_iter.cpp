@@ -29,7 +29,7 @@ class ARTIteratorTest : public ::testing::Test {
 };
 
 // decode a uint64_t key.
-inline std::uint64_t decode(unodb::key_view akey) {
+[[nodiscard]] std::uint64_t decode(unodb::key_view akey) noexcept {
   unodb::key_decoder dec{akey};
   std::uint64_t k;
   dec.decode(k);

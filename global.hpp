@@ -8,7 +8,7 @@
 /// \ingroup internal
 
 /// \addtogroup internal
-/// @{
+/// \{
 
 // Macros that have multiple definitions are documented once.
 
@@ -130,7 +130,7 @@
 
 /// \name CMake macros
 /// Macros set by CMake.
-/// @{
+/// \{
 // This section is never compiled in, only processed by Doxygen
 #ifdef UNODB_DETAIL_DOXYGEN
 
@@ -164,7 +164,7 @@
 #define _GLIBCXX_SANITIZE_VECTOR
 
 #endif  // UNODB_DETAIL_DOXYGEN
-/// @}
+/// \}
 
 #ifdef _MSC_VER
 /// Defined under MSVC to stop redefining `min` and `max` if windows.h is
@@ -180,7 +180,7 @@
 
 /// \name Architecture macros
 /// Macros for the CPU architecture, instruction set level, endianness.
-/// @{
+/// \{
 
 #if defined(_MSC_VER) && defined(_M_X64)
 /// Defined when compiling with MSVC on x86-64
@@ -208,11 +208,11 @@
 #define UNODB_DETAIL_LITTLE_ENDIAN
 #endif
 
-/// @}
+/// \}
 
 /// \name Compiler macros
 /// Macros to hide compiler specifics
-/// @{
+/// \{
 
 #if defined(_MSC_VER)
 #if !defined(__clang__)
@@ -280,7 +280,7 @@
 
 #endif  // #ifndef UNODB_DETAIL_MSVC
 
-/// @}
+/// \}
 
 /// Declaration specifier for a function in a header file that should not be
 /// inlined.
@@ -292,7 +292,7 @@
 #define UNODB_DETAIL_HEADER_NOINLINE UNODB_DETAIL_NOINLINE inline
 
 /// \name Sanitizer macros
-/// @{
+/// \{
 
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
@@ -310,12 +310,12 @@
 #endif
 #endif
 
-/// @}
+/// \}
 
 #define UNODB_DETAIL_DO_PRAGMA(x) _Pragma(#x)
 
 /// \name Warning macros
-/// @{
+/// \{
 
 #ifndef UNODB_DETAIL_MSVC
 
@@ -371,11 +371,11 @@
 #define UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
 #endif  // defined(__GNUG__) && !defined(__clang__)
 
-/// @}
+/// \}
 
 /// \name Debug or release build macros
 /// Definitions conditional on the build type
-/// @{
+/// \{
 
 #ifdef NDEBUG
 #define UNODB_DETAIL_RELEASE_CONSTEXPR constexpr
@@ -389,11 +389,11 @@
 #define UNODB_DETAIL_USED_IN_DEBUG
 #endif
 
-/// @}
+/// \}
 
 /// \name Feature macros
 /// Compile-time feature selection macros
-/// @{
+/// \{
 
 /// Spin lock wait loops use x86_64 PAUSE instruction or its closest equivalent
 /// on other architectures.
@@ -402,8 +402,8 @@
 /// Spin lock loop wait loops are empty, causing aggressive spinning.
 #define UNODB_DETAIL_SPINLOCK_LOOP_EMPTY 2
 
-/// @}
+/// \}
 
-/// @}
+/// \}
 
 #endif  // UNODB_DETAIL_GLOBAL_HPP

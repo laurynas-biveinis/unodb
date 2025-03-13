@@ -370,6 +370,7 @@ set(is_linux "$<PLATFORM_ID:Linux>")
 # Compiler
 set(is_gxx_genex "$<CXX_COMPILER_ID:GNU>")
 set(is_clang_genex "$<CXX_COMPILER_ID:Clang>")
+set(is_apple_clang_genex "$<CXX_COMPILER_ID:AppleClang>")
 set(is_any_clang_genex "$<CXX_COMPILER_ID:AppleClang,Clang>")
 set(is_msvc "$<CXX_COMPILER_ID:MSVC>")
 # This condition is incorrect due to clang-cl having clang compiler ID but
@@ -614,7 +615,7 @@ else()
     "cppcheck found: ${CPPCHECK_EXE}, --version: ${CPPCHECK_VERSION_OUTPUT}")
   set(DO_CPPCHECK "${CPPCHECK_EXE}"
     "--enable=warning,style,performance,portability" "-D__x86_64" "-D__GLIBCXX__"
-    "--inline-suppr")
+    "--inline-suppr" "--quiet")
   list(APPEND DO_CPPCHECK "${CPPCHECK_ARGS}")
 endif()
 
@@ -623,6 +624,7 @@ if(NOT CPPLINT_EXE)
   message(STATUS "cpplint not found")
 else()
   message(STATUS "cpplint found: ${CPPLINT_EXE}")
+  list(APPEND CPPLINT_EXE "--quiet")
 endif()
 
 option(IWYU "Enable include-what-you-use checking")
@@ -685,7 +687,10 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     # Misc
     "$<${coverage_on}:--coverage>")
   target_link_options(${TARGET} INTERFACE "$<${coverage_on}:--coverage>")
-  target_link_options(${TARGET} PRIVATE "${SANITIZER_LD_FLAGS}")
+  target_link_options(${TARGET} PRIVATE
+    "$<${is_apple_clang_genex}:-Wl,-no_warn_duplicate_libraries>"
+    "${SANITIZER_LD_FLAGS}"
+  )
   target_link_libraries(${TARGET} PRIVATE
     "$<${is_linux}:${CMAKE_DL_LIBS}>"
     "$<$<AND:${is_linux},${is_gxx_genex},${use_boost_stacktrace}>:backtrace>")

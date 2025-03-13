@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['quiescent_20state_20based_20reclamation_0',['Quiescent State-Based Reclamation',['../group__qsbr.html',1,'']]]
+  ['optimistic_20locking_0',['Optimistic Locking',['../group__optimistic-lock.html',1,'']]]
 ];

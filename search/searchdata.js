@@ -11,7 +11,7 @@ var indexSectionsWithContent =
   8: "il",
   9: "ot",
   10: "u",
-  11: "biloqrs",
+  11: "bciloqrst",
   12: "cu"
 };
 

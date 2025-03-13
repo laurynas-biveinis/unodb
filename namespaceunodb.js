@@ -1,6 +1,7 @@
 var namespaceunodb =
 [
     [ "detail", "namespaceunodb_1_1detail.html", "namespaceunodb_1_1detail" ],
+    [ "test", "namespaceunodb_1_1test.html", "namespaceunodb_1_1test" ],
     [ "db", "classunodb_1_1db.html", "classunodb_1_1db" ],
     [ "fake_lock", "classunodb_1_1fake__lock.html", "classunodb_1_1fake__lock" ],
     [ "fake_read_critical_section", "classunodb_1_1fake__read__critical__section.html", "classunodb_1_1fake__read__critical__section" ],

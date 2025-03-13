@@ -55,7 +55,7 @@ var annotated_dup =
         [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", "classunodb_1_1detail_1_1thread__sync" ],
         [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ]
       ] ],
-      [ "test", null, [
+      [ "test", "namespaceunodb_1_1test.html", [
         [ "allocation_failure_injector", "classunodb_1_1test_1_1allocation__failure__injector.html", "classunodb_1_1test_1_1allocation__failure__injector" ],
         [ "pause_heap_faults", "structunodb_1_1test_1_1pause__heap__faults.html", "structunodb_1_1test_1_1pause__heap__faults" ],
         [ "QSBRTestBase", "classunodb_1_1test_1_1QSBRTestBase.html", null ],

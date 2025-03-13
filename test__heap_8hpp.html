@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UnoDB: heap.hpp File Reference</title>
+<title>UnoDB: test_heap.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -70,7 +70,7 @@ var searchBox = new SearchBox("searchBox", "search/",'.html');
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('heap_8hpp.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('test__heap_8hpp.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -97,57 +97,63 @@ $(document).ready(function(){initNavTree('heap_8hpp.html',''); initResizable(); 
 
 <div class="header">
   <div class="summary">
-<a href="#namespaces">Namespaces</a> &#124;
-<a href="#func-members">Functions</a>  </div>
-  <div class="headertitle"><div class="title">heap.hpp File Reference</div></div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#namespaces">Namespaces</a>  </div>
+  <div class="headertitle"><div class="title">test_heap.hpp File Reference<div class="ingroups"><a class="el" href="group__internal.html">Internals</a> &raquo; <a class="el" href="group__test-internals.html">Test Support Code</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Aligned heap memory allocation.  
+<p>Test utilities for memory allocation failure testing.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="global_8hpp_source.html">global.hpp</a>&quot;</code><br />
-<code>#include &lt;algorithm&gt;</code><br />
-<code>#include &lt;cerrno&gt;</code><br />
-<code>#include &lt;cstdlib&gt;</code><br />
+<code>#include &lt;atomic&gt;</code><br />
+<code>#include &lt;cstdint&gt;</code><br />
+<code>#include &lt;iostream&gt;</code><br />
 <code>#include &lt;new&gt;</code><br />
-<code>#include &lt;malloc.h&gt;</code><br />
-<code>#include &quot;<a class="el" href="assert_8hpp_source.html">assert.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="test__heap_8hpp_source.html">test_heap.hpp</a>&quot;</code><br />
+<code>#include &lt;string_view&gt;</code><br />
 </div>
-<p><a href="heap_8hpp_source.html">Go to the source code of this file.</a></p>
+<p><a href="test__heap_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1test_1_1allocation__failure__injector.html">unodb::test::allocation_failure_injector</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test helper class for deterministically injecting memory allocation faults.  <a href="classunodb_1_1test_1_1allocation__failure__injector.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1test_1_1pause__heap__faults.html">unodb::test::pause_heap_faults</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexically scoped guard to pause heap allocation tracking and faulting for this thread.  <a href="structunodb_1_1test_1_1pause__heap__faults.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespaceunodb" id="r_namespaceunodb"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html">unodb</a></td></tr>
 <tr class="memdesc:namespaceunodb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for the public UnoDB API. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespaceunodb_1_1detail" id="r_namespaceunodb_1_1detail"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html">unodb::detail</a></td></tr>
-<tr class="memdesc:namespaceunodb_1_1detail"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for the UnoDB internal implementation details. <br /></td></tr>
+<tr class="memitem:namespaceunodb_1_1test" id="r_namespaceunodb_1_1test"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html">unodb::test</a></td></tr>
+<tr class="memdesc:namespaceunodb_1_1test"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for the UnoDB internal test support code. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a09737ff3b123b65375a00570dbd62502" id="r_a09737ff3b123b65375a00570dbd62502"><td class="memTemplParams" colspan="2"><a id="a09737ff3b123b65375a00570dbd62502" name="a09737ff3b123b65375a00570dbd62502"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a09737ff3b123b65375a00570dbd62502"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::detail::alignment_for_new</b> () noexcept</td></tr>
-<tr class="memdesc:a09737ff3b123b65375a00570dbd62502"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get minimum alignment to use when allocating objects of type <em>T</em>. <br /></td></tr>
-<tr class="separator:a09737ff3b123b65375a00570dbd62502"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67151fe8291fd24bff04038739700b1f" id="r_a67151fe8291fd24bff04038739700b1f"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a67151fe8291fd24bff04038739700b1f">unodb::detail::allocate_aligned</a> (std::size_t size, std::size_t alignment=__STDCPP_DEFAULT_NEW_ALIGNMENT__)</td></tr>
-<tr class="memdesc:a67151fe8291fd24bff04038739700b1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate aligned heap memory.  <br /></td></tr>
-<tr class="separator:a67151fe8291fd24bff04038739700b1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a857e30bf5bbe06e321300ee868010df9" id="r_a857e30bf5bbe06e321300ee868010df9"><td class="memItemLeft" align="right" valign="top"><a id="a857e30bf5bbe06e321300ee868010df9" name="a857e30bf5bbe06e321300ee868010df9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::free_aligned</b> (void *ptr) noexcept</td></tr>
-<tr class="memdesc:a857e30bf5bbe06e321300ee868010df9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free heap memory allocated with <a class="el" href="namespaceunodb_1_1detail.html#a67151fe8291fd24bff04038739700b1f" title="Allocate aligned heap memory.">allocate_aligned()</a>. <br /></td></tr>
-<tr class="separator:a857e30bf5bbe06e321300ee868010df9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Heap allocation failure injection macros</div></td></tr>
+<tr class="memitem:ga430bd4dfb98d1c834bac37af330aba11" id="r_ga430bd4dfb98d1c834bac37af330aba11"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga430bd4dfb98d1c834bac37af330aba11">UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR</a>()</td></tr>
+<tr class="memdesc:ga430bd4dfb98d1c834bac37af330aba11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset heap allocation failure injector state.  <br /></td></tr>
+<tr class="separator:ga430bd4dfb98d1c834bac37af330aba11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaaf2eecf2b7a7d75d287403058d3caa77" id="r_gaaf2eecf2b7a7d75d287403058d3caa77"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#gaaf2eecf2b7a7d75d287403058d3caa77">UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION</a>(n)</td></tr>
+<tr class="memdesc:gaaf2eecf2b7a7d75d287403058d3caa77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure heap allocation to fail on given allocation number.  <br /></td></tr>
+<tr class="separator:gaaf2eecf2b7a7d75d287403058d3caa77"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa446d5e5546b7897d05473b9bcd0274c" id="r_gaa446d5e5546b7897d05473b9bcd0274c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#gaa446d5e5546b7897d05473b9bcd0274c">UNODB_DETAIL_PAUSE_HEAP_TRACKING_GUARD</a>()</td></tr>
+<tr class="memdesc:gaa446d5e5546b7897d05473b9bcd0274c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable heap failure injection for current thread in the current scope.  <br /></td></tr>
+<tr class="separator:gaa446d5e5546b7897d05473b9bcd0274c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Aligned heap memory allocation. </p>
+<div class="textblock"><p>Test utilities for memory allocation failure testing. </p>
+<p>Allows testing for OOM conditions without actually exhausting heap memory. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="heap_8hpp.html">heap.hpp</a></li>
+    <li class="navelem"><a class="el" href="test__heap_8hpp.html">test_heap.hpp</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

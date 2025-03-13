@@ -1,6 +1,7 @@
 var group__internal =
 [
     [ "Optimistic Locking", "group__optimistic-lock.html", "group__optimistic-lock" ],
+    [ "Test Support Code", "group__test-internals.html", "group__test-internals" ],
     [ "assert.hpp", "assert_8hpp.html", null ],
     [ "global.hpp", "global_8hpp.html", null ],
     [ "portability_arch.hpp", "portability__arch_8hpp.html", null ],

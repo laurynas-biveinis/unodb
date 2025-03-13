@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['locking_0',['Optimistic Locking',['../group__optimistic-lock.html',1,'']]]
+  ['internals_0',['Internals',['../group__internal.html',1,'']]]
 ];

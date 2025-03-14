@@ -48,7 +48,7 @@ var namespaceunodb_1_1detail =
     [ "alignment_for_new", "namespaceunodb_1_1detail.html#a09737ff3b123b65375a00570dbd62502", null ],
     [ "allocate_aligned", "namespaceunodb_1_1detail.html#a67151fe8291fd24bff04038739700b1f", null ],
     [ "assert_failure", "namespaceunodb_1_1detail.html#a73ccae20a7fde29e0381b903bbf0c58a", null ],
-    [ "bswap", "namespaceunodb_1_1detail.html#a96397ebc5738a36fcdf69a3f84bcb4a0", null ],
+    [ "bswap", "namespaceunodb_1_1detail.html#a6da3355dc2b016836da8179235257ad4", null ],
     [ "cannot_happen", "namespaceunodb_1_1detail.html#a84376061f77319109e51399dd10a3135", null ],
     [ "compare", "namespaceunodb_1_1detail.html#ae5f3470a117bc313445d80544c37fb87", null ],
     [ "compare", "namespaceunodb_1_1detail.html#af5030f37896f8bba5cc0b0ae42c13e39", null ],

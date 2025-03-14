@@ -19,7 +19,7 @@ var searchData=
   ['batched_5fprng_16',['batched_prng',['../classunodb_1_1benchmark_1_1batched__prng.html',1,'unodb::benchmark']]],
   ['begin_17',['begin',['../classunodb_1_1qsbr__ptr__span.html#a789dc831ad069506652def01be5c7f19',1,'unodb::qsbr_ptr_span']]],
   ['benchmarking_18',['Benchmarking',['../md_CONTRIBUTING.html#autotoc_md12',1,'']]],
-  ['bswap_19',['bswap',['../namespaceunodb_1_1detail.html#a96397ebc5738a36fcdf69a3f84bcb4a0',1,'unodb::detail']]],
+  ['bswap_19',['bswap',['../namespaceunodb_1_1detail.html#a6da3355dc2b016836da8179235257ad4',1,'unodb::detail']]],
   ['buf_20',['buf',['../classunodb_1_1key__encoder.html#a54ee1fa410f52af5353bf5baff2173a7',1,'unodb::key_encoder::buf'],['../classunodb_1_1detail_1_1key__buffer.html#ac194dd8d30a35188b87939582d5f8d84',1,'unodb::detail::key_buffer::buf']]],
   ['build_20dependencies_21',['Build dependencies',['../index.html#autotoc_md26',1,'']]],
   ['building_22',['Building',['../index.html#autotoc_md28',1,'']]],

@@ -22,7 +22,7 @@ namespace unodb::detail {
 
 /// Reverse the order of bytes in \a x.
 template <typename T>
-T bswap(T x) {
+[[nodiscard, gnu::const]] T bswap(T x) noexcept {
 #ifdef UNODB_DETAIL_MSVC
   static_assert(sizeof(std::uint32_t) ==
                 sizeof(unsigned long));               // NOLINT(runtime/int)
@@ -57,7 +57,7 @@ T bswap(T x) {
 /// Return the number of trailing zero bits in \a x.
 /// \pre Argument may not be zero
 template <typename T>
-[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint8_t ctz(
+[[nodiscard, gnu::const]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint8_t ctz(
     T x) noexcept {
   static_assert(std::is_same_v<unsigned, T> ||
                 // NOLINTNEXTLINE(google-runtime-int)
@@ -97,7 +97,7 @@ template <typename T>
 }
 
 /// Return the number of one bits in \a x.
-[[nodiscard, gnu::pure]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned popcount(
+[[nodiscard, gnu::const]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned popcount(
     unsigned x) noexcept {
 #ifndef UNODB_DETAIL_MSVC
   return static_cast<unsigned>(__builtin_popcount(x));
@@ -113,7 +113,7 @@ template <typename T>
 // See https://github.com/jfbastien/bit_cast for an implementation
 // using memcpy (MIT license).
 template <typename To, typename From>
-[[nodiscard, gnu::pure]] constexpr To bit_cast(From input) {
+[[nodiscard, gnu::const]] constexpr To bit_cast(From input) noexcept {
   // must be the same stride
   static_assert(sizeof(To) == sizeof(From));
   typename std::aligned_storage<sizeof(To), alignof(To)>::type tmp;

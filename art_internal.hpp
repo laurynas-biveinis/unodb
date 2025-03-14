@@ -35,7 +35,8 @@ class [[nodiscard]] basic_db_leaf_deleter;
 ///
 /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
 [[nodiscard, gnu::pure]] inline int compare(const void *a, const size_t alen,
-                                            const void *b, const size_t blen) {
+                                            const void *b,
+                                            const size_t blen) noexcept {
   // TODO(thompsonbry) consider changing this over to std::span
   // arguments and do not let the (ptr,len) pattern progagate
   // outwards.
@@ -49,7 +50,7 @@ class [[nodiscard]] basic_db_leaf_deleter;
 ///
 /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
 [[nodiscard, gnu::pure]] inline int compare(const unodb::key_view a,
-                                            const unodb::key_view b) {
+                                            const unodb::key_view b) noexcept {
   return compare(a.data(), a.size_bytes(), b.data(), b.size_bytes());
 }
 

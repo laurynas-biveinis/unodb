@@ -757,7 +757,8 @@ class [[nodiscard]] tree_verifier final {
  private:
   // Custom comparator is required for key_view.
   struct comparator {
-    bool operator()(const ikey_type<Db> &lhs, const ikey_type<Db> &rhs) const {
+    bool operator()(const ikey_type<Db> &lhs,
+                    const ikey_type<Db> &rhs) const noexcept {
       if constexpr (std::is_same_v<typename Db::key_type, unodb::key_view>) {
         // Handle wrapped keys.
         return unodb::detail::compare(lhs->data(), lhs->size(), rhs->data(),

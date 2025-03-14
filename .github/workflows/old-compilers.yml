@@ -331,6 +331,52 @@ jobs:
             COMPILER: clang
             VERSION: 18
 
+          - name: clang 19 Release
+            BUILD_TYPE: Release
+            COMPILER: clang
+            VERSION: 19
+
+          - name: clang 19 Release with ASan
+            BUILD_TYPE: Release
+            SANITIZE_ADDRESS: ON
+            COMPILER: clang
+            VERSION: 19
+
+          - name: clang 19 Release with TSan
+            BUILD_TYPE: Release
+            SANITIZE_THREAD: ON
+            COMPILER: clang
+            VERSION: 19
+
+          - name: clang 19 Release with UBSan
+            BUILD_TYPE: Release
+            SANITIZE_UB: ON
+            COMPILER: clang
+            VERSION: 19
+
+          - name: clang 19 Debug
+            BUILD_TYPE: Debug
+            COMPILER: clang
+            VERSION: 19
+
+          - name: clang 19 Debug with ASan
+            BUILD_TYPE: Debug
+            SANITIZE_ADDRESS: ON
+            COMPILER: clang
+            VERSION: 19
+
+          - name: clang 19 Debug with TSan
+            BUILD_TYPE: Debug
+            SANITIZE_THREAD: ON
+            COMPILER: clang
+            VERSION: 19
+
+          - name: clang 19 Debug with UBSan
+            BUILD_TYPE: Debug
+            SANITIZE_UB: ON
+            COMPILER: clang
+            VERSION: 19
+
           - name: GCC 11 Release
             BUILD_TYPE: Release
             COMPILER: gcc
@@ -461,9 +507,8 @@ jobs:
         run: |
           curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
             | sudo apt-key add -
-          echo "deb http://apt.llvm.org/jammy/ \
-            llvm-toolchain-jammy-${VERSION} main" \
-            | sudo tee -a /etc/apt/sources.list
+          sudo add-apt-repository -y \
+            "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${VERSION} main"
           sudo apt-get update
           sudo apt-get install -y "llvm-${VERSION}-linker-tools" \
                 "clang-${VERSION}" "clang-tidy-${VERSION}"

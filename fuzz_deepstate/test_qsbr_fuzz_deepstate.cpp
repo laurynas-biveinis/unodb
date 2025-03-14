@@ -700,6 +700,7 @@ TEST(QSBR, DeepStateFuzz) {
     for (const auto &tinfo : threads)
       for (const auto &active_ptr : tinfo.active_ptrs)
         ASSERT(*active_ptr == object_mem);
+    // NOLINTNEXTLINE(bugprone-nondeterministic-pointer-iteration-order)
     for (const auto *const ptr : allocated_pointers) ASSERT(*ptr == object_mem);
 
     // Check that dump does not crash
@@ -739,6 +740,7 @@ TEST(QSBR, DeepStateFuzz) {
     }
   }
 
+  // NOLINTNEXTLINE(bugprone-nondeterministic-pointer-iteration-order)
   for (const auto &ptr : allocated_pointers) {
     LOG(TRACE) << "Deallocating pointer at the test end";
     deallocate_pointer(ptr);

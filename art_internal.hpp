@@ -454,6 +454,11 @@ class key_buffer {
     off -= n;
   }
 
+  key_buffer(const key_buffer &) = delete;
+  key_buffer(key_buffer &&) = delete;
+  key_buffer &operator=(const key_buffer &) = delete;
+  key_buffer &operator=(key_buffer &&) = delete;
+
  private:
   /// Ensure that we have at least the specified capacity in the
   /// buffer.

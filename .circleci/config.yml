@@ -7,7 +7,7 @@ parameters:
     default: "14"
   CLANG_VERSION:
     type: string
-    default: "19"
+    default: "20"
 
 jobs:
   build-linux:
@@ -56,6 +56,11 @@ jobs:
             - run:
                 name: Installing dependencies (LLVM common)
                 command: |
+                  curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
+                    | sudo apt-key add -
+                  sudo add-apt-repository -y \
+                    "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main"
+                  sudo apt-get update
                   sudo apt-get install -y clang-${CLANG_VERSION} \
                     clang-tidy-${CLANG_VERSION} iwyu \
                     libstdc++-${GCC_VERSION}-dev

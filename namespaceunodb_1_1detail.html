@@ -404,12 +404,12 @@ template&lt;typename T &gt; </td></tr>
 <tr class="memitem:ae50fbbc0bfcabb917d60da68dd6ea193" id="r_ae50fbbc0bfcabb917d60da68dd6ea193"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ae50fbbc0bfcabb917d60da68dd6ea193">ensure_capacity</a> (std::byte *&amp;buf, size_t &amp;cap, size_t off, size_t min_capacity)</td></tr>
 <tr class="memdesc:ae50fbbc0bfcabb917d60da68dd6ea193"><td class="mdescLeft">&#160;</td><td class="mdescRight">Utility method for power of two expansion of buffers (internal API, forward declaration).  <br /></td></tr>
 <tr class="separator:ae50fbbc0bfcabb917d60da68dd6ea193"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af5030f37896f8bba5cc0b0ae42c13e39" id="r_af5030f37896f8bba5cc0b0ae42c13e39"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#af5030f37896f8bba5cc0b0ae42c13e39">compare</a> (const void *a, const size_t alen, const void *b, const size_t blen)</td></tr>
-<tr class="memdesc:af5030f37896f8bba5cc0b0ae42c13e39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexicographic comparison of bytes.  <br /></td></tr>
-<tr class="separator:af5030f37896f8bba5cc0b0ae42c13e39"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae5f3470a117bc313445d80544c37fb87" id="r_ae5f3470a117bc313445d80544c37fb87"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ae5f3470a117bc313445d80544c37fb87">compare</a> (const <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> a, const <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> b)</td></tr>
-<tr class="memdesc:ae5f3470a117bc313445d80544c37fb87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexicographic comparison of key_views.  <br /></td></tr>
-<tr class="separator:ae5f3470a117bc313445d80544c37fb87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60d6d8602d9590be64fd0031611bbf07" id="r_a60d6d8602d9590be64fd0031611bbf07"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07">compare</a> (const void *a, const size_t alen, const void *b, const size_t blen) noexcept</td></tr>
+<tr class="memdesc:a60d6d8602d9590be64fd0031611bbf07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexicographic comparison of bytes.  <br /></td></tr>
+<tr class="separator:a60d6d8602d9590be64fd0031611bbf07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a749463245ed07a65e2df960ac1beb847" id="r_a749463245ed07a65e2df960ac1beb847"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a749463245ed07a65e2df960ac1beb847">compare</a> (const <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> a, const <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> b) noexcept</td></tr>
+<tr class="memdesc:a749463245ed07a65e2df960ac1beb847"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexicographic comparison of key_views.  <br /></td></tr>
+<tr class="separator:a749463245ed07a65e2df960ac1beb847"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d9586a5c7fc84c4bbc05b716fd1ce03" id="r_a7d9586a5c7fc84c4bbc05b716fd1ce03"><td class="memItemLeft" align="right" valign="top">std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a7d9586a5c7fc84c4bbc05b716fd1ce03">get_u64</a> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> key) noexcept</td></tr>
 <tr class="memdesc:a7d9586a5c7fc84c4bbc05b716fd1ce03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the first 64-bits of the encoded key.  <br /></td></tr>
 <tr class="separator:a7d9586a5c7fc84c4bbc05b716fd1ce03"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -692,8 +692,8 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inod
 
 </div>
 </div>
-<a id="ae5f3470a117bc313445d80544c37fb87" name="ae5f3470a117bc313445d80544c37fb87"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae5f3470a117bc313445d80544c37fb87">&#9670;&#160;</a></span>compare() <span class="overload">[1/2]</span></h2>
+<a id="a749463245ed07a65e2df960ac1beb847" name="a749463245ed07a65e2df960ac1beb847"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a749463245ed07a65e2df960ac1beb847">&#9670;&#160;</a></span>compare() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -721,7 +721,7 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inod
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -731,8 +731,8 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inod
 
 </div>
 </div>
-<a id="af5030f37896f8bba5cc0b0ae42c13e39" name="af5030f37896f8bba5cc0b0ae42c13e39"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af5030f37896f8bba5cc0b0ae42c13e39">&#9670;&#160;</a></span>compare() <span class="overload">[2/2]</span></h2>
+<a id="a60d6d8602d9590be64fd0031611bbf07" name="a60d6d8602d9590be64fd0031611bbf07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60d6d8602d9590be64fd0031611bbf07">&#9670;&#160;</a></span>compare() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -772,7 +772,7 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inod
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

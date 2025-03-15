@@ -20,7 +20,7 @@ var searchData=
   ['coerce_5fkey_17',['coerce_key',['../classunodb_1_1test_1_1tree__verifier.html#a78be91ab9d36939edc0429cfee3ea02f',1,'unodb::test::tree_verifier']]],
   ['commit_20messages_18',['Commit messages',['../md_CONTRIBUTING.html#autotoc_md10',1,'']]],
   ['comparator_19',['comparator',['../structunodb_1_1test_1_1tree__verifier_1_1comparator.html',1,'unodb::test::tree_verifier']]],
-  ['compare_20',['compare',['../namespaceunodb_1_1detail.html#ae5f3470a117bc313445d80544c37fb87',1,'unodb::detail::compare(const unodb::key_view a, const unodb::key_view b)'],['../namespaceunodb_1_1detail.html#af5030f37896f8bba5cc0b0ae42c13e39',1,'unodb::detail::compare(const void *a, const size_t alen, const void *b, const size_t blen)']]],
+  ['compare_20',['compare',['../namespaceunodb_1_1detail.html#a749463245ed07a65e2df960ac1beb847',1,'unodb::detail::compare(const unodb::key_view a, const unodb::key_view b) noexcept'],['../namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07',1,'unodb::detail::compare(const void *a, const size_t alen, const void *b, const size_t blen) noexcept']]],
   ['compute_5fsize_21',['compute_size',['../classunodb_1_1detail_1_1basic__leaf.html#a16b0da061659a06c5ede9389ad511378',1,'unodb::detail::basic_leaf']]],
   ['concurrent_5fbenchmark_22',['concurrent_benchmark',['../classunodb_1_1benchmark_1_1concurrent__benchmark.html',1,'unodb::benchmark']]],
   ['contributing_23',['contributing',['../md_CONTRIBUTING.html',1,'CONTRIBUTING'],['../index.html#autotoc_md39',1,'Contributing']]],

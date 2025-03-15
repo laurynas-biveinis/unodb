@@ -309,6 +309,8 @@ class key_encoder {
     return key_view(buf, off);
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+
   /// Append a sequence of bytes to the key.  The caller is responsible for not
   /// violating the ART contract (no key may be a prefix of another key).
   key_encoder &append_bytes(std::span<const std::byte> data) {
@@ -318,6 +320,8 @@ class key_encoder {
     off += sz;
     return *this;
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   //
   // signed integers
@@ -364,11 +368,16 @@ class key_encoder {
   // unsigned integers
   //
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
+
   key_encoder &encode(std::uint8_t v) {
     ensure_available(sizeof(v));
     buf[off++] = reinterpret_cast<const std::byte &>(v);
     return *this;
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   key_encoder &encode(std::uint16_t v) {
     ensure_available(sizeof(v));
@@ -408,6 +417,8 @@ class key_encoder {
     off += sizeof(v);
     return *this;
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   //
   // floating point
@@ -472,11 +483,15 @@ class key_encoder {
     return *this;
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
+
   /// convenience alias.
   key_encoder &encode_text(std::string_view sv) {
     return encode_text(std::span<const std::byte>(
         reinterpret_cast<const std::byte *>(sv.data()), sv.size()));
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   key_encoder(const key_encoder &) = delete;
   key_encoder(key_encoder &&) = delete;
@@ -578,11 +593,16 @@ class key_decoder {
   // unsigned integers
   //
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
+
   /// Decode a component of the indicated type from the key.
   key_decoder &decode(std::uint8_t &v) noexcept {
     v = reinterpret_cast<const std::uint8_t &>(buf[off++]);
     return *this;
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Decode a component of the indicated type from the key.
   key_decoder &decode(std::uint16_t &v) noexcept {
@@ -622,6 +642,8 @@ class key_decoder {
     off += sizeof(u);
     return *this;
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   //
   // floating point

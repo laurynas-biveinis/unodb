@@ -426,7 +426,7 @@ class key_buffer {
   }
 
   /// Reset the buffer.
-  void reset() { off = 0; }
+  void reset() noexcept { off = 0; }
 
   /// Return a read-only view of the buffer showing only those bytes
   /// that have valid data.

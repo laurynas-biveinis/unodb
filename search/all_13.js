@@ -19,7 +19,7 @@ var searchData=
   ['request_5fepoch_16',['request_epoch',['../classunodb_1_1detail_1_1deallocation__request.html#a85e4d0f928fd80d96201fe77958d588c',1,'unodb::detail::deallocation_request']]],
   ['requests_17',['requests',['../md_CONTRIBUTING.html#autotoc_md11',1,'Pull Requests'],['../structunodb_1_1detail_1_1dealloc__vector__list__node.html#a217feafa91bbc8861e81220d60ad5f34',1,'unodb::detail::dealloc_vector_list_node::requests'],['../classunodb_1_1detail_1_1deferred__requests.html#a0318bf025f39f26722f32e7f3000765b',1,'unodb::detail::deferred_requests::requests']]],
   ['requirements_18',['Requirements',['../index.html#autotoc_md25',1,'']]],
-  ['reset_19',['reset',['../classunodb_1_1test_1_1allocation__failure__injector.html#a229f390699b118f4f2a35d7bfdfc617f',1,'unodb::test::allocation_failure_injector::reset()'],['../classunodb_1_1detail_1_1key__buffer.html#ac18b06dfcc3afc1365848cf9efa89143',1,'unodb::detail::key_buffer::reset()'],['../classunodb_1_1key__encoder.html#a69575657d1b3dd1a4b6044ee90a65f97',1,'unodb::key_encoder::reset()']]],
+  ['reset_19',['reset',['../classunodb_1_1test_1_1allocation__failure__injector.html#a229f390699b118f4f2a35d7bfdfc617f',1,'unodb::test::allocation_failure_injector::reset()'],['../classunodb_1_1detail_1_1key__buffer.html#a1afd3af1a568531767801a0a18707abf',1,'unodb::detail::key_buffer::reset()'],['../classunodb_1_1key__encoder.html#a69575657d1b3dd1a4b6044ee90a65f97',1,'unodb::key_encoder::reset()']]],
   ['reset_5fstats_20',['reset_stats',['../classunodb_1_1qsbr.html#a91ab1f05706949f31a01649e721831d8',1,'unodb::qsbr']]],
   ['right_5fmost_5ftraversal_21',['right_most_traversal',['../classunodb_1_1db_1_1iterator.html#ad89770f43fc20103dc5458fa4d9cbc39',1,'unodb::db::iterator']]]
 ];

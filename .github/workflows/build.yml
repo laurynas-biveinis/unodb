@@ -11,6 +11,7 @@ env:
   DEFAULT_COMPILER: gcc
   DEFAULT_SANITIZE_ADDRESS: OFF
   DEFAULT_SANITIZE_THREAD: OFF
+  DEFAULT_SANITIZE_TYPE: OFF
   DEFAULT_SANITIZE_UB: OFF
   DEFAULT_STATIC_ANALYSIS: OFF
   DEFAULT_COVERAGE: OFF
@@ -26,6 +27,7 @@ jobs:
       BUILD_TYPE: ${{matrix.BUILD_TYPE}}
       SANITIZE_ADDRESS: ${{matrix.SANITIZE_ADDRESS}}
       SANITIZE_THREAD: ${{matrix.SANITIZE_THREAD}}
+      SANITIZE_TYPE: ${{matrix.SANITIZE_TYPE}}
       SANITIZE_UB: ${{matrix.SANITIZE_UB}}
       STATIC_ANALYSIS: ${{matrix.STATIC_ANALYSIS}}
       COVERAGE: ${{matrix.COVERAGE}}
@@ -124,6 +126,12 @@ jobs:
             SANITIZE_UB: ON
             COMPILER: clang
 
+          - name: clang 20 Release with TypeSan
+            os: ubuntu-22.04
+            BUILD_TYPE: Release
+            SANITIZE_TYPE: ON
+            COMPILER: clang
+
           - name: clang 20 Debug
             os: ubuntu-22.04
             BUILD_TYPE: Debug
@@ -145,6 +153,12 @@ jobs:
             os: ubuntu-22.04
             BUILD_TYPE: Debug
             SANITIZE_UB: ON
+            COMPILER: clang
+
+          - name: clang 20 Debug with TypeSan
+            os: ubuntu-22.04
+            BUILD_TYPE: Debug
+            SANITIZE_TYPE: ON
             COMPILER: clang
 
           - name: clang 20 Release static analysis
@@ -357,6 +371,7 @@ jobs:
           COMPILER="${COMPILER:-$DEFAULT_COMPILER}"
           SANITIZE_ADDRESS="${SANITIZE_ADDRESS:-$DEFAULT_SANITIZE_ADDRESS}"
           SANITIZE_THREAD="${SANITIZE_THREAD:-$DEFAULT_SANITIZE_THREAD}"
+          SANITIZE_TYPE="${SANITIZE_TYPE:-$DEFAULT_SANITIZE_TYPE}"
           SANITIZE_UB="${SANITIZE_UB:-$DEFAULT_SANITIZE_UB}"
           STATIC_ANALYSIS="${STATIC_ANALYSIS:-$DEFAULT_STATIC_ANALYSIS}"
           COVERAGE="${COVERAGE:-$DEFAULT_COVERAGE}"
@@ -407,6 +422,7 @@ jobs:
               -DMAINTAINER_MODE=ON -DIWYU=ON \
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
+              "-DSANITIZE_TYPE=${SANITIZE_TYPE}" \
               "-DSANITIZE_UB=${SANITIZE_UB}" \
               "-DSTATIC_ANALYSIS=${STATIC_ANALYSIS}" "-DCOVERAGE=${COVERAGE}" \
               "-DAVX2=${AVX2}" "${EXTRA_CMAKE_ARGS[@]}"

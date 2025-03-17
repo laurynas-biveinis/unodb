@@ -24,6 +24,9 @@ jobs:
       tsan:
         type: boolean
         default: false
+      typesan:
+        type: boolean
+        default: false
       ubsan:
         type: boolean
         default: false
@@ -127,6 +130,7 @@ jobs:
             readonly COMPILER=<< parameters.compiler >>
             readonly ASAN=<< parameters.asan >>
             readonly TSAN=<< parameters.tsan >>
+            readonly TYPESAN=<< parameters.typesan >>
             readonly UBSAN=<< parameters.ubsan >>
             if [[ $COMPILER == "gcc" ]]; then
               export CC=gcc-$GCC_VERSION
@@ -148,8 +152,9 @@ jobs:
             fi
             cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSTANDALONE=ON \
               -DMAINTAINER_MODE=ON -DSANITIZE_ADDRESS=$ASAN \
-              -DSANITIZE_THREAD=$TSAN -DSANITIZE_UB=$UBSAN \
-              -DCMAKE_CXX_FLAGS=-march=armv8.2-a "${EXTRA_CMAKE_ARGS[@]}"
+              -DSANITIZE_THREAD=$TSAN -DSANITIZE_TYPE=$TYPESAN \
+              -DSANITIZE_UB=$UBSAN -DCMAKE_CXX_FLAGS=-march=armv8.2-a \
+              "${EXTRA_CMAKE_ARGS[@]}"
       - run:
           name: Build
           working_directory: build

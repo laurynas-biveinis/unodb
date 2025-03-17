@@ -73,7 +73,7 @@ class visitor {
   /// Unicode data may then be recovered by associating the key with a record
   /// identifier, looking up the record and reading off the Unicode value there.
   /// This is a common secondary index scenario.
-  [[nodiscard]] inline auto get_key() const noexcept {
+  [[nodiscard]] auto get_key() const noexcept(noexcept(it.get_key())) {
     // TODO(laurynas) The auto return appears required for get_key().
     // E.g., example_art.cpp fails with return type == key_type.
     return it.get_key();

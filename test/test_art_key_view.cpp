@@ -3,6 +3,7 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <span>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include <string_view>
 // IWYU pragma: no_include "gtest/gtest.h"
@@ -64,7 +65,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 TYPED_TEST(ARTKeyViewCorrectnessTest, EncodedTextKeys) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto& val = unodb::test::test_values[0];
+  const auto val = unodb::test::test_values[0];
   verifier.insert(enc.reset().encode_text("").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("a").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("abba").get_key_view(), val);

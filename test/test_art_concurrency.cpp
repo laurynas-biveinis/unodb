@@ -26,7 +26,9 @@
 
 namespace {
 
-inline bool odd(const std::uint64_t x) { return static_cast<bool>(x % 2); }
+[[nodiscard]] constexpr bool odd(std::uint64_t x) noexcept {
+  return static_cast<bool>(x % 2);
+}
 
 template <class Db>
 class ARTConcurrencyTest : public ::testing::Test {

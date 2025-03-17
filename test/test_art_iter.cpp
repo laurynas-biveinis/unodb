@@ -532,9 +532,9 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
   using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();
-  const std::uint64_t k0 = 0xaa10;
-  const std::uint64_t k1 = 0xaa20;
-  const std::uint64_t k2 = 0xaa30;
+  constexpr std::uint64_t k0 = 0xaa10;
+  constexpr std::uint64_t k1 = 0xaa20;
+  constexpr std::uint64_t k2 = 0xaa30;
   verifier.insert(k0, unodb::test::test_values[0]);
   verifier.insert(k1, unodb::test::test_values[1]);
   verifier.insert(k2, unodb::test::test_values[2]);

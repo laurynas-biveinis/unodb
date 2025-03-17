@@ -449,7 +449,7 @@ class key_buffer {
   }
 
   /// Pop off some bytes from the buffer.
-  void pop(size_t n) {
+  void pop(size_t n) noexcept {
     UNODB_DETAIL_ASSERT(off >= n);
     off -= n;
   }

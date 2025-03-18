@@ -9,5 +9,6 @@ var searchData=
   ['first_6',['first',['../classunodb_1_1db_1_1iterator.html#ae7140da77bdaddcb5412a67ac4dbb28d',1,'unodb::db::iterator::first()'],['../classunodb_1_1olc__db_1_1iterator.html#a6070f7c0df4edd70aeaf773ad6a0059b',1,'unodb::olc_db::iterator::first()']]],
   ['flag_7',['flag',['../classunodb_1_1detail_1_1thread__sync.html#ad53abbcc8f46d484b73cb04250b07cc3',1,'unodb::detail::thread_sync']]],
   ['free_5faligned_8',['free_aligned',['../namespaceunodb_1_1detail.html#a857e30bf5bbe06e321300ee868010df9',1,'unodb::detail']]],
-  ['fuzzing_9',['Fuzzing',['../md_CONTRIBUTING.html#autotoc_md9',1,'']]]
+  ['free_5forphan_5flist_9',['free_orphan_list',['../namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html#ae7d1d0020a8d2f5a2adee0519e9b8fec',1,'unodb::anonymous_namespace{qsbr.cpp}']]],
+  ['fuzzing_10',['Fuzzing',['../md_CONTRIBUTING.html#autotoc_md9',1,'']]]
 ];

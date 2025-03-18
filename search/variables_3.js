@@ -9,5 +9,6 @@ var searchData=
   ['deallocation_5fsize_5fper_5fthread_5fmax_6',['deallocation_size_per_thread_max',['../classunodb_1_1qsbr.html#a93dbb67ce2cbf1f2d0fd6100f97244b9',1,'unodb::qsbr']]],
   ['deallocation_5fsize_5fper_5fthread_5fmean_7',['deallocation_size_per_thread_mean',['../classunodb_1_1qsbr.html#a20ed25bb318f60c5058f816d11022dec',1,'unodb::qsbr']]],
   ['deallocation_5fsize_5fper_5fthread_5fstats_8',['deallocation_size_per_thread_stats',['../classunodb_1_1qsbr.html#a798289cbe11d0d1f29984b68a6081d68',1,'unodb::qsbr']]],
-  ['deallocation_5fsize_5fper_5fthread_5fvariance_9',['deallocation_size_per_thread_variance',['../classunodb_1_1qsbr.html#a2213cdf7aa229e831f20e93418e194d8',1,'unodb::qsbr']]]
+  ['deallocation_5fsize_5fper_5fthread_5fvariance_9',['deallocation_size_per_thread_variance',['../classunodb_1_1qsbr.html#a2213cdf7aa229e831f20e93418e194d8',1,'unodb::qsbr']]],
+  ['do_5fit_10',['do_it',['../namespaceanonymous__namespace_02qsbr_8cpp_03.html#a9894eecc38fb0f6e214b2e93eb89cd9d',1,'anonymous_namespace{qsbr.cpp}']]]
 ];

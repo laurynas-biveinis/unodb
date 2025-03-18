@@ -1,5 +1,36 @@
 var annotated_dup =
 [
+    [ "anonymous_namespace{micro_benchmark_mutex.cpp}", "namespaceanonymous__namespace_02micro__benchmark__mutex_8cpp_03.html", [
+      [ "concurrent_benchmark_mutex", "classanonymous__namespace_02micro__benchmark__mutex_8cpp_03_1_1concurrent__benchmark__mutex.html", null ]
+    ] ],
+    [ "anonymous_namespace{micro_benchmark_olc.cpp}", "namespaceanonymous__namespace_02micro__benchmark__olc_8cpp_03.html", [
+      [ "concurrent_benchmark_olc", "classanonymous__namespace_02micro__benchmark__olc_8cpp_03_1_1concurrent__benchmark__olc.html", null ]
+    ] ],
+    [ "anonymous_namespace{test_art.cpp}", "namespaceanonymous__namespace_02test__art_8cpp_03.html", [
+      [ "ARTCorrectnessTest", "classanonymous__namespace_02test__art_8cpp_03_1_1ARTCorrectnessTest.html", null ]
+    ] ],
+    [ "anonymous_namespace{test_art_concurrency.cpp}", "namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html", [
+      [ "ARTConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html", null ]
+    ] ],
+    [ "anonymous_namespace{test_art_iter.cpp}", "namespaceanonymous__namespace_02test__art__iter_8cpp_03.html", [
+      [ "ARTIteratorTest", "classanonymous__namespace_02test__art__iter_8cpp_03_1_1ARTIteratorTest.html", null ]
+    ] ],
+    [ "anonymous_namespace{test_art_key_view.cpp}", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html", [
+      [ "ARTKeyViewCorrectnessTest", "classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html", null ]
+    ] ],
+    [ "anonymous_namespace{test_art_oom.cpp}", "namespaceanonymous__namespace_02test__art__oom_8cpp_03.html", [
+      [ "ARTOOMTest", "classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html", null ]
+    ] ],
+    [ "anonymous_namespace{test_art_scan.cpp}", "namespaceanonymous__namespace_02test__art__scan_8cpp_03.html", [
+      [ "ARTScanTest", "classanonymous__namespace_02test__art__scan_8cpp_03_1_1ARTScanTest.html", null ]
+    ] ],
+    [ "anonymous_namespace{test_key_encode_decode.cpp}", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html", [
+      [ "ARTKeyEncodeDecodeTest", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1ARTKeyEncodeDecodeTest.html", null ],
+      [ "key_factory", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1key__factory.html", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1key__factory" ]
+    ] ],
+    [ "anonymous_namespace{test_qsbr_fuzz_deepstate.cpp}", "namespaceanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03.html", [
+      [ "thread_info", "structanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03_1_1thread__info.html", null ]
+    ] ],
     [ "unodb", "namespaceunodb.html", [
       [ "benchmark", null, [
         [ "detail", null, [
@@ -51,7 +82,7 @@ var annotated_dup =
         [ "olc_node_header", "structunodb_1_1detail_1_1olc__node__header.html", null ],
         [ "qsbr_epoch", "classunodb_1_1detail_1_1qsbr__epoch.html", "classunodb_1_1detail_1_1qsbr__epoch" ],
         [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", "classunodb_1_1detail_1_1qsbr__ptr__base" ],
-        [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", null ],
+        [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread" ],
         [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", "classunodb_1_1detail_1_1thread__sync" ],
         [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ]
       ] ],

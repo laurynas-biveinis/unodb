@@ -40,7 +40,7 @@ var namespaceunodb_1_1detail =
     [ "olc_node_header", "structunodb_1_1detail_1_1olc__node__header.html", null ],
     [ "qsbr_epoch", "classunodb_1_1detail_1_1qsbr__epoch.html", "classunodb_1_1detail_1_1qsbr__epoch" ],
     [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", "classunodb_1_1detail_1_1qsbr__ptr__base" ],
-    [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", null ],
+    [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread" ],
     [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", "classunodb_1_1detail_1_1thread__sync" ],
     [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ],
     [ "dealloc_request_vector", "namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff", null ],

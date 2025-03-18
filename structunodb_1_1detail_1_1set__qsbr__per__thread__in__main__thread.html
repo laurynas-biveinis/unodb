@@ -97,6 +97,7 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1set__qsbr__pe
 
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::set_qsbr_per_thread_in_main_thread Struct Reference</div></div>
 </div><!--header-->
@@ -104,10 +105,47 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1set__qsbr__pe
 
 <p>Helper for registering the main thread with QSBR.  
  <a href="structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html#details">More...</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a0c99b465d7ccf0e2897957a7a75638a8" id="r_a0c99b465d7ccf0e2897957a7a75638a8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html#a0c99b465d7ccf0e2897957a7a75638a8">set_qsbr_per_thread_in_main_thread</a> () noexcept</td></tr>
+<tr class="memdesc:a0c99b465d7ccf0e2897957a7a75638a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register main thread with QSBR during static initialization.  <br /></td></tr>
+<tr class="separator:a0c99b465d7ccf0e2897957a7a75638a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Helper for registering the main thread with QSBR. </p>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
-<li><b>qsbr.cpp</b></li>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a0c99b465d7ccf0e2897957a7a75638a8" name="a0c99b465d7ccf0e2897957a7a75638a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c99b465d7ccf0e2897957a7a75638a8">&#9670;&#160;</a></span>set_qsbr_per_thread_in_main_thread()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unodb::detail::set_qsbr_per_thread_in_main_thread::set_qsbr_per_thread_in_main_thread </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Register main thread with QSBR during static initialization. </p>
+<p>Creates and registers a QSBR instance for the main thread before main code runs. This ensures the main thread starts out participating in QSBR.</p>
+<dl class="section note"><dt>Note</dt><dd>Fails fatally if unable to allocate the QSBR instance. </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this struct was generated from the following file:<ul>
+<li><a class="el" href="qsbr_8cpp.html">qsbr.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

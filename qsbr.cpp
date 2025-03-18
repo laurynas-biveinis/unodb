@@ -1,5 +1,13 @@
 // Copyright (C) 2019-2025 UnoDB contributors
 
+/// \file
+/// QSBR implementation details.
+///
+/// \ingroup qsbr
+///
+/// Implementation of non-inline symbols from qsbr.hpp, main thread QSBR
+/// registration and orphaned deallocation request list management helpers.
+
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -30,6 +38,12 @@ namespace unodb::detail {
 /// Helper for registering the main thread with QSBR.
 struct set_qsbr_per_thread_in_main_thread {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
+  /// Register main thread with QSBR during static initialization.
+  ///
+  /// Creates and registers a QSBR instance for the main thread before main code
+  /// runs. This ensures the main thread starts out participating in QSBR.
+  ///
+  /// \note Fails fatally if unable to allocate the QSBR instance.
   set_qsbr_per_thread_in_main_thread() noexcept {
     try {
       auto main_thread_qsbr_reclamator_instance =
@@ -57,6 +71,7 @@ struct set_qsbr_per_thread_in_main_thread {
 
 namespace {
 
+/// Global instance to register the thread with QSBR during program startup.
 // NOLINTNEXTLINE(fuchsia-statically-constructed-objects)
 const unodb::detail::set_qsbr_per_thread_in_main_thread do_it;
 
@@ -135,6 +150,16 @@ void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
 
 namespace {
 
+/// Add vector of pending deallocation requests to orphan list.
+///
+/// This function is used when a thread quits with pending deallocation
+/// requests. These requests become "orphaned" and are added to a global list
+/// for later processing. A preallocated list node is passed to avoid a
+/// potential OOM failure at a thread exit time.
+///
+/// \param orphan_list Global orphan list
+/// \param requests Deallocation requests to be added to the orphan list
+/// \param orphan_list_node Preallocated list node that will hold the requests
 void add_to_orphan_list(
     std::atomic<detail::dealloc_vector_list_node *> &orphan_list,
     detail::dealloc_request_vector &&requests,
@@ -155,12 +180,19 @@ void add_to_orphan_list(
   }
 }
 
-detail::dealloc_vector_list_node *take_orphan_list(
+/// Atomically take ownership of entire orphaned request list.
+///
+/// Replaces the list with `nullptr` and returns the previous head node.
+///
+/// \param orphan_list Global orphaned request list
+/// \return Taken orphaned request list
+[[nodiscard]] detail::dealloc_vector_list_node *take_orphan_list(
     std::atomic<detail::dealloc_vector_list_node *>
         &orphan_list UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return orphan_list.exchange(nullptr, std::memory_order_acq_rel);
 }
 
+/// Free pending requests and orphan \a list itself.
 void free_orphan_list(detail::dealloc_vector_list_node *list) noexcept {
   while (list != nullptr) {
     const std::unique_ptr<detail::dealloc_vector_list_node> list_ptr{list};

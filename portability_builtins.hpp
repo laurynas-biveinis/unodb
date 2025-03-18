@@ -117,7 +117,7 @@ template <typename To, typename From>
   // must be the same stride
   static_assert(sizeof(To) == sizeof(From));
   typename std::aligned_storage<sizeof(To), alignof(To)>::type tmp;
-  std::memcpy(reinterpret_cast<void*>(&tmp), &input, sizeof(To));
+  std::memcpy(&tmp, &input, sizeof(To));
   return reinterpret_cast<const To&>(tmp);
 }
 

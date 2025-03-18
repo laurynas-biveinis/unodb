@@ -355,7 +355,7 @@ class olc_db final {
     /// the iterator.
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard]] key_view get_key();
+    [[nodiscard]] key_view get_key() noexcept;
 
     /// Return the value_view associated with the current position of
     /// the iterator.
@@ -487,7 +487,7 @@ class olc_db final {
     /// Invalidate the iterator (pops everything off of the stack).
     ///
     /// post-condition: The iterator is !valid().
-    iterator& invalidate() {
+    iterator& invalidate() noexcept {
       while (!stack_.empty()) stack_.pop();  // clear the stack
       return *this;
     }
@@ -2660,7 +2660,7 @@ bool olc_db<Key, Value>::iterator::try_right_most_traversal(
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key, typename Value>
-key_view olc_db<Key, Value>::iterator::get_key() {
+key_view olc_db<Key, Value>::iterator::get_key() noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   // Note: If the iterator is on a leaf, we return the key for that
   // leaf regardless of whether the leaf has been deleted.  This is

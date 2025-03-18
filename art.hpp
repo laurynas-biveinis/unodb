@@ -254,7 +254,7 @@ class db final {
     /// the iterator.
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard]] key_view get_key();
+    [[nodiscard]] key_view get_key() noexcept;
 
     /// Return the value_view associated with the current position of
     /// the iterator.
@@ -1328,7 +1328,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key, typename Value>
-key_view db<Key, Value>::iterator::get_key() {
+key_view db<Key, Value>::iterator::get_key() noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   // TODO(thompsonbry) : variable length keys. The simplest case
   // where this does not work today is a single root leaf.  In that

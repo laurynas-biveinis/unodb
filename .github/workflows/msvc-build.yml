@@ -76,19 +76,19 @@ jobs:
           # Ensure that we use clang-cl from MSVC, not LLVM
           $env:path = $env:path `
               -split ';' -notmatch 'C:\\Program Files\\LLVM\\bin' -join ';'
-          cmake --preset "${{ matrix.preset }}"
+          cmake --preset "${{matrix.preset}}"
         if: contains(env.EXAMPLE_PRESETS, matrix.preset)
 
       - name: Build (examples)
         working-directory: examples
         run: |
-          cmake --build --preset "${{ matrix.preset }}"
+          cmake --build --preset "${{matrix.preset}}"
         if: contains(env.EXAMPLE_PRESETS, matrix.preset)
 
       - name: Run examples
         working-directory: examples
         run: |
-          cmake --build --preset "${{ matrix.preset }}" --target examples
+          cmake --build --preset "${{matrix.preset}}" --target examples
         if: contains(env.EXAMPLE_PRESETS, matrix.preset)
 
       - name: Populate git submodules and configure CMake
@@ -97,7 +97,7 @@ jobs:
           # Ensure that we use clang-cl from MSVC, not LLVM
           $env:path = $env:path `
               -split ';' -notmatch 'C:\\Program Files\\LLVM\\bin' -join ';'
-          cmake --preset "${{ matrix.preset }}"
+          cmake --preset "${{matrix.preset}}"
 
       - name: Build
         run: |
@@ -116,11 +116,11 @@ jobs:
         if: contains(env.STATIC_ANALYSIS_PRESETS, matrix.preset)
 
       - name: Correctness test
-        run: ctest -V --preset "${{ matrix.preset }}"
+        run: ctest -V --preset "${{matrix.preset}}"
         if: "!contains(env.STATIC_ANALYSIS_PRESETS, matrix.preset)"
 
       - name: Benchmark correctness test
         run: |
-          $Env:P = "${{ matrix.preset }}"
+          $Env:P = "${{matrix.preset}}"
           cmake --build --preset "$env:P" --target quick_benchmarks
         if: "!contains(env.STATIC_ANALYSIS_PRESETS, matrix.preset)"

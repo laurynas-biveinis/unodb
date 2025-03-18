@@ -216,7 +216,7 @@ $(document).ready(function(){initNavTree('portability__builtins_8hpp_source.html
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>  <span class="comment">// must be the same stride</span></div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>  <span class="keyword">static_assert</span>(<span class="keyword">sizeof</span>(To) == <span class="keyword">sizeof</span>(From));</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>  <span class="keyword">typename</span> std::aligned_storage&lt;<span class="keyword">sizeof</span>(To), <span class="keyword">alignof</span>(To)&gt;::type tmp;</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>  std::memcpy(<span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">void</span>*<span class="keyword">&gt;</span>(&amp;tmp), &amp;input, <span class="keyword">sizeof</span>(To));</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>  std::memcpy(&amp;tmp, &amp;input, <span class="keyword">sizeof</span>(To));</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>  <span class="keywordflow">return</span> <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>To&amp;<span class="keyword">&gt;</span>(tmp);</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>}</div>
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>

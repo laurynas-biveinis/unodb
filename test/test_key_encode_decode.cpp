@@ -119,7 +119,7 @@ TEST(ARTKeyEncodeDecodeTest, C00001) {
   EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
   EXPECT_EQ(enc.size_bytes(), 0);
   // key_view is empty
-  auto kv = enc.get_key_view();
+  const auto kv = enc.get_key_view();
   EXPECT_EQ(kv.size_bytes(), 0);
 }
 

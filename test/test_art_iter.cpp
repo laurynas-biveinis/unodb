@@ -399,9 +399,9 @@ TYPED_TEST(ARTIteratorTest, C101) {
   using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
-  const std::uint64_t k0 = 0xaa00;
-  const std::uint64_t k1 = 0xaa10;
-  const std::uint64_t k2 = 0xab10;
+  constexpr std::uint64_t k0 = 0xaa00;
+  constexpr std::uint64_t k1 = 0xaa10;
+  constexpr std::uint64_t k2 = 0xab10;
   verifier.insert(k0, unodb::test::test_values[0]);
   verifier.insert(k1, unodb::test::test_values[1]);
   verifier.insert(k2, unodb::test::test_values[2]);

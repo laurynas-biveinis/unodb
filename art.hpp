@@ -260,7 +260,7 @@ class db final {
     /// the iterator.
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard, gnu::pure]] const value_view get_val() const;
+    [[nodiscard, gnu::pure]] value_view get_val() const noexcept;
 
     /// Debugging
     // LCOV_EXCL_START
@@ -383,12 +383,15 @@ class db final {
       stack_.pop();
     }
 
-    /// Return the entry (if any) on the top of the stack.
-    [[nodiscard]] stack_entry& top() { return stack_.top(); }
+    /// Return the entry on the top of the stack.
+    [[nodiscard]] const stack_entry& top() const noexcept {
+      UNODB_DETAIL_ASSERT(!stack_.empty());
+      return stack_.top();
+    }
 
     /// Return the node on the top of the stack and nullptr if the
     /// stack is empty (similar to top(), but handles an empty stack).
-    [[nodiscard]] detail::node_ptr current_node() {
+    [[nodiscard]] detail::node_ptr current_node() const noexcept {
       return stack_.empty() ? detail::node_ptr(nullptr) : stack_.top().node;
     }
 
@@ -1345,7 +1348,7 @@ key_view db<Key, Value>::iterator::get_key() noexcept {
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 template <typename Key, typename Value>
-const value_view db<Key, Value>::iterator::get_val() const {
+value_view db<Key, Value>::iterator::get_val() const noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;

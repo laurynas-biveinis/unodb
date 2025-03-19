@@ -624,20 +624,21 @@ class [[nodiscard]] tree_verifier final {
     std::size_t n{0};
     bool first = true;
     unodb::key_view prev{};
-    auto fn = [&n, &first,
-               &prev](const unodb::visitor<typename Db::iterator> &visitor) {
-      const auto &kv = visitor.get_key();
-      if (UNODB_DETAIL_UNLIKELY(first)) {
-        prev = kv;
-        first = false;
-      } else {
-        // NOLINTNEXTLINE(readability/check)
-        EXPECT_TRUE(unodb::detail::compare(prev, kv) < 0);
-        prev = kv;
-      }
-      n++;
-      return false;
-    };
+    auto fn =
+        [&n, &first,
+         &prev](const unodb::visitor<typename Db::iterator> &visitor) noexcept {
+          const auto &kv = visitor.get_key();
+          if (UNODB_DETAIL_UNLIKELY(first)) {
+            prev = kv;
+            first = false;
+          } else {
+            // NOLINTNEXTLINE(readability/check)
+            EXPECT_TRUE(unodb::detail::compare(prev, kv) < 0);
+            prev = kv;
+          }
+          n++;
+          return false;
+        };
     const_cast<Db &>(test_db).scan(fn);
     // FIXME(thompsonbry) variable length keys - enable this assert.
     // 3 OOM tests are failing (for each Db type) when this is enabled

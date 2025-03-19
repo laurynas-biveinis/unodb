@@ -143,9 +143,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9e51dd50dad8e7c8657f59dfa275ea38" id="r_a9e51dd50dad8e7c8657f59dfa275ea38"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">seek</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> search_key, bool &amp;match, bool fwd=true)</td></tr>
 <tr class="memdesc:a9e51dd50dad8e7c8657f59dfa275ea38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Position the iterator on, before, or after the caller's key.  <br /></td></tr>
 <tr class="separator:a9e51dd50dad8e7c8657f59dfa275ea38"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad681e296075884e877d1b12b4ff773d5" id="r_ad681e296075884e877d1b12b4ff773d5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#ad681e296075884e877d1b12b4ff773d5">get_key</a> ()</td></tr>
-<tr class="memdesc:ad681e296075884e877d1b12b4ff773d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the key_view associated with the current position of the iterator.  <br /></td></tr>
-<tr class="separator:ad681e296075884e877d1b12b4ff773d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acae8e334fe120174e36f71bbe4b39956" id="r_acae8e334fe120174e36f71bbe4b39956"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#acae8e334fe120174e36f71bbe4b39956">get_key</a> () noexcept</td></tr>
+<tr class="memdesc:acae8e334fe120174e36f71bbe4b39956"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the key_view associated with the current position of the iterator.  <br /></td></tr>
+<tr class="separator:acae8e334fe120174e36f71bbe4b39956"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab6068facd1a62c646d5cefa3b22c134a" id="r_ab6068facd1a62c646d5cefa3b22c134a"><td class="memItemLeft" align="right" valign="top">const value_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#ab6068facd1a62c646d5cefa3b22c134a">get_val</a> () const</td></tr>
 <tr class="memdesc:ab6068facd1a62c646d5cefa3b22c134a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the value_view associated with the current position of the iterator.  <br /></td></tr>
 <tr class="separator:ab6068facd1a62c646d5cefa3b22c134a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -311,13 +311,16 @@ template&lt;typename Key , typename Value &gt; </div>
 
 </div>
 </div>
-<a id="ad681e296075884e877d1b12b4ff773d5" name="ad681e296075884e877d1b12b4ff773d5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad681e296075884e877d1b12b4ff773d5">&#9670;&#160;</a></span>get_key()</h2>
+<a id="acae8e334fe120174e36f71bbe4b39956" name="acae8e334fe120174e36f71bbe4b39956"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acae8e334fe120174e36f71bbe4b39956">&#9670;&#160;</a></span>get_key()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::get_key </td>
@@ -326,6 +329,11 @@ template&lt;typename Key , typename Value &gt; </div>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Return the key_view associated with the current position of the iterator. </p>

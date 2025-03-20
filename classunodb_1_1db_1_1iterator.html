@@ -146,9 +146,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:acae8e334fe120174e36f71bbe4b39956" id="r_acae8e334fe120174e36f71bbe4b39956"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#acae8e334fe120174e36f71bbe4b39956">get_key</a> () noexcept</td></tr>
 <tr class="memdesc:acae8e334fe120174e36f71bbe4b39956"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the key_view associated with the current position of the iterator.  <br /></td></tr>
 <tr class="separator:acae8e334fe120174e36f71bbe4b39956"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6068facd1a62c646d5cefa3b22c134a" id="r_ab6068facd1a62c646d5cefa3b22c134a"><td class="memItemLeft" align="right" valign="top">const value_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#ab6068facd1a62c646d5cefa3b22c134a">get_val</a> () const</td></tr>
-<tr class="memdesc:ab6068facd1a62c646d5cefa3b22c134a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the value_view associated with the current position of the iterator.  <br /></td></tr>
-<tr class="separator:ab6068facd1a62c646d5cefa3b22c134a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68ae5c43a1b17c6cbb39d8574e6acd1a" id="r_a68ae5c43a1b17c6cbb39d8574e6acd1a"><td class="memItemLeft" align="right" valign="top">value_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a68ae5c43a1b17c6cbb39d8574e6acd1a">get_val</a> () const noexcept</td></tr>
+<tr class="memdesc:a68ae5c43a1b17c6cbb39d8574e6acd1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the value_view associated with the current position of the iterator.  <br /></td></tr>
+<tr class="separator:a68ae5c43a1b17c6cbb39d8574e6acd1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adcd3e85bcd9052fc406b0632e4b46fea" id="r_adcd3e85bcd9052fc406b0632e4b46fea"><td class="memItemLeft" align="right" valign="top"><a id="adcd3e85bcd9052fc406b0632e4b46fea" name="adcd3e85bcd9052fc406b0632e4b46fea"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
 <tr class="memdesc:adcd3e85bcd9052fc406b0632e4b46fea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debugging. <br /></td></tr>
@@ -208,14 +208,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>push</b> (const typen
 void&#160;</td><td class="memItemRight" valign="bottom"><b>pop</b> ()</td></tr>
 <tr class="memdesc:a301bcacc7e5dae049aeac2bffead3b7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pop an entry from the stack and truncate the key buffer. <br /></td></tr>
 <tr class="separator:a301bcacc7e5dae049aeac2bffead3b7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7479b7fc30823ec548c991c21de25d25" id="r_a7479b7fc30823ec548c991c21de25d25"><td class="memItemLeft" align="right" valign="top"><a id="a7479b7fc30823ec548c991c21de25d25" name="a7479b7fc30823ec548c991c21de25d25"></a>
-<a class="el" href="classunodb_1_1db_1_1iterator.html#a9166f2a1d9fcc47bc1c9f09da8806919">stack_entry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>top</b> ()</td></tr>
-<tr class="memdesc:a7479b7fc30823ec548c991c21de25d25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the entry (if any) on the top of the stack. <br /></td></tr>
-<tr class="separator:a7479b7fc30823ec548c991c21de25d25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2d761d932c9fb7c82d52de8c8b575c8a" id="r_a2d761d932c9fb7c82d52de8c8b575c8a"><td class="memItemLeft" align="right" valign="top"><a id="a2d761d932c9fb7c82d52de8c8b575c8a" name="a2d761d932c9fb7c82d52de8c8b575c8a"></a>
-<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>current_node</b> ()</td></tr>
-<tr class="memdesc:a2d761d932c9fb7c82d52de8c8b575c8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the node on the top of the stack and nullptr if the stack is empty (similar to <a class="el" href="classunodb_1_1db_1_1iterator.html#a7479b7fc30823ec548c991c21de25d25" title="Return the entry (if any) on the top of the stack.">top()</a>, but handles an empty stack). <br /></td></tr>
-<tr class="separator:a2d761d932c9fb7c82d52de8c8b575c8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecb940fb56d1e59ee778a6135dc5193e" id="r_aecb940fb56d1e59ee778a6135dc5193e"><td class="memItemLeft" align="right" valign="top"><a id="aecb940fb56d1e59ee778a6135dc5193e" name="aecb940fb56d1e59ee778a6135dc5193e"></a>
+const <a class="el" href="classunodb_1_1db_1_1iterator.html#a9166f2a1d9fcc47bc1c9f09da8806919">stack_entry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>top</b> () const noexcept</td></tr>
+<tr class="memdesc:aecb940fb56d1e59ee778a6135dc5193e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the entry on the top of the stack. <br /></td></tr>
+<tr class="separator:aecb940fb56d1e59ee778a6135dc5193e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0f79ce27b9b1c5efb409ffb5454b161" id="r_ac0f79ce27b9b1c5efb409ffb5454b161"><td class="memItemLeft" align="right" valign="top"><a id="ac0f79ce27b9b1c5efb409ffb5454b161" name="ac0f79ce27b9b1c5efb409ffb5454b161"></a>
+<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>current_node</b> () const noexcept</td></tr>
+<tr class="memdesc:ac0f79ce27b9b1c5efb409ffb5454b161"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the node on the top of the stack and nullptr if the stack is empty (similar to <a class="el" href="classunodb_1_1db_1_1iterator.html#aecb940fb56d1e59ee778a6135dc5193e" title="Return the entry on the top of the stack.">top()</a>, but handles an empty stack). <br /></td></tr>
+<tr class="separator:ac0f79ce27b9b1c5efb409ffb5454b161"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
 Private Types</h2></td></tr>
@@ -341,21 +341,29 @@ template&lt;typename Key , typename Value &gt; </div>
 
 </div>
 </div>
-<a id="ab6068facd1a62c646d5cefa3b22c134a" name="ab6068facd1a62c646d5cefa3b22c134a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab6068facd1a62c646d5cefa3b22c134a">&#9670;&#160;</a></span>get_val()</h2>
+<a id="a68ae5c43a1b17c6cbb39d8574e6acd1a" name="a68ae5c43a1b17c6cbb39d8574e6acd1a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68ae5c43a1b17c6cbb39d8574e6acd1a">&#9670;&#160;</a></span>get_val()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const value_view <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::get_val </td>
+          <td class="memname">value_view <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::get_val </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Return the value_view associated with the current position of the iterator. </p>

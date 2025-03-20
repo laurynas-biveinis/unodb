@@ -692,183 +692,184 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>    std::size_t n{0};</div>
 <div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>    <span class="keywordtype">bool</span> first = <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>    <a class="code hl_typedef" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> prev{};</div>
-<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>    <span class="keyword">auto</span> fn = [&amp;n, &amp;first,</div>
-<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>               &amp;prev](<span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">unodb::visitor&lt;typename Db::iterator&gt;</a> &amp;<a class="code hl_class" href="classunodb_1_1visitor.html">visitor</a>) {</div>
-<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span>      <span class="keyword">const</span> <span class="keyword">auto</span> &amp;kv = <a class="code hl_class" href="classunodb_1_1visitor.html">visitor</a>.<a class="code hl_function" href="classunodb_1_1visitor.html#a3a530a16fc8dcf5ff1b7e805c6e414ca">get_key</a>();</div>
-<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(first)) {</div>
-<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>        prev = kv;</div>
-<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>        first = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>      } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>        <span class="comment">// NOLINTNEXTLINE(readability/check)</span></div>
-<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span>        EXPECT_TRUE(<a class="code hl_function" href="namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07">unodb::detail::compare</a>(prev, kv) &lt; 0);</div>
-<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>        prev = kv;</div>
-<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>      }</div>
-<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>      n++;</div>
-<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>      <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>    };</div>
-<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>    <span class="keyword">const_cast&lt;</span>Db &amp;<span class="keyword">&gt;</span>(test_db).scan(fn);</div>
-<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span>    <span class="comment">// FIXME(thompsonbry) variable length keys - enable this assert.</span></div>
-<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>    <span class="comment">// 3 OOM tests are failing (for each Db type) when this is enabled</span></div>
-<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>    <span class="comment">// (off by one).  What is going on there?</span></div>
-<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>    <span class="comment">//</span></div>
-<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span>    <span class="comment">// const auto sz = values.size();  // #of (key,val) pairs expected.</span></div>
-<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span>    <span class="comment">// UNODB_EXPECT_EQ(sz, n);</span></div>
-<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>  }</div>
+<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>    <span class="keyword">auto</span> fn =</div>
+<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>        [&amp;n, &amp;first,</div>
+<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span>         &amp;prev](<span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">unodb::visitor&lt;typename Db::iterator&gt;</a> &amp;<a class="code hl_class" href="classunodb_1_1visitor.html">visitor</a>) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>          <span class="keyword">const</span> <span class="keyword">auto</span> &amp;kv = <a class="code hl_class" href="classunodb_1_1visitor.html">visitor</a>.<a class="code hl_function" href="classunodb_1_1visitor.html#a3a530a16fc8dcf5ff1b7e805c6e414ca">get_key</a>();</div>
+<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>          <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(first)) {</div>
+<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>            prev = kv;</div>
+<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>            first = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>          } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span>            <span class="comment">// NOLINTNEXTLINE(readability/check)</span></div>
+<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>            EXPECT_TRUE(<a class="code hl_function" href="namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07">unodb::detail::compare</a>(prev, kv) &lt; 0);</div>
+<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>            prev = kv;</div>
+<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>          }</div>
+<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>          n++;</div>
+<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>          <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>        };</div>
+<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span>    <span class="keyword">const_cast&lt;</span>Db &amp;<span class="keyword">&gt;</span>(test_db).scan(fn);</div>
+<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>    <span class="comment">// FIXME(thompsonbry) variable length keys - enable this assert.</span></div>
+<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>    <span class="comment">// 3 OOM tests are failing (for each Db type) when this is enabled</span></div>
+<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>    <span class="comment">// (off by one).  What is going on there?</span></div>
+<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span>    <span class="comment">//</span></div>
+<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span>    <span class="comment">// const auto sz = values.size();  // #of (key,val) pairs expected.</span></div>
+<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>    <span class="comment">// UNODB_EXPECT_EQ(sz, n);</span></div>
+<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span>  }</div>
 </div>
-<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
-<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span> </div>
-<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(6326)</div>
-<div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span>  template &lt;typename T&gt;</div>
-<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>  <span class="keywordtype">void</span> check_absent_keys(std::initializer_list&lt;T&gt; absent_keys) const</div>
-<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>      noexcept(noexcept(this-&gt;try_get(unused_key))) {</div>
-<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> absent_key : absent_keys) {</div>
-<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span>      <span class="keyword">const</span> <span class="keyword">auto</span> k{coerce_key(absent_key)};</div>
-<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>      UNODB_ASSERT_EQ(values.find(to_ikey(k)), values.cend());</div>
-<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>      try_get(k);</div>
-<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>    }</div>
-<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span>  }</div>
-<div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
-<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span> </div>
-<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span>  <span class="comment">//</span></div>
-<div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span>  <span class="comment">// scan API</span></div>
-<div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span>  <span class="comment">//</span></div>
-<div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span> </div>
-<div class="line"><a id="l00667" name="l00667"></a><span class="lineno">  667</span>  <span class="comment">// TODO(thompsonbry) Add verification against ground truth into the</span></div>
-<div class="line"><a id="l00668" name="l00668"></a><span class="lineno">  668</span>  <span class="comment">// scan() API calls?  Maybe by having the caller NOT specify the</span></div>
-<div class="line"><a id="l00669" name="l00669"></a><span class="lineno">  669</span>  <span class="comment">// lambda FN if they want built-in verification?  Some of the scan</span></div>
-<div class="line"><a id="l00670" name="l00670"></a><span class="lineno">  670</span>  <span class="comment">// UTs are explicit about how the ground truth is populated, but</span></div>
-<div class="line"><a id="l00671" name="l00671"></a><span class="lineno">  671</span>  <span class="comment">// their validation could still be replaced by validating against</span></div>
-<div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span>  <span class="comment">// the tree_verifier::values map.</span></div>
-<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span> </div>
-<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span>  template &lt;typename FN, typename T&gt;</div>
-<div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>  <span class="keywordtype">void</span> scan(FN fn, <span class="keywordtype">bool</span> fwd = true) {</div>
-<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span>    test_db.scan_from(fn, fwd);</div>
-<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span>  }</div>
-<div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span> </div>
-<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN, <span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>  <span class="keywordtype">void</span> scan_from(T from_key, FN fn, <span class="keywordtype">bool</span> fwd = <span class="keyword">true</span>) {</div>
-<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>    <span class="keyword">const</span> <span class="keyword">auto</span> fk{coerce_key(from_key)};</div>
-<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>    test_db.scan_from(fk, fn, fwd);</div>
-<div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span>  }</div>
-<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span> </div>
-<div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN, <span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>  <span class="keywordtype">void</span> scan_range(T from_key, T to_key, FN fn) {</div>
-<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>    <span class="keyword">const</span> <span class="keyword">auto</span> fk{coerce_key(from_key)};</div>
-<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>    <span class="keyword">const</span> <span class="keyword">auto</span> tk{coerce_key(to_key)};</div>
-<div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>    test_db.scan_range(fk, tk, fn);</div>
-<div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span>  }</div>
-<div class="line"><a id="l00691" name="l00691"></a><span class="lineno">  691</span> </div>
-<div class="line"><a id="l00692" name="l00692"></a><span class="lineno">  692</span>  <span class="keywordtype">void</span> assert_empty()<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00693" name="l00693"></a><span class="lineno">  693</span>    UNODB_ASSERT_TRUE(test_db.empty());</div>
-<div class="line"><a id="l00694" name="l00694"></a><span class="lineno">  694</span> </div>
-<div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l00696" name="l00696"></a><span class="lineno">  696</span>    UNODB_ASSERT_EQ(test_db.get_current_memory_use(), 0);</div>
-<div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span> </div>
-<div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span>    assert_node_counts({0, 0, 0, 0, 0});</div>
-<div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span>  }</div>
-<div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span> </div>
-<div class="line"><a id="l00702" name="l00702"></a><span class="lineno">  702</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span> </div>
-<div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(6326)</div>
-<div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span>  void assert_node_counts(</div>
-<div class="line"><a id="l00706" name="l00706"></a><span class="lineno">  706</span>      const node_type_counter_array &amp;expected_node_counts)<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00707" name="l00707"></a><span class="lineno">  707</span>    <span class="comment">// Dump the tree to a string. Do not attempt to check the dump format, only</span></div>
-<div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span>    <span class="comment">// that dumping does not crash</span></div>
-<div class="line"><a id="l00709" name="l00709"></a><span class="lineno">  709</span>    std::stringstream dump_sink;</div>
-<div class="line"><a id="l00710" name="l00710"></a><span class="lineno">  710</span>    test_db.dump(dump_sink);</div>
-<div class="line"><a id="l00711" name="l00711"></a><span class="lineno">  711</span> </div>
-<div class="line"><a id="l00712" name="l00712"></a><span class="lineno">  712</span>    <span class="keyword">const</span> <span class="keyword">auto</span> actual_node_counts = test_db.get_node_counts();</div>
-<div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span>    UNODB_ASSERT_THAT(actual_node_counts,</div>
-<div class="line"><a id="l00714" name="l00714"></a><span class="lineno">  714</span>                      ::testing::ElementsAreArray(expected_node_counts));</div>
-<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span>  }</div>
-<div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
-<div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span> </div>
-<div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>  constexpr <span class="keywordtype">void</span> assert_growing_inodes(</div>
-<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>      const inode_type_counter_array &amp;expected_growing_inode_counts)</div>
-<div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span>      const noexcept {</div>
-<div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>    <span class="keyword">const</span> <span class="keyword">auto</span> actual_growing_inode_counts = test_db.get_growing_inode_counts();</div>
-<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>    UNODB_ASSERT_THAT(</div>
-<div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span>        actual_growing_inode_counts,</div>
-<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span>        ::testing::ElementsAreArray(expected_growing_inode_counts));</div>
-<div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span>  }</div>
-<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span> </div>
-<div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> assert_shrinking_inodes(</div>
-<div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span>      <span class="keyword">const</span> inode_type_counter_array &amp;expected_shrinking_inode_counts) {</div>
-<div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span>    <span class="keyword">const</span> <span class="keyword">auto</span> actual_shrinking_inode_counts =</div>
-<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span>        test_db.get_shrinking_inode_counts();</div>
-<div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span>    UNODB_ASSERT_THAT(</div>
-<div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span>        actual_shrinking_inode_counts,</div>
-<div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>        ::testing::ElementsAreArray(expected_shrinking_inode_counts));</div>
-<div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>  }</div>
-<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span> </div>
-<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> assert_key_prefix_splits(std::uint64_t splits) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>    UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(), splits);</div>
-<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>  }</div>
-<div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span> </div>
-<div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span> </div>
-<div class="line"><a id="l00742" name="l00742"></a><span class="lineno">  742</span>  <span class="keywordtype">void</span> clear() {</div>
-<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>    test_db.clear();</div>
-<div class="line"><a id="l00744" name="l00744"></a><span class="lineno">  744</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span>    allocation_failure_injector::reset();</div>
-<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span>    assert_empty();</div>
-<div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span> </div>
-<div class="line"><a id="l00749" name="l00749"></a><span class="lineno">  749</span>    values.clear();</div>
-<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span>  }</div>
-<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span> </div>
-<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> Db &amp;get_db() noexcept { <span class="keywordflow">return</span> test_db; }</div>
-<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span> </div>
-<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>  tree_verifier(<span class="keyword">const</span> tree_verifier &amp;) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>  tree_verifier &amp;operator=(<span class="keyword">const</span> tree_verifier &amp;) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span> </div>
-<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span> <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span>  <span class="comment">// Custom comparator is required for key_view.</span></div>
-<div class="foldopen" id="foldopen00759" data-start="{" data-end="};">
-<div class="line"><a id="l00759" name="l00759"></a><span class="lineno"><a class="line" href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">  759</a></span>  <span class="keyword">struct </span><a class="code hl_struct" href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">comparator</a> {</div>
-<div class="line"><a id="l00760" name="l00760"></a><span class="lineno">  760</span>    <span class="keywordtype">bool</span> operator()(<span class="keyword">const</span> <a class="code hl_typedef" href="classunodb_1_1test_1_1tree__verifier.html#afa56f531a5ce52d2b664ce1f2abdf993">ikey_type&lt;Db&gt;</a> &amp;lhs,</div>
-<div class="line"><a id="l00761" name="l00761"></a><span class="lineno">  761</span>                    <span class="keyword">const</span> <a class="code hl_typedef" href="classunodb_1_1test_1_1tree__verifier.html#afa56f531a5ce52d2b664ce1f2abdf993">ikey_type&lt;Db&gt;</a> &amp;rhs) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00762" name="l00762"></a><span class="lineno">  762</span>      <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (std::is_same_v&lt;typename Db::key_type, unodb::key_view&gt;) {</div>
-<div class="line"><a id="l00763" name="l00763"></a><span class="lineno">  763</span>        <span class="comment">// Handle wrapped keys.</span></div>
-<div class="line"><a id="l00764" name="l00764"></a><span class="lineno">  764</span>        <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07">unodb::detail::compare</a>(lhs-&gt;data(), lhs-&gt;size(), rhs-&gt;data(),</div>
-<div class="line"><a id="l00765" name="l00765"></a><span class="lineno">  765</span>                                      rhs-&gt;size()) &lt; 0;</div>
-<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>      } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00767" name="l00767"></a><span class="lineno">  767</span>        <span class="keywordflow">return</span> lhs &lt; rhs;</div>
-<div class="line"><a id="l00768" name="l00768"></a><span class="lineno">  768</span>      }</div>
-<div class="line"><a id="l00769" name="l00769"></a><span class="lineno">  769</span>    }</div>
-<div class="line"><a id="l00770" name="l00770"></a><span class="lineno">  770</span>  };</div>
+<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span> </div>
+<div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(6326)</div>
+<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>  template &lt;typename T&gt;</div>
+<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>  <span class="keywordtype">void</span> check_absent_keys(std::initializer_list&lt;T&gt; absent_keys) const</div>
+<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>      noexcept(noexcept(this-&gt;try_get(unused_key))) {</div>
+<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> absent_key : absent_keys) {</div>
+<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>      <span class="keyword">const</span> <span class="keyword">auto</span> k{coerce_key(absent_key)};</div>
+<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>      UNODB_ASSERT_EQ(values.find(to_ikey(k)), values.cend());</div>
+<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>      try_get(k);</div>
+<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span>    }</div>
+<div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span>  }</div>
+<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span> </div>
+<div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span>  <span class="comment">//</span></div>
+<div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span>  <span class="comment">// scan API</span></div>
+<div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span>  <span class="comment">//</span></div>
+<div class="line"><a id="l00667" name="l00667"></a><span class="lineno">  667</span> </div>
+<div class="line"><a id="l00668" name="l00668"></a><span class="lineno">  668</span>  <span class="comment">// TODO(thompsonbry) Add verification against ground truth into the</span></div>
+<div class="line"><a id="l00669" name="l00669"></a><span class="lineno">  669</span>  <span class="comment">// scan() API calls?  Maybe by having the caller NOT specify the</span></div>
+<div class="line"><a id="l00670" name="l00670"></a><span class="lineno">  670</span>  <span class="comment">// lambda FN if they want built-in verification?  Some of the scan</span></div>
+<div class="line"><a id="l00671" name="l00671"></a><span class="lineno">  671</span>  <span class="comment">// UTs are explicit about how the ground truth is populated, but</span></div>
+<div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span>  <span class="comment">// their validation could still be replaced by validating against</span></div>
+<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span>  <span class="comment">// the tree_verifier::values map.</span></div>
+<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span> </div>
+<div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>  template &lt;typename FN, typename T&gt;</div>
+<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span>  <span class="keywordtype">void</span> scan(FN fn, <span class="keywordtype">bool</span> fwd = true) {</div>
+<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span>    test_db.scan_from(fn, fwd);</div>
+<div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span>  }</div>
+<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span> </div>
+<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN, <span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>  <span class="keywordtype">void</span> scan_from(T from_key, FN fn, <span class="keywordtype">bool</span> fwd = <span class="keyword">true</span>) {</div>
+<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>    <span class="keyword">const</span> <span class="keyword">auto</span> fk{coerce_key(from_key)};</div>
+<div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span>    test_db.scan_from(fk, fn, fwd);</div>
+<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span>  }</div>
+<div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span> </div>
+<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN, <span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>  <span class="keywordtype">void</span> scan_range(T from_key, T to_key, FN fn) {</div>
+<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>    <span class="keyword">const</span> <span class="keyword">auto</span> fk{coerce_key(from_key)};</div>
+<div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>    <span class="keyword">const</span> <span class="keyword">auto</span> tk{coerce_key(to_key)};</div>
+<div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span>    test_db.scan_range(fk, tk, fn);</div>
+<div class="line"><a id="l00691" name="l00691"></a><span class="lineno">  691</span>  }</div>
+<div class="line"><a id="l00692" name="l00692"></a><span class="lineno">  692</span> </div>
+<div class="line"><a id="l00693" name="l00693"></a><span class="lineno">  693</span>  <span class="keywordtype">void</span> assert_empty()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00694" name="l00694"></a><span class="lineno">  694</span>    UNODB_ASSERT_TRUE(test_db.empty());</div>
+<div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span> </div>
+<div class="line"><a id="l00696" name="l00696"></a><span class="lineno">  696</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span>    UNODB_ASSERT_EQ(test_db.get_current_memory_use(), 0);</div>
+<div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span> </div>
+<div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span>    assert_node_counts({0, 0, 0, 0, 0});</div>
+<div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span>  }</div>
+<div class="line"><a id="l00702" name="l00702"></a><span class="lineno">  702</span> </div>
+<div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span> </div>
+<div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(6326)</div>
+<div class="line"><a id="l00706" name="l00706"></a><span class="lineno">  706</span>  void assert_node_counts(</div>
+<div class="line"><a id="l00707" name="l00707"></a><span class="lineno">  707</span>      const node_type_counter_array &amp;expected_node_counts)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span>    <span class="comment">// Dump the tree to a string. Do not attempt to check the dump format, only</span></div>
+<div class="line"><a id="l00709" name="l00709"></a><span class="lineno">  709</span>    <span class="comment">// that dumping does not crash</span></div>
+<div class="line"><a id="l00710" name="l00710"></a><span class="lineno">  710</span>    std::stringstream dump_sink;</div>
+<div class="line"><a id="l00711" name="l00711"></a><span class="lineno">  711</span>    test_db.dump(dump_sink);</div>
+<div class="line"><a id="l00712" name="l00712"></a><span class="lineno">  712</span> </div>
+<div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span>    <span class="keyword">const</span> <span class="keyword">auto</span> actual_node_counts = test_db.get_node_counts();</div>
+<div class="line"><a id="l00714" name="l00714"></a><span class="lineno">  714</span>    UNODB_ASSERT_THAT(actual_node_counts,</div>
+<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span>                      ::testing::ElementsAreArray(expected_node_counts));</div>
+<div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>  }</div>
+<div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span> </div>
+<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>  constexpr <span class="keywordtype">void</span> assert_growing_inodes(</div>
+<div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span>      const inode_type_counter_array &amp;expected_growing_inode_counts)</div>
+<div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>      const noexcept {</div>
+<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>    <span class="keyword">const</span> <span class="keyword">auto</span> actual_growing_inode_counts = test_db.get_growing_inode_counts();</div>
+<div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span>    UNODB_ASSERT_THAT(</div>
+<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span>        actual_growing_inode_counts,</div>
+<div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span>        ::testing::ElementsAreArray(expected_growing_inode_counts));</div>
+<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span>  }</div>
+<div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span> </div>
+<div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> assert_shrinking_inodes(</div>
+<div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span>      <span class="keyword">const</span> inode_type_counter_array &amp;expected_shrinking_inode_counts) {</div>
+<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span>    <span class="keyword">const</span> <span class="keyword">auto</span> actual_shrinking_inode_counts =</div>
+<div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span>        test_db.get_shrinking_inode_counts();</div>
+<div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span>    UNODB_ASSERT_THAT(</div>
+<div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>        actual_shrinking_inode_counts,</div>
+<div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>        ::testing::ElementsAreArray(expected_shrinking_inode_counts));</div>
+<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>  }</div>
+<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span> </div>
+<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> assert_key_prefix_splits(std::uint64_t splits) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>    UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(), splits);</div>
+<div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span>  }</div>
+<div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span> </div>
+<div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l00742" name="l00742"></a><span class="lineno">  742</span> </div>
+<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>  <span class="keywordtype">void</span> clear() {</div>
+<div class="line"><a id="l00744" name="l00744"></a><span class="lineno">  744</span>    test_db.clear();</div>
+<div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span><span class="preprocessor">#ifndef NDEBUG</span></div>
+<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span>    allocation_failure_injector::reset();</div>
+<div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span>    assert_empty();</div>
+<div class="line"><a id="l00749" name="l00749"></a><span class="lineno">  749</span> </div>
+<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span>    values.clear();</div>
+<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>  }</div>
+<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span> </div>
+<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> Db &amp;get_db() noexcept { <span class="keywordflow">return</span> test_db; }</div>
+<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span> </div>
+<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>  tree_verifier(<span class="keyword">const</span> tree_verifier &amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>  tree_verifier &amp;operator=(<span class="keyword">const</span> tree_verifier &amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span> </div>
+<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span> <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span>  <span class="comment">// Custom comparator is required for key_view.</span></div>
+<div class="foldopen" id="foldopen00760" data-start="{" data-end="};">
+<div class="line"><a id="l00760" name="l00760"></a><span class="lineno"><a class="line" href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">  760</a></span>  <span class="keyword">struct </span><a class="code hl_struct" href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">comparator</a> {</div>
+<div class="line"><a id="l00761" name="l00761"></a><span class="lineno">  761</span>    <span class="keywordtype">bool</span> operator()(<span class="keyword">const</span> <a class="code hl_typedef" href="classunodb_1_1test_1_1tree__verifier.html#afa56f531a5ce52d2b664ce1f2abdf993">ikey_type&lt;Db&gt;</a> &amp;lhs,</div>
+<div class="line"><a id="l00762" name="l00762"></a><span class="lineno">  762</span>                    <span class="keyword">const</span> <a class="code hl_typedef" href="classunodb_1_1test_1_1tree__verifier.html#afa56f531a5ce52d2b664ce1f2abdf993">ikey_type&lt;Db&gt;</a> &amp;rhs) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00763" name="l00763"></a><span class="lineno">  763</span>      <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (std::is_same_v&lt;typename Db::key_type, unodb::key_view&gt;) {</div>
+<div class="line"><a id="l00764" name="l00764"></a><span class="lineno">  764</span>        <span class="comment">// Handle wrapped keys.</span></div>
+<div class="line"><a id="l00765" name="l00765"></a><span class="lineno">  765</span>        <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07">unodb::detail::compare</a>(lhs-&gt;data(), lhs-&gt;size(), rhs-&gt;data(),</div>
+<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>                                      rhs-&gt;size()) &lt; 0;</div>
+<div class="line"><a id="l00767" name="l00767"></a><span class="lineno">  767</span>      } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00768" name="l00768"></a><span class="lineno">  768</span>        <span class="keywordflow">return</span> lhs &lt; rhs;</div>
+<div class="line"><a id="l00769" name="l00769"></a><span class="lineno">  769</span>      }</div>
+<div class="line"><a id="l00770" name="l00770"></a><span class="lineno">  770</span>    }</div>
+<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span>  };</div>
 </div>
-<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span> </div>
-<div class="line"><a id="l00773" name="l00773"></a><span class="lineno"><a class="line" href="classunodb_1_1test_1_1tree__verifier.html#a255d8a782011be60d44662b806a6506a">  773</a></span>  Db test_db{};</div>
-<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span> </div>
-<div class="line"><a id="l00780" name="l00780"></a><span class="lineno"><a class="line" href="classunodb_1_1test_1_1tree__verifier.html#a41cf262c6cfbd039afa08a42c5865a67">  780</a></span>  std::map&lt;ikey_type&lt;Db&gt;, <a class="code hl_typedef" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a>, <a class="code hl_struct" href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">comparator</a>&gt; <a class="code hl_variable" href="classunodb_1_1test_1_1tree__verifier.html#a41cf262c6cfbd039afa08a42c5865a67">values</a>;</div>
-<div class="line"><a id="l00781" name="l00781"></a><span class="lineno">  781</span> </div>
-<div class="line"><a id="l00782" name="l00782"></a><span class="lineno">  782</span>  <span class="keyword">const</span> <span class="keywordtype">bool</span> parallel_test;</div>
-<div class="line"><a id="l00783" name="l00783"></a><span class="lineno">  783</span> </div>
-<div class="line"><a id="l00785" name="l00785"></a><span class="lineno"><a class="line" href="classunodb_1_1test_1_1tree__verifier.html#a07dc0a701d01365171de4ab6365eedde">  785</a></span>  std::vector&lt;std::array&lt;std::byte, <span class="keyword">sizeof</span>(std::uint64_t)&gt;&gt; key_views{};</div>
-<div class="line"><a id="l00786" name="l00786"></a><span class="lineno">  786</span>};</div>
+<div class="line"><a id="l00772" name="l00772"></a><span class="lineno">  772</span> </div>
+<div class="line"><a id="l00774" name="l00774"></a><span class="lineno"><a class="line" href="classunodb_1_1test_1_1tree__verifier.html#a255d8a782011be60d44662b806a6506a">  774</a></span>  Db test_db{};</div>
+<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span> </div>
+<div class="line"><a id="l00781" name="l00781"></a><span class="lineno"><a class="line" href="classunodb_1_1test_1_1tree__verifier.html#a41cf262c6cfbd039afa08a42c5865a67">  781</a></span>  std::map&lt;ikey_type&lt;Db&gt;, <a class="code hl_typedef" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a>, <a class="code hl_struct" href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">comparator</a>&gt; <a class="code hl_variable" href="classunodb_1_1test_1_1tree__verifier.html#a41cf262c6cfbd039afa08a42c5865a67">values</a>;</div>
+<div class="line"><a id="l00782" name="l00782"></a><span class="lineno">  782</span> </div>
+<div class="line"><a id="l00783" name="l00783"></a><span class="lineno">  783</span>  <span class="keyword">const</span> <span class="keywordtype">bool</span> parallel_test;</div>
+<div class="line"><a id="l00784" name="l00784"></a><span class="lineno">  784</span> </div>
+<div class="line"><a id="l00786" name="l00786"></a><span class="lineno"><a class="line" href="classunodb_1_1test_1_1tree__verifier.html#a07dc0a701d01365171de4ab6365eedde">  786</a></span>  std::vector&lt;std::array&lt;std::byte, <span class="keyword">sizeof</span>(std::uint64_t)&gt;&gt; key_views{};</div>
+<div class="line"><a id="l00787" name="l00787"></a><span class="lineno">  787</span>};</div>
 </div>
-<div class="line"><a id="l00787" name="l00787"></a><span class="lineno">  787</span> </div>
-<div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span><span class="keyword">using </span>u64_db = <a class="code hl_class" href="classunodb_1_1db.html">unodb::db&lt;std::uint64_t, unodb::value_view&gt;</a>;</div>
-<div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span><span class="keyword">using </span>u64_mutex_db = <a class="code hl_class" href="classunodb_1_1mutex__db.html">unodb::mutex_db&lt;std::uint64_t, unodb::value_view&gt;</a>;</div>
-<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span><span class="keyword">using </span>u64_olc_db = <a class="code hl_class" href="classunodb_1_1olc__db.html">unodb::olc_db&lt;std::uint64_t, unodb::value_view&gt;</a>;</div>
-<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span> </div>
-<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span><span class="keyword">using </span>key_view_db = <a class="code hl_class" href="classunodb_1_1db.html">unodb::db&lt;unodb::key_view, unodb::value_view&gt;</a>;</div>
-<div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span><span class="keyword">using </span>key_view_mutex_db = <a class="code hl_class" href="classunodb_1_1mutex__db.html">unodb::mutex_db&lt;unodb::key_view, unodb::value_view&gt;</a>;</div>
-<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span><span class="keyword">using </span>key_view_olc_db = <a class="code hl_class" href="classunodb_1_1olc__db.html">unodb::olc_db&lt;unodb::key_view, unodb::value_view&gt;</a>;</div>
-<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span> </div>
-<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;u64_db&gt;;</div>
-<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;u64_mutex_db&gt;;</div>
-<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;u64_olc_db&gt;;</div>
-<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span> </div>
-<div class="line"><a id="l00800" name="l00800"></a><span class="lineno">  800</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;key_view_db&gt;;</div>
-<div class="line"><a id="l00801" name="l00801"></a><span class="lineno">  801</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;key_view_mutex_db&gt;;</div>
-<div class="line"><a id="l00802" name="l00802"></a><span class="lineno">  802</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;key_view_olc_db&gt;;</div>
-<div class="line"><a id="l00803" name="l00803"></a><span class="lineno">  803</span> </div>
-<div class="line"><a id="l00804" name="l00804"></a><span class="lineno">  804</span>}  <span class="comment">// namespace unodb::test</span></div>
-<div class="line"><a id="l00805" name="l00805"></a><span class="lineno">  805</span> </div>
-<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_DB_TEST_UTILS_HPP</span></div>
+<div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span> </div>
+<div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span><span class="keyword">using </span>u64_db = <a class="code hl_class" href="classunodb_1_1db.html">unodb::db&lt;std::uint64_t, unodb::value_view&gt;</a>;</div>
+<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span><span class="keyword">using </span>u64_mutex_db = <a class="code hl_class" href="classunodb_1_1mutex__db.html">unodb::mutex_db&lt;std::uint64_t, unodb::value_view&gt;</a>;</div>
+<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span><span class="keyword">using </span>u64_olc_db = <a class="code hl_class" href="classunodb_1_1olc__db.html">unodb::olc_db&lt;std::uint64_t, unodb::value_view&gt;</a>;</div>
+<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span> </div>
+<div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span><span class="keyword">using </span>key_view_db = <a class="code hl_class" href="classunodb_1_1db.html">unodb::db&lt;unodb::key_view, unodb::value_view&gt;</a>;</div>
+<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span><span class="keyword">using </span>key_view_mutex_db = <a class="code hl_class" href="classunodb_1_1mutex__db.html">unodb::mutex_db&lt;unodb::key_view, unodb::value_view&gt;</a>;</div>
+<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span><span class="keyword">using </span>key_view_olc_db = <a class="code hl_class" href="classunodb_1_1olc__db.html">unodb::olc_db&lt;unodb::key_view, unodb::value_view&gt;</a>;</div>
+<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span> </div>
+<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;u64_db&gt;;</div>
+<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;u64_mutex_db&gt;;</div>
+<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;u64_olc_db&gt;;</div>
+<div class="line"><a id="l00800" name="l00800"></a><span class="lineno">  800</span> </div>
+<div class="line"><a id="l00801" name="l00801"></a><span class="lineno">  801</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;key_view_db&gt;;</div>
+<div class="line"><a id="l00802" name="l00802"></a><span class="lineno">  802</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;key_view_mutex_db&gt;;</div>
+<div class="line"><a id="l00803" name="l00803"></a><span class="lineno">  803</span><span class="keyword">extern</span> <span class="keyword">template</span> <span class="keyword">class </span>tree_verifier&lt;key_view_olc_db&gt;;</div>
+<div class="line"><a id="l00804" name="l00804"></a><span class="lineno">  804</span> </div>
+<div class="line"><a id="l00805" name="l00805"></a><span class="lineno">  805</span>}  <span class="comment">// namespace unodb::test</span></div>
+<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span> </div>
+<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_DB_TEST_UTILS_HPP</span></div>
 <div class="ttc" id="aassert_8hpp_html"><div class="ttname"><a href="assert_8hpp.html">assert.hpp</a></div><div class="ttdoc">Internal macros for assertions, assumptions &amp; intentional crashing.</div></div>
 <div class="ttc" id="aclassunodb_1_1db_html"><div class="ttname"><a href="classunodb_1_1db.html">unodb::db</a></div><div class="ttdoc">A non-thread-safe implementation of the Adaptive Radix Tree (ART).</div><div class="ttdef"><b>Definition</b> art.hpp:85</div></div>
 <div class="ttc" id="aclassunodb_1_1key__decoder_html"><div class="ttname"><a href="classunodb_1_1key__decoder.html">unodb::key_decoder</a></div><div class="ttdoc">A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort...</div><div class="ttdef"><b>Definition</b> art_common.hpp:514</div></div>
@@ -880,7 +881,7 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="ttc" id="aclassunodb_1_1qsbr__thread_html"><div class="ttname"><a href="classunodb_1_1qsbr__thread.html">unodb::qsbr_thread</a></div><div class="ttdoc">An std::thread-like thread that participates in QSBR.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:1575</div></div>
 <div class="ttc" id="aclassunodb_1_1test_1_1tree__verifier_html"><div class="ttname"><a href="classunodb_1_1test_1_1tree__verifier.html">unodb::test::tree_verifier</a></div><div class="ttdoc">Utility class supporting verification of the system under test.</div><div class="ttdef"><b>Definition</b> db_test_utils.hpp:163</div></div>
 <div class="ttc" id="aclassunodb_1_1test_1_1tree__verifier_html_a1acfd637e2cc166ced02aa28d5ff742a"><div class="ttname"><a href="classunodb_1_1test_1_1tree__verifier.html#a1acfd637e2cc166ced02aa28d5ff742a">unodb::test::tree_verifier::make_key</a></div><div class="ttdeci">unodb::key_view make_key(std::uint64_t k)</div><div class="ttdoc">Return an unodb::key_view backed by a std::array in an internal collection whose existance is scoped ...</div><div class="ttdef"><b>Definition</b> db_test_utils.hpp:250</div></div>
-<div class="ttc" id="aclassunodb_1_1test_1_1tree__verifier_html_a41cf262c6cfbd039afa08a42c5865a67"><div class="ttname"><a href="classunodb_1_1test_1_1tree__verifier.html#a41cf262c6cfbd039afa08a42c5865a67">unodb::test::tree_verifier::values</a></div><div class="ttdeci">std::map&lt; ikey_type&lt; Db &gt;, unodb::value_view, comparator &gt; values</div><div class="ttdoc">Ground truth (key,val) pairs.</div><div class="ttdef"><b>Definition</b> db_test_utils.hpp:780</div></div>
+<div class="ttc" id="aclassunodb_1_1test_1_1tree__verifier_html_a41cf262c6cfbd039afa08a42c5865a67"><div class="ttname"><a href="classunodb_1_1test_1_1tree__verifier.html#a41cf262c6cfbd039afa08a42c5865a67">unodb::test::tree_verifier::values</a></div><div class="ttdeci">std::map&lt; ikey_type&lt; Db &gt;, unodb::value_view, comparator &gt; values</div><div class="ttdoc">Ground truth (key,val) pairs.</div><div class="ttdef"><b>Definition</b> db_test_utils.hpp:781</div></div>
 <div class="ttc" id="aclassunodb_1_1test_1_1tree__verifier_html_a6c5c1e7a508a504352158a4765c15dc7"><div class="ttname"><a href="classunodb_1_1test_1_1tree__verifier.html#a6c5c1e7a508a504352158a4765c15dc7">unodb::test::tree_verifier::key_wrapper</a></div><div class="ttdeci">std::shared_ptr&lt; std::vector&lt; std::byte &gt; &gt; key_wrapper</div><div class="ttdoc">Used to wrap the non-owned keys with an owned, comparable, etc.</div><div class="ttdef"><b>Definition</b> db_test_utils.hpp:178</div></div>
 <div class="ttc" id="aclassunodb_1_1test_1_1tree__verifier_html_a78be91ab9d36939edc0429cfee3ea02f"><div class="ttname"><a href="classunodb_1_1test_1_1tree__verifier.html#a78be91ab9d36939edc0429cfee3ea02f">unodb::test::tree_verifier::coerce_key</a></div><div class="ttdeci">key_type coerce_key(T key) const</div><div class="ttdoc">Coerce an external key into the Db::key_type.</div><div class="ttdef"><b>Definition</b> db_test_utils.hpp:239</div></div>
 <div class="ttc" id="aclassunodb_1_1test_1_1tree__verifier_html_a8028a57212beff66c747ff03b338d199"><div class="ttname"><a href="classunodb_1_1test_1_1tree__verifier.html#a8028a57212beff66c747ff03b338d199">unodb::test::tree_verifier::to_ikey</a></div><div class="ttdeci">ikey_type&lt; Db &gt; to_ikey(typename Db::key_type key) const</div><div class="ttdoc">Convert an external key (Db::key_type) to an internal key (one the unodb::test::tree_verifier stores ...</div><div class="ttdef"><b>Definition</b> db_test_utils.hpp:191</div></div>
@@ -905,7 +906,7 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="ttc" id="anode__type_8hpp_html"><div class="ttname"><a href="node__type_8hpp.html">node_type.hpp</a></div><div class="ttdoc">Adaptive Radix Tree node types.</div></div>
 <div class="ttc" id="aqsbr_8hpp_html"><div class="ttname"><a href="qsbr_8hpp.html">qsbr.hpp</a></div><div class="ttdoc">Quiescent State-based reclamation.</div></div>
 <div class="ttc" id="astructunodb_1_1quiescent__state__on__scope__exit_html"><div class="ttname"><a href="structunodb_1_1quiescent__state__on__scope__exit.html">unodb::quiescent_state_on_scope_exit</a></div><div class="ttdoc">RAII guard that signals quiescent state for this thread on destruction.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:1510</div></div>
-<div class="ttc" id="astructunodb_1_1test_1_1tree__verifier_1_1comparator_html"><div class="ttname"><a href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">unodb::test::tree_verifier::comparator</a></div><div class="ttdef"><b>Definition</b> db_test_utils.hpp:759</div></div>
+<div class="ttc" id="astructunodb_1_1test_1_1tree__verifier_1_1comparator_html"><div class="ttname"><a href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">unodb::test::tree_verifier::comparator</a></div><div class="ttdef"><b>Definition</b> db_test_utils.hpp:760</div></div>
 <div class="ttc" id="atest__heap_8hpp_html"><div class="ttname"><a href="test__heap_8hpp.html">test_heap.hpp</a></div><div class="ttdoc">Test utilities for memory allocation failure testing.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

@@ -432,7 +432,6 @@ class olc_db final {
       // child_index.  That information needs to be stored on the
       // stack so we can pop off the right number of bytes even for
       // OLC where the node might be concurrently modified.
-      UNODB_DETAIL_ASSERT(node.type() != node_type::LEAF);
       stack_.push({{node, key_byte, child_index, prefix}, rcs.get()});
       keybuf_.push(prefix.get_key_view());
       keybuf_.push(key_byte);
@@ -455,6 +454,8 @@ class olc_db final {
     bool try_push(const typename inode_base::iter_result& e,
                   const optimistic_lock::read_critical_section& rcs) {
       const auto node_type = e.node.type();
+      if (UNODB_DETAIL_UNLIKELY(!rcs.check())) return false;  // LCOV_EXCL_LINE
+
       if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
         return try_push_leaf(e.node, rcs);
       }
@@ -1751,6 +1752,9 @@ typename olc_db<Key, Value>::try_get_result_type olc_db<Key, Value>::try_get(
       return {};  // LCOV_EXCL_LINE
 
     const auto node_type = node.type();
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) {
+      return {};  // LCOV_EXCL_LINE
+    }
 
     if (node_type == node_type::LEAF) {
       const auto* const leaf{node.ptr<leaf_type*>()};
@@ -1855,9 +1859,14 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
 
   while (true) {
     auto node_critical_section = node_ptr_lock(node).try_read_lock();
-    if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) return {};
+    if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) {
+      return {};  // LCOV_EXCL_LINE
+    }
 
     const auto node_type = node.type();
+    if (UNODB_DETAIL_UNLIKELY(node_critical_section.check())) {
+      return {};  // LCOV_EXCL_LINE
+    }
 
     if (node_type == node_type::LEAF) {
       auto* const leaf{node.template ptr<leaf_type*>()};
@@ -2004,6 +2013,12 @@ olc_db<Key, Value>::try_remove(art_key_type k) {
   }
 
   auto node_type = node.type();
+  if (UNODB_DETAIL_UNLIKELY(node_critical_section.check())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
 
   if (node_type == node_type::LEAF) {
     auto* const leaf{node.template ptr<leaf_type*>()};
@@ -2175,8 +2190,15 @@ bool olc_db<Key, Value>::iterator::try_next() {
         node_ptr_lock(node).rehydrate_read_lock(e.version));
     // Restart check (fails if node was modified after it was pushed
     // onto the stack).
-    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return false;
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) {
+      return false;  // LCOV_EXCL_LINE
+    }
+
     auto node_type = node.type();
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) {
+      return false;  // LCOV_EXCL_LINE
+    }
+
     if (node_type == node_type::LEAF) {
       pop();  // pop off the leaf
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -2188,7 +2210,6 @@ bool olc_db<Key, Value>::iterator::try_next() {
     auto nxt = inode->next(node_type,
                            e.child_index);  // next child of that parent.
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) {
-      // restart check
       return false;  // LCOV_EXCL_LINE
     }
     if (!nxt.has_value()) {
@@ -2249,7 +2270,12 @@ bool olc_db<Key, Value>::iterator::try_prior() {
         node_ptr_lock(node).rehydrate_read_lock(e.version));
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
       return false;  // LCOV_EXCL_LINE
+
     auto node_type = node.type();
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) {
+      return false;  // LCOV_EXCL_LINE
+    }
+
     if (node_type == node_type::LEAF) {
       pop();  // pop off the leaf
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -2347,10 +2373,17 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
       return false;  // LCOV_EXCL_LINE
     // TODO(thompsonbry) Should be redundant.  Checked before entering
     // the while() loop and at the bottom of the while() loop.
-    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return false;
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) {
+      return false;  // LCOV_EXCL_LINE
+    }
     // Note: We DO NOT unlock the parent_critical_section here.  It is
     // done below along all code paths.
+
     const auto node_type = node.type();
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) {
+      return false;  // LCOV_EXCL_LINE
+    }
+
     if (node_type == node_type::LEAF) {
       if (UNODB_DETAIL_UNLIKELY(
               !parent_critical_section.try_read_unlock()))  // unlock parent
@@ -2590,7 +2623,11 @@ bool olc_db<Key, Value>::iterator::try_left_most_traversal(
       return false;  // LCOV_EXCL_LINE
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return false;  // LCOV_EXCL_LINE
+
     const auto node_type = node.type();
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
+      return false;  // LCOV_EXCL_LINE
+
     if (node_type == node_type::LEAF) {
       if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
         return false;  // LCOV_EXCL_LINE
@@ -2598,7 +2635,8 @@ bool olc_db<Key, Value>::iterator::try_left_most_traversal(
     }
     // recursive descent.
     auto* const inode{node.ptr<inode_type*>()};
-    auto t = inode->begin(node_type);  // first chold of current internal node
+    const auto t =
+        inode->begin(node_type);  // first child of current internal node
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
       return false;  // LCOV_EXCL_LINE
     if (UNODB_DETAIL_UNLIKELY(!try_push(t, node_critical_section)))
@@ -2636,7 +2674,12 @@ bool olc_db<Key, Value>::iterator::try_right_most_traversal(
       return false;  // LCOV_EXCL_LINE
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return false;  // LCOV_EXCL_LINE
+
     const auto node_type = node.type();
+    if (UNODB_DETAIL_UNLIKELY(node_critical_section.check())) {
+      return false;  // LCOV_EXCL_LINE
+    }
+
     if (node_type == node_type::LEAF) {
       if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
         return false;  // LCOV_EXCL_LINE

@@ -84,7 +84,7 @@ class visitor {
   /// \note The lambda MUST NOT export a reference to the visited value.  If you
   /// to access the value outside of the scope of a single lambda invocation,
   /// then you must make a copy of the data.
-  [[nodiscard]] inline auto get_value() const noexcept {
+  [[nodiscard]] auto get_value() const noexcept(noexcept(it.get_val())) {
     // Note: auto return required for olc qsbr wrapper.
     return it.get_val();
   }

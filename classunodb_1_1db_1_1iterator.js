@@ -14,7 +14,7 @@ var classunodb_1_1db_1_1iterator =
     [ "last", "classunodb_1_1db_1_1iterator.html#a73c3f611163534ea29ca3fb3958c97e3", null ],
     [ "left_most_traversal", "classunodb_1_1db_1_1iterator.html#ab321c79625f90d6363aaaa752bf92add", null ],
     [ "next", "classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0", null ],
-    [ "pop", "classunodb_1_1db_1_1iterator.html#a301bcacc7e5dae049aeac2bffead3b7b", null ],
+    [ "pop", "classunodb_1_1db_1_1iterator.html#abb3ea0dabfb00a6eae568cedad4c215f", null ],
     [ "prior", "classunodb_1_1db_1_1iterator.html#a7185f8a53c2a16d45bf4ddd7ca18e668", null ],
     [ "push", "classunodb_1_1db_1_1iterator.html#a52a782379325463af95a227e5f58cfea", null ],
     [ "push", "classunodb_1_1db_1_1iterator.html#a25149b069bf9338b8d04117fa8f9d0cd", null ],

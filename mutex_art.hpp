@@ -44,7 +44,7 @@ class mutex_db final {
   using art_key_type = detail::basic_art_key<Key>;
 
   /// Querying with an encoded key.
-  [[nodiscard]] auto get_internal(art_key_type k) const {
+  [[nodiscard]] auto get_internal(art_key_type k) const noexcept {
     std::unique_lock guard{mutex};
     const auto db_get_result{db_.get_internal(k)};
     if (!db_get_result) {
@@ -80,7 +80,7 @@ class mutex_db final {
   /// assumed to already be a binary comparable key, e.g., as produced by
   /// unodb::key_encoder.
   [[nodiscard, gnu::pure]] get_result get(Key search_key) const noexcept {
-    art_key_type k{search_key};
+    const art_key_type k{search_key};
     return get_internal(k);
   }
 

@@ -115,7 +115,7 @@ void do_scan_range_test(std::uint64_t from_key, std::uint64_t to_key,
              eit2](const unodb::visitor<typename TypeParam::iterator>& v) {
     if (eit == eit2) {
       // LCOV_EXCL_START
-      EXPECT_TRUE(false) << "ART scan should have halted.";
+      ADD_FAILURE() << "ART scan should have halted.";
       return true;  // halt early.
       // LCOV_EXCL_STOP
     }
@@ -129,22 +129,23 @@ void do_scan_range_test(std::uint64_t from_key, std::uint64_t to_key,
     }
     if (akey != ekey) {
       // LCOV_EXCL_START
-      EXPECT_EQ(akey, ekey);
+      UNODB_EXPECT_EQ(akey, ekey);
       return true;  // halt early.
       // LCOV_EXCL_STOP
     }
-    EXPECT_TRUE(std::ranges::equal(aval, eval));
+    UNODB_EXPECT_TRUE(std::ranges::equal(aval, eval));
     nactual++;     // count #of visited keys.
     eit++;         // advance iterator over the expected keys.
     return false;  // !halt (aka continue scan).
   };
   db.scan_range(from_key, to_key, fn);
   // LCOV_EXCL_START
-  EXPECT_TRUE(eit == eit2)
+  UNODB_EXPECT_EQ(eit, eit2)
       << "Expected iterator should have been fully consumed, but was not (ART "
          "scan visited too little).";
-  EXPECT_EQ(nactual, nexpected) << ", from_key=" << from_key
-                                << ", to_key=" << to_key << ", limit=" << limit;
+  UNODB_EXPECT_EQ(nactual, nexpected)
+      << ", from_key=" << from_key << ", to_key=" << to_key
+      << ", limit=" << limit;
   // LCOV_EXCL_STOP
 }
 
@@ -164,7 +165,7 @@ using ARTTypes =
 
 UNODB_TYPED_TEST_SUITE(ARTScanTest, ARTTypes)
 
-UNODB_START_TYPED_TESTS()
+UNODB_START_TESTS()
 
 //
 // forward scan

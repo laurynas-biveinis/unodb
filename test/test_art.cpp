@@ -39,7 +39,7 @@ using ARTTypes =
 
 UNODB_TYPED_TEST_SUITE(ARTCorrectnessTest, ARTTypes)
 
-UNODB_START_TYPED_TESTS()
+UNODB_START_TESTS()
 
 TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeEmptyValue) {
   unodb::test::tree_verifier<TypeParam> verifier;

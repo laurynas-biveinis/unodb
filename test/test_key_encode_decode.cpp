@@ -68,8 +68,8 @@ void do_encode_decode_lt_test(const T ekey1, const T ekey2) {
   unodb::key_encoder enc2{};  // separate decoder (backed by different span).
   const auto ikey1 = enc1.encode(ekey1).get_key_view();  // into encoder buf!
   const auto ikey2 = enc2.encode(ekey2).get_key_view();  // into encoder buf!
-  EXPECT_EQ(compare(ikey1, ikey1), 0);                   // compare w/ self
-  EXPECT_EQ(compare(ikey2, ikey2), 0);                   // compare w/ self
+  UNODB_EXPECT_EQ(compare(ikey1, ikey1), 0);             // compare w/ self
+  UNODB_EXPECT_EQ(compare(ikey2, ikey2), 0);             // compare w/ self
   EXPECT_NE(compare(ikey1, ikey2), 0);                   // not the same ikey.
   // Check the core assertion for this test helper. The internal keys
   // (after encoding) obey the asserted ordering over the external
@@ -87,7 +87,7 @@ void do_encode_decode_lt_test(const T ekey1, const T ekey2) {
   }
   // Verify key2 > key1
   // NOLINTNEXTLINE(readability/check)
-  EXPECT_TRUE(compare(ikey2, ikey1) > 0);
+  UNODB_EXPECT_GT(compare(ikey2, ikey1), 0);
   // Verify that we can round trip both values.
   unodb::key_decoder dec1{ikey1};
   unodb::key_decoder dec2{ikey2};
@@ -95,49 +95,50 @@ void do_encode_decode_lt_test(const T ekey1, const T ekey2) {
   T akey2;
   dec1.decode(akey1);
   dec2.decode(akey2);
-  EXPECT_EQ(ekey1, akey1);
-  EXPECT_EQ(ekey2, akey2);
+  UNODB_EXPECT_EQ(ekey1, akey1);
+  UNODB_EXPECT_EQ(ekey2, akey2);
 }
 
 UNODB_START_TESTS()
 
 // basic memory management - initial buffer case.
-TEST(ARTKeyEncodeDecodeTest, C00001) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, C00001) {
   unodb::key_encoder enc{};
-  EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
-  EXPECT_EQ(enc.size_bytes(), 0);
+  UNODB_EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
+  UNODB_EXPECT_EQ(enc.size_bytes(), 0);
   // ensure some space is available w/o change in encoder.
   enc.ensure_available(INITIAL_CAPACITY - 1);  // edge case
-  EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
-  EXPECT_EQ(enc.size_bytes(), 0);
+  UNODB_EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
+  UNODB_EXPECT_EQ(enc.size_bytes(), 0);
   // ensure some space is available w/o change in encoder.
   enc.ensure_available(INITIAL_CAPACITY);  // edge case
-  EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
-  EXPECT_EQ(enc.size_bytes(), 0);
+  UNODB_EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
+  UNODB_EXPECT_EQ(enc.size_bytes(), 0);
   // reset -- nothing changes.
   enc.reset();
-  EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
-  EXPECT_EQ(enc.size_bytes(), 0);
+  UNODB_EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
+  UNODB_EXPECT_EQ(enc.size_bytes(), 0);
   // key_view is empty
   const auto kv = enc.get_key_view();
-  EXPECT_EQ(kv.size_bytes(), 0);
+  UNODB_EXPECT_EQ(kv.size_bytes(), 0);
 }
 
 // basic memory management -- buffer extension case.
-TEST(ARTKeyEncodeDecodeTest, C00002) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, C00002) {
   unodb::key_encoder enc{};
-  EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
-  EXPECT_EQ(enc.size_bytes(), 0);
+  UNODB_EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY);
+  UNODB_EXPECT_EQ(enc.size_bytes(), 0);
   // ensure some space is available w/o change in encoder.
-  enc.ensure_available(INITIAL_CAPACITY + 1);       // edge case.
-  EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY * 2);  // assumes power of two
-  EXPECT_EQ(enc.size_bytes(), 0);
-  EXPECT_EQ(enc.get_key_view().size_bytes(), 0);  // key_view is empty
+  enc.ensure_available(INITIAL_CAPACITY + 1);  // edge case.
+  UNODB_EXPECT_EQ(enc.capacity(),
+                  INITIAL_CAPACITY * 2);  // assumes power of two
+  UNODB_EXPECT_EQ(enc.size_bytes(), 0);
+  UNODB_EXPECT_EQ(enc.get_key_view().size_bytes(), 0);  // key_view is empty
   // reset.
   enc.reset();
-  EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY * 2);  // unchanged
-  EXPECT_EQ(enc.size_bytes(), 0);                   // reset
-  EXPECT_EQ(enc.get_key_view().size_bytes(), 0);    // key_view is empty
+  UNODB_EXPECT_EQ(enc.capacity(), INITIAL_CAPACITY * 2);  // unchanged
+  UNODB_EXPECT_EQ(enc.size_bytes(), 0);                   // reset
+  UNODB_EXPECT_EQ(enc.get_key_view().size_bytes(), 0);    // key_view is empty
 }
 
 // Encode/decode round trip test.
@@ -145,13 +146,13 @@ template <typename T>
 void do_encode_decode_test(const T ekey) {
   unodb::key_encoder enc{};
   enc.encode(ekey);
-  const unodb::key_view kv = enc.get_key_view();  // encode
-  EXPECT_EQ(kv.size_bytes(), sizeof(ekey));       // check size
+  const unodb::key_view kv = enc.get_key_view();   // encode
+  UNODB_EXPECT_EQ(kv.size_bytes(), sizeof(ekey));  // check size
   // decode check
   unodb::key_decoder dec{kv};
   T akey;
   dec.decode(akey);
-  EXPECT_EQ(akey, ekey);
+  UNODB_EXPECT_EQ(akey, ekey);
 }
 
 // Encode/decode round trip test which also verifies the encoded byte sequence.
@@ -160,21 +161,21 @@ void do_encode_decode_test(const T ekey,
                            const std::array<const std::byte, sizeof(T)> ikey) {
   unodb::key_encoder enc{};
   enc.encode(ekey);
-  const unodb::key_view kv = enc.get_key_view();  // encode
-  EXPECT_EQ(kv.size_bytes(), sizeof(ekey));       // check size
+  const unodb::key_view kv = enc.get_key_view();   // encode
+  UNODB_EXPECT_EQ(kv.size_bytes(), sizeof(ekey));  // check size
   // check order.
   size_t i = 0;
   for (const auto byte : ikey) {
-    EXPECT_EQ(byte, kv[i++]);
+    UNODB_EXPECT_EQ(byte, kv[i++]);
   }
   // decode check
   unodb::key_decoder dec{kv};
   T akey;
   dec.decode(akey);
-  EXPECT_EQ(akey, ekey);
+  UNODB_EXPECT_EQ(akey, ekey);
 }
 
-TEST(ARTKeyEncodeDecodeTest, UInt8C00010) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, UInt8C00010) {
   using T = std::uint8_t;
   constexpr auto one = static_cast<T>(1);
   // Check the encoder byte order.
@@ -196,7 +197,7 @@ TEST(ARTKeyEncodeDecodeTest, UInt8C00010) {
   do_encode_decode_lt_test(static_cast<T>(0xFEULL), static_cast<T>(~0ULL));
 }
 
-TEST(ARTKeyEncodeDecodeTest, Int8C00010) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, Int8C00010) {
   using T = std::int8_t;
   constexpr auto one = static_cast<T>(1);
   // Check the encoder byte order.
@@ -220,7 +221,7 @@ TEST(ARTKeyEncodeDecodeTest, Int8C00010) {
                            std::numeric_limits<T>::max());
 }
 
-TEST(ARTKeyEncodeDecodeTest, UInt16C00010) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, UInt16C00010) {
   using T = std::uint16_t;
   constexpr auto one = static_cast<T>(1);
   // Check the encoder byte order.
@@ -244,7 +245,7 @@ TEST(ARTKeyEncodeDecodeTest, UInt16C00010) {
   do_encode_decode_lt_test(static_cast<T>(0xFFFEULL), static_cast<T>(~0ULL));
 }
 
-TEST(ARTKeyEncodeDecodeTest, Int16C00010) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, Int16C00010) {
   using T = std::int16_t;
   constexpr auto one = static_cast<T>(1);
   // Check the encoder byte order.
@@ -268,7 +269,7 @@ TEST(ARTKeyEncodeDecodeTest, Int16C00010) {
                            std::numeric_limits<T>::max());
 }
 
-TEST(ARTKeyEncodeDecodeTest, Uint32C00010) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, Uint32C00010) {
   using T = std::uint32_t;
   constexpr auto one = static_cast<T>(1);
   // Check the encoder byte order.
@@ -294,7 +295,7 @@ TEST(ARTKeyEncodeDecodeTest, Uint32C00010) {
                            static_cast<T>(~0ULL));
 }
 
-TEST(ARTKeyEncodeDecodeTest, Int32C00010) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, Int32C00010) {
   using T = std::int32_t;
   constexpr auto one = 1;  // useless cast:: static_cast<T>(1);
   // Check the encoder byte order.
@@ -323,7 +324,7 @@ TEST(ARTKeyEncodeDecodeTest, Int32C00010) {
                            std::numeric_limits<T>::max());
 }
 
-TEST(ARTKeyEncodeDecodeTest, UInt64C00010) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, UInt64C00010) {
   using T = std::uint64_t;
   constexpr auto one = static_cast<T>(1);
   // Check the encoder byte order.
@@ -348,7 +349,7 @@ TEST(ARTKeyEncodeDecodeTest, UInt64C00010) {
   do_encode_decode_lt_test<T>(0xFFFFFFFFFFFFFFFEULL, static_cast<T>(~0ULL));
 }
 
-TEST(ARTKeyEncodeDecodeTest, Int64C00010) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, Int64C00010) {
   using T = std::int64_t;
   constexpr auto one = static_cast<T>(1);
   // Check the encoder byte order.
@@ -394,22 +395,22 @@ void do_encode_decode_float_test(const float expected) {
   }
   if (std::isnan(expected)) {
     // Verify canonical NaN.
-    EXPECT_TRUE(std::isnan(actual));
+    UNODB_EXPECT_TRUE(std::isnan(actual));
     U u;
     unodb::key_decoder dec{enc.get_key_view()};
     dec.decode(u);
   } else {
-    EXPECT_EQ(actual, expected);
+    UNODB_EXPECT_EQ(actual, expected);
   }
 }
 
 /// Test encode/decode of various floating point values.
-TEST(ARTKeyEncodeDecodeTest, FloatC0001) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, FloatC0001) {
   using F = float;
   constexpr auto pzero = 0.F;
   constexpr auto nzero = -0.F;
-  EXPECT_FALSE(std::signbit(pzero));
-  EXPECT_TRUE(std::signbit(nzero));
+  UNODB_EXPECT_FALSE(std::signbit(pzero));
+  UNODB_EXPECT_TRUE(std::signbit(nzero));
   do_encode_decode_float_test(pzero);
   do_encode_decode_float_test(nzero);
   do_encode_decode_float_test(10.001F);
@@ -422,46 +423,47 @@ TEST(ARTKeyEncodeDecodeTest, FloatC0001) {
 }
 
 /// inf
-TEST(ARTKeyEncodeDecodeTest, FloatC0002Infinity) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, FloatC0002Infinity) {
   using F = float;
   using U = std::uint32_t;
   constexpr auto inf = std::numeric_limits<F>::infinity();
-  EXPECT_EQ(unodb::detail::bit_cast<const U>(inf), 0x7f800000U);
+  UNODB_EXPECT_EQ(unodb::detail::bit_cast<const U>(inf), 0x7f800000U);
   do_encode_decode_float_test(inf);
 }
 
 /// -inf
-TEST(ARTKeyEncodeDecodeTest, FloatC0003NegInfinity) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, FloatC0003NegInfinity) {
   using F = float;
   using U = std::uint32_t;
   constexpr auto ninf = -std::numeric_limits<F>::infinity();
-  EXPECT_EQ(sizeof(ninf), sizeof(float));
-  EXPECT_TRUE(std::numeric_limits<float>::is_iec559) << "IEEE 754 required";
-  EXPECT_TRUE(ninf < std::numeric_limits<float>::lowest());
-  EXPECT_TRUE(std::isinf(ninf));
-  EXPECT_TRUE(!std::isnan(ninf));
-  EXPECT_EQ(unodb::detail::bit_cast<const U>(ninf), 0xff800000U);
+  UNODB_EXPECT_EQ(sizeof(ninf), sizeof(float));
+  UNODB_EXPECT_TRUE(std::numeric_limits<float>::is_iec559)
+      << "IEEE 754 required";
+  UNODB_EXPECT_LT(ninf, std::numeric_limits<float>::lowest());
+  UNODB_EXPECT_TRUE(std::isinf(ninf));
+  UNODB_EXPECT_FALSE(std::isnan(ninf));
+  UNODB_EXPECT_EQ(unodb::detail::bit_cast<const U>(ninf), 0xff800000U);
   do_encode_decode_float_test(ninf);
 }
 
 /// quiet_NaN
-TEST(ARTKeyEncodeDecodeTest, FloatC0004QuietNaN) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, FloatC0004QuietNaN) {
   using F = float;
   constexpr F f{std::numeric_limits<F>::quiet_NaN()};
-  EXPECT_TRUE(std::isnan(f));
+  UNODB_EXPECT_TRUE(std::isnan(f));
   do_encode_decode_float_test(f);
 }
 
 /// signaling_NaN
-TEST(ARTKeyEncodeDecodeTest, FloatC0005SignalingNan) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, FloatC0005SignalingNan) {
   using F = float;
   constexpr F f{std::numeric_limits<F>::signaling_NaN()};
-  EXPECT_TRUE(std::isnan(f));
+  UNODB_EXPECT_TRUE(std::isnan(f));
   do_encode_decode_float_test(f);
 }
 
 /// NaN can be formed for any floating point value using std::nanf().
-TEST(ARTKeyEncodeDecodeTest, FloatC0006NumericNaN) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, FloatC0006NumericNaN) {
   do_encode_decode_float_test(std::nanf("-1"));
   do_encode_decode_float_test(std::nanf("1"));
   do_encode_decode_float_test(std::nanf("100.1"));
@@ -469,12 +471,12 @@ TEST(ARTKeyEncodeDecodeTest, FloatC0006NumericNaN) {
 }
 
 /// Verify the ordering over various floating point pairs.
-TEST(ARTKeyEncodeDecodeTest, FloatC0007Order) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, FloatC0007Order) {
   using F = float;
   constexpr auto pzero = 0.F;
   constexpr auto nzero = -0.F;
-  EXPECT_FALSE(std::signbit(pzero));
-  EXPECT_TRUE(std::signbit(nzero));
+  UNODB_EXPECT_FALSE(std::signbit(pzero));
+  UNODB_EXPECT_TRUE(std::signbit(nzero));
   constexpr auto minf = std::numeric_limits<F>::min();
   constexpr auto maxf = std::numeric_limits<F>::max();
   constexpr auto inf = std::numeric_limits<F>::infinity();
@@ -505,23 +507,23 @@ void do_encode_decode_double_test(const double expected) {
   }
   if (std::isnan(expected)) {
     // Verify canonical NaN.
-    EXPECT_TRUE(std::isnan(actual));
+    UNODB_EXPECT_TRUE(std::isnan(actual));
     U u;
     unodb::key_decoder dec{enc.get_key_view()};
     dec.decode(u);
   } else {
-    EXPECT_EQ(actual, expected);
+    UNODB_EXPECT_EQ(actual, expected);
   }
 }
 
 /// Test encode/decode of various double precisions floating point
 /// values.
-TEST(ARTKeyEncodeDecodeTest, DoubleC0001) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, DoubleC0001) {
   using F = double;
   constexpr auto pzero = 0.F;
   constexpr auto nzero = -0.F;
-  EXPECT_FALSE(std::signbit(pzero));
-  EXPECT_TRUE(std::signbit(nzero));
+  UNODB_EXPECT_FALSE(std::signbit(pzero));
+  UNODB_EXPECT_TRUE(std::signbit(nzero));
   do_encode_decode_float_test(pzero);
   do_encode_decode_float_test(nzero);
   do_encode_decode_double_test(10.001);
@@ -534,47 +536,49 @@ TEST(ARTKeyEncodeDecodeTest, DoubleC0001) {
 }
 
 /// inf
-TEST(ARTKeyEncodeDecodeTest, DoubleC0002Infinity) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, DoubleC0002Infinity) {
   using F = double;
   using U = std::uint64_t;
   constexpr auto inf = std::numeric_limits<F>::infinity();
-  EXPECT_EQ(unodb::detail::bit_cast<const U>(inf), 0x7ff0000000000000ULL);
+  UNODB_EXPECT_EQ(unodb::detail::bit_cast<const U>(inf), 0x7ff0000000000000ULL);
   do_encode_decode_double_test(inf);
 }
 
 /// -inf
-TEST(ARTKeyEncodeDecodeTest, DoubleC0003NegInfinity) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, DoubleC0003NegInfinity) {
   using F = double;
   using U = std::uint64_t;
   constexpr auto ninf = -std::numeric_limits<F>::infinity();
-  EXPECT_EQ(sizeof(ninf), sizeof(double));
-  EXPECT_TRUE(std::numeric_limits<double>::is_iec559) << "IEEE 754 required";
-  EXPECT_TRUE(ninf < std::numeric_limits<double>::lowest());
-  EXPECT_TRUE(std::isinf(ninf));
-  EXPECT_TRUE(!std::isnan(ninf));
-  EXPECT_EQ(unodb::detail::bit_cast<const U>(ninf), 0xfff0000000000000ULL);
+  UNODB_EXPECT_EQ(sizeof(ninf), sizeof(double));
+  UNODB_EXPECT_TRUE(std::numeric_limits<double>::is_iec559)
+      << "IEEE 754 required";
+  UNODB_EXPECT_LT(ninf, std::numeric_limits<double>::lowest());
+  UNODB_EXPECT_TRUE(std::isinf(ninf));
+  UNODB_EXPECT_FALSE(std::isnan(ninf));
+  UNODB_EXPECT_EQ(unodb::detail::bit_cast<const U>(ninf),
+                  0xfff0000000000000ULL);
   do_encode_decode_double_test(ninf);
 }
 
 /// quiet_NaN
-TEST(ARTKeyEncodeDecodeTest, DoubleC0004QuietNaN) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, DoubleC0004QuietNaN) {
   using F = double;
   constexpr F f{std::numeric_limits<F>::quiet_NaN()};
-  EXPECT_TRUE(std::isnan(f));
+  UNODB_EXPECT_TRUE(std::isnan(f));
   do_encode_decode_double_test(f);
 }
 
 /// signaling_NaN
-TEST(ARTKeyEncodeDecodeTest, DoubleC0005SignalingNan) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, DoubleC0005SignalingNan) {
   using F = double;
   constexpr F f{std::numeric_limits<F>::signaling_NaN()};
-  EXPECT_TRUE(std::isnan(f));
+  UNODB_EXPECT_TRUE(std::isnan(f));
   do_encode_decode_double_test(f);
 }
 
 /// NaN can be formed for any double precision floating point value
 /// using std::nanf().
-TEST(ARTKeyEncodeDecodeTest, DoubleC0006NumericNaN) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, DoubleC0006NumericNaN) {
   do_encode_decode_double_test(std::nan("-1"));
   do_encode_decode_double_test(std::nan("1"));
   do_encode_decode_double_test(std::nan("100.1"));
@@ -583,12 +587,12 @@ TEST(ARTKeyEncodeDecodeTest, DoubleC0006NumericNaN) {
 
 /// Verify the ordering over various double precision floating point
 /// pairs.
-TEST(ARTKeyEncodeDecodeTest, DoubleC0007Order) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, DoubleC0007Order) {
   using F = double;
   constexpr auto pzero = 0.;
   constexpr auto nzero = -0.;
-  EXPECT_FALSE(std::signbit(pzero));
-  EXPECT_TRUE(std::signbit(nzero));
+  UNODB_EXPECT_FALSE(std::signbit(pzero));
+  UNODB_EXPECT_TRUE(std::signbit(nzero));
   constexpr auto minf = std::numeric_limits<F>::min();
   constexpr auto maxf = std::numeric_limits<F>::max();
   constexpr auto inf = std::numeric_limits<F>::infinity();
@@ -613,13 +617,13 @@ void do_encode_bytes_test(std::span<const std::byte> a) {
   const auto sz = a.size();
   enc.append_bytes(a);
   const auto cmp = std::memcmp(enc.get_key_view().data(), a.data(), sz);
-  EXPECT_EQ(0, cmp);
-  EXPECT_EQ(sz, enc.size_bytes());
+  UNODB_EXPECT_EQ(0, cmp);
+  UNODB_EXPECT_EQ(sz, enc.size_bytes());
 }
 
 /// Unit test look at the simple case of appending a sequence of bytes
 /// to the key_encoder.
-TEST(ARTKeyEncodeDecodeTest, AppendSpanConstByteC0001) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, AppendSpanConstByteC0001) {
   constexpr auto test_data_0 = std::array<const std::byte, 3>{
       std::byte{0x02}, std::byte{0x05}, std::byte{0x05}};
   constexpr auto test_data_1 = std::array<const std::byte, 3>{
@@ -683,21 +687,21 @@ void do_simple_pad_test(unodb::key_encoder& enc, std::string_view sv) {
                       : len;
   const auto kv = enc.reset().encode_text(sv).get_key_view();
   // Check expected resulting key length.
-  EXPECT_EQ(kv.size(), sz + sizeof(unodb::key_encoder::pad) + sizeof(st))
+  UNODB_EXPECT_EQ(kv.size(), sz + sizeof(unodb::key_encoder::pad) + sizeof(st))
       << "text(" << sz << ")[" << (sz < 100 ? sv : "...") << "]";
   // Verify that the first N bytes are the same as the given text.
-  EXPECT_EQ(std::memcmp(sv.data(), kv.data(), sz), 0)
+  UNODB_EXPECT_EQ(std::memcmp(sv.data(), kv.data(), sz), 0)
       << "text(" << sz << ")[" << (sz < 100 ? sv : "...") << "]";
   // Check for the pad byte.
-  EXPECT_EQ(kv[sz], unodb::key_encoder::pad)
+  UNODB_EXPECT_EQ(kv[sz], unodb::key_encoder::pad)
       << "text(" << sz << ")[" << (sz < 100 ? sv : "...") << "]";
   // Check the pad length.
   const st padlen{static_cast<st>(unodb::key_encoder::maxlen - sz)};
   st tmp;
   std::memcpy(&tmp, kv.data() + sz + 1, sizeof(st));  // copy out pad length.
   const st tmp2 = unodb::detail::bswap(tmp);          // decode.
-  EXPECT_EQ(tmp2, padlen) << "text(" << sz << ")[" << (sz < 100 ? sv : "...")
-                          << "]";
+  UNODB_EXPECT_EQ(tmp2, padlen)
+      << "text(" << sz << ")[" << (sz < 100 ? sv : "...") << "]";
 }
 
 /// Helper generates a large string and feeds it into
@@ -717,12 +721,12 @@ void do_pad_test_large_string(unodb::key_encoder& enc, size_t nbytes,
     const size_t max_key_size = unodb::key_encoder::maxlen +
                                 sizeof(unodb::key_encoder::pad) +
                                 sizeof(unodb::key_encoder::size_type);
-    EXPECT_EQ(kv.size(), max_key_size);
+    UNODB_EXPECT_EQ(kv.size(), max_key_size);
   }
 }
 
 /// Verify proper padding to maxlen.
-TEST(ARTKeyEncodeDecodeTest, EncodeTextC0001) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, EncodeTextC0001) {
   unodb::key_encoder enc;
   do_simple_pad_test(enc, "");
   do_simple_pad_test(enc, "abc");
@@ -732,26 +736,26 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0001) {
 
 /// Unit test variant examines truncation for a key whose length is
 /// maxlen - 1.
-TEST(ARTKeyEncodeDecodeTest, EncodeTextC0012) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, EncodeTextC0012) {
   unodb::key_encoder enc;
   do_pad_test_large_string(enc, unodb::key_encoder::maxlen - 1);
 }
 
 /// Unit test variant examines truncation for a key whose length is
 /// exactly maxlen.
-TEST(ARTKeyEncodeDecodeTest, EncodeTextC0013) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, EncodeTextC0013) {
   unodb::key_encoder enc;
   do_pad_test_large_string(enc, unodb::key_encoder::maxlen);
 }
 
 /// Unit test where the key is truncated.
-TEST(ARTKeyEncodeDecodeTest, EncodeTextC0014) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, EncodeTextC0014) {
   unodb::key_encoder enc;
   do_pad_test_large_string(enc, unodb::key_encoder::maxlen + 1, true);
 }
 
 /// Unit test where the key is truncated.
-TEST(ARTKeyEncodeDecodeTest, EncodeTextC0015) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, EncodeTextC0015) {
   unodb::key_encoder enc;
   do_pad_test_large_string(enc, unodb::key_encoder::maxlen + 2, true);
 }
@@ -760,7 +764,7 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0015) {
 /// break, bre}, including verifying that the pad byte causes a prefix
 /// such as "bro" to sort before a term which extends that prefix,
 /// such as "brown".
-TEST(ARTKeyEncodeDecodeTest, EncodeTextC0020) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, EncodeTextC0020) {
   key_factory fac;
   unodb::key_encoder enc;
   const auto k0 = fac.make_key_view(enc.reset().encode_text("brown"));
@@ -783,17 +787,14 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0020) {
 #endif
   // Inspect the implied sort order without sorting.
   //
-  // NOLINTNEXTLINE(readability/check)
-  EXPECT_TRUE(compare(k3, k2) < 0);  // bre < break
-  // NOLINTNEXTLINE(readability/check)
-  EXPECT_TRUE(compare(k2, k1) < 0);  // break < bro
-  // NOLINTNEXTLINE(readability/check)
-  EXPECT_TRUE(compare(k1, k0) < 0);  // bro < brown
+  UNODB_EXPECT_LT(compare(k3, k2), 0);  // bre < break
+  UNODB_EXPECT_LT(compare(k2, k1), 0);  // break < bro
+  UNODB_EXPECT_LT(compare(k1, k0), 0);  // bro < brown
 }
 
 /// Verify that trailing nul (0x00) bytes are removed as part of the
 /// truncation and logical padding logic.
-TEST(ARTKeyEncodeDecodeTest, EncodeTextC0021) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, EncodeTextC0021) {
   key_factory fac;
   unodb::key_encoder enc;
   // Use std::array rather than "C" strings since the nul would
@@ -807,10 +808,10 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0021) {
   using S = std::span<const std::byte>;
   const auto k1 = fac.make_key_view(enc.reset().encode_text(S(a1)));
   const auto k2 = fac.make_key_view(enc.reset().encode_text(S(a2)));
-  EXPECT_EQ(compare(k1, k2), 0);    // same sort order.
-  EXPECT_EQ(k1.size(), k2.size());  // same number of bytes.
-  EXPECT_EQ(k1.size_bytes(),
-            a1.size() + 1 + sizeof(unodb::key_encoder::size_type));
+  UNODB_EXPECT_EQ(compare(k1, k2), 0);    // same sort order.
+  UNODB_EXPECT_EQ(k1.size(), k2.size());  // same number of bytes.
+  UNODB_EXPECT_EQ(k1.size_bytes(),
+                  a1.size() + 1 + sizeof(unodb::key_encoder::size_type));
 #ifndef NDEBUG
   std::cerr << "k1=";
   unodb::detail::dump_key(std::cerr, k1);
@@ -822,7 +823,7 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0021) {
 }
 
 /// Verifies that an embedded nul byte is supported.
-TEST(ARTKeyEncodeDecodeTest, EncodeTextC0022) {
+UNODB_TEST(ARTKeyEncodeDecodeTest, EncodeTextC0022) {
   key_factory fac;
   unodb::key_encoder enc;
   // Use std::array rather than "C" strings since the nul would
@@ -832,8 +833,8 @@ TEST(ARTKeyEncodeDecodeTest, EncodeTextC0022) {
       std::byte{'n'}};
   using S = std::span<const std::byte>;
   const auto k1 = fac.make_key_view(enc.reset().encode_text(S(a1)));
-  EXPECT_EQ(k1.size_bytes(),
-            a1.size() + 1 + sizeof(unodb::key_encoder::size_type));
+  UNODB_EXPECT_EQ(k1.size_bytes(),
+                  a1.size() + 1 + sizeof(unodb::key_encoder::size_type));
 #ifndef NDEBUG
   std::cerr << "k1=";
   unodb::detail::dump_key(std::cerr, k1);

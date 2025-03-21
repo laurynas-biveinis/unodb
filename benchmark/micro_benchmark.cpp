@@ -145,11 +145,12 @@ void dense_iter_full_fwd_scan(benchmark::State &state) {
   for (const auto _ : state) {
     for (auto i = 0; i < full_scan_multiplier; ++i) {
       std::uint64_t sum = 0;
-      auto fn = [&sum](const unodb::visitor<typename Db::iterator> &v) {
-        sum += decode(v.get_key());
-        std::ignore = v.get_value();
-        return false;
-      };
+      auto fn =
+          [&sum](const unodb::visitor<typename Db::iterator> &v) noexcept {
+            sum += decode(v.get_key());
+            std::ignore = v.get_value();
+            return false;
+          };
       test_db.scan(fn);
       ::benchmark::DoNotOptimize(sum);  // ensure that the keys were retrieved.
     }

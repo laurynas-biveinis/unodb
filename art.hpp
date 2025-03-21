@@ -377,7 +377,9 @@ class db final {
     }
 
     /// Pop an entry from the stack and truncate the key buffer.
-    void pop() {
+    void pop() noexcept {
+      UNODB_DETAIL_ASSERT(!empty());
+
       const auto prefix_len = top().prefix.length();
       keybuf_.pop(prefix_len);
       stack_.pop();

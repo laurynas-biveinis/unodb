@@ -463,8 +463,10 @@ class olc_db final {
 
     /// Pop an entry from the stack and the corresponding bytes from
     /// the key_buffer.
-    void pop() {
-      // Note: We DO NOT need to check the RCS here.  The prefix_len
+    void pop() noexcept {
+      UNODB_DETAIL_ASSERT(!empty());
+
+      // Note: We DO NOT need to check the RCS here. The prefix_len
       // on the stack is known to be valid at the time that the entry
       // was pushed onto the stack and the stack and the keybuf are in
       // sync with one another.  So we can just do a simple POP for

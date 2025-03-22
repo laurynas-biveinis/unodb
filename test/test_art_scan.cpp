@@ -944,7 +944,7 @@ TYPED_TEST(ARTScanTest, scanFromReverse1000) {
   auto fn = [&n,
              &expected](const unodb::visitor<typename TypeParam::iterator>& v) {
     n++;
-    auto key = decode(v.get_key());
+    const auto key = decode(v.get_key());
     UNODB_EXPECT_EQ(expected, key);
     expected--;
     return false;

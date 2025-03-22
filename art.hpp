@@ -303,7 +303,7 @@ class db final {
     // LCOV_EXCL_STOP
 
     /// Return true unless the stack is empty (exposed to tests).
-    [[nodiscard]] bool valid() const { return !stack_.empty(); }
+    [[nodiscard]] bool valid() const noexcept { return !stack_.empty(); }
 
    protected:
     /// Push the given node onto the stack and traverse from the
@@ -338,7 +338,7 @@ class db final {
     //
 
     /// Return true iff the stack is empty.
-    [[nodiscard]] bool empty() const { return stack_.empty(); }
+    [[nodiscard]] bool empty() const noexcept { return stack_.empty(); }
 
     /// Push a non-leaf entry onto the stack.
     void push(detail::node_ptr node, std::byte key_byte,

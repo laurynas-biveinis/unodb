@@ -117,19 +117,19 @@ class ARTConcurrencyTest : public ::testing::Test {
           unodb::test::test_values[akey % unodb::test::test_values.size()];
       const auto actual = v.get_value();
       // LCOV_EXCL_START
-      EXPECT_TRUE(std::ranges::equal(actual, expected));
+      UNODB_EXPECT_TRUE(std::ranges::equal(actual, expected));
       std::ignore = v.get_value();
       if (fwd) {  // [k0,k1) -- k0 is from_key, k1 is to_key
-        EXPECT_TRUE(akey >= k0 && akey < k1)
+        UNODB_EXPECT_TRUE(akey >= k0 && akey < k1)
             << "fwd=" << fwd << ", key=" << akey << ", k0=" << k0
             << ", k1=" << k1;
       } else {  // (k1,k0]
-        EXPECT_TRUE(akey > k0 && akey <= k1)
+        UNODB_EXPECT_TRUE(akey > k0 && akey <= k1)
             << "fwd=" << fwd << ", key=" << akey << ", k0=" << k0
             << ", k1=" << k1;
       }
       if (n > 1) {
-        EXPECT_TRUE(fwd ? (akey > prior) : (akey < prior))
+        UNODB_EXPECT_TRUE(fwd ? (akey > prior) : (akey < prior))
             << "fwd=" << fwd << ", prior=" << prior << ", key=" << akey
             << ", k0=" << k0 << ", k1=" << k1;
       }
@@ -230,7 +230,7 @@ using ConcurrentARTTypes =
 
 UNODB_TYPED_TEST_SUITE(ARTConcurrencyTest, ConcurrentARTTypes)
 
-UNODB_START_TYPED_TESTS()
+UNODB_START_TESTS()
 
 TYPED_TEST(ARTConcurrencyTest, ParallelInsertOneTree) {
   constexpr auto thread_count = 4;

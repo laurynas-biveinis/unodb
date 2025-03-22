@@ -106,7 +106,7 @@ using ARTTypes =
 
 UNODB_TYPED_TEST_SUITE(ARTOOMTest, ARTTypes)
 
-UNODB_START_TYPED_TESTS()
+UNODB_START_TESTS()
 
 TYPED_TEST(ARTOOMTest, CtorDoesNotAllocate) {
   unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);

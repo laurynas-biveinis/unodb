@@ -16,9 +16,7 @@
 // is not a bug: https://github.com/google/googletest/issues/2271
 #define UNODB_TYPED_TEST_SUITE(Suite, Types)                                \
   UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wgnu-zero-variadic-macro-arguments") \
-  UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wpedantic")                          \
   TYPED_TEST_SUITE(Suite, Types);                                           \
-  UNODB_DETAIL_RESTORE_CLANG_WARNINGS()                                     \
   UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
 #define UNODB_START_TESTS()                \
@@ -32,15 +30,6 @@
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS() \
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS() \
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
-// Because Google thinks
-// error: 'void {anonymous}::ARTCorrectnessTest_single_node_tree_empty_value_
-// Test<gtest_TypeParam_>::TestBody() [with gtest_TypeParam_ = unodb::db]'
-// can be marked override [-Werror=suggest-override] is not a bug:
-// https://github.com/google/googletest/issues/1063
-#define UNODB_START_TYPED_TESTS() \
-  UNODB_START_TESTS()             \
-  UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-override")
 
 #define UNODB_ASSERT_DEATH(statement, regex)                       \
   do {                                                             \
@@ -56,7 +45,7 @@
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26409) \
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26426) \
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26440) \
-  TEST((Suite), (Test))                    \
+  TEST(Suite, Test)                        \
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -130,12 +119,12 @@
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   } while (0)
 
-#define UNODB_EXPECT_EQ(x, y)                \
-  do {                                       \
-    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
-    EXPECT_EQ((x), (y));                     \
-    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
-  } while (0)
+// Do not wrap in a block to support streaming to EXPECT_EQ. Happens to be OK
+// because the warning macros are not statements.
+#define UNODB_EXPECT_EQ(x, y)              \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+  EXPECT_EQ((x), (y))                      \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #define UNODB_EXPECT_GT(x, y)                \
   do {                                       \
@@ -144,12 +133,19 @@
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   } while (0)
 
-#define UNODB_EXPECT_TRUE(cond)              \
+#define UNODB_EXPECT_LT(x, y)                \
   do {                                       \
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
-    EXPECT_TRUE(cond);                       \
+    EXPECT_LT((x), (y));                     \
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   } while (0)
+
+// Do not wrap in a block to support streaming to EXPECT_TRUE. Happens to be OK
+// because the warning macros are not statements.
+#define UNODB_EXPECT_TRUE(cond)            \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+  EXPECT_TRUE(cond)                        \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #define UNODB_EXPECT_FALSE(cond)             \
   do {                                       \

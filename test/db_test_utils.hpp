@@ -632,8 +632,7 @@ class [[nodiscard]] tree_verifier final {
             prev = kv;
             first = false;
           } else {
-            // NOLINTNEXTLINE(readability/check)
-            EXPECT_TRUE(unodb::detail::compare(prev, kv) < 0);
+            UNODB_EXPECT_LT(unodb::detail::compare(prev, kv), 0);
             prev = kv;
           }
           n++;

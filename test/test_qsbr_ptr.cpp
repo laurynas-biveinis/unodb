@@ -4,14 +4,13 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <string>
+// IWYU pragma: no_include <gtest/gtest.h>
 
 #include <algorithm>
 #include <array>
 #include <iterator>
 #include <span>
 #include <utility>
-
-#include <gtest/gtest.h>
 
 #include "gtest_utils.hpp"
 #include "qsbr_ptr.hpp"
@@ -34,17 +33,17 @@ UNODB_START_TESTS()
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
-TEST(QSBRPtr, DefaultCtor) {
+UNODB_TEST(QSBRPtr, DefaultCtor) {
   const unodb::qsbr_ptr<const char> ptr;
   UNODB_ASSERT_EQ(ptr.get(), nullptr);
 }
 
-TEST(QSBRPtr, Ctor) {
+UNODB_TEST(QSBRPtr, Ctor) {
   const unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
   UNODB_ASSERT_EQ(*ptr, x);
 }
 
-TEST(QSBRPtr, CopyCtor) {
+UNODB_TEST(QSBRPtr, CopyCtor) {
   const unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
   const unodb::qsbr_ptr<const char> ptr2{ptr};
 
@@ -52,7 +51,7 @@ TEST(QSBRPtr, CopyCtor) {
   UNODB_ASSERT_EQ(*ptr, x);
 }
 
-TEST(QSBRPtr, MoveCtor) {
+UNODB_TEST(QSBRPtr, MoveCtor) {
   unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
   const unodb::qsbr_ptr<const char> ptr2{std::move(ptr)};
 
@@ -61,7 +60,7 @@ TEST(QSBRPtr, MoveCtor) {
 }
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
-TEST(QSBRPtr, CopyAssignment) {
+UNODB_TEST(QSBRPtr, CopyAssignment) {
   const unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
   unodb::qsbr_ptr<const char> ptr2{raw_ptr_y};
 
@@ -76,7 +75,7 @@ TEST(QSBRPtr, CopyAssignment) {
 }
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
-TEST(QSBRPtr, MoveAssignment) {
+UNODB_TEST(QSBRPtr, MoveAssignment) {
   unodb::qsbr_ptr<const char> ptr{raw_ptr_x};
   unodb::qsbr_ptr<const char> ptr2{raw_ptr_y};
 
@@ -87,7 +86,7 @@ TEST(QSBRPtr, MoveAssignment) {
   UNODB_ASSERT_EQ(ptr.get(), nullptr);
 }
 
-TEST(QSBRPtr, ModifyThroughDereference) {
+UNODB_TEST(QSBRPtr, ModifyThroughDereference) {
   char obj = 'A';
   const unodb::qsbr_ptr<char> ptr{&obj};
 
@@ -96,14 +95,14 @@ TEST(QSBRPtr, ModifyThroughDereference) {
   UNODB_ASSERT_EQ(*ptr, 'B');
 }
 
-TEST(QSBRPtr, ArraySubscript) {
+UNODB_TEST(QSBRPtr, ArraySubscript) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
   const unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
   UNODB_ASSERT_EQ(ptr[0], two_chars[0]);
   UNODB_ASSERT_EQ(ptr[1], two_chars[1]);
 }
 
-TEST(QSBRPtr, Preincrement) {
+UNODB_TEST(QSBRPtr, Preincrement) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
   unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
 
@@ -113,7 +112,7 @@ TEST(QSBRPtr, Preincrement) {
   UNODB_ASSERT_EQ(ptr.get(), &two_chars[1]);
 }
 
-TEST(QSBRPtr, Postincrement) {
+UNODB_TEST(QSBRPtr, Postincrement) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
   unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
   const auto old_ptr = ptr++;
@@ -123,7 +122,7 @@ TEST(QSBRPtr, Postincrement) {
   UNODB_ASSERT_EQ(ptr.get(), &two_chars[1]);
 }
 
-TEST(QSBRPtr, Predecrement) {
+UNODB_TEST(QSBRPtr, Predecrement) {
   unodb::qsbr_ptr<const char> ptr{&two_chars[1]};
   UNODB_ASSERT_EQ(*ptr, two_chars[1]);
 
@@ -133,7 +132,7 @@ TEST(QSBRPtr, Predecrement) {
   UNODB_ASSERT_EQ(ptr.get(), &two_chars[0]);
 }
 
-TEST(QSBRPtr, Postdecrement) {
+UNODB_TEST(QSBRPtr, Postdecrement) {
   unodb::qsbr_ptr<const char> ptr{&two_chars[1]};
   const auto old_ptr = ptr--;
 
@@ -143,7 +142,7 @@ TEST(QSBRPtr, Postdecrement) {
   UNODB_ASSERT_EQ(ptr.get(), &two_chars[0]);
 }
 
-TEST(QSBRPtr, AdditionAssignment) {
+UNODB_TEST(QSBRPtr, AdditionAssignment) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
   unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
   ptr += 1;
@@ -155,7 +154,7 @@ TEST(QSBRPtr, AdditionAssignment) {
   UNODB_ASSERT_EQ(ptr.get(), &two_chars[1]);
 }
 
-TEST(QSBRPtr, Addition) {
+UNODB_TEST(QSBRPtr, Addition) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
   const unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
   auto result = ptr + 1;
@@ -168,7 +167,7 @@ TEST(QSBRPtr, Addition) {
   UNODB_ASSERT_EQ(result.get(), &two_chars[0]);
 }
 
-TEST(QSBRPtr, FriendAddition) {
+UNODB_TEST(QSBRPtr, FriendAddition) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
   const unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
   auto result = 1 + ptr;
@@ -181,7 +180,7 @@ TEST(QSBRPtr, FriendAddition) {
   UNODB_ASSERT_EQ(result.get(), &two_chars[0]);
 }
 
-TEST(QSBRPtr, SubtractionAssignment) {
+UNODB_TEST(QSBRPtr, SubtractionAssignment) {
   unodb::qsbr_ptr<const char> ptr{&two_chars[1]};
   ptr -= 1;
   UNODB_ASSERT_EQ(*ptr, two_chars[0]);
@@ -194,7 +193,7 @@ TEST(QSBRPtr, SubtractionAssignment) {
   UNODB_ASSERT_EQ(ptr.get(), &two_chars[0]);
 }
 
-TEST(QSBRPtr, SubtractionOperator) {
+UNODB_TEST(QSBRPtr, SubtractionOperator) {
   const unodb::qsbr_ptr<const char> ptr{&two_chars[1]};
   auto result = ptr - 1;
   UNODB_ASSERT_EQ(*result, two_chars[0]);
@@ -206,7 +205,7 @@ TEST(QSBRPtr, SubtractionOperator) {
   UNODB_ASSERT_EQ(result.get(), &two_chars[1]);
 }
 
-TEST(QSBRPtr, Subtraction) {
+UNODB_TEST(QSBRPtr, Subtraction) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
   const unodb::qsbr_ptr<const char> ptr{&two_chars[0]};
 
@@ -220,13 +219,13 @@ TEST(QSBRPtr, Subtraction) {
   UNODB_ASSERT_EQ(ptr2 - ptr, 2);
 }
 
-TEST(QSBRPtr, Equal) {
+UNODB_TEST(QSBRPtr, Equal) {
   const unodb::qsbr_ptr<const char> ptr{&x};
   const unodb::qsbr_ptr<const char> ptr2{&x};
   UNODB_ASSERT_TRUE(ptr == ptr2);
 }
 
-TEST(QSBRPtr, NotEqual) {
+UNODB_TEST(QSBRPtr, NotEqual) {
   const unodb::qsbr_ptr<const char> ptr{&x};
   UNODB_ASSERT_FALSE(ptr != ptr);  // -V501
 
@@ -238,7 +237,7 @@ TEST(QSBRPtr, NotEqual) {
   UNODB_ASSERT_TRUE(ptr != ptr3);
 }
 
-TEST(QSBRPtr, LessThanEqual) {
+UNODB_TEST(QSBRPtr, LessThanEqual) {
   const unodb::qsbr_ptr<const char> ptr{&x};
   const unodb::qsbr_ptr<const char> ptr2{&x};
 
@@ -253,31 +252,31 @@ TEST(QSBRPtr, LessThanEqual) {
   UNODB_ASSERT_FALSE(ptr4 <= ptr3);
 }
 
-TEST(QSBRPtr, Get) {
+UNODB_TEST(QSBRPtr, Get) {
   const unodb::qsbr_ptr<const char> ptr{&x};
   UNODB_ASSERT_EQ(ptr.get(), &x);
 }
 
-TEST(QSBRPtrSpan, DefaultCtor) {
+UNODB_TEST(QSBRPtrSpan, DefaultCtor) {
   const unodb::qsbr_ptr_span<const char> span{};
   UNODB_ASSERT_EQ(std::cbegin(span).get(), nullptr);
   UNODB_ASSERT_EQ(span.size(), 0);
 }
 
-TEST(QSBRPtrSpan, CopyStdSpanCtor) {
+UNODB_TEST(QSBRPtrSpan, CopyStdSpanCtor) {
   const unodb::qsbr_ptr_span span{std_span};
 
   UNODB_ASSERT_TRUE(std::ranges::equal(span, std_span));
 }
 
-TEST(QSBRPtrSpan, CopyCtor) {
+UNODB_TEST(QSBRPtrSpan, CopyCtor) {
   const unodb::qsbr_ptr_span span{std_span};
   const unodb::qsbr_ptr_span span2{span};
 
   UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span));
 }
 
-TEST(QSBRPtrSpan, MoveCtor) {
+UNODB_TEST(QSBRPtrSpan, MoveCtor) {
   unodb::qsbr_ptr_span span{std_span};
   const unodb::qsbr_ptr_span span2{std::move(span)};
 
@@ -285,7 +284,7 @@ TEST(QSBRPtrSpan, MoveCtor) {
 }
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wself-assign-overloaded")
-TEST(QSBRPtrSpan, CopyAssignment) {
+UNODB_TEST(QSBRPtrSpan, CopyAssignment) {
   const unodb::qsbr_ptr_span span{std_span};
   unodb::qsbr_ptr_span span2{std_span2};
 
@@ -298,7 +297,7 @@ TEST(QSBRPtrSpan, CopyAssignment) {
 }
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
-TEST(QSBRPtrSpan, MoveAssignment) {
+UNODB_TEST(QSBRPtrSpan, MoveAssignment) {
   unodb::qsbr_ptr_span span{std_span};
   unodb::qsbr_ptr_span span2{std_span2};
 
@@ -307,13 +306,13 @@ TEST(QSBRPtrSpan, MoveAssignment) {
   UNODB_ASSERT_TRUE(std::ranges::equal(span2, std_span));
 }
 
-TEST(QSBRPtrSpan, Cbegin) {
+UNODB_TEST(QSBRPtrSpan, Cbegin) {
   const unodb::qsbr_ptr_span span{std_span};
   // NOLINTNEXTLINE(readability-container-data-pointer)
   UNODB_ASSERT_EQ(std::cbegin(span).get(), &two_chars[0]);
 }
 
-TEST(QSBRPtrSpan, Cend) {
+UNODB_TEST(QSBRPtrSpan, Cend) {
   const unodb::qsbr_ptr_span span{std_span};
   // Do not write &two_chars[2] directly or the libstdc++ debug assertions fire
   UNODB_ASSERT_EQ(std::cend(span).get(), &two_chars[1] + 1);
@@ -321,14 +320,14 @@ TEST(QSBRPtrSpan, Cend) {
 
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-TEST(QSBRPtrSpan, Size) {
+UNODB_TEST(QSBRPtrSpan, Size) {
   const unodb::qsbr_ptr_span span{std_span};
   UNODB_ASSERT_EQ(span.size(), std_span.size());
   const unodb::qsbr_ptr_span span2{std_span2};
   UNODB_ASSERT_EQ(span2.size(), std_span2.size());
 }
 
-TEST(QSBRPtr, GreaterThan) {
+UNODB_TEST(QSBRPtr, GreaterThan) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
   const unodb::qsbr_ptr<const char> ptr1{&two_chars[0]};
   const unodb::qsbr_ptr<const char> ptr2{&two_chars[1]};
@@ -338,7 +337,7 @@ TEST(QSBRPtr, GreaterThan) {
   UNODB_ASSERT_FALSE(ptr1 > ptr2);
 }
 
-TEST(QSBRPtr, GreaterThanEqual) {
+UNODB_TEST(QSBRPtr, GreaterThanEqual) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
   const unodb::qsbr_ptr<const char> ptr1{&two_chars[0]};
   const unodb::qsbr_ptr<const char> ptr2{&two_chars[1]};
@@ -348,7 +347,7 @@ TEST(QSBRPtr, GreaterThanEqual) {
   UNODB_ASSERT_FALSE(ptr1 >= ptr2);
 }
 
-TEST(QSBRPtr, LessThan) {
+UNODB_TEST(QSBRPtr, LessThan) {
   // NOLINTNEXTLINE(readability-container-data-pointer)
   const unodb::qsbr_ptr<const char> ptr1{&two_chars[0]};
   const unodb::qsbr_ptr<const char> ptr2{&two_chars[1]};

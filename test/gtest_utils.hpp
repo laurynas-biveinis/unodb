@@ -70,8 +70,10 @@
 
 #define UNODB_ASSERT_FALSE(cond)             \
   do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
     ASSERT_FALSE(cond);                      \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   } while (0)
 
@@ -98,15 +100,19 @@
 
 #define UNODB_ASSERT_THAT(value, matcher)    \
   do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
     ASSERT_THAT((value), (matcher));         \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   } while (0)
 
 #define UNODB_ASSERT_THROW(statement, expected_exception) \
   do {                                                    \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)               \
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)              \
     ASSERT_THROW(statement, expected_exception);          \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()                  \
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()                  \
   } while (0)
 
@@ -122,8 +128,10 @@
 // Do not wrap in a block to support streaming to EXPECT_EQ. Happens to be OK
 // because the warning macros are not statements.
 #define UNODB_EXPECT_EQ(x, y)              \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
   EXPECT_EQ((x), (y))                      \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #define UNODB_EXPECT_GT(x, y)                \
@@ -135,8 +143,10 @@
 
 #define UNODB_EXPECT_LT(x, y)                \
   do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
     EXPECT_LT((x), (y));                     \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   } while (0)
 

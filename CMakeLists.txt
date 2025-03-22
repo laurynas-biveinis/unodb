@@ -173,22 +173,25 @@ endif()
 # builds.
 # - "C26429: Symbol 'inode' is never tested for nullness, it can be marked as 
 #   not_null (f.23)."
-# - "C26446: Prefer to use gsl::at() instead of unchecked subscript operator 
-#   (bounds.4)."
 # - "C26482: Only index into arrays using constant expressions (bounds.2)"
 # This one seems like a false positive, of course I could be wrong
 # - "C26415: Smart pointer parameter '...' is used only to access contained
 #   pointer. Use T* or T& instead (r.30)."
 # Won't fix
+# - "C26446: Prefer to use gsl::at() instead of unchecked subscript operator
+#   (bounds.4)."
 # - "C26472: Don't use a static_cast for arithmetic conversions. Use brace 
 #   initialization, gsl::narrow_cast or gsl::narrow (type.1)"
 # - "C26494: Variable '...' is uninitialized. Always initialize an object
 #   (type.5)
+# - "C26821: For '...', consider using gsl::span instead of std::span to
+#   guarantee runtime bounds safety"
 set(MSVC_STATIC_ANALYSIS_FLAGS "/analyze" "/analyze:external-"
   "/analyze:pluginEspXEngine.dll" "/analyze:rulesetdirectory$ENV{VSINSTALLDIR}"
   "/analyze:rulesetNativeRecommendedRules.ruleset" "/wd26429" "/wd26446"
-  "/wd26482" "/wd26415" "/wd26472" "/wd26494" "/analyze:log:format:sarif"
-  "/analyze:logmsvc.sarif" "/analyze:log:compilerwarnings")
+  "/wd26482" "/wd26415" "/wd26472" "/wd26494" "/wd26821"
+  "/analyze:log:format:sarif" "/analyze:logmsvc.sarif"
+  "/analyze:log:compilerwarnings")
 
 option(COVERAGE "Enable code coverage reporting")
 if(COVERAGE)

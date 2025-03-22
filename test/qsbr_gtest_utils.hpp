@@ -134,8 +134,6 @@ class QSBRTestBase : public ::testing::Test {
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
   void check_epoch_advanced() noexcept {
     const auto current_epoch =
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
@@ -148,8 +146,6 @@ class QSBRTestBase : public ::testing::Test {
         unodb::qsbr_state::get_epoch(unodb::qsbr::instance().get_state());
     UNODB_EXPECT_EQ(last_epoch, current_epoch);
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   // Allocation and deallocation
 
@@ -164,8 +160,6 @@ class QSBRTestBase : public ::testing::Test {
         *static_cast<const char *>(ptr);
   }
 #endif
-
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
   static void qsbr_deallocate(void *ptr) {
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -244,8 +238,6 @@ class QSBRTestBase : public ::testing::Test {
                       current_interval_total_dealloc_size_after == 0);
 #endif  // UNODB_DETAIL_WITH_STATS
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   static void touch_memory(char *ptr, char opt_val = '\0') noexcept {
     if (opt_val != '\0') {

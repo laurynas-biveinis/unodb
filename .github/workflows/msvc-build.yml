@@ -82,13 +82,14 @@ jobs:
       - name: Build (examples)
         working-directory: examples
         run: |
-          cmake --build --preset "${{matrix.preset}}"
+          cmake --build --preset "${{matrix.preset}}" -- -k 0
         if: contains(env.EXAMPLE_PRESETS, matrix.preset)
 
       - name: Run examples
         working-directory: examples
         run: |
-          cmake --build --preset "${{matrix.preset}}" --target examples
+          cmake --build --preset "${{matrix.preset}}" --target examples `
+              -- -k 0
         if: contains(env.EXAMPLE_PRESETS, matrix.preset)
 
       - name: Populate git submodules and configure CMake
@@ -101,7 +102,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build --preset "${{matrix.preset}}"
+          cmake --build --preset "${{matrix.preset}}" -- -k 0
           $BUILD_ROOT = "${{github.workspace}}\build\${{matrix.preset}}"
           $SARIF_SRC = "$BUILD_ROOT\msvc.sarif"
           $SARIF_DST = "$BUILD_ROOT\msvc-${{matrix.preset}}.sarif"

@@ -406,7 +406,7 @@ class olc_db final {
     // LCOV_EXCL_STOP
 
     /// Return true unless the stack is empty (exposed to tests)
-    [[nodiscard]] bool valid() const { return !stack_.empty(); }
+    [[nodiscard]] bool valid() const noexcept { return !stack_.empty(); }
 
    protected:
     /// Compare the given key (e.g., the to_key) to the current key in the
@@ -420,7 +420,7 @@ class olc_db final {
     //
 
     /// Return true iff the stack is empty.
-    [[nodiscard]] bool empty() const { return stack_.empty(); }
+    [[nodiscard]] bool empty() const noexcept { return stack_.empty(); }
 
     /// Push an entry onto the stack.
     bool try_push(detail::olc_node_ptr node, std::byte key_byte,

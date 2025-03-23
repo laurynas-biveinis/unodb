@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['scan_0',['scan',['../classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09',1,'unodb::db::scan()'],['../classunodb_1_1mutex__db.html#af2359973d76a675229b88bf5ef0fa8a5',1,'unodb::mutex_db::scan()'],['../classunodb_1_1olc__db.html#a55b7d8a934e3bd04a30fdc6472a06630',1,'unodb::olc_db::scan()']]],
+  ['scan_0',['scan',['../classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09',1,'unodb::db::scan()'],['../classunodb_1_1mutex__db.html#af2359973d76a675229b88bf5ef0fa8a5',1,'unodb::mutex_db::scan()'],['../classunodb_1_1olc__db.html#ac395b39faa9c4a6e8a70a0cfcb9efc8e',1,'unodb::olc_db::scan()']]],
   ['scan_5ffrom_1',['scan_from',['../classunodb_1_1db.html#a5d68530937371b08951f2084761b56fd',1,'unodb::db::scan_from()'],['../classunodb_1_1mutex__db.html#ab6a1564ab98be4126bf3cf65d208831f',1,'unodb::mutex_db::scan_from()'],['../classunodb_1_1olc__db.html#a1dbe69eda1ac2e562a4cfd7d580d90cd',1,'unodb::olc_db::scan_from()']]],
   ['scan_5frange_2',['scan_range',['../classunodb_1_1db.html#a5f45c60b21a68bfd64062ca2c2be2ddf',1,'unodb::db::scan_range()'],['../classunodb_1_1mutex__db.html#ac8852fa0deb950e7af233b71a46ab570',1,'unodb::mutex_db::scan_range()'],['../classunodb_1_1olc__db.html#a1d2fc2189158f306049b995ea4901055',1,'unodb::olc_db::scan_range()']]],
   ['seek_3',['seek',['../classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38',1,'unodb::db::iterator::seek()'],['../classunodb_1_1olc__db_1_1iterator.html#ae8010e6805f3a30d036747669a6c7142',1,'unodb::olc_db::iterator::seek()']]],

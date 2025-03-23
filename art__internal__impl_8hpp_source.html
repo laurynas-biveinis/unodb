@@ -207,7 +207,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(k.size() &lt;= max_key_size);</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(v.size() &lt;= max_value_size);</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <a class="code hl_typedef" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> tmp{k.get_key_view()};</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keyword">const</span> <span class="keyword">auto</span> tmp{k.get_key_view()};</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    std::memcpy(data, tmp.data(), key_size);  <span class="comment">// store encoded key</span></div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keywordflow">if</span> (!v.empty()) std::memcpy(data + key_size, v.data(), value_size);</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>  }</div>

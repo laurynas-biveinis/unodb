@@ -12,7 +12,7 @@ var classunodb_1_1olc__db =
     [ "insert_internal", "classunodb_1_1olc__db.html#ac2708ef143750971fcd5c82031c91f4c", null ],
     [ "remove", "classunodb_1_1olc__db.html#ac91a57a39e7495d4d4b627b3cca4044c", null ],
     [ "remove_internal", "classunodb_1_1olc__db.html#a3d279a01cb25be3297a38db685d2856a", null ],
-    [ "scan", "classunodb_1_1olc__db.html#a55b7d8a934e3bd04a30fdc6472a06630", null ],
+    [ "scan", "classunodb_1_1olc__db.html#ac395b39faa9c4a6e8a70a0cfcb9efc8e", null ],
     [ "scan_from", "classunodb_1_1olc__db.html#a1dbe69eda1ac2e562a4cfd7d580d90cd", null ],
     [ "scan_range", "classunodb_1_1olc__db.html#a1d2fc2189158f306049b995ea4901055", null ]
 ];

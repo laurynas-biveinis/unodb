@@ -164,10 +164,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>valid</b> () const no
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a698f87a59c0d26514fe953c27145f0fb" id="r_a698f87a59c0d26514fe953c27145f0fb"><td class="memItemLeft" align="right" valign="top"><a id="a698f87a59c0d26514fe953c27145f0fb" name="a698f87a59c0d26514fe953c27145f0fb"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> (<a class="el" href="classunodb_1_1db.html">db</a> &amp;tree)</td></tr>
-<tr class="memdesc:a698f87a59c0d26514fe953c27145f0fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an empty iterator (one that is logically not positioned on anything and which will report !valid()). <br /></td></tr>
-<tr class="separator:a698f87a59c0d26514fe953c27145f0fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac92ace17e87447215c0c9d0bce25d693" id="r_ac92ace17e87447215c0c9d0bce25d693"><td class="memItemLeft" align="right" valign="top"><a id="ac92ace17e87447215c0c9d0bce25d693" name="ac92ace17e87447215c0c9d0bce25d693"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> (<a class="el" href="classunodb_1_1db.html">db</a> &amp;tree) noexcept</td></tr>
+<tr class="memdesc:ac92ace17e87447215c0c9d0bce25d693"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an empty iterator (one that is logically not positioned on anything and which will report !valid()). <br /></td></tr>
+<tr class="separator:ac92ace17e87447215c0c9d0bce25d693"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b8a7300df10e9957750ed2bfe029ef0" id="r_a3b8a7300df10e9957750ed2bfe029ef0"><td class="memItemLeft" align="right" valign="top"><a id="a3b8a7300df10e9957750ed2bfe029ef0" name="a3b8a7300df10e9957750ed2bfe029ef0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> (const <a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;)=delete</td></tr>
 <tr class="separator:a3b8a7300df10e9957750ed2bfe029ef0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -226,10 +226,10 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>stack_entry</b> = ty
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
-<tr class="memitem:a4601f7006d444f173f3f615d228b0605" id="r_a4601f7006d444f173f3f615d228b0605"><td class="memItemLeft" align="right" valign="top"><a id="a4601f7006d444f173f3f615d228b0605" name="a4601f7006d444f173f3f615d228b0605"></a>
-<a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>invalidate</b> ()</td></tr>
-<tr class="memdesc:a4601f7006d444f173f3f615d228b0605"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invalidate the iterator (pops everything off of the stack). <br /></td></tr>
-<tr class="separator:a4601f7006d444f173f3f615d228b0605"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9fa414f12d5d5d4a57bebb8800ca92c" id="r_ab9fa414f12d5d5d4a57bebb8800ca92c"><td class="memItemLeft" align="right" valign="top"><a id="ab9fa414f12d5d5d4a57bebb8800ca92c" name="ab9fa414f12d5d5d4a57bebb8800ca92c"></a>
+<a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>invalidate</b> () noexcept</td></tr>
+<tr class="memdesc:ab9fa414f12d5d5d4a57bebb8800ca92c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invalidate the iterator (pops everything off of the stack). <br /></td></tr>
+<tr class="separator:ab9fa414f12d5d5d4a57bebb8800ca92c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -298,7 +298,7 @@ template&lt;typename Key , typename Value &gt; </div>
 template&lt;typename Key , typename Value &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt;<a class="el" href="classunodb_1_1db_1_1iterator.html#a698f87a59c0d26514fe953c27145f0fb">::iterator</a> &amp; <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::first </td>
+          <td class="memname"><a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt;<a class="el" href="classunodb_1_1db_1_1iterator.html#ac92ace17e87447215c0c9d0bce25d693">::iterator</a> &amp; <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::first </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -380,7 +380,7 @@ template&lt;typename Key , typename Value &gt; </div>
 template&lt;typename Key , typename Value &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt;<a class="el" href="classunodb_1_1db_1_1iterator.html#a698f87a59c0d26514fe953c27145f0fb">::iterator</a> &amp; <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::seek </td>
+          <td class="memname"><a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt;<a class="el" href="classunodb_1_1db_1_1iterator.html#ac92ace17e87447215c0c9d0bce25d693">::iterator</a> &amp; <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::seek </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a>&#160;</td>
           <td class="paramname"><em>search_key</em>, </td>

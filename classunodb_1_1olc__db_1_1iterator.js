@@ -1,7 +1,7 @@
 var classunodb_1_1olc__db_1_1iterator =
 [
     [ "stack_entry", "structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html", "structunodb_1_1olc__db_1_1iterator_1_1stack__entry" ],
-    [ "iterator", "classunodb_1_1olc__db_1_1iterator.html#a5ce19880b49fdb7bb62f1c6fedc95ba3", null ],
+    [ "iterator", "classunodb_1_1olc__db_1_1iterator.html#a61065013166e1c7ab8d27eb62921e049", null ],
     [ "cmp", "classunodb_1_1olc__db_1_1iterator.html#a6a02994bec36f682b94dc620f3d3c155", null ],
     [ "current_node", "classunodb_1_1olc__db_1_1iterator.html#a6984a97719773aa83c331fe51fa06045", null ],
     [ "dump", "classunodb_1_1olc__db_1_1iterator.html#a87eadc6c65588ef05703ccbe1d9fe6e5", null ],

@@ -1,7 +1,7 @@
 var classunodb_1_1db_1_1iterator =
 [
     [ "stack_entry", "classunodb_1_1db_1_1iterator.html#a9166f2a1d9fcc47bc1c9f09da8806919", null ],
-    [ "iterator", "classunodb_1_1db_1_1iterator.html#a698f87a59c0d26514fe953c27145f0fb", null ],
+    [ "iterator", "classunodb_1_1db_1_1iterator.html#ac92ace17e87447215c0c9d0bce25d693", null ],
     [ "cmp", "classunodb_1_1db_1_1iterator.html#a903454fbe79c72dc31186ac516c63517", null ],
     [ "current_node", "classunodb_1_1db_1_1iterator.html#ac0f79ce27b9b1c5efb409ffb5454b161", null ],
     [ "dump", "classunodb_1_1db_1_1iterator.html#aa6a6776f254ab54fc4ef405abd1eadf9", null ],
@@ -10,7 +10,7 @@ var classunodb_1_1db_1_1iterator =
     [ "first", "classunodb_1_1db_1_1iterator.html#ae7140da77bdaddcb5412a67ac4dbb28d", null ],
     [ "get_key", "classunodb_1_1db_1_1iterator.html#acae8e334fe120174e36f71bbe4b39956", null ],
     [ "get_val", "classunodb_1_1db_1_1iterator.html#a68ae5c43a1b17c6cbb39d8574e6acd1a", null ],
-    [ "invalidate", "classunodb_1_1db_1_1iterator.html#a4601f7006d444f173f3f615d228b0605", null ],
+    [ "invalidate", "classunodb_1_1db_1_1iterator.html#ab9fa414f12d5d5d4a57bebb8800ca92c", null ],
     [ "last", "classunodb_1_1db_1_1iterator.html#a73c3f611163534ea29ca3fb3958c97e3", null ],
     [ "left_most_traversal", "classunodb_1_1db_1_1iterator.html#ab321c79625f90d6363aaaa752bf92add", null ],
     [ "next", "classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0", null ],

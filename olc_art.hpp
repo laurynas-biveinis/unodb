@@ -304,7 +304,7 @@ class olc_db final {
    protected:
     /// Construct an empty iterator (one that is logically not
     /// positioned on anything and which will report !valid()).
-    explicit iterator(olc_db& tree) : db_(tree) {}
+    explicit iterator(olc_db& tree) noexcept : db_(tree) {}
 
     // iterator is not flyweight. disallow copy and move.
     iterator(const iterator&) = delete;
@@ -565,11 +565,11 @@ class olc_db final {
   /// \param fwd When \c true perform a forward scan, otherwise perform a
   /// reverse scan.
   template <typename FN>
-  void scan(FN fn, bool fwd = true) noexcept {
+  void scan(FN fn, bool fwd = true) {
     if (fwd) {
       iterator it(*this);
       it.first();
-      visitor_type v{it};
+      const visitor_type v{it};
       while (it.valid()) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.next();
@@ -577,7 +577,7 @@ class olc_db final {
     } else {
       iterator it(*this);
       it.last();
-      visitor_type v{it};
+      const visitor_type v{it};
       while (it.valid()) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.prior();

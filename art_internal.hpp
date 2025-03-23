@@ -328,12 +328,9 @@ class [[nodiscard]] basic_node_ptr {
       : tagged_ptr{reinterpret_cast<std::uintptr_t>(nullptr)} {}
 
   // construct a node pointer given a raw pointer and a node type.
-  //
-  // Note: The constructor casts away [const] for use when the
-  // node_ptr will be [const].
   basic_node_ptr(const header_type *ptr UNODB_DETAIL_LIFETIMEBOUND,
                  unodb::node_type type) noexcept
-      : tagged_ptr{tag_ptr(const_cast<header_type *>(ptr), type)} {}
+      : tagged_ptr{tag_ptr(ptr, type)} {}
 
   basic_node_ptr<Header> &operator=(std::nullptr_t) noexcept {
     tagged_ptr = reinterpret_cast<std::uintptr_t>(nullptr);
@@ -367,7 +364,7 @@ class [[nodiscard]] basic_node_ptr {
   std::uintptr_t tagged_ptr;
 
   [[nodiscard, gnu::const]] static std::uintptr_t tag_ptr(
-      Header *ptr_, unodb::node_type tag) noexcept {
+      const Header *ptr_, unodb::node_type tag) noexcept {
     const auto uintptr = reinterpret_cast<std::uintptr_t>(ptr_);
     const auto result =
         uintptr | static_cast<std::underlying_type_t<decltype(tag)>>(tag);

@@ -114,7 +114,7 @@ class [[nodiscard]] basic_leaf final : public Header {
     UNODB_DETAIL_ASSERT(k.size() <= max_key_size);
     UNODB_DETAIL_ASSERT(v.size() <= max_value_size);
 
-    key_view tmp{k.get_key_view()};
+    const auto tmp{k.get_key_view()};
     std::memcpy(data, tmp.data(), key_size);  // store encoded key
     if (!v.empty()) std::memcpy(data + key_size, v.data(), value_size);
   }

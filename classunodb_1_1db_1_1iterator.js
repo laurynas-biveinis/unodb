@@ -6,7 +6,7 @@ var classunodb_1_1db_1_1iterator =
     [ "current_node", "classunodb_1_1db_1_1iterator.html#ac0f79ce27b9b1c5efb409ffb5454b161", null ],
     [ "dump", "classunodb_1_1db_1_1iterator.html#aa6a6776f254ab54fc4ef405abd1eadf9", null ],
     [ "dump", "classunodb_1_1db_1_1iterator.html#adcd3e85bcd9052fc406b0632e4b46fea", null ],
-    [ "empty", "classunodb_1_1db_1_1iterator.html#adefd2f96310b9a3a274a8df9fe70dbd6", null ],
+    [ "empty", "classunodb_1_1db_1_1iterator.html#acc188622a505572e8a25b008bf0396e2", null ],
     [ "first", "classunodb_1_1db_1_1iterator.html#ae7140da77bdaddcb5412a67ac4dbb28d", null ],
     [ "get_key", "classunodb_1_1db_1_1iterator.html#acae8e334fe120174e36f71bbe4b39956", null ],
     [ "get_val", "classunodb_1_1db_1_1iterator.html#a68ae5c43a1b17c6cbb39d8574e6acd1a", null ],
@@ -22,7 +22,7 @@ var classunodb_1_1db_1_1iterator =
     [ "right_most_traversal", "classunodb_1_1db_1_1iterator.html#ad89770f43fc20103dc5458fa4d9cbc39", null ],
     [ "seek", "classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38", null ],
     [ "top", "classunodb_1_1db_1_1iterator.html#aecb940fb56d1e59ee778a6135dc5193e", null ],
-    [ "valid", "classunodb_1_1db_1_1iterator.html#a876da7b357eb5fd35372db9089a3ec20", null ],
+    [ "valid", "classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4", null ],
     [ "db_", "classunodb_1_1db_1_1iterator.html#aa094c5e39d773de49bd5466645c7f50a", null ],
     [ "keybuf_", "classunodb_1_1db_1_1iterator.html#a6396d761c7e6abb971fe1508bb4e3e38", null ],
     [ "stack_", "classunodb_1_1db_1_1iterator.html#a6653e19363aa0aaa8747510bfd1c6e30", null ]

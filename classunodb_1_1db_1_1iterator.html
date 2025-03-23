@@ -157,10 +157,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostrea
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> () const</td></tr>
 <tr class="memdesc:aa6a6776f254ab54fc4ef405abd1eadf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debugging. <br /></td></tr>
 <tr class="separator:aa6a6776f254ab54fc4ef405abd1eadf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a876da7b357eb5fd35372db9089a3ec20" id="r_a876da7b357eb5fd35372db9089a3ec20"><td class="memItemLeft" align="right" valign="top"><a id="a876da7b357eb5fd35372db9089a3ec20" name="a876da7b357eb5fd35372db9089a3ec20"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>valid</b> () const</td></tr>
-<tr class="memdesc:a876da7b357eb5fd35372db9089a3ec20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true unless the stack is empty (exposed to tests). <br /></td></tr>
-<tr class="separator:a876da7b357eb5fd35372db9089a3ec20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af11f8c62f2367d9bfa72abff5dd847c4" id="r_af11f8c62f2367d9bfa72abff5dd847c4"><td class="memItemLeft" align="right" valign="top"><a id="af11f8c62f2367d9bfa72abff5dd847c4" name="af11f8c62f2367d9bfa72abff5dd847c4"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>valid</b> () const noexcept</td></tr>
+<tr class="memdesc:af11f8c62f2367d9bfa72abff5dd847c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true unless the stack is empty (exposed to tests). <br /></td></tr>
+<tr class="separator:af11f8c62f2367d9bfa72abff5dd847c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -188,10 +188,10 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:a903454fbe79c72dc31186ac516c63517" id="r_a903454fbe79c72dc31186ac516c63517"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a903454fbe79c72dc31186ac516c63517">cmp</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> akey) const</td></tr>
 <tr class="memdesc:a903454fbe79c72dc31186ac516c63517"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare the given key (e.g., the to_key) to the current key in the internal buffer.  <br /></td></tr>
 <tr class="separator:a903454fbe79c72dc31186ac516c63517"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adefd2f96310b9a3a274a8df9fe70dbd6" id="r_adefd2f96310b9a3a274a8df9fe70dbd6"><td class="memItemLeft" align="right" valign="top"><a id="adefd2f96310b9a3a274a8df9fe70dbd6" name="adefd2f96310b9a3a274a8df9fe70dbd6"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const</td></tr>
-<tr class="memdesc:adefd2f96310b9a3a274a8df9fe70dbd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the stack is empty. <br /></td></tr>
-<tr class="separator:adefd2f96310b9a3a274a8df9fe70dbd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc188622a505572e8a25b008bf0396e2" id="r_acc188622a505572e8a25b008bf0396e2"><td class="memItemLeft" align="right" valign="top"><a id="acc188622a505572e8a25b008bf0396e2" name="acc188622a505572e8a25b008bf0396e2"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const noexcept</td></tr>
+<tr class="memdesc:acc188622a505572e8a25b008bf0396e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the stack is empty. <br /></td></tr>
+<tr class="separator:acc188622a505572e8a25b008bf0396e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25149b069bf9338b8d04117fa8f9d0cd" id="r_a25149b069bf9338b8d04117fa8f9d0cd"><td class="memItemLeft" align="right" valign="top"><a id="a25149b069bf9338b8d04117fa8f9d0cd" name="a25149b069bf9338b8d04117fa8f9d0cd"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>push</b> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> node, std::byte key_byte, std::uint8_t child_index, <a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">detail::key_prefix_snapshot</a> prefix)</td></tr>
 <tr class="memdesc:a25149b069bf9338b8d04117fa8f9d0cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a non-leaf entry onto the stack. <br /></td></tr>
@@ -337,7 +337,7 @@ template&lt;typename Key , typename Value &gt; </div>
 </div><div class="memdoc">
 
 <p>Return the key_view associated with the current position of the iterator. </p>
-<dl class="section pre"><dt>Precondition</dt><dd>The iterator MUST be <a class="el" href="classunodb_1_1db_1_1iterator.html#a876da7b357eb5fd35372db9089a3ec20" title="Return true unless the stack is empty (exposed to tests).">valid()</a>. </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The iterator MUST be <a class="el" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4" title="Return true unless the stack is empty (exposed to tests).">valid()</a>. </dd></dl>
 
 </div>
 </div>
@@ -367,7 +367,7 @@ template&lt;typename Key , typename Value &gt; </div>
 </div><div class="memdoc">
 
 <p>Return the value_view associated with the current position of the iterator. </p>
-<dl class="section pre"><dt>Precondition</dt><dd>The iterator MUST be <a class="el" href="classunodb_1_1db_1_1iterator.html#a876da7b357eb5fd35372db9089a3ec20" title="Return true unless the stack is empty (exposed to tests).">valid()</a>. </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The iterator MUST be <a class="el" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4" title="Return true unless the stack is empty (exposed to tests).">valid()</a>. </dd></dl>
 
 </div>
 </div>

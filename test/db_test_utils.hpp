@@ -582,14 +582,12 @@ class [[nodiscard]] tree_verifier final {
   // mangled names.
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db, typename T>
-  std::enable_if_t<!is_olc_db<Db2>, void> try_get(T k) const
-      noexcept(noexcept(this->test_db.get(k))) {
+  std::enable_if_t<!is_olc_db<Db2>, void> try_get(T k) const {
     std::ignore = test_db.get(coerce_key(k));
   }
 
   template <class Db2 = Db, typename T>
-  std::enable_if_t<is_olc_db<Db2>, void> try_get(T k) const
-      noexcept(noexcept(this->test_db.get(k))) {
+  std::enable_if_t<is_olc_db<Db2>, void> try_get(T k) const {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     std::ignore = test_db.get(coerce_key(k));
   }
@@ -650,8 +648,7 @@ class [[nodiscard]] tree_verifier final {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   template <typename T>
-  void check_absent_keys(std::initializer_list<T> absent_keys) const
-      noexcept(noexcept(this->try_get(unused_key))) {
+  void check_absent_keys(std::initializer_list<T> absent_keys) const {
     for (const auto absent_key : absent_keys) {
       const auto k{coerce_key(absent_key)};
       UNODB_ASSERT_EQ(values.find(to_ikey(k)), values.cend());

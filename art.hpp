@@ -179,7 +179,7 @@ class db final {
   /// \return true if the delete was successful (i.e. the key was found in the
   /// tree and the associated index entry was removed).
   [[nodiscard]] bool remove(Key search_key) {
-    art_key_type k{search_key};
+    const art_key_type k{search_key};
     return remove_internal(k);
   }
 
@@ -203,7 +203,7 @@ class db final {
    protected:
     /// Construct an empty iterator (one that is logically not
     /// positioned on anything and which will report !valid()).
-    explicit iterator(db& tree) : db_(tree) {}
+    explicit iterator(db& tree) noexcept : db_(tree) {}
 
     // iterator is not flyweight. disallow copy and move.
     iterator(const iterator&) = delete;
@@ -399,7 +399,7 @@ class db final {
 
    private:
     /// Invalidate the iterator (pops everything off of the stack).
-    iterator& invalidate() {
+    iterator& invalidate() noexcept {
       while (!stack_.empty()) stack_.pop();  // clear the stack
       keybuf_.reset();                       // clear the key buffer
       return *this;
@@ -1369,7 +1369,7 @@ void db<Key, Value>::scan(FN fn, bool fwd) {
   if (fwd) {
     iterator it(*this);
     it.first();
-    visitor_type v{it};
+    const visitor_type v{it};
     while (it.valid()) {
       if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it.next();
@@ -1377,7 +1377,7 @@ void db<Key, Value>::scan(FN fn, bool fwd) {
   } else {
     iterator it(*this);
     it.last();
-    visitor_type v{it};
+    const visitor_type v{it};
     while (it.valid()) {
       if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it.prior();

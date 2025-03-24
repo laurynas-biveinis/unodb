@@ -321,7 +321,7 @@ class db final {
     ///
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other
     /// key.
-    [[nodiscard]] int cmp(art_key_type akey) const {
+    [[nodiscard]] int cmp(art_key_type akey) const noexcept {
       // TODO(thompsonbry) : variable length keys.  Explore a cheaper
       // way to handle the exclusive bound case when developing
       // variable length key support based on the maintained key
@@ -515,7 +515,7 @@ class db final {
   //
 
   // Used to write the iterator tests.
-  auto test_only_iterator() { return iterator(*this); }
+  auto test_only_iterator() noexcept { return iterator(*this); }
 
   // Stats
 
@@ -1416,8 +1416,8 @@ void db<Key, Value>::scan_range(Key from_key, Key to_key, FN fn) {
   // to handle the exclusive bound case when developing variable
   // length key support based on the maintained key buffer.
   constexpr bool debug = false;             // set true to debug scan.
-  art_key_type from_key_{from_key};         // convert to internal key
-  art_key_type to_key_{to_key};             // convert to internal key
+  const art_key_type from_key_{from_key};   // convert to internal key
+  const art_key_type to_key_{to_key};       // convert to internal key
   const auto ret = from_key_.cmp(to_key_);  // compare the internal keys
   const bool fwd{ret < 0};                  // from_key is less than to_key
   if (ret == 0) return;                     // NOP
@@ -1430,7 +1430,7 @@ void db<Key, Value>::scan_range(Key from_key, Key to_key, FN fn) {
                 << ", from_key=" << from_key_ << ", to_key=" << to_key_ << "\n";
       it.dump(std::cerr);
     }
-    visitor_type v{it};
+    const visitor_type v{it};
     while (it.valid() && it.cmp(to_key_) < 0) {
       if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it.next();
@@ -1447,7 +1447,7 @@ void db<Key, Value>::scan_range(Key from_key, Key to_key, FN fn) {
                 << ", from_key=" << from_key_ << ", to_key=" << to_key_ << "\n";
       it.dump(std::cerr);
     }
-    visitor_type v{it};
+    const visitor_type v{it};
     while (it.valid() && it.cmp(to_key_) > 0) {
       if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it.prior();

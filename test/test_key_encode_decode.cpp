@@ -667,16 +667,20 @@ class key_factory {
   /// Used to retain arrays backing unodb::key_views.
   std::vector<std::vector<std::byte>> key_views;
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+
   /// Copy the data from the encoder into a new entry in
   /// test::key_factor::key_views.
-  unodb::key_view make_key_view(unodb::key_encoder& enc) {
-    auto kv{enc.get_key_view()};
+  unodb::key_view make_key_view(const unodb::key_encoder& enc) {
+    const auto kv{enc.get_key_view()};
     const auto sz{kv.size()};
     key_views.emplace_back(sz);
     auto& a = key_views.back();  // a *reference* to data emplaced_back.
     std::copy(kv.data(), kv.data() + sz, a.begin());  // copy data to inner vec
     return {a.data(), sz};  // view of inner vec's data.
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 void do_simple_pad_test(unodb::key_encoder& enc, std::string_view sv) {

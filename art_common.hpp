@@ -53,7 +53,7 @@ template <typename Iterator>
 class visitor {
  protected:
   Iterator &it;
-  explicit visitor(Iterator &it_) : it(it_) {}
+  explicit visitor(Iterator &it_) noexcept : it(it_) {}
 
  public:
   using key_type = typename Iterator::key_type;

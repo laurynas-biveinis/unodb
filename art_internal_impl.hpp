@@ -1357,7 +1357,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   }
 
   constexpr void init(key_view k1, art_key_type shifted_k2,
-                      tree_depth_type depth, leaf_type *child1,
+                      tree_depth_type depth, const leaf_type *child1,
                       db_leaf_unique_ptr &&child2) noexcept {
     const auto k2_next_byte_depth = this->get_key_prefix().length();
     const auto k1_next_byte_depth = k2_next_byte_depth + depth;

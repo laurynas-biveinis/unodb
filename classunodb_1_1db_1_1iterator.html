@@ -185,9 +185,9 @@ Protected Member Functions</h2></td></tr>
 <a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>right_most_traversal</b> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> node)</td></tr>
 <tr class="memdesc:ad89770f43fc20103dc5458fa4d9cbc39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Descend from the current state of the stack to the right most child leaf, updating the state of the iterator during the descent. <br /></td></tr>
 <tr class="separator:ad89770f43fc20103dc5458fa4d9cbc39"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a903454fbe79c72dc31186ac516c63517" id="r_a903454fbe79c72dc31186ac516c63517"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a903454fbe79c72dc31186ac516c63517">cmp</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> akey) const</td></tr>
-<tr class="memdesc:a903454fbe79c72dc31186ac516c63517"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare the given key (e.g., the to_key) to the current key in the internal buffer.  <br /></td></tr>
-<tr class="separator:a903454fbe79c72dc31186ac516c63517"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f6d2107b7184fa1126dc174cc0ec270" id="r_a8f6d2107b7184fa1126dc174cc0ec270"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a8f6d2107b7184fa1126dc174cc0ec270">cmp</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> akey) const noexcept</td></tr>
+<tr class="memdesc:a8f6d2107b7184fa1126dc174cc0ec270"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare the given key (e.g., the to_key) to the current key in the internal buffer.  <br /></td></tr>
+<tr class="separator:a8f6d2107b7184fa1126dc174cc0ec270"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acc188622a505572e8a25b008bf0396e2" id="r_acc188622a505572e8a25b008bf0396e2"><td class="memItemLeft" align="right" valign="top"><a id="acc188622a505572e8a25b008bf0396e2" name="acc188622a505572e8a25b008bf0396e2"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const noexcept</td></tr>
 <tr class="memdesc:acc188622a505572e8a25b008bf0396e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the stack is empty. <br /></td></tr>
@@ -258,8 +258,8 @@ template&lt;class &gt; </td></tr>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename Key, typename Value&gt;<br />
 class unodb::db&lt; Key, Value &gt;::iterator</div><p>iterator (the iterator is an internal API, the public API is <a class="el" href="classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09" title="Scan the tree, applying the caller&#39;s lambda to each visited leaf.">scan()</a>). </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a903454fbe79c72dc31186ac516c63517" name="a903454fbe79c72dc31186ac516c63517"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a903454fbe79c72dc31186ac516c63517">&#9670;&#160;</a></span>cmp()</h2>
+<a id="a8f6d2107b7184fa1126dc174cc0ec270" name="a8f6d2107b7184fa1126dc174cc0ec270"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f6d2107b7184fa1126dc174cc0ec270">&#9670;&#160;</a></span>cmp()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -279,7 +279,7 @@ template&lt;typename Key , typename Value &gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

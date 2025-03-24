@@ -636,7 +636,7 @@ class olc_db final {
   /// returning `bool`.  The traversal will halt if the function returns \c
   /// true.
   template <typename FN>
-  void scan_range(Key from_key, Key to_key, FN fn) noexcept {
+  void scan_range(Key from_key, Key to_key, FN fn) {
     // TODO(thompsonbry) : variable length keys. Explore a cheaper way
     // to handle the exclusive bound case when developing variable
     // length key support based on the maintained key buffer.
@@ -656,7 +656,7 @@ class olc_db final {
                   << "\n";
         it.dump(std::cerr);
       }
-      visitor_type v{it};
+      const visitor_type v{it};
       while (it.valid() && it.cmp(to_key_) < 0) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.next();
@@ -674,7 +674,7 @@ class olc_db final {
                   << "\n";
         it.dump(std::cerr);
       }
-      visitor_type v{it};
+      const visitor_type v{it};
       while (it.valid() && it.cmp(to_key_) > 0) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.prior();
@@ -1076,7 +1076,8 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key, Value> {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
   void init(key_view k1, art_key_type shifted_k2, tree_depth_type depth,
-            leaf_type* child1, olc_db_leaf_unique_ptr_type&& child2) noexcept {
+            const leaf_type* child1,
+            olc_db_leaf_unique_ptr_type&& child2) noexcept {
     UNODB_DETAIL_ASSERT((node_ptr_lock<Key, Value>(child1).is_write_locked()));
 
     parent_class::init(k1, shifted_k2, depth, child1, std::move(child2));

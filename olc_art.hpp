@@ -413,7 +413,7 @@ class olc_db final {
     /// internal buffer.
     ///
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
-    [[nodiscard, gnu::pure]] int cmp(const art_key_type& akey) const;
+    [[nodiscard, gnu::pure]] int cmp(const art_key_type& akey) const noexcept;
 
     //
     // stack access methods.
@@ -2699,7 +2699,7 @@ qsbr_value_view olc_db<Key, Value>::iterator::get_val() const noexcept {
 }
 
 template <typename Key, typename Value>
-int olc_db<Key, Value>::iterator::cmp(const art_key_type& akey) const {
+int olc_db<Key, Value>::iterator::cmp(const art_key_type& akey) const noexcept {
   // TODO(thompsonbry) : variable length keys. Explore a cheaper way
   // to handle the exclusive bound case when developing variable
   // length key support based on the maintained key buffer.

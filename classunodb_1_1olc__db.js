@@ -14,5 +14,5 @@ var classunodb_1_1olc__db =
     [ "remove_internal", "classunodb_1_1olc__db.html#a3d279a01cb25be3297a38db685d2856a", null ],
     [ "scan", "classunodb_1_1olc__db.html#ac395b39faa9c4a6e8a70a0cfcb9efc8e", null ],
     [ "scan_from", "classunodb_1_1olc__db.html#a1dbe69eda1ac2e562a4cfd7d580d90cd", null ],
-    [ "scan_range", "classunodb_1_1olc__db.html#a1d2fc2189158f306049b995ea4901055", null ]
+    [ "scan_range", "classunodb_1_1olc__db.html#ad7843ad77c6324c2e6ac429640077951", null ]
 ];

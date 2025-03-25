@@ -6,19 +6,17 @@
 // IWYU pragma: no_include <__math/traits.h>
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
 // IWYU pragma: no_include <_string.h>
-// IWYU pragma: no_include <string>
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
 #include <cstring>
 #include <limits>
-#include <memory>
 #include <span>
 #include <sstream>
+#include <string>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -712,19 +710,14 @@ void do_simple_pad_test(unodb::key_encoder& enc, std::string_view sv) {
 /// do_simple_pad_test().
 void do_pad_test_large_string(unodb::key_encoder& enc, size_t nbytes,
                               bool expect_truncation = false) {
-  // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
-  const std::unique_ptr<void, decltype(std::free)*> ptr{std::malloc(nbytes + 1),
-                                                        std::free};
-  auto* p{reinterpret_cast<char*>(ptr.get())};
-  std::memset(p, 'a', nbytes);  // fill with some char.
-  p[nbytes] = '\0';             // nul terminate.
-  do_simple_pad_test(
-      enc, std::string_view(reinterpret_cast<const char*>(p), nbytes));
+  std::string buf(nbytes + 1U, 'a');
+  buf[nbytes] = '\0';
+  do_simple_pad_test(enc, std::string_view(buf.data(), nbytes));
   if (expect_truncation) {
-    auto kv = enc.get_key_view();
-    const size_t max_key_size = unodb::key_encoder::maxlen +
-                                sizeof(unodb::key_encoder::pad) +
-                                sizeof(unodb::key_encoder::size_type);
+    const auto kv = enc.get_key_view();
+    constexpr auto max_key_size = unodb::key_encoder::maxlen +
+                                  sizeof(unodb::key_encoder::pad) +
+                                  sizeof(unodb::key_encoder::size_type);
     UNODB_EXPECT_EQ(kv.size(), max_key_size);
   }
 }

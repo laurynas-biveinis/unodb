@@ -6,7 +6,6 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
-// IWYU pragma: no_include <_string.h>
 // IWYU pragma: no_include <iomanip>
 // IWYU pragma: no_include <string>
 
@@ -14,7 +13,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <cstring>
 #include <initializer_list>
 #include <iostream>
 #include <map>
@@ -188,15 +186,13 @@ class [[nodiscard]] tree_verifier final {
   /// Convert an external key (Db::key_type) to an internal key (one the
   /// unodb::test::tree_verifier stores in its ground truth key/value
   /// collection).
-  [[nodiscard]] ikey_type<Db> to_ikey(typename Db::key_type key) const {
+  [[nodiscard]] ikey_type<Db> to_ikey(typename Db::key_type key) const
+      noexcept(!std::is_same_v<key_type, unodb::key_view>) {
     if constexpr (std::is_same_v<key_type, unodb::key_view>) {
       // Allocate a vector, make a copy of the key into the vector,
       // and return a shared_ptr to that vector.
       UNODB_DETAIL_PAUSE_HEAP_TRACKING_GUARD();
-      const auto nbytes = key.size_bytes();
-      auto *vec = new std::vector<std::byte>(nbytes);
-      std::memcpy(vec->data(), key.data(), nbytes);
-      return key_wrapper{vec};
+      return std::make_shared<std::vector<std::byte>>(key.begin(), key.end());
     } else {
       return key;  // NOP
     }

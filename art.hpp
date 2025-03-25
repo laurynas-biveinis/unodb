@@ -1054,7 +1054,7 @@ template <typename Key, typename Value>
 typename db<Key, Value>::iterator& db<Key, Value>::iterator::first() {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
-  auto node{db_.root};
+  const auto node{db_.root};
   return left_most_traversal(node);
 }
 

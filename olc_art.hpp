@@ -1866,7 +1866,7 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
-      auto* const leaf{node.template ptr<leaf_type*>()};
+      const auto* const leaf{node.template ptr<leaf_type*>()};
       const auto existing_key{leaf->get_key_view()};
       if (UNODB_DETAIL_UNLIKELY(k.cmp(existing_key) == 0)) {
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))

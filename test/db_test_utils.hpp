@@ -232,12 +232,8 @@ class [[nodiscard]] tree_verifier final {
   // However, it is also used by test_art_iter to from the type specific keys
   // for the db::iterator::seek() API.
   template <typename T>
-  key_type coerce_key(T key) const {
-    // TODO(thompsonbry) - Look at why some callers are const.
-    //
-    // Some callers are const, but we need to add things into the
-    // internal collections.
-    return const_cast<tree_verifier<Db> *>(this)->coerce_key_internal(key);
+  key_type coerce_key(T key) {
+    return coerce_key_internal(key);
   }
 
   /// Return an unodb::key_view backed by a `std::array` in an internal
@@ -250,7 +246,7 @@ class [[nodiscard]] tree_verifier final {
     // that we are tracking, and copy the encoded key into that
     // emplaced array.
     unodb::key_encoder enc;
-    auto kv{enc.encode(k).get_key_view()};
+    const auto kv{enc.encode(k).get_key_view()};
     key_views.emplace_back(std::array<std::byte, sz>{});
     auto &a = key_views.back();  // a *reference* to data emplaced_back.
     std::copy(kv.data(), kv.data() + sz, a.begin());  // copy data into array.
@@ -578,12 +574,12 @@ class [[nodiscard]] tree_verifier final {
   // mangled names.
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db, typename T>
-  std::enable_if_t<!is_olc_db<Db2>, void> try_get(T k) const {
+  std::enable_if_t<!is_olc_db<Db2>, void> try_get(T k) {
     std::ignore = test_db.get(coerce_key(k));
   }
 
   template <class Db2 = Db, typename T>
-  std::enable_if_t<is_olc_db<Db2>, void> try_get(T k) const {
+  std::enable_if_t<is_olc_db<Db2>, void> try_get(T k) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     std::ignore = test_db.get(coerce_key(k));
   }
@@ -644,7 +640,7 @@ class [[nodiscard]] tree_verifier final {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
   template <typename T>
-  void check_absent_keys(std::initializer_list<T> absent_keys) const {
+  void check_absent_keys(std::initializer_list<T> absent_keys) {
     for (const auto absent_key : absent_keys) {
       const auto k{coerce_key(absent_key)};
       UNODB_ASSERT_EQ(values.find(to_ikey(k)), values.cend());

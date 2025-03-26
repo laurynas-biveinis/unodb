@@ -1037,7 +1037,7 @@ $(document).ready(function(){initNavTree('art_8hpp_source.html',''); initResizab
 <div class="line"><a id="l01065" name="l01065"></a><span class="lineno"><a class="line" href="classunodb_1_1db_1_1iterator.html#a73c3f611163534ea29ca3fb3958c97e3"> 1065</a></span><span class="keyword">typename</span> <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">db&lt;Key, Value&gt;::iterator</a>&amp; <a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a73c3f611163534ea29ca3fb3958c97e3">db&lt;Key, Value&gt;::iterator::last</a>() {</div>
 <div class="line"><a id="l01066" name="l01066"></a><span class="lineno"> 1066</span>  invalidate();  <span class="comment">// clear the stack</span></div>
 <div class="line"><a id="l01067" name="l01067"></a><span class="lineno"> 1067</span>  <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(db_.root == <span class="keyword">nullptr</span>)) <span class="keywordflow">return</span> *<span class="keyword">this</span>;  <span class="comment">// empty tree.</span></div>
-<div class="line"><a id="l01068" name="l01068"></a><span class="lineno"> 1068</span>  <span class="keyword">auto</span> node{db_.root};</div>
+<div class="line"><a id="l01068" name="l01068"></a><span class="lineno"> 1068</span>  <span class="keyword">const</span> <span class="keyword">auto</span> node{db_.root};</div>
 <div class="line"><a id="l01069" name="l01069"></a><span class="lineno"> 1069</span>  <span class="keywordflow">return</span> right_most_traversal(node);</div>
 <div class="line"><a id="l01070" name="l01070"></a><span class="lineno"> 1070</span>}</div>
 </div>

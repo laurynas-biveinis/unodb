@@ -1073,27 +1073,27 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::last() {
 template <typename Key, typename Value>
 typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
   while (!empty()) {
-    auto e = top();
-    auto node{e.node};
+    const auto& e = top();
+    const auto node{e.node};
     UNODB_DETAIL_ASSERT(node != nullptr);
-    auto node_type = node.type();
+    const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       pop();     // pop off the leaf
       continue;  // falls through loop if just a root leaf since stack now
                  // empty.
     }
     auto* inode{node.template ptr<inode_type*>()};
-    auto nxt = inode->next(node_type,
-                           e.child_index);  // next child of that parent.
+    const auto nxt = inode->next(node_type,
+                                 e.child_index);  // next child of that parent.
     if (!nxt.has_value()) {
       pop();     // Nothing more for that inode.
       continue;  // We will look for the right sibling of the parent inode.
     }
     // Fix up stack for new parent node state and left-most descent.
-    auto e2 = nxt.value();
+    const auto& e2 = nxt.value();
     pop();
     push(e2);
-    auto child = inode->get_child(node_type, e2.child_index);  // descend
+    const auto child = inode->get_child(node_type, e2.child_index);  // descend
     return left_most_traversal(child);
   }
   return *this;  // stack is empty, so iterator == end().

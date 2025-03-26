@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -710,6 +711,7 @@ void do_simple_pad_test(unodb::key_encoder& enc, std::string_view sv) {
 /// do_simple_pad_test().
 void do_pad_test_large_string(unodb::key_encoder& enc, size_t nbytes,
                               bool expect_truncation = false) {
+  assert(nbytes < std::numeric_limits<std::size_t>::max());
   std::string buf(nbytes + 1U, 'a');
   buf[nbytes] = '\0';
   do_simple_pad_test(enc, std::string_view(buf.data(), nbytes));

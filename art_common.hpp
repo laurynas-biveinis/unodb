@@ -292,6 +292,7 @@ class key_encoder {
 
   /// Ensure that the buffer can hold at least \a req additional bytes.
   void ensure_available(size_t req) {
+    UNODB_DETAIL_ASSERT(req <= std::numeric_limits<std::size_t>::max() - off);
     if (UNODB_DETAIL_UNLIKELY(off + req > cap)) {
       ensure_capacity(off + req);  // resize
     }

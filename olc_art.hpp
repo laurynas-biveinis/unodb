@@ -2218,7 +2218,7 @@ bool olc_db<Key, Value>::iterator::try_next() {
 
 template <typename Key, typename Value>
 typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::prior() {
-  auto node = current_node();
+  const auto node = current_node();
   if (node != nullptr) {
     UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
     const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf

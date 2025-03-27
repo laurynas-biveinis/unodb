@@ -2174,15 +2174,15 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::next() {
 template <typename Key, typename Value>
 bool olc_db<Key, Value>::iterator::try_next() {
   while (!empty()) {
-    auto e = top();
-    auto node{e.node};  // the node on the top of the stack.
+    const auto& e = top();
+    const auto node{e.node};  // the node on the top of the stack.
     UNODB_DETAIL_ASSERT(node != nullptr);
     auto node_critical_section(
         node_ptr_lock(node).rehydrate_read_lock(e.version));
     // Restart check (fails if node was modified after it was pushed
     // onto the stack).
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return false;
-    auto node_type = node.type();
+    const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       pop();  // pop off the leaf
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -2204,7 +2204,7 @@ bool olc_db<Key, Value>::iterator::try_next() {
       continue;  // We will look for the right sibling of the parent inode.
     }
     // Fix up stack for new parent node state and left-most descent.
-    auto e2 = nxt.value();
+    const auto& e2 = nxt.value();
     pop();
     if (UNODB_DETAIL_UNLIKELY(!try_push(e2, node_critical_section)))
       return false;                                            // LCOV_EXCL_LINE

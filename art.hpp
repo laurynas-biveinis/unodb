@@ -1144,8 +1144,9 @@ db<Key, Value>::iterator::left_most_traversal(detail::node_ptr node) {
     }
     // recursive descent.
     auto* const inode{node.ptr<inode_type*>()};
-    auto e = inode->begin(node_type);  // first child of current internal node
-    push(e);                           // push the entry on the stack.
+    const auto e =
+        inode->begin(node_type);  // first child of current internal node
+    push(e);                      // push the entry on the stack.
     node = inode->get_child(node_type, e.child_index);  // get the child
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
@@ -1246,7 +1247,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
       return right_most_traversal(node);
     }
     remaining_key.shift_right(key_prefix_length);
-    auto res = inode->find_child(node_type, remaining_key[0]);
+    const auto res = inode->find_child(node_type, remaining_key[0]);
     if (res.second == nullptr) {
       // We are on a key byte during the descent that is not mapped by
       // the current node.  Where we go next depends on whether we are
@@ -1272,7 +1273,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
           // (aka the end() iterator) and return that state.
           if (!empty()) pop();
           while (!empty()) {
-            const auto centry = top();
+            const auto& centry = top();
             const auto cnode{centry.node};  // possible parent from the stack
             auto* const icnode{cnode.template ptr<inode_type*>()};
             const auto cnxt = icnode->next(
@@ -1285,7 +1286,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
           }
           return *this;  // stack is empty (aka end()).
         }
-        auto tmp = nxt.value();  // unwrap.
+        const auto& tmp = nxt.value();  // unwrap.
         const auto child_index = tmp.child_index;
         const auto child = inode->get_child(node_type, child_index);
         push(node, tmp.key_byte, child_index, tmp.prefix);  // the path we took
@@ -1302,7 +1303,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
         // previous entry and we will wind up with an empty stack.
         if (!empty()) pop();
         while (!empty()) {
-          const auto centry = top();
+          const auto& centry = top();
           const auto cnode{centry.node};  // possible parent from stack
           auto* const icnode{cnode.template ptr<inode_type*>()};
           const auto cnxt =
@@ -1315,7 +1316,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
         }
         return *this;  // stack is empty (aka end()).
       }
-      auto tmp = nxt.value();  // unwrap.
+      const auto& tmp = nxt.value();  // unwrap.
       const auto child_index{tmp.child_index};
       const auto child = inode->get_child(node_type, child_index);
       push(node, tmp.key_byte, child_index, tmp.prefix);  // the path we took

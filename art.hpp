@@ -1103,10 +1103,10 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
 template <typename Key, typename Value>
 typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
   while (!empty()) {
-    auto e = top();
-    auto node{e.node};
+    const auto& e = top();
+    const auto node{e.node};
     UNODB_DETAIL_ASSERT(node != nullptr);
-    auto node_type = node.type();
+    const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       pop();     // pop off the leaf
       continue;  // falls through loop if just a root leaf since stack now
@@ -1120,7 +1120,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
     }
     // Fix up stack for new parent node state and right-most descent.
     UNODB_DETAIL_ASSERT(nxt.has_value());  // value exists for std::optional
-    auto e2 = nxt.value();
+    const auto& e2 = nxt.value();
     pop();
     push(e2);
     auto child = inode->get_child(node_type, e2.child_index);  // descend

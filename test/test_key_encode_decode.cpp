@@ -711,8 +711,8 @@ void do_simple_pad_test(unodb::key_encoder& enc, std::string_view sv) {
 /// do_simple_pad_test().
 void do_pad_test_large_string(unodb::key_encoder& enc, size_t nbytes,
                               bool expect_truncation = false) {
-  UNODB_DETAIL_ASSERT(nbytes <= std::numeric_limits<std::size_t>::max() -
-                                    enc.size_bytes());
+  UNODB_DETAIL_ASSERT(nbytes + 1U <= std::numeric_limits<std::size_t>::max() -
+                                         enc.size_bytes());
   std::string buf(nbytes + 1U, 'a');
   buf[nbytes] = '\0';
   do_simple_pad_test(enc, std::string_view(buf.data(), nbytes));

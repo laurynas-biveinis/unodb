@@ -2428,7 +2428,7 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
           try_right_most_traversal(node, parent_critical_section));
     }
     remaining_key.shift_right(key_prefix_length);
-    auto res = inode->find_child(node_type, remaining_key[0]);
+    const auto res = inode->find_child(node_type, remaining_key[0]);
     if (res.second == nullptr) {
       // We are on a key byte during the descent that is not mapped by
       // the current node.  Where we go next depends on whether we are
@@ -2460,7 +2460,7 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
             return false;                                     // LCOV_EXCL_LINE
           if (!empty()) pop();
           while (!empty()) {
-            const auto centry = top();
+            const auto& centry = top();
             const auto cnode{centry.node};  // a possible parent from the stack.
             auto c_critical_section(
                 node_ptr_lock(cnode).rehydrate_read_lock(centry.version));
@@ -2483,7 +2483,7 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
           }
           return true;  // stack is empty (aka end()).
         }
-        auto tmp = nxt.value();  // unwrap.
+        const auto& tmp = nxt.value();  // unwrap.
         const auto child_index = tmp.child_index;
         const auto child =
             inode->get_child(node_type, child_index);  // get child
@@ -2516,7 +2516,7 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
           return false;                                     // LCOV_EXCL_LINE
         if (!empty()) pop();
         while (!empty()) {
-          const auto centry = top();
+          const auto& centry = top();
           const auto cnode{centry.node};  // a possible parent from stack
           auto c_critical_section(
               node_ptr_lock(cnode).rehydrate_read_lock(centry.version));
@@ -2539,7 +2539,7 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
         }
         return true;  // stack is empty (aka end()).
       }
-      auto tmp = nxt.value();  // unwrap.
+      const auto& tmp = nxt.value();  // unwrap.
       const auto child_index = tmp.child_index;
       const auto child =
           inode->get_child(node_type, child_index);  // get the child
@@ -2604,7 +2604,8 @@ bool olc_db<Key, Value>::iterator::try_left_most_traversal(
     }
     // recursive descent.
     auto* const inode{node.ptr<inode_type*>()};
-    auto t = inode->begin(node_type);  // first chold of current internal node
+    const auto t =
+        inode->begin(node_type);  // first chold of current internal node
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
       return false;  // LCOV_EXCL_LINE
     if (UNODB_DETAIL_UNLIKELY(!try_push(t, node_critical_section)))

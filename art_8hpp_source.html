@@ -1147,399 +1147,400 @@ $(document).ready(function(){initNavTree('art_8hpp_source.html',''); initResizab
 <div class="line"><a id="l01167" name="l01167"></a><span class="lineno"> 1167</span>    }</div>
 <div class="line"><a id="l01168" name="l01168"></a><span class="lineno"> 1168</span>    <span class="comment">// recursive descent.</span></div>
 <div class="line"><a id="l01169" name="l01169"></a><span class="lineno"> 1169</span>    <span class="keyword">auto</span>* <span class="keyword">const</span> inode{node.ptr&lt;<a class="code hl_class" href="classunodb_1_1detail_1_1inode.html">inode_type</a>*&gt;()};</div>
-<div class="line"><a id="l01170" name="l01170"></a><span class="lineno"> 1170</span>    <span class="keyword">auto</span> e = inode-&gt;last(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>);  <span class="comment">// first child of current internal node</span></div>
-<div class="line"><a id="l01171" name="l01171"></a><span class="lineno"> 1171</span>    push(e);                          <span class="comment">// push the entry on the stack.</span></div>
-<div class="line"><a id="l01172" name="l01172"></a><span class="lineno"> 1172</span>    node = inode-&gt;get_child(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, e.child_index);  <span class="comment">// get the child</span></div>
-<div class="line"><a id="l01173" name="l01173"></a><span class="lineno"> 1173</span>  }</div>
-<div class="line"><a id="l01174" name="l01174"></a><span class="lineno"> 1174</span>  <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();</div>
-<div class="line"><a id="l01175" name="l01175"></a><span class="lineno"> 1175</span>}</div>
+<div class="line"><a id="l01170" name="l01170"></a><span class="lineno"> 1170</span>    <span class="keyword">const</span> <span class="keyword">auto</span> e =</div>
+<div class="line"><a id="l01171" name="l01171"></a><span class="lineno"> 1171</span>        inode-&gt;last(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>);  <span class="comment">// first child of current internal node</span></div>
+<div class="line"><a id="l01172" name="l01172"></a><span class="lineno"> 1172</span>    push(e);                     <span class="comment">// push the entry on the stack.</span></div>
+<div class="line"><a id="l01173" name="l01173"></a><span class="lineno"> 1173</span>    node = inode-&gt;get_child(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, e.child_index);  <span class="comment">// get the child</span></div>
+<div class="line"><a id="l01174" name="l01174"></a><span class="lineno"> 1174</span>  }</div>
+<div class="line"><a id="l01175" name="l01175"></a><span class="lineno"> 1175</span>  <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();</div>
+<div class="line"><a id="l01176" name="l01176"></a><span class="lineno"> 1176</span>}</div>
 </div>
-<div class="line"><a id="l01176" name="l01176"></a><span class="lineno"> 1176</span> </div>
-<div class="line"><a id="l01177" name="l01177"></a><span class="lineno"> 1177</span><span class="comment">// Note: The basic seek() logic is similar to ::get() as long as the</span></div>
-<div class="line"><a id="l01178" name="l01178"></a><span class="lineno"> 1178</span><span class="comment">// search_key exists in the data.  However, the iterator is positioned</span></div>
-<div class="line"><a id="l01179" name="l01179"></a><span class="lineno"> 1179</span><span class="comment">// instead of returning the value for the key.  Life gets a lot more</span></div>
-<div class="line"><a id="l01180" name="l01180"></a><span class="lineno"> 1180</span><span class="comment">// complicated when the search_key is not in the data and we have to</span></div>
-<div class="line"><a id="l01181" name="l01181"></a><span class="lineno"> 1181</span><span class="comment">// consider the cases for both forward traversal and reverse traversal</span></div>
-<div class="line"><a id="l01182" name="l01182"></a><span class="lineno"> 1182</span><span class="comment">// from a key that is not in the data.  See method declartion for</span></div>
-<div class="line"><a id="l01183" name="l01183"></a><span class="lineno"> 1183</span><span class="comment">// details.</span></div>
-<div class="line"><a id="l01184" name="l01184"></a><span class="lineno"> 1184</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="foldopen" id="foldopen01185" data-start="{" data-end="}">
-<div class="line"><a id="l01185" name="l01185"></a><span class="lineno"><a class="line" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38"> 1185</a></span><span class="keyword">typename</span> <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">db&lt;Key, Value&gt;::iterator</a>&amp; <a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">db&lt;Key, Value&gt;::iterator::seek</a>(</div>
-<div class="line"><a id="l01186" name="l01186"></a><span class="lineno"> 1186</span>    <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> search_key, <span class="keywordtype">bool</span>&amp; match, <span class="keywordtype">bool</span> fwd) {</div>
-<div class="line"><a id="l01187" name="l01187"></a><span class="lineno"> 1187</span>  invalidate();   <span class="comment">// invalidate the iterator (clear the stack).</span></div>
-<div class="line"><a id="l01188" name="l01188"></a><span class="lineno"> 1188</span>  match = <span class="keyword">false</span>;  <span class="comment">// unless we wind up with an exact match.</span></div>
-<div class="line"><a id="l01189" name="l01189"></a><span class="lineno"> 1189</span>  <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(db_.root == <span class="keyword">nullptr</span>)) <span class="keywordflow">return</span> *<span class="keyword">this</span>;  <span class="comment">// aka end()</span></div>
-<div class="line"><a id="l01190" name="l01190"></a><span class="lineno"> 1190</span> </div>
-<div class="line"><a id="l01191" name="l01191"></a><span class="lineno"> 1191</span>  <span class="keyword">auto</span> node{db_.root};</div>
-<div class="line"><a id="l01192" name="l01192"></a><span class="lineno"> 1192</span>  <span class="keyword">const</span> <span class="keyword">auto</span> k = search_key;</div>
-<div class="line"><a id="l01193" name="l01193"></a><span class="lineno"> 1193</span>  <span class="keyword">auto</span> remaining_key{k};</div>
-<div class="line"><a id="l01194" name="l01194"></a><span class="lineno"> 1194</span> </div>
-<div class="line"><a id="l01195" name="l01195"></a><span class="lineno"> 1195</span>  <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
-<div class="line"><a id="l01196" name="l01196"></a><span class="lineno"> 1196</span>    <span class="keyword">const</span> <span class="keyword">auto</span> <a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> = node.type();</div>
-<div class="line"><a id="l01197" name="l01197"></a><span class="lineno"> 1197</span>    <span class="keywordflow">if</span> (<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> == <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>) {</div>
-<div class="line"><a id="l01198" name="l01198"></a><span class="lineno"> 1198</span>      <span class="keyword">const</span> <span class="keyword">auto</span>* <span class="keyword">const</span> leaf{node.template ptr&lt;leaf_type*&gt;()};</div>
-<div class="line"><a id="l01199" name="l01199"></a><span class="lineno"> 1199</span>      push_leaf(node);</div>
-<div class="line"><a id="l01200" name="l01200"></a><span class="lineno"> 1200</span>      <span class="keyword">const</span> <span class="keyword">auto</span> cmp_ = leaf-&gt;cmp(k);</div>
-<div class="line"><a id="l01201" name="l01201"></a><span class="lineno"> 1201</span>      <span class="keywordflow">if</span> (cmp_ == 0) {</div>
-<div class="line"><a id="l01202" name="l01202"></a><span class="lineno"> 1202</span>        match = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l01203" name="l01203"></a><span class="lineno"> 1203</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l01204" name="l01204"></a><span class="lineno"> 1204</span>      }</div>
-<div class="line"><a id="l01205" name="l01205"></a><span class="lineno"> 1205</span>      <span class="keywordflow">if</span> (fwd) {  <span class="comment">// GTE semantics</span></div>
-<div class="line"><a id="l01206" name="l01206"></a><span class="lineno"> 1206</span>        <span class="comment">// if search_key &lt; leaf, use the leaf, else next().</span></div>
-<div class="line"><a id="l01207" name="l01207"></a><span class="lineno"> 1207</span>        <span class="keywordflow">return</span> (cmp_ &lt; 0) ? *this : next();</div>
-<div class="line"><a id="l01208" name="l01208"></a><span class="lineno"> 1208</span>      }</div>
-<div class="line"><a id="l01209" name="l01209"></a><span class="lineno"> 1209</span>      <span class="comment">// LTE semantics: if search_key &gt; leaf, use the leaf, else prior().</span></div>
-<div class="line"><a id="l01210" name="l01210"></a><span class="lineno"> 1210</span>      <span class="keywordflow">return</span> (cmp_ &gt; 0) ? *this : prior();</div>
-<div class="line"><a id="l01211" name="l01211"></a><span class="lineno"> 1211</span>    }</div>
-<div class="line"><a id="l01212" name="l01212"></a><span class="lineno"> 1212</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> != <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>);</div>
-<div class="line"><a id="l01213" name="l01213"></a><span class="lineno"> 1213</span>    <span class="keyword">auto</span>* <span class="keyword">const</span> inode{node.template ptr&lt;inode_type*&gt;()};  <span class="comment">// some internal node.</span></div>
-<div class="line"><a id="l01214" name="l01214"></a><span class="lineno"> 1214</span>    <span class="keyword">const</span> <span class="keyword">auto</span> key_prefix{inode-&gt;get_key_prefix().get_snapshot()};  <span class="comment">// prefix</span></div>
-<div class="line"><a id="l01215" name="l01215"></a><span class="lineno"> 1215</span>    <span class="keyword">const</span> <span class="keyword">auto</span> key_prefix_length{key_prefix.length()};  <span class="comment">// length of that prefix</span></div>
-<div class="line"><a id="l01216" name="l01216"></a><span class="lineno"> 1216</span>    <span class="keyword">const</span> <span class="keyword">auto</span> shared_length = key_prefix.get_shared_length(</div>
-<div class="line"><a id="l01217" name="l01217"></a><span class="lineno"> 1217</span>        remaining_key.get_u64());  <span class="comment">// #of prefix bytes matched.</span></div>
-<div class="line"><a id="l01218" name="l01218"></a><span class="lineno"> 1218</span>    <span class="keywordflow">if</span> (shared_length &lt; key_prefix_length) {</div>
-<div class="line"><a id="l01219" name="l01219"></a><span class="lineno"> 1219</span>      <span class="comment">// We have visited an internal node whose prefix is longer than</span></div>
-<div class="line"><a id="l01220" name="l01220"></a><span class="lineno"> 1220</span>      <span class="comment">// the bytes in the key that we need to match.  To figure out</span></div>
-<div class="line"><a id="l01221" name="l01221"></a><span class="lineno"> 1221</span>      <span class="comment">// whether the search key would be located before or after the</span></div>
-<div class="line"><a id="l01222" name="l01222"></a><span class="lineno"> 1222</span>      <span class="comment">// current internal node, we need to compare the respective key</span></div>
-<div class="line"><a id="l01223" name="l01223"></a><span class="lineno"> 1223</span>      <span class="comment">// spans lexicographically.  Since we have [shared_length] bytes</span></div>
-<div class="line"><a id="l01224" name="l01224"></a><span class="lineno"> 1224</span>      <span class="comment">// in common, we know that the next byte will tell us the</span></div>
-<div class="line"><a id="l01225" name="l01225"></a><span class="lineno"> 1225</span>      <span class="comment">// relative ordering of the key vs the prefix. So now we compare</span></div>
-<div class="line"><a id="l01226" name="l01226"></a><span class="lineno"> 1226</span>      <span class="comment">// prefix and key and the first byte where they differ.</span></div>
-<div class="line"><a id="l01227" name="l01227"></a><span class="lineno"> 1227</span>      <span class="keyword">const</span> <span class="keyword">auto</span> cmp_ = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(remaining_key[shared_length]) -</div>
-<div class="line"><a id="l01228" name="l01228"></a><span class="lineno"> 1228</span>                        <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(key_prefix[shared_length]);</div>
-<div class="line"><a id="l01229" name="l01229"></a><span class="lineno"> 1229</span>      <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(cmp_ != 0);</div>
-<div class="line"><a id="l01230" name="l01230"></a><span class="lineno"> 1230</span>      <span class="keywordflow">if</span> (fwd) {</div>
-<div class="line"><a id="l01231" name="l01231"></a><span class="lineno"> 1231</span>        <span class="keywordflow">if</span> (cmp_ &lt; 0) {</div>
-<div class="line"><a id="l01232" name="l01232"></a><span class="lineno"> 1232</span>          <span class="comment">// FWD and the search key is ordered before this node.  We</span></div>
-<div class="line"><a id="l01233" name="l01233"></a><span class="lineno"> 1233</span>          <span class="comment">// want the left-most leaf under the node.</span></div>
-<div class="line"><a id="l01234" name="l01234"></a><span class="lineno"> 1234</span>          <span class="keywordflow">return</span> left_most_traversal(node);</div>
-<div class="line"><a id="l01235" name="l01235"></a><span class="lineno"> 1235</span>        }</div>
-<div class="line"><a id="l01236" name="l01236"></a><span class="lineno"> 1236</span>        <span class="comment">// FWD and the search key is ordered after this node.  Right</span></div>
-<div class="line"><a id="l01237" name="l01237"></a><span class="lineno"> 1237</span>        <span class="comment">// most descent and then next().</span></div>
-<div class="line"><a id="l01238" name="l01238"></a><span class="lineno"> 1238</span>        <span class="keywordflow">return</span> right_most_traversal(node).next();</div>
-<div class="line"><a id="l01239" name="l01239"></a><span class="lineno"> 1239</span>      }</div>
-<div class="line"><a id="l01240" name="l01240"></a><span class="lineno"> 1240</span>      <span class="comment">// reverse traversal</span></div>
-<div class="line"><a id="l01241" name="l01241"></a><span class="lineno"> 1241</span>      <span class="keywordflow">if</span> (cmp_ &lt; 0) {</div>
-<div class="line"><a id="l01242" name="l01242"></a><span class="lineno"> 1242</span>        <span class="comment">// REV and the search key is ordered before this node.  We</span></div>
-<div class="line"><a id="l01243" name="l01243"></a><span class="lineno"> 1243</span>        <span class="comment">// want the preceeding key.</span></div>
-<div class="line"><a id="l01244" name="l01244"></a><span class="lineno"> 1244</span>        <span class="keywordflow">return</span> left_most_traversal(node).prior();</div>
-<div class="line"><a id="l01245" name="l01245"></a><span class="lineno"> 1245</span>      }</div>
-<div class="line"><a id="l01246" name="l01246"></a><span class="lineno"> 1246</span>      <span class="comment">// REV and the search key is ordered after this node.</span></div>
-<div class="line"><a id="l01247" name="l01247"></a><span class="lineno"> 1247</span>      <span class="keywordflow">return</span> right_most_traversal(node);</div>
-<div class="line"><a id="l01248" name="l01248"></a><span class="lineno"> 1248</span>    }</div>
-<div class="line"><a id="l01249" name="l01249"></a><span class="lineno"> 1249</span>    remaining_key.shift_right(key_prefix_length);</div>
-<div class="line"><a id="l01250" name="l01250"></a><span class="lineno"> 1250</span>    <span class="keyword">const</span> <span class="keyword">auto</span> res = inode-&gt;find_child(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, remaining_key[0]);</div>
-<div class="line"><a id="l01251" name="l01251"></a><span class="lineno"> 1251</span>    <span class="keywordflow">if</span> (res.second == <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a id="l01252" name="l01252"></a><span class="lineno"> 1252</span>      <span class="comment">// We are on a key byte during the descent that is not mapped by</span></div>
-<div class="line"><a id="l01253" name="l01253"></a><span class="lineno"> 1253</span>      <span class="comment">// the current node.  Where we go next depends on whether we are</span></div>
-<div class="line"><a id="l01254" name="l01254"></a><span class="lineno"> 1254</span>      <span class="comment">// doing forward or reverse traversal.</span></div>
-<div class="line"><a id="l01255" name="l01255"></a><span class="lineno"> 1255</span>      <span class="keywordflow">if</span> (fwd) {</div>
-<div class="line"><a id="l01256" name="l01256"></a><span class="lineno"> 1256</span>        <span class="comment">// FWD: Take the next child_index that is mapped in the data</span></div>
-<div class="line"><a id="l01257" name="l01257"></a><span class="lineno"> 1257</span>        <span class="comment">// and then do a left-most descent to land on the key that is</span></div>
-<div class="line"><a id="l01258" name="l01258"></a><span class="lineno"> 1258</span>        <span class="comment">// the immediate successor of the desired key in the data.</span></div>
-<div class="line"><a id="l01259" name="l01259"></a><span class="lineno"> 1259</span>        <span class="comment">//</span></div>
-<div class="line"><a id="l01260" name="l01260"></a><span class="lineno"> 1260</span>        <span class="comment">// Note: We are probing with a key byte which does not appear</span></div>
-<div class="line"><a id="l01261" name="l01261"></a><span class="lineno"> 1261</span>        <span class="comment">// in our list of keys (this was verified above) so this will</span></div>
-<div class="line"><a id="l01262" name="l01262"></a><span class="lineno"> 1262</span>        <span class="comment">// always be the index the first entry whose key byte is</span></div>
-<div class="line"><a id="l01263" name="l01263"></a><span class="lineno"> 1263</span>        <span class="comment">// greater-than the probe value and [false] if there is no</span></div>
-<div class="line"><a id="l01264" name="l01264"></a><span class="lineno"> 1264</span>        <span class="comment">// such entry.</span></div>
-<div class="line"><a id="l01265" name="l01265"></a><span class="lineno"> 1265</span>        <span class="comment">//</span></div>
-<div class="line"><a id="l01266" name="l01266"></a><span class="lineno"> 1266</span>        <span class="comment">// Note: [node] has not been pushed onto the stack yet!</span></div>
-<div class="line"><a id="l01267" name="l01267"></a><span class="lineno"> 1267</span>        <span class="keyword">auto</span> nxt = inode-&gt;gte_key_byte(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, remaining_key[0]);</div>
-<div class="line"><a id="l01268" name="l01268"></a><span class="lineno"> 1268</span>        <span class="keywordflow">if</span> (!nxt) {</div>
-<div class="line"><a id="l01269" name="l01269"></a><span class="lineno"> 1269</span>          <span class="comment">// Pop entries off the stack until we find one with a</span></div>
-<div class="line"><a id="l01270" name="l01270"></a><span class="lineno"> 1270</span>          <span class="comment">// right-sibling of the path we took to this node and then</span></div>
-<div class="line"><a id="l01271" name="l01271"></a><span class="lineno"> 1271</span>          <span class="comment">// do a left-most descent under that right-sibling. If there</span></div>
-<div class="line"><a id="l01272" name="l01272"></a><span class="lineno"> 1272</span>          <span class="comment">// is no such parent, we will wind up with an empty stack</span></div>
-<div class="line"><a id="l01273" name="l01273"></a><span class="lineno"> 1273</span>          <span class="comment">// (aka the end() iterator) and return that state.</span></div>
-<div class="line"><a id="l01274" name="l01274"></a><span class="lineno"> 1274</span>          <span class="keywordflow">if</span> (!<a class="code hl_function" href="classunodb_1_1db.html#a8a950ab6b91b4555c37fd396fd047136">empty</a>()) pop();</div>
-<div class="line"><a id="l01275" name="l01275"></a><span class="lineno"> 1275</span>          <span class="keywordflow">while</span> (!<a class="code hl_function" href="classunodb_1_1db.html#a8a950ab6b91b4555c37fd396fd047136">empty</a>()) {</div>
-<div class="line"><a id="l01276" name="l01276"></a><span class="lineno"> 1276</span>            <span class="keyword">const</span> <span class="keyword">auto</span>&amp; centry = top();</div>
-<div class="line"><a id="l01277" name="l01277"></a><span class="lineno"> 1277</span>            <span class="keyword">const</span> <span class="keyword">auto</span> cnode{centry.node};  <span class="comment">// possible parent from the stack</span></div>
-<div class="line"><a id="l01278" name="l01278"></a><span class="lineno"> 1278</span>            <span class="keyword">auto</span>* <span class="keyword">const</span> icnode{cnode.template ptr&lt;inode_type*&gt;()};</div>
-<div class="line"><a id="l01279" name="l01279"></a><span class="lineno"> 1279</span>            <span class="keyword">const</span> <span class="keyword">auto</span> cnxt = icnode-&gt;next(</div>
-<div class="line"><a id="l01280" name="l01280"></a><span class="lineno"> 1280</span>                cnode.type(), centry.child_index);  <span class="comment">// right-sibling.</span></div>
-<div class="line"><a id="l01281" name="l01281"></a><span class="lineno"> 1281</span>            <span class="keywordflow">if</span> (cnxt) {</div>
-<div class="line"><a id="l01282" name="l01282"></a><span class="lineno"> 1282</span>              <span class="keyword">auto</span> nchild = icnode-&gt;get_child(cnode.type(), centry.child_index);</div>
-<div class="line"><a id="l01283" name="l01283"></a><span class="lineno"> 1283</span>              <span class="keywordflow">return</span> left_most_traversal(nchild);</div>
-<div class="line"><a id="l01284" name="l01284"></a><span class="lineno"> 1284</span>            }</div>
-<div class="line"><a id="l01285" name="l01285"></a><span class="lineno"> 1285</span>            pop();</div>
-<div class="line"><a id="l01286" name="l01286"></a><span class="lineno"> 1286</span>          }</div>
-<div class="line"><a id="l01287" name="l01287"></a><span class="lineno"> 1287</span>          <span class="keywordflow">return</span> *<span class="keyword">this</span>;  <span class="comment">// stack is empty (aka end()).</span></div>
-<div class="line"><a id="l01288" name="l01288"></a><span class="lineno"> 1288</span>        }</div>
-<div class="line"><a id="l01289" name="l01289"></a><span class="lineno"> 1289</span>        <span class="keyword">const</span> <span class="keyword">auto</span>&amp; tmp = nxt.value();  <span class="comment">// unwrap.</span></div>
-<div class="line"><a id="l01290" name="l01290"></a><span class="lineno"> 1290</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child_index = tmp.child_index;</div>
-<div class="line"><a id="l01291" name="l01291"></a><span class="lineno"> 1291</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child = inode-&gt;get_child(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, child_index);</div>
-<div class="line"><a id="l01292" name="l01292"></a><span class="lineno"> 1292</span>        push(node, tmp.key_byte, child_index, tmp.prefix);  <span class="comment">// the path we took</span></div>
-<div class="line"><a id="l01293" name="l01293"></a><span class="lineno"> 1293</span>        <span class="keywordflow">return</span> left_most_traversal(child);  <span class="comment">// left most traversal</span></div>
-<div class="line"><a id="l01294" name="l01294"></a><span class="lineno"> 1294</span>      }</div>
-<div class="line"><a id="l01295" name="l01295"></a><span class="lineno"> 1295</span>      <span class="comment">// REV: Take the prior child_index that is mapped and then do</span></div>
-<div class="line"><a id="l01296" name="l01296"></a><span class="lineno"> 1296</span>      <span class="comment">// a right-most descent to land on the key that is the</span></div>
-<div class="line"><a id="l01297" name="l01297"></a><span class="lineno"> 1297</span>      <span class="comment">// immediate precessor of the desired key in the data.</span></div>
-<div class="line"><a id="l01298" name="l01298"></a><span class="lineno"> 1298</span>      <span class="keyword">auto</span> nxt = inode-&gt;lte_key_byte(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, remaining_key[0]);</div>
-<div class="line"><a id="l01299" name="l01299"></a><span class="lineno"> 1299</span>      <span class="keywordflow">if</span> (!nxt) {</div>
-<div class="line"><a id="l01300" name="l01300"></a><span class="lineno"> 1300</span>        <span class="comment">// Pop off the current entry until we find one with a</span></div>
-<div class="line"><a id="l01301" name="l01301"></a><span class="lineno"> 1301</span>        <span class="comment">// left-sibling and then do a right-most descent under that</span></div>
-<div class="line"><a id="l01302" name="l01302"></a><span class="lineno"> 1302</span>        <span class="comment">// left-sibling.  In the extreme case there is no such</span></div>
-<div class="line"><a id="l01303" name="l01303"></a><span class="lineno"> 1303</span>        <span class="comment">// previous entry and we will wind up with an empty stack.</span></div>
-<div class="line"><a id="l01304" name="l01304"></a><span class="lineno"> 1304</span>        <span class="keywordflow">if</span> (!<a class="code hl_function" href="classunodb_1_1db.html#a8a950ab6b91b4555c37fd396fd047136">empty</a>()) pop();</div>
-<div class="line"><a id="l01305" name="l01305"></a><span class="lineno"> 1305</span>        <span class="keywordflow">while</span> (!<a class="code hl_function" href="classunodb_1_1db.html#a8a950ab6b91b4555c37fd396fd047136">empty</a>()) {</div>
-<div class="line"><a id="l01306" name="l01306"></a><span class="lineno"> 1306</span>          <span class="keyword">const</span> <span class="keyword">auto</span>&amp; centry = top();</div>
-<div class="line"><a id="l01307" name="l01307"></a><span class="lineno"> 1307</span>          <span class="keyword">const</span> <span class="keyword">auto</span> cnode{centry.node};  <span class="comment">// possible parent from stack</span></div>
-<div class="line"><a id="l01308" name="l01308"></a><span class="lineno"> 1308</span>          <span class="keyword">auto</span>* <span class="keyword">const</span> icnode{cnode.template ptr&lt;inode_type*&gt;()};</div>
-<div class="line"><a id="l01309" name="l01309"></a><span class="lineno"> 1309</span>          <span class="keyword">const</span> <span class="keyword">auto</span> cnxt =</div>
-<div class="line"><a id="l01310" name="l01310"></a><span class="lineno"> 1310</span>              icnode-&gt;prior(cnode.type(), centry.child_index);  <span class="comment">// left-sibling.</span></div>
-<div class="line"><a id="l01311" name="l01311"></a><span class="lineno"> 1311</span>          <span class="keywordflow">if</span> (cnxt) {</div>
-<div class="line"><a id="l01312" name="l01312"></a><span class="lineno"> 1312</span>            <span class="keyword">auto</span> nchild = icnode-&gt;get_child(cnode.type(), centry.child_index);</div>
-<div class="line"><a id="l01313" name="l01313"></a><span class="lineno"> 1313</span>            <span class="keywordflow">return</span> right_most_traversal(nchild);</div>
-<div class="line"><a id="l01314" name="l01314"></a><span class="lineno"> 1314</span>          }</div>
-<div class="line"><a id="l01315" name="l01315"></a><span class="lineno"> 1315</span>          pop();</div>
-<div class="line"><a id="l01316" name="l01316"></a><span class="lineno"> 1316</span>        }</div>
-<div class="line"><a id="l01317" name="l01317"></a><span class="lineno"> 1317</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;  <span class="comment">// stack is empty (aka end()).</span></div>
-<div class="line"><a id="l01318" name="l01318"></a><span class="lineno"> 1318</span>      }</div>
-<div class="line"><a id="l01319" name="l01319"></a><span class="lineno"> 1319</span>      <span class="keyword">const</span> <span class="keyword">auto</span>&amp; tmp = nxt.value();  <span class="comment">// unwrap.</span></div>
-<div class="line"><a id="l01320" name="l01320"></a><span class="lineno"> 1320</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_index{tmp.child_index};</div>
-<div class="line"><a id="l01321" name="l01321"></a><span class="lineno"> 1321</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child = inode-&gt;get_child(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, child_index);</div>
-<div class="line"><a id="l01322" name="l01322"></a><span class="lineno"> 1322</span>      push(node, tmp.key_byte, child_index, tmp.prefix);  <span class="comment">// the path we took</span></div>
-<div class="line"><a id="l01323" name="l01323"></a><span class="lineno"> 1323</span>      <span class="keywordflow">return</span> right_most_traversal(child);  <span class="comment">// right most traversal</span></div>
-<div class="line"><a id="l01324" name="l01324"></a><span class="lineno"> 1324</span>    }</div>
-<div class="line"><a id="l01325" name="l01325"></a><span class="lineno"> 1325</span>    <span class="comment">// Simple case. There is a child for the current key byte.</span></div>
-<div class="line"><a id="l01326" name="l01326"></a><span class="lineno"> 1326</span>    <span class="keyword">const</span> <span class="keyword">auto</span> child_index{res.first};</div>
-<div class="line"><a id="l01327" name="l01327"></a><span class="lineno"> 1327</span>    <span class="keyword">const</span> <span class="keyword">auto</span>* <span class="keyword">const</span> child{res.second};</div>
-<div class="line"><a id="l01328" name="l01328"></a><span class="lineno"> 1328</span>    push(node, remaining_key[0], child_index, key_prefix);</div>
-<div class="line"><a id="l01329" name="l01329"></a><span class="lineno"> 1329</span>    node = *child;</div>
-<div class="line"><a id="l01330" name="l01330"></a><span class="lineno"> 1330</span>    remaining_key.shift_right(1);</div>
-<div class="line"><a id="l01331" name="l01331"></a><span class="lineno"> 1331</span>  }  <span class="comment">// while ( true )</span></div>
-<div class="line"><a id="l01332" name="l01332"></a><span class="lineno"> 1332</span>  <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();</div>
-<div class="line"><a id="l01333" name="l01333"></a><span class="lineno"> 1333</span>}</div>
+<div class="line"><a id="l01177" name="l01177"></a><span class="lineno"> 1177</span> </div>
+<div class="line"><a id="l01178" name="l01178"></a><span class="lineno"> 1178</span><span class="comment">// Note: The basic seek() logic is similar to ::get() as long as the</span></div>
+<div class="line"><a id="l01179" name="l01179"></a><span class="lineno"> 1179</span><span class="comment">// search_key exists in the data.  However, the iterator is positioned</span></div>
+<div class="line"><a id="l01180" name="l01180"></a><span class="lineno"> 1180</span><span class="comment">// instead of returning the value for the key.  Life gets a lot more</span></div>
+<div class="line"><a id="l01181" name="l01181"></a><span class="lineno"> 1181</span><span class="comment">// complicated when the search_key is not in the data and we have to</span></div>
+<div class="line"><a id="l01182" name="l01182"></a><span class="lineno"> 1182</span><span class="comment">// consider the cases for both forward traversal and reverse traversal</span></div>
+<div class="line"><a id="l01183" name="l01183"></a><span class="lineno"> 1183</span><span class="comment">// from a key that is not in the data.  See method declartion for</span></div>
+<div class="line"><a id="l01184" name="l01184"></a><span class="lineno"> 1184</span><span class="comment">// details.</span></div>
+<div class="line"><a id="l01185" name="l01185"></a><span class="lineno"> 1185</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="foldopen" id="foldopen01186" data-start="{" data-end="}">
+<div class="line"><a id="l01186" name="l01186"></a><span class="lineno"><a class="line" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38"> 1186</a></span><span class="keyword">typename</span> <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">db&lt;Key, Value&gt;::iterator</a>&amp; <a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">db&lt;Key, Value&gt;::iterator::seek</a>(</div>
+<div class="line"><a id="l01187" name="l01187"></a><span class="lineno"> 1187</span>    <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> search_key, <span class="keywordtype">bool</span>&amp; match, <span class="keywordtype">bool</span> fwd) {</div>
+<div class="line"><a id="l01188" name="l01188"></a><span class="lineno"> 1188</span>  invalidate();   <span class="comment">// invalidate the iterator (clear the stack).</span></div>
+<div class="line"><a id="l01189" name="l01189"></a><span class="lineno"> 1189</span>  match = <span class="keyword">false</span>;  <span class="comment">// unless we wind up with an exact match.</span></div>
+<div class="line"><a id="l01190" name="l01190"></a><span class="lineno"> 1190</span>  <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(db_.root == <span class="keyword">nullptr</span>)) <span class="keywordflow">return</span> *<span class="keyword">this</span>;  <span class="comment">// aka end()</span></div>
+<div class="line"><a id="l01191" name="l01191"></a><span class="lineno"> 1191</span> </div>
+<div class="line"><a id="l01192" name="l01192"></a><span class="lineno"> 1192</span>  <span class="keyword">auto</span> node{db_.root};</div>
+<div class="line"><a id="l01193" name="l01193"></a><span class="lineno"> 1193</span>  <span class="keyword">const</span> <span class="keyword">auto</span> k = search_key;</div>
+<div class="line"><a id="l01194" name="l01194"></a><span class="lineno"> 1194</span>  <span class="keyword">auto</span> remaining_key{k};</div>
+<div class="line"><a id="l01195" name="l01195"></a><span class="lineno"> 1195</span> </div>
+<div class="line"><a id="l01196" name="l01196"></a><span class="lineno"> 1196</span>  <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
+<div class="line"><a id="l01197" name="l01197"></a><span class="lineno"> 1197</span>    <span class="keyword">const</span> <span class="keyword">auto</span> <a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> = node.type();</div>
+<div class="line"><a id="l01198" name="l01198"></a><span class="lineno"> 1198</span>    <span class="keywordflow">if</span> (<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> == <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>) {</div>
+<div class="line"><a id="l01199" name="l01199"></a><span class="lineno"> 1199</span>      <span class="keyword">const</span> <span class="keyword">auto</span>* <span class="keyword">const</span> leaf{node.template ptr&lt;leaf_type*&gt;()};</div>
+<div class="line"><a id="l01200" name="l01200"></a><span class="lineno"> 1200</span>      push_leaf(node);</div>
+<div class="line"><a id="l01201" name="l01201"></a><span class="lineno"> 1201</span>      <span class="keyword">const</span> <span class="keyword">auto</span> cmp_ = leaf-&gt;cmp(k);</div>
+<div class="line"><a id="l01202" name="l01202"></a><span class="lineno"> 1202</span>      <span class="keywordflow">if</span> (cmp_ == 0) {</div>
+<div class="line"><a id="l01203" name="l01203"></a><span class="lineno"> 1203</span>        match = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l01204" name="l01204"></a><span class="lineno"> 1204</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l01205" name="l01205"></a><span class="lineno"> 1205</span>      }</div>
+<div class="line"><a id="l01206" name="l01206"></a><span class="lineno"> 1206</span>      <span class="keywordflow">if</span> (fwd) {  <span class="comment">// GTE semantics</span></div>
+<div class="line"><a id="l01207" name="l01207"></a><span class="lineno"> 1207</span>        <span class="comment">// if search_key &lt; leaf, use the leaf, else next().</span></div>
+<div class="line"><a id="l01208" name="l01208"></a><span class="lineno"> 1208</span>        <span class="keywordflow">return</span> (cmp_ &lt; 0) ? *this : next();</div>
+<div class="line"><a id="l01209" name="l01209"></a><span class="lineno"> 1209</span>      }</div>
+<div class="line"><a id="l01210" name="l01210"></a><span class="lineno"> 1210</span>      <span class="comment">// LTE semantics: if search_key &gt; leaf, use the leaf, else prior().</span></div>
+<div class="line"><a id="l01211" name="l01211"></a><span class="lineno"> 1211</span>      <span class="keywordflow">return</span> (cmp_ &gt; 0) ? *this : prior();</div>
+<div class="line"><a id="l01212" name="l01212"></a><span class="lineno"> 1212</span>    }</div>
+<div class="line"><a id="l01213" name="l01213"></a><span class="lineno"> 1213</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> != <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>);</div>
+<div class="line"><a id="l01214" name="l01214"></a><span class="lineno"> 1214</span>    <span class="keyword">auto</span>* <span class="keyword">const</span> inode{node.template ptr&lt;inode_type*&gt;()};  <span class="comment">// some internal node.</span></div>
+<div class="line"><a id="l01215" name="l01215"></a><span class="lineno"> 1215</span>    <span class="keyword">const</span> <span class="keyword">auto</span> key_prefix{inode-&gt;get_key_prefix().get_snapshot()};  <span class="comment">// prefix</span></div>
+<div class="line"><a id="l01216" name="l01216"></a><span class="lineno"> 1216</span>    <span class="keyword">const</span> <span class="keyword">auto</span> key_prefix_length{key_prefix.length()};  <span class="comment">// length of that prefix</span></div>
+<div class="line"><a id="l01217" name="l01217"></a><span class="lineno"> 1217</span>    <span class="keyword">const</span> <span class="keyword">auto</span> shared_length = key_prefix.get_shared_length(</div>
+<div class="line"><a id="l01218" name="l01218"></a><span class="lineno"> 1218</span>        remaining_key.get_u64());  <span class="comment">// #of prefix bytes matched.</span></div>
+<div class="line"><a id="l01219" name="l01219"></a><span class="lineno"> 1219</span>    <span class="keywordflow">if</span> (shared_length &lt; key_prefix_length) {</div>
+<div class="line"><a id="l01220" name="l01220"></a><span class="lineno"> 1220</span>      <span class="comment">// We have visited an internal node whose prefix is longer than</span></div>
+<div class="line"><a id="l01221" name="l01221"></a><span class="lineno"> 1221</span>      <span class="comment">// the bytes in the key that we need to match.  To figure out</span></div>
+<div class="line"><a id="l01222" name="l01222"></a><span class="lineno"> 1222</span>      <span class="comment">// whether the search key would be located before or after the</span></div>
+<div class="line"><a id="l01223" name="l01223"></a><span class="lineno"> 1223</span>      <span class="comment">// current internal node, we need to compare the respective key</span></div>
+<div class="line"><a id="l01224" name="l01224"></a><span class="lineno"> 1224</span>      <span class="comment">// spans lexicographically.  Since we have [shared_length] bytes</span></div>
+<div class="line"><a id="l01225" name="l01225"></a><span class="lineno"> 1225</span>      <span class="comment">// in common, we know that the next byte will tell us the</span></div>
+<div class="line"><a id="l01226" name="l01226"></a><span class="lineno"> 1226</span>      <span class="comment">// relative ordering of the key vs the prefix. So now we compare</span></div>
+<div class="line"><a id="l01227" name="l01227"></a><span class="lineno"> 1227</span>      <span class="comment">// prefix and key and the first byte where they differ.</span></div>
+<div class="line"><a id="l01228" name="l01228"></a><span class="lineno"> 1228</span>      <span class="keyword">const</span> <span class="keyword">auto</span> cmp_ = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(remaining_key[shared_length]) -</div>
+<div class="line"><a id="l01229" name="l01229"></a><span class="lineno"> 1229</span>                        <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(key_prefix[shared_length]);</div>
+<div class="line"><a id="l01230" name="l01230"></a><span class="lineno"> 1230</span>      <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(cmp_ != 0);</div>
+<div class="line"><a id="l01231" name="l01231"></a><span class="lineno"> 1231</span>      <span class="keywordflow">if</span> (fwd) {</div>
+<div class="line"><a id="l01232" name="l01232"></a><span class="lineno"> 1232</span>        <span class="keywordflow">if</span> (cmp_ &lt; 0) {</div>
+<div class="line"><a id="l01233" name="l01233"></a><span class="lineno"> 1233</span>          <span class="comment">// FWD and the search key is ordered before this node.  We</span></div>
+<div class="line"><a id="l01234" name="l01234"></a><span class="lineno"> 1234</span>          <span class="comment">// want the left-most leaf under the node.</span></div>
+<div class="line"><a id="l01235" name="l01235"></a><span class="lineno"> 1235</span>          <span class="keywordflow">return</span> left_most_traversal(node);</div>
+<div class="line"><a id="l01236" name="l01236"></a><span class="lineno"> 1236</span>        }</div>
+<div class="line"><a id="l01237" name="l01237"></a><span class="lineno"> 1237</span>        <span class="comment">// FWD and the search key is ordered after this node.  Right</span></div>
+<div class="line"><a id="l01238" name="l01238"></a><span class="lineno"> 1238</span>        <span class="comment">// most descent and then next().</span></div>
+<div class="line"><a id="l01239" name="l01239"></a><span class="lineno"> 1239</span>        <span class="keywordflow">return</span> right_most_traversal(node).next();</div>
+<div class="line"><a id="l01240" name="l01240"></a><span class="lineno"> 1240</span>      }</div>
+<div class="line"><a id="l01241" name="l01241"></a><span class="lineno"> 1241</span>      <span class="comment">// reverse traversal</span></div>
+<div class="line"><a id="l01242" name="l01242"></a><span class="lineno"> 1242</span>      <span class="keywordflow">if</span> (cmp_ &lt; 0) {</div>
+<div class="line"><a id="l01243" name="l01243"></a><span class="lineno"> 1243</span>        <span class="comment">// REV and the search key is ordered before this node.  We</span></div>
+<div class="line"><a id="l01244" name="l01244"></a><span class="lineno"> 1244</span>        <span class="comment">// want the preceeding key.</span></div>
+<div class="line"><a id="l01245" name="l01245"></a><span class="lineno"> 1245</span>        <span class="keywordflow">return</span> left_most_traversal(node).prior();</div>
+<div class="line"><a id="l01246" name="l01246"></a><span class="lineno"> 1246</span>      }</div>
+<div class="line"><a id="l01247" name="l01247"></a><span class="lineno"> 1247</span>      <span class="comment">// REV and the search key is ordered after this node.</span></div>
+<div class="line"><a id="l01248" name="l01248"></a><span class="lineno"> 1248</span>      <span class="keywordflow">return</span> right_most_traversal(node);</div>
+<div class="line"><a id="l01249" name="l01249"></a><span class="lineno"> 1249</span>    }</div>
+<div class="line"><a id="l01250" name="l01250"></a><span class="lineno"> 1250</span>    remaining_key.shift_right(key_prefix_length);</div>
+<div class="line"><a id="l01251" name="l01251"></a><span class="lineno"> 1251</span>    <span class="keyword">const</span> <span class="keyword">auto</span> res = inode-&gt;find_child(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, remaining_key[0]);</div>
+<div class="line"><a id="l01252" name="l01252"></a><span class="lineno"> 1252</span>    <span class="keywordflow">if</span> (res.second == <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a id="l01253" name="l01253"></a><span class="lineno"> 1253</span>      <span class="comment">// We are on a key byte during the descent that is not mapped by</span></div>
+<div class="line"><a id="l01254" name="l01254"></a><span class="lineno"> 1254</span>      <span class="comment">// the current node.  Where we go next depends on whether we are</span></div>
+<div class="line"><a id="l01255" name="l01255"></a><span class="lineno"> 1255</span>      <span class="comment">// doing forward or reverse traversal.</span></div>
+<div class="line"><a id="l01256" name="l01256"></a><span class="lineno"> 1256</span>      <span class="keywordflow">if</span> (fwd) {</div>
+<div class="line"><a id="l01257" name="l01257"></a><span class="lineno"> 1257</span>        <span class="comment">// FWD: Take the next child_index that is mapped in the data</span></div>
+<div class="line"><a id="l01258" name="l01258"></a><span class="lineno"> 1258</span>        <span class="comment">// and then do a left-most descent to land on the key that is</span></div>
+<div class="line"><a id="l01259" name="l01259"></a><span class="lineno"> 1259</span>        <span class="comment">// the immediate successor of the desired key in the data.</span></div>
+<div class="line"><a id="l01260" name="l01260"></a><span class="lineno"> 1260</span>        <span class="comment">//</span></div>
+<div class="line"><a id="l01261" name="l01261"></a><span class="lineno"> 1261</span>        <span class="comment">// Note: We are probing with a key byte which does not appear</span></div>
+<div class="line"><a id="l01262" name="l01262"></a><span class="lineno"> 1262</span>        <span class="comment">// in our list of keys (this was verified above) so this will</span></div>
+<div class="line"><a id="l01263" name="l01263"></a><span class="lineno"> 1263</span>        <span class="comment">// always be the index the first entry whose key byte is</span></div>
+<div class="line"><a id="l01264" name="l01264"></a><span class="lineno"> 1264</span>        <span class="comment">// greater-than the probe value and [false] if there is no</span></div>
+<div class="line"><a id="l01265" name="l01265"></a><span class="lineno"> 1265</span>        <span class="comment">// such entry.</span></div>
+<div class="line"><a id="l01266" name="l01266"></a><span class="lineno"> 1266</span>        <span class="comment">//</span></div>
+<div class="line"><a id="l01267" name="l01267"></a><span class="lineno"> 1267</span>        <span class="comment">// Note: [node] has not been pushed onto the stack yet!</span></div>
+<div class="line"><a id="l01268" name="l01268"></a><span class="lineno"> 1268</span>        <span class="keyword">auto</span> nxt = inode-&gt;gte_key_byte(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, remaining_key[0]);</div>
+<div class="line"><a id="l01269" name="l01269"></a><span class="lineno"> 1269</span>        <span class="keywordflow">if</span> (!nxt) {</div>
+<div class="line"><a id="l01270" name="l01270"></a><span class="lineno"> 1270</span>          <span class="comment">// Pop entries off the stack until we find one with a</span></div>
+<div class="line"><a id="l01271" name="l01271"></a><span class="lineno"> 1271</span>          <span class="comment">// right-sibling of the path we took to this node and then</span></div>
+<div class="line"><a id="l01272" name="l01272"></a><span class="lineno"> 1272</span>          <span class="comment">// do a left-most descent under that right-sibling. If there</span></div>
+<div class="line"><a id="l01273" name="l01273"></a><span class="lineno"> 1273</span>          <span class="comment">// is no such parent, we will wind up with an empty stack</span></div>
+<div class="line"><a id="l01274" name="l01274"></a><span class="lineno"> 1274</span>          <span class="comment">// (aka the end() iterator) and return that state.</span></div>
+<div class="line"><a id="l01275" name="l01275"></a><span class="lineno"> 1275</span>          <span class="keywordflow">if</span> (!<a class="code hl_function" href="classunodb_1_1db.html#a8a950ab6b91b4555c37fd396fd047136">empty</a>()) pop();</div>
+<div class="line"><a id="l01276" name="l01276"></a><span class="lineno"> 1276</span>          <span class="keywordflow">while</span> (!<a class="code hl_function" href="classunodb_1_1db.html#a8a950ab6b91b4555c37fd396fd047136">empty</a>()) {</div>
+<div class="line"><a id="l01277" name="l01277"></a><span class="lineno"> 1277</span>            <span class="keyword">const</span> <span class="keyword">auto</span>&amp; centry = top();</div>
+<div class="line"><a id="l01278" name="l01278"></a><span class="lineno"> 1278</span>            <span class="keyword">const</span> <span class="keyword">auto</span> cnode{centry.node};  <span class="comment">// possible parent from the stack</span></div>
+<div class="line"><a id="l01279" name="l01279"></a><span class="lineno"> 1279</span>            <span class="keyword">auto</span>* <span class="keyword">const</span> icnode{cnode.template ptr&lt;inode_type*&gt;()};</div>
+<div class="line"><a id="l01280" name="l01280"></a><span class="lineno"> 1280</span>            <span class="keyword">const</span> <span class="keyword">auto</span> cnxt = icnode-&gt;next(</div>
+<div class="line"><a id="l01281" name="l01281"></a><span class="lineno"> 1281</span>                cnode.type(), centry.child_index);  <span class="comment">// right-sibling.</span></div>
+<div class="line"><a id="l01282" name="l01282"></a><span class="lineno"> 1282</span>            <span class="keywordflow">if</span> (cnxt) {</div>
+<div class="line"><a id="l01283" name="l01283"></a><span class="lineno"> 1283</span>              <span class="keyword">auto</span> nchild = icnode-&gt;get_child(cnode.type(), centry.child_index);</div>
+<div class="line"><a id="l01284" name="l01284"></a><span class="lineno"> 1284</span>              <span class="keywordflow">return</span> left_most_traversal(nchild);</div>
+<div class="line"><a id="l01285" name="l01285"></a><span class="lineno"> 1285</span>            }</div>
+<div class="line"><a id="l01286" name="l01286"></a><span class="lineno"> 1286</span>            pop();</div>
+<div class="line"><a id="l01287" name="l01287"></a><span class="lineno"> 1287</span>          }</div>
+<div class="line"><a id="l01288" name="l01288"></a><span class="lineno"> 1288</span>          <span class="keywordflow">return</span> *<span class="keyword">this</span>;  <span class="comment">// stack is empty (aka end()).</span></div>
+<div class="line"><a id="l01289" name="l01289"></a><span class="lineno"> 1289</span>        }</div>
+<div class="line"><a id="l01290" name="l01290"></a><span class="lineno"> 1290</span>        <span class="keyword">const</span> <span class="keyword">auto</span>&amp; tmp = nxt.value();  <span class="comment">// unwrap.</span></div>
+<div class="line"><a id="l01291" name="l01291"></a><span class="lineno"> 1291</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child_index = tmp.child_index;</div>
+<div class="line"><a id="l01292" name="l01292"></a><span class="lineno"> 1292</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child = inode-&gt;get_child(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, child_index);</div>
+<div class="line"><a id="l01293" name="l01293"></a><span class="lineno"> 1293</span>        push(node, tmp.key_byte, child_index, tmp.prefix);  <span class="comment">// the path we took</span></div>
+<div class="line"><a id="l01294" name="l01294"></a><span class="lineno"> 1294</span>        <span class="keywordflow">return</span> left_most_traversal(child);  <span class="comment">// left most traversal</span></div>
+<div class="line"><a id="l01295" name="l01295"></a><span class="lineno"> 1295</span>      }</div>
+<div class="line"><a id="l01296" name="l01296"></a><span class="lineno"> 1296</span>      <span class="comment">// REV: Take the prior child_index that is mapped and then do</span></div>
+<div class="line"><a id="l01297" name="l01297"></a><span class="lineno"> 1297</span>      <span class="comment">// a right-most descent to land on the key that is the</span></div>
+<div class="line"><a id="l01298" name="l01298"></a><span class="lineno"> 1298</span>      <span class="comment">// immediate precessor of the desired key in the data.</span></div>
+<div class="line"><a id="l01299" name="l01299"></a><span class="lineno"> 1299</span>      <span class="keyword">auto</span> nxt = inode-&gt;lte_key_byte(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, remaining_key[0]);</div>
+<div class="line"><a id="l01300" name="l01300"></a><span class="lineno"> 1300</span>      <span class="keywordflow">if</span> (!nxt) {</div>
+<div class="line"><a id="l01301" name="l01301"></a><span class="lineno"> 1301</span>        <span class="comment">// Pop off the current entry until we find one with a</span></div>
+<div class="line"><a id="l01302" name="l01302"></a><span class="lineno"> 1302</span>        <span class="comment">// left-sibling and then do a right-most descent under that</span></div>
+<div class="line"><a id="l01303" name="l01303"></a><span class="lineno"> 1303</span>        <span class="comment">// left-sibling.  In the extreme case there is no such</span></div>
+<div class="line"><a id="l01304" name="l01304"></a><span class="lineno"> 1304</span>        <span class="comment">// previous entry and we will wind up with an empty stack.</span></div>
+<div class="line"><a id="l01305" name="l01305"></a><span class="lineno"> 1305</span>        <span class="keywordflow">if</span> (!<a class="code hl_function" href="classunodb_1_1db.html#a8a950ab6b91b4555c37fd396fd047136">empty</a>()) pop();</div>
+<div class="line"><a id="l01306" name="l01306"></a><span class="lineno"> 1306</span>        <span class="keywordflow">while</span> (!<a class="code hl_function" href="classunodb_1_1db.html#a8a950ab6b91b4555c37fd396fd047136">empty</a>()) {</div>
+<div class="line"><a id="l01307" name="l01307"></a><span class="lineno"> 1307</span>          <span class="keyword">const</span> <span class="keyword">auto</span>&amp; centry = top();</div>
+<div class="line"><a id="l01308" name="l01308"></a><span class="lineno"> 1308</span>          <span class="keyword">const</span> <span class="keyword">auto</span> cnode{centry.node};  <span class="comment">// possible parent from stack</span></div>
+<div class="line"><a id="l01309" name="l01309"></a><span class="lineno"> 1309</span>          <span class="keyword">auto</span>* <span class="keyword">const</span> icnode{cnode.template ptr&lt;inode_type*&gt;()};</div>
+<div class="line"><a id="l01310" name="l01310"></a><span class="lineno"> 1310</span>          <span class="keyword">const</span> <span class="keyword">auto</span> cnxt =</div>
+<div class="line"><a id="l01311" name="l01311"></a><span class="lineno"> 1311</span>              icnode-&gt;prior(cnode.type(), centry.child_index);  <span class="comment">// left-sibling.</span></div>
+<div class="line"><a id="l01312" name="l01312"></a><span class="lineno"> 1312</span>          <span class="keywordflow">if</span> (cnxt) {</div>
+<div class="line"><a id="l01313" name="l01313"></a><span class="lineno"> 1313</span>            <span class="keyword">auto</span> nchild = icnode-&gt;get_child(cnode.type(), centry.child_index);</div>
+<div class="line"><a id="l01314" name="l01314"></a><span class="lineno"> 1314</span>            <span class="keywordflow">return</span> right_most_traversal(nchild);</div>
+<div class="line"><a id="l01315" name="l01315"></a><span class="lineno"> 1315</span>          }</div>
+<div class="line"><a id="l01316" name="l01316"></a><span class="lineno"> 1316</span>          pop();</div>
+<div class="line"><a id="l01317" name="l01317"></a><span class="lineno"> 1317</span>        }</div>
+<div class="line"><a id="l01318" name="l01318"></a><span class="lineno"> 1318</span>        <span class="keywordflow">return</span> *<span class="keyword">this</span>;  <span class="comment">// stack is empty (aka end()).</span></div>
+<div class="line"><a id="l01319" name="l01319"></a><span class="lineno"> 1319</span>      }</div>
+<div class="line"><a id="l01320" name="l01320"></a><span class="lineno"> 1320</span>      <span class="keyword">const</span> <span class="keyword">auto</span>&amp; tmp = nxt.value();  <span class="comment">// unwrap.</span></div>
+<div class="line"><a id="l01321" name="l01321"></a><span class="lineno"> 1321</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_index{tmp.child_index};</div>
+<div class="line"><a id="l01322" name="l01322"></a><span class="lineno"> 1322</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child = inode-&gt;get_child(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, child_index);</div>
+<div class="line"><a id="l01323" name="l01323"></a><span class="lineno"> 1323</span>      push(node, tmp.key_byte, child_index, tmp.prefix);  <span class="comment">// the path we took</span></div>
+<div class="line"><a id="l01324" name="l01324"></a><span class="lineno"> 1324</span>      <span class="keywordflow">return</span> right_most_traversal(child);  <span class="comment">// right most traversal</span></div>
+<div class="line"><a id="l01325" name="l01325"></a><span class="lineno"> 1325</span>    }</div>
+<div class="line"><a id="l01326" name="l01326"></a><span class="lineno"> 1326</span>    <span class="comment">// Simple case. There is a child for the current key byte.</span></div>
+<div class="line"><a id="l01327" name="l01327"></a><span class="lineno"> 1327</span>    <span class="keyword">const</span> <span class="keyword">auto</span> child_index{res.first};</div>
+<div class="line"><a id="l01328" name="l01328"></a><span class="lineno"> 1328</span>    <span class="keyword">const</span> <span class="keyword">auto</span>* <span class="keyword">const</span> child{res.second};</div>
+<div class="line"><a id="l01329" name="l01329"></a><span class="lineno"> 1329</span>    push(node, remaining_key[0], child_index, key_prefix);</div>
+<div class="line"><a id="l01330" name="l01330"></a><span class="lineno"> 1330</span>    node = *child;</div>
+<div class="line"><a id="l01331" name="l01331"></a><span class="lineno"> 1331</span>    remaining_key.shift_right(1);</div>
+<div class="line"><a id="l01332" name="l01332"></a><span class="lineno"> 1332</span>  }  <span class="comment">// while ( true )</span></div>
+<div class="line"><a id="l01333" name="l01333"></a><span class="lineno"> 1333</span>  <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();</div>
+<div class="line"><a id="l01334" name="l01334"></a><span class="lineno"> 1334</span>}</div>
 </div>
-<div class="line"><a id="l01334" name="l01334"></a><span class="lineno"> 1334</span> </div>
-<div class="line"><a id="l01335" name="l01335"></a><span class="lineno"> 1335</span><a class="code hl_define" href="group__internal.html#gab0f6f8a89806458251a357958666ba20">UNODB_DETAIL_DISABLE_GCC_WARNING</a>(<span class="stringliteral">&quot;-Wsuggest-attribute=pure&quot;</span>)</div>
-<div class="line"><a id="l01336" name="l01336"></a><span class="lineno"> 1336</span>template &lt;typename Key, typename Value&gt;</div>
-<div class="foldopen" id="foldopen01337" data-start="{" data-end="}">
-<div class="line"><a id="l01337" name="l01337"></a><span class="lineno"><a class="line" href="classunodb_1_1db_1_1iterator.html#acae8e334fe120174e36f71bbe4b39956"> 1337</a></span><a class="code hl_typedef" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> <a class="code hl_class" href="classunodb_1_1db.html">db</a>&lt;Key, Value&gt;::<a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a>::get_key() noexcept {</div>
-<div class="line"><a id="l01338" name="l01338"></a><span class="lineno"> 1338</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(valid());  <span class="comment">// by contract</span></div>
-<div class="line"><a id="l01339" name="l01339"></a><span class="lineno"> 1339</span>  <span class="comment">// TODO(thompsonbry) : variable length keys. The simplest case</span></div>
-<div class="line"><a id="l01340" name="l01340"></a><span class="lineno"> 1340</span>  <span class="comment">// where this does not work today is a single root leaf.  In that</span></div>
-<div class="line"><a id="l01341" name="l01341"></a><span class="lineno"> 1341</span>  <span class="comment">// case, there is no inode path and we can not properly track the</span></div>
-<div class="line"><a id="l01342" name="l01342"></a><span class="lineno"> 1342</span>  <span class="comment">// key in the key_buffer.</span></div>
-<div class="line"><a id="l01343" name="l01343"></a><span class="lineno"> 1343</span>  <span class="comment">//</span></div>
-<div class="line"><a id="l01344" name="l01344"></a><span class="lineno"> 1344</span>  <span class="comment">// return keybuf_.get_key_view();</span></div>
-<div class="line"><a id="l01345" name="l01345"></a><span class="lineno"> 1345</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; e = stack_.top();</div>
-<div class="line"><a id="l01346" name="l01346"></a><span class="lineno"> 1346</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; node = e.node;</div>
-<div class="line"><a id="l01347" name="l01347"></a><span class="lineno"> 1347</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(node.type() == <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>);      <span class="comment">// On a leaf.</span></div>
-<div class="line"><a id="l01348" name="l01348"></a><span class="lineno"> 1348</span>  <span class="keyword">const</span> <span class="keyword">auto</span>* <span class="keyword">const</span> leaf{node.template ptr&lt;leaf_type*&gt;()};  <span class="comment">// current leaf.</span></div>
-<div class="line"><a id="l01349" name="l01349"></a><span class="lineno"> 1349</span>  <span class="keywordflow">return</span> leaf-&gt;get_key_view();</div>
-<div class="line"><a id="l01350" name="l01350"></a><span class="lineno"> 1350</span>}</div>
+<div class="line"><a id="l01335" name="l01335"></a><span class="lineno"> 1335</span> </div>
+<div class="line"><a id="l01336" name="l01336"></a><span class="lineno"> 1336</span><a class="code hl_define" href="group__internal.html#gab0f6f8a89806458251a357958666ba20">UNODB_DETAIL_DISABLE_GCC_WARNING</a>(<span class="stringliteral">&quot;-Wsuggest-attribute=pure&quot;</span>)</div>
+<div class="line"><a id="l01337" name="l01337"></a><span class="lineno"> 1337</span>template &lt;typename Key, typename Value&gt;</div>
+<div class="foldopen" id="foldopen01338" data-start="{" data-end="}">
+<div class="line"><a id="l01338" name="l01338"></a><span class="lineno"><a class="line" href="classunodb_1_1db_1_1iterator.html#acae8e334fe120174e36f71bbe4b39956"> 1338</a></span><a class="code hl_typedef" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> <a class="code hl_class" href="classunodb_1_1db.html">db</a>&lt;Key, Value&gt;::<a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a>::get_key() noexcept {</div>
+<div class="line"><a id="l01339" name="l01339"></a><span class="lineno"> 1339</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(valid());  <span class="comment">// by contract</span></div>
+<div class="line"><a id="l01340" name="l01340"></a><span class="lineno"> 1340</span>  <span class="comment">// TODO(thompsonbry) : variable length keys. The simplest case</span></div>
+<div class="line"><a id="l01341" name="l01341"></a><span class="lineno"> 1341</span>  <span class="comment">// where this does not work today is a single root leaf.  In that</span></div>
+<div class="line"><a id="l01342" name="l01342"></a><span class="lineno"> 1342</span>  <span class="comment">// case, there is no inode path and we can not properly track the</span></div>
+<div class="line"><a id="l01343" name="l01343"></a><span class="lineno"> 1343</span>  <span class="comment">// key in the key_buffer.</span></div>
+<div class="line"><a id="l01344" name="l01344"></a><span class="lineno"> 1344</span>  <span class="comment">//</span></div>
+<div class="line"><a id="l01345" name="l01345"></a><span class="lineno"> 1345</span>  <span class="comment">// return keybuf_.get_key_view();</span></div>
+<div class="line"><a id="l01346" name="l01346"></a><span class="lineno"> 1346</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; e = stack_.top();</div>
+<div class="line"><a id="l01347" name="l01347"></a><span class="lineno"> 1347</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; node = e.node;</div>
+<div class="line"><a id="l01348" name="l01348"></a><span class="lineno"> 1348</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(node.type() == <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>);      <span class="comment">// On a leaf.</span></div>
+<div class="line"><a id="l01349" name="l01349"></a><span class="lineno"> 1349</span>  <span class="keyword">const</span> <span class="keyword">auto</span>* <span class="keyword">const</span> leaf{node.template ptr&lt;leaf_type*&gt;()};  <span class="comment">// current leaf.</span></div>
+<div class="line"><a id="l01350" name="l01350"></a><span class="lineno"> 1350</span>  <span class="keywordflow">return</span> leaf-&gt;get_key_view();</div>
+<div class="line"><a id="l01351" name="l01351"></a><span class="lineno"> 1351</span>}</div>
 </div>
-<div class="line"><a id="l01351" name="l01351"></a><span class="lineno"> 1351</span><a class="code hl_define" href="group__internal.html#ga65f7ea91faeb0e4cc6ff020017d0101d">UNODB_DETAIL_RESTORE_GCC_WARNINGS</a>()</div>
-<div class="line"><a id="l01352" name="l01352"></a><span class="lineno"> 1352</span> </div>
-<div class="line"><a id="l01353" name="l01353"></a><span class="lineno"> 1353</span>template &lt;typename Key, typename Value&gt;</div>
-<div class="foldopen" id="foldopen01354" data-start="{" data-end="}">
-<div class="line"><a id="l01354" name="l01354"></a><span class="lineno"><a class="line" href="classunodb_1_1db_1_1iterator.html#a68ae5c43a1b17c6cbb39d8574e6acd1a"> 1354</a></span>value_view <a class="code hl_class" href="classunodb_1_1db.html">db</a>&lt;Key, Value&gt;::<a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a>::get_val() const noexcept {</div>
-<div class="line"><a id="l01355" name="l01355"></a><span class="lineno"> 1355</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(valid());  <span class="comment">// by contract</span></div>
-<div class="line"><a id="l01356" name="l01356"></a><span class="lineno"> 1356</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; e = stack_.top();</div>
-<div class="line"><a id="l01357" name="l01357"></a><span class="lineno"> 1357</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; node = e.node;</div>
-<div class="line"><a id="l01358" name="l01358"></a><span class="lineno"> 1358</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(node.type() == <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>);      <span class="comment">// On a leaf.</span></div>
-<div class="line"><a id="l01359" name="l01359"></a><span class="lineno"> 1359</span>  <span class="keyword">const</span> <span class="keyword">auto</span>* <span class="keyword">const</span> leaf{node.template ptr&lt;leaf_type*&gt;()};  <span class="comment">// current leaf.</span></div>
-<div class="line"><a id="l01360" name="l01360"></a><span class="lineno"> 1360</span>  <span class="keywordflow">return</span> leaf-&gt;get_value_view();</div>
-<div class="line"><a id="l01361" name="l01361"></a><span class="lineno"> 1361</span>}</div>
+<div class="line"><a id="l01352" name="l01352"></a><span class="lineno"> 1352</span><a class="code hl_define" href="group__internal.html#ga65f7ea91faeb0e4cc6ff020017d0101d">UNODB_DETAIL_RESTORE_GCC_WARNINGS</a>()</div>
+<div class="line"><a id="l01353" name="l01353"></a><span class="lineno"> 1353</span> </div>
+<div class="line"><a id="l01354" name="l01354"></a><span class="lineno"> 1354</span>template &lt;typename Key, typename Value&gt;</div>
+<div class="foldopen" id="foldopen01355" data-start="{" data-end="}">
+<div class="line"><a id="l01355" name="l01355"></a><span class="lineno"><a class="line" href="classunodb_1_1db_1_1iterator.html#a68ae5c43a1b17c6cbb39d8574e6acd1a"> 1355</a></span>value_view <a class="code hl_class" href="classunodb_1_1db.html">db</a>&lt;Key, Value&gt;::<a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a>::get_val() const noexcept {</div>
+<div class="line"><a id="l01356" name="l01356"></a><span class="lineno"> 1356</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(valid());  <span class="comment">// by contract</span></div>
+<div class="line"><a id="l01357" name="l01357"></a><span class="lineno"> 1357</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; e = stack_.top();</div>
+<div class="line"><a id="l01358" name="l01358"></a><span class="lineno"> 1358</span>  <span class="keyword">const</span> <span class="keyword">auto</span>&amp; node = e.node;</div>
+<div class="line"><a id="l01359" name="l01359"></a><span class="lineno"> 1359</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(node.type() == <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>);      <span class="comment">// On a leaf.</span></div>
+<div class="line"><a id="l01360" name="l01360"></a><span class="lineno"> 1360</span>  <span class="keyword">const</span> <span class="keyword">auto</span>* <span class="keyword">const</span> leaf{node.template ptr&lt;leaf_type*&gt;()};  <span class="comment">// current leaf.</span></div>
+<div class="line"><a id="l01361" name="l01361"></a><span class="lineno"> 1361</span>  <span class="keywordflow">return</span> leaf-&gt;get_value_view();</div>
+<div class="line"><a id="l01362" name="l01362"></a><span class="lineno"> 1362</span>}</div>
 </div>
-<div class="line"><a id="l01362" name="l01362"></a><span class="lineno"> 1362</span> </div>
-<div class="line"><a id="l01366" name="l01366"></a><span class="lineno"> 1366</span> </div>
-<div class="line"><a id="l01367" name="l01367"></a><span class="lineno"> 1367</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="line"><a id="l01368" name="l01368"></a><span class="lineno"> 1368</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN&gt;</div>
-<div class="foldopen" id="foldopen01369" data-start="{" data-end="}">
-<div class="line"><a id="l01369" name="l01369"></a><span class="lineno"><a class="line" href="classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09"> 1369</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09">db&lt;Key, Value&gt;::scan</a>(FN fn, <span class="keywordtype">bool</span> fwd) {</div>
-<div class="line"><a id="l01370" name="l01370"></a><span class="lineno"> 1370</span>  <span class="keywordflow">if</span> (fwd) {</div>
-<div class="line"><a id="l01371" name="l01371"></a><span class="lineno"> 1371</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
-<div class="line"><a id="l01372" name="l01372"></a><span class="lineno"> 1372</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#ae7140da77bdaddcb5412a67ac4dbb28d">first</a>();</div>
-<div class="line"><a id="l01373" name="l01373"></a><span class="lineno"> 1373</span>    <span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
-<div class="line"><a id="l01374" name="l01374"></a><span class="lineno"> 1374</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>()) {</div>
-<div class="line"><a id="l01375" name="l01375"></a><span class="lineno"> 1375</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l01376" name="l01376"></a><span class="lineno"> 1376</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0">next</a>();</div>
-<div class="line"><a id="l01377" name="l01377"></a><span class="lineno"> 1377</span>    }</div>
-<div class="line"><a id="l01378" name="l01378"></a><span class="lineno"> 1378</span>  } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01379" name="l01379"></a><span class="lineno"> 1379</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
-<div class="line"><a id="l01380" name="l01380"></a><span class="lineno"> 1380</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a73c3f611163534ea29ca3fb3958c97e3">last</a>();</div>
-<div class="line"><a id="l01381" name="l01381"></a><span class="lineno"> 1381</span>    <span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
-<div class="line"><a id="l01382" name="l01382"></a><span class="lineno"> 1382</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>()) {</div>
-<div class="line"><a id="l01383" name="l01383"></a><span class="lineno"> 1383</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l01384" name="l01384"></a><span class="lineno"> 1384</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a7185f8a53c2a16d45bf4ddd7ca18e668">prior</a>();</div>
-<div class="line"><a id="l01385" name="l01385"></a><span class="lineno"> 1385</span>    }</div>
-<div class="line"><a id="l01386" name="l01386"></a><span class="lineno"> 1386</span>  }</div>
-<div class="line"><a id="l01387" name="l01387"></a><span class="lineno"> 1387</span>}</div>
+<div class="line"><a id="l01363" name="l01363"></a><span class="lineno"> 1363</span> </div>
+<div class="line"><a id="l01367" name="l01367"></a><span class="lineno"> 1367</span> </div>
+<div class="line"><a id="l01368" name="l01368"></a><span class="lineno"> 1368</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="line"><a id="l01369" name="l01369"></a><span class="lineno"> 1369</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN&gt;</div>
+<div class="foldopen" id="foldopen01370" data-start="{" data-end="}">
+<div class="line"><a id="l01370" name="l01370"></a><span class="lineno"><a class="line" href="classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09"> 1370</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09">db&lt;Key, Value&gt;::scan</a>(FN fn, <span class="keywordtype">bool</span> fwd) {</div>
+<div class="line"><a id="l01371" name="l01371"></a><span class="lineno"> 1371</span>  <span class="keywordflow">if</span> (fwd) {</div>
+<div class="line"><a id="l01372" name="l01372"></a><span class="lineno"> 1372</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
+<div class="line"><a id="l01373" name="l01373"></a><span class="lineno"> 1373</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#ae7140da77bdaddcb5412a67ac4dbb28d">first</a>();</div>
+<div class="line"><a id="l01374" name="l01374"></a><span class="lineno"> 1374</span>    <span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
+<div class="line"><a id="l01375" name="l01375"></a><span class="lineno"> 1375</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>()) {</div>
+<div class="line"><a id="l01376" name="l01376"></a><span class="lineno"> 1376</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l01377" name="l01377"></a><span class="lineno"> 1377</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0">next</a>();</div>
+<div class="line"><a id="l01378" name="l01378"></a><span class="lineno"> 1378</span>    }</div>
+<div class="line"><a id="l01379" name="l01379"></a><span class="lineno"> 1379</span>  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01380" name="l01380"></a><span class="lineno"> 1380</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
+<div class="line"><a id="l01381" name="l01381"></a><span class="lineno"> 1381</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a73c3f611163534ea29ca3fb3958c97e3">last</a>();</div>
+<div class="line"><a id="l01382" name="l01382"></a><span class="lineno"> 1382</span>    <span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
+<div class="line"><a id="l01383" name="l01383"></a><span class="lineno"> 1383</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>()) {</div>
+<div class="line"><a id="l01384" name="l01384"></a><span class="lineno"> 1384</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l01385" name="l01385"></a><span class="lineno"> 1385</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a7185f8a53c2a16d45bf4ddd7ca18e668">prior</a>();</div>
+<div class="line"><a id="l01386" name="l01386"></a><span class="lineno"> 1386</span>    }</div>
+<div class="line"><a id="l01387" name="l01387"></a><span class="lineno"> 1387</span>  }</div>
+<div class="line"><a id="l01388" name="l01388"></a><span class="lineno"> 1388</span>}</div>
 </div>
-<div class="line"><a id="l01388" name="l01388"></a><span class="lineno"> 1388</span> </div>
-<div class="line"><a id="l01389" name="l01389"></a><span class="lineno"> 1389</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="line"><a id="l01390" name="l01390"></a><span class="lineno"> 1390</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN&gt;</div>
-<div class="foldopen" id="foldopen01391" data-start="{" data-end="}">
-<div class="line"><a id="l01391" name="l01391"></a><span class="lineno"><a class="line" href="classunodb_1_1db.html#a5d68530937371b08951f2084761b56fd"> 1391</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1db.html#a5d68530937371b08951f2084761b56fd">db&lt;Key, Value&gt;::scan_from</a>(Key from_key, FN fn, <span class="keywordtype">bool</span> fwd) {</div>
-<div class="line"><a id="l01392" name="l01392"></a><span class="lineno"> 1392</span>  <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> from_key_{from_key};  <span class="comment">// convert to internal key</span></div>
-<div class="line"><a id="l01393" name="l01393"></a><span class="lineno"> 1393</span>  <span class="keywordtype">bool</span> match{};</div>
-<div class="line"><a id="l01394" name="l01394"></a><span class="lineno"> 1394</span>  <span class="keywordflow">if</span> (fwd) {</div>
-<div class="line"><a id="l01395" name="l01395"></a><span class="lineno"> 1395</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
-<div class="line"><a id="l01396" name="l01396"></a><span class="lineno"> 1396</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">seek</a>(from_key_, match, <span class="keyword">true</span> <span class="comment">/*fwd*/</span>);</div>
-<div class="line"><a id="l01397" name="l01397"></a><span class="lineno"> 1397</span>    <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
-<div class="line"><a id="l01398" name="l01398"></a><span class="lineno"> 1398</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>()) {</div>
-<div class="line"><a id="l01399" name="l01399"></a><span class="lineno"> 1399</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l01400" name="l01400"></a><span class="lineno"> 1400</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0">next</a>();</div>
-<div class="line"><a id="l01401" name="l01401"></a><span class="lineno"> 1401</span>    }</div>
-<div class="line"><a id="l01402" name="l01402"></a><span class="lineno"> 1402</span>  } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01403" name="l01403"></a><span class="lineno"> 1403</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
-<div class="line"><a id="l01404" name="l01404"></a><span class="lineno"> 1404</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">seek</a>(from_key_, match, <span class="keyword">false</span> <span class="comment">/*fwd*/</span>);</div>
-<div class="line"><a id="l01405" name="l01405"></a><span class="lineno"> 1405</span>    <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
-<div class="line"><a id="l01406" name="l01406"></a><span class="lineno"> 1406</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>()) {</div>
-<div class="line"><a id="l01407" name="l01407"></a><span class="lineno"> 1407</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l01408" name="l01408"></a><span class="lineno"> 1408</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a7185f8a53c2a16d45bf4ddd7ca18e668">prior</a>();</div>
-<div class="line"><a id="l01409" name="l01409"></a><span class="lineno"> 1409</span>    }</div>
-<div class="line"><a id="l01410" name="l01410"></a><span class="lineno"> 1410</span>  }</div>
-<div class="line"><a id="l01411" name="l01411"></a><span class="lineno"> 1411</span>}</div>
+<div class="line"><a id="l01389" name="l01389"></a><span class="lineno"> 1389</span> </div>
+<div class="line"><a id="l01390" name="l01390"></a><span class="lineno"> 1390</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="line"><a id="l01391" name="l01391"></a><span class="lineno"> 1391</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN&gt;</div>
+<div class="foldopen" id="foldopen01392" data-start="{" data-end="}">
+<div class="line"><a id="l01392" name="l01392"></a><span class="lineno"><a class="line" href="classunodb_1_1db.html#a5d68530937371b08951f2084761b56fd"> 1392</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1db.html#a5d68530937371b08951f2084761b56fd">db&lt;Key, Value&gt;::scan_from</a>(Key from_key, FN fn, <span class="keywordtype">bool</span> fwd) {</div>
+<div class="line"><a id="l01393" name="l01393"></a><span class="lineno"> 1393</span>  <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> from_key_{from_key};  <span class="comment">// convert to internal key</span></div>
+<div class="line"><a id="l01394" name="l01394"></a><span class="lineno"> 1394</span>  <span class="keywordtype">bool</span> match{};</div>
+<div class="line"><a id="l01395" name="l01395"></a><span class="lineno"> 1395</span>  <span class="keywordflow">if</span> (fwd) {</div>
+<div class="line"><a id="l01396" name="l01396"></a><span class="lineno"> 1396</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
+<div class="line"><a id="l01397" name="l01397"></a><span class="lineno"> 1397</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">seek</a>(from_key_, match, <span class="keyword">true</span> <span class="comment">/*fwd*/</span>);</div>
+<div class="line"><a id="l01398" name="l01398"></a><span class="lineno"> 1398</span>    <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
+<div class="line"><a id="l01399" name="l01399"></a><span class="lineno"> 1399</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>()) {</div>
+<div class="line"><a id="l01400" name="l01400"></a><span class="lineno"> 1400</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l01401" name="l01401"></a><span class="lineno"> 1401</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0">next</a>();</div>
+<div class="line"><a id="l01402" name="l01402"></a><span class="lineno"> 1402</span>    }</div>
+<div class="line"><a id="l01403" name="l01403"></a><span class="lineno"> 1403</span>  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01404" name="l01404"></a><span class="lineno"> 1404</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
+<div class="line"><a id="l01405" name="l01405"></a><span class="lineno"> 1405</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">seek</a>(from_key_, match, <span class="keyword">false</span> <span class="comment">/*fwd*/</span>);</div>
+<div class="line"><a id="l01406" name="l01406"></a><span class="lineno"> 1406</span>    <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
+<div class="line"><a id="l01407" name="l01407"></a><span class="lineno"> 1407</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>()) {</div>
+<div class="line"><a id="l01408" name="l01408"></a><span class="lineno"> 1408</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l01409" name="l01409"></a><span class="lineno"> 1409</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a7185f8a53c2a16d45bf4ddd7ca18e668">prior</a>();</div>
+<div class="line"><a id="l01410" name="l01410"></a><span class="lineno"> 1410</span>    }</div>
+<div class="line"><a id="l01411" name="l01411"></a><span class="lineno"> 1411</span>  }</div>
+<div class="line"><a id="l01412" name="l01412"></a><span class="lineno"> 1412</span>}</div>
 </div>
-<div class="line"><a id="l01412" name="l01412"></a><span class="lineno"> 1412</span> </div>
-<div class="line"><a id="l01413" name="l01413"></a><span class="lineno"> 1413</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="line"><a id="l01414" name="l01414"></a><span class="lineno"> 1414</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN&gt;</div>
-<div class="foldopen" id="foldopen01415" data-start="{" data-end="}">
-<div class="line"><a id="l01415" name="l01415"></a><span class="lineno"><a class="line" href="classunodb_1_1db.html#a5f45c60b21a68bfd64062ca2c2be2ddf"> 1415</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1db.html#a5f45c60b21a68bfd64062ca2c2be2ddf">db&lt;Key, Value&gt;::scan_range</a>(Key from_key, Key to_key, FN fn) {</div>
-<div class="line"><a id="l01416" name="l01416"></a><span class="lineno"> 1416</span>  <span class="comment">// TODO(thompsonbry) : variable length keys. Explore a cheaper way</span></div>
-<div class="line"><a id="l01417" name="l01417"></a><span class="lineno"> 1417</span>  <span class="comment">// to handle the exclusive bound case when developing variable</span></div>
-<div class="line"><a id="l01418" name="l01418"></a><span class="lineno"> 1418</span>  <span class="comment">// length key support based on the maintained key buffer.</span></div>
-<div class="line"><a id="l01419" name="l01419"></a><span class="lineno"> 1419</span>  <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> debug = <span class="keyword">false</span>;             <span class="comment">// set true to debug scan.</span></div>
-<div class="line"><a id="l01420" name="l01420"></a><span class="lineno"> 1420</span>  <span class="keyword">const</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> from_key_{from_key};   <span class="comment">// convert to internal key</span></div>
-<div class="line"><a id="l01421" name="l01421"></a><span class="lineno"> 1421</span>  <span class="keyword">const</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> to_key_{to_key};       <span class="comment">// convert to internal key</span></div>
-<div class="line"><a id="l01422" name="l01422"></a><span class="lineno"> 1422</span>  <span class="keyword">const</span> <span class="keyword">auto</span> ret = from_key_.<a class="code hl_function" href="structunodb_1_1detail_1_1basic__art__key.html#aaeb7df8faa6c346f5b974a50dc1331b3">cmp</a>(to_key_);  <span class="comment">// compare the internal keys</span></div>
-<div class="line"><a id="l01423" name="l01423"></a><span class="lineno"> 1423</span>  <span class="keyword">const</span> <span class="keywordtype">bool</span> fwd{ret &lt; 0};                  <span class="comment">// from_key is less than to_key</span></div>
-<div class="line"><a id="l01424" name="l01424"></a><span class="lineno"> 1424</span>  <span class="keywordflow">if</span> (ret == 0) <span class="keywordflow">return</span>;                     <span class="comment">// NOP</span></div>
-<div class="line"><a id="l01425" name="l01425"></a><span class="lineno"> 1425</span>  <span class="keywordtype">bool</span> match{};</div>
-<div class="line"><a id="l01426" name="l01426"></a><span class="lineno"> 1426</span>  <span class="keywordflow">if</span> (fwd) {</div>
-<div class="line"><a id="l01427" name="l01427"></a><span class="lineno"> 1427</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
-<div class="line"><a id="l01428" name="l01428"></a><span class="lineno"> 1428</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">seek</a>(from_key_, match, <span class="keyword">true</span> <span class="comment">/*fwd*/</span>);</div>
-<div class="line"><a id="l01429" name="l01429"></a><span class="lineno"> 1429</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (debug) {</div>
-<div class="line"><a id="l01430" name="l01430"></a><span class="lineno"> 1430</span>      std::cerr &lt;&lt; <span class="stringliteral">&quot;scan_range:: fwd&quot;</span></div>
-<div class="line"><a id="l01431" name="l01431"></a><span class="lineno"> 1431</span>                &lt;&lt; <span class="stringliteral">&quot;, from_key=&quot;</span> &lt;&lt; from_key_ &lt;&lt; <span class="stringliteral">&quot;, to_key=&quot;</span> &lt;&lt; to_key_ &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
-<div class="line"><a id="l01432" name="l01432"></a><span class="lineno"> 1432</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#adcd3e85bcd9052fc406b0632e4b46fea">dump</a>(std::cerr);</div>
-<div class="line"><a id="l01433" name="l01433"></a><span class="lineno"> 1433</span>    }</div>
-<div class="line"><a id="l01434" name="l01434"></a><span class="lineno"> 1434</span>    <span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
-<div class="line"><a id="l01435" name="l01435"></a><span class="lineno"> 1435</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>() &amp;&amp; it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a8f6d2107b7184fa1126dc174cc0ec270">cmp</a>(to_key_) &lt; 0) {</div>
-<div class="line"><a id="l01436" name="l01436"></a><span class="lineno"> 1436</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l01437" name="l01437"></a><span class="lineno"> 1437</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0">next</a>();</div>
-<div class="line"><a id="l01438" name="l01438"></a><span class="lineno"> 1438</span>      <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (debug) {</div>
-<div class="line"><a id="l01439" name="l01439"></a><span class="lineno"> 1439</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;scan_range:: next()\n&quot;</span>;</div>
-<div class="line"><a id="l01440" name="l01440"></a><span class="lineno"> 1440</span>        it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#adcd3e85bcd9052fc406b0632e4b46fea">dump</a>(std::cerr);</div>
-<div class="line"><a id="l01441" name="l01441"></a><span class="lineno"> 1441</span>      }</div>
-<div class="line"><a id="l01442" name="l01442"></a><span class="lineno"> 1442</span>    }</div>
-<div class="line"><a id="l01443" name="l01443"></a><span class="lineno"> 1443</span>  } <span class="keywordflow">else</span> {  <span class="comment">// reverse traversal.</span></div>
-<div class="line"><a id="l01444" name="l01444"></a><span class="lineno"> 1444</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
-<div class="line"><a id="l01445" name="l01445"></a><span class="lineno"> 1445</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">seek</a>(from_key_, match, <span class="keyword">false</span> <span class="comment">/*fwd*/</span>);</div>
-<div class="line"><a id="l01446" name="l01446"></a><span class="lineno"> 1446</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (debug) {</div>
-<div class="line"><a id="l01447" name="l01447"></a><span class="lineno"> 1447</span>      std::cerr &lt;&lt; <span class="stringliteral">&quot;scan_range:: rev&quot;</span></div>
-<div class="line"><a id="l01448" name="l01448"></a><span class="lineno"> 1448</span>                &lt;&lt; <span class="stringliteral">&quot;, from_key=&quot;</span> &lt;&lt; from_key_ &lt;&lt; <span class="stringliteral">&quot;, to_key=&quot;</span> &lt;&lt; to_key_ &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
-<div class="line"><a id="l01449" name="l01449"></a><span class="lineno"> 1449</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#adcd3e85bcd9052fc406b0632e4b46fea">dump</a>(std::cerr);</div>
-<div class="line"><a id="l01450" name="l01450"></a><span class="lineno"> 1450</span>    }</div>
-<div class="line"><a id="l01451" name="l01451"></a><span class="lineno"> 1451</span>    <span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
-<div class="line"><a id="l01452" name="l01452"></a><span class="lineno"> 1452</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>() &amp;&amp; it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a8f6d2107b7184fa1126dc174cc0ec270">cmp</a>(to_key_) &gt; 0) {</div>
-<div class="line"><a id="l01453" name="l01453"></a><span class="lineno"> 1453</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l01454" name="l01454"></a><span class="lineno"> 1454</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a7185f8a53c2a16d45bf4ddd7ca18e668">prior</a>();</div>
-<div class="line"><a id="l01455" name="l01455"></a><span class="lineno"> 1455</span>      <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (debug) {</div>
-<div class="line"><a id="l01456" name="l01456"></a><span class="lineno"> 1456</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;scan_range:: prior()\n&quot;</span>;</div>
-<div class="line"><a id="l01457" name="l01457"></a><span class="lineno"> 1457</span>        it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#adcd3e85bcd9052fc406b0632e4b46fea">dump</a>(std::cerr);</div>
-<div class="line"><a id="l01458" name="l01458"></a><span class="lineno"> 1458</span>      }</div>
-<div class="line"><a id="l01459" name="l01459"></a><span class="lineno"> 1459</span>    }</div>
-<div class="line"><a id="l01460" name="l01460"></a><span class="lineno"> 1460</span>  }</div>
-<div class="line"><a id="l01461" name="l01461"></a><span class="lineno"> 1461</span>}</div>
+<div class="line"><a id="l01413" name="l01413"></a><span class="lineno"> 1413</span> </div>
+<div class="line"><a id="l01414" name="l01414"></a><span class="lineno"> 1414</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="line"><a id="l01415" name="l01415"></a><span class="lineno"> 1415</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN&gt;</div>
+<div class="foldopen" id="foldopen01416" data-start="{" data-end="}">
+<div class="line"><a id="l01416" name="l01416"></a><span class="lineno"><a class="line" href="classunodb_1_1db.html#a5f45c60b21a68bfd64062ca2c2be2ddf"> 1416</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1db.html#a5f45c60b21a68bfd64062ca2c2be2ddf">db&lt;Key, Value&gt;::scan_range</a>(Key from_key, Key to_key, FN fn) {</div>
+<div class="line"><a id="l01417" name="l01417"></a><span class="lineno"> 1417</span>  <span class="comment">// TODO(thompsonbry) : variable length keys. Explore a cheaper way</span></div>
+<div class="line"><a id="l01418" name="l01418"></a><span class="lineno"> 1418</span>  <span class="comment">// to handle the exclusive bound case when developing variable</span></div>
+<div class="line"><a id="l01419" name="l01419"></a><span class="lineno"> 1419</span>  <span class="comment">// length key support based on the maintained key buffer.</span></div>
+<div class="line"><a id="l01420" name="l01420"></a><span class="lineno"> 1420</span>  <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> debug = <span class="keyword">false</span>;             <span class="comment">// set true to debug scan.</span></div>
+<div class="line"><a id="l01421" name="l01421"></a><span class="lineno"> 1421</span>  <span class="keyword">const</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> from_key_{from_key};   <span class="comment">// convert to internal key</span></div>
+<div class="line"><a id="l01422" name="l01422"></a><span class="lineno"> 1422</span>  <span class="keyword">const</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> to_key_{to_key};       <span class="comment">// convert to internal key</span></div>
+<div class="line"><a id="l01423" name="l01423"></a><span class="lineno"> 1423</span>  <span class="keyword">const</span> <span class="keyword">auto</span> ret = from_key_.<a class="code hl_function" href="structunodb_1_1detail_1_1basic__art__key.html#aaeb7df8faa6c346f5b974a50dc1331b3">cmp</a>(to_key_);  <span class="comment">// compare the internal keys</span></div>
+<div class="line"><a id="l01424" name="l01424"></a><span class="lineno"> 1424</span>  <span class="keyword">const</span> <span class="keywordtype">bool</span> fwd{ret &lt; 0};                  <span class="comment">// from_key is less than to_key</span></div>
+<div class="line"><a id="l01425" name="l01425"></a><span class="lineno"> 1425</span>  <span class="keywordflow">if</span> (ret == 0) <span class="keywordflow">return</span>;                     <span class="comment">// NOP</span></div>
+<div class="line"><a id="l01426" name="l01426"></a><span class="lineno"> 1426</span>  <span class="keywordtype">bool</span> match{};</div>
+<div class="line"><a id="l01427" name="l01427"></a><span class="lineno"> 1427</span>  <span class="keywordflow">if</span> (fwd) {</div>
+<div class="line"><a id="l01428" name="l01428"></a><span class="lineno"> 1428</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
+<div class="line"><a id="l01429" name="l01429"></a><span class="lineno"> 1429</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">seek</a>(from_key_, match, <span class="keyword">true</span> <span class="comment">/*fwd*/</span>);</div>
+<div class="line"><a id="l01430" name="l01430"></a><span class="lineno"> 1430</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (debug) {</div>
+<div class="line"><a id="l01431" name="l01431"></a><span class="lineno"> 1431</span>      std::cerr &lt;&lt; <span class="stringliteral">&quot;scan_range:: fwd&quot;</span></div>
+<div class="line"><a id="l01432" name="l01432"></a><span class="lineno"> 1432</span>                &lt;&lt; <span class="stringliteral">&quot;, from_key=&quot;</span> &lt;&lt; from_key_ &lt;&lt; <span class="stringliteral">&quot;, to_key=&quot;</span> &lt;&lt; to_key_ &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a id="l01433" name="l01433"></a><span class="lineno"> 1433</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#adcd3e85bcd9052fc406b0632e4b46fea">dump</a>(std::cerr);</div>
+<div class="line"><a id="l01434" name="l01434"></a><span class="lineno"> 1434</span>    }</div>
+<div class="line"><a id="l01435" name="l01435"></a><span class="lineno"> 1435</span>    <span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
+<div class="line"><a id="l01436" name="l01436"></a><span class="lineno"> 1436</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>() &amp;&amp; it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a8f6d2107b7184fa1126dc174cc0ec270">cmp</a>(to_key_) &lt; 0) {</div>
+<div class="line"><a id="l01437" name="l01437"></a><span class="lineno"> 1437</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l01438" name="l01438"></a><span class="lineno"> 1438</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0">next</a>();</div>
+<div class="line"><a id="l01439" name="l01439"></a><span class="lineno"> 1439</span>      <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (debug) {</div>
+<div class="line"><a id="l01440" name="l01440"></a><span class="lineno"> 1440</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;scan_range:: next()\n&quot;</span>;</div>
+<div class="line"><a id="l01441" name="l01441"></a><span class="lineno"> 1441</span>        it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#adcd3e85bcd9052fc406b0632e4b46fea">dump</a>(std::cerr);</div>
+<div class="line"><a id="l01442" name="l01442"></a><span class="lineno"> 1442</span>      }</div>
+<div class="line"><a id="l01443" name="l01443"></a><span class="lineno"> 1443</span>    }</div>
+<div class="line"><a id="l01444" name="l01444"></a><span class="lineno"> 1444</span>  } <span class="keywordflow">else</span> {  <span class="comment">// reverse traversal.</span></div>
+<div class="line"><a id="l01445" name="l01445"></a><span class="lineno"> 1445</span>    <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">iterator</a> it(*<span class="keyword">this</span>);</div>
+<div class="line"><a id="l01446" name="l01446"></a><span class="lineno"> 1446</span>    it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">seek</a>(from_key_, match, <span class="keyword">false</span> <span class="comment">/*fwd*/</span>);</div>
+<div class="line"><a id="l01447" name="l01447"></a><span class="lineno"> 1447</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (debug) {</div>
+<div class="line"><a id="l01448" name="l01448"></a><span class="lineno"> 1448</span>      std::cerr &lt;&lt; <span class="stringliteral">&quot;scan_range:: rev&quot;</span></div>
+<div class="line"><a id="l01449" name="l01449"></a><span class="lineno"> 1449</span>                &lt;&lt; <span class="stringliteral">&quot;, from_key=&quot;</span> &lt;&lt; from_key_ &lt;&lt; <span class="stringliteral">&quot;, to_key=&quot;</span> &lt;&lt; to_key_ &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a id="l01450" name="l01450"></a><span class="lineno"> 1450</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#adcd3e85bcd9052fc406b0632e4b46fea">dump</a>(std::cerr);</div>
+<div class="line"><a id="l01451" name="l01451"></a><span class="lineno"> 1451</span>    }</div>
+<div class="line"><a id="l01452" name="l01452"></a><span class="lineno"> 1452</span>    <span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">visitor_type</a> v{it};</div>
+<div class="line"><a id="l01453" name="l01453"></a><span class="lineno"> 1453</span>    <span class="keywordflow">while</span> (it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">valid</a>() &amp;&amp; it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a8f6d2107b7184fa1126dc174cc0ec270">cmp</a>(to_key_) &gt; 0) {</div>
+<div class="line"><a id="l01454" name="l01454"></a><span class="lineno"> 1454</span>      <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(fn(v))) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l01455" name="l01455"></a><span class="lineno"> 1455</span>      it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#a7185f8a53c2a16d45bf4ddd7ca18e668">prior</a>();</div>
+<div class="line"><a id="l01456" name="l01456"></a><span class="lineno"> 1456</span>      <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (debug) {</div>
+<div class="line"><a id="l01457" name="l01457"></a><span class="lineno"> 1457</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;scan_range:: prior()\n&quot;</span>;</div>
+<div class="line"><a id="l01458" name="l01458"></a><span class="lineno"> 1458</span>        it.<a class="code hl_function" href="classunodb_1_1db_1_1iterator.html#adcd3e85bcd9052fc406b0632e4b46fea">dump</a>(std::cerr);</div>
+<div class="line"><a id="l01459" name="l01459"></a><span class="lineno"> 1459</span>      }</div>
+<div class="line"><a id="l01460" name="l01460"></a><span class="lineno"> 1460</span>    }</div>
+<div class="line"><a id="l01461" name="l01461"></a><span class="lineno"> 1461</span>  }</div>
+<div class="line"><a id="l01462" name="l01462"></a><span class="lineno"> 1462</span>}</div>
 </div>
-<div class="line"><a id="l01462" name="l01462"></a><span class="lineno"> 1462</span> </div>
-<div class="line"><a id="l01463" name="l01463"></a><span class="lineno"> 1463</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="line"><a id="l01464" name="l01464"></a><span class="lineno"> 1464</span><span class="keywordtype">void</span> <a class="code hl_class" href="classunodb_1_1db.html">db&lt;Key, Value&gt;::delete_root_subtree</a>() noexcept {</div>
-<div class="line"><a id="l01465" name="l01465"></a><span class="lineno"> 1465</span>  <span class="keywordflow">if</span> (root != <span class="keyword">nullptr</span>) art_policy::delete_subtree(root, *<span class="keyword">this</span>);</div>
-<div class="line"><a id="l01466" name="l01466"></a><span class="lineno"> 1466</span> </div>
-<div class="line"><a id="l01467" name="l01467"></a><span class="lineno"> 1467</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l01468" name="l01468"></a><span class="lineno"> 1468</span>  <span class="comment">// It is possible to reset the counter to zero instead of decrementing it for</span></div>
-<div class="line"><a id="l01469" name="l01469"></a><span class="lineno"> 1469</span>  <span class="comment">// each leaf, but not sure the savings will be significant.</span></div>
-<div class="line"><a id="l01470" name="l01470"></a><span class="lineno"> 1470</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(node_counts[as_i&lt;node_type::LEAF&gt;] == 0);</div>
-<div class="line"><a id="l01471" name="l01471"></a><span class="lineno"> 1471</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l01472" name="l01472"></a><span class="lineno"> 1472</span>}</div>
-<div class="line"><a id="l01473" name="l01473"></a><span class="lineno"> 1473</span> </div>
-<div class="line"><a id="l01474" name="l01474"></a><span class="lineno"> 1474</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="line"><a id="l01475" name="l01475"></a><span class="lineno"> 1475</span><span class="keywordtype">void</span> db&lt;Key, Value&gt;::clear() noexcept {</div>
-<div class="line"><a id="l01476" name="l01476"></a><span class="lineno"> 1476</span>  delete_root_subtree();</div>
-<div class="line"><a id="l01477" name="l01477"></a><span class="lineno"> 1477</span> </div>
-<div class="line"><a id="l01478" name="l01478"></a><span class="lineno"> 1478</span>  root = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l01479" name="l01479"></a><span class="lineno"> 1479</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l01480" name="l01480"></a><span class="lineno"> 1480</span>  current_memory_use = 0;</div>
-<div class="line"><a id="l01481" name="l01481"></a><span class="lineno"> 1481</span>  node_counts[as_i&lt;node_type::I4&gt;] = 0;</div>
-<div class="line"><a id="l01482" name="l01482"></a><span class="lineno"> 1482</span>  node_counts[as_i&lt;node_type::I16&gt;] = 0;</div>
-<div class="line"><a id="l01483" name="l01483"></a><span class="lineno"> 1483</span>  node_counts[as_i&lt;node_type::I48&gt;] = 0;</div>
-<div class="line"><a id="l01484" name="l01484"></a><span class="lineno"> 1484</span>  node_counts[as_i&lt;node_type::I256&gt;] = 0;</div>
-<div class="line"><a id="l01485" name="l01485"></a><span class="lineno"> 1485</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l01486" name="l01486"></a><span class="lineno"> 1486</span>}</div>
-<div class="line"><a id="l01487" name="l01487"></a><span class="lineno"> 1487</span> </div>
-<div class="line"><a id="l01488" name="l01488"></a><span class="lineno"> 1488</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l01489" name="l01489"></a><span class="lineno"> 1489</span> </div>
-<div class="line"><a id="l01490" name="l01490"></a><span class="lineno"> 1490</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="line"><a id="l01491" name="l01491"></a><span class="lineno"> 1491</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> INode&gt;</div>
-<div class="line"><a id="l01492" name="l01492"></a><span class="lineno"> 1492</span><span class="keyword">constexpr</span> <span class="keywordtype">void</span> db&lt;Key, Value&gt;::increment_inode_count() noexcept {</div>
-<div class="line"><a id="l01493" name="l01493"></a><span class="lineno"> 1493</span>  <span class="keyword">static_assert</span>(inode_defs_type::template is_inode&lt;INode&gt;());</div>
-<div class="line"><a id="l01494" name="l01494"></a><span class="lineno"> 1494</span> </div>
-<div class="line"><a id="l01495" name="l01495"></a><span class="lineno"> 1495</span>  ++node_counts[as_i&lt;INode::type&gt;];</div>
-<div class="line"><a id="l01496" name="l01496"></a><span class="lineno"> 1496</span>  increase_memory_use(<span class="keyword">sizeof</span>(INode));</div>
-<div class="line"><a id="l01497" name="l01497"></a><span class="lineno"> 1497</span>}</div>
-<div class="line"><a id="l01498" name="l01498"></a><span class="lineno"> 1498</span> </div>
-<div class="line"><a id="l01499" name="l01499"></a><span class="lineno"> 1499</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="line"><a id="l01500" name="l01500"></a><span class="lineno"> 1500</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> INode&gt;</div>
-<div class="line"><a id="l01501" name="l01501"></a><span class="lineno"> 1501</span><span class="keyword">constexpr</span> <span class="keywordtype">void</span> db&lt;Key, Value&gt;::decrement_inode_count() noexcept {</div>
-<div class="line"><a id="l01502" name="l01502"></a><span class="lineno"> 1502</span>  <span class="keyword">static_assert</span>(inode_defs_type::template is_inode&lt;INode&gt;());</div>
-<div class="line"><a id="l01503" name="l01503"></a><span class="lineno"> 1503</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(node_counts[as_i&lt;INode::type&gt;] &gt; 0);</div>
-<div class="line"><a id="l01504" name="l01504"></a><span class="lineno"> 1504</span> </div>
-<div class="line"><a id="l01505" name="l01505"></a><span class="lineno"> 1505</span>  --node_counts[as_i&lt;INode::type&gt;];</div>
-<div class="line"><a id="l01506" name="l01506"></a><span class="lineno"> 1506</span>  decrease_memory_use(<span class="keyword">sizeof</span>(INode));</div>
-<div class="line"><a id="l01507" name="l01507"></a><span class="lineno"> 1507</span>}</div>
-<div class="line"><a id="l01508" name="l01508"></a><span class="lineno"> 1508</span> </div>
-<div class="line"><a id="l01509" name="l01509"></a><span class="lineno"> 1509</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="line"><a id="l01510" name="l01510"></a><span class="lineno"> 1510</span><span class="keyword">template</span> &lt;node_type NodeType&gt;</div>
-<div class="line"><a id="l01511" name="l01511"></a><span class="lineno"> 1511</span><span class="keyword">constexpr</span> <span class="keywordtype">void</span> db&lt;Key, Value&gt;::account_growing_inode() noexcept {</div>
-<div class="line"><a id="l01512" name="l01512"></a><span class="lineno"> 1512</span>  <span class="keyword">static_assert</span>(NodeType != <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>);</div>
-<div class="line"><a id="l01513" name="l01513"></a><span class="lineno"> 1513</span> </div>
-<div class="line"><a id="l01514" name="l01514"></a><span class="lineno"> 1514</span>  <span class="comment">// NOLINTNEXTLINE(google-readability-casting)</span></div>
-<div class="line"><a id="l01515" name="l01515"></a><span class="lineno"> 1515</span>  ++growing_inode_counts[internal_as_i&lt;NodeType&gt;];</div>
-<div class="line"><a id="l01516" name="l01516"></a><span class="lineno"> 1516</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(growing_inode_counts[internal_as_i&lt;NodeType&gt;] &gt;=</div>
-<div class="line"><a id="l01517" name="l01517"></a><span class="lineno"> 1517</span>                      node_counts[as_i&lt;NodeType&gt;]);</div>
-<div class="line"><a id="l01518" name="l01518"></a><span class="lineno"> 1518</span>}</div>
-<div class="line"><a id="l01519" name="l01519"></a><span class="lineno"> 1519</span> </div>
-<div class="line"><a id="l01520" name="l01520"></a><span class="lineno"> 1520</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="line"><a id="l01521" name="l01521"></a><span class="lineno"> 1521</span><span class="keyword">template</span> &lt;node_type NodeType&gt;</div>
-<div class="line"><a id="l01522" name="l01522"></a><span class="lineno"> 1522</span><span class="keyword">constexpr</span> <span class="keywordtype">void</span> db&lt;Key, Value&gt;::account_shrinking_inode() noexcept {</div>
-<div class="line"><a id="l01523" name="l01523"></a><span class="lineno"> 1523</span>  <span class="keyword">static_assert</span>(NodeType != <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>);</div>
-<div class="line"><a id="l01524" name="l01524"></a><span class="lineno"> 1524</span> </div>
-<div class="line"><a id="l01525" name="l01525"></a><span class="lineno"> 1525</span>  ++shrinking_inode_counts[internal_as_i&lt;NodeType&gt;];</div>
-<div class="line"><a id="l01526" name="l01526"></a><span class="lineno"> 1526</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(shrinking_inode_counts[internal_as_i&lt;NodeType&gt;] &lt;=</div>
-<div class="line"><a id="l01527" name="l01527"></a><span class="lineno"> 1527</span>                      growing_inode_counts[internal_as_i&lt;NodeType&gt;]);</div>
-<div class="line"><a id="l01528" name="l01528"></a><span class="lineno"> 1528</span>}</div>
-<div class="line"><a id="l01529" name="l01529"></a><span class="lineno"> 1529</span> </div>
-<div class="line"><a id="l01530" name="l01530"></a><span class="lineno"> 1530</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l01531" name="l01531"></a><span class="lineno"> 1531</span> </div>
-<div class="line"><a id="l01532" name="l01532"></a><span class="lineno"> 1532</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="line"><a id="l01533" name="l01533"></a><span class="lineno"> 1533</span><span class="keywordtype">void</span> db&lt;Key, Value&gt;::dump(std::ostream&amp; os)<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l01534" name="l01534"></a><span class="lineno"> 1534</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l01535" name="l01535"></a><span class="lineno"> 1535</span>  os &lt;&lt; <span class="stringliteral">&quot;db dump, current memory use = &quot;</span> &lt;&lt; get_current_memory_use() &lt;&lt; <span class="charliteral">&#39;\n&#39;</span>;</div>
-<div class="line"><a id="l01536" name="l01536"></a><span class="lineno"> 1536</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l01537" name="l01537"></a><span class="lineno"> 1537</span>  os &lt;&lt; <span class="stringliteral">&quot;db dump\n&quot;</span>;</div>
-<div class="line"><a id="l01538" name="l01538"></a><span class="lineno"> 1538</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l01539" name="l01539"></a><span class="lineno"> 1539</span>  art_policy::dump_node(os, root);</div>
-<div class="line"><a id="l01540" name="l01540"></a><span class="lineno"> 1540</span>}</div>
-<div class="line"><a id="l01541" name="l01541"></a><span class="lineno"> 1541</span> </div>
-<div class="line"><a id="l01542" name="l01542"></a><span class="lineno"> 1542</span><span class="comment">// LCOV_EXCL_START</span></div>
-<div class="line"><a id="l01543" name="l01543"></a><span class="lineno"> 1543</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
-<div class="line"><a id="l01544" name="l01544"></a><span class="lineno"> 1544</span><span class="keywordtype">void</span> db&lt;Key, Value&gt;::dump()<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l01545" name="l01545"></a><span class="lineno"> 1545</span>  dump(std::cerr);</div>
-<div class="line"><a id="l01546" name="l01546"></a><span class="lineno"> 1546</span>}</div>
-<div class="line"><a id="l01547" name="l01547"></a><span class="lineno"> 1547</span><span class="comment">// LCOV_EXCL_STOP</span></div>
-<div class="line"><a id="l01548" name="l01548"></a><span class="lineno"> 1548</span> </div>
-<div class="line"><a id="l01549" name="l01549"></a><span class="lineno"> 1549</span>}  <span class="comment">// namespace unodb</span></div>
+<div class="line"><a id="l01463" name="l01463"></a><span class="lineno"> 1463</span> </div>
+<div class="line"><a id="l01464" name="l01464"></a><span class="lineno"> 1464</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="line"><a id="l01465" name="l01465"></a><span class="lineno"> 1465</span><span class="keywordtype">void</span> <a class="code hl_class" href="classunodb_1_1db.html">db&lt;Key, Value&gt;::delete_root_subtree</a>() noexcept {</div>
+<div class="line"><a id="l01466" name="l01466"></a><span class="lineno"> 1466</span>  <span class="keywordflow">if</span> (root != <span class="keyword">nullptr</span>) art_policy::delete_subtree(root, *<span class="keyword">this</span>);</div>
+<div class="line"><a id="l01467" name="l01467"></a><span class="lineno"> 1467</span> </div>
+<div class="line"><a id="l01468" name="l01468"></a><span class="lineno"> 1468</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l01469" name="l01469"></a><span class="lineno"> 1469</span>  <span class="comment">// It is possible to reset the counter to zero instead of decrementing it for</span></div>
+<div class="line"><a id="l01470" name="l01470"></a><span class="lineno"> 1470</span>  <span class="comment">// each leaf, but not sure the savings will be significant.</span></div>
+<div class="line"><a id="l01471" name="l01471"></a><span class="lineno"> 1471</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(node_counts[as_i&lt;node_type::LEAF&gt;] == 0);</div>
+<div class="line"><a id="l01472" name="l01472"></a><span class="lineno"> 1472</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l01473" name="l01473"></a><span class="lineno"> 1473</span>}</div>
+<div class="line"><a id="l01474" name="l01474"></a><span class="lineno"> 1474</span> </div>
+<div class="line"><a id="l01475" name="l01475"></a><span class="lineno"> 1475</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="line"><a id="l01476" name="l01476"></a><span class="lineno"> 1476</span><span class="keywordtype">void</span> db&lt;Key, Value&gt;::clear() noexcept {</div>
+<div class="line"><a id="l01477" name="l01477"></a><span class="lineno"> 1477</span>  delete_root_subtree();</div>
+<div class="line"><a id="l01478" name="l01478"></a><span class="lineno"> 1478</span> </div>
+<div class="line"><a id="l01479" name="l01479"></a><span class="lineno"> 1479</span>  root = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l01480" name="l01480"></a><span class="lineno"> 1480</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l01481" name="l01481"></a><span class="lineno"> 1481</span>  current_memory_use = 0;</div>
+<div class="line"><a id="l01482" name="l01482"></a><span class="lineno"> 1482</span>  node_counts[as_i&lt;node_type::I4&gt;] = 0;</div>
+<div class="line"><a id="l01483" name="l01483"></a><span class="lineno"> 1483</span>  node_counts[as_i&lt;node_type::I16&gt;] = 0;</div>
+<div class="line"><a id="l01484" name="l01484"></a><span class="lineno"> 1484</span>  node_counts[as_i&lt;node_type::I48&gt;] = 0;</div>
+<div class="line"><a id="l01485" name="l01485"></a><span class="lineno"> 1485</span>  node_counts[as_i&lt;node_type::I256&gt;] = 0;</div>
+<div class="line"><a id="l01486" name="l01486"></a><span class="lineno"> 1486</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l01487" name="l01487"></a><span class="lineno"> 1487</span>}</div>
+<div class="line"><a id="l01488" name="l01488"></a><span class="lineno"> 1488</span> </div>
+<div class="line"><a id="l01489" name="l01489"></a><span class="lineno"> 1489</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l01490" name="l01490"></a><span class="lineno"> 1490</span> </div>
+<div class="line"><a id="l01491" name="l01491"></a><span class="lineno"> 1491</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="line"><a id="l01492" name="l01492"></a><span class="lineno"> 1492</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> INode&gt;</div>
+<div class="line"><a id="l01493" name="l01493"></a><span class="lineno"> 1493</span><span class="keyword">constexpr</span> <span class="keywordtype">void</span> db&lt;Key, Value&gt;::increment_inode_count() noexcept {</div>
+<div class="line"><a id="l01494" name="l01494"></a><span class="lineno"> 1494</span>  <span class="keyword">static_assert</span>(inode_defs_type::template is_inode&lt;INode&gt;());</div>
+<div class="line"><a id="l01495" name="l01495"></a><span class="lineno"> 1495</span> </div>
+<div class="line"><a id="l01496" name="l01496"></a><span class="lineno"> 1496</span>  ++node_counts[as_i&lt;INode::type&gt;];</div>
+<div class="line"><a id="l01497" name="l01497"></a><span class="lineno"> 1497</span>  increase_memory_use(<span class="keyword">sizeof</span>(INode));</div>
+<div class="line"><a id="l01498" name="l01498"></a><span class="lineno"> 1498</span>}</div>
+<div class="line"><a id="l01499" name="l01499"></a><span class="lineno"> 1499</span> </div>
+<div class="line"><a id="l01500" name="l01500"></a><span class="lineno"> 1500</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="line"><a id="l01501" name="l01501"></a><span class="lineno"> 1501</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> INode&gt;</div>
+<div class="line"><a id="l01502" name="l01502"></a><span class="lineno"> 1502</span><span class="keyword">constexpr</span> <span class="keywordtype">void</span> db&lt;Key, Value&gt;::decrement_inode_count() noexcept {</div>
+<div class="line"><a id="l01503" name="l01503"></a><span class="lineno"> 1503</span>  <span class="keyword">static_assert</span>(inode_defs_type::template is_inode&lt;INode&gt;());</div>
+<div class="line"><a id="l01504" name="l01504"></a><span class="lineno"> 1504</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(node_counts[as_i&lt;INode::type&gt;] &gt; 0);</div>
+<div class="line"><a id="l01505" name="l01505"></a><span class="lineno"> 1505</span> </div>
+<div class="line"><a id="l01506" name="l01506"></a><span class="lineno"> 1506</span>  --node_counts[as_i&lt;INode::type&gt;];</div>
+<div class="line"><a id="l01507" name="l01507"></a><span class="lineno"> 1507</span>  decrease_memory_use(<span class="keyword">sizeof</span>(INode));</div>
+<div class="line"><a id="l01508" name="l01508"></a><span class="lineno"> 1508</span>}</div>
+<div class="line"><a id="l01509" name="l01509"></a><span class="lineno"> 1509</span> </div>
+<div class="line"><a id="l01510" name="l01510"></a><span class="lineno"> 1510</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="line"><a id="l01511" name="l01511"></a><span class="lineno"> 1511</span><span class="keyword">template</span> &lt;node_type NodeType&gt;</div>
+<div class="line"><a id="l01512" name="l01512"></a><span class="lineno"> 1512</span><span class="keyword">constexpr</span> <span class="keywordtype">void</span> db&lt;Key, Value&gt;::account_growing_inode() noexcept {</div>
+<div class="line"><a id="l01513" name="l01513"></a><span class="lineno"> 1513</span>  <span class="keyword">static_assert</span>(NodeType != <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>);</div>
+<div class="line"><a id="l01514" name="l01514"></a><span class="lineno"> 1514</span> </div>
+<div class="line"><a id="l01515" name="l01515"></a><span class="lineno"> 1515</span>  <span class="comment">// NOLINTNEXTLINE(google-readability-casting)</span></div>
+<div class="line"><a id="l01516" name="l01516"></a><span class="lineno"> 1516</span>  ++growing_inode_counts[internal_as_i&lt;NodeType&gt;];</div>
+<div class="line"><a id="l01517" name="l01517"></a><span class="lineno"> 1517</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(growing_inode_counts[internal_as_i&lt;NodeType&gt;] &gt;=</div>
+<div class="line"><a id="l01518" name="l01518"></a><span class="lineno"> 1518</span>                      node_counts[as_i&lt;NodeType&gt;]);</div>
+<div class="line"><a id="l01519" name="l01519"></a><span class="lineno"> 1519</span>}</div>
+<div class="line"><a id="l01520" name="l01520"></a><span class="lineno"> 1520</span> </div>
+<div class="line"><a id="l01521" name="l01521"></a><span class="lineno"> 1521</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="line"><a id="l01522" name="l01522"></a><span class="lineno"> 1522</span><span class="keyword">template</span> &lt;node_type NodeType&gt;</div>
+<div class="line"><a id="l01523" name="l01523"></a><span class="lineno"> 1523</span><span class="keyword">constexpr</span> <span class="keywordtype">void</span> db&lt;Key, Value&gt;::account_shrinking_inode() noexcept {</div>
+<div class="line"><a id="l01524" name="l01524"></a><span class="lineno"> 1524</span>  <span class="keyword">static_assert</span>(NodeType != <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>);</div>
+<div class="line"><a id="l01525" name="l01525"></a><span class="lineno"> 1525</span> </div>
+<div class="line"><a id="l01526" name="l01526"></a><span class="lineno"> 1526</span>  ++shrinking_inode_counts[internal_as_i&lt;NodeType&gt;];</div>
+<div class="line"><a id="l01527" name="l01527"></a><span class="lineno"> 1527</span>  <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(shrinking_inode_counts[internal_as_i&lt;NodeType&gt;] &lt;=</div>
+<div class="line"><a id="l01528" name="l01528"></a><span class="lineno"> 1528</span>                      growing_inode_counts[internal_as_i&lt;NodeType&gt;]);</div>
+<div class="line"><a id="l01529" name="l01529"></a><span class="lineno"> 1529</span>}</div>
+<div class="line"><a id="l01530" name="l01530"></a><span class="lineno"> 1530</span> </div>
+<div class="line"><a id="l01531" name="l01531"></a><span class="lineno"> 1531</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l01532" name="l01532"></a><span class="lineno"> 1532</span> </div>
+<div class="line"><a id="l01533" name="l01533"></a><span class="lineno"> 1533</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="line"><a id="l01534" name="l01534"></a><span class="lineno"> 1534</span><span class="keywordtype">void</span> db&lt;Key, Value&gt;::dump(std::ostream&amp; os)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l01535" name="l01535"></a><span class="lineno"> 1535</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l01536" name="l01536"></a><span class="lineno"> 1536</span>  os &lt;&lt; <span class="stringliteral">&quot;db dump, current memory use = &quot;</span> &lt;&lt; get_current_memory_use() &lt;&lt; <span class="charliteral">&#39;\n&#39;</span>;</div>
+<div class="line"><a id="l01537" name="l01537"></a><span class="lineno"> 1537</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l01538" name="l01538"></a><span class="lineno"> 1538</span>  os &lt;&lt; <span class="stringliteral">&quot;db dump\n&quot;</span>;</div>
+<div class="line"><a id="l01539" name="l01539"></a><span class="lineno"> 1539</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l01540" name="l01540"></a><span class="lineno"> 1540</span>  art_policy::dump_node(os, root);</div>
+<div class="line"><a id="l01541" name="l01541"></a><span class="lineno"> 1541</span>}</div>
+<div class="line"><a id="l01542" name="l01542"></a><span class="lineno"> 1542</span> </div>
+<div class="line"><a id="l01543" name="l01543"></a><span class="lineno"> 1543</span><span class="comment">// LCOV_EXCL_START</span></div>
+<div class="line"><a id="l01544" name="l01544"></a><span class="lineno"> 1544</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, <span class="keyword">typename</span> Value&gt;</div>
+<div class="line"><a id="l01545" name="l01545"></a><span class="lineno"> 1545</span><span class="keywordtype">void</span> db&lt;Key, Value&gt;::dump()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l01546" name="l01546"></a><span class="lineno"> 1546</span>  dump(std::cerr);</div>
+<div class="line"><a id="l01547" name="l01547"></a><span class="lineno"> 1547</span>}</div>
+<div class="line"><a id="l01548" name="l01548"></a><span class="lineno"> 1548</span><span class="comment">// LCOV_EXCL_STOP</span></div>
+<div class="line"><a id="l01549" name="l01549"></a><span class="lineno"> 1549</span> </div>
+<div class="line"><a id="l01550" name="l01550"></a><span class="lineno"> 1550</span>}  <span class="comment">// namespace unodb</span></div>
 </div>
-<div class="line"><a id="l01550" name="l01550"></a><span class="lineno"> 1550</span> </div>
-<div class="line"><a id="l01551" name="l01551"></a><span class="lineno"> 1551</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_ART_HPP</span></div>
+<div class="line"><a id="l01551" name="l01551"></a><span class="lineno"> 1551</span> </div>
+<div class="line"><a id="l01552" name="l01552"></a><span class="lineno"> 1552</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_ART_HPP</span></div>
 <div class="ttc" id="aassert_8hpp_html"><div class="ttname"><a href="assert_8hpp.html">assert.hpp</a></div><div class="ttdoc">Internal macros for assertions, assumptions &amp; intentional crashing.</div></div>
 <div class="ttc" id="aclassunodb_1_1db_1_1iterator_html"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html">unodb::db::iterator</a></div><div class="ttdoc">iterator (the iterator is an internal API, the public API is scan()).</div><div class="ttdef"><b>Definition</b> art.hpp:192</div></div>
 <div class="ttc" id="aclassunodb_1_1db_1_1iterator_html_a1199f5eb7bca7ebd78dbcea6a32596a8"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html#a1199f5eb7bca7ebd78dbcea6a32596a8">unodb::db::iterator::push_leaf</a></div><div class="ttdeci">void push_leaf(detail::node_ptr aleaf)</div><div class="ttdoc">Push a leaf onto the stack.</div><div class="ttdef"><b>Definition</b> art.hpp:359</div></div>
@@ -1549,7 +1550,7 @@ $(document).ready(function(){initNavTree('art_8hpp_source.html',''); initResizab
 <div class="ttc" id="aclassunodb_1_1db_1_1iterator_html_a73c3f611163534ea29ca3fb3958c97e3"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html#a73c3f611163534ea29ca3fb3958c97e3">unodb::db::iterator::last</a></div><div class="ttdeci">iterator &amp; last()</div><div class="ttdoc">Position the iterator on the last entry in the index, which can be used to initiate a reverse travers...</div><div class="ttdef"><b>Definition</b> art.hpp:1065</div></div>
 <div class="ttc" id="aclassunodb_1_1db_1_1iterator_html_a8f6d2107b7184fa1126dc174cc0ec270"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html#a8f6d2107b7184fa1126dc174cc0ec270">unodb::db::iterator::cmp</a></div><div class="ttdeci">int cmp(art_key_type akey) const noexcept</div><div class="ttdoc">Compare the given key (e.g., the to_key) to the current key in the internal buffer.</div><div class="ttdef"><b>Definition</b> art.hpp:324</div></div>
 <div class="ttc" id="aclassunodb_1_1db_1_1iterator_html_a9166f2a1d9fcc47bc1c9f09da8806919"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html#a9166f2a1d9fcc47bc1c9f09da8806919">unodb::db::iterator::stack_entry</a></div><div class="ttdeci">typename inode_base::iter_result stack_entry</div><div class="ttdoc">Alias used for the elements of the stack.</div><div class="ttdef"><b>Definition</b> art.hpp:201</div></div>
-<div class="ttc" id="aclassunodb_1_1db_1_1iterator_html_a9e51dd50dad8e7c8657f59dfa275ea38"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">unodb::db::iterator::seek</a></div><div class="ttdeci">iterator &amp; seek(art_key_type search_key, bool &amp;match, bool fwd=true)</div><div class="ttdoc">Position the iterator on, before, or after the caller's key.</div><div class="ttdef"><b>Definition</b> art.hpp:1185</div></div>
+<div class="ttc" id="aclassunodb_1_1db_1_1iterator_html_a9e51dd50dad8e7c8657f59dfa275ea38"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">unodb::db::iterator::seek</a></div><div class="ttdeci">iterator &amp; seek(art_key_type search_key, bool &amp;match, bool fwd=true)</div><div class="ttdoc">Position the iterator on, before, or after the caller's key.</div><div class="ttdef"><b>Definition</b> art.hpp:1186</div></div>
 <div class="ttc" id="aclassunodb_1_1db_1_1iterator_html_aa094c5e39d773de49bd5466645c7f50a"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html#aa094c5e39d773de49bd5466645c7f50a">unodb::db::iterator::db_</a></div><div class="ttdeci">db &amp; db_</div><div class="ttdoc">The outer db instance.</div><div class="ttdef"><b>Definition</b> art.hpp:409</div></div>
 <div class="ttc" id="aclassunodb_1_1db_1_1iterator_html_aa6a6776f254ab54fc4ef405abd1eadf9"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html#aa6a6776f254ab54fc4ef405abd1eadf9">unodb::db::iterator::dump</a></div><div class="ttdeci">void dump() const</div><div class="ttdoc">Debugging.</div><div class="ttdef"><b>Definition</b> art.hpp:302</div></div>
 <div class="ttc" id="aclassunodb_1_1db_1_1iterator_html_ab321c79625f90d6363aaaa752bf92add"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html#ab321c79625f90d6363aaaa752bf92add">unodb::db::iterator::left_most_traversal</a></div><div class="ttdeci">iterator &amp; left_most_traversal(detail::node_ptr node)</div><div class="ttdoc">Push the given node onto the stack and traverse from the caller's node to the left-most leaf under th...</div><div class="ttdef"><b>Definition</b> art.hpp:1137</div></div>
@@ -1565,10 +1566,10 @@ $(document).ready(function(){initNavTree('art_8hpp_source.html',''); initResizab
 <div class="ttc" id="aclassunodb_1_1db_1_1iterator_html_af11f8c62f2367d9bfa72abff5dd847c4"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4">unodb::db::iterator::valid</a></div><div class="ttdeci">bool valid() const noexcept</div><div class="ttdoc">Return true unless the stack is empty (exposed to tests).</div><div class="ttdef"><b>Definition</b> art.hpp:306</div></div>
 <div class="ttc" id="aclassunodb_1_1db_1_1iterator_html_af7d2feb5a3634d7b28153017adb46eb0"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0">unodb::db::iterator::next</a></div><div class="ttdeci">iterator &amp; next()</div><div class="ttdoc">Advance the iterator to next entry in the index.</div><div class="ttdef"><b>Definition</b> art.hpp:1074</div></div>
 <div class="ttc" id="aclassunodb_1_1db_html"><div class="ttname"><a href="classunodb_1_1db.html">unodb::db</a></div><div class="ttdoc">A non-thread-safe implementation of the Adaptive Radix Tree (ART).</div><div class="ttdef"><b>Definition</b> art.hpp:85</div></div>
-<div class="ttc" id="aclassunodb_1_1db_html_a27a69c736ca0405bc8eaed20cf875a09"><div class="ttname"><a href="classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09">unodb::db::scan</a></div><div class="ttdeci">void scan(FN fn, bool fwd=true)</div><div class="ttdoc">Scan the tree, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> art.hpp:1369</div></div>
+<div class="ttc" id="aclassunodb_1_1db_html_a27a69c736ca0405bc8eaed20cf875a09"><div class="ttname"><a href="classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09">unodb::db::scan</a></div><div class="ttdeci">void scan(FN fn, bool fwd=true)</div><div class="ttdoc">Scan the tree, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> art.hpp:1370</div></div>
 <div class="ttc" id="aclassunodb_1_1db_html_a2ad83dc7ab1473008d02fea28905ae87"><div class="ttname"><a href="classunodb_1_1db.html#a2ad83dc7ab1473008d02fea28905ae87">unodb::db::remove_internal</a></div><div class="ttdeci">bool remove_internal(art_key_type remove_key)</div><div class="ttdoc">Remove the entry associated with the encoded key.</div><div class="ttdef"><b>Definition</b> art.hpp:998</div></div>
-<div class="ttc" id="aclassunodb_1_1db_html_a5d68530937371b08951f2084761b56fd"><div class="ttname"><a href="classunodb_1_1db.html#a5d68530937371b08951f2084761b56fd">unodb::db::scan_from</a></div><div class="ttdeci">void scan_from(Key from_key, FN fn, bool fwd=true)</div><div class="ttdoc">Scan in the indicated direction, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> art.hpp:1391</div></div>
-<div class="ttc" id="aclassunodb_1_1db_html_a5f45c60b21a68bfd64062ca2c2be2ddf"><div class="ttname"><a href="classunodb_1_1db.html#a5f45c60b21a68bfd64062ca2c2be2ddf">unodb::db::scan_range</a></div><div class="ttdeci">void scan_range(Key from_key, Key to_key, FN fn)</div><div class="ttdoc">Scan a half-open key range, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> art.hpp:1415</div></div>
+<div class="ttc" id="aclassunodb_1_1db_html_a5d68530937371b08951f2084761b56fd"><div class="ttname"><a href="classunodb_1_1db.html#a5d68530937371b08951f2084761b56fd">unodb::db::scan_from</a></div><div class="ttdeci">void scan_from(Key from_key, FN fn, bool fwd=true)</div><div class="ttdoc">Scan in the indicated direction, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> art.hpp:1392</div></div>
+<div class="ttc" id="aclassunodb_1_1db_html_a5f45c60b21a68bfd64062ca2c2be2ddf"><div class="ttname"><a href="classunodb_1_1db.html#a5f45c60b21a68bfd64062ca2c2be2ddf">unodb::db::scan_range</a></div><div class="ttdeci">void scan_range(Key from_key, Key to_key, FN fn)</div><div class="ttdoc">Scan a half-open key range, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> art.hpp:1416</div></div>
 <div class="ttc" id="aclassunodb_1_1db_html_a7358904a10483d1e9857b81e0aa38152"><div class="ttname"><a href="classunodb_1_1db.html#a7358904a10483d1e9857b81e0aa38152">unodb::db::insert</a></div><div class="ttdeci">bool insert(Key insert_key, value_type v)</div><div class="ttdoc">Insert a value under a key iff there is no entry for that key.</div><div class="ttdef"><b>Definition</b> art.hpp:167</div></div>
 <div class="ttc" id="aclassunodb_1_1db_html_a7a9e7a9acc9be89745bba099062f7bc4"><div class="ttname"><a href="classunodb_1_1db.html#a7a9e7a9acc9be89745bba099062f7bc4">unodb::db::get</a></div><div class="ttdeci">get_result get(Key search_key) const noexcept</div><div class="ttdoc">Query for a value associated with a key.</div><div class="ttdef"><b>Definition</b> art.hpp:141</div></div>
 <div class="ttc" id="aclassunodb_1_1db_html_a8a950ab6b91b4555c37fd396fd047136"><div class="ttname"><a href="classunodb_1_1db.html#a8a950ab6b91b4555c37fd396fd047136">unodb::db::empty</a></div><div class="ttdeci">auto empty() const noexcept</div><div class="ttdoc">Return true iff the index is empty.</div><div class="ttdef"><b>Definition</b> art.hpp:147</div></div>

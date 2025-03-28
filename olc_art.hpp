@@ -2651,7 +2651,8 @@ bool olc_db<Key, Value>::iterator::try_right_most_traversal(
     }
     // recursive descent.
     auto* const inode{node.ptr<inode_type*>()};
-    auto t = inode->last(node_type);  // last child of current internal node
+    const auto t =
+        inode->last(node_type);  // last child of current internal node
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
       return false;  // LCOV_EXCL_LINE
     if (UNODB_DETAIL_UNLIKELY(!try_push(t, node_critical_section)))

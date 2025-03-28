@@ -1167,8 +1167,9 @@ db<Key, Value>::iterator::right_most_traversal(detail::node_ptr node) {
     }
     // recursive descent.
     auto* const inode{node.ptr<inode_type*>()};
-    auto e = inode->last(node_type);  // first child of current internal node
-    push(e);                          // push the entry on the stack.
+    const auto e =
+        inode->last(node_type);  // first child of current internal node
+    push(e);                     // push the entry on the stack.
     node = inode->get_child(node_type, e.child_index);  // get the child
   }
   UNODB_DETAIL_CANNOT_HAPPEN();

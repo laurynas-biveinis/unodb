@@ -110,7 +110,7 @@ void do_scan_range_test(std::uint64_t from_key, std::uint64_t to_key,
   }
   uint64_t nactual{0};  // actual number visited.
   auto eit = expected.begin();
-  auto eit2 = expected.end();
+  const auto eit2 = expected.end();
   auto fn = [&nactual, &eit,
              eit2](const unodb::visitor<typename TypeParam::iterator>& v) {
     if (eit == eit2) {

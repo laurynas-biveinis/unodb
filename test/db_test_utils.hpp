@@ -234,7 +234,9 @@ class [[nodiscard]] tree_verifier final {
   // However, it is also used by test_art_iter to from the type specific keys
   // for the db::iterator::seek() API.
   template <typename T>
-  key_type coerce_key(T key) {
+  key_type coerce_key(T key) noexcept(
+      !std::is_same_v<key_type, unodb::key_view> ||
+      std::is_same_v<T, unodb::key_view>) {
     return coerce_key_internal(key);
   }
 

@@ -119,10 +119,10 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a33b862488e790399dea5bfd9fded54ea" id="r_a33b862488e790399dea5bfd9fded54ea"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a33b862488e790399dea5bfd9fded54ea"><td class="memTemplItemLeft" align="right" valign="top">key_type&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1test_1_1tree__verifier.html#a33b862488e790399dea5bfd9fded54ea">coerce_key</a> (T key)</td></tr>
-<tr class="memdesc:a33b862488e790399dea5bfd9fded54ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coerce an external key into the Db::key_type.  <br /></td></tr>
-<tr class="separator:a33b862488e790399dea5bfd9fded54ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ae2a42a2b24def6dc7ad0b5ceec3e87" id="r_a7ae2a42a2b24def6dc7ad0b5ceec3e87"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a7ae2a42a2b24def6dc7ad0b5ceec3e87"><td class="memTemplItemLeft" align="right" valign="top">key_type&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1test_1_1tree__verifier.html#a7ae2a42a2b24def6dc7ad0b5ceec3e87">coerce_key</a> (T key) noexcept(!std::is_same_v&lt; key_type, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> &gt;||std::is_same_v&lt; T, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> &gt;)</td></tr>
+<tr class="memdesc:a7ae2a42a2b24def6dc7ad0b5ceec3e87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coerce an external key into the Db::key_type.  <br /></td></tr>
+<tr class="separator:a7ae2a42a2b24def6dc7ad0b5ceec3e87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1acfd637e2cc166ced02aa28d5ff742a" id="r_a1acfd637e2cc166ced02aa28d5ff742a"><td class="memItemLeft" align="right" valign="top"><a id="a1acfd637e2cc166ced02aa28d5ff742a" name="a1acfd637e2cc166ced02aa28d5ff742a"></a>
 <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><b>make_key</b> (std::uint64_t k)</td></tr>
 <tr class="memdesc:a1acfd637e2cc166ced02aa28d5ff742a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return an <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a> backed by a <code>std::array</code> in an internal collection whose existance is scoped to the life cycle of the <a class="el" href="classunodb_1_1test_1_1tree__verifier.html" title="Utility class supporting verification of the system under test.">tree_verifier</a>. <br /></td></tr>
@@ -404,8 +404,8 @@ template&lt;class Db &gt; </div>
 
 </div>
 </div>
-<a id="a33b862488e790399dea5bfd9fded54ea" name="a33b862488e790399dea5bfd9fded54ea"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a33b862488e790399dea5bfd9fded54ea">&#9670;&#160;</a></span>coerce_key()</h2>
+<a id="a7ae2a42a2b24def6dc7ad0b5ceec3e87" name="a7ae2a42a2b24def6dc7ad0b5ceec3e87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ae2a42a2b24def6dc7ad0b5ceec3e87">&#9670;&#160;</a></span>coerce_key()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -427,7 +427,7 @@ template&lt;typename T &gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

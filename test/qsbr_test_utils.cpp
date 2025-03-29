@@ -13,7 +13,6 @@
 
 namespace unodb::test {
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 void expect_idle_qsbr() noexcept {
   const auto state = unodb::qsbr::instance().get_state();
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -31,6 +30,5 @@ void expect_idle_qsbr() noexcept {
   UNODB_EXPECT_EQ(thread_count, 1);
   UNODB_EXPECT_EQ(threads_in_previous_epoch, 1);
 }
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace unodb::test

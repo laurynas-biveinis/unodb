@@ -589,6 +589,8 @@ set(CPPCHECK_ARGS
   "--suppress=syntaxError"
   # Likewise
   "--suppress=internalAstError"
+  # False positives with conditional noexcept
+  "--suppress=throwInNoexceptFunction"
   # Leave it for the compilers to diagnose
   "--suppress=unreadVariable"
   # False positives on structured bindings with 2.5

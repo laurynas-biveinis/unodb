@@ -1390,12 +1390,12 @@ void db<Key, Value>::scan(FN fn, bool fwd) {
 template <typename Key, typename Value>
 template <typename FN>
 void db<Key, Value>::scan_from(Key from_key, FN fn, bool fwd) {
-  art_key_type from_key_{from_key};  // convert to internal key
+  const art_key_type from_key_{from_key};  // convert to internal key
   bool match{};
   if (fwd) {
     iterator it(*this);
     it.seek(from_key_, match, true /*fwd*/);
-    visitor_type v{it};
+    const visitor_type v{it};
     while (it.valid()) {
       if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it.next();
@@ -1403,7 +1403,7 @@ void db<Key, Value>::scan_from(Key from_key, FN fn, bool fwd) {
   } else {
     iterator it(*this);
     it.seek(from_key_, match, false /*fwd*/);
-    visitor_type v{it};
+    const visitor_type v{it};
     while (it.valid()) {
       if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
       it.prior();

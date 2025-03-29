@@ -199,7 +199,9 @@ class [[nodiscard]] tree_verifier final {
   }
 
   template <typename T>
-  key_type coerce_key_internal(T key) {
+  key_type coerce_key_internal(T key) noexcept(
+      !std::is_same_v<key_type, unodb::key_view> ||
+      std::is_same_v<T, unodb::key_view>) {
     if constexpr (std::is_same_v<key_type, unodb::key_view>) {  // Db<key_view>?
       if constexpr (std::is_same_v<T, unodb::key_view>) {  // Given key_view?
         // key_view pass through

@@ -598,13 +598,13 @@ class olc_db final {
   /// \param fwd When \c true perform a forward scan, otherwise perform a
   /// reverse scan.
   template <typename FN>
-  void scan_from(Key from_key, FN fn, bool fwd = true) noexcept {
+  void scan_from(Key from_key, FN fn, bool fwd = true) {
     const auto from_key_ = art_key_type{from_key};  // convert to internal key
     bool match{};
     if (fwd) {
       iterator it(*this);
       it.seek(from_key_, match, true /*fwd*/);
-      visitor_type v{it};
+      const visitor_type v{it};
       while (it.valid()) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.next();
@@ -612,7 +612,7 @@ class olc_db final {
     } else {
       iterator it(*this);
       it.seek(from_key_, match, false /*fwd*/);
-      visitor_type v{it};
+      const visitor_type v{it};
       while (it.valid()) {
         if (UNODB_DETAIL_UNLIKELY(fn(v))) break;
         it.prior();

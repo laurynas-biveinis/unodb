@@ -105,6 +105,9 @@ class [[nodiscard]] basic_leaf final : public Header {
 
   using art_key_type = basic_art_key<Key>;
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26485)
+
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
   constexpr basic_leaf(art_key_type k, value_view v) noexcept
       : key_size{static_cast<key_size_type>(k.size())},
@@ -118,6 +121,7 @@ class [[nodiscard]] basic_leaf final : public Header {
     std::memcpy(data, tmp.data(), key_size);  // store encoded key
     if (!v.empty()) std::memcpy(data + key_size, v.data(), value_size);
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Return the binary comparable key stored in the leaf
@@ -147,6 +151,8 @@ class [[nodiscard]] basic_leaf final : public Header {
     return key_view{data, key_size};
   }
 
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
   /// Return true iff the two keys are the same.
   //
   // TODO(thompsonbry) : Partial or no key in leaf?
@@ -164,10 +170,16 @@ class [[nodiscard]] basic_leaf final : public Header {
     return k.cmp(get_key_view());
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26485)
+
   /// Return a view onto the value stored in the leaf.
   [[nodiscard, gnu::pure]] constexpr auto get_value_view() const noexcept {
     return value_view{data + key_size, value_size};
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #ifdef UNODB_DETAIL_WITH_STATS
 

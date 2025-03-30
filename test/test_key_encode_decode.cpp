@@ -682,6 +682,8 @@ class key_factory {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+
 void do_simple_pad_test(unodb::key_encoder& enc, std::string_view sv) {
   using st = unodb::key_encoder::size_type;
   const auto len = sv.size();                         // text length.
@@ -706,6 +708,8 @@ void do_simple_pad_test(unodb::key_encoder& enc, std::string_view sv) {
   UNODB_EXPECT_EQ(tmp2, padlen)
       << "text(" << sz << ")[" << (sz < 100 ? sv : "...") << "]";
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 /// Helper generates a large string and feeds it into
 /// do_simple_pad_test().

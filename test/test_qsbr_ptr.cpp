@@ -31,8 +31,6 @@ constinit const std::span<const char> std_span2{three_chars};
 
 UNODB_START_TESTS()
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-
 UNODB_TEST(QSBRPtr, DefaultCtor) {
   const unodb::qsbr_ptr<const char> ptr;
   UNODB_ASSERT_EQ(ptr.get(), nullptr);
@@ -317,8 +315,6 @@ UNODB_TEST(QSBRPtrSpan, Cend) {
   // Do not write &two_chars[2] directly or the libstdc++ debug assertions fire
   UNODB_ASSERT_EQ(std::cend(span).get(), &two_chars[1] + 1);
 }
-
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 UNODB_TEST(QSBRPtrSpan, Size) {
   const unodb::qsbr_ptr_span span{std_span};

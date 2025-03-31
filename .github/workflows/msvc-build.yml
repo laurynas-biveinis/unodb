@@ -48,14 +48,11 @@ jobs:
           - name: MSVC Debug without AVX2
             preset: "msvc-debug-no-avx2"
 
-            # MSVC static analysis false positive regression in 17.11:
-            # optimistic_lock.hpp(171) : warning C26493: Don't use C-style casts
-            # (type.4).
-            # - name: MSVC Static Analysis Debug
-            #   preset: "msvc-static-analysis-debug"
+          - name: MSVC Static Analysis Debug
+            preset: "msvc-static-analysis-debug"
 
-            # - name: MSVC Static Analysis Release
-            #   preset: "msvc-static-analysis-release"
+          - name: MSVC Static Analysis Release
+            preset: "msvc-static-analysis-release"
 
     steps:
       - uses: actions/checkout@v4

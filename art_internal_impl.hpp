@@ -2327,8 +2327,9 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     }
 #endif  // #ifdef UNODB_DETAIL_X86_64
 
+    UNODB_DETAIL_ASSUME(i < parent_class::capacity);
+
 #ifndef NDEBUG
-    UNODB_DETAIL_ASSERT(i < parent_class::capacity);
     UNODB_DETAIL_ASSERT(children.pointer_array[i] == nullptr);
     for (unsigned j = 0; j < i; ++j)
       UNODB_DETAIL_ASSERT(children.pointer_array[j] != nullptr);

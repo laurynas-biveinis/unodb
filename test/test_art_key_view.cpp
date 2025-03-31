@@ -39,7 +39,6 @@ UNODB_START_TESTS()
 
 /// Unit test of correct rejection of a key which is too large to be
 /// stored in the tree.
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TYPED_TEST(ARTKeyViewCorrectnessTest, TooLongKey) {
   constexpr std::byte fake_val{0x00};
   const unodb::key_view too_long{
@@ -58,7 +57,6 @@ TYPED_TEST(ARTKeyViewCorrectnessTest, TooLongKey) {
   verifier.assert_growing_inodes({0, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 /// Unit test inserts several string keys with proper encoding and
 /// validates the tree.

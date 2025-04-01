@@ -57,10 +57,10 @@ void do_encode_decode_lt_test(const T ekey1, const T ekey2) {
     // Note: floating point +0 and -0 compare as equal, so we do not
     // compare the keys for non-quality if one of the keys is zero.
     if (std::fpclassify(ekey1) != FP_ZERO) {
-      EXPECT_NE(ekey1, ekey2);  // not the same ekey.
+      UNODB_EXPECT_NE(ekey1, ekey2);  // not the same ekey.
     }
   } else {
-    EXPECT_NE(ekey1, ekey2);  // not the same ekey.
+    UNODB_EXPECT_NE(ekey1, ekey2);  // not the same ekey.
   }
   unodb::key_encoder enc1{};
   unodb::key_encoder enc2{};  // separate decoder (backed by different span).
@@ -68,7 +68,7 @@ void do_encode_decode_lt_test(const T ekey1, const T ekey2) {
   const auto ikey2 = enc2.encode(ekey2).get_key_view();  // into encoder buf!
   UNODB_EXPECT_EQ(compare(ikey1, ikey1), 0);             // compare w/ self
   UNODB_EXPECT_EQ(compare(ikey2, ikey2), 0);             // compare w/ self
-  EXPECT_NE(compare(ikey1, ikey2), 0);                   // not the same ikey.
+  UNODB_EXPECT_NE(compare(ikey1, ikey2), 0);             // not the same ikey.
   // Check the core assertion for this test helper. The internal keys
   // (after encoding) obey the asserted ordering over the external
   // keys (before encoding).

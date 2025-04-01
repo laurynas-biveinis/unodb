@@ -502,7 +502,8 @@ if(TESTS)
       ExternalProject_Add(3rd_party_deepstate
         SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rd_party/deepstate"
         BINARY_DIR "${CMAKE_BINARY_DIR}/3rd_party/deepstate"
-        CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
+        CMAKE_ARGS "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
         "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
         "-DCMAKE_C_FLAGS=-w -Wno-implicit-function-declaration"
         "-DCMAKE_CXX_FLAGS=-w" "${BUILD_DEEPSTATE_LIBFUZZER}"

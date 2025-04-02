@@ -143,6 +143,15 @@
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+#define UNODB_EXPECT_NE(x, y)                \
+  do {                                       \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \
+    EXPECT_NE((x), (y));                     \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
+  } while (0)
+
 #define UNODB_EXPECT_GT(x, y)                \
   do {                                       \
     UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \

@@ -153,6 +153,8 @@ void do_encode_decode_test(const T ekey) {
   UNODB_EXPECT_EQ(akey, ekey);
 }
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+
 // Encode/decode round trip test which also verifies the encoded byte sequence.
 template <typename T>
 void do_encode_decode_test(const T ekey,
@@ -172,6 +174,8 @@ void do_encode_decode_test(const T ekey,
   dec.decode(akey);
   UNODB_EXPECT_EQ(akey, ekey);
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 UNODB_TEST(ARTKeyEncodeDecodeTest, UInt8C00010) {
   using T = std::uint8_t;

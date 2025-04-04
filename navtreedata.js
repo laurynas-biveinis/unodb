@@ -106,7 +106,7 @@ var NAVTREEINDEX =
 "classunodb_1_1qsbr.html#a2213cdf7aa229e831f20e93418e194d8",
 "classunodb_1_1test_1_1allocation__failure__injector.html#a1504ebd7361714e5c1a1ad88566049ac",
 "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#aad7a5ffd7192458300bb032496ee3816",
-"structunodb_1_1qsbr__state.html#a9945790ec8f3aab1cd31b85b6a99ac9f"
+"structunodb_1_1qsbr__state.html#a95e20672c7b07408ea8aa37a11a49bfa"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

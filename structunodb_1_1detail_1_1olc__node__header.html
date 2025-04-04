@@ -104,6 +104,11 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1olc__node__he
   <div class="headertitle"><div class="title">unodb::detail::olc_node_header Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>OLC ART node header contains an <a class="el" href="classunodb_1_1optimistic__lock.html" title="Version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared...">unodb::optimistic_lock</a> object for this node.  
+ <a href="structunodb_1_1detail_1_1olc__node__header.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="olc__art_8hpp_source.html">olc_art.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -123,7 +128,10 @@ Private Attributes</h2></td></tr>
 <a class="el" href="classunodb_1_1optimistic__lock.html">optimistic_lock</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_lock</b></td></tr>
 <tr class="separator:a26002c097a7ffe1a1dbab6c59df609d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>OLC ART node header contains an <a class="el" href="classunodb_1_1optimistic__lock.html" title="Version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared...">unodb::optimistic_lock</a> object for this node. </p>
+<p>The node type is constant throughout the node lifetime, is stored outside of the node (in the pointing-to pointer tag), and should be accessed without following the <a class="el" href="group__optimistic-lock.html#olc-read-protocol">OLC read protocol.</a> </p>
+</div><hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="olc__art_8hpp_source.html">olc_art.hpp</a></li>
 </ul>
 </div><!-- contents -->

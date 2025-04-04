@@ -14,7 +14,7 @@ var files_dup =
     [ "in_fake_critical_section.hpp", "in__fake__critical__section_8hpp.html", "in__fake__critical__section_8hpp" ],
     [ "mutex_art.hpp", "mutex__art_8hpp_source.html", null ],
     [ "node_type.hpp", "node__type_8hpp.html", "node__type_8hpp" ],
-    [ "olc_art.hpp", "olc__art_8hpp_source.html", null ],
+    [ "olc_art.hpp", "olc__art_8hpp.html", "olc__art_8hpp" ],
     [ "optimistic_lock.hpp", "optimistic__lock_8hpp.html", "optimistic__lock_8hpp" ],
     [ "portability_arch.hpp", "portability__arch_8hpp.html", "portability__arch_8hpp" ],
     [ "portability_builtins.hpp", "portability__builtins_8hpp.html", "portability__builtins_8hpp" ],

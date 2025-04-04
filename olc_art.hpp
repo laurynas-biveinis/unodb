@@ -2,6 +2,9 @@
 #ifndef UNODB_DETAIL_OLC_ART_HPP
 #define UNODB_DETAIL_OLC_ART_HPP
 
+/// \file
+/// Concurrent Adaptive Radix Tree based on Optimistic Lock Coupling
+
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -34,7 +37,11 @@ class olc_db;
 
 namespace detail {
 
-// The OLC header contains an [optimistic_lock].
+/// OLC ART node header contains an unodb::optimistic_lock object for this node.
+///
+/// The node type is constant throughout the node lifetime, is stored outside of
+/// the node (in the pointing-to pointer tag), and should be accessed without
+/// following the \ref olc-read-protocol "OLC read protocol."
 struct [[nodiscard]] olc_node_header {
   // Return a reference to the [optimistic_lock].
   [[nodiscard]] constexpr optimistic_lock& lock() const noexcept {

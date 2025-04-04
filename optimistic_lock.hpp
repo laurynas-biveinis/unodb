@@ -122,6 +122,7 @@
 /// optimistic lock memory model.
 ///
 /// ## Read protocol
+/// \anchor olc-read-protocol
 ///
 /// A read critical section (RCS) is created by
 /// unodb::optimistic_lock::try_read_lock(), which will either spin until the

@@ -29,8 +29,6 @@ constinit const std::span<const char> std_span{two_chars};
 constinit const std::array<const char, 3> three_chars = {'C', 'D', 'E'};
 constinit const std::span<const char> std_span2{three_chars};
 
-UNODB_START_TESTS()
-
 UNODB_TEST(QSBRPtr, DefaultCtor) {
   const unodb::qsbr_ptr<const char> ptr;
   UNODB_ASSERT_EQ(ptr.get(), nullptr);
@@ -352,7 +350,5 @@ UNODB_TEST(QSBRPtr, LessThan) {
   UNODB_ASSERT_TRUE(ptr1 < ptr2);
   UNODB_ASSERT_FALSE(ptr2 < ptr1);
 }
-
-UNODB_END_TESTS()
 
 }  // namespace

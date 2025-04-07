@@ -97,8 +97,6 @@ void do_encode_decode_lt_test(const T ekey1, const T ekey2) {
   UNODB_EXPECT_EQ(ekey2, akey2);
 }
 
-UNODB_START_TESTS()
-
 // basic memory management - initial buffer case.
 UNODB_TEST(ARTKeyEncodeDecodeTest, C00001) {
   unodb::key_encoder enc{};
@@ -658,6 +656,8 @@ UNODB_TEST(ARTKeyEncodeDecodeTest, AppendSpanConstByteC0001) {
 // out to maxlen via run length encoding).
 //
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+
 // Helper class to hold copies of key_views from a key_encoder.  We
 // need to make copies because the key_view is backed by the data in
 // the encoder. So we copy the data out into a new allocation and
@@ -669,8 +669,6 @@ class key_factory {
   /// Used to retain arrays backing unodb::key_views.
   std::vector<std::vector<std::byte>> key_views;
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
-
   /// Copy the data from the encoder into a new entry in
   /// test::key_factor::key_views.
   unodb::key_view make_key_view(const unodb::key_encoder& enc) {
@@ -681,11 +679,7 @@ class key_factory {
     std::copy(kv.data(), kv.data() + sz, a.begin());  // copy data to inner vec
     return {a.data(), sz};  // view of inner vec's data.
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
-
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
 
 void do_simple_pad_test(unodb::key_encoder& enc, std::string_view sv) {
   using st = unodb::key_encoder::size_type;
@@ -846,7 +840,5 @@ UNODB_TEST(ARTKeyEncodeDecodeTest, EncodeTextC0022) {
   std::cerr << "\n";
 #endif
 }
-
-UNODB_END_TESTS()
 
 }  // namespace

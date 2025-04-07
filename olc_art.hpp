@@ -123,7 +123,10 @@ using non_atomic_array =
 
 template <class T>
 inline non_atomic_array<T> copy_atomic_to_nonatomic(T& atomic_array) noexcept {
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26494)
   non_atomic_array<T> result;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
   for (typename decltype(result)::size_type i = 0; i < result.size(); ++i) {
     result[i] = atomic_array[i].load(std::memory_order_relaxed);
   }
@@ -793,7 +796,6 @@ class olc_db final {
     node_counts[as_i<node_type::LEAF>].fetch_add(1, std::memory_order_relaxed);
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
   void decrement_leaf_count(std::size_t leaf_size) noexcept {
     decrease_memory_use(leaf_size);
 
@@ -802,7 +804,6 @@ class olc_db final {
                                                      std::memory_order_relaxed);
     UNODB_DETAIL_ASSERT(old_leaf_count > 0);
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <class INode>
   constexpr void increment_inode_count() noexcept;
@@ -898,7 +899,6 @@ class db_inode_qsbr_deleter
   using db_inode_qsbr_deleter_parent<Key, Value,
                                      INode>::db_inode_qsbr_deleter_parent;
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
   // cppcheck-suppress duplInheritedMember
   void operator()(INode* inode_ptr) {
     static_assert(std::is_trivially_destructible_v<INode>);
@@ -918,7 +918,6 @@ class db_inode_qsbr_deleter
     this->get_db().template decrement_inode_count<INode>();
 #endif  // UNODB_DETAIL_WITH_STATS
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 template <class Db>
@@ -1080,8 +1079,6 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key, Value> {
             std::uint8_t child_to_delete,
             unodb::optimistic_lock::write_guard& child_guard);
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
-
   void init(key_view k1, art_key_type shifted_k2, tree_depth_type depth,
             const leaf_type* child1,
             olc_db_leaf_unique_ptr_type&& child2) noexcept {
@@ -1097,8 +1094,6 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key, Value> {
     parent_class::init(source_node, len, depth, std::move(child1));
   }
 
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
     return olc_impl_helpers::add_or_choose_subtree(*this,
@@ -1110,8 +1105,6 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key, Value> {
     return olc_impl_helpers::remove_or_choose_subtree(
         *this, std::forward<Args>(args)...);
   }
-
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
   void remove(std::uint8_t child_index, db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(lock(*this).is_write_locked());
@@ -1135,8 +1128,6 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key, Value> {
     lock(*this).dump(os);
     parent_class::dump(os, recursive);
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };  // basic_inode_4
 
 using olc_inode_4_test_type = olc_inode_4<std::uint64_t, unodb::value_view>;
@@ -1174,8 +1165,6 @@ class [[nodiscard]] olc_inode_16 final
 
   using parent_class::parent_class;
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
-
   void init(db_type& db_instance, inode_4_type& source_node,
             unodb::optimistic_lock::write_guard& source_node_guard,
             olc_db_leaf_unique_ptr_type&& child,
@@ -1183,15 +1172,13 @@ class [[nodiscard]] olc_inode_16 final
     UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
     parent_class::init(db_instance, obsolete(source_node, source_node_guard),
                        std::move(child), depth);
-    UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
+    UNODB_DETAIL_ASSERT(!source_node_guard.active());
   }
 
   void init(db_type& db_instance, inode_48_type& source_node,
             unodb::optimistic_lock::write_guard& source_node_guard,
             std::uint8_t child_to_delete,
             unodb::optimistic_lock::write_guard& child_guard) noexcept;
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -1204,8 +1191,6 @@ class [[nodiscard]] olc_inode_16 final
     return olc_impl_helpers::remove_or_choose_subtree(
         *this, std::forward<Args>(args)...);
   }
-
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
   void remove(std::uint8_t child_index, db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(lock(*this).is_write_locked());
@@ -1233,8 +1218,6 @@ class [[nodiscard]] olc_inode_16 final
     lock(*this).dump(os);
     parent_class::dump(os, recursive);
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 using olc_inode_16_test_type = olc_inode_16<std::uint64_t, unodb::value_view>;
@@ -1244,8 +1227,6 @@ static_assert(sizeof(olc_inode_16_test_type) == 160 + 16);
 #else   // #ifdef NDEBUG
 static_assert(sizeof(olc_inode_16_test_type) == 160 + 32);
 #endif  // #ifdef NDEBUG
-
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
 template <typename Key, typename Value>
 void olc_inode_4<Key, Value>::init(
@@ -1259,11 +1240,9 @@ void olc_inode_4<Key, Value>::init(
   parent_class::init(db_instance, obsolete(source_node, source_node_guard),
                      obsolete_child_by_index(child_to_delete, child_guard));
 
-  UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
-  UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
+  UNODB_DETAIL_ASSERT(!source_node_guard.active());
+  UNODB_DETAIL_ASSERT(!child_guard.active());
 }
-
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <typename Key, typename Value>
 using olc_inode_48_parent = basic_inode_48<olc_art_policy<Key, Value>>;
@@ -1283,8 +1262,6 @@ class [[nodiscard]] olc_inode_48 final
 
   using parent_class::parent_class;
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
-
   void init(db_type& db_instance, inode_16_type& source_node,
             unodb::optimistic_lock::write_guard& source_node_guard,
             olc_db_leaf_unique_ptr_type&& child,
@@ -1292,15 +1269,13 @@ class [[nodiscard]] olc_inode_48 final
     UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
     parent_class::init(db_instance, obsolete(source_node, source_node_guard),
                        std::move(child), depth);
-    UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
+    UNODB_DETAIL_ASSERT(!source_node_guard.active());
   }
 
   void init(db_type& db_instance, inode_256_type& source_node,
             unodb::optimistic_lock::write_guard& source_node_guard,
             std::uint8_t child_to_delete,
             unodb::optimistic_lock::write_guard& child_guard) noexcept;
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -1313,8 +1288,6 @@ class [[nodiscard]] olc_inode_48 final
     return olc_impl_helpers::remove_or_choose_subtree(
         *this, std::forward<Args>(args)...);
   }
-
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
   void remove(std::uint8_t child_index, db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(lock(*this).is_write_locked());
@@ -1329,8 +1302,6 @@ class [[nodiscard]] olc_inode_48 final
     lock(*this).dump(os);
     parent_class::dump(os, recursive);
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 using olc_inode_48_test_type = olc_inode_48<std::uint64_t, unodb::value_view>;
@@ -1346,8 +1317,6 @@ static_assert(sizeof(olc_inode_48_test_type) == 656 + 32);
 #endif
 #endif  // #ifdef NDEBUG
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
-
 template <typename Key, typename Value>
 void olc_inode_16<Key, Value>::init(
     db_type& db_instance, inode_48_type& source_node,
@@ -1360,11 +1329,9 @@ void olc_inode_16<Key, Value>::init(
   parent_class::init(db_instance, obsolete(source_node, source_node_guard),
                      obsolete_child_by_index(child_to_delete, child_guard));
 
-  UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
-  UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
+  UNODB_DETAIL_ASSERT(!source_node_guard.active());
+  UNODB_DETAIL_ASSERT(!child_guard.active());
 }
-
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <typename Key, typename Value>
 using olc_inode_256_parent = basic_inode_256<olc_art_policy<Key, Value>>;
@@ -1383,8 +1350,6 @@ class [[nodiscard]] olc_inode_256 final
 
   using parent_class::parent_class;
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
-
   void init(db_type& db_instance, inode_48_type& source_node,
             unodb::optimistic_lock::write_guard& source_node_guard,
             olc_db_leaf_unique_ptr_type&& child,
@@ -1392,10 +1357,8 @@ class [[nodiscard]] olc_inode_256 final
     UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
     parent_class::init(db_instance, obsolete(source_node, source_node_guard),
                        std::move(child), depth);
-    UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
+    UNODB_DETAIL_ASSERT(!source_node_guard.active());
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -1408,8 +1371,6 @@ class [[nodiscard]] olc_inode_256 final
     return olc_impl_helpers::remove_or_choose_subtree(
         *this, std::forward<Args>(args)...);
   }
-
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
   void remove(std::uint8_t child_index, db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(lock(*this).is_write_locked());
@@ -1424,8 +1385,6 @@ class [[nodiscard]] olc_inode_256 final
     lock(*this).dump(os);
     parent_class::dump(os, recursive);
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 using olc_inode_256_test_type = olc_inode_256<std::uint64_t, unodb::value_view>;
@@ -1435,8 +1394,6 @@ static_assert(sizeof(olc_inode_256_test_type) == 2064 + 8);
 #else
 static_assert(sizeof(olc_inode_256_test_type) == 2064 + 24);
 #endif
-
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
 
 template <typename Key, typename Value>
 void olc_inode_48<Key, Value>::init(
@@ -1450,11 +1407,9 @@ void olc_inode_48<Key, Value>::init(
   parent_class::init(db_instance, obsolete(source_node, source_node_guard),
                      obsolete_child_by_index(child_to_delete, child_guard));
 
-  UNODB_DETAIL_ASSERT_INACTIVE(source_node_guard);
-  UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
+  UNODB_DETAIL_ASSERT(!source_node_guard.active());
+  UNODB_DETAIL_ASSERT(!child_guard.active());
 }
-
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <typename Key, typename Value>
 void create_leaf_if_needed(olc_db_leaf_unique_ptr<Key, Value>& cached_leaf,
@@ -1506,7 +1461,7 @@ olc_impl_helpers::add_or_choose_subtree(
           *node_in_parent = detail::olc_node_ptr{
               larger_node.release(), INode::larger_derived_type::type};
 
-          UNODB_DETAIL_ASSERT_INACTIVE(node_write_guard);
+          UNODB_DETAIL_ASSERT(!node_write_guard.active());
         }
 
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -1624,8 +1579,8 @@ template <typename Key, typename Value, class INode>
     child_guard.unlock_and_obsolete();
     *node_in_parent = current_node->leave_last_child(child_i, db_instance);
 
-    UNODB_DETAIL_ASSERT_INACTIVE(node_guard);
-    UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
+    UNODB_DETAIL_ASSERT(!node_guard.active());
+    UNODB_DETAIL_ASSERT(!child_guard.active());
 
     *child_in_parent = nullptr;
   } else {
@@ -1646,8 +1601,8 @@ template <typename Key, typename Value, class INode>
     *node_in_parent = detail::olc_node_ptr{smaller_node.release(),
                                            INode::smaller_derived_type::type};
 
-    UNODB_DETAIL_ASSERT_INACTIVE(node_guard);
-    UNODB_DETAIL_ASSERT_INACTIVE(child_guard);
+    UNODB_DETAIL_ASSERT(!node_guard.active());
+    UNODB_DETAIL_ASSERT(!child_guard.active());
 
     *child_in_parent = nullptr;
   }
@@ -2069,9 +2024,12 @@ olc_db<Key, Value>::try_remove(art_key_type k) {
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26494)
     in_critical_section<detail::olc_node_ptr>* child_in_parent;
     enum node_type child_type;
     detail::olc_node_ptr child;
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
     optimistic_lock::read_critical_section child_critical_section;
 
     const auto opt_remove_result{
@@ -2745,7 +2703,6 @@ void olc_db<Key, Value>::decrease_memory_use(std::size_t delta) noexcept {
 
   current_memory_use.fetch_sub(delta, std::memory_order_relaxed);
 }
-UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
 
 template <typename Key, typename Value>
 template <class INode>
@@ -2767,7 +2724,6 @@ constexpr void olc_db<Key, Value>::decrement_inode_count() noexcept {
 
   decrease_memory_use(sizeof(INode));
 }
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <typename Key, typename Value>
 template <node_type NodeType>

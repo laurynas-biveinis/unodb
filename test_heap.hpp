@@ -24,8 +24,6 @@
 
 namespace unodb::test {
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(4514)
-
 /// Test helper class for deterministically injecting memory allocation faults.
 ///
 /// Allows tests to verify exception safety by throwing `std::bad_alloc`
@@ -133,8 +131,6 @@ struct [[nodiscard]] pause_heap_faults final {
   /// Move assignment is disabled.
   pause_heap_faults& operator=(pause_heap_faults&&) = delete;
 };
-
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace unodb::test
 

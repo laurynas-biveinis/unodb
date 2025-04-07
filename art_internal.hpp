@@ -314,7 +314,6 @@ class basic_db_inode_deleter {
 /// basic_node_ptr is a tagged pointer (the tag is the node type).
 /// You have to know statically the target type, then call
 /// node_ptr_var.ptr<target_type *>.ptr() to get target_type.
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 template <class Header>
 class [[nodiscard]] basic_node_ptr {
  public:
@@ -326,18 +325,26 @@ class [[nodiscard]] basic_node_ptr {
   // cppcheck-suppress uninitMemberVar
   constexpr basic_node_ptr() noexcept = default;
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
+
   explicit basic_node_ptr(std::nullptr_t) noexcept
       : tagged_ptr{reinterpret_cast<std::uintptr_t>(nullptr)} {}
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   // construct a node pointer given a raw pointer and a node type.
   basic_node_ptr(const header_type *ptr UNODB_DETAIL_LIFETIMEBOUND,
                  unodb::node_type type) noexcept
       : tagged_ptr{tag_ptr(ptr, type)} {}
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
+
   basic_node_ptr<Header> &operator=(std::nullptr_t) noexcept {
     tagged_ptr = reinterpret_cast<std::uintptr_t>(nullptr);
     return *this;
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard, gnu::pure]] constexpr auto type() const noexcept {
     return static_cast<unodb::node_type>(tagged_ptr & tag_bit_mask);
@@ -347,16 +354,22 @@ class [[nodiscard]] basic_node_ptr {
     return tagged_ptr;
   }
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
+
   template <class T>
   [[nodiscard, gnu::pure]] auto *ptr() const noexcept {
     return reinterpret_cast<T>(tagged_ptr & ptr_bit_mask);
   }
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   // same raw_val means same type and same ptr.
   [[nodiscard, gnu::pure]] constexpr bool operator==(
       const basic_node_ptr &other) const noexcept {
     return tagged_ptr == other.tagged_ptr;
   }
+
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 
   [[nodiscard, gnu::pure]] bool operator==(std::nullptr_t) const noexcept {
     return tagged_ptr == reinterpret_cast<std::uintptr_t>(nullptr);
@@ -374,6 +387,8 @@ class [[nodiscard]] basic_node_ptr {
     return result;
   }
 
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
   [[nodiscard, gnu::const]] static constexpr unsigned mask_bits_needed(
       unsigned count) noexcept {
     return count < 2 ? 1 : 1 + mask_bits_needed(count >> 1U);
@@ -389,7 +404,6 @@ class [[nodiscard]] basic_node_ptr {
     static_assert(alignof(header_type) - 1 > lowest_non_tag_bit);
   }
 };
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 // A buffer containing an expandable binary comparable key.  This is
 // used to track the key by the iterator as things are pushed and

@@ -78,9 +78,6 @@ inline constexpr auto as_i{static_cast<std::size_t>(NodeType)};
 using inode_type_counter_array =
     std::array<std::uint64_t, detail::inode_type_count>;
 
-// function call before comma missing argument list
-UNODB_DETAIL_DISABLE_MSVC_WARNING(4546)
-
 /// Convert internal \a NodeType to a value suitable for use as an index.
 /// Meant for using together with inode_type_counter_array.
 template <node_type NodeType>
@@ -89,8 +86,6 @@ inline constexpr auto internal_as_i{
         detail::is_internal_static_assert<NodeType>,  // -V521
         NodeType) -
     1};
-
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #endif  // UNODB_DETAIL_WITH_STATS
 

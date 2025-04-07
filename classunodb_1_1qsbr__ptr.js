@@ -6,7 +6,7 @@ var classunodb_1_1qsbr__ptr =
     [ "reference", "classunodb_1_1qsbr__ptr.html#a193c5790a5afb0e7d4910a3ec678c63f", null ],
     [ "value_type", "classunodb_1_1qsbr__ptr.html#ad6a817eed5ccdca879c8dfa2cea8ca29", null ],
     [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html#a2641169d199346b78df7879dec6276b6", null ],
-    [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html#ac526b240b5be248676a6d3a865d23df2", null ],
+    [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html#add169fb9945cc46cabd76eb39bd33754", null ],
     [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html#a4b5e72ace20ad413c6442d955123d0c3", null ],
     [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html#ad9a6c26c3bd6d8544ba406eeb63baa5b", null ],
     [ "~qsbr_ptr", "classunodb_1_1qsbr__ptr.html#a10f00e8a516e8873a6eaba43c6d1242e", null ],

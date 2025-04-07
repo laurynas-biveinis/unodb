@@ -12,5 +12,5 @@ var olc__art_8hpp =
     [ "unodb::detail::olc_inode_16< Key, Value >", "classunodb_1_1detail_1_1olc__inode__16.html", null ],
     [ "unodb::detail::olc_inode_48< Key, Value >", "classunodb_1_1detail_1_1olc__inode__48.html", null ],
     [ "unodb::detail::olc_inode_256< Key, Value >", "classunodb_1_1detail_1_1olc__inode__256.html", null ],
-    [ "node_ptr_lock", "olc__art_8hpp.html#ab6e33b5b391273d168ee6a79489f32ce", null ]
+    [ "node_ptr_lock", "olc__art_8hpp.html#a13ca7f940a88b617002ae98db439ff94", null ]
 ];

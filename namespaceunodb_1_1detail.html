@@ -417,11 +417,11 @@ template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a25eb4ea7710810f49fcc23353dad6c8f" id="r_a25eb4ea7710810f49fcc23353dad6c8f"><td class="memItemLeft" align="right" valign="top"><a id="a25eb4ea7710810f49fcc23353dad6c8f" name="a25eb4ea7710810f49fcc23353dad6c8f"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>_mm_cmple_epu8</b> (__m128i x, __m128i y) noexcept</td></tr>
 <tr class="separator:a25eb4ea7710810f49fcc23353dad6c8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af970174b47b028df839316ed29fde924" id="r_af970174b47b028df839316ed29fde924"><td class="memTemplParams" colspan="2"><a id="af970174b47b028df839316ed29fde924" name="af970174b47b028df839316ed29fde924"></a>
+<tr class="memitem:a4c36ae56cc3f27abfb2624d79ff4be78" id="r_a4c36ae56cc3f27abfb2624d79ff4be78"><td class="memTemplParams" colspan="2"><a id="a4c36ae56cc3f27abfb2624d79ff4be78" name="a4c36ae56cc3f27abfb2624d79ff4be78"></a>
 template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db&gt; </td></tr>
-<tr class="memitem:af970174b47b028df839316ed29fde924"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_db_leaf_ptr</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v, Db&lt; Key, Value &gt; &amp;<a class="el" href="classunodb_1_1db.html">db</a> <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>)</td></tr>
-<tr class="memdesc:af970174b47b028df839316ed29fde924"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a unique pointer for a new leaf initialized with the caller's key and value. <br /></td></tr>
-<tr class="separator:af970174b47b028df839316ed29fde924"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c36ae56cc3f27abfb2624d79ff4be78"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_db_leaf_ptr</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v, Db&lt; Key, Value &gt; &amp;<a class="el" href="classunodb_1_1db.html">db</a>)</td></tr>
+<tr class="memdesc:a4c36ae56cc3f27abfb2624d79ff4be78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a unique pointer for a new leaf initialized with the caller's key and value. <br /></td></tr>
+<tr class="separator:a4c36ae56cc3f27abfb2624d79ff4be78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa70778153d340954b6f2718fd7f018a2" id="r_aa70778153d340954b6f2718fd7f018a2"><td class="memItemLeft" align="right" valign="top"><a id="aa70778153d340954b6f2718fd7f018a2" name="aa70778153d340954b6f2718fd7f018a2"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>msg_stacktrace_abort</b> (std::string_view msg) noexcept</td></tr>
 <tr class="memdesc:aa70778153d340954b6f2718fd7f018a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print a message and a stacktrace to std::cerr, then abort. <br /></td></tr>
@@ -468,24 +468,24 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>free_aligned</b> (voi
 template&lt;class T &gt; </td></tr>
 <tr class="memitem:ace283ba3cda1f0e8f2ddc1d3e5105110"><td class="memTemplItemLeft" align="right" valign="top">non_atomic_array&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>copy_atomic_to_nonatomic</b> (T &amp;atomic_array) noexcept</td></tr>
 <tr class="separator:ace283ba3cda1f0e8f2ddc1d3e5105110"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6e33b5b391273d168ee6a79489f32ce" id="r_ab6e33b5b391273d168ee6a79489f32ce"><td class="memItemLeft" align="right" valign="top">auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ab6e33b5b391273d168ee6a79489f32ce">node_ptr_lock</a> (const <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::olc_node_ptr</a> &amp;node <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
-<tr class="memdesc:ab6e33b5b391273d168ee6a79489f32ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a reference to the <a class="el" href="classunodb_1_1optimistic__lock.html" title="Version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared...">unodb::optimistic_lock</a> from the node header associated with the unodb::detail::olc_node_ptr.  <br /></td></tr>
-<tr class="separator:ab6e33b5b391273d168ee6a79489f32ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af6bcb2412c6ec27e7169762403b99958" id="r_af6bcb2412c6ec27e7169762403b99958"><td class="memTemplParams" colspan="2"><a id="af6bcb2412c6ec27e7169762403b99958" name="af6bcb2412c6ec27e7169762403b99958"></a>
+<tr class="memitem:a13ca7f940a88b617002ae98db439ff94" id="r_a13ca7f940a88b617002ae98db439ff94"><td class="memItemLeft" align="right" valign="top">auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a13ca7f940a88b617002ae98db439ff94">node_ptr_lock</a> (const <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::olc_node_ptr</a> &amp;node) noexcept</td></tr>
+<tr class="memdesc:a13ca7f940a88b617002ae98db439ff94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a reference to the <a class="el" href="classunodb_1_1optimistic__lock.html" title="Version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared...">unodb::optimistic_lock</a> from the node header associated with the unodb::detail::olc_node_ptr.  <br /></td></tr>
+<tr class="separator:a13ca7f940a88b617002ae98db439ff94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a132d2b726bb9323596452c40eb48302b" id="r_a132d2b726bb9323596452c40eb48302b"><td class="memTemplParams" colspan="2"><a id="a132d2b726bb9323596452c40eb48302b" name="a132d2b726bb9323596452c40eb48302b"></a>
 template&lt;typename Key , typename Value &gt; </td></tr>
-<tr class="memitem:af6bcb2412c6ec27e7169762403b99958"><td class="memTemplItemLeft" align="right" valign="top">auto &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>node_ptr_lock</b> (const unodb::detail::olc_leaf_type&lt; Key, Value &gt; *const node <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
-<tr class="separator:af6bcb2412c6ec27e7169762403b99958"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0c402cc37e0311690f771148e5892cb6" id="r_a0c402cc37e0311690f771148e5892cb6"><td class="memTemplParams" colspan="2"><a id="a0c402cc37e0311690f771148e5892cb6" name="a0c402cc37e0311690f771148e5892cb6"></a>
+<tr class="memitem:a132d2b726bb9323596452c40eb48302b"><td class="memTemplItemLeft" align="right" valign="top">auto &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>node_ptr_lock</b> (const unodb::detail::olc_leaf_type&lt; Key, Value &gt; *const node) noexcept</td></tr>
+<tr class="separator:a132d2b726bb9323596452c40eb48302b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71bff8be2258858c813735195423d216" id="r_a71bff8be2258858c813735195423d216"><td class="memTemplParams" colspan="2"><a id="a71bff8be2258858c813735195423d216" name="a71bff8be2258858c813735195423d216"></a>
 template&lt;class INode &gt; </td></tr>
-<tr class="memitem:a0c402cc37e0311690f771148e5892cb6"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>lock</b> (const INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a> <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
-<tr class="separator:a0c402cc37e0311690f771148e5892cb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a040d359316e5b47838c0ae6f58d90520" id="r_a040d359316e5b47838c0ae6f58d90520"><td class="memTemplParams" colspan="2"><a id="a040d359316e5b47838c0ae6f58d90520" name="a040d359316e5b47838c0ae6f58d90520"></a>
+<tr class="memitem:a71bff8be2258858c813735195423d216"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>lock</b> (const INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a>) noexcept</td></tr>
+<tr class="separator:a71bff8be2258858c813735195423d216"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0edfb68fb566e194dae77eac5d0558ee" id="r_a0edfb68fb566e194dae77eac5d0558ee"><td class="memTemplParams" colspan="2"><a id="a0edfb68fb566e194dae77eac5d0558ee" name="a0edfb68fb566e194dae77eac5d0558ee"></a>
 template&lt;class T &gt; </td></tr>
-<tr class="memitem:a040d359316e5b47838c0ae6f58d90520"><td class="memTemplItemLeft" align="right" valign="top">T &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>obsolete</b> (T &amp;t <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a> &amp;guard) noexcept</td></tr>
-<tr class="separator:a040d359316e5b47838c0ae6f58d90520"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af186317de2640a732da4eaf767a15f89" id="r_af186317de2640a732da4eaf767a15f89"><td class="memItemLeft" align="right" valign="top"><a id="af186317de2640a732da4eaf767a15f89" name="af186317de2640a732da4eaf767a15f89"></a>
-auto&#160;</td><td class="memItemRight" valign="bottom"><b>obsolete_child_by_index</b> (std::uint8_t child <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a> &amp;guard) noexcept</td></tr>
-<tr class="separator:af186317de2640a732da4eaf767a15f89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0edfb68fb566e194dae77eac5d0558ee"><td class="memTemplItemLeft" align="right" valign="top">T &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>obsolete</b> (T &amp;t, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a> &amp;guard) noexcept</td></tr>
+<tr class="separator:a0edfb68fb566e194dae77eac5d0558ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c2f21cfd995a020eb66f0d5c6dac59f" id="r_a9c2f21cfd995a020eb66f0d5c6dac59f"><td class="memItemLeft" align="right" valign="top"><a id="a9c2f21cfd995a020eb66f0d5c6dac59f" name="a9c2f21cfd995a020eb66f0d5c6dac59f"></a>
+auto&#160;</td><td class="memItemRight" valign="bottom"><b>obsolete_child_by_index</b> (std::uint8_t child, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a> &amp;guard) noexcept</td></tr>
+<tr class="separator:a9c2f21cfd995a020eb66f0d5c6dac59f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e1748db6157f77efb62fa8097966b1a" id="r_a5e1748db6157f77efb62fa8097966b1a"><td class="memTemplParams" colspan="2"><a id="a5e1748db6157f77efb62fa8097966b1a" name="a5e1748db6157f77efb62fa8097966b1a"></a>
 template&lt;typename Key , typename Value &gt; </td></tr>
 <tr class="memitem:a5e1748db6157f77efb62fa8097966b1a"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>create_leaf_if_needed</b> (olc_db_leaf_unique_ptr&lt; Key, Value &gt; &amp;cached_leaf, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> v, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt; &amp;db_instance)</td></tr>
@@ -503,13 +503,13 @@ template&lt;typename T &gt; </td></tr>
 unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>popcount</b> (unsigned x) noexcept</td></tr>
 <tr class="memdesc:a60cd68db0acc4264f225af504457f974"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of one bits in <em>x</em>. <br /></td></tr>
 <tr class="separator:a60cd68db0acc4264f225af504457f974"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae1bd0a219522dc54b6e2726f277e9677" id="r_ae1bd0a219522dc54b6e2726f277e9677"><td class="memTemplParams" colspan="2"><a id="ae1bd0a219522dc54b6e2726f277e9677" name="ae1bd0a219522dc54b6e2726f277e9677"></a>
-template&lt;typename To , typename From &gt; </td></tr>
-<tr class="memitem:ae1bd0a219522dc54b6e2726f277e9677"><td class="memTemplItemLeft" align="right" valign="top">constexpr To&#160;</td><td class="memTemplItemRight" valign="bottom"><b>bit_cast</b> (From input) noexcept</td></tr>
+<tr class="memitem:ae1bd0a219522dc54b6e2726f277e9677" id="r_ae1bd0a219522dc54b6e2726f277e9677"><td class="memTemplParams" colspan="2">template&lt;typename To , typename From &gt; </td></tr>
+<tr class="memitem:ae1bd0a219522dc54b6e2726f277e9677"><td class="memTemplItemLeft" align="right" valign="top">constexpr To&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ae1bd0a219522dc54b6e2726f277e9677">bit_cast</a> (From input) noexcept</td></tr>
+<tr class="memdesc:ae1bd0a219522dc54b6e2726f277e9677"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reinterpret object representation as a different type.  <br /></td></tr>
 <tr class="separator:ae1bd0a219522dc54b6e2726f277e9677"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9aa17872190ea6f43fde638f1129514" id="r_aa9aa17872190ea6f43fde638f1129514"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#aa9aa17872190ea6f43fde638f1129514">operator&lt;&lt;</a> (std::ostream &amp;os <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> value)</td></tr>
-<tr class="memdesc:aa9aa17872190ea6f43fde638f1129514"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print the epoch <em>value</em> to the output stream <em>os</em>.  <br /></td></tr>
-<tr class="separator:aa9aa17872190ea6f43fde638f1129514"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a313a8160271982c9a908769a74c56187" id="r_a313a8160271982c9a908769a74c56187"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a313a8160271982c9a908769a74c56187">operator&lt;&lt;</a> (std::ostream &amp;os, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> value)</td></tr>
+<tr class="memdesc:a313a8160271982c9a908769a74c56187"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print the epoch <em>value</em> to the output stream <em>os</em>.  <br /></td></tr>
+<tr class="separator:a313a8160271982c9a908769a74c56187"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -645,6 +645,52 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inod
 
 <p>Assert failure implementation for standalone debug build. </p>
 <p>Should not be called directly - used UNODB_DETAIL_ASSERT instead. </p>
+
+</div>
+</div>
+<a id="ae1bd0a219522dc54b6e2726f277e9677" name="ae1bd0a219522dc54b6e2726f277e9677"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1bd0a219522dc54b6e2726f277e9677">&#9670;&#160;</a></span>bit_cast()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename To , typename From &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr To unodb::detail::bit_cast </td>
+          <td>(</td>
+          <td class="paramtype">From&#160;</td>
+          <td class="paramname"><em>input</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reinterpret object representation as a different type. </p>
+<p>A replacement for <code>std::bit_cast</code> until it is provided by all supported compilers.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">To</td><td>Destination type for the conversion </td></tr>
+    <tr><td class="paramname">From</td><td>Source type of the input value </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">input</td><td>Object to convert </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Object of type <em>To</em> with the same bit pattern as <em>input</em>.</dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd><code>sizeof(To) == sizeof(From)</code> </dd></dl>
 
 </div>
 </div>
@@ -1143,8 +1189,8 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="ab6e33b5b391273d168ee6a79489f32ce" name="ab6e33b5b391273d168ee6a79489f32ce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab6e33b5b391273d168ee6a79489f32ce">&#9670;&#160;</a></span>node_ptr_lock()</h2>
+<a id="a13ca7f940a88b617002ae98db439ff94" name="a13ca7f940a88b617002ae98db439ff94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13ca7f940a88b617002ae98db439ff94">&#9670;&#160;</a></span>node_ptr_lock()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1155,8 +1201,8 @@ template&lt;typename T &gt; </div>
         <tr>
           <td class="memname">auto &amp; unodb::detail::node_ptr_lock </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::olc_node_ptr</a> &amp;node&#160;</td>
-          <td class="paramname"><em>UNODB_DETAIL_LIFETIMEBOUND</em></td><td>)</td>
+          <td class="paramtype">const <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::olc_node_ptr</a> &amp;&#160;</td>
+          <td class="paramname"><em>node</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -1172,8 +1218,8 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="aa9aa17872190ea6f43fde638f1129514" name="aa9aa17872190ea6f43fde638f1129514"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa9aa17872190ea6f43fde638f1129514">&#9670;&#160;</a></span>operator&lt;&lt;()</h2>
+<a id="a313a8160271982c9a908769a74c56187" name="a313a8160271982c9a908769a74c56187"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a313a8160271982c9a908769a74c56187">&#9670;&#160;</a></span>operator&lt;&lt;()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1184,8 +1230,8 @@ template&lt;typename T &gt; </div>
         <tr>
           <td class="memname">std::ostream &amp; unodb::detail::operator&lt;&lt; </td>
           <td>(</td>
-          <td class="paramtype">std::ostream &amp;os&#160;</td>
-          <td class="paramname"><em>UNODB_DETAIL_LIFETIMEBOUND</em>, </td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>os</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>

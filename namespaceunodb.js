@@ -3,7 +3,7 @@ var namespaceunodb =
     [ "anonymous_namespace{qsbr.cpp}", "namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html", [
       [ "add_to_orphan_list", "namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html#a8fecd78001e73483361e5f5220d10afb", null ],
       [ "free_orphan_list", "namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html#ae7d1d0020a8d2f5a2adee0519e9b8fec", null ],
-      [ "take_orphan_list", "namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html#a3c7ef6c5109fa654488a32536f0b88a5", null ]
+      [ "take_orphan_list", "namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html#af0f163d6bdd072ff2effa14afde25412", null ]
     ] ],
     [ "detail", "namespaceunodb_1_1detail.html", "namespaceunodb_1_1detail" ],
     [ "test", "namespaceunodb_1_1test.html", "namespaceunodb_1_1test" ],

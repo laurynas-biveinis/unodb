@@ -107,9 +107,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a8fecd78001e73483361e5f5220d10afb" id="r_a8fecd78001e73483361e5f5220d10afb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html#a8fecd78001e73483361e5f5220d10afb">add_to_orphan_list</a> (std::atomic&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> * &gt; &amp;orphan_list, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> &amp;&amp;requests, std::unique_ptr&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> &gt; orphan_list_node) noexcept</td></tr>
 <tr class="memdesc:a8fecd78001e73483361e5f5220d10afb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add vector of pending deallocation requests to orphan list.  <br /></td></tr>
 <tr class="separator:a8fecd78001e73483361e5f5220d10afb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c7ef6c5109fa654488a32536f0b88a5" id="r_a3c7ef6c5109fa654488a32536f0b88a5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html#a3c7ef6c5109fa654488a32536f0b88a5">take_orphan_list</a> (std::atomic&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> * &gt; &amp;orphan_list <a class="el" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</td></tr>
-<tr class="memdesc:a3c7ef6c5109fa654488a32536f0b88a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomically take ownership of entire orphaned request list.  <br /></td></tr>
-<tr class="separator:a3c7ef6c5109fa654488a32536f0b88a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0f163d6bdd072ff2effa14afde25412" id="r_af0f163d6bdd072ff2effa14afde25412"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html#af0f163d6bdd072ff2effa14afde25412">take_orphan_list</a> (std::atomic&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> * &gt; &amp;orphan_list) noexcept</td></tr>
+<tr class="memdesc:af0f163d6bdd072ff2effa14afde25412"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomically take ownership of entire orphaned request list.  <br /></td></tr>
+<tr class="separator:af0f163d6bdd072ff2effa14afde25412"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7d1d0020a8d2f5a2adee0519e9b8fec" id="r_ae7d1d0020a8d2f5a2adee0519e9b8fec"><td class="memItemLeft" align="right" valign="top"><a id="ae7d1d0020a8d2f5a2adee0519e9b8fec" name="ae7d1d0020a8d2f5a2adee0519e9b8fec"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>free_orphan_list</b> (<a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> *list) noexcept</td></tr>
 <tr class="memdesc:ae7d1d0020a8d2f5a2adee0519e9b8fec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free pending requests and orphan <em>list</em> itself. <br /></td></tr>
@@ -169,8 +169,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>free_orphan_list</b> 
 
 </div>
 </div>
-<a id="a3c7ef6c5109fa654488a32536f0b88a5" name="a3c7ef6c5109fa654488a32536f0b88a5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3c7ef6c5109fa654488a32536f0b88a5">&#9670;&#160;</a></span>take_orphan_list()</h2>
+<a id="af0f163d6bdd072ff2effa14afde25412" name="af0f163d6bdd072ff2effa14afde25412"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af0f163d6bdd072ff2effa14afde25412">&#9670;&#160;</a></span>take_orphan_list()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -181,8 +181,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>free_orphan_list</b> 
         <tr>
           <td class="memname"><a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> * unodb::anonymous_namespace{qsbr.cpp}::take_orphan_list </td>
           <td>(</td>
-          <td class="paramtype">std::atomic&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> * &gt; &amp;orphan_list&#160;</td>
-          <td class="paramname"><em>UNODB_DETAIL_LIFETIMEBOUND</em></td><td>)</td>
+          <td class="paramtype">std::atomic&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> * &gt; &amp;&#160;</td>
+          <td class="paramname"><em>orphan_list</em></td><td>)</td>
           <td></td>
         </tr>
       </table>

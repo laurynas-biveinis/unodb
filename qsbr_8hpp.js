@@ -11,7 +11,7 @@ var qsbr_8hpp =
     [ "unodb::qsbr_thread", "classunodb_1_1qsbr__thread.html", "classunodb_1_1qsbr__thread" ],
     [ "dealloc_request_vector", "qsbr_8hpp.html#a3c98952bb0651c3bd50ab5de879cfeff", null ],
     [ "qsbr_thread_count_type", "qsbr_8hpp.html#a78bbb5caf501cb09276604dab64723bf", null ],
-    [ "operator<<", "qsbr_8hpp.html#aa9aa17872190ea6f43fde638f1129514", null ],
+    [ "operator<<", "qsbr_8hpp.html#a313a8160271982c9a908769a74c56187", null ],
     [ "this_thread", "qsbr_8hpp.html#af67bb57e59d46aae6ffb5103dcb497a1", null ],
     [ "max_qsbr_threads", "qsbr_8hpp.html#ac7fc26e8bd3beb685ef91e9cc7e6672d", null ]
 ];

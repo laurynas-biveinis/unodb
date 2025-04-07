@@ -1,8 +1,5 @@
 var namespaces_dup =
 [
-    [ "anonymous_namespace{example_art.cpp}", "namespaceanonymous__namespace_02example__art_8cpp_03.html", null ],
-    [ "anonymous_namespace{example_art_stats.cpp}", "namespaceanonymous__namespace_02example__art__stats_8cpp_03.html", null ],
-    [ "anonymous_namespace{example_olc_art.cpp}", "namespaceanonymous__namespace_02example__olc__art_8cpp_03.html", null ],
     [ "anonymous_namespace{micro_benchmark.cpp}", "namespaceanonymous__namespace_02micro__benchmark_8cpp_03.html", null ],
     [ "anonymous_namespace{micro_benchmark_key_prefix.cpp}", "namespaceanonymous__namespace_02micro__benchmark__key__prefix_8cpp_03.html", null ],
     [ "anonymous_namespace{micro_benchmark_mutex.cpp}", "namespaceanonymous__namespace_02micro__benchmark__mutex_8cpp_03.html", "namespaceanonymous__namespace_02micro__benchmark__mutex_8cpp_03" ],

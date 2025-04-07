@@ -19,10 +19,11 @@ var searchData=
   ['batched_5fprng_16',['batched_prng',['../classunodb_1_1benchmark_1_1batched__prng.html',1,'unodb::benchmark']]],
   ['begin_17',['begin',['../classunodb_1_1qsbr__ptr__span.html#a789dc831ad069506652def01be5c7f19',1,'unodb::qsbr_ptr_span']]],
   ['benchmarking_18',['Benchmarking',['../md_CONTRIBUTING.html#autotoc_md12',1,'']]],
-  ['bswap_19',['bswap',['../namespaceunodb_1_1detail.html#a6da3355dc2b016836da8179235257ad4',1,'unodb::detail']]],
-  ['buf_20',['buf',['../classunodb_1_1key__encoder.html#a54ee1fa410f52af5353bf5baff2173a7',1,'unodb::key_encoder::buf'],['../classunodb_1_1detail_1_1key__buffer.html#ac194dd8d30a35188b87939582d5f8d84',1,'unodb::detail::key_buffer::buf']]],
-  ['build_20dependencies_21',['Build dependencies',['../index.html#autotoc_md26',1,'']]],
-  ['building_22',['Building',['../index.html#autotoc_md28',1,'']]],
-  ['bump_5fepoch_5fchange_5fcount_23',['bump_epoch_change_count',['../classunodb_1_1qsbr.html#a7fc645a40b11e4140adb6453ca352498',1,'unodb::qsbr']]],
-  ['bundled_20as_20git_20submodules_24',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
+  ['bit_5fcast_19',['bit_cast',['../namespaceunodb_1_1detail.html#ae1bd0a219522dc54b6e2726f277e9677',1,'unodb::detail']]],
+  ['bswap_20',['bswap',['../namespaceunodb_1_1detail.html#a6da3355dc2b016836da8179235257ad4',1,'unodb::detail']]],
+  ['buf_21',['buf',['../classunodb_1_1key__encoder.html#a54ee1fa410f52af5353bf5baff2173a7',1,'unodb::key_encoder::buf'],['../classunodb_1_1detail_1_1key__buffer.html#ac194dd8d30a35188b87939582d5f8d84',1,'unodb::detail::key_buffer::buf']]],
+  ['build_20dependencies_22',['Build dependencies',['../index.html#autotoc_md26',1,'']]],
+  ['building_23',['Building',['../index.html#autotoc_md28',1,'']]],
+  ['bump_5fepoch_5fchange_5fcount_24',['bump_epoch_change_count',['../classunodb_1_1qsbr.html#a7fc645a40b11e4140adb6453ca352498',1,'unodb::qsbr']]],
+  ['bundled_20as_20git_20submodules_25',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
 ];

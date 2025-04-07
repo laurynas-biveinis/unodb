@@ -681,7 +681,7 @@ void on_thread_exit(Func fn) noexcept {
 class [[nodiscard]] qsbr_per_thread final {
  public:
   /// Construct a new thread-local QSBR structure and register with global QSBR.
-  qsbr_per_thread();
+  qsbr_per_thread() noexcept;
 
   /// Unregister the current thread from global QSBR on thread exist.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
@@ -1259,7 +1259,7 @@ static_assert(std::atomic<std::size_t>::is_always_lock_free);
 static_assert(std::atomic<double>::is_always_lock_free);
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
-inline qsbr_per_thread::qsbr_per_thread()
+inline qsbr_per_thread::qsbr_per_thread() noexcept
     : last_seen_quiescent_state_epoch{qsbr::instance().register_thread()},
       last_seen_epoch{last_seen_quiescent_state_epoch} {}
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()

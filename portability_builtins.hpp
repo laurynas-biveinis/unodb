@@ -106,15 +106,22 @@ template <typename T>
 #endif
 }
 
-// Performs a "bit_cast".
-//
+/// Reinterpret object representation as a different type.
+///
+/// A replacement for `std::bit_cast` until it is provided by all supported
+/// compilers.
+///
+/// \tparam To Destination type for the conversion
+/// \tparam From Source type of the input value
+/// \param input Object to convert
+/// \return Object of type \a To with the same bit pattern as \a input.
+///
+/// \pre `sizeof(To) == sizeof(From)`
 // TODO(laurynas) We can use std::bit_cast at GCC 11 clang 14 minimums.
-//
-// See https://github.com/jfbastien/bit_cast for an implementation
-// using memcpy (MIT license).
 template <typename To, typename From>
 [[nodiscard, gnu::const]] constexpr To bit_cast(From input) noexcept {
-  // must be the same stride
+  // See https://github.com/jfbastien/bit_cast for an implementation using
+  // memcpy (MIT license).
   static_assert(sizeof(To) == sizeof(From));
   typename std::aligned_storage<sizeof(To), alignof(To)>::type tmp;
   std::memcpy(&tmp, &input, sizeof(To));

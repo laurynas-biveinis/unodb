@@ -3,7 +3,7 @@
 #define UNODB_DETAIL_TEST_HEAP_HPP
 
 /// \file
-/// Test utilities for memory allocation failure testing.
+/// Heap memory fault injection infrastructure.
 ///
 /// \ingroup test-internals
 ///

@@ -2,6 +2,13 @@
 #ifndef UNODB_DETAIL_TEST_UTILS_HPP
 #define UNODB_DETAIL_TEST_UTILS_HPP
 
+/// \file
+/// Test API for verifying heap allocation behavior.
+///
+/// \ingroup test-internals
+///
+/// Utilities for tests to verify heap allocation behavior.
+
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
@@ -12,11 +19,22 @@ namespace unodb::test {
 // warning C26496: The variable 'result' does not change after construction,
 // mark it as const (con.4) - but that may preclude move on RVO.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
-// While the purpose of the function is to test that the single given action
-// does not allocate heap memory, its implementation is global, and no other
-// threads may allocate at the same time. IMHO a simpler global state (and the
-// need to debug some racy testcases) is the right trade-off vs. thread local
-// allocation-forbidding state.
+
+/// Test that given action does not allocate heap memory.
+///
+/// This function configures the allocation failure injector to fail on the
+/// first allocation, executes the provided test action, and then resets
+/// the injector state. If the action tries to allocate memory, it will throw
+/// `std::bad_alloc`. If it completes successfully, we know it didn't allocate.
+///
+/// \warning This function affects global state. No other threads should
+/// allocate memory during execution of this function, as the allocation
+/// failure injector is global.
+///
+/// \tparam TestAction Type of the test action callable
+/// \param test_action Test function or callable that must not allocate during
+/// its execution.
+/// \return The result of test_action (if non-void)
 template <typename TestAction>
 std::invoke_result_t<TestAction> must_not_allocate(
     TestAction test_action) noexcept(noexcept(test_action())) {

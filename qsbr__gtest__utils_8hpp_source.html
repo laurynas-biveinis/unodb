@@ -116,7 +116,7 @@ $(document).ready(function(){initNavTree('qsbr__gtest__utils_8hpp_source.html','
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &quot;gtest_utils.hpp&quot;</span></div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &quot;<a class="code" href="heap_8hpp.html">heap.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#include &quot;<a class="code" href="qsbr_8hpp.html">qsbr.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#include &quot;test_utils.hpp&quot;</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#include &quot;<a class="code" href="test__utils_8hpp.html">test_utils.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb_1_1test.html">unodb::test</a> {</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
@@ -131,36 +131,36 @@ $(document).ready(function(){initNavTree('qsbr__gtest__utils_8hpp_source.html','
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  <span class="comment">// Thread operation wrappers</span></div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> join(<a class="code hl_class" href="classunodb_1_1qsbr__thread.html">unodb::qsbr_thread</a> &amp;thread) {</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    unodb::test::must_not_allocate([&amp;thread]() { thread.join(); });</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">unodb::test::must_not_allocate</a>([&amp;thread]() { thread.join(); });</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  }</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="comment">// QSBR operation wrappers</span></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> <span class="keyword">private</span>:</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keyword">auto</span> get_qsbr_state() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keywordflow">return</span> must_not_allocate(</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>(</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        []() <span class="keyword">noexcept</span> { <span class="keywordflow">return</span> <a class="code hl_function" href="classunodb_1_1qsbr.html#a66f6989f899a4dfb42a87433d90d3fc0">unodb::qsbr::instance</a>().<a class="code hl_function" href="classunodb_1_1qsbr.html#af289ca05d13fdece06c24583a8fccd70">get_state</a>(); });</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  }</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> <span class="keyword">protected</span>:</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keyword">auto</span> get_qsbr_thread_count() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keywordflow">return</span> must_not_allocate([]() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>([]() <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>      <span class="keywordflow">return</span> <a class="code hl_function" href="structunodb_1_1qsbr__state.html#a68caabb03695c7ec2deea7864d7e1ca8">unodb::qsbr_state::get_thread_count</a>(get_qsbr_state());</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    });</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  }</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keyword">auto</span> get_qsbr_threads_in_previous_epoch() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordflow">return</span> must_not_allocate([]() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>([]() <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>      <span class="keywordflow">return</span> <a class="code hl_function" href="structunodb_1_1qsbr__state.html#aaa1c95b9791f14c24bd6dd6fae173f82">unodb::qsbr_state::get_threads_in_previous_epoch</a>(get_qsbr_state());</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    });</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  }</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">bool</span> is_qsbr_paused() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordflow">return</span> must_not_allocate(</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>(</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        []() <span class="keyword">noexcept</span> { <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb.html#af67bb57e59d46aae6ffb5103dcb497a1">unodb::this_thread</a>().<a class="code hl_function" href="classunodb_1_1qsbr__per__thread.html#ac2e663e72fcf713584184f8a0a2e4d11">is_qsbr_paused</a>(); });</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  }</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> qsbr_pause() {</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    unodb::test::must_not_allocate([]()</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">unodb::test::must_not_allocate</a>([]()</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>#ifndef <a class="code hl_define" href="group__internal.html#ga9ec8bd41c6ee401f40edc11b624cabe9">UNODB_DETAIL_WITH_STATS</a></div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>                                       <span class="keyword">noexcept</span></div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>#endif</div>
@@ -170,44 +170,44 @@ $(document).ready(function(){initNavTree('qsbr__gtest__utils_8hpp_source.html','
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> qsbr_reset_stats() {</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    unodb::test::must_not_allocate(</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">unodb::test::must_not_allocate</a>(</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>        [] { <a class="code hl_function" href="classunodb_1_1qsbr.html#a66f6989f899a4dfb42a87433d90d3fc0">unodb::qsbr::instance</a>().<a class="code hl_function" href="classunodb_1_1qsbr.html#a91ab1f05706949f31a01649e721831d8">reset_stats</a>(); });</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>  }</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keyword">auto</span> qsbr_get_max_backlog_bytes() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordflow">return</span> must_not_allocate([]() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>([]() <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>      <span class="keywordflow">return</span> <a class="code hl_function" href="classunodb_1_1qsbr.html#a66f6989f899a4dfb42a87433d90d3fc0">unodb::qsbr::instance</a>().<a class="code hl_function" href="classunodb_1_1qsbr.html#a0ca253d03b971ad83a85d72b3544c76a">get_max_backlog_bytes</a>();</div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    });</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>  }</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keyword">auto</span> qsbr_get_mean_backlog_bytes() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keywordflow">return</span> must_not_allocate([]() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>([]() <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>      <span class="keywordflow">return</span> <a class="code hl_function" href="classunodb_1_1qsbr.html#a66f6989f899a4dfb42a87433d90d3fc0">unodb::qsbr::instance</a>().<a class="code hl_function" href="classunodb_1_1qsbr.html#aeef83267101514943a45dc4cc09fd74a">get_mean_backlog_bytes</a>();</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    });</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>  }</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keyword">auto</span> qsbr_get_epoch_callback_count_max() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="keywordflow">return</span> must_not_allocate([]() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>([]() <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>      <span class="keywordflow">return</span> <a class="code hl_function" href="classunodb_1_1qsbr.html#a66f6989f899a4dfb42a87433d90d3fc0">unodb::qsbr::instance</a>().<a class="code hl_function" href="classunodb_1_1qsbr.html#a9cef099598527975e1efe188f1945294">get_epoch_callback_count_max</a>();</div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    });</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>  }</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keyword">auto</span> qsbr_get_epoch_callback_count_variance() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordflow">return</span> must_not_allocate([]() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>([]() <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>      <span class="keywordflow">return</span> <a class="code hl_function" href="classunodb_1_1qsbr.html#a66f6989f899a4dfb42a87433d90d3fc0">unodb::qsbr::instance</a>().<a class="code hl_function" href="classunodb_1_1qsbr.html#a5943d4828314d047e2e8248ce782d13b">get_epoch_callback_count_variance</a>();</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    });</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>  }</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keyword">auto</span></div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>  qsbr_get_mean_quiescent_states_per_thread_between_epoch_changes() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keywordflow">return</span> must_not_allocate([]() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>([]() <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>      <span class="keywordflow">return</span> <a class="code hl_function" href="classunodb_1_1qsbr.html#a66f6989f899a4dfb42a87433d90d3fc0">unodb::qsbr::instance</a>()</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>          .<a class="code hl_function" href="classunodb_1_1qsbr.html#ae820b3a59ccc10f58c6f598ca9ba4702">get_mean_quiescent_states_per_thread_between_epoch_changes</a>();</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    });</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>  }</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keyword">auto</span> qsbr_get_epoch_change_count() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordflow">return</span> must_not_allocate([]() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>([]() <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>      <span class="keywordflow">return</span> <a class="code hl_function" href="classunodb_1_1qsbr.html#a66f6989f899a4dfb42a87433d90d3fc0">unodb::qsbr::instance</a>().<a class="code hl_function" href="classunodb_1_1qsbr.html#aa5df0239dc4d55eb2367743c06b7a9eb">get_epoch_change_count</a>();</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    });</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  }</div>
@@ -216,7 +216,7 @@ $(document).ready(function(){initNavTree('qsbr__gtest__utils_8hpp_source.html','
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keyword">auto</span></div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>  qsbr_previous_interval_orphaned_requests_empty() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordflow">return</span> must_not_allocate([]() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>([]() <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>      <span class="keywordflow">return</span> <a class="code hl_function" href="classunodb_1_1qsbr.html#a66f6989f899a4dfb42a87433d90d3fc0">unodb::qsbr::instance</a>()</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>          .<a class="code hl_function" href="classunodb_1_1qsbr.html#ab0bc128769cba4329bf9995d269f53e9">previous_interval_orphaned_requests_empty</a>();</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    });</div>
@@ -224,7 +224,7 @@ $(document).ready(function(){initNavTree('qsbr__gtest__utils_8hpp_source.html','
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keyword">auto</span></div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>  qsbr_current_interval_orphaned_requests_empty() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordflow">return</span> must_not_allocate([]() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>([]() <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>      <span class="keywordflow">return</span> <a class="code hl_function" href="classunodb_1_1qsbr.html#a66f6989f899a4dfb42a87433d90d3fc0">unodb::qsbr::instance</a>().<a class="code hl_function" href="classunodb_1_1qsbr.html#ae28dd0090e790b02702896d1cde72792">current_interval_orphaned_requests_empty</a>();</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    });</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>  }</div>
@@ -393,12 +393,14 @@ $(document).ready(function(){initNavTree('qsbr__gtest__utils_8hpp_source.html','
 <div class="ttc" id="aheap_8hpp_html"><div class="ttname"><a href="heap_8hpp.html">heap.hpp</a></div><div class="ttdoc">Aligned heap memory allocation.</div></div>
 <div class="ttc" id="anamespaceunodb_1_1detail_html_a67151fe8291fd24bff04038739700b1f"><div class="ttname"><a href="namespaceunodb_1_1detail.html#a67151fe8291fd24bff04038739700b1f">unodb::detail::allocate_aligned</a></div><div class="ttdeci">void * allocate_aligned(std::size_t size, std::size_t alignment=__STDCPP_DEFAULT_NEW_ALIGNMENT__)</div><div class="ttdoc">Allocate aligned heap memory.</div><div class="ttdef"><b>Definition</b> heap.hpp:43</div></div>
 <div class="ttc" id="anamespaceunodb_1_1test_html"><div class="ttname"><a href="namespaceunodb_1_1test.html">unodb::test</a></div><div class="ttdoc">Namespace for the UnoDB internal test support code.</div><div class="ttdef"><b>Definition</b> deepstate_utils.hpp:34</div></div>
+<div class="ttc" id="anamespaceunodb_1_1test_html_aff59723575f4893311a70fb45b41de4f"><div class="ttname"><a href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">unodb::test::must_not_allocate</a></div><div class="ttdeci">std::invoke_result_t&lt; TestAction &gt; must_not_allocate(TestAction test_action) noexcept(noexcept(test_action()))</div><div class="ttdoc">Test that given action does not allocate heap memory.</div><div class="ttdef"><b>Definition</b> test_utils.hpp:39</div></div>
 <div class="ttc" id="anamespaceunodb_html_af67bb57e59d46aae6ffb5103dcb497a1"><div class="ttname"><a href="namespaceunodb.html#af67bb57e59d46aae6ffb5103dcb497a1">unodb::this_thread</a></div><div class="ttdeci">qsbr_per_thread &amp; this_thread() noexcept</div><div class="ttdoc">Get the thread-local QSBR instance.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:920</div></div>
 <div class="ttc" id="aqsbr_8hpp_html"><div class="ttname"><a href="qsbr_8hpp.html">qsbr.hpp</a></div><div class="ttdoc">Quiescent State-based reclamation.</div></div>
 <div class="ttc" id="astructunodb_1_1qsbr__state_html_a34cec6a5c7739cb36a3df6041e45e118"><div class="ttname"><a href="structunodb_1_1qsbr__state.html#a34cec6a5c7739cb36a3df6041e45e118">unodb::qsbr_state::single_thread_mode</a></div><div class="ttdeci">static constexpr bool single_thread_mode(type word) noexcept</div><div class="ttdoc">Check if the count of threads in if word is 0 or 1.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:250</div></div>
 <div class="ttc" id="astructunodb_1_1qsbr__state_html_a68caabb03695c7ec2deea7864d7e1ca8"><div class="ttname"><a href="structunodb_1_1qsbr__state.html#a68caabb03695c7ec2deea7864d7e1ca8">unodb::qsbr_state::get_thread_count</a></div><div class="ttdeci">static constexpr detail::qsbr_thread_count_type get_thread_count(type word) noexcept</div><div class="ttdoc">Get the total thread count from word.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:237</div></div>
 <div class="ttc" id="astructunodb_1_1qsbr__state_html_a95e20672c7b07408ea8aa37a11a49bfa"><div class="ttname"><a href="structunodb_1_1qsbr__state.html#a95e20672c7b07408ea8aa37a11a49bfa">unodb::qsbr_state::get_epoch</a></div><div class="ttdeci">static constexpr detail::qsbr_epoch get_epoch(type word) noexcept</div><div class="ttdoc">Get the epoch from word.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:229</div></div>
 <div class="ttc" id="astructunodb_1_1qsbr__state_html_aaa1c95b9791f14c24bd6dd6fae173f82"><div class="ttname"><a href="structunodb_1_1qsbr__state.html#aaa1c95b9791f14c24bd6dd6fae173f82">unodb::qsbr_state::get_threads_in_previous_epoch</a></div><div class="ttdeci">static constexpr detail::qsbr_thread_count_type get_threads_in_previous_epoch(type word) noexcept</div><div class="ttdoc">Get the count of threads in the previous epoch from word.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:244</div></div>
+<div class="ttc" id="atest__utils_8hpp_html"><div class="ttname"><a href="test__utils_8hpp.html">test_utils.hpp</a></div><div class="ttdoc">Test API for verifying heap allocation behavior.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

@@ -155,9 +155,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a53fd24c90ff6a59ad8dfb2a9c86cc725" id="r_a53fd24c90ff6a59ad8dfb2a9c86cc725"><td class="memItemLeft" align="right" valign="top"><a id="a53fd24c90ff6a59ad8dfb2a9c86cc725" name="a53fd24c90ff6a59ad8dfb2a9c86cc725"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>expect_idle_qsbr</b> () noexcept</td></tr>
 <tr class="separator:a53fd24c90ff6a59ad8dfb2a9c86cc725"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff59723575f4893311a70fb45b41de4f" id="r_aff59723575f4893311a70fb45b41de4f"><td class="memTemplParams" colspan="2"><a id="aff59723575f4893311a70fb45b41de4f" name="aff59723575f4893311a70fb45b41de4f"></a>
-template&lt;typename TestAction &gt; </td></tr>
-<tr class="memitem:aff59723575f4893311a70fb45b41de4f"><td class="memTemplItemLeft" align="right" valign="top">std::invoke_result_t&lt; TestAction &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>must_not_allocate</b> (TestAction test_action) noexcept(noexcept(test_action()))</td></tr>
+<tr class="memitem:aff59723575f4893311a70fb45b41de4f" id="r_aff59723575f4893311a70fb45b41de4f"><td class="memTemplParams" colspan="2">template&lt;typename TestAction &gt; </td></tr>
+<tr class="memitem:aff59723575f4893311a70fb45b41de4f"><td class="memTemplItemLeft" align="right" valign="top">std::invoke_result_t&lt; TestAction &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a> (TestAction test_action) noexcept(noexcept(test_action()))</td></tr>
+<tr class="memdesc:aff59723575f4893311a70fb45b41de4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test that given action does not allocate heap memory.  <br /></td></tr>
 <tr class="separator:aff59723575f4893311a70fb45b41de4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
@@ -189,6 +189,51 @@ constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>empty_test_
 <div class="textblock"><p>Namespace for the UnoDB internal test support code. </p>
 <p>It is not part of the public API, and it may change at any time. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="aff59723575f4893311a70fb45b41de4f" name="aff59723575f4893311a70fb45b41de4f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff59723575f4893311a70fb45b41de4f">&#9670;&#160;</a></span>must_not_allocate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename TestAction &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::invoke_result_t&lt; TestAction &gt; unodb::test::must_not_allocate </td>
+          <td>(</td>
+          <td class="paramtype">TestAction&#160;</td>
+          <td class="paramname"><em>test_action</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Test that given action does not allocate heap memory. </p>
+<p>This function configures the allocation failure injector to fail on the first allocation, executes the provided test action, and then resets the injector state. If the action tries to allocate memory, it will throw <code>std::bad_alloc</code>. If it completes successfully, we know it didn't allocate.</p>
+<dl class="section warning"><dt>Warning</dt><dd>This function affects global state. No other threads should allocate memory during execution of this function, as the allocation failure injector is global.</dd></dl>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">TestAction</td><td>Type of the test action callable </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">test_action</td><td>Test function or callable that must not allocate during its execution. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The result of test_action (if non-void) </dd></dl>
+
+</div>
+</div>
 <a id="a279cb07fa68a07875e48f3cfc208fb21" name="a279cb07fa68a07875e48f3cfc208fb21"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a279cb07fa68a07875e48f3cfc208fb21">&#9670;&#160;</a></span>timeout_reached()</h2>
 

@@ -99,57 +99,58 @@ $(document).ready(function(){initNavTree('test__utils_8hpp_source.html',''); ini
   <div class="headertitle"><div class="title">test_utils.hpp</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">// Copyright 2022-2025 UnoDB contributors</span></div>
+<a href="test__utils_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">// Copyright 2022-2025 UnoDB contributors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#ifndef UNODB_DETAIL_TEST_UTILS_HPP</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#define UNODB_DETAIL_TEST_UTILS_HPP</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span> </div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">// Should be the first include</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;<a class="code" href="global_8hpp.html">global.hpp</a>&quot;</span>  <span class="comment">// IWYU pragma: keep</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;<a class="code" href="test__heap_8hpp.html">test_heap.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb_1_1test.html">unodb::test</a> {</div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">// warning C26496: The variable &#39;result&#39; does not change after construction,</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">// mark it as const (con.4) - but that may preclude move on RVO.</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26496)</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">// While the purpose of the function is to test that the single given action</span></div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">// does not allocate heap memory, its implementation is global, and no other</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">// threads may allocate at the same time. IMHO a simpler global state (and the</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">// need to debug some racy testcases) is the right trade-off vs. thread local</span></div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">// allocation-forbidding state.</span></div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>template &lt;typename TestAction&gt;</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>std::invoke_result_t&lt;TestAction&gt; must_not_allocate(</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    TestAction test_action) noexcept(noexcept(test_action())) {</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (!std::is_void_v&lt;std::invoke_result_t&lt;TestAction&gt;&gt;) {</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <a class="code hl_define" href="group__test-internals.html#gaaf2eecf2b7a7d75d287403058d3caa77">UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION</a>(1);</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keyword">auto</span> result = test_action();</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <a class="code hl_define" href="group__test-internals.html#ga430bd4dfb98d1c834bac37af330aba11">UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR</a>();</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keywordflow">return</span> result;</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <a class="code hl_define" href="group__test-internals.html#gaaf2eecf2b7a7d75d287403058d3caa77">UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION</a>(1);</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    test_action();</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <a class="code hl_define" href="group__test-internals.html#ga430bd4dfb98d1c834bac37af330aba11">UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR</a>();</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  }</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>}</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>}  <span class="comment">// namespace unodb::test</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_TEST_UTILS_HPP</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">// Should be the first include</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;<a class="code" href="global_8hpp.html">global.hpp</a>&quot;</span>  <span class="comment">// IWYU pragma: keep</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &quot;<a class="code" href="test__heap_8hpp.html">test_heap.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb_1_1test.html">unodb::test</a> {</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">// warning C26496: The variable &#39;result&#39; does not change after construction,</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">// mark it as const (con.4) - but that may preclude move on RVO.</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26496)</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>template &lt;typename TestAction&gt;</div>
+<div class="foldopen" id="foldopen00039" data-start="{" data-end="}">
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">   39</a></span>std::invoke_result_t&lt;TestAction&gt; <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a>(</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    TestAction test_action) noexcept(noexcept(test_action())) {</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (!std::is_void_v&lt;std::invoke_result_t&lt;TestAction&gt;&gt;) {</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <a class="code hl_define" href="group__test-internals.html#gaaf2eecf2b7a7d75d287403058d3caa77">UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION</a>(1);</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keyword">auto</span> result = test_action();</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <a class="code hl_define" href="group__test-internals.html#ga430bd4dfb98d1c834bac37af330aba11">UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR</a>();</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordflow">return</span> result;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <a class="code hl_define" href="group__test-internals.html#gaaf2eecf2b7a7d75d287403058d3caa77">UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION</a>(1);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    test_action();</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <a class="code hl_define" href="group__test-internals.html#ga430bd4dfb98d1c834bac37af330aba11">UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR</a>();</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  }</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>}</div>
+</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>}  <span class="comment">// namespace unodb::test</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_TEST_UTILS_HPP</span></div>
 <div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
 <div class="ttc" id="agroup__internal_html_ga6979215c90d6f2280a56d80eb67c6c83"><div class="ttname"><a href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)</div><div class="ttdoc">Disable an MSVC warning x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:328</div></div>
 <div class="ttc" id="agroup__internal_html_gacd9e44918f8725b066b33afc500ce938"><div class="ttname"><a href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:329</div></div>
 <div class="ttc" id="agroup__test-internals_html_ga430bd4dfb98d1c834bac37af330aba11"><div class="ttname"><a href="group__test-internals.html#ga430bd4dfb98d1c834bac37af330aba11">UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR</a></div><div class="ttdeci">#define UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR()</div><div class="ttdoc">Reset heap allocation failure injector state.</div><div class="ttdef"><b>Definition</b> test_heap.hpp:150</div></div>
 <div class="ttc" id="agroup__test-internals_html_gaaf2eecf2b7a7d75d287403058d3caa77"><div class="ttname"><a href="group__test-internals.html#gaaf2eecf2b7a7d75d287403058d3caa77">UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION</a></div><div class="ttdeci">#define UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(n)</div><div class="ttdoc">Configure heap allocation to fail on given allocation number.</div><div class="ttdef"><b>Definition</b> test_heap.hpp:156</div></div>
 <div class="ttc" id="anamespaceunodb_1_1test_html"><div class="ttname"><a href="namespaceunodb_1_1test.html">unodb::test</a></div><div class="ttdoc">Namespace for the UnoDB internal test support code.</div><div class="ttdef"><b>Definition</b> deepstate_utils.hpp:34</div></div>
-<div class="ttc" id="atest__heap_8hpp_html"><div class="ttname"><a href="test__heap_8hpp.html">test_heap.hpp</a></div><div class="ttdoc">Test utilities for memory allocation failure testing.</div></div>
+<div class="ttc" id="anamespaceunodb_1_1test_html_aff59723575f4893311a70fb45b41de4f"><div class="ttname"><a href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">unodb::test::must_not_allocate</a></div><div class="ttdeci">std::invoke_result_t&lt; TestAction &gt; must_not_allocate(TestAction test_action) noexcept(noexcept(test_action()))</div><div class="ttdoc">Test that given action does not allocate heap memory.</div><div class="ttdef"><b>Definition</b> test_utils.hpp:39</div></div>
+<div class="ttc" id="atest__heap_8hpp_html"><div class="ttname"><a href="test__heap_8hpp.html">test_heap.hpp</a></div><div class="ttdoc">Heap memory fault injection infrastructure.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_13e138d54eb8818da29c3992edef070a.html">test</a></li><li class="navelem"><b>test_utils.hpp</b></li>
+    <li class="navelem"><a class="el" href="dir_13e138d54eb8818da29c3992edef070a.html">test</a></li><li class="navelem"><a class="el" href="test__utils_8hpp.html">test_utils.hpp</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

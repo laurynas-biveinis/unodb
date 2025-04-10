@@ -434,13 +434,17 @@ void assert_dominating_inode_size_tree(const Db &test_db) noexcept {
   assert_dominating_inode_tree<Db, node_size_to_node_type<NodeSize>()>(test_db);
 }
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 template <class Db, unsigned SmallerNodeSize>
 void assert_growing_nodes(
     const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
-    std::uint64_t
-        expected_number_of_nodes UNODB_DETAIL_USED_IN_DEBUG) noexcept {
+    std::uint64_t expected_number_of_nodes UNODB_DETAIL_USED_IN_DEBUG)
+#ifndef NDEBUG
+    noexcept
+#endif
+{
 #ifndef NDEBUG
   constexpr auto larger_node_type =
       node_size_to_larger_node_type<SmallerNodeSize>();
@@ -457,8 +461,11 @@ void assert_growing_nodes(
 template <class Db, unsigned SmallerNodeSize>
 void assert_shrinking_nodes(
     const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
-    std::uint64_t
-        expected_number_of_nodes UNODB_DETAIL_USED_IN_DEBUG) noexcept {
+    std::uint64_t expected_number_of_nodes UNODB_DETAIL_USED_IN_DEBUG)
+#ifndef NDEBUG
+    noexcept
+#endif
+{
 #ifndef NDEBUG
   constexpr auto larger_node_type =
       node_size_to_larger_node_type<SmallerNodeSize>();
@@ -469,6 +476,7 @@ void assert_shrinking_nodes(
 #endif
 }
 
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace detail

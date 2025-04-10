@@ -17,14 +17,22 @@ class [[nodiscard]] concurrent_benchmark_olc final
     : public unodb::benchmark::concurrent_benchmark<unodb::benchmark::olc_db,
                                                     unodb::qsbr_thread> {
  private:
-  void setup() override {
+  void setup()
+#ifndef UNODB_DETAIL_WITH_STATS
+      noexcept
+#endif
+      override {
     unodb::qsbr::instance().assert_idle();
 #ifdef UNODB_DETAIL_WITH_STATS
     unodb::qsbr::instance().reset_stats();
 #endif  // UNODB_DETAIL_WITH_STATS
   }
 
-  void end_workload_in_main_thread() override {
+  void end_workload_in_main_thread()
+#ifndef UNODB_DETAIL_WITH_STATS
+      noexcept
+#endif
+      override {
     unodb::this_thread().quiescent();
   }
 

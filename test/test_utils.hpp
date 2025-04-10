@@ -16,10 +16,6 @@
 
 namespace unodb::test {
 
-// warning C26496: The variable 'result' does not change after construction,
-// mark it as const (con.4) - but that may preclude move on RVO.
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
-
 /// Test that given action does not allocate heap memory.
 ///
 /// This function configures the allocation failure injector to fail on the
@@ -40,7 +36,7 @@ std::invoke_result_t<TestAction> must_not_allocate(
     TestAction test_action) noexcept(noexcept(test_action())) {
   if constexpr (!std::is_void_v<std::invoke_result_t<TestAction>>) {
     UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(1);
-    auto result = test_action();
+    const auto result = test_action();
     UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
     return result;
   } else {
@@ -49,7 +45,6 @@ std::invoke_result_t<TestAction> must_not_allocate(
     UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR();
   }
 }
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace unodb::test
 

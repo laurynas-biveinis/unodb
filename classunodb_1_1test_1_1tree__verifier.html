@@ -170,10 +170,10 @@ template&lt;class Db2  = Db, typename T &gt; </td></tr>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:ae3da20911f67d315c5db288a4be7d895"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>attempt_remove_missing_keys</b> (std::initializer_list&lt; T &gt; absent_keys)</td></tr>
 <tr class="separator:ae3da20911f67d315c5db288a4be7d895"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5451b52bf2e3922b3981fa34703e3b96" id="r_a5451b52bf2e3922b3981fa34703e3b96"><td class="memTemplParams" colspan="2"><a id="a5451b52bf2e3922b3981fa34703e3b96" name="a5451b52bf2e3922b3981fa34703e3b96"></a>
+<tr class="memitem:a388389b919c21744314595d330594740" id="r_a388389b919c21744314595d330594740"><td class="memTemplParams" colspan="2"><a id="a388389b919c21744314595d330594740" name="a388389b919c21744314595d330594740"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
-<tr class="memitem:a5451b52bf2e3922b3981fa34703e3b96"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_get</b> (T k)</td></tr>
-<tr class="separator:a5451b52bf2e3922b3981fa34703e3b96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a388389b919c21744314595d330594740"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_get</b> (T k) noexcept(noexcept(<a class="el" href="classunodb_1_1test_1_1tree__verifier.html#a7ae2a42a2b24def6dc7ad0b5ceec3e87">coerce_key</a>(k)) &amp;&amp;noexcept(this-&gt;test_db.get(<a class="el" href="classunodb_1_1test_1_1tree__verifier.html#a7ae2a42a2b24def6dc7ad0b5ceec3e87">coerce_key</a>(k))))</td></tr>
+<tr class="separator:a388389b919c21744314595d330594740"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae977f79073782cc40f84820a034be07d" id="r_ae977f79073782cc40f84820a034be07d"><td class="memTemplParams" colspan="2"><a id="ae977f79073782cc40f84820a034be07d" name="ae977f79073782cc40f84820a034be07d"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
 <tr class="memitem:ae977f79073782cc40f84820a034be07d"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_get</b> (T k)</td></tr>
@@ -181,10 +181,10 @@ template&lt;class Db2  = Db, typename T &gt; </td></tr>
 <tr class="memitem:aa5272379cd23253f105135a5a448d2f2" id="r_aa5272379cd23253f105135a5a448d2f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1test_1_1tree__verifier.html#aa5272379cd23253f105135a5a448d2f2">check_present_values</a> () const</td></tr>
 <tr class="memdesc:aa5272379cd23253f105135a5a448d2f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verify that each key and value in the internal ground truth collection can be found in the test db.  <br /></td></tr>
 <tr class="separator:aa5272379cd23253f105135a5a448d2f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa01f9536ca1e5edba3234349270d14ec" id="r_aa01f9536ca1e5edba3234349270d14ec"><td class="memTemplParams" colspan="2"><a id="aa01f9536ca1e5edba3234349270d14ec" name="aa01f9536ca1e5edba3234349270d14ec"></a>
+<tr class="memitem:ae8d2c8408c5777fb6b8d59d6aa7fd4ae" id="r_ae8d2c8408c5777fb6b8d59d6aa7fd4ae"><td class="memTemplParams" colspan="2"><a id="ae8d2c8408c5777fb6b8d59d6aa7fd4ae" name="ae8d2c8408c5777fb6b8d59d6aa7fd4ae"></a>
 template&lt;typename T &gt; </td></tr>
-<tr class="memitem:aa01f9536ca1e5edba3234349270d14ec"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>check_absent_keys</b> (std::initializer_list&lt; T &gt; absent_keys)</td></tr>
-<tr class="separator:aa01f9536ca1e5edba3234349270d14ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8d2c8408c5777fb6b8d59d6aa7fd4ae"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>check_absent_keys</b> (std::initializer_list&lt; T &gt; absent_keys) noexcept(noexcept(this-&gt;try_get(<a class="el" href="classunodb_1_1test_1_1tree__verifier.html#a7ae2a42a2b24def6dc7ad0b5ceec3e87">coerce_key</a>(*absent_keys.begin()))))</td></tr>
+<tr class="separator:ae8d2c8408c5777fb6b8d59d6aa7fd4ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b46c0a2e9ae7657f6445df1b9fb7943" id="r_a2b46c0a2e9ae7657f6445df1b9fb7943"><td class="memTemplParams" colspan="2"><a id="a2b46c0a2e9ae7657f6445df1b9fb7943" name="a2b46c0a2e9ae7657f6445df1b9fb7943"></a>
 template&lt;typename FN , typename T &gt; </td></tr>
 <tr class="memitem:a2b46c0a2e9ae7657f6445df1b9fb7943"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>scan</b> (FN fn, bool fwd=true)</td></tr>

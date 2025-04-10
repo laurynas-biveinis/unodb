@@ -49,9 +49,19 @@ class [[nodiscard]] concurrent_benchmark {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 
-  virtual void setup() {}
+  virtual void setup()
+#ifndef UNODB_DETAIL_WITH_STATS
+      noexcept
+#endif
+  {
+  }
 
-  virtual void end_workload_in_main_thread() {}
+  virtual void end_workload_in_main_thread()
+#ifndef UNODB_DETAIL_WITH_STATS
+      noexcept
+#endif
+  {
+  }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 

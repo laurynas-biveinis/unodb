@@ -1505,28 +1505,26 @@ $(document).ready(function(){initNavTree('qsbr_8hpp_source.html',''); initResiza
 </div>
 <div class="line"><a id="l01585" name="l01585"></a><span class="lineno"> 1585</span> </div>
 <div class="line"><a id="l01586" name="l01586"></a><span class="lineno"> 1586</span> <span class="keyword">private</span>:</div>
-<div class="line"><a id="l01588" name="l01588"></a><span class="lineno"> 1588</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26447)</div>
-<div class="line"><a id="l01589" name="l01589"></a><span class="lineno"> 1589</span>  template &lt;typename Function, typename... Args&gt;</div>
-<div class="foldopen" id="foldopen01590" data-start="{" data-end="}">
-<div class="line"><a id="l01590" name="l01590"></a><span class="lineno"><a class="line" href="classunodb_1_1qsbr__thread.html#ae5be246573f938f3840f8c909ad921b0"> 1590</a></span>  [[nodiscard]] static std::thread make_qsbr_thread(Function &amp;&amp;f,</div>
-<div class="line"><a id="l01591" name="l01591"></a><span class="lineno"> 1591</span>                                                    Args &amp;&amp;...args) {</div>
-<div class="line"><a id="l01592" name="l01592"></a><span class="lineno"> 1592</span>    <span class="keyword">auto</span> new_qsbr_per_thread = std::make_unique&lt;qsbr_per_thread&gt;();</div>
-<div class="line"><a id="l01593" name="l01593"></a><span class="lineno"> 1593</span>    <span class="keywordflow">return</span> std::thread{</div>
-<div class="line"><a id="l01594" name="l01594"></a><span class="lineno"> 1594</span>        [inner_new_qsbr_per_thread = std::move(new_qsbr_per_thread)](</div>
-<div class="line"><a id="l01595" name="l01595"></a><span class="lineno"> 1595</span>            <span class="keyword">auto</span> &amp;&amp;f2, <span class="keyword">auto</span> &amp;&amp;...args2) <span class="keyword">mutable</span> <span class="keyword">noexcept</span>(<span class="keyword">noexcept</span>(f2)) {</div>
-<div class="line"><a id="l01596" name="l01596"></a><span class="lineno"> 1596</span>          qsbr_per_thread::set_instance(std::move(inner_new_qsbr_per_thread));</div>
-<div class="line"><a id="l01597" name="l01597"></a><span class="lineno"> 1597</span>          f2(std::forward&lt;Args&gt;(args2)...);</div>
-<div class="line"><a id="l01598" name="l01598"></a><span class="lineno"> 1598</span>        },</div>
-<div class="line"><a id="l01599" name="l01599"></a><span class="lineno"> 1599</span>        std::forward&lt;Function&gt;(f), std::forward&lt;Args&gt;(args)...};</div>
-<div class="line"><a id="l01600" name="l01600"></a><span class="lineno"> 1600</span>  }</div>
+<div class="line"><a id="l01588" name="l01588"></a><span class="lineno"> 1588</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Function, <span class="keyword">typename</span>... Args&gt;</div>
+<div class="foldopen" id="foldopen01589" data-start="{" data-end="}">
+<div class="line"><a id="l01589" name="l01589"></a><span class="lineno"><a class="line" href="classunodb_1_1qsbr__thread.html#ae5be246573f938f3840f8c909ad921b0"> 1589</a></span>  [[nodiscard]] <span class="keyword">static</span> std::thread <a class="code hl_function" href="classunodb_1_1qsbr__thread.html#ae5be246573f938f3840f8c909ad921b0">make_qsbr_thread</a>(Function &amp;&amp;f,</div>
+<div class="line"><a id="l01590" name="l01590"></a><span class="lineno"> 1590</span>                                                    Args &amp;&amp;...args) {</div>
+<div class="line"><a id="l01591" name="l01591"></a><span class="lineno"> 1591</span>    <span class="keyword">auto</span> new_qsbr_per_thread = std::make_unique&lt;qsbr_per_thread&gt;();</div>
+<div class="line"><a id="l01592" name="l01592"></a><span class="lineno"> 1592</span>    <span class="keywordflow">return</span> std::thread{</div>
+<div class="line"><a id="l01593" name="l01593"></a><span class="lineno"> 1593</span>        [inner_new_qsbr_per_thread = std::move(new_qsbr_per_thread)](</div>
+<div class="line"><a id="l01594" name="l01594"></a><span class="lineno"> 1594</span>            <span class="keyword">auto</span> &amp;&amp;f2, <span class="keyword">auto</span> &amp;&amp;...args2) <span class="keyword">mutable</span> <span class="keyword">noexcept</span>(<span class="keyword">noexcept</span>(f2)) {</div>
+<div class="line"><a id="l01595" name="l01595"></a><span class="lineno"> 1595</span>          qsbr_per_thread::set_instance(std::move(inner_new_qsbr_per_thread));</div>
+<div class="line"><a id="l01596" name="l01596"></a><span class="lineno"> 1596</span>          f2(std::forward&lt;Args&gt;(args2)...);</div>
+<div class="line"><a id="l01597" name="l01597"></a><span class="lineno"> 1597</span>        },</div>
+<div class="line"><a id="l01598" name="l01598"></a><span class="lineno"> 1598</span>        std::forward&lt;Function&gt;(f), std::forward&lt;Args&gt;(args)...};</div>
+<div class="line"><a id="l01599" name="l01599"></a><span class="lineno"> 1599</span>  }</div>
 </div>
-<div class="line"><a id="l01601" name="l01601"></a><span class="lineno"> 1601</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
-<div class="line"><a id="l01602" name="l01602"></a><span class="lineno"> 1602</span>};</div>
+<div class="line"><a id="l01600" name="l01600"></a><span class="lineno"> 1600</span>};</div>
 </div>
+<div class="line"><a id="l01601" name="l01601"></a><span class="lineno"> 1601</span> </div>
+<div class="line"><a id="l01602" name="l01602"></a><span class="lineno"> 1602</span>}  <span class="comment">// namespace unodb</span></div>
 <div class="line"><a id="l01603" name="l01603"></a><span class="lineno"> 1603</span> </div>
-<div class="line"><a id="l01604" name="l01604"></a><span class="lineno"> 1604</span>}  <span class="comment">// namespace unodb</span></div>
-<div class="line"><a id="l01605" name="l01605"></a><span class="lineno"> 1605</span> </div>
-<div class="line"><a id="l01606" name="l01606"></a><span class="lineno"> 1606</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_QSBR_HPP</span></div>
+<div class="line"><a id="l01604" name="l01604"></a><span class="lineno"> 1604</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_QSBR_HPP</span></div>
 <div class="ttc" id="aassert_8hpp_html"><div class="ttname"><a href="assert_8hpp.html">assert.hpp</a></div><div class="ttdoc">Internal macros for assertions, assumptions &amp; intentional crashing.</div></div>
 <div class="ttc" id="aclassunodb_1_1detail_1_1deallocation__request_html"><div class="ttname"><a href="classunodb_1_1detail_1_1deallocation__request.html">unodb::detail::deallocation_request</a></div><div class="ttdoc">Pending deallocation request for QSBR-managed memory.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:453</div></div>
 <div class="ttc" id="aclassunodb_1_1detail_1_1deallocation__request_html_a0625f115fb1ff05f1d5c2294b13b492f"><div class="ttname"><a href="classunodb_1_1detail_1_1deallocation__request.html#a0625f115fb1ff05f1d5c2294b13b492f">unodb::detail::deallocation_request::dealloc_callback</a></div><div class="ttdeci">debug_callback dealloc_callback</div><div class="ttdoc">Debug build only: callback to execute during deallocation.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:529</div></div>
@@ -1590,6 +1588,7 @@ $(document).ready(function(){initNavTree('qsbr_8hpp_source.html',''); initResiza
 <div class="ttc" id="aclassunodb_1_1qsbr__per__thread_html_ae8ed6c0ce29e48f1fc70a5e3e94cd25f"><div class="ttname"><a href="classunodb_1_1qsbr__per__thread.html#ae8ed6c0ce29e48f1fc70a5e3e94cd25f">unodb::qsbr_per_thread::advance_last_seen_epoch</a></div><div class="ttdeci">void advance_last_seen_epoch(bool single_thread_mode, detail::qsbr_epoch new_seen_epoch, detail::dealloc_request_vector new_current_requests={})</div><div class="ttdoc">Update this thread's view of the current epoch and execute the previous interval deallocation request...</div><div class="ttdef"><b>Definition</b> qsbr.hpp:1327</div></div>
 <div class="ttc" id="aclassunodb_1_1qsbr__thread_html"><div class="ttname"><a href="classunodb_1_1qsbr__thread.html">unodb::qsbr_thread</a></div><div class="ttdoc">An std::thread-like thread that participates in QSBR.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:1575</div></div>
 <div class="ttc" id="aclassunodb_1_1qsbr__thread_html_a2981b0e6b246b421df4a72290f6bd4d8"><div class="ttname"><a href="classunodb_1_1qsbr__thread.html#a2981b0e6b246b421df4a72290f6bd4d8">unodb::qsbr_thread::qsbr_thread</a></div><div class="ttdeci">qsbr_thread(Function &amp;&amp;f, Args &amp;&amp;...args)</div><div class="ttdoc">Create a new thread running function f with arguments args.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:1581</div></div>
+<div class="ttc" id="aclassunodb_1_1qsbr__thread_html_ae5be246573f938f3840f8c909ad921b0"><div class="ttname"><a href="classunodb_1_1qsbr__thread.html#ae5be246573f938f3840f8c909ad921b0">unodb::qsbr_thread::make_qsbr_thread</a></div><div class="ttdeci">static std::thread make_qsbr_thread(Function &amp;&amp;f, Args &amp;&amp;...args)</div><div class="ttdoc">Create a thread with a unodb::qsbr_per_thread instance set.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:1589</div></div>
 <div class="ttc" id="aclassunodb_1_1qsbr_html"><div class="ttname"><a href="classunodb_1_1qsbr.html">unodb::qsbr</a></div><div class="ttdoc">Global QSBR state manager for memory reclamation.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:938</div></div>
 <div class="ttc" id="aclassunodb_1_1qsbr_html_a01a260fb085274cacc7465cc0389f38e"><div class="ttname"><a href="classunodb_1_1qsbr.html#a01a260fb085274cacc7465cc0389f38e">unodb::qsbr::state</a></div><div class="ttdeci">std::atomic&lt; qsbr_state::type &gt; state</div><div class="ttdoc">The global QSBR state.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:1187</div></div>
 <div class="ttc" id="aclassunodb_1_1qsbr_html_a06f34cd0f811eae8bd2d59b0630541cf"><div class="ttname"><a href="classunodb_1_1qsbr.html#a06f34cd0f811eae8bd2d59b0630541cf">unodb::qsbr::quiescent_state_stats_lock</a></div><div class="ttdeci">std::mutex quiescent_state_stats_lock</div><div class="ttdoc">Mutex protecting quiescent state statistics.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:1246</div></div>

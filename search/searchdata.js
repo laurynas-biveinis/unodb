@@ -10,9 +10,8 @@ var indexSectionsWithContent =
   7: "n",
   8: "il",
   9: "ot",
-  10: "u",
-  11: "bciloqrst",
-  12: "cu"
+  10: "bciloqrst",
+  11: "cu"
 };
 
 var indexSectionNames =
@@ -27,9 +26,8 @@ var indexSectionNames =
   7: "enums",
   8: "enumvalues",
   9: "related",
-  10: "defines",
-  11: "groups",
-  12: "pages"
+  10: "groups",
+  11: "pages"
 };
 
 var indexSectionLabels =
@@ -44,8 +42,7 @@ var indexSectionLabels =
   7: "Enumerations",
   8: "Enumerator",
   9: "Friends",
-  10: "Macros",
-  11: "Modules",
-  12: "Pages"
+  10: "Modules",
+  11: "Pages"
 };
 

@@ -344,26 +344,26 @@ $(document).ready(function(){initNavTree('micro__benchmark__node__utils_8hpp_sou
 <div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>  <span class="keywordflow">return</span> result;</div>
 <div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>}</div>
 <div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span> </div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(6001)</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26496)</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>template &lt;std::uint8_t NumByteValues&gt;</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>[[nodiscard]] std::vector&lt;std::uint64_t&gt;</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>generate_random_keys_over_full_smaller_tree(std::uint64_t key_limit) {</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>  <span class="comment">// The last byte at the limit will be randomly-generated and may happen to</span></div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>  <span class="comment">// fall above or below the limit. Reset the limit so that any byte value will</span></div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>  <span class="comment">// pass.</span></div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  key_limit |= 0xFFU;</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>  std::uniform_int_distribution&lt;unsigned&gt; prng_byte_values{0, NumByteValues};</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span> </div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>  std::vector&lt;std::uint64_t&gt; result;</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>  <span class="keyword">union </span>{</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    std::uint64_t as_int;</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    std::array&lt;std::uint8_t, 8&gt; as_bytes;</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>  } constructed_key;</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="keyword">template</span> &lt;std::u<span class="keywordtype">int</span>8_t NumByteValues&gt;</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>[[nodiscard]] std::vector&lt;std::uint64_t&gt;</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>generate_random_keys_over_full_smaller_tree(std::uint64_t key_limit) {</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>  <span class="comment">// The last byte at the limit will be randomly-generated and may happen to</span></div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>  <span class="comment">// fall above or below the limit. Reset the limit so that any byte value will</span></div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>  <span class="comment">// pass.</span></div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>  key_limit |= 0xFFU;</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>  std::uniform_int_distribution&lt;unsigned&gt; prng_byte_values{0, NumByteValues};</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  std::vector&lt;std::uint64_t&gt; result;</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26494)</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>  union {</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    std::uint64_t as_int;</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    std::array&lt;std::uint8_t, 8&gt; as_bytes;</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>  } constructed_key;</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span> </div>
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>  <span class="comment">// NOLINTBEGIN(readability-math-missing-parentheses)</span></div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>  <span class="keywordflow">for</span> (std::uint8_t i = 0; i &lt; NumByteValues; ++i) {</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>  for (std::uint8_t i = 0; i &lt; NumByteValues; ++i) {</div>
 <div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    constructed_key.as_bytes[7] = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i * 2 + 1);</div>
 <div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="keywordflow">for</span> (std::uint8_t i2 = 0; i2 &lt; NumByteValues; ++i2) {</div>
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>      constructed_key.as_bytes[6] = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i2 * 2 + 1);</div>
@@ -399,60 +399,60 @@ $(document).ready(function(){initNavTree('micro__benchmark__node__utils_8hpp_sou
 <div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>  <span class="comment">// NOLINTEND(readability-math-missing-parentheses)</span></div>
 <div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>  <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();</div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>}</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span><a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span><a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>}  <span class="comment">// namespace detail</span></div>
 <div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>}  <span class="comment">// namespace detail</span></div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span><span class="comment">// Stats</span></div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span><a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26495)</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>template &lt;class Db&gt;</div>
-<div class="foldopen" id="foldopen00309" data-start="{" data-end="};">
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno"><a class="line" href="structunodb_1_1benchmark_1_1tree__stats.html">  309</a></span>struct [[nodiscard]] <a class="code hl_struct" href="structunodb_1_1benchmark_1_1tree__stats.html">tree_stats</a> final {</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>  <span class="keyword">constexpr</span> <a class="code hl_struct" href="structunodb_1_1benchmark_1_1tree__stats.html">tree_stats</a>() <span class="keyword">noexcept</span> = <span class="keywordflow">default</span>;</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>  <span class="keyword">explicit</span> <span class="keyword">constexpr</span> <a class="code hl_struct" href="structunodb_1_1benchmark_1_1tree__stats.html">tree_stats</a>(<span class="keyword">const</span> Db &amp;test_db) noexcept</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>      : node_counts{test_db.get_node_counts()},</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>        growing_inode_counts{test_db.get_growing_inode_counts()},</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>        key_prefix_splits{test_db.get_key_prefix_splits()} {}</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span> </div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> get(<span class="keyword">const</span> Db &amp;test_db) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    node_counts = test_db.get_node_counts();</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    growing_inode_counts = test_db.get_growing_inode_counts();</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    key_prefix_splits = test_db.get_key_prefix_splits();</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>  }</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span> </div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> operator==(</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>      <span class="keyword">const</span> <a class="code hl_struct" href="structunodb_1_1benchmark_1_1tree__stats.html">tree_stats&lt;Db&gt;</a> &amp;other) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordflow">return</span> node_counts == other.node_counts;</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>  }</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span> </div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> internal_levels_equal(</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>      <span class="keyword">const</span> <a class="code hl_struct" href="structunodb_1_1benchmark_1_1tree__stats.html">tree_stats&lt;Db&gt;</a> &amp;other) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>    <span class="keywordflow">return</span> node_counts[unodb::as_i&lt;unodb::node_type::I4&gt;] ==</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>               other.node_counts[unodb::as_i&lt;unodb::node_type::I4&gt;] &amp;&amp;</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>           node_counts[unodb::as_i&lt;unodb::node_type::I16&gt;] ==</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>               other.node_counts[unodb::as_i&lt;unodb::node_type::I16&gt;] &amp;&amp;</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>           node_counts[unodb::as_i&lt;unodb::node_type::I48&gt;] ==</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>               other.node_counts[unodb::as_i&lt;unodb::node_type::I48&gt;] &amp;&amp;</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>           node_counts[unodb::as_i&lt;unodb::node_type::I256&gt;] ==</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>               other.node_counts[unodb::as_i&lt;unodb::node_type::I256&gt;] &amp;&amp;</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>           growing_inode_counts == other.growing_inode_counts &amp;&amp;</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>           key_prefix_splits == other.key_prefix_splits;</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>  }</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span> </div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>  <a class="code hl_typedef" href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">node_type_counter_array</a> node_counts;</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>  <a class="code hl_typedef" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">inode_type_counter_array</a> growing_inode_counts;</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>  std::uint64_t key_prefix_splits{0};</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>};</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span><span class="comment">// Stats</span></div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> </div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> Db&gt;</div>
+<div class="foldopen" id="foldopen00306" data-start="{" data-end="};">
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno"><a class="line" href="structunodb_1_1benchmark_1_1tree__stats.html">  306</a></span><span class="keyword">struct </span>[[nodiscard]] <a class="code hl_struct" href="structunodb_1_1benchmark_1_1tree__stats.html">tree_stats</a> final {</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26495)</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span> </div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>  <span class="keyword">constexpr</span> <a class="code hl_struct" href="structunodb_1_1benchmark_1_1tree__stats.html">tree_stats</a>() <span class="keyword">noexcept</span> = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span> </div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>  <span class="keyword">explicit</span> <span class="keyword">constexpr</span> <a class="code hl_struct" href="structunodb_1_1benchmark_1_1tree__stats.html">tree_stats</a>(<span class="keyword">const</span> Db &amp;test_db) noexcept</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>      : node_counts{test_db.get_node_counts()},</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>        growing_inode_counts{test_db.get_growing_inode_counts()},</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>        key_prefix_splits{test_db.get_key_prefix_splits()} {}</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span> </div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> get(<span class="keyword">const</span> Db &amp;test_db) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    node_counts = test_db.get_node_counts();</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    growing_inode_counts = test_db.get_growing_inode_counts();</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    key_prefix_splits = test_db.get_key_prefix_splits();</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>  }</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> operator==(</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>      <span class="keyword">const</span> <a class="code hl_struct" href="structunodb_1_1benchmark_1_1tree__stats.html">tree_stats&lt;Db&gt;</a> &amp;other) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keywordflow">return</span> node_counts == other.node_counts;</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>  }</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span> </div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> internal_levels_equal(</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>      <span class="keyword">const</span> <a class="code hl_struct" href="structunodb_1_1benchmark_1_1tree__stats.html">tree_stats&lt;Db&gt;</a> &amp;other) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    <span class="keywordflow">return</span> node_counts[unodb::as_i&lt;unodb::node_type::I4&gt;] ==</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>               other.node_counts[unodb::as_i&lt;unodb::node_type::I4&gt;] &amp;&amp;</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>           node_counts[unodb::as_i&lt;unodb::node_type::I16&gt;] ==</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>               other.node_counts[unodb::as_i&lt;unodb::node_type::I16&gt;] &amp;&amp;</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>           node_counts[unodb::as_i&lt;unodb::node_type::I48&gt;] ==</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>               other.node_counts[unodb::as_i&lt;unodb::node_type::I48&gt;] &amp;&amp;</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>           node_counts[unodb::as_i&lt;unodb::node_type::I256&gt;] ==</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>               other.node_counts[unodb::as_i&lt;unodb::node_type::I256&gt;] &amp;&amp;</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>           growing_inode_counts == other.growing_inode_counts &amp;&amp;</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>           key_prefix_splits == other.key_prefix_splits;</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>  }</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>  <a class="code hl_typedef" href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">node_type_counter_array</a> node_counts;</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>  <a class="code hl_typedef" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">inode_type_counter_array</a> growing_inode_counts;</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>  std::uint64_t key_prefix_splits{0};</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>};</div>
 </div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span><a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
 <div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>template &lt;class Db&gt;</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> Db&gt;</div>
 <div class="foldopen" id="foldopen00349" data-start="{" data-end="};">
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno"><a class="line" href="classunodb_1_1benchmark_1_1growing__tree__node__stats.html">  349</a></span>class [[nodiscard]] <a class="code hl_class" href="classunodb_1_1benchmark_1_1growing__tree__node__stats.html">growing_tree_node_stats</a> final {</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno"><a class="line" href="classunodb_1_1benchmark_1_1growing__tree__node__stats.html">  349</a></span><span class="keyword">class </span>[[nodiscard]] <a class="code hl_class" href="classunodb_1_1benchmark_1_1growing__tree__node__stats.html">growing_tree_node_stats</a> final {</div>
 <div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span> <span class="keyword">public</span>:</div>
 <div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> get(<span class="keyword">const</span> Db &amp;test_db) <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    stats.get(test_db);</div>
@@ -1327,7 +1327,7 @@ $(document).ready(function(){initNavTree('micro__benchmark__node__utils_8hpp_sou
 <div class="ttc" id="anamespaceunodb_html_a8105523dd9adff845377f54dd034b838"><div class="ttname"><a href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">unodb::node_type_counter_array</a></div><div class="ttdeci">std::array&lt; std::uint64_t, detail::node_type_count &gt; node_type_counter_array</div><div class="ttdoc">std::array of std::uint64_t values for each node type.</div><div class="ttdef"><b>Definition</b> node_type.hpp:69</div></div>
 <div class="ttc" id="anamespaceunodb_html_ae25127f715f2aac269da8a3616284c0b"><div class="ttname"><a href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a></div><div class="ttdeci">std::span&lt; const std::byte &gt; value_view</div><div class="ttdoc">Values are passed as non-owning pointers to memory with associated length using a std::span.</div><div class="ttdef"><b>Definition</b> art_common.hpp:36</div></div>
 <div class="ttc" id="anode__type_8hpp_html"><div class="ttname"><a href="node__type_8hpp.html">node_type.hpp</a></div><div class="ttdoc">Adaptive Radix Tree node types.</div></div>
-<div class="ttc" id="astructunodb_1_1benchmark_1_1tree__stats_html"><div class="ttname"><a href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats</a></div><div class="ttdef"><b>Definition</b> micro_benchmark_node_utils.hpp:309</div></div>
+<div class="ttc" id="astructunodb_1_1benchmark_1_1tree__stats_html"><div class="ttname"><a href="structunodb_1_1benchmark_1_1tree__stats.html">unodb::benchmark::tree_stats</a></div><div class="ttdef"><b>Definition</b> micro_benchmark_node_utils.hpp:306</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

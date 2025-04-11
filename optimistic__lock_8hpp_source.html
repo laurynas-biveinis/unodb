@@ -609,115 +609,106 @@ $(document).ready(function(){initNavTree('optimistic__lock_8hpp_source.html','')
 <div class="line"><a id="l00841" name="l00841"></a><span class="lineno">  841</span><span class="keyword">static_assert</span>(std::is_trivially_destructible_v&lt;optimistic_lock&gt;);</div>
 <div class="line"><a id="l00842" name="l00842"></a><span class="lineno">  842</span><span class="keyword">static_assert</span>(std::is_nothrow_destructible_v&lt;optimistic_lock&gt;);</div>
 <div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span> </div>
-<div class="foldopen" id="foldopen00847" data-start="" data-end="">
-<div class="line"><a id="l00847" name="l00847"></a><span class="lineno"><a class="line" href="optimistic__lock_8hpp.html#ac33116d42d7704005e6aff80b7431d5e">  847</a></span><span class="preprocessor">#define UNODB_DETAIL_ASSERT_INACTIVE(guard)   \</span></div>
-<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span><span class="preprocessor">  do {                                        \</span></div>
-<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span><span class="preprocessor">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26800); \</span></div>
-<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span><span class="preprocessor">    UNODB_DETAIL_ASSERT(!(guard).active());   \</span></div>
-<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span><span class="preprocessor">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS();     \</span></div>
-<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span><span class="preprocessor">  } while (0)</span></div>
+<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span><span class="preprocessor">#ifdef NDEBUG</span></div>
+<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span><span class="keyword">static_assert</span>(<span class="keyword">sizeof</span>(optimistic_lock) == 8);</div>
+<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span><span class="keyword">static_assert</span>(<span class="keyword">sizeof</span>(optimistic_lock) == 24);</div>
+<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span> </div>
+<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="foldopen" id="foldopen00862" data-start="{" data-end="};">
+<div class="line"><a id="l00862" name="l00862"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html">  862</a></span><span class="keyword">class </span>[[nodiscard]] <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> final {</div>
+<div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span> <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00865" name="l00865"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a80a6d90c03b91b9ae49461e32542e90a">  865</a></span>  <span class="keyword">constexpr</span> <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a80a6d90c03b91b9ae49461e32542e90a">in_critical_section</a>() noexcept = default;</div>
+<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span> </div>
+<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>  <span class="comment">// cppcheck-suppress noExplicitConstructor</span></div>
+<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>  <span class="comment">// NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)</span></div>
+<div class="line"><a id="l00870" name="l00870"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a39dc6aadeeaab6211aced5375c879388">  870</a></span>  constexpr <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a>(T value_) noexcept : value{value_} {}</div>
+<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span> </div>
+<div class="line"><a id="l00873" name="l00873"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a3a816ce38114699b46752bdd7581f33e">  873</a></span>  <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a3a816ce38114699b46752bdd7581f33e">~in_critical_section</a>() noexcept = default;</div>
+<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span> </div>
+<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>  <span class="comment">// NOLINTNEXTLINE(cert-oop54-cpp)</span></div>
+<div class="foldopen" id="foldopen00877" data-start="{" data-end="}">
+<div class="line"><a id="l00877" name="l00877"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a5b7855225bdf6c84be43051e516bd327">  877</a></span>  <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;operator=(</div>
+<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span>      const <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;new_value) noexcept {</div>
+<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span>    store(new_value.load());</div>
+<div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span>  }</div>
 </div>
-<div class="line"><a id="l00853" name="l00853"></a><span class="lineno">  853</span> </div>
-<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span><span class="preprocessor">#ifdef NDEBUG</span></div>
-<div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span><span class="keyword">static_assert</span>(<span class="keyword">sizeof</span>(optimistic_lock) == 8);</div>
-<div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span><span class="keyword">static_assert</span>(<span class="keyword">sizeof</span>(optimistic_lock) == 24);</div>
-<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span> </div>
-<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="foldopen" id="foldopen00872" data-start="{" data-end="};">
-<div class="line"><a id="l00872" name="l00872"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html">  872</a></span><span class="keyword">class </span>[[nodiscard]] <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> final {</div>
-<div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span> <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00875" name="l00875"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a80a6d90c03b91b9ae49461e32542e90a">  875</a></span>  <span class="keyword">constexpr</span> <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a80a6d90c03b91b9ae49461e32542e90a">in_critical_section</a>() noexcept = default;</div>
-<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span> </div>
-<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span>  <span class="comment">// cppcheck-suppress noExplicitConstructor</span></div>
-<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span>  <span class="comment">// NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)</span></div>
-<div class="line"><a id="l00880" name="l00880"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a39dc6aadeeaab6211aced5375c879388">  880</a></span>  constexpr <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a>(T value_) noexcept : value{value_} {}</div>
-<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span> </div>
-<div class="line"><a id="l00883" name="l00883"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a3a816ce38114699b46752bdd7581f33e">  883</a></span>  <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a3a816ce38114699b46752bdd7581f33e">~in_critical_section</a>() noexcept = default;</div>
-<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span> </div>
-<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>  <span class="comment">// NOLINTNEXTLINE(cert-oop54-cpp)</span></div>
-<div class="foldopen" id="foldopen00887" data-start="{" data-end="}">
-<div class="line"><a id="l00887" name="l00887"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a5b7855225bdf6c84be43051e516bd327">  887</a></span>  <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;operator=(</div>
-<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span>      const <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;new_value) noexcept {</div>
-<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span>    store(new_value.load());</div>
-<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span>  }</div>
+<div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span> </div>
+<div class="foldopen" id="foldopen00884" data-start="{" data-end="}">
+<div class="line"><a id="l00884" name="l00884"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a8b104f8061125989911a501cadeef3ec">  884</a></span>  <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;<a class="code hl_function" href="classunodb_1_1in__critical__section.html#a8b104f8061125989911a501cadeef3ec">operator=</a>(T new_value) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>    store(new_value);</div>
+<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>  }</div>
 </div>
-<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span> </div>
-<div class="foldopen" id="foldopen00894" data-start="{" data-end="}">
-<div class="line"><a id="l00894" name="l00894"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a8b104f8061125989911a501cadeef3ec">  894</a></span>  <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;<a class="code hl_function" href="classunodb_1_1in__critical__section.html#a8b104f8061125989911a501cadeef3ec">operator=</a>(T new_value) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>    store(new_value);</div>
-<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>  }</div>
+<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span> </div>
+<div class="line"><a id="l00890" name="l00890"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a0cd8c9f07cbca9b3b93cd4b5814f5625">  890</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a0cd8c9f07cbca9b3b93cd4b5814f5625">operator++</a>() noexcept { store(load() + 1); }</div>
+<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span> </div>
+<div class="foldopen" id="foldopen00893" data-start="{" data-end="}">
+<div class="line"><a id="l00893" name="l00893"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a0655f4a46aed0d1fc21d104e292135d5">  893</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a0655f4a46aed0d1fc21d104e292135d5">operator--</a>() noexcept {</div>
+<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span>    <span class="comment">// The cast silences MSVC diagnostics about signed/unsigned mismatch.</span></div>
+<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>    store((<span class="keyword">static_cast&lt;</span>T<span class="keyword">&gt;</span>(load() - 1)));</div>
+<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>  }</div>
 </div>
-<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span> </div>
-<div class="line"><a id="l00900" name="l00900"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a0cd8c9f07cbca9b3b93cd4b5814f5625">  900</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a0cd8c9f07cbca9b3b93cd4b5814f5625">operator++</a>() noexcept { store(load() + 1); }</div>
-<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span> </div>
-<div class="foldopen" id="foldopen00903" data-start="{" data-end="}">
-<div class="line"><a id="l00903" name="l00903"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a0655f4a46aed0d1fc21d104e292135d5">  903</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a0655f4a46aed0d1fc21d104e292135d5">operator--</a>() noexcept {</div>
-<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span>    <span class="comment">// The cast silences MSVC diagnostics about signed/unsigned mismatch.</span></div>
-<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span>    store((<span class="keyword">static_cast&lt;</span>T<span class="keyword">&gt;</span>(load() - 1)));</div>
-<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span>  }</div>
+<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span> </div>
+<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>  <span class="comment">// NOLINTNEXTLINE(cert-dcl21-cpp)</span></div>
+<div class="foldopen" id="foldopen00900" data-start="{" data-end="}">
+<div class="line"><a id="l00900" name="l00900"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a7b3e9ea64b614801d119993760eb4878">  900</a></span>  T <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a7b3e9ea64b614801d119993760eb4878">operator--</a>(<span class="keywordtype">int</span>) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span>    <span class="keyword">const</span> <span class="keyword">auto</span> result = load();</div>
+<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span>    store(result - 1);</div>
+<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span>    <span class="keywordflow">return</span> result;</div>
+<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span>  }</div>
 </div>
-<div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span> </div>
-<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span>  <span class="comment">// NOLINTNEXTLINE(cert-dcl21-cpp)</span></div>
-<div class="foldopen" id="foldopen00910" data-start="{" data-end="}">
-<div class="line"><a id="l00910" name="l00910"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a7b3e9ea64b614801d119993760eb4878">  910</a></span>  T <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a7b3e9ea64b614801d119993760eb4878">operator--</a>(<span class="keywordtype">int</span>) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>    <span class="keyword">const</span> <span class="keyword">auto</span> result = load();</div>
-<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span>    store(result - 1);</div>
-<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span>    <span class="keywordflow">return</span> result;</div>
-<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span>  }</div>
+<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span> </div>
+<div class="foldopen" id="foldopen00907" data-start="{" data-end="}">
+<div class="line"><a id="l00907" name="l00907"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#adda27c80ceeb12ad2261937baac1bf75">  907</a></span>  [[nodiscard]] <span class="keywordtype">bool</span> <a class="code hl_function" href="classunodb_1_1in__critical__section.html#adda27c80ceeb12ad2261937baac1bf75">operator==</a>(std::nullptr_t) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>    <span class="keywordflow">return</span> load() == <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span>  }</div>
 </div>
-<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span> </div>
-<div class="foldopen" id="foldopen00917" data-start="{" data-end="}">
-<div class="line"><a id="l00917" name="l00917"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#adda27c80ceeb12ad2261937baac1bf75">  917</a></span>  [[nodiscard]] <span class="keywordtype">bool</span> <a class="code hl_function" href="classunodb_1_1in__critical__section.html#adda27c80ceeb12ad2261937baac1bf75">operator==</a>(std::nullptr_t) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span>    <span class="keywordflow">return</span> load() == <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>  }</div>
+<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span> </div>
+<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span>  <span class="comment">// NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)</span></div>
+<div class="line"><a id="l00913" name="l00913"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#af7268c9424f0844c880389d60ad4e830">  913</a></span>  <span class="keyword">operator</span> T() const noexcept { <span class="keywordflow">return</span> load(); }</div>
+<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span> </div>
+<div class="foldopen" id="foldopen00916" data-start="{" data-end="}">
+<div class="line"><a id="l00916" name="l00916"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f">  916</a></span>  [[nodiscard]] T <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f">load</a>() const noexcept {</div>
+<div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span>    <span class="keywordflow">return</span> value.load(std::memory_order_relaxed);</div>
+<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span>  }</div>
 </div>
-<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span> </div>
-<div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span>  <span class="comment">// NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)</span></div>
-<div class="line"><a id="l00923" name="l00923"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#af7268c9424f0844c880389d60ad4e830">  923</a></span>  <span class="keyword">operator</span> T() const noexcept { <span class="keywordflow">return</span> load(); }</div>
+<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span> </div>
+<div class="foldopen" id="foldopen00921" data-start="{" data-end="}">
+<div class="line"><a id="l00921" name="l00921"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556">  921</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556">store</a>(T new_value) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span>    value.store(new_value, std::memory_order_relaxed);</div>
+<div class="line"><a id="l00923" name="l00923"></a><span class="lineno">  923</span>  }</div>
+</div>
 <div class="line"><a id="l00924" name="l00924"></a><span class="lineno">  924</span> </div>
-<div class="foldopen" id="foldopen00926" data-start="{" data-end="}">
-<div class="line"><a id="l00926" name="l00926"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f">  926</a></span>  [[nodiscard]] T <a class="code hl_function" href="classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f">load</a>() const noexcept {</div>
-<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span>    <span class="keywordflow">return</span> value.load(std::memory_order_relaxed);</div>
-<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span>  }</div>
+<div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span>  <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a>(<span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00926" name="l00926"></a><span class="lineno">  926</span>  <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a>(<a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span>  <span class="keywordtype">void</span> operator=(<a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span> </div>
+<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span> <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00931" name="l00931"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a477db9235622c80e33aad4249fe0bdb7">  931</a></span>  std::atomic&lt;T&gt; <a class="code hl_variable" href="classunodb_1_1in__critical__section.html#a477db9235622c80e33aad4249fe0bdb7">value</a>;</div>
+<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span> </div>
+<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>  <span class="keyword">static_assert</span>(std::atomic&lt;T&gt;::is_always_lock_free,</div>
+<div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span>                <span class="stringliteral">&quot;Must use always lock-free atomics&quot;</span>);</div>
+<div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span>};  <span class="comment">// class in_critical_section</span></div>
 </div>
-<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span> </div>
-<div class="foldopen" id="foldopen00931" data-start="{" data-end="}">
-<div class="line"><a id="l00931" name="l00931"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556">  931</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556">store</a>(T new_value) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>    value.store(new_value, std::memory_order_relaxed);</div>
-<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>  }</div>
-</div>
-<div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span> </div>
-<div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span>  <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a>(<span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span>  <a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a>(<a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;&amp;) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00937" name="l00937"></a><span class="lineno">  937</span>  <span class="keywordtype">void</span> operator=(<a class="code hl_class" href="classunodb_1_1in__critical__section.html">in_critical_section</a> &amp;&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span> </div>
+<div class="line"><a id="l00937" name="l00937"></a><span class="lineno">  937</span>}  <span class="comment">// namespace unodb</span></div>
 <div class="line"><a id="l00938" name="l00938"></a><span class="lineno">  938</span> </div>
-<div class="line"><a id="l00939" name="l00939"></a><span class="lineno">  939</span> <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00941" name="l00941"></a><span class="lineno"><a class="line" href="classunodb_1_1in__critical__section.html#a477db9235622c80e33aad4249fe0bdb7">  941</a></span>  std::atomic&lt;T&gt; <a class="code hl_variable" href="classunodb_1_1in__critical__section.html#a477db9235622c80e33aad4249fe0bdb7">value</a>;</div>
-<div class="line"><a id="l00942" name="l00942"></a><span class="lineno">  942</span> </div>
-<div class="line"><a id="l00943" name="l00943"></a><span class="lineno">  943</span>  <span class="keyword">static_assert</span>(std::atomic&lt;T&gt;::is_always_lock_free,</div>
-<div class="line"><a id="l00944" name="l00944"></a><span class="lineno">  944</span>                <span class="stringliteral">&quot;Must use always lock-free atomics&quot;</span>);</div>
-<div class="line"><a id="l00945" name="l00945"></a><span class="lineno">  945</span>};  <span class="comment">// class in_critical_section</span></div>
-</div>
-<div class="line"><a id="l00946" name="l00946"></a><span class="lineno">  946</span> </div>
-<div class="line"><a id="l00947" name="l00947"></a><span class="lineno">  947</span>}  <span class="comment">// namespace unodb</span></div>
-<div class="line"><a id="l00948" name="l00948"></a><span class="lineno">  948</span> </div>
-<div class="line"><a id="l00949" name="l00949"></a><span class="lineno">  949</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_OPTIMISTIC_LOCK_HPP</span></div>
+<div class="line"><a id="l00939" name="l00939"></a><span class="lineno">  939</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_OPTIMISTIC_LOCK_HPP</span></div>
 <div class="ttc" id="aassert_8hpp_html"><div class="ttname"><a href="assert_8hpp.html">assert.hpp</a></div><div class="ttdoc">Internal macros for assertions, assumptions &amp; intentional crashing.</div></div>
-<div class="ttc" id="aclassunodb_1_1in__critical__section_html"><div class="ttname"><a href="classunodb_1_1in__critical__section.html">unodb::in_critical_section</a></div><div class="ttdoc">Gloss for the atomic semantics used to guard loads and stores.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:872</div></div>
-<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a0655f4a46aed0d1fc21d104e292135d5"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a0655f4a46aed0d1fc21d104e292135d5">unodb::in_critical_section::operator--</a></div><div class="ttdeci">void operator--() noexcept</div><div class="ttdoc">Pre-decrement the wrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:903</div></div>
-<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a0cd8c9f07cbca9b3b93cd4b5814f5625"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a0cd8c9f07cbca9b3b93cd4b5814f5625">unodb::in_critical_section::operator++</a></div><div class="ttdeci">void operator++() noexcept</div><div class="ttdoc">Pre-increment the wrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:900</div></div>
+<div class="ttc" id="aclassunodb_1_1in__critical__section_html"><div class="ttname"><a href="classunodb_1_1in__critical__section.html">unodb::in_critical_section</a></div><div class="ttdoc">Gloss for the atomic semantics used to guard loads and stores.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:862</div></div>
+<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a0655f4a46aed0d1fc21d104e292135d5"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a0655f4a46aed0d1fc21d104e292135d5">unodb::in_critical_section::operator--</a></div><div class="ttdeci">void operator--() noexcept</div><div class="ttdoc">Pre-decrement the wrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:893</div></div>
+<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a0cd8c9f07cbca9b3b93cd4b5814f5625"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a0cd8c9f07cbca9b3b93cd4b5814f5625">unodb::in_critical_section::operator++</a></div><div class="ttdeci">void operator++() noexcept</div><div class="ttdoc">Pre-increment the wrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:890</div></div>
 <div class="ttc" id="aclassunodb_1_1in__critical__section_html_a3a816ce38114699b46752bdd7581f33e"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a3a816ce38114699b46752bdd7581f33e">unodb::in_critical_section::~in_critical_section</a></div><div class="ttdeci">~in_critical_section() noexcept=default</div><div class="ttdoc">Destruct the wrapped value.</div></div>
-<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a477db9235622c80e33aad4249fe0bdb7"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a477db9235622c80e33aad4249fe0bdb7">unodb::in_critical_section::value</a></div><div class="ttdeci">std::atomic&lt; T &gt; value</div><div class="ttdoc">Wrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:941</div></div>
-<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a7b3e9ea64b614801d119993760eb4878"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a7b3e9ea64b614801d119993760eb4878">unodb::in_critical_section::operator--</a></div><div class="ttdeci">T operator--(int) noexcept</div><div class="ttdoc">Post-decrement the wrapped value. Returns the old unwrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:910</div></div>
+<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a477db9235622c80e33aad4249fe0bdb7"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a477db9235622c80e33aad4249fe0bdb7">unodb::in_critical_section::value</a></div><div class="ttdeci">std::atomic&lt; T &gt; value</div><div class="ttdoc">Wrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:931</div></div>
+<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a7b3e9ea64b614801d119993760eb4878"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a7b3e9ea64b614801d119993760eb4878">unodb::in_critical_section::operator--</a></div><div class="ttdeci">T operator--(int) noexcept</div><div class="ttdoc">Post-decrement the wrapped value. Returns the old unwrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:900</div></div>
 <div class="ttc" id="aclassunodb_1_1in__critical__section_html_a80a6d90c03b91b9ae49461e32542e90a"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a80a6d90c03b91b9ae49461e32542e90a">unodb::in_critical_section::in_critical_section</a></div><div class="ttdeci">constexpr in_critical_section() noexcept=default</div><div class="ttdoc">Default construct the wrapped T value.</div></div>
-<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a8b104f8061125989911a501cadeef3ec"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a8b104f8061125989911a501cadeef3ec">unodb::in_critical_section::operator=</a></div><div class="ttdeci">in_critical_section &amp; operator=(T new_value) noexcept</div><div class="ttdoc">Assign new_value to the wrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:894</div></div>
-<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a8eb1c277a49389a3ea0697c405dec31f"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f">unodb::in_critical_section::load</a></div><div class="ttdeci">T load() const noexcept</div><div class="ttdoc">Explicitly read the wrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:926</div></div>
-<div class="ttc" id="aclassunodb_1_1in__critical__section_html_ad57cdf663ee959fae3d4ea595f046556"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556">unodb::in_critical_section::store</a></div><div class="ttdeci">void store(T new_value) noexcept</div><div class="ttdoc">Explicitly assign the wrapped value from new_value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:931</div></div>
-<div class="ttc" id="aclassunodb_1_1in__critical__section_html_adda27c80ceeb12ad2261937baac1bf75"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#adda27c80ceeb12ad2261937baac1bf75">unodb::in_critical_section::operator==</a></div><div class="ttdeci">bool operator==(std::nullptr_t) const noexcept</div><div class="ttdoc">Checks whether the wrapped pointer is nullptr.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:917</div></div>
+<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a8b104f8061125989911a501cadeef3ec"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a8b104f8061125989911a501cadeef3ec">unodb::in_critical_section::operator=</a></div><div class="ttdeci">in_critical_section &amp; operator=(T new_value) noexcept</div><div class="ttdoc">Assign new_value to the wrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:884</div></div>
+<div class="ttc" id="aclassunodb_1_1in__critical__section_html_a8eb1c277a49389a3ea0697c405dec31f"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f">unodb::in_critical_section::load</a></div><div class="ttdeci">T load() const noexcept</div><div class="ttdoc">Explicitly read the wrapped value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:916</div></div>
+<div class="ttc" id="aclassunodb_1_1in__critical__section_html_ad57cdf663ee959fae3d4ea595f046556"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556">unodb::in_critical_section::store</a></div><div class="ttdeci">void store(T new_value) noexcept</div><div class="ttdoc">Explicitly assign the wrapped value from new_value.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:921</div></div>
+<div class="ttc" id="aclassunodb_1_1in__critical__section_html_adda27c80ceeb12ad2261937baac1bf75"><div class="ttname"><a href="classunodb_1_1in__critical__section.html#adda27c80ceeb12ad2261937baac1bf75">unodb::in_critical_section::operator==</a></div><div class="ttdeci">bool operator==(std::nullptr_t) const noexcept</div><div class="ttdoc">Checks whether the wrapped pointer is nullptr.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:907</div></div>
 <div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1atomic__version__type_html"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html">unodb::optimistic_lock::atomic_version_type</a></div><div class="ttdoc">Atomic lock word and its operations.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:362</div></div>
 <div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1atomic__version__type_html_a351edceb51cf451d5d471f73c3817c09"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html#a351edceb51cf451d5d471f73c3817c09">unodb::optimistic_lock::atomic_version_type::write_unlock</a></div><div class="ttdeci">void write_unlock() noexcept</div><div class="ttdoc">Atomically clear the write lock bit with release memory ordering.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:390</div></div>
 <div class="ttc" id="aclassunodb_1_1optimistic__lock_1_1atomic__version__type_html_a58e25f698739d17ed135f6940e31674d"><div class="ttname"><a href="classunodb_1_1optimistic__lock_1_1atomic__version__type.html#a58e25f698739d17ed135f6940e31674d">unodb::optimistic_lock::atomic_version_type::load_relaxed</a></div><div class="ttdeci">version_type load_relaxed() const noexcept</div><div class="ttdoc">Atomically load the lock word with relaxed memory ordering.</div><div class="ttdef"><b>Definition</b> optimistic_lock.hpp:370</div></div>

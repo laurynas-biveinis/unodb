@@ -170,7 +170,7 @@ endif()
 
 set(MSVC_STATIC_ANALYSIS_FLAGS "/analyze" "/analyze:external-"
   "/analyze:pluginEspXEngine.dll" "/analyze:rulesetdirectory$ENV{VSINSTALLDIR}"
-  "/analyze:rulesetNativeRecommendedRules.ruleset"
+  "/analyze:rulesetAllRules.ruleset"
   "/analyze:log:format:sarif" "/analyze:logmsvc.sarif"
   "/analyze:log:compilerwarnings"
   # Won't fix: "Symbol '...' is never tested for nullness, it can be marked as

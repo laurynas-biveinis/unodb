@@ -44,10 +44,8 @@ using ARTTypes =
 
 UNODB_TYPED_TEST_SUITE(ARTIteratorTest, ARTTypes)
 
-UNODB_START_TESTS()
-
 // unit test with an empty tree.
-TYPED_TEST(ARTIteratorTest, emptyTreeForwardScan) {
+UNODB_TYPED_TEST(ARTIteratorTest, emptyTreeForwardScan) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   auto b = db.test_only_iterator();
@@ -56,7 +54,7 @@ TYPED_TEST(ARTIteratorTest, emptyTreeForwardScan) {
 }
 
 // unit test with an empty tree.
-TYPED_TEST(ARTIteratorTest, emptyTreeReverseScan) {
+UNODB_TYPED_TEST(ARTIteratorTest, emptyTreeReverseScan) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   auto b = db.test_only_iterator();
@@ -65,7 +63,7 @@ TYPED_TEST(ARTIteratorTest, emptyTreeReverseScan) {
 }
 
 // unit test where the root is a single leaf.
-TYPED_TEST(ARTIteratorTest, singleLeafIteratorOneValue) {
+UNODB_TYPED_TEST(ARTIteratorTest, singleLeafIteratorOneValue) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -80,7 +78,7 @@ TYPED_TEST(ARTIteratorTest, singleLeafIteratorOneValue) {
 }
 
 // unit test where the root is an I4 with two leafs under it.
-TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesForwardScan) {
+UNODB_TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesForwardScan) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -105,7 +103,7 @@ TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesForwardScan) {
 }
 
 // unit test where the root is an I4 with two leafs under it.
-TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesReverseScan) {
+UNODB_TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesReverseScan) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -135,7 +133,7 @@ TYPED_TEST(ARTIteratorTest, I4AndTwoLeavesReverseScan) {
 //       I4
 //   I4     L2
 // L0 L1
-TYPED_TEST(ARTIteratorTest, C0001) {
+UNODB_TYPED_TEST(ARTIteratorTest, C0001) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0xaa00, unodb::test::test_values[0]);
@@ -173,7 +171,7 @@ TYPED_TEST(ARTIteratorTest, C0001) {
 //       I4
 //   I4     L2
 // L0 L1
-TYPED_TEST(ARTIteratorTest, C0002) {
+UNODB_TYPED_TEST(ARTIteratorTest, C0002) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0xaa00, unodb::test::test_values[0]);
@@ -211,7 +209,7 @@ TYPED_TEST(ARTIteratorTest, C0002) {
 //       I4
 //   L0     I4
 //        L1 L2
-TYPED_TEST(ARTIteratorTest, C0003) {
+UNODB_TYPED_TEST(ARTIteratorTest, C0003) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0xaa00, unodb::test::test_values[0]);
@@ -249,7 +247,7 @@ TYPED_TEST(ARTIteratorTest, C0003) {
 //       I4
 //   L0     I4
 //        L1 L2
-TYPED_TEST(ARTIteratorTest, C0004) {
+UNODB_TYPED_TEST(ARTIteratorTest, C0004) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0xaa00, unodb::test::test_values[0]);
@@ -286,7 +284,7 @@ TYPED_TEST(ARTIteratorTest, C0004) {
 //
 
 // unit test with an empty tree.
-TYPED_TEST(ARTIteratorTest, emptyTreeSeek) {
+UNODB_TYPED_TEST(ARTIteratorTest, emptyTreeSeek) {
   using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
@@ -309,7 +307,7 @@ TYPED_TEST(ARTIteratorTest, emptyTreeSeek) {
 }
 
 // unit test where the root is a single leaf.
-TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
+UNODB_TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
   using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
@@ -395,7 +393,7 @@ TYPED_TEST(ARTIteratorTest, singleLeafSeek) {
 //       I4
 //   I4     L2
 // L0 L1
-TYPED_TEST(ARTIteratorTest, C101) {
+UNODB_TYPED_TEST(ARTIteratorTest, C101) {
   using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
@@ -527,7 +525,7 @@ TYPED_TEST(ARTIteratorTest, C101) {
 //    I4
 // L0 L1 L2
 //
-TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
+UNODB_TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
   constexpr bool debug = false;
   using Key = typename TypeParam::key_type;
   unodb::test::tree_verifier<TypeParam> verifier;
@@ -678,7 +676,5 @@ TYPED_TEST(ARTIteratorTest, seekThreeLeavesUnderTheRoot) {
     }
   }
 }
-
-UNODB_END_TESTS()
 
 }  // namespace

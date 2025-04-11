@@ -108,7 +108,6 @@ class [[nodiscard]] basic_leaf final : public Header {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26485)
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
   constexpr basic_leaf(art_key_type k, value_view v) noexcept
       : key_size{static_cast<key_size_type>(k.size())},
         value_size{static_cast<value_size_type>(v.size())} {
@@ -121,7 +120,6 @@ class [[nodiscard]] basic_leaf final : public Header {
     std::memcpy(data, tmp.data(), key_size);  // store encoded key
     if (!v.empty()) std::memcpy(data + key_size, v.data(), value_size);
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Return the binary comparable key stored in the leaf
@@ -379,7 +377,6 @@ struct basic_art_policy final {
   /// construct the new inode, returning a unique pointer to that newly
   /// constructed inode.
   UNODB_DETAIL_DISABLE_GCC_11_WARNING("-Wmismatched-new-delete")
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26409)
   template <class INode, class... Args>
   [[nodiscard]] static auto make_db_inode_unique_ptr(
       db_type &db_instance UNODB_DETAIL_LIFETIMEBOUND, Args &&...args) {
@@ -396,7 +393,6 @@ struct basic_art_policy final {
         new (inode_mem) INode{db_instance, std::forward<Args>(args)...},
         db_inode_deleter<INode>{db_instance}};
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
 
   template <class INode>
@@ -1284,8 +1280,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   using typename parent_class::node_ptr;
   using tree_depth_type = tree_depth<art_key_type>;
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
-
   constexpr basic_inode_4(db_type &, unodb::key_view k1,
                           art_key_type shifted_k2,
                           tree_depth_type depth) noexcept
@@ -1317,8 +1311,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       : parent_class{source_node} {
     init(db_instance, source_node, child_to_delete);
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void init(node_ptr source_node, unsigned shared_prefix_len,
                       tree_depth_type depth, db_leaf_unique_ptr &&child1) {
@@ -1464,7 +1456,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     return child_to_leave_ptr;
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
   [[nodiscard, gnu::pure]] find_result find_child(std::byte key_byte) noexcept {
 #ifdef UNODB_DETAIL_X86_64
     const auto replicated_search_key =
@@ -1528,7 +1519,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                               &children[result - 1]));
 #endif  // #ifdef UNODB_DETAIL_X86_64
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       std::uint8_t child_index) noexcept {
@@ -1627,7 +1617,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     }
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os,
                                                 bool recursive) const {
     parent_class::dump(os, recursive);
@@ -1641,7 +1630,6 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
         ArtPolicy::dump_node(os, children[i].load());
     }
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  private:
   constexpr void add_two_to_empty(std::byte key1, node_ptr child1,
@@ -1745,8 +1733,6 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   using typename parent_class::find_result;
   using typename parent_class::tree_depth_type;
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
-
   constexpr basic_inode_16(db_type &, const inode4_type &source_node) noexcept
       : parent_class{source_node} {}
 
@@ -1760,15 +1746,11 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     init(db_instance, source_node, std::move(child), depth);
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
   constexpr basic_inode_16(db_type &db_instance, inode48_type &source_node,
                            std::uint8_t child_to_delete) noexcept
       : parent_class{source_node} {
     init(db_instance, source_node, child_to_delete);
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void init(db_type &db_instance, inode4_type &source_node,
                       db_leaf_unique_ptr child,
@@ -1897,7 +1879,6 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
   [[nodiscard, gnu::pure]] constexpr find_result find_child(
       std::byte key_byte) noexcept {
 #ifdef UNODB_DETAIL_X86_64
@@ -1942,7 +1923,6 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     return parent_class::child_not_found;
 #endif
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       std::uint8_t child_index) noexcept {
@@ -2026,7 +2006,6 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       ArtPolicy::delete_subtree(children[i], db_instance);
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os,
                                                 bool recursive) const {
     parent_class::dump(os, recursive);
@@ -2040,7 +2019,6 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         ArtPolicy::dump_node(os, children[i].load());
     }
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  private:
   [[nodiscard, gnu::pure]] constexpr auto get_sorted_key_array_insert_position(
@@ -2134,8 +2112,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   using typename parent_class::db_type;
   using typename parent_class::tree_depth_type;
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
-
   constexpr basic_inode_48(db_type &, const inode16_type &source_node) noexcept
       : parent_class{source_node} {}
 
@@ -2188,8 +2164,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       children.pointer_array[i] = node_ptr{nullptr};
     }
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void init(db_type &db_instance,
                       inode256_type &__restrict source_node,
@@ -2348,7 +2322,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     --this->children_count;
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
   [[nodiscard, gnu::pure]] constexpr typename basic_inode_48::find_result
   find_child(std::byte key_byte) noexcept {
     const auto child_i =
@@ -2359,7 +2332,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     }
     return parent_class::child_not_found;
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   // N48: This is the case where we need to indirect through child_indices.
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
@@ -2501,7 +2473,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(actual_children_count == children_count_);
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os,
                                                 bool recursive) const {
     parent_class::dump(os, recursive);
@@ -2531,7 +2502,6 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
     UNODB_DETAIL_ASSERT(actual_children_count == children_count_);
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  private:
   constexpr void remove_child_pointer(std::uint8_t child_index,
@@ -2668,8 +2638,6 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   using typename parent_class::db_type;
   using typename parent_class::tree_depth_type;
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
-
   constexpr basic_inode_256(db_type &, const inode48_type &source_node) noexcept
       : parent_class{source_node} {}
 
@@ -2679,8 +2647,6 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
       : parent_class{source_node} {
     init(db_instance, source_node, std::move(child), depth);
   }
-
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void init(db_type &db_instance,
                       inode48_type &__restrict source_node,
@@ -2733,7 +2699,6 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     --this->children_count;
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
   [[nodiscard, gnu::pure]] constexpr typename basic_inode_256::find_result
   find_child(std::byte key_byte) noexcept {
     const auto key_int_byte = static_cast<std::uint8_t>(key_byte);
@@ -2741,7 +2706,6 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
       return std::make_pair(key_int_byte, &children[key_int_byte]);
     return parent_class::child_not_found;
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       std::uint8_t child_index) noexcept {
@@ -2873,7 +2837,6 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     });
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26434)
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os,
                                                 bool recursive) const {
     parent_class::dump(os, recursive);
@@ -2887,7 +2850,6 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
       }
     });
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
  private:
   std::array<critical_section_policy<node_ptr>, basic_inode_256::capacity>

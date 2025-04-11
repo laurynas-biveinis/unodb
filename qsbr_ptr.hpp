@@ -103,8 +103,6 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
 #endif
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26456)
-
   /// Copy-assign from \a other.
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr &operator=(
       const qsbr_ptr &other) noexcept {
@@ -129,7 +127,6 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     return *this;
   }
 
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Dereference the pointer.

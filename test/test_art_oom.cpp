@@ -106,15 +106,13 @@ using ARTTypes =
 
 UNODB_TYPED_TEST_SUITE(ARTOOMTest, ARTTypes)
 
-UNODB_START_TESTS()
-
-TYPED_TEST(ARTOOMTest, CtorDoesNotAllocate) {
+UNODB_TYPED_TEST(ARTOOMTest, CtorDoesNotAllocate) {
   unodb::test::allocation_failure_injector::fail_on_nth_allocation(1);
   const TypeParam tree;
   unodb::test::allocation_failure_injector::reset();
 }
 
-TYPED_TEST(ARTOOMTest, SingleNodeTreeEmptyValue) {
+UNODB_TYPED_TEST(ARTOOMTest, SingleNodeTreeEmptyValue) {
   oom_insert_test<TypeParam>(
       2,
       [](unodb::test::tree_verifier<TypeParam>&
@@ -140,7 +138,7 @@ TYPED_TEST(ARTOOMTest, SingleNodeTreeEmptyValue) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, SingleNodeTreeNonemptyValue) {
+UNODB_TYPED_TEST(ARTOOMTest, SingleNodeTreeNonemptyValue) {
   oom_insert_test<TypeParam>(
       2,
       [](unodb::test::tree_verifier<TypeParam>&
@@ -166,7 +164,7 @@ TYPED_TEST(ARTOOMTest, SingleNodeTreeNonemptyValue) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, ExpandLeafToNode4) {
+UNODB_TYPED_TEST(ARTOOMTest, ExpandLeafToNode4) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -189,7 +187,7 @@ TYPED_TEST(ARTOOMTest, ExpandLeafToNode4) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, TwoNode4) {
+UNODB_TYPED_TEST(ARTOOMTest, TwoNode4) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -216,7 +214,7 @@ TYPED_TEST(ARTOOMTest, TwoNode4) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, DbInsertNodeRecursion) {
+UNODB_TYPED_TEST(ARTOOMTest, DbInsertNodeRecursion) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -245,7 +243,7 @@ TYPED_TEST(ARTOOMTest, DbInsertNodeRecursion) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, Node16) {
+UNODB_TYPED_TEST(ARTOOMTest, Node16) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -268,7 +266,7 @@ TYPED_TEST(ARTOOMTest, Node16) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, Node16KeyPrefixSplit) {
+UNODB_TYPED_TEST(ARTOOMTest, Node16KeyPrefixSplit) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -294,7 +292,7 @@ TYPED_TEST(ARTOOMTest, Node16KeyPrefixSplit) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, Node48) {
+UNODB_TYPED_TEST(ARTOOMTest, Node48) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -317,7 +315,7 @@ TYPED_TEST(ARTOOMTest, Node48) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, Node48KeyPrefixSplit) {
+UNODB_TYPED_TEST(ARTOOMTest, Node48KeyPrefixSplit) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -343,7 +341,7 @@ TYPED_TEST(ARTOOMTest, Node48KeyPrefixSplit) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, Node256) {
+UNODB_TYPED_TEST(ARTOOMTest, Node256) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -366,7 +364,7 @@ TYPED_TEST(ARTOOMTest, Node256) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, Node256KeyPrefixSplit) {
+UNODB_TYPED_TEST(ARTOOMTest, Node256KeyPrefixSplit) {
   oom_insert_test<TypeParam>(
       3,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -392,7 +390,7 @@ TYPED_TEST(ARTOOMTest, Node256KeyPrefixSplit) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, Node16ShrinkToNode4) {
+UNODB_TYPED_TEST(ARTOOMTest, Node16ShrinkToNode4) {
   oom_remove_test<TypeParam>(
       2,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -415,7 +413,7 @@ TYPED_TEST(ARTOOMTest, Node16ShrinkToNode4) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, Node48ShrinkToNode16) {
+UNODB_TYPED_TEST(ARTOOMTest, Node48ShrinkToNode16) {
   oom_remove_test<TypeParam>(
       2,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {
@@ -438,7 +436,7 @@ TYPED_TEST(ARTOOMTest, Node48ShrinkToNode16) {
       });
 }
 
-TYPED_TEST(ARTOOMTest, Node256ShrinkToNode48) {
+UNODB_TYPED_TEST(ARTOOMTest, Node256ShrinkToNode48) {
   oom_remove_test<TypeParam>(
       2,
       [](unodb::test::tree_verifier<TypeParam>& verifier) {

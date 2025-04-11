@@ -165,13 +165,11 @@ using ARTTypes =
 
 UNODB_TYPED_TEST_SUITE(ARTScanTest, ARTTypes)
 
-UNODB_START_TESTS()
-
 //
 // forward scan
 //
 
-TYPED_TEST(ARTScanTest, scanForwardEmptyTree) {
+UNODB_TYPED_TEST(ARTScanTest, scanForwardEmptyTree) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   {
@@ -207,7 +205,7 @@ TYPED_TEST(ARTScanTest, scanForwardEmptyTree) {
 
 // Scan one leaf, verifying that we visit the leaf and can access its key and
 // value.
-TYPED_TEST(ARTScanTest, scanForwardOneLeaf) {
+UNODB_TYPED_TEST(ARTScanTest, scanForwardOneLeaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -229,7 +227,7 @@ TYPED_TEST(ARTScanTest, scanForwardOneLeaf) {
       std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
-TYPED_TEST(ARTScanTest, scanFromForwardOneLeaf) {
+UNODB_TYPED_TEST(ARTScanTest, scanFromForwardOneLeaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -251,7 +249,7 @@ TYPED_TEST(ARTScanTest, scanFromForwardOneLeaf) {
       std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
-TYPED_TEST(ARTScanTest, scanRangeForwardOneLeaf) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeForwardOneLeaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -273,7 +271,7 @@ TYPED_TEST(ARTScanTest, scanRangeForwardOneLeaf) {
       std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
-TYPED_TEST(ARTScanTest, scanForwardTwoLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanForwardTwoLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -294,7 +292,7 @@ TYPED_TEST(ARTScanTest, scanForwardTwoLeaves) {
   UNODB_EXPECT_EQ(1, visited[1].first);
 }
 
-TYPED_TEST(ARTScanTest, scanFromForwardTwoLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanFromForwardTwoLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -315,7 +313,7 @@ TYPED_TEST(ARTScanTest, scanFromForwardTwoLeaves) {
   UNODB_EXPECT_EQ(1, visited[1].first);
 }
 
-TYPED_TEST(ARTScanTest, scanRangeForwardTwoLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeForwardTwoLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -336,7 +334,7 @@ TYPED_TEST(ARTScanTest, scanRangeForwardTwoLeaves) {
   UNODB_EXPECT_EQ(1, visited[1].first);
 }
 
-TYPED_TEST(ARTScanTest, scanForwardThreeLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanForwardThreeLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -357,7 +355,7 @@ TYPED_TEST(ARTScanTest, scanForwardThreeLeaves) {
   UNODB_EXPECT_EQ(3, n);
 }
 
-TYPED_TEST(ARTScanTest, scanForwardFourLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanForwardFourLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -379,7 +377,7 @@ TYPED_TEST(ARTScanTest, scanForwardFourLeaves) {
   UNODB_EXPECT_EQ(4, n);
 }
 
-TYPED_TEST(ARTScanTest, scanForwardFiveLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanForwardFiveLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -402,7 +400,7 @@ TYPED_TEST(ARTScanTest, scanForwardFiveLeaves) {
   UNODB_EXPECT_EQ(5, n);
 }
 
-TYPED_TEST(ARTScanTest, scanForwardFiveLeavesHaltEarly) {
+UNODB_TYPED_TEST(ARTScanTest, scanForwardFiveLeavesHaltEarly) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -420,7 +418,7 @@ TYPED_TEST(ARTScanTest, scanForwardFiveLeavesHaltEarly) {
   UNODB_EXPECT_EQ(1, n);
 }
 
-TYPED_TEST(ARTScanTest, scanFromForwardFiveLeavesHaltEarly) {
+UNODB_TYPED_TEST(ARTScanTest, scanFromForwardFiveLeavesHaltEarly) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -438,7 +436,7 @@ TYPED_TEST(ARTScanTest, scanFromForwardFiveLeavesHaltEarly) {
   UNODB_EXPECT_EQ(1, n);
 }
 
-TYPED_TEST(ARTScanTest, scanRangeForwardFiveLeavesHaltEarly) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeForwardFiveLeavesHaltEarly) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -457,7 +455,7 @@ TYPED_TEST(ARTScanTest, scanRangeForwardFiveLeavesHaltEarly) {
 }
 
 // iterator scan test on a larger tree.
-TYPED_TEST(ARTScanTest, scanForward100) {
+UNODB_TYPED_TEST(ARTScanTest, scanForward100) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 100);
@@ -476,7 +474,7 @@ TYPED_TEST(ARTScanTest, scanForward100) {
   UNODB_EXPECT_EQ(100, n);
 }
 
-TYPED_TEST(ARTScanTest, scanFromForward100) {
+UNODB_TYPED_TEST(ARTScanTest, scanFromForward100) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 100);
@@ -495,7 +493,7 @@ TYPED_TEST(ARTScanTest, scanFromForward100) {
   UNODB_EXPECT_EQ(100, n);
 }
 
-TYPED_TEST(ARTScanTest, scanRangeForward100) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeForward100) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 100);
@@ -515,7 +513,7 @@ TYPED_TEST(ARTScanTest, scanRangeForward100) {
 }
 
 // iterator scan test on a larger tree.
-TYPED_TEST(ARTScanTest, scanForward1000) {
+UNODB_TYPED_TEST(ARTScanTest, scanForward1000) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 1000);
@@ -535,7 +533,7 @@ TYPED_TEST(ARTScanTest, scanForward1000) {
 }
 
 // iterator scan test on a larger tree.
-TYPED_TEST(ARTScanTest, scanFromForward1000) {
+UNODB_TYPED_TEST(ARTScanTest, scanFromForward1000) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 1000);
@@ -555,7 +553,7 @@ TYPED_TEST(ARTScanTest, scanFromForward1000) {
 }
 
 // iterator scan test on a larger tree.
-TYPED_TEST(ARTScanTest, scanRangeForward1000) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeForward1000) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 1000);
@@ -578,7 +576,7 @@ TYPED_TEST(ARTScanTest, scanRangeForward1000) {
 // reverse scan
 //
 
-TYPED_TEST(ARTScanTest, scanReverseEmptyTree) {
+UNODB_TYPED_TEST(ARTScanTest, scanReverseEmptyTree) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   uint64_t n = 0;
@@ -593,7 +591,7 @@ TYPED_TEST(ARTScanTest, scanReverseEmptyTree) {
 
 // Scan one leaf, verifying that we visit the leaf and can access its
 // key and value.
-TYPED_TEST(ARTScanTest, scanReverseOneLeaf) {
+UNODB_TYPED_TEST(ARTScanTest, scanReverseOneLeaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -615,7 +613,7 @@ TYPED_TEST(ARTScanTest, scanReverseOneLeaf) {
       std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
-TYPED_TEST(ARTScanTest, scanFromReverseOneLeaf) {
+UNODB_TYPED_TEST(ARTScanTest, scanFromReverseOneLeaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -637,7 +635,7 @@ TYPED_TEST(ARTScanTest, scanFromReverseOneLeaf) {
       std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
-TYPED_TEST(ARTScanTest, scanRangeReverseOneLeaf) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeReverseOneLeaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(1, unodb::test::test_values[0]);
@@ -659,7 +657,7 @@ TYPED_TEST(ARTScanTest, scanRangeReverseOneLeaf) {
       std::ranges::equal(visited_val, unodb::test::test_values[0]));
 }
 
-TYPED_TEST(ARTScanTest, scanReverseTwoLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanReverseTwoLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(1, unodb::test::test_values[0]);
@@ -680,7 +678,7 @@ TYPED_TEST(ARTScanTest, scanReverseTwoLeaves) {
   UNODB_EXPECT_EQ(1, visited[1].first);
 }
 
-TYPED_TEST(ARTScanTest, scanFromReverseTwoLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanFromReverseTwoLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(1, unodb::test::test_values[0]);
@@ -701,7 +699,7 @@ TYPED_TEST(ARTScanTest, scanFromReverseTwoLeaves) {
   UNODB_EXPECT_EQ(1, visited[1].first);
 }
 
-TYPED_TEST(ARTScanTest, scanRangeReverseTwoLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeReverseTwoLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(1, unodb::test::test_values[0]);
@@ -722,7 +720,7 @@ TYPED_TEST(ARTScanTest, scanRangeReverseTwoLeaves) {
   UNODB_EXPECT_EQ(1, visited[1].first);
 }
 
-TYPED_TEST(ARTScanTest, scanReverseThreeLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanReverseThreeLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(1, unodb::test::test_values[0]);
@@ -743,7 +741,7 @@ TYPED_TEST(ARTScanTest, scanReverseThreeLeaves) {
   UNODB_EXPECT_EQ(3, n);
 }
 
-TYPED_TEST(ARTScanTest, scanReverseFourLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanReverseFourLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -765,7 +763,7 @@ TYPED_TEST(ARTScanTest, scanReverseFourLeaves) {
   UNODB_EXPECT_EQ(4, n);
 }
 
-TYPED_TEST(ARTScanTest, scanReverseFiveLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanReverseFiveLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(1, unodb::test::test_values[0]);
@@ -788,7 +786,7 @@ TYPED_TEST(ARTScanTest, scanReverseFiveLeaves) {
   UNODB_EXPECT_EQ(5, n);
 }
 
-TYPED_TEST(ARTScanTest, scanFromReverseFiveLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanFromReverseFiveLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(1, unodb::test::test_values[0]);
@@ -811,7 +809,7 @@ TYPED_TEST(ARTScanTest, scanFromReverseFiveLeaves) {
   UNODB_EXPECT_EQ(5, n);
 }
 
-TYPED_TEST(ARTScanTest, scanRangeReverseFiveLeaves) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeReverseFiveLeaves) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(1, unodb::test::test_values[0]);
@@ -834,7 +832,7 @@ TYPED_TEST(ARTScanTest, scanRangeReverseFiveLeaves) {
   UNODB_EXPECT_EQ(5, n);
 }
 
-TYPED_TEST(ARTScanTest, scanReverseFiveLeavesHaltEarly) {
+UNODB_TYPED_TEST(ARTScanTest, scanReverseFiveLeavesHaltEarly) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -852,7 +850,7 @@ TYPED_TEST(ARTScanTest, scanReverseFiveLeavesHaltEarly) {
   UNODB_EXPECT_EQ(1, n);
 }
 
-TYPED_TEST(ARTScanTest, scanFromReverseFiveLeavesHaltEarly) {
+UNODB_TYPED_TEST(ARTScanTest, scanFromReverseFiveLeavesHaltEarly) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -870,7 +868,7 @@ TYPED_TEST(ARTScanTest, scanFromReverseFiveLeavesHaltEarly) {
   UNODB_EXPECT_EQ(1, n);
 }
 
-TYPED_TEST(ARTScanTest, scanRangeReverseFiveLeavesHaltEarly) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeReverseFiveLeavesHaltEarly) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert(0, unodb::test::test_values[0]);
@@ -889,7 +887,7 @@ TYPED_TEST(ARTScanTest, scanRangeReverseFiveLeavesHaltEarly) {
 }
 
 // iterator scan test on a larger tree.
-TYPED_TEST(ARTScanTest, scanReverse100) {
+UNODB_TYPED_TEST(ARTScanTest, scanReverse100) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 100);
@@ -908,7 +906,7 @@ TYPED_TEST(ARTScanTest, scanReverse100) {
   UNODB_EXPECT_EQ(100, n);
 }
 
-TYPED_TEST(ARTScanTest, scanFromReverse100) {
+UNODB_TYPED_TEST(ARTScanTest, scanFromReverse100) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 100);
@@ -927,7 +925,7 @@ TYPED_TEST(ARTScanTest, scanFromReverse100) {
   UNODB_EXPECT_EQ(100, n);
 }
 
-TYPED_TEST(ARTScanTest, scanRangeReverse100) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeReverse100) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 100);
@@ -947,7 +945,7 @@ TYPED_TEST(ARTScanTest, scanRangeReverse100) {
 }
 
 // iterator scan test on a larger tree.
-TYPED_TEST(ARTScanTest, scanReverse1000) {
+UNODB_TYPED_TEST(ARTScanTest, scanReverse1000) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 1000);
@@ -967,7 +965,7 @@ TYPED_TEST(ARTScanTest, scanReverse1000) {
 }
 
 // iterator scan test on a larger tree.
-TYPED_TEST(ARTScanTest, scanFromReverse1000) {
+UNODB_TYPED_TEST(ARTScanTest, scanFromReverse1000) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 1000);
@@ -987,7 +985,7 @@ TYPED_TEST(ARTScanTest, scanFromReverse1000) {
 }
 
 // iterator scan test on a larger tree.
-TYPED_TEST(ARTScanTest, scanRangeReverse1000) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeReverse1000) {
   unodb::test::tree_verifier<TypeParam> verifier;
   TypeParam& db = verifier.get_db();  // reference to test db instance.
   verifier.insert_key_range(0, 1000);
@@ -1013,78 +1011,76 @@ TYPED_TEST(ARTScanTest, scanRangeReverse1000) {
 // Check the edge conditions for the single leaf iterator (limit=1, so
 // only ONE (1) is installed into the ART index).  Check all iterator
 // flavors for this.
-TYPED_TEST(ARTScanTest, scanRangeC100) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC100) {
   do_scan_range_test<TypeParam>(0, 1, 1);
 }  // nothing
-TYPED_TEST(ARTScanTest, scanRangeC102) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC102) {
   do_scan_range_test<TypeParam>(1, 2, 1);
 }  // one key
-TYPED_TEST(ARTScanTest, scanRangeC103) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC103) {
   do_scan_range_test<TypeParam>(2, 3, 1);
 }  // nothing
-TYPED_TEST(ARTScanTest, scanRangeC104) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC104) {
   do_scan_range_test<TypeParam>(0, 2, 1);
 }  // one key
-TYPED_TEST(ARTScanTest, scanRangeC105) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC105) {
   do_scan_range_test<TypeParam>(2, 2, 1);
 }  // nothing
 
 // fromKey is odd (exists); toKey is even (hence does not exist).
-TYPED_TEST(ARTScanTest, scanRangeC110) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC110) {
   do_scan_range_test<TypeParam>(1, 2, 5);
 }
-TYPED_TEST(ARTScanTest, scanRangeC111) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC111) {
   do_scan_range_test<TypeParam>(1, 4, 5);
 }
-TYPED_TEST(ARTScanTest, scanRangeC112) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC112) {
   do_scan_range_test<TypeParam>(1, 6, 5);
 }
-TYPED_TEST(ARTScanTest, scanRangeC113) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC113) {
   do_scan_range_test<TypeParam>(2, 1, 5);
 }
-TYPED_TEST(ARTScanTest, scanRangeC114) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC114) {
   do_scan_range_test<TypeParam>(4, 1, 5);
 }
-TYPED_TEST(ARTScanTest, scanRangeC115) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC115) {
   do_scan_range_test<TypeParam>(6, 1, 5);
 }
 // fromKey is odd (exists); toKey is odd (exists).
-TYPED_TEST(ARTScanTest, scanRangeC120) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC120) {
   do_scan_range_test<TypeParam>(1, 1, 5);
 }
-TYPED_TEST(ARTScanTest, scanRangeC121) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC121) {
   do_scan_range_test<TypeParam>(1, 3, 5);
 }
-TYPED_TEST(ARTScanTest, scanRangeC122) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC122) {
   do_scan_range_test<TypeParam>(1, 5, 5);
 }
-TYPED_TEST(ARTScanTest, scanRangeC123) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC123) {
   do_scan_range_test<TypeParam>(3, 1, 5);
 }
-TYPED_TEST(ARTScanTest, scanRangeC124) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC124) {
   do_scan_range_test<TypeParam>(5, 1, 5);
 }
 
-TYPED_TEST(ARTScanTest, scanRangeC130) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC130) {
   do_scan_range_test<TypeParam>(0, 9, 9);
 }
-TYPED_TEST(ARTScanTest, scanRangeC131) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC131) {
   do_scan_range_test<TypeParam>(9, 0, 9);
 }
 
-TYPED_TEST(ARTScanTest, scanRangeC140) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC140) {
   do_scan_range_test<TypeParam>(1, 999, 999);
 }
-TYPED_TEST(ARTScanTest, scanRangeC141) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC141) {
   do_scan_range_test<TypeParam>(999, 1, 999);
 }
-TYPED_TEST(ARTScanTest, scanRangeC142) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC142) {
   do_scan_range_test<TypeParam>(247, 823, 999);
 }
-TYPED_TEST(ARTScanTest, scanRangeC143) {
+UNODB_TYPED_TEST(ARTScanTest, scanRangeC143) {
   do_scan_range_test<TypeParam>(823, 247, 999);
 }
-
-UNODB_END_TESTS()
 
 }  // namespace

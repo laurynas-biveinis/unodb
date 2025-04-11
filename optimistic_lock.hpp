@@ -841,16 +841,6 @@ static_assert(std::is_standard_layout_v<optimistic_lock>);
 static_assert(std::is_trivially_destructible_v<optimistic_lock>);
 static_assert(std::is_nothrow_destructible_v<optimistic_lock>);
 
-/// In debug builds, assert that the optimistic_lock::write_guard \a guard is
-/// active.
-/// \hideinitializer
-#define UNODB_DETAIL_ASSERT_INACTIVE(guard)   \
-  do {                                        \
-    UNODB_DETAIL_DISABLE_MSVC_WARNING(26800); \
-    UNODB_DETAIL_ASSERT(!(guard).active());   \
-    UNODB_DETAIL_RESTORE_MSVC_WARNINGS();     \
-  } while (0)
-
 #ifdef NDEBUG
 static_assert(sizeof(optimistic_lock) == 8);
 #else

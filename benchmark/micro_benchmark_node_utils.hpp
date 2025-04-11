@@ -241,9 +241,6 @@ template <typename NumberToKeyFn>
   return result;
 }
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6001)
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
-
 template <std::uint8_t NumByteValues>
 [[nodiscard]] std::vector<std::uint64_t>
 generate_random_keys_over_full_smaller_tree(std::uint64_t key_limit) {
@@ -254,10 +251,13 @@ generate_random_keys_over_full_smaller_tree(std::uint64_t key_limit) {
   std::uniform_int_distribution<unsigned> prng_byte_values{0, NumByteValues};
 
   std::vector<std::uint64_t> result;
+
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26494)
   union {
     std::uint64_t as_int;
     std::array<std::uint8_t, 8> as_bytes;
   } constructed_key;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   // NOLINTBEGIN(readability-math-missing-parentheses)
   for (std::uint8_t i = 0; i < NumByteValues; ++i) {
@@ -296,18 +296,19 @@ generate_random_keys_over_full_smaller_tree(std::uint64_t key_limit) {
   // NOLINTEND(readability-math-missing-parentheses)
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace detail
 
 // Stats
 #ifdef UNODB_DETAIL_WITH_STATS
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
 template <class Db>
 struct [[nodiscard]] tree_stats final {
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
+
   constexpr tree_stats() noexcept = default;
+
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   explicit constexpr tree_stats(const Db &test_db) noexcept
       : node_counts{test_db.get_node_counts()},
@@ -343,7 +344,6 @@ struct [[nodiscard]] tree_stats final {
   inode_type_counter_array growing_inode_counts;
   std::uint64_t key_prefix_splits{0};
 };
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <class Db>
 class [[nodiscard]] growing_tree_node_stats final {

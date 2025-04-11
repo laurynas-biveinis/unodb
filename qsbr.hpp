@@ -1585,7 +1585,6 @@ class [[nodiscard]] qsbr_thread : public std::thread {
 
  private:
   /// Create a thread with a unodb::qsbr_per_thread instance set.
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   template <typename Function, typename... Args>
   [[nodiscard]] static std::thread make_qsbr_thread(Function &&f,
                                                     Args &&...args) {
@@ -1598,7 +1597,6 @@ class [[nodiscard]] qsbr_thread : public std::thread {
         },
         std::forward<Function>(f), std::forward<Args>(args)...};
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };
 
 }  // namespace unodb

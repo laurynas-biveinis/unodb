@@ -589,10 +589,10 @@ class [[nodiscard]] tree_verifier final {
   /// the scan can be checked, but not whether each key is in the ground truth -
   /// doing that requires knowledge about how the keys were encoded and the
   /// encoding needs to be reversible, which it is not in the general case).
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
   void check_present_values() const {
     // Probe the test_db for each key, verifying the expected value is found
     // under that key.
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
     for (const auto &[key, value] : values) {
       if constexpr (std::is_same_v<typename Db::key_type, unodb::key_view>) {
         ASSERT_VALUE_FOR_KEY(Db, test_db, *key, value);
@@ -600,6 +600,7 @@ class [[nodiscard]] tree_verifier final {
         ASSERT_VALUE_FOR_KEY(Db, test_db, key, value);
       }
     }
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     // Scan the test_db.  For each (key,val) visited, verify (a) that each key
     // is visited in lexicographic order; and (b) that each (key,val) pair also
     // appears in the ground truth collection.
@@ -614,7 +615,12 @@ class [[nodiscard]] tree_verifier final {
     auto fn =
         [&n, &first,
          &prev](const unodb::visitor<typename Db::iterator> &visitor) noexcept {
+          // We can't tell cheap and expensive to copy types apart in an
+          // useful way here
+          UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
           const auto &kv = visitor.get_key();
+          UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
           if (UNODB_DETAIL_UNLIKELY(first)) {
             prev = kv;
             first = false;
@@ -633,7 +639,6 @@ class [[nodiscard]] tree_verifier final {
     // const auto sz = values.size();  // #of (key,val) pairs expected.
     // UNODB_EXPECT_EQ(sz, n);
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <typename T>
   void check_absent_keys(std::initializer_list<T> absent_keys) noexcept(
@@ -740,6 +745,7 @@ class [[nodiscard]] tree_verifier final {
  private:
   // Custom comparator is required for key_view.
   struct comparator {
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26415)
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26418)
     bool operator()(const ikey_type<Db> &lhs,
                     const ikey_type<Db> &rhs) const noexcept {
@@ -751,6 +757,7 @@ class [[nodiscard]] tree_verifier final {
         return lhs < rhs;
       }
     }
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   };
 

@@ -7,15 +7,12 @@
 // IWYU pragma: no_include <__math/traits.h>
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include "gtest/gtest.h"
 
 #include <sstream>
 #include <system_error>
 #include <utility>
 // NOLINTNEXTLINE(misc-include-cleaner)
 #include <cmath>
-
-#include <gtest/gtest.h>
 
 #include "gtest_utils.hpp"
 #include "qsbr.hpp"
@@ -39,15 +36,13 @@ void active_pointer_ops(void *raw_ptr) noexcept {
   active_ptr2 = std::move(active_ptr3);  // -V1001
 }
 
-UNODB_START_TESTS()
-
-TEST_F(QSBR, SingleThreadQuitPaused) {
+UNODB_TEST_F(QSBR, SingleThreadQuitPaused) {
   UNODB_ASSERT_FALSE(is_qsbr_paused());
   qsbr_pause();
   UNODB_ASSERT_TRUE(is_qsbr_paused());
 }
 
-TEST_F(QSBR, SingleThreadPauseResume) {
+UNODB_TEST_F(QSBR, SingleThreadPauseResume) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
   qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
@@ -55,7 +50,7 @@ TEST_F(QSBR, SingleThreadPauseResume) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
-TEST_F(QSBR, TwoThreads) {
+UNODB_TEST_F(QSBR, TwoThreads) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
   unodb::qsbr_thread second_thread(
       []() noexcept { UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2); });
@@ -63,12 +58,12 @@ TEST_F(QSBR, TwoThreads) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
-TEST_F(QSBR, TwoThreadsSecondQuitPaused) {
+UNODB_TEST_F(QSBR, TwoThreadsSecondQuitPaused) {
   unodb::qsbr_thread second_thread([] { qsbr_pause(); });
   join(second_thread);
 }
 
-TEST_F(QSBR, TwoThreadsSecondPaused) {
+UNODB_TEST_F(QSBR, TwoThreadsSecondPaused) {
   unodb::qsbr_thread second_thread([] {
     UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2);
     UNODB_ASSERT_FALSE(is_qsbr_paused());
@@ -81,7 +76,7 @@ TEST_F(QSBR, TwoThreadsSecondPaused) {
   join(second_thread);
 }
 
-TEST_F(QSBR, TwoThreadsFirstPaused) {
+UNODB_TEST_F(QSBR, TwoThreadsFirstPaused) {
   unodb::qsbr_thread second_thread([] {
     UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2);
     thread_syncs[0].notify();
@@ -98,7 +93,7 @@ TEST_F(QSBR, TwoThreadsFirstPaused) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
-TEST_F(QSBR, TwoThreadsBothPaused) {
+UNODB_TEST_F(QSBR, TwoThreadsBothPaused) {
   unodb::qsbr_thread second_thread([] {
     UNODB_EXPECT_EQ(get_qsbr_thread_count(), 2);
     thread_syncs[0].notify();  // 1 ->
@@ -117,7 +112,7 @@ TEST_F(QSBR, TwoThreadsBothPaused) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
-TEST_F(QSBR, TwoThreadsSequential) {
+UNODB_TEST_F(QSBR, TwoThreadsSequential) {
   qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::qsbr_thread second_thread(
@@ -128,7 +123,7 @@ TEST_F(QSBR, TwoThreadsSequential) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
-TEST_F(QSBR, TwoThreadsDefaultCtor) {
+UNODB_TEST_F(QSBR, TwoThreadsDefaultCtor) {
   qsbr_pause();
   unodb::qsbr_thread second_thread{};
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
@@ -139,7 +134,7 @@ TEST_F(QSBR, TwoThreadsDefaultCtor) {
   unodb::this_thread().qsbr_resume();
 }
 
-TEST_F(QSBR, SecondThreadAddedWhileFirstPaused) {
+UNODB_TEST_F(QSBR, SecondThreadAddedWhileFirstPaused) {
   qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
 
@@ -152,7 +147,7 @@ TEST_F(QSBR, SecondThreadAddedWhileFirstPaused) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
-TEST_F(QSBR, SecondThreadAddedWhileFirstPausedBothRun) {
+UNODB_TEST_F(QSBR, SecondThreadAddedWhileFirstPausedBothRun) {
   qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
 
@@ -169,7 +164,7 @@ TEST_F(QSBR, SecondThreadAddedWhileFirstPausedBothRun) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
-TEST_F(QSBR, ThreeThreadsInitialPaused) {
+UNODB_TEST_F(QSBR, ThreeThreadsInitialPaused) {
   qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   unodb::qsbr_thread second_thread([] {
@@ -190,13 +185,13 @@ TEST_F(QSBR, ThreeThreadsInitialPaused) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
-TEST_F(QSBR, SingleThreadOneAllocation) {
+UNODB_TEST_F(QSBR, SingleThreadOneAllocation) {
   auto *ptr = static_cast<char *>(allocate());
   touch_memory(ptr);
   qsbr_deallocate(ptr);
 }
 
-TEST_F(QSBR, SingleThreadAllocationAndEpochChange) {
+UNODB_TEST_F(QSBR, SingleThreadAllocationAndEpochChange) {
   auto *ptr = static_cast<char *>(allocate());
   touch_memory(ptr);
   qsbr_deallocate(ptr);
@@ -212,7 +207,7 @@ TEST_F(QSBR, SingleThreadAllocationAndEpochChange) {
   qsbr_deallocate(ptr);
 }
 
-TEST_F(QSBR, SingleThreadAllocationAndEpochChangeOnScopeExit) {
+UNODB_TEST_F(QSBR, SingleThreadAllocationAndEpochChangeOnScopeExit) {
   {
     const unodb::quiescent_state_on_scope_exit qsbr_after_deallocate;
     auto *const ptr = static_cast<char *>(allocate());
@@ -229,7 +224,7 @@ TEST_F(QSBR, SingleThreadAllocationAndEpochChangeOnScopeExit) {
   qsbr_deallocate(ptr2);
 }
 
-TEST_F(QSBR, QStateOnScopeExitInException) {
+UNODB_TEST_F(QSBR, QStateOnScopeExitInException) {
   try {
     const unodb::quiescent_state_on_scope_exit qsbr_on_scope_exit;
     throw std::system_error(std::make_error_code(std::errc::invalid_argument));
@@ -237,14 +232,14 @@ TEST_F(QSBR, QStateOnScopeExitInException) {
   }
 }
 
-TEST_F(QSBR, ActivePointersBeforeQuiescentState) {
+UNODB_TEST_F(QSBR, ActivePointersBeforeQuiescentState) {
   auto *ptr = allocate();
   active_pointer_ops(ptr);
   qsbr_deallocate(ptr);
   quiescent();
 }
 
-TEST_F(QSBR, ActivePointersBeforePause) {
+UNODB_TEST_F(QSBR, ActivePointersBeforePause) {
   auto *ptr = allocate();
   active_pointer_ops(ptr);
   qsbr_deallocate(ptr);
@@ -253,7 +248,7 @@ TEST_F(QSBR, ActivePointersBeforePause) {
 
 #ifndef NDEBUG
 
-TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
+UNODB_TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
   auto *ptr = allocate();
   const unodb::qsbr_ptr<void> active_ptr{ptr};
   UNODB_ASSERT_DEATH({ quiescent(); }, "");
@@ -262,7 +257,7 @@ TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
 
 #endif
 
-TEST_F(QSBR, TwoThreadEpochChangesSecondStartsQuiescent) {
+UNODB_TEST_F(QSBR, TwoThreadEpochChangesSecondStartsQuiescent) {
   mark_epoch();
 
   unodb::qsbr_thread second_thread([] {
@@ -281,7 +276,7 @@ TEST_F(QSBR, TwoThreadEpochChangesSecondStartsQuiescent) {
   join(second_thread);
 }
 
-TEST_F(QSBR, TwoThreadEpochChanges) {
+UNODB_TEST_F(QSBR, TwoThreadEpochChanges) {
   mark_epoch();
 
   quiescent();
@@ -311,7 +306,7 @@ TEST_F(QSBR, TwoThreadEpochChanges) {
   join(second_thread);
 }
 
-TEST_F(QSBR, QuiescentThreadQuittingDoesNotAdvanceEpoch) {
+UNODB_TEST_F(QSBR, QuiescentThreadQuittingDoesNotAdvanceEpoch) {
   unodb::qsbr_thread second_thread{[this] {
     thread_syncs[0].notify();  // 1 ->
     thread_syncs[1].wait();    // 8 <-
@@ -363,7 +358,7 @@ TEST_F(QSBR, QuiescentThreadQuittingDoesNotAdvanceEpoch) {
   check_epoch_advanced();
 }
 
-TEST_F(QSBR, TwoThreadAllocations) {
+UNODB_TEST_F(QSBR, TwoThreadAllocations) {
   auto *ptr = static_cast<char *>(allocate());
 
   unodb::qsbr_thread second_thread([] {
@@ -403,7 +398,7 @@ TEST_F(QSBR, TwoThreadAllocations) {
   join(second_thread);
 }
 
-TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
+UNODB_TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
   auto *ptr = static_cast<char *>(allocate());
 
   unodb::qsbr_thread second_thread([] {
@@ -429,7 +424,7 @@ TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
   quiescent();
 }
 
-TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
+UNODB_TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
   qsbr_pause();
 
   unodb::qsbr_thread second_thread([] {
@@ -475,7 +470,7 @@ TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
   join(second_thread);
 }
 
-TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
+UNODB_TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
   auto *ptr = static_cast<char *>(allocate());
 
   unodb::qsbr_thread second_thread([] {
@@ -498,7 +493,7 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
   quiescent();
 }
 
-TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentStateBefore1stThreadQState) {
+UNODB_TEST_F(QSBR, SecondThreadQuittingWithoutQStateBefore1stThreadQState) {
   auto *ptr = static_cast<char *>(allocate());
 
   unodb::qsbr_thread second_thread([] {
@@ -518,7 +513,7 @@ TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentStateBefore1stThreadQState) {
   quiescent();
 }
 
-TEST_F(QSBR, ToSingleThreadedModeBeforeDeallocation) {
+UNODB_TEST_F(QSBR, ToSingleThreadedModeBeforeDeallocation) {
   unodb::qsbr_thread second_thread{[] {
     thread_syncs[0].notify();  // 1 ->
     thread_syncs[1].wait();    // 2 <-
@@ -534,7 +529,7 @@ TEST_F(QSBR, ToSingleThreadedModeBeforeDeallocation) {
   qsbr_deallocate(ptr);
 }
 
-TEST_F(QSBR, ToSingleThreadedModeAfterDeallocation) {
+UNODB_TEST_F(QSBR, ToSingleThreadedModeAfterDeallocation) {
   unodb::qsbr_thread second_thread{[] {
     thread_syncs[0].notify();  // 1 ->
     thread_syncs[1].wait();    // 2 <-
@@ -552,7 +547,7 @@ TEST_F(QSBR, ToSingleThreadedModeAfterDeallocation) {
   quiescent();
 }
 
-TEST_F(QSBR, ToSingleThreadedModeAndAllocate) {
+UNODB_TEST_F(QSBR, ToSingleThreadedModeAndAllocate) {
   unodb::qsbr_thread second_thread{[] {
     thread_syncs[0].notify();  // 1 ->
     thread_syncs[1].wait();    // 2 <-
@@ -569,7 +564,7 @@ TEST_F(QSBR, ToSingleThreadedModeAndAllocate) {
   qsbr_deallocate(ptr2);
 }
 
-TEST_F(QSBR, ToSingleThreadedModeDeallocationSeesIt) {
+UNODB_TEST_F(QSBR, ToSingleThreadedModeDeallocationSeesIt) {
   auto *ptr = allocate();
   auto *ptr2 = allocate();
 
@@ -591,7 +586,7 @@ TEST_F(QSBR, ToSingleThreadedModeDeallocationSeesIt) {
   qsbr_deallocate(ptr3);
 }
 
-TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
+UNODB_TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
   mark_epoch();
   auto *ptr_1_1 = static_cast<char *>(allocate());
 
@@ -650,7 +645,7 @@ TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
   join(second_thread);
 }
 
-TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
+UNODB_TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   mark_epoch();
   auto *ptr = static_cast<char *>(allocate());
 
@@ -690,7 +685,7 @@ TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   quiescent();
 }
 
-TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
+UNODB_TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
   mark_epoch();
 
   auto *ptr_1_1 = static_cast<char *>(allocate());
@@ -753,7 +748,7 @@ TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
   unodb::this_thread().qsbr_resume();
 }
 
-TEST_F(QSBR, TwoThreadsDeallocateBeforeQuittingPointerStaysLive) {
+UNODB_TEST_F(QSBR, TwoThreadsDeallocateBeforeQuittingPointerStaysLive) {
   auto *ptr = static_cast<char *>(allocate());
 
   unodb::qsbr_thread second_thread{[ptr] {
@@ -769,7 +764,7 @@ TEST_F(QSBR, TwoThreadsDeallocateBeforeQuittingPointerStaysLive) {
   quiescent();
 }
 
-TEST_F(QSBR, ThreeDeallocationRequestSets) {
+UNODB_TEST_F(QSBR, ThreeDeallocationRequestSets) {
   mark_epoch();
   auto *ptr = static_cast<char *>(allocate());
 
@@ -802,7 +797,7 @@ TEST_F(QSBR, ThreeDeallocationRequestSets) {
   join(second_thread);
 }
 
-TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
+UNODB_TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
   mark_epoch();
   auto *const ptr = static_cast<char *>(allocate());
   touch_memory(ptr, 'A');
@@ -844,7 +839,7 @@ TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
-TEST_F(QSBR, ResetStats) {
+UNODB_TEST_F(QSBR, ResetStats) {
   auto *ptr = allocate();
   auto *ptr2 = allocate();
 
@@ -884,7 +879,7 @@ TEST_F(QSBR, ResetStats) {
       qsbr_get_mean_quiescent_states_per_thread_between_epoch_changes()));
 }
 
-TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
+UNODB_TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
   unodb::qsbr_thread second_thread{[] {
     quiescent();
 
@@ -913,7 +908,7 @@ TEST_F(QSBR, GettersConcurrentWithQuiescentState) {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-TEST_F(QSBR, DeallocEpochAssert) {
+UNODB_TEST_F(QSBR, DeallocEpochAssert) {
   unodb::qsbr_thread second_thread{[] {
     thread_syncs[0].notify();  // 1 ->
 
@@ -954,11 +949,9 @@ TEST_F(QSBR, DeallocEpochAssert) {
   qsbr_pause();
 }
 
-TEST_F(QSBR, Dump) {
+UNODB_TEST_F(QSBR, Dump) {
   std::ostringstream buf;
   unodb::qsbr::instance().dump(buf);
 }
-
-UNODB_END_TESTS()
 
 }  // namespace

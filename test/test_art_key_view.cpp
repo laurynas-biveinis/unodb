@@ -35,11 +35,9 @@ using ARTTypes =
 
 UNODB_TYPED_TEST_SUITE(ARTKeyViewCorrectnessTest, ARTTypes)
 
-UNODB_START_TESTS()
-
 /// Unit test of correct rejection of a key which is too large to be
 /// stored in the tree.
-TYPED_TEST(ARTKeyViewCorrectnessTest, TooLongKey) {
+UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, TooLongKey) {
   constexpr std::byte fake_val{0x00};
   const unodb::key_view too_long{
       &fake_val,
@@ -60,7 +58,7 @@ TYPED_TEST(ARTKeyViewCorrectnessTest, TooLongKey) {
 
 /// Unit test inserts several string keys with proper encoding and
 /// validates the tree.
-TYPED_TEST(ARTKeyViewCorrectnessTest, EncodedTextKeys) {
+UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, EncodedTextKeys) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
   const auto val = unodb::test::test_values[0];
@@ -74,7 +72,5 @@ TYPED_TEST(ARTKeyViewCorrectnessTest, EncodedTextKeys) {
   verifier.insert(enc.reset().encode_text("zebra").get_key_view(), val);
   verifier.check_present_values();  // checks keys and key ordering.
 }
-
-UNODB_END_TESTS()
 
 }  // namespace

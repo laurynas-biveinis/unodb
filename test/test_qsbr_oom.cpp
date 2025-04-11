@@ -7,11 +7,8 @@
 
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include "gtest/gtest.h"
 
 #include <new>
-
-#include <gtest/gtest.h>
 
 #include "gtest_utils.hpp"
 #include "qsbr.hpp"
@@ -45,9 +42,7 @@ void oom_test(unsigned fail_limit, Test test, AfterOOM after_oom) {
 
 using QSBROOMTest = unodb::test::QSBRTestBase;
 
-UNODB_START_TESTS()
-
-TEST_F(QSBROOMTest, Resume) {
+UNODB_TEST_F(QSBROOMTest, Resume) {
   qsbr_pause();
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 0);
   oom_test(
@@ -56,7 +51,7 @@ TEST_F(QSBROOMTest, Resume) {
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
 }
 
-TEST_F(QSBROOMTest, StartThread) {
+UNODB_TEST_F(QSBROOMTest, StartThread) {
   unodb::qsbr_thread second_thread;
   UNODB_ASSERT_EQ(get_qsbr_thread_count(), 1);
   oom_test(
@@ -69,7 +64,7 @@ TEST_F(QSBROOMTest, StartThread) {
   join(second_thread);
 }
 
-TEST_F(QSBROOMTest, DeferredDeallocation) {
+UNODB_TEST_F(QSBROOMTest, DeferredDeallocation) {
   auto *ptr = static_cast<char *>(allocate());
   unodb::qsbr_thread second_thread{[] {
     unodb::detail::thread_syncs[0].notify();
@@ -84,8 +79,6 @@ TEST_F(QSBROOMTest, DeferredDeallocation) {
   unodb::detail::thread_syncs[1].notify();
   join(second_thread);
 }
-
-UNODB_END_TESTS()
 
 }  // namespace
 

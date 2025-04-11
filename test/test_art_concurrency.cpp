@@ -108,6 +108,8 @@ class ARTConcurrencyTest : public ::testing::Test {
     uint64_t n = 0;
     uint64_t sum = 0;
     std::uint64_t prior{};
+
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
     auto fn = [&n, &sum, &fwd, &k0, &k1,
                &prior](const unodb::visitor<typename Db::iterator> &v) {
       n++;
@@ -137,6 +139,8 @@ class ARTConcurrencyTest : public ::testing::Test {
       prior = akey;
       return false;
     };
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
     if (fwd) {
       verifier->scan_range(k0, k1, fn);
     } else {
@@ -177,7 +181,6 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
   }
 
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
   static void random_op_thread(unodb::test::tree_verifier<Db> *verifier,
                                std::size_t thread_i,
                                std::size_t ops_per_thread) {
@@ -209,7 +212,6 @@ class ARTConcurrencyTest : public ::testing::Test {
       }
     }
   }
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   unodb::test::tree_verifier<Db> verifier{true};
 
@@ -230,9 +232,7 @@ using ConcurrentARTTypes =
 
 UNODB_TYPED_TEST_SUITE(ARTConcurrencyTest, ConcurrentARTTypes)
 
-UNODB_START_TESTS()
-
-TYPED_TEST(ARTConcurrencyTest, ParallelInsertOneTree) {
+UNODB_TYPED_TEST(ARTConcurrencyTest, ParallelInsertOneTree) {
   constexpr auto thread_count = 4;
   constexpr auto total_keys = 1024;
   constexpr auto ops_per_thread = total_keys / thread_count;
@@ -243,7 +243,7 @@ TYPED_TEST(ARTConcurrencyTest, ParallelInsertOneTree) {
   this->verifier.check_present_values();
 }
 
-TYPED_TEST(ARTConcurrencyTest, ParallelTearDownOneTree) {
+UNODB_TYPED_TEST(ARTConcurrencyTest, ParallelTearDownOneTree) {
   constexpr auto thread_count = 8;
   constexpr auto total_keys = 2048;
   constexpr auto ops_per_thread = total_keys / thread_count;
@@ -254,23 +254,23 @@ TYPED_TEST(ARTConcurrencyTest, ParallelTearDownOneTree) {
   this->verifier.assert_empty();
 }
 
-TYPED_TEST(ARTConcurrencyTest, Node4ParallelOps) {
+UNODB_TYPED_TEST(ARTConcurrencyTest, Node4ParallelOps) {
   this->template key_range_op_test<3, 8, 6>();
 }
 
-TYPED_TEST(ARTConcurrencyTest, Node16ParallelOps) {
+UNODB_TYPED_TEST(ARTConcurrencyTest, Node16ParallelOps) {
   this->template key_range_op_test<10, 8, 12>();
 }
 
-TYPED_TEST(ARTConcurrencyTest, Node48ParallelOps) {
+UNODB_TYPED_TEST(ARTConcurrencyTest, Node48ParallelOps) {
   this->template key_range_op_test<32, 8, 32>();
 }
 
-TYPED_TEST(ARTConcurrencyTest, Node256ParallelOps) {
+UNODB_TYPED_TEST(ARTConcurrencyTest, Node256ParallelOps) {
   this->template key_range_op_test<152, 8, 208>();
 }
 
-TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan) {
+UNODB_TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan) {
   constexpr auto thread_count = 4;
   constexpr auto initial_keys = 128;
   constexpr auto ops_per_thread = 500;
@@ -280,8 +280,8 @@ TYPED_TEST(ARTConcurrencyTest, ParallelRandomInsertDeleteGetScan) {
       TestFixture::random_op_thread);
 }
 
-TYPED_TEST(ARTConcurrencyTest,
-           DISABLED_MediumParallelRandomInsertDeleteGetScan) {
+UNODB_TYPED_TEST(ARTConcurrencyTest,
+                 DISABLED_MediumParallelRandomInsertDeleteGetScan) {
   constexpr auto thread_count = 4 * 3;
   constexpr auto initial_keys = 2048;
   constexpr auto ops_per_thread = 10'000;
@@ -294,7 +294,8 @@ TYPED_TEST(ARTConcurrencyTest,
 // A more challenging test using a smaller key range and the same
 // number of threads and operations per thread.  The goal of this test
 // is to try an increase coverage of the N256 case.
-TYPED_TEST(ARTConcurrencyTest, DISABLED_ParallelRandomInsertDeleteGetScan2) {
+UNODB_TYPED_TEST(ARTConcurrencyTest,
+                 DISABLED_ParallelRandomInsertDeleteGetScan2) {
   constexpr auto thread_count = 4 * 3;
   constexpr auto initial_keys = 152;
   constexpr auto ops_per_thread = 100'000;
@@ -307,7 +308,8 @@ TYPED_TEST(ARTConcurrencyTest, DISABLED_ParallelRandomInsertDeleteGetScan2) {
 // A more challenging test using an even smaller key range and the
 // same number of threads and operations per thread.  The goal of this
 // test is to try an increase coverage of the N48 case.
-TYPED_TEST(ARTConcurrencyTest, DISABLED_ParallelRandomInsertDeleteGetScan3) {
+UNODB_TYPED_TEST(ARTConcurrencyTest,
+                 DISABLED_ParallelRandomInsertDeleteGetScan3) {
   constexpr auto thread_count = 4 * 3;
   constexpr auto initial_keys = 32;
   constexpr auto ops_per_thread = 100'000;
@@ -322,8 +324,8 @@ TYPED_TEST(ARTConcurrencyTest, DISABLED_ParallelRandomInsertDeleteGetScan3) {
 // operations per thread is more challenging.
 //
 // LCOV_EXCL_START
-TYPED_TEST(ARTConcurrencyTest,
-           DISABLED_ParallelRandomInsertDeleteGetScanStressTest) {
+UNODB_TYPED_TEST(ARTConcurrencyTest,
+                 DISABLED_ParallelRandomInsertDeleteGetScanStressTest) {
   constexpr auto thread_count = 48;
   constexpr auto initial_keys = 152;
   constexpr auto ops_per_thread = 10'000'000;
@@ -333,7 +335,5 @@ TYPED_TEST(ARTConcurrencyTest,
       TestFixture::random_op_thread);
 }
 // LCOV_EXCL_STOP
-
-UNODB_END_TESTS()
 
 }  // namespace

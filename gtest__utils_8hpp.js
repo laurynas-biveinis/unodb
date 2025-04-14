@@ -1,10 +1,5 @@
-var group__test_internals =
+var gtest__utils_8hpp =
 [
-    [ "gtest_utils.hpp", "gtest__utils_8hpp.html", null ],
-    [ "test_utils.hpp", "test__utils_8hpp.html", null ],
-    [ "test_heap.cpp", "test__heap_8cpp.html", null ],
-    [ "test_heap.hpp", "test__heap_8hpp.html", null ],
-    [ "unodb::test", "namespaceunodb_1_1test.html", null ],
     [ "UNODB_ASSERT_DEATH", "group__test-internals.html#gac0c0524876a656bea2dd1ab34600569f", null ],
     [ "UNODB_ASSERT_EQ", "group__test-internals.html#ga1e31cec00d41ec2d3a7b136db8c09d70", null ],
     [ "UNODB_ASSERT_FALSE", "group__test-internals.html#ga8968effbcec7369c25e4b1af2183f8ac", null ],
@@ -15,9 +10,6 @@ var group__test_internals =
     [ "UNODB_ASSERT_THAT", "group__test-internals.html#gafe7e4b0dc71eed5ed6e5e16b88821ac3", null ],
     [ "UNODB_ASSERT_THROW", "group__test-internals.html#ga906b745db633aac1e54c135d172a63fb", null ],
     [ "UNODB_ASSERT_TRUE", "group__test-internals.html#ga4af9e45d078fad7c18aa4a3d6aea0b5b", null ],
-    [ "UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION", "group__test-internals.html#gaaf2eecf2b7a7d75d287403058d3caa77", null ],
-    [ "UNODB_DETAIL_PAUSE_HEAP_TRACKING_GUARD", "group__test-internals.html#gaa446d5e5546b7897d05473b9bcd0274c", null ],
-    [ "UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR", "group__test-internals.html#ga430bd4dfb98d1c834bac37af330aba11", null ],
     [ "UNODB_EXPECT_EQ", "group__test-internals.html#gaad3a03cb3ec3e02706e0b2960ff01e85", null ],
     [ "UNODB_EXPECT_FALSE", "group__test-internals.html#ga577d2ff860079a6e6357e25b0625da8e", null ],
     [ "UNODB_EXPECT_GT", "group__test-internals.html#ga5e171bb921b1acc657c75a072521db9c", null ],

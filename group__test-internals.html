@@ -108,6 +108,9 @@ $(document).ready(function(){initNavTree('group__test-internals.html',''); initR
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>
 Files</h2></td></tr>
+<tr class="memitem:gtest__utils_8hpp" id="r_gtest__utils_8hpp"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gtest__utils_8hpp.html">gtest_utils.hpp</a></td></tr>
+<tr class="memdesc:gtest__utils_8hpp"><td class="mdescLeft">&#160;</td><td class="mdescRight">Google Test wrapper macros. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:test__utils_8hpp" id="r_test__utils_8hpp"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="test__utils_8hpp.html">test_utils.hpp</a></td></tr>
 <tr class="memdesc:test__utils_8hpp"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test API for verifying heap allocation behavior. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -124,6 +127,68 @@ Namespaces</h2></td></tr>
 <tr class="memdesc:namespaceunodb_1_1test"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for the UnoDB internal test support code. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader">Google Test wrapper macros</h2></td></tr>
+<tr class="memitem:ga990b7c3aa2195ab9a2f6dd60dc156303" id="r_ga990b7c3aa2195ab9a2f6dd60dc156303"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga990b7c3aa2195ab9a2f6dd60dc156303">UNODB_TYPED_TEST_SUITE</a>(Suite,  Types)</td></tr>
+<tr class="memdesc:ga990b7c3aa2195ab9a2f6dd60dc156303"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>TYPED_TEST_SUITE</code> macro.  <br /></td></tr>
+<tr class="separator:ga990b7c3aa2195ab9a2f6dd60dc156303"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac0c0524876a656bea2dd1ab34600569f" id="r_gac0c0524876a656bea2dd1ab34600569f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#gac0c0524876a656bea2dd1ab34600569f">UNODB_ASSERT_DEATH</a>(statement,  regex)</td></tr>
+<tr class="memdesc:gac0c0524876a656bea2dd1ab34600569f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_DEATH</code> macro.  <br /></td></tr>
+<tr class="separator:gac0c0524876a656bea2dd1ab34600569f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3ae193f210b16346fe2de45446403685" id="r_ga3ae193f210b16346fe2de45446403685"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga3ae193f210b16346fe2de45446403685">UNODB_TEST</a>(Suite,  Test)</td></tr>
+<tr class="memdesc:ga3ae193f210b16346fe2de45446403685"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>TEST</code> macro.  <br /></td></tr>
+<tr class="separator:ga3ae193f210b16346fe2de45446403685"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae1e57569302d2474bc8d684d7973d3b5" id="r_gae1e57569302d2474bc8d684d7973d3b5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#gae1e57569302d2474bc8d684d7973d3b5">UNODB_TEST_F</a>(Suite,  Test)</td></tr>
+<tr class="memdesc:gae1e57569302d2474bc8d684d7973d3b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>TEST_F</code> macro.  <br /></td></tr>
+<tr class="separator:gae1e57569302d2474bc8d684d7973d3b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaed592347870745d498013bd5fee3646d" id="r_gaed592347870745d498013bd5fee3646d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#gaed592347870745d498013bd5fee3646d">UNODB_TYPED_TEST</a>(Suite,  Test)</td></tr>
+<tr class="memdesc:gaed592347870745d498013bd5fee3646d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>TYPED_TEST</code> macro.  <br /></td></tr>
+<tr class="separator:gaed592347870745d498013bd5fee3646d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1e31cec00d41ec2d3a7b136db8c09d70" id="r_ga1e31cec00d41ec2d3a7b136db8c09d70"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga1e31cec00d41ec2d3a7b136db8c09d70">UNODB_ASSERT_EQ</a>(x,  y)</td></tr>
+<tr class="memdesc:ga1e31cec00d41ec2d3a7b136db8c09d70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_EQ</code> macro.  <br /></td></tr>
+<tr class="separator:ga1e31cec00d41ec2d3a7b136db8c09d70"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2d2f13c1772a67fd0d86b62eb960c865" id="r_ga2d2f13c1772a67fd0d86b62eb960c865"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga2d2f13c1772a67fd0d86b62eb960c865">UNODB_ASSERT_NEAR</a>(x,  y,  e)</td></tr>
+<tr class="memdesc:ga2d2f13c1772a67fd0d86b62eb960c865"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_NEAR</code> macro.  <br /></td></tr>
+<tr class="separator:ga2d2f13c1772a67fd0d86b62eb960c865"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8968effbcec7369c25e4b1af2183f8ac" id="r_ga8968effbcec7369c25e4b1af2183f8ac"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga8968effbcec7369c25e4b1af2183f8ac">UNODB_ASSERT_FALSE</a>(cond)</td></tr>
+<tr class="memdesc:ga8968effbcec7369c25e4b1af2183f8ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_FALSE</code> macro.  <br /></td></tr>
+<tr class="separator:ga8968effbcec7369c25e4b1af2183f8ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3add166eb5d737f29030e4a878cc83dc" id="r_ga3add166eb5d737f29030e4a878cc83dc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga3add166eb5d737f29030e4a878cc83dc">UNODB_ASSERT_GT</a>(val1,  val2)</td></tr>
+<tr class="memdesc:ga3add166eb5d737f29030e4a878cc83dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_GT</code> macro.  <br /></td></tr>
+<tr class="separator:ga3add166eb5d737f29030e4a878cc83dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga555acfdf6c9ad9d2f601824d23d86b29" id="r_ga555acfdf6c9ad9d2f601824d23d86b29"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga555acfdf6c9ad9d2f601824d23d86b29">UNODB_ASSERT_LE</a>(val1,  val2)</td></tr>
+<tr class="memdesc:ga555acfdf6c9ad9d2f601824d23d86b29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_LE</code> macro.  <br /></td></tr>
+<tr class="separator:ga555acfdf6c9ad9d2f601824d23d86b29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga40fe62fd5581991333766f181dc33a11" id="r_ga40fe62fd5581991333766f181dc33a11"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga40fe62fd5581991333766f181dc33a11">UNODB_ASSERT_LT</a>(val1,  val2)</td></tr>
+<tr class="memdesc:ga40fe62fd5581991333766f181dc33a11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_LT</code> macro.  <br /></td></tr>
+<tr class="separator:ga40fe62fd5581991333766f181dc33a11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafe7e4b0dc71eed5ed6e5e16b88821ac3" id="r_gafe7e4b0dc71eed5ed6e5e16b88821ac3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#gafe7e4b0dc71eed5ed6e5e16b88821ac3">UNODB_ASSERT_THAT</a>(value,  matcher)</td></tr>
+<tr class="memdesc:gafe7e4b0dc71eed5ed6e5e16b88821ac3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_THAT</code> macro.  <br /></td></tr>
+<tr class="separator:gafe7e4b0dc71eed5ed6e5e16b88821ac3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga906b745db633aac1e54c135d172a63fb" id="r_ga906b745db633aac1e54c135d172a63fb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga906b745db633aac1e54c135d172a63fb">UNODB_ASSERT_THROW</a>(statement,  expected_exception)</td></tr>
+<tr class="memdesc:ga906b745db633aac1e54c135d172a63fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_THROW</code> macro.  <br /></td></tr>
+<tr class="separator:ga906b745db633aac1e54c135d172a63fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4af9e45d078fad7c18aa4a3d6aea0b5b" id="r_ga4af9e45d078fad7c18aa4a3d6aea0b5b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga4af9e45d078fad7c18aa4a3d6aea0b5b">UNODB_ASSERT_TRUE</a>(cond)</td></tr>
+<tr class="memdesc:ga4af9e45d078fad7c18aa4a3d6aea0b5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_TRUE</code> macro.  <br /></td></tr>
+<tr class="separator:ga4af9e45d078fad7c18aa4a3d6aea0b5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaad3a03cb3ec3e02706e0b2960ff01e85" id="r_gaad3a03cb3ec3e02706e0b2960ff01e85"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#gaad3a03cb3ec3e02706e0b2960ff01e85">UNODB_EXPECT_EQ</a>(x,  y)</td></tr>
+<tr class="memdesc:gaad3a03cb3ec3e02706e0b2960ff01e85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>EXPECT_EQ</code> macro.  <br /></td></tr>
+<tr class="separator:gaad3a03cb3ec3e02706e0b2960ff01e85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga32c0ae2e848a4564ebc04be693c7af15" id="r_ga32c0ae2e848a4564ebc04be693c7af15"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga32c0ae2e848a4564ebc04be693c7af15">UNODB_EXPECT_NE</a>(x,  y)</td></tr>
+<tr class="memdesc:ga32c0ae2e848a4564ebc04be693c7af15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>EXPECT_NE</code> macro.  <br /></td></tr>
+<tr class="separator:ga32c0ae2e848a4564ebc04be693c7af15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5e171bb921b1acc657c75a072521db9c" id="r_ga5e171bb921b1acc657c75a072521db9c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga5e171bb921b1acc657c75a072521db9c">UNODB_EXPECT_GT</a>(x,  y)</td></tr>
+<tr class="memdesc:ga5e171bb921b1acc657c75a072521db9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>EXPECT_GT</code> macro.  <br /></td></tr>
+<tr class="separator:ga5e171bb921b1acc657c75a072521db9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7510835f9b94b0f7d65bf35b316cc12c" id="r_ga7510835f9b94b0f7d65bf35b316cc12c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga7510835f9b94b0f7d65bf35b316cc12c">UNODB_EXPECT_LT</a>(x,  y)</td></tr>
+<tr class="memdesc:ga7510835f9b94b0f7d65bf35b316cc12c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>EXPECT_LT</code> macro.  <br /></td></tr>
+<tr class="separator:ga7510835f9b94b0f7d65bf35b316cc12c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad6b9358126510bddf33940b97af6f131" id="r_gad6b9358126510bddf33940b97af6f131"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#gad6b9358126510bddf33940b97af6f131">UNODB_EXPECT_TRUE</a>(cond)</td></tr>
+<tr class="memdesc:gad6b9358126510bddf33940b97af6f131"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>EXPECT_TRUE</code> macro.  <br /></td></tr>
+<tr class="separator:gad6b9358126510bddf33940b97af6f131"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga577d2ff860079a6e6357e25b0625da8e" id="r_ga577d2ff860079a6e6357e25b0625da8e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga577d2ff860079a6e6357e25b0625da8e">UNODB_EXPECT_FALSE</a>(cond)</td></tr>
+<tr class="memdesc:ga577d2ff860079a6e6357e25b0625da8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>EXPECT_FALSE</code> macro.  <br /></td></tr>
+<tr class="separator:ga577d2ff860079a6e6357e25b0625da8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader">Heap allocation failure injection macros</h2></td></tr>
 <tr class="memitem:ga430bd4dfb98d1c834bac37af330aba11" id="r_ga430bd4dfb98d1c834bac37af330aba11"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga430bd4dfb98d1c834bac37af330aba11">UNODB_DETAIL_RESET_ALLOCATION_FAILURE_INJECTOR</a>()</td></tr>
 <tr class="memdesc:ga430bd4dfb98d1c834bac37af330aba11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset heap allocation failure injector state.  <br /></td></tr>
@@ -138,6 +203,366 @@ Namespaces</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Common helpers for tests. </p>
 <h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="gac0c0524876a656bea2dd1ab34600569f" name="gac0c0524876a656bea2dd1ab34600569f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac0c0524876a656bea2dd1ab34600569f">&#9670;&#160;</a></span>UNODB_ASSERT_DEATH</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_ASSERT_DEATH</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">statement, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">regex&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                                             \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_CLANG_WARNING(<span class="stringliteral">&quot;-Wused-but-marked-unused&quot;</span>) \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_CLANG_WARNING(<span class="stringliteral">&quot;-Wcovered-switch-default&quot;</span>) \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)                        \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)                       \</div>
+<div class="line">    ASSERT_DEATH(statement, regex);                                \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()                           \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()                           \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_CLANG_WARNINGS()                          \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_CLANG_WARNINGS()                          \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>ASSERT_DEATH</code> macro. </p>
+
+</div>
+</div>
+<a id="ga1e31cec00d41ec2d3a7b136db8c09d70" name="ga1e31cec00d41ec2d3a7b136db8c09d70"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1e31cec00d41ec2d3a7b136db8c09d70">&#9670;&#160;</a></span>UNODB_ASSERT_EQ</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_ASSERT_EQ</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">y&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    ASSERT_EQ((x), (y));                     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>ASSERT_EQ</code> macro. </p>
+
+</div>
+</div>
+<a id="ga8968effbcec7369c25e4b1af2183f8ac" name="ga8968effbcec7369c25e4b1af2183f8ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8968effbcec7369c25e4b1af2183f8ac">&#9670;&#160;</a></span>UNODB_ASSERT_FALSE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_ASSERT_FALSE</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">cond</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    ASSERT_FALSE(cond);                      \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>ASSERT_FALSE</code> macro. </p>
+
+</div>
+</div>
+<a id="ga3add166eb5d737f29030e4a878cc83dc" name="ga3add166eb5d737f29030e4a878cc83dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3add166eb5d737f29030e4a878cc83dc">&#9670;&#160;</a></span>UNODB_ASSERT_GT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_ASSERT_GT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">val1, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">val2&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    ASSERT_GT((val1), (val2));               \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>ASSERT_GT</code> macro. </p>
+
+</div>
+</div>
+<a id="ga555acfdf6c9ad9d2f601824d23d86b29" name="ga555acfdf6c9ad9d2f601824d23d86b29"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga555acfdf6c9ad9d2f601824d23d86b29">&#9670;&#160;</a></span>UNODB_ASSERT_LE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_ASSERT_LE</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">val1, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">val2&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    ASSERT_LE((val1), (val2));               \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>ASSERT_LE</code> macro. </p>
+
+</div>
+</div>
+<a id="ga40fe62fd5581991333766f181dc33a11" name="ga40fe62fd5581991333766f181dc33a11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga40fe62fd5581991333766f181dc33a11">&#9670;&#160;</a></span>UNODB_ASSERT_LT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_ASSERT_LT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">val1, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">val2&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    ASSERT_LT((val1), (val2));               \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>ASSERT_LT</code> macro. </p>
+
+</div>
+</div>
+<a id="ga2d2f13c1772a67fd0d86b62eb960c865" name="ga2d2f13c1772a67fd0d86b62eb960c865"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2d2f13c1772a67fd0d86b62eb960c865">&#9670;&#160;</a></span>UNODB_ASSERT_NEAR</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_ASSERT_NEAR</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">y, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">e&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    ASSERT_NEAR((x), (y), (e));              \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>ASSERT_NEAR</code> macro. </p>
+
+</div>
+</div>
+<a id="gafe7e4b0dc71eed5ed6e5e16b88821ac3" name="gafe7e4b0dc71eed5ed6e5e16b88821ac3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafe7e4b0dc71eed5ed6e5e16b88821ac3">&#9670;&#160;</a></span>UNODB_ASSERT_THAT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_ASSERT_THAT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">value, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">matcher&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    ASSERT_THAT((value), (matcher));         \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>ASSERT_THAT</code> macro. </p>
+
+</div>
+</div>
+<a id="ga906b745db633aac1e54c135d172a63fb" name="ga906b745db633aac1e54c135d172a63fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga906b745db633aac1e54c135d172a63fb">&#9670;&#160;</a></span>UNODB_ASSERT_THROW</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_ASSERT_THROW</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">statement, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">expected_exception&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                                    \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)               \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)              \</div>
+<div class="line">    ASSERT_THROW(statement, expected_exception);          \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()                  \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()                  \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>ASSERT_THROW</code> macro. </p>
+
+</div>
+</div>
+<a id="ga4af9e45d078fad7c18aa4a3d6aea0b5b" name="ga4af9e45d078fad7c18aa4a3d6aea0b5b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4af9e45d078fad7c18aa4a3d6aea0b5b">&#9670;&#160;</a></span>UNODB_ASSERT_TRUE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_ASSERT_TRUE</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">cond</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    ASSERT_TRUE(cond);                       \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>ASSERT_TRUE</code> macro. </p>
+
+</div>
+</div>
 <a id="gaaf2eecf2b7a7d75d287403058d3caa77" name="gaaf2eecf2b7a7d75d287403058d3caa77"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaaf2eecf2b7a7d75d287403058d3caa77">&#9670;&#160;</a></span>UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION</h2>
 
@@ -201,6 +626,348 @@ Namespaces</h2></td></tr>
 
 <p>Reset heap allocation failure injector state. </p>
 <p>Should be called at the start of each failure-injecting test. </p>
+
+</div>
+</div>
+<a id="gaad3a03cb3ec3e02706e0b2960ff01e85" name="gaad3a03cb3ec3e02706e0b2960ff01e85"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaad3a03cb3ec3e02706e0b2960ff01e85">&#9670;&#160;</a></span>UNODB_EXPECT_EQ</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_EXPECT_EQ</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">y&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(6326)  \</div>
+<div class="line">  UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">  EXPECT_EQ((x), (y))                      \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div>
+<div class="ttc" id="agroup__internal_html_ga6979215c90d6f2280a56d80eb67c6c83"><div class="ttname"><a href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)</div><div class="ttdoc">Disable an MSVC warning x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:328</div></div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>EXPECT_EQ</code> macro. </p>
+
+</div>
+</div>
+<a id="ga577d2ff860079a6e6357e25b0625da8e" name="ga577d2ff860079a6e6357e25b0625da8e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga577d2ff860079a6e6357e25b0625da8e">&#9670;&#160;</a></span>UNODB_EXPECT_FALSE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_EXPECT_FALSE</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">cond</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    EXPECT_FALSE(cond);                      \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>EXPECT_FALSE</code> macro. </p>
+
+</div>
+</div>
+<a id="ga5e171bb921b1acc657c75a072521db9c" name="ga5e171bb921b1acc657c75a072521db9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5e171bb921b1acc657c75a072521db9c">&#9670;&#160;</a></span>UNODB_EXPECT_GT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_EXPECT_GT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">y&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    EXPECT_GT((x), (y));                     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>EXPECT_GT</code> macro. </p>
+
+</div>
+</div>
+<a id="ga7510835f9b94b0f7d65bf35b316cc12c" name="ga7510835f9b94b0f7d65bf35b316cc12c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7510835f9b94b0f7d65bf35b316cc12c">&#9670;&#160;</a></span>UNODB_EXPECT_LT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_EXPECT_LT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">y&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    EXPECT_LT((x), (y));                     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>EXPECT_LT</code> macro. </p>
+
+</div>
+</div>
+<a id="ga32c0ae2e848a4564ebc04be693c7af15" name="ga32c0ae2e848a4564ebc04be693c7af15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga32c0ae2e848a4564ebc04be693c7af15">&#9670;&#160;</a></span>UNODB_EXPECT_NE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_EXPECT_NE</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">y&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    EXPECT_NE((x), (y));                     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>EXPECT_NE</code> macro. </p>
+
+</div>
+</div>
+<a id="gad6b9358126510bddf33940b97af6f131" name="gad6b9358126510bddf33940b97af6f131"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad6b9358126510bddf33940b97af6f131">&#9670;&#160;</a></span>UNODB_EXPECT_TRUE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_EXPECT_TRUE</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">cond</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(6326)  \</div>
+<div class="line">  UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">  EXPECT_TRUE(cond)                        \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>EXPECT_TRUE</code> macro. </p>
+
+</div>
+</div>
+<a id="ga3ae193f210b16346fe2de45446403685" name="ga3ae193f210b16346fe2de45446403685"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3ae193f210b16346fe2de45446403685">&#9670;&#160;</a></span>UNODB_TEST</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_TEST</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">Suite, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">Test&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26409) \</div>
+<div class="line">  UNODB_DETAIL_DISABLE_MSVC_WARNING(26426) \</div>
+<div class="line">  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440) \</div>
+<div class="line">  UNODB_DETAIL_DISABLE_MSVC_WARNING(26455) \</div>
+<div class="line">  TEST(Suite, Test)                        \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>TEST</code> macro. </p>
+
+</div>
+</div>
+<a id="gae1e57569302d2474bc8d684d7973d3b5" name="gae1e57569302d2474bc8d684d7973d3b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae1e57569302d2474bc8d684d7973d3b5">&#9670;&#160;</a></span>UNODB_TEST_F</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_TEST_F</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">Suite, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">Test&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26409) \</div>
+<div class="line">  UNODB_DETAIL_DISABLE_MSVC_WARNING(26426) \</div>
+<div class="line">  UNODB_DETAIL_DISABLE_MSVC_WARNING(26455) \</div>
+<div class="line">  TEST_F(Suite, Test)                      \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>TEST_F</code> macro. </p>
+
+</div>
+</div>
+<a id="gaed592347870745d498013bd5fee3646d" name="gaed592347870745d498013bd5fee3646d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaed592347870745d498013bd5fee3646d">&#9670;&#160;</a></span>UNODB_TYPED_TEST</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_TYPED_TEST</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">Suite, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">Test&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26426) \</div>
+<div class="line">  TYPED_TEST(Suite, Test)                  \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>TYPED_TEST</code> macro. </p>
+
+</div>
+</div>
+<a id="ga990b7c3aa2195ab9a2f6dd60dc156303" name="ga990b7c3aa2195ab9a2f6dd60dc156303"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga990b7c3aa2195ab9a2f6dd60dc156303">&#9670;&#160;</a></span>UNODB_TYPED_TEST_SUITE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_TYPED_TEST_SUITE</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">Suite, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">Types&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <a class="code hl_define" href="group__internal.html#gaa0a90689c5d97cbff1db22f127aa421d">UNODB_DETAIL_DISABLE_CLANG_WARNING</a>(<span class="stringliteral">&quot;-Wgnu-zero-variadic-macro-arguments&quot;</span>) \</div>
+<div class="line">  TYPED_TEST_SUITE(Suite, Types);                                           \</div>
+<div class="line">  UNODB_DETAIL_RESTORE_CLANG_WARNINGS()</div>
+<div class="ttc" id="agroup__internal_html_gaa0a90689c5d97cbff1db22f127aa421d"><div class="ttname"><a href="group__internal.html#gaa0a90689c5d97cbff1db22f127aa421d">UNODB_DETAIL_DISABLE_CLANG_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_CLANG_WARNING(x)</div><div class="ttdoc">Disable a clang warning x until UNODB_DETAIL_RESTORE_CLANG_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:341</div></div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>TYPED_TEST_SUITE</code> macro. </p>
 
 </div>
 </div>

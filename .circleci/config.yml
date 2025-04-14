@@ -204,7 +204,6 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo -H pip install setuptools
             brew install boost cmake
       - when:
           condition:

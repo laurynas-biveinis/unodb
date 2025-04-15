@@ -152,8 +152,8 @@ Functions</h2></td></tr>
 <tr class="memitem:a279cb07fa68a07875e48f3cfc208fb21" id="r_a279cb07fa68a07875e48f3cfc208fb21"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html#a279cb07fa68a07875e48f3cfc208fb21">timeout_reached</a> (std::time_t start_tm)</td></tr>
 <tr class="memdesc:a279cb07fa68a07875e48f3cfc208fb21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the DeepState test timeout has been reached.  <br /></td></tr>
 <tr class="separator:a279cb07fa68a07875e48f3cfc208fb21"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a53fd24c90ff6a59ad8dfb2a9c86cc725" id="r_a53fd24c90ff6a59ad8dfb2a9c86cc725"><td class="memItemLeft" align="right" valign="top"><a id="a53fd24c90ff6a59ad8dfb2a9c86cc725" name="a53fd24c90ff6a59ad8dfb2a9c86cc725"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>expect_idle_qsbr</b> () noexcept</td></tr>
+<tr class="memitem:a53fd24c90ff6a59ad8dfb2a9c86cc725" id="r_a53fd24c90ff6a59ad8dfb2a9c86cc725"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html#a53fd24c90ff6a59ad8dfb2a9c86cc725">expect_idle_qsbr</a> () noexcept</td></tr>
+<tr class="memdesc:a53fd24c90ff6a59ad8dfb2a9c86cc725"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expects in Google Test that <a class="el" href="group__qsbr.html">Quiescent State-Based Reclamation</a> is idle.  <br /></td></tr>
 <tr class="separator:a53fd24c90ff6a59ad8dfb2a9c86cc725"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff59723575f4893311a70fb45b41de4f" id="r_aff59723575f4893311a70fb45b41de4f"><td class="memTemplParams" colspan="2">template&lt;typename TestAction &gt; </td></tr>
 <tr class="memitem:aff59723575f4893311a70fb45b41de4f"><td class="memTemplItemLeft" align="right" valign="top">std::invoke_result_t&lt; TestAction &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a> (TestAction test_action) noexcept(noexcept(test_action()))</td></tr>
@@ -189,6 +189,34 @@ constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>empty_test_
 <div class="textblock"><p>Namespace for the UnoDB internal test support code. </p>
 <p>It is not part of the public API, and it may change at any time. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="a53fd24c90ff6a59ad8dfb2a9c86cc725" name="a53fd24c90ff6a59ad8dfb2a9c86cc725"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53fd24c90ff6a59ad8dfb2a9c86cc725">&#9670;&#160;</a></span>expect_idle_qsbr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void unodb::test::expect_idle_qsbr </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Expects in Google Test that <a class="el" href="group__qsbr.html">Quiescent State-Based Reclamation</a> is idle. </p>
+<p>Idle QSBR has no pending deallocation requests, and no more than one QSBR-registered thread. </p>
+
+</div>
+</div>
 <a id="aff59723575f4893311a70fb45b41de4f" name="aff59723575f4893311a70fb45b41de4f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aff59723575f4893311a70fb45b41de4f">&#9670;&#160;</a></span>must_not_allocate()</h2>
 

@@ -413,7 +413,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: make -j3 -k
+        run: PYTHONWARNINGS=ignore make -j3 -k
         if: env.STATIC_ANALYSIS != 'ON' || env.COMPILER != 'clang'
 
       - name: clang static analysis

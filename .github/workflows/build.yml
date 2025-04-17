@@ -403,6 +403,7 @@ jobs:
             export CC=clang
             export CXX=clang++
           fi
+          set +e
           cmake -B build "$GITHUB_WORKSPACE" "$CBT" -DSTANDALONE=ON \
               -DMAINTAINER_MODE=ON -DIWYU=ON \
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
@@ -410,6 +411,16 @@ jobs:
               "-DSANITIZE_UB=${SANITIZE_UB}" \
               "-DSTATIC_ANALYSIS=${STATIC_ANALYSIS}" "-DCOVERAGE=${COVERAGE}" \
               "-DAVX2=${AVX2}" "${EXTRA_CMAKE_ARGS[@]}"
+          CMAKE_EXIT_CODE=$?
+          set -e
+          if [ $CMAKE_EXIT_CODE -ne 0 ]; then
+            if [ -f build/CMakeFiles/CMakeConfigureLog.yaml ]; then
+              echo "::group::CMakeConfigureLog.yaml"
+              cat build/CMakeFiles/CMakeConfigureLog.yaml
+              echo "::endgroup::"
+            fi
+            exit $CMAKE_EXIT_CODE
+          fi
 
       - name: Build
         working-directory: ${{github.workspace}}/build

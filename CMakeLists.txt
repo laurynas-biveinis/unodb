@@ -28,6 +28,9 @@ set_bool(is_x86_64 "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "AMD64"
   OR "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
 set_bool(is_apple_clang "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 set_bool(is_clang "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+set_bool(is_clang11 ${is_clang}
+  AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 11.0
+  AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
 set_bool(is_gxx "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 set_bool(is_any_clang ${is_apple_clang} OR ${is_clang})
 
@@ -288,15 +291,29 @@ if(SANITIZE_UB)
     # conversions do not appear to be fully suppressable
     list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=local-bounds"
       "-fsanitize=nullability")
-    if(is_clang AND CMAKE_CXX_COMPILE_VERSION VERSION_GREATER_EQUAL 19.0)
+    if(is_clang AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.0)
       list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=implicit-bitfield-conversion")
     endif()
   endif()
+
   set(SANITIZER_LD_FLAGS "-fsanitize=undefined")
+
   string(CONCAT UBSAN_ENV "UBSAN_OPTIONS="
     "print_stacktrace=1:halt_on_error=1:abort_on_error=1")
+
+  # clang 11 as packaged in Ubuntu 22.04 needs a workaround for
+  # https://github.com/llvm/llvm-project/issues/55785
+  if(is_clang11)
+    string(APPEND UBSAN_ENV ":use_sigaltstack=false")
+  endif()
+
   list(APPEND SANITIZER_ENV ${UBSAN_ENV})
   unset(UBSAN_ENV)
+elseif(is_clang11)
+  # Even though the sanitizer is not enabled here, DeepState will enable it
+  # itself, and clang 11 as packaged in Ubuntu 22.04, needs a workaround for
+  # https://github.com/llvm/llvm-project/issues/55785
+  list(APPEND SANITIZER_ENV "UBSAN_OPTIONS=use_sigaltstack=false")
 endif()
 
 message(STATUS "SANITIZER_ENV: ${SANITIZER_ENV}")
@@ -554,6 +571,20 @@ if(BENCHMARKS)
       endif()
     endif()
 
+    if(is_clang11)
+      # clang 11 as packaged in Ubuntu 22.04 needs a configure-time workaround
+      # for https://github.com/llvm/llvm-project/issues/55785
+      if(SANITIZE_ADDRESS)
+        set(ENV{ASAN_OPTIONS} "use_sigaltstack=false")
+      endif()
+      if(SANITIZE_THREAD)
+        set(ENV{TSAN_OPTIONS} "use_sigaltstack=false")
+      endif()
+      if(SANITIZE_UB)
+        set(ENV{UBSAN_OPTIONS} "use_sigaltstack=false")
+      endif()
+    endif()
+
     ADD_CXX_FLAGS_FOR_SUBDIR()
     add_subdirectory(3rd_party/benchmark)
     RESTORE_CXX_FLAGS_FOR_SUBDIR()
@@ -798,7 +829,12 @@ if(TESTS)
   function(add_sanitized_test)
     cmake_parse_arguments(AST "" "NAME" "COMMAND" ${ARGN})
     add_test(NAME "${AST_NAME}" COMMAND ${AST_COMMAND})
-    if(SANITIZE_ADDRESS OR SANITIZE_THREAD OR SANITIZE_UB)
+    # Set Sanitizer environment on a sanitizer-less build too, if using clang
+    # 11 and DeepState is built, because it enables sanitizers itself. clang 11
+    # handling is to workaround
+    # https://github.com/llvm/llvm-project/issues/55785 on Ubuntu 22.04.
+    if(SANITIZE_ADDRESS OR SANITIZE_THREAD OR SANITIZE_UB
+        OR (TARGET deepstate AND is_clang11))
       set_property(TEST "${AST_NAME}" APPEND PROPERTY ENVIRONMENT
         "${SANITIZER_ENV}")
     endif()

@@ -2,6 +2,11 @@
 #ifndef UNODB_DETAIL_DEEPSTATE_UTILS_HPP
 #define UNODB_DETAIL_DEEPSTATE_UTILS_HPP
 
+/// \file
+/// DeepState fuzzing utilities.
+///
+/// \ingroup test-internals
+
 // Should be the first include
 #include "global.hpp"
 
@@ -10,30 +15,51 @@
 
 #include <deepstate/DeepState.hpp>
 
+/// \addtogroup test-internals
+/// \{
+
+/// \name DeepState wrapper macros
+/// \{
+
+/// Prepare for DeepState `TEST` macro in the current source file.
+///
 // warning: function 'DeepState_Run_ART_DeepState_fuzz' could be declared with
 // attribute 'noreturn' [-Wmissing-noreturn]
 #define UNODB_START_DEEPSTATE_TESTS() \
   UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wmissing-noreturn")
 
+/// \}
+
+/// \}
+
+/// Generate a random `size_t` value between \a min and \a max, inclusive.
+///
+/// Wrapper for `DeepState_UInt64InRange` that works with `size_t`.
 [[nodiscard]] inline std::size_t DeepState_SizeTInRange(std::size_t min,
                                                         std::size_t max) {
   return DeepState_UInt64InRange(min, max);
 }
 
+/// Generate a random valid index for the given \a container.
+///
+/// \tparam T Container type that supports `std::empty()` and `std::size()`
+/// \pre Container must not be empty
 template <class T>
 [[nodiscard]] auto DeepState_ContainerIndex(const T &container) {
-  ASSERT(!container.empty());
+  ASSERT(!std::empty(container));
   return DeepState_SizeTInRange(0, std::size(container) - 1);
 }
 
-/// DeepState command line-specified timeout in seconds. We need it, but it is
-/// not exposed through the public DeepState API, hence take the risk and
-/// declare it ourselves.
+/// DeepState command line-specified timeout in seconds.
+///
+/// We need it, but it is not exposed through the public DeepState API, hence
+/// take the risk and declare it ourselves.
 extern "C" int FLAGS_timeout;
 
 namespace unodb::test {
 
 /// Check whether the DeepState test timeout has been reached.
+///
 /// \param[in] start_tm Test start timestamp in seconds since epoch
 /// \return true if current time exceeds \a start_tm by more than the timeout
 /// value.

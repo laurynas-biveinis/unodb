@@ -99,59 +99,73 @@ $(document).ready(function(){initNavTree('deepstate__utils_8hpp_source.html','')
   <div class="headertitle"><div class="title">deepstate_utils.hpp</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">// Copyright 2021-2025 Laurynas Biveinis</span></div>
+<a href="deepstate__utils_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">// Copyright 2021-2025 Laurynas Biveinis</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#ifndef UNODB_DETAIL_DEEPSTATE_UTILS_HPP</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#define UNODB_DETAIL_DEEPSTATE_UTILS_HPP</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span> </div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">// Should be the first include</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;<a class="code" href="global_8hpp.html">global.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;cstddef&gt;</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;ctime&gt;</span></div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;deepstate/DeepState.hpp&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">// Should be the first include</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="global_8hpp.html">global.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">// warning: function &#39;DeepState_Run_ART_DeepState_fuzz&#39; could be declared with</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">// attribute &#39;noreturn&#39; [-Wmissing-noreturn]</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#define UNODB_START_DEEPSTATE_TESTS() \</span></div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">  UNODB_DETAIL_DISABLE_CLANG_WARNING(&quot;-Wmissing-noreturn&quot;)</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &lt;cstddef&gt;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &lt;ctime&gt;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &lt;deepstate/DeepState.hpp&gt;</span></div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>[[nodiscard]] <span class="keyword">inline</span> std::size_t DeepState_SizeTInRange(std::size_t min,</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>                                                        std::size_t max) {</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  <span class="keywordflow">return</span> DeepState_UInt64InRange(min, max);</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>}</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>[[nodiscard]] <span class="keyword">auto</span> DeepState_ContainerIndex(<span class="keyword">const</span> T &amp;container) {</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>  ASSERT(!container.empty());</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  <span class="keywordflow">return</span> DeepState_SizeTInRange(0, std::size(container) - 1);</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>}</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">int</span> FLAGS_timeout;</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
-<div class="foldopen" id="foldopen00034" data-start="{" data-end="}">
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="namespaceunodb_1_1test.html">   34</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb_1_1test.html">unodb::test</a> {</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="foldopen" id="foldopen00044" data-start="{" data-end="}">
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="namespaceunodb_1_1test.html#a279cb07fa68a07875e48f3cfc208fb21">   44</a></span>[[nodiscard]] <span class="keywordtype">bool</span> <span class="keyword">inline</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#a279cb07fa68a07875e48f3cfc208fb21">timeout_reached</a>(std::time_t start_tm) {</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <span class="keyword">const</span> <span class="keyword">auto</span> current_tm = std::time(<span class="keyword">nullptr</span>);</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  <span class="keywordflow">return</span> current_tm - start_tm &gt; FLAGS_timeout;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>}</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">// warning: function &#39;DeepState_Run_ART_DeepState_fuzz&#39; could be declared with</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="comment">// attribute &#39;noreturn&#39; [-Wmissing-noreturn]</span></div>
+<div class="foldopen" id="foldopen00028" data-start="" data-end="">
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="group__test-internals.html#ga4592a032eaa5aa150b8f0d7739a6c903">   28</a></span><span class="preprocessor">#define UNODB_START_DEEPSTATE_TESTS() \</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">  UNODB_DETAIL_DISABLE_CLANG_WARNING(&quot;-Wmissing-noreturn&quot;)</span></div>
 </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>}  <span class="comment">// namespace unodb::test</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
+<div class="foldopen" id="foldopen00038" data-start="{" data-end="}">
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno"><a class="line" href="deepstate__utils_8hpp.html#a4d1f0f746610f901a5a828b8e5a083a8">   38</a></span>[[nodiscard]] <span class="keyword">inline</span> std::size_t <a class="code hl_function" href="deepstate__utils_8hpp.html#a4d1f0f746610f901a5a828b8e5a083a8">DeepState_SizeTInRange</a>(std::size_t min,</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>                                                        std::size_t max) {</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordflow">return</span> DeepState_UInt64InRange(min, max);</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>}</div>
 </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_DEEPSTATE_UTILS_HPP</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
+<div class="foldopen" id="foldopen00048" data-start="{" data-end="}">
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="deepstate__utils_8hpp.html#a8d34a3997176b2ee1033c1d27bb3bc22">   48</a></span>[[nodiscard]] <span class="keyword">auto</span> <a class="code hl_function" href="deepstate__utils_8hpp.html#a8d34a3997176b2ee1033c1d27bb3bc22">DeepState_ContainerIndex</a>(<span class="keyword">const</span> T &amp;container) {</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  ASSERT(!std::empty(container));</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <span class="keywordflow">return</span> <a class="code hl_function" href="deepstate__utils_8hpp.html#a4d1f0f746610f901a5a828b8e5a083a8">DeepState_SizeTInRange</a>(0, std::size(container) - 1);</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>}</div>
+</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="deepstate__utils_8hpp.html#adac6355a8772d2ec7dceaf87a160477b">   57</a></span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">int</span> <a class="code hl_variable" href="deepstate__utils_8hpp.html#adac6355a8772d2ec7dceaf87a160477b">FLAGS_timeout</a>;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
+<div class="foldopen" id="foldopen00059" data-start="{" data-end="}">
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="namespaceunodb_1_1test.html">   59</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceunodb_1_1test.html">unodb::test</a> {</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="foldopen" id="foldopen00070" data-start="{" data-end="}">
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="namespaceunodb_1_1test.html#a279cb07fa68a07875e48f3cfc208fb21">   70</a></span>[[nodiscard]] <span class="keywordtype">bool</span> <span class="keyword">inline</span> <a class="code hl_function" href="namespaceunodb_1_1test.html#a279cb07fa68a07875e48f3cfc208fb21">timeout_reached</a>(std::time_t start_tm) {</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="keyword">const</span> <span class="keyword">auto</span> current_tm = std::time(<span class="keyword">nullptr</span>);</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  <span class="keywordflow">return</span> current_tm - start_tm &gt; <a class="code hl_variable" href="deepstate__utils_8hpp.html#adac6355a8772d2ec7dceaf87a160477b">FLAGS_timeout</a>;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>}</div>
+</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>}  <span class="comment">// namespace unodb::test</span></div>
+</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_DEEPSTATE_UTILS_HPP</span></div>
+<div class="ttc" id="adeepstate__utils_8hpp_html_a4d1f0f746610f901a5a828b8e5a083a8"><div class="ttname"><a href="deepstate__utils_8hpp.html#a4d1f0f746610f901a5a828b8e5a083a8">DeepState_SizeTInRange</a></div><div class="ttdeci">std::size_t DeepState_SizeTInRange(std::size_t min, std::size_t max)</div><div class="ttdoc">Generate a random size_t value between min and max, inclusive.</div><div class="ttdef"><b>Definition</b> deepstate_utils.hpp:38</div></div>
+<div class="ttc" id="adeepstate__utils_8hpp_html_a8d34a3997176b2ee1033c1d27bb3bc22"><div class="ttname"><a href="deepstate__utils_8hpp.html#a8d34a3997176b2ee1033c1d27bb3bc22">DeepState_ContainerIndex</a></div><div class="ttdeci">auto DeepState_ContainerIndex(const T &amp;container)</div><div class="ttdoc">Generate a random valid index for the given container.</div><div class="ttdef"><b>Definition</b> deepstate_utils.hpp:48</div></div>
+<div class="ttc" id="adeepstate__utils_8hpp_html_adac6355a8772d2ec7dceaf87a160477b"><div class="ttname"><a href="deepstate__utils_8hpp.html#adac6355a8772d2ec7dceaf87a160477b">FLAGS_timeout</a></div><div class="ttdeci">int FLAGS_timeout</div><div class="ttdoc">DeepState command line-specified timeout in seconds.</div><div class="ttdef"><b>Definition</b> deepstate_utils.hpp:57</div></div>
 <div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
-<div class="ttc" id="anamespaceunodb_1_1test_html"><div class="ttname"><a href="namespaceunodb_1_1test.html">unodb::test</a></div><div class="ttdoc">Namespace for the UnoDB internal test support code.</div><div class="ttdef"><b>Definition</b> deepstate_utils.hpp:34</div></div>
-<div class="ttc" id="anamespaceunodb_1_1test_html_a279cb07fa68a07875e48f3cfc208fb21"><div class="ttname"><a href="namespaceunodb_1_1test.html#a279cb07fa68a07875e48f3cfc208fb21">unodb::test::timeout_reached</a></div><div class="ttdeci">bool timeout_reached(std::time_t start_tm)</div><div class="ttdoc">Check whether the DeepState test timeout has been reached.</div><div class="ttdef"><b>Definition</b> deepstate_utils.hpp:44</div></div>
+<div class="ttc" id="anamespaceunodb_1_1test_html"><div class="ttname"><a href="namespaceunodb_1_1test.html">unodb::test</a></div><div class="ttdoc">Namespace for the UnoDB internal test support code.</div><div class="ttdef"><b>Definition</b> deepstate_utils.hpp:59</div></div>
+<div class="ttc" id="anamespaceunodb_1_1test_html_a279cb07fa68a07875e48f3cfc208fb21"><div class="ttname"><a href="namespaceunodb_1_1test.html#a279cb07fa68a07875e48f3cfc208fb21">unodb::test::timeout_reached</a></div><div class="ttdeci">bool timeout_reached(std::time_t start_tm)</div><div class="ttdoc">Check whether the DeepState test timeout has been reached.</div><div class="ttdef"><b>Definition</b> deepstate_utils.hpp:70</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_87b3d7bb9796b53f7b078e58fbf24128.html">fuzz_deepstate</a></li><li class="navelem"><b>deepstate_utils.hpp</b></li>
+    <li class="navelem"><a class="el" href="dir_87b3d7bb9796b53f7b078e58fbf24128.html">fuzz_deepstate</a></li><li class="navelem"><a class="el" href="deepstate__utils_8hpp.html">deepstate_utils.hpp</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

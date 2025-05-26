@@ -7,5 +7,6 @@ InlayHints:
   Enabled: Yes
   ParameterNames: Yes
   DeducedTypes: Yes
+  DefaultArguments: Yes
 Hover:
   ShowAKA: Yes

@@ -18,12 +18,7 @@ jobs:
       (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
-      issues: read
-      id-token: write
-      actions: read # Required for Claude to read CI results on PRs
+    permissions: {}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

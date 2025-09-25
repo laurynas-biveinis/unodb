@@ -29,10 +29,10 @@ jobs:
           cmake . -DCMAKE_BUILD_TYPE=Release -DSTANDALONE=ON
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            --define sonar.cfamily.compile-commands=compile_commands.json
+            "--define sonar.cfamily.compile-commands=compile_commands.json"

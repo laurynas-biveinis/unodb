@@ -37,6 +37,8 @@ There also other development-specific options. All of them are `OFF` by default.
 * `-DSANITIZE_THREAD=ON` to enable ThreadSanitizer (tsan). It is incompatible
   with the `-DSANITIZE_ADDRESS=ON` option, not available under MSVC, and will
   disable libfuzzer support if it would be enabled otherwise.
+* `-DSANITIZE_TYPE=ON` to enable TypeSanitizer. Only available with clang
+  version 20 or later.
 * `-DSANITIZE_UB=ON` to enable UndefinedBehaviorSanitizer (ubsan). It is
   compatible with other sanitizer options, although some [false
   positive][sanitizer-combination-bug] might occur. Not available under MSVC.

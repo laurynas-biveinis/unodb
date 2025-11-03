@@ -2363,6 +2363,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   [[nodiscard, gnu::pure]] constexpr typename basic_inode_48::iter_result
   begin() noexcept {
     for (std::uint64_t i = 0; i < 256; i++) {
+      // cppcheck-suppress useStlAlgorithm
       if (child_indexes[i] != empty_child) {
         const auto key = static_cast<std::byte>(i);
         const auto child_index = static_cast<std::uint8_t>(i);
@@ -2398,6 +2399,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   next(std::uint8_t child_index) noexcept {
     // loop over the remaining byte values in lexical order.
     for (auto i = static_cast<std::uint64_t>(child_index) + 1; i < 256; i++) {
+      // cppcheck-suppress useStlAlgorithm
       if (child_indexes[i] != empty_child) {
         const auto key = static_cast<std::byte>(i);
         const auto next_index = static_cast<std::uint8_t>(i);
@@ -2717,6 +2719,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   [[nodiscard, gnu::pure]] constexpr typename basic_inode_256::iter_result
   begin() noexcept {
     for (std::uint64_t i = 0; i < basic_inode_256::capacity; i++) {
+      // cppcheck-suppress useStlAlgorithm
       if (children[i] != nullptr) {
         const auto key = static_cast<std::byte>(i);  // child_index is key byte
         const auto child_index = static_cast<std::uint8_t>(i);
@@ -2749,6 +2752,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     // loop over the remaining byte values in lexical order.
     for (auto i = static_cast<std::uint64_t>(child_index) + 1;
          i < basic_inode_256::capacity; i++) {
+      // cppcheck-suppress useStlAlgorithm
       if (children[i] != nullptr) {
         const auto key = static_cast<std::byte>(i);
         const auto next_index = static_cast<std::uint8_t>(i);

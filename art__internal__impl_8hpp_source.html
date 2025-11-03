@@ -2420,171 +2420,171 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l02363" name="l02363"></a><span class="lineno"> 2363</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1iter__result.html">basic_inode_48::iter_result</a></div>
 <div class="line"><a id="l02364" name="l02364"></a><span class="lineno"> 2364</span>  begin() <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l02365" name="l02365"></a><span class="lineno"> 2365</span>    <span class="keywordflow">for</span> (std::uint64_t i = 0; i &lt; 256; i++) {</div>
-<div class="line"><a id="l02366" name="l02366"></a><span class="lineno"> 2366</span>      <span class="keywordflow">if</span> (child_indexes[i] != empty_child) {</div>
-<div class="line"><a id="l02367" name="l02367"></a><span class="lineno"> 2367</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02368" name="l02368"></a><span class="lineno"> 2368</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02369" name="l02369"></a><span class="lineno"> 2369</span>        <span class="keywordflow">return</span> {node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, child_index,</div>
-<div class="line"><a id="l02370" name="l02370"></a><span class="lineno"> 2370</span>                this-&gt;get_key_prefix().get_snapshot()};</div>
-<div class="line"><a id="l02371" name="l02371"></a><span class="lineno"> 2371</span>      }</div>
-<div class="line"><a id="l02372" name="l02372"></a><span class="lineno"> 2372</span>    }</div>
-<div class="line"><a id="l02373" name="l02373"></a><span class="lineno"> 2373</span>    <span class="comment">// because we always have at least 17 keys.</span></div>
-<div class="line"><a id="l02374" name="l02374"></a><span class="lineno"> 2374</span>    <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();  <span class="comment">// LCOV_EXCL_LINE</span></div>
-<div class="line"><a id="l02375" name="l02375"></a><span class="lineno"> 2375</span>  }</div>
-<div class="line"><a id="l02376" name="l02376"></a><span class="lineno"> 2376</span> </div>
-<div class="line"><a id="l02377" name="l02377"></a><span class="lineno"> 2377</span>  <span class="comment">// N48: Return the child pointer for the last key in the</span></div>
-<div class="line"><a id="l02378" name="l02378"></a><span class="lineno"> 2378</span>  <span class="comment">// lexicographic ordering that is mapped to some child.  We scan</span></div>
-<div class="line"><a id="l02379" name="l02379"></a><span class="lineno"> 2379</span>  <span class="comment">// child_indexes[256] in reverse, which contains an index into each</span></div>
-<div class="line"><a id="l02380" name="l02380"></a><span class="lineno"> 2380</span>  <span class="comment">// of the 48 possible children iff a given key is mapped to a child,</span></div>
-<div class="line"><a id="l02381" name="l02381"></a><span class="lineno"> 2381</span>  <span class="comment">// looking for the last mapped entry. That will be the greatest key</span></div>
-<div class="line"><a id="l02382" name="l02382"></a><span class="lineno"> 2382</span>  <span class="comment">// mapped by the N48 node.</span></div>
-<div class="line"><a id="l02383" name="l02383"></a><span class="lineno"> 2383</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1iter__result.html">basic_inode_48::iter_result</a></div>
-<div class="line"><a id="l02384" name="l02384"></a><span class="lineno"> 2384</span>  last() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02385" name="l02385"></a><span class="lineno"> 2385</span>    <span class="keywordflow">for</span> (std::int64_t i = 255; i &gt;= 0; i--) {</div>
-<div class="line"><a id="l02386" name="l02386"></a><span class="lineno"> 2386</span>      <span class="keywordflow">if</span> (child_indexes[<span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i)] != empty_child) {</div>
-<div class="line"><a id="l02387" name="l02387"></a><span class="lineno"> 2387</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02388" name="l02388"></a><span class="lineno"> 2388</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02389" name="l02389"></a><span class="lineno"> 2389</span>        <span class="keywordflow">return</span> {node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, child_index,</div>
-<div class="line"><a id="l02390" name="l02390"></a><span class="lineno"> 2390</span>                this-&gt;get_key_prefix().get_snapshot()};</div>
-<div class="line"><a id="l02391" name="l02391"></a><span class="lineno"> 2391</span>      }</div>
-<div class="line"><a id="l02392" name="l02392"></a><span class="lineno"> 2392</span>    }</div>
-<div class="line"><a id="l02393" name="l02393"></a><span class="lineno"> 2393</span>    <span class="comment">// because we always have at least 17 keys.</span></div>
-<div class="line"><a id="l02394" name="l02394"></a><span class="lineno"> 2394</span>    <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();  <span class="comment">// LCOV_EXCL_LINE</span></div>
-<div class="line"><a id="l02395" name="l02395"></a><span class="lineno"> 2395</span>  }</div>
-<div class="line"><a id="l02396" name="l02396"></a><span class="lineno"> 2396</span> </div>
-<div class="line"><a id="l02397" name="l02397"></a><span class="lineno"> 2397</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_48::iter_result_opt</div>
-<div class="line"><a id="l02398" name="l02398"></a><span class="lineno"> 2398</span>  next(std::uint8_t child_index) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02399" name="l02399"></a><span class="lineno"> 2399</span>    <span class="comment">// loop over the remaining byte values in lexical order.</span></div>
-<div class="line"><a id="l02400" name="l02400"></a><span class="lineno"> 2400</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(child_index) + 1; i &lt; 256; i++) {</div>
-<div class="line"><a id="l02401" name="l02401"></a><span class="lineno"> 2401</span>      <span class="keywordflow">if</span> (child_indexes[i] != empty_child) {</div>
-<div class="line"><a id="l02402" name="l02402"></a><span class="lineno"> 2402</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02403" name="l02403"></a><span class="lineno"> 2403</span>        <span class="keyword">const</span> <span class="keyword">auto</span> next_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02404" name="l02404"></a><span class="lineno"> 2404</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, next_index,</div>
-<div class="line"><a id="l02405" name="l02405"></a><span class="lineno"> 2405</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
-<div class="line"><a id="l02406" name="l02406"></a><span class="lineno"> 2406</span>      }</div>
-<div class="line"><a id="l02407" name="l02407"></a><span class="lineno"> 2407</span>    }</div>
-<div class="line"><a id="l02408" name="l02408"></a><span class="lineno"> 2408</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
-<div class="line"><a id="l02409" name="l02409"></a><span class="lineno"> 2409</span>  }</div>
-<div class="line"><a id="l02410" name="l02410"></a><span class="lineno"> 2410</span> </div>
-<div class="line"><a id="l02411" name="l02411"></a><span class="lineno"> 2411</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_48::iter_result_opt</div>
-<div class="line"><a id="l02412" name="l02412"></a><span class="lineno"> 2412</span>  prior(std::uint8_t child_index) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02413" name="l02413"></a><span class="lineno"> 2413</span>    <span class="comment">// loop over the prior byte values in lexical order.</span></div>
-<div class="line"><a id="l02414" name="l02414"></a><span class="lineno"> 2414</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::int64_t<span class="keyword">&gt;</span>(child_index) - 1; i &gt;= 0; i--) {</div>
-<div class="line"><a id="l02415" name="l02415"></a><span class="lineno"> 2415</span>      <span class="keywordflow">if</span> (child_indexes[<span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i)] != empty_child) {</div>
-<div class="line"><a id="l02416" name="l02416"></a><span class="lineno"> 2416</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02417" name="l02417"></a><span class="lineno"> 2417</span>        <span class="keyword">const</span> <span class="keyword">auto</span> next_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02418" name="l02418"></a><span class="lineno"> 2418</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, next_index,</div>
-<div class="line"><a id="l02419" name="l02419"></a><span class="lineno"> 2419</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
-<div class="line"><a id="l02420" name="l02420"></a><span class="lineno"> 2420</span>      }</div>
-<div class="line"><a id="l02421" name="l02421"></a><span class="lineno"> 2421</span>    }</div>
-<div class="line"><a id="l02422" name="l02422"></a><span class="lineno"> 2422</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
-<div class="line"><a id="l02423" name="l02423"></a><span class="lineno"> 2423</span>  }</div>
-<div class="line"><a id="l02424" name="l02424"></a><span class="lineno"> 2424</span> </div>
-<div class="line"><a id="l02425" name="l02425"></a><span class="lineno"> 2425</span>  <span class="comment">// N48: This is nearly identical to prior() except that we start the</span></div>
-<div class="line"><a id="l02426" name="l02426"></a><span class="lineno"> 2426</span>  <span class="comment">// search on the [key_byte] rather than the position before that.</span></div>
-<div class="line"><a id="l02427" name="l02427"></a><span class="lineno"> 2427</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_48::iter_result_opt</div>
-<div class="line"><a id="l02428" name="l02428"></a><span class="lineno"> 2428</span>  lte_key_byte(std::byte key_byte) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02429" name="l02429"></a><span class="lineno"> 2429</span>    <span class="comment">// loop over the prior byte values in lexical order.</span></div>
-<div class="line"><a id="l02430" name="l02430"></a><span class="lineno"> 2430</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::int64_t<span class="keyword">&gt;</span>(key_byte); i &gt;= 0; i--) {</div>
-<div class="line"><a id="l02431" name="l02431"></a><span class="lineno"> 2431</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02432" name="l02432"></a><span class="lineno"> 2432</span>      <span class="keywordflow">if</span> (child_indexes[child_index] != empty_child) {</div>
-<div class="line"><a id="l02433" name="l02433"></a><span class="lineno"> 2433</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02434" name="l02434"></a><span class="lineno"> 2434</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, child_index,</div>
-<div class="line"><a id="l02435" name="l02435"></a><span class="lineno"> 2435</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
-<div class="line"><a id="l02436" name="l02436"></a><span class="lineno"> 2436</span>      }</div>
-<div class="line"><a id="l02437" name="l02437"></a><span class="lineno"> 2437</span>    }</div>
-<div class="line"><a id="l02438" name="l02438"></a><span class="lineno"> 2438</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
-<div class="line"><a id="l02439" name="l02439"></a><span class="lineno"> 2439</span>  }</div>
-<div class="line"><a id="l02440" name="l02440"></a><span class="lineno"> 2440</span> </div>
-<div class="line"><a id="l02441" name="l02441"></a><span class="lineno"> 2441</span>  <span class="comment">// N48: This is nearly identical to next() except that we start the</span></div>
-<div class="line"><a id="l02442" name="l02442"></a><span class="lineno"> 2442</span>  <span class="comment">// search on the [key_byte] rather than the position after that.</span></div>
-<div class="line"><a id="l02443" name="l02443"></a><span class="lineno"> 2443</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_48::iter_result_opt</div>
-<div class="line"><a id="l02444" name="l02444"></a><span class="lineno"> 2444</span>  gte_key_byte(std::byte key_byte) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02445" name="l02445"></a><span class="lineno"> 2445</span>    <span class="comment">// loop over the remaining byte values in lexical order.</span></div>
-<div class="line"><a id="l02446" name="l02446"></a><span class="lineno"> 2446</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(key_byte); i &lt; 256; i++) {</div>
-<div class="line"><a id="l02447" name="l02447"></a><span class="lineno"> 2447</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02448" name="l02448"></a><span class="lineno"> 2448</span>      <span class="keywordflow">if</span> (child_indexes[child_index] != empty_child) {</div>
-<div class="line"><a id="l02449" name="l02449"></a><span class="lineno"> 2449</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02450" name="l02450"></a><span class="lineno"> 2450</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, child_index,</div>
-<div class="line"><a id="l02451" name="l02451"></a><span class="lineno"> 2451</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
-<div class="line"><a id="l02452" name="l02452"></a><span class="lineno"> 2452</span>      }</div>
-<div class="line"><a id="l02453" name="l02453"></a><span class="lineno"> 2453</span>    }</div>
-<div class="line"><a id="l02454" name="l02454"></a><span class="lineno"> 2454</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
-<div class="line"><a id="l02455" name="l02455"></a><span class="lineno"> 2455</span>  }</div>
-<div class="line"><a id="l02456" name="l02456"></a><span class="lineno"> 2456</span> </div>
-<div class="line"><a id="l02457" name="l02457"></a><span class="lineno"> 2457</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> delete_subtree(db_type &amp;db_instance) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02458" name="l02458"></a><span class="lineno"> 2458</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l02459" name="l02459"></a><span class="lineno"> 2459</span>    <span class="keyword">const</span> <span class="keyword">auto</span> children_count_ = this-&gt;children_count.load();</div>
-<div class="line"><a id="l02460" name="l02460"></a><span class="lineno"> 2460</span>    <span class="keywordtype">unsigned</span> actual_children_count = 0;</div>
-<div class="line"><a id="l02461" name="l02461"></a><span class="lineno"> 2461</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l02462" name="l02462"></a><span class="lineno"> 2462</span> </div>
-<div class="line"><a id="l02463" name="l02463"></a><span class="lineno"> 2463</span>    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 0; i &lt; this-&gt;capacity; ++i) {</div>
-<div class="line"><a id="l02464" name="l02464"></a><span class="lineno"> 2464</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child = children.pointer_array[i].load();</div>
-<div class="line"><a id="l02465" name="l02465"></a><span class="lineno"> 2465</span>      <span class="keywordflow">if</span> (child != <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a id="l02466" name="l02466"></a><span class="lineno"> 2466</span>        ArtPolicy::delete_subtree(child, db_instance);</div>
-<div class="line"><a id="l02467" name="l02467"></a><span class="lineno"> 2467</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l02468" name="l02468"></a><span class="lineno"> 2468</span>        ++actual_children_count;</div>
-<div class="line"><a id="l02469" name="l02469"></a><span class="lineno"> 2469</span>        <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count &lt;= children_count_);</div>
-<div class="line"><a id="l02470" name="l02470"></a><span class="lineno"> 2470</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l02471" name="l02471"></a><span class="lineno"> 2471</span>      }</div>
-<div class="line"><a id="l02472" name="l02472"></a><span class="lineno"> 2472</span>    }</div>
-<div class="line"><a id="l02473" name="l02473"></a><span class="lineno"> 2473</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count == children_count_);</div>
-<div class="line"><a id="l02474" name="l02474"></a><span class="lineno"> 2474</span>  }</div>
-<div class="line"><a id="l02475" name="l02475"></a><span class="lineno"> 2475</span> </div>
-<div class="line"><a id="l02476" name="l02476"></a><span class="lineno"> 2476</span>  [[gnu::cold]] <a class="code hl_define" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream &amp;os,</div>
-<div class="line"><a id="l02477" name="l02477"></a><span class="lineno"> 2477</span>                                                <span class="keywordtype">bool</span> recursive)<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l02478" name="l02478"></a><span class="lineno"> 2478</span>    parent_class::dump(os, recursive);</div>
-<div class="line"><a id="l02479" name="l02479"></a><span class="lineno"> 2479</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l02480" name="l02480"></a><span class="lineno"> 2480</span>    <span class="keyword">const</span> <span class="keyword">auto</span> children_count_ = this-&gt;children_count.load();</div>
-<div class="line"><a id="l02481" name="l02481"></a><span class="lineno"> 2481</span>    <span class="keywordtype">unsigned</span> actual_children_count = 0;</div>
-<div class="line"><a id="l02482" name="l02482"></a><span class="lineno"> 2482</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l02483" name="l02483"></a><span class="lineno"> 2483</span> </div>
-<div class="line"><a id="l02484" name="l02484"></a><span class="lineno"> 2484</span>    os &lt;&lt; <span class="stringliteral">&quot;, key bytes &amp; child indexes\n&quot;</span>;</div>
-<div class="line"><a id="l02485" name="l02485"></a><span class="lineno"> 2485</span>    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 0; i &lt; 256; i++)</div>
-<div class="line"><a id="l02486" name="l02486"></a><span class="lineno"> 2486</span>      <span class="keywordflow">if</span> (child_indexes[i] != empty_child) {</div>
-<div class="line"><a id="l02487" name="l02487"></a><span class="lineno"> 2487</span>        os &lt;&lt; <span class="stringliteral">&quot; &quot;</span>;</div>
-<div class="line"><a id="l02488" name="l02488"></a><span class="lineno"> 2488</span>        <a class="code hl_function" href="namespaceunodb_1_1detail.html#a0ea0a7a9ae7c67e2636bae1ca01e11fe">dump_byte</a>(os, <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i));</div>
-<div class="line"><a id="l02489" name="l02489"></a><span class="lineno"> 2489</span>        os &lt;&lt; <span class="stringliteral">&quot;, child index = &quot;</span> &lt;&lt; <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(child_indexes[i])</div>
-<div class="line"><a id="l02490" name="l02490"></a><span class="lineno"> 2490</span>           &lt;&lt; <span class="stringliteral">&quot;: &quot;</span>;</div>
-<div class="line"><a id="l02491" name="l02491"></a><span class="lineno"> 2491</span>        <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(children.pointer_array[child_indexes[i]] !=</div>
-<div class="line"><a id="l02492" name="l02492"></a><span class="lineno"> 2492</span>                            <span class="keyword">nullptr</span>);</div>
-<div class="line"><a id="l02493" name="l02493"></a><span class="lineno"> 2493</span>        <span class="keywordflow">if</span> (recursive) {</div>
-<div class="line"><a id="l02494" name="l02494"></a><span class="lineno"> 2494</span>          ArtPolicy::dump_node(os,</div>
-<div class="line"><a id="l02495" name="l02495"></a><span class="lineno"> 2495</span>                               children.pointer_array[child_indexes[i]].load());</div>
-<div class="line"><a id="l02496" name="l02496"></a><span class="lineno"> 2496</span>        }</div>
-<div class="line"><a id="l02497" name="l02497"></a><span class="lineno"> 2497</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l02498" name="l02498"></a><span class="lineno"> 2498</span>        ++actual_children_count;</div>
-<div class="line"><a id="l02499" name="l02499"></a><span class="lineno"> 2499</span>        <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count &lt;= children_count_);</div>
-<div class="line"><a id="l02500" name="l02500"></a><span class="lineno"> 2500</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l02501" name="l02501"></a><span class="lineno"> 2501</span>      }</div>
-<div class="line"><a id="l02502" name="l02502"></a><span class="lineno"> 2502</span> </div>
-<div class="line"><a id="l02503" name="l02503"></a><span class="lineno"> 2503</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count == children_count_);</div>
-<div class="line"><a id="l02504" name="l02504"></a><span class="lineno"> 2504</span>  }</div>
-<div class="line"><a id="l02505" name="l02505"></a><span class="lineno"> 2505</span> </div>
-<div class="line"><a id="l02506" name="l02506"></a><span class="lineno"> 2506</span> <span class="keyword">private</span>:</div>
-<div class="line"><a id="l02507" name="l02507"></a><span class="lineno"> 2507</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> remove_child_pointer(std::uint8_t child_index,</div>
-<div class="line"><a id="l02508" name="l02508"></a><span class="lineno"> 2508</span>                                      db_type &amp;db_instance) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02509" name="l02509"></a><span class="lineno"> 2509</span>    direct_remove_child_pointer(child_indexes[child_index], db_instance);</div>
-<div class="line"><a id="l02510" name="l02510"></a><span class="lineno"> 2510</span>  }</div>
-<div class="line"><a id="l02511" name="l02511"></a><span class="lineno"> 2511</span> </div>
-<div class="line"><a id="l02512" name="l02512"></a><span class="lineno"> 2512</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> direct_remove_child_pointer(std::uint8_t children_i,</div>
-<div class="line"><a id="l02513" name="l02513"></a><span class="lineno"> 2513</span>                                             db_type &amp;db_instance) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02514" name="l02514"></a><span class="lineno"> 2514</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(children_i != empty_child);</div>
-<div class="line"><a id="l02515" name="l02515"></a><span class="lineno"> 2515</span> </div>
-<div class="line"><a id="l02516" name="l02516"></a><span class="lineno"> 2516</span>    <span class="keyword">const</span> <span class="keyword">auto</span> r{ArtPolicy::reclaim_leaf_on_scope_exit(</div>
-<div class="line"><a id="l02517" name="l02517"></a><span class="lineno"> 2517</span>        children.pointer_array[children_i].load().template ptr&lt;leaf_type *&gt;(),</div>
-<div class="line"><a id="l02518" name="l02518"></a><span class="lineno"> 2518</span>        db_instance)};</div>
-<div class="line"><a id="l02519" name="l02519"></a><span class="lineno"> 2519</span>  }</div>
-<div class="line"><a id="l02520" name="l02520"></a><span class="lineno"> 2520</span> </div>
-<div class="line"><a id="l02521" name="l02521"></a><span class="lineno"> 2521</span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> std::uint8_t empty_child = 0xFF;</div>
+<div class="line"><a id="l02366" name="l02366"></a><span class="lineno"> 2366</span>      <span class="comment">// cppcheck-suppress useStlAlgorithm</span></div>
+<div class="line"><a id="l02367" name="l02367"></a><span class="lineno"> 2367</span>      <span class="keywordflow">if</span> (child_indexes[i] != empty_child) {</div>
+<div class="line"><a id="l02368" name="l02368"></a><span class="lineno"> 2368</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02369" name="l02369"></a><span class="lineno"> 2369</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02370" name="l02370"></a><span class="lineno"> 2370</span>        <span class="keywordflow">return</span> {node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, child_index,</div>
+<div class="line"><a id="l02371" name="l02371"></a><span class="lineno"> 2371</span>                this-&gt;get_key_prefix().get_snapshot()};</div>
+<div class="line"><a id="l02372" name="l02372"></a><span class="lineno"> 2372</span>      }</div>
+<div class="line"><a id="l02373" name="l02373"></a><span class="lineno"> 2373</span>    }</div>
+<div class="line"><a id="l02374" name="l02374"></a><span class="lineno"> 2374</span>    <span class="comment">// because we always have at least 17 keys.</span></div>
+<div class="line"><a id="l02375" name="l02375"></a><span class="lineno"> 2375</span>    <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();  <span class="comment">// LCOV_EXCL_LINE</span></div>
+<div class="line"><a id="l02376" name="l02376"></a><span class="lineno"> 2376</span>  }</div>
+<div class="line"><a id="l02377" name="l02377"></a><span class="lineno"> 2377</span> </div>
+<div class="line"><a id="l02378" name="l02378"></a><span class="lineno"> 2378</span>  <span class="comment">// N48: Return the child pointer for the last key in the</span></div>
+<div class="line"><a id="l02379" name="l02379"></a><span class="lineno"> 2379</span>  <span class="comment">// lexicographic ordering that is mapped to some child.  We scan</span></div>
+<div class="line"><a id="l02380" name="l02380"></a><span class="lineno"> 2380</span>  <span class="comment">// child_indexes[256] in reverse, which contains an index into each</span></div>
+<div class="line"><a id="l02381" name="l02381"></a><span class="lineno"> 2381</span>  <span class="comment">// of the 48 possible children iff a given key is mapped to a child,</span></div>
+<div class="line"><a id="l02382" name="l02382"></a><span class="lineno"> 2382</span>  <span class="comment">// looking for the last mapped entry. That will be the greatest key</span></div>
+<div class="line"><a id="l02383" name="l02383"></a><span class="lineno"> 2383</span>  <span class="comment">// mapped by the N48 node.</span></div>
+<div class="line"><a id="l02384" name="l02384"></a><span class="lineno"> 2384</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1iter__result.html">basic_inode_48::iter_result</a></div>
+<div class="line"><a id="l02385" name="l02385"></a><span class="lineno"> 2385</span>  last() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02386" name="l02386"></a><span class="lineno"> 2386</span>    <span class="keywordflow">for</span> (std::int64_t i = 255; i &gt;= 0; i--) {</div>
+<div class="line"><a id="l02387" name="l02387"></a><span class="lineno"> 2387</span>      <span class="keywordflow">if</span> (child_indexes[<span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i)] != empty_child) {</div>
+<div class="line"><a id="l02388" name="l02388"></a><span class="lineno"> 2388</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02389" name="l02389"></a><span class="lineno"> 2389</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02390" name="l02390"></a><span class="lineno"> 2390</span>        <span class="keywordflow">return</span> {node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, child_index,</div>
+<div class="line"><a id="l02391" name="l02391"></a><span class="lineno"> 2391</span>                this-&gt;get_key_prefix().get_snapshot()};</div>
+<div class="line"><a id="l02392" name="l02392"></a><span class="lineno"> 2392</span>      }</div>
+<div class="line"><a id="l02393" name="l02393"></a><span class="lineno"> 2393</span>    }</div>
+<div class="line"><a id="l02394" name="l02394"></a><span class="lineno"> 2394</span>    <span class="comment">// because we always have at least 17 keys.</span></div>
+<div class="line"><a id="l02395" name="l02395"></a><span class="lineno"> 2395</span>    <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();  <span class="comment">// LCOV_EXCL_LINE</span></div>
+<div class="line"><a id="l02396" name="l02396"></a><span class="lineno"> 2396</span>  }</div>
+<div class="line"><a id="l02397" name="l02397"></a><span class="lineno"> 2397</span> </div>
+<div class="line"><a id="l02398" name="l02398"></a><span class="lineno"> 2398</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_48::iter_result_opt</div>
+<div class="line"><a id="l02399" name="l02399"></a><span class="lineno"> 2399</span>  next(std::uint8_t child_index) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02400" name="l02400"></a><span class="lineno"> 2400</span>    <span class="comment">// loop over the remaining byte values in lexical order.</span></div>
+<div class="line"><a id="l02401" name="l02401"></a><span class="lineno"> 2401</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(child_index) + 1; i &lt; 256; i++) {</div>
+<div class="line"><a id="l02402" name="l02402"></a><span class="lineno"> 2402</span>      <span class="comment">// cppcheck-suppress useStlAlgorithm</span></div>
+<div class="line"><a id="l02403" name="l02403"></a><span class="lineno"> 2403</span>      <span class="keywordflow">if</span> (child_indexes[i] != empty_child) {</div>
+<div class="line"><a id="l02404" name="l02404"></a><span class="lineno"> 2404</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02405" name="l02405"></a><span class="lineno"> 2405</span>        <span class="keyword">const</span> <span class="keyword">auto</span> next_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02406" name="l02406"></a><span class="lineno"> 2406</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, next_index,</div>
+<div class="line"><a id="l02407" name="l02407"></a><span class="lineno"> 2407</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
+<div class="line"><a id="l02408" name="l02408"></a><span class="lineno"> 2408</span>      }</div>
+<div class="line"><a id="l02409" name="l02409"></a><span class="lineno"> 2409</span>    }</div>
+<div class="line"><a id="l02410" name="l02410"></a><span class="lineno"> 2410</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
+<div class="line"><a id="l02411" name="l02411"></a><span class="lineno"> 2411</span>  }</div>
+<div class="line"><a id="l02412" name="l02412"></a><span class="lineno"> 2412</span> </div>
+<div class="line"><a id="l02413" name="l02413"></a><span class="lineno"> 2413</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_48::iter_result_opt</div>
+<div class="line"><a id="l02414" name="l02414"></a><span class="lineno"> 2414</span>  prior(std::uint8_t child_index) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02415" name="l02415"></a><span class="lineno"> 2415</span>    <span class="comment">// loop over the prior byte values in lexical order.</span></div>
+<div class="line"><a id="l02416" name="l02416"></a><span class="lineno"> 2416</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::int64_t<span class="keyword">&gt;</span>(child_index) - 1; i &gt;= 0; i--) {</div>
+<div class="line"><a id="l02417" name="l02417"></a><span class="lineno"> 2417</span>      <span class="keywordflow">if</span> (child_indexes[<span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i)] != empty_child) {</div>
+<div class="line"><a id="l02418" name="l02418"></a><span class="lineno"> 2418</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02419" name="l02419"></a><span class="lineno"> 2419</span>        <span class="keyword">const</span> <span class="keyword">auto</span> next_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02420" name="l02420"></a><span class="lineno"> 2420</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, next_index,</div>
+<div class="line"><a id="l02421" name="l02421"></a><span class="lineno"> 2421</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
+<div class="line"><a id="l02422" name="l02422"></a><span class="lineno"> 2422</span>      }</div>
+<div class="line"><a id="l02423" name="l02423"></a><span class="lineno"> 2423</span>    }</div>
+<div class="line"><a id="l02424" name="l02424"></a><span class="lineno"> 2424</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
+<div class="line"><a id="l02425" name="l02425"></a><span class="lineno"> 2425</span>  }</div>
+<div class="line"><a id="l02426" name="l02426"></a><span class="lineno"> 2426</span> </div>
+<div class="line"><a id="l02427" name="l02427"></a><span class="lineno"> 2427</span>  <span class="comment">// N48: This is nearly identical to prior() except that we start the</span></div>
+<div class="line"><a id="l02428" name="l02428"></a><span class="lineno"> 2428</span>  <span class="comment">// search on the [key_byte] rather than the position before that.</span></div>
+<div class="line"><a id="l02429" name="l02429"></a><span class="lineno"> 2429</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_48::iter_result_opt</div>
+<div class="line"><a id="l02430" name="l02430"></a><span class="lineno"> 2430</span>  lte_key_byte(std::byte key_byte) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02431" name="l02431"></a><span class="lineno"> 2431</span>    <span class="comment">// loop over the prior byte values in lexical order.</span></div>
+<div class="line"><a id="l02432" name="l02432"></a><span class="lineno"> 2432</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::int64_t<span class="keyword">&gt;</span>(key_byte); i &gt;= 0; i--) {</div>
+<div class="line"><a id="l02433" name="l02433"></a><span class="lineno"> 2433</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02434" name="l02434"></a><span class="lineno"> 2434</span>      <span class="keywordflow">if</span> (child_indexes[child_index] != empty_child) {</div>
+<div class="line"><a id="l02435" name="l02435"></a><span class="lineno"> 2435</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02436" name="l02436"></a><span class="lineno"> 2436</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, child_index,</div>
+<div class="line"><a id="l02437" name="l02437"></a><span class="lineno"> 2437</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
+<div class="line"><a id="l02438" name="l02438"></a><span class="lineno"> 2438</span>      }</div>
+<div class="line"><a id="l02439" name="l02439"></a><span class="lineno"> 2439</span>    }</div>
+<div class="line"><a id="l02440" name="l02440"></a><span class="lineno"> 2440</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
+<div class="line"><a id="l02441" name="l02441"></a><span class="lineno"> 2441</span>  }</div>
+<div class="line"><a id="l02442" name="l02442"></a><span class="lineno"> 2442</span> </div>
+<div class="line"><a id="l02443" name="l02443"></a><span class="lineno"> 2443</span>  <span class="comment">// N48: This is nearly identical to next() except that we start the</span></div>
+<div class="line"><a id="l02444" name="l02444"></a><span class="lineno"> 2444</span>  <span class="comment">// search on the [key_byte] rather than the position after that.</span></div>
+<div class="line"><a id="l02445" name="l02445"></a><span class="lineno"> 2445</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_48::iter_result_opt</div>
+<div class="line"><a id="l02446" name="l02446"></a><span class="lineno"> 2446</span>  gte_key_byte(std::byte key_byte) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02447" name="l02447"></a><span class="lineno"> 2447</span>    <span class="comment">// loop over the remaining byte values in lexical order.</span></div>
+<div class="line"><a id="l02448" name="l02448"></a><span class="lineno"> 2448</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(key_byte); i &lt; 256; i++) {</div>
+<div class="line"><a id="l02449" name="l02449"></a><span class="lineno"> 2449</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02450" name="l02450"></a><span class="lineno"> 2450</span>      <span class="keywordflow">if</span> (child_indexes[child_index] != empty_child) {</div>
+<div class="line"><a id="l02451" name="l02451"></a><span class="lineno"> 2451</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02452" name="l02452"></a><span class="lineno"> 2452</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">node_type::I48</a>}, key, child_index,</div>
+<div class="line"><a id="l02453" name="l02453"></a><span class="lineno"> 2453</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
+<div class="line"><a id="l02454" name="l02454"></a><span class="lineno"> 2454</span>      }</div>
+<div class="line"><a id="l02455" name="l02455"></a><span class="lineno"> 2455</span>    }</div>
+<div class="line"><a id="l02456" name="l02456"></a><span class="lineno"> 2456</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
+<div class="line"><a id="l02457" name="l02457"></a><span class="lineno"> 2457</span>  }</div>
+<div class="line"><a id="l02458" name="l02458"></a><span class="lineno"> 2458</span> </div>
+<div class="line"><a id="l02459" name="l02459"></a><span class="lineno"> 2459</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> delete_subtree(db_type &amp;db_instance) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02460" name="l02460"></a><span class="lineno"> 2460</span><span class="preprocessor">#ifndef NDEBUG</span></div>
+<div class="line"><a id="l02461" name="l02461"></a><span class="lineno"> 2461</span>    <span class="keyword">const</span> <span class="keyword">auto</span> children_count_ = this-&gt;children_count.load();</div>
+<div class="line"><a id="l02462" name="l02462"></a><span class="lineno"> 2462</span>    <span class="keywordtype">unsigned</span> actual_children_count = 0;</div>
+<div class="line"><a id="l02463" name="l02463"></a><span class="lineno"> 2463</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l02464" name="l02464"></a><span class="lineno"> 2464</span> </div>
+<div class="line"><a id="l02465" name="l02465"></a><span class="lineno"> 2465</span>    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 0; i &lt; this-&gt;capacity; ++i) {</div>
+<div class="line"><a id="l02466" name="l02466"></a><span class="lineno"> 2466</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child = children.pointer_array[i].load();</div>
+<div class="line"><a id="l02467" name="l02467"></a><span class="lineno"> 2467</span>      <span class="keywordflow">if</span> (child != <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a id="l02468" name="l02468"></a><span class="lineno"> 2468</span>        ArtPolicy::delete_subtree(child, db_instance);</div>
+<div class="line"><a id="l02469" name="l02469"></a><span class="lineno"> 2469</span><span class="preprocessor">#ifndef NDEBUG</span></div>
+<div class="line"><a id="l02470" name="l02470"></a><span class="lineno"> 2470</span>        ++actual_children_count;</div>
+<div class="line"><a id="l02471" name="l02471"></a><span class="lineno"> 2471</span>        <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count &lt;= children_count_);</div>
+<div class="line"><a id="l02472" name="l02472"></a><span class="lineno"> 2472</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l02473" name="l02473"></a><span class="lineno"> 2473</span>      }</div>
+<div class="line"><a id="l02474" name="l02474"></a><span class="lineno"> 2474</span>    }</div>
+<div class="line"><a id="l02475" name="l02475"></a><span class="lineno"> 2475</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count == children_count_);</div>
+<div class="line"><a id="l02476" name="l02476"></a><span class="lineno"> 2476</span>  }</div>
+<div class="line"><a id="l02477" name="l02477"></a><span class="lineno"> 2477</span> </div>
+<div class="line"><a id="l02478" name="l02478"></a><span class="lineno"> 2478</span>  [[gnu::cold]] <a class="code hl_define" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream &amp;os,</div>
+<div class="line"><a id="l02479" name="l02479"></a><span class="lineno"> 2479</span>                                                <span class="keywordtype">bool</span> recursive)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l02480" name="l02480"></a><span class="lineno"> 2480</span>    parent_class::dump(os, recursive);</div>
+<div class="line"><a id="l02481" name="l02481"></a><span class="lineno"> 2481</span><span class="preprocessor">#ifndef NDEBUG</span></div>
+<div class="line"><a id="l02482" name="l02482"></a><span class="lineno"> 2482</span>    <span class="keyword">const</span> <span class="keyword">auto</span> children_count_ = this-&gt;children_count.load();</div>
+<div class="line"><a id="l02483" name="l02483"></a><span class="lineno"> 2483</span>    <span class="keywordtype">unsigned</span> actual_children_count = 0;</div>
+<div class="line"><a id="l02484" name="l02484"></a><span class="lineno"> 2484</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l02485" name="l02485"></a><span class="lineno"> 2485</span> </div>
+<div class="line"><a id="l02486" name="l02486"></a><span class="lineno"> 2486</span>    os &lt;&lt; <span class="stringliteral">&quot;, key bytes &amp; child indexes\n&quot;</span>;</div>
+<div class="line"><a id="l02487" name="l02487"></a><span class="lineno"> 2487</span>    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 0; i &lt; 256; i++)</div>
+<div class="line"><a id="l02488" name="l02488"></a><span class="lineno"> 2488</span>      <span class="keywordflow">if</span> (child_indexes[i] != empty_child) {</div>
+<div class="line"><a id="l02489" name="l02489"></a><span class="lineno"> 2489</span>        os &lt;&lt; <span class="stringliteral">&quot; &quot;</span>;</div>
+<div class="line"><a id="l02490" name="l02490"></a><span class="lineno"> 2490</span>        <a class="code hl_function" href="namespaceunodb_1_1detail.html#a0ea0a7a9ae7c67e2636bae1ca01e11fe">dump_byte</a>(os, <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i));</div>
+<div class="line"><a id="l02491" name="l02491"></a><span class="lineno"> 2491</span>        os &lt;&lt; <span class="stringliteral">&quot;, child index = &quot;</span> &lt;&lt; <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(child_indexes[i])</div>
+<div class="line"><a id="l02492" name="l02492"></a><span class="lineno"> 2492</span>           &lt;&lt; <span class="stringliteral">&quot;: &quot;</span>;</div>
+<div class="line"><a id="l02493" name="l02493"></a><span class="lineno"> 2493</span>        <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(children.pointer_array[child_indexes[i]] !=</div>
+<div class="line"><a id="l02494" name="l02494"></a><span class="lineno"> 2494</span>                            <span class="keyword">nullptr</span>);</div>
+<div class="line"><a id="l02495" name="l02495"></a><span class="lineno"> 2495</span>        <span class="keywordflow">if</span> (recursive) {</div>
+<div class="line"><a id="l02496" name="l02496"></a><span class="lineno"> 2496</span>          ArtPolicy::dump_node(os,</div>
+<div class="line"><a id="l02497" name="l02497"></a><span class="lineno"> 2497</span>                               children.pointer_array[child_indexes[i]].load());</div>
+<div class="line"><a id="l02498" name="l02498"></a><span class="lineno"> 2498</span>        }</div>
+<div class="line"><a id="l02499" name="l02499"></a><span class="lineno"> 2499</span><span class="preprocessor">#ifndef NDEBUG</span></div>
+<div class="line"><a id="l02500" name="l02500"></a><span class="lineno"> 2500</span>        ++actual_children_count;</div>
+<div class="line"><a id="l02501" name="l02501"></a><span class="lineno"> 2501</span>        <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count &lt;= children_count_);</div>
+<div class="line"><a id="l02502" name="l02502"></a><span class="lineno"> 2502</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l02503" name="l02503"></a><span class="lineno"> 2503</span>      }</div>
+<div class="line"><a id="l02504" name="l02504"></a><span class="lineno"> 2504</span> </div>
+<div class="line"><a id="l02505" name="l02505"></a><span class="lineno"> 2505</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count == children_count_);</div>
+<div class="line"><a id="l02506" name="l02506"></a><span class="lineno"> 2506</span>  }</div>
+<div class="line"><a id="l02507" name="l02507"></a><span class="lineno"> 2507</span> </div>
+<div class="line"><a id="l02508" name="l02508"></a><span class="lineno"> 2508</span> <span class="keyword">private</span>:</div>
+<div class="line"><a id="l02509" name="l02509"></a><span class="lineno"> 2509</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> remove_child_pointer(std::uint8_t child_index,</div>
+<div class="line"><a id="l02510" name="l02510"></a><span class="lineno"> 2510</span>                                      db_type &amp;db_instance) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02511" name="l02511"></a><span class="lineno"> 2511</span>    direct_remove_child_pointer(child_indexes[child_index], db_instance);</div>
+<div class="line"><a id="l02512" name="l02512"></a><span class="lineno"> 2512</span>  }</div>
+<div class="line"><a id="l02513" name="l02513"></a><span class="lineno"> 2513</span> </div>
+<div class="line"><a id="l02514" name="l02514"></a><span class="lineno"> 2514</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> direct_remove_child_pointer(std::uint8_t children_i,</div>
+<div class="line"><a id="l02515" name="l02515"></a><span class="lineno"> 2515</span>                                             db_type &amp;db_instance) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02516" name="l02516"></a><span class="lineno"> 2516</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(children_i != empty_child);</div>
+<div class="line"><a id="l02517" name="l02517"></a><span class="lineno"> 2517</span> </div>
+<div class="line"><a id="l02518" name="l02518"></a><span class="lineno"> 2518</span>    <span class="keyword">const</span> <span class="keyword">auto</span> r{ArtPolicy::reclaim_leaf_on_scope_exit(</div>
+<div class="line"><a id="l02519" name="l02519"></a><span class="lineno"> 2519</span>        children.pointer_array[children_i].load().template ptr&lt;leaf_type *&gt;(),</div>
+<div class="line"><a id="l02520" name="l02520"></a><span class="lineno"> 2520</span>        db_instance)};</div>
+<div class="line"><a id="l02521" name="l02521"></a><span class="lineno"> 2521</span>  }</div>
 <div class="line"><a id="l02522" name="l02522"></a><span class="lineno"> 2522</span> </div>
-<div class="line"><a id="l02523" name="l02523"></a><span class="lineno"> 2523</span>  <span class="comment">// The only way I found to initialize this array so that everyone is happy and</span></div>
-<div class="line"><a id="l02524" name="l02524"></a><span class="lineno"> 2524</span>  <span class="comment">// efficient. In the case of OLC, a std::fill compiles to a loop doing a</span></div>
-<div class="line"><a id="l02525" name="l02525"></a><span class="lineno"> 2525</span>  <span class="comment">// single byte per iteration. memset is likely an UB, and atomic_ref is not</span></div>
-<div class="line"><a id="l02526" name="l02526"></a><span class="lineno"> 2526</span>  <span class="comment">// available in C++17, and I don&#39;t like using it anyway, because this variable</span></div>
-<div class="line"><a id="l02527" name="l02527"></a><span class="lineno"> 2527</span>  <span class="comment">// *is* atomic.</span></div>
-<div class="line"><a id="l02528" name="l02528"></a><span class="lineno"> 2528</span>  std::array&lt;critical_section_policy&lt;std::uint8_t&gt;, 256&gt; child_indexes{</div>
-<div class="line"><a id="l02529" name="l02529"></a><span class="lineno"> 2529</span>      empty_child, empty_child, empty_child, empty_child, empty_child,</div>
-<div class="line"><a id="l02530" name="l02530"></a><span class="lineno"> 2530</span>      empty_child, empty_child, empty_child, empty_child, empty_child,</div>
+<div class="line"><a id="l02523" name="l02523"></a><span class="lineno"> 2523</span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> std::uint8_t empty_child = 0xFF;</div>
+<div class="line"><a id="l02524" name="l02524"></a><span class="lineno"> 2524</span> </div>
+<div class="line"><a id="l02525" name="l02525"></a><span class="lineno"> 2525</span>  <span class="comment">// The only way I found to initialize this array so that everyone is happy and</span></div>
+<div class="line"><a id="l02526" name="l02526"></a><span class="lineno"> 2526</span>  <span class="comment">// efficient. In the case of OLC, a std::fill compiles to a loop doing a</span></div>
+<div class="line"><a id="l02527" name="l02527"></a><span class="lineno"> 2527</span>  <span class="comment">// single byte per iteration. memset is likely an UB, and atomic_ref is not</span></div>
+<div class="line"><a id="l02528" name="l02528"></a><span class="lineno"> 2528</span>  <span class="comment">// available in C++17, and I don&#39;t like using it anyway, because this variable</span></div>
+<div class="line"><a id="l02529" name="l02529"></a><span class="lineno"> 2529</span>  <span class="comment">// *is* atomic.</span></div>
+<div class="line"><a id="l02530" name="l02530"></a><span class="lineno"> 2530</span>  std::array&lt;critical_section_policy&lt;std::uint8_t&gt;, 256&gt; child_indexes{</div>
 <div class="line"><a id="l02531" name="l02531"></a><span class="lineno"> 2531</span>      empty_child, empty_child, empty_child, empty_child, empty_child,</div>
 <div class="line"><a id="l02532" name="l02532"></a><span class="lineno"> 2532</span>      empty_child, empty_child, empty_child, empty_child, empty_child,</div>
 <div class="line"><a id="l02533" name="l02533"></a><span class="lineno"> 2533</span>      empty_child, empty_child, empty_child, empty_child, empty_child,</div>
@@ -2634,302 +2634,306 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l02577" name="l02577"></a><span class="lineno"> 2577</span>      empty_child, empty_child, empty_child, empty_child, empty_child,</div>
 <div class="line"><a id="l02578" name="l02578"></a><span class="lineno"> 2578</span>      empty_child, empty_child, empty_child, empty_child, empty_child,</div>
 <div class="line"><a id="l02579" name="l02579"></a><span class="lineno"> 2579</span>      empty_child, empty_child, empty_child, empty_child, empty_child,</div>
-<div class="line"><a id="l02580" name="l02580"></a><span class="lineno"> 2580</span>      empty_child};</div>
-<div class="line"><a id="l02581" name="l02581"></a><span class="lineno"> 2581</span> </div>
-<div class="foldopen" id="foldopen02582" data-start="{" data-end="};">
-<div class="line"><a id="l02582" name="l02582"></a><span class="lineno"><a class="line" href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html"> 2582</a></span>  <span class="keyword">union </span><a class="code hl_union" href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html">children_union</a> {</div>
-<div class="line"><a id="l02583" name="l02583"></a><span class="lineno"> 2583</span>    std::array&lt;critical_section_policy&lt;node_ptr&gt;, basic_inode_48::capacity&gt;</div>
-<div class="line"><a id="l02584" name="l02584"></a><span class="lineno"> 2584</span>        pointer_array;</div>
-<div class="line"><a id="l02585" name="l02585"></a><span class="lineno"> 2585</span><span class="preprocessor">#ifdef UNODB_DETAIL_SSE4_2</span></div>
-<div class="line"><a id="l02586" name="l02586"></a><span class="lineno"> 2586</span>    <span class="keyword">static_assert</span>(basic_inode_48::capacity % 8 == 0);</div>
-<div class="line"><a id="l02587" name="l02587"></a><span class="lineno"> 2587</span>    <span class="comment">// No std::array below because it would ignore the alignment attribute</span></div>
-<div class="line"><a id="l02588" name="l02588"></a><span class="lineno"> 2588</span>    <span class="comment">// NOLINTNEXTLINE(modernize-avoid-c-arrays)</span></div>
-<div class="line"><a id="l02589" name="l02589"></a><span class="lineno"> 2589</span>    __m128i</div>
-<div class="line"><a id="l02590" name="l02590"></a><span class="lineno"> 2590</span>        pointer_vector[basic_inode_48::capacity / 2];  <span class="comment">// NOLINT(runtime/arrays)</span></div>
-<div class="line"><a id="l02591" name="l02591"></a><span class="lineno"> 2591</span><span class="preprocessor">#elif defined(UNODB_DETAIL_AVX2)</span></div>
-<div class="line"><a id="l02592" name="l02592"></a><span class="lineno"> 2592</span>    <span class="keyword">static_assert</span>(basic_inode_48::capacity % 16 == 0);</div>
-<div class="line"><a id="l02593" name="l02593"></a><span class="lineno"> 2593</span>    <span class="comment">// NOLINTNEXTLINE(modernize-avoid-c-arrays)</span></div>
-<div class="line"><a id="l02594" name="l02594"></a><span class="lineno"> 2594</span>    __m256i</div>
-<div class="line"><a id="l02595" name="l02595"></a><span class="lineno"> 2595</span>        pointer_vector[basic_inode_48::capacity / 4];  <span class="comment">// NOLINT(runtime/arrays)</span></div>
-<div class="line"><a id="l02596" name="l02596"></a><span class="lineno"> 2596</span><span class="preprocessor">#elif defined(__aarch64__)</span></div>
-<div class="line"><a id="l02597" name="l02597"></a><span class="lineno"> 2597</span>    <span class="keyword">static_assert</span>(basic_inode_48::capacity % 8 == 0);</div>
-<div class="line"><a id="l02598" name="l02598"></a><span class="lineno"> 2598</span>    <span class="comment">// NOLINTNEXTLINE(modernize-avoid-c-arrays)</span></div>
-<div class="line"><a id="l02599" name="l02599"></a><span class="lineno"> 2599</span>    uint64x2_t</div>
-<div class="line"><a id="l02600" name="l02600"></a><span class="lineno"> 2600</span>        pointer_vector[basic_inode_48::capacity / 2];  <span class="comment">// NOLINT(runtime/arrays)</span></div>
-<div class="line"><a id="l02601" name="l02601"></a><span class="lineno"> 2601</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l02602" name="l02602"></a><span class="lineno"> 2602</span> </div>
-<div class="line"><a id="l02603" name="l02603"></a><span class="lineno"> 2603</span>    <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26495)</div>
-<div class="line"><a id="l02604" name="l02604"></a><span class="lineno"> 2604</span>    <a class="code hl_union" href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html">children_union</a>() <span class="keyword">noexcept</span> {}</div>
-<div class="line"><a id="l02605" name="l02605"></a><span class="lineno"> 2605</span>    <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
-<div class="line"><a id="l02606" name="l02606"></a><span class="lineno"> 2606</span>  } children;</div>
+<div class="line"><a id="l02580" name="l02580"></a><span class="lineno"> 2580</span>      empty_child, empty_child, empty_child, empty_child, empty_child,</div>
+<div class="line"><a id="l02581" name="l02581"></a><span class="lineno"> 2581</span>      empty_child, empty_child, empty_child, empty_child, empty_child,</div>
+<div class="line"><a id="l02582" name="l02582"></a><span class="lineno"> 2582</span>      empty_child};</div>
+<div class="line"><a id="l02583" name="l02583"></a><span class="lineno"> 2583</span> </div>
+<div class="foldopen" id="foldopen02584" data-start="{" data-end="};">
+<div class="line"><a id="l02584" name="l02584"></a><span class="lineno"><a class="line" href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html"> 2584</a></span>  <span class="keyword">union </span><a class="code hl_union" href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html">children_union</a> {</div>
+<div class="line"><a id="l02585" name="l02585"></a><span class="lineno"> 2585</span>    std::array&lt;critical_section_policy&lt;node_ptr&gt;, basic_inode_48::capacity&gt;</div>
+<div class="line"><a id="l02586" name="l02586"></a><span class="lineno"> 2586</span>        pointer_array;</div>
+<div class="line"><a id="l02587" name="l02587"></a><span class="lineno"> 2587</span><span class="preprocessor">#ifdef UNODB_DETAIL_SSE4_2</span></div>
+<div class="line"><a id="l02588" name="l02588"></a><span class="lineno"> 2588</span>    <span class="keyword">static_assert</span>(basic_inode_48::capacity % 8 == 0);</div>
+<div class="line"><a id="l02589" name="l02589"></a><span class="lineno"> 2589</span>    <span class="comment">// No std::array below because it would ignore the alignment attribute</span></div>
+<div class="line"><a id="l02590" name="l02590"></a><span class="lineno"> 2590</span>    <span class="comment">// NOLINTNEXTLINE(modernize-avoid-c-arrays)</span></div>
+<div class="line"><a id="l02591" name="l02591"></a><span class="lineno"> 2591</span>    __m128i</div>
+<div class="line"><a id="l02592" name="l02592"></a><span class="lineno"> 2592</span>        pointer_vector[basic_inode_48::capacity / 2];  <span class="comment">// NOLINT(runtime/arrays)</span></div>
+<div class="line"><a id="l02593" name="l02593"></a><span class="lineno"> 2593</span><span class="preprocessor">#elif defined(UNODB_DETAIL_AVX2)</span></div>
+<div class="line"><a id="l02594" name="l02594"></a><span class="lineno"> 2594</span>    <span class="keyword">static_assert</span>(basic_inode_48::capacity % 16 == 0);</div>
+<div class="line"><a id="l02595" name="l02595"></a><span class="lineno"> 2595</span>    <span class="comment">// NOLINTNEXTLINE(modernize-avoid-c-arrays)</span></div>
+<div class="line"><a id="l02596" name="l02596"></a><span class="lineno"> 2596</span>    __m256i</div>
+<div class="line"><a id="l02597" name="l02597"></a><span class="lineno"> 2597</span>        pointer_vector[basic_inode_48::capacity / 4];  <span class="comment">// NOLINT(runtime/arrays)</span></div>
+<div class="line"><a id="l02598" name="l02598"></a><span class="lineno"> 2598</span><span class="preprocessor">#elif defined(__aarch64__)</span></div>
+<div class="line"><a id="l02599" name="l02599"></a><span class="lineno"> 2599</span>    <span class="keyword">static_assert</span>(basic_inode_48::capacity % 8 == 0);</div>
+<div class="line"><a id="l02600" name="l02600"></a><span class="lineno"> 2600</span>    <span class="comment">// NOLINTNEXTLINE(modernize-avoid-c-arrays)</span></div>
+<div class="line"><a id="l02601" name="l02601"></a><span class="lineno"> 2601</span>    uint64x2_t</div>
+<div class="line"><a id="l02602" name="l02602"></a><span class="lineno"> 2602</span>        pointer_vector[basic_inode_48::capacity / 2];  <span class="comment">// NOLINT(runtime/arrays)</span></div>
+<div class="line"><a id="l02603" name="l02603"></a><span class="lineno"> 2603</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l02604" name="l02604"></a><span class="lineno"> 2604</span> </div>
+<div class="line"><a id="l02605" name="l02605"></a><span class="lineno"> 2605</span>    <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26495)</div>
+<div class="line"><a id="l02606" name="l02606"></a><span class="lineno"> 2606</span>    <a class="code hl_union" href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html">children_union</a>() <span class="keyword">noexcept</span> {}</div>
+<div class="line"><a id="l02607" name="l02607"></a><span class="lineno"> 2607</span>    <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l02608" name="l02608"></a><span class="lineno"> 2608</span>  } children;</div>
 </div>
-<div class="line"><a id="l02607" name="l02607"></a><span class="lineno"> 2607</span> </div>
-<div class="line"><a id="l02608" name="l02608"></a><span class="lineno"> 2608</span>  <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt;</div>
-<div class="line"><a id="l02609" name="l02609"></a><span class="lineno"> 2609</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__16.html">basic_inode_16</a>;</div>
+<div class="line"><a id="l02609" name="l02609"></a><span class="lineno"> 2609</span> </div>
 <div class="line"><a id="l02610" name="l02610"></a><span class="lineno"> 2610</span>  <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt;</div>
-<div class="line"><a id="l02611" name="l02611"></a><span class="lineno"> 2611</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__256.html">basic_inode_256</a>;</div>
-<div class="line"><a id="l02612" name="l02612"></a><span class="lineno"> 2612</span>};  <span class="comment">// class basic_inode_48</span></div>
+<div class="line"><a id="l02611" name="l02611"></a><span class="lineno"> 2611</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__16.html">basic_inode_16</a>;</div>
+<div class="line"><a id="l02612" name="l02612"></a><span class="lineno"> 2612</span>  <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt;</div>
+<div class="line"><a id="l02613" name="l02613"></a><span class="lineno"> 2613</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__256.html">basic_inode_256</a>;</div>
+<div class="line"><a id="l02614" name="l02614"></a><span class="lineno"> 2614</span>};  <span class="comment">// class basic_inode_48</span></div>
 </div>
-<div class="line"><a id="l02613" name="l02613"></a><span class="lineno"> 2613</span> </div>
-<div class="line"><a id="l02614" name="l02614"></a><span class="lineno"> 2614</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> ArtPolicy&gt;</div>
-<div class="line"><a id="l02615" name="l02615"></a><span class="lineno"> 2615</span><span class="keyword">using </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">basic_inode_256_parent</a> =</div>
-<div class="line"><a id="l02616" name="l02616"></a><span class="lineno"> 2616</span>    <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">basic_inode</a>&lt;ArtPolicy, 49, 256, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>,</div>
-<div class="line"><a id="l02617" name="l02617"></a><span class="lineno"> 2617</span>                <span class="keyword">typename</span> ArtPolicy::inode48_type, <a class="code hl_class" href="classunodb_1_1detail_1_1fake__inode.html">fake_inode</a>,</div>
-<div class="line"><a id="l02618" name="l02618"></a><span class="lineno"> 2618</span>                <span class="keyword">typename</span> ArtPolicy::inode256_type&gt;;</div>
-<div class="line"><a id="l02619" name="l02619"></a><span class="lineno"> 2619</span> </div>
-<div class="line"><a id="l02620" name="l02620"></a><span class="lineno"> 2620</span><span class="comment">// An internal node used to store data for nodes having between 49 and</span></div>
-<div class="line"><a id="l02621" name="l02621"></a><span class="lineno"> 2621</span><span class="comment">// 256 child pointers.  There is no keys[].  Instead, the current byte</span></div>
-<div class="line"><a id="l02622" name="l02622"></a><span class="lineno"> 2622</span><span class="comment">// of the search key is used as a direct index into the child</span></div>
-<div class="line"><a id="l02623" name="l02623"></a><span class="lineno"> 2623</span><span class="comment">// pointer[].</span></div>
-<div class="line"><a id="l02624" name="l02624"></a><span class="lineno"> 2624</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> ArtPolicy&gt;</div>
-<div class="foldopen" id="foldopen02625" data-start="{" data-end="};">
-<div class="line"><a id="l02625" name="l02625"></a><span class="lineno"><a class="line" href="classunodb_1_1detail_1_1basic__inode__256.html"> 2625</a></span><span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__256.html">basic_inode_256</a> : <span class="keyword">public</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">basic_inode_256_parent</a>&lt;ArtPolicy&gt; {</div>
-<div class="line"><a id="l02626" name="l02626"></a><span class="lineno"> 2626</span>  <span class="keyword">using </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">parent_class</a> = <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">basic_inode_256_parent&lt;ArtPolicy&gt;</a>;</div>
-<div class="line"><a id="l02627" name="l02627"></a><span class="lineno"> 2627</span> </div>
-<div class="line"><a id="l02628" name="l02628"></a><span class="lineno"> 2628</span>  <span class="keyword">using </span>typename parent_class::inode48_type;</div>
-<div class="line"><a id="l02629" name="l02629"></a><span class="lineno"> 2629</span>  <span class="keyword">using </span>typename <a class="code hl_class" href="classunodb_1_1detail_1_1basic__leaf.html">parent_class::leaf_type</a>;</div>
-<div class="line"><a id="l02630" name="l02630"></a><span class="lineno"> 2630</span>  <span class="keyword">using </span>typename parent_class::node_ptr;</div>
-<div class="line"><a id="l02631" name="l02631"></a><span class="lineno"> 2631</span> </div>
-<div class="line"><a id="l02632" name="l02632"></a><span class="lineno"> 2632</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a id="l02633" name="l02633"></a><span class="lineno"> 2633</span>  <span class="keyword">using </span>critical_section_policy =</div>
-<div class="line"><a id="l02634" name="l02634"></a><span class="lineno"> 2634</span>      <span class="keyword">typename</span> ArtPolicy::template critical_section_policy&lt;T&gt;;</div>
-<div class="line"><a id="l02635" name="l02635"></a><span class="lineno"> 2635</span> </div>
-<div class="line"><a id="l02636" name="l02636"></a><span class="lineno"> 2636</span> <span class="keyword">public</span>:</div>
-<div class="line"><a id="l02637" name="l02637"></a><span class="lineno"> 2637</span>  <span class="keyword">using </span>typename parent_class::db_leaf_unique_ptr;</div>
-<div class="line"><a id="l02638" name="l02638"></a><span class="lineno"> 2638</span>  <span class="keyword">using </span>typename parent_class::db_type;</div>
-<div class="line"><a id="l02639" name="l02639"></a><span class="lineno"> 2639</span>  <span class="keyword">using </span>typename parent_class::tree_depth_type;</div>
-<div class="line"><a id="l02640" name="l02640"></a><span class="lineno"> 2640</span> </div>
-<div class="line"><a id="l02641" name="l02641"></a><span class="lineno"> 2641</span>  <span class="keyword">constexpr</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__256.html">basic_inode_256</a>(db_type &amp;, <span class="keyword">const</span> inode48_type &amp;source_node) noexcept</div>
-<div class="line"><a id="l02642" name="l02642"></a><span class="lineno"> 2642</span>      : <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">parent_class</a>{source_node} {}</div>
-<div class="line"><a id="l02643" name="l02643"></a><span class="lineno"> 2643</span> </div>
-<div class="line"><a id="l02644" name="l02644"></a><span class="lineno"> 2644</span>  <span class="keyword">constexpr</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__256.html">basic_inode_256</a>(db_type &amp;db_instance, inode48_type &amp;source_node,</div>
-<div class="line"><a id="l02645" name="l02645"></a><span class="lineno"> 2645</span>                            db_leaf_unique_ptr &amp;&amp;child,</div>
-<div class="line"><a id="l02646" name="l02646"></a><span class="lineno"> 2646</span>                            tree_depth_type depth) noexcept</div>
-<div class="line"><a id="l02647" name="l02647"></a><span class="lineno"> 2647</span>      : <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">parent_class</a>{source_node} {</div>
-<div class="line"><a id="l02648" name="l02648"></a><span class="lineno"> 2648</span>    init(db_instance, source_node, std::move(child), depth);</div>
-<div class="line"><a id="l02649" name="l02649"></a><span class="lineno"> 2649</span>  }</div>
-<div class="line"><a id="l02650" name="l02650"></a><span class="lineno"> 2650</span> </div>
-<div class="line"><a id="l02651" name="l02651"></a><span class="lineno"> 2651</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> init(db_type &amp;db_instance,</div>
-<div class="line"><a id="l02652" name="l02652"></a><span class="lineno"> 2652</span>                      inode48_type &amp;__restrict source_node,</div>
-<div class="line"><a id="l02653" name="l02653"></a><span class="lineno"> 2653</span>                      db_leaf_unique_ptr child,</div>
-<div class="line"><a id="l02654" name="l02654"></a><span class="lineno"> 2654</span>                      tree_depth_type depth) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02655" name="l02655"></a><span class="lineno"> 2655</span>    <span class="keyword">const</span> <span class="keyword">auto</span> reclaim_source_node{</div>
-<div class="line"><a id="l02656" name="l02656"></a><span class="lineno"> 2656</span>        ArtPolicy::template make_db_inode_reclaimable_ptr&lt;inode48_type&gt;(</div>
-<div class="line"><a id="l02657" name="l02657"></a><span class="lineno"> 2657</span>            &amp;source_node, db_instance)};</div>
-<div class="line"><a id="l02658" name="l02658"></a><span class="lineno"> 2658</span>    <span class="keywordtype">unsigned</span> children_copied = 0;</div>
-<div class="line"><a id="l02659" name="l02659"></a><span class="lineno"> 2659</span>    <span class="keywordtype">unsigned</span> i = 0;</div>
-<div class="line"><a id="l02660" name="l02660"></a><span class="lineno"> 2660</span>    <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
-<div class="line"><a id="l02661" name="l02661"></a><span class="lineno"> 2661</span>      <span class="keyword">const</span> <span class="keyword">auto</span> children_i = source_node.child_indexes[i].load();</div>
-<div class="line"><a id="l02662" name="l02662"></a><span class="lineno"> 2662</span>      <span class="keywordflow">if</span> (children_i == inode48_type::empty_child) {</div>
-<div class="line"><a id="l02663" name="l02663"></a><span class="lineno"> 2663</span>        children[i] = node_ptr{<span class="keyword">nullptr</span>};</div>
-<div class="line"><a id="l02664" name="l02664"></a><span class="lineno"> 2664</span>      } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l02665" name="l02665"></a><span class="lineno"> 2665</span>        children[i] = source_node.children.pointer_array[children_i].load();</div>
-<div class="line"><a id="l02666" name="l02666"></a><span class="lineno"> 2666</span>        ++children_copied;</div>
-<div class="line"><a id="l02667" name="l02667"></a><span class="lineno"> 2667</span>        <span class="keywordflow">if</span> (children_copied == inode48_type::capacity) <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l02668" name="l02668"></a><span class="lineno"> 2668</span>      }</div>
-<div class="line"><a id="l02669" name="l02669"></a><span class="lineno"> 2669</span>      ++i;</div>
-<div class="line"><a id="l02670" name="l02670"></a><span class="lineno"> 2670</span>    }</div>
-<div class="line"><a id="l02671" name="l02671"></a><span class="lineno"> 2671</span> </div>
-<div class="line"><a id="l02672" name="l02672"></a><span class="lineno"> 2672</span>    ++i;</div>
-<div class="line"><a id="l02673" name="l02673"></a><span class="lineno"> 2673</span>    <span class="keywordflow">for</span> (; i &lt; basic_inode_256::capacity; ++i) children[i] = node_ptr{<span class="keyword">nullptr</span>};</div>
-<div class="line"><a id="l02674" name="l02674"></a><span class="lineno"> 2674</span> </div>
-<div class="line"><a id="l02675" name="l02675"></a><span class="lineno"> 2675</span>    <span class="keyword">const</span> <span class="keyword">auto</span> key_byte = <span class="keyword">static_cast&lt;</span>uint8_t<span class="keyword">&gt;</span>(child-&gt;get_key_view()[depth]);</div>
-<div class="line"><a id="l02676" name="l02676"></a><span class="lineno"> 2676</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(children[key_byte] == <span class="keyword">nullptr</span>);</div>
-<div class="line"><a id="l02677" name="l02677"></a><span class="lineno"> 2677</span>    children[key_byte] = node_ptr{child.release(), <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>};</div>
-<div class="line"><a id="l02678" name="l02678"></a><span class="lineno"> 2678</span>  }</div>
-<div class="line"><a id="l02679" name="l02679"></a><span class="lineno"> 2679</span> </div>
-<div class="line"><a id="l02680" name="l02680"></a><span class="lineno"> 2680</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> add_to_nonfull(db_leaf_unique_ptr &amp;&amp;child,</div>
-<div class="line"><a id="l02681" name="l02681"></a><span class="lineno"> 2681</span>                                tree_depth_type depth,</div>
-<div class="line"><a id="l02682" name="l02682"></a><span class="lineno"> 2682</span>                                std::uint8_t children_count_) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02683" name="l02683"></a><span class="lineno"> 2683</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(this-&gt;children_count == children_count_);</div>
-<div class="line"><a id="l02684" name="l02684"></a><span class="lineno"> 2684</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(children_count_ &lt; parent_class::capacity);</div>
-<div class="line"><a id="l02685" name="l02685"></a><span class="lineno"> 2685</span> </div>
-<div class="line"><a id="l02686" name="l02686"></a><span class="lineno"> 2686</span>    <span class="keyword">const</span> <span class="keyword">auto</span> key_byte =</div>
-<div class="line"><a id="l02687" name="l02687"></a><span class="lineno"> 2687</span>        <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(child-&gt;get_key_view()[depth]);</div>
-<div class="line"><a id="l02688" name="l02688"></a><span class="lineno"> 2688</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(children[key_byte] == <span class="keyword">nullptr</span>);</div>
-<div class="line"><a id="l02689" name="l02689"></a><span class="lineno"> 2689</span>    children[key_byte] = node_ptr{child.release(), <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>};</div>
-<div class="line"><a id="l02690" name="l02690"></a><span class="lineno"> 2690</span>    this-&gt;children_count = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(children_count_ + 1U);</div>
-<div class="line"><a id="l02691" name="l02691"></a><span class="lineno"> 2691</span>  }</div>
-<div class="line"><a id="l02692" name="l02692"></a><span class="lineno"> 2692</span> </div>
-<div class="line"><a id="l02693" name="l02693"></a><span class="lineno"> 2693</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> remove(std::uint8_t child_index,</div>
-<div class="line"><a id="l02694" name="l02694"></a><span class="lineno"> 2694</span>                        db_type &amp;db_instance) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02695" name="l02695"></a><span class="lineno"> 2695</span>    <span class="keyword">const</span> <span class="keyword">auto</span> r{ArtPolicy::reclaim_leaf_on_scope_exit(</div>
-<div class="line"><a id="l02696" name="l02696"></a><span class="lineno"> 2696</span>        children[child_index].load().<span class="keyword">template</span> ptr&lt;leaf_type *&gt;(), db_instance)};</div>
-<div class="line"><a id="l02697" name="l02697"></a><span class="lineno"> 2697</span> </div>
-<div class="line"><a id="l02698" name="l02698"></a><span class="lineno"> 2698</span>    children[child_index] = node_ptr{<span class="keyword">nullptr</span>};</div>
-<div class="line"><a id="l02699" name="l02699"></a><span class="lineno"> 2699</span>    --this-&gt;children_count;</div>
-<div class="line"><a id="l02700" name="l02700"></a><span class="lineno"> 2700</span>  }</div>
-<div class="line"><a id="l02701" name="l02701"></a><span class="lineno"> 2701</span> </div>
-<div class="line"><a id="l02702" name="l02702"></a><span class="lineno"> 2702</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> <a class="code hl_typedef" href="classunodb_1_1detail_1_1basic__inode__impl.html#acbf7dfa46bacd995bc862638b59e71f6">basic_inode_256::find_result</a></div>
-<div class="line"><a id="l02703" name="l02703"></a><span class="lineno"> 2703</span>  find_child(std::byte key_byte) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02704" name="l02704"></a><span class="lineno"> 2704</span>    <span class="keyword">const</span> <span class="keyword">auto</span> key_int_byte = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(key_byte);</div>
-<div class="line"><a id="l02705" name="l02705"></a><span class="lineno"> 2705</span>    <span class="keywordflow">if</span> (children[key_int_byte] != <span class="keyword">nullptr</span>)</div>
-<div class="line"><a id="l02706" name="l02706"></a><span class="lineno"> 2706</span>      <span class="keywordflow">return</span> std::make_pair(key_int_byte, &amp;children[key_int_byte]);</div>
-<div class="line"><a id="l02707" name="l02707"></a><span class="lineno"> 2707</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a6905ec23ef797ae856d05259c70385bb">parent_class::child_not_found</a>;</div>
-<div class="line"><a id="l02708" name="l02708"></a><span class="lineno"> 2708</span>  }</div>
-<div class="line"><a id="l02709" name="l02709"></a><span class="lineno"> 2709</span> </div>
-<div class="line"><a id="l02710" name="l02710"></a><span class="lineno"> 2710</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> node_ptr get_child(</div>
-<div class="line"><a id="l02711" name="l02711"></a><span class="lineno"> 2711</span>      std::uint8_t child_index) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02712" name="l02712"></a><span class="lineno"> 2712</span>    <span class="keywordflow">return</span> children[child_index].load();</div>
-<div class="line"><a id="l02713" name="l02713"></a><span class="lineno"> 2713</span>  }</div>
-<div class="line"><a id="l02714" name="l02714"></a><span class="lineno"> 2714</span> </div>
-<div class="line"><a id="l02715" name="l02715"></a><span class="lineno"> 2715</span>  <span class="comment">// N256: Return the first mapped child.  The children[] is always in</span></div>
-<div class="line"><a id="l02716" name="l02716"></a><span class="lineno"> 2716</span>  <span class="comment">// order since it is directly indexed by a byte from the key.</span></div>
-<div class="line"><a id="l02717" name="l02717"></a><span class="lineno"> 2717</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1iter__result.html">basic_inode_256::iter_result</a></div>
-<div class="line"><a id="l02718" name="l02718"></a><span class="lineno"> 2718</span>  begin() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02719" name="l02719"></a><span class="lineno"> 2719</span>    <span class="keywordflow">for</span> (std::uint64_t i = 0; i &lt; basic_inode_256::capacity; i++) {</div>
-<div class="line"><a id="l02720" name="l02720"></a><span class="lineno"> 2720</span>      <span class="keywordflow">if</span> (children[i] != <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a id="l02721" name="l02721"></a><span class="lineno"> 2721</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);  <span class="comment">// child_index is key byte</span></div>
-<div class="line"><a id="l02722" name="l02722"></a><span class="lineno"> 2722</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02723" name="l02723"></a><span class="lineno"> 2723</span>        <span class="keywordflow">return</span> {node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, child_index,</div>
-<div class="line"><a id="l02724" name="l02724"></a><span class="lineno"> 2724</span>                this-&gt;get_key_prefix().get_snapshot()};</div>
-<div class="line"><a id="l02725" name="l02725"></a><span class="lineno"> 2725</span>      }</div>
-<div class="line"><a id="l02726" name="l02726"></a><span class="lineno"> 2726</span>    }</div>
-<div class="line"><a id="l02727" name="l02727"></a><span class="lineno"> 2727</span>    <span class="comment">// because we always have at least 49 keys.</span></div>
-<div class="line"><a id="l02728" name="l02728"></a><span class="lineno"> 2728</span>    <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();  <span class="comment">// LCOV_EXCL_LINE</span></div>
-<div class="line"><a id="l02729" name="l02729"></a><span class="lineno"> 2729</span>  }</div>
-<div class="line"><a id="l02730" name="l02730"></a><span class="lineno"> 2730</span> </div>
-<div class="line"><a id="l02731" name="l02731"></a><span class="lineno"> 2731</span>  <span class="comment">// N256: Return the last mapped child.  The children[] is always in</span></div>
-<div class="line"><a id="l02732" name="l02732"></a><span class="lineno"> 2732</span>  <span class="comment">// order since it is directly indexed by a byte from the key.</span></div>
-<div class="line"><a id="l02733" name="l02733"></a><span class="lineno"> 2733</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1iter__result.html">basic_inode_256::iter_result</a></div>
-<div class="line"><a id="l02734" name="l02734"></a><span class="lineno"> 2734</span>  last() <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02735" name="l02735"></a><span class="lineno"> 2735</span>    <span class="keywordflow">for</span> (std::int64_t i = basic_inode_256::capacity - 1; i &gt;= 0; i--) {</div>
-<div class="line"><a id="l02736" name="l02736"></a><span class="lineno"> 2736</span>      <span class="keywordflow">if</span> (children[<span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i)] != <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a id="l02737" name="l02737"></a><span class="lineno"> 2737</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);  <span class="comment">// child_index is key byte</span></div>
-<div class="line"><a id="l02738" name="l02738"></a><span class="lineno"> 2738</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02739" name="l02739"></a><span class="lineno"> 2739</span>        <span class="keywordflow">return</span> {node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, child_index,</div>
-<div class="line"><a id="l02740" name="l02740"></a><span class="lineno"> 2740</span>                this-&gt;get_key_prefix().get_snapshot()};</div>
-<div class="line"><a id="l02741" name="l02741"></a><span class="lineno"> 2741</span>      }</div>
-<div class="line"><a id="l02742" name="l02742"></a><span class="lineno"> 2742</span>    }</div>
-<div class="line"><a id="l02743" name="l02743"></a><span class="lineno"> 2743</span>    <span class="comment">// because we always have at least 49 keys.</span></div>
-<div class="line"><a id="l02744" name="l02744"></a><span class="lineno"> 2744</span>    <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();  <span class="comment">// LCOV_EXCL_LINE</span></div>
-<div class="line"><a id="l02745" name="l02745"></a><span class="lineno"> 2745</span>  }</div>
-<div class="line"><a id="l02746" name="l02746"></a><span class="lineno"> 2746</span> </div>
-<div class="line"><a id="l02747" name="l02747"></a><span class="lineno"> 2747</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_256::iter_result_opt</div>
-<div class="line"><a id="l02748" name="l02748"></a><span class="lineno"> 2748</span>  next(<span class="keyword">const</span> std::uint8_t child_index) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02749" name="l02749"></a><span class="lineno"> 2749</span>    <span class="comment">// loop over the remaining byte values in lexical order.</span></div>
-<div class="line"><a id="l02750" name="l02750"></a><span class="lineno"> 2750</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(child_index) + 1;</div>
-<div class="line"><a id="l02751" name="l02751"></a><span class="lineno"> 2751</span>         i &lt; basic_inode_256::capacity; i++) {</div>
-<div class="line"><a id="l02752" name="l02752"></a><span class="lineno"> 2752</span>      <span class="keywordflow">if</span> (children[i] != <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a id="l02753" name="l02753"></a><span class="lineno"> 2753</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02754" name="l02754"></a><span class="lineno"> 2754</span>        <span class="keyword">const</span> <span class="keyword">auto</span> next_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02755" name="l02755"></a><span class="lineno"> 2755</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, next_index,</div>
-<div class="line"><a id="l02756" name="l02756"></a><span class="lineno"> 2756</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
-<div class="line"><a id="l02757" name="l02757"></a><span class="lineno"> 2757</span>      }</div>
-<div class="line"><a id="l02758" name="l02758"></a><span class="lineno"> 2758</span>    }</div>
-<div class="line"><a id="l02759" name="l02759"></a><span class="lineno"> 2759</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
-<div class="line"><a id="l02760" name="l02760"></a><span class="lineno"> 2760</span>  }</div>
-<div class="line"><a id="l02761" name="l02761"></a><span class="lineno"> 2761</span> </div>
-<div class="line"><a id="l02762" name="l02762"></a><span class="lineno"> 2762</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_256::iter_result_opt</div>
-<div class="line"><a id="l02763" name="l02763"></a><span class="lineno"> 2763</span>  prior(<span class="keyword">const</span> std::uint8_t child_index) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02764" name="l02764"></a><span class="lineno"> 2764</span>    <span class="comment">// loop over the remaining byte values in lexical order.</span></div>
-<div class="line"><a id="l02765" name="l02765"></a><span class="lineno"> 2765</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::int64_t<span class="keyword">&gt;</span>(child_index) - 1; i &gt;= 0; i--) {</div>
-<div class="line"><a id="l02766" name="l02766"></a><span class="lineno"> 2766</span>      <span class="keyword">const</span> <span class="keyword">auto</span> next_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02767" name="l02767"></a><span class="lineno"> 2767</span>      <span class="keywordflow">if</span> (children[next_index] != <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a id="l02768" name="l02768"></a><span class="lineno"> 2768</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02769" name="l02769"></a><span class="lineno"> 2769</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, next_index,</div>
-<div class="line"><a id="l02770" name="l02770"></a><span class="lineno"> 2770</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
-<div class="line"><a id="l02771" name="l02771"></a><span class="lineno"> 2771</span>      }</div>
-<div class="line"><a id="l02772" name="l02772"></a><span class="lineno"> 2772</span>    }</div>
-<div class="line"><a id="l02773" name="l02773"></a><span class="lineno"> 2773</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
-<div class="line"><a id="l02774" name="l02774"></a><span class="lineno"> 2774</span>  }</div>
-<div class="line"><a id="l02775" name="l02775"></a><span class="lineno"> 2775</span> </div>
-<div class="line"><a id="l02776" name="l02776"></a><span class="lineno"> 2776</span>  <span class="comment">// N256: This is nearly identical to prior() except that we start</span></div>
-<div class="line"><a id="l02777" name="l02777"></a><span class="lineno"> 2777</span>  <span class="comment">// the search on the [key_byte] rather than the position before</span></div>
-<div class="line"><a id="l02778" name="l02778"></a><span class="lineno"> 2778</span>  <span class="comment">// that.</span></div>
-<div class="line"><a id="l02779" name="l02779"></a><span class="lineno"> 2779</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_256::iter_result_opt</div>
-<div class="line"><a id="l02780" name="l02780"></a><span class="lineno"> 2780</span>  lte_key_byte(std::byte key_byte) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02781" name="l02781"></a><span class="lineno"> 2781</span>    <span class="comment">// loop over the prior byte values in lexical order.</span></div>
-<div class="line"><a id="l02782" name="l02782"></a><span class="lineno"> 2782</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::int64_t<span class="keyword">&gt;</span>(key_byte); i &gt;= 0; i--) {</div>
-<div class="line"><a id="l02783" name="l02783"></a><span class="lineno"> 2783</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02784" name="l02784"></a><span class="lineno"> 2784</span>      <span class="keywordflow">if</span> (children[child_index] != <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a id="l02785" name="l02785"></a><span class="lineno"> 2785</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02786" name="l02786"></a><span class="lineno"> 2786</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, child_index,</div>
-<div class="line"><a id="l02787" name="l02787"></a><span class="lineno"> 2787</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
-<div class="line"><a id="l02788" name="l02788"></a><span class="lineno"> 2788</span>      }</div>
-<div class="line"><a id="l02789" name="l02789"></a><span class="lineno"> 2789</span>    }</div>
-<div class="line"><a id="l02790" name="l02790"></a><span class="lineno"> 2790</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
-<div class="line"><a id="l02791" name="l02791"></a><span class="lineno"> 2791</span>  }</div>
-<div class="line"><a id="l02792" name="l02792"></a><span class="lineno"> 2792</span> </div>
-<div class="line"><a id="l02793" name="l02793"></a><span class="lineno"> 2793</span>  <span class="comment">// N256: This is nearly identical to next() except that we start the</span></div>
-<div class="line"><a id="l02794" name="l02794"></a><span class="lineno"> 2794</span>  <span class="comment">// search on the [key_byte] rather than the position after that.</span></div>
-<div class="line"><a id="l02795" name="l02795"></a><span class="lineno"> 2795</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_256::iter_result_opt</div>
-<div class="line"><a id="l02796" name="l02796"></a><span class="lineno"> 2796</span>  gte_key_byte(std::byte key_byte) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02797" name="l02797"></a><span class="lineno"> 2797</span>    <span class="comment">// loop over the remaining byte values in lexical order.</span></div>
-<div class="line"><a id="l02798" name="l02798"></a><span class="lineno"> 2798</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(key_byte);</div>
-<div class="line"><a id="l02799" name="l02799"></a><span class="lineno"> 2799</span>         i &lt; basic_inode_256::capacity; i++) {</div>
-<div class="line"><a id="l02800" name="l02800"></a><span class="lineno"> 2800</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02801" name="l02801"></a><span class="lineno"> 2801</span>      <span class="keywordflow">if</span> (children[child_index] != <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a id="l02802" name="l02802"></a><span class="lineno"> 2802</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
-<div class="line"><a id="l02803" name="l02803"></a><span class="lineno"> 2803</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, child_index,</div>
-<div class="line"><a id="l02804" name="l02804"></a><span class="lineno"> 2804</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
-<div class="line"><a id="l02805" name="l02805"></a><span class="lineno"> 2805</span>      }</div>
-<div class="line"><a id="l02806" name="l02806"></a><span class="lineno"> 2806</span>    }</div>
-<div class="line"><a id="l02807" name="l02807"></a><span class="lineno"> 2807</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
-<div class="line"><a id="l02808" name="l02808"></a><span class="lineno"> 2808</span>  }</div>
-<div class="line"><a id="l02809" name="l02809"></a><span class="lineno"> 2809</span> </div>
-<div class="line"><a id="l02810" name="l02810"></a><span class="lineno"> 2810</span>  <span class="comment">// TODO(laurynas) Lifting this out might help with iterator and</span></div>
-<div class="line"><a id="l02811" name="l02811"></a><span class="lineno"> 2811</span>  <span class="comment">// lambda patterns.</span></div>
-<div class="line"><a id="l02812" name="l02812"></a><span class="lineno"> 2812</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Function&gt;</div>
-<div class="line"><a id="l02813" name="l02813"></a><span class="lineno"> 2813</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> for_each_child(Function func) <span class="keyword">const</span></div>
-<div class="line"><a id="l02814" name="l02814"></a><span class="lineno"> 2814</span>      <span class="keyword">noexcept</span>(<span class="keyword">noexcept</span>(func(0, node_ptr{<span class="keyword">nullptr</span>}))) {</div>
-<div class="line"><a id="l02815" name="l02815"></a><span class="lineno"> 2815</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l02816" name="l02816"></a><span class="lineno"> 2816</span>    <span class="keyword">const</span> <span class="keyword">auto</span> children_count_ = this-&gt;children_count.load();</div>
-<div class="line"><a id="l02817" name="l02817"></a><span class="lineno"> 2817</span>    std::uint8_t actual_children_count = 0;</div>
-<div class="line"><a id="l02818" name="l02818"></a><span class="lineno"> 2818</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l02819" name="l02819"></a><span class="lineno"> 2819</span> </div>
-<div class="line"><a id="l02820" name="l02820"></a><span class="lineno"> 2820</span>    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 0; i &lt; 256; ++i) {</div>
-<div class="line"><a id="l02821" name="l02821"></a><span class="lineno"> 2821</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_ptr = children[i].load();</div>
-<div class="line"><a id="l02822" name="l02822"></a><span class="lineno"> 2822</span>      <span class="keywordflow">if</span> (child_ptr != <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a id="l02823" name="l02823"></a><span class="lineno"> 2823</span>        func(i, child_ptr);</div>
-<div class="line"><a id="l02824" name="l02824"></a><span class="lineno"> 2824</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l02825" name="l02825"></a><span class="lineno"> 2825</span>        ++actual_children_count;</div>
-<div class="line"><a id="l02826" name="l02826"></a><span class="lineno"> 2826</span>        <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count &lt;= children_count_ ||</div>
-<div class="line"><a id="l02827" name="l02827"></a><span class="lineno"> 2827</span>                            children_count_ == 0);</div>
-<div class="line"><a id="l02828" name="l02828"></a><span class="lineno"> 2828</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l02829" name="l02829"></a><span class="lineno"> 2829</span>      }</div>
-<div class="line"><a id="l02830" name="l02830"></a><span class="lineno"> 2830</span>    }</div>
-<div class="line"><a id="l02831" name="l02831"></a><span class="lineno"> 2831</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count == children_count_);</div>
-<div class="line"><a id="l02832" name="l02832"></a><span class="lineno"> 2832</span>  }</div>
-<div class="line"><a id="l02833" name="l02833"></a><span class="lineno"> 2833</span> </div>
-<div class="line"><a id="l02834" name="l02834"></a><span class="lineno"> 2834</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> delete_subtree(db_type &amp;db_instance) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02835" name="l02835"></a><span class="lineno"> 2835</span>    for_each_child([&amp;db_instance](<span class="keywordtype">unsigned</span>, node_ptr child) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l02836" name="l02836"></a><span class="lineno"> 2836</span>      ArtPolicy::delete_subtree(child, db_instance);</div>
-<div class="line"><a id="l02837" name="l02837"></a><span class="lineno"> 2837</span>    });</div>
-<div class="line"><a id="l02838" name="l02838"></a><span class="lineno"> 2838</span>  }</div>
-<div class="line"><a id="l02839" name="l02839"></a><span class="lineno"> 2839</span> </div>
-<div class="line"><a id="l02840" name="l02840"></a><span class="lineno"> 2840</span>  [[gnu::cold]] <a class="code hl_define" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream &amp;os,</div>
-<div class="line"><a id="l02841" name="l02841"></a><span class="lineno"> 2841</span>                                                <span class="keywordtype">bool</span> recursive)<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l02842" name="l02842"></a><span class="lineno"> 2842</span>    parent_class::dump(os, recursive);</div>
-<div class="line"><a id="l02843" name="l02843"></a><span class="lineno"> 2843</span>    os &lt;&lt; <span class="stringliteral">&quot;, key bytes &amp; children:\n&quot;</span>;</div>
-<div class="line"><a id="l02844" name="l02844"></a><span class="lineno"> 2844</span>    for_each_child([&amp;os, recursive](<span class="keywordtype">unsigned</span> i, node_ptr child) {</div>
-<div class="line"><a id="l02845" name="l02845"></a><span class="lineno"> 2845</span>      os &lt;&lt; <span class="charliteral">&#39; &#39;</span>;</div>
-<div class="line"><a id="l02846" name="l02846"></a><span class="lineno"> 2846</span>      <a class="code hl_function" href="namespaceunodb_1_1detail.html#a0ea0a7a9ae7c67e2636bae1ca01e11fe">dump_byte</a>(os, <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i));</div>
-<div class="line"><a id="l02847" name="l02847"></a><span class="lineno"> 2847</span>      os &lt;&lt; <span class="charliteral">&#39; &#39;</span>;</div>
-<div class="line"><a id="l02848" name="l02848"></a><span class="lineno"> 2848</span>      <span class="keywordflow">if</span> (recursive) {</div>
-<div class="line"><a id="l02849" name="l02849"></a><span class="lineno"> 2849</span>        ArtPolicy::dump_node(os, child);</div>
-<div class="line"><a id="l02850" name="l02850"></a><span class="lineno"> 2850</span>      }</div>
-<div class="line"><a id="l02851" name="l02851"></a><span class="lineno"> 2851</span>    });</div>
-<div class="line"><a id="l02852" name="l02852"></a><span class="lineno"> 2852</span>  }</div>
-<div class="line"><a id="l02853" name="l02853"></a><span class="lineno"> 2853</span> </div>
-<div class="line"><a id="l02854" name="l02854"></a><span class="lineno"> 2854</span> <span class="keyword">private</span>:</div>
-<div class="line"><a id="l02855" name="l02855"></a><span class="lineno"> 2855</span>  std::array&lt;critical_section_policy&lt;node_ptr&gt;, basic_inode_256::capacity&gt;</div>
-<div class="line"><a id="l02856" name="l02856"></a><span class="lineno"> 2856</span>      children;</div>
+<div class="line"><a id="l02615" name="l02615"></a><span class="lineno"> 2615</span> </div>
+<div class="line"><a id="l02616" name="l02616"></a><span class="lineno"> 2616</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> ArtPolicy&gt;</div>
+<div class="line"><a id="l02617" name="l02617"></a><span class="lineno"> 2617</span><span class="keyword">using </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">basic_inode_256_parent</a> =</div>
+<div class="line"><a id="l02618" name="l02618"></a><span class="lineno"> 2618</span>    <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">basic_inode</a>&lt;ArtPolicy, 49, 256, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>,</div>
+<div class="line"><a id="l02619" name="l02619"></a><span class="lineno"> 2619</span>                <span class="keyword">typename</span> ArtPolicy::inode48_type, <a class="code hl_class" href="classunodb_1_1detail_1_1fake__inode.html">fake_inode</a>,</div>
+<div class="line"><a id="l02620" name="l02620"></a><span class="lineno"> 2620</span>                <span class="keyword">typename</span> ArtPolicy::inode256_type&gt;;</div>
+<div class="line"><a id="l02621" name="l02621"></a><span class="lineno"> 2621</span> </div>
+<div class="line"><a id="l02622" name="l02622"></a><span class="lineno"> 2622</span><span class="comment">// An internal node used to store data for nodes having between 49 and</span></div>
+<div class="line"><a id="l02623" name="l02623"></a><span class="lineno"> 2623</span><span class="comment">// 256 child pointers.  There is no keys[].  Instead, the current byte</span></div>
+<div class="line"><a id="l02624" name="l02624"></a><span class="lineno"> 2624</span><span class="comment">// of the search key is used as a direct index into the child</span></div>
+<div class="line"><a id="l02625" name="l02625"></a><span class="lineno"> 2625</span><span class="comment">// pointer[].</span></div>
+<div class="line"><a id="l02626" name="l02626"></a><span class="lineno"> 2626</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> ArtPolicy&gt;</div>
+<div class="foldopen" id="foldopen02627" data-start="{" data-end="};">
+<div class="line"><a id="l02627" name="l02627"></a><span class="lineno"><a class="line" href="classunodb_1_1detail_1_1basic__inode__256.html"> 2627</a></span><span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__256.html">basic_inode_256</a> : <span class="keyword">public</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">basic_inode_256_parent</a>&lt;ArtPolicy&gt; {</div>
+<div class="line"><a id="l02628" name="l02628"></a><span class="lineno"> 2628</span>  <span class="keyword">using </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">parent_class</a> = <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">basic_inode_256_parent&lt;ArtPolicy&gt;</a>;</div>
+<div class="line"><a id="l02629" name="l02629"></a><span class="lineno"> 2629</span> </div>
+<div class="line"><a id="l02630" name="l02630"></a><span class="lineno"> 2630</span>  <span class="keyword">using </span>typename parent_class::inode48_type;</div>
+<div class="line"><a id="l02631" name="l02631"></a><span class="lineno"> 2631</span>  <span class="keyword">using </span>typename <a class="code hl_class" href="classunodb_1_1detail_1_1basic__leaf.html">parent_class::leaf_type</a>;</div>
+<div class="line"><a id="l02632" name="l02632"></a><span class="lineno"> 2632</span>  <span class="keyword">using </span>typename parent_class::node_ptr;</div>
+<div class="line"><a id="l02633" name="l02633"></a><span class="lineno"> 2633</span> </div>
+<div class="line"><a id="l02634" name="l02634"></a><span class="lineno"> 2634</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a id="l02635" name="l02635"></a><span class="lineno"> 2635</span>  <span class="keyword">using </span>critical_section_policy =</div>
+<div class="line"><a id="l02636" name="l02636"></a><span class="lineno"> 2636</span>      <span class="keyword">typename</span> ArtPolicy::template critical_section_policy&lt;T&gt;;</div>
+<div class="line"><a id="l02637" name="l02637"></a><span class="lineno"> 2637</span> </div>
+<div class="line"><a id="l02638" name="l02638"></a><span class="lineno"> 2638</span> <span class="keyword">public</span>:</div>
+<div class="line"><a id="l02639" name="l02639"></a><span class="lineno"> 2639</span>  <span class="keyword">using </span>typename parent_class::db_leaf_unique_ptr;</div>
+<div class="line"><a id="l02640" name="l02640"></a><span class="lineno"> 2640</span>  <span class="keyword">using </span>typename parent_class::db_type;</div>
+<div class="line"><a id="l02641" name="l02641"></a><span class="lineno"> 2641</span>  <span class="keyword">using </span>typename parent_class::tree_depth_type;</div>
+<div class="line"><a id="l02642" name="l02642"></a><span class="lineno"> 2642</span> </div>
+<div class="line"><a id="l02643" name="l02643"></a><span class="lineno"> 2643</span>  <span class="keyword">constexpr</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__256.html">basic_inode_256</a>(db_type &amp;, <span class="keyword">const</span> inode48_type &amp;source_node) noexcept</div>
+<div class="line"><a id="l02644" name="l02644"></a><span class="lineno"> 2644</span>      : <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">parent_class</a>{source_node} {}</div>
+<div class="line"><a id="l02645" name="l02645"></a><span class="lineno"> 2645</span> </div>
+<div class="line"><a id="l02646" name="l02646"></a><span class="lineno"> 2646</span>  <span class="keyword">constexpr</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__256.html">basic_inode_256</a>(db_type &amp;db_instance, inode48_type &amp;source_node,</div>
+<div class="line"><a id="l02647" name="l02647"></a><span class="lineno"> 2647</span>                            db_leaf_unique_ptr &amp;&amp;child,</div>
+<div class="line"><a id="l02648" name="l02648"></a><span class="lineno"> 2648</span>                            tree_depth_type depth) noexcept</div>
+<div class="line"><a id="l02649" name="l02649"></a><span class="lineno"> 2649</span>      : <a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode.html">parent_class</a>{source_node} {</div>
+<div class="line"><a id="l02650" name="l02650"></a><span class="lineno"> 2650</span>    init(db_instance, source_node, std::move(child), depth);</div>
+<div class="line"><a id="l02651" name="l02651"></a><span class="lineno"> 2651</span>  }</div>
+<div class="line"><a id="l02652" name="l02652"></a><span class="lineno"> 2652</span> </div>
+<div class="line"><a id="l02653" name="l02653"></a><span class="lineno"> 2653</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> init(db_type &amp;db_instance,</div>
+<div class="line"><a id="l02654" name="l02654"></a><span class="lineno"> 2654</span>                      inode48_type &amp;__restrict source_node,</div>
+<div class="line"><a id="l02655" name="l02655"></a><span class="lineno"> 2655</span>                      db_leaf_unique_ptr child,</div>
+<div class="line"><a id="l02656" name="l02656"></a><span class="lineno"> 2656</span>                      tree_depth_type depth) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02657" name="l02657"></a><span class="lineno"> 2657</span>    <span class="keyword">const</span> <span class="keyword">auto</span> reclaim_source_node{</div>
+<div class="line"><a id="l02658" name="l02658"></a><span class="lineno"> 2658</span>        ArtPolicy::template make_db_inode_reclaimable_ptr&lt;inode48_type&gt;(</div>
+<div class="line"><a id="l02659" name="l02659"></a><span class="lineno"> 2659</span>            &amp;source_node, db_instance)};</div>
+<div class="line"><a id="l02660" name="l02660"></a><span class="lineno"> 2660</span>    <span class="keywordtype">unsigned</span> children_copied = 0;</div>
+<div class="line"><a id="l02661" name="l02661"></a><span class="lineno"> 2661</span>    <span class="keywordtype">unsigned</span> i = 0;</div>
+<div class="line"><a id="l02662" name="l02662"></a><span class="lineno"> 2662</span>    <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
+<div class="line"><a id="l02663" name="l02663"></a><span class="lineno"> 2663</span>      <span class="keyword">const</span> <span class="keyword">auto</span> children_i = source_node.child_indexes[i].load();</div>
+<div class="line"><a id="l02664" name="l02664"></a><span class="lineno"> 2664</span>      <span class="keywordflow">if</span> (children_i == inode48_type::empty_child) {</div>
+<div class="line"><a id="l02665" name="l02665"></a><span class="lineno"> 2665</span>        children[i] = node_ptr{<span class="keyword">nullptr</span>};</div>
+<div class="line"><a id="l02666" name="l02666"></a><span class="lineno"> 2666</span>      } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l02667" name="l02667"></a><span class="lineno"> 2667</span>        children[i] = source_node.children.pointer_array[children_i].load();</div>
+<div class="line"><a id="l02668" name="l02668"></a><span class="lineno"> 2668</span>        ++children_copied;</div>
+<div class="line"><a id="l02669" name="l02669"></a><span class="lineno"> 2669</span>        <span class="keywordflow">if</span> (children_copied == inode48_type::capacity) <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l02670" name="l02670"></a><span class="lineno"> 2670</span>      }</div>
+<div class="line"><a id="l02671" name="l02671"></a><span class="lineno"> 2671</span>      ++i;</div>
+<div class="line"><a id="l02672" name="l02672"></a><span class="lineno"> 2672</span>    }</div>
+<div class="line"><a id="l02673" name="l02673"></a><span class="lineno"> 2673</span> </div>
+<div class="line"><a id="l02674" name="l02674"></a><span class="lineno"> 2674</span>    ++i;</div>
+<div class="line"><a id="l02675" name="l02675"></a><span class="lineno"> 2675</span>    <span class="keywordflow">for</span> (; i &lt; basic_inode_256::capacity; ++i) children[i] = node_ptr{<span class="keyword">nullptr</span>};</div>
+<div class="line"><a id="l02676" name="l02676"></a><span class="lineno"> 2676</span> </div>
+<div class="line"><a id="l02677" name="l02677"></a><span class="lineno"> 2677</span>    <span class="keyword">const</span> <span class="keyword">auto</span> key_byte = <span class="keyword">static_cast&lt;</span>uint8_t<span class="keyword">&gt;</span>(child-&gt;get_key_view()[depth]);</div>
+<div class="line"><a id="l02678" name="l02678"></a><span class="lineno"> 2678</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(children[key_byte] == <span class="keyword">nullptr</span>);</div>
+<div class="line"><a id="l02679" name="l02679"></a><span class="lineno"> 2679</span>    children[key_byte] = node_ptr{child.release(), <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>};</div>
+<div class="line"><a id="l02680" name="l02680"></a><span class="lineno"> 2680</span>  }</div>
+<div class="line"><a id="l02681" name="l02681"></a><span class="lineno"> 2681</span> </div>
+<div class="line"><a id="l02682" name="l02682"></a><span class="lineno"> 2682</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> add_to_nonfull(db_leaf_unique_ptr &amp;&amp;child,</div>
+<div class="line"><a id="l02683" name="l02683"></a><span class="lineno"> 2683</span>                                tree_depth_type depth,</div>
+<div class="line"><a id="l02684" name="l02684"></a><span class="lineno"> 2684</span>                                std::uint8_t children_count_) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02685" name="l02685"></a><span class="lineno"> 2685</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(this-&gt;children_count == children_count_);</div>
+<div class="line"><a id="l02686" name="l02686"></a><span class="lineno"> 2686</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(children_count_ &lt; parent_class::capacity);</div>
+<div class="line"><a id="l02687" name="l02687"></a><span class="lineno"> 2687</span> </div>
+<div class="line"><a id="l02688" name="l02688"></a><span class="lineno"> 2688</span>    <span class="keyword">const</span> <span class="keyword">auto</span> key_byte =</div>
+<div class="line"><a id="l02689" name="l02689"></a><span class="lineno"> 2689</span>        <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(child-&gt;get_key_view()[depth]);</div>
+<div class="line"><a id="l02690" name="l02690"></a><span class="lineno"> 2690</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(children[key_byte] == <span class="keyword">nullptr</span>);</div>
+<div class="line"><a id="l02691" name="l02691"></a><span class="lineno"> 2691</span>    children[key_byte] = node_ptr{child.release(), <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">node_type::LEAF</a>};</div>
+<div class="line"><a id="l02692" name="l02692"></a><span class="lineno"> 2692</span>    this-&gt;children_count = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(children_count_ + 1U);</div>
+<div class="line"><a id="l02693" name="l02693"></a><span class="lineno"> 2693</span>  }</div>
+<div class="line"><a id="l02694" name="l02694"></a><span class="lineno"> 2694</span> </div>
+<div class="line"><a id="l02695" name="l02695"></a><span class="lineno"> 2695</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> remove(std::uint8_t child_index,</div>
+<div class="line"><a id="l02696" name="l02696"></a><span class="lineno"> 2696</span>                        db_type &amp;db_instance) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02697" name="l02697"></a><span class="lineno"> 2697</span>    <span class="keyword">const</span> <span class="keyword">auto</span> r{ArtPolicy::reclaim_leaf_on_scope_exit(</div>
+<div class="line"><a id="l02698" name="l02698"></a><span class="lineno"> 2698</span>        children[child_index].load().<span class="keyword">template</span> ptr&lt;leaf_type *&gt;(), db_instance)};</div>
+<div class="line"><a id="l02699" name="l02699"></a><span class="lineno"> 2699</span> </div>
+<div class="line"><a id="l02700" name="l02700"></a><span class="lineno"> 2700</span>    children[child_index] = node_ptr{<span class="keyword">nullptr</span>};</div>
+<div class="line"><a id="l02701" name="l02701"></a><span class="lineno"> 2701</span>    --this-&gt;children_count;</div>
+<div class="line"><a id="l02702" name="l02702"></a><span class="lineno"> 2702</span>  }</div>
+<div class="line"><a id="l02703" name="l02703"></a><span class="lineno"> 2703</span> </div>
+<div class="line"><a id="l02704" name="l02704"></a><span class="lineno"> 2704</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> <a class="code hl_typedef" href="classunodb_1_1detail_1_1basic__inode__impl.html#acbf7dfa46bacd995bc862638b59e71f6">basic_inode_256::find_result</a></div>
+<div class="line"><a id="l02705" name="l02705"></a><span class="lineno"> 2705</span>  find_child(std::byte key_byte) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02706" name="l02706"></a><span class="lineno"> 2706</span>    <span class="keyword">const</span> <span class="keyword">auto</span> key_int_byte = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(key_byte);</div>
+<div class="line"><a id="l02707" name="l02707"></a><span class="lineno"> 2707</span>    <span class="keywordflow">if</span> (children[key_int_byte] != <span class="keyword">nullptr</span>)</div>
+<div class="line"><a id="l02708" name="l02708"></a><span class="lineno"> 2708</span>      <span class="keywordflow">return</span> std::make_pair(key_int_byte, &amp;children[key_int_byte]);</div>
+<div class="line"><a id="l02709" name="l02709"></a><span class="lineno"> 2709</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a6905ec23ef797ae856d05259c70385bb">parent_class::child_not_found</a>;</div>
+<div class="line"><a id="l02710" name="l02710"></a><span class="lineno"> 2710</span>  }</div>
+<div class="line"><a id="l02711" name="l02711"></a><span class="lineno"> 2711</span> </div>
+<div class="line"><a id="l02712" name="l02712"></a><span class="lineno"> 2712</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> node_ptr get_child(</div>
+<div class="line"><a id="l02713" name="l02713"></a><span class="lineno"> 2713</span>      std::uint8_t child_index) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02714" name="l02714"></a><span class="lineno"> 2714</span>    <span class="keywordflow">return</span> children[child_index].load();</div>
+<div class="line"><a id="l02715" name="l02715"></a><span class="lineno"> 2715</span>  }</div>
+<div class="line"><a id="l02716" name="l02716"></a><span class="lineno"> 2716</span> </div>
+<div class="line"><a id="l02717" name="l02717"></a><span class="lineno"> 2717</span>  <span class="comment">// N256: Return the first mapped child.  The children[] is always in</span></div>
+<div class="line"><a id="l02718" name="l02718"></a><span class="lineno"> 2718</span>  <span class="comment">// order since it is directly indexed by a byte from the key.</span></div>
+<div class="line"><a id="l02719" name="l02719"></a><span class="lineno"> 2719</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1iter__result.html">basic_inode_256::iter_result</a></div>
+<div class="line"><a id="l02720" name="l02720"></a><span class="lineno"> 2720</span>  begin() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02721" name="l02721"></a><span class="lineno"> 2721</span>    <span class="keywordflow">for</span> (std::uint64_t i = 0; i &lt; basic_inode_256::capacity; i++) {</div>
+<div class="line"><a id="l02722" name="l02722"></a><span class="lineno"> 2722</span>      <span class="comment">// cppcheck-suppress useStlAlgorithm</span></div>
+<div class="line"><a id="l02723" name="l02723"></a><span class="lineno"> 2723</span>      <span class="keywordflow">if</span> (children[i] != <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a id="l02724" name="l02724"></a><span class="lineno"> 2724</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);  <span class="comment">// child_index is key byte</span></div>
+<div class="line"><a id="l02725" name="l02725"></a><span class="lineno"> 2725</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02726" name="l02726"></a><span class="lineno"> 2726</span>        <span class="keywordflow">return</span> {node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, child_index,</div>
+<div class="line"><a id="l02727" name="l02727"></a><span class="lineno"> 2727</span>                this-&gt;get_key_prefix().get_snapshot()};</div>
+<div class="line"><a id="l02728" name="l02728"></a><span class="lineno"> 2728</span>      }</div>
+<div class="line"><a id="l02729" name="l02729"></a><span class="lineno"> 2729</span>    }</div>
+<div class="line"><a id="l02730" name="l02730"></a><span class="lineno"> 2730</span>    <span class="comment">// because we always have at least 49 keys.</span></div>
+<div class="line"><a id="l02731" name="l02731"></a><span class="lineno"> 2731</span>    <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();  <span class="comment">// LCOV_EXCL_LINE</span></div>
+<div class="line"><a id="l02732" name="l02732"></a><span class="lineno"> 2732</span>  }</div>
+<div class="line"><a id="l02733" name="l02733"></a><span class="lineno"> 2733</span> </div>
+<div class="line"><a id="l02734" name="l02734"></a><span class="lineno"> 2734</span>  <span class="comment">// N256: Return the last mapped child.  The children[] is always in</span></div>
+<div class="line"><a id="l02735" name="l02735"></a><span class="lineno"> 2735</span>  <span class="comment">// order since it is directly indexed by a byte from the key.</span></div>
+<div class="line"><a id="l02736" name="l02736"></a><span class="lineno"> 2736</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> <a class="code hl_struct" href="structunodb_1_1detail_1_1iter__result.html">basic_inode_256::iter_result</a></div>
+<div class="line"><a id="l02737" name="l02737"></a><span class="lineno"> 2737</span>  last() <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02738" name="l02738"></a><span class="lineno"> 2738</span>    <span class="keywordflow">for</span> (std::int64_t i = basic_inode_256::capacity - 1; i &gt;= 0; i--) {</div>
+<div class="line"><a id="l02739" name="l02739"></a><span class="lineno"> 2739</span>      <span class="keywordflow">if</span> (children[<span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i)] != <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a id="l02740" name="l02740"></a><span class="lineno"> 2740</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);  <span class="comment">// child_index is key byte</span></div>
+<div class="line"><a id="l02741" name="l02741"></a><span class="lineno"> 2741</span>        <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02742" name="l02742"></a><span class="lineno"> 2742</span>        <span class="keywordflow">return</span> {node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, child_index,</div>
+<div class="line"><a id="l02743" name="l02743"></a><span class="lineno"> 2743</span>                this-&gt;get_key_prefix().get_snapshot()};</div>
+<div class="line"><a id="l02744" name="l02744"></a><span class="lineno"> 2744</span>      }</div>
+<div class="line"><a id="l02745" name="l02745"></a><span class="lineno"> 2745</span>    }</div>
+<div class="line"><a id="l02746" name="l02746"></a><span class="lineno"> 2746</span>    <span class="comment">// because we always have at least 49 keys.</span></div>
+<div class="line"><a id="l02747" name="l02747"></a><span class="lineno"> 2747</span>    <a class="code hl_define" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">UNODB_DETAIL_CANNOT_HAPPEN</a>();  <span class="comment">// LCOV_EXCL_LINE</span></div>
+<div class="line"><a id="l02748" name="l02748"></a><span class="lineno"> 2748</span>  }</div>
+<div class="line"><a id="l02749" name="l02749"></a><span class="lineno"> 2749</span> </div>
+<div class="line"><a id="l02750" name="l02750"></a><span class="lineno"> 2750</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_256::iter_result_opt</div>
+<div class="line"><a id="l02751" name="l02751"></a><span class="lineno"> 2751</span>  next(<span class="keyword">const</span> std::uint8_t child_index) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02752" name="l02752"></a><span class="lineno"> 2752</span>    <span class="comment">// loop over the remaining byte values in lexical order.</span></div>
+<div class="line"><a id="l02753" name="l02753"></a><span class="lineno"> 2753</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(child_index) + 1;</div>
+<div class="line"><a id="l02754" name="l02754"></a><span class="lineno"> 2754</span>         i &lt; basic_inode_256::capacity; i++) {</div>
+<div class="line"><a id="l02755" name="l02755"></a><span class="lineno"> 2755</span>      <span class="comment">// cppcheck-suppress useStlAlgorithm</span></div>
+<div class="line"><a id="l02756" name="l02756"></a><span class="lineno"> 2756</span>      <span class="keywordflow">if</span> (children[i] != <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a id="l02757" name="l02757"></a><span class="lineno"> 2757</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02758" name="l02758"></a><span class="lineno"> 2758</span>        <span class="keyword">const</span> <span class="keyword">auto</span> next_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02759" name="l02759"></a><span class="lineno"> 2759</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, next_index,</div>
+<div class="line"><a id="l02760" name="l02760"></a><span class="lineno"> 2760</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
+<div class="line"><a id="l02761" name="l02761"></a><span class="lineno"> 2761</span>      }</div>
+<div class="line"><a id="l02762" name="l02762"></a><span class="lineno"> 2762</span>    }</div>
+<div class="line"><a id="l02763" name="l02763"></a><span class="lineno"> 2763</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
+<div class="line"><a id="l02764" name="l02764"></a><span class="lineno"> 2764</span>  }</div>
+<div class="line"><a id="l02765" name="l02765"></a><span class="lineno"> 2765</span> </div>
+<div class="line"><a id="l02766" name="l02766"></a><span class="lineno"> 2766</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_256::iter_result_opt</div>
+<div class="line"><a id="l02767" name="l02767"></a><span class="lineno"> 2767</span>  prior(<span class="keyword">const</span> std::uint8_t child_index) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02768" name="l02768"></a><span class="lineno"> 2768</span>    <span class="comment">// loop over the remaining byte values in lexical order.</span></div>
+<div class="line"><a id="l02769" name="l02769"></a><span class="lineno"> 2769</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::int64_t<span class="keyword">&gt;</span>(child_index) - 1; i &gt;= 0; i--) {</div>
+<div class="line"><a id="l02770" name="l02770"></a><span class="lineno"> 2770</span>      <span class="keyword">const</span> <span class="keyword">auto</span> next_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02771" name="l02771"></a><span class="lineno"> 2771</span>      <span class="keywordflow">if</span> (children[next_index] != <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a id="l02772" name="l02772"></a><span class="lineno"> 2772</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02773" name="l02773"></a><span class="lineno"> 2773</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, next_index,</div>
+<div class="line"><a id="l02774" name="l02774"></a><span class="lineno"> 2774</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
+<div class="line"><a id="l02775" name="l02775"></a><span class="lineno"> 2775</span>      }</div>
+<div class="line"><a id="l02776" name="l02776"></a><span class="lineno"> 2776</span>    }</div>
+<div class="line"><a id="l02777" name="l02777"></a><span class="lineno"> 2777</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
+<div class="line"><a id="l02778" name="l02778"></a><span class="lineno"> 2778</span>  }</div>
+<div class="line"><a id="l02779" name="l02779"></a><span class="lineno"> 2779</span> </div>
+<div class="line"><a id="l02780" name="l02780"></a><span class="lineno"> 2780</span>  <span class="comment">// N256: This is nearly identical to prior() except that we start</span></div>
+<div class="line"><a id="l02781" name="l02781"></a><span class="lineno"> 2781</span>  <span class="comment">// the search on the [key_byte] rather than the position before</span></div>
+<div class="line"><a id="l02782" name="l02782"></a><span class="lineno"> 2782</span>  <span class="comment">// that.</span></div>
+<div class="line"><a id="l02783" name="l02783"></a><span class="lineno"> 2783</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_256::iter_result_opt</div>
+<div class="line"><a id="l02784" name="l02784"></a><span class="lineno"> 2784</span>  lte_key_byte(std::byte key_byte) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02785" name="l02785"></a><span class="lineno"> 2785</span>    <span class="comment">// loop over the prior byte values in lexical order.</span></div>
+<div class="line"><a id="l02786" name="l02786"></a><span class="lineno"> 2786</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::int64_t<span class="keyword">&gt;</span>(key_byte); i &gt;= 0; i--) {</div>
+<div class="line"><a id="l02787" name="l02787"></a><span class="lineno"> 2787</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02788" name="l02788"></a><span class="lineno"> 2788</span>      <span class="keywordflow">if</span> (children[child_index] != <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a id="l02789" name="l02789"></a><span class="lineno"> 2789</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02790" name="l02790"></a><span class="lineno"> 2790</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, child_index,</div>
+<div class="line"><a id="l02791" name="l02791"></a><span class="lineno"> 2791</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
+<div class="line"><a id="l02792" name="l02792"></a><span class="lineno"> 2792</span>      }</div>
+<div class="line"><a id="l02793" name="l02793"></a><span class="lineno"> 2793</span>    }</div>
+<div class="line"><a id="l02794" name="l02794"></a><span class="lineno"> 2794</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
+<div class="line"><a id="l02795" name="l02795"></a><span class="lineno"> 2795</span>  }</div>
+<div class="line"><a id="l02796" name="l02796"></a><span class="lineno"> 2796</span> </div>
+<div class="line"><a id="l02797" name="l02797"></a><span class="lineno"> 2797</span>  <span class="comment">// N256: This is nearly identical to next() except that we start the</span></div>
+<div class="line"><a id="l02798" name="l02798"></a><span class="lineno"> 2798</span>  <span class="comment">// search on the [key_byte] rather than the position after that.</span></div>
+<div class="line"><a id="l02799" name="l02799"></a><span class="lineno"> 2799</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> <span class="keyword">typename</span> basic_inode_256::iter_result_opt</div>
+<div class="line"><a id="l02800" name="l02800"></a><span class="lineno"> 2800</span>  gte_key_byte(std::byte key_byte) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02801" name="l02801"></a><span class="lineno"> 2801</span>    <span class="comment">// loop over the remaining byte values in lexical order.</span></div>
+<div class="line"><a id="l02802" name="l02802"></a><span class="lineno"> 2802</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(key_byte);</div>
+<div class="line"><a id="l02803" name="l02803"></a><span class="lineno"> 2803</span>         i &lt; basic_inode_256::capacity; i++) {</div>
+<div class="line"><a id="l02804" name="l02804"></a><span class="lineno"> 2804</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_index = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02805" name="l02805"></a><span class="lineno"> 2805</span>      <span class="keywordflow">if</span> (children[child_index] != <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a id="l02806" name="l02806"></a><span class="lineno"> 2806</span>        <span class="keyword">const</span> <span class="keyword">auto</span> key = <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i);</div>
+<div class="line"><a id="l02807" name="l02807"></a><span class="lineno"> 2807</span>        <span class="keywordflow">return</span> {{node_ptr{<span class="keyword">this</span>, <a class="code hl_enumvalue" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda">node_type::I256</a>}, key, child_index,</div>
+<div class="line"><a id="l02808" name="l02808"></a><span class="lineno"> 2808</span>                 this-&gt;get_key_prefix().get_snapshot()}};</div>
+<div class="line"><a id="l02809" name="l02809"></a><span class="lineno"> 2809</span>      }</div>
+<div class="line"><a id="l02810" name="l02810"></a><span class="lineno"> 2810</span>    }</div>
+<div class="line"><a id="l02811" name="l02811"></a><span class="lineno"> 2811</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">parent_class::end_result</a>;</div>
+<div class="line"><a id="l02812" name="l02812"></a><span class="lineno"> 2812</span>  }</div>
+<div class="line"><a id="l02813" name="l02813"></a><span class="lineno"> 2813</span> </div>
+<div class="line"><a id="l02814" name="l02814"></a><span class="lineno"> 2814</span>  <span class="comment">// TODO(laurynas) Lifting this out might help with iterator and</span></div>
+<div class="line"><a id="l02815" name="l02815"></a><span class="lineno"> 2815</span>  <span class="comment">// lambda patterns.</span></div>
+<div class="line"><a id="l02816" name="l02816"></a><span class="lineno"> 2816</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Function&gt;</div>
+<div class="line"><a id="l02817" name="l02817"></a><span class="lineno"> 2817</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> for_each_child(Function func) <span class="keyword">const</span></div>
+<div class="line"><a id="l02818" name="l02818"></a><span class="lineno"> 2818</span>      <span class="keyword">noexcept</span>(<span class="keyword">noexcept</span>(func(0, node_ptr{<span class="keyword">nullptr</span>}))) {</div>
+<div class="line"><a id="l02819" name="l02819"></a><span class="lineno"> 2819</span><span class="preprocessor">#ifndef NDEBUG</span></div>
+<div class="line"><a id="l02820" name="l02820"></a><span class="lineno"> 2820</span>    <span class="keyword">const</span> <span class="keyword">auto</span> children_count_ = this-&gt;children_count.load();</div>
+<div class="line"><a id="l02821" name="l02821"></a><span class="lineno"> 2821</span>    std::uint8_t actual_children_count = 0;</div>
+<div class="line"><a id="l02822" name="l02822"></a><span class="lineno"> 2822</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l02823" name="l02823"></a><span class="lineno"> 2823</span> </div>
+<div class="line"><a id="l02824" name="l02824"></a><span class="lineno"> 2824</span>    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 0; i &lt; 256; ++i) {</div>
+<div class="line"><a id="l02825" name="l02825"></a><span class="lineno"> 2825</span>      <span class="keyword">const</span> <span class="keyword">auto</span> child_ptr = children[i].load();</div>
+<div class="line"><a id="l02826" name="l02826"></a><span class="lineno"> 2826</span>      <span class="keywordflow">if</span> (child_ptr != <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a id="l02827" name="l02827"></a><span class="lineno"> 2827</span>        func(i, child_ptr);</div>
+<div class="line"><a id="l02828" name="l02828"></a><span class="lineno"> 2828</span><span class="preprocessor">#ifndef NDEBUG</span></div>
+<div class="line"><a id="l02829" name="l02829"></a><span class="lineno"> 2829</span>        ++actual_children_count;</div>
+<div class="line"><a id="l02830" name="l02830"></a><span class="lineno"> 2830</span>        <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count &lt;= children_count_ ||</div>
+<div class="line"><a id="l02831" name="l02831"></a><span class="lineno"> 2831</span>                            children_count_ == 0);</div>
+<div class="line"><a id="l02832" name="l02832"></a><span class="lineno"> 2832</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l02833" name="l02833"></a><span class="lineno"> 2833</span>      }</div>
+<div class="line"><a id="l02834" name="l02834"></a><span class="lineno"> 2834</span>    }</div>
+<div class="line"><a id="l02835" name="l02835"></a><span class="lineno"> 2835</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(actual_children_count == children_count_);</div>
+<div class="line"><a id="l02836" name="l02836"></a><span class="lineno"> 2836</span>  }</div>
+<div class="line"><a id="l02837" name="l02837"></a><span class="lineno"> 2837</span> </div>
+<div class="line"><a id="l02838" name="l02838"></a><span class="lineno"> 2838</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> delete_subtree(db_type &amp;db_instance) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02839" name="l02839"></a><span class="lineno"> 2839</span>    for_each_child([&amp;db_instance](<span class="keywordtype">unsigned</span>, node_ptr child) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l02840" name="l02840"></a><span class="lineno"> 2840</span>      ArtPolicy::delete_subtree(child, db_instance);</div>
+<div class="line"><a id="l02841" name="l02841"></a><span class="lineno"> 2841</span>    });</div>
+<div class="line"><a id="l02842" name="l02842"></a><span class="lineno"> 2842</span>  }</div>
+<div class="line"><a id="l02843" name="l02843"></a><span class="lineno"> 2843</span> </div>
+<div class="line"><a id="l02844" name="l02844"></a><span class="lineno"> 2844</span>  [[gnu::cold]] <a class="code hl_define" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream &amp;os,</div>
+<div class="line"><a id="l02845" name="l02845"></a><span class="lineno"> 2845</span>                                                <span class="keywordtype">bool</span> recursive)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l02846" name="l02846"></a><span class="lineno"> 2846</span>    parent_class::dump(os, recursive);</div>
+<div class="line"><a id="l02847" name="l02847"></a><span class="lineno"> 2847</span>    os &lt;&lt; <span class="stringliteral">&quot;, key bytes &amp; children:\n&quot;</span>;</div>
+<div class="line"><a id="l02848" name="l02848"></a><span class="lineno"> 2848</span>    for_each_child([&amp;os, recursive](<span class="keywordtype">unsigned</span> i, node_ptr child) {</div>
+<div class="line"><a id="l02849" name="l02849"></a><span class="lineno"> 2849</span>      os &lt;&lt; <span class="charliteral">&#39; &#39;</span>;</div>
+<div class="line"><a id="l02850" name="l02850"></a><span class="lineno"> 2850</span>      <a class="code hl_function" href="namespaceunodb_1_1detail.html#a0ea0a7a9ae7c67e2636bae1ca01e11fe">dump_byte</a>(os, <span class="keyword">static_cast&lt;</span>std::byte<span class="keyword">&gt;</span>(i));</div>
+<div class="line"><a id="l02851" name="l02851"></a><span class="lineno"> 2851</span>      os &lt;&lt; <span class="charliteral">&#39; &#39;</span>;</div>
+<div class="line"><a id="l02852" name="l02852"></a><span class="lineno"> 2852</span>      <span class="keywordflow">if</span> (recursive) {</div>
+<div class="line"><a id="l02853" name="l02853"></a><span class="lineno"> 2853</span>        ArtPolicy::dump_node(os, child);</div>
+<div class="line"><a id="l02854" name="l02854"></a><span class="lineno"> 2854</span>      }</div>
+<div class="line"><a id="l02855" name="l02855"></a><span class="lineno"> 2855</span>    });</div>
+<div class="line"><a id="l02856" name="l02856"></a><span class="lineno"> 2856</span>  }</div>
 <div class="line"><a id="l02857" name="l02857"></a><span class="lineno"> 2857</span> </div>
-<div class="line"><a id="l02858" name="l02858"></a><span class="lineno"> 2858</span>  <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt;</div>
-<div class="line"><a id="l02859" name="l02859"></a><span class="lineno"> 2859</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__48.html">basic_inode_48</a>;</div>
-<div class="line"><a id="l02860" name="l02860"></a><span class="lineno"> 2860</span>};  <span class="comment">// class basic_inode_256</span></div>
-</div>
+<div class="line"><a id="l02858" name="l02858"></a><span class="lineno"> 2858</span> <span class="keyword">private</span>:</div>
+<div class="line"><a id="l02859" name="l02859"></a><span class="lineno"> 2859</span>  std::array&lt;critical_section_policy&lt;node_ptr&gt;, basic_inode_256::capacity&gt;</div>
+<div class="line"><a id="l02860" name="l02860"></a><span class="lineno"> 2860</span>      children;</div>
 <div class="line"><a id="l02861" name="l02861"></a><span class="lineno"> 2861</span> </div>
-<div class="line"><a id="l02862" name="l02862"></a><span class="lineno"> 2862</span>}  <span class="comment">// namespace unodb::detail</span></div>
-<div class="line"><a id="l02863" name="l02863"></a><span class="lineno"> 2863</span> </div>
-<div class="line"><a id="l02864" name="l02864"></a><span class="lineno"> 2864</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_ART_INTERNAL_IMPL_HPP</span></div>
+<div class="line"><a id="l02862" name="l02862"></a><span class="lineno"> 2862</span>  <span class="keyword">template</span> &lt;<span class="keyword">class</span>&gt;</div>
+<div class="line"><a id="l02863" name="l02863"></a><span class="lineno"> 2863</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__inode__48.html">basic_inode_48</a>;</div>
+<div class="line"><a id="l02864" name="l02864"></a><span class="lineno"> 2864</span>};  <span class="comment">// class basic_inode_256</span></div>
+</div>
+<div class="line"><a id="l02865" name="l02865"></a><span class="lineno"> 2865</span> </div>
+<div class="line"><a id="l02866" name="l02866"></a><span class="lineno"> 2866</span>}  <span class="comment">// namespace unodb::detail</span></div>
+<div class="line"><a id="l02867" name="l02867"></a><span class="lineno"> 2867</span> </div>
+<div class="line"><a id="l02868" name="l02868"></a><span class="lineno"> 2868</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_ART_INTERNAL_IMPL_HPP</span></div>
 <div class="ttc" id="aassert_8hpp_html"><div class="ttname"><a href="assert_8hpp.html">assert.hpp</a></div><div class="ttdoc">Internal macros for assertions, assumptions &amp; intentional crashing.</div></div>
 <div class="ttc" id="aclassunodb_1_1db_html"><div class="ttname"><a href="classunodb_1_1db.html">unodb::db</a></div><div class="ttdoc">A non-thread-safe implementation of the Adaptive Radix Tree (ART).</div><div class="ttdef"><b>Definition</b> art.hpp:85</div></div>
 <div class="ttc" id="aclassunodb_1_1detail_1_1basic__db__inode__deleter_html"><div class="ttname"><a href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">unodb::detail::basic_db_inode_deleter</a></div><div class="ttdef"><b>Definition</b> art_internal.hpp:300</div></div>
 <div class="ttc" id="aclassunodb_1_1detail_1_1basic__db__leaf__deleter_html"><div class="ttname"><a href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html">unodb::detail::basic_db_leaf_deleter</a></div><div class="ttdef"><b>Definition</b> art_internal.hpp:271</div></div>
 <div class="ttc" id="aclassunodb_1_1detail_1_1basic__inode__16_html"><div class="ttname"><a href="classunodb_1_1detail_1_1basic__inode__16.html">unodb::detail::basic_inode_16</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:1717</div></div>
-<div class="ttc" id="aclassunodb_1_1detail_1_1basic__inode__256_html"><div class="ttname"><a href="classunodb_1_1detail_1_1basic__inode__256.html">unodb::detail::basic_inode_256</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:2625</div></div>
+<div class="ttc" id="aclassunodb_1_1detail_1_1basic__inode__256_html"><div class="ttname"><a href="classunodb_1_1detail_1_1basic__inode__256.html">unodb::detail::basic_inode_256</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:2627</div></div>
 <div class="ttc" id="aclassunodb_1_1detail_1_1basic__inode__48_html"><div class="ttname"><a href="classunodb_1_1detail_1_1basic__inode__48.html">unodb::detail::basic_inode_48</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:2097</div></div>
 <div class="ttc" id="aclassunodb_1_1detail_1_1basic__inode__4_html"><div class="ttname"><a href="classunodb_1_1detail_1_1basic__inode__4.html">unodb::detail::basic_inode_4</a></div><div class="ttdoc">An internal node with up to 4 children.</div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:1261</div></div>
 <div class="ttc" id="aclassunodb_1_1detail_1_1basic__inode__impl_html"><div class="ttname"><a href="classunodb_1_1detail_1_1basic__inode__impl.html">unodb::detail::basic_inode_impl</a></div><div class="ttdoc">A template class extending the common header and defining some methods common to all internal node ty...</div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:795</div></div>
@@ -3010,7 +3014,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="ttc" id="astructunodb_1_1detail_1_1key__prefix_1_1inode__fields_html"><div class="ttname"><a href="structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html">unodb::detail::key_prefix::inode_fields</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:614</div></div>
 <div class="ttc" id="astructunodb_1_1detail_1_1key__prefix__snapshot_1_1inode__fields_html"><div class="ttname"><a href="structunodb_1_1detail_1_1key__prefix__snapshot_1_1inode__fields.html">unodb::detail::key_prefix_snapshot::inode_fields</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:555</div></div>
 <div class="ttc" id="aunionunodb_1_1detail_1_1basic__inode__16_1_1key__union_html"><div class="ttname"><a href="unionunodb_1_1detail_1_1basic__inode__16_1_1key__union.html">unodb::detail::basic_inode_16::key_union</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:2062</div></div>
-<div class="ttc" id="aunionunodb_1_1detail_1_1basic__inode__48_1_1children__union_html"><div class="ttname"><a href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html">unodb::detail::basic_inode_48::children_union</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:2582</div></div>
+<div class="ttc" id="aunionunodb_1_1detail_1_1basic__inode__48_1_1children__union_html"><div class="ttname"><a href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html">unodb::detail::basic_inode_48::children_union</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:2584</div></div>
 <div class="ttc" id="aunionunodb_1_1detail_1_1basic__inode__4_1_1key__union_html"><div class="ttname"><a href="unionunodb_1_1detail_1_1basic__inode__4_1_1key__union.html">unodb::detail::basic_inode_4::key_union</a></div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:1657</div></div>
 <div class="ttc" id="aunionunodb_1_1detail_1_1key__prefix__snapshot_html"><div class="ttname"><a href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">unodb::detail::key_prefix_snapshot</a></div><div class="ttdoc">A helper class used to expose a consistent snapshot of the unodb::detail::key_prefix to the iterator ...</div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:547</div></div>
 <div class="ttc" id="aunionunodb_1_1detail_1_1key__prefix__snapshot_html_a329e026ba61ed52a07be450fe61c8cfc"><div class="ttname"><a href="unionunodb_1_1detail_1_1key__prefix__snapshot.html#a329e026ba61ed52a07be450fe61c8cfc">unodb::detail::key_prefix_snapshot::length</a></div><div class="ttdeci">constexpr key_prefix_size length() const noexcept</div><div class="ttdoc">The number of prefix bytes.</div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:570</div></div>

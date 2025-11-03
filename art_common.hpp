@@ -538,10 +538,10 @@ class key_decoder {
   size_t off{0};         /// the byte offset into that data.
 
   // highest bit for various data types.
-  static constexpr uint64_t msb8 = 1ULL << 7;
-  static constexpr uint64_t msb16 = 1ULL << 15;
-  static constexpr uint64_t msb32 = 1ULL << 31;
-  static constexpr uint64_t msb64 = 1ULL << 63;
+  static constexpr std::uint8_t msb8 = 1U << 7U;
+  static constexpr std::uint16_t msb16 = 1U << 15U;
+  static constexpr std::uint32_t msb32 = 1U << 31U;
+  static constexpr std::uint64_t msb64 = 1ULL << 63U;
 
  public:
   /// Build a decoder for the unodb::key_view.
@@ -554,23 +554,19 @@ class key_decoder {
 
   /// Decode a component of the indicated type from the key.
   key_decoder &decode(std::int8_t &v) noexcept {
-    constexpr auto one = static_cast<std::uint8_t>(1);
     std::uint8_t u;
     decode(u);
-    v = (u >= msb8) ? static_cast<int8_t>(u - msb8)
-                    : -static_cast<int8_t>(msb8 - one - u) -
-                          static_cast<std::int8_t>(1);
+    v = static_cast<std::int8_t>(
+        (u >= msb8) ? u - msb8 : ~static_cast<std::uint8_t>(msb8 - 1U - u));
     return *this;
   }
 
   /// Decode a component of the indicated type from the key.
   key_decoder &decode(std::int16_t &v) noexcept {
-    constexpr auto one = static_cast<std::uint16_t>(1);
     std::uint16_t u;
     decode(u);
-    v = (u >= msb16) ? static_cast<int16_t>(u - msb16)
-                     : -static_cast<int16_t>(msb16 - one - u) -
-                           static_cast<std::int16_t>(1);
+    v = static_cast<std::int16_t>(
+        (u >= msb16) ? u - msb16 : ~static_cast<std::uint16_t>(msb16 - 1U - u));
     return *this;
   }
 

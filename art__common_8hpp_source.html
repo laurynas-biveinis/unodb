@@ -526,10 +526,10 @@ $(document).ready(function(){initNavTree('art__common_8hpp_source.html',''); ini
 <div class="line"><a id="l00538" name="l00538"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">  538</a></span>  <span class="keywordtype">size_t</span> <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a>{0};         </div>
 <div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span> </div>
 <div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span>  <span class="comment">// highest bit for various data types.</span></div>
-<div class="line"><a id="l00541" name="l00541"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#aa802fb814869f0e416a7c98ece5cb5c4">  541</a></span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> uint64_t <a class="code hl_variable" href="classunodb_1_1key__decoder.html#aa802fb814869f0e416a7c98ece5cb5c4">msb8</a> = 1ULL &lt;&lt; 7;</div>
-<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> uint64_t msb16 = 1ULL &lt;&lt; 15;</div>
-<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> uint64_t msb32 = 1ULL &lt;&lt; 31;</div>
-<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> uint64_t msb64 = 1ULL &lt;&lt; 63;</div>
+<div class="line"><a id="l00541" name="l00541"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a20aa43d8bece0c675cfbc7ad7b762629">  541</a></span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> std::uint8_t <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a20aa43d8bece0c675cfbc7ad7b762629">msb8</a> = 1U &lt;&lt; 7U;</div>
+<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> std::uint16_t msb16 = 1U &lt;&lt; 15U;</div>
+<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> std::uint32_t msb32 = 1U &lt;&lt; 31U;</div>
+<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span>  <span class="keyword">static</span> <span class="keyword">constexpr</span> std::uint64_t msb64 = 1ULL &lt;&lt; 63U;</div>
 <div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span> </div>
 <div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span> <span class="keyword">public</span>:</div>
 <div class="foldopen" id="foldopen00548" data-start="{" data-end="}">
@@ -543,152 +543,148 @@ $(document).ready(function(){initNavTree('art__common_8hpp_source.html',''); ini
 <div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span> </div>
 <div class="foldopen" id="foldopen00556" data-start="{" data-end="}">
 <div class="line"><a id="l00556" name="l00556"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">  556</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(std::int8_t &amp;v) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>    <span class="keyword">constexpr</span> <span class="keyword">auto</span> one = <span class="keyword">static_cast&lt;</span>std::uint8_t<span class="keyword">&gt;</span>(1);</div>
-<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>    std::uint8_t u;</div>
-<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
-<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>    v = (u &gt;= <a class="code hl_variable" href="classunodb_1_1key__decoder.html#aa802fb814869f0e416a7c98ece5cb5c4">msb8</a>) ? <span class="keyword">static_cast&lt;</span>int8_t<span class="keyword">&gt;</span>(u - <a class="code hl_variable" href="classunodb_1_1key__decoder.html#aa802fb814869f0e416a7c98ece5cb5c4">msb8</a>)</div>
-<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>                    : -<span class="keyword">static_cast&lt;</span>int8_t<span class="keyword">&gt;</span>(<a class="code hl_variable" href="classunodb_1_1key__decoder.html#aa802fb814869f0e416a7c98ece5cb5c4">msb8</a> - one - u) -</div>
-<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>                          <span class="keyword">static_cast&lt;</span>std::int8_t<span class="keyword">&gt;</span>(1);</div>
-<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>  }</div>
+<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>    std::uint8_t u;</div>
+<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
+<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>    v = <span class="keyword">static_cast&lt;</span>std::int8_t<span class="keyword">&gt;</span>(</div>
+<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>        (u &gt;= <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a20aa43d8bece0c675cfbc7ad7b762629">msb8</a>) ? u - <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a20aa43d8bece0c675cfbc7ad7b762629">msb8</a> : ~static_cast&lt;std::uint8_t&gt;(<a class="code hl_variable" href="classunodb_1_1key__decoder.html#a20aa43d8bece0c675cfbc7ad7b762629">msb8</a> - 1U - u));</div>
+<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>  }</div>
 </div>
-<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span> </div>
-<div class="foldopen" id="foldopen00567" data-start="{" data-end="}">
-<div class="line"><a id="l00567" name="l00567"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#ad7611790f6705a92abdeb852a3af1cc1">  567</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#ad7611790f6705a92abdeb852a3af1cc1">decode</a>(std::int16_t &amp;v) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>    <span class="keyword">constexpr</span> <span class="keyword">auto</span> one = <span class="keyword">static_cast&lt;</span>std::uint16_t<span class="keyword">&gt;</span>(1);</div>
-<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>    std::uint16_t u;</div>
-<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
-<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>    v = (u &gt;= msb16) ? <span class="keyword">static_cast&lt;</span>int16_t<span class="keyword">&gt;</span>(u - msb16)</div>
-<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>                     : -<span class="keyword">static_cast&lt;</span>int16_t<span class="keyword">&gt;</span>(msb16 - one - u) -</div>
-<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>                           <span class="keyword">static_cast&lt;</span>std::int16_t<span class="keyword">&gt;</span>(1);</div>
-<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>  }</div>
+<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span> </div>
+<div class="foldopen" id="foldopen00565" data-start="{" data-end="}">
+<div class="line"><a id="l00565" name="l00565"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#ad7611790f6705a92abdeb852a3af1cc1">  565</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#ad7611790f6705a92abdeb852a3af1cc1">decode</a>(std::int16_t &amp;v) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>    std::uint16_t u;</div>
+<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>    v = <span class="keyword">static_cast&lt;</span>std::int16_t<span class="keyword">&gt;</span>(</div>
+<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>        (u &gt;= msb16) ? u - msb16 : ~static_cast&lt;std::uint16_t&gt;(msb16 - 1U - u));</div>
+<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>  }</div>
 </div>
-<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span> </div>
-<div class="foldopen" id="foldopen00578" data-start="{" data-end="}">
-<div class="line"><a id="l00578" name="l00578"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a1d834d53030a4bf00fe61019ba1bfe61">  578</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#a1d834d53030a4bf00fe61019ba1bfe61">decode</a>(std::int32_t &amp;v) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>    <span class="keyword">constexpr</span> <span class="keyword">auto</span> one = <span class="keyword">static_cast&lt;</span>std::uint32_t<span class="keyword">&gt;</span>(1);</div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>    std::uint32_t u;</div>
-<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
-<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>    v = (u &gt;= msb32) ? <span class="keyword">static_cast&lt;</span>int32_t<span class="keyword">&gt;</span>(u - msb32)</div>
-<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>                     : -<span class="keyword">static_cast&lt;</span>int32_t<span class="keyword">&gt;</span>(msb32 - one - u) - 1;</div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>  }</div>
+<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span> </div>
+<div class="foldopen" id="foldopen00574" data-start="{" data-end="}">
+<div class="line"><a id="l00574" name="l00574"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a1d834d53030a4bf00fe61019ba1bfe61">  574</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#a1d834d53030a4bf00fe61019ba1bfe61">decode</a>(std::int32_t &amp;v) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>    <span class="keyword">constexpr</span> <span class="keyword">auto</span> one = <span class="keyword">static_cast&lt;</span>std::uint32_t<span class="keyword">&gt;</span>(1);</div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>    std::uint32_t u;</div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
+<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>    v = (u &gt;= msb32) ? <span class="keyword">static_cast&lt;</span>int32_t<span class="keyword">&gt;</span>(u - msb32)</div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>                     : -<span class="keyword">static_cast&lt;</span>int32_t<span class="keyword">&gt;</span>(msb32 - one - u) - 1;</div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>  }</div>
 </div>
-<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span> </div>
-<div class="foldopen" id="foldopen00588" data-start="{" data-end="}">
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a5e24cf6afd03e9d4042ebc81a60da589">  588</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#a5e24cf6afd03e9d4042ebc81a60da589">decode</a>(std::int64_t &amp;v) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>    <span class="keyword">constexpr</span> <span class="keyword">auto</span> one = <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(1);</div>
-<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>    std::uint64_t u;</div>
-<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
-<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>    v = (u &gt;= msb64) ? <span class="keyword">static_cast&lt;</span>int64_t<span class="keyword">&gt;</span>(u - msb64)</div>
-<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>                     : -<span class="keyword">static_cast&lt;</span>int64_t<span class="keyword">&gt;</span>(msb64 - one - u) - 1LL;</div>
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>  }</div>
+<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span> </div>
+<div class="foldopen" id="foldopen00584" data-start="{" data-end="}">
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a5e24cf6afd03e9d4042ebc81a60da589">  584</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#a5e24cf6afd03e9d4042ebc81a60da589">decode</a>(std::int64_t &amp;v) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>    <span class="keyword">constexpr</span> <span class="keyword">auto</span> one = <span class="keyword">static_cast&lt;</span>std::uint64_t<span class="keyword">&gt;</span>(1);</div>
+<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>    std::uint64_t u;</div>
+<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
+<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>    v = (u &gt;= msb64) ? <span class="keyword">static_cast&lt;</span>int64_t<span class="keyword">&gt;</span>(u - msb64)</div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>                     : -<span class="keyword">static_cast&lt;</span>int64_t<span class="keyword">&gt;</span>(msb64 - one - u) - 1LL;</div>
+<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>  }</div>
 </div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span> </div>
+<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>  <span class="comment">//</span></div>
+<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>  <span class="comment">// unsigned integers</span></div>
+<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>  <span class="comment">//</span></div>
 <div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span> </div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>  <span class="comment">//</span></div>
-<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>  <span class="comment">// unsigned integers</span></div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>  <span class="comment">//</span></div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span> </div>
-<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26481)</div>
-<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26490)</div>
-<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span> </div>
-<div class="foldopen" id="foldopen00605" data-start="{" data-end="}">
-<div class="line"><a id="l00605" name="l00605"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a9fe5435bd2cbbd1d3a433d8b8bb64e5c">  605</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(std::uint8_t &amp;v) noexcept {</div>
-<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>    v = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>std::uint8_t &amp;<span class="keyword">&gt;</span>(buf[<a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a>++]);</div>
-<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>  }</div>
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26481)</div>
+<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>  <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26490)</div>
+<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span> </div>
+<div class="foldopen" id="foldopen00601" data-start="{" data-end="}">
+<div class="line"><a id="l00601" name="l00601"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a9fe5435bd2cbbd1d3a433d8b8bb64e5c">  601</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(std::uint8_t &amp;v) noexcept {</div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>    v = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>std::uint8_t &amp;<span class="keyword">&gt;</span>(buf[<a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a>++]);</div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>  }</div>
 </div>
-<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span> </div>
-<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
-<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span> </div>
-<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>  </div>
-<div class="foldopen" id="foldopen00613" data-start="{" data-end="}">
-<div class="line"><a id="l00613" name="l00613"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#ad13a6047ade13656b937c6f671ee5e05">  613</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(std::uint16_t &amp;v) noexcept {</div>
-<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>    std::uint16_t u;</div>
-<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>    std::memcpy(&amp;u, buf + <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a>, <span class="keyword">sizeof</span>(u));</div>
-<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span><span class="preprocessor">#ifdef UNODB_DETAIL_LITTLE_ENDIAN</span></div>
-<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>    v = <a class="code hl_function" href="namespaceunodb_1_1detail.html#a6da3355dc2b016836da8179235257ad4">unodb::detail::bswap</a>(u);</div>
-<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>    v = u;</div>
-<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>    <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a> += <span class="keyword">sizeof</span>(u);</div>
-<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>  }</div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span> </div>
+<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span> </div>
+<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>  </div>
+<div class="foldopen" id="foldopen00609" data-start="{" data-end="}">
+<div class="line"><a id="l00609" name="l00609"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#ad13a6047ade13656b937c6f671ee5e05">  609</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(std::uint16_t &amp;v) noexcept {</div>
+<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>    std::uint16_t u;</div>
+<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>    std::memcpy(&amp;u, buf + <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a>, <span class="keyword">sizeof</span>(u));</div>
+<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span><span class="preprocessor">#ifdef UNODB_DETAIL_LITTLE_ENDIAN</span></div>
+<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>    v = <a class="code hl_function" href="namespaceunodb_1_1detail.html#a6da3355dc2b016836da8179235257ad4">unodb::detail::bswap</a>(u);</div>
+<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>    v = u;</div>
+<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>    <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a> += <span class="keyword">sizeof</span>(u);</div>
+<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>  }</div>
 </div>
-<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span> </div>
-<div class="foldopen" id="foldopen00626" data-start="{" data-end="}">
-<div class="line"><a id="l00626" name="l00626"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a309f96fffca14b0a4776358329798769">  626</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#a309f96fffca14b0a4776358329798769">decode</a>(std::uint32_t &amp;v) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>    std::uint32_t u;</div>
-<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>    std::memcpy(&amp;u, buf + <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a>, <span class="keyword">sizeof</span>(u));</div>
-<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span><span class="preprocessor">#ifdef UNODB_DETAIL_LITTLE_ENDIAN</span></div>
-<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>    v = <a class="code hl_function" href="namespaceunodb_1_1detail.html#a6da3355dc2b016836da8179235257ad4">unodb::detail::bswap</a>(u);</div>
-<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>    v = u;</div>
-<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>    <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a> += <span class="keyword">sizeof</span>(u);</div>
-<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>  }</div>
+<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span> </div>
+<div class="foldopen" id="foldopen00622" data-start="{" data-end="}">
+<div class="line"><a id="l00622" name="l00622"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a309f96fffca14b0a4776358329798769">  622</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#a309f96fffca14b0a4776358329798769">decode</a>(std::uint32_t &amp;v) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>    std::uint32_t u;</div>
+<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>    std::memcpy(&amp;u, buf + <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a>, <span class="keyword">sizeof</span>(u));</div>
+<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span><span class="preprocessor">#ifdef UNODB_DETAIL_LITTLE_ENDIAN</span></div>
+<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>    v = <a class="code hl_function" href="namespaceunodb_1_1detail.html#a6da3355dc2b016836da8179235257ad4">unodb::detail::bswap</a>(u);</div>
+<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>    v = u;</div>
+<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>    <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a> += <span class="keyword">sizeof</span>(u);</div>
+<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>  }</div>
 </div>
-<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span> </div>
-<div class="foldopen" id="foldopen00639" data-start="{" data-end="}">
-<div class="line"><a id="l00639" name="l00639"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#ad7a6a2f15771d0c8e91633641b6372d7">  639</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#ad7a6a2f15771d0c8e91633641b6372d7">decode</a>(std::uint64_t &amp;v) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>    std::uint64_t u;</div>
-<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>    std::memcpy(&amp;u, buf + <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a>, <span class="keyword">sizeof</span>(u));</div>
-<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span><span class="preprocessor">#ifdef UNODB_DETAIL_LITTLE_ENDIAN</span></div>
-<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>    v = <a class="code hl_function" href="namespaceunodb_1_1detail.html#a6da3355dc2b016836da8179235257ad4">unodb::detail::bswap</a>(u);</div>
-<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>    v = u;</div>
-<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span>    <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a> += <span class="keyword">sizeof</span>(u);</div>
-<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span>  }</div>
+<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span> </div>
+<div class="foldopen" id="foldopen00635" data-start="{" data-end="}">
+<div class="line"><a id="l00635" name="l00635"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#ad7a6a2f15771d0c8e91633641b6372d7">  635</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#ad7a6a2f15771d0c8e91633641b6372d7">decode</a>(std::uint64_t &amp;v) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>    std::uint64_t u;</div>
+<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>    std::memcpy(&amp;u, buf + <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a>, <span class="keyword">sizeof</span>(u));</div>
+<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span><span class="preprocessor">#ifdef UNODB_DETAIL_LITTLE_ENDIAN</span></div>
+<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>    v = <a class="code hl_function" href="namespaceunodb_1_1detail.html#a6da3355dc2b016836da8179235257ad4">unodb::detail::bswap</a>(u);</div>
+<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>    v = u;</div>
+<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>    <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a> += <span class="keyword">sizeof</span>(u);</div>
+<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>  }</div>
 </div>
-<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span> </div>
-<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span> </div>
+<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span>  <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span> </div>
+<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span>  <span class="comment">//</span></div>
+<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span>  <span class="comment">// floating point</span></div>
+<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span>  <span class="comment">//</span></div>
 <div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span> </div>
-<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>  <span class="comment">//</span></div>
-<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>  <span class="comment">// floating point</span></div>
-<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>  <span class="comment">//</span></div>
-<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span> </div>
-<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>  </div>
-<div class="foldopen" id="foldopen00662" data-start="{" data-end="}">
-<div class="line"><a id="l00662" name="l00662"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a7a80732e7f6a8ed812b1673382ed3f1e">  662</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(<span class="keywordtype">float</span> &amp;v) noexcept {</div>
-<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span>    std::uint32_t u;</div>
-<div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
-<div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span>    v = unodb::detail::decode_floating_point&lt;float&gt;(u);</div>
-<div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00667" name="l00667"></a><span class="lineno">  667</span>  }</div>
+<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>  </div>
+<div class="foldopen" id="foldopen00658" data-start="{" data-end="}">
+<div class="line"><a id="l00658" name="l00658"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a7a80732e7f6a8ed812b1673382ed3f1e">  658</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(<span class="keywordtype">float</span> &amp;v) noexcept {</div>
+<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>    std::uint32_t u;</div>
+<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
+<div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span>    v = unodb::detail::decode_floating_point&lt;float&gt;(u);</div>
+<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span>  }</div>
 </div>
-<div class="line"><a id="l00668" name="l00668"></a><span class="lineno">  668</span> </div>
-<div class="foldopen" id="foldopen00674" data-start="{" data-end="}">
-<div class="line"><a id="l00674" name="l00674"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#ade8de92fb24a42650c60fa774e652795">  674</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#ade8de92fb24a42650c60fa774e652795">decode</a>(<span class="keywordtype">double</span> &amp;v) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>    std::uint64_t u;</div>
-<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
-<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span>    v = unodb::detail::decode_floating_point&lt;double&gt;(u);</div>
-<div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>  }</div>
+<div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span> </div>
+<div class="foldopen" id="foldopen00670" data-start="{" data-end="}">
+<div class="line"><a id="l00670" name="l00670"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#ade8de92fb24a42650c60fa774e652795">  670</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;<a class="code hl_function" href="classunodb_1_1key__decoder.html#ade8de92fb24a42650c60fa774e652795">decode</a>(<span class="keywordtype">double</span> &amp;v) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00671" name="l00671"></a><span class="lineno">  671</span>    std::uint64_t u;</div>
+<div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
+<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span>    v = unodb::detail::decode_floating_point&lt;double&gt;(u);</div>
+<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>  }</div>
 </div>
-<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>};  <span class="comment">// class key_decoder</span></div>
+<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span>};  <span class="comment">// class key_decoder</span></div>
 </div>
-<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span> </div>
-<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>}  <span class="comment">// namespace unodb</span></div>
-<div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span> </div>
-<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_ART_COMMON_HPP</span></div>
+<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span> </div>
+<div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span>}  <span class="comment">// namespace unodb</span></div>
+<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span> </div>
+<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_ART_COMMON_HPP</span></div>
 <div class="ttc" id="aclassunodb_1_1db_html"><div class="ttname"><a href="classunodb_1_1db.html">unodb::db</a></div><div class="ttdoc">A non-thread-safe implementation of the Adaptive Radix Tree (ART).</div><div class="ttdef"><b>Definition</b> art.hpp:85</div></div>
 <div class="ttc" id="aclassunodb_1_1key__decoder_html"><div class="ttname"><a href="classunodb_1_1key__decoder.html">unodb::key_decoder</a></div><div class="ttdoc">A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort...</div><div class="ttdef"><b>Definition</b> art_common.hpp:534</div></div>
-<div class="ttc" id="aclassunodb_1_1key__decoder_html_a1d834d53030a4bf00fe61019ba1bfe61"><div class="ttname"><a href="classunodb_1_1key__decoder.html#a1d834d53030a4bf00fe61019ba1bfe61">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(std::int32_t &amp;v) noexcept</div><div class="ttdoc">Decode a component of the indicated type from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:578</div></div>
-<div class="ttc" id="aclassunodb_1_1key__decoder_html_a309f96fffca14b0a4776358329798769"><div class="ttname"><a href="classunodb_1_1key__decoder.html#a309f96fffca14b0a4776358329798769">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(std::uint32_t &amp;v) noexcept</div><div class="ttdoc">Decode a component of the indicated type from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:626</div></div>
+<div class="ttc" id="aclassunodb_1_1key__decoder_html_a1d834d53030a4bf00fe61019ba1bfe61"><div class="ttname"><a href="classunodb_1_1key__decoder.html#a1d834d53030a4bf00fe61019ba1bfe61">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(std::int32_t &amp;v) noexcept</div><div class="ttdoc">Decode a component of the indicated type from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:574</div></div>
+<div class="ttc" id="aclassunodb_1_1key__decoder_html_a20aa43d8bece0c675cfbc7ad7b762629"><div class="ttname"><a href="classunodb_1_1key__decoder.html#a20aa43d8bece0c675cfbc7ad7b762629">unodb::key_decoder::msb8</a></div><div class="ttdeci">static constexpr std::uint8_t msb8</div><div class="ttdoc">the byte offset into that data.</div><div class="ttdef"><b>Definition</b> art_common.hpp:541</div></div>
+<div class="ttc" id="aclassunodb_1_1key__decoder_html_a309f96fffca14b0a4776358329798769"><div class="ttname"><a href="classunodb_1_1key__decoder.html#a309f96fffca14b0a4776358329798769">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(std::uint32_t &amp;v) noexcept</div><div class="ttdoc">Decode a component of the indicated type from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:622</div></div>
 <div class="ttc" id="aclassunodb_1_1key__decoder_html_a352cb1ac1a0d2450e04e53c7ffd1c333"><div class="ttname"><a href="classunodb_1_1key__decoder.html#a352cb1ac1a0d2450e04e53c7ffd1c333">unodb::key_decoder::key_decoder</a></div><div class="ttdeci">key_decoder(key_view kv) noexcept</div><div class="ttdoc">Build a decoder for the unodb::key_view.</div><div class="ttdef"><b>Definition</b> art_common.hpp:548</div></div>
 <div class="ttc" id="aclassunodb_1_1key__decoder_html_a3945bba5bf4a21d6de3dab6004201026"><div class="ttname"><a href="classunodb_1_1key__decoder.html#a3945bba5bf4a21d6de3dab6004201026">unodb::key_decoder::cap</a></div><div class="ttdeci">const size_t cap</div><div class="ttdoc">the data to be decoded</div><div class="ttdef"><b>Definition</b> art_common.hpp:537</div></div>
-<div class="ttc" id="aclassunodb_1_1key__decoder_html_a5e24cf6afd03e9d4042ebc81a60da589"><div class="ttname"><a href="classunodb_1_1key__decoder.html#a5e24cf6afd03e9d4042ebc81a60da589">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(std::int64_t &amp;v) noexcept</div><div class="ttdoc">Decode a component of the indicated type from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:588</div></div>
+<div class="ttc" id="aclassunodb_1_1key__decoder_html_a5e24cf6afd03e9d4042ebc81a60da589"><div class="ttname"><a href="classunodb_1_1key__decoder.html#a5e24cf6afd03e9d4042ebc81a60da589">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(std::int64_t &amp;v) noexcept</div><div class="ttdoc">Decode a component of the indicated type from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:584</div></div>
 <div class="ttc" id="aclassunodb_1_1key__decoder_html_a5ec1f8082194487f053da1c876b71fd4"><div class="ttname"><a href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">unodb::key_decoder::off</a></div><div class="ttdeci">size_t off</div><div class="ttdoc">#of bytes in that buffer.</div><div class="ttdef"><b>Definition</b> art_common.hpp:538</div></div>
-<div class="ttc" id="aclassunodb_1_1key__decoder_html_aa802fb814869f0e416a7c98ece5cb5c4"><div class="ttname"><a href="classunodb_1_1key__decoder.html#aa802fb814869f0e416a7c98ece5cb5c4">unodb::key_decoder::msb8</a></div><div class="ttdeci">static constexpr uint64_t msb8</div><div class="ttdoc">the byte offset into that data.</div><div class="ttdef"><b>Definition</b> art_common.hpp:541</div></div>
 <div class="ttc" id="aclassunodb_1_1key__decoder_html_abb8a2f90b802aae7a0414f49bce3270b"><div class="ttname"><a href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(std::int8_t &amp;v) noexcept</div><div class="ttdoc">Decode a component of the indicated type from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:556</div></div>
-<div class="ttc" id="aclassunodb_1_1key__decoder_html_ad7611790f6705a92abdeb852a3af1cc1"><div class="ttname"><a href="classunodb_1_1key__decoder.html#ad7611790f6705a92abdeb852a3af1cc1">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(std::int16_t &amp;v) noexcept</div><div class="ttdoc">Decode a component of the indicated type from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:567</div></div>
-<div class="ttc" id="aclassunodb_1_1key__decoder_html_ad7a6a2f15771d0c8e91633641b6372d7"><div class="ttname"><a href="classunodb_1_1key__decoder.html#ad7a6a2f15771d0c8e91633641b6372d7">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(std::uint64_t &amp;v) noexcept</div><div class="ttdoc">Decode a component of the indicated type from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:639</div></div>
-<div class="ttc" id="aclassunodb_1_1key__decoder_html_ade8de92fb24a42650c60fa774e652795"><div class="ttname"><a href="classunodb_1_1key__decoder.html#ade8de92fb24a42650c60fa774e652795">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(double &amp;v) noexcept</div><div class="ttdoc">Decode a double-precision floating point value from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:674</div></div>
+<div class="ttc" id="aclassunodb_1_1key__decoder_html_ad7611790f6705a92abdeb852a3af1cc1"><div class="ttname"><a href="classunodb_1_1key__decoder.html#ad7611790f6705a92abdeb852a3af1cc1">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(std::int16_t &amp;v) noexcept</div><div class="ttdoc">Decode a component of the indicated type from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:565</div></div>
+<div class="ttc" id="aclassunodb_1_1key__decoder_html_ad7a6a2f15771d0c8e91633641b6372d7"><div class="ttname"><a href="classunodb_1_1key__decoder.html#ad7a6a2f15771d0c8e91633641b6372d7">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(std::uint64_t &amp;v) noexcept</div><div class="ttdoc">Decode a component of the indicated type from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:635</div></div>
+<div class="ttc" id="aclassunodb_1_1key__decoder_html_ade8de92fb24a42650c60fa774e652795"><div class="ttname"><a href="classunodb_1_1key__decoder.html#ade8de92fb24a42650c60fa774e652795">unodb::key_decoder::decode</a></div><div class="ttdeci">key_decoder &amp; decode(double &amp;v) noexcept</div><div class="ttdoc">Decode a double-precision floating point value from the key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:670</div></div>
 <div class="ttc" id="aclassunodb_1_1key__encoder_html"><div class="ttname"><a href="classunodb_1_1key__encoder.html">unodb::key_encoder</a></div><div class="ttdoc">A utility class to generate binary comparable keys from a sequence of key components.</div><div class="ttdef"><b>Definition</b> art_common.hpp:241</div></div>
 <div class="ttc" id="aclassunodb_1_1key__encoder_html_a073ecee2db9797158b058ce56b2c8a3b"><div class="ttname"><a href="classunodb_1_1key__encoder.html#a073ecee2db9797158b058ce56b2c8a3b">unodb::key_encoder::size_bytes</a></div><div class="ttdeci">size_t size_bytes() const noexcept</div><div class="ttdoc">The number of bytes of data in the internal buffer.</div><div class="ttdef"><b>Definition</b> art_common.hpp:292</div></div>
 <div class="ttc" id="aclassunodb_1_1key__encoder_html_a09a289c46cce6e9fa710bcad5aba9c0f"><div class="ttname"><a href="classunodb_1_1key__encoder.html#a09a289c46cce6e9fa710bcad5aba9c0f">unodb::key_encoder::size_type</a></div><div class="ttdeci">std::uint16_t size_type</div><div class="ttdoc">This indirectly determines the unodb::key_encoder::maxlen and is used as the byte width for the run-l...</div><div class="ttdef"><b>Definition</b> art_common.hpp:251</div></div>

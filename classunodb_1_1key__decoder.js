@@ -12,6 +12,6 @@ var classunodb_1_1key__decoder =
     [ "decode", "classunodb_1_1key__decoder.html#ad7a6a2f15771d0c8e91633641b6372d7", null ],
     [ "decode", "classunodb_1_1key__decoder.html#a9fe5435bd2cbbd1d3a433d8b8bb64e5c", null ],
     [ "cap", "classunodb_1_1key__decoder.html#a3945bba5bf4a21d6de3dab6004201026", null ],
-    [ "msb8", "classunodb_1_1key__decoder.html#aa802fb814869f0e416a7c98ece5cb5c4", null ],
+    [ "msb8", "classunodb_1_1key__decoder.html#a20aa43d8bece0c675cfbc7ad7b762629", null ],
     [ "off", "classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4", null ]
 ];

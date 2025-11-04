@@ -3,7 +3,7 @@
 #define UNODB_DETAIL_ART_INTERNAL_IMPL_HPP
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <algorithm>
 #include <array>

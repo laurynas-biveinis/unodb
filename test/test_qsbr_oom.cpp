@@ -5,10 +5,12 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <__new/exceptions.h>
+// IWYU pragma: no_include <gtest/gtest.h>
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>
 
-#include <new>
+#include <new>  // IWYU pragma: keep
 
 #include "gtest_utils.hpp"
 #include "qsbr.hpp"

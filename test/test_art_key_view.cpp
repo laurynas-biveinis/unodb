@@ -3,13 +3,13 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <__cstddef/byte.h>
+// IWYU pragma: no_include <array>
 // IWYU pragma: no_include <span>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include <string_view>
-// IWYU pragma: no_include "gtest/gtest.h"
 
-#include <array>
-#include <cstddef>
+#include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #include <limits>
 #include <stdexcept>

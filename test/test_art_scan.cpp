@@ -4,6 +4,7 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
+// IWYU pragma: no_include <__vector/vector.h>
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <span>
 // IWYU pragma: no_include <string>
@@ -12,12 +13,11 @@
 #include <cstdint>
 #include <iostream>
 #include <utility>
-#include <vector>
+#include <vector>  // IWYU pragma: keep
 
 #include <gtest/gtest.h>
 
 #include "art_common.hpp"
-
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
 

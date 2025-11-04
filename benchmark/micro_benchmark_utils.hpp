@@ -3,12 +3,13 @@
 #define UNODB_DETAIL_MICRO_BENCHMARK_UTILS_HPP
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
+// IWYU pragma: no_include <__cstddef/byte.h>
 
 #include <array>
-#include <cstddef>
+#include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #ifndef NDEBUG
 #include <iostream>

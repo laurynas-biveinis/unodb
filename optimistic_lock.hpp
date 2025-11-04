@@ -211,15 +211,13 @@
 /// \}
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
-#include <iterator>
-#include <optional>
 #include <thread>
 #include <tuple>
 #include <type_traits>

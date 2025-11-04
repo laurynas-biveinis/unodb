@@ -4,11 +4,12 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <string>
+// IWYU pragma: no_include <__vector/vector.h>
 
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <vector>
+#include <vector>  // IWYU pragma: keep
 
 #include <benchmark/benchmark.h>
 

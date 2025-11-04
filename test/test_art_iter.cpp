@@ -6,7 +6,6 @@
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include "art_internal_impl.hpp"
 
 #include <algorithm>
 #include <cstdint>

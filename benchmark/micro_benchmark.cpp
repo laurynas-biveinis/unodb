@@ -3,15 +3,13 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <__vector/vector.h>
+// IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include <tuple>
-// IWYU pragma: no_include <vector>
-// IWYU pragma: no_forward_declare unodb::visitor
 
-#include <array>
 #include <cstddef>
 #include <cstdint>
-#include <utility>  // IWYU pragma: keep
+#include <tuple>
 
 #include <benchmark/benchmark.h>
 

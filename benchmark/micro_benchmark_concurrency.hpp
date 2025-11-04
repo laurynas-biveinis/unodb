@@ -3,11 +3,7 @@
 #define UNODB_DETAIL_MICRO_BENCHMARK_CONCURRENCY_HPP
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
-
-#include <memory>
-#include <thread>
-#include <vector>
+#include "global.hpp"
 
 #include <benchmark/benchmark.h>
 

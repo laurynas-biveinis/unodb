@@ -3,11 +3,11 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
-#include "micro_benchmark_utils.hpp"
+#include "micro_benchmark_utils.hpp"  // IWYU pragma: keep
 
 #include <benchmark/benchmark.h>
 
-#include "art.hpp"        // IWYU pragma: keep
+#include "art.hpp"  // IWYU pragma: keep
 #include "mutex_art.hpp"  // IWYU pragma: keep
 #include "olc_art.hpp"    // IWYU pragma: keep
 

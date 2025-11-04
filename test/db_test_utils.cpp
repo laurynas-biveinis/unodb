@@ -1,7 +1,9 @@
 // Copyright 2019-2025 UnoDB contributors
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
+
+#include "db_test_utils.hpp"  // IWYU pragma: keep
 
 #include <cstdint>
 #include <iostream>  // IWYU pragma: keep
@@ -9,7 +11,6 @@
 #include "art.hpp"
 #include "art_common.hpp"
 #include "art_internal.hpp"
-#include "db_test_utils.hpp"
 #include "mutex_art.hpp"
 #include "olc_art.hpp"
 

@@ -1,10 +1,9 @@
 // Copyright 2021-2025 UnoDB contributors
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
-// IWYU pragma: no_include <span>
 
 #include "art_internal.hpp"  // IWYU pragma: keep
 

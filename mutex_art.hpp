@@ -3,7 +3,7 @@
 #define UNODB_DETAIL_MUTEX_ART_HPP
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <cassert>
 #include <mutex>
@@ -11,8 +11,6 @@
 #include <utility>
 
 #include "art.hpp"
-#include "assert.hpp"
-#include "node_type.hpp"
 
 namespace unodb {
 

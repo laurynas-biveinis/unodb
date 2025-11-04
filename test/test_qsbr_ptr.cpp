@@ -1,7 +1,7 @@
 // Copyright 2022-2025 UnoDB contributors
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include <gtest/gtest.h>

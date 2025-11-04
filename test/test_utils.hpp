@@ -10,7 +10,7 @@
 /// Utilities for tests to verify heap allocation behavior.
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include "test_heap.hpp"
 

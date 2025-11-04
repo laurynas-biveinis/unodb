@@ -9,8 +9,9 @@
 /// registration and orphaned deallocation request list management helpers.
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
+// IWYU pragma: no_include <__new/exceptions.h>
 // IWYU pragma: no_include <__hash_table>
 
 #include "qsbr.hpp"
@@ -20,7 +21,7 @@
 #include <exception>
 #include <iostream>
 #include <memory>
-#include <new>
+#include <new>  // IWYU pragma: keep
 #include <utility>
 
 #ifdef UNODB_DETAIL_WITH_STATS

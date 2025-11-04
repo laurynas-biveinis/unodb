@@ -1,16 +1,18 @@
 // Copyright 2024-2025 UnoDB contributors
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
+// IWYU pragma: no_include <__cstddef/byte.h>
 // IWYU pragma: no_include <__math/traits.h>
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
+// IWYU pragma: no_include <__vector/vector.h>
 // IWYU pragma: no_include <_string.h>
 
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <cstddef>
+#include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #include <cstring>
 #include <limits>
@@ -19,10 +21,10 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <vector>
+#include <vector>  // IWYU pragma: keep
 
 #ifndef NDEBUG
-#include <iostream>
+#include <iostream>  // IWYU pragma: keep
 #endif
 
 #include <gtest/gtest.h>

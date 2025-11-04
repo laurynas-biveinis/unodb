@@ -1,13 +1,13 @@
 // Copyright 2019-2025 UnoDB contributors
 
-// IWYU pragma: no_include <array>
-// IWYU pragma: no_include <string>
-// IWYU pragma: no_include "gtest/gtest.h"
-
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
-#include <cstddef>
+// IWYU pragma: no_include <__cstddef/byte.h>
+// IWYU pragma: no_include <array>
+// IWYU pragma: no_include <string>
+
+#include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #include <limits>
 #include <stdexcept>

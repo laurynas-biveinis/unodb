@@ -4,10 +4,7 @@
 // self-containedness does not concern with exception handling and refactoring
 // the duplicated code with other examples.
 
-// IWYU pragma: no_include <__ostream/basic_ostream.h>
-// IWYU pragma: no_include <span>
-
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <cstddef>
 #include <iostream>

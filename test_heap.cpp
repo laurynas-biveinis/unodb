@@ -16,6 +16,8 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <__new/new_handler.h>
+
 #include "test_heap.hpp"  // IWYU pragma: keep
 
 #if !defined(NDEBUG) && !defined(_MSC_VER) &&       \
@@ -25,7 +27,7 @@
 
 #include <cstddef>
 #include <cstdlib>
-#include <new>
+#include <new>  // IWYU pragma: keep
 
 /// Global debug build replacement for `operator new`.
 ///

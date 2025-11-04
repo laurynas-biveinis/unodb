@@ -1,11 +1,10 @@
 // Copyright 2021-2025 UnoDB contributors
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include <type_traits>
-// IWYU pragma: no_forward_declare unodb::visitor
 
 #include <algorithm>
 #include <array>
@@ -18,10 +17,9 @@
 
 #include "art_common.hpp"
 #include "assert.hpp"
-#include "qsbr.hpp"
-
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
+#include "qsbr.hpp"
 #include "qsbr_test_utils.hpp"
 
 namespace {

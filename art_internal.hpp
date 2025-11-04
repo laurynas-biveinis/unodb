@@ -3,8 +3,9 @@
 #define UNODB_DETAIL_ART_INTERNAL_HPP
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
+// IWYU pragma: no_include <__cstddef/byte.h>
 // IWYU pragma: no_include <_string.h>
 
 #include <algorithm>

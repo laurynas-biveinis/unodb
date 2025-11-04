@@ -12,6 +12,7 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <__new/exceptions.h>
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
 
 #ifndef NDEBUG
@@ -19,7 +20,7 @@
 #include <atomic>
 #include <cstdint>
 #include <iostream>
-#include <new>
+#include <new>  // IWYU pragma: keep
 #include <string_view>
 
 namespace unodb::test {

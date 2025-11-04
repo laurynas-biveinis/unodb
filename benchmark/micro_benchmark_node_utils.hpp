@@ -3,20 +3,21 @@
 #define UNODB_DETAIL_MICRO_BENCHMARK_NODE_UTILS_HPP
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#ifndef NDEBUG
-#include <iostream>
-#endif
 #include <limits>
 #include <random>
 #include <string>
 #include <tuple>
 #include <vector>
+
+#ifndef NDEBUG
+#include <iostream>
+#endif
 
 #include <benchmark/benchmark.h>
 

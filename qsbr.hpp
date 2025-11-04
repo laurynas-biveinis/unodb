@@ -22,10 +22,10 @@
 /// https://preshing.com/20160726/using-quiescent-states-to-reclaim-memory/
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
-// IWYU pragma: no_include <__fwd/ostream.h>
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
+// IWYU pragma: no_include <__vector/vector.h>
 // IWYU pragma: no_include <boost/fusion/algorithm/iteration/for_each.hpp>
 // IWYU pragma: no_include <boost/fusion/algorithm/query/find_if.hpp>
 // IWYU pragma: no_include <boost/fusion/iterator/next.hpp>
@@ -43,7 +43,7 @@
 #include <thread>
 #include <type_traits>
 #include <utility>
-#include <vector>
+#include <vector>  // IWYU pragma: keep
 
 #ifndef NDEBUG
 #include <functional>

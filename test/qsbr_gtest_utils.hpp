@@ -6,9 +6,8 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <cstddef>
-// IWYU pragma: no_include <cstdint>
+// IWYU pragma: no_include <stdint.h>
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include "gtest/gtest.h"
 
 #include <gtest/gtest.h>
 

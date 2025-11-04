@@ -4,11 +4,7 @@
 // self-containedness does not concern with exception handling and refactoring
 // the duplicated code with other examples.
 
-// IWYU pragma: no_include <__ostream/basic_ostream.h>
-// IWYU pragma: no_include <allocator>
-// IWYU pragma: no_include <memory>
-
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 // std::cerr should be safe to access from different threads if it is
 // synchronized with the C streams, yet TSan under XCode gives diagnostics.

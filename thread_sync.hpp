@@ -6,7 +6,7 @@
 /// Thread synchronization for concurrent tests.
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <array>
 #include <condition_variable>

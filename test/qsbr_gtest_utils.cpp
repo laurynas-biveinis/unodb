@@ -1,11 +1,12 @@
 // Copyright 2022-2025 UnoDB contributors
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
-#include "qsbr_gtest_utils.hpp"
+#include "qsbr_gtest_utils.hpp"  // IWYU pragma: keep
 
 #include "qsbr.hpp"
+
 #include "qsbr_test_utils.hpp"
 
 namespace unodb::test {

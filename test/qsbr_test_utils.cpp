@@ -3,9 +3,8 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
-// IWYU pragma: no_include <string>
 // IWYU pragma: no_include <gtest/gtest.h>
-// IWYU pragma: no_include "gtest/gtest.h"
+// IWYU pragma: no_include <string>
 
 #include "gtest_utils.hpp"
 #include "qsbr.hpp"

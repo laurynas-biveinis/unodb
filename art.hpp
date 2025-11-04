@@ -3,14 +3,12 @@
 #define UNODB_DETAIL_ART_HPP
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
-// IWYU pragma: no_include <__ostream/basic_ostream.h>
 
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
-#include <limits>
 #include <optional>
 #include <stack>
 #include <type_traits>
@@ -27,7 +25,7 @@ namespace unodb {
 namespace detail {
 
 template <typename Key, typename Value>
-class inode;  // IWYU pragma: keep
+class inode;
 
 template <typename Key, typename Value>
 class inode_4;

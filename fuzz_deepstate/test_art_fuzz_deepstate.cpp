@@ -18,8 +18,8 @@
 #include <deepstate/DeepState.h>
 #include <deepstate/DeepState.hpp>
 
-#include "art.hpp"
-#include "art_common.hpp"
+#include "art.hpp"         // IWYU pragma: keep
+#include "art_common.hpp"  // IWYU pragma: keep
 #include "deepstate_utils.hpp"
 #include "node_type.hpp"
 #include "test_heap.hpp"

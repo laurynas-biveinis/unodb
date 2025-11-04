@@ -5,13 +5,14 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
+// IWYU pragma: no_include <__new/exceptions.h>
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>
-// IWYU pragma: no_include "gtest/gtest.h"
+
+#include <cstdint>
+#include <new>  // IWYU pragma: keep
 
 #include <gtest/gtest.h>
-#include <cstdint>
-#include <new>
 
 #include "art_common.hpp"
 #include "db_test_utils.hpp"

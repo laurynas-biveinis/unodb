@@ -3,8 +3,6 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
-// IWYU pragma: no_include <string>
-
 #include <thread>
 
 #include <benchmark/benchmark.h>

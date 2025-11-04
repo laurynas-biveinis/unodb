@@ -3,18 +3,13 @@
 #define UNODB_DETAIL_ART_COMMON_HPP
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
-// IWYU pragma: no_include <__fwd/ostream.h>
-// IWYU pragma: no_include <ostream>
-// IWYU pragma: no_include <ostream.h>
-
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <iomanip>
-#include <iosfwd>  // IWYU pragma: keep
+#include <iosfwd>
 #include <iostream>
 #include <span>
 #include <string_view>

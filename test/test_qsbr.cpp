@@ -3,16 +3,15 @@
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 
-// IWYU pragma: no_include <__fwd/sstream.h>
 // IWYU pragma: no_include <__math/traits.h>
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>
+// IWYU pragma: no_include <gtest/gtest.h>
 
+#include <cmath>
 #include <sstream>
 #include <system_error>
 #include <utility>
-// NOLINTNEXTLINE(misc-include-cleaner)
-#include <cmath>
 
 #include "gtest_utils.hpp"
 #include "qsbr.hpp"

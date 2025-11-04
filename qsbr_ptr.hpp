@@ -11,7 +11,9 @@
 /// a quiescent state while having an active pointer to the shared data.
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
+
+// IWYU pragma: no_include <__cstddef/byte.h>
 
 #include <cstddef>
 #include <iterator>

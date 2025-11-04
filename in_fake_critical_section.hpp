@@ -17,7 +17,7 @@
 /// and concurrent use cases.
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
+#include "global.hpp"
 
 #include <cstddef>
 

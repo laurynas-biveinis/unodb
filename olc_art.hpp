@@ -6,9 +6,7 @@
 /// Concurrent Adaptive Radix Tree based on Optimistic Lock Coupling
 
 // Should be the first include
-#include "global.hpp"  // IWYU pragma: keep
-
-// IWYU pragma: no_include <__ostream/basic_ostream.h>
+#include "global.hpp"
 
 #include <array>
 #include <atomic>

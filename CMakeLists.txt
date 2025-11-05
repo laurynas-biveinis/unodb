@@ -621,17 +621,8 @@ set(CPPCHECK_ARGS
   # False positive on Google Test TEST macro and compilers are much better
   # for syntax checking anyway
   "--suppress=syntaxError"
-  # Likewise
-  "--suppress=internalAstError"
-  # False positives with conditional noexcept
-  "--suppress=throwInNoexceptFunction"
-  # Leave it for the compilers to diagnose
-  "--suppress=unreadVariable"
-  # False positives on structured bindings with 2.5
-  "--suppress=unassignedVariable"
-  "--suppress=unusedVariable"
-  # Informational message that fails the build. Remove once cppcheck 2.11 is the
-  # minimum
+  # Non-actionable informational message that even fails the build before
+  # cppcheck 2.11.
   "--suppress=normalCheckLevelMaxBranches")
 
 option(CPPCHECK_AGGRESSIVE "Enable inconclusive cppcheck checks")

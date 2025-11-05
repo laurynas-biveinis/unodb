@@ -75,6 +75,13 @@
             }
         },
         {
+            "name": "cppcheck-aggressive",
+            "hidden": true,
+            "cacheVariables": {
+                "CPPCHECK_AGGRESSIVE": "ON"
+            }
+        },
+        {
             "name": "gcc",
             "hidden": true,
             "cacheVariables": {
@@ -131,6 +138,13 @@
             ]
         },
         {
+            "name": "release-cppcheck-aggressive",
+            "inherits": [
+                "release",
+                "cppcheck-aggressive"
+            ]
+        },
+        {
             "name": "debug",
             "inherits": "base-unix",
             "cacheVariables": {
@@ -156,6 +170,13 @@
             "inherits": [
                 "debug",
                 "ubsan"
+            ]
+        },
+        {
+            "name": "debug-cppcheck-aggressive",
+            "inherits": [
+                "debug",
+                "cppcheck-aggressive"
             ]
         },
         {
@@ -408,6 +429,11 @@
             "inherits": "base"
         },
         {
+            "name": "release-cppcheck-aggressive",
+            "configurePreset": "release-cppcheck-aggressive",
+            "inherits": "base"
+        },
+        {
             "name": "debug",
             "configurePreset": "debug",
             "inherits": "base"
@@ -425,6 +451,11 @@
         {
             "name": "debug-ubsan",
             "configurePreset": "debug-ubsan",
+            "inherits": "base"
+        },
+        {
+            "name": "debug-cppcheck-aggressive",
+            "configurePreset": "debug-cppcheck-aggressive",
             "inherits": "base"
         },
         {
@@ -603,6 +634,11 @@
             "inherits": "base"
         },
         {
+            "name": "release-cppcheck-aggressive",
+            "configurePreset": "release-cppcheck-aggressive",
+            "inherits": "base"
+        },
+        {
             "name": "debug",
             "configurePreset": "debug",
             "inherits": "base"
@@ -620,6 +656,11 @@
         {
             "name": "debug-ubsan",
             "configurePreset": "debug-ubsan",
+            "inherits": "base"
+        },
+        {
+            "name": "debug-cppcheck-aggressive",
+            "configurePreset": "debug-cppcheck-aggressive",
             "inherits": "base"
         },
         {

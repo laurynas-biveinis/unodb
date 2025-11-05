@@ -530,7 +530,6 @@ class db final {
     return node_counts[as_i<NodeType>];
   }
 
-  // cppcheck-suppress returnByReference
   [[nodiscard, gnu::pure]] constexpr auto get_node_counts() const noexcept {
     return node_counts;
   }
@@ -541,7 +540,6 @@ class db final {
     return growing_inode_counts[internal_as_i<NodeType>];
   }
 
-  // cppcheck-suppress returnByReference
   [[nodiscard, gnu::pure]] constexpr auto get_growing_inode_counts()
       const noexcept {
     return growing_inode_counts;
@@ -553,7 +551,6 @@ class db final {
     return shrinking_inode_counts[internal_as_i<NodeType>];
   }
 
-  // cppcheck-suppress returnByReference
   [[nodiscard, gnu::pure]] constexpr auto get_shrinking_inode_counts()
       const noexcept {
     return shrinking_inode_counts;
@@ -919,30 +916,30 @@ typename db<Key, Value>::get_result db<Key, Value>::get_internal(
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
 template <typename Key, typename Value>
-bool db<Key, Value>::insert_internal(art_key_type k, value_type v) {
+bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
-    auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
+    auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
     root = detail::node_ptr{leaf.release(), node_type::LEAF};
     return true;
   }
 
   auto* node = &root;
   tree_depth_type depth{};
-  auto remaining_key{k};
+  auto remaining_key{insert_key};
 
   while (true) {
     const auto node_type = node->type();
     if (node_type == node_type::LEAF) {
       auto* const leaf{node->template ptr<leaf_type*>()};
       const auto existing_key{leaf->get_key_view()};
-      const auto cmp = k.cmp(existing_key);
+      const auto cmp = insert_key.cmp(existing_key);
       if (UNODB_DETAIL_UNLIKELY(cmp == 0)) {
         return false;  // exists
       }
       // Replace the existing leaf with a new N4 and put the existing
       // leaf and the leaf for the caller's key and value under the
       // new inode as its direct children.
-      auto new_leaf = art_policy::make_db_leaf_ptr(k, v, *this);
+      auto new_leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
       auto new_node{inode_4::create(*this, existing_key, remaining_key, depth,
                                     leaf, std::move(new_leaf))};
       *node = detail::node_ptr{new_node.release(), node_type::I4};
@@ -963,7 +960,7 @@ bool db<Key, Value>::insert_internal(art_key_type k, value_type v) {
       // than the desired match.  We need to split this inode into a
       // new N4 whose children are the existing inode and a new child
       // leaf.
-      auto leaf = art_policy::make_db_leaf_ptr(k, v, *this);
+      auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
       auto new_node = inode_4::create(*this, *node, shared_prefix_len, depth,
                                       std::move(leaf));
       *node = detail::node_ptr{new_node.release(), node_type::I4};
@@ -982,7 +979,7 @@ bool db<Key, Value>::insert_internal(art_key_type k, value_type v) {
     remaining_key.shift_right(key_prefix_length);
 
     node = inode->template add_or_choose_subtree<detail::node_ptr*>(
-        node_type, remaining_key[0], k, v, *this, depth, node);
+        node_type, remaining_key[0], insert_key, v, *this, depth, node);
 
     if (node == nullptr) return true;
 
@@ -993,12 +990,12 @@ bool db<Key, Value>::insert_internal(art_key_type k, value_type v) {
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <typename Key, typename Value>
-bool db<Key, Value>::remove_internal(art_key_type k) {
+bool db<Key, Value>::remove_internal(art_key_type remove_key) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
 
   if (root.type() == node_type::LEAF) {
     auto* const root_leaf{root.ptr<leaf_type*>()};
-    if (root_leaf->matches(k)) {
+    if (root_leaf->matches(remove_key)) {
       const auto r{art_policy::reclaim_leaf_on_scope_exit(root_leaf, *this)};
       root = nullptr;
       return true;
@@ -1008,7 +1005,7 @@ bool db<Key, Value>::remove_internal(art_key_type k) {
 
   auto* node = &root;
   tree_depth_type depth{};
-  auto remaining_key{k};
+  auto remaining_key{remove_key};
 
   while (true) {
     const auto node_type = node->type();
@@ -1025,8 +1022,8 @@ bool db<Key, Value>::remove_internal(art_key_type k) {
     remaining_key.shift_right(key_prefix_length);
 
     const auto remove_result{inode->template remove_or_choose_subtree<
-        std::optional<detail::node_ptr*>>(node_type, remaining_key[0], k, *this,
-                                          node)};
+        std::optional<detail::node_ptr*>>(node_type, remaining_key[0],
+                                          remove_key, *this, node)};
     if (UNODB_DETAIL_UNLIKELY(!remove_result)) return false;
 
     auto* const child_ptr{*remove_result};

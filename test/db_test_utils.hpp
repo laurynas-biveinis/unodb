@@ -362,6 +362,7 @@ class [[nodiscard]] tree_verifier final {
   // NOLINTEND(modernize-use-constraints)
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  // cppcheck-suppress passedByValue
   void insert_internal(key_type k, unodb::value_view v,
                        bool bypass_verifier = false) {
     const auto empty_before = test_db.empty();
@@ -423,6 +424,7 @@ class [[nodiscard]] tree_verifier final {
     }
   }
 
+  // cppcheck-suppress passedByValue
   void insert_key_range_internal(key_type start_key, std::size_t count,
                                  bool bypass_verifier = false) {
     if constexpr (std::is_same_v<key_type, key_view>) {

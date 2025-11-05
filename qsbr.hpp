@@ -1527,7 +1527,6 @@ struct quiescent_state_on_scope_exit final {
     }
     // LCOV_EXCL_START
     catch (const std::system_error &e) {
-      // cppcheck-suppress exceptThrowInDestructor
       if (exceptions_at_ctor == std::uncaught_exceptions()) throw;
       std::cerr << "QSBR quiescent state failed to register QSBR stats: "
                 << e.what() << '\n';

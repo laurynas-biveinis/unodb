@@ -50,7 +50,7 @@ template <typename T>
   }
   if constexpr (std::is_same_v<std::uint64_t, T>) {
     return __builtin_bswap64(x);
-  }  // cppcheck-suppress missingReturn
+  }
 #endif  // UNODB_DETAIL_MSVC
 }
 

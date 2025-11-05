@@ -249,6 +249,7 @@ class [[nodiscard]] tree_depth final {
  public:
   using value_type = std::uint32_t;  // explicitly since also used in leaf.
 
+  // cppcheck-suppress passedByValue
   explicit constexpr tree_depth(value_type value_ = 0) noexcept
       : value{value_} {}
 
@@ -262,6 +263,7 @@ class [[nodiscard]] tree_depth final {
     return *this;
   }
 
+  // cppcheck-suppress passedByValue
   constexpr void operator+=(value_type delta) noexcept { value += delta; }
 
  private:

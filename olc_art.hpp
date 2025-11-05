@@ -897,7 +897,6 @@ class db_inode_qsbr_deleter
   using db_inode_qsbr_deleter_parent<Key, Value,
                                      INode>::db_inode_qsbr_deleter_parent;
 
-  // cppcheck-suppress duplInheritedMember
   void operator()(INode* inode_ptr) {
     static_assert(std::is_trivially_destructible_v<INode>);
 
@@ -1119,7 +1118,6 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key, Value> {
     return parent_class::leave_last_child(child_to_delete, db_instance);
   }
 
-  // cppcheck-suppress duplInheritedMember
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os,
                                                 bool recursive) const {
     os << ", ";
@@ -1196,7 +1194,6 @@ class [[nodiscard]] olc_inode_16 final
     parent_class::remove(child_index, db_instance);
   }
 
-  // cppcheck-suppress duplInheritedMember
   [[nodiscard]] find_result find_child(std::byte key_byte) noexcept {
 #ifdef UNODB_DETAIL_THREAD_SANITIZER
     const auto children_count_ = this->get_children_count();
@@ -1209,7 +1206,6 @@ class [[nodiscard]] olc_inode_16 final
 #endif
   }
 
-  // cppcheck-suppress duplInheritedMember
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os,
                                                 bool recursive) const {
     os << ", ";
@@ -1293,7 +1289,6 @@ class [[nodiscard]] olc_inode_48 final
     parent_class::remove(child_index, db_instance);
   }
 
-  // cppcheck-suppress duplInheritedMember
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os,
                                                 bool recursive) const {
     os << ", ";
@@ -1376,7 +1371,6 @@ class [[nodiscard]] olc_inode_256 final
     parent_class::remove(child_index, db_instance);
   }
 
-  // cppcheck-suppress duplInheritedMember
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os,
                                                 bool recursive) const {
     os << ", ";
@@ -1767,13 +1761,14 @@ typename olc_db<Key, Value>::try_get_result_type olc_db<Key, Value>::try_get(
 }
 
 template <typename Key, typename Value>
-bool olc_db<Key, Value>::insert_internal(art_key_type k, value_type v) {
+bool olc_db<Key, Value>::insert_internal(art_key_type insert_key,
+                                         value_type v) {
   try_update_result_type result;
   olc_db_leaf_unique_ptr_type cached_leaf{
       nullptr, detail::basic_db_leaf_deleter<olc_db<Key, Value>>{*this}};
 
   while (true) {
-    result = try_insert(k, v, cached_leaf);
+    result = try_insert(insert_key, v, cached_leaf);
     if (result) break;
   }
 
@@ -1929,10 +1924,10 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
 }
 
 template <typename Key, typename Value>
-bool olc_db<Key, Value>::remove_internal(art_key_type k) {
+bool olc_db<Key, Value>::remove_internal(art_key_type remove_key) {
   try_update_result_type result;
   while (true) {
-    result = try_remove(k);
+    result = try_remove(remove_key);
     if (result) break;
   }
 

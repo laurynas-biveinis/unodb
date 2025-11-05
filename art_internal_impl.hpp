@@ -155,6 +155,7 @@ class [[nodiscard]] basic_leaf final : public Header {
   //
   // TODO(thompsonbry) : Partial or no key in leaf?
   [[nodiscard, gnu::pure]] constexpr auto matches(
+      // cppcheck-suppress passedByValue
       art_key_type k) const noexcept {
     return cmp(k) == 0;
   }
@@ -205,6 +206,7 @@ class [[nodiscard]] basic_leaf final : public Header {
   ///
   /// \param val_size The size in bytes of the the value stored in the leaf.
   [[nodiscard, gnu::const]] static constexpr auto compute_size(
+      // cppcheck-suppress passedByValue
       key_size_type key_size, value_size_type val_size) noexcept {
     return sizeof(basic_leaf<Key, Header>) + key_size + val_size -
            1  // because of the [1] byte on the end of the struct.
@@ -433,6 +435,7 @@ struct basic_art_policy final {
           return;
         }
         case node_type::I4: {
+          // cppcheck-suppress throwInNoexceptFunction
           const auto r{make_db_inode_unique_ptr(
               node_ptr.template ptr<inode4_type *>(), db)};
           return;
@@ -1280,26 +1283,28 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   using typename parent_class::node_ptr;
   using tree_depth_type = tree_depth<art_key_type>;
 
-  constexpr basic_inode_4(db_type &, unodb::key_view k1,
-                          art_key_type shifted_k2,
+  constexpr basic_inode_4(db_type&, unodb::key_view k1, art_key_type shifted_k2,
+                          // cppcheck-suppress passedByValue
                           tree_depth_type depth) noexcept
       : parent_class{k1, shifted_k2, depth} {}
 
-  constexpr basic_inode_4(db_type &, key_view k1, art_key_type shifted_k2,
-                          tree_depth_type depth, leaf_type *child1,
-                          db_leaf_unique_ptr &&child2) noexcept
+  constexpr basic_inode_4(db_type&, key_view k1, art_key_type shifted_k2,
+                          // cppcheck-suppress passedByValue
+                          tree_depth_type depth, leaf_type* child1,
+                          db_leaf_unique_ptr&& child2) noexcept
       : parent_class{k1, shifted_k2, depth} {
     init(k1, shifted_k2, depth, child1, std::move(child2));
   }
 
-  constexpr basic_inode_4(db_type &, node_ptr source_node,
-                          unsigned len) noexcept
-      : parent_class{len, *source_node.template ptr<inode_type *>()} {}
+  // cppcheck-suppress passedByValue
+  constexpr basic_inode_4(db_type&, node_ptr source_node, unsigned len) noexcept
+      : parent_class{len, *source_node.template ptr<inode_type*>()} {}
 
-  constexpr basic_inode_4(db_type &, node_ptr source_node, unsigned len,
+  constexpr basic_inode_4(db_type&, node_ptr source_node, unsigned len,
+                          // cppcheck-suppress passedByValue
                           tree_depth_type depth,
-                          db_leaf_unique_ptr &&child1) noexcept
-      : parent_class{len, *source_node.template ptr<inode_type *>()} {
+                          db_leaf_unique_ptr&& child1) noexcept
+      : parent_class{len, *source_node.template ptr<inode_type*>()} {
     init(source_node, len, depth, std::move(child1));
   }
 
@@ -1361,15 +1366,17 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   }
 
   constexpr void init(key_view k1, art_key_type shifted_k2,
-                      tree_depth_type depth, const leaf_type *child1,
-                      db_leaf_unique_ptr &&child2) noexcept {
+                      // cppcheck-suppress passedByValue
+                      tree_depth_type depth, const leaf_type* child1,
+                      db_leaf_unique_ptr&& child2) noexcept {
     const auto k2_next_byte_depth = this->get_key_prefix().length();
     const auto k1_next_byte_depth = k2_next_byte_depth + depth;
     add_two_to_empty(k1[k1_next_byte_depth], node_ptr{child1, node_type::LEAF},
                      shifted_k2[k2_next_byte_depth], std::move(child2));
   }
 
-  constexpr void add_to_nonfull(db_leaf_unique_ptr &&child,
+  constexpr void add_to_nonfull(db_leaf_unique_ptr&& child,
+                                // cppcheck-suppress passedByValue
                                 tree_depth_type depth,
                                 std::uint8_t children_count_) noexcept {
     UNODB_DETAIL_ASSERT(children_count_ == this->children_count);

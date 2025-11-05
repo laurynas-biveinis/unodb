@@ -40,11 +40,13 @@ class [[nodiscard]] fake_read_critical_section final {
 
   /// Check whether this fake read critical section is invalid after
   /// construction, always succeeds.
+  // cppcheck-suppress functionStatic
   // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   [[nodiscard]] bool must_restart() const noexcept { return false; }
 
   /// Check whether this fake read critical section is still valid, always
   /// succeeds.
+  // cppcheck-suppress functionStatic
   // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   [[nodiscard]] bool check() UNODB_DETAIL_RELEASE_CONST noexcept {
     return true;
@@ -58,6 +60,7 @@ class [[nodiscard]] fake_read_critical_section final {
   }
 
   /// Try to read unlock this read fake critical section, always succeeds.
+  // cppcheck-suppress functionStatic
   // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   [[nodiscard]] bool try_read_unlock() const noexcept { return true; }
 
@@ -72,6 +75,7 @@ class [[nodiscard]] fake_read_critical_section final {
 class [[nodiscard]] fake_lock final {
  public:
   /// Acquire and return an always-valid fake critical section for a fake lock.
+  // cppcheck-suppress functionStatic
   // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   [[nodiscard]] fake_read_critical_section try_read_lock() noexcept {
     return fake_read_critical_section{};

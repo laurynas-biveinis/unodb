@@ -228,9 +228,9 @@ class [[nodiscard]] basic_leaf final : public Header {
 /// Return a unique pointer for a new leaf initialized with the caller's key and
 /// value.
 template <typename Key, typename Value, template <typename, typename> class Db>
-[[nodiscard]] auto make_db_leaf_ptr(basic_art_key<Key> k, value_view v,
-                                    Db<Key, Value> &db
-                                    UNODB_DETAIL_LIFETIMEBOUND) {
+[[nodiscard]] auto make_db_leaf_ptr(
+    basic_art_key<Key> k, value_view v,
+    Db<Key, Value> &db UNODB_DETAIL_LIFETIMEBOUND) {
   using db_type = Db<Key, Value>;
   using header_type = typename db_type::header_type;
   using leaf_type = basic_leaf<Key, header_type>;
@@ -363,9 +363,9 @@ struct basic_art_policy final {
   using db_leaf_unique_ptr =
       basic_db_leaf_unique_ptr<key_type, value_type, header_type, Db>;
 
-  [[nodiscard]] static auto make_db_leaf_ptr(art_key_type k, value_view v,
-                                             db_type &db_instance
-                                             UNODB_DETAIL_LIFETIMEBOUND) {
+  [[nodiscard]] static auto make_db_leaf_ptr(
+      art_key_type k, value_view v,
+      db_type &db_instance UNODB_DETAIL_LIFETIMEBOUND) {
     return ::unodb::detail::make_db_leaf_ptr<Key, Value, Db>(k, v, db_instance);
   }
 
@@ -380,9 +380,8 @@ struct basic_art_policy final {
   /// constructed inode.
   UNODB_DETAIL_DISABLE_GCC_11_WARNING("-Wmismatched-new-delete")
   template <class INode, class... Args>
-  [[nodiscard]] static auto make_db_inode_unique_ptr(db_type &db_instance
-                                                     UNODB_DETAIL_LIFETIMEBOUND,
-                                                     Args &&...args) {
+  [[nodiscard]] static auto make_db_inode_unique_ptr(
+      db_type &db_instance UNODB_DETAIL_LIFETIMEBOUND, Args &&...args) {
     // memory allocation
     auto *const inode_mem = static_cast<std::byte *>(
         allocate_aligned(sizeof(INode), alignment_for_new<INode>()));

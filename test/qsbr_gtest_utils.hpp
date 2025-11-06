@@ -157,7 +157,7 @@ class QSBRTestBase : public ::testing::Test {
     // The pointer must be readable
     // cppcheck-suppress unreadVariable
     static const volatile char sink UNODB_DETAIL_UNUSED =
-        *static_cast<const char*>(ptr);
+        *static_cast<const char *>(ptr);
   }
 #endif
 

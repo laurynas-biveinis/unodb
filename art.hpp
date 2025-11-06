@@ -5,7 +5,6 @@
 // Should be the first include
 #include "global.hpp"
 
-
 #include <cstddef>
 #include <cstdint>
 #include <iostream>

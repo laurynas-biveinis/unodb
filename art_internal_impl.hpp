@@ -228,9 +228,9 @@ class [[nodiscard]] basic_leaf final : public Header {
 /// Return a unique pointer for a new leaf initialized with the caller's key and
 /// value.
 template <typename Key, typename Value, template <typename, typename> class Db>
-[[nodiscard]] auto make_db_leaf_ptr(
-    basic_art_key<Key> k, value_view v,
-    Db<Key, Value> &db UNODB_DETAIL_LIFETIMEBOUND) {
+[[nodiscard]] auto make_db_leaf_ptr(basic_art_key<Key> k, value_view v,
+                                    Db<Key, Value> &db
+                                    UNODB_DETAIL_LIFETIMEBOUND) {
   using db_type = Db<Key, Value>;
   using header_type = typename db_type::header_type;
   using leaf_type = basic_leaf<Key, header_type>;
@@ -363,9 +363,9 @@ struct basic_art_policy final {
   using db_leaf_unique_ptr =
       basic_db_leaf_unique_ptr<key_type, value_type, header_type, Db>;
 
-  [[nodiscard]] static auto make_db_leaf_ptr(
-      art_key_type k, value_view v,
-      db_type &db_instance UNODB_DETAIL_LIFETIMEBOUND) {
+  [[nodiscard]] static auto make_db_leaf_ptr(art_key_type k, value_view v,
+                                             db_type &db_instance
+                                             UNODB_DETAIL_LIFETIMEBOUND) {
     return ::unodb::detail::make_db_leaf_ptr<Key, Value, Db>(k, v, db_instance);
   }
 
@@ -380,8 +380,9 @@ struct basic_art_policy final {
   /// constructed inode.
   UNODB_DETAIL_DISABLE_GCC_11_WARNING("-Wmismatched-new-delete")
   template <class INode, class... Args>
-  [[nodiscard]] static auto make_db_inode_unique_ptr(
-      db_type &db_instance UNODB_DETAIL_LIFETIMEBOUND, Args &&...args) {
+  [[nodiscard]] static auto make_db_inode_unique_ptr(db_type &db_instance
+                                                     UNODB_DETAIL_LIFETIMEBOUND,
+                                                     Args &&...args) {
     // memory allocation
     auto *const inode_mem = static_cast<std::byte *>(
         allocate_aligned(sizeof(INode), alignment_for_new<INode>()));
@@ -1283,28 +1284,30 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   using typename parent_class::node_ptr;
   using tree_depth_type = tree_depth<art_key_type>;
 
-  constexpr basic_inode_4(db_type&, unodb::key_view k1, art_key_type shifted_k2,
+  constexpr basic_inode_4(db_type &, unodb::key_view k1,
+                          art_key_type shifted_k2,
                           // cppcheck-suppress passedByValue
                           tree_depth_type depth) noexcept
       : parent_class{k1, shifted_k2, depth} {}
 
-  constexpr basic_inode_4(db_type&, key_view k1, art_key_type shifted_k2,
+  constexpr basic_inode_4(db_type &, key_view k1, art_key_type shifted_k2,
                           // cppcheck-suppress passedByValue
-                          tree_depth_type depth, leaf_type* child1,
-                          db_leaf_unique_ptr&& child2) noexcept
+                          tree_depth_type depth, leaf_type *child1,
+                          db_leaf_unique_ptr &&child2) noexcept
       : parent_class{k1, shifted_k2, depth} {
     init(k1, shifted_k2, depth, child1, std::move(child2));
   }
 
   // cppcheck-suppress passedByValue
-  constexpr basic_inode_4(db_type&, node_ptr source_node, unsigned len) noexcept
-      : parent_class{len, *source_node.template ptr<inode_type*>()} {}
+  constexpr basic_inode_4(db_type &, node_ptr source_node,
+                          unsigned len) noexcept
+      : parent_class{len, *source_node.template ptr<inode_type *>()} {}
 
-  constexpr basic_inode_4(db_type&, node_ptr source_node, unsigned len,
+  constexpr basic_inode_4(db_type &, node_ptr source_node, unsigned len,
                           // cppcheck-suppress passedByValue
                           tree_depth_type depth,
-                          db_leaf_unique_ptr&& child1) noexcept
-      : parent_class{len, *source_node.template ptr<inode_type*>()} {
+                          db_leaf_unique_ptr &&child1) noexcept
+      : parent_class{len, *source_node.template ptr<inode_type *>()} {
     init(source_node, len, depth, std::move(child1));
   }
 
@@ -1367,15 +1370,15 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
   constexpr void init(key_view k1, art_key_type shifted_k2,
                       // cppcheck-suppress passedByValue
-                      tree_depth_type depth, const leaf_type* child1,
-                      db_leaf_unique_ptr&& child2) noexcept {
+                      tree_depth_type depth, const leaf_type *child1,
+                      db_leaf_unique_ptr &&child2) noexcept {
     const auto k2_next_byte_depth = this->get_key_prefix().length();
     const auto k1_next_byte_depth = k2_next_byte_depth + depth;
     add_two_to_empty(k1[k1_next_byte_depth], node_ptr{child1, node_type::LEAF},
                      shifted_k2[k2_next_byte_depth], std::move(child2));
   }
 
-  constexpr void add_to_nonfull(db_leaf_unique_ptr&& child,
+  constexpr void add_to_nonfull(db_leaf_unique_ptr &&child,
                                 // cppcheck-suppress passedByValue
                                 tree_depth_type depth,
                                 std::uint8_t children_count_) noexcept {

@@ -7,7 +7,7 @@
 
 #include <benchmark/benchmark.h>
 
-#include "art.hpp"  // IWYU pragma: keep
+#include "art.hpp"        // IWYU pragma: keep
 #include "mutex_art.hpp"  // IWYU pragma: keep
 #include "olc_art.hpp"    // IWYU pragma: keep
 

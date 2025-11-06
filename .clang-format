@@ -1,5 +1,4 @@
 ---
-Language: Cpp
 Standard: c++17
 BasedOnStyle: Google
 IncludeBlocks: Preserve
@@ -10,5 +9,4 @@ AttributeMacros:
   - UNODB_DETAIL_NOINLINE
   - UNODB_DETAIL_C_STRING_ARG
 StatementAttributeLikeMacros:
-  - UNODB_DETAIL_USED_IN_DEBUG
   - UNODB_DETAIL_RELEASE_CONST

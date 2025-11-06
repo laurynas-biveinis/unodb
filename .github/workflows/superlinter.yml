@@ -7,7 +7,7 @@ on:
       - master
   pull_request:
 
-permissions: { }
+permissions: {}
 
 jobs:
   super-lint:
@@ -29,7 +29,8 @@ jobs:
           fetch-depth: 0
 
       - name: Run Super-Linter
-        uses: super-linter/super-linter/slim@v6.3.1
+        uses: super-linter/super-linter/slim@v8.2.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ANSIBLE: false
+          LINTER_RULES_PATH: .

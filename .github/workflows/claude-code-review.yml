@@ -10,6 +10,10 @@ on:
     #   - "src/**/*.js"
     #   - "src/**/*.jsx"
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   claude-review:
     # Optional: Filter by PR author
@@ -19,8 +23,7 @@ jobs:
     #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
     
     runs-on: ubuntu-latest
-    permissions: {}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5

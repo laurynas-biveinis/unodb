@@ -334,8 +334,8 @@ $(document).ready(function(){initNavTree('art__internal_8hpp_source.html',''); i
 <div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>  <span class="keyword">static_assert</span>(std::is_trivially_destructible_v&lt;leaf_type&gt;);</div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span> </div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>  <span class="keyword">constexpr</span> <span class="keyword">explicit</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html">basic_db_leaf_deleter</a>(</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>      Db &amp;db_ <a class="code hl_define" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>  <span class="keyword">constexpr</span> <span class="keyword">explicit</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html">basic_db_leaf_deleter</a>(Db &amp;db_</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>                                           <a class="code hl_define" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</div>
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>      : <a class="code hl_class" href="classunodb_1_1db.html">db</a>{db_} {}</div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
 <div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>  <span class="keywordtype">void</span> operator()(<a class="code hl_class" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a> *to_delete) <span class="keyword">const</span> <span class="keyword">noexcept</span>;</div>
@@ -361,8 +361,8 @@ $(document).ready(function(){initNavTree('art__internal_8hpp_source.html',''); i
 <div class="foldopen" id="foldopen00303" data-start="{" data-end="};">
 <div class="line"><a id="l00303" name="l00303"></a><span class="lineno"><a class="line" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">  303</a></span><span class="keyword">class </span><a class="code hl_class" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">basic_db_inode_deleter</a> {</div>
 <div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>  <span class="keyword">constexpr</span> <span class="keyword">explicit</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">basic_db_inode_deleter</a>(</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>      Db &amp;db_ <a class="code hl_define" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>  <span class="keyword">constexpr</span> <span class="keyword">explicit</span> <a class="code hl_class" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">basic_db_inode_deleter</a>(Db &amp;db_</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>                                            <a class="code hl_define" href="group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d">UNODB_DETAIL_LIFETIMEBOUND</a>) noexcept</div>
 <div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>      : <a class="code hl_class" href="classunodb_1_1db.html">db</a>{db_} {}</div>
 <div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span> </div>
 <div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>  <span class="keywordtype">void</span> operator()(INode *inode_ptr) <span class="keyword">noexcept</span>;</div>
@@ -553,7 +553,7 @@ $(document).ready(function(){initNavTree('art__internal_8hpp_source.html',''); i
 <div class="line"><a id="l00496" name="l00496"></a><span class="lineno"><a class="line" href="classunodb_1_1detail_1_1key__buffer.html#ac194dd8d30a35188b87939582d5f8d84">  496</a></span>  std::byte *<a class="code hl_variable" href="classunodb_1_1detail_1_1key__buffer.html#ac194dd8d30a35188b87939582d5f8d84">buf</a>{&amp;<a class="code hl_variable" href="classunodb_1_1detail_1_1key__buffer.html#adaa1a712e1aa973b82d583bb49e10fac">ibuf</a>[0]};</div>
 <div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span>  <span class="keywordtype">size_t</span> cap{<span class="keyword">sizeof</span>(<a class="code hl_variable" href="classunodb_1_1detail_1_1key__buffer.html#adaa1a712e1aa973b82d583bb49e10fac">ibuf</a>)};  <span class="comment">// current buffer capacity</span></div>
 <div class="line"><a id="l00498" name="l00498"></a><span class="lineno">  498</span>  <span class="keywordtype">size_t</span> off{0};             <span class="comment">// #of bytes in the buffer having valid data.</span></div>
-<div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>};                           <span class="comment">// class key_buffer</span></div>
+<div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>};  <span class="comment">// class key_buffer</span></div>
 </div>
 <div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span> </div>
 <div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span>}  <span class="comment">// namespace unodb::detail</span></div>

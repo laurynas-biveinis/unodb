@@ -11,6 +11,12 @@ while IFS= read -r -d '' file; do
     MARKDOWN_FILES+=("$file")
 done < <(find . -path "./3rd_party" -prune -o -type f -name "*.md" -print0 2>/dev/null || true)
 
+# Find all JSON files (excluding 3rd_party directories and build directories)
+JSON_FILES=()
+while IFS= read -r -d '' file; do
+    JSON_FILES+=("$file")
+done < <(find . -path "./3rd_party" -prune -o -path "./build" -prune -o -type f -name "*.json" -print0 2>/dev/null || true)
+
 # Run checkov on GitHub Actions workflows
 echo "Checking GitHub Actions workflows..."
 if ! checkov --framework github_actions --directory .github/workflows --compact --quiet; then
@@ -51,6 +57,18 @@ if prettier --log-level warn --check .github/workflows/*.yml; then
 else
     echo "prettier check for YAML failed!"
     ERRORS=$((ERRORS + 1))
+fi
+
+echo -n "Checking JSON formatting... "
+if [ ${#JSON_FILES[@]} -gt 0 ]; then
+    if prettier --log-level warn --check "${JSON_FILES[@]}"; then
+        echo "OK!"
+    else
+        echo "prettier check for JSON failed"
+        ERRORS=$((ERRORS + 1))
+    fi
+else
+    echo "No JSON files to check"
 fi
 
 # Textlint terminology check

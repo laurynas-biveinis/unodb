@@ -277,8 +277,8 @@ class basic_db_leaf_deleter {
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
-  constexpr explicit basic_db_leaf_deleter(
-      Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  constexpr explicit basic_db_leaf_deleter(Db &db_
+                                           UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   void operator()(leaf_type *to_delete) const noexcept;
@@ -302,8 +302,8 @@ struct dependent_false : std::false_type {};
 template <class INode, class Db>
 class basic_db_inode_deleter {
  public:
-  constexpr explicit basic_db_inode_deleter(
-      Db &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  constexpr explicit basic_db_inode_deleter(Db &db_
+                                            UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   void operator()(INode *inode_ptr) noexcept;
@@ -496,7 +496,7 @@ class key_buffer {
   std::byte *buf{&ibuf[0]};
   size_t cap{sizeof(ibuf)};  // current buffer capacity
   size_t off{0};             // #of bytes in the buffer having valid data.
-};                           // class key_buffer
+};  // class key_buffer
 
 }  // namespace unodb::detail
 

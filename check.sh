@@ -17,6 +17,12 @@ while IFS= read -r -d '' file; do
     JSON_FILES+=("$file")
 done < <(find . -path "./3rd_party" -prune -o -path "./build" -prune -o -type f -name "*.json" -print0 2>/dev/null || true)
 
+# Find all YAML files (excluding 3rd_party directories and build directories)
+YAML_FILES=()
+while IFS= read -r -d '' file; do
+    YAML_FILES+=("$file")
+done < <(find . -path "./3rd_party" -prune -o -path "./build" -prune -o -type f \( -name "*.yml" -o -name "*.yaml" \) -print0 2>/dev/null || true)
+
 # Run checkov on GitHub Actions workflows
 echo "Checking GitHub Actions workflows..."
 if ! checkov --framework github_actions --directory .github/workflows --compact --quiet; then
@@ -51,12 +57,29 @@ else
     echo "No markdown files to check"
 fi
 
-echo -n "Checking YAML formatting... $(echo .github/workflows/*.yml) "
-if prettier --log-level warn --check .github/workflows/*.yml; then
-    echo "OK!"
+echo -n "Checking YAML formatting... "
+if [ ${#YAML_FILES[@]} -gt 0 ]; then
+    if prettier --log-level warn --check "${YAML_FILES[@]}"; then
+        echo "OK!"
+    else
+        echo "prettier check for YAML failed!"
+        ERRORS=$((ERRORS + 1))
+    fi
 else
-    echo "prettier check for YAML failed!"
-    ERRORS=$((ERRORS + 1))
+    echo "No YAML files to check"
+fi
+
+# Yamllint check
+echo -n "Running yamllint... "
+if [ ${#YAML_FILES[@]} -gt 0 ]; then
+    if yamllint -c .yaml-lint.yml "${YAML_FILES[@]}"; then
+        echo "OK!"
+    else
+        echo "yamllint check failed!"
+        ERRORS=$((ERRORS + 1))
+    fi
+else
+    echo "No YAML files to check"
 fi
 
 echo -n "Checking JSON formatting... "

@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: "en-US"
 tone_instructions: "Be direct and to the point. Do not be afraid to hurt my \
-feelings."
+  feelings."
 early_access: true
 enable_free_tier: true
 reviews:

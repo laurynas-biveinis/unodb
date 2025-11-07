@@ -26,7 +26,7 @@ var searchData=
   ['get_5fval_23',['get_val',['../classunodb_1_1db_1_1iterator.html#a68ae5c43a1b17c6cbb39d8574e6acd1a',1,'unodb::db::iterator::get_val()'],['../classunodb_1_1olc__db_1_1iterator.html#aeaedc889096cc00f7b4acf773198105a',1,'unodb::olc_db::iterator::get_val()'],['../classunodb_1_1detail_1_1qsbr__epoch.html#aaaaf1d5de0b4e8a4f68df98aabf120e9',1,'unodb::detail::qsbr_epoch::get_val()']]],
   ['get_5fvalue_24',['get_value',['../classunodb_1_1visitor.html#a3b9d7eb1f820a0e93082890dee01df74',1,'unodb::visitor']]],
   ['get_5fvalue_5fview_25',['get_value_view',['../classunodb_1_1detail_1_1basic__leaf.html#a88d3ef305a3e3e8eae77002f433fd73d',1,'unodb::detail::basic_leaf']]],
-  ['git_20submodules_26',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
+  ['git_20submodules_26',['Optional vendored dependencies, bundled as Git submodules',['../index.html#autotoc_md27',1,'']]],
   ['global_2ehpp_27',['global.hpp',['../global_8hpp.html',1,'']]],
   ['growing_5ftree_5fnode_5fstats_28',['growing_tree_node_stats',['../classunodb_1_1benchmark_1_1growing__tree__node__stats.html',1,'unodb::benchmark']]],
   ['gte_5fkey_5fbyte_29',['gte_key_byte',['../classunodb_1_1detail_1_1basic__inode__impl.html#ad318e98bdf4405045abac7eb0066c228',1,'unodb::detail::basic_inode_impl']]],

@@ -38,7 +38,7 @@ var searchData=
   ['optimistic_5flock_35',['optimistic_lock',['../classunodb_1_1optimistic__lock.html#a0733ad84e6f45d73043b661275f60b2a',1,'unodb::optimistic_lock::optimistic_lock()'],['../classunodb_1_1optimistic__lock.html',1,'unodb::optimistic_lock']]],
   ['optimistic_5flock_2ehpp_36',['optimistic_lock.hpp',['../optimistic__lock_8hpp.html',1,'']]],
   ['optional_20development_20dependencies_37',['Optional development dependencies',['../md_CONTRIBUTING.html#autotoc_md1',1,'']]],
-  ['optional_20vendored_20dependencies_20bundled_20as_20git_20submodules_38',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
+  ['optional_20vendored_20dependencies_20bundled_20as_20git_20submodules_38',['Optional vendored dependencies, bundled as Git submodules',['../index.html#autotoc_md27',1,'']]],
   ['options_39',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
   ['organization_40',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]],
   ['orphan_5fpending_5frequests_41',['orphan_pending_requests',['../classunodb_1_1qsbr__per__thread.html#add6170269ed644653e4206906d5166b0',1,'unodb::qsbr_per_thread']]],

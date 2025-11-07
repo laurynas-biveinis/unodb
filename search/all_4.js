@@ -25,5 +25,5 @@ var searchData=
   ['build_20dependencies_22',['Build dependencies',['../index.html#autotoc_md26',1,'']]],
   ['building_23',['Building',['../index.html#autotoc_md28',1,'']]],
   ['bump_5fepoch_5fchange_5fcount_24',['bump_epoch_change_count',['../classunodb_1_1qsbr.html#a7fc645a40b11e4140adb6453ca352498',1,'unodb::qsbr']]],
-  ['bundled_20as_20git_20submodules_25',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]]
+  ['bundled_20as_20git_20submodules_25',['Optional vendored dependencies, bundled as Git submodules',['../index.html#autotoc_md27',1,'']]]
 ];

@@ -44,7 +44,7 @@ var searchData=
   ['artkeyviewcorrectnesstest_41',['ARTKeyViewCorrectnessTest',['../classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html',1,'anonymous_namespace{test_art_key_view.cpp}']]],
   ['artoomtest_42',['ARTOOMTest',['../classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html',1,'anonymous_namespace{test_art_oom.cpp}']]],
   ['artscantest_43',['ARTScanTest',['../classanonymous__namespace_02test__art__scan_8cpp_03_1_1ARTScanTest.html',1,'anonymous_namespace{test_art_scan.cpp}']]],
-  ['as_20git_20submodules_44',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
+  ['as_20git_20submodules_44',['Optional vendored dependencies, bundled as Git submodules',['../index.html#autotoc_md27',1,'']]],
   ['as_5fi_45',['as_i',['../namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1',1,'unodb']]],
   ['assert_2ehpp_46',['assert.hpp',['../assert_8hpp.html',1,'']]],
   ['assert_5ffailure_47',['assert_failure',['../namespaceunodb_1_1detail.html#a73ccae20a7fde29e0381b903bbf0c58a',1,'unodb::detail']]],

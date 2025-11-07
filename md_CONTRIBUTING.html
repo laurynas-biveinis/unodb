@@ -151,7 +151,7 @@ Code style guide</h2>
 <li><code>const</code> should be used everywhere it is possible to do so, with the exception of by-value function parameters and class fields that support moving from.</li>
 <li><code>constexpr</code> (and <code>consteval</code>) should be applied everywhere it is legal to do so. Perhaps one day we will have a compile-time Adaptive Radix Tree.</li>
 <li>All C++ standard library symbols must be namespace-qualified, and this includes symbols shared with C. For example <code>std::size_t</code>.</li>
-<li>Automatic code formatting can be configured through git clean/fuzz filters. To enable this feature, do <code>git config --local include.path ../.gitconfig</code>. If you need to temporarily disable it, run <code>git config --local --unset include.path</code>.</li>
+<li>Automatic code formatting can be configured through Git clean/fuzz filters. To enable this feature, do <code>git config --local include.path ../.gitconfig</code>. If you need to temporarily disable it, run <code>git config --local --unset include.path</code>.</li>
 <li>The code that cannot be possibly tested by short deterministic tests, for example, because it handles rarely-occurring non-deterministic concurrency conditions, should be excluded from coverage testing with <code>// LCOV_EXCL_LINE</code> comment for a single line or with <code>// LCOV_EXCL_START</code>, <code>// LCOV_EXCL_STOP</code> start and end markers for a block.</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md6"></a>
@@ -163,7 +163,7 @@ Documentation style guide</h2>
 <li>Doxygen commands should use <code>\foo</code> (and not <code>@foo</code>) syntax.</li>
 <li>The preferred location of the comments is next to the declarations. An exception is declarations with multiple conditionally compiled declarations, in which case a Doxygen comment with a <code>\def</code>, <code>\var</code>, or another suitable tag for the declaration should appear at the top of its section or source file, and it should also have a <code>\hideinitializer</code> tag.</li>
 <li>Doxygen automatic brief description detection is enabled, thus explicit <code>\brief</code> tags are not required, rather the first sentence in the Doxygen comment block will be interpreted as the brief description. It should use a headline-like style without articles.</li>
-<li>Markdown markup is preferred, i.e. `<code>foo</code> instead of <code>\c foo</code>.</li>
+<li>Markdown markup is preferred, i.e. <code>`foo`</code> instead of <code>\c foo</code>.</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md7"></a>
 Linting and static analysis</h2>

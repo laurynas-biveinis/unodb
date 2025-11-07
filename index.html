@@ -117,12 +117,12 @@ Requirements</h2>
 <h3><a class="anchor" id="autotoc_md26"></a>
 Build dependencies</h3>
 <ul>
-<li>Earliest versions of supported compilers: GCC 10, LLVM 11, XCode 16.1, MSVC 2022. Open an issue if you require support for an older version.</li>
+<li>Earliest versions of supported compilers: GCC 10, LLVM 11, Xcode 16.1, MSVC 2022. Open an issue if you require support for an older version.</li>
 <li>CMake, at least 3.16.</li>
 <li>Boost library. If building with statistics counters, then it is a mandatory dependency for Boost.Accumulator. It is also an optional dependency for Boost.Stacktrace.</li>
 </ul>
 <h3><a class="anchor" id="autotoc_md27"></a>
-Optional vendored dependencies, bundled as git submodules</h3>
+Optional vendored dependencies, bundled as Git submodules</h3>
 <ul>
 <li>Google Test for tests.</li>
 <li>Google Benchmark for microbenchmarks.</li>
@@ -131,13 +131,11 @@ Optional vendored dependencies, bundled as git submodules</h3>
 <p>These dependencies need not be present if the build is configured to skip the corresponding part. For example, if the CMake option <code>-DTESTS=OFF</code> is given, then Google Test and DeepState submodules don't have to be populated.</p>
 <h2><a class="anchor" id="autotoc_md28"></a>
 Building</h2>
-<p>Unless you configure your build otherwise, first you need to populate the git submodules for test and benchmark dependencies:</p>
-<div class="fragment"><div class="line"> bash</div>
-<div class="line"># --recursive is not strictly required at the moment, but a good habit to have</div>
+<p>Unless you configure your build otherwise, first you need to populate the Git submodules for test and benchmark dependencies:</p>
+<div class="fragment"><div class="line"># --recursive is not strictly required at the moment, but a good habit to have</div>
 <div class="line">git submodule update --init --recursive</div>
 </div><!-- fragment --><p>Out-of-source builds are recommended, for example</p>
-<div class="fragment"><div class="line"> bash</div>
-<div class="line">mkdir build</div>
+<div class="fragment"><div class="line">mkdir build</div>
 <div class="line">cd build</div>
 <div class="line">cmake .. &lt;other options, see below&gt;</div>
 </div><!-- fragment --><p>There are some CMake options for users:</p>
@@ -153,8 +151,7 @@ Building</h2>
 Platform-Specific Notes</h2>
 <h3><a class="anchor" id="autotoc_md30"></a>
 Ubuntu 22.04</h3>
-<div class="fragment"><div class="line"> bash</div>
-<div class="line"># libc6-dev-i386 is for DeepState</div>
+<div class="fragment"><div class="line"># libc6-dev-i386 is for DeepState</div>
 <div class="line">sudo apt-get install -y libboost-dev libc6-dev-i386</div>
 </div><!-- fragment --><h3><a class="anchor" id="autotoc_md31"></a>
 Amazon Linux 2023</h3>

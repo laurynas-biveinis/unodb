@@ -25,7 +25,7 @@ var searchData=
   ['static_20analysis_22',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md7',1,'']]],
   ['store_23',['store',['../classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556',1,'unodb::in_critical_section']]],
   ['style_20guide_24',['style guide',['../md_CONTRIBUTING.html#autotoc_md5',1,'Code style guide'],['../md_CONTRIBUTING.html#autotoc_md6',1,'Documentation style guide']]],
-  ['submodules_25',['Optional vendored dependencies, bundled as git submodules',['../index.html#autotoc_md27',1,'']]],
+  ['submodules_25',['Optional vendored dependencies, bundled as Git submodules',['../index.html#autotoc_md27',1,'']]],
   ['support_20code_26',['Test Support Code',['../group__test-internals.html',1,'']]],
   ['sync_27',['sync',['../classunodb_1_1detail_1_1thread__sync.html#a0dc94898628d374e92b659126181290a',1,'unodb::detail::thread_sync']]],
   ['sync_5fmutex_28',['sync_mutex',['../classunodb_1_1detail_1_1thread__sync.html#a04c33dad94dfb05725467da4a2013eba',1,'unodb::detail::thread_sync']]]

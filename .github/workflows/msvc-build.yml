@@ -61,7 +61,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup command line tools
-        uses: ilammy/msvc-dev-cmd@v1  # zizmor: ignore[unpinned-uses]
+        uses: ilammy/msvc-dev-cmd@v1 # zizmor: ignore[unpinned-uses]
 
       - name: Install dependencies
         run: |

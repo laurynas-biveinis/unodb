@@ -4,14 +4,14 @@
 
 ## Optional development dependencies
 
-* clang-format
-* lcov
-* clang-tidy
-* clangd
-* cppcheck
-* cpplint
-* include-what-you-use
-* libfuzzer
+- clang-format
+- lcov
+- clang-tidy
+- clangd
+- cppcheck
+- cpplint
+- include-what-you-use
+- libfuzzer
 
 ## General workflow
 
@@ -25,29 +25,29 @@ The regular CMake option `-DCMAKE_BUILD_TYPE` is recognized. Setting it to
 
 There also other development-specific options. All of them are `OFF` by default.
 
-* `-DSTANDALONE=ON` always should be given when working on UnoDB itself, whereas
+- `-DSTANDALONE=ON` always should be given when working on UnoDB itself, whereas
   for users with UnoDB as a part of another project it should be `OFF`. When
   turned on, it will build benchmarks by default and enable extra global debug
   checks that require entire programs to be compiled with them. Currently, this
   consists of the libstdc++ debug mode.
-* `-DMAINTAINER_MODE=ON` to enable maintainer diagnostics. This makes
+- `-DMAINTAINER_MODE=ON` to enable maintainer diagnostics. This makes
   compilation warnings fatal.
-* `-DSANITIZE_ADDRESS=ON` to enable AddressSanitizer (asan) and, if available,
+- `-DSANITIZE_ADDRESS=ON` to enable AddressSanitizer (asan) and, if available,
   LeakSanitizer. It is incompatible with the `-DSANITIZE_THREAD=ON` option.
-* `-DSANITIZE_THREAD=ON` to enable ThreadSanitizer (tsan). It is incompatible
+- `-DSANITIZE_THREAD=ON` to enable ThreadSanitizer (tsan). It is incompatible
   with the `-DSANITIZE_ADDRESS=ON` option, not available under MSVC, and will
   disable libfuzzer support if it would be enabled otherwise.
-* `-DSANITIZE_UB=ON` to enable UndefinedBehaviorSanitizer (ubsan). It is
+- `-DSANITIZE_UB=ON` to enable UndefinedBehaviorSanitizer (ubsan). It is
   compatible with other sanitizer options, although some [false
   positive][sanitizer-combination-bug] might occur. Not available under MSVC.
-* `-DSTATIC_ANALYSIS=ON` for GCC or MSVC compiler static analysis. LLVM analyzer
+- `-DSTATIC_ANALYSIS=ON` for GCC or MSVC compiler static analysis. LLVM analyzer
   is used without any CMake option, see the "Linting and static analysis"
   section below.
-* `-DIWYU=ON` to use include-what-you-use. It will take effect if building with
+- `-DIWYU=ON` to use include-what-you-use. It will take effect if building with
   clang.
-* `-DCPPCHECK_AGGRESSIVE=ON` to enable inconclusive cppcheck diagnostics. They
+- `-DCPPCHECK_AGGRESSIVE=ON` to enable inconclusive cppcheck diagnostics. They
   will not fail a build.
-* `-DCOVERAGE=ON` to generate coverage reports on tests, excluding fuzzers,
+- `-DCOVERAGE=ON` to generate coverage reports on tests, excluding fuzzers,
   using lcov.
 
 ## Code organization
@@ -68,38 +68,37 @@ unavoidable. If a macro has to be introduced, its name must be prefixed with
 
 ## Code style guide
 
-* The code should follow existing conventions, formatted with
+- The code should follow existing conventions, formatted with
   [Google C++ style][gc++style]. This is enforced by GitHub Actions SuperLinter
   running clang-format, currently version 20.
-* Each source file must have a `// Copyright <file-intro-year>-<last-edit-year>
-  UnoDB contributors` as the first line.
-* Each source file must `#include "global.hpp"` first thing.
-* Identifiers should be `snake_case`.
-* Type names should either have no suffix, or `_type` when declaring types from
+- Each source file must have a `// Copyright <file-intro-year>-<last-edit-year>
+UnoDB contributors` as the first line.
+- Each source file must `#include "global.hpp"` first thing.
+- Identifiers should be `snake_case`.
+- Type names should either have no suffix, or `_type` when declaring types from
   template parameters and other identifiers. It cannot be `_t` as this suffix is
   reserved by POSIX.
-* The code is `noexcept`-maximalist. Every function and method that cannot throw
+- The code is `noexcept`-maximalist. Every function and method that cannot throw
   should be marked as `noexcept`. If the code does not throw in release build
   but may throw in debug one, it should ignore the latter and be `noexcept`.
-* The code is exception-safe, with strong exception guarantee. This is actually
+- The code is exception-safe, with strong exception guarantee. This is actually
   tested by [test/test_art_oom.cpp](test/test_art_oom.cpp) injecting
   `std::bad_alloc` into heap allocations. New code should exception-safe too,
   with OOM tests expanded as necessary.
-* The code is `[[nodiscard]]`-maximalist. Every value-returning function and
+- The code is `[[nodiscard]]`-maximalist. Every value-returning function and
   method starts out as `[[nodiscard]]` by default, and is only changed if there
   is a clear need to both handle and ignore the return value.
-* The code follows the Almost Always Auto guideline.
-* `const` should be used everywhere it is possible to do so, with the exception
+- The code follows the Almost Always Auto guideline.
+- `const` should be used everywhere it is possible to do so, with the exception
   of by-value function parameters and class fields that support moving from.
-* `constexpr` (and `consteval`) should be applied everywhere it is legal to do
+- `constexpr` (and `consteval`) should be applied everywhere it is legal to do
   so. Perhaps one day we will have a compile-time Adaptive Radix Tree.
-* All C++ standard library symbols must be namespace-qualified, and this
+- All C++ standard library symbols must be namespace-qualified, and this
   includes symbols shared with C. For example `std::size_t`.
-* Automatic code formatting can be configured through git clean/fuzz filters. To
+- Automatic code formatting can be configured through Git clean/fuzz filters. To
   enable this feature, do `git config --local include.path ../.gitconfig`. If
-  you need to temporarily disable it, run `git config --local --unset
-  include.path`.
-* The code that cannot be possibly tested by short deterministic tests, for
+  you need to temporarily disable it, run `git config --local --unset include.path`.
+- The code that cannot be possibly tested by short deterministic tests, for
   example, because it handles rarely-occurring non-deterministic concurrency
   conditions, should be excluded from coverage testing with `// LCOV_EXCL_LINE`
   comment for a single line or with `// LCOV_EXCL_START`, `// LCOV_EXCL_STOP`
@@ -107,26 +106,26 @@ unavoidable. If a macro has to be introduced, its name must be prefixed with
 
 ## Documentation style guide
 
-* The code should be commented, but without comments repeating already obvious
+- The code should be commented, but without comments repeating already obvious
   code.
-* `TODO` comments may be used for future tasks. `FIXME` comments should be used
+- `TODO` comments may be used for future tasks. `FIXME` comments should be used
   for things that must be fixed before the code lands in the master branch,
   however sometimes they land there. In both cases they should have a username
   in parentheses, i.e. `TODO(alice)`, `FIXME(bob)`. It indicates the comment
   author, not necessarily who should address it.
-* Doxygen is used to produce source code documentation. To build the local HTML
+- Doxygen is used to produce source code documentation. To build the local HTML
   docs, run `doxygen Doxyfile` from the root source directory.
-* Doxygen commands should use `\foo` (and not `@foo`) syntax.
-* The preferred location of the comments is next to the declarations. An
+- Doxygen commands should use `\foo` (and not `@foo`) syntax.
+- The preferred location of the comments is next to the declarations. An
   exception is declarations with multiple conditionally compiled declarations,
   in which case a Doxygen comment with a `\def`, `\var`, or another suitable tag
   for the declaration should appear at the top of its section or source file,
   and it should also have a `\hideinitializer` tag.
-* Doxygen automatic brief description detection is enabled, thus explicit
+- Doxygen automatic brief description detection is enabled, thus explicit
   `\brief` tags are not required, rather the first sentence in the Doxygen
   comment block will be interpreted as the brief description. It should use a
   headline-like style without articles.
-* Markdown markup is preferred, i.e. ```foo`` instead of `\c foo`.
+- Markdown markup is preferred, i.e. `` `foo` `` instead of `\c foo`.
 
 ## Linting and static analysis
 
@@ -174,25 +173,25 @@ suffix, such as `deepstate_lf_8h`, `deepstate_qsbr_lf_20m`,
 
 ## Commit messages
 
-* Keep the first line under 72 characters and don't finish it with a full stop.
-* The second line should be empty.
-* Use imperative mood ("Fix bug" not "fixes bug", nor "fixed bug").
-* Reference fixed issues, i.e. "fixes: #123"
+- Keep the first line under 72 characters and don't finish it with a full stop.
+- The second line should be empty.
+- Use imperative mood ("Fix bug" not "fixes bug", nor "fixed bug").
+- Reference fixed issues, i.e. "fixes: #123"
 
 ## Pull Requests
 
-* Create one PR per feature or fix. If it is possible to split PR into
+- Create one PR per feature or fix. If it is possible to split PR into
   independent smaller parts, do so.
-* Include documentation updates for the changes, use Doxygen as needed.
-* Code changes should be covered by small deterministic tests. The coverage
+- Include documentation updates for the changes, use Doxygen as needed.
+- Code changes should be covered by small deterministic tests. The coverage
   target is 100% (to the achievable extent), after non-deterministic code has
   been annotated to be excluded from coverage as described in the "Style Guide"
   section above.
-* A clean CI run is a prerequisite for merging the PR.
-* In the case of merge conflicts, rebase.
-* All commits should be squashed into logical units. If the PR has only one
+- A clean CI run is a prerequisite for merging the PR.
+- In the case of merge conflicts, rebase.
+- All commits should be squashed into logical units. If the PR has only one
   feature or fix, as it should, there should be only one commit in it.
-* Very obvious changes may be pushed directly.
+- Very obvious changes may be pushed directly.
 
 ## Benchmarking
 
@@ -200,7 +199,7 @@ Benchmarking is hard: it is easy to do it incorrectly with no obvious warning
 signs. Here are some suggestions how to set it up. They will not guarantee valid
 results but should exclude some classes of invalid ones:
 
-* Set up the benchmark machine for the best CPU counter observability and run
+- Set up the benchmark machine for the best CPU counter observability and run
   repeatability. This configuration is at odds with some of the Linux security
   features, so don't do that on machines close to production:
 
@@ -211,31 +210,32 @@ results but should exclude some classes of invalid ones:
   sudo sysctl -w vm.swappiness=0
   ```
 
-* To make the above settings survive reboots, edit `/etc/sysctl.conf` for:
+- To make the above settings survive reboots, edit `/etc/sysctl.conf` for:
 
-   ```conf
-   kernel.perf_event_paranoid = -1
-   kernel.kptr_restrict = 0
-   vm.swappiness = 0
-   ```
+  ```conf
+  kernel.perf_event_paranoid = -1
+  kernel.kptr_restrict = 0
+  vm.swappiness = 0
+  ```
 
-   and `/etc/sysctl.d/10-ptrace.conf` for `kernel.yama.ptrace_scope = 0`.
-* On x86_64, make sure to use the performance governor for the CPU frequency
+  and `/etc/sysctl.d/10-ptrace.conf` for `kernel.yama.ptrace_scope = 0`.
+
+- On x86_64, make sure to use the performance governor for the CPU frequency
   management: edit `/etc/default/cpufrequtils` for `GOVERNOR="performance"`
   followed by `sudo /etc/init.d/cpufrequtils restart`. You can also do
   `sudo cpupower frequency-set --governor performance` for transient setting.
-* Disable hyperthreading:
+- Disable hyperthreading:
   `sudo sh -c "echo off > /sys/devices/system/cpu/smt/control"`
-* Pick a CPU and shield it from other threads running there:
+- Pick a CPU and shield it from other threads running there:
   `sudo cset shield --cpu=2 --kthread=on`
-* Start a shell for benchmarking in the shield:
+- Start a shell for benchmarking in the shield:
   `sudo cset shield --exec zsh`
-* Use jemalloc for heap:
+- Use jemalloc for heap:
   `export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2`
-* Now run your desired benchmarks. For the supported flags for i.e. benchmark
+- Now run your desired benchmarks. For the supported flags for i.e. benchmark
   filtering see [Google Benchmark
   documentation](https://github.com/google/benchmark/blob/main/docs/user_guide.md).
-* To measure the effect of a patch, Google Benchmark provides
+- To measure the effect of a patch, Google Benchmark provides
   [U-Test](https://github.com/google/benchmark/blob/main/docs/tools.md#u-test)
   feature. Let's say you changed N16 node fields, but only for the OLC case.
   Then you can run N16-specific tests, filtered for the OLC. The next command is
@@ -253,7 +253,5 @@ results but should exclude some classes of invalid ones:
 By contributing, you agree that your contributions will be licensed under the
 [LICENSE](LICENSE) terms.
 
-[gc++style]: https://google.github.io/styleguide/cppguide.html
-"Google C++ Style Guide"
-
+[gc++style]: https://google.github.io/styleguide/cppguide.html "Google C++ Style Guide"
 [sanitizer-combination-bug]: https://github.com/google/sanitizers/issues/1106

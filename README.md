@@ -27,25 +27,25 @@ ideas. I am describing some of the things I learned at my [blog](https://of-code
 UnoDB source code is written in C++20, and relies on the following
 platform-specific features:
 
-* On Intel platforms, it requires SSE4.1 intrinsics (Nehalem and higher), AVX
+- On Intel platforms, it requires SSE4.1 intrinsics (Nehalem and higher), AVX
   for MSVC builds, and optional AVX2 support, when available. This differs from
   the original ART paper, which only required SSE2.
-* On ARM, it uses NEON intrinsics.
+- On ARM, it uses NEON intrinsics.
 
 ### Build dependencies
 
-* Earliest versions of supported compilers: GCC 10, LLVM 11, XCode 16.1,
+- Earliest versions of supported compilers: GCC 10, LLVM 11, Xcode 16.1,
   MSVC 2022. Open an issue if you require support for an older version.
-* CMake, at least 3.16.
-* Boost library. If building with statistics counters, then it is a mandatory
+- CMake, at least 3.16.
+- Boost library. If building with statistics counters, then it is a mandatory
   dependency for Boost.Accumulator. It is also an optional dependency for
   Boost.Stacktrace.
 
-### Optional vendored dependencies, bundled as git submodules
+### Optional vendored dependencies, bundled as Git submodules
 
-* Google Test for tests.
-* Google Benchmark for microbenchmarks.
-* [DeepState][deepstate] for fuzzing tests.
+- Google Test for tests.
+- Google Benchmark for microbenchmarks.
+- [DeepState][deepstate] for fuzzing tests.
 
 These dependencies need not be present if the build is configured to skip the
 corresponding part. For example, if the CMake option `-DTESTS=OFF` is given,
@@ -53,17 +53,17 @@ then Google Test and DeepState submodules don't have to be populated.
 
 ## Building
 
-Unless you configure your build otherwise, first you need to populate the git
+Unless you configure your build otherwise, first you need to populate the Git
 submodules for test and benchmark dependencies:
 
-``` bash
+```bash
 # --recursive is not strictly required at the moment, but a good habit to have
 git submodule update --init --recursive
 ```
 
 Out-of-source builds are recommended, for example
 
-``` bash
+```bash
 mkdir build
 cd build
 cmake .. <other options, see below>
@@ -71,17 +71,17 @@ cmake .. <other options, see below>
 
 There are some CMake options for users:
 
-* `-DSPINLOCK_LOOP=PAUSE|EMPTY` to choose the spinlock wait loop body
+- `-DSPINLOCK_LOOP=PAUSE|EMPTY` to choose the spinlock wait loop body
   implementation for the optimistic lock. `EMPTY` may benchmark better as long
   as there are fewer threads than available CPU cores. `PAUSE` will use that
   instruction on x86_64, and something similar on ARM. The default is `PAUSE`.
-* `-DSTATS=OFF` if you want to compile away all the statistics counters. The
+- `-DSTATS=OFF` if you want to compile away all the statistics counters. The
   result will scale better in benchmarks. The current stats implementation is
   global cache line-padded shared atomic counters. This option might be removed
   in the future if the stats are reimplemented with less overhead.
-* `-DWITH_AVX2=OFF` to disable AVX2 intrinsics to use SSE4.1/AVX only.
-* `-DTESTS=OFF` to skip building the tests.
-* `-DBENCHMARKS=ON` to build the benchmarks.
+- `-DWITH_AVX2=OFF` to disable AVX2 intrinsics to use SSE4.1/AVX only.
+- `-DTESTS=OFF` to skip building the tests.
+- `-DBENCHMARKS=ON` to build the benchmarks.
 
 There are other CMake options that are mainly intended for UnoDB development
 itself and are discussed in [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -90,7 +90,7 @@ itself and are discussed in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Ubuntu 22.04
 
-``` bash
+```bash
 # libc6-dev-i386 is for DeepState
 sudo apt-get install -y libboost-dev libc6-dev-i386
 ```
@@ -124,30 +124,30 @@ top-level CMake project.
 All the declarations live in the `unodb` namespace, which is omitted in the
 descriptions below.
 
-The key type is a template argument for the `unodb::db` classes.  In general,
+The key type is a template argument for the `unodb::db` classes. In general,
 the library supports both integral keys (though only `std::uint64_t` is tested
 at this time) and variable length keys (using `unodb::key_view` as the key
-type).  Variable length keys are supported using the `unodb::key_encoder` and
-`unodb::key_decoder`.  The `unodb::key_encoder` is responsible for making
+type). Variable length keys are supported using the `unodb::key_encoder` and
+`unodb::key_decoder`. The `unodb::key_encoder` is responsible for making
 encoded keys which obey lexicographic ordering and handles various signed and
-unsigned types, floating point, types, and text.  The `unodb::key_encoder` MUST
+unsigned types, floating point, types, and text. The `unodb::key_encoder` MUST
 be used for text data (including Unicode sort keys) and for compound keys (keys
-consisting of multiple components).  The ART data structure has a restriction
-that no full length key may be a prefix of another key.  This restriction is
-trivially satisified for any fixed width key.  Also per the ART paper, the
+consisting of multiple components). The ART data structure has a restriction
+that no full length key may be a prefix of another key. This restriction is
+trivially satisified for any fixed width key. Also per the ART paper, the
 `unodb::key_encoder` maintains this contract for text keys by truncating them to
 not more than `unodb::key_encoder::maxlen` bytes and then logically padding them
-out (with a run length counter) to `unodb::key_encoder::maxlen`.  Unicode data
+out (with a run length counter) to `unodb::key_encoder::maxlen`. Unicode data
 SHOULD be converted by the caller using a quality library (e.g., ICU) to Unicode
 sort keys which capture the desired collation order, and those sort keys then
-passed to the `unodb::key_encoder`.  Finally, the `unodb::key_decoder` may be
+passed to the `unodb::key_encoder`. Finally, the `unodb::key_decoder` may be
 used to decode signed and unsigned integral types and floating point types. Note
 that all NaNs are mapped to a canonical NaN during encoding, so decode of NaN
-always returns that canonical value.  Decode of Unicode sort keys is not
-possible due to the transformation to generate the sort key.  Decode of other
+always returns that canonical value. Decode of Unicode sort keys is not
+possible due to the transformation to generate the sort key. Decode of other
 text can run into the truncation and run length padding artifacts and is not
-supported.  When ART is used as a secondary index, the caller stores the record
-identifier (or record pointer) as the values in the tree.  The original text can
+supported. When ART is used as a secondary index, the caller stores the record
+identifier (or record pointer) as the values in the tree. The original text can
 then be recovered from the source record.
 
 Values are treated opaquely. For `unodb::db`, they are passed as non-owning
@@ -158,31 +158,31 @@ remain valid until the current thread passes through a quiescent state.
 
 All ART classes share the same API:
 
-* constructor.
-* `get(key k)` returns `get_result` (a `std::optional<value_view>`).
-* `bool insert(key k, value_view v)` returns whether the insert was successful
+- constructor.
+- `get(key k)` returns `get_result` (a `std::optional<value_view>`).
+- `bool insert(key k, value_view v)` returns whether the insert was successful
   (i.e. the key was not already present).
-* `bool remove(key k)` returns whether delete was successful (i.e. the key was
+- `bool remove(key k)` returns whether delete was successful (i.e. the key was
   found in the tree).
-* `clear()` empties the tree. For `olc_db`, it must be called from a
+- `clear()` empties the tree. For `olc_db`, it must be called from a
   single-threaded context.
-* `bool empty()` returns whether the tree is empty.
-* `template <FN> scan(), scan_from(...), scan_range()` a family of
+- `bool empty()` returns whether the tree is empty.
+- `template <FN> scan(), scan_from(...), scan_range()` a family of
   scan methods, including forward and reverse scans and scans with a
   from_key and an exclusive upper bound to_key where fn is a lambda
   accepting a visitor and returning a bool indicating whether the scan
-  should halt (bool halt).  See `examples/examples_art.cpp`.
-* `void dump(std::ostream &)` outputs the tree representation.
-* Several getters provide tree info, such as current memory use, and internal
+  should halt (bool halt). See `examples/examples_art.cpp`.
+- `void dump(std::ostream &)` outputs the tree representation.
+- Several getters provide tree info, such as current memory use, and internal
   operation counters (e.g. number of times Node4 grew to Node16, key prefix was
   split, etc - see the source code for details).
 
 Three ART classes available:
 
-* `db`: unsychronized ART tree, for single-thread contexts or with
+- `db`: unsychronized ART tree, for single-thread contexts or with
   external synchronization
-* `mutex_db`: ART tree with single global mutex synchronization
-* `olc_db`: a concurrent ART tree, implementing Optimistic Lock Coupling as
+- `mutex_db`: ART tree with single global mutex synchronization
+- `olc_db`: a concurrent ART tree, implementing Optimistic Lock Coupling as
   described in "The ART of Practical Synchronization" paper by Leis et al.;
   nodes are versioned, writers lock per-node optimistic locks, readers don't
   lock but check node versions and restart if they change.
@@ -201,13 +201,13 @@ at any time.
 The implementation follows the paper description closely, with the following
 differences and design choices:
 
-* The paper algorithms are specified in SSE2 intrinsics. This implementation has
+- The paper algorithms are specified in SSE2 intrinsics. This implementation has
   SSE4.1 as the minimal level, and AVX2 as the default one on Intel. On ARM,
   NEON is used.
-* Different ways to implement leaf nodes are discussed in the paper
+- Different ways to implement leaf nodes are discussed in the paper
   (single-value leaves, multi-value leaves, and combined pointer/value slots).
   Here single-value leaves are implemented.
-* The paper discusses different choices in implementing search key path
+- The paper discusses different choices in implementing search key path
   compression. Here the pessimistic path compression is implemented, with up to
   7 bytes of key data per internal node.
 
@@ -249,23 +249,22 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Literature
 
-*ART Trie*: V. Leis, A. Kemper and T. Neumann, "The adaptive radix tree: ARTful
+_ART Trie_: V. Leis, A. Kemper and T. Neumann, "The adaptive radix tree: ARTful
 indexing for main-memory databases," 2013 29th IEEE International Conference on
 Data Engineering (ICDE 2013)(ICDE), Brisbane, QLD, 2013, pp. 38-49.
 doi:10.1109/ICDE.2013.6544812
 
-*ART Sync*: V. Leis, F. Schneiber, A. Kemper and T. Neumann, "The ART of
+_ART Sync_: V. Leis, F. Schneiber, A. Kemper and T. Neumann, "The ART of
 Practical Synchronization," 2016 Proceedings of the 12th International Workshop
 on Data Management on New Hardware (DaMoN), pages 3:1--3:8, 2016.
 
-*qsbr*: P. E. McKenney, J. D. Slingwine, "Read-copy update: using execution
+_qsbr_: P. E. McKenney, J. D. Slingwine, "Read-copy update: using execution
 history to solve concurrency problems," Parallel and Distributed Computing and
 Systems, 1998, pages 509--518.
 
-*seqlock sync*: H-J. Boehm, "Can seqlocks get along with programming language
+_seqlock sync_: H-J. Boehm, "Can seqlocks get along with programming language
 memory models?," Proceedings of the 2012 ACM SIGPLAN Workshop on Memory Systems
 Performance and Correctness, June 2012, pages 12--21, 2012.
 
 [deepstate]: https://github.com/trailofbits/deepstate "DeepState on GitHub"
-
 [seqlock]: https://en.wikipedia.org/wiki/Seqlock

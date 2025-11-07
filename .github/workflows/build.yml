@@ -468,7 +468,7 @@ jobs:
         if: env.COVERAGE == 'ON'
 
       - name: Upload coverage data
-        uses: codecov/codecov-action@v5  # zizmor: ignore[unpinned-uses]
+        uses: codecov/codecov-action@v5 # zizmor: ignore[unpinned-uses]
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{matrix.BUILD_TYPE}}

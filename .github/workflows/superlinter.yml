@@ -32,7 +32,7 @@ jobs:
       - name: Run Super-Linter
         # If a version bump bumps clang-format version, update its version int
         # CONTRIBUTING.md too
-        uses: super-linter/super-linter/slim@v8.2.1  # zizmor: ignore[unpinned-uses]
+        uses: super-linter/super-linter/slim@v8.2.1 # zizmor: ignore[unpinned-uses]
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ANSIBLE: false

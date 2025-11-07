@@ -5,6 +5,12 @@ set -euo pipefail
 
 ERRORS=0
 
+# Find all markdown files (excluding 3rd_party directories)
+MARKDOWN_FILES=()
+while IFS= read -r -d '' file; do
+    MARKDOWN_FILES+=("$file")
+done < <(find . -path "./3rd_party" -prune -o -type f -name "*.md" -print0 2>/dev/null || true)
+
 # Run checkov on GitHub Actions workflows
 echo "Checking GitHub Actions workflows..."
 if ! checkov --framework github_actions --directory .github/workflows --compact --quiet; then
@@ -24,6 +30,40 @@ fi
 echo "Checking CircleCI configuration..."
 if ! checkov --framework circleci_pipelines --file .circleci/config.yml --compact --quiet; then
     ERRORS=$((ERRORS + 1))
+fi
+
+# Prettier checks
+echo -n "Checking Markdown formatting... "
+if [ ${#MARKDOWN_FILES[@]} -gt 0 ]; then
+    if prettier --log-level warn --check "${MARKDOWN_FILES[@]}"; then
+        echo "OK!"
+    else
+        echo "prettier check for Markdown failed"
+        ERRORS=$((ERRORS + 1))
+    fi
+else
+    echo "No markdown files to check"
+fi
+
+echo -n "Checking YAML formatting... $(echo .github/workflows/*.yml) "
+if prettier --log-level warn --check .github/workflows/*.yml; then
+    echo "OK!"
+else
+    echo "prettier check for YAML failed!"
+    ERRORS=$((ERRORS + 1))
+fi
+
+# Textlint terminology check
+echo -n "Checking terminology... "
+if [ ${#MARKDOWN_FILES[@]} -gt 0 ]; then
+    if textlint --rule terminology "${MARKDOWN_FILES[@]}"; then
+        echo "OK!"
+    else
+        echo "textlint check failed"
+        ERRORS=$((ERRORS + 1))
+    fi
+else
+    echo "No markdown files to check"
 fi
 
 # Biome checks

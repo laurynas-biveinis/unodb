@@ -1,0 +1,21 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.4/schema.json",
+  "vcs": {
+    "enabled": false
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "files": {
+    "includes": [
+      "*.json",
+      "!3rd_party",
+      "!build",
+      "!docs",
+      "!.git",
+      "!.github",
+      "!.claude"
+    ]
+  }
+}

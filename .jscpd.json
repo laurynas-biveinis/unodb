@@ -1,11 +1,6 @@
 {
-    "threshold": 17,
-    "reporters": [
-        "consoleFull"
-    ],
-    "ignore": [
-        "**/__snapshots__/**",
-        "**/CMakePresets.json"
-    ],
-    "absolute": true
+  "threshold": 17,
+  "reporters": ["consoleFull"],
+  "ignore": ["**/__snapshots__/**", "**/CMakePresets.json"],
+  "absolute": true
 }

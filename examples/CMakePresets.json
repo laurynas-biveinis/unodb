@@ -1,93 +1,81 @@
 {
-    "version": 2,
-    "cmakeMinimumRequired": {
-        "major": 3,
-        "minor": 20,
-        "patch": 0
-    },
-    "configurePresets": [
-        {
-            "name": "base-msvc",
-            "hidden": true,
-            "binaryDir": "${sourceDir}/build-examples/${presetName}",
-            "generator": "Ninja",
-            "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
-            }
-        },
-        {
-            "name": "base-msvc-llvm",
-            "hidden": true,
-            "inherits": "base-msvc",
-            "cacheVariables": {
-                "CMAKE_C_COMPILER": "clang-cl",
-                "CMAKE_CXX_COMPILER": "clang-cl"
-            },
-            "vendor": {
-                "microsoft.com/VisualStudioSettings/CMake/1.0": {
-                    "intelliSenseMode": "windows-clang-x64"
-                }
-            }
-        },
-        {
-            "name": "release",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "debug",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        },
-        {
-            "name": "msvc-debug",
-            "inherits": [
-                "base-msvc",
-                "debug"
-            ]
-        },
-        {
-            "name": "msvc-release",
-            "inherits": [
-                "base-msvc",
-                "release"
-            ]
-        },
-        {
-            "name": "msvc-llvm-debug",
-            "inherits": [
-                "base-msvc-llvm",
-                "debug"
-            ]
-        },
-        {
-            "name": "msvc-llvm-release",
-            "inherits": [
-                "base-msvc-llvm",
-                "release"
-            ]
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "msvc-debug",
-            "configurePreset": "msvc-debug"
-        },
-        {
-            "name": "msvc-release",
-            "configurePreset": "msvc-release"
-        },
-        {
-            "name": "msvc-llvm-debug",
-            "configurePreset": "msvc-llvm-debug"
-        },
-        {
-            "name": "msvc-llvm-release",
-            "configurePreset": "msvc-llvm-release"
-        }
-    ]
+	"version": 2,
+	"cmakeMinimumRequired": {
+		"major": 3,
+		"minor": 20,
+		"patch": 0
+	},
+	"configurePresets": [
+		{
+			"name": "base-msvc",
+			"hidden": true,
+			"binaryDir": "${sourceDir}/build-examples/${presetName}",
+			"generator": "Ninja",
+			"cacheVariables": {
+				"CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
+			}
+		},
+		{
+			"name": "base-msvc-llvm",
+			"hidden": true,
+			"inherits": "base-msvc",
+			"cacheVariables": {
+				"CMAKE_C_COMPILER": "clang-cl",
+				"CMAKE_CXX_COMPILER": "clang-cl"
+			},
+			"vendor": {
+				"microsoft.com/VisualStudioSettings/CMake/1.0": {
+					"intelliSenseMode": "windows-clang-x64"
+				}
+			}
+		},
+		{
+			"name": "release",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release"
+			}
+		},
+		{
+			"name": "debug",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			}
+		},
+		{
+			"name": "msvc-debug",
+			"inherits": ["base-msvc", "debug"]
+		},
+		{
+			"name": "msvc-release",
+			"inherits": ["base-msvc", "release"]
+		},
+		{
+			"name": "msvc-llvm-debug",
+			"inherits": ["base-msvc-llvm", "debug"]
+		},
+		{
+			"name": "msvc-llvm-release",
+			"inherits": ["base-msvc-llvm", "release"]
+		}
+	],
+	"buildPresets": [
+		{
+			"name": "msvc-debug",
+			"configurePreset": "msvc-debug"
+		},
+		{
+			"name": "msvc-release",
+			"configurePreset": "msvc-release"
+		},
+		{
+			"name": "msvc-llvm-debug",
+			"configurePreset": "msvc-llvm-debug"
+		},
+		{
+			"name": "msvc-llvm-release",
+			"configurePreset": "msvc-llvm-release"
+		}
+	]
 }

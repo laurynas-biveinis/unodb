@@ -1,802 +1,668 @@
 {
-    "version": 2,
-    "cmakeMinimumRequired": {
-        "major": 3,
-        "minor": 20,
-        "patch": 0
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "STANDALONE": "ON",
+        "MAINTAINER_MODE": "ON",
+        "IWYU": "ON"
+      }
     },
-    "configurePresets": [
-        {
-            "name": "base",
-            "hidden": true,
-            "binaryDir": "${sourceDir}/build/${presetName}",
-            "cacheVariables": {
-                "STANDALONE": "ON",
-                "MAINTAINER_MODE": "ON",
-                "IWYU": "ON"
-            }
-        },
-        {
-            "name": "base-unix",
-            "hidden": true,
-            "inherits": "base",
-            "generator": "Ninja"
-        },
-        {
-            "name": "base-msvc",
-            "hidden": true,
-            "inherits": "base",
-            "generator": "Ninja",
-            "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
-            }
-
-        },
-        {
-            "name": "base-msvc-llvm",
-            "hidden": true,
-            "inherits": "base-msvc",
-            "cacheVariables": {
-                "CMAKE_C_COMPILER": "clang-cl",
-                "CMAKE_CXX_COMPILER": "clang-cl"
-            },
-            "vendor": {
-                "microsoft.com/VisualStudioSettings/CMake/1.0": {
-                    "intelliSenseMode": "windows-clang-x64"
-                }
-            }
-        },
-        {
-            "name": "asan",
-            "hidden": true,
-            "cacheVariables": {
-                "SANITIZE_ADDRESS": "ON"
-            }
-        },
-        {
-            "name": "tsan",
-            "hidden": true,
-            "cacheVariables": {
-                "SANITIZE_THREAD": "ON"
-            }
-        },
-        {
-            "name": "ubsan",
-            "hidden": true,
-            "cacheVariables": {
-                "SANITIZE_UB": "ON"
-            }
-        },
-        {
-            "name": "static-analysis",
-            "hidden": true,
-            "cacheVariables": {
-                "STATIC_ANALYSIS": "ON"
-            }
-        },
-        {
-            "name": "cppcheck-aggressive",
-            "hidden": true,
-            "cacheVariables": {
-                "CPPCHECK_AGGRESSIVE": "ON"
-            }
-        },
-        {
-            "name": "gcc",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_C_COMPILER": "gcc-14",
-                "CMAKE_CXX_COMPILER": "g++-14"
-            }
-        },
-        {
-            "name": "llvm-apple-intel",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_PREFIX_PATH": "/usr/local/opt/llvm",
-                "CMAKE_C_COMPILER": "/usr/local/opt/llvm/bin/clang",
-                "CMAKE_CXX_COMPILER": "/usr/local/opt/llvm/bin/clang++",
-                "CMAKE_AR": "/usr/local/opt/llvm/bin/llvm-ar"
-            }
-        },
-        {
-            "name": "llvm-apple-silicon",
-            "hidden": true,
-            "cacheVariables": {
-                "CMAKE_PREFIX_PATH": "/opt/homebrew/opt/llvm",
-                "CMAKE_C_COMPILER": "/opt/homebrew/opt/llvm/bin/clang",
-                "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++",
-                "CMAKE_AR": "/opt/homebrew/opt/llvm/bin/llvm-ar"
-            }
-        },
-        {
-            "name": "avx2-off",
-            "hidden": true,
-            "cacheVariables": {
-                "AVX2": "OFF"
-            }
-        },
-        {
-            "name": "release",
-            "inherits": "base-unix",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "release-asan",
-            "inherits": [
-                "release",
-                "asan"
-            ]
-        },
-        {
-            "name": "release-tsan",
-            "inherits": [
-                "release",
-                "tsan"
-            ]
-        },
-        {
-            "name": "release-cppcheck-aggressive",
-            "inherits": [
-                "release",
-                "cppcheck-aggressive"
-            ]
-        },
-        {
-            "name": "debug",
-            "inherits": "base-unix",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        },
-        {
-            "name": "debug-asan",
-            "inherits": [
-                "debug",
-                "asan"
-            ]
-        },
-        {
-            "name": "debug-tsan",
-            "inherits": [
-                "debug",
-                "tsan"
-            ]
-        },
-        {
-            "name": "debug-ubsan",
-            "inherits": [
-                "debug",
-                "ubsan"
-            ]
-        },
-        {
-            "name": "debug-cppcheck-aggressive",
-            "inherits": [
-                "debug",
-                "cppcheck-aggressive"
-            ]
-        },
-        {
-            "name": "gcc-release",
-            "inherits": [
-                "release",
-                "gcc"
-            ]
-        },
-        {
-            "name": "gcc-release-asan",
-            "inherits": [
-                "release",
-                "gcc",
-                "asan"
-            ]
-        },
-        {
-            "name": "gcc-release-ubsan",
-            "inherits": [
-                "release",
-                "gcc",
-                "ubsan"
-            ]
-        },
-        {
-            "name": "gcc-debug",
-            "inherits": [
-                "debug",
-                "gcc"
-            ]
-        },
-        {
-            "name": "gcc-debug-asan",
-            "inherits": [
-                "debug",
-                "gcc",
-                "asan"
-            ]
-        },
-        {
-            "name": "gcc-debug-tsan",
-            "inherits": [
-                "debug",
-                "gcc",
-                "tsan"
-            ]
-        },
-        {
-            "name": "llvm-apple-intel-release",
-            "inherits": [
-                "release",
-                "llvm-apple-intel"
-            ]
-        },
-        {
-            "name": "llvm-apple-intel-release-tsan",
-            "inherits": [
-                "release",
-                "llvm-apple-intel",
-                "tsan"
-            ]
-        },
-        {
-            "name": "llvm-apple-intel-debug",
-            "inherits": [
-                "debug",
-                "llvm-apple-intel"
-            ]
-        },
-        {
-            "name": "llvm-apple-intel-debug-no-avx2",
-            "inherits": [
-                "debug",
-                "llvm-apple-intel",
-                "avx2-off"
-            ]
-        },
-        {
-            "name": "llvm-apple-intel-debug-asan",
-            "inherits": [
-                "debug",
-                "llvm-apple-intel",
-                "asan"
-            ]
-        },
-        {
-            "name": "llvm-apple-intel-debug-tsan",
-            "inherits": [
-                "debug",
-                "llvm-apple-intel",
-                "tsan"
-            ]
-        },
-        {
-            "name": "llvm-apple-silicon-release",
-            "inherits": [
-                "release",
-                "llvm-apple-silicon"
-            ]
-        },
-        {
-            "name": "llvm-apple-silicon-release-asan",
-            "inherits": [
-                "release",
-                "llvm-apple-silicon",
-                "asan"
-            ]
-        },
-        {
-            "name": "llvm-apple-silicon-release-tsan",
-            "inherits": [
-                "release",
-                "llvm-apple-silicon",
-                "tsan"
-            ]
-        },
-        {
-            "name": "llvm-apple-silicon-debug",
-            "inherits": [
-                "debug",
-                "llvm-apple-silicon"
-            ]
-        },
-        {
-            "name": "llvm-apple-silicon-debug-asan",
-            "inherits": [
-                "debug",
-                "llvm-apple-silicon",
-                "asan"
-            ]
-        },
-        {
-            "name": "llvm-apple-silicon-debug-tsan",
-            "inherits": [
-                "debug",
-                "llvm-apple-silicon",
-                "tsan"
-            ]
-        },
-        {
-            "name": "gcc-static-analysis-debug",
-            "inherits": [
-                "debug",
-                "gcc",
-                "static-analysis"
-            ]
-        },
-        {
-            "name": "gcc-static-analysis-release",
-            "inherits": [
-                "release",
-                "gcc",
-                "static-analysis"
-            ]
-        },
-        {
-            "name": "msvc-debug",
-            "inherits": [
-                "base-msvc",
-                "debug"
-            ]
-        },
-        {
-            "name": "msvc-debug-no-avx2",
-            "inherits": [
-                "base-msvc",
-                "debug",
-                "avx2-off"
-            ]
-        },
-        {
-            "name": "msvc-release",
-            "inherits": [
-                "base-msvc",
-                "release"
-            ]
-        },
-        {
-            "name": "msvc-debug-asan",
-            "inherits": [
-                "base-msvc",
-                "debug",
-                "asan"
-            ]
-        },
-        {
-            "name": "msvc-release-asan",
-            "inherits": [
-                "base-msvc",
-                "release",
-                "asan"
-            ]
-        },
-        {
-            "name": "msvc-llvm-debug",
-            "inherits": [
-                "base-msvc-llvm",
-                "debug"
-            ]
-        },
-        {
-            "name": "msvc-llvm-release",
-            "inherits": [
-                "base-msvc-llvm",
-                "release"
-            ]
-        },
-        {
-            "name": "msvc-static-analysis-debug",
-            "inherits": [
-                "base-msvc",
-                "debug",
-                "static-analysis"
-            ]
-        },
-        {
-            "name": "msvc-static-analysis-release",
-            "inherits": [
-                "base-msvc",
-                "release",
-                "static-analysis"
-            ]
+    {
+      "name": "base-unix",
+      "hidden": true,
+      "inherits": "base",
+      "generator": "Ninja"
+    },
+    {
+      "name": "base-msvc",
+      "hidden": true,
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "base-msvc-llvm",
+      "hidden": true,
+      "inherits": "base-msvc",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "windows-clang-x64"
         }
-    ],
-    "buildPresets": [
-        {
-            "name": "base",
-            "hidden": true,
-            "jobs": 5
-        },
-        {
-            "name": "msvc-static-analysis",
-            "hidden": true,
-            "environment": {"caexcludepath": "${sourceDir}/3rd_party"}
-        },
-        {
-            "name": "release",
-            "configurePreset": "release",
-            "inherits": "base"
-        },
-        {
-            "name": "release-asan",
-            "configurePreset": "release-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "release-tsan",
-            "configurePreset": "release-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "release-cppcheck-aggressive",
-            "configurePreset": "release-cppcheck-aggressive",
-            "inherits": "base"
-        },
-        {
-            "name": "debug",
-            "configurePreset": "debug",
-            "inherits": "base"
-        },
-        {
-            "name": "debug-asan",
-            "configurePreset": "debug-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "debug-tsan",
-            "configurePreset": "debug-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "debug-ubsan",
-            "configurePreset": "debug-ubsan",
-            "inherits": "base"
-        },
-        {
-            "name": "debug-cppcheck-aggressive",
-            "configurePreset": "debug-cppcheck-aggressive",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-release",
-            "configurePreset": "gcc-release",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-release-asan",
-            "configurePreset": "gcc-release-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-release-ubsan",
-            "configurePreset": "gcc-release-ubsan",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-debug",
-            "configurePreset": "gcc-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-debug-asan",
-            "configurePreset": "gcc-debug-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-debug-tsan",
-            "configurePreset": "gcc-debug-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-release",
-            "configurePreset": "llvm-apple-intel-release",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-release-tsan",
-            "configurePreset": "llvm-apple-intel-release-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-debug",
-            "configurePreset": "llvm-apple-intel-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-debug-no-avx2",
-            "configurePreset": "llvm-apple-intel-debug-no-avx2",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-debug-asan",
-            "configurePreset": "llvm-apple-intel-debug-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-debug-tsan",
-            "configurePreset": "llvm-apple-intel-debug-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-release",
-            "configurePreset": "llvm-apple-silicon-release",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-release-asan",
-            "configurePreset": "llvm-apple-silicon-release-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-release-tsan",
-            "configurePreset": "llvm-apple-silicon-release-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-debug",
-            "configurePreset": "llvm-apple-silicon-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-debug-asan",
-            "configurePreset": "llvm-apple-silicon-debug-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-debug-tsan",
-            "configurePreset": "llvm-apple-silicon-debug-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-static-analysis-debug",
-            "configurePreset": "gcc-static-analysis-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-static-analysis-release",
-            "configurePreset": "gcc-static-analysis-release",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-debug",
-            "configurePreset": "msvc-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-debug-no-avx2",
-            "configurePreset": "msvc-debug-no-avx2",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-release",
-            "configurePreset": "msvc-release",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-debug-asan",
-            "configurePreset": "msvc-debug-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-release-asan",
-            "configurePreset": "msvc-release-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-llvm-debug",
-            "configurePreset": "msvc-llvm-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-llvm-release",
-            "configurePreset": "msvc-llvm-release",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-static-analysis-debug",
-            "configurePreset": "msvc-static-analysis-debug",
-            "inherits": [
-                "base",
-                "msvc-static-analysis"
-            ]
-        },
-        {
-            "name": "msvc-static-analysis-release",
-            "configurePreset": "msvc-static-analysis-release",
-            "inherits": [
-                "base",
-                "msvc-static-analysis"
-            ]
-        }
-    ],
-    "testPresets": [
-        {
-            "name": "base",
-            "hidden": true,
-            "execution": {
-                "jobs": 5
-            }
-        },
-        {
-            "name": "release",
-            "configurePreset": "release",
-            "inherits": "base"
-        },
-        {
-            "name": "release-asan",
-            "configurePreset": "release-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "release-tsan",
-            "configurePreset": "release-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "release-cppcheck-aggressive",
-            "configurePreset": "release-cppcheck-aggressive",
-            "inherits": "base"
-        },
-        {
-            "name": "debug",
-            "configurePreset": "debug",
-            "inherits": "base"
-        },
-        {
-            "name": "debug-asan",
-            "configurePreset": "debug-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "debug-tsan",
-            "configurePreset": "debug-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "debug-ubsan",
-            "configurePreset": "debug-ubsan",
-            "inherits": "base"
-        },
-        {
-            "name": "debug-cppcheck-aggressive",
-            "configurePreset": "debug-cppcheck-aggressive",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-release",
-            "configurePreset": "gcc-release",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-release-asan",
-            "configurePreset": "gcc-release-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-release-ubsan",
-            "configurePreset": "gcc-release-ubsan",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-debug",
-            "configurePreset": "gcc-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-debug-asan",
-            "configurePreset": "gcc-debug-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-debug-tsan",
-            "configurePreset": "gcc-debug-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-release",
-            "configurePreset": "llvm-apple-intel-release",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-release-tsan",
-            "configurePreset": "llvm-apple-intel-release-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-debug",
-            "configurePreset": "llvm-apple-intel-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-debug-no-avx2",
-            "configurePreset": "llvm-apple-intel-debug-no-avx2",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-debug-asan",
-            "configurePreset": "llvm-apple-intel-debug-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-intel-debug-tsan",
-            "configurePreset": "llvm-apple-intel-debug-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-release",
-            "configurePreset": "llvm-apple-silicon-release",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-release-asan",
-            "configurePreset": "llvm-apple-silicon-release-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-release-tsan",
-            "configurePreset": "llvm-apple-silicon-release-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-debug",
-            "configurePreset": "llvm-apple-silicon-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-debug-asan",
-            "configurePreset": "llvm-apple-silicon-debug-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "llvm-apple-silicon-debug-tsan",
-            "configurePreset": "llvm-apple-silicon-debug-tsan",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-static-analysis-debug",
-            "configurePreset": "gcc-static-analysis-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "gcc-static-analysis-release",
-            "configurePreset": "gcc-static-analysis-release",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-debug",
-            "configurePreset": "msvc-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-debug-no-avx2",
-            "configurePreset": "msvc-debug-no-avx2",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-release",
-            "configurePreset": "msvc-release",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-debug-asan",
-            "configurePreset": "msvc-debug-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-release-asan",
-            "configurePreset": "msvc-release-asan",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-llvm-debug",
-            "configurePreset": "msvc-llvm-debug",
-            "inherits": "base"
-        },
-        {
-            "name": "msvc-llvm-release",
-            "configurePreset": "msvc-llvm-release",
-            "inherits": "base"
-        }
-    ]
+      }
+    },
+    {
+      "name": "asan",
+      "hidden": true,
+      "cacheVariables": {
+        "SANITIZE_ADDRESS": "ON"
+      }
+    },
+    {
+      "name": "tsan",
+      "hidden": true,
+      "cacheVariables": {
+        "SANITIZE_THREAD": "ON"
+      }
+    },
+    {
+      "name": "ubsan",
+      "hidden": true,
+      "cacheVariables": {
+        "SANITIZE_UB": "ON"
+      }
+    },
+    {
+      "name": "static-analysis",
+      "hidden": true,
+      "cacheVariables": {
+        "STATIC_ANALYSIS": "ON"
+      }
+    },
+    {
+      "name": "cppcheck-aggressive",
+      "hidden": true,
+      "cacheVariables": {
+        "CPPCHECK_AGGRESSIVE": "ON"
+      }
+    },
+    {
+      "name": "gcc",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-14",
+        "CMAKE_CXX_COMPILER": "g++-14"
+      }
+    },
+    {
+      "name": "llvm-apple-intel",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "/usr/local/opt/llvm",
+        "CMAKE_C_COMPILER": "/usr/local/opt/llvm/bin/clang",
+        "CMAKE_CXX_COMPILER": "/usr/local/opt/llvm/bin/clang++",
+        "CMAKE_AR": "/usr/local/opt/llvm/bin/llvm-ar"
+      }
+    },
+    {
+      "name": "llvm-apple-silicon",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "/opt/homebrew/opt/llvm",
+        "CMAKE_C_COMPILER": "/opt/homebrew/opt/llvm/bin/clang",
+        "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++",
+        "CMAKE_AR": "/opt/homebrew/opt/llvm/bin/llvm-ar"
+      }
+    },
+    {
+      "name": "avx2-off",
+      "hidden": true,
+      "cacheVariables": {
+        "AVX2": "OFF"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "base-unix",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "release-asan",
+      "inherits": ["release", "asan"]
+    },
+    {
+      "name": "release-tsan",
+      "inherits": ["release", "tsan"]
+    },
+    {
+      "name": "release-cppcheck-aggressive",
+      "inherits": ["release", "cppcheck-aggressive"]
+    },
+    {
+      "name": "debug",
+      "inherits": "base-unix",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "debug-asan",
+      "inherits": ["debug", "asan"]
+    },
+    {
+      "name": "debug-tsan",
+      "inherits": ["debug", "tsan"]
+    },
+    {
+      "name": "debug-ubsan",
+      "inherits": ["debug", "ubsan"]
+    },
+    {
+      "name": "debug-cppcheck-aggressive",
+      "inherits": ["debug", "cppcheck-aggressive"]
+    },
+    {
+      "name": "gcc-release",
+      "inherits": ["release", "gcc"]
+    },
+    {
+      "name": "gcc-release-asan",
+      "inherits": ["release", "gcc", "asan"]
+    },
+    {
+      "name": "gcc-release-ubsan",
+      "inherits": ["release", "gcc", "ubsan"]
+    },
+    {
+      "name": "gcc-debug",
+      "inherits": ["debug", "gcc"]
+    },
+    {
+      "name": "gcc-debug-asan",
+      "inherits": ["debug", "gcc", "asan"]
+    },
+    {
+      "name": "gcc-debug-tsan",
+      "inherits": ["debug", "gcc", "tsan"]
+    },
+    {
+      "name": "llvm-apple-intel-release",
+      "inherits": ["release", "llvm-apple-intel"]
+    },
+    {
+      "name": "llvm-apple-intel-release-tsan",
+      "inherits": ["release", "llvm-apple-intel", "tsan"]
+    },
+    {
+      "name": "llvm-apple-intel-debug",
+      "inherits": ["debug", "llvm-apple-intel"]
+    },
+    {
+      "name": "llvm-apple-intel-debug-no-avx2",
+      "inherits": ["debug", "llvm-apple-intel", "avx2-off"]
+    },
+    {
+      "name": "llvm-apple-intel-debug-asan",
+      "inherits": ["debug", "llvm-apple-intel", "asan"]
+    },
+    {
+      "name": "llvm-apple-intel-debug-tsan",
+      "inherits": ["debug", "llvm-apple-intel", "tsan"]
+    },
+    {
+      "name": "llvm-apple-silicon-release",
+      "inherits": ["release", "llvm-apple-silicon"]
+    },
+    {
+      "name": "llvm-apple-silicon-release-asan",
+      "inherits": ["release", "llvm-apple-silicon", "asan"]
+    },
+    {
+      "name": "llvm-apple-silicon-release-tsan",
+      "inherits": ["release", "llvm-apple-silicon", "tsan"]
+    },
+    {
+      "name": "llvm-apple-silicon-debug",
+      "inherits": ["debug", "llvm-apple-silicon"]
+    },
+    {
+      "name": "llvm-apple-silicon-debug-asan",
+      "inherits": ["debug", "llvm-apple-silicon", "asan"]
+    },
+    {
+      "name": "llvm-apple-silicon-debug-tsan",
+      "inherits": ["debug", "llvm-apple-silicon", "tsan"]
+    },
+    {
+      "name": "gcc-static-analysis-debug",
+      "inherits": ["debug", "gcc", "static-analysis"]
+    },
+    {
+      "name": "gcc-static-analysis-release",
+      "inherits": ["release", "gcc", "static-analysis"]
+    },
+    {
+      "name": "msvc-debug",
+      "inherits": ["base-msvc", "debug"]
+    },
+    {
+      "name": "msvc-debug-no-avx2",
+      "inherits": ["base-msvc", "debug", "avx2-off"]
+    },
+    {
+      "name": "msvc-release",
+      "inherits": ["base-msvc", "release"]
+    },
+    {
+      "name": "msvc-debug-asan",
+      "inherits": ["base-msvc", "debug", "asan"]
+    },
+    {
+      "name": "msvc-release-asan",
+      "inherits": ["base-msvc", "release", "asan"]
+    },
+    {
+      "name": "msvc-llvm-debug",
+      "inherits": ["base-msvc-llvm", "debug"]
+    },
+    {
+      "name": "msvc-llvm-release",
+      "inherits": ["base-msvc-llvm", "release"]
+    },
+    {
+      "name": "msvc-static-analysis-debug",
+      "inherits": ["base-msvc", "debug", "static-analysis"]
+    },
+    {
+      "name": "msvc-static-analysis-release",
+      "inherits": ["base-msvc", "release", "static-analysis"]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "jobs": 5
+    },
+    {
+      "name": "msvc-static-analysis",
+      "hidden": true,
+      "environment": { "caexcludepath": "${sourceDir}/3rd_party" }
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "inherits": "base"
+    },
+    {
+      "name": "release-asan",
+      "configurePreset": "release-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "release-tsan",
+      "configurePreset": "release-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "release-cppcheck-aggressive",
+      "configurePreset": "release-cppcheck-aggressive",
+      "inherits": "base"
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "inherits": "base"
+    },
+    {
+      "name": "debug-asan",
+      "configurePreset": "debug-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "debug-tsan",
+      "configurePreset": "debug-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "debug-ubsan",
+      "configurePreset": "debug-ubsan",
+      "inherits": "base"
+    },
+    {
+      "name": "debug-cppcheck-aggressive",
+      "configurePreset": "debug-cppcheck-aggressive",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-release",
+      "configurePreset": "gcc-release",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-release-asan",
+      "configurePreset": "gcc-release-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-release-ubsan",
+      "configurePreset": "gcc-release-ubsan",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-debug",
+      "configurePreset": "gcc-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-debug-asan",
+      "configurePreset": "gcc-debug-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-debug-tsan",
+      "configurePreset": "gcc-debug-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-release",
+      "configurePreset": "llvm-apple-intel-release",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-release-tsan",
+      "configurePreset": "llvm-apple-intel-release-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-debug",
+      "configurePreset": "llvm-apple-intel-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-debug-no-avx2",
+      "configurePreset": "llvm-apple-intel-debug-no-avx2",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-debug-asan",
+      "configurePreset": "llvm-apple-intel-debug-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-debug-tsan",
+      "configurePreset": "llvm-apple-intel-debug-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-release",
+      "configurePreset": "llvm-apple-silicon-release",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-release-asan",
+      "configurePreset": "llvm-apple-silicon-release-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-release-tsan",
+      "configurePreset": "llvm-apple-silicon-release-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-debug",
+      "configurePreset": "llvm-apple-silicon-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-debug-asan",
+      "configurePreset": "llvm-apple-silicon-debug-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-debug-tsan",
+      "configurePreset": "llvm-apple-silicon-debug-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-static-analysis-debug",
+      "configurePreset": "gcc-static-analysis-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-static-analysis-release",
+      "configurePreset": "gcc-static-analysis-release",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-debug",
+      "configurePreset": "msvc-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-debug-no-avx2",
+      "configurePreset": "msvc-debug-no-avx2",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-release",
+      "configurePreset": "msvc-release",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-debug-asan",
+      "configurePreset": "msvc-debug-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-release-asan",
+      "configurePreset": "msvc-release-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-llvm-debug",
+      "configurePreset": "msvc-llvm-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-llvm-release",
+      "configurePreset": "msvc-llvm-release",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-static-analysis-debug",
+      "configurePreset": "msvc-static-analysis-debug",
+      "inherits": ["base", "msvc-static-analysis"]
+    },
+    {
+      "name": "msvc-static-analysis-release",
+      "configurePreset": "msvc-static-analysis-release",
+      "inherits": ["base", "msvc-static-analysis"]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "execution": {
+        "jobs": 5
+      }
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "inherits": "base"
+    },
+    {
+      "name": "release-asan",
+      "configurePreset": "release-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "release-tsan",
+      "configurePreset": "release-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "release-cppcheck-aggressive",
+      "configurePreset": "release-cppcheck-aggressive",
+      "inherits": "base"
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "inherits": "base"
+    },
+    {
+      "name": "debug-asan",
+      "configurePreset": "debug-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "debug-tsan",
+      "configurePreset": "debug-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "debug-ubsan",
+      "configurePreset": "debug-ubsan",
+      "inherits": "base"
+    },
+    {
+      "name": "debug-cppcheck-aggressive",
+      "configurePreset": "debug-cppcheck-aggressive",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-release",
+      "configurePreset": "gcc-release",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-release-asan",
+      "configurePreset": "gcc-release-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-release-ubsan",
+      "configurePreset": "gcc-release-ubsan",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-debug",
+      "configurePreset": "gcc-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-debug-asan",
+      "configurePreset": "gcc-debug-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-debug-tsan",
+      "configurePreset": "gcc-debug-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-release",
+      "configurePreset": "llvm-apple-intel-release",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-release-tsan",
+      "configurePreset": "llvm-apple-intel-release-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-debug",
+      "configurePreset": "llvm-apple-intel-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-debug-no-avx2",
+      "configurePreset": "llvm-apple-intel-debug-no-avx2",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-debug-asan",
+      "configurePreset": "llvm-apple-intel-debug-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-intel-debug-tsan",
+      "configurePreset": "llvm-apple-intel-debug-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-release",
+      "configurePreset": "llvm-apple-silicon-release",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-release-asan",
+      "configurePreset": "llvm-apple-silicon-release-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-release-tsan",
+      "configurePreset": "llvm-apple-silicon-release-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-debug",
+      "configurePreset": "llvm-apple-silicon-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-debug-asan",
+      "configurePreset": "llvm-apple-silicon-debug-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "llvm-apple-silicon-debug-tsan",
+      "configurePreset": "llvm-apple-silicon-debug-tsan",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-static-analysis-debug",
+      "configurePreset": "gcc-static-analysis-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "gcc-static-analysis-release",
+      "configurePreset": "gcc-static-analysis-release",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-debug",
+      "configurePreset": "msvc-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-debug-no-avx2",
+      "configurePreset": "msvc-debug-no-avx2",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-release",
+      "configurePreset": "msvc-release",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-debug-asan",
+      "configurePreset": "msvc-debug-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-release-asan",
+      "configurePreset": "msvc-release-asan",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-llvm-debug",
+      "configurePreset": "msvc-llvm-debug",
+      "inherits": "base"
+    },
+    {
+      "name": "msvc-llvm-release",
+      "configurePreset": "msvc-llvm-release",
+      "inherits": "base"
+    }
+  ]
 }

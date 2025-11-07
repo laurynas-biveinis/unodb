@@ -13,12 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Install Doxygen
         run: sudo apt-get install doxygen
       - name: Generate docs
         run: doxygen Doxyfile
       - name: Deploy docs
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v4  # zizmor: ignore[unpinned-uses]
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/html/

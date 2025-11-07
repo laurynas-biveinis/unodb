@@ -11,6 +11,15 @@ if ! checkov --framework github_actions --directory .github/workflows --compact 
     ERRORS=$((ERRORS + 1))
 fi
 
+# Run zizmor security check on GitHub Actions
+echo -n "Checking GitHub Actions security... $(echo .github/workflows/*.yml) "
+if zizmor .github/workflows/*.yml; then
+    echo "OK!"
+else
+    echo "zizmor check failed!"
+    ERRORS=$((ERRORS + 1))
+fi
+
 # Run checkov on CircleCI config
 echo "Checking CircleCI configuration..."
 if ! checkov --framework circleci_pipelines --file .circleci/config.yml --compact --quiet; then

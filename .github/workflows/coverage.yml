@@ -1,0 +1,82 @@
+---
+name: coverage
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    env:
+      BUILD_TYPE: ${{matrix.BUILD_TYPE}}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Debug
+            BUILD_TYPE: Debug
+
+          - name: Release
+            BUILD_TYPE: Release
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+          persist-credentials: false
+
+      - name: Setup dependencies
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y libboost-dev libc6-dev-i386 g++-13 \
+              g++-13-multilib lcov cpanminus
+          sudo cpanm install JSON
+
+      - name: Configure CMake
+        # Use a bash shell so we can use the same syntax for environment
+        # variable access regardless of the host operating system
+        shell: bash
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          V=13
+          export CC=gcc-$V
+          export CXX=g++-$Va
+          set +e
+          cmake -B build "$GITHUB_WORKSPACE" "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
+              -DSTANDALONE=ON -DMAINTAINER_MODE=ON -DCOVERAGE=ON \
+              "-DGCOV_PATH=/usr/bin/gcov-$V"
+          CMAKE_EXIT_CODE=$?
+          set -e
+          if [ $CMAKE_EXIT_CODE -ne 0 ]; then
+            if [ -f build/CMakeFiles/CMakeConfigureLog.yaml ]; then
+              echo "::group::CMakeConfigureLog.yaml"
+              cat build/CMakeFiles/CMakeConfigureLog.yaml
+              echo "::endgroup::"
+            fi
+            exit $CMAKE_EXIT_CODE
+          fi
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: make -j3 -k
+
+      - name: Gather coverage data
+        working-directory: ${{github.workspace}}/build
+        run: |
+          make -j3 -k coverage
+
+      - name: Upload coverage data
+        uses: codecov/codecov-action@v5 # zizmor: ignore[unpinned-uses]
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          flags: ${{matrix.BUILD_TYPE}}
+          fail_ci_if_error: true
+          directory: ${{github.workspace}}/build

@@ -13,7 +13,6 @@ env:
   DEFAULT_SANITIZE_THREAD: OFF
   DEFAULT_SANITIZE_UB: OFF
   DEFAULT_STATIC_ANALYSIS: OFF
-  DEFAULT_COVERAGE: OFF
   DEFAULT_AVX2: ON
 
 permissions: {}
@@ -28,7 +27,6 @@ jobs:
       SANITIZE_THREAD: ${{matrix.SANITIZE_THREAD}}
       SANITIZE_UB: ${{matrix.SANITIZE_UB}}
       STATIC_ANALYSIS: ${{matrix.STATIC_ANALYSIS}}
-      COVERAGE: ${{matrix.COVERAGE}}
       COMPILER: ${{matrix.COMPILER}}
       CPPLINT: ${{matrix.CPPLINT}}
       CPPCHECK: ${{matrix.CPPCHECK}}
@@ -269,20 +267,6 @@ jobs:
             SANITIZE_UB: ON
             AVX2: OFF
 
-          - name: Debug coverage
-            os: ubuntu-22.04
-            BUILD_TYPE: Debug
-            COMPILER: gcc
-            COVERAGE: ON
-            AVX2: OFF
-
-          - name: Release coverage
-            os: ubuntu-22.04
-            BUILD_TYPE: Release
-            COMPILER: gcc
-            COVERAGE: ON
-            AVX2: OFF
-
     steps:
       - uses: actions/checkout@v5
         with:
@@ -335,12 +319,6 @@ jobs:
           runner.os == 'Linux' && env.COMPILER == 'clang'
           && env.STATIC_ANALYSIS != 'ON'
 
-      - name: Set up dependencies for Linux (coverage)
-        run: |
-          sudo apt-get install lcov cpanminus
-          sudo cpanm install JSON
-        if: runner.os == 'Linux' && env.COVERAGE == 'ON'
-
       - name: Set up dependencies for macOS (common)
         run: |
           brew install boost include-what-you-use python-setuptools
@@ -360,7 +338,6 @@ jobs:
           SANITIZE_THREAD="${SANITIZE_THREAD:-$DEFAULT_SANITIZE_THREAD}"
           SANITIZE_UB="${SANITIZE_UB:-$DEFAULT_SANITIZE_UB}"
           STATIC_ANALYSIS="${STATIC_ANALYSIS:-$DEFAULT_STATIC_ANALYSIS}"
-          COVERAGE="${COVERAGE:-$DEFAULT_COVERAGE}"
           AVX2="${AVX2:-$DEFAULT_AVX2}"
           export PATH="$HOME/.local/bin:$PATH"
           if [[ -n "$BUILD_TYPE" ]]; then
@@ -369,12 +346,8 @@ jobs:
             CBT=""
           fi
           if [[ $COMPILER == "gcc" ]]; then
-              V=13
-            if [[ $COVERAGE == "ON" ]]; then
-              EXTRA_CMAKE_ARGS=("-DGCOV_PATH=/usr/bin/gcov-$V")
-            else
-              EXTRA_CMAKE_ARGS=()
-            fi
+            V=13
+            EXTRA_CMAKE_ARGS=()
             export CC=gcc-$V
             export CXX=g++-$V
           elif [[ $COMPILER == "clang" ]]; then
@@ -410,7 +383,7 @@ jobs:
               "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
               "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
               "-DSANITIZE_UB=${SANITIZE_UB}" \
-              "-DSTATIC_ANALYSIS=${STATIC_ANALYSIS}" "-DCOVERAGE=${COVERAGE}" \
+              "-DSTATIC_ANALYSIS=${STATIC_ANALYSIS}" \
               "-DAVX2=${AVX2}" "${EXTRA_CMAKE_ARGS[@]}"
           CMAKE_EXIT_CODE=$?
           set -e
@@ -438,40 +411,24 @@ jobs:
       - name: Correctness test
         working-directory: ${{github.workspace}}/build
         run: ctest -j3 -V
-        if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+        if: env.STATIC_ANALYSIS != 'ON'
 
       - name: Benchmark correctness test
         working-directory: ${{github.workspace}}/build
         run: make -k quick_benchmarks
-        if: env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
+        if: env.STATIC_ANALYSIS != 'ON'
 
       - name: DeepState 1 minute fuzzing
         working-directory: ${{github.workspace}}/build
         run: make -j2 -k deepstate_1m
         if: >
-          env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
-          && (runner.os != 'macOS'
+          env.STATIC_ANALYSIS != 'ON' && (runner.os != 'macOS'
           || (env.SANITIZE_ADDRESS == 'OFF' && env.SANITIZE_THREAD == 'OFF'))
 
       - name: DeepState libfuzzer 1 minute fuzzing
         working-directory: ${{github.workspace}}/build
         run: make -j2 -k deepstate_lf_1m
         if: >
-          env.STATIC_ANALYSIS != 'ON' && env.COVERAGE != 'ON'
-          && env.COMPILER == 'clang' && env.BUILD_TYPE != 'Release'
+          env.STATIC_ANALYSIS != 'ON' && env.COMPILER == 'clang'
+          && env.BUILD_TYPE != 'Release'
           && env.SANITIZE_THREAD != 'ON'
-
-      - name: Gather coverage data
-        working-directory: ${{github.workspace}}/build
-        run: |
-          make -j3 -k coverage
-        if: env.COVERAGE == 'ON'
-
-      - name: Upload coverage data
-        uses: codecov/codecov-action@v5 # zizmor: ignore[unpinned-uses]
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: ${{matrix.BUILD_TYPE}}
-          fail_ci_if_error: true
-          directory: ${{github.workspace}}/build
-        if: env.COVERAGE == 'ON'

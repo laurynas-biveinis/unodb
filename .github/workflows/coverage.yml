@@ -48,7 +48,7 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           V=13
           export CC=gcc-$V
-          export CXX=g++-$Va
+          export CXX=g++-$V
           set +e
           cmake -B build "$GITHUB_WORKSPACE" "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
               -DSTANDALONE=ON -DMAINTAINER_MODE=ON -DCOVERAGE=ON \

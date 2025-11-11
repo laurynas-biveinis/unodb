@@ -11,7 +11,7 @@ permissions: {}
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     env:
       BUILD_TYPE: ${{matrix.BUILD_TYPE}}
@@ -36,9 +36,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libboost-dev libc6-dev-i386 libc6-dbg \
-              libgtest-dev libgmock-dev libbenchmark-dev
-          # Install a newer version than the one in APT
-          sudo snap install --classic valgrind
+              libgtest-dev libgmock-dev libbenchmark-dev valgrind
 
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment

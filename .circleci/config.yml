@@ -179,7 +179,7 @@ jobs:
             - run:
                 name: Valgrind test
                 working_directory: build
-                command: make -k valgrind
+                command: make -j2 -k valgrind
 
   build-macos:
     parameters:

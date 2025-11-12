@@ -1,5 +1,5 @@
 ---
-Standard: c++17
+Standard: c++20
 BasedOnStyle: Google
 IncludeBlocks: Preserve
 AttributeMacros:

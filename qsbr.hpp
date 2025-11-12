@@ -1579,7 +1579,7 @@ class [[nodiscard]] qsbr_thread : public std::thread {
   /// Create a new thread running function \a f with arguments \a args.
   template <typename Function, typename... Args>
   explicit qsbr_thread(Function &&f, Args &&...args)
-      requires(!std::is_same_v<std::remove_cvref_t<Function>, qsbr_thread>)
+    requires(!std::is_same_v<std::remove_cvref_t<Function>, qsbr_thread>)
       : std::thread{make_qsbr_thread(std::forward<Function>(f),
                                      std::forward<Args>(args)...)} {}
 

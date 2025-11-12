@@ -1499,7 +1499,7 @@ $(document).ready(function(){initNavTree('qsbr_8hpp_source.html',''); initResiza
 <div class="line"><a id="l01580" name="l01580"></a><span class="lineno"> 1580</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Function, <span class="keyword">typename</span>... Args&gt;</div>
 <div class="foldopen" id="foldopen01581" data-start="{" data-end="}">
 <div class="line"><a id="l01581" name="l01581"></a><span class="lineno"><a class="line" href="classunodb_1_1qsbr__thread.html#a2981b0e6b246b421df4a72290f6bd4d8"> 1581</a></span>  <span class="keyword">explicit</span> <a class="code hl_function" href="classunodb_1_1qsbr__thread.html#a2981b0e6b246b421df4a72290f6bd4d8">qsbr_thread</a>(Function &amp;&amp;f, Args &amp;&amp;...args)</div>
-<div class="line"><a id="l01582" name="l01582"></a><span class="lineno"> 1582</span>      <span class="keyword">requires</span>(!std::is_same_v&lt;std::remove_cvref_t&lt;Function&gt;, <a class="code hl_class" href="classunodb_1_1qsbr__thread.html">qsbr_thread</a>&gt;)</div>
+<div class="line"><a id="l01582" name="l01582"></a><span class="lineno"> 1582</span>    <span class="keyword">requires</span>(!std::is_same_v&lt;std::remove_cvref_t&lt;Function&gt;, <a class="code hl_class" href="classunodb_1_1qsbr__thread.html">qsbr_thread</a>&gt;)</div>
 <div class="line"><a id="l01583" name="l01583"></a><span class="lineno"> 1583</span>      : std::thread{make_qsbr_thread(std::forward&lt;Function&gt;(f),</div>
 <div class="line"><a id="l01584" name="l01584"></a><span class="lineno"> 1584</span>                                     std::forward&lt;Args&gt;(args)...)} {}</div>
 </div>

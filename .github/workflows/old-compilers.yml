@@ -627,6 +627,64 @@ jobs:
             VERSION: 12
             STATS: OFF
 
+          - name: GCC 13 Release
+            BUILD_TYPE: Release
+            COMPILER: gcc
+            VERSION: 13
+            STATS: OFF
+            BOOST: OFF
+
+          - name: GCC 13 Release with ASan
+            BUILD_TYPE: Release
+            SANITIZE_ADDRESS: ON
+            COMPILER: gcc
+            VERSION: 13
+            STATS: OFF
+
+          - name: GCC 13 Release with TSan
+            BUILD_TYPE: Release
+            SANITIZE_THREAD: ON
+            COMPILER: gcc
+            VERSION: 13
+            STATS: OFF
+            BOOST: OFF
+
+          - name: GCC 13 Release with UBSan
+            BUILD_TYPE: Release
+            SANITIZE_UB: ON
+            COMPILER: gcc
+            VERSION: 13
+            STATS: OFF
+
+          - name: GCC 13 Debug
+            BUILD_TYPE: Debug
+            COMPILER: gcc
+            VERSION: 13
+            STATS: OFF
+            BOOST: OFF
+
+          - name: GCC 13 Debug with ASan
+            BUILD_TYPE: Debug
+            SANITIZE_ADDRESS: ON
+            COMPILER: gcc
+            VERSION: 13
+            STATS: OFF
+
+          - name: GCC 13 Debug with TSan
+            BUILD_TYPE: Debug
+            SANITIZE_THREAD: ON
+            COMPILER: gcc
+            VERSION: 13
+            STATS: OFF
+            BOOST: OFF
+
+          - name: GCC 13 Debug with UBSan
+            BUILD_TYPE: Debug
+            SANITIZE_UB: ON
+            COMPILER: gcc
+            VERSION: 13
+            STATS: OFF
+
     steps:
       - uses: actions/checkout@v5
         with:
@@ -668,6 +726,13 @@ jobs:
         run: |
           sudo apt-get install -y gcc
         if: env.COMPILER == 'gcc' && env.VERSION == '11'
+
+      - name: Setup dependencies for GCC 13 (PPA)
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y g++-13
+        if: env.COMPILER == 'gcc' && env.VERSION == '13'
 
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment

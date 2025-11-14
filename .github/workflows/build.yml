@@ -36,66 +36,66 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: GCC 13 Release
+          - name: GCC 14 Release
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
 
-          - name: GCC 13 Release with ASan
+          - name: GCC 14 Release with ASan
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_ADDRESS: ON
 
-          - name: GCC 13 Release with TSan
+          - name: GCC 14 Release with TSan
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_THREAD: ON
 
-          - name: GCC 13 Release with UBSan
+          - name: GCC 14 Release with UBSan
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_UB: ON
 
-          - name: GCC 13 Debug
+          - name: GCC 14 Debug
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
 
-          - name: GCC 13 Debug with ASan
+          - name: GCC 14 Debug with ASan
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_ADDRESS: ON
 
-          - name: GCC 13 Debug with TSan
+          - name: GCC 14 Debug with TSan
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_THREAD: ON
 
-          - name: GCC 13 Debug with UBSan
+          - name: GCC 14 Debug with UBSan
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_UB: ON
 
-          - name: GCC 13 Debug without AVX2
+          - name: GCC 14 Debug without AVX2
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             AVX2: OFF
 
-          - name: GCC 13 Release static analysis & cpplint
+          - name: GCC 14 Release static analysis & cpplint
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             STATIC_ANALYSIS: ON
             CPPLINT: ON
 
-          - name: GCC 13 default CMake configuration
+          - name: GCC 14 default CMake configuration
             os: ubuntu-latest
             COMPILER: gcc
 
@@ -285,7 +285,7 @@ jobs:
 
       - name: Setup dependencies for GCC
         run: |
-          sudo apt-get install -y g++-13 g++-13-multilib
+          sudo apt-get install -y g++-14 g++-14-multilib
         if: runner.os == 'Linux' && env.COMPILER == 'gcc'
 
       - name: Setup dependencies for Linux LLVM (common)
@@ -343,7 +343,7 @@ jobs:
             CBT=""
           fi
           if [[ $COMPILER == "gcc" ]]; then
-            V=13
+            V=14
             EXTRA_CMAKE_ARGS=()
             export CC=gcc-$V
             export CXX=g++-$V

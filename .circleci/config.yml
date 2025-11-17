@@ -4,7 +4,7 @@ version: 2.1
 parameters:
   GCC_VERSION:
     type: string
-    default: "14"
+    default: "15"
   CLANG_VERSION:
     type: string
     default: "20"
@@ -38,6 +38,7 @@ jobs:
       - run:
           name: Installing dependencies (common)
           command: |
+            sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
             sudo apt-get update
             sudo apt-get install -y libboost-dev libgtest-dev libgmock-dev \
                 libbenchmark-dev valgrind

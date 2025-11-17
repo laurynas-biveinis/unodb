@@ -348,7 +348,7 @@ UNODB_TEST(ARTKeyEncodeDecodeTest, UInt64C00010) {
   do_encode_decode_lt_test<T>(0x0102030405060708ULL, 0x090A0B0C0D0F1011ULL);
   do_encode_decode_lt_test(static_cast<T>(0), static_cast<T>(1));
   do_encode_decode_lt_test<T>(0x7FFFFFFFFFFFFFFFULL, 0x8000000000000000ULL);
-  do_encode_decode_lt_test<T>(0xFFFFFFFFFFFFFFFEULL, static_cast<T>(~0ULL));
+  do_encode_decode_lt_test<T>(0xFFFFFFFFFFFFFFFEULL, ~0ULL);
 }
 
 UNODB_TEST(ARTKeyEncodeDecodeTest, Int64C00010) {

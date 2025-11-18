@@ -333,12 +333,14 @@ class qsbr_ptr_span : public std::ranges::view_base {
     return start;
   }
 
+  UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wunsafe-buffer-usage")
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
   /// Get the past-the-end iterator.
   [[nodiscard, gnu::pure]] constexpr qsbr_ptr<T> end() const noexcept {
     return qsbr_ptr<T>{start.get() + length};
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
   /// Get the number of elements.
   [[nodiscard, gnu::pure]] constexpr std::size_t size() const noexcept {

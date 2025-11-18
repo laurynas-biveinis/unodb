@@ -86,6 +86,7 @@ set(CLANG_CXX_WARNING_FLAGS
   "-Wweak-template-vtables" "-Wweak-vtables" "-Wzero-as-null-pointer-constant")
 set(CLANG_LT_13_CXX_WARNING_FLAGS "-Wreserved-id-macro")
 set(CLANG_GE_13_CXX_WARNING_FLAGS "-Wreserved-identifier")
+set(CLANG_GE_16_CXX_WARNING_FLAGS "-Wunsafe-buffer-usage")
 
 set(GCC_CXX_WARNING_FLAGS
   # Warning groups
@@ -400,9 +401,11 @@ set(cxx_ge_12 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,12.0>")
 set(cxx_lt_13 "$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>")
 set(cxx_ge_13 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>")
 set(cxx_ge_14 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,14.0>")
+set(cxx_ge_16 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,16.0>")
 set(is_clang_lt_13_not_windows "$<AND:${is_clang_not_windows},${cxx_lt_13}>")
 set(is_clang_ge_13_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_13}>")
 set(is_clang_ge_14_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_14}>")
+set(is_clang_ge_16_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_16}>")
 set(is_gxx_ge_11 "$<AND:${is_gxx_genex},${cxx_ge_11}>")
 set(is_gxx_ge_12 "$<AND:${is_gxx_genex},${cxx_ge_12}>")
 set(is_gxx_ge_14 "$<AND:${is_gxx_genex},${cxx_ge_14}>")
@@ -707,6 +710,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<$<AND:${is_standalone},${is_any_clang_genex},${is_not_windows}>:${CLANG_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_clang_lt_13_not_windows}>:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_clang_ge_13_not_windows}>:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_clang_ge_16_not_windows}>:${CLANG_GE_16_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_gxx_genex}>:${GCC_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_gxx_ge_11}>:${GCC_GE_11_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_gxx_ge_12}>:${GCC_GE_12_CXX_WARNING_FLAGS}>"

@@ -86,6 +86,8 @@ set(CLANG_CXX_WARNING_FLAGS
   "-Wweak-template-vtables" "-Wweak-vtables" "-Wzero-as-null-pointer-constant")
 set(CLANG_LT_13_CXX_WARNING_FLAGS "-Wreserved-id-macro")
 set(CLANG_GE_13_CXX_WARNING_FLAGS "-Wreserved-identifier")
+# Do not enable clang 16+ -Wunsafe-buffer-usage because it warns on all memcpy
+# calls and our pointer- and span-like class implementations.
 
 set(GCC_CXX_WARNING_FLAGS
   # Warning groups

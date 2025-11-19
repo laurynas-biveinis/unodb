@@ -84,6 +84,9 @@ set(CLANG_CXX_WARNING_FLAGS
   "-Wunused-macros" "-Wunused-member-function" "-Wunused-template"
   "-Wused-but-marked-unused" "-Wvector-conversion" "-Wvla"
   "-Wweak-template-vtables" "-Wweak-vtables" "-Wzero-as-null-pointer-constant")
+# Workaround https://github.com/llvm/llvm-project/issues/43670 - a spurious
+# warning with the spaceship operator
+set(CLANG_11_CXX_WARNING_FLAGS "-Wno-zero-as-null-pointer-constant")
 set(CLANG_LT_13_CXX_WARNING_FLAGS "-Wreserved-id-macro")
 set(CLANG_GE_13_CXX_WARNING_FLAGS "-Wreserved-identifier")
 # Do not enable clang 16+ -Wunsafe-buffer-usage because it warns on all memcpy
@@ -402,6 +405,8 @@ set(cxx_ge_12 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,12.0>")
 set(cxx_lt_13 "$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>")
 set(cxx_ge_13 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>")
 set(cxx_ge_14 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,14.0>")
+set(cxx_lt_12 "$<VERSION_LESS:$<CXX_COMPILER_VERSION>,12.0>")
+set(is_clang11_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_11},${cxx_lt_12}>")
 set(is_clang_lt_13_not_windows "$<AND:${is_clang_not_windows},${cxx_lt_13}>")
 set(is_clang_ge_13_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_13}>")
 set(is_clang_ge_14_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_14}>")
@@ -707,6 +712,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<$<AND:${is_standalone},${is_any_msvc}>:${MSVC_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_clang_cl}>:${MSVC_CLANG_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_any_clang_genex},${is_not_windows}>:${CLANG_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_clang11_not_windows}>:${CLANG_11_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_clang_lt_13_not_windows}>:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_clang_ge_13_not_windows}>:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_gxx_genex}>:${GCC_CXX_WARNING_FLAGS}>"

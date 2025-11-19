@@ -15,6 +15,7 @@
 
 // IWYU pragma: no_include <__cstddef/byte.h>
 
+#include <compare>  // IWYU pragma: keep
 #include <cstddef>
 #include <iterator>
 #include <ranges>
@@ -257,28 +258,10 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
     return get() == other.get();
   }
 
-  /// Compare less than or equal to \a other.
-  [[nodiscard, gnu::pure]] constexpr bool operator<=(
+  /// Three-way compare to \a other.
+  [[nodiscard, gnu::pure]] constexpr auto operator<=>(
       qsbr_ptr other) const noexcept {
-    return get() <= other.get();
-  }
-
-  /// Compare greater than or equal to \a other.
-  [[nodiscard, gnu::pure]] constexpr bool operator>=(
-      qsbr_ptr other) const noexcept {
-    return get() >= other.get();
-  }
-
-  /// Compare less than \a other.
-  [[nodiscard, gnu::pure]] constexpr bool operator<(
-      qsbr_ptr other) const noexcept {
-    return get() < other.get();
-  }
-
-  /// Compare greater than \a other.
-  [[nodiscard, gnu::pure]] constexpr bool operator>(
-      qsbr_ptr other) const noexcept {
-    return get() > other.get();
+    return get() <=> other.get();
   }
 
   /// Get the raw pointer.

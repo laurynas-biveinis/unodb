@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <compare>  // IWYU pragma: keep
 #include <iterator>
 #include <span>
 #include <utility>

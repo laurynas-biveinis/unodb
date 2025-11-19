@@ -58,7 +58,11 @@ UNODB_TEST_F(QSBR, TwoThreads) {
 }
 
 UNODB_TEST_F(QSBR, TwoThreadsSecondQuitPaused) {
-  unodb::qsbr_thread second_thread([] { qsbr_pause(); });
+  unodb::qsbr_thread second_thread([]()
+#ifndef UNODB_DETAIL_WITH_STATS
+                                       noexcept
+#endif
+                                   { qsbr_pause(); });
   join(second_thread);
 }
 

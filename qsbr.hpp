@@ -1591,9 +1591,13 @@ class [[nodiscard]] qsbr_thread : public std::thread {
     auto new_qsbr_per_thread = std::make_unique<qsbr_per_thread>();
     return std::thread{
         [inner_new_qsbr_per_thread = std::move(new_qsbr_per_thread)](
-            auto &&f2, auto &&...args2) mutable noexcept(noexcept(f2)) {
+            auto &&f2,
+            auto
+                &&...a2) mutable noexcept(noexcept(f2(std::
+                                                          forward<decltype(a2)>(
+                                                              a2)...))) {
           qsbr_per_thread::set_instance(std::move(inner_new_qsbr_per_thread));
-          f2(std::forward<Args>(args2)...);
+          f2(std::forward<decltype(a2)>(a2)...);
         },
         std::forward<Function>(f), std::forward<Args>(args)...};
   }

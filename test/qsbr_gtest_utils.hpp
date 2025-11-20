@@ -56,7 +56,11 @@ class QSBRTestBase : public ::testing::Test {
         []() noexcept { return unodb::this_thread().is_qsbr_paused(); });
   }
 
-  static void qsbr_pause() {
+  static void qsbr_pause()
+#ifndef UNODB_DETAIL_WITH_STATS
+      noexcept
+#endif
+  {
     unodb::test::must_not_allocate([]()
 #ifndef UNODB_DETAIL_WITH_STATS
                                        noexcept

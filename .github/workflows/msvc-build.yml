@@ -11,7 +11,7 @@ permissions: {}
 
 jobs:
   build:
-    runs-on: windows-2022
+    runs-on: windows-2025
 
     env:
       EXAMPLE_PRESETS: >-
@@ -62,6 +62,11 @@ jobs:
 
       - name: Setup command line tools
         uses: ilammy/msvc-dev-cmd@v1 # zizmor: ignore[unpinned-uses]
+
+      - name: Install cppcheck
+        run: |
+          del C:\Strawberry\c\bin\cppcheck.exe
+          choco install cppcheck -y
 
       - name: Install dependencies
         run: |

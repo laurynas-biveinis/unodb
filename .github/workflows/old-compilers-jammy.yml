@@ -1,5 +1,5 @@
 ---
-name: build-with-old-compilers
+name: build-with-old-compilers-jammy
 
 on:
   push:
@@ -727,12 +727,14 @@ jobs:
           sudo apt-get install -y gcc
         if: env.COMPILER == 'gcc' && env.VERSION == '11'
 
-      - name: Setup dependencies for GCC 13 (PPA)
+      - name: Setup dependencies for GCC 13 & 14 (PPA)
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
-          sudo apt-get install -y g++-13
-        if: env.COMPILER == 'gcc' && env.VERSION == '13'
+          sudo apt-get install -y "g++-${VERSION}"
+        if: >
+          env.COMPILER == 'gcc'
+          && (env.VERSION == '13' || env.VERSION == '14')
 
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment

@@ -678,6 +678,7 @@ class key_factory {
     const auto sz{kv.size()};
     key_views.emplace_back(sz);
     auto& a = key_views.back();  // a *reference* to data emplaced_back.
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::copy(kv.data(), kv.data() + sz, a.begin());  // copy data to inner vec
     return {a.data(), sz};  // view of inner vec's data.
   }
@@ -702,6 +703,7 @@ void do_simple_pad_test(unodb::key_encoder& enc, std::string_view sv) {
   // Check the pad length.
   const st padlen{static_cast<st>(unodb::key_encoder::maxlen - sz)};
   st tmp;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   std::memcpy(&tmp, kv.data() + sz + 1, sizeof(st));  // copy out pad length.
   const st tmp2 = unodb::detail::bswap(tmp);          // decode.
   UNODB_EXPECT_EQ(tmp2, padlen)

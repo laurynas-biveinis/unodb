@@ -92,6 +92,14 @@
 /// Re-enable the warning that was previously disabled with
 /// UNODB_DETAIL_DISABLE_CLANG_WARNING().
 
+/// \def UNODB_DETAIL_DISABLE_CLANG_21_WARNING(x)
+/// Disable a clang version 21 or later warning \a x until
+/// UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS().
+
+/// \def UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
+/// Re-enable the warning that was previously disabled with
+/// UNODB_DETAIL_DISABLE_CLANG_21_WARNING().
+
 /// \def UNODB_DETAIL_DISABLE_GCC_WARNING(x)
 /// Disable a GCC warning \a x until UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
@@ -343,6 +351,14 @@
 #else
 #define UNODB_DETAIL_DISABLE_CLANG_WARNING(x)
 #define UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
+#endif
+
+#if defined(__clang__) && __clang_major__ >= 21
+#define UNODB_DETAIL_DISABLE_CLANG_21_WARNING(x) UNODB_DETAIL_DISABLE_WARNING(x)
+#define UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS() UNODB_DETAIL_RESTORE_WARNINGS()
+#else
+#define UNODB_DETAIL_DISABLE_CLANG_21_WARNING(x)
+#define UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
 #endif
 
 #if defined(__GNUG__) && !defined(__clang__)

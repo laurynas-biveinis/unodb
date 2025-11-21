@@ -231,6 +231,7 @@ void qsbr_per_thread::orphan_pending_requests() noexcept {
   UNODB_DETAIL_ASSERT(current_interval_orphan_list_node == nullptr);
 }
 
+UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
 detail::qsbr_epoch qsbr::register_thread() noexcept {
   auto old_state = get_state();
 
@@ -279,6 +280,7 @@ detail::qsbr_epoch qsbr::register_thread() noexcept {
   }
   // LCOV_EXCL_STOP
 }
+UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
 
 void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                              detail::qsbr_epoch thread_epoch,

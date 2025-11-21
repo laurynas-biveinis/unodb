@@ -469,6 +469,52 @@ jobs:
             COMPILER: clang
             VERSION: 19
 
+          - name: clang 20 Release
+            BUILD_TYPE: Release
+            COMPILER: clang
+            VERSION: 20
+
+          - name: clang 20 Release with ASan
+            BUILD_TYPE: Release
+            SANITIZE_ADDRESS: ON
+            COMPILER: clang
+            VERSION: 20
+
+          - name: clang 20 Release with TSan
+            BUILD_TYPE: Release
+            SANITIZE_THREAD: ON
+            COMPILER: clang
+            VERSION: 20
+
+          - name: clang 20 Release with UBSan
+            BUILD_TYPE: Release
+            SANITIZE_UB: ON
+            COMPILER: clang
+            VERSION: 20
+
+          - name: clang 20 Debug
+            BUILD_TYPE: Debug
+            COMPILER: clang
+            VERSION: 20
+
+          - name: clang 20 Debug with ASan
+            BUILD_TYPE: Debug
+            SANITIZE_ADDRESS: ON
+            COMPILER: clang
+            VERSION: 20
+
+          - name: clang 20 Debug with TSan
+            BUILD_TYPE: Debug
+            SANITIZE_THREAD: ON
+            COMPILER: clang
+            VERSION: 20
+
+          - name: clang 20 Debug with UBSan
+            BUILD_TYPE: Debug
+            SANITIZE_UB: ON
+            COMPILER: clang
+            VERSION: 20
+
           - name: GCC 10 Release
             BUILD_TYPE: Release
             COMPILER: gcc

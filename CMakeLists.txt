@@ -88,6 +88,8 @@ set(CLANG_LT_13_CXX_WARNING_FLAGS "-Wreserved-id-macro")
 set(CLANG_GE_13_CXX_WARNING_FLAGS "-Wreserved-identifier")
 # Do not enable clang 16+ -Wunsafe-buffer-usage because it warns on all memcpy
 # calls and our pointer- and span-like class implementations.
+set(CLANG_GE_21_CXX_WARNING_FLAGS "-Wnrvo" "-Wunique-object-duplication"
+  "-Wshift-bool" "-Wc99-designator" "-Wms-bitfield-padding")
 
 set(GCC_CXX_WARNING_FLAGS
   # Warning groups
@@ -296,9 +298,16 @@ if(SANITIZE_UB)
     if(is_clang AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.0)
       list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=implicit-bitfield-conversion")
     endif()
+    if(is_clang AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 21.0)
+      list(APPEND SANITIZER_CXX_FLAGS "-fsanitize=vptr")
+    endif()
   endif()
 
   set(SANITIZER_LD_FLAGS "-fsanitize=undefined")
+
+  if(is_clang AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 21.0)
+    list(APPEND SANITIZER_LD_FLAGS "-fsanitize=vptr")
+  endif()
 
   string(CONCAT UBSAN_ENV "UBSAN_OPTIONS="
     "print_stacktrace=1:halt_on_error=1:abort_on_error=1")
@@ -402,9 +411,13 @@ set(cxx_ge_12 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,12.0>")
 set(cxx_lt_13 "$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>")
 set(cxx_ge_13 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>")
 set(cxx_ge_14 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,14.0>")
+set(cxx_ge_21 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,21.0>")
 set(is_clang_lt_13_not_windows "$<AND:${is_clang_not_windows},${cxx_lt_13}>")
 set(is_clang_ge_13_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_13}>")
 set(is_clang_ge_14_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_14}>")
+set(is_clang_ge_21_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_21}>")
+set(is_darwin_clang_ge_21_x86_64 "$<AND:$<PLATFORM_ID:Darwin>,${is_clang_ge_21_not_windows},${is_not_windows_x86_64}>")
+set(is_darwin_clang_ge_21_arm64 "$<AND:$<PLATFORM_ID:Darwin>,${is_clang_ge_21_not_windows},$<NOT:${is_not_windows_x86_64}>>")
 set(is_gxx_ge_11 "$<AND:${is_gxx_genex},${cxx_ge_11}>")
 set(is_gxx_ge_12 "$<AND:${is_gxx_genex},${cxx_ge_12}>")
 set(is_gxx_ge_14 "$<AND:${is_gxx_genex},${cxx_ge_14}>")
@@ -616,6 +629,10 @@ else()
   else()
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
     set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-p=${CMAKE_BINARY_DIR}")
+    # Add suppression for unknown warning options when clang-tidy might not
+    # recognize all compiler warning flags (e.g., when scan-build from LLVM 21
+    # wraps the build)
+    list(APPEND DO_CLANG_TIDY "--extra-arg=-Wno-unknown-warning-option")
   endif()
 endif()
 
@@ -674,7 +691,9 @@ if(IWYU)
         IWYU_VERSION_OUTPUT)
       message(STATUS
         "include-what-you-use found: ${IWYU_EXE}, --version: ${IWYU_VERSION_OUTPUT}")
-      set(DO_IWYU "${IWYU_EXE}")
+      # IWYU is not necessarily based on the same version clang is and might not
+      # understand newer options
+      set(DO_IWYU "${IWYU_EXE};-Wno-unknown-warning-option")
     endif()
   endif()
 endif()
@@ -709,6 +728,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<$<AND:${is_standalone},${is_any_clang_genex},${is_not_windows}>:${CLANG_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_clang_lt_13_not_windows}>:${CLANG_LT_13_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_clang_ge_13_not_windows}>:${CLANG_GE_13_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_clang_ge_21_not_windows}>:${CLANG_GE_21_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_gxx_genex}>:${GCC_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_gxx_ge_11}>:${GCC_GE_11_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_gxx_ge_12}>:${GCC_GE_12_CXX_WARNING_FLAGS}>"
@@ -721,6 +741,10 @@ function(COMMON_TARGET_PROPERTIES TARGET)
   target_link_options(${TARGET} INTERFACE "$<${coverage_on}:--coverage>")
   target_link_options(${TARGET} PRIVATE
     "$<${is_apple_clang_genex}:-Wl,-no_warn_duplicate_libraries>"
+    "$<${is_darwin_clang_ge_21_x86_64}:-L/usr/local/opt/llvm/lib/c++>"
+    "$<${is_darwin_clang_ge_21_x86_64}:-Wl,-rpath,/usr/local/opt/llvm/lib/c++>"
+    "$<${is_darwin_clang_ge_21_arm64}:-L/opt/homebrew/opt/llvm/lib/c++>"
+    "$<${is_darwin_clang_ge_21_arm64}:-Wl,-rpath,/opt/homebrew/opt/llvm/lib/c++>"
     "${SANITIZER_LD_FLAGS}"
   )
   target_link_libraries(${TARGET} PRIVATE

@@ -611,6 +611,7 @@ void do_or_dispatch_op(std::size_t thread_i, thread_operation op) {
 
 UNODB_START_DEEPSTATE_TESTS()
 
+// NOLINTBEGIN(clang-analyzer-security.ArrayBound)
 TEST(QSBR, DeepStateFuzz) {
   const auto test_length = DeepState_ShortInRange(0, 2000);
   LOG(TRACE) << "Test length " << test_length;
@@ -758,5 +759,6 @@ TEST(QSBR, DeepStateFuzz) {
   ASSERT(unodb::this_thread().previous_interval_requests_empty());
   ASSERT(unodb::this_thread().current_interval_requests_empty());
 }
+// NOLINTEND(clang-analyzer-security.ArrayBound)
 
 }  // namespace

@@ -7,7 +7,7 @@ parameters:
     default: "14"
   CLANG_VERSION:
     type: string
-    default: "20"
+    default: "21"
 
 jobs:
   build-linux:
@@ -59,7 +59,7 @@ jobs:
                   curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
                     | sudo apt-key add -
                   sudo add-apt-repository -y \
-                    "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main"
+                    "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${CLANG_VERSION} main"
                   sudo apt-get update
                   sudo apt-get install -y clang-${CLANG_VERSION} \
                     clang-tidy-${CLANG_VERSION} iwyu \
@@ -73,7 +73,7 @@ jobs:
             - run:
                 name: Installing dependencies (LLVM Release)
                 command: |
-                  sudo apt-get install -y libomp5-${CLANG_VERSION} \
+                  sudo apt-get install -y libomp5 \
                       llvm-${CLANG_VERSION} lld-${CLANG_VERSION}
       - when:
           condition: << parameters.tsan >>
@@ -152,7 +152,7 @@ jobs:
       - run:
           name: Build
           working_directory: build
-          command: make -j2 -k
+          command: make -k
       - run:
           name: Correctness test
           working_directory: build

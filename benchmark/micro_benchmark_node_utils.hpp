@@ -229,8 +229,8 @@ number_to_full_node_tree_with_gaps_key(std::uint64_t i) noexcept {
 // Key vectors
 
 template <typename NumberToKeyFn>
-[[nodiscard]] auto generate_keys_to_limit(std::uint64_t key_limit,
-                                          NumberToKeyFn number_to_key_fn) {
+[[nodiscard]] std::vector<std::uint64_t> generate_keys_to_limit(
+    std::uint64_t key_limit, NumberToKeyFn number_to_key_fn) {
   std::vector<std::uint64_t> result;
   std::uint64_t i = 0;
   while (true) {

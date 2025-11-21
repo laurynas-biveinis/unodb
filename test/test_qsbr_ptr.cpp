@@ -311,6 +311,7 @@ UNODB_TEST(QSBRPtrSpan, Cbegin) {
 UNODB_TEST(QSBRPtrSpan, Cend) {
   const unodb::qsbr_ptr_span span{std_span};
   // Do not write &two_chars[2] directly or the libstdc++ debug assertions fire
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   UNODB_ASSERT_EQ(std::cend(span).get(), &two_chars[1] + 1);
 }
 

@@ -99,59 +99,59 @@ jobs:
             os: ubuntu-latest
             COMPILER: gcc
 
-          - name: clang 20 Release
+          - name: clang 21 Release
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: clang
 
-          - name: clang 20 Release with ASan
+          - name: clang 21 Release with ASan
             os: ubuntu-latest
             BUILD_TYPE: Release
             SANITIZE_ADDRESS: ON
             COMPILER: clang
 
-          - name: clang 20 Release with TSan
+          - name: clang 21 Release with TSan
             os: ubuntu-latest
             BUILD_TYPE: Release
             SANITIZE_THREAD: ON
             COMPILER: clang
 
-          - name: clang 20 Release with UBSan
+          - name: clang 21 Release with UBSan
             os: ubuntu-latest
             BUILD_TYPE: Release
             SANITIZE_UB: ON
             COMPILER: clang
 
-          - name: clang 20 Debug
+          - name: clang 21 Debug
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: clang
 
-          - name: clang 20 Debug with ASan
+          - name: clang 21 Debug with ASan
             os: ubuntu-latest
             BUILD_TYPE: Debug
             SANITIZE_ADDRESS: ON
             COMPILER: clang
 
-          - name: clang 20 Debug with TSan
+          - name: clang 21 Debug with TSan
             os: ubuntu-latest
             BUILD_TYPE: Debug
             SANITIZE_THREAD: ON
             COMPILER: clang
 
-          - name: clang 20 Debug with UBSan
+          - name: clang 21 Debug with UBSan
             os: ubuntu-latest
             BUILD_TYPE: Debug
             SANITIZE_UB: ON
             COMPILER: clang
 
-          - name: clang 20 Release static analysis
+          - name: clang 21 Release static analysis
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: clang
             STATIC_ANALYSIS: ON
 
-          - name: clang 20 Debug static analysis
+          - name: clang 21 Debug static analysis
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: clang
@@ -293,25 +293,25 @@ jobs:
           curl 'https://apt.llvm.org/llvm-snapshot.gpg.key' \
             | sudo apt-key add -
           sudo add-apt-repository -y \
-            "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main"
+            "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main"
           sudo apt-get update
-          sudo apt-get install -y clang-20 iwyu
+          sudo apt-get install -y clang-21 iwyu
         if: runner.os == 'Linux' && env.COMPILER == 'clang'
 
       - name: Setup dependencies for Linux LLVM (Release)
-        run: sudo apt-get install -y libomp5-20 llvm-20 lld-20
+        run: sudo apt-get install -y libomp5 llvm-21 lld-21
         if: >
           runner.os == 'Linux' && env.COMPILER == 'clang'
           && env.BUILD_TYPE == 'Release'
 
       - name: Setup dependencies for Linux LLVM (static analysis)
-        run: sudo apt-get install -y clang-tools-20
+        run: sudo apt-get install -y clang-tools-21
         if: >
           runner.os == 'Linux' && env.COMPILER == 'clang'
           && env.STATIC_ANALYSIS == 'ON'
 
       - name: Setup dependencies for Linux LLVM (not static analysis)
-        run: sudo apt-get install -y clang-tidy-20
+        run: sudo apt-get install -y clang-tidy-21
         if: >
           runner.os == 'Linux' && env.COMPILER == 'clang'
           && env.STATIC_ANALYSIS != 'ON'
@@ -348,7 +348,7 @@ jobs:
             export CC=gcc-$V
             export CXX=g++-$V
           elif [[ $COMPILER == "clang" ]]; then
-            V=20
+            V=21
             export CC=clang-$V
             export CXX=clang++-$V
             if [[ $BUILD_TYPE == "Release" ]]; then
@@ -401,7 +401,7 @@ jobs:
       - name: clang static analysis
         working-directory: ${{github.workspace}}/build
         run: |
-          /usr/bin/scan-build-20 --status-bugs -stats -analyze-headers \
+          /usr/bin/scan-build-21 --status-bugs -stats -analyze-headers \
             --force-analyze-debug-code make -j3 -k;
         if: env.STATIC_ANALYSIS == 'ON' && env.COMPILER == 'clang'
 

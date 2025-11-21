@@ -43,7 +43,7 @@
 void* operator new(std::size_t count) {
   unodb::test::allocation_failure_injector::maybe_fail();
   while (true) {
-    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc)
+    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory,hicpp-no-malloc,misc-const-correctness)
     void* const result = malloc(count);
     if (UNODB_DETAIL_LIKELY(result != nullptr)) return result;
     // LCOV_EXCL_START

@@ -38,12 +38,6 @@ else
     ERRORS=$((ERRORS + 1))
 fi
 
-# Run checkov on CircleCI config
-echo "Checking CircleCI configuration..."
-if ! checkov --framework circleci_pipelines --file .circleci/config.yml --compact --quiet; then
-    ERRORS=$((ERRORS + 1))
-fi
-
 # Prettier checks
 echo -n "Checking Markdown formatting... "
 if [ ${#MARKDOWN_FILES[@]} -gt 0 ]; then

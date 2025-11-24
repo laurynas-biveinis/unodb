@@ -36,122 +36,122 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: GCC 14 Release
+          - name: GCC 14 Release (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
 
-          - name: GCC 14 Release with ASan
+          - name: GCC 14 Release with ASan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_ADDRESS: ON
 
-          - name: GCC 14 Release with TSan
+          - name: GCC 14 Release with TSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_THREAD: ON
 
-          - name: GCC 14 Release with UBSan
+          - name: GCC 14 Release with UBSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_UB: ON
 
-          - name: GCC 14 Debug
+          - name: GCC 14 Debug (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
 
-          - name: GCC 14 Debug with ASan
+          - name: GCC 14 Debug with ASan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_ADDRESS: ON
 
-          - name: GCC 14 Debug with TSan
+          - name: GCC 14 Debug with TSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_THREAD: ON
 
-          - name: GCC 14 Debug with UBSan
+          - name: GCC 14 Debug with UBSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_UB: ON
 
-          - name: GCC 14 Debug without AVX2
+          - name: GCC 14 Debug without AVX2 (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             AVX2: OFF
 
-          - name: GCC 14 Release static analysis & cpplint
+          - name: GCC 14 Release static analysis & cpplint (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             STATIC_ANALYSIS: ON
             CPPLINT: ON
 
-          - name: GCC 14 default CMake configuration
+          - name: GCC 14 default CMake configuration (Linux Intel)
             os: ubuntu-latest
             COMPILER: gcc
 
-          - name: clang 20 Release
+          - name: clang 20 Release (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: clang
 
-          - name: clang 20 Release with ASan
+          - name: clang 20 Release with ASan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             SANITIZE_ADDRESS: ON
             COMPILER: clang
 
-          - name: clang 20 Release with TSan
+          - name: clang 20 Release with TSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             SANITIZE_THREAD: ON
             COMPILER: clang
 
-          - name: clang 20 Release with UBSan
+          - name: clang 20 Release with UBSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             SANITIZE_UB: ON
             COMPILER: clang
 
-          - name: clang 20 Debug
+          - name: clang 20 Debug (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: clang
 
-          - name: clang 20 Debug with ASan
+          - name: clang 20 Debug with ASan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             SANITIZE_ADDRESS: ON
             COMPILER: clang
 
-          - name: clang 20 Debug with TSan
+          - name: clang 20 Debug with TSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             SANITIZE_THREAD: ON
             COMPILER: clang
 
-          - name: clang 20 Debug with UBSan
+          - name: clang 20 Debug with UBSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             SANITIZE_UB: ON
             COMPILER: clang
 
-          - name: clang 20 Release static analysis
+          - name: clang 20 Release static analysis (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: clang
             STATIC_ANALYSIS: ON
 
-          - name: clang 20 Debug static analysis
+          - name: clang 20 Debug static analysis (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: clang
@@ -267,6 +267,92 @@ jobs:
             SANITIZE_UB: ON
             AVX2: OFF
 
+          - name: GCC 14 Release (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Release
+            COMPILER: gcc
+
+          - name: GCC 14 Release with ASan (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Release
+            COMPILER: gcc
+            SANITIZE_ADDRESS: ON
+
+          - name: GCC 14 Release with TSan (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Release
+            COMPILER: gcc
+            SANITIZE_THREAD: ON
+
+          - name: GCC 14 Release with UBSan (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Release
+            COMPILER: gcc
+            SANITIZE_UB: ON
+
+          - name: GCC 14 Debug (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Debug
+            COMPILER: gcc
+
+          - name: GCC 14 Debug with ASan (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Debug
+            COMPILER: gcc
+            SANITIZE_ADDRESS: ON
+
+          - name: GCC 14 Debug with TSan (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Debug
+            COMPILER: gcc
+            SANITIZE_THREAD: ON
+
+          - name: GCC 14 Debug with UBSan (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Debug
+            COMPILER: gcc
+            SANITIZE_UB: ON
+
+          - name: clang 20 Release (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Release
+            COMPILER: clang
+
+          - name: clang 20 Release with TSan (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Release
+            COMPILER: clang
+            SANITIZE_THREAD: ON
+
+          - name: clang 20 Release with UBSan (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Release
+            COMPILER: clang
+            SANITIZE_UB: ON
+
+          - name: clang 20 Debug (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Debug
+            COMPILER: clang
+
+          - name: clang 20 Debug with ASan (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Debug
+            COMPILER: clang
+            SANITIZE_ADDRESS: ON
+
+          - name: clang 20 Debug with TSan (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Debug
+            COMPILER: clang
+            SANITIZE_THREAD: ON
+
+          - name: clang 20 Debug with UBSan (Linux ARM64)
+            os: ubuntu-24.04-arm
+            BUILD_TYPE: Debug
+            COMPILER: clang
+            SANITIZE_UB: ON
+
     steps:
       - uses: actions/checkout@v5
         with:
@@ -276,8 +362,13 @@ jobs:
       - name: Setup common dependencies for Linux
         run: |
           sudo apt-get update
-          sudo apt-get install -y libboost-dev libc6-dev-i386
+          sudo apt-get install -y libboost-dev
         if: runner.os == 'Linux'
+
+      - name: Setup x86-specific dependencies for Linux
+        run: |
+          sudo apt-get install -y libc6-dev-i386
+        if: runner.os == 'Linux' && !contains(matrix.os, 'arm')
 
       - name: Setup dependencies for cpplint
         run: pip install cpplint
@@ -285,8 +376,13 @@ jobs:
 
       - name: Setup dependencies for GCC
         run: |
-          sudo apt-get install -y g++-14 g++-14-multilib
+          sudo apt-get install -y g++-14
         if: runner.os == 'Linux' && env.COMPILER == 'gcc'
+
+      - name: Setup multilib dependencies for GCC (x86 only)
+        run: |
+          sudo apt-get install -y g++-14-multilib
+        if: runner.os == 'Linux' && env.COMPILER == 'gcc' && !contains(matrix.os, 'arm')
 
       - name: Setup dependencies for Linux LLVM (common)
         run: |
@@ -419,13 +515,15 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: make -j2 -k deepstate_1m
         if: >
-          env.STATIC_ANALYSIS != 'ON' && (runner.os != 'macOS'
+          env.STATIC_ANALYSIS != 'ON' && !contains(matrix.os, 'arm')
+          && (runner.os != 'macOS'
           || (env.SANITIZE_ADDRESS == 'OFF' && env.SANITIZE_THREAD == 'OFF'))
 
       - name: DeepState libfuzzer 1 minute fuzzing
         working-directory: ${{github.workspace}}/build
         run: make -j2 -k deepstate_lf_1m
         if: >
-          env.STATIC_ANALYSIS != 'ON' && env.COMPILER == 'clang'
+          env.STATIC_ANALYSIS != 'ON' && !contains(matrix.os, 'arm')
+          && env.COMPILER == 'clang'
           && env.BUILD_TYPE != 'Release'
           && env.SANITIZE_THREAD != 'ON'

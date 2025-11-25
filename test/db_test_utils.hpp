@@ -254,8 +254,8 @@ class [[nodiscard]] tree_verifier final {
     unodb::key_encoder enc;
     const auto kv{enc.encode(k).get_key_view()};
     key_views.emplace_back(std::array<std::byte, sz>{});
-    auto &a = key_views.back();  // a *reference* to data emplaced_back.
-    std::copy(kv.data(), kv.data() + sz, a.begin());  // copy data into array.
+    auto &a = key_views.back();        // a *reference* to data emplaced_back.
+    std::ranges::copy(kv, a.begin());  // copy data into array.
     // Return a key_view backed by the array that we just put on that
     // list.
     return unodb::key_view(a.data(), sz);  // view of array's data.

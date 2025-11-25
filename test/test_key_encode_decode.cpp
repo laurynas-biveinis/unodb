@@ -677,9 +677,9 @@ class key_factory {
     const auto kv{enc.get_key_view()};
     const auto sz{kv.size()};
     key_views.emplace_back(sz);
-    auto& a = key_views.back();  // a *reference* to data emplaced_back.
-    std::copy(kv.data(), kv.data() + sz, a.begin());  // copy data to inner vec
-    return {a.data(), sz};  // view of inner vec's data.
+    auto& a = key_views.back();        // a *reference* to data emplaced_back.
+    std::ranges::copy(kv, a.begin());  // copy data to inner vec
+    return {a.data(), sz};             // view of inner vec's data.
   }
 };
 

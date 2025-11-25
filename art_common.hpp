@@ -187,7 +187,7 @@ template <typename T>
   const T t = v | (v - 1u);  // t gets v's least significant 0 bits set to 1
   // Next set to 1 the most significant bit to change, set to 0 the
   // least significant ones, and add the necessary 1 bits.
-  const T w = (t + 1) | (((~t & -~t) - 1) >> (ctz(v) + 1));
+  const T w = (t + 1) | (((~t & -~t) - 1) >> (std::countr_zero(v) + 1));
   return w;
 }
 

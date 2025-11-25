@@ -54,48 +54,6 @@ template <typename T>
 #endif  // UNODB_DETAIL_MSVC
 }
 
-/// Return the number of trailing zero bits in \a x.
-/// \pre Argument may not be zero
-template <typename T>
-[[nodiscard, gnu::const]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC std::uint8_t ctz(
-    T x) noexcept {
-  static_assert(std::is_same_v<unsigned, T> ||
-                // NOLINTNEXTLINE(google-runtime-int)
-                std::is_same_v<unsigned long, T> ||  // NOLINT(runtime/int)
-                // NOLINTNEXTLINE(google-runtime-int)
-                std::is_same_v<unsigned long long, T>);  // NOLINT(runtime/int)
-
-  if constexpr (std::is_same_v<unsigned, T>) {
-#ifndef UNODB_DETAIL_MSVC
-    return static_cast<std::uint8_t>(__builtin_ctz(x));
-#else
-    unsigned long result;  // NOLINT(runtime/int)
-    _BitScanForward(&result, x);
-    return static_cast<std::uint8_t>(result);
-#endif
-  }
-  // NOLINTNEXTLINE(google-runtime-int)
-  if constexpr (std::is_same_v<unsigned long, T>) {  // NOLINT(runtime/int)
-#ifndef UNODB_DETAIL_MSVC
-    return static_cast<std::uint8_t>(__builtin_ctzl(x));
-#else
-    unsigned long result;  // NOLINT(runtime/int)
-    _BitScanForward(&result, x);
-    return static_cast<std::uint8_t>(result);
-#endif
-  }
-  // NOLINTNEXTLINE(google-runtime-int)
-  if constexpr (std::is_same_v<unsigned long long, T>) {  // NOLINT(runtime/int)
-#ifndef UNODB_DETAIL_MSVC
-    return static_cast<std::uint8_t>(__builtin_ctzll(x));
-#else
-    unsigned long result;  // NOLINT(runtime/int)
-    _BitScanForward64(&result, x);
-    return static_cast<std::uint8_t>(result);
-#endif
-  }  // cppcheck-suppress missingReturn
-}
-
 /// Return the number of one bits in \a x.
 [[nodiscard, gnu::const]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned popcount(
     unsigned x) noexcept {

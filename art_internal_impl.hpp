@@ -86,7 +86,7 @@ namespace unodb::detail {
 // the case where Value is a std::span.  But this becomes a simple immutable
 // data structure which exists solely to wrap the Value.
 template <class Key, class Header>
-class [[nodiscard]] basic_leaf final : public Header {
+class [[nodiscard]] UNODB_DETAIL_EMPTY_BASES basic_leaf final : public Header {
  public:
   /// A type alias determining the maximum size of a key that may be
   /// stored in the index.
@@ -796,7 +796,8 @@ class fake_inode final {
 /// \note This class contains generic inode code, key prefix, children count,
 /// and dispatch for add/remove/find towards specific types.
 template <class ArtPolicy>
-class basic_inode_impl : public ArtPolicy::header_type {
+class UNODB_DETAIL_EMPTY_BASES basic_inode_impl
+    : public ArtPolicy::header_type {
  public:
   using key_type = typename ArtPolicy::key_type;
   using value_type = typename ArtPolicy::value_type;
@@ -1177,7 +1178,8 @@ class basic_inode_impl : public ArtPolicy::header_type {
 template <class ArtPolicy, unsigned MinSize, unsigned Capacity,
           node_type NodeType, class SmallerDerived, class LargerDerived,
           class Derived>
-class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
+class [[nodiscard]] UNODB_DETAIL_EMPTY_BASES basic_inode
+    : public basic_inode_impl<ArtPolicy> {
   static_assert(NodeType != node_type::LEAF);
   static_assert(!std::is_same_v<Derived, LargerDerived>);
   static_assert(!std::is_same_v<SmallerDerived, Derived>);
@@ -1262,7 +1264,8 @@ using basic_inode_4_parent =
 /// position is an index into the corresponding child pointer position,
 /// so the child pointers are also dense.
 template <class ArtPolicy>
-class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
+class UNODB_DETAIL_EMPTY_BASES basic_inode_4
+    : public basic_inode_4_parent<ArtPolicy> {
   using parent_class = basic_inode_4_parent<ArtPolicy>;
 
   using typename parent_class::inode16_type;
@@ -1726,7 +1729,8 @@ using basic_inode_16_parent = basic_inode<
 // lexicographic order and the child pointers are 1:1 with the key
 // positions, hence dense.
 template <class ArtPolicy>
-class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
+class UNODB_DETAIL_EMPTY_BASES basic_inode_16
+    : public basic_inode_16_parent<ArtPolicy> {
   using parent_class = basic_inode_16_parent<ArtPolicy>;
 
   using typename parent_class::inode16_type;
@@ -2107,7 +2111,8 @@ using basic_inode_48_parent = basic_inode<
 // stored in the keys[] are index positions in the child pointer
 // array.  Thus, neither keys[] nor the child pointer[] are dense.
 template <class ArtPolicy>
-class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
+class UNODB_DETAIL_EMPTY_BASES basic_inode_48
+    : public basic_inode_48_parent<ArtPolicy> {
   using parent_class = basic_inode_48_parent<ArtPolicy>;
 
   using typename parent_class::inode16_type;
@@ -2640,7 +2645,8 @@ using basic_inode_256_parent =
 // of the search key is used as a direct index into the child
 // pointer[].
 template <class ArtPolicy>
-class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
+class UNODB_DETAIL_EMPTY_BASES basic_inode_256
+    : public basic_inode_256_parent<ArtPolicy> {
   using parent_class = basic_inode_256_parent<ArtPolicy>;
 
   using typename parent_class::inode48_type;

@@ -136,8 +136,8 @@ template <typename T>
 /// 32bit int shift-or utility function that is used by
 /// unodb::detail::next_power_of_two.
 template <typename T>
-constexpr typename std::enable_if<std::is_integral<T>::value, T>::type
-shift_or_32bit_int(T i) {
+  requires std::is_integral_v<T>
+constexpr T shift_or_32bit_int(T i) {
   i |= (i >> 1);
   i |= (i >> 2);
   i |= (i >> 4);
@@ -151,18 +151,14 @@ shift_or_32bit_int(T i) {
 /// \note it will overflow if the there is no higher power of \c 2 for a given
 /// type \c T.
 template <typename T>
-[[nodiscard, gnu::pure]] constexpr
-    typename std::enable_if<std::is_integral<T>::value && sizeof(T) == 4,
-                            T>::type
-    next_power_of_two(T i) noexcept {
+  requires(std::is_integral_v<T> && sizeof(T) == 4)
+[[nodiscard, gnu::pure]] constexpr T next_power_of_two(T i) noexcept {
   return shift_or_32bit_int(i) + static_cast<T>(1);
 }
 
 template <typename T>
-[[nodiscard, gnu::pure]] constexpr
-    typename std::enable_if<std::is_integral<T>::value && sizeof(T) == 8,
-                            T>::type
-    next_power_of_two(T i) noexcept {
+  requires(std::is_integral_v<T> && sizeof(T) == 8)
+[[nodiscard, gnu::pure]] constexpr T next_power_of_two(T i) noexcept {
   i = shift_or_32bit_int(i);
   i |= (i >> 32U);
   return ++i;

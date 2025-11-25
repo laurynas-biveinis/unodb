@@ -337,9 +337,8 @@ class [[nodiscard]] optimistic_lock final {
 
     /// Compare two lock words for equality, including all the version and lock
     /// / obsolete bits.
-    [[nodiscard]] constexpr bool operator==(version_type other) const noexcept {
-      return version == other.version;
-    }
+    [[nodiscard]] constexpr bool operator==(version_type) const noexcept =
+        default;
 
     /// Output the lock word to \a os output stream. Should only be used
     /// for debug dumping.

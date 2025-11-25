@@ -368,9 +368,7 @@ class [[nodiscard]] basic_node_ptr {
 
   // same raw_val means same type and same ptr.
   [[nodiscard, gnu::pure]] constexpr bool operator==(
-      const basic_node_ptr &other) const noexcept {
-    return tagged_ptr == other.tagged_ptr;
-  }
+      const basic_node_ptr &) const noexcept = default;
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 

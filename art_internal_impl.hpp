@@ -1670,7 +1670,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     critical_section_policy<std::uint32_t> integer;
 
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
-    key_union() noexcept {}
+    constexpr key_union() noexcept {}
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   } keys;
 

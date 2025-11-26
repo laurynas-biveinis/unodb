@@ -367,7 +367,7 @@ class [[nodiscard]] basic_node_ptr {
 
   // same raw_val means same type and same ptr.
   [[nodiscard, gnu::pure]] constexpr bool operator==(
-      const basic_node_ptr &other) const noexcept {
+      basic_node_ptr other) const noexcept {
     return tagged_ptr == other.tagged_ptr;
   }
 

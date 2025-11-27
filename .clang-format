@@ -1,7 +1,16 @@
 ---
 Standard: c++20
 BasedOnStyle: Google
-IncludeBlocks: Preserve
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^"global\.hpp"$'
+    Priority: -1
+  - Regex: '^<[a-z_]+>$'
+    Priority: 2
+  - Regex: '^<.*>$'
+    Priority: 3
+  - Regex: '^".*"$'
+    Priority: 4
 AttributeMacros:
   - UNODB_DETAIL_UNUSED
   - UNODB_DETAIL_USED_IN_DEBUG

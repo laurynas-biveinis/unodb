@@ -1,0 +1,87 @@
+---
+name: benchmarks
+
+# Do not run this workflow on pull request since this workflow has permission
+# to modify contents.
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  # contents permission to update benchmark contents in gh-pages branch
+  contents: write
+  # deployments permission to deploy GitHub pages website
+  deployments: write
+
+jobs:
+  benchmark:
+    runs-on: ${{matrix.os}}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux Intel
+            os: ubuntu-latest
+            arch: x64
+
+          - name: Linux ARM64
+            os: ubuntu-24.04-arm
+            arch: arm64
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+          persist-credentials: false
+
+      - name: Setup dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libboost-dev
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cmake -B build "$GITHUB_WORKSPACE" -DCMAKE_BUILD_TYPE=Release \
+              -DSTANDALONE=ON -DBENCHMARKS=ON
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: make -j3 -k
+
+      - name: Run benchmarks
+        working-directory: ${{github.workspace}}/build
+        run: |
+          ./micro_benchmark_key_prefix --benchmark_out=benchmark_key_prefix.json --benchmark_out_format=json
+          ./micro_benchmark_n4 --benchmark_out=benchmark_n4.json --benchmark_out_format=json
+          ./micro_benchmark_n16 --benchmark_out=benchmark_n16.json --benchmark_out_format=json
+          ./micro_benchmark_n48 --benchmark_out=benchmark_n48.json --benchmark_out_format=json
+          ./micro_benchmark_n256 --benchmark_out=benchmark_n256.json --benchmark_out_format=json
+          ./micro_benchmark --benchmark_out=benchmark_main.json --benchmark_out_format=json
+          ./micro_benchmark_mutex --benchmark_out=benchmark_mutex.json --benchmark_out_format=json
+          ./micro_benchmark_olc --benchmark_out=benchmark_olc.json --benchmark_out_format=json
+
+      - name: Combine benchmark results
+        working-directory: ${{github.workspace}}/build
+        run: |
+          jq -s '{ benchmarks: map(.benchmarks) | add }' \
+            benchmark_key_prefix.json benchmark_n4.json benchmark_n16.json \
+            benchmark_n48.json benchmark_n256.json benchmark_main.json \
+            benchmark_mutex.json benchmark_olc.json > benchmark_results.json
+
+      - name: Store benchmark result
+        uses: nyrkio/github-action-benchmark@v1 # zizmor: ignore[unpinned-uses]
+        with:
+          name: UnoDB Benchmarks (${{matrix.arch}})
+          tool: "googlecpp"
+          output-file-path: build/benchmark_results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          alert-threshold: "200%"
+          comment-on-alert: true
+          alert-comment-cc-users: "@laurynas-biveinis"
+          fail-on-alert: true
+          summary-always: true
+          nyrkio-enable: true

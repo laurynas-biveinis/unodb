@@ -484,7 +484,9 @@ function(GLOBAL_CXX_TARGET_PROPERTIES TARGET)
   target_compile_definitions(${TARGET} PUBLIC
     "$<${is_standalone_not_release}:_GLIBCXX_DEBUG>"
     "$<${is_standalone_not_release}:_GLIBCXX_DEBUG_PEDANTIC>"
-    "$<${is_standalone_asan}:_GLIBCXX_SANITIZE_VECTOR>")
+    "$<${is_standalone_asan}:_GLIBCXX_SANITIZE_VECTOR>"
+    "$<$<AND:${is_any_msvc},${is_standalone_not_release}>:_MSVC_STL_HARDENING=1>"
+    "$<$<AND:${is_any_msvc},${is_standalone_not_release}>:_MSVC_STL_DESTRUCTOR_TOMBSTONES=1>")
 endfunction()
 
 if(TESTS)

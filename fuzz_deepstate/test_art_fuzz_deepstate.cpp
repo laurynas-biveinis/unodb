@@ -201,6 +201,7 @@ void op_with_oom_test(oracle_type &oracle, std::vector<std::uint64_t> &keys,
 
 UNODB_START_DEEPSTATE_TESTS()
 
+// NOLINTBEGIN(clang-analyzer-security.ArrayBound)
 TEST(ART, DeepStateFuzz) {
   const auto limit_max_key = DeepState_Bool();
   const auto max_key_value =
@@ -308,3 +309,4 @@ TEST(ART, DeepStateFuzz) {
 #endif  // UNODB_DETAIL_WITH_STATS
   ASSERT(test_db.empty());
 }
+// NOLINTEND(clang-analyzer-security.ArrayBound)

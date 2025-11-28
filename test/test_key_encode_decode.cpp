@@ -702,8 +702,8 @@ void do_simple_pad_test(unodb::key_encoder& enc, std::string_view sv) {
   // Check the pad length.
   const st padlen{static_cast<st>(unodb::key_encoder::maxlen - sz)};
   st tmp;
-  std::memcpy(&tmp, kv.data() + sz + 1, sizeof(st));  // copy out pad length.
-  const st tmp2 = unodb::detail::bswap(tmp);          // decode.
+  std::memcpy(&tmp, &kv[sz + 1], sizeof(st));  // copy out pad length.
+  const st tmp2 = unodb::detail::bswap(tmp);   // decode.
   UNODB_EXPECT_EQ(tmp2, padlen)
       << "text(" << sz << ")[" << (sz < 100 ? sv : "...") << "]";
 }

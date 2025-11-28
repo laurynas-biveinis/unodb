@@ -1444,6 +1444,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
+  UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
   [[nodiscard]] constexpr auto leave_last_child(std::uint8_t child_to_delete,
                                                 db_type &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(this->is_min_size());
@@ -1465,6 +1466,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     }
     return child_to_leave_ptr;
   }
+  UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
 
   [[nodiscard, gnu::pure]] find_result find_child(std::byte key_byte) noexcept {
 #ifdef UNODB_DETAIL_X86_64

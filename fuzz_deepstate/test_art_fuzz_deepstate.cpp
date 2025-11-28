@@ -37,7 +37,7 @@ using values_type = std::vector<dynamic_value>;
 
 using oracle_type = std::unordered_map<std::uint64_t, unodb::value_view>;
 
-[[nodiscard]] auto make_random_value(dynamic_value::size_type length) {
+[[nodiscard]] dynamic_value make_random_value(dynamic_value::size_type length) {
   dynamic_value result{length};
   for (dynamic_value::size_type i = 0; i < length; i++) {
     // Ideally we would take random bytes from DeepState, but we'd end up
@@ -48,8 +48,8 @@ using oracle_type = std::unordered_map<std::uint64_t, unodb::value_view>;
   return result;
 }
 
-[[nodiscard]] auto get_value(dynamic_value::size_type max_length,
-                             values_type &values) {
+[[nodiscard]] unodb::value_view get_value(dynamic_value::size_type max_length,
+                                          values_type &values) {
   const auto make_new_value = values.empty() || DeepState_Bool();
   ASSERT(max_length <= std::numeric_limits<std::uint32_t>::max());
   if (make_new_value) {

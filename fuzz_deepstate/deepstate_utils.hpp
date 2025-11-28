@@ -45,7 +45,7 @@
 /// \tparam T Container type that supports `std::empty()` and `std::size()`
 /// \pre Container must not be empty
 template <class T>
-[[nodiscard]] auto DeepState_ContainerIndex(const T &container) {
+[[nodiscard]] std::size_t DeepState_ContainerIndex(const T &container) {
   ASSERT(!std::empty(container));
   return DeepState_SizeTInRange(0, std::size(container) - 1);
 }

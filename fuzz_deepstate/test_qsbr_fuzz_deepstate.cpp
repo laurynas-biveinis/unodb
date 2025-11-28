@@ -96,9 +96,11 @@ randomly_advanced_pos_and_iterator(T &container UNODB_DETAIL_LIFETIMEBOUND) {
   return std::make_pair(i, std::move(itr));
 }
 
-[[nodiscard]] auto choose_thread() { return DeepState_ContainerIndex(threads); }
+[[nodiscard]] std::size_t choose_thread() {
+  return DeepState_ContainerIndex(threads);
+}
 
-[[nodiscard]] auto choose_non_main_thread() {
+[[nodiscard]] std::size_t choose_non_main_thread() {
   ASSERT(threads.size() >= 2);
   return DeepState_SizeTInRange(1, threads.size() - 1);
 }

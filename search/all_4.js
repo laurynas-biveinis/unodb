@@ -2,7 +2,7 @@ var searchData=
 [
   ['based_20reclamation_0',['Quiescent State-Based Reclamation',['../group__qsbr.html',1,'']]],
   ['based_20reclamation_20qsbr_1',['Quiescent State-Based Reclamation (QSBR)',['../index.html#autotoc_md37',1,'']]],
-  ['basic_5fart_5fkey_2',['basic_art_key',['../structunodb_1_1detail_1_1basic__art__key.html',1,'unodb::detail::basic_art_key&lt; KeyType &gt;'],['../structunodb_1_1detail_1_1basic__art__key.html#adcd136279afad971b15c30847e2da1a6',1,'unodb::detail::basic_art_key::basic_art_key(key_view key_) noexcept'],['../structunodb_1_1detail_1_1basic__art__key.html#af0ee37f5a4106ac58fd5cecf5b22be4c',1,'unodb::detail::basic_art_key::basic_art_key(KeyType key_) noexcept']]],
+  ['basic_5fart_5fkey_2',['basic_art_key',['../structunodb_1_1detail_1_1basic__art__key.html',1,'unodb::detail::basic_art_key&lt; KeyType &gt;'],['../structunodb_1_1detail_1_1basic__art__key.html#adcd136279afad971b15c30847e2da1a6',1,'unodb::detail::basic_art_key::basic_art_key(key_view key_) noexcept'],['../structunodb_1_1detail_1_1basic__art__key.html#a7f769f160a22d930903da7c9f53605c7',1,'unodb::detail::basic_art_key::basic_art_key(KeyType key_) noexcept']]],
   ['basic_5fart_5fpolicy_3',['basic_art_policy',['../structunodb_1_1detail_1_1basic__art__policy.html',1,'unodb::detail']]],
   ['basic_5fdb_5finode_5fdeleter_4',['basic_db_inode_deleter',['../classunodb_1_1detail_1_1basic__db__inode__deleter.html',1,'unodb::detail']]],
   ['basic_5fdb_5fleaf_5fdeleter_5',['basic_db_leaf_deleter',['../classunodb_1_1detail_1_1basic__db__leaf__deleter.html',1,'unodb::detail']]],

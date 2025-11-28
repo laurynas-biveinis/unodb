@@ -7,7 +7,7 @@ var searchData=
   ['set_5finstance_4',['set_instance',['../classunodb_1_1qsbr__per__thread.html#a7e46b44064a75d5fcd1f97b11b5e3f6a',1,'unodb::qsbr_per_thread']]],
   ['set_5flocked_5fbit_5',['set_locked_bit',['../classunodb_1_1optimistic__lock_1_1version__type.html#a51199c18f1bfce733bddc0f01c5c4369',1,'unodb::optimistic_lock::version_type']]],
   ['set_5fqsbr_5fper_5fthread_5fin_5fmain_5fthread_6',['set_qsbr_per_thread_in_main_thread',['../structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html#a0c99b465d7ccf0e2897957a7a75638a8',1,'unodb::detail::set_qsbr_per_thread_in_main_thread']]],
-  ['shift_5for_5f32bit_5fint_7',['shift_or_32bit_int',['../namespaceunodb_1_1detail.html#a861c73c299176b3b3839990fce470afe',1,'unodb::detail']]],
+  ['shift_5for_5f32bit_5fint_7',['shift_or_32bit_int',['../namespaceunodb_1_1detail.html#add0650216a723f88cd6560169478ffcf',1,'unodb::detail']]],
   ['shift_5fright_8',['shift_right',['../structunodb_1_1detail_1_1basic__art__key.html#a883f9d04af426ae51af3b3f8b6c0026d',1,'unodb::detail::basic_art_key']]],
   ['single_5fthread_5fmode_9',['single_thread_mode',['../structunodb_1_1qsbr__state.html#a34cec6a5c7739cb36a3df6041e45e118',1,'unodb::qsbr_state']]],
   ['size_10',['size',['../structunodb_1_1detail_1_1basic__art__key.html#a1e070387a8d6335076f3d14bad7e7b25',1,'unodb::detail::basic_art_key::size()'],['../classunodb_1_1qsbr__ptr__span.html#af4b7a52caa50542b41f000781c49e195',1,'unodb::qsbr_ptr_span::size()']]],

@@ -385,19 +385,22 @@ template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a3f442e3027e04156cef43a9b865a0c16"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>dump_key</b> (std::ostream &amp;os, T key)</td></tr>
 <tr class="memdesc:a3f442e3027e04156cef43a9b865a0c16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump the key in lexicographic byte-wise order. <br /></td></tr>
 <tr class="separator:a3f442e3027e04156cef43a9b865a0c16"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a861c73c299176b3b3839990fce470afe" id="r_a861c73c299176b3b3839990fce470afe"><td class="memTemplParams" colspan="2"><a id="a861c73c299176b3b3839990fce470afe" name="a861c73c299176b3b3839990fce470afe"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a861c73c299176b3b3839990fce470afe"><td class="memTemplItemLeft" align="right" valign="top">constexpr std::enable_if&lt; std::is_integral&lt; T &gt;::value, T &gt;::type&#160;</td><td class="memTemplItemRight" valign="bottom"><b>shift_or_32bit_int</b> (T i)</td></tr>
-<tr class="memdesc:a861c73c299176b3b3839990fce470afe"><td class="mdescLeft">&#160;</td><td class="mdescRight">32bit int shift-or utility function that is used by <a class="el" href="namespaceunodb_1_1detail.html#accbae124e22c790ab242b390af59f80b" title="Find the next power of 2 for a 32-bit or 64-bit value.">unodb::detail::next_power_of_two</a>. <br /></td></tr>
-<tr class="separator:a861c73c299176b3b3839990fce470afe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:accbae124e22c790ab242b390af59f80b" id="r_accbae124e22c790ab242b390af59f80b"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:accbae124e22c790ab242b390af59f80b"><td class="memTemplItemLeft" align="right" valign="top">constexpr std::enable_if&lt; std::is_integral&lt; T &gt;::value &amp;&amp;sizeof(T)==4, T &gt;::type&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#accbae124e22c790ab242b390af59f80b">next_power_of_two</a> (T i) noexcept</td></tr>
-<tr class="memdesc:accbae124e22c790ab242b390af59f80b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the next power of <code>2</code> for a 32-bit or 64-bit value.  <br /></td></tr>
-<tr class="separator:accbae124e22c790ab242b390af59f80b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98e43f829a0d5ccd979ba18da30b2439" id="r_a98e43f829a0d5ccd979ba18da30b2439"><td class="memTemplParams" colspan="2"><a id="a98e43f829a0d5ccd979ba18da30b2439" name="a98e43f829a0d5ccd979ba18da30b2439"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a98e43f829a0d5ccd979ba18da30b2439"><td class="memTemplItemLeft" align="right" valign="top">constexpr std::enable_if&lt; std::is_integral&lt; T &gt;::value &amp;&amp;sizeof(T)==8, T &gt;::type&#160;</td><td class="memTemplItemRight" valign="bottom"><b>next_power_of_two</b> (T i) noexcept</td></tr>
-<tr class="separator:a98e43f829a0d5ccd979ba18da30b2439"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add0650216a723f88cd6560169478ffcf" id="r_add0650216a723f88cd6560169478ffcf"><td class="memTemplParams" colspan="2"><a id="add0650216a723f88cd6560169478ffcf" name="add0650216a723f88cd6560169478ffcf"></a>
+template&lt;typename T &gt; <br />
+requires std::is_integral_v&lt;T&gt;</td></tr>
+<tr class="memitem:add0650216a723f88cd6560169478ffcf"><td class="memTemplItemLeft" align="right" valign="top">constexpr T&#160;</td><td class="memTemplItemRight" valign="bottom"><b>shift_or_32bit_int</b> (T i)</td></tr>
+<tr class="memdesc:add0650216a723f88cd6560169478ffcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">32bit int shift-or utility function that is used by <a class="el" href="namespaceunodb_1_1detail.html#a7503d714826d11ed3f15b660b8770048" title="Find the next power of 2 for a 32-bit or 64-bit value.">unodb::detail::next_power_of_two</a>. <br /></td></tr>
+<tr class="separator:add0650216a723f88cd6560169478ffcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7503d714826d11ed3f15b660b8770048" id="r_a7503d714826d11ed3f15b660b8770048"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; <br />
+requires (std::is_integral_v&lt;T&gt; &amp;&amp; sizeof(T) == 4)</td></tr>
+<tr class="memitem:a7503d714826d11ed3f15b660b8770048"><td class="memTemplItemLeft" align="right" valign="top">constexpr T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a7503d714826d11ed3f15b660b8770048">next_power_of_two</a> (T i) noexcept</td></tr>
+<tr class="memdesc:a7503d714826d11ed3f15b660b8770048"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the next power of <code>2</code> for a 32-bit or 64-bit value.  <br /></td></tr>
+<tr class="separator:a7503d714826d11ed3f15b660b8770048"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad73f217650aeb3fd80473b04b87d0f53" id="r_ad73f217650aeb3fd80473b04b87d0f53"><td class="memTemplParams" colspan="2"><a id="ad73f217650aeb3fd80473b04b87d0f53" name="ad73f217650aeb3fd80473b04b87d0f53"></a>
+template&lt;typename T &gt; <br />
+requires (std::is_integral_v&lt;T&gt; &amp;&amp; sizeof(T) == 8)</td></tr>
+<tr class="memitem:ad73f217650aeb3fd80473b04b87d0f53"><td class="memTemplItemLeft" align="right" valign="top">constexpr T&#160;</td><td class="memTemplItemRight" valign="bottom"><b>next_power_of_two</b> (T i) noexcept</td></tr>
+<tr class="separator:ad73f217650aeb3fd80473b04b87d0f53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0944ca4972aeaf1a2ec41f0c9d74fd37" id="r_a0944ca4972aeaf1a2ec41f0c9d74fd37"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a0944ca4972aeaf1a2ec41f0c9d74fd37"><td class="memTemplItemLeft" align="right" valign="top">constexpr T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a0944ca4972aeaf1a2ec41f0c9d74fd37">lexicographic_successor</a> (T v) noexcept</td></tr>
 <tr class="memdesc:a0944ca4972aeaf1a2ec41f0c9d74fd37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the lexicographically next bit permutation.  <br /></td></tr>
@@ -1158,19 +1161,20 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="accbae124e22c790ab242b390af59f80b" name="accbae124e22c790ab242b390af59f80b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#accbae124e22c790ab242b390af59f80b">&#9670;&#160;</a></span>next_power_of_two()</h2>
+<a id="a7503d714826d11ed3f15b660b8770048" name="a7503d714826d11ed3f15b660b8770048"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7503d714826d11ed3f15b660b8770048">&#9670;&#160;</a></span>next_power_of_two()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;typename T &gt; <br />
+requires (std::is_integral_v&lt;T&gt; &amp;&amp; sizeof(T) == 4)</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr std::enable_if&lt; std::is_integral&lt; T &gt;::value &amp;&amp;sizeof(T)==4, T &gt;::type unodb::detail::next_power_of_two </td>
+          <td class="memname">constexpr T unodb::detail::next_power_of_two </td>
           <td>(</td>
           <td class="paramtype">T&#160;</td>
           <td class="paramname"><em>i</em></td><td>)</td>

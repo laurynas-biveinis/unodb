@@ -391,7 +391,7 @@ class [[nodiscard]] basic_node_ptr {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  [[nodiscard, gnu::const]] static constexpr unsigned mask_bits_needed(
+  [[nodiscard]] static consteval unsigned mask_bits_needed(
       unsigned count) noexcept {
     return count < 2 ? 1 : 1 + mask_bits_needed(count >> 1U);
   }

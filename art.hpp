@@ -200,7 +200,8 @@ class db final {
    protected:
     /// Construct an empty iterator (one that is logically not
     /// positioned on anything and which will report !valid()).
-    explicit iterator(db& tree) noexcept : db_(tree) {}
+    explicit iterator(db& tree UNODB_DETAIL_LIFETIMEBOUND) noexcept
+        : db_(tree) {}
 
     // iterator is not flyweight. disallow copy and move.
     iterator(const iterator&) = delete;

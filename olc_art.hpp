@@ -312,7 +312,8 @@ class olc_db final {
    protected:
     /// Construct an empty iterator (one that is logically not
     /// positioned on anything and which will report !valid()).
-    explicit iterator(olc_db& tree) noexcept : db_(tree) {}
+    explicit iterator(olc_db& tree UNODB_DETAIL_LIFETIMEBOUND) noexcept
+        : db_(tree) {}
 
     // iterator is not flyweight. disallow copy and move.
     iterator(const iterator&) = delete;

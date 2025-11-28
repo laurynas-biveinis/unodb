@@ -42,7 +42,7 @@ class mutex_db final {
   using art_key_type = detail::basic_art_key<Key>;
 
   /// Querying with an encoded key.
-  [[nodiscard]] auto get_internal(art_key_type k) const noexcept {
+  [[nodiscard]] get_result get_internal(art_key_type k) const noexcept {
     std::unique_lock guard{mutex};
     const auto db_get_result{db_.get_internal(k)};
     if (!db_get_result) {
@@ -56,13 +56,13 @@ class mutex_db final {
   ///
   /// Cannot be called during stack unwinding with `std::uncaught_exceptions() >
   /// 0`.
-  [[nodiscard]] auto insert_internal(art_key_type k, value_type v) {
+  [[nodiscard]] bool insert_internal(art_key_type k, value_type v) {
     const std::lock_guard guard{mutex};
     return db_.insert_internal(k, v);
   }
 
   /// Removing with an encoded key.
-  [[nodiscard]] auto remove_internal(art_key_type k) {
+  [[nodiscard]] bool remove_internal(art_key_type k) {
     const std::lock_guard guard{mutex};
     return db_.remove_internal(k);
   }
@@ -82,7 +82,7 @@ class mutex_db final {
     return get_internal(k);
   }
 
-  [[nodiscard]] auto empty() const {
+  [[nodiscard]] bool empty() const {
     const std::lock_guard guard{mutex};
     return db_.empty();
   }
@@ -191,50 +191,50 @@ class mutex_db final {
   //
 
   // Used to write the iterator tests.
-  auto test_only_iterator() noexcept { return db_.test_only_iterator(); }
+  iterator test_only_iterator() noexcept { return db_.test_only_iterator(); }
 
   // Stats
 #ifdef UNODB_DETAIL_WITH_STATS
 
-  [[nodiscard]] auto get_current_memory_use() const {
+  [[nodiscard]] std::size_t get_current_memory_use() const {
     const std::lock_guard guard{mutex};
     return db_.get_current_memory_use();
   }
 
   template <node_type NodeType>
-  [[nodiscard]] auto get_node_count() const {
+  [[nodiscard]] std::uint64_t get_node_count() const {
     const std::lock_guard guard{mutex};
     return db_.template get_node_count<NodeType>();
   }
 
-  [[nodiscard]] auto get_node_counts() const {
+  [[nodiscard]] node_type_counter_array get_node_counts() const {
     const std::lock_guard guard{mutex};
     return db_.get_node_counts();
   }
 
   template <node_type NodeType>
-  [[nodiscard]] auto get_growing_inode_count() const {
+  [[nodiscard]] std::uint64_t get_growing_inode_count() const {
     const std::lock_guard guard{mutex};
     return db_.template get_growing_inode_count<NodeType>();
   }
 
-  [[nodiscard]] auto get_growing_inode_counts() const {
+  [[nodiscard]] inode_type_counter_array get_growing_inode_counts() const {
     const std::lock_guard guard{mutex};
     return db_.get_growing_inode_counts();
   }
 
   template <node_type NodeType>
-  [[nodiscard]] auto get_shrinking_inode_count() const {
+  [[nodiscard]] std::uint64_t get_shrinking_inode_count() const {
     const std::lock_guard guard{mutex};
     return db_.template get_shrinking_inode_count<NodeType>();
   }
 
-  [[nodiscard]] auto get_shrinking_inode_counts() const {
+  [[nodiscard]] inode_type_counter_array get_shrinking_inode_counts() const {
     const std::lock_guard guard{mutex};
     return db_.get_shrinking_inode_counts();
   }
 
-  [[nodiscard]] auto get_key_prefix_splits() const {
+  [[nodiscard]] std::uint64_t get_key_prefix_splits() const {
     const std::lock_guard guard{mutex};
     return db_.get_key_prefix_splits();
   }
@@ -245,7 +245,7 @@ class mutex_db final {
 
   // Releases the mutex in the case key was not found, keeps it locked
   // otherwise.
-  [[nodiscard]] static auto key_found(const get_result &result) noexcept {
+  [[nodiscard]] static bool key_found(const get_result &result) noexcept {
 #ifndef NDEBUG
     const auto &lock{result.second};
     // NOLINTNEXTLINE(readability-simplify-boolean-expr)

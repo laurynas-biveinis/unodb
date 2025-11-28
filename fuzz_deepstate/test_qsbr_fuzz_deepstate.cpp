@@ -28,7 +28,7 @@
 namespace {
 
 constexpr auto max_threads{1024};
-static_assert(max_threads <= unodb::detail::max_qsbr_threads);
+static_assert(max_threads <= unodb::max_qsbr_threads);
 constexpr auto max_thread_id{102400};
 
 constexpr std::uint64_t object_mem = 0xAABBCCDD22446688ULL;
@@ -96,9 +96,11 @@ randomly_advanced_pos_and_iterator(T &container UNODB_DETAIL_LIFETIMEBOUND) {
   return std::make_pair(i, std::move(itr));
 }
 
-[[nodiscard]] auto choose_thread() { return DeepState_ContainerIndex(threads); }
+[[nodiscard]] std::size_t choose_thread() {
+  return DeepState_ContainerIndex(threads);
+}
 
-[[nodiscard]] auto choose_non_main_thread() {
+[[nodiscard]] std::size_t choose_non_main_thread() {
   ASSERT(threads.size() >= 2);
   return DeepState_SizeTInRange(1, threads.size() - 1);
 }
@@ -684,12 +686,10 @@ TEST(QSBR, DeepStateFuzz) {
           }
           reset_stats();
         });
-    const auto unpaused_threads =
-        static_cast<unodb::detail::qsbr_thread_count_type>(
-            std::ranges::count_if(threads,
-                                  [](const thread_info &info) noexcept {
-                                    return !info.is_paused;
-                                  }));
+    const auto unpaused_threads = static_cast<unodb::qsbr_thread_count_type>(
+        std::ranges::count_if(threads, [](const thread_info &info) noexcept {
+          return !info.is_paused;
+        }));
     const auto current_qsbr_state = unodb::qsbr::instance().get_state();
     ASSERT(unodb::qsbr_state::single_thread_mode(current_qsbr_state) ==
            (unpaused_threads < 2));

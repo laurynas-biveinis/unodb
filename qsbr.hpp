@@ -75,6 +75,8 @@ namespace detail {
 
 class qsbr_ptr_base;
 
+}  // namespace detail
+
 /// Two-bit wrapping-around QSBR epoch counter. Two epochs can be compared for
 /// equality but otherwise are unordered. One bit counter would be enough too,
 /// but with two bits we can check more invariants.
@@ -178,8 +180,6 @@ using qsbr_thread_count_type = std::uint32_t;
 /// overflow is not checked even in Release builds.
 inline constexpr qsbr_thread_count_type max_qsbr_threads = (2UL << 29U) - 1U;
 
-}  // namespace detail
-
 /// Global QSBR state in a single 64-bit machine word.
 ///
 /// Bit allocation:
@@ -201,47 +201,47 @@ struct qsbr_state {
 
  private:
   /// Extract the epoch from \a word.
-  [[nodiscard, gnu::const]] static constexpr detail::qsbr_epoch do_get_epoch(
+  [[nodiscard, gnu::const]] static constexpr qsbr_epoch do_get_epoch(
       type word) noexcept {
-    return detail::qsbr_epoch{static_cast<detail::qsbr_epoch::epoch_type>(
-        word >> epoch_in_word_offset)};
+    return qsbr_epoch{
+        static_cast<qsbr_epoch::epoch_type>(word >> epoch_in_word_offset)};
   }
 
   /// Extract the total thread count from \a word.
-  [[nodiscard, gnu::const]] static constexpr detail::qsbr_thread_count_type
+  [[nodiscard, gnu::const]] static constexpr qsbr_thread_count_type
   do_get_thread_count(type word) noexcept {
-    const auto result = static_cast<detail::qsbr_thread_count_type>(
+    const auto result = static_cast<qsbr_thread_count_type>(
         (word & thread_count_in_word_mask) >> thread_count_in_word_offset);
-    UNODB_DETAIL_ASSERT(result <= detail::max_qsbr_threads);
+    UNODB_DETAIL_ASSERT(result <= max_qsbr_threads);
     return result;
   }
 
   /// Extract the count of threads in the previous epoch from \a word.
-  [[nodiscard, gnu::const]] static constexpr detail::qsbr_thread_count_type
+  [[nodiscard, gnu::const]] static constexpr qsbr_thread_count_type
   do_get_threads_in_previous_epoch(type word) noexcept {
-    const auto result = static_cast<detail::qsbr_thread_count_type>(
+    const auto result = static_cast<qsbr_thread_count_type>(
         word & threads_in_previous_epoch_in_word_mask);
-    UNODB_DETAIL_ASSERT(result <= detail::max_qsbr_threads);
+    UNODB_DETAIL_ASSERT(result <= max_qsbr_threads);
     return result;
   }
 
  public:
   /// Get the epoch from \a word.
-  [[nodiscard, gnu::const]] static constexpr detail::qsbr_epoch get_epoch(
+  [[nodiscard, gnu::const]] static constexpr qsbr_epoch get_epoch(
       type word) noexcept {
     assert_invariants(word);
     return do_get_epoch(word);
   }
 
   /// Get the total thread count from \a word.
-  [[nodiscard, gnu::const]] static constexpr detail::qsbr_thread_count_type
+  [[nodiscard, gnu::const]] static constexpr qsbr_thread_count_type
   get_thread_count(type word) noexcept {
     assert_invariants(word);
     return do_get_thread_count(word);
   }
 
   /// Get the count of threads in the previous epoch from \a word.
-  [[nodiscard, gnu::const]] static constexpr detail::qsbr_thread_count_type
+  [[nodiscard, gnu::const]] static constexpr qsbr_thread_count_type
   get_threads_in_previous_epoch(type word) noexcept {
     assert_invariants(word);
     return do_get_threads_in_previous_epoch(word);
@@ -262,7 +262,7 @@ struct qsbr_state {
 
   /// Make a state word from \a epoch.
   [[nodiscard, gnu::const]] static constexpr type make_from_epoch(
-      detail::qsbr_epoch epoch) noexcept {
+      qsbr_epoch epoch) noexcept {
     const auto result = static_cast<type>(epoch.get_val())
                         << epoch_in_word_offset;
     assert_invariants(result);
@@ -407,14 +407,14 @@ struct qsbr_state {
                                           UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
     const auto thread_count = do_get_thread_count(word);
-    UNODB_DETAIL_ASSERT(thread_count <= detail::max_qsbr_threads);
+    UNODB_DETAIL_ASSERT(thread_count <= max_qsbr_threads);
     const auto threads_in_previous = do_get_threads_in_previous_epoch(word);
     UNODB_DETAIL_ASSERT(threads_in_previous <= thread_count);
 #endif
   }
 
   /// Mask for the thread count field.
-  static constexpr auto thread_count_mask = detail::max_qsbr_threads;
+  static constexpr auto thread_count_mask = max_qsbr_threads;
 
   static_assert((thread_count_mask & (thread_count_mask + 1)) == 0,
                 "Thread count field mask should be 2^n-1");
@@ -858,10 +858,10 @@ class [[nodiscard]] qsbr_per_thread final {
   std::uint64_t quiescent_states_since_epoch_change{0};
 
   /// Last seen global epoch by quiescent state for this thread.
-  detail::qsbr_epoch last_seen_quiescent_state_epoch;
+  qsbr_epoch last_seen_quiescent_state_epoch;
 
   /// Last seen global epoch by any operation for this thread.
-  detail::qsbr_epoch last_seen_epoch;
+  qsbr_epoch last_seen_epoch;
 
   /// Pending deallocation requests for the previous epoch.
   detail::dealloc_request_vector previous_interval_dealloc_requests;
@@ -885,7 +885,7 @@ class [[nodiscard]] qsbr_per_thread final {
   /// \param new_seen_epoch The new epoch to advance to
   /// \param new_current_requests Deallocation requests for the current epoch
   void advance_last_seen_epoch(
-      bool single_thread_mode, detail::qsbr_epoch new_seen_epoch,
+      bool single_thread_mode, qsbr_epoch new_seen_epoch,
       detail::dealloc_request_vector new_current_requests = {})
 #ifndef UNODB_DETAIL_WITH_STATS
       noexcept
@@ -900,7 +900,7 @@ class [[nodiscard]] qsbr_per_thread final {
   /// \param new_current_requests New deallocation requests for the current
   ///                             epoch
   void execute_previous_requests(
-      bool single_thread_mode, detail::qsbr_epoch dealloc_epoch,
+      bool single_thread_mode, qsbr_epoch dealloc_epoch,
       detail::dealloc_request_vector new_current_requests = {})
 #ifndef UNODB_DETAIL_WITH_STATS
       noexcept
@@ -951,17 +951,17 @@ class qsbr final {
   /// \param thread_epoch Current thread epoch (debug builds only)
 #endif
   /// \return Potentially updated global epoch
-  [[nodiscard]] detail::qsbr_epoch remove_thread_from_previous_epoch(
-      detail::qsbr_epoch current_global_epoch
+  [[nodiscard]] qsbr_epoch remove_thread_from_previous_epoch(
+      qsbr_epoch current_global_epoch
 #ifndef NDEBUG
       ,
-      detail::qsbr_epoch thread_epoch
+      qsbr_epoch thread_epoch
 #endif
       ) noexcept;
 
   /// Register a new thread with QSBR.
   /// \return The current global epoch
-  [[nodiscard]] detail::qsbr_epoch register_thread() noexcept;
+  [[nodiscard]] qsbr_epoch register_thread() noexcept;
 
   /// Unregister a thread from QSBR.
   /// \param quiescent_states_since_epoch_change Count of quiescent states by
@@ -970,8 +970,7 @@ class qsbr final {
   /// \param thread_epoch Last seen epoch by this thread
   /// \param qsbr_thread The thread's QSBR instance to unregister
   void unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
-                         detail::qsbr_epoch thread_epoch,
-                         qsbr_per_thread &qsbr_thread)
+                         qsbr_epoch thread_epoch, qsbr_per_thread &qsbr_thread)
 #ifndef UNODB_DETAIL_WITH_STATS
       noexcept
 #endif
@@ -1143,8 +1142,8 @@ class qsbr final {
   /// \param current_global_epoch Current global epoch
   /// \param single_thread_mode Whether there is at most one QSBR thread.
   /// \return New global epoch
-  detail::qsbr_epoch change_epoch(detail::qsbr_epoch current_global_epoch,
-                                  bool single_thread_mode) noexcept;
+  qsbr_epoch change_epoch(qsbr_epoch current_global_epoch,
+                          bool single_thread_mode) noexcept;
 
 #ifdef UNODB_DETAIL_WITH_STATS
   /// Increment the epoch change counter.
@@ -1326,7 +1325,7 @@ inline void qsbr_per_thread::on_next_epoch_deallocate(
 }
 
 inline void qsbr_per_thread::advance_last_seen_epoch(
-    bool single_thread_mode, detail::qsbr_epoch new_seen_epoch,
+    bool single_thread_mode, qsbr_epoch new_seen_epoch,
     detail::dealloc_request_vector new_current_requests)
 #ifndef UNODB_DETAIL_WITH_STATS
     noexcept
@@ -1346,7 +1345,7 @@ inline void qsbr_per_thread::advance_last_seen_epoch(
 }
 
 inline void qsbr_per_thread::execute_previous_requests(
-    bool single_thread_mode, detail::qsbr_epoch dealloc_epoch,
+    bool single_thread_mode, qsbr_epoch dealloc_epoch,
     detail::dealloc_request_vector new_current_requests)
 #ifndef UNODB_DETAIL_WITH_STATS
     noexcept

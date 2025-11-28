@@ -34,7 +34,7 @@ constexpr void concurrency_ranges32(::benchmark::internal::Benchmark *b) {
 }
 
 template <typename T>
-[[nodiscard]] constexpr auto to_counter(T value) {
+[[nodiscard]] ::benchmark::Counter to_counter(T value) {
   return ::benchmark::Counter{static_cast<double>(value)};
 }
 

@@ -699,54 +699,56 @@ class olc_db final {
   //
 
   // Used to write the iterator tests.
-  auto test_only_iterator() noexcept { return iterator(*this); }
+  iterator test_only_iterator() noexcept { return iterator(*this); }
 
   // Stats
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
   // Return current memory use by tree nodes in bytes
-  [[nodiscard]] auto get_current_memory_use() const noexcept {
+  [[nodiscard]] std::size_t get_current_memory_use() const noexcept {
     return current_memory_use.load(std::memory_order_relaxed);
   }
 
   template <node_type NodeType>
-  [[nodiscard]] auto get_node_count() const noexcept {
+  [[nodiscard]] std::uint64_t get_node_count() const noexcept {
     return node_counts[as_i<NodeType>].load(std::memory_order_relaxed);
   }
 
-  [[nodiscard]] auto get_node_counts() const noexcept {
+  [[nodiscard]] node_type_counter_array get_node_counts() const noexcept {
     return detail::copy_atomic_to_nonatomic(node_counts);
   }
 
   template <node_type NodeType>
-  [[nodiscard]] auto get_growing_inode_count() const noexcept {
+  [[nodiscard]] std::uint64_t get_growing_inode_count() const noexcept {
     return growing_inode_counts[internal_as_i<NodeType>].load(
         std::memory_order_relaxed);
   }
 
-  [[nodiscard]] auto get_growing_inode_counts() const noexcept {
+  [[nodiscard]] inode_type_counter_array get_growing_inode_counts()
+      const noexcept {
     return detail::copy_atomic_to_nonatomic(growing_inode_counts);
   }
 
   template <node_type NodeType>
-  [[nodiscard]] auto get_shrinking_inode_count() const noexcept {
+  [[nodiscard]] std::uint64_t get_shrinking_inode_count() const noexcept {
     return shrinking_inode_counts[internal_as_i<NodeType>].load(
         std::memory_order_relaxed);
   }
 
-  [[nodiscard]] auto get_shrinking_inode_counts() const noexcept {
+  [[nodiscard]] inode_type_counter_array get_shrinking_inode_counts()
+      const noexcept {
     return detail::copy_atomic_to_nonatomic(shrinking_inode_counts);
   }
 
-  [[nodiscard]] auto get_key_prefix_splits() const noexcept {
+  [[nodiscard]] std::uint64_t get_key_prefix_splits() const noexcept {
     return key_prefix_splits.load(std::memory_order_relaxed);
   }
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
   // Public utils
-  [[nodiscard]] static constexpr auto key_found(
+  [[nodiscard]] static constexpr bool key_found(
       const get_result& result) noexcept {
     return static_cast<bool>(result);
   }

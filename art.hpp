@@ -141,7 +141,7 @@ class db final {
   }
 
   /// Return true iff the index is empty.
-  [[nodiscard, gnu::pure]] auto empty() const noexcept {
+  [[nodiscard, gnu::pure]] bool empty() const noexcept {
     return root == nullptr;
   }
 
@@ -512,50 +512,52 @@ class db final {
   //
 
   // Used to write the iterator tests.
-  auto test_only_iterator() noexcept { return iterator(*this); }
+  iterator test_only_iterator() noexcept { return iterator(*this); }
 
   // Stats
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
   // Return current memory use by tree nodes in bytes.
-  [[nodiscard, gnu::pure]] constexpr auto get_current_memory_use()
+  [[nodiscard, gnu::pure]] constexpr std::size_t get_current_memory_use()
       const noexcept {
     return current_memory_use;
   }
 
   template <node_type NodeType>
-  [[nodiscard, gnu::pure]] constexpr auto get_node_count() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr std::uint64_t get_node_count()
+      const noexcept {
     return node_counts[as_i<NodeType>];
   }
 
-  [[nodiscard, gnu::pure]] constexpr auto get_node_counts() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr node_type_counter_array get_node_counts()
+      const noexcept {
     return node_counts;
   }
 
   template <node_type NodeType>
-  [[nodiscard, gnu::pure]] constexpr auto get_growing_inode_count()
+  [[nodiscard, gnu::pure]] constexpr std::uint64_t get_growing_inode_count()
       const noexcept {
     return growing_inode_counts[internal_as_i<NodeType>];
   }
 
-  [[nodiscard, gnu::pure]] constexpr auto get_growing_inode_counts()
-      const noexcept {
+  [[nodiscard, gnu::pure]] constexpr inode_type_counter_array
+  get_growing_inode_counts() const noexcept {
     return growing_inode_counts;
   }
 
   template <node_type NodeType>
-  [[nodiscard, gnu::pure]] constexpr auto get_shrinking_inode_count()
+  [[nodiscard, gnu::pure]] constexpr std::uint64_t get_shrinking_inode_count()
       const noexcept {
     return shrinking_inode_counts[internal_as_i<NodeType>];
   }
 
-  [[nodiscard, gnu::pure]] constexpr auto get_shrinking_inode_counts()
-      const noexcept {
+  [[nodiscard, gnu::pure]] constexpr inode_type_counter_array
+  get_shrinking_inode_counts() const noexcept {
     return shrinking_inode_counts;
   }
 
-  [[nodiscard, gnu::pure]] constexpr auto get_key_prefix_splits()
+  [[nodiscard, gnu::pure]] constexpr std::uint64_t get_key_prefix_splits()
       const noexcept {
     return key_prefix_splits;
   }
@@ -563,7 +565,7 @@ class db final {
 #endif  // UNODB_DETAIL_WITH_STATS
 
   // Public utils
-  [[nodiscard, gnu::const]] static constexpr auto key_found(
+  [[nodiscard, gnu::const]] static constexpr bool key_found(
       const get_result& result) noexcept {
     return static_cast<bool>(result);
   }

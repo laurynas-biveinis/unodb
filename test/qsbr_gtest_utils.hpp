@@ -33,19 +33,20 @@ class QSBRTestBase : public ::testing::Test {
 
   // QSBR operation wrappers
  private:
-  [[nodiscard]] static auto get_qsbr_state() noexcept {
+  [[nodiscard]] static qsbr_state::type get_qsbr_state() noexcept {
     return must_not_allocate(
         []() noexcept { return unodb::qsbr::instance().get_state(); });
   }
 
  protected:
-  [[nodiscard]] static auto get_qsbr_thread_count() noexcept {
+  [[nodiscard]] static qsbr_thread_count_type get_qsbr_thread_count() noexcept {
     return must_not_allocate([]() noexcept {
       return unodb::qsbr_state::get_thread_count(get_qsbr_state());
     });
   }
 
-  [[nodiscard]] static auto get_qsbr_threads_in_previous_epoch() noexcept {
+  [[nodiscard]] static qsbr_thread_count_type
+  get_qsbr_threads_in_previous_epoch() noexcept {
     return must_not_allocate([]() noexcept {
       return unodb::qsbr_state::get_threads_in_previous_epoch(get_qsbr_state());
     });
@@ -75,31 +76,33 @@ class QSBRTestBase : public ::testing::Test {
         [] { unodb::qsbr::instance().reset_stats(); });
   }
 
-  [[nodiscard]] static auto qsbr_get_max_backlog_bytes() noexcept {
+  [[nodiscard]] static std::uint64_t qsbr_get_max_backlog_bytes() noexcept {
     return must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().get_max_backlog_bytes();
     });
   }
 
-  [[nodiscard]] static auto qsbr_get_mean_backlog_bytes() noexcept {
+  [[nodiscard]] static double qsbr_get_mean_backlog_bytes() noexcept {
     return must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().get_mean_backlog_bytes();
     });
   }
 
-  [[nodiscard]] static auto qsbr_get_epoch_callback_count_max() noexcept {
+  [[nodiscard]] static std::size_t
+  qsbr_get_epoch_callback_count_max() noexcept {
     return must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().get_epoch_callback_count_max();
     });
   }
 
-  [[nodiscard]] static auto qsbr_get_epoch_callback_count_variance() noexcept {
+  [[nodiscard]] static double
+  qsbr_get_epoch_callback_count_variance() noexcept {
     return must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().get_epoch_callback_count_variance();
     });
   }
 
-  [[nodiscard]] static auto
+  [[nodiscard]] static double
   qsbr_get_mean_quiescent_states_per_thread_between_epoch_changes() noexcept {
     return must_not_allocate([]() noexcept {
       return unodb::qsbr::instance()
@@ -107,7 +110,7 @@ class QSBRTestBase : public ::testing::Test {
     });
   }
 
-  [[nodiscard]] static auto qsbr_get_epoch_change_count() noexcept {
+  [[nodiscard]] static std::uint64_t qsbr_get_epoch_change_count() noexcept {
     return must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().get_epoch_change_count();
     });
@@ -115,7 +118,7 @@ class QSBRTestBase : public ::testing::Test {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-  [[nodiscard]] static auto
+  [[nodiscard]] static bool
   qsbr_previous_interval_orphaned_requests_empty() noexcept {
     return must_not_allocate([]() noexcept {
       return unodb::qsbr::instance()
@@ -123,7 +126,7 @@ class QSBRTestBase : public ::testing::Test {
     });
   }
 
-  [[nodiscard]] static auto
+  [[nodiscard]] static bool
   qsbr_current_interval_orphaned_requests_empty() noexcept {
     return must_not_allocate([]() noexcept {
       return unodb::qsbr::instance().current_interval_orphaned_requests_empty();
@@ -260,7 +263,7 @@ class QSBRTestBase : public ::testing::Test {
   QSBRTestBase &operator=(QSBRTestBase &&) = delete;
 
  private:
-  unodb::detail::qsbr_epoch last_epoch{0};
+  unodb::qsbr_epoch last_epoch{0};
 };
 
 }  // namespace unodb::test

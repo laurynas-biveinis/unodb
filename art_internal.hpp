@@ -102,9 +102,8 @@ struct [[nodiscard]] basic_art_key final {
   ///
   /// Note: Use a key_encoder for complex keys, including multiple key
   /// components or Unicode data.
-  template <typename U = KeyType,
-            typename std::enable_if<std::is_integral<U>::value, int>::type = 0>
   UNODB_DETAIL_CONSTEXPR_NOT_MSVC explicit basic_art_key(KeyType key_) noexcept
+    requires std::is_integral_v<KeyType>
       : key{make_binary_comparable(key_)} {}
 
   /// Construct converts a key_view which must already be

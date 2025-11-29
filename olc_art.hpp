@@ -1057,7 +1057,8 @@ template <typename Key, typename Value>
 using olc_inode_4_parent = basic_inode_4<olc_art_policy<Key, Value>>;
 
 template <typename Key, typename Value>
-class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key, Value> {
+class UNODB_DETAIL_EMPTY_BASES [[nodiscard]] olc_inode_4 final
+    : public olc_inode_4_parent<Key, Value> {
   using parent_class = olc_inode_4_parent<Key, Value>;
 
  public:
@@ -1126,26 +1127,18 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key, Value> {
 };  // basic_inode_4
 
 using olc_inode_4_test_type = olc_inode_4<std::uint64_t, unodb::value_view>;
-// 48 (or 56) == sizeof(inode_4)
-#ifndef _MSC_VER
+// 48 == sizeof(inode_4)
 #ifdef NDEBUG
 static_assert(sizeof(olc_inode_4_test_type) == 48 + 8);
 #else
 static_assert(sizeof(olc_inode_4_test_type) == 48 + 24);
 #endif
-#else  // #ifndef _MSC_VER
-#ifdef NDEBUG
-static_assert(sizeof(olc_inode_4_test_type) == 56 + 8);
-#else
-static_assert(sizeof(olc_inode_4_test_type) == 56 + 24);
-#endif
-#endif  // #ifndef _MSC_VER
 
 template <typename Key, typename Value>
 using olc_inode_16_parent = basic_inode_16<olc_art_policy<Key, Value>>;
 
 template <typename Key, typename Value>
-class [[nodiscard]] olc_inode_16 final
+class UNODB_DETAIL_EMPTY_BASES [[nodiscard]] olc_inode_16 final
     : public olc_inode_16_parent<Key, Value> {
   using parent_class = olc_inode_16_parent<Key, Value>;
 
@@ -1241,7 +1234,7 @@ template <typename Key, typename Value>
 using olc_inode_48_parent = basic_inode_48<olc_art_policy<Key, Value>>;
 
 template <typename Key, typename Value>
-class [[nodiscard]] olc_inode_48 final
+class UNODB_DETAIL_EMPTY_BASES [[nodiscard]] olc_inode_48 final
     : public olc_inode_48_parent<Key, Value> {
   using parent_class = olc_inode_48_parent<Key, Value>;
 
@@ -1329,7 +1322,7 @@ template <typename Key, typename Value>
 using olc_inode_256_parent = basic_inode_256<olc_art_policy<Key, Value>>;
 
 template <typename Key, typename Value>
-class [[nodiscard]] olc_inode_256 final
+class UNODB_DETAIL_EMPTY_BASES [[nodiscard]] olc_inode_256 final
     : public olc_inode_256_parent<Key, Value> {
   using parent_class = olc_inode_256_parent<Key, Value>;
 

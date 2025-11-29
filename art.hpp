@@ -693,7 +693,8 @@ template <typename Key, typename Value>
 using inode_4_parent = basic_inode_4<art_policy<Key, Value>>;
 
 template <typename Key, typename Value>
-class [[nodiscard]] inode_4 final : public inode_4_parent<Key, Value> {
+class UNODB_DETAIL_EMPTY_BASES [[nodiscard]] inode_4 final
+    : public inode_4_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_4_parent<Key, Value>::inode_4_parent;
@@ -712,19 +713,14 @@ class [[nodiscard]] inode_4 final : public inode_4_parent<Key, Value> {
 };
 
 using inode_4_test_type = inode_4<std::uint64_t, unodb::value_view>;
-#ifndef _MSC_VER
 static_assert(sizeof(inode_4_test_type) == 48);
-#else
-// MSVC pads the first field to 8 byte boundary even though its natural
-// alignment is 4 bytes, maybe due to parent class sizeof
-static_assert(sizeof(inode_4_test_type) == 56);
-#endif
 
 template <typename Key, typename Value>
 using inode_16_parent = basic_inode_16<art_policy<Key, Value>>;
 
 template <typename Key, typename Value>
-class [[nodiscard]] inode_16 final : public inode_16_parent<Key, Value> {
+class UNODB_DETAIL_EMPTY_BASES [[nodiscard]] inode_16 final
+    : public inode_16_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_16_parent<Key, Value>::inode_16_parent;
@@ -748,7 +744,8 @@ template <typename Key, typename Value>
 using inode_48_parent = basic_inode_48<art_policy<Key, Value>>;
 
 template <typename Key, typename Value>
-class [[nodiscard]] inode_48 final : public inode_48_parent<Key, Value> {
+class UNODB_DETAIL_EMPTY_BASES [[nodiscard]] inode_48 final
+    : public inode_48_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_48_parent<Key, Value>::inode_48_parent;
@@ -777,7 +774,8 @@ template <typename Key, typename Value>
 using inode_256_parent = basic_inode_256<art_policy<Key, Value>>;
 
 template <typename Key, typename Value>
-class [[nodiscard]] inode_256 final : public inode_256_parent<Key, Value> {
+class UNODB_DETAIL_EMPTY_BASES [[nodiscard]] inode_256 final
+    : public inode_256_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_256_parent<Key, Value>::inode_256_parent;

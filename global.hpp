@@ -61,6 +61,11 @@
 /// Expand to `constexpr` with all compilers except for MSVC.
 /// Use to mark `constexpr` declarations that are not supported by MSVC.
 
+/// \def UNODB_DETAIL_EMPTY_BASES
+/// \hideinitializer
+/// Force MSVC to apply Empty Base Class Optimization to classes with empty
+/// bases.
+
 /// \def UNODB_DETAIL_ADDRESS_SANITIZER
 /// Defined when compiling with AddressSanitizer
 
@@ -270,6 +275,7 @@
 #define UNODB_DETAIL_NOINLINE __attribute__((noinline))
 #define UNODB_DETAIL_UNREACHABLE() __builtin_unreachable()
 #define UNODB_DETAIL_CONSTEXPR_NOT_MSVC constexpr
+#define UNODB_DETAIL_EMPTY_BASES
 
 #else  // #ifndef UNODB_DETAIL_MSVC
 
@@ -285,6 +291,7 @@
 #define UNODB_DETAIL_CONSTEXPR_NOT_MSVC inline
 #define UNODB_DETAIL_LIFETIMEBOUND
 #define UNODB_DETAIL_C_STRING_ARG(x)
+#define UNODB_DETAIL_EMPTY_BASES __declspec(empty_bases)
 
 #endif  // #ifndef UNODB_DETAIL_MSVC
 

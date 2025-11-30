@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -89,11 +90,9 @@ struct [[nodiscard]] basic_art_key final {
   /// supporting lexicographic comparison.
   [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC KeyType
   make_binary_comparable(KeyType k) noexcept {
-#ifdef UNODB_DETAIL_LITTLE_ENDIAN
+    static_assert(std::endian::native == std::endian::little,
+                  "Big-endian support needs implementing");
     return bswap(k);
-#else
-#error Needs implementing
-#endif
   }
 
  public:

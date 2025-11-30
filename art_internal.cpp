@@ -5,13 +5,12 @@
 
 // IWYU pragma: no_include <__ostream/basic_ostream.h>
 
-#include "art_internal.hpp"  // IWYU pragma: keep
-
-#include "art_common.hpp"
-
 #include <cstddef>
 #include <iomanip>
 #include <iostream>  // IWYU pragma: keep
+
+#include "art_common.hpp"
+#include "art_internal.hpp"  // IWYU pragma: keep
 
 namespace unodb::detail {
 

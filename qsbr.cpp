@@ -14,8 +14,6 @@
 // IWYU pragma: no_include <__new/exceptions.h>
 // IWYU pragma: no_include <__hash_table>
 
-#include "qsbr.hpp"
-
 #include <atomic>
 #include <cstdint>
 #include <exception>
@@ -23,6 +21,8 @@
 #include <memory>
 #include <new>  // IWYU pragma: keep
 #include <utility>
+
+#include "qsbr.hpp"
 
 #ifdef UNODB_DETAIL_WITH_STATS
 #include <mutex>

@@ -6,7 +6,6 @@
 #include "qsbr_gtest_utils.hpp"  // IWYU pragma: keep
 
 #include "qsbr.hpp"
-
 #include "qsbr_test_utils.hpp"
 
 namespace unodb::test {

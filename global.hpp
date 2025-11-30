@@ -171,6 +171,14 @@
 /// with AddressSanitizer.
 #define _GLIBCXX_SANITIZE_VECTOR
 
+/// Enables the MSVC STL debug checks (iterator debugging, bounds checking)
+/// when compiling in the standalone debug configuration.
+#define _MSVC_STL_HARDENING
+
+/// Enables the MSVC STL destructor tombstone feature to catch use-after-
+/// destruction bugs when compiling in the standalone debug configuration.
+#define _MSVC_STL_DESTRUCTOR_TOMBSTONES
+
 #endif  // UNODB_DETAIL_DOXYGEN
 /// \}
 

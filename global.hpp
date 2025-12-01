@@ -187,7 +187,7 @@
 #endif
 
 /// \name Architecture macros
-/// Macros for the CPU architecture, instruction set level, endianness.
+/// Macros for the CPU architecture and instruction set level.
 /// \{
 
 #if defined(_MSC_VER) && defined(_M_X64)
@@ -208,12 +208,6 @@
 /// Defined when compiling with SSE4.2 and not AVX2 instructions on x86-64
 #define UNODB_DETAIL_SSE4_2
 #endif
-#endif
-
-#if defined(UNODB_DETAIL_X86_64) || \
-    defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-/// Defined on little-endian architectures
-#define UNODB_DETAIL_LITTLE_ENDIAN
 #endif
 
 /// \}

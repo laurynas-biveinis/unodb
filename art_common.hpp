@@ -5,6 +5,7 @@
 // Should be the first include
 #include "global.hpp"
 
+#include <bit>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -265,6 +266,13 @@ class key_encoder {
   static constexpr std::uint32_t msb32 = 1U << 31;
   static constexpr std::uint64_t msb64 = 1ULL << 63;
 
+  template <typename T>
+  [[nodiscard]] static T make_binary_comparable_integral(T v) noexcept {
+    static_assert(std::endian::native == std::endian::little,
+                  "Big-endian support needs implementing");
+    return unodb::detail::bswap(v);
+  }
+
  public:
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
 
@@ -377,12 +385,7 @@ class key_encoder {
 
   key_encoder &encode(std::uint16_t v) {
     ensure_available(sizeof(v));
-#ifdef UNODB_DETAIL_LITTLE_ENDIAN
-    const auto u = unodb::detail::bswap(v);
-#else
-    const auto u = v;
-#endif
-    UNODB_DETAIL_ASSERT(sizeof(u) == sizeof(v));
+    const auto u = make_binary_comparable_integral(v);
     std::memcpy(buf + off, &u, sizeof(v));
     off += sizeof(v);
     return *this;
@@ -390,12 +393,7 @@ class key_encoder {
 
   key_encoder &encode(std::uint32_t v) {
     ensure_available(sizeof(v));
-#ifdef UNODB_DETAIL_LITTLE_ENDIAN
-    const auto u = unodb::detail::bswap(v);
-#else
-    const auto u = v;
-#endif
-    UNODB_DETAIL_ASSERT(sizeof(u) == sizeof(v));
+    const auto u = make_binary_comparable_integral(v);
     std::memcpy(buf + off, &u, sizeof(v));
     off += sizeof(v);
     return *this;
@@ -403,12 +401,7 @@ class key_encoder {
 
   key_encoder &encode(std::uint64_t v) {
     ensure_available(sizeof(v));
-#ifdef UNODB_DETAIL_LITTLE_ENDIAN
-    const auto u = unodb::detail::bswap(v);
-#else
-    const auto u = v;
-#endif
-    UNODB_DETAIL_ASSERT(sizeof(u) == sizeof(v));
+    const auto u = make_binary_comparable_integral(v);
     std::memcpy(buf + off, &u, sizeof(v));
     off += sizeof(v);
     return *this;
@@ -534,6 +527,13 @@ class key_decoder {
   static constexpr std::uint32_t msb32 = 1U << 31U;
   static constexpr std::uint64_t msb64 = 1ULL << 63U;
 
+  template <typename T>
+  [[nodiscard]] static T decode_binary_comparable_integral(T u) noexcept {
+    static_assert(std::endian::native == std::endian::little,
+                  "Big-endian support needs implementing");
+    return unodb::detail::bswap(u);
+  }
+
  public:
   /// Build a decoder for the unodb::key_view.
   explicit key_decoder(key_view kv) noexcept
@@ -600,11 +600,7 @@ class key_decoder {
   key_decoder &decode(std::uint16_t &v) noexcept {
     std::uint16_t u;
     std::memcpy(&u, buf + off, sizeof(u));
-#ifdef UNODB_DETAIL_LITTLE_ENDIAN
-    v = unodb::detail::bswap(u);
-#else
-    v = u;
-#endif
+    v = decode_binary_comparable_integral(u);
     off += sizeof(u);
     return *this;
   }
@@ -613,11 +609,7 @@ class key_decoder {
   key_decoder &decode(std::uint32_t &v) noexcept {
     std::uint32_t u;
     std::memcpy(&u, buf + off, sizeof(u));
-#ifdef UNODB_DETAIL_LITTLE_ENDIAN
-    v = unodb::detail::bswap(u);
-#else
-    v = u;
-#endif
+    v = decode_binary_comparable_integral(u);
     off += sizeof(u);
     return *this;
   }
@@ -626,11 +618,7 @@ class key_decoder {
   key_decoder &decode(std::uint64_t &v) noexcept {
     std::uint64_t u;
     std::memcpy(&u, buf + off, sizeof(u));
-#ifdef UNODB_DETAIL_LITTLE_ENDIAN
-    v = unodb::detail::bswap(u);
-#else
-    v = u;
-#endif
+    v = decode_binary_comparable_integral(u);
     off += sizeof(u);
     return *this;
   }

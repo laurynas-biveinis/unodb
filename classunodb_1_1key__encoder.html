@@ -100,6 +100,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1key__encoder.html',''); 
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
+<a href="#pro-static-methods">Static Protected Member Functions</a> &#124;
 <a href="#pro-static-attribs">Static Protected Attributes</a> &#124;
 <a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
@@ -206,6 +207,13 @@ Static Public Attributes</h2></td></tr>
 <tr class="memitem:ae0d432f6de285a4384378a8bc7c0fba2" id="r_ae0d432f6de285a4384378a8bc7c0fba2"><td class="memItemLeft" align="right" valign="top">static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__encoder.html#ae0d432f6de285a4384378a8bc7c0fba2">maxlen</a></td></tr>
 <tr class="memdesc:ae0d432f6de285a4384378a8bc7c0fba2"><td class="mdescLeft">&#160;</td><td class="mdescRight">The maximum length of a text component of the key.  <br /></td></tr>
 <tr class="separator:ae0d432f6de285a4384378a8bc7c0fba2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-static-methods" name="pro-static-methods"></a>
+Static Protected Member Functions</h2></td></tr>
+<tr class="memitem:af72245e780d70d1847cfdacc3179505e" id="r_af72245e780d70d1847cfdacc3179505e"><td class="memTemplParams" colspan="2"><a id="af72245e780d70d1847cfdacc3179505e" name="af72245e780d70d1847cfdacc3179505e"></a>
+template&lt;typename T &gt; </td></tr>
+<tr class="memitem:af72245e780d70d1847cfdacc3179505e"><td class="memTemplItemLeft" align="right" valign="top">static T&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_binary_comparable_integral</b> (T v) noexcept</td></tr>
+<tr class="separator:af72245e780d70d1847cfdacc3179505e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-static-attribs" name="pro-static-attribs"></a>
 Static Protected Attributes</h2></td></tr>
@@ -441,8 +449,8 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><b>off</b> {0}</td></t
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">{<span class="keyword">static_cast&lt;</span><a class="code hl_typedef" href="classunodb_1_1key__encoder.html#a09a289c46cce6e9fa710bcad5aba9c0f">size_type</a><span class="keyword">&gt;</span>(</div>
 <div class="line">      std::numeric_limits&lt;size_type&gt;::max() - <span class="keyword">sizeof</span>(<a class="code hl_variable" href="classunodb_1_1key__encoder.html#a52f15092ae61b2c24c23af0dc4831cc5">pad</a>) - <span class="keyword">sizeof</span>(<a class="code hl_typedef" href="classunodb_1_1key__encoder.html#a09a289c46cce6e9fa710bcad5aba9c0f">size_type</a>))}</div>
-<div class="ttc" id="aclassunodb_1_1key__encoder_html_a09a289c46cce6e9fa710bcad5aba9c0f"><div class="ttname"><a href="classunodb_1_1key__encoder.html#a09a289c46cce6e9fa710bcad5aba9c0f">unodb::key_encoder::size_type</a></div><div class="ttdeci">std::uint16_t size_type</div><div class="ttdoc">This indirectly determines the unodb::key_encoder::maxlen and is used as the byte width for the run-l...</div><div class="ttdef"><b>Definition</b> art_common.hpp:242</div></div>
-<div class="ttc" id="aclassunodb_1_1key__encoder_html_a52f15092ae61b2c24c23af0dc4831cc5"><div class="ttname"><a href="classunodb_1_1key__encoder.html#a52f15092ae61b2c24c23af0dc4831cc5">unodb::key_encoder::pad</a></div><div class="ttdeci">static constexpr auto pad</div><div class="ttdoc">The pad byte used when encoding variable length text into a key to logically extend the text field to...</div><div class="ttdef"><b>Definition</b> art_common.hpp:250</div></div>
+<div class="ttc" id="aclassunodb_1_1key__encoder_html_a09a289c46cce6e9fa710bcad5aba9c0f"><div class="ttname"><a href="classunodb_1_1key__encoder.html#a09a289c46cce6e9fa710bcad5aba9c0f">unodb::key_encoder::size_type</a></div><div class="ttdeci">std::uint16_t size_type</div><div class="ttdoc">This indirectly determines the unodb::key_encoder::maxlen and is used as the byte width for the run-l...</div><div class="ttdef"><b>Definition</b> art_common.hpp:243</div></div>
+<div class="ttc" id="aclassunodb_1_1key__encoder_html_a52f15092ae61b2c24c23af0dc4831cc5"><div class="ttname"><a href="classunodb_1_1key__encoder.html#a52f15092ae61b2c24c23af0dc4831cc5">unodb::key_encoder::pad</a></div><div class="ttdeci">static constexpr auto pad</div><div class="ttdoc">The pad byte used when encoding variable length text into a key to logically extend the text field to...</div><div class="ttdef"><b>Definition</b> art_common.hpp:251</div></div>
 </div><!-- fragment -->
 <p>The maximum length of a text component of the key. </p>
 <p>Keys are truncated to at most this many bytes and then logically extended using the <code>pad</code> byte and a trailing run length until the field is logically <code>maxlen</code> bytes wide. This field is computed such that the total byte width of the encoded text can be indexed by <code>sizeof(size_type)</code>. </p>

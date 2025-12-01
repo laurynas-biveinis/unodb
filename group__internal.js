@@ -34,7 +34,6 @@ var group__internal =
     [ "UNODB_DETAIL_HEADER_NOINLINE", "group__internal.html#gaafb52805dfbf125a141afc869e64715d", null ],
     [ "UNODB_DETAIL_LIFETIMEBOUND", "group__internal.html#ga5e11cdd5f7dc641ab4d60165ddb5297d", null ],
     [ "UNODB_DETAIL_LIKELY", "group__internal.html#ga8d13685712ac14fa6a261cb5f0dfc618", null ],
-    [ "UNODB_DETAIL_LITTLE_ENDIAN", "group__internal.html#ga20640c91e5b5f07eea4a6d7a2e360d4e", null ],
     [ "UNODB_DETAIL_MSVC_CLANG", "group__internal.html#gab168044b94b47b578ab04db2b059d3a9", null ],
     [ "UNODB_DETAIL_MSVC_X86_64", "group__internal.html#gacbc17a405e7adc3cedfa0de24ea26d6a", null ],
     [ "UNODB_DETAIL_NOINLINE", "group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33", null ],

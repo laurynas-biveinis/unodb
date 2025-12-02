@@ -54,7 +54,6 @@ var namespaceunodb_1_1detail =
     [ "compare", "namespaceunodb_1_1detail.html#a749463245ed07a65e2df960ac1beb847", null ],
     [ "compare", "namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07", null ],
     [ "crash", "namespaceunodb_1_1detail.html#aae5f331d83917453230a096af3197dc2", null ],
-    [ "ctz", "namespaceunodb_1_1detail.html#a5572532b0d5ba02cbbfb5e876bd59925", null ],
     [ "decode_floating_point", "namespaceunodb_1_1detail.html#a75f7fa26a657bd2a5640cf369c639d17", null ],
     [ "dump_byte", "namespaceunodb_1_1detail.html#a0ea0a7a9ae7c67e2636bae1ca01e11fe", null ],
     [ "dump_key", "namespaceunodb_1_1detail.html#a0891f194e6a48dea0836ae8c85c99c58", null ],

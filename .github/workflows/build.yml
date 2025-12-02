@@ -36,66 +36,66 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: GCC 14 Release (Linux Intel)
+          - name: GCC 15 Release (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
 
-          - name: GCC 14 Release with ASan (Linux Intel)
+          - name: GCC 15 Release with ASan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_ADDRESS: ON
 
-          - name: GCC 14 Release with TSan (Linux Intel)
+          - name: GCC 15 Release with TSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_THREAD: ON
 
-          - name: GCC 14 Release with UBSan (Linux Intel)
+          - name: GCC 15 Release with UBSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_UB: ON
 
-          - name: GCC 14 Debug (Linux Intel)
+          - name: GCC 15 Debug (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
 
-          - name: GCC 14 Debug with ASan (Linux Intel)
+          - name: GCC 15 Debug with ASan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_ADDRESS: ON
 
-          - name: GCC 14 Debug with TSan (Linux Intel)
+          - name: GCC 15 Debug with TSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_THREAD: ON
 
-          - name: GCC 14 Debug with UBSan (Linux Intel)
+          - name: GCC 15 Debug with UBSan (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_UB: ON
 
-          - name: GCC 14 Debug without AVX2 (Linux Intel)
+          - name: GCC 15 Debug without AVX2 (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Debug
             COMPILER: gcc
             AVX2: OFF
 
-          - name: GCC 14 Release static analysis & cpplint (Linux Intel)
+          - name: GCC 15 Release static analysis & cpplint (Linux Intel)
             os: ubuntu-latest
             BUILD_TYPE: Release
             COMPILER: gcc
             STATIC_ANALYSIS: ON
             CPPLINT: ON
 
-          - name: GCC 14 default CMake configuration (Linux Intel)
+          - name: GCC 15 default CMake configuration (Linux Intel)
             os: ubuntu-latest
             COMPILER: gcc
 
@@ -267,47 +267,47 @@ jobs:
             SANITIZE_UB: ON
             AVX2: OFF
 
-          - name: GCC 14 Release (Linux ARM64)
+          - name: GCC 15 Release (Linux ARM64)
             os: ubuntu-24.04-arm
             BUILD_TYPE: Release
             COMPILER: gcc
 
-          - name: GCC 14 Release with ASan (Linux ARM64)
+          - name: GCC 15 Release with ASan (Linux ARM64)
             os: ubuntu-24.04-arm
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_ADDRESS: ON
 
-          - name: GCC 14 Release with TSan (Linux ARM64)
+          - name: GCC 15 Release with TSan (Linux ARM64)
             os: ubuntu-24.04-arm
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_THREAD: ON
 
-          - name: GCC 14 Release with UBSan (Linux ARM64)
+          - name: GCC 15 Release with UBSan (Linux ARM64)
             os: ubuntu-24.04-arm
             BUILD_TYPE: Release
             COMPILER: gcc
             SANITIZE_UB: ON
 
-          - name: GCC 14 Debug (Linux ARM64)
+          - name: GCC 15 Debug (Linux ARM64)
             os: ubuntu-24.04-arm
             BUILD_TYPE: Debug
             COMPILER: gcc
 
-          - name: GCC 14 Debug with ASan (Linux ARM64)
+          - name: GCC 15 Debug with ASan (Linux ARM64)
             os: ubuntu-24.04-arm
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_ADDRESS: ON
 
-          - name: GCC 14 Debug with TSan (Linux ARM64)
+          - name: GCC 15 Debug with TSan (Linux ARM64)
             os: ubuntu-24.04-arm
             BUILD_TYPE: Debug
             COMPILER: gcc
             SANITIZE_THREAD: ON
 
-          - name: GCC 14 Debug with UBSan (Linux ARM64)
+          - name: GCC 15 Debug with UBSan (Linux ARM64)
             os: ubuntu-24.04-arm
             BUILD_TYPE: Debug
             COMPILER: gcc
@@ -376,12 +376,13 @@ jobs:
 
       - name: Setup dependencies for GCC
         run: |
-          sudo apt-get install -y g++-14
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
+          sudo apt-get install -y g++-15
         if: runner.os == 'Linux' && env.COMPILER == 'gcc'
 
       - name: Setup multilib dependencies for GCC (x86 only)
         run: |
-          sudo apt-get install -y g++-14-multilib
+          sudo apt-get install -y g++-15-multilib
         if: runner.os == 'Linux' && env.COMPILER == 'gcc' && !contains(matrix.os, 'arm')
 
       - name: Setup dependencies for Linux LLVM (common)
@@ -439,10 +440,9 @@ jobs:
             CBT=""
           fi
           if [[ $COMPILER == "gcc" ]]; then
-            V=14
             EXTRA_CMAKE_ARGS=()
-            export CC=gcc-$V
-            export CXX=g++-$V
+            export CC=gcc
+            export CXX=g++
           elif [[ $COMPILER == "clang" ]]; then
             V=21
             export CC=clang-$V

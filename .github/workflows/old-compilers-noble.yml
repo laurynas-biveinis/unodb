@@ -1,0 +1,120 @@
+---
+name: build-with-old-compilers-noble
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  DEFAULT_SANITIZE_ADDRESS: OFF
+  DEFAULT_SANITIZE_THREAD: OFF
+  DEFAULT_SANITIZE_UB: OFF
+
+permissions: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    env:
+      BUILD_TYPE: ${{matrix.BUILD_TYPE}}
+      VERSION: ${{matrix.VERSION}}
+      SANITIZE_ADDRESS: ${{matrix.SANITIZE_ADDRESS}}
+      SANITIZE_THREAD: ${{matrix.SANITIZE_THREAD}}
+      SANITIZE_UB: ${{matrix.SANITIZE_UB}}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC 14 Release
+            BUILD_TYPE: Release
+            VERSION: 14
+
+          - name: GCC 14 Release with ASan
+            BUILD_TYPE: Release
+            SANITIZE_ADDRESS: ON
+            VERSION: 14
+
+          - name: GCC 14 Release with TSan
+            BUILD_TYPE: Release
+            SANITIZE_THREAD: ON
+            VERSION: 14
+
+          - name: GCC 14 Release with UBSan
+            BUILD_TYPE: Release
+            SANITIZE_UB: ON
+            VERSION: 14
+
+          - name: GCC 14 Debug
+            BUILD_TYPE: Debug
+            VERSION: 14
+
+          - name: GCC 14 Debug with ASan
+            BUILD_TYPE: Debug
+            SANITIZE_ADDRESS: ON
+            VERSION: 14
+
+          - name: GCC 14 Debug with TSan
+            BUILD_TYPE: Debug
+            SANITIZE_THREAD: ON
+            VERSION: 14
+
+          - name: GCC 14 Debug with UBSan
+            BUILD_TYPE: Debug
+            SANITIZE_UB: ON
+            VERSION: 14
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+          persist-credentials: false
+
+      - name: Setup dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libboost-dev libc6-dev-i386 "g++-${VERSION}"
+
+      - name: Configure CMake
+        # Use a bash shell so we can use the same syntax for environment
+        # variable access regardless of the host operating system
+        shell: bash
+        run: |
+          SANITIZE_ADDRESS="${SANITIZE_ADDRESS:-$DEFAULT_SANITIZE_ADDRESS}"
+          SANITIZE_THREAD="${SANITIZE_THREAD:-$DEFAULT_SANITIZE_THREAD}"
+          SANITIZE_UB="${SANITIZE_UB:-$DEFAULT_SANITIZE_UB}"
+          export CC="gcc-${VERSION}"
+          export CXX="g++-${VERSION}"
+          EXTRA_CMAKE_ARGS=("-DMAINTAINER_MODE=ON")
+          set +e
+          cmake -B build "$GITHUB_WORKSPACE" -DSTANDALONE=ON \
+              "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
+              "-DSANITIZE_ADDRESS=${SANITIZE_ADDRESS}" \
+              "-DSANITIZE_THREAD=${SANITIZE_THREAD}" \
+              "-DSANITIZE_UB=${SANITIZE_UB}" \
+              "${EXTRA_CMAKE_ARGS[@]}"
+          CMAKE_EXIT_CODE=$?
+          set -e
+          if [ $CMAKE_EXIT_CODE -ne 0 ]; then
+            if [ -f build/CMakeFiles/CMakeConfigureLog.yaml ]; then
+              echo "::group::CMakeConfigureLog.yaml"
+              cat build/CMakeFiles/CMakeConfigureLog.yaml
+              echo "::endgroup::"
+            fi
+          fi
+          exit $CMAKE_EXIT_CODE
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: make -j3 -k
+
+      - name: Correctness test
+        working-directory: ${{github.workspace}}/build
+        run: ctest -j3 -V
+
+      - name: Benchmark correctness test
+        working-directory: ${{github.workspace}}/build
+        run: make -k quick_benchmarks

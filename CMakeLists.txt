@@ -119,6 +119,8 @@ set(GCC_GE_11_CXX_WARNING_FLAGS
 set(GCC_GE_12_CXX_WARNING_FLAGS "-Winterference-size")
 set(GCC_GE_14_CXX_WARNING_FLAGS "-Wnrvo" "-Welaborated-enum-base"
   "-Wdangling-reference")
+set(GCC_GE_15_CXX_WARNING_FLAGS "-Wleading-whitespace=spaces"
+  "-Wtrailing-whitespace=any")
 
 set(UNIX_CXX_FLAGS "-g")
 
@@ -411,6 +413,7 @@ set(cxx_ge_12 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,12.0>")
 set(cxx_lt_13 "$<VERSION_LESS:$<CXX_COMPILER_VERSION>,13.0>")
 set(cxx_ge_13 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.0>")
 set(cxx_ge_14 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,14.0>")
+set(cxx_ge_15 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,15.0>")
 set(cxx_ge_21 "$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,21.0>")
 set(is_clang_lt_13_not_windows "$<AND:${is_clang_not_windows},${cxx_lt_13}>")
 set(is_clang_ge_13_not_windows "$<AND:${is_clang_not_windows},${cxx_ge_13}>")
@@ -421,6 +424,7 @@ set(is_darwin_clang_ge_21_arm64 "$<AND:$<PLATFORM_ID:Darwin>,${is_clang_ge_21_no
 set(is_gxx_ge_11 "$<AND:${is_gxx_genex},${cxx_ge_11}>")
 set(is_gxx_ge_12 "$<AND:${is_gxx_genex},${cxx_ge_12}>")
 set(is_gxx_ge_14 "$<AND:${is_gxx_genex},${cxx_ge_14}>")
+set(is_gxx_ge_15 "$<AND:${is_gxx_genex},${cxx_ge_15}>")
 # Configuration
 set(has_avx2 "$<BOOL:${AVX2}>")
 set(use_boost_stacktrace "$<BOOL:${USE_BOOST_STACKTRACE}>")
@@ -733,6 +737,7 @@ function(COMMON_TARGET_PROPERTIES TARGET)
     "$<$<AND:${is_standalone},${is_gxx_ge_11}>:${GCC_GE_11_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_gxx_ge_12}>:${GCC_GE_12_CXX_WARNING_FLAGS}>"
     "$<$<AND:${is_standalone},${is_gxx_ge_14}>:${GCC_GE_14_CXX_WARNING_FLAGS}>"
+    "$<$<AND:${is_standalone},${is_gxx_ge_15}>:${GCC_GE_15_CXX_WARNING_FLAGS}>"
     # Optimization
     "$<${is_not_release_genex}:$<IF:${is_windows_genex},/Od,-O0>>"
     "$<$<AND:${is_release_genex},${is_not_windows}>:$<IF:${coverage_on},-O0,-O3>>"

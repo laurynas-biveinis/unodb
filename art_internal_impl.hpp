@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -578,7 +579,7 @@ union [[nodiscard]] key_prefix_snapshot {
   /// Return the number of bytes in common between this key_prefix and a view of
   /// the next 64-bits (max) of some the shifted_key from which any leading
   /// bytes already matched by the traversal path have been discarded.
-  [[nodiscard]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC auto get_shared_length(
+  [[nodiscard]] constexpr auto get_shared_length(
       std::uint64_t shifted_key_u64) const noexcept {
     return shared_len(shifted_key_u64, u64, length());
   }
@@ -591,14 +592,13 @@ union [[nodiscard]] key_prefix_snapshot {
 
  private:
   // from unodb::detail::key_prefix
-  [[nodiscard, gnu::const]] static UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned
-  shared_len(std::uint64_t k1, std::uint64_t k2,
-             unsigned clamp_byte_pos) noexcept {
+  [[nodiscard, gnu::const]] static constexpr unsigned shared_len(
+      std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept {
     UNODB_DETAIL_ASSERT(clamp_byte_pos < 8);
 
     const auto diff = k1 ^ k2;
     const auto clamped = diff | (1ULL << (clamp_byte_pos * 8U));
-    return static_cast<unsigned>(detail::ctz(clamped) >> 3U);
+    return static_cast<unsigned>(std::countr_zero(clamped) >> 3U);
   }
 };  // class key_prefix_snapshot
 static_assert(sizeof(key_prefix_snapshot) == sizeof(std::uint64_t));
@@ -733,7 +733,7 @@ union [[nodiscard]] key_prefix {
 
     const auto diff = k1 ^ k2;
     const auto clamped = diff | (1ULL << (clamp_byte_pos * 8U));
-    return static_cast<unsigned>(detail::ctz(clamped) >> 3U);
+    return static_cast<unsigned>(std::countr_zero(clamped) >> 3U);
   }
 
   [[nodiscard, gnu::const]] static constexpr std::uint64_t make_u64(
@@ -1480,7 +1480,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
     if (bit_field != 0) {
-      const auto i = detail::ctz(bit_field);
+      const auto i = static_cast<std::uint8_t>(std::countr_zero(bit_field));
       return std::make_pair(
           i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
@@ -1502,7 +1502,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
     if (masked_pos == 0) return parent_class::child_not_found;
 
-    const auto i = static_cast<unsigned>(detail::ctz(masked_pos) >> 3U);
+    const auto i = static_cast<unsigned>(std::countr_zero(masked_pos) >> 3U);
     return std::make_pair(
         i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
 #else   // #ifdef UNODB_DETAIL_X86_64
@@ -1902,7 +1902,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(matching_key_positions)) & mask;
     if (bit_field != 0) {
-      const auto i = detail::ctz(bit_field);
+      const auto i = static_cast<std::uint8_t>(std::countr_zero(bit_field));
       return std::make_pair(
           i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
     }
@@ -1924,7 +1924,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 
     if (masked_pos == 0) return parent_class::child_not_found;
 
-    const auto i = static_cast<unsigned>(detail::ctz(masked_pos) >> 2U);
+    const auto i = static_cast<unsigned>(std::countr_zero(masked_pos) >> 2U);
     return std::make_pair(
         i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
 #else
@@ -2053,9 +2053,10 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     const auto mask = (1U << children_count_) - 1;
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(lesser_key_positions)) & mask;
-    const auto result = (bit_field != 0)
-                            ? detail::ctz(bit_field)
-                            : static_cast<std::uint8_t>(children_count_);
+    const auto result =
+        (bit_field != 0)
+            ? static_cast<std::uint8_t>(std::countr_zero(bit_field))
+            : static_cast<std::uint8_t>(children_count_);
 #else
     // This is also the best current ARM implementation
     const auto result = static_cast<std::uint8_t>(
@@ -2233,7 +2234,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       const auto cmp_mask =
           static_cast<std::uint64_t>(_mm_movemask_epi8(vec_cmp));
       if (cmp_mask != 0) {
-        i = (i << 1U) + (((detail::ctz(cmp_mask)) + 1U) >> 1U);
+        i = (i << 1U) +
+            ((static_cast<unsigned>(std::countr_zero(cmp_mask)) + 1U) >> 1U);
         break;
       }
       i += 4;
@@ -2265,7 +2267,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
             _mm256_permute4x64_epi64(interleaved_vec_cmp, 0b11'01'10'00);
         const auto cmp_mask =
             static_cast<std::uint64_t>(_mm256_movemask_epi8(vec_cmp));
-        i = (i << 2U) + (detail::ctz(cmp_mask) >> 1U);
+        i = (i << 2U) +
+            (static_cast<unsigned>(std::countr_zero(cmp_mask)) >> 1U);
         break;
       }
       i += 4;
@@ -2298,7 +2301,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
           // NOLINTNEXTLINE(misc-const-correctness)
           vget_lane_u64(vreinterpret_u64_u8(narrowed_cmp), 0);
       if (scalar_pos != 0) {
-        i = (i << 1U) + static_cast<unsigned>(detail::ctz(scalar_pos) >> 3U);
+        i = (i << 1U) +
+            static_cast<unsigned>(std::countr_zero(scalar_pos) >> 3U);
         break;
       }
       i += 4;

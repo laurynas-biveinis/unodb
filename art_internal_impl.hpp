@@ -1703,7 +1703,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto bit_field =
         static_cast<unsigned>(_mm_movemask_epi8(le_node_key_positions)) &
         node_key_mask;
-    return detail::popcount(bit_field);
+    return static_cast<unsigned>(std::popcount(bit_field));
   }
 #else
   // The baseline implementation compares key bytes with less-than past the

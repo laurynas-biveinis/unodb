@@ -54,16 +54,6 @@ template <typename T>
 #endif  // UNODB_DETAIL_MSVC
 }
 
-/// Return the number of one bits in \a x.
-[[nodiscard, gnu::const]] UNODB_DETAIL_CONSTEXPR_NOT_MSVC unsigned popcount(
-    unsigned x) noexcept {
-#ifndef UNODB_DETAIL_MSVC
-  return static_cast<unsigned>(__builtin_popcount(x));
-#else
-  return static_cast<unsigned>(__popcnt(x));
-#endif
-}
-
 /// Reinterpret object representation as a different type.
 ///
 /// A replacement for `std::bit_cast` until it is provided by all supported

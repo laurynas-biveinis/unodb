@@ -71,7 +71,6 @@ var namespaceunodb_1_1detail =
     [ "next_power_of_two", "namespaceunodb_1_1detail.html#a7503d714826d11ed3f15b660b8770048", null ],
     [ "node_ptr_lock", "namespaceunodb_1_1detail.html#a13ca7f940a88b617002ae98db439ff94", null ],
     [ "operator<<", "namespaceunodb_1_1detail.html#a313a8160271982c9a908769a74c56187", null ],
-    [ "popcount", "namespaceunodb_1_1detail.html#a60cd68db0acc4264f225af504457f974", null ],
     [ "shift_or_32bit_int", "namespaceunodb_1_1detail.html#add0650216a723f88cd6560169478ffcf", null ],
     [ "hardware_constructive_interference_size", "namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89", null ],
     [ "hardware_destructive_interference_size", "namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c", null ],

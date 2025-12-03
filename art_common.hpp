@@ -130,41 +130,6 @@ template <typename T>
   }
 }
 
-//
-// fast utility methods
-//
-
-/// 32bit int shift-or utility function that is used by
-/// unodb::detail::next_power_of_two.
-template <typename T>
-  requires std::is_integral_v<T>
-constexpr T shift_or_32bit_int(T i) {
-  i |= (i >> 1);
-  i |= (i >> 2);
-  i |= (i >> 4);
-  i |= (i >> 8);
-  i |= (i >> 16);
-  return i;
-}
-
-/// Find the next power of \c 2 for a 32-bit or 64-bit value.
-///
-/// \note it will overflow if the there is no higher power of \c 2 for a given
-/// type \c T.
-template <typename T>
-  requires(std::is_integral_v<T> && sizeof(T) == 4)
-[[nodiscard, gnu::pure]] constexpr T next_power_of_two(T i) noexcept {
-  return shift_or_32bit_int(i) + static_cast<T>(1);
-}
-
-template <typename T>
-  requires(std::is_integral_v<T> && sizeof(T) == 8)
-[[nodiscard, gnu::pure]] constexpr T next_power_of_two(T i) noexcept {
-  i = shift_or_32bit_int(i);
-  i |= (i >> 32U);
-  return ++i;
-}
-
 /// Compute the lexicographically next bit permutation.  This method gets used
 /// when you want to form an exclusive upper bound for some key range.  You take
 /// the upper bound and form the bitwise successor of that value to turn it into
@@ -203,11 +168,8 @@ template <typename T>
 /// \param min_capacity The desired new minimum capacity.
 inline void ensure_capacity(std::byte *&buf, size_t &cap, size_t off,
                             size_t min_capacity) {
-  // Find the allocation size in bytes which satisfies that minimum capacity.
-  // We first look for the next power of two.  Then we adjust for the case where
-  // the [min_capacity] is already a power of two (a common edge case).
-  auto nsize = detail::next_power_of_two(min_capacity);
-  auto asize = (min_capacity == (nsize >> 1U)) ? min_capacity : nsize;
+  // Find the smallest power of two >= min_capacity.
+  const auto asize = std::bit_ceil(min_capacity);
   auto *tmp = detail::allocate_aligned(asize);  // new allocation.
   std::memcpy(tmp, buf, off);                   // copy over the data.
   if (cap > INITIAL_BUFFER_CAPACITY) {          // free old buffer iff allocated

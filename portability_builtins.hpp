@@ -22,7 +22,7 @@ namespace unodb::detail {
 
 /// Reverse the order of bytes in \a x.
 template <typename T>
-[[nodiscard, gnu::const]] T bswap(T x) noexcept {
+[[nodiscard, gnu::const]] constexpr T bswap(T x) noexcept {
 #ifdef UNODB_DETAIL_MSVC
   static_assert(sizeof(std::uint32_t) ==
                 sizeof(unsigned long));               // NOLINT(runtime/int)

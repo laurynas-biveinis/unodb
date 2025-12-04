@@ -229,7 +229,8 @@ class key_encoder {
   static constexpr std::uint64_t msb64 = 1ULL << 63;
 
   template <typename T>
-  [[nodiscard]] static T make_binary_comparable_integral(T v) noexcept {
+  [[nodiscard]] static constexpr T make_binary_comparable_integral(
+      T v) noexcept {
     static_assert(std::endian::native == std::endian::little,
                   "Big-endian support needs implementing");
     return unodb::detail::bswap(v);
@@ -490,7 +491,8 @@ class key_decoder {
   static constexpr std::uint64_t msb64 = 1ULL << 63U;
 
   template <typename T>
-  [[nodiscard]] static T decode_binary_comparable_integral(T u) noexcept {
+  [[nodiscard]] static constexpr T decode_binary_comparable_integral(
+      T u) noexcept {
     static_assert(std::endian::native == std::endian::little,
                   "Big-endian support needs implementing");
     return unodb::detail::bswap(u);

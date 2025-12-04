@@ -28,12 +28,11 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "gtest_utils.hpp"
-
 #include "art.hpp"
 #include "art_common.hpp"
 #include "art_internal.hpp"
 #include "assert.hpp"
+#include "gtest_utils.hpp"
 #include "mutex_art.hpp"
 #include "node_type.hpp"
 #include "olc_art.hpp"

@@ -3,6 +3,8 @@ var global_8hpp =
     [ "_GLIBCXX_DEBUG", "group__internal.html#gab720dbb82f9aa3a04e087c6158fa2f2c", null ],
     [ "_GLIBCXX_DEBUG_PEDANTIC", "group__internal.html#ga2511c41e0d213dddb7f50a9b76b27404", null ],
     [ "_GLIBCXX_SANITIZE_VECTOR", "group__internal.html#gabc2e43b0a8c1601731456de674db0b28", null ],
+    [ "_MSVC_STL_DESTRUCTOR_TOMBSTONES", "group__internal.html#ga517f85fbfd4cc21d2551f9c7ddacc281", null ],
+    [ "_MSVC_STL_HARDENING", "group__internal.html#ga4d55a10e88fa64d2ca4df2d089c2a020", null ],
     [ "NOMINMAX", "group__internal.html#ga9f918755b601cf4bffca775992e6fb90", null ],
     [ "UNODB_DETAIL_ADDRESS_SANITIZER", "group__internal.html#ga7b07d99892b2d5fa3657675affb67a29", null ],
     [ "UNODB_DETAIL_BOOST_STACKTRACE", "group__internal.html#ga5b2c8a0ea5ce80959a6227679230415f", null ],

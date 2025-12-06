@@ -400,7 +400,7 @@ class [[nodiscard]] basic_node_ptr {
   static constexpr auto tag_bit_mask = lowest_non_tag_bit - 1;
   static constexpr auto ptr_bit_mask = ~tag_bit_mask;
 
-  static auto static_asserts() {
+  static void static_asserts() {
     static_assert(sizeof(basic_node_ptr<Header>) == sizeof(void *));
     static_assert(alignof(header_type) - 1 > lowest_non_tag_bit);
   }

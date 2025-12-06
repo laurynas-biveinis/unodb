@@ -26,7 +26,7 @@ namespace unodb::detail {
 
 /// Get minimum alignment to use when allocating objects of type \a T.
 template <typename T>
-[[nodiscard]] consteval auto alignment_for_new() noexcept {
+[[nodiscard]] consteval std::size_t alignment_for_new() noexcept {
   return std::max(alignof(T),
                   static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
 }

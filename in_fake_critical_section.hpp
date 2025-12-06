@@ -42,7 +42,7 @@ class [[nodiscard]] fake_read_critical_section final {
   /// construction, always succeeds.
   // cppcheck-suppress functionStatic
   // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-  [[nodiscard]] bool must_restart() const noexcept { return false; }
+  [[nodiscard]] constexpr bool must_restart() const noexcept { return false; }
 
   /// Check whether this fake read critical section is still valid, always
   /// succeeds.
@@ -54,7 +54,7 @@ class [[nodiscard]] fake_read_critical_section final {
 
   /// Compare with another read fake read critical section for equality, always
   /// returning true.
-  [[nodiscard]] bool operator==(
+  [[nodiscard]] constexpr bool operator==(
       const fake_read_critical_section &) const noexcept {
     return true;
   }
@@ -62,7 +62,7 @@ class [[nodiscard]] fake_read_critical_section final {
   /// Try to read unlock this read fake critical section, always succeeds.
   // cppcheck-suppress functionStatic
   // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-  [[nodiscard]] bool try_read_unlock() const noexcept { return true; }
+  [[nodiscard]] constexpr bool try_read_unlock() const noexcept { return true; }
 
   fake_read_critical_section(const fake_read_critical_section &) = delete;
   fake_read_critical_section(fake_read_critical_section &&) = delete;

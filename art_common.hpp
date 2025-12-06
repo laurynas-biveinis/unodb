@@ -49,7 +49,8 @@ template <typename Iterator>
 class visitor {
  protected:
   Iterator &it;
-  explicit visitor(Iterator &it_) noexcept : it(it_) {}
+  explicit visitor(Iterator &it_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+      : it(it_) {}
 
  public:
   using key_type = typename Iterator::key_type;

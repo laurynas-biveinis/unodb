@@ -1507,28 +1507,27 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
         i, static_cast<critical_section_policy<node_ptr> *>(&children[i]));
 #else   // #ifdef UNODB_DETAIL_X86_64
     // Bit twiddling:
-    // contains_byte:     __builtin_ffs:   for key index:
-    //    0x80000000               0x20                3
-    //      0x800000               0x18                2
-    //      0x808000               0x10                1
-    //          0x80                0x8                0
-    //           0x0                0x0        not found
+    // contains_byte:    std::countr_zero:   for key index:
+    //    0x80000000               0x1F                3
+    //      0x800000               0x17                2
+    //        0x8000               0x0F                1
+    //          0x80               0x07                0
+    //           0x0          UB (check!)       not found
+    const auto match = contains_byte(keys.integer, key_byte);
+    if (match == 0) return parent_class::child_not_found;
+
     const auto result =
         static_cast<typename decltype(keys.byte_array)::size_type>(
-            // __builtin_ffs takes signed argument:
-            // NOLINTNEXTLINE(hicpp-signed-bitwise)
-            __builtin_ffs(static_cast<std::int32_t>(
-                contains_byte(keys.integer, key_byte))) >>
-            3);
+            std::countr_zero(match) >> 3U);
 
-    // The second condition could be replaced with masking, but this seems to
-    // result in a benchmark regression
-    if ((result == 0) || (result > this->children_count.load()))
+    // The condition could be replaced with masking, but this seems to result
+    // in a benchmark regression
+    if (result >= this->children_count.load())
       return parent_class::child_not_found;
 
-    return std::make_pair(result - 1,
-                          static_cast<critical_section_policy<node_ptr> *>(
-                              &children[result - 1]));
+    return std::make_pair(
+        result,
+        static_cast<critical_section_policy<node_ptr> *>(&children[result]));
 #endif  // #ifdef UNODB_DETAIL_X86_64
   }
 

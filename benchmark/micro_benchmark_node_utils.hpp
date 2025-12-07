@@ -31,7 +31,7 @@ namespace unodb::benchmark {
 // Key manipulation with key zero bits
 
 template <unsigned NodeSize>
-[[nodiscard]] consteval auto node_size_to_key_zero_bits() noexcept {
+[[nodiscard]] consteval std::uint64_t node_size_to_key_zero_bits() noexcept {
   static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
                 NodeSize == 256);
   if constexpr (NodeSize == 2) {
@@ -40,7 +40,8 @@ template <unsigned NodeSize>
     return 0xFCFC'FCFC'FCFC'FCFCULL;
   } else if constexpr (NodeSize == 16) {
     return 0xF0F0'F0F0'F0F0'F0F0ULL;
-  } else if constexpr (NodeSize == 256) {
+  } else {
+    static_assert(NodeSize == 256);
     return 0ULL;
   }
 }
@@ -71,7 +72,7 @@ class [[nodiscard]] batched_prng final {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  [[nodiscard]] auto get(::benchmark::State &state) {
+  [[nodiscard]] result_type get(::benchmark::State &state) {
     if (random_key_ptr == random_keys.cend()) {
       state.PauseTiming();
       refill();
@@ -100,7 +101,7 @@ namespace detail {
 // Node sizes
 
 template <unsigned NodeCapacity>
-[[nodiscard]] consteval auto node_capacity_to_minimum_size() noexcept {
+[[nodiscard]] consteval unsigned node_capacity_to_minimum_size() noexcept {
   static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
                 NodeCapacity == 256);
   if constexpr (NodeCapacity == 16) {
@@ -113,20 +114,20 @@ template <unsigned NodeCapacity>
 }
 
 template <unsigned NodeCapacity>
-[[nodiscard]] consteval auto node_capacity_over_minimum() noexcept {
+[[nodiscard]] consteval unsigned node_capacity_over_minimum() noexcept {
   static_assert(NodeCapacity == 16 || NodeCapacity == 48 ||
                 NodeCapacity == 256);
   return NodeCapacity - node_capacity_to_minimum_size<NodeCapacity>();
 }
 
 template <unsigned NodeSize>
-[[nodiscard]] consteval auto node_size_has_key_zero_bits() noexcept {
+[[nodiscard]] consteval bool node_size_has_key_zero_bits() noexcept {
   // If node size is a power of two, then can use key zero bit-based operations
   return (NodeSize & (NodeSize - 1)) == 0;
 }
 
 template <unsigned NodeSize>
-[[nodiscard]] consteval auto node_size_to_node_type() noexcept {
+[[nodiscard]] consteval node_type node_size_to_node_type() noexcept {
   static_assert(NodeSize == 2 || NodeSize == 4 || NodeSize == 16 ||
                 NodeSize == 48 || NodeSize == 256);
   if constexpr (NodeSize == 2 || NodeSize == 4) return node_type::I4;
@@ -138,7 +139,7 @@ template <unsigned NodeSize>
 #ifndef NDEBUG
 
 template <unsigned SmallerNodeSize>
-[[nodiscard]] consteval auto node_size_to_larger_node_type() noexcept {
+[[nodiscard]] consteval node_type node_size_to_larger_node_type() noexcept {
   static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16 ||
                 SmallerNodeSize == 48);
   if constexpr (SmallerNodeSize == 4) return node_type::I16;
@@ -549,8 +550,8 @@ void insert_keys(Db &instance, const std::vector<std::uint64_t> &keys) {
 namespace detail {
 
 template <class Db, typename NumberToKeyFn>
-[[nodiscard]] auto insert_keys_to_limit(Db &db, std::uint64_t key_limit,
-                                        NumberToKeyFn number_to_key_fn) {
+[[nodiscard]] std::uint64_t insert_keys_to_limit(
+    Db &db, std::uint64_t key_limit, NumberToKeyFn number_to_key_fn) {
   std::uint64_t i{0};
   while (true) {
     const std::uint64_t key = number_to_key_fn(i);
@@ -562,8 +563,8 @@ template <class Db, typename NumberToKeyFn>
 }
 
 template <class Db, typename NumberToKeyFn>
-[[nodiscard]] auto insert_n_keys(Db &db, unsigned n,
-                                 NumberToKeyFn number_to_key_fn) {
+[[nodiscard]] std::uint64_t insert_n_keys(Db &db, unsigned n,
+                                          NumberToKeyFn number_to_key_fn) {
   std::uint64_t last_inserted_key{0};
 
   for (decltype(n) i = 0; i < n; ++i) {
@@ -575,8 +576,8 @@ template <class Db, typename NumberToKeyFn>
 }
 
 template <class Db, unsigned NodeSize, typename NumberToKeyFn>
-[[nodiscard]] auto insert_n_keys_to_empty_tree(Db &db, unsigned n,
-                                               NumberToKeyFn number_to_key_fn) {
+[[nodiscard]] std::uint64_t insert_n_keys_to_empty_tree(
+    Db &db, unsigned n, NumberToKeyFn number_to_key_fn) {
   UNODB_DETAIL_ASSERT(db.empty());
   const auto result = insert_n_keys(db, n, number_to_key_fn);
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -586,7 +587,7 @@ template <class Db, unsigned NodeSize, typename NumberToKeyFn>
 }
 
 template <class Db, unsigned NodeSize>
-auto make_full_node_size_tree(Db &db, unsigned key_count) {
+std::uint64_t make_full_node_size_tree(Db &db, unsigned key_count) {
   static_assert(NodeSize == 4 || NodeSize == 16 || NodeSize == 48 ||
                 NodeSize == 256);
 
@@ -611,7 +612,8 @@ make_base_tree_for_add(Db &test_db, unsigned node_count) {
 }
 
 template <class Db, unsigned NodeSize>
-[[nodiscard]] auto make_minimal_node_size_tree(Db &db, unsigned key_count) {
+[[nodiscard]] std::uint64_t make_minimal_node_size_tree(Db &db,
+                                                        unsigned key_count) {
   return insert_n_keys_to_empty_tree<
       Db, NodeSize, decltype(number_to_minimal_node_size_tree_key<NodeSize>)>(
       db, key_count * node_capacity_to_minimum_size<NodeSize>(),
@@ -619,7 +621,7 @@ template <class Db, unsigned NodeSize>
 }
 
 template <class Db, unsigned SmallerNodeSize>
-[[nodiscard]] auto grow_full_node_tree_to_minimal_next_size_leaf_level(
+[[nodiscard]] std::uint64_t grow_full_node_tree_to_minimal_next_size_leaf_level(
     Db &db, std::uint64_t key_limit) {
   static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16 ||
                 SmallerNodeSize == 48);
@@ -658,8 +660,8 @@ template <class Db, unsigned SmallerNodeSize>
 // Gets
 
 template <class Db, typename NumberToKeyFn>
-[[nodiscard]] auto get_key_loop(Db &db, std::uint64_t key_limit,
-                                NumberToKeyFn number_to_key_fn) {
+[[nodiscard]] std::int64_t get_key_loop(Db &db, std::uint64_t key_limit,
+                                        NumberToKeyFn number_to_key_fn) {
   std::uint64_t i{0};
   while (true) {
     const auto key = number_to_key_fn(i);

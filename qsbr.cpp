@@ -86,7 +86,7 @@ thread_local std::unique_ptr<qsbr_per_thread>
     qsbr_per_thread::current_thread_instance;
 
 // LCOV_EXCL_START
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void detail::qsbr_epoch::dump(
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr_epoch::dump(
     std::ostream &os) const {
   os << "epoch = " << static_cast<std::uint64_t>(epoch_val);
 #ifndef NDEBUG
@@ -232,7 +232,7 @@ void qsbr_per_thread::orphan_pending_requests() noexcept {
 }
 
 UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
-detail::qsbr_epoch qsbr::register_thread() noexcept {
+qsbr_epoch qsbr::register_thread() noexcept {
   auto old_state = get_state();
 
   while (true) {
@@ -283,7 +283,7 @@ detail::qsbr_epoch qsbr::register_thread() noexcept {
 UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
 
 void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
-                             detail::qsbr_epoch thread_epoch,
+                             qsbr_epoch thread_epoch,
                              qsbr_per_thread &qsbr_thread)
 #ifndef UNODB_DETAIL_WITH_STATS
     noexcept
@@ -417,11 +417,11 @@ void qsbr::thread_epoch_change_barrier() noexcept {
 #endif
 }
 
-detail::qsbr_epoch qsbr::remove_thread_from_previous_epoch(
-    detail::qsbr_epoch current_global_epoch
+qsbr_epoch qsbr::remove_thread_from_previous_epoch(
+    qsbr_epoch current_global_epoch
 #ifndef NDEBUG
     ,
-    detail::qsbr_epoch thread_epoch
+    qsbr_epoch thread_epoch
 #endif
     ) noexcept {
   thread_epoch_change_barrier();
@@ -498,8 +498,8 @@ void qsbr::epoch_change_barrier_and_handle_orphans(
   }
 }
 
-detail::qsbr_epoch qsbr::change_epoch(detail::qsbr_epoch current_global_epoch,
-                                      bool single_thread_mode) noexcept {
+qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
+                              bool single_thread_mode) noexcept {
   epoch_change_barrier_and_handle_orphans(single_thread_mode);
 
   auto old_state = state.load(std::memory_order_acquire);

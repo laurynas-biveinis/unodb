@@ -3,7 +3,7 @@ var searchData=
   ['make_5fbinary_5fcomparable_0',['make_binary_comparable',['../structunodb_1_1detail_1_1basic__art__key.html#a2424f684fcd0eb8c9af138caaf4befe5',1,'unodb::detail::basic_art_key']]],
   ['make_5fdb_5finode_5funique_5fptr_1',['make_db_inode_unique_ptr',['../structunodb_1_1detail_1_1basic__art__policy.html#aea99033ac2253afb1d4b3b190b6fd7e4',1,'unodb::detail::basic_art_policy']]],
   ['make_5fdb_5fleaf_5fptr_2',['make_db_leaf_ptr',['../namespaceunodb_1_1detail.html#a4c36ae56cc3f27abfb2624d79ff4be78',1,'unodb::detail']]],
-  ['make_5ffrom_5fepoch_3',['make_from_epoch',['../structunodb_1_1qsbr__state.html#a2d1372d43294c341e541c47e23919c2e',1,'unodb::qsbr_state']]],
+  ['make_5ffrom_5fepoch_3',['make_from_epoch',['../structunodb_1_1qsbr__state.html#a89e4cdc515a1f4602510cf578eb104fb',1,'unodb::qsbr_state']]],
   ['make_5fkey_4',['make_key',['../classunodb_1_1test_1_1tree__verifier.html#a1acfd637e2cc166ced02aa28d5ff742a',1,'unodb::test::tree_verifier']]],
   ['make_5fkey_5fview_5',['make_key_view',['../classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1key__factory.html#a5bf51428ae1613a5a74e74d5b25d6447',1,'anonymous_namespace{test_key_encode_decode.cpp}::key_factory']]],
   ['make_5fqsbr_5fthread_6',['make_qsbr_thread',['../classunodb_1_1qsbr__thread.html#ae5be246573f938f3840f8c909ad921b0',1,'unodb::qsbr_thread']]],

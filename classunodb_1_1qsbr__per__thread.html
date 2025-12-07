@@ -176,12 +176,12 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:a5983279bf3dbf1c42a4d86cab81869f2" id="r_a5983279bf3dbf1c42a4d86cab81869f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a5983279bf3dbf1c42a4d86cab81869f2">unregister_active_ptr</a> (const void *ptr)</td></tr>
 <tr class="memdesc:a5983279bf3dbf1c42a4d86cab81869f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister an active pointer <em>ptr</em> to QSBR-managed data in this thread.  <br /></td></tr>
 <tr class="separator:a5983279bf3dbf1c42a4d86cab81869f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8ed6c0ce29e48f1fc70a5e3e94cd25f" id="r_ae8ed6c0ce29e48f1fc70a5e3e94cd25f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#ae8ed6c0ce29e48f1fc70a5e3e94cd25f">advance_last_seen_epoch</a> (bool single_thread_mode, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> new_seen_epoch, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> new_current_requests={})</td></tr>
-<tr class="memdesc:ae8ed6c0ce29e48f1fc70a5e3e94cd25f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update this thread's view of the current epoch and execute the previous interval deallocation requests if a newer epoch is seen.  <br /></td></tr>
-<tr class="separator:ae8ed6c0ce29e48f1fc70a5e3e94cd25f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a05800171a04e7592e83cbe7c7f86fc63" id="r_a05800171a04e7592e83cbe7c7f86fc63"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a05800171a04e7592e83cbe7c7f86fc63">execute_previous_requests</a> (bool single_thread_mode, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a> dealloc_epoch, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> new_current_requests={})</td></tr>
-<tr class="memdesc:a05800171a04e7592e83cbe7c7f86fc63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execute the previous interval deallocation requests and move the current interval ones to the previous interval.  <br /></td></tr>
-<tr class="separator:a05800171a04e7592e83cbe7c7f86fc63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0923fd6b5e9737863a31e992d27efdd" id="r_ac0923fd6b5e9737863a31e992d27efdd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#ac0923fd6b5e9737863a31e992d27efdd">advance_last_seen_epoch</a> (bool single_thread_mode, <a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a> new_seen_epoch, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> new_current_requests={})</td></tr>
+<tr class="memdesc:ac0923fd6b5e9737863a31e992d27efdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update this thread's view of the current epoch and execute the previous interval deallocation requests if a newer epoch is seen.  <br /></td></tr>
+<tr class="separator:ac0923fd6b5e9737863a31e992d27efdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af465973b9d681794c30bb1147f693d15" id="r_af465973b9d681794c30bb1147f693d15"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#af465973b9d681794c30bb1147f693d15">execute_previous_requests</a> (bool single_thread_mode, <a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a> dealloc_epoch, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> new_current_requests={})</td></tr>
+<tr class="memdesc:af465973b9d681794c30bb1147f693d15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execute the previous interval deallocation requests and move the current interval ones to the previous interval.  <br /></td></tr>
+<tr class="separator:af465973b9d681794c30bb1147f693d15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add6170269ed644653e4206906d5166b0" id="r_add6170269ed644653e4206906d5166b0"><td class="memItemLeft" align="right" valign="top"><a id="add6170269ed644653e4206906d5166b0" name="add6170269ed644653e4206906d5166b0"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>orphan_pending_requests</b> () noexcept</td></tr>
 <tr class="memdesc:add6170269ed644653e4206906d5166b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move any pending deallocation requests to the global QSBR structure when the thread exits. <br /></td></tr>
@@ -212,14 +212,14 @@ std::unique_ptr&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector
 std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>quiescent_states_since_epoch_change</b> {0}</td></tr>
 <tr class="memdesc:aa27231a20f8d382edb8f6257b208c15c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of quiescent states since the last epoch change. <br /></td></tr>
 <tr class="separator:aa27231a20f8d382edb8f6257b208c15c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5df2fb1d9f5d8c55d53140eb2e7ef864" id="r_a5df2fb1d9f5d8c55d53140eb2e7ef864"><td class="memItemLeft" align="right" valign="top"><a id="a5df2fb1d9f5d8c55d53140eb2e7ef864" name="a5df2fb1d9f5d8c55d53140eb2e7ef864"></a>
-<a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a>&#160;</td><td class="memItemRight" valign="bottom"><b>last_seen_quiescent_state_epoch</b></td></tr>
-<tr class="memdesc:a5df2fb1d9f5d8c55d53140eb2e7ef864"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last seen global epoch by quiescent state for this thread. <br /></td></tr>
-<tr class="separator:a5df2fb1d9f5d8c55d53140eb2e7ef864"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9697778e3004e9c765c475b37f8eb4be" id="r_a9697778e3004e9c765c475b37f8eb4be"><td class="memItemLeft" align="right" valign="top"><a id="a9697778e3004e9c765c475b37f8eb4be" name="a9697778e3004e9c765c475b37f8eb4be"></a>
-<a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a>&#160;</td><td class="memItemRight" valign="bottom"><b>last_seen_epoch</b></td></tr>
-<tr class="memdesc:a9697778e3004e9c765c475b37f8eb4be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last seen global epoch by any operation for this thread. <br /></td></tr>
-<tr class="separator:a9697778e3004e9c765c475b37f8eb4be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62acb8a08904acef78bf9e40e7a4bc20" id="r_a62acb8a08904acef78bf9e40e7a4bc20"><td class="memItemLeft" align="right" valign="top"><a id="a62acb8a08904acef78bf9e40e7a4bc20" name="a62acb8a08904acef78bf9e40e7a4bc20"></a>
+<a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a>&#160;</td><td class="memItemRight" valign="bottom"><b>last_seen_quiescent_state_epoch</b></td></tr>
+<tr class="memdesc:a62acb8a08904acef78bf9e40e7a4bc20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last seen global epoch by quiescent state for this thread. <br /></td></tr>
+<tr class="separator:a62acb8a08904acef78bf9e40e7a4bc20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a61d5ff32388c657046c71bb03308c286" id="r_a61d5ff32388c657046c71bb03308c286"><td class="memItemLeft" align="right" valign="top"><a id="a61d5ff32388c657046c71bb03308c286" name="a61d5ff32388c657046c71bb03308c286"></a>
+<a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a>&#160;</td><td class="memItemRight" valign="bottom"><b>last_seen_epoch</b></td></tr>
+<tr class="memdesc:a61d5ff32388c657046c71bb03308c286"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last seen global epoch by any operation for this thread. <br /></td></tr>
+<tr class="separator:a61d5ff32388c657046c71bb03308c286"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a067c56d3356e016deec77387eb03da95" id="r_a067c56d3356e016deec77387eb03da95"><td class="memItemLeft" align="right" valign="top"><a id="a067c56d3356e016deec77387eb03da95" name="a067c56d3356e016deec77387eb03da95"></a>
 <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a>&#160;</td><td class="memItemRight" valign="bottom"><b>previous_interval_dealloc_requests</b></td></tr>
 <tr class="memdesc:a067c56d3356e016deec77387eb03da95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pending deallocation requests for the previous epoch. <br /></td></tr>
@@ -272,8 +272,8 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
 <p>Maintains pending deallocation requests for the previous and current epoch, tracks the last seen global epoch by any operation, and the last seen global epoch by a quiescent state for this thread.</p>
 <p>Also owns the preallocated list nodes for orphaning pending previous and current interval deallocation requests on thread exit. Having them preallocated avoids heap allocations on thread exit code path, where handling any allocation failures is hard. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="ae8ed6c0ce29e48f1fc70a5e3e94cd25f" name="ae8ed6c0ce29e48f1fc70a5e3e94cd25f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae8ed6c0ce29e48f1fc70a5e3e94cd25f">&#9670;&#160;</a></span>advance_last_seen_epoch()</h2>
+<a id="ac0923fd6b5e9737863a31e992d27efdd" name="ac0923fd6b5e9737863a31e992d27efdd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0923fd6b5e9737863a31e992d27efdd">&#9670;&#160;</a></span>advance_last_seen_epoch()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -290,7 +290,7 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a>&#160;</td>
           <td class="paramname"><em>new_seen_epoch</em>, </td>
         </tr>
         <tr>
@@ -324,8 +324,8 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
 
 </div>
 </div>
-<a id="a05800171a04e7592e83cbe7c7f86fc63" name="a05800171a04e7592e83cbe7c7f86fc63"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a05800171a04e7592e83cbe7c7f86fc63">&#9670;&#160;</a></span>execute_previous_requests()</h2>
+<a id="af465973b9d681794c30bb1147f693d15" name="af465973b9d681794c30bb1147f693d15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af465973b9d681794c30bb1147f693d15">&#9670;&#160;</a></span>execute_previous_requests()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -342,7 +342,7 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">detail::qsbr_epoch</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a>&#160;</td>
           <td class="paramname"><em>dealloc_epoch</em>, </td>
         </tr>
         <tr>

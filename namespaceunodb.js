@@ -18,6 +18,7 @@ var namespaceunodb =
     [ "olc_db", "classunodb_1_1olc__db.html", "classunodb_1_1olc__db" ],
     [ "optimistic_lock", "classunodb_1_1optimistic__lock.html", "classunodb_1_1optimistic__lock" ],
     [ "qsbr", "classunodb_1_1qsbr.html", "classunodb_1_1qsbr" ],
+    [ "qsbr_epoch", "classunodb_1_1qsbr__epoch.html", "classunodb_1_1qsbr__epoch" ],
     [ "qsbr_per_thread", "classunodb_1_1qsbr__per__thread.html", "classunodb_1_1qsbr__per__thread" ],
     [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html", "classunodb_1_1qsbr__ptr" ],
     [ "qsbr_ptr_span", "classunodb_1_1qsbr__ptr__span.html", "classunodb_1_1qsbr__ptr__span" ],
@@ -29,6 +30,7 @@ var namespaceunodb =
     [ "key_size_type", "namespaceunodb.html#aa6744476ee7ac432b5377c804ddfca1c", null ],
     [ "key_view", "namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90", null ],
     [ "node_type_counter_array", "namespaceunodb.html#a8105523dd9adff845377f54dd034b838", null ],
+    [ "qsbr_thread_count_type", "namespaceunodb.html#ada0b4ac1dc20e0b46e360f0743ee24d4", null ],
     [ "value_size_type", "namespaceunodb.html#a6b16b24543826b94728828213976f2cb", null ],
     [ "value_view", "namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b", null ],
     [ "version_tag_type", "namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b", null ],
@@ -39,9 +41,11 @@ var namespaceunodb =
       [ "I48", "namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084", null ],
       [ "I256", "namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda", null ]
     ] ],
+    [ "operator<<", "namespaceunodb.html#aa59775452fa97ba44e41a676ec016b9d", null ],
     [ "qsbr_ptr_span", "namespaceunodb.html#a5710c60b3e8525518398d85e89a7a40d", null ],
     [ "spin_wait_loop_body", "namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237", null ],
     [ "this_thread", "namespaceunodb.html#af67bb57e59d46aae6ffb5103dcb497a1", null ],
     [ "as_i", "namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1", null ],
-    [ "internal_as_i", "namespaceunodb.html#a775cf37c7ccec6301c8512193550b424", null ]
+    [ "internal_as_i", "namespaceunodb.html#a775cf37c7ccec6301c8512193550b424", null ],
+    [ "max_qsbr_threads", "namespaceunodb.html#a43c189e41434317736d00dfa2cda4429", null ]
 ];

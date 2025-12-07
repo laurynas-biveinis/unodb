@@ -135,7 +135,7 @@ $(document).ready(function(){initNavTree('micro__benchmark__concurrency_8hpp_sou
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>}</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>[[nodiscard]] <span class="keyword">constexpr</span> <span class="keyword">auto</span> to_counter(T value) {</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>[[nodiscard]] ::benchmark::Counter to_counter(T value) {</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  return ::benchmark::Counter{<span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(value)};</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>}</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>

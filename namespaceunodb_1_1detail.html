@@ -200,9 +200,6 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1olc__node__header.html">olc_node_header</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">OLC ART node header contains an <a class="el" href="classunodb_1_1optimistic__lock.html" title="Version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared...">unodb::optimistic_lock</a> object for this node.  <a href="structunodb_1_1detail_1_1olc__node__header.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two-bit wrapping-around QSBR epoch counter.  <a href="classunodb_1_1detail_1_1qsbr__epoch.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1qsbr__ptr__base.html">qsbr_ptr_base</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base class for QSBR pointers that provides per-thread active pointer registration functionality in debug builds.  <a href="classunodb_1_1detail_1_1qsbr__ptr__base.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -353,10 +350,6 @@ template&lt;typename Key , typename Value &gt; </td></tr>
 <tr class="memitem:a2ef6e7104112ec675df54cac9eeece1c" id="r_a2ef6e7104112ec675df54cac9eeece1c"><td class="memItemLeft" align="right" valign="top"><a id="a2ef6e7104112ec675df54cac9eeece1c" name="a2ef6e7104112ec675df54cac9eeece1c"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>olc_inode_256_test_type</b> = <a class="el" href="classunodb_1_1detail_1_1olc__inode__256.html">olc_inode_256</a>&lt; std::uint64_t, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> &gt;</td></tr>
 <tr class="separator:a2ef6e7104112ec675df54cac9eeece1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a78bbb5caf501cb09276604dab64723bf" id="r_a78bbb5caf501cb09276604dab64723bf"><td class="memItemLeft" align="right" valign="top"><a id="a78bbb5caf501cb09276604dab64723bf" name="a78bbb5caf501cb09276604dab64723bf"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_thread_count_type</b> = std::uint32_t</td></tr>
-<tr class="memdesc:a78bbb5caf501cb09276604dab64723bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for counting QSBR-managed threads. <br /></td></tr>
-<tr class="separator:a78bbb5caf501cb09276604dab64723bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c98952bb0651c3bd50ab5de879cfeff" id="r_a3c98952bb0651c3bd50ab5de879cfeff"><td class="memItemLeft" align="right" valign="top"><a id="a3c98952bb0651c3bd50ab5de879cfeff" name="a3c98952bb0651c3bd50ab5de879cfeff"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>dealloc_request_vector</b> = std::vector&lt; <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html">deallocation_request</a> &gt;</td></tr>
 <tr class="memdesc:a3c98952bb0651c3bd50ab5de879cfeff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vector of deallocation requests. <br /></td></tr>
@@ -435,11 +428,11 @@ template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a75f7fa26a657bd2a5640cf369c639d17"><td class="memTemplItemLeft" align="right" valign="top">F&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a75f7fa26a657bd2a5640cf369c639d17">decode_floating_point</a> (U input) noexcept</td></tr>
 <tr class="memdesc:a75f7fa26a657bd2a5640cf369c639d17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert lexicographic sort key to original floating-point value.  <br /></td></tr>
 <tr class="separator:a75f7fa26a657bd2a5640cf369c639d17"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a09737ff3b123b65375a00570dbd62502" id="r_a09737ff3b123b65375a00570dbd62502"><td class="memTemplParams" colspan="2"><a id="a09737ff3b123b65375a00570dbd62502" name="a09737ff3b123b65375a00570dbd62502"></a>
+<tr class="memitem:a942ec905f356c797a53d6a9bee4b168c" id="r_a942ec905f356c797a53d6a9bee4b168c"><td class="memTemplParams" colspan="2"><a id="a942ec905f356c797a53d6a9bee4b168c" name="a942ec905f356c797a53d6a9bee4b168c"></a>
 template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a09737ff3b123b65375a00570dbd62502"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>alignment_for_new</b> () noexcept</td></tr>
-<tr class="memdesc:a09737ff3b123b65375a00570dbd62502"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get minimum alignment to use when allocating objects of type <em>T</em>. <br /></td></tr>
-<tr class="separator:a09737ff3b123b65375a00570dbd62502"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a942ec905f356c797a53d6a9bee4b168c"><td class="memTemplItemLeft" align="right" valign="top">consteval std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><b>alignment_for_new</b> () noexcept</td></tr>
+<tr class="memdesc:a942ec905f356c797a53d6a9bee4b168c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get minimum alignment to use when allocating objects of type <em>T</em>. <br /></td></tr>
+<tr class="separator:a942ec905f356c797a53d6a9bee4b168c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a67151fe8291fd24bff04038739700b1f" id="r_a67151fe8291fd24bff04038739700b1f"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a67151fe8291fd24bff04038739700b1f">allocate_aligned</a> (std::size_t size, std::size_t alignment=__STDCPP_DEFAULT_NEW_ALIGNMENT__)</td></tr>
 <tr class="memdesc:a67151fe8291fd24bff04038739700b1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate aligned heap memory.  <br /></td></tr>
 <tr class="separator:a67151fe8291fd24bff04038739700b1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -486,9 +479,6 @@ template&lt;typename T &gt; </td></tr>
 <tr class="memitem:ae1bd0a219522dc54b6e2726f277e9677"><td class="memTemplItemLeft" align="right" valign="top">constexpr To&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ae1bd0a219522dc54b6e2726f277e9677">bit_cast</a> (From input) noexcept</td></tr>
 <tr class="memdesc:ae1bd0a219522dc54b6e2726f277e9677"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reinterpret object representation as a different type.  <br /></td></tr>
 <tr class="separator:ae1bd0a219522dc54b6e2726f277e9677"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a313a8160271982c9a908769a74c56187" id="r_a313a8160271982c9a908769a74c56187"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a313a8160271982c9a908769a74c56187">operator&lt;&lt;</a> (std::ostream &amp;os, <a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a> value)</td></tr>
-<tr class="memdesc:a313a8160271982c9a908769a74c56187"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print the epoch <em>value</em> to the output stream <em>os</em>.  <br /></td></tr>
-<tr class="separator:a313a8160271982c9a908769a74c56187"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -512,9 +502,6 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inod
 <tr class="memitem:a4c6387d4046bddd4f1d87150a2e6b94c" id="r_a4c6387d4046bddd4f1d87150a2e6b94c"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c">hardware_destructive_interference_size</a></td></tr>
 <tr class="memdesc:a4c6387d4046bddd4f1d87150a2e6b94c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum size in bytes where multiple variables will be guaranteed to be separated for the purposes of false sharing.  <br /></td></tr>
 <tr class="separator:a4c6387d4046bddd4f1d87150a2e6b94c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac7fc26e8bd3beb685ef91e9cc7e6672d" id="r_ac7fc26e8bd3beb685ef91e9cc7e6672d"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespaceunodb_1_1detail.html#a78bbb5caf501cb09276604dab64723bf">qsbr_thread_count_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ac7fc26e8bd3beb685ef91e9cc7e6672d">max_qsbr_threads</a> = (2UL &lt;&lt; 29U) - 1U</td></tr>
-<tr class="memdesc:ac7fc26e8bd3beb685ef91e9cc7e6672d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of threads that can participate in QSBR simultaneously.  <br /></td></tr>
-<tr class="separator:ac7fc26e8bd3beb685ef91e9cc7e6672d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04a041b47bebde8ed0f3bd97327e450c" id="r_a04a041b47bebde8ed0f3bd97327e450c"><td class="memItemLeft" align="right" valign="top">std::array&lt; <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a>, 6 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a04a041b47bebde8ed0f3bd97327e450c">thread_syncs</a></td></tr>
 <tr class="memdesc:a04a041b47bebde8ed0f3bd97327e450c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global array of thread synchronization objects.  <br /></td></tr>
 <tr class="separator:a04a041b47bebde8ed0f3bd97327e450c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1135,45 +1122,6 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="a313a8160271982c9a908769a74c56187" name="a313a8160271982c9a908769a74c56187"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a313a8160271982c9a908769a74c56187">&#9670;&#160;</a></span>operator&lt;&lt;()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::ostream &amp; unodb::detail::operator&lt;&lt; </td>
-          <td>(</td>
-          <td class="paramtype">std::ostream &amp;&#160;</td>
-          <td class="paramname"><em>os</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1qsbr__epoch.html">qsbr_epoch</a>&#160;</td>
-          <td class="paramname"><em>value</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Print the epoch <em>value</em> to the output stream <em>os</em>. </p>
-<p>For debug purposes only. </p>
-
-</div>
-</div>
 <h2 class="groupheader">Variable Documentation</h2>
 <a id="a3ab520671507d4d7d913c5d2655fad89" name="a3ab520671507d4d7d913c5d2655fad89"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3ab520671507d4d7d913c5d2655fad89">&#9670;&#160;</a></span>hardware_constructive_interference_size</h2>
@@ -1248,31 +1196,6 @@ template&lt;typename T &gt; </div>
 <p>A constant determining the initial capacity for the <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a> and other similar internal buffers. </p>
 <p>This should be set high enough that such objects DO NOT allocate for commonly used key lengths. These objects use an internal buffer of this capacity and then switch over to an explicitly allocated buffer if the capacity would be exceeded.</p>
 <dl class="section note"><dt>Note</dt><dd>: If you are only using fixed width keys, then this can be sizeof(T). In typical scenarios these objects are on the stack and there is little if any penalty to having a larger initial capacity for these buffers. </dd></dl>
-
-</div>
-</div>
-<a id="ac7fc26e8bd3beb685ef91e9cc7e6672d" name="ac7fc26e8bd3beb685ef91e9cc7e6672d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac7fc26e8bd3beb685ef91e9cc7e6672d">&#9670;&#160;</a></span>max_qsbr_threads</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr <a class="el" href="namespaceunodb_1_1detail.html#a78bbb5caf501cb09276604dab64723bf">qsbr_thread_count_type</a> unodb::detail::max_qsbr_threads = (2UL &lt;&lt; 29U) - 1U</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Maximum number of threads that can participate in QSBR simultaneously. </p>
-<p>Set to 2^29-1, chosen to allow two thread count fields and an epoch counter to fit in a single machine word. It should be enough for everybody, and its overflow is not checked even in Release builds. </p>
 
 </div>
 </div>

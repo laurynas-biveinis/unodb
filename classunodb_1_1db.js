@@ -3,7 +3,7 @@ var classunodb_1_1db =
     [ "iterator", "classunodb_1_1db_1_1iterator.html", "classunodb_1_1db_1_1iterator" ],
     [ "key_type", "classunodb_1_1db.html#ac3e9da364737e347b1d03b51bbe42fdd", null ],
     [ "value_type", "classunodb_1_1db.html#aadaa147eb4dc87207e42fb481ce46678", null ],
-    [ "empty", "classunodb_1_1db.html#a8a950ab6b91b4555c37fd396fd047136", null ],
+    [ "empty", "classunodb_1_1db.html#a889caf36fba0297367a3061d7b580901", null ],
     [ "get", "classunodb_1_1db.html#a7a9e7a9acc9be89745bba099062f7bc4", null ],
     [ "get_internal", "classunodb_1_1db.html#a8c85162848d3a9d514b985539d325d39", null ],
     [ "insert", "classunodb_1_1db.html#a7358904a10483d1e9857b81e0aa38152", null ],

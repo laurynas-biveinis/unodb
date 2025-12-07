@@ -80,6 +80,6 @@ var searchData=
   ['unodb_5ftyped_5ftest_77',['unodb_typed_test',['../group__test-internals.html#gaed592347870745d498013bd5fee3646d',1,'UNODB_TYPED_TEST:&#160;gtest_utils.hpp'],['../namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a5d3c834cec8f2a0ffbbe276187337c89',1,'anonymous_namespace{test_art_key_view.cpp}::UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, TooLongKey)'],['../namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a0be5090b7a4ba43d1564190d789bace7',1,'anonymous_namespace{test_art_key_view.cpp}::UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, EncodedTextKeys)']]],
   ['unodb_5ftyped_5ftest_5fsuite_78',['UNODB_TYPED_TEST_SUITE',['../group__test-internals.html#ga990b7c3aa2195ab9a2f6dd60dc156303',1,'gtest_utils.hpp']]],
   ['unregister_5factive_5fptr_79',['unregister_active_ptr',['../classunodb_1_1detail_1_1qsbr__ptr__base.html#ada5f94aa6bc6a826105e2818753ff37a',1,'unodb::detail::qsbr_ptr_base::unregister_active_ptr()'],['../classunodb_1_1qsbr__per__thread.html#a5983279bf3dbf1c42a4d86cab81869f2',1,'unodb::qsbr_per_thread::unregister_active_ptr()']]],
-  ['unregister_5fthread_80',['unregister_thread',['../classunodb_1_1qsbr.html#a45126988fe608048686cdf3de3a643bb',1,'unodb::qsbr']]],
+  ['unregister_5fthread_80',['unregister_thread',['../classunodb_1_1qsbr.html#a481a5a57cbbf5f76c99c49995271c1f6',1,'unodb::qsbr']]],
   ['usage_81',['Usage',['../index.html#autotoc_md33',1,'']]]
 ];

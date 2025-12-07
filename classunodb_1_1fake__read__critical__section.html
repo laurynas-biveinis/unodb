@@ -122,22 +122,22 @@ Public Member Functions</h2></td></tr>
 <a class="el" href="classunodb_1_1fake__read__critical__section.html">fake_read_critical_section</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1fake__read__critical__section.html">fake_read_critical_section</a> &amp;&amp;) noexcept=default</td></tr>
 <tr class="memdesc:a1834bcb13672a64d97f531ae751cb0a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move-assign from another fake read critical section, a no-op. <br /></td></tr>
 <tr class="separator:a1834bcb13672a64d97f531ae751cb0a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1bbceea9fc44696afb0cedb51db2a05" id="r_ad1bbceea9fc44696afb0cedb51db2a05"><td class="memItemLeft" align="right" valign="top"><a id="ad1bbceea9fc44696afb0cedb51db2a05" name="ad1bbceea9fc44696afb0cedb51db2a05"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>must_restart</b> () const noexcept</td></tr>
-<tr class="memdesc:ad1bbceea9fc44696afb0cedb51db2a05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether this fake read critical section is invalid after construction, always succeeds. <br /></td></tr>
-<tr class="separator:ad1bbceea9fc44696afb0cedb51db2a05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3519c8982ff793ce2731ae85816c6f96" id="r_a3519c8982ff793ce2731ae85816c6f96"><td class="memItemLeft" align="right" valign="top"><a id="a3519c8982ff793ce2731ae85816c6f96" name="a3519c8982ff793ce2731ae85816c6f96"></a>
+constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>must_restart</b> () const noexcept</td></tr>
+<tr class="memdesc:a3519c8982ff793ce2731ae85816c6f96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether this fake read critical section is invalid after construction, always succeeds. <br /></td></tr>
+<tr class="separator:a3519c8982ff793ce2731ae85816c6f96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a01bef6cf0b5e050350edd86ce6b34ace" id="r_a01bef6cf0b5e050350edd86ce6b34ace"><td class="memItemLeft" align="right" valign="top"><a id="a01bef6cf0b5e050350edd86ce6b34ace" name="a01bef6cf0b5e050350edd86ce6b34ace"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>check</b> () <a class="el" href="group__internal.html#ga64906efb65be8598a955afeb9ec61eae">UNODB_DETAIL_RELEASE_CONST</a> noexcept</td></tr>
 <tr class="memdesc:a01bef6cf0b5e050350edd86ce6b34ace"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether this fake read critical section is still valid, always succeeds. <br /></td></tr>
 <tr class="separator:a01bef6cf0b5e050350edd86ce6b34ace"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a475c9819e4e783525d2fa6065cf174f1" id="r_a475c9819e4e783525d2fa6065cf174f1"><td class="memItemLeft" align="right" valign="top"><a id="a475c9819e4e783525d2fa6065cf174f1" name="a475c9819e4e783525d2fa6065cf174f1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (const <a class="el" href="classunodb_1_1fake__read__critical__section.html">fake_read_critical_section</a> &amp;) const noexcept</td></tr>
-<tr class="memdesc:a475c9819e4e783525d2fa6065cf174f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare with another read fake read critical section for equality, always returning true. <br /></td></tr>
-<tr class="separator:a475c9819e4e783525d2fa6065cf174f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae78353cbac0421cf418f16a6fda892a5" id="r_ae78353cbac0421cf418f16a6fda892a5"><td class="memItemLeft" align="right" valign="top"><a id="ae78353cbac0421cf418f16a6fda892a5" name="ae78353cbac0421cf418f16a6fda892a5"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_read_unlock</b> () const noexcept</td></tr>
-<tr class="memdesc:ae78353cbac0421cf418f16a6fda892a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Try to read unlock this read fake critical section, always succeeds. <br /></td></tr>
-<tr class="separator:ae78353cbac0421cf418f16a6fda892a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6084ed8ab51bf728e19de74e8394d0d7" id="r_a6084ed8ab51bf728e19de74e8394d0d7"><td class="memItemLeft" align="right" valign="top"><a id="a6084ed8ab51bf728e19de74e8394d0d7" name="a6084ed8ab51bf728e19de74e8394d0d7"></a>
+constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (const <a class="el" href="classunodb_1_1fake__read__critical__section.html">fake_read_critical_section</a> &amp;) const noexcept</td></tr>
+<tr class="memdesc:a6084ed8ab51bf728e19de74e8394d0d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare with another read fake read critical section for equality, always returning true. <br /></td></tr>
+<tr class="separator:a6084ed8ab51bf728e19de74e8394d0d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40d38ea7e822ba2331772c482621d69d" id="r_a40d38ea7e822ba2331772c482621d69d"><td class="memItemLeft" align="right" valign="top"><a id="a40d38ea7e822ba2331772c482621d69d" name="a40d38ea7e822ba2331772c482621d69d"></a>
+constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_read_unlock</b> () const noexcept</td></tr>
+<tr class="memdesc:a40d38ea7e822ba2331772c482621d69d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Try to read unlock this read fake critical section, always succeeds. <br /></td></tr>
+<tr class="separator:a40d38ea7e822ba2331772c482621d69d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac57ed5658aed6704ff113b798775f371" id="r_ac57ed5658aed6704ff113b798775f371"><td class="memItemLeft" align="right" valign="top"><a id="ac57ed5658aed6704ff113b798775f371" name="ac57ed5658aed6704ff113b798775f371"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>fake_read_critical_section</b> (const <a class="el" href="classunodb_1_1fake__read__critical__section.html">fake_read_critical_section</a> &amp;)=delete</td></tr>
 <tr class="separator:ac57ed5658aed6704ff113b798775f371"><td class="memSeparator" colspan="2">&#160;</td></tr>

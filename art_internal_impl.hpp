@@ -567,7 +567,7 @@ union [[nodiscard]] key_prefix_snapshot {
   constexpr explicit key_prefix_snapshot(std::uint64_t v) noexcept : u64(v) {}
 
   /// Return a view onto the snapshot of the key prefix.
-  [[nodiscard]] key_view get_key_view() const noexcept {
+  [[nodiscard]] constexpr key_view get_key_view() const noexcept {
     return key_view(f.key_prefix.data(), f.key_prefix_length);
   }
 

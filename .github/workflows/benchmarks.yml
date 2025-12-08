@@ -52,7 +52,7 @@ jobs:
         run: make -j3 -k
 
       - name: Run benchmarks
-        working-directory: ${{github.workspace}}/build
+        working-directory: ${{github.workspace}}/build/benchmark
         run: |
           ./micro_benchmark_key_prefix --benchmark_out=benchmark_key_prefix.json --benchmark_out_format=json
           ./micro_benchmark_n4 --benchmark_out=benchmark_n4.json --benchmark_out_format=json
@@ -64,7 +64,7 @@ jobs:
           ./micro_benchmark_olc --benchmark_out=benchmark_olc.json --benchmark_out_format=json
 
       - name: Combine benchmark results
-        working-directory: ${{github.workspace}}/build
+        working-directory: ${{github.workspace}}/build/benchmark
         run: |
           jq -s '{ benchmarks: map(.benchmarks) | add }' \
             benchmark_key_prefix.json benchmark_n4.json benchmark_n16.json \
@@ -76,7 +76,7 @@ jobs:
         with:
           name: UnoDB Benchmarks (${{matrix.arch}})
           tool: "googlecpp"
-          output-file-path: build/benchmark_results.json
+          output-file-path: build/benchmark/benchmark_results.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           alert-threshold: "200%"

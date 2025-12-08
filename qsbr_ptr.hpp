@@ -306,9 +306,13 @@ class qsbr_ptr_span : public std::ranges::view_base {
       : start{nullptr}, length{0} {}
 
   /// Construct from a regular span \a other over QSBR-managed data.
+  // MSVC C26815 false positive: this is a view type that intentionally stores
+  // a pointer from span::data(). The caller ensures data outlives this view.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   UNODB_DETAIL_RELEASE_CONSTEXPR
   explicit qsbr_ptr_span(const std::span<T> &other) noexcept
       : start{other.data()}, length{static_cast<std::size_t>(other.size())} {}
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Copy-construct from \a other.
   UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span(const qsbr_ptr_span &) noexcept =

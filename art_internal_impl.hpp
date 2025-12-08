@@ -429,6 +429,11 @@ struct basic_art_policy final {
         db_type &db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
         : node_ptr{node_ptr_}, db{db_} {}
 
+    // MSVC C26815 false positive: the destructor creates unique_ptrs whose
+    // deleters hold references to db. These are immediately destroyed while db
+    // (a member reference) is still valid - the constructor's LIFETIMEBOUND
+    // guarantees the referent outlives this object.
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
     ~delete_db_node_ptr_at_scope_exit() noexcept {
       switch (node_ptr.type()) {
         case node_type::LEAF: {
@@ -460,6 +465,7 @@ struct basic_art_policy final {
       }
       UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
     }
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
     delete_db_node_ptr_at_scope_exit(const delete_db_node_ptr_at_scope_exit &) =
         delete;
@@ -1334,6 +1340,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                      std::move(child1));
   }
 
+  // MSVC C26815 false positive: reclaim objects intentionally destroyed at
+  // scope exit while db_instance (passed by caller) remains valid.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   constexpr void init(db_type &db_instance, inode16_type &source_node,
                       std::uint8_t child_to_delete) {
     const auto reclaim_source_node{
@@ -1367,6 +1376,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
         std::is_sorted(keys.byte_array.cbegin(),
                        keys.byte_array.cbegin() + basic_inode_4::capacity));
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void init(key_view k1, art_key_type shifted_k2,
                       // cppcheck-suppress passedByValue
@@ -1417,6 +1427,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
+  // MSVC C26815 false positive: reclaim object intentionally destroyed at
+  // scope exit while db_instance (passed by caller) remains valid.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   constexpr void remove(std::uint8_t child_index,
                         db_type &db_instance) noexcept {
     auto children_count_ = this->children_count.load();
@@ -1443,6 +1456,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(std::is_sorted(
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
   [[nodiscard]] constexpr auto leave_last_child(std::uint8_t child_to_delete,
@@ -1868,6 +1882,9 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
 
+  // MSVC C26815 false positive: reclaim object intentionally destroyed at
+  // scope exit while db_instance (passed by caller) remains valid.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   constexpr void remove(std::uint8_t child_index,
                         db_type &db_instance) noexcept {
     auto children_count_ = this->children_count.load();
@@ -1889,6 +1906,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(std::is_sorted(
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard, gnu::pure]] constexpr find_result find_child(
       std::byte key_byte) noexcept {
@@ -2177,6 +2195,9 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     }
   }
 
+  // MSVC C26815 false positive: reclaim objects intentionally destroyed at
+  // scope exit while db_instance (passed by caller) remains valid.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   constexpr void init(db_type &db_instance,
                       inode256_type &__restrict source_node,
                       std::uint8_t child_to_delete) noexcept {
@@ -2203,6 +2224,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       if (next_child == basic_inode_48::capacity) return;
     }
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void add_to_nonfull(db_leaf_unique_ptr &&child,
                                 tree_depth_type depth,
@@ -2526,6 +2548,9 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     direct_remove_child_pointer(child_indexes[child_index], db_instance);
   }
 
+  // MSVC C26815 false positive: reclaim object intentionally destroyed at
+  // scope exit while db_instance (passed by caller) remains valid.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   constexpr void direct_remove_child_pointer(std::uint8_t children_i,
                                              db_type &db_instance) noexcept {
     UNODB_DETAIL_ASSERT(children_i != empty_child);
@@ -2534,6 +2559,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         children.pointer_array[children_i].load().template ptr<leaf_type *>(),
         db_instance)};
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   static constexpr std::uint8_t empty_child = 0xFF;
 
@@ -2707,6 +2733,9 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     this->children_count = static_cast<std::uint8_t>(children_count_ + 1U);
   }
 
+  // MSVC C26815 false positive: reclaim object intentionally destroyed at
+  // scope exit while db_instance (passed by caller) remains valid.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   constexpr void remove(std::uint8_t child_index,
                         db_type &db_instance) noexcept {
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
@@ -2715,6 +2744,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     children[child_index] = node_ptr{nullptr};
     --this->children_count;
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   [[nodiscard, gnu::pure]] constexpr typename basic_inode_256::find_result
   find_child(std::byte key_byte) noexcept {

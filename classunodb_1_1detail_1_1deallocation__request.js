@@ -10,7 +10,7 @@ var classunodb_1_1detail_1_1deallocation__request =
     [ "operator=", "classunodb_1_1detail_1_1deallocation__request.html#a536cdb985a40c1a632f633c1ca391634", null ],
     [ "operator=", "classunodb_1_1detail_1_1deallocation__request.html#a42f78388ecec762651914b914c21a4ac", null ],
     [ "dealloc_callback", "classunodb_1_1detail_1_1deallocation__request.html#a0625f115fb1ff05f1d5c2294b13b492f", null ],
-    [ "instance_count", "classunodb_1_1detail_1_1deallocation__request.html#acf3894d4bf8662296a6bc8142c3f9f0c", null ],
+    [ "instance_count", "classunodb_1_1detail_1_1deallocation__request.html#a5d3dc2f1ebf5074553b71ea4d161fa9a", null ],
     [ "pointer", "classunodb_1_1detail_1_1deallocation__request.html#a6f77c23a78b9e6d4b46625a9b380a281", null ],
     [ "request_epoch", "classunodb_1_1detail_1_1deallocation__request.html#a85e4d0f928fd80d96201fe77958d588c", null ]
 ];

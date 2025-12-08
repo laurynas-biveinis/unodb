@@ -127,7 +127,7 @@ UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 namespace detail {
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-std::atomic<std::uint64_t> deallocation_request::instance_count{0};
+constinit std::atomic<std::uint64_t> deallocation_request::instance_count{0};
 
 }  // namespace detail
 

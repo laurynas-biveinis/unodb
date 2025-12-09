@@ -59,17 +59,13 @@ jobs:
           ./micro_benchmark_n16 --benchmark_out=benchmark_n16.json --benchmark_out_format=json
           ./micro_benchmark_n48 --benchmark_out=benchmark_n48.json --benchmark_out_format=json
           ./micro_benchmark_n256 --benchmark_out=benchmark_n256.json --benchmark_out_format=json
-          ./micro_benchmark --benchmark_out=benchmark_main.json --benchmark_out_format=json
-          ./micro_benchmark_mutex --benchmark_out=benchmark_mutex.json --benchmark_out_format=json
-          ./micro_benchmark_olc --benchmark_out=benchmark_olc.json --benchmark_out_format=json
 
       - name: Combine benchmark results
         working-directory: ${{github.workspace}}/build/benchmark
         run: |
           jq -s '{ benchmarks: map(.benchmarks) | add }' \
             benchmark_key_prefix.json benchmark_n4.json benchmark_n16.json \
-            benchmark_n48.json benchmark_n256.json benchmark_main.json \
-            benchmark_mutex.json benchmark_olc.json > benchmark_results.json
+            benchmark_n48.json benchmark_n256.json > benchmark_results.json
 
       - name: Store benchmark result
         uses: nyrkio/github-action-benchmark@v1 # zizmor: ignore[unpinned-uses]

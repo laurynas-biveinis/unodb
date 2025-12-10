@@ -81,3 +81,4 @@ jobs:
           fail-on-alert: true
           summary-always: true
           nyrkio-enable: true
+          nyrkio-token: ${{ secrets.NYRKIO_JWT_TOKEN }}

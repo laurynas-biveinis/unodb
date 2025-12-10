@@ -249,7 +249,7 @@ $(document).ready(function(){initNavTree('global_8hpp_source.html',''); initResi
 <div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span><span class="preprocessor">#define UNODB_DETAIL_NOINLINE __declspec(noinline)</span></div>
 <div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="preprocessor">#define UNODB_DETAIL_UNREACHABLE() __assume(0)</span></div>
 <div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span><span class="preprocessor">#define UNODB_DETAIL_CONSTEXPR_NOT_MSVC inline</span></div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span><span class="preprocessor">#define UNODB_DETAIL_LIFETIMEBOUND</span></div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span><span class="preprocessor">#define UNODB_DETAIL_LIFETIMEBOUND [[msvc::lifetimebound]]</span></div>
 <div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span><span class="preprocessor">#define UNODB_DETAIL_C_STRING_ARG(x)</span></div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
 <div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span><span class="preprocessor">#endif  </span><span class="comment">// #ifndef UNODB_DETAIL_MSVC</span></div>

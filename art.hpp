@@ -839,6 +839,10 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
   return child;
 }
 
+// MSVC C26815 false positive: create() returns smart pointer with LIFETIMEBOUND
+// on db param, but release() transfers ownership and the raw pointer's validity
+// is independent of the temporary unique_ptr.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
 template <typename Key, typename Value, class INode>
 std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
     INode& inode, std::byte key_byte, basic_art_key<Key> k,
@@ -875,6 +879,7 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
   inode.remove(child_i, db_instance);
   return nullptr;
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace detail
 
@@ -917,6 +922,10 @@ typename db<Key, Value>::get_result db<Key, Value>::get_internal(
 }
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
+// MSVC C26815 false positive: make_db_leaf_ptr/inode::create return smart
+// pointers with LIFETIMEBOUND on db param, but release() transfers ownership
+// and the raw pointer's validity is independent of the temporary unique_ptr.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
 template <typename Key, typename Value>
 bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
@@ -989,6 +998,7 @@ bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
     remaining_key.shift_right(1);
   }
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <typename Key, typename Value>

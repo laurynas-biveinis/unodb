@@ -285,7 +285,7 @@
 #define UNODB_DETAIL_NOINLINE __declspec(noinline)
 #define UNODB_DETAIL_UNREACHABLE() __assume(0)
 #define UNODB_DETAIL_CONSTEXPR_NOT_MSVC inline
-#define UNODB_DETAIL_LIFETIMEBOUND
+#define UNODB_DETAIL_LIFETIMEBOUND [[msvc::lifetimebound]]
 #define UNODB_DETAIL_C_STRING_ARG(x)
 
 #endif  // #ifndef UNODB_DETAIL_MSVC

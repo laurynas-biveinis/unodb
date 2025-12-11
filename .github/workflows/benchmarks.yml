@@ -67,8 +67,8 @@ jobs:
             benchmark_key_prefix.json benchmark_n4.json benchmark_n16.json \
             benchmark_n48.json benchmark_n256.json > benchmark_results.json
 
-      - name: Store benchmark result
-        uses: nyrkio/github-action-benchmark@v1 # zizmor: ignore[unpinned-uses]
+      - name: Analyze benchmark results with Nyrkiö
+        uses: nyrkio/change-detection@v2 # zizmor: ignore[unpinned-uses]
         with:
           name: UnoDB Benchmarks (${{matrix.arch}})
           tool: "googlecpp"
@@ -76,8 +76,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           alert-threshold: "200%"
-          comment-on-alert: true
+          comment-always: true
           alert-comment-cc-users: "@laurynas-biveinis"
+          nyrkio-public: true
           fail-on-alert: true
           summary-always: true
           nyrkio-enable: true

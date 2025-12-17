@@ -19,6 +19,13 @@
 #include "heap.hpp"
 #include "portability_builtins.hpp"
 
+/// \file
+/// Common declarations for Adaptive Radix Tree (ART) index.
+///
+/// Provides key/value type aliases, visitor for scan API, and key encoding/
+/// decoding utilities for generating binary comparable keys from primitive data
+/// types.
+
 namespace unodb {
 
 template <typename Key, typename Value>
@@ -27,46 +34,61 @@ class db;
 template <typename Key, typename Value>
 class olc_db;
 
-/// Values are passed as non-owning pointers to memory with associated length
-/// using a `std::span`. The memory is copied upon insertion.
-using value_view = std::span<const std::byte>;
-
-/// Keys are passed as non-owning pointers to memory with associated length
-/// using a `std::span`.  The memory is copied upon insertion.
-using key_view = std::span<const std::byte>;
-
-/// A type alias determining the maximum size of a key that may be stored in the
-/// index.
+/// Type alias determining the maximum size in bytes of a key that may be stored
+/// in the index.
 using key_size_type = std::uint32_t;
 
-/// A type alias determining the maximum size of a value that may be stored in
-/// the index.
+/// Non-owning view of key bytes, copied into index upon insertion.
+using key_view = std::span<const std::byte>;
+
+/// Type alias determining the maximum size of a value that may be stored in the
+/// index.
 using value_size_type = std::uint32_t;
 
-/// An object visited by the scan API.  The visitor passed to the caller's
-/// lambda by the scan for each index entry visited by the scan.
+/// Non-owning view of value bytes, copied into index upon insertion.
+using value_view = std::span<const std::byte>;
+
+/// Wrapper providing access to key and value during index scan.
+///
+/// Passed to the caller's lambda by the scan API for each index entry. Provides
+/// read-only access to the current key and value. References obtained from this
+/// visitor are valid only within the scope of a single lambda invocation.
+///
+/// \tparam Iterator Internal iterator type (implementation detail).
+///
+/// \sa unodb::db::scan()
+/// \sa unodb::olc_db::scan()
 template <typename Iterator>
 class visitor {
  protected:
+  /// Reference to underlying iterator.
   Iterator &it;
+
+  /// Construct visitor wrapping given iterator.
   explicit visitor(Iterator &it_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : it(it_) {}
 
  public:
+  /// Key type from underlying iterator.
   using key_type = typename Iterator::key_type;
+
+  /// Value type from underlying iterator.
   using value_type = typename Iterator::value_type;
+
   /// Visit the encoded key.
   ///
-  /// \note The lambda MUST NOT export a reference to the visited key.  If you
+  /// \return Encoded key view
+  ///
+  /// \note The lambda MUST NOT export a reference to the visited key. If you
   /// want to access the visited key outside of the scope of a single lambda
   /// invocation, then you MUST make a copy of the data.
   ///
   /// \note The application MAY use the unodb::key_decoder to decode any key
-  /// corresponding to a sequence of one or more primitive data types.  However,
+  /// corresponding to a sequence of one or more primitive data types. However,
   /// key decoding is not well defined for Unicode sort keys and all floating
   /// point \c NaN values are mapped to a canonical \c NaN by the
-  /// unodb::key_encoder.  The recommended pattern when the key contains Unicode
-  /// data is to convert it to a sort key using some collation order.  The
+  /// unodb::key_encoder. The recommended pattern when the key contains Unicode
+  /// data is to convert it to a sort key using some collation order. The
   /// Unicode data may then be recovered by associating the key with a record
   /// identifier, looking up the record and reading off the Unicode value there.
   /// This is a common secondary index scenario.
@@ -78,9 +100,11 @@ class visitor {
 
   /// Visit the value.
   ///
-  /// \note The lambda MUST NOT export a reference to the visited value.  If you
-  /// to access the value outside of the scope of a single lambda invocation,
-  /// then you must make a copy of the data.
+  /// \return Value view (type depends on database implementation)
+  ///
+  /// \note The lambda MUST NOT export a reference to the visited value. If you
+  /// want to access the value outside of the scope of a single lambda
+  /// invocation, then you must make a copy of the data.
   [[nodiscard]] auto get_value() const noexcept(noexcept(it.get_val())) {
     // Note: auto return required for olc qsbr wrapper.
     return it.get_val();
@@ -93,35 +117,36 @@ class visitor {
 
 namespace detail {
 
-/// A constant determining the initial capacity for the unodb::key_encoder and
-/// other similar internal buffers.  This should be set high enough that such
-/// objects DO NOT allocate for commonly used key lengths.  These objects use an
-/// internal buffer of this capacity and then switch over to an explicitly
-/// allocated buffer if the capacity would be exceeded.
+/// Initial capacity for the unodb::key_encoder and other similar internal
+/// buffers. It should be high enough that such objects DO NOT allocate for
+/// commonly used key lengths. These objects use an internal buffer of this
+/// capacity and then switch over to an explicitly allocated buffer if the
+/// capacity would be exceeded.
 ///
 /// \note: If you are only using fixed width keys, then this can be sizeof(T).
 /// In typical scenarios these objects are on the stack and there is little if
 /// any penalty to having a larger initial capacity for these buffers.
 static constexpr size_t INITIAL_BUFFER_CAPACITY = 256;
 
-/// Dump the a byte as a hexadecimal number.
+/// Dump \a byte to \a os stream as a hexadecimal number.
 [[gnu::cold]] void dump_byte(std::ostream &os, std::byte byte);
 
-/// Dump the value as a sequence of bytes.
+/// Dump \a v to \a os as a sequence of bytes.
 [[gnu::cold]] void dump_val(std::ostream &os, unodb::value_view v);
 
-/// Dump a `std::span` byte-wise (works on any unodb::key_view).
-template <typename T>
-[[gnu::cold]] void dump_key(std::ostream &os, key_view key) {
+/// Dump variable-length \a key to \a os as a sequence of bytes.
+[[gnu::cold]] inline void dump_key(std::ostream &os, key_view key) {
   const auto sz = key.size_bytes();
   os << "key(" << sz << "): 0x";
   for (std::size_t i = 0; i < sz; ++i) unodb::detail::dump_byte(os, key[i]);
 }
 
-/// Dump the key in lexicographic byte-wise order.
+/// Dump \a key to \a os as a sequence of bytes.
+/// \tparam T key type
 template <typename T>
 [[gnu::cold]] void dump_key(std::ostream &os, T key) {
   if constexpr (std::is_same_v<T, key_view>) {
+    // TODO(laurynas): call dump_key?
     const auto sz = key.size_bytes();
     os << "key(" << sz << "): 0x";
     for (std::size_t i = 0; i < sz; ++i) unodb::detail::dump_byte(os, key[i]);
@@ -131,41 +156,11 @@ template <typename T>
   }
 }
 
-/// Compute the lexicographically next bit permutation.  This method gets used
-/// when you want to form an exclusive upper bound for some key range.  You take
-/// the upper bound and form the bitwise successor of that value to turn it into
-/// an exclusive upper bound. This has to be done for each component of the
-/// composite key, working backwards from the end of the key, until a component
-/// is found which does not overflow (is not already \c ~0).
-///
-/// Suppose we have a pattern of \c N bits set to \c 1 in an unsigned integer
-/// and we want the next permutation of \c N \c 1 bits in a lexicographical
-/// sense. For example, if \c N is \c 3 and the bit pattern is \c 00010011, the
-/// next patterns would be \c 00010101, \c 00010110, \c 00011001, \c 00011010,
-/// \c 00011100, \c 00100011, and so forth. The following is a fast way to
-/// compute the next permutation.
-///
-/// \param v Some unsigned value.
-///
-/// \sa https://graphics.stanford.edu/~seander/bithacks.html#NextBitPermutation
-template <typename T>
-[[nodiscard, gnu::pure]] constexpr T lexicographic_successor(T v) noexcept {
-  const T t = v | (v - 1u);  // t gets v's least significant 0 bits set to 1
-  // Next set to 1 the most significant bit to change, set to 0 the
-  // least significant ones, and add the necessary 1 bits.
-  const T w = (t + 1) | (((~t & -~t) - 1) >> (std::countr_zero(v) + 1));
-  return w;
-}
-
-/// Utility method for power of two expansion of buffers (internal API, forward
-/// declaration).
+/// Utility method for power of two expansion of buffers.
 ///
 /// \param buf The buffer to resize.
-///
 /// \param cap The current buffer capacity.
-///
 /// \param off The current number of used bytes.
-///
 /// \param min_capacity The desired new minimum capacity.
 inline void ensure_capacity(std::byte *&buf, size_t &cap, size_t off,
                             size_t min_capacity) {
@@ -183,12 +178,13 @@ inline void ensure_capacity(std::byte *&buf, size_t &cap, size_t off,
 }  // namespace detail
 
 //
-// Key encodes and key decoder
+// Key encoder and key decoder
 //
 
 /// A utility class to generate binary comparable keys from a sequence of key
-/// components.  This class supports the various kinds of primitive data types
-/// and provides support for the caller to pass through Unicode sort keys.
+/// components. This class supports the various kinds of primitive data types
+/// and provides support for the caller to pass through Unicode sort keys. The
+/// encoded keys can be decoded with unodb::key_decoder.
 ///
 /// \note This class is NOT final so people can extend or override the
 /// unodb::key_encoder (and unodb::key_decoder) for language specific handling
@@ -200,35 +196,48 @@ class key_encoder {
   ///
   /// \note The choice of `std::uint16` here has implications for both the
   /// maximum allowed key length and the overhead for each encoded text field
-  /// (since we must use the same stride to encode the pad run length).  If this
-  /// is change to `std::uint32`, then you can encode longer text fields, but
+  /// (since we must use the same stride to encode the pad run length). If this
+  /// is changed to `std::uint32`, then you can encode longer text fields, but
   /// the padding overhead will be \c 5 bytes (vs \c 3 bytes today).
   using size_type = std::uint16_t;
 
   /// The pad byte used when encoding variable length text into a key to
-  /// logically extend the text field to unodb::key_encoder::maxlen bytes.  The
+  /// logically extend the text field to unodb::key_encoder::maxlen bytes. The
   /// pad byte (which is added to the buffer as an unsigned value) is followed
   /// by a run length count such that the key is logically padded out to the
-  /// maximum length of a text field, which is unodb::key_encoder::maxlen.  The
+  /// maximum length of a text field, which is unodb::key_encoder::maxlen. The
   /// run length count is expressed in the unodb::key_encoder::size_type.
   static constexpr auto pad{static_cast<std::byte>(0x00)};
 
-  /// The maximum length of a text component of the key.  Keys are truncated to
+  /// The maximum length of a text component of the key. Keys are truncated to
   /// at most this many bytes and then logically extended using the \c pad byte
   /// and a trailing run length until the field is logically \c maxlen bytes
-  /// wide.  This field is computed such that the total byte width of the
-  /// encoded text can be indexed by `sizeof(size_type)`.
+  /// wide. This field is computed such that the total byte width of the encoded
+  /// text can be indexed by `sizeof(size_type)`.
   static constexpr auto maxlen{static_cast<size_type>(
       std::numeric_limits<size_type>::max() - sizeof(pad) - sizeof(size_type))};
   static_assert(sizeof(maxlen) == sizeof(size_type));
 
  protected:
-  // highest bit for various data types.
+  /// \name Sign bit constants for signed integer encoding
+  /// \{
+
+  /// MSB for 8-bit integers.
   static constexpr std::uint8_t msb8 = 1U << 7;
+
+  /// MSB for 16-bit integers.
   static constexpr std::uint16_t msb16 = 1U << 15;
+
+  /// MSB for 32-bit integers.
   static constexpr std::uint32_t msb32 = 1U << 31;
+
+  /// MSB for 64-bit integers.
   static constexpr std::uint64_t msb64 = 1ULL << 63;
 
+  /// \}
+
+  /// Convert integer \a v to big-endian (binary comparable) form.
+  /// \tparam T integer type
   template <typename T>
   [[nodiscard]] static constexpr T make_binary_comparable_integral(
       T v) noexcept {
@@ -240,24 +249,25 @@ class key_encoder {
  public:
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
 
-  /// setup a new key encoder.
+  /// Construct empty key encoder with initial internal buffer.
   key_encoder() noexcept = default;
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  /// Destroy encoder, freeing allocated buffer if any.
   ~key_encoder() {
     if (cap > sizeof(ibuf)) {  // free old buffer iff allocated
       detail::free_aligned(buf);
     }
   }
 
-  /// The number of bytes of data in the internal buffer.
+  /// Return number of bytes of data in internal buffer.
   [[nodiscard]] size_t size_bytes() const noexcept { return off; }
 
-  /// The current capacity of the buffer.
+  /// Return current capacity of buffer.
   [[nodiscard]] size_t capacity() const noexcept { return cap; }
 
-  /// Ensure that the buffer can hold at least \a req additional bytes.
+  /// Ensure that buffer can hold at least \a req additional bytes.
   void ensure_available(size_t req) {
     UNODB_DETAIL_ASSERT(req <= std::numeric_limits<std::size_t>::max() - off);
     if (UNODB_DETAIL_UNLIKELY(off + req > cap)) {
@@ -266,21 +276,26 @@ class key_encoder {
   }
 
   /// Reset the encoder to encode another key.
+  /// \return Self
   key_encoder &reset() noexcept {
     off = 0;
     return *this;
   }
 
-  /// Read-only view of the internal buffer showing only those bytes that were
-  /// encoded since the last unodb::key_encoder::reset call.
+  /// Return read-only view of internal buffer showing only those bytes that
+  /// were encoded since the last unodb::key_encoder::reset call.
   [[nodiscard]] key_view get_key_view() const noexcept {
     return key_view(buf, off);
   }
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
 
-  /// Append a sequence of bytes to the key.  The caller is responsible for not
-  /// violating the ART contract (no key may be a prefix of another key).
+  /// Append a sequence of bytes \a data to the key.
+  ///
+  /// \return Self
+  ///
+  /// \note The caller is responsible for not violating the ART contract (no key
+  /// may be a prefix of another key).
   key_encoder &append_bytes(std::span<const std::byte> data) {
     const auto sz = data.size_bytes();
     ensure_available(sz);
@@ -291,12 +306,14 @@ class key_encoder {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  //
-  // signed integers
-  //
+  /// \name Signed integer encoding
+  /// Encode signed integers to binary comparable form by flipping the sign bit.
+  /// \{
 
+  /// Encode signed 8-bit integer \a v to binary comparable form.
+  /// \return Self
   key_encoder &encode(std::int8_t v) {
-    // TODO(laurynas): look into inling the 1 constants.
+    // TODO(laurynas): look into inlining the 1 constants.
     constexpr auto i_one = static_cast<int8_t>(1);
     constexpr auto u_one = static_cast<uint8_t>(1);
     const auto u = static_cast<uint8_t>(
@@ -305,6 +322,8 @@ class key_encoder {
     return encode(u);
   }
 
+  /// Encode signed 16-bit integer \a v to binary comparable form.
+  /// \return Self
   key_encoder &encode(std::int16_t v) {
     constexpr auto i_one = static_cast<int16_t>(1);
     constexpr auto u_one = static_cast<uint16_t>(1);
@@ -314,6 +333,8 @@ class key_encoder {
     return encode(u);
   }
 
+  /// Encode signed 32-bit integer \a v to binary comparable form.
+  /// \return Self
   key_encoder &encode(std::int32_t v) {
     constexpr int32_t i_one = 1;
     constexpr uint32_t u_one = static_cast<uint32_t>(1);
@@ -323,6 +344,8 @@ class key_encoder {
     return encode(u);
   }
 
+  /// Encode signed 64-bit integer \a v to binary comparable form.
+  /// \return Self
   key_encoder &encode(std::int64_t v) {
     constexpr int64_t i_one = static_cast<int64_t>(1);
     constexpr uint64_t u_one = static_cast<uint64_t>(1);
@@ -332,13 +355,17 @@ class key_encoder {
     return encode(u);
   }
 
-  //
-  // unsigned integers
-  //
+  /// \}
+
+  /// \name Unsigned integer encoding
+  /// Encode unsigned integers to binary comparable (big-endian) form.
+  /// \{
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 
+  /// Encode unsigned 8-bit integer \a v to binary comparable form.
+  /// \return Self
   key_encoder &encode(std::uint8_t v) {
     ensure_available(sizeof(v));
     buf[off++] = reinterpret_cast<const std::byte &>(v);
@@ -347,6 +374,8 @@ class key_encoder {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  /// Encode unsigned 16-bit integer \a v to binary comparable form.
+  /// \return Self
   key_encoder &encode(std::uint16_t v) {
     ensure_available(sizeof(v));
     const auto u = make_binary_comparable_integral(v);
@@ -355,6 +384,8 @@ class key_encoder {
     return *this;
   }
 
+  /// Encode unsigned 32-bit integer \a v to binary comparable form.
+  /// \return Self
   key_encoder &encode(std::uint32_t v) {
     ensure_available(sizeof(v));
     const auto u = make_binary_comparable_integral(v);
@@ -363,6 +394,8 @@ class key_encoder {
     return *this;
   }
 
+  /// Encode unsigned 64-bit integer \a v to binary comparable form.
+  /// \return Self
   key_encoder &encode(std::uint64_t v) {
     ensure_available(sizeof(v));
     const auto u = make_binary_comparable_integral(v);
@@ -373,50 +406,68 @@ class key_encoder {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  //
-  // floating point
-  //
+  /// \}
 
-  /// Encode the floating-point value.
+  /// \name Floating point encoding
+  /// \{
+
+  /// Encode single-precision floating-point value \a v.
   ///
-  /// \note Encoding maps all \c NaN values to a single canonical \c NaN.  This
+  /// \return Self
+  ///
+  /// \note Encoding maps all \c NaN values to a single canonical \c NaN. This
   /// means that decoding is not perfect and various kinds of \c NaN all decode
   /// as a single canonical \c NaN.
+  ///
+  /// \sa unodb::detail::encode_floating_point
   key_encoder &encode(float v) {
     return encode(unodb::detail::encode_floating_point<std::uint32_t>(v));
   }
 
-  /// Encode the double precision value.
+  /// Encode double-precision floating-point value \a v.
   ///
-  /// \note Encoding maps all \c NaN values to a single canonical \c NaN.  This
+  /// \return Self
+  ///
+  /// \note Encoding maps all \c NaN values to a single canonical \c NaN. This
   /// means that decoding is not perfect and various kinds of \c NaN all decode
   /// as a single canonical \c NaN.
+  ///
+  /// \sa unodb::detail::encode_floating_point
   key_encoder &encode(double v) {
     return encode(unodb::detail::encode_floating_point<std::uint64_t>(v));
   }
 
-  /// This encodes ASCII text or Unicode sort keys.  Keys are logically padded
-  /// out to unodb::key_encoder::maxlen bytes and will be truncated if they
-  /// would exceed unodb::ley_encoder::maxlen bytesq.
+  /// \}
+
+  /// \name Text encoding
+  /// \{
+
+  /// Encode ASCII text or Unicode sort key.
   ///
-  /// \note The ART index disallows keys which are prefixes of other keys.  The
-  /// logical padding addresses this and other issues while preserving
-  /// lexicographic ordering.
+  /// Keys are logically padded out to unodb::key_encoder::maxlen bytes and will
+  /// be truncated if they would exceed unodb::key_encoder::maxlen bytes.
   ///
-  /// When handling Unicode, the caller is responsible for using a quality
-  /// library (e.g., ICU) to (a) normalize their Unicode data; and (b) generate
-  /// a Unicode sort key from their Unicode data.  The sort key will impose
-  /// specific collation ordering semantics as configured by the application
-  /// (locale, collation strength, decomposition mode).
-  ///
-  /// \param text A view onto some sequence of bytes.  The view will be
-  /// truncated to at most unodb::key_encoder::maxlen bytes.  A
-  /// unodb::key_encoder::pad byte and a run count are added to make all text
+  /// A unodb::key_encoder::pad byte and a run count are added to make all text
   /// fields logically unodb::key_encoder::maxlen bytes long. The truncation and
   /// padding (a) ensures that no key is a prefix of another key; and (b) keeps
   /// multi-field keys with embedded variable length text fields aligned such
   /// that the field following a variable length text field does not bleed into
-  /// the lexiographic ordering of the variable length text field.
+  /// the lexicographic ordering of the variable length text field.
+  ///
+  /// When handling Unicode, the caller is responsible for using a quality
+  /// library (e.g., ICU) to (a) normalize their Unicode data; and (b) generate
+  /// a Unicode sort key from their Unicode data. The sort key will impose
+  /// specific collation ordering semantics as configured by the application
+  /// (locale, collation strength, decomposition mode).
+  ///
+  /// \param text A view onto some sequence of bytes. At most
+  /// unodb::key_encoder::maxlen bytes will be read from it.
+  ///
+  /// \return Self
+  ///
+  /// \note The ART index disallows keys which are prefixes of other keys. The
+  /// logical padding addresses this and other issues while preserving
+  /// lexicographic ordering.
   key_encoder &encode_text(std::span<const std::byte> text) {
     // truncate view to at most maxlen bytes.
     text = (text.size_bytes() > maxlen) ? text.subspan(0, maxlen) : text;
@@ -438,7 +489,9 @@ class key_encoder {
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 
-  /// convenience alias.
+  /// Encode text from `std::string_view` \a sv.
+  /// \return Self
+  /// \overload
   key_encoder &encode_text(std::string_view sv) {
     return encode_text(std::span<const std::byte>(
         reinterpret_cast<const std::byte *>(sv.data()), sv.size()));
@@ -446,51 +499,73 @@ class key_encoder {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
+  /// \}
+
+  /// Non-copyable.
   key_encoder(const key_encoder &) = delete;
+  /// Non-movable.
   key_encoder(key_encoder &&) = delete;
+  /// Non-copy-assignable.
   key_encoder &operator=(const key_encoder &) = delete;
+  /// Non-move-assignable.
   key_encoder &operator=(key_encoder &&) = delete;
 
  private:
-  /// Ensure that we have at least the specified capacity in the buffer.
+  /// Grow buffer to at least \a min_capacity.
   void ensure_capacity(size_t min_capacity) {
     unodb::detail::ensure_capacity(buf, cap, off, min_capacity);
   }
 
-  /// Used for the initial buffer.
+  /// Initial internal buffer avoiding heap allocation for small keys.
   std::byte ibuf[detail::INITIAL_BUFFER_CAPACITY];
 
-  /// The buffer to accmulate the encoded key.  Originally this is the internal
-  /// buffer.  If that overflows, then something will be allocated.
+  /// Buffer accumulating the encoded key. Points to `ibuf` initially; replaced
+  /// with heap allocation if capacity exceeded.
   std::byte *buf{&ibuf[0]};
 
-  /// The current buffer capacity
+  /// Current buffer capacity in bytes.
   size_t cap{sizeof(ibuf)};
 
-  /// The number of bytes in the buffer having encoded data.
+  /// Current offset (number of encoded bytes) in buffer.
   size_t off{0};
 };  // class key_encoder
 
-/// A utility class that can decode binary comparable keys as long as those keys
-/// (except for Unicode sort keys).  To use this class, you need to know how a
-/// given key was encoded as a sequence of key components.
+/// A utility class for decoding binary comparable keys produced by
+/// unodb::key_encoder, except for Unicode sort keys which are not reversible.
+/// To use this class, you need to know how a given key was encoded as a
+/// sequence of key components.
 ///
 /// \note This class is NOT final so people can extend or override the
-/// unodb::key_decoder (and unodb::key_encoder) for language specific handling
+/// unodb::key_decoder (and unodb::key_encoder) for language-specific handling
 /// of order within floating point values, handling of \c NULL values in
 /// database query languages, etc.
 class key_decoder {
  private:
-  const std::byte *buf;  /// the data to be decoded
-  const size_t cap;      /// #of bytes in that buffer.
-  size_t off{0};         /// the byte offset into that data.
+  const std::byte *buf;  ///< Data buffer to decode.
+  const size_t cap;      ///< Buffer size in bytes.
+  size_t off{0};         ///< Current decode offset.
 
-  // highest bit for various data types.
+  // TODO(laurynas): share with the encoder
+
+  /// \name Sign bit constants for signed integer decoding
+  /// \{
+
+  /// MSB for 8-bit integers.
   static constexpr std::uint8_t msb8 = 1U << 7U;
+
+  /// MSB for 16-bit integers.
   static constexpr std::uint16_t msb16 = 1U << 15U;
+
+  /// MSB for 32-bit integers.
   static constexpr std::uint32_t msb32 = 1U << 31U;
+
+  /// MSB for 64-bit integers.
   static constexpr std::uint64_t msb64 = 1ULL << 63U;
 
+  /// \}
+
+  /// Convert big-endian integer \a u back to native form.
+  /// \tparam T type of the integer
   template <typename T>
   [[nodiscard]] static constexpr T decode_binary_comparable_integral(
       T u) noexcept {
@@ -500,15 +575,19 @@ class key_decoder {
   }
 
  public:
-  /// Build a decoder for the unodb::key_view.
+  /// Construct decoder for given key view \a kv.
+  ///
+  /// The key view must remain valid for the lifetime of this decoder. This is
+  /// ensured trivially when used within a scan lambda.
   explicit key_decoder(key_view kv) noexcept
       : buf(kv.data()), cap(kv.size_bytes()) {}
 
-  //
-  // signed integers
-  //
+  /// \name Signed integer decoding
+  /// Decode signed integers from binary comparable form.
+  /// \{
 
-  /// Decode a component of the indicated type from the key.
+  /// Decode signed 8-bit integer \a v from binary comparable form.
+  /// \return Self
   key_decoder &decode(std::int8_t &v) noexcept {
     std::uint8_t u;
     decode(u);
@@ -517,7 +596,8 @@ class key_decoder {
     return *this;
   }
 
-  /// Decode a component of the indicated type from the key.
+  /// Decode signed 16-bit integer \a v from binary comparable form.
+  /// \return Self
   key_decoder &decode(std::int16_t &v) noexcept {
     std::uint16_t u;
     decode(u);
@@ -526,7 +606,8 @@ class key_decoder {
     return *this;
   }
 
-  /// Decode a component of the indicated type from the key.
+  /// Decode signed 32-bit integer \a v from binary comparable form.
+  /// \return Self
   key_decoder &decode(std::int32_t &v) noexcept {
     constexpr auto one = static_cast<std::uint32_t>(1);
     std::uint32_t u;
@@ -536,7 +617,8 @@ class key_decoder {
     return *this;
   }
 
-  /// Decode a component of the indicated type from the key.
+  /// Decode signed 64-bit integer \a v from binary comparable form.
+  /// \return Self
   key_decoder &decode(std::int64_t &v) noexcept {
     constexpr auto one = static_cast<std::uint64_t>(1);
     std::uint64_t u;
@@ -546,14 +628,17 @@ class key_decoder {
     return *this;
   }
 
-  //
-  // unsigned integers
-  //
+  /// \}
+
+  /// \name Unsigned integer decoding
+  /// Decode unsigned integers from big-endian form.
+  /// \{
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 
-  /// Decode a component of the indicated type from the key.
+  /// Decode unsigned 8-bit integer \a v.
+  /// \return Self
   key_decoder &decode(std::uint8_t &v) noexcept {
     v = reinterpret_cast<const std::uint8_t &>(buf[off++]);
     return *this;
@@ -561,7 +646,8 @@ class key_decoder {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  /// Decode a component of the indicated type from the key.
+  /// Decode unsigned 16-bit integer \a v from big-endian form.
+  /// \return Self
   key_decoder &decode(std::uint16_t &v) noexcept {
     std::uint16_t u;
     std::memcpy(&u, buf + off, sizeof(u));
@@ -570,7 +656,8 @@ class key_decoder {
     return *this;
   }
 
-  /// Decode a component of the indicated type from the key.
+  /// Decode unsigned 32-bit integer \a v from big-endian form.
+  /// \return Self
   key_decoder &decode(std::uint32_t &v) noexcept {
     std::uint32_t u;
     std::memcpy(&u, buf + off, sizeof(u));
@@ -579,7 +666,8 @@ class key_decoder {
     return *this;
   }
 
-  /// Decode a component of the indicated type from the key.
+  /// Decode unsigned 64-bit integer \a v from big-endian form.
+  /// \return Self
   key_decoder &decode(std::uint64_t &v) noexcept {
     std::uint64_t u;
     std::memcpy(&u, buf + off, sizeof(u));
@@ -590,15 +678,20 @@ class key_decoder {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  //
-  // floating point
-  //
+  /// \}
 
-  /// Decode a single-precision floating point value from the key.
+  /// \name Floating point decoding
+  /// \{
+
+  /// Decode single-precision floating-point value \a v.
   ///
-  /// \note Encoding maps all \c NaN values to a single canonical \c NaN.  This
+  /// \return Self
+  ///
+  /// \note Encoding maps all \c NaN values to a single canonical \c NaN. This
   /// means that decoding is not perfect and various kinds of \c NaN all decode
   /// as a single canonical \c NaN.
+  ///
+  /// \sa unodb::detail::decode_floating_point
   key_decoder &decode(float &v) noexcept {
     std::uint32_t u;
     decode(u);
@@ -606,17 +699,23 @@ class key_decoder {
     return *this;
   }
 
-  /// Decode a double-precision floating point value from the key.
+  /// Decode double-precision floating-point value \a v.
   ///
-  /// \note Encoding maps all \c NaN values to a single canonical \c NaN.  This
+  /// \return Self
+  ///
+  /// \note Encoding maps all \c NaN values to a single canonical \c NaN. This
   /// means that decoding is not perfect and various kinds of \c NaN all decode
   /// as a single canonical \c NaN.
+  ///
+  /// \sa unodb::detail::decode_floating_point
   key_decoder &decode(double &v) noexcept {
     std::uint64_t u;
     decode(u);
     v = unodb::detail::decode_floating_point<double>(u);
     return *this;
   }
+
+  /// \}
 };  // class key_decoder
 
 }  // namespace unodb

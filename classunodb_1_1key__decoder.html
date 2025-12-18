@@ -100,106 +100,138 @@ $(document).ready(function(){initNavTree('classunodb_1_1key__decoder.html',''); 
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pri-static-methods">Static Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
-<a href="#pri-static-attribs">Static Private Attributes</a> &#124;
 <a href="classunodb_1_1key__decoder-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::key_decoder Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort keys).  
+<p>A utility class for decoding binary comparable keys produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>, except for Unicode sort keys which are not reversible.  
  <a href="classunodb_1_1key__decoder.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="art__common_8hpp_source.html">art_common.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a352cb1ac1a0d2450e04e53c7ffd1c333" id="r_a352cb1ac1a0d2450e04e53c7ffd1c333"><td class="memItemLeft" align="right" valign="top"><a id="a352cb1ac1a0d2450e04e53c7ffd1c333" name="a352cb1ac1a0d2450e04e53c7ffd1c333"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>key_decoder</b> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> kv) noexcept</td></tr>
-<tr class="memdesc:a352cb1ac1a0d2450e04e53c7ffd1c333"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a decoder for the <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>. <br /></td></tr>
+<tr class="memitem:a352cb1ac1a0d2450e04e53c7ffd1c333" id="r_a352cb1ac1a0d2450e04e53c7ffd1c333"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#a352cb1ac1a0d2450e04e53c7ffd1c333">key_decoder</a> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> kv) noexcept</td></tr>
+<tr class="memdesc:a352cb1ac1a0d2450e04e53c7ffd1c333"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct decoder for given key view <em>kv</em>.  <br /></td></tr>
 <tr class="separator:a352cb1ac1a0d2450e04e53c7ffd1c333"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abb8a2f90b802aae7a0414f49bce3270b" id="r_abb8a2f90b802aae7a0414f49bce3270b"><td class="memItemLeft" align="right" valign="top"><a id="abb8a2f90b802aae7a0414f49bce3270b" name="abb8a2f90b802aae7a0414f49bce3270b"></a>
-<a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>decode</b> (std::int8_t &amp;v) noexcept</td></tr>
-<tr class="memdesc:abb8a2f90b802aae7a0414f49bce3270b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a component of the indicated type from the key. <br /></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Signed integer decoding</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Decode signed integers from binary comparable form. </p>
+</div></td></tr>
+<tr class="memitem:abb8a2f90b802aae7a0414f49bce3270b" id="r_abb8a2f90b802aae7a0414f49bce3270b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a> (std::int8_t &amp;v) noexcept</td></tr>
+<tr class="memdesc:abb8a2f90b802aae7a0414f49bce3270b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode signed 8-bit integer <em>v</em> from binary comparable form.  <br /></td></tr>
 <tr class="separator:abb8a2f90b802aae7a0414f49bce3270b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7611790f6705a92abdeb852a3af1cc1" id="r_ad7611790f6705a92abdeb852a3af1cc1"><td class="memItemLeft" align="right" valign="top"><a id="ad7611790f6705a92abdeb852a3af1cc1" name="ad7611790f6705a92abdeb852a3af1cc1"></a>
-<a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>decode</b> (std::int16_t &amp;v) noexcept</td></tr>
-<tr class="memdesc:ad7611790f6705a92abdeb852a3af1cc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a component of the indicated type from the key. <br /></td></tr>
+<tr class="memitem:ad7611790f6705a92abdeb852a3af1cc1" id="r_ad7611790f6705a92abdeb852a3af1cc1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#ad7611790f6705a92abdeb852a3af1cc1">decode</a> (std::int16_t &amp;v) noexcept</td></tr>
+<tr class="memdesc:ad7611790f6705a92abdeb852a3af1cc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode signed 16-bit integer <em>v</em> from binary comparable form.  <br /></td></tr>
 <tr class="separator:ad7611790f6705a92abdeb852a3af1cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d834d53030a4bf00fe61019ba1bfe61" id="r_a1d834d53030a4bf00fe61019ba1bfe61"><td class="memItemLeft" align="right" valign="top"><a id="a1d834d53030a4bf00fe61019ba1bfe61" name="a1d834d53030a4bf00fe61019ba1bfe61"></a>
-<a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>decode</b> (std::int32_t &amp;v) noexcept</td></tr>
-<tr class="memdesc:a1d834d53030a4bf00fe61019ba1bfe61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a component of the indicated type from the key. <br /></td></tr>
+<tr class="memitem:a1d834d53030a4bf00fe61019ba1bfe61" id="r_a1d834d53030a4bf00fe61019ba1bfe61"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#a1d834d53030a4bf00fe61019ba1bfe61">decode</a> (std::int32_t &amp;v) noexcept</td></tr>
+<tr class="memdesc:a1d834d53030a4bf00fe61019ba1bfe61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode signed 32-bit integer <em>v</em> from binary comparable form.  <br /></td></tr>
 <tr class="separator:a1d834d53030a4bf00fe61019ba1bfe61"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5e24cf6afd03e9d4042ebc81a60da589" id="r_a5e24cf6afd03e9d4042ebc81a60da589"><td class="memItemLeft" align="right" valign="top"><a id="a5e24cf6afd03e9d4042ebc81a60da589" name="a5e24cf6afd03e9d4042ebc81a60da589"></a>
-<a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>decode</b> (std::int64_t &amp;v) noexcept</td></tr>
-<tr class="memdesc:a5e24cf6afd03e9d4042ebc81a60da589"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a component of the indicated type from the key. <br /></td></tr>
+<tr class="memitem:a5e24cf6afd03e9d4042ebc81a60da589" id="r_a5e24cf6afd03e9d4042ebc81a60da589"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#a5e24cf6afd03e9d4042ebc81a60da589">decode</a> (std::int64_t &amp;v) noexcept</td></tr>
+<tr class="memdesc:a5e24cf6afd03e9d4042ebc81a60da589"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode signed 64-bit integer <em>v</em> from binary comparable form.  <br /></td></tr>
 <tr class="separator:a5e24cf6afd03e9d4042ebc81a60da589"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9fe5435bd2cbbd1d3a433d8b8bb64e5c" id="r_a9fe5435bd2cbbd1d3a433d8b8bb64e5c"><td class="memItemLeft" align="right" valign="top"><a id="a9fe5435bd2cbbd1d3a433d8b8bb64e5c" name="a9fe5435bd2cbbd1d3a433d8b8bb64e5c"></a>
-<a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>decode</b> (std::uint8_t &amp;v) noexcept</td></tr>
-<tr class="memdesc:a9fe5435bd2cbbd1d3a433d8b8bb64e5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a component of the indicated type from the key. <br /></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Unsigned integer decoding</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Decode unsigned integers from big-endian form. </p>
+</div></td></tr>
+<tr class="memitem:a9fe5435bd2cbbd1d3a433d8b8bb64e5c" id="r_a9fe5435bd2cbbd1d3a433d8b8bb64e5c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#a9fe5435bd2cbbd1d3a433d8b8bb64e5c">decode</a> (std::uint8_t &amp;v) noexcept</td></tr>
+<tr class="memdesc:a9fe5435bd2cbbd1d3a433d8b8bb64e5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode unsigned 8-bit integer <em>v</em>.  <br /></td></tr>
 <tr class="separator:a9fe5435bd2cbbd1d3a433d8b8bb64e5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad13a6047ade13656b937c6f671ee5e05" id="r_ad13a6047ade13656b937c6f671ee5e05"><td class="memItemLeft" align="right" valign="top"><a id="ad13a6047ade13656b937c6f671ee5e05" name="ad13a6047ade13656b937c6f671ee5e05"></a>
-<a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>decode</b> (std::uint16_t &amp;v) noexcept</td></tr>
-<tr class="memdesc:ad13a6047ade13656b937c6f671ee5e05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a component of the indicated type from the key. <br /></td></tr>
+<tr class="memitem:ad13a6047ade13656b937c6f671ee5e05" id="r_ad13a6047ade13656b937c6f671ee5e05"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#ad13a6047ade13656b937c6f671ee5e05">decode</a> (std::uint16_t &amp;v) noexcept</td></tr>
+<tr class="memdesc:ad13a6047ade13656b937c6f671ee5e05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode unsigned 16-bit integer <em>v</em> from big-endian form.  <br /></td></tr>
 <tr class="separator:ad13a6047ade13656b937c6f671ee5e05"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a309f96fffca14b0a4776358329798769" id="r_a309f96fffca14b0a4776358329798769"><td class="memItemLeft" align="right" valign="top"><a id="a309f96fffca14b0a4776358329798769" name="a309f96fffca14b0a4776358329798769"></a>
-<a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>decode</b> (std::uint32_t &amp;v) noexcept</td></tr>
-<tr class="memdesc:a309f96fffca14b0a4776358329798769"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a component of the indicated type from the key. <br /></td></tr>
+<tr class="memitem:a309f96fffca14b0a4776358329798769" id="r_a309f96fffca14b0a4776358329798769"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#a309f96fffca14b0a4776358329798769">decode</a> (std::uint32_t &amp;v) noexcept</td></tr>
+<tr class="memdesc:a309f96fffca14b0a4776358329798769"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode unsigned 32-bit integer <em>v</em> from big-endian form.  <br /></td></tr>
 <tr class="separator:a309f96fffca14b0a4776358329798769"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7a6a2f15771d0c8e91633641b6372d7" id="r_ad7a6a2f15771d0c8e91633641b6372d7"><td class="memItemLeft" align="right" valign="top"><a id="ad7a6a2f15771d0c8e91633641b6372d7" name="ad7a6a2f15771d0c8e91633641b6372d7"></a>
-<a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>decode</b> (std::uint64_t &amp;v) noexcept</td></tr>
-<tr class="memdesc:ad7a6a2f15771d0c8e91633641b6372d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a component of the indicated type from the key. <br /></td></tr>
+<tr class="memitem:ad7a6a2f15771d0c8e91633641b6372d7" id="r_ad7a6a2f15771d0c8e91633641b6372d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#ad7a6a2f15771d0c8e91633641b6372d7">decode</a> (std::uint64_t &amp;v) noexcept</td></tr>
+<tr class="memdesc:ad7a6a2f15771d0c8e91633641b6372d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode unsigned 64-bit integer <em>v</em> from big-endian form.  <br /></td></tr>
 <tr class="separator:ad7a6a2f15771d0c8e91633641b6372d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Floating point decoding</div></td></tr>
 <tr class="memitem:a7a80732e7f6a8ed812b1673382ed3f1e" id="r_a7a80732e7f6a8ed812b1673382ed3f1e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#a7a80732e7f6a8ed812b1673382ed3f1e">decode</a> (float &amp;v) noexcept</td></tr>
-<tr class="memdesc:a7a80732e7f6a8ed812b1673382ed3f1e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a single-precision floating point value from the key.  <br /></td></tr>
+<tr class="memdesc:a7a80732e7f6a8ed812b1673382ed3f1e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode single-precision floating-point value <em>v</em>.  <br /></td></tr>
 <tr class="separator:a7a80732e7f6a8ed812b1673382ed3f1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade8de92fb24a42650c60fa774e652795" id="r_ade8de92fb24a42650c60fa774e652795"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#ade8de92fb24a42650c60fa774e652795">decode</a> (double &amp;v) noexcept</td></tr>
-<tr class="memdesc:ade8de92fb24a42650c60fa774e652795"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a double-precision floating point value from the key.  <br /></td></tr>
+<tr class="memdesc:ade8de92fb24a42650c60fa774e652795"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode double-precision floating-point value <em>v</em>.  <br /></td></tr>
 <tr class="separator:ade8de92fb24a42650c60fa774e652795"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
-<tr class="memitem:a04978b1c34e5222c55d007617aac6e3d" id="r_a04978b1c34e5222c55d007617aac6e3d"><td class="memTemplParams" colspan="2"><a id="a04978b1c34e5222c55d007617aac6e3d" name="a04978b1c34e5222c55d007617aac6e3d"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a04978b1c34e5222c55d007617aac6e3d"><td class="memTemplItemLeft" align="right" valign="top">static constexpr T&#160;</td><td class="memTemplItemRight" valign="bottom"><b>decode_binary_comparable_integral</b> (T u) noexcept</td></tr>
+<tr class="memitem:a04978b1c34e5222c55d007617aac6e3d" id="r_a04978b1c34e5222c55d007617aac6e3d"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a04978b1c34e5222c55d007617aac6e3d"><td class="memTemplItemLeft" align="right" valign="top">static constexpr T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1key__decoder.html#a04978b1c34e5222c55d007617aac6e3d">decode_binary_comparable_integral</a> (T u) noexcept</td></tr>
+<tr class="memdesc:a04978b1c34e5222c55d007617aac6e3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert big-endian integer <em>u</em> back to native form.  <br /></td></tr>
 <tr class="separator:a04978b1c34e5222c55d007617aac6e3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:af01b7da0e057e25d8a0e30b0285ee2de" id="r_af01b7da0e057e25d8a0e30b0285ee2de"><td class="memItemLeft" align="right" valign="top"><a id="af01b7da0e057e25d8a0e30b0285ee2de" name="af01b7da0e057e25d8a0e30b0285ee2de"></a>
 const std::byte *&#160;</td><td class="memItemRight" valign="bottom"><b>buf</b></td></tr>
+<tr class="memdesc:af01b7da0e057e25d8a0e30b0285ee2de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data buffer to decode. <br /></td></tr>
 <tr class="separator:af01b7da0e057e25d8a0e30b0285ee2de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3945bba5bf4a21d6de3dab6004201026" id="r_a3945bba5bf4a21d6de3dab6004201026"><td class="memItemLeft" align="right" valign="top"><a id="a3945bba5bf4a21d6de3dab6004201026" name="a3945bba5bf4a21d6de3dab6004201026"></a>
 const size_t&#160;</td><td class="memItemRight" valign="bottom"><b>cap</b></td></tr>
-<tr class="memdesc:a3945bba5bf4a21d6de3dab6004201026"><td class="mdescLeft">&#160;</td><td class="mdescRight">the data to be decoded <br /></td></tr>
+<tr class="memdesc:a3945bba5bf4a21d6de3dab6004201026"><td class="mdescLeft">&#160;</td><td class="mdescRight">Buffer size in bytes. <br /></td></tr>
 <tr class="separator:a3945bba5bf4a21d6de3dab6004201026"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ec1f8082194487f053da1c876b71fd4" id="r_a5ec1f8082194487f053da1c876b71fd4"><td class="memItemLeft" align="right" valign="top"><a id="a5ec1f8082194487f053da1c876b71fd4" name="a5ec1f8082194487f053da1c876b71fd4"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>off</b> {0}</td></tr>
-<tr class="memdesc:a5ec1f8082194487f053da1c876b71fd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">#of bytes in that buffer. <br /></td></tr>
+<tr class="memdesc:a5ec1f8082194487f053da1c876b71fd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current decode offset. <br /></td></tr>
 <tr class="separator:a5ec1f8082194487f053da1c876b71fd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
 Static Private Attributes</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Sign bit constants for signed integer decoding</div></td></tr>
 <tr class="memitem:a20aa43d8bece0c675cfbc7ad7b762629" id="r_a20aa43d8bece0c675cfbc7ad7b762629"><td class="memItemLeft" align="right" valign="top"><a id="a20aa43d8bece0c675cfbc7ad7b762629" name="a20aa43d8bece0c675cfbc7ad7b762629"></a>
 static constexpr std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>msb8</b> = 1U &lt;&lt; 7U</td></tr>
-<tr class="memdesc:a20aa43d8bece0c675cfbc7ad7b762629"><td class="mdescLeft">&#160;</td><td class="mdescRight">the byte offset into that data. <br /></td></tr>
+<tr class="memdesc:a20aa43d8bece0c675cfbc7ad7b762629"><td class="mdescLeft">&#160;</td><td class="mdescRight">MSB for 8-bit integers. <br /></td></tr>
 <tr class="separator:a20aa43d8bece0c675cfbc7ad7b762629"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aefc1a2ce62e49da6b7c7c17c2842a0fd" id="r_aefc1a2ce62e49da6b7c7c17c2842a0fd"><td class="memItemLeft" align="right" valign="top"><a id="aefc1a2ce62e49da6b7c7c17c2842a0fd" name="aefc1a2ce62e49da6b7c7c17c2842a0fd"></a>
 static constexpr std::uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>msb16</b> = 1U &lt;&lt; 15U</td></tr>
+<tr class="memdesc:aefc1a2ce62e49da6b7c7c17c2842a0fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">MSB for 16-bit integers. <br /></td></tr>
 <tr class="separator:aefc1a2ce62e49da6b7c7c17c2842a0fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ae263d165a40a0f3089c1c3908955d3" id="r_a3ae263d165a40a0f3089c1c3908955d3"><td class="memItemLeft" align="right" valign="top"><a id="a3ae263d165a40a0f3089c1c3908955d3" name="a3ae263d165a40a0f3089c1c3908955d3"></a>
 static constexpr std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>msb32</b> = 1U &lt;&lt; 31U</td></tr>
+<tr class="memdesc:a3ae263d165a40a0f3089c1c3908955d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">MSB for 32-bit integers. <br /></td></tr>
 <tr class="separator:a3ae263d165a40a0f3089c1c3908955d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d37e21695104a6630264b30a45c2d81" id="r_a2d37e21695104a6630264b30a45c2d81"><td class="memItemLeft" align="right" valign="top"><a id="a2d37e21695104a6630264b30a45c2d81" name="a2d37e21695104a6630264b30a45c2d81"></a>
 static constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>msb64</b> = 1ULL &lt;&lt; 63U</td></tr>
+<tr class="memdesc:a2d37e21695104a6630264b30a45c2d81"><td class="mdescLeft">&#160;</td><td class="mdescRight">MSB for 64-bit integers. <br /></td></tr>
 <tr class="separator:a2d37e21695104a6630264b30a45c2d81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort keys). </p>
+<div class="textblock"><p>A utility class for decoding binary comparable keys produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>, except for Unicode sort keys which are not reversible. </p>
 <p>To use this class, you need to know how a given key was encoded as a sequence of key components.</p>
-<dl class="section note"><dt>Note</dt><dd>This class is NOT final so people can extend or override the <a class="el" href="classunodb_1_1key__decoder.html" title="A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort...">unodb::key_decoder</a> (and <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>) for language specific handling of order within floating point values, handling of <code>NULL</code> values in database query languages, etc. </dd></dl>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+<dl class="section note"><dt>Note</dt><dd>This class is NOT final so people can extend or override the <a class="el" href="classunodb_1_1key__decoder.html" title="A utility class for decoding binary comparable keys produced by unodb::key_encoder,...">unodb::key_decoder</a> (and <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>) for language-specific handling of order within floating point values, handling of <code>NULL</code> values in database query languages, etc. </dd></dl>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a352cb1ac1a0d2450e04e53c7ffd1c333" name="a352cb1ac1a0d2450e04e53c7ffd1c333"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a352cb1ac1a0d2450e04e53c7ffd1c333">&#9670;&#160;</a></span>key_decoder()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unodb::key_decoder::key_decoder </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a>&#160;</td>
+          <td class="paramname"><em>kv</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct decoder for given key view <em>kv</em>. </p>
+<p>The key view must remain valid for the lifetime of this decoder. This is ensured trivially when used within a scan lambda. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="ade8de92fb24a42650c60fa774e652795" name="ade8de92fb24a42650c60fa774e652795"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ade8de92fb24a42650c60fa774e652795">&#9670;&#160;</a></span>decode() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ade8de92fb24a42650c60fa774e652795">&#9670;&#160;</a></span>decode() <span class="overload">[1/10]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -222,13 +254,15 @@ static constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom
 </table>
 </div><div class="memdoc">
 
-<p>Decode a double-precision floating point value from the key. </p>
-<dl class="section note"><dt>Note</dt><dd>Encoding maps all <code>NaN</code> values to a single canonical <code>NaN</code>. This means that decoding is not perfect and various kinds of <code>NaN</code> all decode as a single canonical <code>NaN</code>. </dd></dl>
+<p>Decode double-precision floating-point value <em>v</em>. </p>
+<dl class="section return"><dt>Returns</dt><dd>Self</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Encoding maps all <code>NaN</code> values to a single canonical <code>NaN</code>. This means that decoding is not perfect and various kinds of <code>NaN</code> all decode as a single canonical <code>NaN</code>.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="namespaceunodb_1_1detail.html#a75f7fa26a657bd2a5640cf369c639d17" title="Convert lexicographic sort key to original floating-point value.">unodb::detail::decode_floating_point</a> </dd></dl>
 
 </div>
 </div>
 <a id="a7a80732e7f6a8ed812b1673382ed3f1e" name="a7a80732e7f6a8ed812b1673382ed3f1e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7a80732e7f6a8ed812b1673382ed3f1e">&#9670;&#160;</a></span>decode() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a80732e7f6a8ed812b1673382ed3f1e">&#9670;&#160;</a></span>decode() <span class="overload">[2/10]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -251,8 +285,278 @@ static constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom
 </table>
 </div><div class="memdoc">
 
-<p>Decode a single-precision floating point value from the key. </p>
-<dl class="section note"><dt>Note</dt><dd>Encoding maps all <code>NaN</code> values to a single canonical <code>NaN</code>. This means that decoding is not perfect and various kinds of <code>NaN</code> all decode as a single canonical <code>NaN</code>. </dd></dl>
+<p>Decode single-precision floating-point value <em>v</em>. </p>
+<dl class="section return"><dt>Returns</dt><dd>Self</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Encoding maps all <code>NaN</code> values to a single canonical <code>NaN</code>. This means that decoding is not perfect and various kinds of <code>NaN</code> all decode as a single canonical <code>NaN</code>.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="namespaceunodb_1_1detail.html#a75f7fa26a657bd2a5640cf369c639d17" title="Convert lexicographic sort key to original floating-point value.">unodb::detail::decode_floating_point</a> </dd></dl>
+
+</div>
+</div>
+<a id="ad7611790f6705a92abdeb852a3af1cc1" name="ad7611790f6705a92abdeb852a3af1cc1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7611790f6705a92abdeb852a3af1cc1">&#9670;&#160;</a></span>decode() <span class="overload">[3/10]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp; unodb::key_decoder::decode </td>
+          <td>(</td>
+          <td class="paramtype">std::int16_t &amp;&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode signed 16-bit integer <em>v</em> from binary comparable form. </p>
+<dl class="section return"><dt>Returns</dt><dd>Self </dd></dl>
+
+</div>
+</div>
+<a id="a1d834d53030a4bf00fe61019ba1bfe61" name="a1d834d53030a4bf00fe61019ba1bfe61"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d834d53030a4bf00fe61019ba1bfe61">&#9670;&#160;</a></span>decode() <span class="overload">[4/10]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp; unodb::key_decoder::decode </td>
+          <td>(</td>
+          <td class="paramtype">std::int32_t &amp;&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode signed 32-bit integer <em>v</em> from binary comparable form. </p>
+<dl class="section return"><dt>Returns</dt><dd>Self </dd></dl>
+
+</div>
+</div>
+<a id="a5e24cf6afd03e9d4042ebc81a60da589" name="a5e24cf6afd03e9d4042ebc81a60da589"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e24cf6afd03e9d4042ebc81a60da589">&#9670;&#160;</a></span>decode() <span class="overload">[5/10]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp; unodb::key_decoder::decode </td>
+          <td>(</td>
+          <td class="paramtype">std::int64_t &amp;&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode signed 64-bit integer <em>v</em> from binary comparable form. </p>
+<dl class="section return"><dt>Returns</dt><dd>Self </dd></dl>
+
+</div>
+</div>
+<a id="abb8a2f90b802aae7a0414f49bce3270b" name="abb8a2f90b802aae7a0414f49bce3270b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb8a2f90b802aae7a0414f49bce3270b">&#9670;&#160;</a></span>decode() <span class="overload">[6/10]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp; unodb::key_decoder::decode </td>
+          <td>(</td>
+          <td class="paramtype">std::int8_t &amp;&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode signed 8-bit integer <em>v</em> from binary comparable form. </p>
+<dl class="section return"><dt>Returns</dt><dd>Self </dd></dl>
+
+</div>
+</div>
+<a id="ad13a6047ade13656b937c6f671ee5e05" name="ad13a6047ade13656b937c6f671ee5e05"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad13a6047ade13656b937c6f671ee5e05">&#9670;&#160;</a></span>decode() <span class="overload">[7/10]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp; unodb::key_decoder::decode </td>
+          <td>(</td>
+          <td class="paramtype">std::uint16_t &amp;&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode unsigned 16-bit integer <em>v</em> from big-endian form. </p>
+<dl class="section return"><dt>Returns</dt><dd>Self </dd></dl>
+
+</div>
+</div>
+<a id="a309f96fffca14b0a4776358329798769" name="a309f96fffca14b0a4776358329798769"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a309f96fffca14b0a4776358329798769">&#9670;&#160;</a></span>decode() <span class="overload">[8/10]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp; unodb::key_decoder::decode </td>
+          <td>(</td>
+          <td class="paramtype">std::uint32_t &amp;&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode unsigned 32-bit integer <em>v</em> from big-endian form. </p>
+<dl class="section return"><dt>Returns</dt><dd>Self </dd></dl>
+
+</div>
+</div>
+<a id="ad7a6a2f15771d0c8e91633641b6372d7" name="ad7a6a2f15771d0c8e91633641b6372d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7a6a2f15771d0c8e91633641b6372d7">&#9670;&#160;</a></span>decode() <span class="overload">[9/10]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp; unodb::key_decoder::decode </td>
+          <td>(</td>
+          <td class="paramtype">std::uint64_t &amp;&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode unsigned 64-bit integer <em>v</em> from big-endian form. </p>
+<dl class="section return"><dt>Returns</dt><dd>Self </dd></dl>
+
+</div>
+</div>
+<a id="a9fe5435bd2cbbd1d3a433d8b8bb64e5c" name="a9fe5435bd2cbbd1d3a433d8b8bb64e5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9fe5435bd2cbbd1d3a433d8b8bb64e5c">&#9670;&#160;</a></span>decode() <span class="overload">[10/10]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1key__decoder.html">key_decoder</a> &amp; unodb::key_decoder::decode </td>
+          <td>(</td>
+          <td class="paramtype">std::uint8_t &amp;&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode unsigned 8-bit integer <em>v</em>. </p>
+<dl class="section return"><dt>Returns</dt><dd>Self </dd></dl>
+
+</div>
+</div>
+<a id="a04978b1c34e5222c55d007617aac6e3d" name="a04978b1c34e5222c55d007617aac6e3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04978b1c34e5222c55d007617aac6e3d">&#9670;&#160;</a></span>decode_binary_comparable_integral()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static constexpr T unodb::key_decoder::decode_binary_comparable_integral </td>
+          <td>(</td>
+          <td class="paramtype">T&#160;</td>
+          <td class="paramname"><em>u</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Convert big-endian integer <em>u</em> back to native form. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>type of the integer </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

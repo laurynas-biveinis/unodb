@@ -362,28 +362,22 @@ auto *&#160;</td><td class="memItemRight" valign="bottom"><b>unwrap_fake_critica
 <tr class="separator:a315446f662ab93a69546e61c3c72a492"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ea0a7a9ae7c67e2636bae1ca01e11fe" id="r_a0ea0a7a9ae7c67e2636bae1ca01e11fe"><td class="memItemLeft" align="right" valign="top"><a id="a0ea0a7a9ae7c67e2636bae1ca01e11fe" name="a0ea0a7a9ae7c67e2636bae1ca01e11fe"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump_byte</b> (std::ostream &amp;os, std::byte byte)</td></tr>
-<tr class="memdesc:a0ea0a7a9ae7c67e2636bae1ca01e11fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump the a byte as a hexadecimal number. <br /></td></tr>
+<tr class="memdesc:a0ea0a7a9ae7c67e2636bae1ca01e11fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump <em>byte</em> to <em>os</em> stream as a hexadecimal number. <br /></td></tr>
 <tr class="separator:a0ea0a7a9ae7c67e2636bae1ca01e11fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a815292cf4ea423f309805739554301b5" id="r_a815292cf4ea423f309805739554301b5"><td class="memItemLeft" align="right" valign="top"><a id="a815292cf4ea423f309805739554301b5" name="a815292cf4ea423f309805739554301b5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump_val</b> (std::ostream &amp;os, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> v)</td></tr>
-<tr class="memdesc:a815292cf4ea423f309805739554301b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump the value as a sequence of bytes. <br /></td></tr>
+<tr class="memdesc:a815292cf4ea423f309805739554301b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump <em>v</em> to <em>os</em> as a sequence of bytes. <br /></td></tr>
 <tr class="separator:a815292cf4ea423f309805739554301b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0891f194e6a48dea0836ae8c85c99c58" id="r_a0891f194e6a48dea0836ae8c85c99c58"><td class="memTemplParams" colspan="2"><a id="a0891f194e6a48dea0836ae8c85c99c58" name="a0891f194e6a48dea0836ae8c85c99c58"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a0891f194e6a48dea0836ae8c85c99c58"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>dump_key</b> (std::ostream &amp;os, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> key)</td></tr>
-<tr class="memdesc:a0891f194e6a48dea0836ae8c85c99c58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump a <code>std::span</code> byte-wise (works on any <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>). <br /></td></tr>
-<tr class="separator:a0891f194e6a48dea0836ae8c85c99c58"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3f442e3027e04156cef43a9b865a0c16" id="r_a3f442e3027e04156cef43a9b865a0c16"><td class="memTemplParams" colspan="2"><a id="a3f442e3027e04156cef43a9b865a0c16" name="a3f442e3027e04156cef43a9b865a0c16"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a3f442e3027e04156cef43a9b865a0c16"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>dump_key</b> (std::ostream &amp;os, T key)</td></tr>
-<tr class="memdesc:a3f442e3027e04156cef43a9b865a0c16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump the key in lexicographic byte-wise order. <br /></td></tr>
+<tr class="memitem:a0ef7220cb1655f8cd8f759659bf99ab7" id="r_a0ef7220cb1655f8cd8f759659bf99ab7"><td class="memItemLeft" align="right" valign="top"><a id="a0ef7220cb1655f8cd8f759659bf99ab7" name="a0ef7220cb1655f8cd8f759659bf99ab7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>dump_key</b> (std::ostream &amp;os, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> key)</td></tr>
+<tr class="memdesc:a0ef7220cb1655f8cd8f759659bf99ab7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump variable-length <em>key</em> to <em>os</em> as a sequence of bytes. <br /></td></tr>
+<tr class="separator:a0ef7220cb1655f8cd8f759659bf99ab7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f442e3027e04156cef43a9b865a0c16" id="r_a3f442e3027e04156cef43a9b865a0c16"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a3f442e3027e04156cef43a9b865a0c16"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a3f442e3027e04156cef43a9b865a0c16">dump_key</a> (std::ostream &amp;os, T key)</td></tr>
+<tr class="memdesc:a3f442e3027e04156cef43a9b865a0c16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump <em>key</em> to <em>os</em> as a sequence of bytes.  <br /></td></tr>
 <tr class="separator:a3f442e3027e04156cef43a9b865a0c16"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0944ca4972aeaf1a2ec41f0c9d74fd37" id="r_a0944ca4972aeaf1a2ec41f0c9d74fd37"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a0944ca4972aeaf1a2ec41f0c9d74fd37"><td class="memTemplItemLeft" align="right" valign="top">constexpr T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a0944ca4972aeaf1a2ec41f0c9d74fd37">lexicographic_successor</a> (T v) noexcept</td></tr>
-<tr class="memdesc:a0944ca4972aeaf1a2ec41f0c9d74fd37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the lexicographically next bit permutation.  <br /></td></tr>
-<tr class="separator:a0944ca4972aeaf1a2ec41f0c9d74fd37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae50fbbc0bfcabb917d60da68dd6ea193" id="r_ae50fbbc0bfcabb917d60da68dd6ea193"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ae50fbbc0bfcabb917d60da68dd6ea193">ensure_capacity</a> (std::byte *&amp;buf, size_t &amp;cap, size_t off, size_t min_capacity)</td></tr>
-<tr class="memdesc:ae50fbbc0bfcabb917d60da68dd6ea193"><td class="mdescLeft">&#160;</td><td class="mdescRight">Utility method for power of two expansion of buffers (internal API, forward declaration).  <br /></td></tr>
+<tr class="memdesc:ae50fbbc0bfcabb917d60da68dd6ea193"><td class="mdescLeft">&#160;</td><td class="mdescRight">Utility method for power of two expansion of buffers.  <br /></td></tr>
 <tr class="separator:ae50fbbc0bfcabb917d60da68dd6ea193"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60d6d8602d9590be64fd0031611bbf07" id="r_a60d6d8602d9590be64fd0031611bbf07"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07">compare</a> (const void *a, const size_t alen, const void *b, const size_t blen) noexcept</td></tr>
 <tr class="memdesc:a60d6d8602d9590be64fd0031611bbf07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexicographic comparison of bytes.  <br /></td></tr>
@@ -483,7 +477,7 @@ template&lt;typename T &gt; </td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:aba258d6d1df5e71714ec57d8b041b129" id="r_aba258d6d1df5e71714ec57d8b041b129"><td class="memItemLeft" align="right" valign="top">static constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#aba258d6d1df5e71714ec57d8b041b129">INITIAL_BUFFER_CAPACITY</a> = 256</td></tr>
-<tr class="memdesc:aba258d6d1df5e71714ec57d8b041b129"><td class="mdescLeft">&#160;</td><td class="mdescRight">A constant determining the initial capacity for the <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a> and other similar internal buffers.  <br /></td></tr>
+<tr class="memdesc:aba258d6d1df5e71714ec57d8b041b129"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initial capacity for the <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a> and other similar internal buffers.  <br /></td></tr>
 <tr class="separator:aba258d6d1df5e71714ec57d8b041b129"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6affb48b09460b87dbcb8ab404f26263" id="r_a6affb48b09460b87dbcb8ab404f26263"><td class="memItemLeft" align="right" valign="top"><a id="a6affb48b09460b87dbcb8ab404f26263" name="a6affb48b09460b87dbcb8ab404f26263"></a>
 static constexpr key_prefix_size&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix_capacity</b> = 7</td></tr>
@@ -885,6 +879,52 @@ template&lt;typename F , typename U &gt; </div>
 
 </div>
 </div>
+<a id="a3f442e3027e04156cef43a9b865a0c16" name="a3f442e3027e04156cef43a9b865a0c16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f442e3027e04156cef43a9b865a0c16">&#9670;&#160;</a></span>dump_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void unodb::detail::dump_key </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>os</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T&#160;</td>
+          <td class="paramname"><em>key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Dump <em>key</em> to <em>os</em> as a sequence of bytes. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>key type </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a1a84ca13cdff9a7f70720ddb0041d0d1" name="a1a84ca13cdff9a7f70720ddb0041d0d1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1a84ca13cdff9a7f70720ddb0041d0d1">&#9670;&#160;</a></span>encode_floating_point()</h2>
 
@@ -982,12 +1022,12 @@ template&lt;typename U , typename F &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Utility method for power of two expansion of buffers (internal API, forward declaration). </p>
+<p>Utility method for power of two expansion of buffers. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">buf</td><td>The buffer to resize.</td></tr>
-    <tr><td class="paramname">cap</td><td>The current buffer capacity.</td></tr>
-    <tr><td class="paramname">off</td><td>The current number of used bytes.</td></tr>
+    <tr><td class="paramname">buf</td><td>The buffer to resize. </td></tr>
+    <tr><td class="paramname">cap</td><td>The current buffer capacity. </td></tr>
+    <tr><td class="paramname">off</td><td>The current number of used bytes. </td></tr>
     <tr><td class="paramname">min_capacity</td><td>The desired new minimum capacity. </td></tr>
   </table>
   </dd>
@@ -1051,45 +1091,6 @@ template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a6
 
 <p>Statically assert that <em>NodeType</em> is one of the internal node types. </p>
 <p>This function may not be executed, and only holds the static assert, because it is not an expression and thus cannot appear in expression contexts by itself. </p>
-
-</div>
-</div>
-<a id="a0944ca4972aeaf1a2ec41f0c9d74fd37" name="a0944ca4972aeaf1a2ec41f0c9d74fd37"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0944ca4972aeaf1a2ec41f0c9d74fd37">&#9670;&#160;</a></span>lexicographic_successor()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr T unodb::detail::lexicographic_successor </td>
-          <td>(</td>
-          <td class="paramtype">T&#160;</td>
-          <td class="paramname"><em>v</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Compute the lexicographically next bit permutation. </p>
-<p>This method gets used when you want to form an exclusive upper bound for some key range. You take the upper bound and form the bitwise successor of that value to turn it into an exclusive upper bound. This has to be done for each component of the composite key, working backwards from the end of the key, until a component is found which does not overflow (is not already <code>~0</code>).</p>
-<p>Suppose we have a pattern of <code>N</code> bits set to <code>1</code> in an unsigned integer and we want the next permutation of <code>N</code> <code>1</code> bits in a lexicographical sense. For example, if <code>N</code> is <code>3</code> and the bit pattern is <code>00010011</code>, the next patterns would be <code>00010101</code>, <code>00010110</code>, <code>00011001</code>, <code>00011010</code>, <code>00011100</code>, <code>00100011</code>, and so forth. The following is a fast way to compute the next permutation.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">v</td><td>Some unsigned value.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section see"><dt>See also</dt><dd><a href="https://graphics.stanford.edu/~seander/bithacks.html#NextBitPermutation">https://graphics.stanford.edu/~seander/bithacks.html#NextBitPermutation</a> </dd></dl>
 
 </div>
 </div>
@@ -1193,8 +1194,8 @@ template&lt;typename T &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>A constant determining the initial capacity for the <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a> and other similar internal buffers. </p>
-<p>This should be set high enough that such objects DO NOT allocate for commonly used key lengths. These objects use an internal buffer of this capacity and then switch over to an explicitly allocated buffer if the capacity would be exceeded.</p>
+<p>Initial capacity for the <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a> and other similar internal buffers. </p>
+<p>It should be high enough that such objects DO NOT allocate for commonly used key lengths. These objects use an internal buffer of this capacity and then switch over to an explicitly allocated buffer if the capacity would be exceeded.</p>
 <dl class="section note"><dt>Note</dt><dd>: If you are only using fixed width keys, then this can be sizeof(T). In typical scenarios these objects are on the stack and there is little if any penalty to having a larger initial capacity for these buffers. </dd></dl>
 
 </div>

@@ -287,7 +287,7 @@ template&lt;typename Key , typename Value &gt; </div>
 <p>Query for a value associated with a key. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>. </td></tr>
+    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Non-owning view of key bytes, copied into index upon insertion.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -334,13 +334,13 @@ template&lt;typename Key , typename Value &gt; </div>
 <dl class="section note"><dt>Note</dt><dd>Cannot be called during stack unwinding with <code>std::uncaught_exceptions() &gt; 0</code>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">insert_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>.</td></tr>
+    <tr><td class="paramname">insert_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Non-owning view of key bytes, copied into index upon insertion.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>.</td></tr>
     <tr><td class="paramname">v</td><td>The value of type <code>value_type</code> to be inserted under that key.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true iff the key value pair was inserted.</dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">key_encoder</a>, which provides for encoding text and multi-field records when Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">key_encoder</a>, which provides for encoding text and multi-field records when Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Non-owning view of key bytes, copied into index upon insertion.">unodb::key_view</a>. </dd></dl>
 
 </div>
 </div>
@@ -414,7 +414,7 @@ template&lt;typename Key , typename Value &gt; </div>
 <p>Remove the entry associated with the key. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Keys are passed as non-owning pointers to memory with associated length using a std::span.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>. </td></tr>
+    <tr><td class="paramname">search_key</td><td>If Key is a simple primitive type, then it is converted into a binary comparable key. If Key is <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Non-owning view of key bytes, copied into index upon insertion.">unodb::key_view</a>, then it is assumed to already be a binary comparable key, e.g., as produced by <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -463,7 +463,7 @@ template&lt;typename FN &gt; </div>
 <p>The tree remains locked for the duration of the scan.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="An object visited by the scan API.">unodb::visitor</a>&lt;unodb::mutex_db::iterator&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>.</td></tr>
+    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="Wrapper providing access to key and value during index scan.">unodb::visitor</a>&lt;unodb::mutex_db::iterator&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>.</td></tr>
     <tr><td class="paramname">fwd</td><td>When <code>true</code> perform a forward scan, otherwise perform a reverse scan. </td></tr>
   </table>
   </dd>
@@ -520,7 +520,7 @@ template&lt;typename FN &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">from_key</td><td>is an inclusive lower bound for the starting point of the scan.</td></tr>
-    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="An object visited by the scan API.">unodb::visitor</a>&lt;unodb::mutex_db::iterator&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>.</td></tr>
+    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="Wrapper providing access to key and value during index scan.">unodb::visitor</a>&lt;unodb::mutex_db::iterator&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>.</td></tr>
     <tr><td class="paramname">fwd</td><td>When <code>true</code> perform a forward scan, otherwise perform a reverse scan. </td></tr>
   </table>
   </dd>
@@ -578,7 +578,7 @@ template&lt;typename FN &gt; </div>
   <table class="params">
     <tr><td class="paramname">from_key</td><td>is an inclusive bound for the starting point of the scan.</td></tr>
     <tr><td class="paramname">to_key</td><td>is an exclusive bound for the ending point of the scan.</td></tr>
-    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="An object visited by the scan API.">unodb::visitor</a>&lt;unodb::mutex_db::iterator&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>. </td></tr>
+    <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="Wrapper providing access to key and value during index scan.">unodb::visitor</a>&lt;unodb::mutex_db::iterator&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>. </td></tr>
   </table>
   </dd>
 </dl>

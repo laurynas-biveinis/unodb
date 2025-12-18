@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1visitor.html',''); initR
 </div><!--header-->
 <div class="contents">
 
-<p>An object visited by the scan API.  
+<p>Wrapper providing access to key and value during index scan.  
  <a href="classunodb_1_1visitor.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="art__common_8hpp_source.html">art_common.hpp</a>&gt;</code></p>
@@ -116,9 +116,11 @@ $(document).ready(function(){initNavTree('classunodb_1_1visitor.html',''); initR
 Public Types</h2></td></tr>
 <tr class="memitem:a53363e08f7b0ee4b7e306bb3a44e07d0" id="r_a53363e08f7b0ee4b7e306bb3a44e07d0"><td class="memItemLeft" align="right" valign="top"><a id="a53363e08f7b0ee4b7e306bb3a44e07d0" name="a53363e08f7b0ee4b7e306bb3a44e07d0"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>key_type</b> = typename Iterator::key_type</td></tr>
+<tr class="memdesc:a53363e08f7b0ee4b7e306bb3a44e07d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Key type from underlying iterator. <br /></td></tr>
 <tr class="separator:a53363e08f7b0ee4b7e306bb3a44e07d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa3d2d43a3e8441d44d5670bf8e6f551" id="r_afa3d2d43a3e8441d44d5670bf8e6f551"><td class="memItemLeft" align="right" valign="top"><a id="afa3d2d43a3e8441d44d5670bf8e6f551" name="afa3d2d43a3e8441d44d5670bf8e6f551"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = typename Iterator::value_type</td></tr>
+<tr class="memdesc:afa3d2d43a3e8441d44d5670bf8e6f551"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value type from underlying iterator. <br /></td></tr>
 <tr class="separator:afa3d2d43a3e8441d44d5670bf8e6f551"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -134,12 +136,14 @@ Public Member Functions</h2></td></tr>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:ad0f6cd68e404b006f6cf9e3b5a4e8181" id="r_ad0f6cd68e404b006f6cf9e3b5a4e8181"><td class="memItemLeft" align="right" valign="top"><a id="ad0f6cd68e404b006f6cf9e3b5a4e8181" name="ad0f6cd68e404b006f6cf9e3b5a4e8181"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>visitor</b> (Iterator &amp;it_) noexcept</td></tr>
+<tr class="memdesc:ad0f6cd68e404b006f6cf9e3b5a4e8181"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct visitor wrapping given iterator. <br /></td></tr>
 <tr class="separator:ad0f6cd68e404b006f6cf9e3b5a4e8181"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:a88f5de7adfbc8eae86d11b8242dc9df6" id="r_a88f5de7adfbc8eae86d11b8242dc9df6"><td class="memItemLeft" align="right" valign="top"><a id="a88f5de7adfbc8eae86d11b8242dc9df6" name="a88f5de7adfbc8eae86d11b8242dc9df6"></a>
 Iterator &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>it</b></td></tr>
+<tr class="memdesc:a88f5de7adfbc8eae86d11b8242dc9df6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reference to underlying iterator. <br /></td></tr>
 <tr class="separator:a88f5de7adfbc8eae86d11b8242dc9df6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
@@ -153,8 +157,17 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>db&lt; key_type, val
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename Iterator&gt;<br />
-class unodb::visitor&lt; Iterator &gt;</div><p>An object visited by the scan API. </p>
-<p>The visitor passed to the caller's lambda by the scan for each index entry visited by the scan. </p>
+class unodb::visitor&lt; Iterator &gt;</div><p>Wrapper providing access to key and value during index scan. </p>
+<p>Passed to the caller's lambda by the scan API for each index entry. Provides read-only access to the current key and value. References obtained from this visitor are valid only within the scope of a single lambda invocation.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Iterator</td><td>Internal iterator type (implementation detail).</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09" title="Scan the tree, applying the caller&#39;s lambda to each visited leaf.">unodb::db::scan()</a> </dd>
+<dd>
+<a class="el" href="classunodb_1_1olc__db.html#ac395b39faa9c4a6e8a70a0cfcb9efc8e" title="public scan API">unodb::olc_db::scan()</a> </dd></dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a3a530a16fc8dcf5ff1b7e805c6e414ca" name="a3a530a16fc8dcf5ff1b7e805c6e414ca"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3a530a16fc8dcf5ff1b7e805c6e414ca">&#9670;&#160;</a></span>get_key()</h2>
@@ -182,9 +195,10 @@ template&lt;typename Iterator &gt; </div>
 </div><div class="memdoc">
 
 <p>Visit the encoded key. </p>
+<dl class="section return"><dt>Returns</dt><dd>Encoded key view</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The lambda MUST NOT export a reference to the visited key. If you want to access the visited key outside of the scope of a single lambda invocation, then you MUST make a copy of the data.</dd>
 <dd>
-The application MAY use the <a class="el" href="classunodb_1_1key__decoder.html" title="A utility class that can decode binary comparable keys as long as those keys (except for Unicode sort...">unodb::key_decoder</a> to decode any key corresponding to a sequence of one or more primitive data types. However, key decoding is not well defined for Unicode sort keys and all floating point <code>NaN</code> values are mapped to a canonical <code>NaN</code> by the <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>. The recommended pattern when the key contains Unicode data is to convert it to a sort key using some collation order. The Unicode data may then be recovered by associating the key with a record identifier, looking up the record and reading off the Unicode value there. This is a common secondary index scenario. </dd></dl>
+The application MAY use the <a class="el" href="classunodb_1_1key__decoder.html" title="A utility class for decoding binary comparable keys produced by unodb::key_encoder,...">unodb::key_decoder</a> to decode any key corresponding to a sequence of one or more primitive data types. However, key decoding is not well defined for Unicode sort keys and all floating point <code>NaN</code> values are mapped to a canonical <code>NaN</code> by the <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>. The recommended pattern when the key contains Unicode data is to convert it to a sort key using some collation order. The Unicode data may then be recovered by associating the key with a record identifier, looking up the record and reading off the Unicode value there. This is a common secondary index scenario. </dd></dl>
 
 </div>
 </div>
@@ -214,7 +228,8 @@ template&lt;typename Iterator &gt; </div>
 </div><div class="memdoc">
 
 <p>Visit the value. </p>
-<dl class="section note"><dt>Note</dt><dd>The lambda MUST NOT export a reference to the visited value. If you to access the value outside of the scope of a single lambda invocation, then you must make a copy of the data. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Value view (type depends on database implementation)</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The lambda MUST NOT export a reference to the visited value. If you want to access the value outside of the scope of a single lambda invocation, then you must make a copy of the data. </dd></dl>
 
 </div>
 </div>

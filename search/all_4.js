@@ -2,7 +2,7 @@ var searchData=
 [
   ['based_20reclamation_0',['Quiescent State-Based Reclamation',['../group__qsbr.html',1,'']]],
   ['based_20reclamation_20qsbr_1',['Quiescent State-Based Reclamation (QSBR)',['../index.html#autotoc_md37',1,'']]],
-  ['basic_5fart_5fkey_2',['basic_art_key',['../structunodb_1_1detail_1_1basic__art__key.html',1,'unodb::detail::basic_art_key&lt; KeyType &gt;'],['../structunodb_1_1detail_1_1basic__art__key.html#adcd136279afad971b15c30847e2da1a6',1,'unodb::detail::basic_art_key::basic_art_key(key_view key_) noexcept'],['../structunodb_1_1detail_1_1basic__art__key.html#a7f769f160a22d930903da7c9f53605c7',1,'unodb::detail::basic_art_key::basic_art_key(KeyType key_) noexcept']]],
+  ['basic_5fart_5fkey_2',['basic_art_key',['../structunodb_1_1detail_1_1basic__art__key.html#a7f769f160a22d930903da7c9f53605c7',1,'unodb::detail::basic_art_key::basic_art_key(KeyType key_) noexcept'],['../structunodb_1_1detail_1_1basic__art__key.html#adcd136279afad971b15c30847e2da1a6',1,'unodb::detail::basic_art_key::basic_art_key(key_view key_) noexcept'],['../structunodb_1_1detail_1_1basic__art__key.html',1,'unodb::detail::basic_art_key&lt; KeyType &gt;']]],
   ['basic_5fart_5fpolicy_3',['basic_art_policy',['../structunodb_1_1detail_1_1basic__art__policy.html',1,'unodb::detail']]],
   ['basic_5fdb_5finode_5fdeleter_4',['basic_db_inode_deleter',['../classunodb_1_1detail_1_1basic__db__inode__deleter.html',1,'unodb::detail']]],
   ['basic_5fdb_5fleaf_5fdeleter_5',['basic_db_leaf_deleter',['../classunodb_1_1detail_1_1basic__db__leaf__deleter.html',1,'unodb::detail']]],
@@ -21,7 +21,7 @@ var searchData=
   ['benchmarking_18',['Benchmarking',['../md_CONTRIBUTING.html#autotoc_md12',1,'']]],
   ['bit_5fcast_19',['bit_cast',['../namespaceunodb_1_1detail.html#ae1bd0a219522dc54b6e2726f277e9677',1,'unodb::detail']]],
   ['bswap_20',['bswap',['../namespaceunodb_1_1detail.html#ac205dcfa11427da52c49ee216f264824',1,'unodb::detail']]],
-  ['buf_21',['buf',['../classunodb_1_1key__encoder.html#a54ee1fa410f52af5353bf5baff2173a7',1,'unodb::key_encoder::buf'],['../classunodb_1_1detail_1_1key__buffer.html#ac194dd8d30a35188b87939582d5f8d84',1,'unodb::detail::key_buffer::buf']]],
+  ['buf_21',['buf',['../classunodb_1_1key__encoder.html#a54ee1fa410f52af5353bf5baff2173a7',1,'unodb::key_encoder::buf'],['../classunodb_1_1key__decoder.html#af01b7da0e057e25d8a0e30b0285ee2de',1,'unodb::key_decoder::buf'],['../classunodb_1_1detail_1_1key__buffer.html#ac194dd8d30a35188b87939582d5f8d84',1,'unodb::detail::key_buffer::buf']]],
   ['build_20dependencies_22',['Build dependencies',['../index.html#autotoc_md26',1,'']]],
   ['building_23',['Building',['../index.html#autotoc_md28',1,'']]],
   ['bump_5fepoch_5fchange_5fcount_24',['bump_epoch_change_count',['../classunodb_1_1qsbr.html#a7fc645a40b11e4140adb6453ca352498',1,'unodb::qsbr']]],

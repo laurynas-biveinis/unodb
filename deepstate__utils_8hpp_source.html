@@ -132,7 +132,7 @@ $(document).ready(function(){initNavTree('deepstate__utils_8hpp_source.html','')
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
 <div class="foldopen" id="foldopen00048" data-start="{" data-end="}">
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="deepstate__utils_8hpp.html#a12dce8eb337102830b32be88f620178b">   48</a></span>[[nodiscard]] std::size_t <a class="code hl_function" href="deepstate__utils_8hpp.html#a12dce8eb337102830b32be88f620178b">DeepState_ContainerIndex</a>(<span class="keyword">const</span> T &amp;container) {</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="deepstate__utils_8hpp.html#a12dce8eb337102830b32be88f620178b">   48</a></span>[[nodiscard]] std::size_t <a class="code hl_function" href="deepstate__utils_8hpp.html#a12dce8eb337102830b32be88f620178b">DeepState_ContainerIndex</a>(<span class="keyword">const</span> T&amp; container) {</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  ASSERT(!std::empty(container));</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <span class="keywordflow">return</span> <a class="code hl_function" href="deepstate__utils_8hpp.html#a4d1f0f746610f901a5a828b8e5a083a8">DeepState_SizeTInRange</a>(0, std::size(container) - 1);</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>}</div>

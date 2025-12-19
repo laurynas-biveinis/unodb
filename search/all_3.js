@@ -1,7 +1,7 @@
 var searchData=
 [
   ['active_0',['active',['../classunodb_1_1optimistic__lock_1_1write__guard.html#a8f9f411c1ee0aacbb7e7dcfa7500c6b9',1,'unodb::optimistic_lock::write_guard']]],
-  ['active_5fptrs_1',['active_ptrs',['../classunodb_1_1qsbr__per__thread.html#a55c5dbbe490a2583f5cc647d2f999afa',1,'unodb::qsbr_per_thread']]],
+  ['active_5fptrs_1',['active_ptrs',['../classunodb_1_1qsbr__per__thread.html#a2e40f1ea0be9f82d1c2cec7481f61ba7',1,'unodb::qsbr_per_thread']]],
   ['adaptive_20radix_20tree_2',['Adaptive Radix Tree',['../index.html#autotoc_md35',1,'']]],
   ['add_5fto_5forphan_5flist_3',['add_to_orphan_list',['../namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html#a8fecd78001e73483361e5f5220d10afb',1,'unodb::anonymous_namespace{qsbr.cpp}']]],
   ['advance_4',['advance',['../classunodb_1_1qsbr__epoch.html#ae3544287b3300e2fe2f8ddbce749db48',1,'unodb::qsbr_epoch']]],

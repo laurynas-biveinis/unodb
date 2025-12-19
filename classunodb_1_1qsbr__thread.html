@@ -117,20 +117,20 @@ Inheritance diagram for unodb::qsbr_thread:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a2981b0e6b246b421df4a72290f6bd4d8" id="r_a2981b0e6b246b421df4a72290f6bd4d8"><td class="memTemplParams" colspan="2"><a id="a2981b0e6b246b421df4a72290f6bd4d8" name="a2981b0e6b246b421df4a72290f6bd4d8"></a>
+<tr class="memitem:af79044f0566ea2a3548516807175fd65" id="r_af79044f0566ea2a3548516807175fd65"><td class="memTemplParams" colspan="2"><a id="af79044f0566ea2a3548516807175fd65" name="af79044f0566ea2a3548516807175fd65"></a>
 template&lt;typename Function , typename... Args&gt; <br />
 requires (!std::is_same_v&lt;std::remove_cvref_t&lt;Function&gt;, <a class="el" href="classunodb_1_1qsbr__thread.html">qsbr_thread</a>&gt;)</td></tr>
-<tr class="memitem:a2981b0e6b246b421df4a72290f6bd4d8"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>qsbr_thread</b> (Function &amp;&amp;f, Args &amp;&amp;...args)</td></tr>
-<tr class="memdesc:a2981b0e6b246b421df4a72290f6bd4d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new thread running function <em>f</em> with arguments <em>args</em>. <br /></td></tr>
-<tr class="separator:a2981b0e6b246b421df4a72290f6bd4d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af79044f0566ea2a3548516807175fd65"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>qsbr_thread</b> (Function &amp;&amp;f, Args &amp;&amp;... args)</td></tr>
+<tr class="memdesc:af79044f0566ea2a3548516807175fd65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new thread running function <em>f</em> with arguments <em>args</em>. <br /></td></tr>
+<tr class="separator:af79044f0566ea2a3548516807175fd65"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
-<tr class="memitem:ae5be246573f938f3840f8c909ad921b0" id="r_ae5be246573f938f3840f8c909ad921b0"><td class="memTemplParams" colspan="2"><a id="ae5be246573f938f3840f8c909ad921b0" name="ae5be246573f938f3840f8c909ad921b0"></a>
+<tr class="memitem:a6355732da93c2063d42c9a3e6c1a2a7e" id="r_a6355732da93c2063d42c9a3e6c1a2a7e"><td class="memTemplParams" colspan="2"><a id="a6355732da93c2063d42c9a3e6c1a2a7e" name="a6355732da93c2063d42c9a3e6c1a2a7e"></a>
 template&lt;typename Function , typename... Args&gt; </td></tr>
-<tr class="memitem:ae5be246573f938f3840f8c909ad921b0"><td class="memTemplItemLeft" align="right" valign="top">static std::thread&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_qsbr_thread</b> (Function &amp;&amp;f, Args &amp;&amp;...args)</td></tr>
-<tr class="memdesc:ae5be246573f938f3840f8c909ad921b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a thread with a <a class="el" href="classunodb_1_1qsbr__per__thread.html" title="Thread-local QSBR data structure.">unodb::qsbr_per_thread</a> instance set. <br /></td></tr>
-<tr class="separator:ae5be246573f938f3840f8c909ad921b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6355732da93c2063d42c9a3e6c1a2a7e"><td class="memTemplItemLeft" align="right" valign="top">static std::thread&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_qsbr_thread</b> (Function &amp;&amp;f, Args &amp;&amp;... args)</td></tr>
+<tr class="memdesc:a6355732da93c2063d42c9a3e6c1a2a7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a thread with a <a class="el" href="classunodb_1_1qsbr__per__thread.html" title="Thread-local QSBR data structure.">unodb::qsbr_per_thread</a> instance set. <br /></td></tr>
+<tr class="separator:a6355732da93c2063d42c9a3e6c1a2a7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>An <code>std::thread</code>-like thread that participates in QSBR. </p>

@@ -42,8 +42,8 @@ var searchData=
   ['options_39',['Development CMake options',['../md_CONTRIBUTING.html#autotoc_md3',1,'']]],
   ['organization_40',['Code organization',['../md_CONTRIBUTING.html#autotoc_md4',1,'']]],
   ['orphan_5fpending_5frequests_41',['orphan_pending_requests',['../classunodb_1_1qsbr__per__thread.html#add6170269ed644653e4206906d5166b0',1,'unodb::qsbr_per_thread']]],
-  ['orphaned_5fcurrent_5finterval_5fdealloc_5frequests_42',['orphaned_current_interval_dealloc_requests',['../classunodb_1_1qsbr.html#ac5067b460049ebb5c47a8a9664aa1581',1,'unodb::qsbr']]],
-  ['orphaned_5fprevious_5finterval_5fdealloc_5frequests_43',['orphaned_previous_interval_dealloc_requests',['../classunodb_1_1qsbr.html#a85007e4f23b07a29f809c8449f0d8f1a',1,'unodb::qsbr']]],
+  ['orphaned_5fcurrent_5finterval_5fdealloc_5frequests_42',['orphaned_current_interval_dealloc_requests',['../classunodb_1_1qsbr.html#aa4be949c57da4d0d59bfe2651f4b741c',1,'unodb::qsbr']]],
+  ['orphaned_5fprevious_5finterval_5fdealloc_5frequests_43',['orphaned_previous_interval_dealloc_requests',['../classunodb_1_1qsbr.html#aa23d57ccaec3e73c3f9bf5cd412c69ed',1,'unodb::qsbr']]],
   ['orphaned_5frequests_44',['orphaned_requests',['../classunodb_1_1detail_1_1deferred__requests.html#a361f2b2af74eff0112a4890d5ef07481',1,'unodb::detail::deferred_requests']]],
   ['overview_45',['Overview',['../group__optimistic-lock.html#autotoc_md14',1,'']]]
 ];

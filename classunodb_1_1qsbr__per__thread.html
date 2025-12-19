@@ -123,7 +123,7 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>~qsbr_per_thread</b> () noexcept</td></tr>
 <tr class="memdesc:a310ad917b38a86a0967b1d7998f2c274"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister the current thread from global QSBR on thread exist. <br /></td></tr>
 <tr class="separator:a310ad917b38a86a0967b1d7998f2c274"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88e9830fbe4868759b676fc091cabf0f" id="r_a88e9830fbe4868759b676fc091cabf0f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a88e9830fbe4868759b676fc091cabf0f">on_next_epoch_deallocate</a> (void *pointer, std::size_t size, <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a> dealloc_callback)</td></tr>
+<tr class="memitem:a88e9830fbe4868759b676fc091cabf0f" id="r_a88e9830fbe4868759b676fc091cabf0f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a88e9830fbe4868759b676fc091cabf0f">on_next_epoch_deallocate</a> (void *pointer, std::size_t size, <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a> dealloc_callback)</td></tr>
 <tr class="memdesc:a88e9830fbe4868759b676fc091cabf0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request deallocation of <em>pointer</em> when it is safe to do so.  <br /></td></tr>
 <tr class="separator:a88e9830fbe4868759b676fc091cabf0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac26eeb41f72fcf9f6753ec95d8f1cb99" id="r_ac26eeb41f72fcf9f6753ec95d8f1cb99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#ac26eeb41f72fcf9f6753ec95d8f1cb99">quiescent</a> ()</td></tr>
@@ -236,10 +236,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>paused</b> {false}</t
 std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>current_interval_total_dealloc_size</b> {0}</td></tr>
 <tr class="memdesc:ae651fad1c94f8ddec93282ea769d0d3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Total size of memory that was submitted for deallocation in the current epoch. <br /></td></tr>
 <tr class="separator:ae651fad1c94f8ddec93282ea769d0d3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a55c5dbbe490a2583f5cc647d2f999afa" id="r_a55c5dbbe490a2583f5cc647d2f999afa"><td class="memItemLeft" align="right" valign="top"><a id="a55c5dbbe490a2583f5cc647d2f999afa" name="a55c5dbbe490a2583f5cc647d2f999afa"></a>
+<tr class="memitem:a2e40f1ea0be9f82d1c2cec7481f61ba7" id="r_a2e40f1ea0be9f82d1c2cec7481f61ba7"><td class="memItemLeft" align="right" valign="top"><a id="a2e40f1ea0be9f82d1c2cec7481f61ba7" name="a2e40f1ea0be9f82d1c2cec7481f61ba7"></a>
 std::unordered_multiset&lt; const void * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>active_ptrs</b></td></tr>
-<tr class="memdesc:a55c5dbbe490a2583f5cc647d2f999afa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set of active pointers to QSBR-managed data held by this thread. <br /></td></tr>
-<tr class="separator:a55c5dbbe490a2583f5cc647d2f999afa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:a2e40f1ea0be9f82d1c2cec7481f61ba7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set of active pointers to QSBR-managed data held by this thread. <br /></td></tr>
+<tr class="separator:a2e40f1ea0be9f82d1c2cec7481f61ba7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
 Static Private Attributes</h2></td></tr>
@@ -400,7 +400,7 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a>&#160;</td>
           <td class="paramname"><em>dealloc_callback</em>&#160;</td>
         </tr>
         <tr>

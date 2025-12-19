@@ -191,7 +191,7 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><a class="code hl_define" href="group__internal.html#gaa0a90689c5d97cbff1db22f127aa421d">UNODB_DETAIL_DISABLE_CLANG_WARNING</a>(&quot;-Wunused-parameter&quot;)</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>template &lt;class Db&gt;</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="keywordtype">void</span> assert_value_eq(const typename Db::get_result &amp;result,</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="keywordtype">void</span> assert_value_eq(const typename Db::get_result&amp; result,</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>                     <a class="code hl_namespace" href="namespaceunodb.html">unodb</a>::value_view expected) noexcept {</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (is_mutex_db&lt;Db&gt;) {</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(result.second.owns_lock());</div>
@@ -204,7 +204,7 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>}</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> Db&gt;</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="keywordtype">void</span> assert_not_found(<span class="keyword">const</span> <span class="keyword">typename</span> Db::get_result &amp;result) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="keywordtype">void</span> assert_not_found(<span class="keyword">const</span> <span class="keyword">typename</span> Db::get_result&amp; result) <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (is_mutex_db&lt;Db&gt;) {</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(!result.second.owns_lock());</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <a class="code hl_define" href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a>(!result.first.has_value());</div>
@@ -214,8 +214,8 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>}</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="keyword">template</span> &lt;<span class="keyword">class</span> Db&gt;</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keywordtype">void</span> do_assert_result_eq(<span class="keyword">const</span> Db &amp;db, <span class="keyword">typename</span> Db::key_type key,</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                         <a class="code hl_typedef" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> expected, <span class="keyword">const</span> <span class="keywordtype">char</span> *file,</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keywordtype">void</span> do_assert_result_eq(<span class="keyword">const</span> Db&amp; db, <span class="keyword">typename</span> Db::key_type key,</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                         <a class="code hl_typedef" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> expected, <span class="keyword">const</span> <span class="keywordtype">char</span>* file,</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                         <span class="keywordtype">int</span> line) {</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>  std::ostringstream msg;</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>  <a class="code hl_function" href="namespaceunodb_1_1detail.html#a0ef7220cb1655f8cd8f759659bf99ab7">unodb::detail::dump_key</a>(msg, key);</div>
@@ -236,8 +236,8 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span><a class="code hl_define" href="group__internal.html#ga0fd98e261e52f4d94aaa37c5a136b8c5">UNODB_DETAIL_RESTORE_CLANG_WARNINGS</a>()</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
 <div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>template &lt;class Db&gt;</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span><span class="keywordtype">void</span> assert_result_eq(const Db &amp;db, typename Db::key_type key,</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>                      <a class="code hl_namespace" href="namespaceunodb.html">unodb</a>::value_view expected, const <span class="keywordtype">char</span> *file, <span class="keywordtype">int</span> line) {</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span><span class="keywordtype">void</span> assert_result_eq(const Db&amp; db, typename Db::key_type key,</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>                      <a class="code hl_namespace" href="namespaceunodb.html">unodb</a>::value_view expected, const <span class="keywordtype">char</span>* file, <span class="keywordtype">int</span> line) {</div>
 <div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (is_olc_db&lt;Db&gt;) {</div>
 <div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    <span class="keyword">const</span> quiescent_state_on_scope_exit qsbr_after_get{};</div>
 <div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    do_assert_result_eq&lt;Db&gt;(db, key, expected, file, line);</div>
@@ -327,7 +327,7 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <a class="code hl_class" href="classunodb_1_1key__encoder.html">unodb::key_encoder</a> enc;</div>
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keyword">const</span> <span class="keyword">auto</span> kv{enc.<a class="code hl_function" href="classunodb_1_1key__encoder.html#a1728563647df52fba61d0c506d4a6ef9">encode</a>(k).<a class="code hl_function" href="classunodb_1_1key__encoder.html#ad5a7f5f082cfe3fc5c8f8534b7d8e00f">get_key_view</a>()};</div>
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    key_views.emplace_back(std::array&lt;std::byte, sz&gt;{});</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    <span class="keyword">auto</span> &amp;a = key_views.back();        <span class="comment">// a *reference* to data emplaced_back.</span></div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    <span class="keyword">auto</span>&amp; a = key_views.back();        <span class="comment">// a *reference* to data emplaced_back.</span></div>
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    std::ranges::copy(kv, a.begin());  <span class="comment">// copy data into array.</span></div>
 <div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    <span class="comment">// Return a key_view backed by the array that we just put on that</span></div>
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="comment">// list.</span></div>
@@ -665,7 +665,7 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>    <span class="comment">// Probe the test_db for each key, verifying the expected value is found</span></div>
 <div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>    <span class="comment">// under that key.</span></div>
 <div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>    <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26445)</div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;[key, value] : values) {</div>
+<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; [key, value] : values) {</div>
 <div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>      <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (std::is_same_v&lt;typename Db::key_type, unodb::key_view&gt;) {</div>
 <div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>        ASSERT_VALUE_FOR_KEY(Db, test_db, *key, value);</div>
 <div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>      } <span class="keywordflow">else</span> {</div>
@@ -686,11 +686,11 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>    <a class="code hl_typedef" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> prev{};</div>
 <div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>    <span class="keyword">auto</span> fn =</div>
 <div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>        [&amp;n, &amp;first,</div>
-<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>         &amp;prev](<span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">unodb::visitor&lt;typename Db::iterator&gt;</a> &amp;<a class="code hl_class" href="classunodb_1_1visitor.html">visitor</a>) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>         &amp;prev](<span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1visitor.html">unodb::visitor&lt;typename Db::iterator&gt;</a>&amp; <a class="code hl_class" href="classunodb_1_1visitor.html">visitor</a>) <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>          <span class="comment">// We can&#39;t tell cheap and expensive to copy types apart in an</span></div>
 <div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>          <span class="comment">// useful way here</span></div>
 <div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>          <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26445)</div>
-<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>          <span class="keyword">const</span> <span class="keyword">auto</span> &amp;kv = <a class="code hl_class" href="classunodb_1_1visitor.html">visitor</a>.<a class="code hl_function" href="classunodb_1_1visitor.html#a3a530a16fc8dcf5ff1b7e805c6e414ca">get_key</a>();</div>
+<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>          <span class="keyword">const</span> <span class="keyword">auto</span>&amp; kv = <a class="code hl_class" href="classunodb_1_1visitor.html">visitor</a>.<a class="code hl_function" href="classunodb_1_1visitor.html#a3a530a16fc8dcf5ff1b7e805c6e414ca">get_key</a>();</div>
 <div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>          <a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
 <div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span> </div>
 <div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>          <span class="keywordflow">if</span> (<a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(first)) {</div>
@@ -703,7 +703,7 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>          n++;</div>
 <div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span>          <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>        };</div>
-<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>    <span class="keyword">const_cast&lt;</span>Db &amp;<span class="keyword">&gt;</span>(test_db).scan(fn);</div>
+<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>    <span class="keyword">const_cast&lt;</span>Db&amp;<span class="keyword">&gt;</span>(test_db).scan(fn);</div>
 <div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>    <span class="comment">// FIXME(thompsonbry) variable length keys - enable this assert.</span></div>
 <div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>    <span class="comment">// 3 OOM tests are failing (for each Db type) when this is enabled</span></div>
 <div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>    <span class="comment">// (off by one).  What is going on there?</span></div>
@@ -765,7 +765,7 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
 <div class="line"><a id="l00696" name="l00696"></a><span class="lineno">  696</span> </div>
 <div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span>  <span class="keywordtype">void</span> assert_node_counts(</div>
-<div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span>      <span class="keyword">const</span> node_type_counter_array &amp;expected_node_counts)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span>      <span class="keyword">const</span> node_type_counter_array&amp; expected_node_counts)<span class="keyword"> const </span>{</div>
 <div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span>    <span class="comment">// Dump the tree to a string. Do not attempt to check the dump format, only</span></div>
 <div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span>    <span class="comment">// that dumping does not crash</span></div>
 <div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span>    std::stringstream dump_sink;</div>
@@ -777,7 +777,7 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00707" name="l00707"></a><span class="lineno">  707</span>  }</div>
 <div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span> </div>
 <div class="line"><a id="l00709" name="l00709"></a><span class="lineno">  709</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> assert_growing_inodes(</div>
-<div class="line"><a id="l00710" name="l00710"></a><span class="lineno">  710</span>      <span class="keyword">const</span> inode_type_counter_array &amp;expected_growing_inode_counts)</div>
+<div class="line"><a id="l00710" name="l00710"></a><span class="lineno">  710</span>      <span class="keyword">const</span> inode_type_counter_array&amp; expected_growing_inode_counts)</div>
 <div class="line"><a id="l00711" name="l00711"></a><span class="lineno">  711</span>      <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00712" name="l00712"></a><span class="lineno">  712</span>    <span class="keyword">const</span> <span class="keyword">auto</span> actual_growing_inode_counts = test_db.get_growing_inode_counts();</div>
 <div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span>    <a class="code hl_define" href="group__test-internals.html#gafe7e4b0dc71eed5ed6e5e16b88821ac3">UNODB_ASSERT_THAT</a>(</div>
@@ -786,7 +786,7 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>  }</div>
 <div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span> </div>
 <div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>  <span class="keyword">constexpr</span> <span class="keywordtype">void</span> assert_shrinking_inodes(</div>
-<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>      <span class="keyword">const</span> inode_type_counter_array &amp;expected_shrinking_inode_counts) {</div>
+<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>      <span class="keyword">const</span> inode_type_counter_array&amp; expected_shrinking_inode_counts) {</div>
 <div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span>    <span class="keyword">const</span> <span class="keyword">auto</span> actual_shrinking_inode_counts =</div>
 <div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>        test_db.get_shrinking_inode_counts();</div>
 <div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>    <a class="code hl_define" href="group__test-internals.html#gafe7e4b0dc71eed5ed6e5e16b88821ac3">UNODB_ASSERT_THAT</a>(</div>
@@ -810,10 +810,10 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span>    values.clear();</div>
 <div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span>  }</div>
 <div class="line"><a id="l00742" name="l00742"></a><span class="lineno">  742</span> </div>
-<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> Db &amp;get_db() noexcept { <span class="keywordflow">return</span> test_db; }</div>
+<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>  [[nodiscard, gnu::pure]] <span class="keyword">constexpr</span> Db&amp; get_db() noexcept { <span class="keywordflow">return</span> test_db; }</div>
 <div class="line"><a id="l00744" name="l00744"></a><span class="lineno">  744</span> </div>
-<div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span>  tree_verifier(<span class="keyword">const</span> tree_verifier &amp;) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span>  tree_verifier &amp;operator=(<span class="keyword">const</span> tree_verifier &amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span>  tree_verifier(<span class="keyword">const</span> tree_verifier&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span>  tree_verifier&amp; operator=(<span class="keyword">const</span> tree_verifier&amp;) = <span class="keyword">delete</span>;</div>
 <div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span> </div>
 <div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span> <span class="keyword">private</span>:</div>
 <div class="line"><a id="l00749" name="l00749"></a><span class="lineno">  749</span>  <span class="comment">// Custom comparator is required for key_view.</span></div>
@@ -821,8 +821,8 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="line"><a id="l00750" name="l00750"></a><span class="lineno"><a class="line" href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">  750</a></span>  <span class="keyword">struct </span><a class="code hl_struct" href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">comparator</a> {</div>
 <div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>    <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26415)</div>
 <div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>    <a class="code hl_define" href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a>(26418)</div>
-<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>    <span class="keywordtype">bool</span> operator()(<span class="keyword">const</span> <a class="code hl_typedef" href="classunodb_1_1test_1_1tree__verifier.html#afa56f531a5ce52d2b664ce1f2abdf993">ikey_type&lt;Db&gt;</a> &amp;lhs,</div>
-<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>                    <span class="keyword">const</span> <a class="code hl_typedef" href="classunodb_1_1test_1_1tree__verifier.html#afa56f531a5ce52d2b664ce1f2abdf993">ikey_type&lt;Db&gt;</a> &amp;rhs) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>    <span class="keywordtype">bool</span> operator()(<span class="keyword">const</span> <a class="code hl_typedef" href="classunodb_1_1test_1_1tree__verifier.html#afa56f531a5ce52d2b664ce1f2abdf993">ikey_type&lt;Db&gt;</a>&amp; lhs,</div>
+<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>                    <span class="keyword">const</span> <a class="code hl_typedef" href="classunodb_1_1test_1_1tree__verifier.html#afa56f531a5ce52d2b664ce1f2abdf993">ikey_type&lt;Db&gt;</a>&amp; rhs) <span class="keyword">const</span> <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>      <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (std::is_same_v&lt;typename Db::key_type, unodb::key_view&gt;) {</div>
 <div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>        <span class="comment">// Handle wrapped keys.</span></div>
 <div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span>        <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07">unodb::detail::compare</a>(lhs-&gt;data(), lhs-&gt;size(), rhs-&gt;data(),</div>
@@ -888,7 +888,7 @@ $(document).ready(function(){initNavTree('db__test__utils_8hpp_source.html','');
 <div class="ttc" id="aclassunodb_1_1visitor_html_a3a530a16fc8dcf5ff1b7e805c6e414ca"><div class="ttname"><a href="classunodb_1_1visitor.html#a3a530a16fc8dcf5ff1b7e805c6e414ca">unodb::visitor::get_key</a></div><div class="ttdeci">auto get_key() const noexcept(noexcept(it.get_key()))</div><div class="ttdoc">Visit the encoded key.</div><div class="ttdef"><b>Definition</b> art_common.hpp:95</div></div>
 <div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
 <div class="ttc" id="agroup__internal_html_ga0fd98e261e52f4d94aaa37c5a136b8c5"><div class="ttname"><a href="group__internal.html#ga0fd98e261e52f4d94aaa37c5a136b8c5">UNODB_DETAIL_RESTORE_CLANG_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_CLANG_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_CLANG_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:352</div></div>
-<div class="ttc" id="agroup__internal_html_ga143793f205c69f573831b99b3dee1b9c"><div class="ttname"><a href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a></div><div class="ttdeci">#define UNODB_DETAIL_ASSERT(condition)</div><div class="ttdoc">Assert a condition.</div><div class="ttdef"><b>Definition</b> assert.hpp:161</div></div>
+<div class="ttc" id="agroup__internal_html_ga143793f205c69f573831b99b3dee1b9c"><div class="ttname"><a href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a></div><div class="ttdeci">#define UNODB_DETAIL_ASSERT(condition)</div><div class="ttdoc">Assert a condition.</div><div class="ttdef"><b>Definition</b> assert.hpp:162</div></div>
 <div class="ttc" id="agroup__internal_html_ga179146ac5b62703d8069468266dd7ea7"><div class="ttname"><a href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a></div><div class="ttdeci">#define UNODB_DETAIL_UNLIKELY(condition)</div><div class="ttdoc">Hint the compiler that the condition is likely false.</div><div class="ttdef"><b>Definition</b> global.hpp:268</div></div>
 <div class="ttc" id="agroup__internal_html_ga6979215c90d6f2280a56d80eb67c6c83"><div class="ttname"><a href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)</div><div class="ttdoc">Disable an MSVC warning x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:338</div></div>
 <div class="ttc" id="agroup__internal_html_gaa0a90689c5d97cbff1db22f127aa421d"><div class="ttname"><a href="group__internal.html#gaa0a90689c5d97cbff1db22f127aa421d">UNODB_DETAIL_DISABLE_CLANG_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_CLANG_WARNING(x)</div><div class="ttdoc">Disable a clang warning x until UNODB_DETAIL_RESTORE_CLANG_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:351</div></div>

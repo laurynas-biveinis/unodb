@@ -13,7 +13,7 @@ var searchData=
   ['compare_10',['compare',['../namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07',1,'unodb::detail::compare(const void *a, const size_t alen, const void *b, const size_t blen) noexcept'],['../namespaceunodb_1_1detail.html#a749463245ed07a65e2df960ac1beb847',1,'unodb::detail::compare(const unodb::key_view a, const unodb::key_view b) noexcept']]],
   ['compute_5fsize_11',['compute_size',['../classunodb_1_1detail_1_1basic__leaf.html#a16b0da061659a06c5ede9389ad511378',1,'unodb::detail::basic_leaf']]],
   ['crash_12',['crash',['../namespaceunodb_1_1detail.html#aae5f331d83917453230a096af3197dc2',1,'unodb::detail']]],
-  ['create_13',['create',['../classunodb_1_1detail_1_1basic__inode.html#a6d1b192d3ff5ed35faf03ad885bf7bde',1,'unodb::detail::basic_inode']]],
+  ['create_13',['create',['../classunodb_1_1detail_1_1basic__inode.html#a44b86f121e219eb243c69433816b2173',1,'unodb::detail::basic_inode']]],
   ['current_5finterval_5forphaned_5frequests_5fempty_14',['current_interval_orphaned_requests_empty',['../classunodb_1_1qsbr.html#ae28dd0090e790b02702896d1cde72792',1,'unodb::qsbr']]],
   ['current_5finterval_5frequests_5fempty_15',['current_interval_requests_empty',['../classunodb_1_1qsbr__per__thread.html#a0ab7b36cb099cf5a58d031301742ecb5',1,'unodb::qsbr_per_thread']]],
   ['current_5fnode_16',['current_node',['../classunodb_1_1db_1_1iterator.html#ac0f79ce27b9b1c5efb409ffb5454b161',1,'unodb::db::iterator::current_node()'],['../classunodb_1_1olc__db_1_1iterator.html#a6984a97719773aa83c331fe51fa06045',1,'unodb::olc_db::iterator::current_node()']]]

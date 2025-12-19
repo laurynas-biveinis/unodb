@@ -126,10 +126,10 @@ Public Types</h2></td></tr>
 <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">T</a></td></tr>
 <tr class="memdesc:ad6a817eed5ccdca879c8dfa2cea8ca29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of values pointed to. <br /></td></tr>
 <tr class="separator:ad6a817eed5ccdca879c8dfa2cea8ca29"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad73d607224016b21ad63c3ae57f648b" id="r_aad73d607224016b21ad63c3ae57f648b"><td class="memItemLeft" align="right" valign="top"><a id="aad73d607224016b21ad63c3ae57f648b" name="aad73d607224016b21ad63c3ae57f648b"></a>
+<tr class="memitem:ae524b9b919d524677d4892210775040f" id="r_ae524b9b919d524677d4892210775040f"><td class="memItemLeft" align="right" valign="top"><a id="ae524b9b919d524677d4892210775040f" name="ae524b9b919d524677d4892210775040f"></a>
 <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>pointer</b> = <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">T</a> *</td></tr>
-<tr class="memdesc:aad73d607224016b21ad63c3ae57f648b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw pointer type. <br /></td></tr>
-<tr class="separator:aad73d607224016b21ad63c3ae57f648b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:ae524b9b919d524677d4892210775040f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw pointer type. <br /></td></tr>
+<tr class="separator:ae524b9b919d524677d4892210775040f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a193c5790a5afb0e7d4910a3ec678c63f" id="r_a193c5790a5afb0e7d4910a3ec678c63f"><td class="memItemLeft" align="right" valign="top"><a id="a193c5790a5afb0e7d4910a3ec678c63f" name="a193c5790a5afb0e7d4910a3ec678c63f"></a>
 <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>reference</b> = std::add_lvalue_reference_t&lt; <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">T</a> &gt;</td></tr>
 <tr class="memdesc:a193c5790a5afb0e7d4910a3ec678c63f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reference type. <br /></td></tr>
@@ -150,7 +150,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a2641169d199346b78df7879dec6276b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default-construct a <code>nullptr</code> pointer. <br /></td></tr>
 <tr class="separator:a2641169d199346b78df7879dec6276b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add169fb9945cc46cabd76eb39bd33754" id="r_add169fb9945cc46cabd76eb39bd33754"><td class="memItemLeft" align="right" valign="top"><a id="add169fb9945cc46cabd76eb39bd33754" name="add169fb9945cc46cabd76eb39bd33754"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_ptr</b> (<a class="el" href="classunodb_1_1qsbr__ptr.html#aad73d607224016b21ad63c3ae57f648b">pointer</a> <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">ptr_</a>) <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">noexcept</a></td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_ptr</b> (<a class="el" href="classunodb_1_1qsbr__ptr.html#ae524b9b919d524677d4892210775040f">pointer</a> <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">ptr_</a>) <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">noexcept</a></td></tr>
 <tr class="memdesc:add169fb9945cc46cabd76eb39bd33754"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct from raw pointer <em>ptr_</em> to QSBR-managed data. <br /></td></tr>
 <tr class="separator:add169fb9945cc46cabd76eb39bd33754"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b5e72ace20ad413c6442d955123d0c3" id="r_a4b5e72ace20ad413c6442d955123d0c3"><td class="memItemLeft" align="right" valign="top"><a id="a4b5e72ace20ad413c6442d955123d0c3" name="a4b5e72ace20ad413c6442d955123d0c3"></a>
@@ -242,14 +242,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a56fbbdb445e458db43b61bf8ea734cc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare greater than <em>other</em>. <br /></td></tr>
 <tr class="separator:a56fbbdb445e458db43b61bf8ea734cc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abd3a78cf23f7e31d7322b7f2a80e250e" id="r_abd3a78cf23f7e31d7322b7f2a80e250e"><td class="memItemLeft" align="right" valign="top"><a id="abd3a78cf23f7e31d7322b7f2a80e250e" name="abd3a78cf23f7e31d7322b7f2a80e250e"></a>
-<a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">constexpr</a> <a class="el" href="classunodb_1_1qsbr__ptr.html#aad73d607224016b21ad63c3ae57f648b">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get</b> () <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">const</a> <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">noexcept</a></td></tr>
+<a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">constexpr</a> <a class="el" href="classunodb_1_1qsbr__ptr.html#ae524b9b919d524677d4892210775040f">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get</b> () <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">const</a> <a class="el" href="classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc">noexcept</a></td></tr>
 <tr class="memdesc:abd3a78cf23f7e31d7322b7f2a80e250e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the raw pointer. <br /></td></tr>
 <tr class="separator:abd3a78cf23f7e31d7322b7f2a80e250e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a763d7a580bd773a7a6375f413bb519cc" id="r_a763d7a580bd773a7a6375f413bb519cc"><td class="memItemLeft" align="right" valign="top"><a id="a763d7a580bd773a7a6375f413bb519cc" name="a763d7a580bd773a7a6375f413bb519cc"></a>
-<a class="el" href="classunodb_1_1qsbr__ptr.html#aad73d607224016b21ad63c3ae57f648b">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ptr</b> {nullptr}</td></tr>
+<a class="el" href="classunodb_1_1qsbr__ptr.html#ae524b9b919d524677d4892210775040f">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ptr</b> {nullptr}</td></tr>
 <tr class="memdesc:a763d7a580bd773a7a6375f413bb519cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw pointer. <br /></td></tr>
 <tr class="separator:a763d7a580bd773a7a6375f413bb519cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">

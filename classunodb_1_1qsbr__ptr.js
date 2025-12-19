@@ -2,7 +2,7 @@ var classunodb_1_1qsbr__ptr =
 [
     [ "difference_type", "classunodb_1_1qsbr__ptr.html#ab295c46704b6749f28082df1c45f814f", null ],
     [ "iterator_category", "classunodb_1_1qsbr__ptr.html#a12cfbe5b344e89469cadab558252e10c", null ],
-    [ "pointer", "classunodb_1_1qsbr__ptr.html#aad73d607224016b21ad63c3ae57f648b", null ],
+    [ "pointer", "classunodb_1_1qsbr__ptr.html#ae524b9b919d524677d4892210775040f", null ],
     [ "reference", "classunodb_1_1qsbr__ptr.html#a193c5790a5afb0e7d4910a3ec678c63f", null ],
     [ "value_type", "classunodb_1_1qsbr__ptr.html#ad6a817eed5ccdca879c8dfa2cea8ca29", null ],
     [ "qsbr_ptr", "classunodb_1_1qsbr__ptr.html#a2641169d199346b78df7879dec6276b6", null ],

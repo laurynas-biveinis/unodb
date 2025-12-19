@@ -105,7 +105,7 @@ var NAVTREEINDEX =
 "classunodb_1_1detail_1_1deferred__requests.html#ae2f328070402155a30e55dc93cd1fbf4",
 "classunodb_1_1key__encoder.html#abfc674f94f24dd67301ba6f03773973b",
 "classunodb_1_1optimistic__lock_1_1write__guard.html#ac5f53c3ea1efddeb168c5cbd2b12ba4a",
-"classunodb_1_1qsbr__ptr.html#aad73d607224016b21ad63c3ae57f648b",
+"classunodb_1_1qsbr__ptr.html#ab295c46704b6749f28082df1c45f814f",
 "group__test-internals.html#gad6b9358126510bddf33940b97af6f131",
 "structunodb_1_1detail_1_1basic__art__key.html#ac54cec3bcc93c7e935445b0f8273942f"
 ];

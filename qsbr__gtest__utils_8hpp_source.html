@@ -129,7 +129,7 @@ $(document).ready(function(){initNavTree('qsbr__gtest__utils_8hpp_source.html','
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  <span class="comment">// Thread operation wrappers</span></div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> join(<a class="code hl_class" href="classunodb_1_1qsbr__thread.html">unodb::qsbr_thread</a> &amp;thread) {</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> join(<a class="code hl_class" href="classunodb_1_1qsbr__thread.html">unodb::qsbr_thread</a>&amp; thread) {</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <a class="code hl_function" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">unodb::test::must_not_allocate</a>([&amp;thread]() { thread.join(); });</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  }</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
@@ -257,20 +257,20 @@ $(document).ready(function(){initNavTree('qsbr__gtest__utils_8hpp_source.html','
 <div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>  <span class="comment">// Allocation and deallocation</span></div>
 <div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">void</span> *allocate() {</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">void</span>* allocate() {</div>
 <div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="namespaceunodb_1_1detail.html#a67151fe8291fd24bff04038739700b1f">unodb::detail::allocate_aligned</a>(1);</div>
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>  }</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> check_ptr_on_qsbr_dealloc(<span class="keyword">const</span> <span class="keywordtype">void</span> *ptr) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> check_ptr_on_qsbr_dealloc(<span class="keyword">const</span> <span class="keywordtype">void</span>* ptr) <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="comment">// The pointer must be readable</span></div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="comment">// cppcheck-suppress unreadVariable</span></div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">volatile</span> <span class="keywordtype">char</span> sink <a class="code hl_define" href="group__internal.html#gaee0e862fc042519ca2923ba9be4e237f">UNODB_DETAIL_UNUSED</a> =</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>        *<span class="keyword">static_cast&lt;</span><span class="keyword">const </span><span class="keywordtype">char</span> *<span class="keyword">&gt;</span>(ptr);</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>        *<span class="keyword">static_cast&lt;</span><span class="keyword">const </span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>(ptr);</div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>  }</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> qsbr_deallocate(<span class="keywordtype">void</span> *ptr) {</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> qsbr_deallocate(<span class="keywordtype">void</span>* ptr) {</div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    <span class="keyword">const</span> <span class="keyword">auto</span> current_interval_total_dealloc_size_before =</div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>        <a class="code hl_function" href="namespaceunodb.html#af67bb57e59d46aae6ffb5103dcb497a1">unodb::this_thread</a>().<a class="code hl_function" href="classunodb_1_1qsbr__per__thread.html#ab01458452f2f594358c13598ab051170">get_current_interval_total_dealloc_size</a>();</div>
@@ -348,7 +348,7 @@ $(document).ready(function(){initNavTree('qsbr__gtest__utils_8hpp_source.html','
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>  }</div>
 <div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span> </div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> touch_memory(<span class="keywordtype">char</span> *ptr, <span class="keywordtype">char</span> opt_val = <span class="charliteral">&#39;\0&#39;</span>) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> touch_memory(<span class="keywordtype">char</span>* ptr, <span class="keywordtype">char</span> opt_val = <span class="charliteral">&#39;\0&#39;</span>) <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keywordflow">if</span> (opt_val != <span class="charliteral">&#39;\0&#39;</span>) {</div>
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>      *ptr = opt_val;</div>
 <div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    } <span class="keywordflow">else</span> {</div>
@@ -359,10 +359,10 @@ $(document).ready(function(){initNavTree('qsbr__gtest__utils_8hpp_source.html','
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>  }</div>
 <div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span> <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>  <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a>(<span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a> &amp;) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>  <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a>(<a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a> &amp;&amp;) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>  <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a> &amp;operator=(<span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a> &amp;) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>  <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a> &amp;operator=(<a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a> &amp;&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>  <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a>(<span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a>&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>  <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a>(<a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a>&amp;&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>  <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a>&amp; operator=(<span class="keyword">const</span> <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a>&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>  <a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a>&amp; operator=(<a class="code hl_class" href="classunodb_1_1test_1_1QSBRTestBase.html">QSBRTestBase</a>&amp;&amp;) = <span class="keyword">delete</span>;</div>
 <div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
 <div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> <span class="keyword">private</span>:</div>
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>  <a class="code hl_class" href="classunodb_1_1qsbr__epoch.html">unodb::qsbr_epoch</a> last_epoch{0};</div>

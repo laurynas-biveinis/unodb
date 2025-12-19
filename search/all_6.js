@@ -18,7 +18,7 @@ var searchData=
   ['deallocation_5fsize_5fper_5fthread_5fmean_15',['deallocation_size_per_thread_mean',['../classunodb_1_1qsbr.html#a20ed25bb318f60c5058f816d11022dec',1,'unodb::qsbr']]],
   ['deallocation_5fsize_5fper_5fthread_5fstats_16',['deallocation_size_per_thread_stats',['../classunodb_1_1qsbr.html#a798289cbe11d0d1f29984b68a6081d68',1,'unodb::qsbr']]],
   ['deallocation_5fsize_5fper_5fthread_5fvariance_17',['deallocation_size_per_thread_variance',['../classunodb_1_1qsbr.html#a2213cdf7aa229e831f20e93418e194d8',1,'unodb::qsbr']]],
-  ['debug_5fcallback_18',['debug_callback',['../classunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c',1,'unodb::detail::deallocation_request']]],
+  ['debug_5fcallback_18',['debug_callback',['../classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16',1,'unodb::detail::deallocation_request']]],
   ['dec_5fread_5flock_5fcount_19',['dec_read_lock_count',['../classunodb_1_1optimistic__lock.html#a089b1cee3747f7a42618fca56db4b03b',1,'unodb::optimistic_lock']]],
   ['dec_5fthread_5fcount_20',['dec_thread_count',['../structunodb_1_1qsbr__state.html#aa4dde107e5a1246b4e17e8293f2a8359',1,'unodb::qsbr_state']]],
   ['dec_5fthread_5fcount_5fand_5fthreads_5fin_5fprevious_5fepoch_21',['dec_thread_count_and_threads_in_previous_epoch',['../structunodb_1_1qsbr__state.html#a026f7e459c9df2a48e975397573c537a',1,'unodb::qsbr_state']]],

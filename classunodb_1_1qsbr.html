@@ -237,7 +237,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>publish_quiescent_sta
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
-<tr class="memitem:ab805604c80aa7bbf91777c7bbf5f391a" id="r_ab805604c80aa7bbf91777c7bbf5f391a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#ab805604c80aa7bbf91777c7bbf5f391a">deallocate</a> (void *pointer, const <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a> &amp;debug_callback) noexcept</td></tr>
+<tr class="memitem:ab805604c80aa7bbf91777c7bbf5f391a" id="r_ab805604c80aa7bbf91777c7bbf5f391a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#ab805604c80aa7bbf91777c7bbf5f391a">deallocate</a> (void *pointer, const <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a> &amp;debug_callback) noexcept</td></tr>
 <tr class="memdesc:ab805604c80aa7bbf91777c7bbf5f391a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free memory at <em>pointer</em> using <a class="el" href="namespaceunodb_1_1detail.html#a857e30bf5bbe06e321300ee868010df9" title="Free heap memory allocated with allocate_aligned().">detail::free_aligned</a>.  <br /></td></tr>
 <tr class="separator:ab805604c80aa7bbf91777c7bbf5f391a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12cd3058880cc8a4ced8466f959aed83" id="r_a12cd3058880cc8a4ced8466f959aed83"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#a12cd3058880cc8a4ced8466f959aed83">thread_epoch_change_barrier</a> () noexcept</td></tr>
@@ -250,14 +250,14 @@ Private Attributes</h2></td></tr>
 std::atomic&lt; <a class="el" href="structunodb_1_1qsbr__state.html#a9ded9024be69a382b3a9fc65892ea7cc">qsbr_state::type</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>state</b></td></tr>
 <tr class="memdesc:a01a260fb085274cacc7465cc0389f38e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The global QSBR state. <br /></td></tr>
 <tr class="separator:a01a260fb085274cacc7465cc0389f38e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a85007e4f23b07a29f809c8449f0d8f1a" id="r_a85007e4f23b07a29f809c8449f0d8f1a"><td class="memItemLeft" align="right" valign="top"><a id="a85007e4f23b07a29f809c8449f0d8f1a" name="a85007e4f23b07a29f809c8449f0d8f1a"></a>
+<tr class="memitem:aa23d57ccaec3e73c3f9bf5cd412c69ed" id="r_aa23d57ccaec3e73c3f9bf5cd412c69ed"><td class="memItemLeft" align="right" valign="top"><a id="aa23d57ccaec3e73c3f9bf5cd412c69ed" name="aa23d57ccaec3e73c3f9bf5cd412c69ed"></a>
 std::atomic&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>orphaned_previous_interval_dealloc_requests</b></td></tr>
-<tr class="memdesc:a85007e4f23b07a29f809c8449f0d8f1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orphaned deallocation requests for the previous epoch from terminated threads. <br /></td></tr>
-<tr class="separator:a85007e4f23b07a29f809c8449f0d8f1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac5067b460049ebb5c47a8a9664aa1581" id="r_ac5067b460049ebb5c47a8a9664aa1581"><td class="memItemLeft" align="right" valign="top"><a id="ac5067b460049ebb5c47a8a9664aa1581" name="ac5067b460049ebb5c47a8a9664aa1581"></a>
+<tr class="memdesc:aa23d57ccaec3e73c3f9bf5cd412c69ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orphaned deallocation requests for the previous epoch from terminated threads. <br /></td></tr>
+<tr class="separator:aa23d57ccaec3e73c3f9bf5cd412c69ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4be949c57da4d0d59bfe2651f4b741c" id="r_aa4be949c57da4d0d59bfe2651f4b741c"><td class="memItemLeft" align="right" valign="top"><a id="aa4be949c57da4d0d59bfe2651f4b741c" name="aa4be949c57da4d0d59bfe2651f4b741c"></a>
 std::atomic&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>orphaned_current_interval_dealloc_requests</b></td></tr>
-<tr class="memdesc:ac5067b460049ebb5c47a8a9664aa1581"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orphaned deallocation requests for the current epoch from terminated threads. <br /></td></tr>
-<tr class="separator:ac5067b460049ebb5c47a8a9664aa1581"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:aa4be949c57da4d0d59bfe2651f4b741c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orphaned deallocation requests for the current epoch from terminated threads. <br /></td></tr>
+<tr class="separator:aa4be949c57da4d0d59bfe2651f4b741c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2391754d3c55265df8c7b34d6289d290" id="r_a2391754d3c55265df8c7b34d6289d290"><td class="memItemLeft" align="right" valign="top"><a id="a2391754d3c55265df8c7b34d6289d290" name="a2391754d3c55265df8c7b34d6289d290"></a>
 std::atomic&lt; std::uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>epoch_change_count</b></td></tr>
 <tr class="memdesc:a2391754d3c55265df8c7b34d6289d290"><td class="mdescLeft">&#160;</td><td class="mdescRight">Epoch change counter. <br /></td></tr>
@@ -384,7 +384,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_per_thread</b><
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a091c0981dcaefa926b631259f83f190c">detail::deallocation_request::debug_callback</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a> &amp;&#160;</td>
           <td class="paramname"><em>debug_callback</em>&#160;</td>
         </tr>
         <tr>

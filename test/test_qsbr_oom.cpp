@@ -67,7 +67,7 @@ UNODB_TEST_F(QSBROOMTest, StartThread) {
 }
 
 UNODB_TEST_F(QSBROOMTest, DeferredDeallocation) {
-  auto *ptr = static_cast<char *>(allocate());
+  auto* ptr = static_cast<char*>(allocate());
   unodb::qsbr_thread second_thread{[] {
     unodb::detail::thread_syncs[0].notify();
     unodb::detail::thread_syncs[1].wait();

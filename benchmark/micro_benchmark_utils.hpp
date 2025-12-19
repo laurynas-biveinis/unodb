@@ -61,7 +61,7 @@ inline constexpr std::array<unodb::value_view, 5> values = {
 
 // PRNG
 
-[[nodiscard]] inline auto &get_prng() {
+[[nodiscard]] inline auto& get_prng() {
   static std::random_device rd;
   static std::mt19937 gen{rd()};
   return gen;
@@ -72,7 +72,7 @@ inline constexpr std::array<unodb::value_view, 5> values = {
 namespace detail {
 
 template <class Db>
-void do_insert_key_ignore_dups(Db &instance, std::uint64_t k,
+void do_insert_key_ignore_dups(Db& instance, std::uint64_t k,
                                unodb::value_view v) {
   // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
   // analyzer on that
@@ -83,7 +83,7 @@ void do_insert_key_ignore_dups(Db &instance, std::uint64_t k,
 }
 
 template <class Db>
-void do_insert_key(Db &instance, std::uint64_t k, unodb::value_view v) {
+void do_insert_key(Db& instance, std::uint64_t k, unodb::value_view v) {
   // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
   // analyzer on that
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
@@ -104,27 +104,27 @@ void do_insert_key(Db &instance, std::uint64_t k, unodb::value_view v) {
 }  // namespace detail
 
 template <class Db>
-void insert_key_ignore_dups(Db &instance, std::uint64_t k,
+void insert_key_ignore_dups(Db& instance, std::uint64_t k,
                             unodb::value_view v) {
   detail::do_insert_key_ignore_dups(instance, k, v);
 }
 
 template <>
 inline void insert_key_ignore_dups(
-    unodb::olc_db<std::uint64_t, unodb::value_view> &instance, std::uint64_t k,
+    unodb::olc_db<std::uint64_t, unodb::value_view>& instance, std::uint64_t k,
     unodb::value_view v) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_insert_key_ignore_dups(instance, k, v);
 }
 
 template <class Db>
-void insert_key(Db &instance, std::uint64_t k, unodb::value_view v) {
+void insert_key(Db& instance, std::uint64_t k, unodb::value_view v) {
   detail::do_insert_key(instance, k, v);
 }
 
 template <>
 inline void insert_key(
-    unodb::olc_db<std::uint64_t, unodb::value_view> &instance, std::uint64_t k,
+    unodb::olc_db<std::uint64_t, unodb::value_view>& instance, std::uint64_t k,
     unodb::value_view v) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_insert_key(instance, k, v);
@@ -135,7 +135,7 @@ inline void insert_key(
 namespace detail {
 
 template <class Db>
-void do_delete_key_if_exists(Db &instance, std::uint64_t k) {
+void do_delete_key_if_exists(Db& instance, std::uint64_t k) {
   // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
   // analyzer on that
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
@@ -145,7 +145,7 @@ void do_delete_key_if_exists(Db &instance, std::uint64_t k) {
 }
 
 template <class Db>
-void do_delete_key(Db &instance, std::uint64_t k) {
+void do_delete_key(Db& instance, std::uint64_t k) {
   // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
   // analyzer on that
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
@@ -166,26 +166,26 @@ void do_delete_key(Db &instance, std::uint64_t k) {
 }  // namespace detail
 
 template <class Db>
-void delete_key_if_exists(Db &instance, std::uint64_t k) {
+void delete_key_if_exists(Db& instance, std::uint64_t k) {
   detail::do_delete_key_if_exists(instance, k);
 }
 
 template <>
 inline void delete_key_if_exists(
-    unodb::olc_db<std::uint64_t, unodb::value_view> &instance,
+    unodb::olc_db<std::uint64_t, unodb::value_view>& instance,
     std::uint64_t k) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_delete_key_if_exists(instance, k);
 }
 
 template <class Db>
-void delete_key(Db &instance, std::uint64_t k) {
+void delete_key(Db& instance, std::uint64_t k) {
   detail::do_delete_key(instance, k);
 }
 
 template <>
 inline void delete_key(
-    unodb::olc_db<std::uint64_t, unodb::value_view> &instance,
+    unodb::olc_db<std::uint64_t, unodb::value_view>& instance,
     std::uint64_t k) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_delete_key(instance, k);
@@ -196,7 +196,7 @@ inline void delete_key(
 namespace detail {
 
 template <class Db>
-void do_get_key(const Db &instance, std::uint64_t k) {
+void do_get_key(const Db& instance, std::uint64_t k) {
   // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
   // analyzer on that
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
@@ -206,7 +206,7 @@ void do_get_key(const Db &instance, std::uint64_t k) {
 }
 
 template <class Db>
-void do_get_existing_key(const Db &instance, std::uint64_t k) {
+void do_get_existing_key(const Db& instance, std::uint64_t k) {
   // Args to ::benchmark::DoNoOptimize cannot be const, thus silence MSVC static
   // analyzer on that
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
@@ -228,26 +228,26 @@ void do_get_existing_key(const Db &instance, std::uint64_t k) {
 }  // namespace detail
 
 template <class Db>
-void get_key(const Db &instance, std::uint64_t k) {
+void get_key(const Db& instance, std::uint64_t k) {
   detail::do_get_key(instance, k);
 }
 
 template <>
 inline void get_key(
-    const unodb::olc_db<std::uint64_t, unodb::value_view> &instance,
+    const unodb::olc_db<std::uint64_t, unodb::value_view>& instance,
     std::uint64_t k) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_get_key(instance, k);
 }
 
 template <class Db>
-void get_existing_key(const Db &instance, std::uint64_t k) {
+void get_existing_key(const Db& instance, std::uint64_t k) {
   detail::do_get_existing_key(instance, k);
 }
 
 template <>
 inline void get_existing_key(
-    const unodb::olc_db<std::uint64_t, unodb::value_view> &instance,
+    const unodb::olc_db<std::uint64_t, unodb::value_view>& instance,
     std::uint64_t k) {
   const quiescent_state_on_scope_exit qsbr_after_get{};
   detail::do_get_existing_key(instance, k);
@@ -256,16 +256,16 @@ inline void get_existing_key(
 // Teardown
 
 template <class Db>
-void destroy_tree(Db &instance, ::benchmark::State &state);
+void destroy_tree(Db& instance, ::benchmark::State& state);
 
 extern template void destroy_tree<unodb::db<std::uint64_t, unodb::value_view>>(
-    unodb::db<std::uint64_t, unodb ::value_view> &, ::benchmark::State &);
+    unodb::db<std::uint64_t, unodb ::value_view>&, ::benchmark::State&);
 extern template void
 destroy_tree<unodb::mutex_db<std::uint64_t, unodb::value_view>>(
-    unodb::mutex_db<std::uint64_t, unodb::value_view> &, ::benchmark::State &);
+    unodb::mutex_db<std::uint64_t, unodb::value_view>&, ::benchmark::State&);
 extern template void
 destroy_tree<unodb::olc_db<std::uint64_t, unodb::value_view>>(
-    unodb::olc_db<std::uint64_t, unodb::value_view> &, ::benchmark::State &);
+    unodb::olc_db<std::uint64_t, unodb::value_view>&, ::benchmark::State&);
 
 }  // namespace unodb::benchmark
 

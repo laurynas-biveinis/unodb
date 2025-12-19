@@ -14,13 +14,13 @@
 
 namespace unodb::detail {
 
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream &os,
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_byte(std::ostream& os,
                                                    std::byte byte) {
   os << ' ' << std::hex << std::setfill('0') << std::setw(2)
      << static_cast<unsigned>(byte) << std::dec;
 }
 
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_val(std::ostream &os,
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void dump_val(std::ostream& os,
                                                   unodb::value_view v) {
   const auto sz = v.size_bytes();
   os << "val(" << sz << "): 0x";

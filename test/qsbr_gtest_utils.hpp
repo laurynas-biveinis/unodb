@@ -27,7 +27,7 @@ class QSBRTestBase : public ::testing::Test {
 
   // Thread operation wrappers
 
-  static void join(unodb::qsbr_thread &thread) {
+  static void join(unodb::qsbr_thread& thread) {
     unodb::test::must_not_allocate([&thread]() { thread.join(); });
   }
 
@@ -155,20 +155,20 @@ class QSBRTestBase : public ::testing::Test {
 
   // Allocation and deallocation
 
-  [[nodiscard]] static void *allocate() {
+  [[nodiscard]] static void* allocate() {
     return unodb::detail::allocate_aligned(1);
   }
 
 #ifndef NDEBUG
-  static void check_ptr_on_qsbr_dealloc(const void *ptr) noexcept {
+  static void check_ptr_on_qsbr_dealloc(const void* ptr) noexcept {
     // The pointer must be readable
     // cppcheck-suppress unreadVariable
     static const volatile char sink UNODB_DETAIL_UNUSED =
-        *static_cast<const char *>(ptr);
+        *static_cast<const char*>(ptr);
   }
 #endif
 
-  static void qsbr_deallocate(void *ptr) {
+  static void qsbr_deallocate(void* ptr) {
 #ifdef UNODB_DETAIL_WITH_STATS
     const auto current_interval_total_dealloc_size_before =
         unodb::this_thread().get_current_interval_total_dealloc_size();
@@ -246,7 +246,7 @@ class QSBRTestBase : public ::testing::Test {
 #endif  // UNODB_DETAIL_WITH_STATS
   }
 
-  static void touch_memory(char *ptr, char opt_val = '\0') noexcept {
+  static void touch_memory(char* ptr, char opt_val = '\0') noexcept {
     if (opt_val != '\0') {
       *ptr = opt_val;
     } else {
@@ -257,10 +257,10 @@ class QSBRTestBase : public ::testing::Test {
   }
 
  public:
-  QSBRTestBase(const QSBRTestBase &) = delete;
-  QSBRTestBase(QSBRTestBase &&) = delete;
-  QSBRTestBase &operator=(const QSBRTestBase &) = delete;
-  QSBRTestBase &operator=(QSBRTestBase &&) = delete;
+  QSBRTestBase(const QSBRTestBase&) = delete;
+  QSBRTestBase(QSBRTestBase&&) = delete;
+  QSBRTestBase& operator=(const QSBRTestBase&) = delete;
+  QSBRTestBase& operator=(QSBRTestBase&&) = delete;
 
  private:
   unodb::qsbr_epoch last_epoch{0};

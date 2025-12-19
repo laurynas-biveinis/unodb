@@ -70,7 +70,7 @@ unavoidable. If a macro has to be introduced, its name must be prefixed with
 
 - The code should follow existing conventions, formatted with
   [Google C++ style][gc++style]. This is enforced by GitHub Actions SuperLinter
-  running clang-format, currently version 20.
+  running clang-format, currently version 21.
 - Each source file must have a `// Copyright <file-intro-year>-<last-edit-year>
 UnoDB contributors` as the first line.
 - Each source file must `#include "global.hpp"` first thing.

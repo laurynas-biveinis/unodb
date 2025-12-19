@@ -20,7 +20,7 @@ constexpr std::string_view value = "Value";
 
 [[nodiscard, gnu::pure]] unodb::value_view from_string_view(
     std::string_view sv) {
-  return {reinterpret_cast<const std::byte *>(sv.data()), sv.length()};
+  return {reinterpret_cast<const std::byte*>(sv.data()), sv.length()};
 }
 
 }  // namespace

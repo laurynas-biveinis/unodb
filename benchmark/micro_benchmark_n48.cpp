@@ -11,62 +11,62 @@
 namespace {
 
 template <class Db>
-void grow_n16_to_n48_sequentially(benchmark::State &state) {
+void grow_n16_to_n48_sequentially(benchmark::State& state) {
   unodb::benchmark::grow_node_sequentially_benchmark<Db, 16>(state);
 }
 
 template <class Db>
-void grow_n16_to_n48_randomly(benchmark::State &state) {
+void grow_n16_to_n48_randomly(benchmark::State& state) {
   unodb::benchmark::grow_node_randomly_benchmark<Db, 16>(state);
 }
 
 template <class Db>
-void n48_sequential_add(benchmark::State &state) {
+void n48_sequential_add(benchmark::State& state) {
   unodb::benchmark::sequential_add_benchmark<Db, 48>(state);
 }
 
 template <class Db>
-void n48_random_add(benchmark::State &state) {
+void n48_random_add(benchmark::State& state) {
   unodb::benchmark::random_add_benchmark<Db, 48>(state);
 }
 
 template <class Db>
-void minimal_n48_tree_full_scan(benchmark::State &state) {
+void minimal_n48_tree_full_scan(benchmark::State& state) {
   unodb::benchmark::minimal_tree_full_scan<Db, 48>(state);
 }
 
 template <class Db>
-void minimal_n48_tree_random_gets(benchmark::State &state) {
+void minimal_n48_tree_random_gets(benchmark::State& state) {
   unodb::benchmark::minimal_tree_random_gets<Db, 48>(state);
 }
 
 template <class Db>
-void full_n48_tree_full_scan(benchmark::State &state) {
+void full_n48_tree_full_scan(benchmark::State& state) {
   unodb::benchmark::full_node_scan_benchmark<Db, 48>(state);
 }
 
 template <class Db>
-void full_n48_tree_random_gets(benchmark::State &state) {
+void full_n48_tree_random_gets(benchmark::State& state) {
   unodb::benchmark::full_node_random_get_benchmark<Db, 48>(state);
 }
 
 template <class Db>
-void full_n48_tree_sequential_delete(benchmark::State &state) {
+void full_n48_tree_sequential_delete(benchmark::State& state) {
   unodb::benchmark::sequential_delete_benchmark<Db, 48>(state);
 }
 
 template <class Db>
-void full_n48_tree_random_delete(benchmark::State &state) {
+void full_n48_tree_random_delete(benchmark::State& state) {
   unodb::benchmark::random_delete_benchmark<Db, 48>(state);
 }
 
 template <class Db>
-void shrink_n256_to_n48_sequentially(benchmark::State &state) {
+void shrink_n256_to_n48_sequentially(benchmark::State& state) {
   unodb::benchmark::shrink_node_sequentially_benchmark<Db, 48>(state);
 }
 
 template <class Db>
-void shrink_n256_to_n48_randomly(benchmark::State &state) {
+void shrink_n256_to_n48_randomly(benchmark::State& state) {
   unodb::benchmark::shrink_node_randomly_benchmark<Db, 48>(state);
 }
 

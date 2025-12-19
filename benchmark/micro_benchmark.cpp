@@ -22,7 +22,7 @@
 namespace {
 
 template <class Db>
-void dense_insert(benchmark::State &state) {
+void dense_insert(benchmark::State& state) {
 #ifdef UNODB_DETAIL_WITH_STATS
   unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   std::size_t tree_size = 0;
@@ -55,7 +55,7 @@ void dense_insert(benchmark::State &state) {
 }
 
 template <class Db>
-void sparse_insert_dups_allowed(benchmark::State &state) {
+void sparse_insert_dups_allowed(benchmark::State& state) {
   unodb::benchmark::batched_prng random_keys;
 #ifdef UNODB_DETAIL_WITH_STATS
   unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
@@ -94,7 +94,7 @@ constexpr auto full_scan_multiplier = 50;
 // inserts a sequences of keys and a fixed value then runs over the
 // tree fetching the each key.
 template <class Db>
-void dense_full_scan(benchmark::State &state) {
+void dense_full_scan(benchmark::State& state) {
   Db test_db;
   const auto key_limit = static_cast<std::uint64_t>(state.range(0));
 
@@ -128,7 +128,7 @@ void dense_full_scan(benchmark::State &state) {
 // inserts keys and a constant value and then scans all entries in the
 // tree using db::scan(), reading both the keys and the values.
 template <class Db>
-void dense_iter_full_fwd_scan(benchmark::State &state) {
+void dense_iter_full_fwd_scan(benchmark::State& state) {
   Db test_db;
   const auto key_limit = static_cast<std::uint64_t>(state.range(0));
 
@@ -143,7 +143,7 @@ void dense_iter_full_fwd_scan(benchmark::State &state) {
     for (auto i = 0; i < full_scan_multiplier; ++i) {
       std::uint64_t sum = 0;
       auto fn =
-          [&sum](const unodb::visitor<typename Db::iterator> &v) noexcept {
+          [&sum](const unodb::visitor<typename Db::iterator>& v) noexcept {
             sum += decode(v.get_key());
             std::ignore = v.get_value();
             return false;
@@ -165,7 +165,7 @@ void dense_iter_full_fwd_scan(benchmark::State &state) {
 // the values (this variant has more overhead than a full scan since
 // it must check for the end of the range).
 template <class Db>
-void dense_iter_keyrange_fwd_scan(benchmark::State &state) {
+void dense_iter_keyrange_fwd_scan(benchmark::State& state) {
   Db test_db;
   const auto key_limit = static_cast<std::uint64_t>(state.range(0));
 
@@ -180,7 +180,7 @@ void dense_iter_keyrange_fwd_scan(benchmark::State &state) {
     for (auto i = 0; i < full_scan_multiplier; ++i) {
       std::uint64_t sum = 0;
       auto fn =
-          [&sum](const unodb::visitor<typename Db::iterator> &v) noexcept {
+          [&sum](const unodb::visitor<typename Db::iterator>& v) noexcept {
             sum += decode(v.get_key());
             std::ignore = v.get_value();
             return false;
@@ -198,7 +198,7 @@ void dense_iter_keyrange_fwd_scan(benchmark::State &state) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-void dense_tree_sparse_deletes_args(benchmark::internal::Benchmark *b) {
+void dense_tree_sparse_deletes_args(benchmark::internal::Benchmark* b) {
   for (auto i = 1000; i <= 5000000; i *= 8) {
     b->Args({i, 800});
     b->Args({i, i});
@@ -206,7 +206,7 @@ void dense_tree_sparse_deletes_args(benchmark::internal::Benchmark *b) {
 }
 
 template <class Db>
-void dense_tree_sparse_deletes(benchmark::State &state) {
+void dense_tree_sparse_deletes(benchmark::State& state) {
   // Node shrinking stats almost always zero, thus this test only tests
   // non-shrinking Node256 delete
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -255,7 +255,7 @@ void dense_tree_sparse_deletes(benchmark::State &state) {
 constexpr auto dense_tree_increasing_keys_delete_insert_pairs = 1000000;
 
 template <class Db>
-void dense_tree_increasing_keys(benchmark::State &state) {
+void dense_tree_increasing_keys(benchmark::State& state) {
   for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
@@ -287,7 +287,7 @@ void dense_tree_increasing_keys(benchmark::State &state) {
                           dense_tree_increasing_keys_delete_insert_pairs * 2);
 }
 
-void dense_insert_value_lengths_args(benchmark::internal::Benchmark *b) {
+void dense_insert_value_lengths_args(benchmark::internal::Benchmark* b) {
   for (auto i = 100; i <= 1000000; i *= 8)
     for (auto j = 0; j < static_cast<int64_t>(unodb::benchmark::values.size());
          ++j)
@@ -295,7 +295,7 @@ void dense_insert_value_lengths_args(benchmark::internal::Benchmark *b) {
 }
 
 template <class Db>
-void dense_insert_value_lengths(benchmark::State &state) {
+void dense_insert_value_lengths(benchmark::State& state) {
 #ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size = 0;
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -328,7 +328,7 @@ void dense_insert_value_lengths(benchmark::State &state) {
 }
 
 template <class Db>
-void dense_insert_dup_attempts(benchmark::State &state) {
+void dense_insert_dup_attempts(benchmark::State& state) {
   for (const auto _ : state) {
     state.PauseTiming();
     const auto key_limit = static_cast<std::uint64_t>(state.range(0));

@@ -49,7 +49,7 @@ using oracle_type = std::unordered_map<std::uint64_t, unodb::value_view>;
 }
 
 [[nodiscard]] unodb::value_view get_value(dynamic_value::size_type max_length,
-                                          values_type &values) {
+                                          values_type& values) {
   const auto make_new_value = values.empty() || DeepState_Bool();
   ASSERT(max_length <= std::numeric_limits<std::uint32_t>::max());
   if (make_new_value) {
@@ -57,18 +57,18 @@ using oracle_type = std::unordered_map<std::uint64_t, unodb::value_view>;
         DeepState_SizeTInRange(0, max_length);
     auto new_value = make_random_value(new_value_len);
     LOG(TRACE) << "Making a new value of length " << new_value_len;
-    const auto &inserted_value = values.emplace_back(std::move(new_value));
+    const auto& inserted_value = values.emplace_back(std::move(new_value));
     return unodb::value_view{inserted_value};
   }
   LOG(TRACE) << "Reusing an existing value";
   ASSERT(values.size() <= std::numeric_limits<std::uint32_t>::max());
   const auto existing_value_i = DeepState_ContainerIndex(values);
-  const auto &existing_value = values[existing_value_i];
+  const auto& existing_value = values[existing_value_i];
   return unodb::value_view{existing_value};
 }
 
 [[nodiscard]] std::uint64_t get_key(std::uint64_t max_key_value,
-                                    const std::vector<std::uint64_t> &keys) {
+                                    const std::vector<std::uint64_t>& keys) {
   const auto use_existing_key = !keys.empty() && DeepState_Bool();
   if (use_existing_key) {
     ASSERT(!keys.empty());
@@ -79,7 +79,7 @@ using oracle_type = std::unordered_map<std::uint64_t, unodb::value_view>;
   return DeepState_UInt64InRange(0, max_key_value);
 }
 
-void dump_tree(const unodb::db<std::uint64_t, unodb::value_view> &tree) {
+void dump_tree(const unodb::db<std::uint64_t, unodb::value_view>& tree) {
   // Dump the tree to a string. Do not attempt to check the dump format, only
   // that dumping does not crash
   std::stringstream dump_sink;
@@ -89,11 +89,11 @@ void dump_tree(const unodb::db<std::uint64_t, unodb::value_view> &tree) {
 #ifdef UNODB_DETAIL_WITH_STATS
 
 void assert_unchanged_tree_after_failed_op(
-    const unodb::db<std::uint64_t, unodb::value_view> &test_db,
+    const unodb::db<std::uint64_t, unodb::value_view>& test_db,
     std::size_t mem_use_before,
-    const unodb::node_type_counter_array &node_counts_before,
-    const unodb::inode_type_counter_array &growing_inode_counts_before,
-    const unodb::inode_type_counter_array &shrinking_inode_counts_before,
+    const unodb::node_type_counter_array& node_counts_before,
+    const unodb::inode_type_counter_array& growing_inode_counts_before,
+    const unodb::inode_type_counter_array& shrinking_inode_counts_before,
     std::size_t key_prefix_splits_before) {
   const auto mem_use_after = test_db.get_current_memory_use();
   ASSERT(mem_use_after == mem_use_before);
@@ -110,8 +110,8 @@ void assert_unchanged_tree_after_failed_op(
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-void op_with_oom_test(oracle_type &oracle, std::vector<std::uint64_t> &keys,
-                      unodb::db<std::uint64_t, unodb::value_view> &test_db,
+void op_with_oom_test(oracle_type& oracle, std::vector<std::uint64_t>& keys,
+                      unodb::db<std::uint64_t, unodb::value_view>& test_db,
                       std::uint64_t key,
                       std::optional<unodb::value_view> value) {
   const auto do_insert = value.has_value();
@@ -136,7 +136,7 @@ void op_with_oom_test(oracle_type &oracle, std::vector<std::uint64_t> &keys,
     try {
       op_result = do_insert ? test_db.insert(key, *value) : test_db.remove(key);
       op_completed = true;
-    } catch (const std::bad_alloc &) {
+    } catch (const std::bad_alloc&) {
       const auto search_result = test_db.get(key).has_value();
       ASSERT(search_result == (oracle.find(key) != oracle.cend()));
 #ifdef UNODB_DETAIL_WITH_STATS

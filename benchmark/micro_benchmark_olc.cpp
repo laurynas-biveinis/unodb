@@ -43,7 +43,7 @@ concurrent_benchmark_olc benchmark_fixture;
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
-void set_common_qsbr_counters(benchmark::State &state) {
+void set_common_qsbr_counters(benchmark::State& state) {
   state.counters["epoch changes"] = unodb::benchmark::to_counter(
       unodb::qsbr::instance().get_epoch_change_count());
   state.counters["mean qstates before epoch change"] = benchmark::Counter(
@@ -53,7 +53,7 @@ void set_common_qsbr_counters(benchmark::State &state) {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-void parallel_get(benchmark::State &state) {
+void parallel_get(benchmark::State& state) {
   benchmark_fixture.parallel_get(state);
 
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -61,7 +61,7 @@ void parallel_get(benchmark::State &state) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-void parallel_insert_disjoint_ranges(benchmark::State &state) {
+void parallel_insert_disjoint_ranges(benchmark::State& state) {
   benchmark_fixture.parallel_insert_disjoint_ranges(state);
 
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -73,7 +73,7 @@ void parallel_insert_disjoint_ranges(benchmark::State &state) {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-void parallel_delete_disjoint_ranges(benchmark::State &state) {
+void parallel_delete_disjoint_ranges(benchmark::State& state) {
   benchmark_fixture.parallel_delete_disjoint_ranges(state);
 
 #ifdef UNODB_DETAIL_WITH_STATS

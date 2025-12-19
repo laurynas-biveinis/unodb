@@ -90,7 +90,7 @@ UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wunused-parameter")
 
 template <class Db>
-void assert_value_eq(const typename Db::get_result &result,
+void assert_value_eq(const typename Db::get_result& result,
                      unodb::value_view expected) noexcept {
   if constexpr (is_mutex_db<Db>) {
     UNODB_DETAIL_ASSERT(result.second.owns_lock());
@@ -103,7 +103,7 @@ void assert_value_eq(const typename Db::get_result &result,
 }
 
 template <class Db>
-void assert_not_found(const typename Db::get_result &result) noexcept {
+void assert_not_found(const typename Db::get_result& result) noexcept {
   if constexpr (is_mutex_db<Db>) {
     UNODB_DETAIL_ASSERT(!result.second.owns_lock());
     UNODB_DETAIL_ASSERT(!result.first.has_value());
@@ -113,8 +113,8 @@ void assert_not_found(const typename Db::get_result &result) noexcept {
 }
 
 template <class Db>
-void do_assert_result_eq(const Db &db, typename Db::key_type key,
-                         unodb::value_view expected, const char *file,
+void do_assert_result_eq(const Db& db, typename Db::key_type key,
+                         unodb::value_view expected, const char* file,
                          int line) {
   std::ostringstream msg;
   unodb::detail::dump_key(msg, key);
@@ -135,8 +135,8 @@ void do_assert_result_eq(const Db &db, typename Db::key_type key,
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
 template <class Db>
-void assert_result_eq(const Db &db, typename Db::key_type key,
-                      unodb::value_view expected, const char *file, int line) {
+void assert_result_eq(const Db& db, typename Db::key_type key,
+                      unodb::value_view expected, const char* file, int line) {
   if constexpr (is_olc_db<Db>) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     do_assert_result_eq<Db>(db, key, expected, file, line);
@@ -253,7 +253,7 @@ class [[nodiscard]] tree_verifier final {
     unodb::key_encoder enc;
     const auto kv{enc.encode(k).get_key_view()};
     key_views.emplace_back(std::array<std::byte, sz>{});
-    auto &a = key_views.back();        // a *reference* to data emplaced_back.
+    auto& a = key_views.back();        // a *reference* to data emplaced_back.
     std::ranges::copy(kv, a.begin());  // copy data into array.
     // Return a key_view backed by the array that we just put on that
     // list.
@@ -596,7 +596,7 @@ class [[nodiscard]] tree_verifier final {
     // Probe the test_db for each key, verifying the expected value is found
     // under that key.
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
-    for (const auto &[key, value] : values) {
+    for (const auto& [key, value] : values) {
       if constexpr (std::is_same_v<typename Db::key_type, unodb::key_view>) {
         ASSERT_VALUE_FOR_KEY(Db, test_db, *key, value);
       } else {
@@ -617,11 +617,11 @@ class [[nodiscard]] tree_verifier final {
     unodb::key_view prev{};
     auto fn =
         [&n, &first,
-         &prev](const unodb::visitor<typename Db::iterator> &visitor) noexcept {
+         &prev](const unodb::visitor<typename Db::iterator>& visitor) noexcept {
           // We can't tell cheap and expensive to copy types apart in an
           // useful way here
           UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
-          const auto &kv = visitor.get_key();
+          const auto& kv = visitor.get_key();
           UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
           if (UNODB_DETAIL_UNLIKELY(first)) {
@@ -634,7 +634,7 @@ class [[nodiscard]] tree_verifier final {
           n++;
           return false;
         };
-    const_cast<Db &>(test_db).scan(fn);
+    const_cast<Db&>(test_db).scan(fn);
     // FIXME(thompsonbry) variable length keys - enable this assert.
     // 3 OOM tests are failing (for each Db type) when this is enabled
     // (off by one).  What is going on there?
@@ -695,7 +695,7 @@ class [[nodiscard]] tree_verifier final {
 #ifdef UNODB_DETAIL_WITH_STATS
 
   void assert_node_counts(
-      const node_type_counter_array &expected_node_counts) const {
+      const node_type_counter_array& expected_node_counts) const {
     // Dump the tree to a string. Do not attempt to check the dump format, only
     // that dumping does not crash
     std::stringstream dump_sink;
@@ -707,7 +707,7 @@ class [[nodiscard]] tree_verifier final {
   }
 
   constexpr void assert_growing_inodes(
-      const inode_type_counter_array &expected_growing_inode_counts)
+      const inode_type_counter_array& expected_growing_inode_counts)
       const noexcept {
     const auto actual_growing_inode_counts = test_db.get_growing_inode_counts();
     UNODB_ASSERT_THAT(
@@ -716,7 +716,7 @@ class [[nodiscard]] tree_verifier final {
   }
 
   constexpr void assert_shrinking_inodes(
-      const inode_type_counter_array &expected_shrinking_inode_counts) {
+      const inode_type_counter_array& expected_shrinking_inode_counts) {
     const auto actual_shrinking_inode_counts =
         test_db.get_shrinking_inode_counts();
     UNODB_ASSERT_THAT(
@@ -740,18 +740,18 @@ class [[nodiscard]] tree_verifier final {
     values.clear();
   }
 
-  [[nodiscard, gnu::pure]] constexpr Db &get_db() noexcept { return test_db; }
+  [[nodiscard, gnu::pure]] constexpr Db& get_db() noexcept { return test_db; }
 
-  tree_verifier(const tree_verifier &) = delete;
-  tree_verifier &operator=(const tree_verifier &) = delete;
+  tree_verifier(const tree_verifier&) = delete;
+  tree_verifier& operator=(const tree_verifier&) = delete;
 
  private:
   // Custom comparator is required for key_view.
   struct comparator {
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26415)
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26418)
-    bool operator()(const ikey_type<Db> &lhs,
-                    const ikey_type<Db> &rhs) const noexcept {
+    bool operator()(const ikey_type<Db>& lhs,
+                    const ikey_type<Db>& rhs) const noexcept {
       if constexpr (std::is_same_v<typename Db::key_type, unodb::key_view>) {
         // Handle wrapped keys.
         return unodb::detail::compare(lhs->data(), lhs->size(), rhs->data(),

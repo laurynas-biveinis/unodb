@@ -48,7 +48,7 @@ enum class [[nodiscard]] thread_operation : std::uint8_t {
 thread_operation thread_op;
 std::size_t op_thread_i;
 
-std::unordered_set<std::uint64_t *> allocated_pointers;
+std::unordered_set<std::uint64_t*> allocated_pointers;
 
 using active_pointers = std::vector<unodb::qsbr_ptr<std::uint64_t>>;
 
@@ -61,19 +61,19 @@ struct [[nodiscard]] thread_info final {
   explicit thread_info(std::size_t id_) noexcept : id{id_} {}
 
   template <typename Function, typename... Args>
-  explicit thread_info(std::size_t id_, Function &&f, Args &&...args)
+  explicit thread_info(std::size_t id_, Function&& f, Args&&... args)
       : thread{std::forward<Function>(f), std::forward<Args>(args)...},
         id{id_} {}
 
-  thread_info(thread_info &&other) noexcept = default;
+  thread_info(thread_info&& other) noexcept = default;
 
-  thread_info(const thread_info &) = delete;
+  thread_info(const thread_info&) = delete;
 
   ~thread_info() noexcept = default;
 
-  thread_info &operator=(thread_info &&other) noexcept = default;
+  thread_info& operator=(thread_info&& other) noexcept = default;
 
-  thread_info &operator=(const thread_info &) = delete;
+  thread_info& operator=(const thread_info&) = delete;
 };
 
 constexpr std::size_t main_thread_i{0};
@@ -88,7 +88,7 @@ constinit std::size_t new_thread_id{1};
 
 template <class T>
 [[nodiscard]] std::pair<typename T::difference_type, typename T::iterator>
-randomly_advanced_pos_and_iterator(T &container UNODB_DETAIL_LIFETIMEBOUND) {
+randomly_advanced_pos_and_iterator(T& container UNODB_DETAIL_LIFETIMEBOUND) {
   auto itr{container.begin()};
   auto i{static_cast<typename T::difference_type>(
       DeepState_ContainerIndex(container))};
@@ -122,7 +122,7 @@ void resume_thread(std::size_t thread_i) {
     try {
       unodb::this_thread().qsbr_resume();
       op_completed = true;
-    } catch (const std::bad_alloc &) {
+    } catch (const std::bad_alloc&) {
       ASSERT(unodb::this_thread().is_qsbr_paused());
       const auto thread_count_after = unodb::qsbr_state::get_thread_count(
           unodb::qsbr::instance().get_state());
@@ -188,19 +188,19 @@ void allocate_pointer(std::size_t thread_i) {
   }
 
   LOG(TRACE) << "Allocating pointer";
-  auto *const new_ptr{static_cast<std::uint64_t *>(
+  auto* const new_ptr{static_cast<std::uint64_t*>(
       unodb::detail::allocate_aligned(sizeof(object_mem)))};
   *new_ptr = object_mem;
   allocated_pointers.insert(new_ptr);
 }
 
 #ifndef NDEBUG
-void check_qsbr_pointer_on_dealloc(const void *ptr) noexcept {
-  ASSERT(*static_cast<const std::uint64_t *>(ptr) == object_mem);
+void check_qsbr_pointer_on_dealloc(const void* ptr) noexcept {
+  ASSERT(*static_cast<const std::uint64_t*>(ptr) == object_mem);
 }
 #endif
 
-void deallocate_pointer(std::uint64_t *ptr) {
+void deallocate_pointer(std::uint64_t* ptr) {
   ASSERT(!unodb::this_thread().is_qsbr_paused());
   ASSERT(*ptr == object_mem);
 
@@ -232,7 +232,7 @@ void deallocate_pointer(std::uint64_t *ptr) {
 #endif
       );
       op_completed = true;
-    } catch (const std::bad_alloc &) {
+    } catch (const std::bad_alloc&) {
 #ifdef UNODB_DETAIL_WITH_STATS
       const auto current_interval_total_dealloc_size_after =
           unodb::this_thread().get_current_interval_total_dealloc_size();
@@ -302,12 +302,12 @@ void deallocate_pointer(std::size_t thread_i) {
 
   auto [ptr_i, itr] = randomly_advanced_pos_and_iterator(allocated_pointers);
   LOG(TRACE) << "Deallocating pointer index " << ptr_i;
-  auto *const ptr{*itr};
+  auto* const ptr{*itr};
   deallocate_pointer(ptr);
   allocated_pointers.erase(itr);
 }
 
-void new_active_pointer_from_allocated_pointer(active_pointers &active_ptrs) {
+void new_active_pointer_from_allocated_pointer(active_pointers& active_ptrs) {
   auto [allocated_ptr_i, allocated_ptr_itr] =
       randomly_advanced_pos_and_iterator(allocated_pointers);
   LOG(TRACE) << "Taking allocated pointer " << allocated_ptr_i;
@@ -315,7 +315,7 @@ void new_active_pointer_from_allocated_pointer(active_pointers &active_ptrs) {
   active_ptrs.emplace_back(*allocated_ptr_itr);
 }
 
-void new_copy_constructed_active_pointer(active_pointers &active_ptrs) {
+void new_copy_constructed_active_pointer(active_pointers& active_ptrs) {
   auto [active_ptr_i, active_ptr_itr] =
       randomly_advanced_pos_and_iterator(active_ptrs);
   LOG(TRACE) << "Copy-constructing active pointer from " << active_ptr_i;
@@ -323,7 +323,7 @@ void new_copy_constructed_active_pointer(active_pointers &active_ptrs) {
   active_ptrs.emplace_back(*active_ptr_itr);
 }
 
-void new_move_constructed_active_pointer(active_pointers &active_ptrs) {
+void new_move_constructed_active_pointer(active_pointers& active_ptrs) {
   auto [active_ptr_i, active_ptr_itr] =
       randomly_advanced_pos_and_iterator(active_ptrs);
   LOG(TRACE) << "Move-constructing active pointer from " << active_ptr_i;
@@ -332,7 +332,7 @@ void new_move_constructed_active_pointer(active_pointers &active_ptrs) {
   active_ptrs.erase(active_ptrs.begin() + active_ptr_i);
 }
 
-void copy_assign_active_pointer(active_pointers &active_ptrs) {
+void copy_assign_active_pointer(active_pointers& active_ptrs) {
   auto [source_active_ptr_i, source_active_ptr_itr] =
       randomly_advanced_pos_and_iterator(active_ptrs);
   auto [dest_active_ptr_i, dest_active_ptr_itr] =
@@ -346,7 +346,7 @@ void copy_assign_active_pointer(active_pointers &active_ptrs) {
   ASSERT(**source_active_ptr_itr == object_mem);
 }
 
-void move_assign_active_pointer(active_pointers &active_ptrs) {
+void move_assign_active_pointer(active_pointers& active_ptrs) {
   auto [source_active_ptr_i, source_active_ptr_itr] =
       randomly_advanced_pos_and_iterator(active_ptrs);
   auto [dest_active_ptr_i, dest_active_ptr_itr] =
@@ -385,7 +385,7 @@ void take_active_pointer(std::size_t thread_i) {
     return;
   }
 
-  auto &active_ptrs = threads[thread_i].active_ptrs;
+  auto& active_ptrs = threads[thread_i].active_ptrs;
 
   if (active_ptrs.empty()) {
     LOG(TRACE) << "No active pointers, creating new one from allocated pointer";
@@ -439,7 +439,7 @@ void release_active_pointer(std::size_t thread_i) {
     return;
   }
 
-  auto &active_ptrs = threads[thread_i].active_ptrs;
+  auto& active_ptrs = threads[thread_i].active_ptrs;
 
   if (active_ptrs.empty()) {
     LOG(TRACE) << "No active pointers, going through quiescent state instead";
@@ -493,7 +493,7 @@ void quit_thread(std::size_t thread_i) {
   const auto thread_itr =
       threads.begin() +
       static_cast<decltype(threads)::difference_type>(thread_i);
-  thread_info &tinfo{*thread_itr};
+  thread_info& tinfo{*thread_itr};
 
   if (!tinfo.active_ptrs.empty()) {
     ASSERT(!tinfo.is_paused);
@@ -687,7 +687,7 @@ TEST(QSBR, DeepStateFuzz) {
           reset_stats();
         });
     const auto unpaused_threads = static_cast<unodb::qsbr_thread_count_type>(
-        std::ranges::count_if(threads, [](const thread_info &info) noexcept {
+        std::ranges::count_if(threads, [](const thread_info& info) noexcept {
           return !info.is_paused;
         }));
     const auto current_qsbr_state = unodb::qsbr::instance().get_state();
@@ -698,11 +698,11 @@ TEST(QSBR, DeepStateFuzz) {
     ASSERT(unodb::qsbr_state::get_threads_in_previous_epoch(
                current_qsbr_state) <= unpaused_threads);
 
-    for (const auto &tinfo : threads)
-      for (const auto &active_ptr : tinfo.active_ptrs)
+    for (const auto& tinfo : threads)
+      for (const auto& active_ptr : tinfo.active_ptrs)
         ASSERT(*active_ptr == object_mem);
     // NOLINTNEXTLINE(bugprone-nondeterministic-pointer-iteration-order)
-    for (const auto *const ptr : allocated_pointers) ASSERT(*ptr == object_mem);
+    for (const auto* const ptr : allocated_pointers) ASSERT(*ptr == object_mem);
 
     // Check that dump does not crash
     std::stringstream dump_sink;
@@ -742,7 +742,7 @@ TEST(QSBR, DeepStateFuzz) {
   }
 
   // NOLINTNEXTLINE(bugprone-nondeterministic-pointer-iteration-order)
-  for (const auto &ptr : allocated_pointers) {
+  for (const auto& ptr : allocated_pointers) {
     LOG(TRACE) << "Deallocating pointer at the test end";
     deallocate_pointer(ptr);
   }

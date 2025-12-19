@@ -61,7 +61,7 @@ Keys to be inserted:    Additional key prefix mismatch keys:
  */
 
 template <class Db>
-void unpredictable_get_shared_length(benchmark::State &state) {
+void unpredictable_get_shared_length(benchmark::State& state) {
   std::vector<std::uint64_t> search_keys{};
   // NOLINTNEXTLINE(readability-math-missing-parentheses)
   search_keys.reserve(7 * 2 + 7 * 2 - 3);
@@ -157,7 +157,7 @@ In benchmark:
 */
 
 template <class Db>
-void insert_keys(Db &test_db, const std::vector<std::uint64_t> &keys) {
+void insert_keys(Db& test_db, const std::vector<std::uint64_t>& keys) {
   for (const auto k : keys) {
     unodb::benchmark::insert_key(test_db, k,
                                  unodb::value_view{unodb::benchmark::value100});
@@ -165,9 +165,9 @@ void insert_keys(Db &test_db, const std::vector<std::uint64_t> &keys) {
 }
 
 template <class Db>
-void do_insert_benchmark(benchmark::State &state,
-                         const std::vector<std::uint64_t> &prepare_keys,
-                         std::vector<std::uint64_t> &benchmark_keys) {
+void do_insert_benchmark(benchmark::State& state,
+                         const std::vector<std::uint64_t>& prepare_keys,
+                         std::vector<std::uint64_t>& benchmark_keys) {
   for (const auto _ : state) {
     state.PauseTiming();
     Db test_db;
@@ -186,7 +186,7 @@ void do_insert_benchmark(benchmark::State &state,
 }
 
 template <class Db>
-void unpredictable_leaf_key_prefix_split(benchmark::State &state) {
+void unpredictable_leaf_key_prefix_split(benchmark::State& state) {
   static constexpr auto stride_len = 7U;
   static constexpr auto num_strides = 36;
   static constexpr auto num_top_bytes = stride_len * num_strides;
@@ -283,7 +283,7 @@ In benchmark:
 */
 
 template <class Db>
-void unpredictable_cut_key_prefix(benchmark::State &state) {
+void unpredictable_cut_key_prefix(benchmark::State& state) {
   static constexpr auto stride_len = 6U;
   static constexpr auto num_strides = 42;
   static constexpr auto num_top_bytes = stride_len * num_strides;
@@ -381,7 +381,7 @@ Keys to be removed in benchmark:
 */
 
 template <class Db>
-void unpredictable_prepend_key_prefix(benchmark::State &state) {
+void unpredictable_prepend_key_prefix(benchmark::State& state) {
   static constexpr auto stride_len = 6U;
   static constexpr auto num_strides = 42;
   static constexpr auto num_top_bytes = stride_len * num_strides;

@@ -36,11 +36,11 @@ class qsbr_ptr_base {
 #ifndef NDEBUG
   /// Register an active pointer \a ptr to QSBR-managed data in this thread. A
   /// no-op with `nullptr`.
-  static void register_active_ptr(const void *ptr);
+  static void register_active_ptr(const void* ptr);
 
   /// Unregister an active pointer \a ptr to QSBR-managed data in this thread. A
   /// no-op with `nullptr`.
-  static void unregister_active_ptr(const void *ptr);
+  static void unregister_active_ptr(const void* ptr);
 #endif
 };
 
@@ -59,7 +59,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   /// Type of values pointed to.
   using value_type = T;
   /// Raw pointer type.
-  using pointer = T *;
+  using pointer = T*;
   /// Reference type.
   using reference = std::add_lvalue_reference_t<T>;
   /// Type for pointer arithmetic.
@@ -83,7 +83,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   }
 
   /// Copy-construct from \a other.
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr(const qsbr_ptr &other) noexcept
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr(const qsbr_ptr& other) noexcept
       : ptr{other.ptr} {
 #ifndef NDEBUG
     register_active_ptr(ptr);
@@ -93,7 +93,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Move-construct from \a other, leaving it `nullptr`.
-  constexpr qsbr_ptr(qsbr_ptr &&other) noexcept
+  constexpr qsbr_ptr(qsbr_ptr&& other) noexcept
       : ptr{std::exchange(other.ptr, nullptr)} {}
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
@@ -106,8 +106,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   }
 
   /// Copy-assign from \a other.
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr &operator=(
-      const qsbr_ptr &other) noexcept {
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr& operator=(
+      const qsbr_ptr& other) noexcept {
 #ifndef NDEBUG
     if (this == &other) return *this;
     unregister_active_ptr(ptr);
@@ -120,8 +120,8 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   }
 
   /// Move-assign from \a other, leaving it `nullptr`.
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr &operator=(
-      qsbr_ptr &&other) noexcept {
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr& operator=(
+      qsbr_ptr&& other) noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
 #endif
@@ -145,13 +145,13 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Member access operator.
-  [[nodiscard, gnu::pure]] constexpr T *operator->() const noexcept {
+  [[nodiscard, gnu::pure]] constexpr T* operator->() const noexcept {
     return ptr;
   }
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
   /// Pre-increment operator.
-  constexpr qsbr_ptr &operator++() noexcept {
+  constexpr qsbr_ptr& operator++() noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
 #endif
@@ -173,7 +173,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
 
   /// Pre-decrement operator.
-  constexpr qsbr_ptr &operator--() noexcept {
+  constexpr qsbr_ptr& operator--() noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
 #endif
@@ -196,7 +196,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
 
   /// Add offset \a n to this pointer.
-  constexpr qsbr_ptr &operator+=(difference_type n) noexcept {
+  constexpr qsbr_ptr& operator+=(difference_type n) noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
 #endif
@@ -225,7 +225,7 @@ class [[nodiscard]] qsbr_ptr : public detail::qsbr_ptr_base {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
 
   /// Subtract offset \a n from this pointer.
-  constexpr qsbr_ptr &operator-=(difference_type n) noexcept {
+  constexpr qsbr_ptr& operator-=(difference_type n) noexcept {
 #ifndef NDEBUG
     unregister_active_ptr(ptr);
 #endif
@@ -310,27 +310,27 @@ class qsbr_ptr_span : public std::ranges::view_base {
   // a pointer from span::data(). The caller ensures data outlives this view.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   UNODB_DETAIL_RELEASE_CONSTEXPR
-  explicit qsbr_ptr_span(const std::span<T> &other) noexcept
+  explicit qsbr_ptr_span(const std::span<T>& other) noexcept
       : start{other.data()}, length{static_cast<std::size_t>(other.size())} {}
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Copy-construct from \a other.
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span(const qsbr_ptr_span &) noexcept =
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span(const qsbr_ptr_span&) noexcept =
       default;
 
   /// Move-construct from \a other.
-  constexpr qsbr_ptr_span(qsbr_ptr_span &&) noexcept = default;
+  constexpr qsbr_ptr_span(qsbr_ptr_span&&) noexcept = default;
 
   /// Destruct the span.
   ~qsbr_ptr_span() noexcept = default;
 
   /// Copy-assign from \a other.
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span &operator=(
-      const qsbr_ptr_span &) noexcept = default;
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span& operator=(
+      const qsbr_ptr_span&) noexcept = default;
 
   /// Move-assign from \a other.
-  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span &operator=(
-      qsbr_ptr_span &&) noexcept = default;
+  UNODB_DETAIL_RELEASE_CONSTEXPR qsbr_ptr_span& operator=(
+      qsbr_ptr_span&&) noexcept = default;
 
   /// Get the start iterator.
   [[nodiscard, gnu::pure]] constexpr qsbr_ptr<T> begin() const noexcept {
@@ -359,7 +359,7 @@ class qsbr_ptr_span : public std::ranges::view_base {
 
 /// Deduction guide for constructing from std::span with the same element type.
 template <typename T>
-qsbr_ptr_span(const std::span<T> &) -> qsbr_ptr_span<T>;
+qsbr_ptr_span(const std::span<T>&) -> qsbr_ptr_span<T>;
 
 }  // namespace unodb
 

@@ -245,9 +245,9 @@ class mutex_db final {
 
   // Releases the mutex in the case key was not found, keeps it locked
   // otherwise.
-  [[nodiscard]] static bool key_found(const get_result &result) noexcept {
+  [[nodiscard]] static bool key_found(const get_result& result) noexcept {
 #ifndef NDEBUG
-    const auto &lock{result.second};
+    const auto& lock{result.second};
     // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     assert(!result.first || lock.owns_lock());
 #endif
@@ -256,7 +256,7 @@ class mutex_db final {
   }
 
   // Debugging
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const {
     const std::lock_guard guard{mutex};
     db_.dump(os);
   }

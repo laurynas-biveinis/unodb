@@ -18,15 +18,15 @@ class [[nodiscard]] concurrent_benchmark_mutex final
 
 concurrent_benchmark_mutex benchmark_fixture;
 
-void parallel_get(benchmark::State &state) {
+void parallel_get(benchmark::State& state) {
   benchmark_fixture.parallel_get(state);
 }
 
-void parallel_insert_disjoint_ranges(benchmark::State &state) {
+void parallel_insert_disjoint_ranges(benchmark::State& state) {
   benchmark_fixture.parallel_insert_disjoint_ranges(state);
 }
 
-void parallel_delete_disjoint_ranges(benchmark::State &state) {
+void parallel_delete_disjoint_ranges(benchmark::State& state) {
   benchmark_fixture.parallel_delete_disjoint_ranges(state);
 }
 

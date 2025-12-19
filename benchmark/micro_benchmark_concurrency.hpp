@@ -17,7 +17,7 @@ static constexpr auto small_concurrent_tree_size = 70000;
 // Do not OOM on a 16GB Linux test server
 static constexpr auto large_concurrent_tree_size = 2000000;
 
-constexpr void concurrency_ranges(::benchmark::internal::Benchmark *b,
+constexpr void concurrency_ranges(::benchmark::internal::Benchmark* b,
                                   int max_concurrency) {
   for (auto i = 1; i <= max_concurrency; i *= 2)
     b->Args({i, small_concurrent_tree_size});
@@ -25,11 +25,11 @@ constexpr void concurrency_ranges(::benchmark::internal::Benchmark *b,
     b->Args({i, large_concurrent_tree_size});
 }
 
-constexpr void concurrency_ranges16(::benchmark::internal::Benchmark *b) {
+constexpr void concurrency_ranges16(::benchmark::internal::Benchmark* b) {
   concurrency_ranges(b, 16);
 }
 
-constexpr void concurrency_ranges32(::benchmark::internal::Benchmark *b) {
+constexpr void concurrency_ranges32(::benchmark::internal::Benchmark* b) {
   concurrency_ranges(b, 32);
 }
 
@@ -69,7 +69,7 @@ class [[nodiscard]] concurrent_benchmark {
   concurrent_benchmark() noexcept = default;
   virtual ~concurrent_benchmark() noexcept = default;
 
-  void parallel_get(::benchmark::State &state) {
+  void parallel_get(::benchmark::State& state) {
     const auto num_of_threads = static_cast<std::size_t>(state.range(0));
     const auto tree_size = static_cast<std::uint64_t>(state.range(1));
 
@@ -89,7 +89,7 @@ class [[nodiscard]] concurrent_benchmark {
     test_db.reset(nullptr);
   }
 
-  void parallel_insert_disjoint_ranges(::benchmark::State &state) {
+  void parallel_insert_disjoint_ranges(::benchmark::State& state) {
     const auto num_of_threads = static_cast<std::size_t>(state.range(0));
     const auto tree_size = static_cast<std::uint64_t>(state.range(1));
 
@@ -108,7 +108,7 @@ class [[nodiscard]] concurrent_benchmark {
     test_db.reset(nullptr);
   }
 
-  void parallel_delete_disjoint_ranges(::benchmark::State &state) {
+  void parallel_delete_disjoint_ranges(::benchmark::State& state) {
     const auto num_of_threads = static_cast<std::size_t>(state.range(0));
     const auto tree_size = static_cast<std::uint64_t>(state.range(1));
 
@@ -129,18 +129,18 @@ class [[nodiscard]] concurrent_benchmark {
     test_db.reset(nullptr);
   }
 
-  concurrent_benchmark(const concurrent_benchmark<Db, Thread> &) = delete;
-  concurrent_benchmark(concurrent_benchmark<Db, Thread> &&) = delete;
-  concurrent_benchmark<Db, Thread> &operator=(
-      const concurrent_benchmark<Db, Thread> &) = delete;
-  concurrent_benchmark<Db, Thread> &operator=(
-      concurrent_benchmark<Db, Thread> &&) = delete;
+  concurrent_benchmark(const concurrent_benchmark<Db, Thread>&) = delete;
+  concurrent_benchmark(concurrent_benchmark<Db, Thread>&&) = delete;
+  concurrent_benchmark<Db, Thread>& operator=(
+      const concurrent_benchmark<Db, Thread>&) = delete;
+  concurrent_benchmark<Db, Thread>& operator=(
+      concurrent_benchmark<Db, Thread>&&) = delete;
 
  private:
   template <typename Worker>
-  void do_parallel_test(Db &instance, std::size_t num_of_threads,
+  void do_parallel_test(Db& instance, std::size_t num_of_threads,
                         std::size_t tree_size, Worker worker,
-                        ::benchmark::State &state) {
+                        ::benchmark::State& state) {
     setup();
 
     std::vector<Thread> threads{num_of_threads - 1};
@@ -166,19 +166,19 @@ class [[nodiscard]] concurrent_benchmark {
     teardown();
   }
 
-  static void parallel_get_worker(const Db &test_db, std::uint64_t start,
+  static void parallel_get_worker(const Db& test_db, std::uint64_t start,
                                   std::uint64_t length) {
     for (std::uint64_t i = start; i < start + length; ++i)
       get_existing_key(test_db, i);
   }
 
-  static void parallel_insert_worker(Db &test_db, std::uint64_t start,
+  static void parallel_insert_worker(Db& test_db, std::uint64_t start,
                                      std::uint64_t length) {
     for (std::uint64_t i = start; i < start + length; ++i)
       insert_key(test_db, i, values[i % values.size()]);
   }
 
-  static void parallel_delete_worker(Db &test_db, std::uint64_t start,
+  static void parallel_delete_worker(Db& test_db, std::uint64_t start,
                                      std::uint64_t length) {
     for (std::uint64_t i = start; i < start + length; ++i)
       delete_key(test_db, i);

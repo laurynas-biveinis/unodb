@@ -53,10 +53,10 @@ struct set_qsbr_per_thread_in_main_thread {
           std::move(main_thread_qsbr_reclamator_instance));
     }
     // LCOV_EXCL_START
-    catch (const std::bad_alloc &e) {
+    catch (const std::bad_alloc& e) {
       std::cerr << "Allocation failure: " << e.what() << '\n';
       UNODB_DETAIL_CRASH();
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
       std::cerr << "Unexpected exception: " << e.what() << '\n';
       UNODB_DETAIL_CRASH();
     } catch (...) {
@@ -87,7 +87,7 @@ thread_local std::unique_ptr<qsbr_per_thread>
 
 // LCOV_EXCL_START
 [[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr_epoch::dump(
-    std::ostream &os) const {
+    std::ostream& os) const {
   os << "epoch = " << static_cast<std::uint64_t>(epoch_val);
 #ifndef NDEBUG
   assert_invariant();
@@ -97,7 +97,7 @@ thread_local std::unique_ptr<qsbr_per_thread>
 
 [[nodiscard]] qsbr_state::type
 qsbr_state::atomic_fetch_dec_threads_in_previous_epoch(
-    std::atomic<qsbr_state::type> &word) noexcept {
+    std::atomic<qsbr_state::type>& word) noexcept {
   const auto old_word = word.fetch_sub(1, std::memory_order_acq_rel);
 
   UNODB_DETAIL_ASSERT(get_threads_in_previous_epoch(old_word) > 0);
@@ -110,7 +110,7 @@ qsbr_state::atomic_fetch_dec_threads_in_previous_epoch(
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
 // LCOV_EXCL_START
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr_state::dump(std::ostream &os,
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr_state::dump(std::ostream& os,
                                                           type word) {
   os << "QSBR state: " << do_get_epoch(word)
      << ", threads = " << do_get_thread_count(word)
@@ -131,14 +131,14 @@ constinit std::atomic<std::uint64_t> deallocation_request::instance_count{0};
 
 }  // namespace detail
 
-void qsbr_per_thread::register_active_ptr(const void *ptr) {
+void qsbr_per_thread::register_active_ptr(const void* ptr) {
   UNODB_DETAIL_ASSERT(ptr != nullptr);
   UNODB_DETAIL_ASSERT(!is_qsbr_paused());
 
   active_ptrs.insert(ptr);
 }
 
-void qsbr_per_thread::unregister_active_ptr(const void *ptr) {
+void qsbr_per_thread::unregister_active_ptr(const void* ptr) {
   UNODB_DETAIL_ASSERT(ptr != nullptr);
   UNODB_DETAIL_ASSERT(!is_qsbr_paused());
 
@@ -162,13 +162,13 @@ namespace {
 /// \param requests Deallocation requests to be added to the orphan list
 /// \param orphan_list_node Preallocated list node that will hold the requests
 void add_to_orphan_list(
-    std::atomic<detail::dealloc_vector_list_node *> &orphan_list,
-    detail::dealloc_request_vector &&requests,
+    std::atomic<detail::dealloc_vector_list_node*>& orphan_list,
+    detail::dealloc_request_vector&& requests,
     std::unique_ptr<detail::dealloc_vector_list_node>
         orphan_list_node) noexcept {
   if (requests.empty()) return;
 
-  auto *const list_node_ptr = orphan_list_node.release();
+  auto* const list_node_ptr = orphan_list_node.release();
 
   list_node_ptr->requests = std::move(requests);
   list_node_ptr->next = orphan_list.load(std::memory_order_acquire);
@@ -187,14 +187,14 @@ void add_to_orphan_list(
 ///
 /// \param orphan_list Global orphaned request list
 /// \return Taken orphaned request list
-[[nodiscard]] detail::dealloc_vector_list_node *take_orphan_list(
-    std::atomic<detail::dealloc_vector_list_node *> &orphan_list
+[[nodiscard]] detail::dealloc_vector_list_node* take_orphan_list(
+    std::atomic<detail::dealloc_vector_list_node*>& orphan_list
     UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return orphan_list.exchange(nullptr, std::memory_order_acq_rel);
 }
 
 /// Free pending requests and orphan \a list itself.
-void free_orphan_list(detail::dealloc_vector_list_node *list) noexcept {
+void free_orphan_list(detail::dealloc_vector_list_node* list) noexcept {
   while (list != nullptr) {
     const std::unique_ptr<detail::dealloc_vector_list_node> list_ptr{list};
     const detail::deferred_requests requests_to_deallocate{
@@ -284,7 +284,7 @@ UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
 
 void qsbr::unregister_thread(std::uint64_t quiescent_states_since_epoch_change,
                              qsbr_epoch thread_epoch,
-                             qsbr_per_thread &qsbr_thread)
+                             qsbr_per_thread& qsbr_thread)
 #ifndef UNODB_DETAIL_WITH_STATS
     noexcept
 #endif
@@ -400,7 +400,7 @@ void qsbr::reset_stats() {
 // Some GCC versions suggest cold attribute on already cold-marked functions
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
-[[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr::dump(std::ostream &out) const {
+[[gnu::cold]] UNODB_DETAIL_NOINLINE void qsbr::dump(std::ostream& out) const {
   out << state.load(std::memory_order_acquire) << '\n';
 }
 
@@ -470,15 +470,15 @@ void qsbr::epoch_change_barrier_and_handle_orphans(
   __tsan_acquire(&instance());
 #endif
 
-  auto *orphaned_previous_requests =
+  auto* orphaned_previous_requests =
       take_orphan_list(orphaned_previous_interval_dealloc_requests);
-  auto *orphaned_current_requests =
+  auto* orphaned_current_requests =
       take_orphan_list(orphaned_current_interval_dealloc_requests);
 
   free_orphan_list(orphaned_previous_requests);
 
   if (UNODB_DETAIL_LIKELY(!single_thread_mode)) {
-    detail::dealloc_vector_list_node *new_previous_requests = nullptr;
+    detail::dealloc_vector_list_node* new_previous_requests = nullptr;
     if (UNODB_DETAIL_UNLIKELY(
             !orphaned_previous_interval_dealloc_requests
                  .compare_exchange_strong(

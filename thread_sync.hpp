@@ -55,16 +55,16 @@ class [[nodiscard]] thread_sync final {
   }
 
   /// Copy construction is disabled.
-  thread_sync(const thread_sync &) = delete;
+  thread_sync(const thread_sync&) = delete;
 
   /// Move construction is disabled.
-  thread_sync(thread_sync &&) = delete;
+  thread_sync(thread_sync&&) = delete;
 
   /// Copy assignment is disabled.
-  thread_sync &operator=(const thread_sync &) = delete;
+  thread_sync& operator=(const thread_sync&) = delete;
 
   /// Move assignment is disabled.
-  thread_sync &operator=(thread_sync &&) = delete;
+  thread_sync& operator=(thread_sync&&) = delete;
 
  private:
   /// Underlying condition variable.

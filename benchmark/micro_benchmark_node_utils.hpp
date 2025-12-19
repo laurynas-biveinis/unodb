@@ -72,7 +72,7 @@ class [[nodiscard]] batched_prng final {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  [[nodiscard]] result_type get(::benchmark::State &state) {
+  [[nodiscard]] result_type get(::benchmark::State& state) {
     if (random_key_ptr == random_keys.cend()) {
       state.PauseTiming();
       refill();
@@ -312,24 +312,24 @@ struct [[nodiscard]] tree_stats final {
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  explicit constexpr tree_stats(const Db &test_db) noexcept
+  explicit constexpr tree_stats(const Db& test_db) noexcept
       : node_counts{test_db.get_node_counts()},
         growing_inode_counts{test_db.get_growing_inode_counts()},
         key_prefix_splits{test_db.get_key_prefix_splits()} {}
 
-  constexpr void get(const Db &test_db) noexcept {
+  constexpr void get(const Db& test_db) noexcept {
     node_counts = test_db.get_node_counts();
     growing_inode_counts = test_db.get_growing_inode_counts();
     key_prefix_splits = test_db.get_key_prefix_splits();
   }
 
   [[nodiscard, gnu::pure]] constexpr bool operator==(
-      const tree_stats<Db> &other) const noexcept {
+      const tree_stats<Db>& other) const noexcept {
     return node_counts == other.node_counts;
   }
 
   [[nodiscard, gnu::pure]] constexpr bool internal_levels_equal(
-      const tree_stats<Db> &other) const noexcept {
+      const tree_stats<Db>& other) const noexcept {
     return node_counts[unodb::as_i<unodb::node_type::I4>] ==
                other.node_counts[unodb::as_i<unodb::node_type::I4>] &&
            node_counts[unodb::as_i<unodb::node_type::I16>] ==
@@ -350,7 +350,7 @@ struct [[nodiscard]] tree_stats final {
 template <class Db>
 class [[nodiscard]] growing_tree_node_stats final {
  public:
-  constexpr void get(const Db &test_db) noexcept {
+  constexpr void get(const Db& test_db) noexcept {
     stats.get(test_db);
 #ifndef NDEBUG
     get_called = true;
@@ -358,7 +358,7 @@ class [[nodiscard]] growing_tree_node_stats final {
 #endif
   }
 
-  constexpr void publish(::benchmark::State &state) const noexcept {
+  constexpr void publish(::benchmark::State& state) const noexcept {
     UNODB_DETAIL_ASSERT(get_called);
     state.counters["L"] = static_cast<double>(
         stats.node_counts[::unodb::as_i<unodb::node_type::LEAF>]);
@@ -389,12 +389,12 @@ class [[nodiscard]] growing_tree_node_stats final {
   tree_stats<Db> stats;
 #ifndef NDEBUG
   bool get_called{false};
-  const Db *db{nullptr};
+  const Db* db{nullptr};
 #endif
 };
 
-inline void set_size_counter(::benchmark::State &state,
-                             const std::string &label, std::size_t value) {
+inline void set_size_counter(::benchmark::State& state,
+                             const std::string& label, std::size_t value) {
   // state.SetLabel might be a better logical fit but the automatic k/M/G
   // suffix is too nice
   state.counters[label] = ::benchmark::Counter(
@@ -406,7 +406,7 @@ inline void set_size_counter(::benchmark::State &state,
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 template <class Db, node_type DominatingINodeType>
-void assert_dominating_inode_tree(const Db &test_db
+void assert_dominating_inode_tree(const Db& test_db
                                   UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
   static_assert(DominatingINodeType != node_type::LEAF);
@@ -432,7 +432,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 namespace detail {
 
 template <class Db, unsigned NodeSize>
-void assert_dominating_inode_size_tree(const Db &test_db) noexcept {
+void assert_dominating_inode_size_tree(const Db& test_db) noexcept {
   assert_dominating_inode_tree<Db, node_size_to_node_type<NodeSize>()>(test_db);
 }
 
@@ -440,7 +440,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 
 template <class Db, unsigned SmallerNodeSize>
-void assert_growing_nodes(const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
+void assert_growing_nodes(const Db& test_db UNODB_DETAIL_USED_IN_DEBUG,
                           std::uint64_t expected_number_of_nodes
                           UNODB_DETAIL_USED_IN_DEBUG)
 #ifndef NDEBUG
@@ -461,7 +461,7 @@ void assert_growing_nodes(const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
 }
 
 template <class Db, unsigned SmallerNodeSize>
-void assert_shrinking_nodes(const Db &test_db UNODB_DETAIL_USED_IN_DEBUG,
+void assert_shrinking_nodes(const Db& test_db UNODB_DETAIL_USED_IN_DEBUG,
                             std::uint64_t expected_number_of_nodes
                             UNODB_DETAIL_USED_IN_DEBUG)
 #ifndef NDEBUG
@@ -490,7 +490,7 @@ namespace detail {
 template <class Db>
 class [[nodiscard]] tree_shape_snapshot final {
  public:
-  explicit constexpr tree_shape_snapshot(const Db &test_db
+  explicit constexpr tree_shape_snapshot(const Db& test_db
                                          UNODB_DETAIL_USED_IN_DEBUG) noexcept
 #ifndef NDEBUG
       : db{test_db}
@@ -513,7 +513,7 @@ class [[nodiscard]] tree_shape_snapshot final {
 
  private:
 #ifndef NDEBUG
-  const Db &db;
+  const Db& db;
 #ifdef UNODB_DETAIL_WITH_STATS
   const tree_stats<Db> stats;
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -525,7 +525,7 @@ class [[nodiscard]] tree_shape_snapshot final {
 // Insertion
 
 template <class Db, unsigned NodeSize>
-std::uint64_t insert_sequentially(Db &instance, unsigned key_count) {
+std::uint64_t insert_sequentially(Db& instance, unsigned key_count) {
   std::uint64_t k = 0;
   decltype(key_count) i = 0;
   while (true) {
@@ -541,7 +541,7 @@ std::uint64_t insert_sequentially(Db &instance, unsigned key_count) {
 }
 
 template <class Db>
-void insert_keys(Db &instance, const std::vector<std::uint64_t> &keys) {
+void insert_keys(Db& instance, const std::vector<std::uint64_t>& keys) {
   for (const auto k : keys) {
     insert_key(instance, k, unodb::value_view{value100});
   }
@@ -551,7 +551,7 @@ namespace detail {
 
 template <class Db, typename NumberToKeyFn>
 [[nodiscard]] std::uint64_t insert_keys_to_limit(
-    Db &db, std::uint64_t key_limit, NumberToKeyFn number_to_key_fn) {
+    Db& db, std::uint64_t key_limit, NumberToKeyFn number_to_key_fn) {
   std::uint64_t i{0};
   while (true) {
     const std::uint64_t key = number_to_key_fn(i);
@@ -563,7 +563,7 @@ template <class Db, typename NumberToKeyFn>
 }
 
 template <class Db, typename NumberToKeyFn>
-[[nodiscard]] std::uint64_t insert_n_keys(Db &db, unsigned n,
+[[nodiscard]] std::uint64_t insert_n_keys(Db& db, unsigned n,
                                           NumberToKeyFn number_to_key_fn) {
   std::uint64_t last_inserted_key{0};
 
@@ -577,7 +577,7 @@ template <class Db, typename NumberToKeyFn>
 
 template <class Db, unsigned NodeSize, typename NumberToKeyFn>
 [[nodiscard]] std::uint64_t insert_n_keys_to_empty_tree(
-    Db &db, unsigned n, NumberToKeyFn number_to_key_fn) {
+    Db& db, unsigned n, NumberToKeyFn number_to_key_fn) {
   UNODB_DETAIL_ASSERT(db.empty());
   const auto result = insert_n_keys(db, n, number_to_key_fn);
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -587,7 +587,7 @@ template <class Db, unsigned NodeSize, typename NumberToKeyFn>
 }
 
 template <class Db, unsigned NodeSize>
-std::uint64_t make_full_node_size_tree(Db &db, unsigned key_count) {
+std::uint64_t make_full_node_size_tree(Db& db, unsigned key_count) {
   static_assert(NodeSize == 4 || NodeSize == 16 || NodeSize == 48 ||
                 NodeSize == 256);
 
@@ -602,7 +602,7 @@ std::uint64_t make_full_node_size_tree(Db &db, unsigned key_count) {
 
 template <class Db, unsigned NodeCapacity>
 [[nodiscard]] std::tuple<std::uint64_t, const tree_shape_snapshot<Db>>
-make_base_tree_for_add(Db &test_db, unsigned node_count) {
+make_base_tree_for_add(Db& test_db, unsigned node_count) {
   const auto key_limit = insert_n_keys_to_empty_tree<
       Db, NodeCapacity,
       decltype(number_to_minimal_node_size_tree_key<NodeCapacity>)>(
@@ -612,7 +612,7 @@ make_base_tree_for_add(Db &test_db, unsigned node_count) {
 }
 
 template <class Db, unsigned NodeSize>
-[[nodiscard]] std::uint64_t make_minimal_node_size_tree(Db &db,
+[[nodiscard]] std::uint64_t make_minimal_node_size_tree(Db& db,
                                                         unsigned key_count) {
   return insert_n_keys_to_empty_tree<
       Db, NodeSize, decltype(number_to_minimal_node_size_tree_key<NodeSize>)>(
@@ -622,7 +622,7 @@ template <class Db, unsigned NodeSize>
 
 template <class Db, unsigned SmallerNodeSize>
 [[nodiscard]] std::uint64_t grow_full_node_tree_to_minimal_next_size_leaf_level(
-    Db &db, std::uint64_t key_limit) {
+    Db& db, std::uint64_t key_limit) {
   static_assert(SmallerNodeSize == 4 || SmallerNodeSize == 16 ||
                 SmallerNodeSize == 48);
 
@@ -660,7 +660,7 @@ template <class Db, unsigned SmallerNodeSize>
 // Gets
 
 template <class Db, typename NumberToKeyFn>
-[[nodiscard]] std::int64_t get_key_loop(Db &db, std::uint64_t key_limit,
+[[nodiscard]] std::int64_t get_key_loop(Db& db, std::uint64_t key_limit,
                                         NumberToKeyFn number_to_key_fn) {
   std::uint64_t i{0};
   while (true) {
@@ -677,14 +677,14 @@ template <class Db, typename NumberToKeyFn>
 // Deletes
 
 template <class Db>
-void delete_keys(Db &instance, const std::vector<std::uint64_t> &keys) {
+void delete_keys(Db& instance, const std::vector<std::uint64_t>& keys) {
   for (const auto k : keys) delete_key(instance, k);
 }
 
 // Benchmarks
 
 template <class Db, unsigned NodeSize>
-void full_node_scan_benchmark(::benchmark::State &state) {
+void full_node_scan_benchmark(::benchmark::State& state) {
   const auto key_count = static_cast<unsigned>(state.range(0));
   Db test_db;
   std::int64_t items_processed{0};
@@ -719,7 +719,7 @@ void full_node_scan_benchmark(::benchmark::State &state) {
 }
 
 template <class Db, unsigned NodeSize>
-void full_node_random_get_benchmark(::benchmark::State &state) {
+void full_node_random_get_benchmark(::benchmark::State& state) {
   Db test_db;
   const auto key_count = static_cast<unsigned>(state.range(0));
 
@@ -785,7 +785,7 @@ void full_node_random_get_benchmark(::benchmark::State &state) {
 
 // Do not bother with extern templates due to large parameter space
 template <class Db, unsigned SmallerNodeSize>
-void grow_node_sequentially_benchmark(::benchmark::State &state) {
+void grow_node_sequentially_benchmark(::benchmark::State& state) {
 #ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -837,7 +837,7 @@ void grow_node_sequentially_benchmark(::benchmark::State &state) {
 
 // Do not bother with extern templates due to large parameter space
 template <class Db, unsigned SmallerNodeSize>
-void grow_node_randomly_benchmark(::benchmark::State &state) {
+void grow_node_randomly_benchmark(::benchmark::State& state) {
 #ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -889,7 +889,7 @@ void grow_node_randomly_benchmark(::benchmark::State &state) {
 // number_to_minimal_node16_over_node4_key.
 
 template <class Db, unsigned SmallerNodeSize>
-void shrink_node_sequentially_benchmark(::benchmark::State &state) {
+void shrink_node_sequentially_benchmark(::benchmark::State& state) {
 #ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -938,7 +938,7 @@ void shrink_node_sequentially_benchmark(::benchmark::State &state) {
 }
 
 template <class Db, unsigned SmallerNodeSize>
-void shrink_node_randomly_benchmark(::benchmark::State &state) {
+void shrink_node_randomly_benchmark(::benchmark::State& state) {
 #ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -986,7 +986,7 @@ void shrink_node_randomly_benchmark(::benchmark::State &state) {
 }
 
 template <class Db, unsigned NodeSize>
-void sequential_add_benchmark(::benchmark::State &state) {
+void sequential_add_benchmark(::benchmark::State& state) {
 #ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -1023,7 +1023,7 @@ void sequential_add_benchmark(::benchmark::State &state) {
 }
 
 template <class Db, unsigned NodeSize>
-void random_add_benchmark(::benchmark::State &state) {
+void random_add_benchmark(::benchmark::State& state) {
 #ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -1059,7 +1059,7 @@ void random_add_benchmark(::benchmark::State &state) {
 }
 
 template <class Db, unsigned NodeSize>
-void minimal_tree_full_scan(::benchmark::State &state) {
+void minimal_tree_full_scan(::benchmark::State& state) {
   const auto key_count = static_cast<unsigned>(state.range(0));
   Db test_db;
 
@@ -1084,7 +1084,7 @@ void minimal_tree_full_scan(::benchmark::State &state) {
 }
 
 template <class Db, unsigned NodeSize>
-void minimal_tree_random_gets(::benchmark::State &state) {
+void minimal_tree_random_gets(::benchmark::State& state) {
   const auto node_count = static_cast<unsigned>(state.range(0));
   const auto key_count = (static_cast<std::uint64_t>(node_count) *
                           detail::node_capacity_to_minimum_size<NodeSize>()) -
@@ -1116,7 +1116,7 @@ void minimal_tree_random_gets(::benchmark::State &state) {
 }
 
 template <class Db, unsigned NodeSize>
-void sequential_delete_benchmark(::benchmark::State &state) {
+void sequential_delete_benchmark(::benchmark::State& state) {
   const auto key_count = static_cast<unsigned>(state.range(0));
   int i{0};
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -1159,7 +1159,7 @@ void sequential_delete_benchmark(::benchmark::State &state) {
 }
 
 template <class Db, unsigned NodeSize>
-void random_delete_benchmark(::benchmark::State &state) {
+void random_delete_benchmark(::benchmark::State& state) {
   const auto key_count{static_cast<unsigned>(state.range(0))};
 #ifdef UNODB_DETAIL_WITH_STATS
   std::size_t tree_size{0};

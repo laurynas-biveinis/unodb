@@ -26,7 +26,7 @@ using QSBRDeathTest = unodb::test::QSBRTestBase;
 
 using unodb::detail::thread_syncs;
 
-void active_pointer_ops(void *raw_ptr) noexcept {
+void active_pointer_ops(void* raw_ptr) noexcept {
   unodb::qsbr_ptr<void> active_ptr{raw_ptr};
   unodb::qsbr_ptr<void> active_ptr2{active_ptr};
   unodb::qsbr_ptr<void> active_ptr3{std::move(active_ptr)};
@@ -189,13 +189,13 @@ UNODB_TEST_F(QSBR, ThreeThreadsInitialPaused) {
 }
 
 UNODB_TEST_F(QSBR, SingleThreadOneAllocation) {
-  auto *ptr = static_cast<char *>(allocate());
+  auto* ptr = static_cast<char*>(allocate());
   touch_memory(ptr);
   qsbr_deallocate(ptr);
 }
 
 UNODB_TEST_F(QSBR, SingleThreadAllocationAndEpochChange) {
-  auto *ptr = static_cast<char *>(allocate());
+  auto* ptr = static_cast<char*>(allocate());
   touch_memory(ptr);
   qsbr_deallocate(ptr);
 
@@ -205,7 +205,7 @@ UNODB_TEST_F(QSBR, SingleThreadAllocationAndEpochChange) {
 
   check_epoch_advanced();
 
-  ptr = static_cast<char *>(allocate());
+  ptr = static_cast<char*>(allocate());
   touch_memory(ptr);
   qsbr_deallocate(ptr);
 }
@@ -213,7 +213,7 @@ UNODB_TEST_F(QSBR, SingleThreadAllocationAndEpochChange) {
 UNODB_TEST_F(QSBR, SingleThreadAllocationAndEpochChangeOnScopeExit) {
   {
     const unodb::quiescent_state_on_scope_exit qsbr_after_deallocate;
-    auto *const ptr = static_cast<char *>(allocate());
+    auto* const ptr = static_cast<char*>(allocate());
     touch_memory(ptr);
     qsbr_deallocate(ptr);
 
@@ -222,7 +222,7 @@ UNODB_TEST_F(QSBR, SingleThreadAllocationAndEpochChangeOnScopeExit) {
 
   check_epoch_advanced();
 
-  auto *const ptr2 = static_cast<char *>(allocate());
+  auto* const ptr2 = static_cast<char*>(allocate());
   touch_memory(ptr2);
   qsbr_deallocate(ptr2);
 }
@@ -231,19 +231,19 @@ UNODB_TEST_F(QSBR, QStateOnScopeExitInException) {
   try {
     const unodb::quiescent_state_on_scope_exit qsbr_on_scope_exit;
     throw std::system_error(std::make_error_code(std::errc::invalid_argument));
-  } catch (const std::system_error &) {  // NOLINT(bugprone-empty-catch)
+  } catch (const std::system_error&) {  // NOLINT(bugprone-empty-catch)
   }
 }
 
 UNODB_TEST_F(QSBR, ActivePointersBeforeQuiescentState) {
-  auto *ptr = allocate();
+  auto* ptr = allocate();
   active_pointer_ops(ptr);
   qsbr_deallocate(ptr);
   quiescent();
 }
 
 UNODB_TEST_F(QSBR, ActivePointersBeforePause) {
-  auto *ptr = allocate();
+  auto* ptr = allocate();
   active_pointer_ops(ptr);
   qsbr_deallocate(ptr);
   qsbr_pause();
@@ -252,7 +252,7 @@ UNODB_TEST_F(QSBR, ActivePointersBeforePause) {
 #ifndef NDEBUG
 
 UNODB_TEST_F(QSBRDeathTest, ActivePointersDuringQuiescentState) {
-  auto *ptr = allocate();
+  auto* ptr = allocate();
   const unodb::qsbr_ptr<void> active_ptr{ptr};
   UNODB_ASSERT_DEATH({ quiescent(); }, "");
   qsbr_deallocate(ptr);
@@ -362,7 +362,7 @@ UNODB_TEST_F(QSBR, QuiescentThreadQuittingDoesNotAdvanceEpoch) {
 }
 
 UNODB_TEST_F(QSBR, TwoThreadAllocations) {
-  auto *ptr = static_cast<char *>(allocate());
+  auto* ptr = static_cast<char*>(allocate());
 
   unodb::qsbr_thread second_thread([] {
     thread_syncs[0].notify();
@@ -402,7 +402,7 @@ UNODB_TEST_F(QSBR, TwoThreadAllocations) {
 }
 
 UNODB_TEST_F(QSBR, TwoThreadAllocationsQuitWithoutQuiescentState) {
-  auto *ptr = static_cast<char *>(allocate());
+  auto* ptr = static_cast<char*>(allocate());
 
   unodb::qsbr_thread second_thread([] {
     thread_syncs[0].notify();  // 1 ->
@@ -431,10 +431,10 @@ UNODB_TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
   qsbr_pause();
 
   unodb::qsbr_thread second_thread([] {
-    auto *ptr = static_cast<char *>(allocate());
+    auto* ptr = static_cast<char*>(allocate());
     qsbr_deallocate(ptr);
 
-    ptr = static_cast<char *>(allocate());
+    ptr = static_cast<char*>(allocate());
 
     thread_syncs[0].notify();
     thread_syncs[1].wait();
@@ -474,7 +474,7 @@ UNODB_TEST_F(QSBR, SecondThreadAllocatingWhileFirstPaused) {
 }
 
 UNODB_TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
-  auto *ptr = static_cast<char *>(allocate());
+  auto* ptr = static_cast<char*>(allocate());
 
   unodb::qsbr_thread second_thread([] {
     thread_syncs[0].notify();  // 1 ->
@@ -497,7 +497,7 @@ UNODB_TEST_F(QSBR, SecondThreadQuittingWithoutQuiescentState) {
 }
 
 UNODB_TEST_F(QSBR, SecondThreadQuittingWithoutQStateBefore1stThreadQState) {
-  auto *ptr = static_cast<char *>(allocate());
+  auto* ptr = static_cast<char*>(allocate());
 
   unodb::qsbr_thread second_thread([] {
     thread_syncs[0].notify();
@@ -524,7 +524,7 @@ UNODB_TEST_F(QSBR, ToSingleThreadedModeBeforeDeallocation) {
 
   thread_syncs[0].wait();  // 1 <-
 
-  auto *ptr = allocate();
+  auto* ptr = allocate();
 
   thread_syncs[1].notify();  // 2 ->
   join(second_thread);
@@ -540,7 +540,7 @@ UNODB_TEST_F(QSBR, ToSingleThreadedModeAfterDeallocation) {
 
   thread_syncs[0].wait();  // 1 <-
 
-  auto *ptr = allocate();
+  auto* ptr = allocate();
 
   qsbr_deallocate(ptr);
 
@@ -557,19 +557,19 @@ UNODB_TEST_F(QSBR, ToSingleThreadedModeAndAllocate) {
   }};
 
   thread_syncs[0].wait();  // 1 <-
-  auto *ptr = allocate();
+  auto* ptr = allocate();
   qsbr_deallocate(ptr);
 
   thread_syncs[1].notify();  // 2 ->
   join(second_thread);
 
-  auto *ptr2 = allocate();
+  auto* ptr2 = allocate();
   qsbr_deallocate(ptr2);
 }
 
 UNODB_TEST_F(QSBR, ToSingleThreadedModeDeallocationSeesIt) {
-  auto *ptr = allocate();
-  auto *ptr2 = allocate();
+  auto* ptr = allocate();
+  auto* ptr2 = allocate();
 
   unodb::qsbr_thread second_thread{[] {
     thread_syncs[0].notify();  // 1 ->
@@ -584,17 +584,17 @@ UNODB_TEST_F(QSBR, ToSingleThreadedModeDeallocationSeesIt) {
   thread_syncs[1].notify();  // 2 ->
   join(second_thread);
 
-  auto *ptr3 = allocate();
+  auto* ptr3 = allocate();
   qsbr_deallocate(ptr2);
   qsbr_deallocate(ptr3);
 }
 
 UNODB_TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
   mark_epoch();
-  auto *ptr_1_1 = static_cast<char *>(allocate());
+  auto* ptr_1_1 = static_cast<char*>(allocate());
 
   unodb::qsbr_thread second_thread([] {
-    auto *ptr_2_1 = static_cast<char *>(allocate());
+    auto* ptr_2_1 = static_cast<char*>(allocate());
 
     qsbr_deallocate(ptr_2_1);
     quiescent();
@@ -603,7 +603,7 @@ UNODB_TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
 
     // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
     touch_memory(ptr_2_1);
-    auto *ptr_2_2 = static_cast<char *>(allocate());
+    auto* ptr_2_2 = static_cast<char*>(allocate());
     qsbr_deallocate(ptr_2_2);
     quiescent();
 
@@ -626,7 +626,7 @@ UNODB_TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
 
   // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
   touch_memory(ptr_1_1);
-  auto *ptr_1_2 = static_cast<char *>(allocate());
+  auto* ptr_1_2 = static_cast<char*>(allocate());
   qsbr_deallocate(ptr_1_2);
   quiescent();
 
@@ -650,7 +650,7 @@ UNODB_TEST_F(QSBR, TwoThreadsConsecutiveEpochAllocations) {
 
 UNODB_TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   mark_epoch();
-  auto *ptr = static_cast<char *>(allocate());
+  auto* ptr = static_cast<char*>(allocate());
 
   unodb::qsbr_thread second_thread{[] {
     thread_syncs[0].notify();  // 1 ->
@@ -674,7 +674,7 @@ UNODB_TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
   // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
   touch_memory(ptr);
 
-  auto *ptr2 = static_cast<char *>(allocate());
+  auto* ptr2 = static_cast<char*>(allocate());
   qsbr_deallocate(ptr2);
   // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
   touch_memory(ptr2);
@@ -691,10 +691,10 @@ UNODB_TEST_F(QSBR, TwoThreadsNoImmediateTwoEpochDeallocationOnOneQuitting) {
 UNODB_TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
   mark_epoch();
 
-  auto *ptr_1_1 = static_cast<char *>(allocate());
+  auto* ptr_1_1 = static_cast<char*>(allocate());
 
   unodb::qsbr_thread second_thread{[] {
-    auto *ptr_2_1 = static_cast<char *>(allocate());
+    auto* ptr_2_1 = static_cast<char*>(allocate());
     thread_syncs[0].notify();  // 1 ->
     thread_syncs[1].wait();    // 2 <-
 
@@ -706,7 +706,7 @@ UNODB_TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
 
     // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
     touch_memory(ptr_2_1);
-    auto *ptr_2_2 = static_cast<char *>(allocate());
+    auto* ptr_2_2 = static_cast<char*>(allocate());
     qsbr_deallocate(ptr_2_2);
     // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
     touch_memory(ptr_2_2);
@@ -736,7 +736,7 @@ UNODB_TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
 
   // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
   touch_memory(ptr_1_1);
-  auto *ptr_1_2 = static_cast<char *>(allocate());
+  auto* ptr_1_2 = static_cast<char*>(allocate());
   qsbr_deallocate(ptr_1_2);
   // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
   touch_memory(ptr_1_2);
@@ -752,7 +752,7 @@ UNODB_TEST_F(QSBR, TwoThreadsAllocatingInTwoEpochsAndPausing) {
 }
 
 UNODB_TEST_F(QSBR, TwoThreadsDeallocateBeforeQuittingPointerStaysLive) {
-  auto *ptr = static_cast<char *>(allocate());
+  auto* ptr = static_cast<char*>(allocate());
 
   unodb::qsbr_thread second_thread{[ptr] {
     qsbr_deallocate(ptr);
@@ -769,7 +769,7 @@ UNODB_TEST_F(QSBR, TwoThreadsDeallocateBeforeQuittingPointerStaysLive) {
 
 UNODB_TEST_F(QSBR, ThreeDeallocationRequestSets) {
   mark_epoch();
-  auto *ptr = static_cast<char *>(allocate());
+  auto* ptr = static_cast<char*>(allocate());
 
   unodb::qsbr_thread second_thread{[] {
     thread_syncs[0].notify();  // 1 ->
@@ -802,7 +802,7 @@ UNODB_TEST_F(QSBR, ThreeDeallocationRequestSets) {
 
 UNODB_TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
   mark_epoch();
-  auto *const ptr = static_cast<char *>(allocate());
+  auto* const ptr = static_cast<char*>(allocate());
   touch_memory(ptr, 'A');
 
   unodb::qsbr_thread second_thread{[ptr] {
@@ -843,8 +843,8 @@ UNODB_TEST_F(QSBR, ReacquireLivePtrAfterQuiescentState) {
 #ifdef UNODB_DETAIL_WITH_STATS
 
 UNODB_TEST_F(QSBR, ResetStats) {
-  auto *ptr = allocate();
-  auto *ptr2 = allocate();
+  auto* ptr = allocate();
+  auto* ptr2 = allocate();
 
   unodb::qsbr_thread second_thread{[] {
     quiescent();
@@ -920,7 +920,7 @@ UNODB_TEST_F(QSBR, DeallocEpochAssert) {
 
   thread_syncs[0].wait();  // 1 <-
 
-  auto *ptr = allocate();
+  auto* ptr = allocate();
 
   unodb::qsbr_thread third_thread{[] {
     thread_syncs[2].notify();  // 2 ->

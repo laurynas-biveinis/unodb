@@ -57,7 +57,7 @@ class ARTConcurrencyTest : public ::testing::Test {
       threads[i] =
           unodb::test::thread<Db>{test_function, &verifier, i, OpsPerThread};
     }
-    for (auto &t : threads) {
+    for (auto& t : threads) {
       t.join();
     }
 
@@ -73,14 +73,14 @@ class ARTConcurrencyTest : public ::testing::Test {
     parallel_test<ThreadCount, OpsPerThread>(key_range_op_thread);
   }
 
-  static void parallel_insert_thread(unodb::test::tree_verifier<Db> *verifier,
+  static void parallel_insert_thread(unodb::test::tree_verifier<Db>* verifier,
                                      std::size_t thread_i,
                                      std::size_t ops_per_thread) {
     verifier->insert_preinserted_key_range(thread_i * ops_per_thread,
                                            ops_per_thread);
   }
 
-  static void parallel_remove_thread(unodb::test::tree_verifier<Db> *verifier,
+  static void parallel_remove_thread(unodb::test::tree_verifier<Db>* verifier,
                                      std::size_t thread_i,
                                      std::size_t ops_per_thread) {
     const auto start_key = thread_i * ops_per_thread;
@@ -98,7 +98,7 @@ class ARTConcurrencyTest : public ::testing::Test {
   }
 
   // test helper for scan() verification.
-  static void do_scan_verification(unodb::test::tree_verifier<Db> *verifier,
+  static void do_scan_verification(unodb::test::tree_verifier<Db>* verifier,
                                    std::uint64_t key) {
     const bool fwd = odd(key);  // select scan direction
     const auto k0 = (key > 100) ? (key - 100) : key;
@@ -109,9 +109,9 @@ class ARTConcurrencyTest : public ::testing::Test {
 
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
     auto fn = [&n, &sum, &fwd, &k0, &k1,
-               &prior](const unodb::visitor<typename Db::iterator> &v) {
+               &prior](const unodb::visitor<typename Db::iterator>& v) {
       n++;
-      const auto &akey = decode(v.get_key());  // actual visited key.
+      const auto& akey = decode(v.get_key());  // actual visited key.
       sum += akey;
       const auto expected =  // Note: same value formula as insert().
           unodb::test::test_values[akey % unodb::test::test_values.size()];
@@ -149,7 +149,7 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
   }
 
-  static void key_range_op_thread(unodb::test::tree_verifier<Db> *verifier,
+  static void key_range_op_thread(unodb::test::tree_verifier<Db>* verifier,
                                   std::size_t thread_i,
                                   std::size_t ops_per_thread) {
     constexpr auto ntasks = 4;  // Note: 4 to enable scan tests.
@@ -179,7 +179,7 @@ class ARTConcurrencyTest : public ::testing::Test {
     }
   }
 
-  static void random_op_thread(unodb::test::tree_verifier<Db> *verifier,
+  static void random_op_thread(unodb::test::tree_verifier<Db>* verifier,
                                std::size_t thread_i,
                                std::size_t ops_per_thread) {
     std::random_device rd;
@@ -214,10 +214,10 @@ class ARTConcurrencyTest : public ::testing::Test {
   unodb::test::tree_verifier<Db> verifier{true};
 
  public:
-  ARTConcurrencyTest(const ARTConcurrencyTest<Db> &) = delete;
-  ARTConcurrencyTest(ARTConcurrencyTest<Db> &&) = delete;
-  ARTConcurrencyTest<Db> &operator=(const ARTConcurrencyTest<Db> &) = delete;
-  ARTConcurrencyTest<Db> &operator=(ARTConcurrencyTest<Db> &&) = delete;
+  ARTConcurrencyTest(const ARTConcurrencyTest<Db>&) = delete;
+  ARTConcurrencyTest(ARTConcurrencyTest<Db>&&) = delete;
+  ARTConcurrencyTest<Db>& operator=(const ARTConcurrencyTest<Db>&) = delete;
+  ARTConcurrencyTest<Db>& operator=(ARTConcurrencyTest<Db>&&) = delete;
 };
 
 // FIXME(thompsonbry) variable length keys - enable key_view variants

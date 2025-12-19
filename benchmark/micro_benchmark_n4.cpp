@@ -49,7 +49,7 @@ template <unsigned NodeSize>
 }
 
 template <class Db, unsigned NodeSize>
-void node4_sequential_insert(benchmark::State &state) {
+void node4_sequential_insert(benchmark::State& state) {
 #ifdef UNODB_DETAIL_WITH_STATS
   unodb::benchmark::growing_tree_node_stats<Db> growing_tree_stats;
   std::size_t tree_size = 0;
@@ -80,17 +80,17 @@ void node4_sequential_insert(benchmark::State &state) {
 }
 
 template <class Db>
-void full_n4_sequential_insert(benchmark::State &state) {
+void full_n4_sequential_insert(benchmark::State& state) {
   node4_sequential_insert<Db, 4>(state);
 }
 
 template <class Db>
-void minimal_n4_sequential_insert(benchmark::State &state) {
+void minimal_n4_sequential_insert(benchmark::State& state) {
   node4_sequential_insert<Db, 2>(state);
 }
 
 template <class Db, unsigned NodeSize>
-void node4_random_insert(benchmark::State &state) {
+void node4_random_insert(benchmark::State& state) {
   auto keys =
       make_n_key_sequence<NodeSize>(static_cast<std::size_t>(state.range(0)));
 
@@ -115,27 +115,27 @@ void node4_random_insert(benchmark::State &state) {
 }
 
 template <class Db>
-void full_n4_random_insert(benchmark::State &state) {
+void full_n4_random_insert(benchmark::State& state) {
   node4_random_insert<Db, 4>(state);
 }
 
 template <class Db>
-void minimal_n4_random_insert(benchmark::State &state) {
+void minimal_n4_random_insert(benchmark::State& state) {
   node4_random_insert<Db, 2>(state);
 }
 
 template <class Db>
-void n4_full_scan(benchmark::State &state) {
+void n4_full_scan(benchmark::State& state) {
   unodb::benchmark::full_node_scan_benchmark<Db, 4>(state);
 }
 
 template <class Db>
-void n4_random_gets(benchmark::State &state) {
+void n4_random_gets(benchmark::State& state) {
   unodb::benchmark::full_node_random_get_benchmark<Db, 4>(state);
 }
 
 template <class Db, unsigned NodeSize>
-void node4_sequential_delete_benchmark(benchmark::State &state,
+void node4_sequential_delete_benchmark(benchmark::State& state,
                                        std::uint64_t delete_key_zero_bits) {
   const auto key_count = static_cast<unsigned>(state.range(0));
   int keys_deleted{0};
@@ -169,13 +169,13 @@ void node4_sequential_delete_benchmark(benchmark::State &state,
 }
 
 template <class Db>
-void full_n4_sequential_delete(benchmark::State &state) {
+void full_n4_sequential_delete(benchmark::State& state) {
   node4_sequential_delete_benchmark<Db, 4>(
       state, unodb::benchmark::node_size_to_key_zero_bits<4>());
 }
 
 template <class Db, unsigned NodeSize>
-void node4_random_delete_benchmark(benchmark::State &state,
+void node4_random_delete_benchmark(benchmark::State& state,
                                    std::uint64_t delete_key_zero_bits) {
   const auto key_count = static_cast<unsigned>(state.range(0));
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -205,7 +205,7 @@ void node4_random_delete_benchmark(benchmark::State &state,
 }
 
 template <class Db>
-void full_n4_random_deletes(benchmark::State &state) {
+void full_n4_random_deletes(benchmark::State& state) {
   node4_random_delete_benchmark<Db, 4>(
       state, unodb::benchmark::node_size_to_key_zero_bits<4>());
 }
@@ -214,24 +214,24 @@ constexpr auto minimal_node4_tree_full_leaf_level_key_zero_bits =
     0xFCFC'FCFC'FCFC'FCFEULL;
 
 template <class Db>
-void full_n4_to_minimal_sequential_delete(benchmark::State &state) {
+void full_n4_to_minimal_sequential_delete(benchmark::State& state) {
   node4_sequential_delete_benchmark<Db, 4>(
       state, minimal_node4_tree_full_leaf_level_key_zero_bits);
 }
 
 template <class Db>
-void full_n4_to_minimal_random_delete(benchmark::State &state) {
+void full_n4_to_minimal_random_delete(benchmark::State& state) {
   node4_random_delete_benchmark<Db, 4>(
       state, minimal_node4_tree_full_leaf_level_key_zero_bits);
 }
 
 template <class Db>
-void shrink_node16_to_n4_sequentially(benchmark::State &state) {
+void shrink_node16_to_n4_sequentially(benchmark::State& state) {
   unodb::benchmark::shrink_node_sequentially_benchmark<Db, 4>(state);
 }
 
 template <class Db>
-void shrink_node16_to_n4_randomly(benchmark::State &state) {
+void shrink_node16_to_n4_randomly(benchmark::State& state) {
   unodb::benchmark::shrink_node_randomly_benchmark<Db, 4>(state);
 }
 

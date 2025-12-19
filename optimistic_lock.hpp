@@ -343,7 +343,7 @@ class [[nodiscard]] optimistic_lock final {
 
     /// Output the lock word to \a os output stream. Should only be used
     /// for debug dumping.
-    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
+    [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const {
       os << "version = 0x" << std::hex << std::setfill('0') << std::setw(8)
          << version << std::dec;
       if (is_write_locked()) os << " (write locked)";
@@ -457,7 +457,7 @@ class [[nodiscard]] optimistic_lock final {
     /// should not call this directly. Use optimistic_lock::try_read_lock() or
     /// optimistic_lock::rehydrate_read_lock() instead.
     // TODO(laurynas): hide this constructor from users with C++ access rules.
-    read_critical_section(optimistic_lock &lock_,
+    read_critical_section(optimistic_lock& lock_,
                           version_type version_) noexcept
         : lock{&lock_}, version{version_} {}
 
@@ -474,7 +474,7 @@ class [[nodiscard]] optimistic_lock final {
     }
 
     /// Move \a other RCS into this one.
-    read_critical_section &operator=(read_critical_section &&other) noexcept {
+    read_critical_section& operator=(read_critical_section&& other) noexcept {
       lock = other.lock;
       // The current implementation does not need lock == nullptr in the
       // destructor, thus only reset other.lock in debug builds
@@ -556,16 +556,16 @@ class [[nodiscard]] optimistic_lock final {
       return version.get();
     }
 
-    read_critical_section(const read_critical_section &) = delete;
-    read_critical_section(read_critical_section &&) = delete;
-    read_critical_section &operator=(const read_critical_section &) = delete;
+    read_critical_section(const read_critical_section&) = delete;
+    read_critical_section(read_critical_section&&) = delete;
+    read_critical_section& operator=(const read_critical_section&) = delete;
 
    private:
     /// Lock backing this RCS.
 #ifndef NDEBUG
     mutable
 #endif
-        optimistic_lock *lock{nullptr};
+        optimistic_lock* lock{nullptr};
 
     /// Lock version at the RCS creation time. Immutable throughout the RCS
     /// lifetime.
@@ -595,7 +595,7 @@ class [[nodiscard]] optimistic_lock final {
     /// the RCS lock version equals the current lock version.
     /// \note write_guard::must_restart must be called on the created instance
     /// to check for success.
-    explicit write_guard(read_critical_section &&critical_section) noexcept
+    explicit write_guard(read_critical_section&& critical_section) noexcept
         : lock{try_lock_upgrade(std::move(critical_section))} {}
 
     /// Unlock if needed and destruct the write guard.
@@ -634,27 +634,27 @@ class [[nodiscard]] optimistic_lock final {
     [[nodiscard]] bool active() const noexcept { return lock != nullptr; }
 
     /// Check whether this write guard holds a write lock on \a lock_
-    [[nodiscard]] bool guards(const optimistic_lock &lock_) const noexcept {
+    [[nodiscard]] bool guards(const optimistic_lock& lock_) const noexcept {
       return lock == &lock_;
     }
 #endif
 
-    write_guard(const write_guard &) = delete;
-    write_guard(write_guard &&) = delete;
-    write_guard &operator=(const write_guard &) = delete;
-    write_guard &operator=(write_guard &&) = delete;
+    write_guard(const write_guard&) = delete;
+    write_guard(write_guard&&) = delete;
+    write_guard& operator=(const write_guard&) = delete;
+    write_guard& operator=(write_guard&&) = delete;
 
    private:
     /// Attempt to upgrade the underlying lock of \a critical_section to
     /// write-locked state. The RCS is consumed in the process.
     /// \return the write-locked lock if upgrade succeeded, `nullptr` if the RCS
     /// version did not match the current lock version
-    [[nodiscard]] static optimistic_lock *try_lock_upgrade(
-        read_critical_section &&critical_section) noexcept {
+    [[nodiscard]] static optimistic_lock* try_lock_upgrade(
+        read_critical_section&& critical_section) noexcept {
       const auto upgrade_success =
           critical_section.lock->try_upgrade_to_write_lock(
               critical_section.version);
-      auto *const result = UNODB_DETAIL_LIKELY(upgrade_success)
+      auto* const result = UNODB_DETAIL_LIKELY(upgrade_success)
                                ? critical_section.lock
                                : nullptr;
 #ifndef NDEBUG
@@ -664,7 +664,7 @@ class [[nodiscard]] optimistic_lock final {
     }
 
     /// Underlying lock. If `nullptr`, this WG is inactive.
-    optimistic_lock *lock{nullptr};
+    optimistic_lock* lock{nullptr};
   };  // class write_guard
 
   /// Construct a new optimistic lock.
@@ -733,7 +733,7 @@ class [[nodiscard]] optimistic_lock final {
 
   /// Output the lock representation to \a os output stream. Should only be used
   /// for debug dumping.
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const {
     const auto dump_version = version.load_acquire();
     os << "lock: ";
     dump_version.dump(os);
@@ -743,10 +743,10 @@ class [[nodiscard]] optimistic_lock final {
 #endif
   }
 
-  optimistic_lock(const optimistic_lock &) = delete;
-  optimistic_lock(optimistic_lock &&) = delete;
-  optimistic_lock &operator=(const optimistic_lock &) = delete;
-  optimistic_lock &operator=(optimistic_lock &&) = delete;
+  optimistic_lock(const optimistic_lock&) = delete;
+  optimistic_lock(optimistic_lock&&) = delete;
+  optimistic_lock& operator=(const optimistic_lock&) = delete;
+  optimistic_lock& operator=(optimistic_lock&&) = delete;
 
  private:
   /// Check if the current lock version has not changed since \a
@@ -872,14 +872,14 @@ class [[nodiscard]] in_critical_section final {
 
   /// Copy-assign another wrapped value.
   // NOLINTNEXTLINE(cert-oop54-cpp)
-  in_critical_section &operator=(
-      const in_critical_section &new_value) noexcept {
+  in_critical_section& operator=(
+      const in_critical_section& new_value) noexcept {
     store(new_value.load());
     return *this;
   }
 
   /// Assign \a new_value to the wrapped value.
-  in_critical_section &operator=(T new_value) noexcept {
+  in_critical_section& operator=(T new_value) noexcept {
     store(new_value);
     return *this;
   }
@@ -920,9 +920,9 @@ class [[nodiscard]] in_critical_section final {
     value.store(new_value, std::memory_order_relaxed);
   }
 
-  in_critical_section(const in_critical_section &) = delete;
-  in_critical_section(in_critical_section &&) = delete;
-  void operator=(in_critical_section &&) = delete;
+  in_critical_section(const in_critical_section&) = delete;
+  in_critical_section(in_critical_section&&) = delete;
+  void operator=(in_critical_section&&) = delete;
 
  private:
   /// Wrapped value.

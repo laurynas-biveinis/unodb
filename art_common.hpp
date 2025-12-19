@@ -62,10 +62,10 @@ template <typename Iterator>
 class visitor {
  protected:
   /// Reference to underlying iterator.
-  Iterator &it;
+  Iterator& it;
 
   /// Construct visitor wrapping given iterator.
-  explicit visitor(Iterator &it_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  explicit visitor(Iterator& it_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : it(it_) {}
 
  public:
@@ -129,13 +129,13 @@ namespace detail {
 static constexpr size_t INITIAL_BUFFER_CAPACITY = 256;
 
 /// Dump \a byte to \a os stream as a hexadecimal number.
-[[gnu::cold]] void dump_byte(std::ostream &os, std::byte byte);
+[[gnu::cold]] void dump_byte(std::ostream& os, std::byte byte);
 
 /// Dump \a v to \a os as a sequence of bytes.
-[[gnu::cold]] void dump_val(std::ostream &os, unodb::value_view v);
+[[gnu::cold]] void dump_val(std::ostream& os, unodb::value_view v);
 
 /// Dump variable-length \a key to \a os as a sequence of bytes.
-[[gnu::cold]] inline void dump_key(std::ostream &os, key_view key) {
+[[gnu::cold]] inline void dump_key(std::ostream& os, key_view key) {
   const auto sz = key.size_bytes();
   os << "key(" << sz << "): 0x";
   for (std::size_t i = 0; i < sz; ++i) unodb::detail::dump_byte(os, key[i]);
@@ -144,7 +144,7 @@ static constexpr size_t INITIAL_BUFFER_CAPACITY = 256;
 /// Dump \a key to \a os as a sequence of bytes.
 /// \tparam T key type
 template <typename T>
-[[gnu::cold]] void dump_key(std::ostream &os, T key) {
+[[gnu::cold]] void dump_key(std::ostream& os, T key) {
   if constexpr (std::is_same_v<T, key_view>) {
     // TODO(laurynas): call dump_key?
     const auto sz = key.size_bytes();
@@ -162,16 +162,16 @@ template <typename T>
 /// \param cap The current buffer capacity.
 /// \param off The current number of used bytes.
 /// \param min_capacity The desired new minimum capacity.
-inline void ensure_capacity(std::byte *&buf, size_t &cap, size_t off,
+inline void ensure_capacity(std::byte*& buf, size_t& cap, size_t off,
                             size_t min_capacity) {
   // Find the smallest power of two >= min_capacity.
   const auto asize = std::bit_ceil(min_capacity);
-  auto *tmp = detail::allocate_aligned(asize);  // new allocation.
+  auto* tmp = detail::allocate_aligned(asize);  // new allocation.
   std::memcpy(tmp, buf, off);                   // copy over the data.
   if (cap > INITIAL_BUFFER_CAPACITY) {          // free old buffer iff allocated
     detail::free_aligned(buf);
   }
-  buf = static_cast<std::byte *>(tmp);
+  buf = static_cast<std::byte*>(tmp);
   cap = asize;
 }
 
@@ -277,7 +277,7 @@ class key_encoder {
 
   /// Reset the encoder to encode another key.
   /// \return Self
-  key_encoder &reset() noexcept {
+  key_encoder& reset() noexcept {
     off = 0;
     return *this;
   }
@@ -296,7 +296,7 @@ class key_encoder {
   ///
   /// \note The caller is responsible for not violating the ART contract (no key
   /// may be a prefix of another key).
-  key_encoder &append_bytes(std::span<const std::byte> data) {
+  key_encoder& append_bytes(std::span<const std::byte> data) {
     const auto sz = data.size_bytes();
     ensure_available(sz);
     std::memcpy(buf + off, data.data(), sz);
@@ -312,7 +312,7 @@ class key_encoder {
 
   /// Encode signed 8-bit integer \a v to binary comparable form.
   /// \return Self
-  key_encoder &encode(std::int8_t v) {
+  key_encoder& encode(std::int8_t v) {
     // TODO(laurynas): look into inlining the 1 constants.
     constexpr auto i_one = static_cast<int8_t>(1);
     constexpr auto u_one = static_cast<uint8_t>(1);
@@ -324,7 +324,7 @@ class key_encoder {
 
   /// Encode signed 16-bit integer \a v to binary comparable form.
   /// \return Self
-  key_encoder &encode(std::int16_t v) {
+  key_encoder& encode(std::int16_t v) {
     constexpr auto i_one = static_cast<int16_t>(1);
     constexpr auto u_one = static_cast<uint16_t>(1);
     const auto u = static_cast<uint16_t>(
@@ -335,7 +335,7 @@ class key_encoder {
 
   /// Encode signed 32-bit integer \a v to binary comparable form.
   /// \return Self
-  key_encoder &encode(std::int32_t v) {
+  key_encoder& encode(std::int32_t v) {
     constexpr int32_t i_one = 1;
     constexpr uint32_t u_one = static_cast<uint32_t>(1);
     const uint32_t u =
@@ -346,7 +346,7 @@ class key_encoder {
 
   /// Encode signed 64-bit integer \a v to binary comparable form.
   /// \return Self
-  key_encoder &encode(std::int64_t v) {
+  key_encoder& encode(std::int64_t v) {
     constexpr int64_t i_one = static_cast<int64_t>(1);
     constexpr uint64_t u_one = static_cast<uint64_t>(1);
     const uint64_t u =
@@ -366,9 +366,9 @@ class key_encoder {
 
   /// Encode unsigned 8-bit integer \a v to binary comparable form.
   /// \return Self
-  key_encoder &encode(std::uint8_t v) {
+  key_encoder& encode(std::uint8_t v) {
     ensure_available(sizeof(v));
-    buf[off++] = reinterpret_cast<const std::byte &>(v);
+    buf[off++] = reinterpret_cast<const std::byte&>(v);
     return *this;
   }
 
@@ -376,7 +376,7 @@ class key_encoder {
 
   /// Encode unsigned 16-bit integer \a v to binary comparable form.
   /// \return Self
-  key_encoder &encode(std::uint16_t v) {
+  key_encoder& encode(std::uint16_t v) {
     ensure_available(sizeof(v));
     const auto u = make_binary_comparable_integral(v);
     std::memcpy(buf + off, &u, sizeof(v));
@@ -386,7 +386,7 @@ class key_encoder {
 
   /// Encode unsigned 32-bit integer \a v to binary comparable form.
   /// \return Self
-  key_encoder &encode(std::uint32_t v) {
+  key_encoder& encode(std::uint32_t v) {
     ensure_available(sizeof(v));
     const auto u = make_binary_comparable_integral(v);
     std::memcpy(buf + off, &u, sizeof(v));
@@ -396,7 +396,7 @@ class key_encoder {
 
   /// Encode unsigned 64-bit integer \a v to binary comparable form.
   /// \return Self
-  key_encoder &encode(std::uint64_t v) {
+  key_encoder& encode(std::uint64_t v) {
     ensure_available(sizeof(v));
     const auto u = make_binary_comparable_integral(v);
     std::memcpy(buf + off, &u, sizeof(v));
@@ -420,7 +420,7 @@ class key_encoder {
   /// as a single canonical \c NaN.
   ///
   /// \sa unodb::detail::encode_floating_point
-  key_encoder &encode(float v) {
+  key_encoder& encode(float v) {
     return encode(unodb::detail::encode_floating_point<std::uint32_t>(v));
   }
 
@@ -433,7 +433,7 @@ class key_encoder {
   /// as a single canonical \c NaN.
   ///
   /// \sa unodb::detail::encode_floating_point
-  key_encoder &encode(double v) {
+  key_encoder& encode(double v) {
     return encode(unodb::detail::encode_floating_point<std::uint64_t>(v));
   }
 
@@ -468,7 +468,7 @@ class key_encoder {
   /// \note The ART index disallows keys which are prefixes of other keys. The
   /// logical padding addresses this and other issues while preserving
   /// lexicographic ordering.
-  key_encoder &encode_text(std::span<const std::byte> text) {
+  key_encoder& encode_text(std::span<const std::byte> text) {
     // truncate view to at most maxlen bytes.
     text = (text.size_bytes() > maxlen) ? text.subspan(0, maxlen) : text;
     // normalize padding by stripping off any trailing [pad] bytes.
@@ -492,9 +492,9 @@ class key_encoder {
   /// Encode text from `std::string_view` \a sv.
   /// \return Self
   /// \overload
-  key_encoder &encode_text(std::string_view sv) {
+  key_encoder& encode_text(std::string_view sv) {
     return encode_text(std::span<const std::byte>(
-        reinterpret_cast<const std::byte *>(sv.data()), sv.size()));
+        reinterpret_cast<const std::byte*>(sv.data()), sv.size()));
   }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -502,13 +502,13 @@ class key_encoder {
   /// \}
 
   /// Non-copyable.
-  key_encoder(const key_encoder &) = delete;
+  key_encoder(const key_encoder&) = delete;
   /// Non-movable.
-  key_encoder(key_encoder &&) = delete;
+  key_encoder(key_encoder&&) = delete;
   /// Non-copy-assignable.
-  key_encoder &operator=(const key_encoder &) = delete;
+  key_encoder& operator=(const key_encoder&) = delete;
   /// Non-move-assignable.
-  key_encoder &operator=(key_encoder &&) = delete;
+  key_encoder& operator=(key_encoder&&) = delete;
 
  private:
   /// Grow buffer to at least \a min_capacity.
@@ -521,7 +521,7 @@ class key_encoder {
 
   /// Buffer accumulating the encoded key. Points to `ibuf` initially; replaced
   /// with heap allocation if capacity exceeded.
-  std::byte *buf{&ibuf[0]};
+  std::byte* buf{&ibuf[0]};
 
   /// Current buffer capacity in bytes.
   size_t cap{sizeof(ibuf)};
@@ -541,7 +541,7 @@ class key_encoder {
 /// database query languages, etc.
 class key_decoder {
  private:
-  const std::byte *buf;  ///< Data buffer to decode.
+  const std::byte* buf;  ///< Data buffer to decode.
   const size_t cap;      ///< Buffer size in bytes.
   size_t off{0};         ///< Current decode offset.
 
@@ -588,7 +588,7 @@ class key_decoder {
 
   /// Decode signed 8-bit integer \a v from binary comparable form.
   /// \return Self
-  key_decoder &decode(std::int8_t &v) noexcept {
+  key_decoder& decode(std::int8_t& v) noexcept {
     std::uint8_t u;
     decode(u);
     v = static_cast<std::int8_t>(
@@ -598,7 +598,7 @@ class key_decoder {
 
   /// Decode signed 16-bit integer \a v from binary comparable form.
   /// \return Self
-  key_decoder &decode(std::int16_t &v) noexcept {
+  key_decoder& decode(std::int16_t& v) noexcept {
     std::uint16_t u;
     decode(u);
     v = static_cast<std::int16_t>(
@@ -608,7 +608,7 @@ class key_decoder {
 
   /// Decode signed 32-bit integer \a v from binary comparable form.
   /// \return Self
-  key_decoder &decode(std::int32_t &v) noexcept {
+  key_decoder& decode(std::int32_t& v) noexcept {
     constexpr auto one = static_cast<std::uint32_t>(1);
     std::uint32_t u;
     decode(u);
@@ -619,7 +619,7 @@ class key_decoder {
 
   /// Decode signed 64-bit integer \a v from binary comparable form.
   /// \return Self
-  key_decoder &decode(std::int64_t &v) noexcept {
+  key_decoder& decode(std::int64_t& v) noexcept {
     constexpr auto one = static_cast<std::uint64_t>(1);
     std::uint64_t u;
     decode(u);
@@ -639,8 +639,8 @@ class key_decoder {
 
   /// Decode unsigned 8-bit integer \a v.
   /// \return Self
-  key_decoder &decode(std::uint8_t &v) noexcept {
-    v = reinterpret_cast<const std::uint8_t &>(buf[off++]);
+  key_decoder& decode(std::uint8_t& v) noexcept {
+    v = reinterpret_cast<const std::uint8_t&>(buf[off++]);
     return *this;
   }
 
@@ -648,7 +648,7 @@ class key_decoder {
 
   /// Decode unsigned 16-bit integer \a v from big-endian form.
   /// \return Self
-  key_decoder &decode(std::uint16_t &v) noexcept {
+  key_decoder& decode(std::uint16_t& v) noexcept {
     std::uint16_t u;
     std::memcpy(&u, buf + off, sizeof(u));
     v = decode_binary_comparable_integral(u);
@@ -658,7 +658,7 @@ class key_decoder {
 
   /// Decode unsigned 32-bit integer \a v from big-endian form.
   /// \return Self
-  key_decoder &decode(std::uint32_t &v) noexcept {
+  key_decoder& decode(std::uint32_t& v) noexcept {
     std::uint32_t u;
     std::memcpy(&u, buf + off, sizeof(u));
     v = decode_binary_comparable_integral(u);
@@ -668,7 +668,7 @@ class key_decoder {
 
   /// Decode unsigned 64-bit integer \a v from big-endian form.
   /// \return Self
-  key_decoder &decode(std::uint64_t &v) noexcept {
+  key_decoder& decode(std::uint64_t& v) noexcept {
     std::uint64_t u;
     std::memcpy(&u, buf + off, sizeof(u));
     v = decode_binary_comparable_integral(u);
@@ -692,7 +692,7 @@ class key_decoder {
   /// as a single canonical \c NaN.
   ///
   /// \sa unodb::detail::decode_floating_point
-  key_decoder &decode(float &v) noexcept {
+  key_decoder& decode(float& v) noexcept {
     std::uint32_t u;
     decode(u);
     v = unodb::detail::decode_floating_point<float>(u);
@@ -708,7 +708,7 @@ class key_decoder {
   /// as a single canonical \c NaN.
   ///
   /// \sa unodb::detail::decode_floating_point
-  key_decoder &decode(double &v) noexcept {
+  key_decoder& decode(double& v) noexcept {
     std::uint64_t u;
     decode(u);
     v = unodb::detail::decode_floating_point<double>(u);

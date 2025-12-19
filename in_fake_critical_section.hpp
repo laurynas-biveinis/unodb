@@ -35,8 +35,8 @@ class [[nodiscard]] fake_read_critical_section final {
   ~fake_read_critical_section() noexcept = default;
 
   /// Move-assign from another fake read critical section, a no-op.
-  [[nodiscard]] fake_read_critical_section &operator=(
-      fake_read_critical_section &&) noexcept = default;
+  [[nodiscard]] fake_read_critical_section& operator=(
+      fake_read_critical_section&&) noexcept = default;
 
   /// Check whether this fake read critical section is invalid after
   /// construction, always succeeds.
@@ -55,7 +55,7 @@ class [[nodiscard]] fake_read_critical_section final {
   /// Compare with another read fake read critical section for equality, always
   /// returning true.
   [[nodiscard]] constexpr bool operator==(
-      const fake_read_critical_section &) const noexcept {
+      const fake_read_critical_section&) const noexcept {
     return true;
   }
 
@@ -64,9 +64,9 @@ class [[nodiscard]] fake_read_critical_section final {
   // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   [[nodiscard]] constexpr bool try_read_unlock() const noexcept { return true; }
 
-  fake_read_critical_section(const fake_read_critical_section &) = delete;
-  fake_read_critical_section(fake_read_critical_section &&) = delete;
-  fake_read_critical_section &operator=(const fake_read_critical_section &) =
+  fake_read_critical_section(const fake_read_critical_section&) = delete;
+  fake_read_critical_section(fake_read_critical_section&&) = delete;
+  fake_read_critical_section& operator=(const fake_read_critical_section&) =
       delete;
 };  // class fake_read_critical_section
 
@@ -102,14 +102,14 @@ class [[nodiscard]] in_fake_critical_section final {
 
   /// Copy-assign another wrapped value.
   // NOLINTNEXTLINE(cert-oop54-cpp)
-  constexpr in_fake_critical_section &operator=(
-      const in_fake_critical_section &new_value) noexcept {
+  constexpr in_fake_critical_section& operator=(
+      const in_fake_critical_section& new_value) noexcept {
     value = new_value;
     return *this;
   }
 
   /// Assign \a new_value to the wrapped value.
-  constexpr in_fake_critical_section &operator=(T new_value) noexcept {
+  constexpr in_fake_critical_section& operator=(T new_value) noexcept {
     value = new_value;
     return *this;
   }
@@ -137,9 +137,9 @@ class [[nodiscard]] in_fake_critical_section final {
   /// Explicitly read the wrapped value.
   [[nodiscard]] constexpr T load() const noexcept { return value; }
 
-  in_fake_critical_section(const in_fake_critical_section<T> &) = delete;
-  in_fake_critical_section(in_fake_critical_section<T> &&) noexcept = delete;
-  in_fake_critical_section &operator=(in_fake_critical_section &&) = delete;
+  in_fake_critical_section(const in_fake_critical_section<T>&) = delete;
+  in_fake_critical_section(in_fake_critical_section<T>&&) noexcept = delete;
+  in_fake_critical_section& operator=(in_fake_critical_section&&) = delete;
 
  private:
   /// Wrapped value.

@@ -36,8 +36,8 @@ class [[nodiscard]] basic_db_leaf_deleter;
 /// Lexicographic comparison of bytes.
 ///
 /// @return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
-[[nodiscard, gnu::pure]] inline int compare(const void *a, const size_t alen,
-                                            const void *b,
+[[nodiscard, gnu::pure]] inline int compare(const void* a, const size_t alen,
+                                            const void* b,
                                             const size_t blen) noexcept {
   // TODO(thompsonbry) consider changing this over to std::span
   // arguments and do not let the (ptr,len) pattern progagate
@@ -159,7 +159,7 @@ struct [[nodiscard]] basic_art_key final {
     if constexpr (std::is_same_v<KeyType, key_view>) {
       return key;
     } else {
-      return key_view(reinterpret_cast<const std::byte *>(&key), sizeof(key));
+      return key_view(reinterpret_cast<const std::byte*>(&key), sizeof(key));
     }
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -224,14 +224,14 @@ struct [[nodiscard]] basic_art_key final {
   }
 
   /// dump the key in lexicographic byte-wise order.
-  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream &os) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const {
     dump_key(os, key);
   }
 
   /// Helper for debugging, writes on std::cerr.
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const;
 
-  friend std::ostream &operator<<(std ::ostream &os, const basic_art_key &k) {
+  friend std::ostream& operator<<(std ::ostream& os, const basic_art_key& k) {
     k.dump(os);
     return os;
   }
@@ -256,7 +256,7 @@ class [[nodiscard]] tree_depth final {
     return value;
   }
 
-  constexpr tree_depth &operator++() noexcept {
+  constexpr tree_depth& operator++() noexcept {
     ++value;
     return *this;
   }
@@ -275,16 +275,16 @@ class basic_db_leaf_deleter {
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
-  constexpr explicit basic_db_leaf_deleter(Db &db_
+  constexpr explicit basic_db_leaf_deleter(Db& db_
                                            UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
-  void operator()(leaf_type *to_delete) const noexcept;
+  void operator()(leaf_type* to_delete) const noexcept;
 
-  [[nodiscard, gnu::pure]] Db &get_db() const noexcept { return db; }
+  [[nodiscard, gnu::pure]] Db& get_db() const noexcept { return db; }
 
  private:
-  Db &db;
+  Db& db;
 };
 
 // Not taken from Db to break a dependency circle
@@ -300,16 +300,16 @@ struct dependent_false : std::false_type {};
 template <class INode, class Db>
 class basic_db_inode_deleter {
  public:
-  constexpr explicit basic_db_inode_deleter(Db &db_
+  constexpr explicit basic_db_inode_deleter(Db& db_
                                             UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
-  void operator()(INode *inode_ptr) noexcept;
+  void operator()(INode* inode_ptr) noexcept;
 
-  [[nodiscard, gnu::pure]] Db &get_db() noexcept { return db; }
+  [[nodiscard, gnu::pure]] Db& get_db() noexcept { return db; }
 
  private:
-  Db &db;
+  Db& db;
 };
 
 /// basic_node_ptr is a tagged pointer (the tag is the node type).
@@ -334,13 +334,13 @@ class [[nodiscard]] basic_node_ptr {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   // construct a node pointer given a raw pointer and a node type.
-  basic_node_ptr(const header_type *ptr UNODB_DETAIL_LIFETIMEBOUND,
+  basic_node_ptr(const header_type* ptr UNODB_DETAIL_LIFETIMEBOUND,
                  unodb::node_type type) noexcept
       : tagged_ptr{tag_ptr(ptr, type)} {}
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 
-  basic_node_ptr<Header> &operator=(std::nullptr_t) noexcept {
+  basic_node_ptr<Header>& operator=(std::nullptr_t) noexcept {
     tagged_ptr = reinterpret_cast<std::uintptr_t>(nullptr);
     return *this;
   }
@@ -358,7 +358,7 @@ class [[nodiscard]] basic_node_ptr {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 
   template <class T>
-  [[nodiscard, gnu::pure]] auto *ptr() const noexcept {
+  [[nodiscard, gnu::pure]] auto* ptr() const noexcept {
     return reinterpret_cast<T>(tagged_ptr & ptr_bit_mask);
   }
 
@@ -380,7 +380,7 @@ class [[nodiscard]] basic_node_ptr {
   std::uintptr_t tagged_ptr;
 
   [[nodiscard, gnu::const]] static std::uintptr_t tag_ptr(
-      const Header *ptr_, unodb::node_type tag) noexcept {
+      const Header* ptr_, unodb::node_type tag) noexcept {
     const auto uintptr = reinterpret_cast<std::uintptr_t>(ptr_);
     const auto result =
         uintptr | static_cast<std::underlying_type_t<decltype(tag)>>(tag);
@@ -401,7 +401,7 @@ class [[nodiscard]] basic_node_ptr {
   static constexpr auto ptr_bit_mask = ~tag_bit_mask;
 
   static void static_asserts() {
-    static_assert(sizeof(basic_node_ptr<Header>) == sizeof(void *));
+    static_assert(sizeof(basic_node_ptr<Header>) == sizeof(void*));
     static_assert(alignof(header_type) - 1 > lowest_non_tag_bit);
   }
 };
@@ -474,10 +474,10 @@ class key_buffer {
     off -= n;
   }
 
-  key_buffer(const key_buffer &) = delete;
-  key_buffer(key_buffer &&) = delete;
-  key_buffer &operator=(const key_buffer &) = delete;
-  key_buffer &operator=(key_buffer &&) = delete;
+  key_buffer(const key_buffer&) = delete;
+  key_buffer(key_buffer&&) = delete;
+  key_buffer& operator=(const key_buffer&) = delete;
+  key_buffer& operator=(key_buffer&&) = delete;
 
  private:
   /// Ensure that we have at least the specified capacity in the
@@ -491,7 +491,7 @@ class key_buffer {
 
   /// The buffer to accmulate the key.  Originally this is the [ibuf].
   /// If that overflows, then something will be allocated.
-  std::byte *buf{&ibuf[0]};
+  std::byte* buf{&ibuf[0]};
   size_t cap{sizeof(ibuf)};  // current buffer capacity
   size_t off{0};             // #of bytes in the buffer having valid data.
 };  // class key_buffer

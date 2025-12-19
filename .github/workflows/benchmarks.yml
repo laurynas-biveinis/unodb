@@ -23,7 +23,7 @@ jobs:
       matrix:
         include:
           - name: Linux Intel
-            os: ubuntu-latest
+            os: nyrkio_8
             arch: x64
 
           - name: Linux ARM64

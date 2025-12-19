@@ -35,8 +35,6 @@
 /// \hideinitializer
 /// Crash with a stacktrace on debug build, do nothing on release build.
 
-// Copyright 2022-2025 UnoDB contributors
-
 #include <cstdlib>
 #include <iostream>
 #include <sstream>

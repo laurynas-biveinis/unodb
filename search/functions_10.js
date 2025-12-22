@@ -12,5 +12,6 @@ var searchData=
   ['size_9',['size',['../structunodb_1_1detail_1_1basic__art__key.html#a1e070387a8d6335076f3d14bad7e7b25',1,'unodb::detail::basic_art_key::size()'],['../classunodb_1_1qsbr__ptr__span.html#af4b7a52caa50542b41f000781c49e195',1,'unodb::qsbr_ptr_span::size()']]],
   ['size_5fbytes_10',['size_bytes',['../classunodb_1_1key__encoder.html#a073ecee2db9797158b058ce56b2c8a3b',1,'unodb::key_encoder::size_bytes()'],['../classunodb_1_1detail_1_1key__buffer.html#a802f979bb3d3afe56a901e57bf1aa590',1,'unodb::detail::key_buffer::size_bytes()']]],
   ['spin_5fwait_5floop_5fbody_11',['spin_wait_loop_body',['../namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237',1,'unodb']]],
-  ['store_12',['store',['../classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556',1,'unodb::in_critical_section']]]
+  ['static_5fasserts_12',['static_asserts',['../structunodb_1_1detail_1_1basic__art__key.html#a7f533761914d776e97107316f117db14',1,'unodb::detail::basic_art_key::static_asserts()'],['../classunodb_1_1detail_1_1basic__node__ptr.html#ac6dc70e3915473e37377008c0a5b0e2b',1,'unodb::detail::basic_node_ptr::static_asserts()']]],
+  ['store_13',['store',['../classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556',1,'unodb::in_critical_section']]]
 ];

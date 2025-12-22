@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1basic__art__k
 </div><!--header-->
 <div class="contents">
 
-<p>Internal ART key in binary-comparable format.  
+<p>Internal ART key in lexicographically ordered binary-comparable format.  
  <a href="structunodb_1_1detail_1_1basic__art__key.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a>&gt;</code></p>
@@ -115,40 +115,40 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1basic__art__k
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a7f769f160a22d930903da7c9f53605c7" id="r_a7f769f160a22d930903da7c9f53605c7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#a7f769f160a22d930903da7c9f53605c7">basic_art_key</a> (KeyType key_) noexcept</td></tr>
-<tr class="memdesc:a7f769f160a22d930903da7c9f53605c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct converts a fixed width primitive type into a lexicographically ordered key.  <br /></td></tr>
+<tr class="memdesc:a7f769f160a22d930903da7c9f53605c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct from fixed width primitive type <em>key_</em>.  <br /></td></tr>
 <tr class="separator:a7f769f160a22d930903da7c9f53605c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adcd136279afad971b15c30847e2da1a6" id="r_adcd136279afad971b15c30847e2da1a6"><td class="memItemLeft" align="right" valign="top"><a id="adcd136279afad971b15c30847e2da1a6" name="adcd136279afad971b15c30847e2da1a6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>basic_art_key</b> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> key_) noexcept</td></tr>
-<tr class="memdesc:adcd136279afad971b15c30847e2da1a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct converts a key_view which must already be lexicographically ordered. <br /></td></tr>
+<tr class="memdesc:adcd136279afad971b15c30847e2da1a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct from <em>key_</em> view which must already be lexicographically ordered. <br /></td></tr>
 <tr class="separator:adcd136279afad971b15c30847e2da1a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaeb7df8faa6c346f5b974a50dc1331b3" id="r_aaeb7df8faa6c346f5b974a50dc1331b3"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#aaeb7df8faa6c346f5b974a50dc1331b3">cmp</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; KeyType &gt; key2) const noexcept</td></tr>
+<tr class="memdesc:aaeb7df8faa6c346f5b974a50dc1331b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare with another <em>key2</em>.  <br /></td></tr>
 <tr class="separator:aaeb7df8faa6c346f5b974a50dc1331b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c0b18ff7b89651418db68d8eb236519" id="r_a4c0b18ff7b89651418db68d8eb236519"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#a4c0b18ff7b89651418db68d8eb236519">cmp</a> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> key2) const noexcept</td></tr>
+<tr class="memdesc:a4c0b18ff7b89651418db68d8eb236519"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare with a <em>key2</em> view.  <br /></td></tr>
 <tr class="separator:a4c0b18ff7b89651418db68d8eb236519"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5234b1c24ea8029f6ca8a4ce3c4231f" id="r_aa5234b1c24ea8029f6ca8a4ce3c4231f"><td class="memItemLeft" align="right" valign="top"><a id="aa5234b1c24ea8029f6ca8a4ce3c4231f" name="aa5234b1c24ea8029f6ca8a4ce3c4231f"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (std::size_t index) const noexcept</td></tr>
-<tr class="memdesc:aa5234b1c24ea8029f6ca8a4ce3c4231f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the byte at the specified index position in the binary comparable key. <br /></td></tr>
+<tr class="memitem:aa5234b1c24ea8029f6ca8a4ce3c4231f" id="r_aa5234b1c24ea8029f6ca8a4ce3c4231f"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#aa5234b1c24ea8029f6ca8a4ce3c4231f">operator[]</a> (std::size_t index) const noexcept</td></tr>
+<tr class="memdesc:aa5234b1c24ea8029f6ca8a4ce3c4231f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return byte at specified <em>index</em> position in binary comparable key.  <br /></td></tr>
 <tr class="separator:aa5234b1c24ea8029f6ca8a4ce3c4231f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af20e5187f7869ad48ab185a6fc09a61d" id="r_af20e5187f7869ad48ab185a6fc09a61d"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#af20e5187f7869ad48ab185a6fc09a61d">get_key_view</a> () const noexcept</td></tr>
-<tr class="memdesc:af20e5187f7869ad48ab185a6fc09a61d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the backing key_view.  <br /></td></tr>
+<tr class="memdesc:af20e5187f7869ad48ab185a6fc09a61d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return backing key_view.  <br /></td></tr>
 <tr class="separator:af20e5187f7869ad48ab185a6fc09a61d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac54cec3bcc93c7e935445b0f8273942f" id="r_ac54cec3bcc93c7e935445b0f8273942f"><td class="memItemLeft" align="right" valign="top">constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#ac54cec3bcc93c7e935445b0f8273942f">get_u64</a> () const noexcept</td></tr>
-<tr class="memdesc:ac54cec3bcc93c7e935445b0f8273942f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the first 64-bits (max) of the encoded key.  <br /></td></tr>
+<tr class="memdesc:ac54cec3bcc93c7e935445b0f8273942f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return first 64 bits (max) of encoded key.  <br /></td></tr>
 <tr class="separator:ac54cec3bcc93c7e935445b0f8273942f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a883f9d04af426ae51af3b3f8b6c0026d" id="r_a883f9d04af426ae51af3b3f8b6c0026d"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#a883f9d04af426ae51af3b3f8b6c0026d">shift_right</a> (const std::size_t num_bytes) noexcept</td></tr>
-<tr class="memdesc:a883f9d04af426ae51af3b3f8b6c0026d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shift the internal key some number of bytes to the right (the leading bytes are discarded), causing the key to be shorter by that many bytes.  <br /></td></tr>
+<tr class="memdesc:a883f9d04af426ae51af3b3f8b6c0026d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shift internal key by <em>num_bytes</em> number of bytes to the right.  <br /></td></tr>
 <tr class="separator:a883f9d04af426ae51af3b3f8b6c0026d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e070387a8d6335076f3d14bad7e7b25" id="r_a1e070387a8d6335076f3d14bad7e7b25"><td class="memItemLeft" align="right" valign="top"><a id="a1e070387a8d6335076f3d14bad7e7b25" name="a1e070387a8d6335076f3d14bad7e7b25"></a>
-constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> () const noexcept</td></tr>
-<tr class="memdesc:a1e070387a8d6335076f3d14bad7e7b25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of bytes required to represent the key. <br /></td></tr>
+<tr class="memitem:a1e070387a8d6335076f3d14bad7e7b25" id="r_a1e070387a8d6335076f3d14bad7e7b25"><td class="memItemLeft" align="right" valign="top">constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#a1e070387a8d6335076f3d14bad7e7b25">size</a> () const noexcept</td></tr>
+<tr class="memdesc:a1e070387a8d6335076f3d14bad7e7b25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return number of bytes required to represent key.  <br /></td></tr>
 <tr class="separator:a1e070387a8d6335076f3d14bad7e7b25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0a5a6bb536028d38b08447c64cd91cf1" id="r_a0a5a6bb536028d38b08447c64cd91cf1"><td class="memItemLeft" align="right" valign="top"><a id="a0a5a6bb536028d38b08447c64cd91cf1" name="a0a5a6bb536028d38b08447c64cd91cf1"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
-<tr class="memdesc:a0a5a6bb536028d38b08447c64cd91cf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">dump the key in lexicographic byte-wise order. <br /></td></tr>
+<tr class="memdesc:a0a5a6bb536028d38b08447c64cd91cf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump key in lexicographic byte-wise order to stream <em>os</em>. <br /></td></tr>
 <tr class="separator:a0a5a6bb536028d38b08447c64cd91cf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa8cb5d0c123c5ff8fc83f2e724b0e4b6" id="r_aa8cb5d0c123c5ff8fc83f2e724b0e4b6"><td class="memItemLeft" align="right" valign="top"><a id="aa8cb5d0c123c5ff8fc83f2e724b0e4b6" name="aa8cb5d0c123c5ff8fc83f2e724b0e4b6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> () const</td></tr>
-<tr class="memdesc:aa8cb5d0c123c5ff8fc83f2e724b0e4b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper for debugging, writes on std::cerr. <br /></td></tr>
+<tr class="memdesc:aa8cb5d0c123c5ff8fc83f2e724b0e4b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump key to <code>std::cerr</code> for debugging. <br /></td></tr>
 <tr class="separator:aa8cb5d0c123c5ff8fc83f2e724b0e4b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a490eb34a936dde9580a0bee6096c8596" id="r_a490eb34a936dde9580a0bee6096c8596"><td class="memItemLeft" align="right" valign="top"><a id="a490eb34a936dde9580a0bee6096c8596" name="a490eb34a936dde9580a0bee6096c8596"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> () const</td></tr>
@@ -161,6 +161,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> () const</td
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a7f533761914d776e97107316f117db14" id="r_a7f533761914d776e97107316f117db14"><td class="memItemLeft" align="right" valign="top"><a id="a7f533761914d776e97107316f117db14" name="a7f533761914d776e97107316f117db14"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>static_asserts</b> ()</td></tr>
+<tr class="memdesc:a7f533761914d776e97107316f117db14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile-time assertions for type invariants. <br /></td></tr>
 <tr class="separator:a7f533761914d776e97107316f117db14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
@@ -169,31 +170,38 @@ Public Attributes</h2></td></tr>
 union {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7cdd04bac3868f72a2e21db67efc2d8a" id="r_a7cdd04bac3868f72a2e21db67efc2d8a"><td class="memItemLeft" >&#160;&#160;&#160;KeyType&#160;&#160;&#160;<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#abc8d474caa99eac94a1b49eee7a9df07">key</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a7cdd04bac3868f72a2e21db67efc2d8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The lexicographic byte-wise comparable binary key.  <a href="structunodb_1_1detail_1_1basic__art__key.html#abc8d474caa99eac94a1b49eee7a9df07">More...</a><br /></td></tr>
+<tr class="memdesc:a7cdd04bac3868f72a2e21db67efc2d8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexicographic byte-wise comparable binary key.  <a href="structunodb_1_1detail_1_1basic__art__key.html#abc8d474caa99eac94a1b49eee7a9df07">More...</a><br /></td></tr>
 <tr class="separator:a7cdd04bac3868f72a2e21db67efc2d8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a77f29b29e1ec9e9dc0d696fbdd26cc10" id="r_a77f29b29e1ec9e9dc0d696fbdd26cc10"><td class="memItemLeft" >&#160;&#160;&#160;std::array&lt; std::byte, sizeof(KeyType)&gt;&#160;&#160;&#160;<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#aa1c673bbd12a302556a7880df52aa9b8">key_bytes</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a77f29b29e1ec9e9dc0d696fbdd26cc10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used iff the key is not a key_view.  <a href="structunodb_1_1detail_1_1basic__art__key.html#aa1c673bbd12a302556a7880df52aa9b8">More...</a><br /></td></tr>
+<tr class="memdesc:a77f29b29e1ec9e9dc0d696fbdd26cc10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Byte array overlay for indexing into fixed-width keys.  <a href="structunodb_1_1detail_1_1basic__art__key.html#aa1c673bbd12a302556a7880df52aa9b8">More...</a><br /></td></tr>
 <tr class="separator:a77f29b29e1ec9e9dc0d696fbdd26cc10"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a783451041f4dab2a36a526115df72ace" id="r_a783451041f4dab2a36a526115df72ace"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom">&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:a783451041f4dab2a36a526115df72ace"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
-<tr class="memitem:a2424f684fcd0eb8c9af138caaf4befe5" id="r_a2424f684fcd0eb8c9af138caaf4befe5"><td class="memItemLeft" align="right" valign="top"><a id="a2424f684fcd0eb8c9af138caaf4befe5" name="a2424f684fcd0eb8c9af138caaf4befe5"></a>
-static KeyType&#160;</td><td class="memItemRight" valign="bottom"><b>make_binary_comparable</b> (KeyType k) noexcept</td></tr>
-<tr class="memdesc:a2424f684fcd0eb8c9af138caaf4befe5"><td class="mdescLeft">&#160;</td><td class="mdescRight">ctor helper converts a simple external key into an internal key supporting lexicographic comparison. <br /></td></tr>
+<tr class="memitem:a2424f684fcd0eb8c9af138caaf4befe5" id="r_a2424f684fcd0eb8c9af138caaf4befe5"><td class="memItemLeft" align="right" valign="top">static KeyType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#a2424f684fcd0eb8c9af138caaf4befe5">make_binary_comparable</a> (KeyType k) noexcept</td></tr>
+<tr class="memdesc:a2424f684fcd0eb8c9af138caaf4befe5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert simple external key into internal key for lexicographic comparison.  <br /></td></tr>
 <tr class="separator:a2424f684fcd0eb8c9af138caaf4befe5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:a50cfab6fa641b1ea7a59abf19486e7a3" id="r_a50cfab6fa641b1ea7a59abf19486e7a3"><td class="memItemLeft" align="right" valign="top"><a id="a50cfab6fa641b1ea7a59abf19486e7a3" name="a50cfab6fa641b1ea7a59abf19486e7a3"></a>
-std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std ::ostream &amp;os, const <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a> &amp;k)</td></tr>
-<tr class="separator:a50cfab6fa641b1ea7a59abf19486e7a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9df8f2c9dc5f0b843d97ce6b35f16407" id="r_a9df8f2c9dc5f0b843d97ce6b35f16407"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html#a9df8f2c9dc5f0b843d97ce6b35f16407">operator&lt;&lt;</a> (std::ostream &amp;os, const <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a> &amp;k)</td></tr>
+<tr class="memdesc:a9df8f2c9dc5f0b843d97ce6b35f16407"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump key <em>k</em> to stream <em>os</em>.  <br /></td></tr>
+<tr class="separator:a9df8f2c9dc5f0b843d97ce6b35f16407"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename KeyType&gt;<br />
-struct unodb::detail::basic_art_key&lt; KeyType &gt;</div><p>Internal ART key in binary-comparable format. </p>
-<p>Application keys may be simple fixed width types (such as std::uint64_t) or variable length keys. For the former, there are convenience methods on db, <a class="el" href="classunodb_1_1olc__db.html" title="A thread-safe Adaptive Radix Tree that is synchronized using optimistic lock coupling.">olc_db</a>, etc. to convert external keys into the binary compariable format. For the latter, the application is responsible for converting the data (e.g., certain columns in some ordering for a row of some relation) into the internal binary comparable key format. A convenience class (<a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>) is offered to encode data. The encoding is always well defined and decoding (<a class="el" href="classunodb_1_1key__decoder.html" title="A utility class for decoding binary comparable keys produced by unodb::key_encoder,...">unodb::key_decoder</a>) exists for all simple fixed width data types. Unicode encoding is complex and out of scope - use a quality library such as ICU to produce appropriate Unicode sort keys for your application. Unicode decoding is NOT well defined. Applications involving database records and Unicode data will typically store the record identifier in a secondary index (ART) as the value associated with the key. Using the record identifier, the original tuple can be discovered and the original Unicode data recovered from that tuple. </p>
+struct unodb::detail::basic_art_key&lt; KeyType &gt;</div><p>Internal ART key in lexicographically ordered binary-comparable format. </p>
+<p>Application keys may be simple fixed width types (such as <code>std::uint64_t</code>) or variable length keys. For the former, there are convenience methods on <a class="el" href="classunodb_1_1db.html" title="A non-thread-safe implementation of the Adaptive Radix Tree (ART).">unodb::db</a>, <a class="el" href="classunodb_1_1olc__db.html" title="A thread-safe Adaptive Radix Tree that is synchronized using optimistic lock coupling.">unodb::olc_db</a>, etc. to convert external keys into the binary comparable format. For the latter, the application is responsible for converting the data (e.g., certain columns in some ordering for a row of some relation) into the internal binary comparable key format.</p>
+<p>A convenience class (<a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a>) is offered to encode data. The encoding is always well defined and decoding (<a class="el" href="classunodb_1_1key__decoder.html" title="A utility class for decoding binary comparable keys produced by unodb::key_encoder,...">unodb::key_decoder</a>) exists for all simple fixed width data types.</p>
+<p>Unicode encoding is complex and out of scope - use a quality library such as ICU to produce appropriate Unicode sort keys for your application. Unicode decoding is NOT well defined. Applications involving database records and Unicode data will typically store the record identifier in a secondary index (ART) as the value associated with the key. Using the record identifier, the original tuple can be discovered and the original Unicode data recovered from that tuple.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">KeyType</td><td>Fixed-width integral type or <code>key_view</code> for variable length </td></tr>
+  </table>
+  </dd>
+</dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a7f769f160a22d930903da7c9f53605c7" name="a7f769f160a22d930903da7c9f53605c7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7f769f160a22d930903da7c9f53605c7">&#9670;&#160;</a></span>basic_art_key()</h2>
@@ -221,8 +229,8 @@ template&lt;typename KeyType &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Construct converts a fixed width primitive type into a lexicographically ordered key. </p>
-<p>Note: Use a <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">key_encoder</a> for complex keys, including multiple key components or Unicode data. </p>
+<p>Construct from fixed width primitive type <em>key_</em>. </p>
+<dl class="section note"><dt>Note</dt><dd>Use a <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a> for complex keys, including multiple key components or Unicode data. </dd></dl>
 
 </div>
 </div>
@@ -252,7 +260,9 @@ template&lt;typename KeyType &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>-1, 0, or 1 if this key is LT, EQ, or GT the other key. </dd></dl>
+
+<p>Compare with another <em>key2</em>. </p>
+<dl class="section return"><dt>Returns</dt><dd>-1, 0, or 1 if this key is LT, EQ, or GT the other key </dd></dl>
 
 </div>
 </div>
@@ -281,7 +291,9 @@ template&lt;typename KeyType &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>-1, 0, or 1 if this key is LT, EQ, or GT the other key. </dd></dl>
+
+<p>Compare with a <em>key2</em> view. </p>
+<dl class="section return"><dt>Returns</dt><dd>-1, 0, or 1 if this key is LT, EQ, or GT the other key </dd></dl>
 
 </div>
 </div>
@@ -310,9 +322,11 @@ template&lt;typename KeyType &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Return the backing key_view. </p>
-<p>Note: For integral keys, this is a non-owned view of the data in the <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html" title="Internal ART key in binary-comparable format.">basic_art_key</a> and will be invalid if that object goes out of scope.</p>
-<p>Note: For key_view keys, this is the key_view backing this art_key and its validity depends on the scope of the backing byte array. </p>
+<p>Return backing key_view. </p>
+<dl class="section return"><dt>Returns</dt><dd>Key view of this key's bytes</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>For integral keys, this is a non-owned view of the data in the <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html" title="Internal ART key in lexicographically ordered binary-comparable format.">basic_art_key</a> and will be invalid if that object goes out of scope.</dd>
+<dd>
+For key_view keys, this is the key_view backing this art_key and its validity depends on the scope of the backing byte array. </dd></dl>
 
 </div>
 </div>
@@ -341,8 +355,77 @@ template&lt;typename KeyType &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Return the first 64-bits (max) of the encoded key. </p>
-<p>This is used by the prefix compression logic to identify some number of bytes that are in common between the art_key and an inode having some <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The unodb::detail::key_prefix is a sequence of zero or more bytes for a given node that are a common ...">key_prefix</a>. </p>
+<p>Return first 64 bits (max) of encoded key. </p>
+<p>Used by prefix compression logic to identify bytes in common between an art_key and an inode having some <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The unodb::detail::key_prefix is a sequence of zero or more bytes for a given node that are a common ...">key_prefix</a>.</p>
+<dl class="section return"><dt>Returns</dt><dd>First 64 bits of key </dd></dl>
+
+</div>
+</div>
+<a id="a2424f684fcd0eb8c9af138caaf4befe5" name="a2424f684fcd0eb8c9af138caaf4befe5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2424f684fcd0eb8c9af138caaf4befe5">&#9670;&#160;</a></span>make_binary_comparable()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename KeyType &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static KeyType <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">unodb::detail::basic_art_key</a>&lt; KeyType &gt;::make_binary_comparable </td>
+          <td>(</td>
+          <td class="paramtype">KeyType&#160;</td>
+          <td class="paramname"><em>k</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Convert simple external key into internal key for lexicographic comparison. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">k</td><td>External key to convert </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Binary comparable key </dd></dl>
+
+</div>
+</div>
+<a id="aa5234b1c24ea8029f6ca8a4ce3c4231f" name="aa5234b1c24ea8029f6ca8a4ce3c4231f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa5234b1c24ea8029f6ca8a4ce3c4231f">&#9670;&#160;</a></span>operator[]()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename KeyType &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">unodb::detail::basic_art_key</a>&lt; KeyType &gt;::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>index</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return byte at specified <em>index</em> position in binary comparable key. </p>
+<dl class="section return"><dt>Returns</dt><dd>Byte at position </dd></dl>
 
 </div>
 </div>
@@ -372,10 +455,82 @@ template&lt;typename KeyType &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Shift the internal key some number of bytes to the right (the leading bytes are discarded), causing the key to be shorter by that many bytes. </p>
-<p>It is a lexicographic key. The first byte is the most significant. The last byte is the least significant.</p>
+<p>Shift internal key by <em>num_bytes</em> number of bytes to the right. </p>
+<p>Leading bytes are discarded, causing key to be shorter by that many bytes. It is a lexicographic key. The first byte is the most significant. The last byte is the least significant.</p>
 <p>When backed by a u64, we get trailing bytes which are zeros. Thus, for a fixed width type, this causes the key to be logically zero filled as it becomes shorter. E.g.</p>
 <p><code>0x0011223344556677 shift_right(2) =&gt; 0x2233445566770000</code> </p>
+
+</div>
+</div>
+<a id="a1e070387a8d6335076f3d14bad7e7b25" name="a1e070387a8d6335076f3d14bad7e7b25"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e070387a8d6335076f3d14bad7e7b25">&#9670;&#160;</a></span>size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename KeyType &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr size_t <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">unodb::detail::basic_art_key</a>&lt; KeyType &gt;::size </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return number of bytes required to represent key. </p>
+<dl class="section return"><dt>Returns</dt><dd>Key size in bytes </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Friends And Related Symbol Documentation</h2>
+<a id="a9df8f2c9dc5f0b843d97ce6b35f16407" name="a9df8f2c9dc5f0b843d97ce6b35f16407"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9df8f2c9dc5f0b843d97ce6b35f16407">&#9670;&#160;</a></span>operator&lt;&lt;</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename KeyType &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::ostream &amp; operator&lt;&lt; </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>os</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; KeyType &gt; &amp;&#160;</td>
+          <td class="paramname"><em>k</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Dump key <em>k</em> to stream <em>os</em>. </p>
+<dl class="section return"><dt>Returns</dt><dd>Reference to stream </dd></dl>
 
 </div>
 </div>
@@ -394,8 +549,8 @@ template&lt;typename KeyType &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>The lexicographic byte-wise comparable binary key. </p>
-<p>Note: When KeyType == key_view, this is all you need. </p>
+<p>Lexicographic byte-wise comparable binary key. </p>
+<dl class="section note"><dt>Note</dt><dd>When <code>KeyType == key_view</code>, this is all you need. </dd></dl>
 
 </div>
 </div>
@@ -413,8 +568,8 @@ template&lt;typename KeyType &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Used iff the key is not a key_view. </p>
-<p>This provides a mechanism to index into the bytes in the key for operator[]. This is ignored if KeyType==key_view as the key_view provides a byte-wise index operator already. </p>
+<p>Byte array overlay for indexing into fixed-width keys. </p>
+<p>Provides a mechanism to index into the bytes in the key for operator[]. Ignored if <code>KeyType == key_view</code> as key_view provides a byte-wise index operator already. </p>
 
 </div>
 </div>

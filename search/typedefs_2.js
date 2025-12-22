@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['find_5fresult_0',['find_result',['../classunodb_1_1detail_1_1basic__inode__impl.html#a2425f634705cd8c33830ee61553596db',1,'unodb::detail::basic_inode_impl']]]
+  ['epoch_5ftype_0',['epoch_type',['../classunodb_1_1qsbr__epoch.html#a4387f6234755159582f44801fe1dbe5d',1,'unodb::qsbr_epoch']]]
 ];

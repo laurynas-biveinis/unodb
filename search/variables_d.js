@@ -6,5 +6,6 @@ var searchData=
   ['prefix_3',['prefix',['../structunodb_1_1detail_1_1iter__result.html#a567edf1377659f0138ac433674cf6091',1,'unodb::detail::iter_result']]],
   ['previous_5finterval_5fdealloc_5frequests_4',['previous_interval_dealloc_requests',['../classunodb_1_1qsbr__per__thread.html#a067c56d3356e016deec77387eb03da95',1,'unodb::qsbr_per_thread']]],
   ['previous_5finterval_5forphan_5flist_5fnode_5',['previous_interval_orphan_list_node',['../classunodb_1_1qsbr__per__thread.html#a888e20fad9dfd7017ee351f965fc8ec1',1,'unodb::qsbr_per_thread']]],
-  ['ptr_6',['ptr',['../classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc',1,'unodb::qsbr_ptr']]]
+  ['ptr_6',['ptr',['../classunodb_1_1qsbr__ptr.html#a763d7a580bd773a7a6375f413bb519cc',1,'unodb::qsbr_ptr']]],
+  ['ptr_5fbit_5fmask_7',['ptr_bit_mask',['../classunodb_1_1detail_1_1basic__node__ptr.html#a248456d1383176aa0ef95e19216f3c34',1,'unodb::detail::basic_node_ptr']]]
 ];

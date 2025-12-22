@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1basic__node__p
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html" title="basic_node_ptr is a tagged pointer (the tag is the node type).">basic_node_ptr</a> is a tagged pointer (the tag is the node type).  
+<p>Tagged pointer with node type stored in low bits.  
  <a href="classunodb_1_1detail_1_1basic__node__ptr.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a>&gt;</code></p>
@@ -115,84 +115,448 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1basic__node__p
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:ad172bc7ee6fb6b1fb4952ddddf27ec53" id="r_ad172bc7ee6fb6b1fb4952ddddf27ec53"><td class="memItemLeft" align="right" valign="top"><a id="ad172bc7ee6fb6b1fb4952ddddf27ec53" name="ad172bc7ee6fb6b1fb4952ddddf27ec53"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>header_type</b> = Header</td></tr>
+<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>header_type</b> = Header</td></tr>
+<tr class="memdesc:ad172bc7ee6fb6b1fb4952ddddf27ec53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node header type. <br /></td></tr>
 <tr class="separator:ad172bc7ee6fb6b1fb4952ddddf27ec53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a2e34c8695c6d85b6432a84fa70327ee7" id="r_a2e34c8695c6d85b6432a84fa70327ee7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#a2e34c8695c6d85b6432a84fa70327ee7">basic_node_ptr</a> () <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">noexcept</a>=<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">default</a></td></tr>
+<tr class="memdesc:a2e34c8695c6d85b6432a84fa70327ee7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor, does not initialize fields.  <br /></td></tr>
+<tr class="separator:a2e34c8695c6d85b6432a84fa70327ee7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0bea49ae255cbaef350486be2caafabd" id="r_a0bea49ae255cbaef350486be2caafabd"><td class="memItemLeft" align="right" valign="top"><a id="a0bea49ae255cbaef350486be2caafabd" name="a0bea49ae255cbaef350486be2caafabd"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>basic_node_ptr</b> (std::nullptr_t) noexcept</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>basic_node_ptr</b> (std::nullptr_t) <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">noexcept</a></td></tr>
+<tr class="memdesc:a0bea49ae255cbaef350486be2caafabd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct null pointer. <br /></td></tr>
 <tr class="separator:a0bea49ae255cbaef350486be2caafabd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acefc94edd4cb286796d99fd39015957f" id="r_acefc94edd4cb286796d99fd39015957f"><td class="memItemLeft" align="right" valign="top"><a id="acefc94edd4cb286796d99fd39015957f" name="acefc94edd4cb286796d99fd39015957f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>basic_node_ptr</b> (const header_type *ptr, <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">unodb::node_type</a> type) noexcept</td></tr>
+<tr class="memitem:acefc94edd4cb286796d99fd39015957f" id="r_acefc94edd4cb286796d99fd39015957f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#acefc94edd4cb286796d99fd39015957f">basic_node_ptr</a> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">const</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad172bc7ee6fb6b1fb4952ddddf27ec53">header_type</a> *<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">ptr</a>, <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">unodb::node_type</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#a08a07d5e5b31f87c500fc63be6144860">type</a>) <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">noexcept</a></td></tr>
+<tr class="memdesc:acefc94edd4cb286796d99fd39015957f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct from raw pointer and node type.  <br /></td></tr>
 <tr class="separator:acefc94edd4cb286796d99fd39015957f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60b9cfe22dcf1c4467d2e7dfa8d2c650" id="r_a60b9cfe22dcf1c4467d2e7dfa8d2c650"><td class="memItemLeft" align="right" valign="top"><a id="a60b9cfe22dcf1c4467d2e7dfa8d2c650" name="a60b9cfe22dcf1c4467d2e7dfa8d2c650"></a>
-<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>&lt; Header &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (std::nullptr_t) noexcept</td></tr>
+<tr class="memitem:a60b9cfe22dcf1c4467d2e7dfa8d2c650" id="r_a60b9cfe22dcf1c4467d2e7dfa8d2c650"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>&lt; Header &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#a60b9cfe22dcf1c4467d2e7dfa8d2c650">operator=</a> (std::nullptr_t) <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">noexcept</a></td></tr>
+<tr class="memdesc:a60b9cfe22dcf1c4467d2e7dfa8d2c650"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign null pointer.  <br /></td></tr>
 <tr class="separator:a60b9cfe22dcf1c4467d2e7dfa8d2c650"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08a07d5e5b31f87c500fc63be6144860" id="r_a08a07d5e5b31f87c500fc63be6144860"><td class="memItemLeft" align="right" valign="top"><a id="a08a07d5e5b31f87c500fc63be6144860" name="a08a07d5e5b31f87c500fc63be6144860"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> () const noexcept</td></tr>
+<tr class="memitem:a08a07d5e5b31f87c500fc63be6144860" id="r_a08a07d5e5b31f87c500fc63be6144860"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#a08a07d5e5b31f87c500fc63be6144860">type</a> () <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">const</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">noexcept</a></td></tr>
+<tr class="memdesc:a08a07d5e5b31f87c500fc63be6144860"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get node type from tag bits.  <br /></td></tr>
 <tr class="separator:a08a07d5e5b31f87c500fc63be6144860"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad84602cfdb8eb02367a61443a6a53630" id="r_ad84602cfdb8eb02367a61443a6a53630"><td class="memItemLeft" align="right" valign="top"><a id="ad84602cfdb8eb02367a61443a6a53630" name="ad84602cfdb8eb02367a61443a6a53630"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>raw_val</b> () const noexcept</td></tr>
+<tr class="memitem:ad84602cfdb8eb02367a61443a6a53630" id="r_ad84602cfdb8eb02367a61443a6a53630"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad84602cfdb8eb02367a61443a6a53630">raw_val</a> () <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">const</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">noexcept</a></td></tr>
+<tr class="memdesc:ad84602cfdb8eb02367a61443a6a53630"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get raw tagged pointer value.  <br /></td></tr>
 <tr class="separator:ad84602cfdb8eb02367a61443a6a53630"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2cfa7af4f6dd3cf89cd000edabd53c7" id="r_ad2cfa7af4f6dd3cf89cd000edabd53c7"><td class="memTemplParams" colspan="2"><a id="ad2cfa7af4f6dd3cf89cd000edabd53c7" name="ad2cfa7af4f6dd3cf89cd000edabd53c7"></a>
-template&lt;class T &gt; </td></tr>
-<tr class="memitem:ad2cfa7af4f6dd3cf89cd000edabd53c7"><td class="memTemplItemLeft" align="right" valign="top">auto *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ptr</b> () const noexcept</td></tr>
+<tr class="memitem:ad2cfa7af4f6dd3cf89cd000edabd53c7" id="r_ad2cfa7af4f6dd3cf89cd000edabd53c7"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:ad2cfa7af4f6dd3cf89cd000edabd53c7"><td class="memTemplItemLeft" align="right" valign="top">auto *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">ptr</a> () const noexcept</td></tr>
+<tr class="memdesc:ad2cfa7af4f6dd3cf89cd000edabd53c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get typed pointer with tag bits masked off.  <br /></td></tr>
 <tr class="separator:ad2cfa7af4f6dd3cf89cd000edabd53c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a300b80280e629b731e38e5d1a3b8fcf8" id="r_a300b80280e629b731e38e5d1a3b8fcf8"><td class="memItemLeft" align="right" valign="top"><a id="a300b80280e629b731e38e5d1a3b8fcf8" name="a300b80280e629b731e38e5d1a3b8fcf8"></a>
-constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a> other) const noexcept</td></tr>
+<tr class="memitem:a300b80280e629b731e38e5d1a3b8fcf8" id="r_a300b80280e629b731e38e5d1a3b8fcf8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#a300b80280e629b731e38e5d1a3b8fcf8">operator==</a> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">other</a>) <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">const</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">noexcept</a></td></tr>
+<tr class="memdesc:a300b80280e629b731e38e5d1a3b8fcf8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare for equality (same raw value means same type and pointer).  <br /></td></tr>
 <tr class="separator:a300b80280e629b731e38e5d1a3b8fcf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6f8d6e616791979c2f91ab81be435e50" id="r_a6f8d6e616791979c2f91ab81be435e50"><td class="memItemLeft" align="right" valign="top"><a id="a6f8d6e616791979c2f91ab81be435e50" name="a6f8d6e616791979c2f91ab81be435e50"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (std::nullptr_t) const noexcept</td></tr>
+<tr class="memitem:a6f8d6e616791979c2f91ab81be435e50" id="r_a6f8d6e616791979c2f91ab81be435e50"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#a6f8d6e616791979c2f91ab81be435e50">operator==</a> (std::nullptr_t) <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">const</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">noexcept</a></td></tr>
+<tr class="memdesc:a6f8d6e616791979c2f91ab81be435e50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare with nullptr.  <br /></td></tr>
 <tr class="separator:a6f8d6e616791979c2f91ab81be435e50"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
-<tr class="memitem:a24db0018c63295bd96a1f6694e7e6104" id="r_a24db0018c63295bd96a1f6694e7e6104"><td class="memItemLeft" align="right" valign="top"><a id="a24db0018c63295bd96a1f6694e7e6104" name="a24db0018c63295bd96a1f6694e7e6104"></a>
-static std::uintptr_t&#160;</td><td class="memItemRight" valign="bottom"><b>tag_ptr</b> (const Header *ptr_, <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">unodb::node_type</a> tag) noexcept</td></tr>
+<tr class="memitem:a24db0018c63295bd96a1f6694e7e6104" id="r_a24db0018c63295bd96a1f6694e7e6104"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">static</a> std::uintptr_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#a24db0018c63295bd96a1f6694e7e6104">tag_ptr</a> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">const</a> Header *<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">ptr_</a>, <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">unodb::node_type</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">tag</a>) <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">noexcept</a></td></tr>
+<tr class="memdesc:a24db0018c63295bd96a1f6694e7e6104"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create tagged pointer from raw pointer <em>ptr_</em> and node type <em>tag</em>.  <br /></td></tr>
 <tr class="separator:a24db0018c63295bd96a1f6694e7e6104"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c302d14b127aa6ad3e8d308d6280cc3" id="r_a2c302d14b127aa6ad3e8d308d6280cc3"><td class="memItemLeft" align="right" valign="top"><a id="a2c302d14b127aa6ad3e8d308d6280cc3" name="a2c302d14b127aa6ad3e8d308d6280cc3"></a>
-static constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>mask_bits_needed</b> (unsigned count) noexcept</td></tr>
+<tr class="memitem:a2c302d14b127aa6ad3e8d308d6280cc3" id="r_a2c302d14b127aa6ad3e8d308d6280cc3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">static</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">unsigned</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#a2c302d14b127aa6ad3e8d308d6280cc3">mask_bits_needed</a> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">unsigned</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">count</a>) <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">noexcept</a></td></tr>
+<tr class="memdesc:a2c302d14b127aa6ad3e8d308d6280cc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate bits needed to represent <em>count</em> values.  <br /></td></tr>
 <tr class="separator:a2c302d14b127aa6ad3e8d308d6280cc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6dc70e3915473e37377008c0a5b0e2b" id="r_ac6dc70e3915473e37377008c0a5b0e2b"><td class="memItemLeft" align="right" valign="top"><a id="ac6dc70e3915473e37377008c0a5b0e2b" name="ac6dc70e3915473e37377008c0a5b0e2b"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>static_asserts</b> ()</td></tr>
+<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">static</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>static_asserts</b> ()</td></tr>
+<tr class="memdesc:ac6dc70e3915473e37377008c0a5b0e2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile-time assertions for type invariants. <br /></td></tr>
 <tr class="separator:ac6dc70e3915473e37377008c0a5b0e2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:af901e36ea6cdd43da01546cc890270e4" id="r_af901e36ea6cdd43da01546cc890270e4"><td class="memItemLeft" align="right" valign="top"><a id="af901e36ea6cdd43da01546cc890270e4" name="af901e36ea6cdd43da01546cc890270e4"></a>
 std::uintptr_t&#160;</td><td class="memItemRight" valign="bottom"><b>tagged_ptr</b></td></tr>
+<tr class="memdesc:af901e36ea6cdd43da01546cc890270e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tagged pointer value with node type in low bits. <br /></td></tr>
 <tr class="separator:af901e36ea6cdd43da01546cc890270e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
 Static Private Attributes</h2></td></tr>
-<tr class="memitem:abbdb97298a0f07ae140cb2df9f832583" id="r_abbdb97298a0f07ae140cb2df9f832583"><td class="memItemLeft" align="right" valign="top">static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#abbdb97298a0f07ae140cb2df9f832583">lowest_non_tag_bit</a></td></tr>
+<tr class="memitem:abbdb97298a0f07ae140cb2df9f832583" id="r_abbdb97298a0f07ae140cb2df9f832583"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">static</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#abbdb97298a0f07ae140cb2df9f832583">lowest_non_tag_bit</a></td></tr>
+<tr class="memdesc:abbdb97298a0f07ae140cb2df9f832583"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lowest bit not used for tag.  <br /></td></tr>
 <tr class="separator:abbdb97298a0f07ae140cb2df9f832583"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa18f73ec20fc9c6b99a583a6041cbb89" id="r_aa18f73ec20fc9c6b99a583a6041cbb89"><td class="memItemLeft" align="right" valign="top"><a id="aa18f73ec20fc9c6b99a583a6041cbb89" name="aa18f73ec20fc9c6b99a583a6041cbb89"></a>
-static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>tag_bit_mask</b> = lowest_non_tag_bit - 1</td></tr>
+<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">static</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>tag_bit_mask</b> = <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#abbdb97298a0f07ae140cb2df9f832583">lowest_non_tag_bit</a> - 1</td></tr>
+<tr class="memdesc:aa18f73ec20fc9c6b99a583a6041cbb89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mask for tag bits. <br /></td></tr>
 <tr class="separator:aa18f73ec20fc9c6b99a583a6041cbb89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a248456d1383176aa0ef95e19216f3c34" id="r_a248456d1383176aa0ef95e19216f3c34"><td class="memItemLeft" align="right" valign="top"><a id="a248456d1383176aa0ef95e19216f3c34" name="a248456d1383176aa0ef95e19216f3c34"></a>
-static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>ptr_bit_mask</b> = ~tag_bit_mask</td></tr>
+<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">static</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ptr_bit_mask</b> = ~<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#aa18f73ec20fc9c6b99a583a6041cbb89">tag_bit_mask</a></td></tr>
+<tr class="memdesc:a248456d1383176aa0ef95e19216f3c34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mask for pointer bits. <br /></td></tr>
 <tr class="separator:a248456d1383176aa0ef95e19216f3c34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><div class="compoundTemplParams">template&lt;class Header&gt;<br />
-class unodb::detail::basic_node_ptr&lt; Header &gt;</div><p><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html" title="basic_node_ptr is a tagged pointer (the tag is the node type).">basic_node_ptr</a> is a tagged pointer (the tag is the node type). </p>
-<p>You have to know statically the target type, then call node_ptr_var.ptr&lt;target_type *&gt;.ptr() to get target_type. </p>
-</div><h2 class="groupheader">Member Data Documentation</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">class</a> Header&gt;<br />
+class unodb::detail::basic_node_ptr&lt; Header &gt;</div><p>Tagged pointer with node type stored in low bits. </p>
+<p>You have to know statically the target type, then call <code>node_ptr_var.ptr&lt;target_type*&gt;()</code> to get <code>target_type*</code>.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Header</td><td>Node header type </td></tr>
+  </table>
+  </dd>
+</dl>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a2e34c8695c6d85b6432a84fa70327ee7" name="a2e34c8695c6d85b6432a84fa70327ee7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e34c8695c6d85b6432a84fa70327ee7">&#9670;&#160;</a></span>basic_node_ptr() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">class</a> Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;::basic_node_ptr </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">default</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Default constructor, does not initialize fields. </p>
+<p>Used by <code>std::array</code> and we don't want to initialize to zero or any other value there at construction time. </p>
+
+</div>
+</div>
+<a id="acefc94edd4cb286796d99fd39015957f" name="acefc94edd4cb286796d99fd39015957f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acefc94edd4cb286796d99fd39015957f">&#9670;&#160;</a></span>basic_node_ptr() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">class</a> Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;::basic_node_ptr </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">const</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad172bc7ee6fb6b1fb4952ddddf27ec53">header_type</a> *&#160;</td>
+          <td class="paramname"><em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">unodb::node_type</a>&#160;</td>
+          <td class="paramname"><em>type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct from raw pointer and node type. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ptr</td><td>Pointer to node </td></tr>
+    <tr><td class="paramname">type</td><td>Node type tag </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a2c302d14b127aa6ad3e8d308d6280cc3" name="a2c302d14b127aa6ad3e8d308d6280cc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c302d14b127aa6ad3e8d308d6280cc3">&#9670;&#160;</a></span>mask_bits_needed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">class</a> Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">static</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">unsigned</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;::mask_bits_needed </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">unsigned</a>&#160;</td>
+          <td class="paramname"><em>count</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Calculate bits needed to represent <em>count</em> values. </p>
+<dl class="section return"><dt>Returns</dt><dd>Number of bits needed </dd></dl>
+
+</div>
+</div>
+<a id="a60b9cfe22dcf1c4467d2e7dfa8d2c650" name="a60b9cfe22dcf1c4467d2e7dfa8d2c650"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60b9cfe22dcf1c4467d2e7dfa8d2c650">&#9670;&#160;</a></span>operator=()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">class</a> Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>&lt; Header &gt; &amp; <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">::operator</a>= </td>
+          <td>(</td>
+          <td class="paramtype">std::nullptr_t&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Assign null pointer. </p>
+<dl class="section return"><dt>Returns</dt><dd>Reference to this </dd></dl>
+
+</div>
+</div>
+<a id="a300b80280e629b731e38e5d1a3b8fcf8" name="a300b80280e629b731e38e5d1a3b8fcf8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a300b80280e629b731e38e5d1a3b8fcf8">&#9670;&#160;</a></span>operator==() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">class</a> Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">bool</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">::operator</a>== </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>&lt; Header &gt;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compare for equality (same raw value means same type and pointer). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">other</td><td>Pointer to compare against </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if equal </dd></dl>
+
+</div>
+</div>
+<a id="a6f8d6e616791979c2f91ab81be435e50" name="a6f8d6e616791979c2f91ab81be435e50"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f8d6e616791979c2f91ab81be435e50">&#9670;&#160;</a></span>operator==() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">class</a> Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">bool</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">::operator</a>== </td>
+          <td>(</td>
+          <td class="paramtype">std::nullptr_t&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compare with nullptr. </p>
+<dl class="section return"><dt>Returns</dt><dd>True if this is a null pointer </dd></dl>
+
+</div>
+</div>
+<a id="ad2cfa7af4f6dd3cf89cd000edabd53c7" name="ad2cfa7af4f6dd3cf89cd000edabd53c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2cfa7af4f6dd3cf89cd000edabd53c7">&#9670;&#160;</a></span>ptr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Header &gt; </div>
+<div class="memtemplate">
+template&lt;class T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto * <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;::ptr </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get typed pointer with tag bits masked off. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>Target pointer type </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Pointer to node as type T </dd></dl>
+
+</div>
+</div>
+<a id="ad84602cfdb8eb02367a61443a6a53630" name="ad84602cfdb8eb02367a61443a6a53630"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad84602cfdb8eb02367a61443a6a53630">&#9670;&#160;</a></span>raw_val()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">class</a> Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">auto</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;::raw_val </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get raw tagged pointer value. </p>
+<dl class="section return"><dt>Returns</dt><dd>Raw value including tag bits </dd></dl>
+
+</div>
+</div>
+<a id="a24db0018c63295bd96a1f6694e7e6104" name="a24db0018c63295bd96a1f6694e7e6104"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24db0018c63295bd96a1f6694e7e6104">&#9670;&#160;</a></span>tag_ptr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">class</a> Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">static</a> std::uintptr_t <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;::tag_ptr </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">const</a> Header *&#160;</td>
+          <td class="paramname"><em>ptr_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">unodb::node_type</a>&#160;</td>
+          <td class="paramname"><em>tag</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create tagged pointer from raw pointer <em>ptr_</em> and node type <em>tag</em>. </p>
+<dl class="section return"><dt>Returns</dt><dd>Tagged pointer value </dd></dl>
+
+</div>
+</div>
+<a id="a08a07d5e5b31f87c500fc63be6144860" name="a08a07d5e5b31f87c500fc63be6144860"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08a07d5e5b31f87c500fc63be6144860">&#9670;&#160;</a></span>type()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">class</a> Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">auto</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;::type </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get node type from tag bits. </p>
+<dl class="section return"><dt>Returns</dt><dd>Node type </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
 <a id="abbdb97298a0f07ae140cb2df9f832583" name="abbdb97298a0f07ae140cb2df9f832583"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abbdb97298a0f07ae140cb2df9f832583">&#9670;&#160;</a></span>lowest_non_tag_bit</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class Header &gt; </div>
+template&lt;<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">class</a> Header &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr auto <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;::lowest_non_tag_bit</td>
+          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7">auto</a> <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">unodb::detail::basic_node_ptr</a>&lt; Header &gt;::lowest_non_tag_bit</td>
         </tr>
       </table>
   </td>
@@ -202,9 +566,12 @@ template&lt;class Header &gt; </div>
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
-<div class="line">      1ULL &lt;&lt; mask_bits_needed(<a class="code hl_variable" href="namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc">node_type_count</a>)</div>
+<div class="line">      1ULL &lt;&lt; <a class="code hl_function" href="classunodb_1_1detail_1_1basic__node__ptr.html#a2c302d14b127aa6ad3e8d308d6280cc3">mask_bits_needed</a>(<a class="code hl_variable" href="namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc">node_type_count</a>)</div>
+<div class="ttc" id="aclassunodb_1_1detail_1_1basic__node__ptr_html_a2c302d14b127aa6ad3e8d308d6280cc3"><div class="ttname"><a href="classunodb_1_1detail_1_1basic__node__ptr.html#a2c302d14b127aa6ad3e8d308d6280cc3">unodb::detail::basic_node_ptr::mask_bits_needed</a></div><div class="ttdeci">static constexpr unsigned mask_bits_needed(unsigned count) noexcept</div><div class="ttdoc">Calculate bits needed to represent count values.</div><div class="ttdef"><b>Definition</b> art_internal.hpp:508</div></div>
 <div class="ttc" id="anamespaceunodb_1_1detail_html_ad81082c8f2c103492eb9f6917f0483bc"><div class="ttname"><a href="namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc">unodb::detail::node_type_count</a></div><div class="ttdeci">constexpr std::size_t node_type_count</div><div class="ttdoc">Number of different node types.</div><div class="ttdef"><b>Definition</b> node_type.hpp:42</div></div>
 </div><!-- fragment -->
+<p>Lowest bit not used for tag. </p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>

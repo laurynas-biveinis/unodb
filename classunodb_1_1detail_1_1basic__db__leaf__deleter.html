@@ -104,31 +104,81 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1basic__db__lea
   <div class="headertitle"><div class="title">unodb::detail::basic_db_leaf_deleter&lt; Db &gt; Class Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Functor to delete leaf nodes through database.  
+ <a href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a6f33ce4114f2fa50cf1e487f53f80e4a" id="r_a6f33ce4114f2fa50cf1e487f53f80e4a"><td class="memItemLeft" align="right" valign="top"><a id="a6f33ce4114f2fa50cf1e487f53f80e4a" name="a6f33ce4114f2fa50cf1e487f53f80e4a"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_type</b> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; typename Db::key_type, typename Db::header_type &gt;</td></tr>
+<tr class="memdesc:a6f33ce4114f2fa50cf1e487f53f80e4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf type managed by this deleter. <br /></td></tr>
 <tr class="separator:a6f33ce4114f2fa50cf1e487f53f80e4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a4db3947a19d34502d36034a36ea85936" id="r_a4db3947a19d34502d36034a36ea85936"><td class="memItemLeft" align="right" valign="top"><a id="a4db3947a19d34502d36034a36ea85936" name="a4db3947a19d34502d36034a36ea85936"></a>
 constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_db_leaf_deleter</b> (Db &amp;db_) noexcept</td></tr>
+<tr class="memdesc:a4db3947a19d34502d36034a36ea85936"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct leaf deleter for database <em>db_</em>. <br /></td></tr>
 <tr class="separator:a4db3947a19d34502d36034a36ea85936"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af360e98c1f9c8ca5f2417f044d8bcdb4" id="r_af360e98c1f9c8ca5f2417f044d8bcdb4"><td class="memItemLeft" align="right" valign="top"><a id="af360e98c1f9c8ca5f2417f044d8bcdb4" name="af360e98c1f9c8ca5f2417f044d8bcdb4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a> *to_delete) const noexcept</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (<a class="el" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html#a6f33ce4114f2fa50cf1e487f53f80e4a">leaf_type</a> *to_delete) const noexcept</td></tr>
+<tr class="memdesc:af360e98c1f9c8ca5f2417f044d8bcdb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delete a leaf node <em>to_delete</em> through the database. <br /></td></tr>
 <tr class="separator:af360e98c1f9c8ca5f2417f044d8bcdb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6b2e540dfe31bc471a98cf229788edb" id="r_ac6b2e540dfe31bc471a98cf229788edb"><td class="memItemLeft" align="right" valign="top"><a id="ac6b2e540dfe31bc471a98cf229788edb" name="ac6b2e540dfe31bc471a98cf229788edb"></a>
-Db &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_db</b> () const noexcept</td></tr>
+<tr class="memitem:ac6b2e540dfe31bc471a98cf229788edb" id="r_ac6b2e540dfe31bc471a98cf229788edb"><td class="memItemLeft" align="right" valign="top">Db &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html#ac6b2e540dfe31bc471a98cf229788edb">get_db</a> () const noexcept</td></tr>
+<tr class="memdesc:ac6b2e540dfe31bc471a98cf229788edb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get reference to owning database.  <br /></td></tr>
 <tr class="separator:ac6b2e540dfe31bc471a98cf229788edb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:ac43af13f812bfc204d9c5f132ea17a71" id="r_ac43af13f812bfc204d9c5f132ea17a71"><td class="memItemLeft" align="right" valign="top"><a id="ac43af13f812bfc204d9c5f132ea17a71" name="ac43af13f812bfc204d9c5f132ea17a71"></a>
 Db &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>db</b></td></tr>
+<tr class="memdesc:ac43af13f812bfc204d9c5f132ea17a71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reference to owning database. <br /></td></tr>
 <tr class="separator:ac43af13f812bfc204d9c5f132ea17a71"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;class Db&gt;<br />
+class unodb::detail::basic_db_leaf_deleter&lt; Db &gt;</div><p>Functor to delete leaf nodes through database. </p>
+<p>Custom deleter for use with <code>std::unique_ptr</code> that deletes leaf nodes by notifying the owning database.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Db</td><td>Database type </td></tr>
+  </table>
+  </dd>
+</dl>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="ac6b2e540dfe31bc471a98cf229788edb" name="ac6b2e540dfe31bc471a98cf229788edb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6b2e540dfe31bc471a98cf229788edb">&#9670;&#160;</a></span>get_db()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Db &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Db &amp; <a class="el" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html">unodb::detail::basic_db_leaf_deleter</a>&lt; Db &gt;::get_db </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get reference to owning database. </p>
+<dl class="section return"><dt>Returns</dt><dd>Reference to database </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a></li>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['type_0',['type',['../structunodb_1_1qsbr__state.html#a9ded9024be69a382b3a9fc65892ea7cc',1,'unodb::qsbr_state']]]
+  ['qsbr_5fthread_5fcount_5ftype_0',['qsbr_thread_count_type',['../namespaceunodb.html#ada0b4ac1dc20e0b46e360f0743ee24d4',1,'unodb']]]
 ];

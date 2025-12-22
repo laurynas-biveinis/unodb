@@ -1,7 +1,7 @@
 var searchData=
 [
   ['cannot_5fhappen_0',['cannot_happen',['../namespaceunodb_1_1detail.html#a84376061f77319109e51399dd10a3135',1,'unodb::detail']]],
-  ['cap_1',['cap',['../classunodb_1_1key__encoder.html#ae1478bff6b7044ef89d7fde75061011d',1,'unodb::key_encoder::cap'],['../classunodb_1_1key__decoder.html#a3945bba5bf4a21d6de3dab6004201026',1,'unodb::key_decoder::cap']]],
+  ['cap_1',['cap',['../classunodb_1_1key__encoder.html#ae1478bff6b7044ef89d7fde75061011d',1,'unodb::key_encoder::cap'],['../classunodb_1_1key__decoder.html#a3945bba5bf4a21d6de3dab6004201026',1,'unodb::key_decoder::cap'],['../classunodb_1_1detail_1_1key__buffer.html#a7ac0dfb045cfa4a5f6dbdbb2fe03779a',1,'unodb::detail::key_buffer::cap']]],
   ['capacity_2',['capacity',['../classunodb_1_1detail_1_1key__buffer.html#a1652c70c574fe53b60f5971d30095b7a',1,'unodb::detail::key_buffer::capacity()'],['../classunodb_1_1key__encoder.html#a8aa36f66f0d72ece8b4064825e946f61',1,'unodb::key_encoder::capacity()']]],
   ['cas_5facquire_3',['cas_acquire',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#a94a722b0d55d428125b52b38eeb63c9a',1,'unodb::optimistic_lock::atomic_version_type']]],
   ['change_5fepoch_4',['change_epoch',['../classunodb_1_1qsbr.html#aa9c595adf1664990c903a7a98a985829',1,'unodb::qsbr']]],

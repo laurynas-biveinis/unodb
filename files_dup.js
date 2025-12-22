@@ -5,7 +5,7 @@ var files_dup =
     [ "test", "dir_13e138d54eb8818da29c3992edef070a.html", "dir_13e138d54eb8818da29c3992edef070a" ],
     [ "art.hpp", "art_8hpp_source.html", null ],
     [ "art_common.hpp", "art__common_8hpp.html", "art__common_8hpp" ],
-    [ "art_internal.hpp", "art__internal_8hpp_source.html", null ],
+    [ "art_internal.hpp", "art__internal_8hpp.html", "art__internal_8hpp" ],
     [ "art_internal_impl.hpp", "art__internal__impl_8hpp_source.html", null ],
     [ "assert.hpp", "assert_8hpp.html", "assert_8hpp" ],
     [ "duckdb_encode_decode.hpp", "duckdb__encode__decode_8hpp.html", "duckdb__encode__decode_8hpp" ],

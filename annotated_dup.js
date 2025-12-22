@@ -44,8 +44,8 @@ var annotated_dup =
       [ "detail", "namespaceunodb_1_1detail.html", [
         [ "basic_art_key", "structunodb_1_1detail_1_1basic__art__key.html", "structunodb_1_1detail_1_1basic__art__key" ],
         [ "basic_art_policy", "structunodb_1_1detail_1_1basic__art__policy.html", "structunodb_1_1detail_1_1basic__art__policy" ],
-        [ "basic_db_inode_deleter", "classunodb_1_1detail_1_1basic__db__inode__deleter.html", null ],
-        [ "basic_db_leaf_deleter", "classunodb_1_1detail_1_1basic__db__leaf__deleter.html", null ],
+        [ "basic_db_inode_deleter", "classunodb_1_1detail_1_1basic__db__inode__deleter.html", "classunodb_1_1detail_1_1basic__db__inode__deleter" ],
+        [ "basic_db_leaf_deleter", "classunodb_1_1detail_1_1basic__db__leaf__deleter.html", "classunodb_1_1detail_1_1basic__db__leaf__deleter" ],
         [ "basic_inode", "classunodb_1_1detail_1_1basic__inode.html", "classunodb_1_1detail_1_1basic__inode" ],
         [ "basic_inode_16", "classunodb_1_1detail_1_1basic__inode__16.html", "classunodb_1_1detail_1_1basic__inode__16" ],
         [ "basic_inode_256", "classunodb_1_1detail_1_1basic__inode__256.html", null ],
@@ -54,13 +54,12 @@ var annotated_dup =
         [ "basic_inode_def", "structunodb_1_1detail_1_1basic__inode__def.html", null ],
         [ "basic_inode_impl", "classunodb_1_1detail_1_1basic__inode__impl.html", "classunodb_1_1detail_1_1basic__inode__impl" ],
         [ "basic_leaf", "classunodb_1_1detail_1_1basic__leaf.html", "classunodb_1_1detail_1_1basic__leaf" ],
-        [ "basic_node_ptr", "classunodb_1_1detail_1_1basic__node__ptr.html", null ],
+        [ "basic_node_ptr", "classunodb_1_1detail_1_1basic__node__ptr.html", "classunodb_1_1detail_1_1basic__node__ptr" ],
         [ "db_inode_qsbr_deleter", "classunodb_1_1detail_1_1db__inode__qsbr__deleter.html", null ],
         [ "db_leaf_qsbr_deleter", "classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html", null ],
         [ "dealloc_vector_list_node", "structunodb_1_1detail_1_1dealloc__vector__list__node.html", "structunodb_1_1detail_1_1dealloc__vector__list__node" ],
         [ "deallocation_request", "classunodb_1_1detail_1_1deallocation__request.html", "classunodb_1_1detail_1_1deallocation__request" ],
         [ "deferred_requests", "classunodb_1_1detail_1_1deferred__requests.html", "classunodb_1_1detail_1_1deferred__requests" ],
-        [ "dependent_false", "structunodb_1_1detail_1_1dependent__false.html", null ],
         [ "fake_inode", "classunodb_1_1detail_1_1fake__inode.html", null ],
         [ "impl_helpers", "structunodb_1_1detail_1_1impl__helpers.html", null ],
         [ "inode", "classunodb_1_1detail_1_1inode.html", null ],
@@ -83,7 +82,7 @@ var annotated_dup =
         [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", "classunodb_1_1detail_1_1qsbr__ptr__base" ],
         [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread" ],
         [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", "classunodb_1_1detail_1_1thread__sync" ],
-        [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", null ]
+        [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", "classunodb_1_1detail_1_1tree__depth" ]
       ] ],
       [ "test", "namespaceunodb_1_1test.html", [
         [ "allocation_failure_injector", "classunodb_1_1test_1_1allocation__failure__injector.html", "classunodb_1_1test_1_1allocation__failure__injector" ],
